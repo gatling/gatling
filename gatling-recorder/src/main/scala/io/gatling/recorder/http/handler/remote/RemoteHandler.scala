@@ -17,13 +17,14 @@ package io.gatling.recorder.http.handler.remote
 
 import java.net.InetSocketAddress
 
-import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
 import io.gatling.recorder.http.handler.user.SslHandlerSetter
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
+
+import com.typesafe.scalalogging.StrictLogging
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler

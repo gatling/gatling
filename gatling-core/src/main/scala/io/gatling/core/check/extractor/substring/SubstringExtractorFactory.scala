@@ -17,8 +17,8 @@ package io.gatling.core.check.extractor.substring
 
 import scala.annotation.tailrec
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.{ CountExtractor, MultipleExtractor, SingleExtractor, CriterionExtractorFactory }
-import io.gatling.core.validation._
 
 object SubstringExtractorFactory extends CriterionExtractorFactory[String, String]("substring") {
 

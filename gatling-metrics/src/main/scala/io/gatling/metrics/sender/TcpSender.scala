@@ -18,8 +18,7 @@ package io.gatling.metrics.sender
 import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
-
-import io.gatling.core.util.Retry
+import io.gatling.commons.util.Retry
 import io.gatling.metrics.message.GraphiteMetrics
 
 import akka.io.{ IO, Tcp }

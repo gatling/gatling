@@ -15,10 +15,10 @@
  */
 package io.gatling.http.action.sync
 
+import io.gatling.commons.stats.OK
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.OK
-import io.gatling.core.util.TimeHelper._
 import io.gatling.http.ahc.AsyncHandler
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.fetch.RegularResourceFetched

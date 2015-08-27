@@ -17,14 +17,13 @@ package io.gatling.http.feeder
 
 import java.io.{ File, InputStream, IOException }
 
-import io.gatling.core.util.{ FileResource, Resource }
+import io.gatling.BaseSpec
+import io.gatling.commons.util.Io._
+import io.gatling.core.util.{ Resource, FileResource }
+import io.gatling.core.feeder.Record
 
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-
-import io.gatling.BaseSpec
-import io.gatling.core.feeder.Record
-import io.gatling.core.util.Io._
 
 class SitemapParserSpec extends BaseSpec {
 

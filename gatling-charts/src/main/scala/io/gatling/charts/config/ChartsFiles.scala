@@ -17,10 +17,10 @@ package io.gatling.charts.config
 
 import java.nio.file.Path
 
+import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.charts.FileNamingConventions
-import io.gatling.core.util.PathHelper._
 
 private[charts] object ChartsFiles {
   val JQueryFile = "jquery.min.js"

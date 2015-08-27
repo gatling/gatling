@@ -19,11 +19,11 @@ import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.validation.Failure
 import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.DefaultStatsEngine
 import io.gatling.core.stats.writer.ErrorMessage
-import io.gatling.core.validation._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }

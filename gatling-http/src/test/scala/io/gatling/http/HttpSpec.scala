@@ -25,6 +25,7 @@ import scala.concurrent.duration._
 import scala.util.Try
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.Io._
 import io.gatling.core.CoreComponents
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.config.GatlingConfiguration
@@ -33,7 +34,6 @@ import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
-import io.gatling.core.util.Io
 import io.gatling.http.protocol.HttpProtocolBuilder
 
 import akka.actor.ActorRef
@@ -48,7 +48,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[DefaultHttpRequest, ChannelProcessor]
 
-  val mockHttpPort = Try(Io.withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
+  val mockHttpPort = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
 
   def httpProtocol(implicit configuration: GatlingConfiguration) =
     HttpProtocolBuilder(configuration).baseURL(s"http://localhost:$mockHttpPort")

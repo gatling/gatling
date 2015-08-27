@@ -31,9 +31,6 @@ case class PercentVsTimePlot(time: Int, value: Double) {
   def roundedUpValue: Double = (value * 100).toInt / 100.0
 }
 case class PieSlice(name: String, value: Double)
-case class ErrorStats(message: String, count: Int, totalCount: Int) {
-  def percentage = count * 100.0 / totalCount
-}
 case class PercentilesVsTimePlot(time: Int, percentiles: Option[Percentiles])
 case class Percentiles(
   percentile0:   Int,

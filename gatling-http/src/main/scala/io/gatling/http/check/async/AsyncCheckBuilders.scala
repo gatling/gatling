@@ -15,9 +15,10 @@
  */
 package io.gatling.http.check.async
 
-import io.gatling.core.check.{ Extender, Preparer }
-import io.gatling.core.validation.SuccessWrapper
 import scala.concurrent.duration.FiniteDuration
+
+import io.gatling.commons.validation._
+import io.gatling.core.check.{ Extender, Preparer }
 
 object AsyncCheckBuilders {
 

@@ -15,10 +15,11 @@
  */
 package io.gatling.core.session
 
-import io.gatling.core.stats.message.{ OK, Status }
+import io.gatling.commons.stats.{ OK, Status }
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.validation._
+
 import akka.actor.ActorRef
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success }
 import com.typesafe.scalalogging.LazyLogging
 
 sealed trait Block

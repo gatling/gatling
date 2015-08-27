@@ -20,8 +20,9 @@ import java.lang.System.currentTimeMillis
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.message.{ End, Start, KO, OK }
+import io.gatling.core.stats.message.{ End, Start }
 
 class UserCounters(val userCount: Int) {
 

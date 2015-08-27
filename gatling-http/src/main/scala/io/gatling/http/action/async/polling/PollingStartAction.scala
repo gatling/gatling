@@ -17,18 +17,18 @@ package io.gatling.http.action.async.polling
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ ActorRef, Props }
-
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.validation._
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.request.HttpRequestDef
 
+import akka.actor.{ ActorRef, Props }
+
 object PollingStartAction {
+
   def props(
     pollerName:  String,
     period:      Expression[FiniteDuration],

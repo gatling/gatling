@@ -20,13 +20,13 @@ import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.CharsetEncoder
 import java.nio.channels.FileChannel
 
+import io.gatling.commons.stats.assertion.Assertion
+import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.util.PathHelper._
+import io.gatling.core.config.GatlingFiles.simulationLogDirectory
+
 import boopickle.Default._
 import com.dongxiguo.fastring.Fastring.Implicits._
-
-import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.util.StringHelper._
-import io.gatling.core.util.PathHelper._
 
 import jodd.util.Base64
 

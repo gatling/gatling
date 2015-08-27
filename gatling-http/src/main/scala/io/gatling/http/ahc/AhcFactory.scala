@@ -18,10 +18,10 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ ExecutorService, TimeUnit, ThreadFactory, Executors }
 
+import io.gatling.commons.util.ReflectionHelper._
 import io.gatling.core.{ CoreComponents, ConfigKeys }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.util.ReflectionHelper._
 import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem

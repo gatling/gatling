@@ -18,7 +18,7 @@ package io.gatling.recorder.ui.swing
 import scala.swing.Dialog
 import scala.swing.Swing._
 
-import io.gatling.core.util.PathHelper._
+import io.gatling.commons.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.{ RecorderFrontend, EventInfo }

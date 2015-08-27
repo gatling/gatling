@@ -23,17 +23,16 @@ import java.security.cert.X509Certificate
 import java.util.Date
 import javax.security.auth.x500.X500Principal
 
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-
 import scala.util.Try
 import scala.concurrent.duration._
 
-import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.util.Io.withCloseable
-import io.gatling.core.util.PathHelper._
+import io.gatling.commons.util.Io.withCloseable
+import io.gatling.commons.util.PathHelper._
 
+import com.typesafe.scalalogging.StrictLogging
 import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
 import org.bouncycastle.cert.jcajce.{ JcaX509v1CertificateBuilder, JcaX509CertificateConverter, JcaX509CertificateHolder }
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.{ PEMKeyPair, PEMParser }
 import org.bouncycastle.openssl.jcajce.{ JcaPEMWriter, JcaPEMKeyConverter }
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder

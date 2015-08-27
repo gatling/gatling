@@ -17,8 +17,9 @@ package io.gatling.recorder.scenario.template
 
 import java.net.URL
 
-import io.gatling.core.util.StringHelper._
+import io.gatling.commons.util.StringHelper._
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[scenario] case class Value(name: String, value: String)

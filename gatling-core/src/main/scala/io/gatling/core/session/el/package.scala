@@ -15,9 +15,9 @@
  */
 package io.gatling.core.session
 
-import io.gatling.core.NotNothing
-
 import scala.reflect.ClassTag
+
+import io.gatling.commons.NotNothing
 
 package object el {
 

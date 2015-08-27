@@ -15,8 +15,8 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.Validation
 
 class JsonPathExtractorFactory(implicit val jsonPaths: JsonPaths) extends CriterionExtractorFactory[Any, String]("jsonPath") {
 

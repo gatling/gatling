@@ -17,12 +17,12 @@ package io.gatling.core.body
 
 import java.io.File
 
+import io.gatling.commons.util.Io._
+import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
-import io.gatling.core.util.Io._
 import io.gatling.core.util.Resource
 import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
-import io.gatling.core.validation._
 
 case class FileWithCachedBytes(file: File, cachedBytes: Option[Array[Byte]]) {
   def bytes: Array[Byte] = cachedBytes.getOrElse(file.toByteArray())

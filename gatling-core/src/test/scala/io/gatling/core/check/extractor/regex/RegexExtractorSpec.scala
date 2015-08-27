@@ -15,8 +15,7 @@
  */
 package io.gatling.core.check.extractor.regex
 
-import io.gatling.BaseSpec
-import io.gatling.core.ValidationValues
+import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.core.config.GatlingConfiguration
 
 class RegexExtractorSpec extends BaseSpec with ValidationValues {

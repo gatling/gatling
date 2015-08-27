@@ -15,9 +15,9 @@
  */
 package io.gatling.metrics.sender
 
-import akka.actor.{ ActorRef, FSM }
+import io.gatling.commons.util.Retry
 
-import io.gatling.core.util.Retry
+import akka.actor.{ ActorRef, FSM }
 
 private[sender] trait TcpSenderFSM extends FSM[TcpSenderState, TcpSenderData]
 

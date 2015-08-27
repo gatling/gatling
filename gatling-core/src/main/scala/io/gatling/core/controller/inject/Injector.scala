@@ -17,13 +17,13 @@ package io.gatling.core.controller.inject
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.controller.UserStream
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.Start
 import io.gatling.core.stats.writer.UserMessage
-import io.gatling.core.util.TimeHelper._
 
 import akka.actor.{ Cancellable, ActorSystem }
 import com.typesafe.scalalogging.StrictLogging

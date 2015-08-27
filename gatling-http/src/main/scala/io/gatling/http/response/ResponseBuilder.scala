@@ -22,10 +22,10 @@ import java.security.MessageDigest
 import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
+import io.gatling.commons.util.StringHelper.bytes2Hex
+import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.util.StringHelper.bytes2Hex
-import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck

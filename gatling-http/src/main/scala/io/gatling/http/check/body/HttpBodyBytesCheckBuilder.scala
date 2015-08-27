@@ -15,10 +15,10 @@
  */
 package io.gatling.http.check.body
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
-import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response

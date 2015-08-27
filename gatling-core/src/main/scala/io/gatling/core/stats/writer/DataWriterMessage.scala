@@ -15,10 +15,11 @@
  */
 package io.gatling.core.stats.writer
 
-import io.gatling.core.assertion.Assertion
+import io.gatling.commons.stats.Status
+import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.{ Status, ResponseTimings, MessageEvent }
+import io.gatling.core.stats.message.{ ResponseTimings, MessageEvent }
 
 case class ShortScenarioDescription(name: String, userCount: Int)
 

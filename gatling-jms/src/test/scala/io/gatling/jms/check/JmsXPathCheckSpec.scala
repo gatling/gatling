@@ -17,10 +17,10 @@ package io.gatling.jms.check
 
 import scala.collection.mutable
 
-import io.gatling.BaseSpec
+import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.{ ValidationValues, CoreDsl }
-import io.gatling.core.validation._
+import io.gatling.core.CoreDsl
 import io.gatling.core.session.Session
 import io.gatling.jms.{ MockMessage, JmsCheck }
 

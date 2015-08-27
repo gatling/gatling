@@ -15,10 +15,10 @@
  */
 package io.gatling.charts.template
 
+import io.gatling.commons.stats.assertion.AssertionResult
 import io.gatling.core.stats.writer.RunMessage
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.assertion.AssertionResult
 
 private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult]) {
 

@@ -17,9 +17,9 @@ package io.gatling.http.request.builder
 
 import scala.collection.JavaConversions._
 
+import io.gatling.commons.validation._
 import io.gatling.core.body._
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.ahc.AhcRequestBuilder
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.ContentCacheEntry

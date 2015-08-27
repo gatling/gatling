@@ -15,8 +15,8 @@
  */
 package io.gatling.http.action
 
+import io.gatling.commons.validation._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.validation._
 
 abstract class UnnamedRequestAction(statsEngine: StatsEngine) extends RequestAction(statsEngine) {
   override def requestName = session => "".success

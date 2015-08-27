@@ -15,9 +15,10 @@
  */
 package io.gatling.core.action
 
+import io.gatling.commons.validation.Validation
+
 import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.validation.Validation
 import io.gatling.core.session.Session
 
 /**

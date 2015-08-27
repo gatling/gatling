@@ -15,9 +15,9 @@
  */
 package io.gatling.http.check.async
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.{ Extender, DefaultFindCheckBuilder }
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session._
 import io.gatling.http.check.async.AsyncCheckBuilders._
 

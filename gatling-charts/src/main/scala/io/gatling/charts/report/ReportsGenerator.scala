@@ -20,10 +20,10 @@ import java.nio.file.Path
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
+import io.gatling.commons.stats.RequestStatsPath
+import io.gatling.commons.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
-import io.gatling.core.stats.RequestStatsPath
-import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
 private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
 

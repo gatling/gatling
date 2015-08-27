@@ -15,6 +15,7 @@
  */
 package io.gatling.core.assertion
 
+import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
 class AssertionWithPath(path: Path)(implicit configuration: GatlingConfiguration) {

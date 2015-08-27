@@ -24,13 +24,13 @@ import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
-import io.gatling.core.NotNothing
+import io.gatling.commons.NotNothing
+import io.gatling.commons.util.TypeHelper._
+import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.util.NumberHelper._
+import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
-import io.gatling.core.util.NumberHelper.IntString
-import io.gatling.core.util.StringHelper._
-import io.gatling.core.util.TypeHelper._
-import io.gatling.core.validation._
 
 object ElMessages {
   def undefinedSeqIndex(name: String, index: Int) = s"Seq named '$name' is undefined for index $index".failure

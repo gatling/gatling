@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.http.ssl
 
-import io.gatling.core.util.ClassSimpleNameToString
+import io.gatling.commons.util.ClassSimpleNameToString
 import io.gatling.recorder.util.Labelled
 
 private[recorder] sealed abstract class KeyStoreType(val label: String) extends Labelled with ClassSimpleNameToString

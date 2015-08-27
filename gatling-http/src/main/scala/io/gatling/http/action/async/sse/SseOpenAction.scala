@@ -15,11 +15,11 @@
  */
 package io.gatling.http.action.async.sse
 
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.protocol.HttpComponents

@@ -15,11 +15,12 @@
  */
 package io.gatling.core.action
 
+import io.gatling.AkkaSpec
+import io.gatling.commons.validation._
+import io.gatling.core.session.Session
+
 import akka.actor.ActorRef
 import akka.testkit._
-import io.gatling.AkkaSpec
-import io.gatling.core.session.Session
-import io.gatling.core.validation._
 
 class FailableSpec extends AkkaSpec {
 

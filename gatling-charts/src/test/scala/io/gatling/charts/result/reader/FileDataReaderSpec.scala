@@ -18,7 +18,7 @@ package io.gatling.charts.result.reader
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
-import io.gatling.charts.stats.reader.FileDataReader
+import io.gatling.charts.stats.FileDataReader
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 
@@ -128,7 +128,7 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
     val fileDataReader = new FileDataReader("run_single_node_with_known_stats")
-    fileDataReader.numberOfRequestInResponseTimeRange().map(_._2) shouldBe List(0, 8, 0, 0)
+    fileDataReader.numberOfRequestInResponseTimeRange(None, None).map(_._2) shouldBe List(0, 8, 0, 0)
   }
 
   it should "indicate that 1 request had a response time below 2500ms" in {
@@ -138,7 +138,7 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
-    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
+    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
     nRequestInResponseTimeRange.head shouldBe 1
   }
 
@@ -149,7 +149,7 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
-    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
+    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
     nRequestInResponseTimeRange(1) shouldBe 5
   }
 
@@ -160,7 +160,7 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
-    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
+    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
     nRequestInResponseTimeRange(2) shouldBe 2
   }
 }

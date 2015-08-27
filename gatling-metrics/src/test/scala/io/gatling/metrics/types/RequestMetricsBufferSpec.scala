@@ -18,9 +18,9 @@ package io.gatling.metrics.types
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
+import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.ConfigKeys._
-import io.gatling.core.stats.message.{ KO, OK }
 
 class RequestMetricsBufferSpec extends BaseSpec {
 

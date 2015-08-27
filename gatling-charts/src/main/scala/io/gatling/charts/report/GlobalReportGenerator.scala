@@ -19,9 +19,9 @@ import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
+import io.gatling.commons.stats.{ Group, KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
-import io.gatling.core.stats.message.{ KO, OK, Status }
 
 private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
     extends ReportGenerator {
@@ -45,7 +45,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       }
 
       def responseTimeDistributionChartComponent: Component = {
-        val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
+        val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, None, None)
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
         val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
 

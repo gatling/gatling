@@ -15,9 +15,9 @@
  */
 package io.gatling.core.check.extractor.xpath
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.check._
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.validation.Validation
 import net.sf.saxon.s9api.XdmNode
 import org.w3c.dom.Document
 import org.xml.sax.InputSource

@@ -20,11 +20,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+import io.gatling.commons.stats.Status
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.controller.StatsEngineStopped
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.stats.message.{ ResponseTimings, Status }
+import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer._
-import io.gatling.core.util.TimeHelper._
 
 import akka.actor.{ ActorRef, ActorSystem }
 import akka.pattern.ask

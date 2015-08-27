@@ -15,10 +15,10 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import org.w3c.dom.Document
-
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+
+import org.w3c.dom.Document
 
 class JdkXPathExtractorFactory(implicit val jdkXmlParsers: JdkXmlParsers) extends CriterionExtractorFactory[Option[Document], (String, List[(String, String)])]("xpath") {
 

@@ -19,10 +19,11 @@ import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets._
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.gatling.commons.util.FastByteArrayInputStream
+import io.gatling.commons.util.NonStandardCharsets.UTF_32
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.FastByteArrayInputStream
-import io.gatling.core.util.NonStandardCharsets.UTF_32
+
+import com.fasterxml.jackson.databind.ObjectMapper
 
 object Jackson {
 

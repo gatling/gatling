@@ -22,7 +22,7 @@ import java.util.{ List => JList, Map => JMap }
 
 import scala.collection.JavaConversions._
 
-import io.gatling.core.util.StringHelper.Eol
+import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.http.response.Response
 
 import org.asynchttpclient.netty.request.NettyRequest

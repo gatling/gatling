@@ -17,8 +17,7 @@ package io.gatling.core.session.el
 
 import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
 
-import io.gatling.BaseSpec
-import io.gatling.core.ValidationValues
+import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.Jackson
 import io.gatling.core.session.{ el, Session }

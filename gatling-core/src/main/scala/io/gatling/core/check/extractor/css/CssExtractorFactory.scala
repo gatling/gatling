@@ -15,8 +15,8 @@
  */
 package io.gatling.core.check.extractor.css
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.lagarto.dom.NodeSelector
 
 class CssExtractorFactory(implicit val selectors: CssSelectors) extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {

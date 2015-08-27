@@ -19,8 +19,8 @@ import java.net.InetAddress
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation._
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.{ AhcRequestBuilder, ChannelPoolPartitioning }
 import io.gatling.http.cache.HttpCaches
@@ -171,7 +171,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       if (!protocol.enginePart.shareConnections)
         requestBuilder.setConnectionPoolPartitioning(new ChannelPoolPartitioning(session))
 
-      safe(BuildRequestErrorMapper) {
+      safely(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
           rb <- configureRequestBuilder(session, uri, requestBuilder)

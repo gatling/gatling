@@ -15,10 +15,10 @@
  */
 package io.gatling.http.feeder
 
+import io.gatling.commons.validation._
 import io.gatling.core.feeder.RecordSeqFeederBuilder
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
-import io.gatling.core.validation.{ Failure, Success, Validation }
 
 /**
  * Feeder for [[http://www.sitemaps.org/protocol.html sitemap]] file format.

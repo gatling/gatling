@@ -15,11 +15,11 @@
  */
 package io.gatling.http.action.sync
 
+import io.gatling.commons.validation._
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.validation._
 import io.gatling.http.action.RequestAction
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.request.HttpRequestDef

@@ -17,8 +17,8 @@ package io.gatling.core.check.extractor.xpath
 
 import scala.collection.JavaConversions._
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import net.sf.saxon.s9api.XdmNode
 
 class SaxonXPathExtractorFactory(implicit val saxon: Saxon) extends CriterionExtractorFactory[Option[XdmNode], (String, List[(String, String)])]("xpath") {

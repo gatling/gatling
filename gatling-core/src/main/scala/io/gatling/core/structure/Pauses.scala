@@ -18,15 +18,14 @@ package io.gatling.core.structure
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-import io.gatling.core.pause.PauseType
-
 import scala.concurrent.duration.{ Duration, DurationLong }
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
+import io.gatling.commons.validation._
 import io.gatling.core.action.builder.{ PaceBuilder, PauseBuilder, RendezVousBuilder }
+import io.gatling.core.pause.PauseType
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {
 

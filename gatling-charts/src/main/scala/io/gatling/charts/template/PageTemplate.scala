@@ -17,15 +17,15 @@ package io.gatling.charts.template
 
 import java.nio.charset.Charset
 
-import io.gatling.core.stats.Group
-import io.gatling.core.stats.writer.RunMessage
-
-import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.StringHelper.{ RichString, Eol }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
+import io.gatling.commons.stats.Group
+import io.gatling.commons.util.HtmlHelper._
+import io.gatling.commons.util.StringHelper._
+import io.gatling.core.stats.writer.RunMessage
+
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] object PageTemplate {
 

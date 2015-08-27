@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
 
-import io.gatling.core.util.FastByteArrayInputStream
+import io.gatling.commons.util.FastByteArrayInputStream
 
 import org.jboss.netty.buffer.{ ChannelBuffer, ChannelBufferInputStream, ChannelBuffers }
 

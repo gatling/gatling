@@ -17,12 +17,12 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles.requestFile
-import io.gatling.charts.stats.reader.RequestPath
+import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Colors._
+import io.gatling.commons.stats._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
-import io.gatling.core.stats.message.{ KO, OK, Status }
 
 private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
     extends ReportGenerator {

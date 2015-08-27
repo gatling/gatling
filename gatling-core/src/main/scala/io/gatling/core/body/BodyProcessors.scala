@@ -17,10 +17,9 @@ package io.gatling.core.body
 
 import java.io.FileInputStream
 
+import io.gatling.commons.util.{ GzipHelper, FastByteArrayInputStream }
+import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.FastByteArrayInputStream
-import io.gatling.core.util.GzipHelper
-import io.gatling.core.util.Io._
 
 object BodyProcessors {
 

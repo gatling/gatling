@@ -17,7 +17,7 @@ package io.gatling.metrics.message
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.core.util.StringHelper
+import io.gatling.commons.util.StringHelper
 
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging

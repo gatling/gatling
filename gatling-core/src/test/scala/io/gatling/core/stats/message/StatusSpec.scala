@@ -15,6 +15,8 @@
  */
 package io.gatling.core.stats.message
 
+import io.gatling.commons.stats.{ KO, OK, Status }
+
 import org.scalacheck.Gen.alphaStr
 
 import io.gatling.BaseSpec

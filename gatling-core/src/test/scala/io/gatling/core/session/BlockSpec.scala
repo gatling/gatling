@@ -18,7 +18,7 @@ package io.gatling.core.session
 import akka.actor.ActorRef.noSender
 
 import io.gatling.BaseSpec
-import io.gatling.core.validation._
+import io.gatling.commons.validation._
 
 class BlockSpec extends BaseSpec {
 

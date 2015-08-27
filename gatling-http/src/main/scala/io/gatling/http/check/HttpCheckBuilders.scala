@@ -15,8 +15,8 @@
  */
 package io.gatling.http.check
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.{ Check, Extender, Preparer }
-import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response._
 

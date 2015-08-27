@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
 
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
 
 import akka.actor.ActorRef

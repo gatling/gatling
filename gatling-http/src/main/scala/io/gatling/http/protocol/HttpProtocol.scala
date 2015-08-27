@@ -18,13 +18,13 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 import java.util.regex.Pattern
 
+import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.protocol.{ ProtocolKey, Protocol }
 import io.gatling.core.session._
-import io.gatling.core.util.RoundRobin
-import io.gatling.core.validation._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck

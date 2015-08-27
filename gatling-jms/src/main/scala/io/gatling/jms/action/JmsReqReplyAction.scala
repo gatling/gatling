@@ -21,11 +21,11 @@ import javax.jms.Message
 import scala.util.Try
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.validation._
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.jms.client.JmsClient
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._

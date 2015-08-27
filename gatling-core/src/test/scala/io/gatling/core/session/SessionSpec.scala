@@ -15,11 +15,11 @@
  */
 package io.gatling.core.session
 
-import akka.actor.ActorRef.noSender
-
 import io.gatling.BaseSpec
-import io.gatling.core.stats.message.{ KO, OK }
-import io.gatling.core.validation.{ Success, Failure }
+import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.validation.{ Failure, Success }
+
+import akka.actor.ActorRef.noSender
 
 class SessionSpec extends BaseSpec {
 

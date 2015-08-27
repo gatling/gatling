@@ -17,11 +17,11 @@ package io.gatling.charts.report
 
 import java.nio.file.Path
 
-import com.dongxiguo.fastring.Fastring
+import io.gatling.commons.util.Io._
+import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 
-import io.gatling.core.util.Io._
-import io.gatling.core.util.PathHelper._
+import com.dongxiguo.fastring.Fastring
 
 private[charts] class TemplateWriter(path: Path) {
 

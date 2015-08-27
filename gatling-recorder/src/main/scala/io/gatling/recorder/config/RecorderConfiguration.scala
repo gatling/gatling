@@ -17,23 +17,23 @@ package io.gatling.recorder.config
 
 import java.io.FileNotFoundException
 import java.nio.file.Path
-import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.util.Properties.userHome
 
-import com.typesafe.config.{ ConfigFactory, Config, ConfigRenderOptions }
-import com.typesafe.scalalogging.StrictLogging
-
+import io.gatling.commons.util.ConfigHelper.configChain
+import io.gatling.commons.util.Io._
+import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
-import io.gatling.core.util.ConfigHelper.configChain
-import io.gatling.core.util.Io._
-import io.gatling.core.util.PathHelper._
-import io.gatling.core.util.StringHelper.RichString
+import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
+
+import com.typesafe.config.{ ConfigFactory, Config, ConfigRenderOptions }
+import com.typesafe.scalalogging.StrictLogging
 
 import scala.util.control.NonFatal
 

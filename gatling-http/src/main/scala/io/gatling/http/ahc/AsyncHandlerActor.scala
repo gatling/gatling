@@ -18,14 +18,14 @@ package io.gatling.http.ahc
 import scala.util.control.NonFatal
 import scala.collection.JavaConversions._
 
+import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ KO, OK, Status }
-import io.gatling.core.util.StringHelper.Eol
-import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }

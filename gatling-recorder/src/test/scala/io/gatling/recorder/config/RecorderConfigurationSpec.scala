@@ -19,7 +19,7 @@ import java.io.{ FileNotFoundException, File }
 import java.nio.file.Paths
 
 import io.gatling.BaseSpec
-import io.gatling.core.util.PathHelper._
+import io.gatling.commons.util.PathHelper._
 
 import org.scalatest.BeforeAndAfter
 

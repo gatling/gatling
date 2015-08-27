@@ -15,12 +15,12 @@
  */
 package io.gatling.core.action
 
+import io.gatling.commons.stats.KO
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.KO
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.util.TimeHelper.nowMillis
 
 object ExitHereIfFailed {
   def props(exit: ActorRef, statsEngine: StatsEngine, next: ActorRef) =

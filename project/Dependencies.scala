@@ -49,30 +49,30 @@ object Dependencies {
   private val h2                             = "com.h2database"                         % "h2"                          % "1.4.187"           % "test"
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                  % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
 
+  private val loggingDeps = Seq(slf4jApi, scalalogging, logbackClassic)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
+  private val parserDeps = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
   /****************************/
   /** Dependencies by module **/
   /****************************/
 
-  def coreDependencies(scalaVersion: String) = {
-    def scalaLibs(scalaVersion: String) = Seq(scalaReflect(scalaVersion))
-    val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
-    val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
+  def commonsDependencies(scalaVersion: String) =
+    Seq(scalaReflect(scalaVersion), config, fastring) ++ loggingDeps ++ testDeps
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt, jzlib) ++
-      loggingLibs ++ checksLibs ++ testDeps
-  }
+  val coreDependencies =
+    Seq(akkaActor, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt, jzlib) ++
+      parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
 
   val httpDependencies = Seq(ahc, netty, dnsJava, scalaXml) ++ testDeps
 
-  val jmsDependencies = Seq(jmsApi, lru) ++ testDeps :+ activemqCore
+  val jmsDependencies = Seq(jmsApi, activemqCore) ++ testDeps
 
-  val jdbcDependencies = testDeps :+ h2
+  val jdbcDependencies = h2 +: testDeps
 
-  val chartsDependencies = Seq(tdigest, boopickle) ++ testDeps
+  val chartsDependencies = tdigest +: testDeps
 
   val metricsDependencies = hdrHistogram +: testDeps
 

@@ -15,7 +15,7 @@
  */
 package io.gatling.http.cookie
 
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.util.HttpHelper.isSecure
 
 import org.asynchttpclient.cookie.Cookie

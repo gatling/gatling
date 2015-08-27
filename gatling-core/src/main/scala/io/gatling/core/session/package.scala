@@ -17,7 +17,7 @@ package io.gatling.core
 
 import scala.annotation.tailrec
 
-import io.gatling.core.validation._
+import io.gatling.commons.validation._
 import io.gatling.core.session.el._
 
 package object session {
@@ -40,7 +40,7 @@ package object session {
 
   implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
     def map[U](f: T => U): Expression[U] = expression.andThen(_.map(f))
-    def safe: Expression[T] = session => validation.safe()(expression(session))
+    def safe: Expression[T] = session => safely()(expression(session))
   }
 
   def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {

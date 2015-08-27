@@ -18,6 +18,7 @@ package io.gatling.core
 import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
+import io.gatling.commons.validation._
 import io.gatling.core.assertion.AssertionSupport
 import io.gatling.core.body.BodyProcessors
 import io.gatling.core.check.CheckSupport
@@ -30,7 +31,6 @@ import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 import io.gatling.core.session._
 import io.gatling.core.session.el._
-import io.gatling.core.validation._
 
 trait CoreDsl extends StructureSupport
     with PauseSupport

@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder.ws
 
-import io.gatling.core.validation.Validation
+import io.gatling.commons.validation.Validation
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestExpressionBuilder, CommonAttributes }
 

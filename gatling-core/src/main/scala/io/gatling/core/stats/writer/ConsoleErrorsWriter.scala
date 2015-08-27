@@ -15,9 +15,10 @@
  */
 package io.gatling.core.stats.writer
 
+import io.gatling.commons.stats.ErrorStats
+import io.gatling.commons.util.StringHelper._
+
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.stats.ErrorStats
-import io.gatling.core.util.StringHelper._
 
 /**
  * Object for writing errors statistics to the console.

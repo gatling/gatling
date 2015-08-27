@@ -15,14 +15,13 @@
  */
 package io.gatling.core.check.extractor.xpath
 
+import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.commons.util.Io._
+import io.gatling.core.config.GatlingConfiguration
+
 import net.sf.saxon.s9api.XdmNode
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
-
-import io.gatling.BaseSpec
-import io.gatling.core.ValidationValues
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.Io._
 
 abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
 

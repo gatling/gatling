@@ -15,13 +15,13 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.KO
-
-import akka.actor.{ Props, ActorRef }
+import io.gatling.commons.stats.KO
+import io.gatling.commons.validation._
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.{ TryMaxBlock, Session }
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.stats.StatsEngine
+
+import akka.actor.{ Props, ActorRef }
 
 object TryMax {
   def props(times: Int, counterName: String, statsEngine: StatsEngine, next: ActorRef) =

@@ -17,8 +17,8 @@ object GatlingBuild extends Build {
 
   lazy val root = Project("gatling-parent", file("."))
     .enablePlugins(SonatypeReleasePlugin)
-    .dependsOn(Seq(core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
+    .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+    .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings(bundle): _*)
@@ -32,8 +32,12 @@ object GatlingBuild extends Build {
     .enablePlugins(SonatypeReleasePlugin)
     .settings(gatlingModuleSettings: _*)
 
+  lazy val commons = gatlingModule("gatling-commons")
+    .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
+
   lazy val core = gatlingModule("gatling-core")
-    .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
+    .dependsOn(commons  % "compile->compile;test->test")
+    .settings(libraryDependencies ++= coreDependencies)
     .settings(generateVersionFileSettings: _*)
     .settings(copyGatlingDefaults(compiler): _*)
 

@@ -15,11 +15,11 @@
  */
 package io.gatling.http.check.body
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.validation._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response

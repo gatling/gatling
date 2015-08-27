@@ -15,8 +15,8 @@
  */
 package io.gatling.http.request
 
+import io.gatling.commons.stats.Status
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.Status
 import io.gatling.http.response.Response
 
 import org.asynchttpclient.Request

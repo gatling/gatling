@@ -15,9 +15,9 @@
  */
 package io.gatling.http.check.body
 
+import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath.XPathCheckBuilder
-import io.gatling.core.validation._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
@@ -28,7 +28,7 @@ object HttpBodyXPathCheckBuilder extends XPathCheckBuilder[HttpCheck, Response] 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
   def preparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
-    safe(ErrorMapper) {
+    safely(ErrorMapper) {
       val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
       root.success
     }

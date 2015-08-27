@@ -19,7 +19,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.SuccessWrapper
+import io.gatling.commons.validation.SuccessWrapper
 
 class HttpCaches(implicit val configuration: GatlingConfiguration)
     extends HttpContentCache

@@ -18,9 +18,9 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import io.gatling.commons.util.TimeHelper.nowSeconds
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer._
-import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.message.GraphiteMetrics
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types._

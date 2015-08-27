@@ -21,10 +21,11 @@ import java.util.Date
 import scala.collection.mutable
 import scala.math.{ ceil, floor }
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.commons.stats.ErrorStats
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.ErrorStats
-import io.gatling.core.util.StringHelper._
+
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 object ConsoleSummary {
 
@@ -78,7 +79,7 @@ object ConsoleSummary {
       def writeErrors: Fastring =
         if (errorsCounters.nonEmpty)
           fast"""${writeSubTitle("Errors")}
-${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(ErrorStats(err._1, err._2, globalRequestCounters.failedCount))).mkFastring(Eol)}
+${errorsCounters.toVector.sortBy(-_._2).map { case (message, count) => ConsoleErrorsWriter.writeError(ErrorStats(message, count, globalRequestCounters.failedCount)) }.mkFastring(Eol)}
 """
         else
           EmptyFastring

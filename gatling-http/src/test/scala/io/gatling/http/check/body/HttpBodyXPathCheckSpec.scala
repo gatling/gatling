@@ -22,8 +22,8 @@ import scala.xml.Elem
 
 import org.mockito.Mockito._
 
-import io.gatling.BaseSpec
-import io.gatling.core.{ ValidationValues, CoreDsl }
+import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._

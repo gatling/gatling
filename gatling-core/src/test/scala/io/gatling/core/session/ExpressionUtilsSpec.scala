@@ -15,10 +15,9 @@
  */
 package io.gatling.core.session
 
-import io.gatling.BaseSpec
-import io.gatling.core.ValidationValues
+import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.commons.validation._
 import io.gatling.core.session.el._
-import io.gatling.core.validation.{ NoneSuccess, Success }
 
 class ExpressionUtilsSpec extends BaseSpec with ValidationValues {
 

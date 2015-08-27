@@ -15,11 +15,11 @@
  */
 package io.gatling.charts.component
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.commons.stats.assertion.AssertionResult
+import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.util.HtmlHelper.HtmlRichString
 
-import io.gatling.core.assertion.AssertionResult
-import io.gatling.core.util.StringHelper._
-import io.gatling.core.util.HtmlHelper.HtmlRichString
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
 

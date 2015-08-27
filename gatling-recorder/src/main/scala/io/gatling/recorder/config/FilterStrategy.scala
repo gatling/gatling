@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.config
 
-import io.gatling.core.util.ClassSimpleNameToString
+import io.gatling.commons.util.ClassSimpleNameToString
 import io.gatling.recorder.util.Labelled
 
 sealed abstract class FilterStrategy(val label: String) extends Labelled with ClassSimpleNameToString

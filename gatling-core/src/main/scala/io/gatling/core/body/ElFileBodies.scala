@@ -15,13 +15,13 @@
  */
 package io.gatling.core.body
 
+import io.gatling.commons.util.Io._
+import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el.{ El, ElCompiler }
-import io.gatling.core.util.Io._
 import io.gatling.core.util.Resource
 import io.gatling.core.util.cache._
-import io.gatling.core.validation._
 
 class ElFileBodies(implicit configuration: GatlingConfiguration) {
 

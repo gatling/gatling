@@ -17,8 +17,8 @@ package io.gatling.core.feeder
 
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
+import io.gatling.commons.util.RoundRobin
 import io.gatling.core.structure.ScenarioContext
-import io.gatling.core.util.RoundRobin
 
 sealed trait FeederStrategy {
   def feeder[T](records: IndexedSeq[Record[T]], ctx: ScenarioContext): Feeder[T]

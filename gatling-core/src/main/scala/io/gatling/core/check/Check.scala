@@ -18,9 +18,9 @@ package io.gatling.core.check
 import scala.annotation.tailrec
 import scala.collection.mutable
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success, SuccessWrapper, Validation }
 
 object Check {
 

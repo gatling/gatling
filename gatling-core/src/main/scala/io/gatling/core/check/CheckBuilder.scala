@@ -15,9 +15,9 @@
  */
 package io.gatling.core.check
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
-import io.gatling.core.validation._
 
 trait FindCheckBuilder[C <: Check[R], R, P, X] {
 
@@ -83,7 +83,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       def arity = extractor.arity + ".transform"
 
       def apply(prepared: P): Validation[Option[X2]] =
-        safe(TransformErrorMapper) {
+        safely(TransformErrorMapper) {
           extractor(prepared).map(_.map(transformation))
         }
     }
@@ -100,7 +100,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       def arity = extractor.arity + ".transformOption"
 
       def apply(prepared: P): Validation[Option[X2]] =
-        safe(TransformOptionErrorMapper) {
+        safely(TransformOptionErrorMapper) {
           extractor(prepared).flatMap(transformation)
         }
     }

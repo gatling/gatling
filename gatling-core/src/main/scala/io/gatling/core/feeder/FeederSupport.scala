@@ -15,11 +15,11 @@
  */
 package io.gatling.core.feeder
 
+import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
-import SeparatedValuesParser.{ CommaSeparator, SemicolonSeparator, TabulationSeparator }
+import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.util.Resource
-import io.gatling.core.validation.{ Failure, Success, Validation }
 
 trait FeederSupport {
 

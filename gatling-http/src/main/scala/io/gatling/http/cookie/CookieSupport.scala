@@ -15,8 +15,8 @@
  */
 package io.gatling.http.cookie
 
+import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Expression
 
 import org.asynchttpclient.cookie.Cookie

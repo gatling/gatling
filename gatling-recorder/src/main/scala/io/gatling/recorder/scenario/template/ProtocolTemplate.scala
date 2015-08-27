@@ -15,11 +15,12 @@
  */
 package io.gatling.recorder.scenario.template
 
-import io.gatling.core.util.StringHelper.{ EmptyFastring, Eol }
+import io.gatling.commons.util.StringHelper.{ EmptyFastring, Eol }
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[scenario] object ProtocolTemplate {

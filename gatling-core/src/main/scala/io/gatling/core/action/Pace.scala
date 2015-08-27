@@ -17,11 +17,11 @@ package io.gatling.core.action
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.TimeHelper.nowMillis
 
 object Pace {
   def props(intervalExpr: Expression[Duration], counter: String, statsEngine: StatsEngine, next: ActorRef) =

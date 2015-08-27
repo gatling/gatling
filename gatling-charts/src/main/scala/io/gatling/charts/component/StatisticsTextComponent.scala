@@ -15,19 +15,19 @@
  */
 package io.gatling.charts.component
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
+import io.gatling.commons.stats.GeneralStats
+import io.gatling.commons.util.NumberHelper._
+import io.gatling.commons.util.StringHelper.EmptyFastring
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.reader.DataReader
-import io.gatling.core.util.NumberHelper._
-import io.gatling.core.util.StringHelper.EmptyFastring
+
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] object Statistics {
   def printable[T: Numeric](value: T) =
     value match {
-      case DataReader.NoPlotMagicValue => "-"
-      case (_: Int) | (_: Long)        => value.toString
-      case _                           => implicitly[Numeric[T]].toDouble(value).toPrintableString
+      case GeneralStats.NoPlotMagicValue => "-"
+      case (_: Int) | (_: Long)          => value.toString
+      case _                             => implicitly[Numeric[T]].toDouble(value).toPrintableString
     }
 }
 

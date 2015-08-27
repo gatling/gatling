@@ -15,8 +15,8 @@
  */
 package io.gatling.metrics.types
 
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.message.{ KO, OK, Status }
 
 import org.HdrHistogram.{ IntCountsHistogram, AbstractHistogram }
 

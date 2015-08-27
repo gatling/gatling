@@ -20,11 +20,11 @@ import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
 
 import io.gatling.app.cli.{ StatusCode, ArgsParser }
+import io.gatling.commons.util.{ Ga, StringHelper }
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.Start
 import io.gatling.core.stats.writer.RunMessage
-import io.gatling.core.util.TimeHelper._
-import io.gatling.core.util.{ Ga, StringHelper }
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
@@ -67,8 +67,8 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
   private def runIfNecessary: RunResult =
     configuration.core.directory.reportsOnly match {
       case Some(reportsOnly) => RunResult(reportsOnly, hasAssertions = true)
-      case _ =>
-        Ga.send(configuration)
+      case _ if configuration.http.enableGA =>
+        Ga.send(configuration.core.version)
         // -- Run Gatling -- //
         run(Selection(selectedSimulationClass))
     }

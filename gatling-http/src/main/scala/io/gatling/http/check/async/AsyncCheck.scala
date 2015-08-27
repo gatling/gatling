@@ -18,9 +18,9 @@ package io.gatling.http.check.async
 import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper._
 
 sealed trait Expectation
 case class UntilCount(count: Int) extends Expectation

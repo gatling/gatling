@@ -17,9 +17,9 @@ package io.gatling.http.check
 
 import scala.collection.mutable
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ CheckResult, Check }
 import io.gatling.core.session.Session
-import io.gatling.core.validation.Validation
 import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
 
 /**

@@ -15,6 +15,7 @@
  */
 package io.gatling.core.assertion
 
+import io.gatling.commons.stats.assertion.{ AssertionPath, Details, ForAll, Global }
 import io.gatling.core.config.GatlingConfiguration
 
 trait AssertionSupport {

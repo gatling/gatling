@@ -16,7 +16,8 @@
 package io.gatling.core.stats.writer
 
 import io.gatling.BaseSpec
-import io.gatling.core.stats.message.{ OK, ResponseTimings }
+import io.gatling.commons.stats.OK
+import io.gatling.core.stats.message.ResponseTimings
 
 class ResponseMessageSpec extends BaseSpec {
 

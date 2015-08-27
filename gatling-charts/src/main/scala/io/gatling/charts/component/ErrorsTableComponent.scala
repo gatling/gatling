@@ -15,12 +15,12 @@
  */
 package io.gatling.charts.component
 
-import io.gatling.core.stats.ErrorStats
+import io.gatling.commons.stats.ErrorStats
+import io.gatling.commons.util.StringHelper.EmptyFastring
+import io.gatling.commons.util.HtmlHelper.HtmlRichString
+import io.gatling.commons.util.NumberHelper._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.util.StringHelper.EmptyFastring
-import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.NumberHelper._
 
 private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
 

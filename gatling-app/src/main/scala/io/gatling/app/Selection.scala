@@ -21,9 +21,9 @@ import scala.io.StdIn
 import scala.util.{ Success, Try }
 
 import io.gatling.app.classloader.SimulationClassLoader
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.util.StringHelper._
 
 case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
 

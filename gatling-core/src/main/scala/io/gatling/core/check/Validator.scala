@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check
 
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, NoneSuccess }
+import io.gatling.commons.validation._
 
 object Validator {
   val FoundNothingFailure = "found nothing".failure

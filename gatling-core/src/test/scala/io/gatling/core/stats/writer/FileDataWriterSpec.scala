@@ -16,9 +16,10 @@
 package io.gatling.core.stats.writer
 
 import io.gatling.BaseSpec
+import io.gatling.commons.stats.OK
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.message.{ ResponseTimings, OK }
-import io.gatling.core.util.StringHelper._
+import io.gatling.core.stats.message.ResponseTimings
 
 class FileDataWriterSpec extends BaseSpec {
 

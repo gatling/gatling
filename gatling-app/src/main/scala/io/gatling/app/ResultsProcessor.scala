@@ -15,13 +15,13 @@
  */
 package io.gatling.app
 
-import java.lang.System._
+import java.lang.System.currentTimeMillis
 
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerator, ReportsGenerationInputs }
-import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
+import io.gatling.charts.stats.FileDataReader
+import io.gatling.commons.stats.assertion.{ AssertionValidator, AssertionResult }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.reader.DataReader
 
 trait ResultsProcessor {
 
@@ -49,9 +49,9 @@ class DefaultResultsProcessor(implicit configuration: GatlingConfiguration) exte
     }
   }
 
-  private def initDataReader(runResult: RunResult): Option[DataReader] =
+  private def initDataReader(runResult: RunResult): Option[FileDataReader] =
     if (reportsGenerationEnabled || runResult.hasAssertions)
-      Some(DataReader.newInstance(runResult.runId))
+      Some(new FileDataReader(runResult.runId))
     else
       None
 

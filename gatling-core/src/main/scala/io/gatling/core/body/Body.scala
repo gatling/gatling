@@ -17,11 +17,11 @@ package io.gatling.core.body
 
 import java.io.InputStream
 
+import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el.ElCompiler
-import io.gatling.core.util.StringHelper._
-import io.gatling.core.validation.Validation
 
 object ElFileBody {
   def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies) = CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath))

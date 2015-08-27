@@ -15,8 +15,8 @@
  */
 package io.gatling.core.check.extractor.regex
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 class RegexExtractorFactory(implicit patterns: Patterns) extends CriterionExtractorFactory[CharSequence, String]("regex") {
 

@@ -15,14 +15,15 @@
  */
 package io.gatling.charts.template
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.commons.util.StringHelper._
 import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.Statistics.printable
-import io.gatling.core.stats.reader.DataReader
+import io.gatling.charts.stats.FileDataReader
+import io.gatling.charts.component.{ GroupedCount, RequestStatistics }
 import io.gatling.core.stats.writer.ConsoleErrorsWriter
 import io.gatling.core.stats.writer.ConsoleSummary._
-import io.gatling.core.util.StringHelper._
-import io.gatling.charts.component.{ GroupedCount, RequestStatistics }
+
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] object ConsoleTemplate {
 
@@ -36,7 +37,7 @@ private[charts] object ConsoleTemplate {
     fast"> ${name.rightPad(OutputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
   }
 
-  def writeErrorsAndEndBlock(dataReader: DataReader): Fastring = {
+  def writeErrorsAndEndBlock(dataReader: FileDataReader): Fastring = {
     val errors = dataReader.errors(None, None)
     if (errors.isEmpty)
       fast"$NewBlock"
@@ -46,7 +47,7 @@ ${errors.map(ConsoleErrorsWriter.writeError).mkFastring(Eol)}
 $NewBlock"""
   }
 
-  def apply(dataReader: DataReader, requestStatistics: RequestStatistics): String = {
+  def apply(dataReader: FileDataReader, requestStatistics: RequestStatistics): String = {
     import requestStatistics._
     fast"""
 $NewBlock

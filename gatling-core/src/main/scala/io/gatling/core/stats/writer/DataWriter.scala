@@ -18,8 +18,9 @@ package io.gatling.core.stats.writer
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.TypeHelper.typeMatches
+
 import akka.actor.FSM.NullFunction
-import io.gatling.core.util.TypeHelper.typeMatches
 
 /**
  * Abstract class for all DataWriters

@@ -15,8 +15,9 @@
  */
 package io.gatling.recorder.scenario.template
 
+import io.gatling.commons.util.StringHelper.Eol
+
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.util.StringHelper.Eol
 
 private[scenario] object ValuesTemplate {
   def render(values: Seq[Value]): Fastring =

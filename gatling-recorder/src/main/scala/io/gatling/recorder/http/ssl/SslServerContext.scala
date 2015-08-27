@@ -20,12 +20,12 @@ import java.nio.file.Path
 import java.security.{ Security, KeyStore }
 import javax.net.ssl.{ SSLEngine, X509KeyManager, KeyManagerFactory, SSLContext }
 
-import io.gatling.core.util.Io._
-import io.gatling.core.util.PathHelper._
-import io.gatling.recorder.config.RecorderConfiguration
-
 import scala.collection.concurrent.TrieMap
 import scala.util.{ Failure, Try }
+
+import io.gatling.commons.util.Io._
+import io.gatling.commons.util.PathHelper._
+import io.gatling.recorder.config.RecorderConfiguration
 
 private[http] sealed trait SslServerContext {
 

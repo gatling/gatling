@@ -15,8 +15,8 @@
  */
 package io.gatling.http.check.header
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.response.Response
 
 abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] { val criterionName = "header" }

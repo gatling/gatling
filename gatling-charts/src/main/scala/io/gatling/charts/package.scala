@@ -18,7 +18,7 @@ package io.gatling
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
-import io.gatling.core.util.StringHelper._
+import io.gatling.commons.util.StringHelper._
 
 package object charts {
 

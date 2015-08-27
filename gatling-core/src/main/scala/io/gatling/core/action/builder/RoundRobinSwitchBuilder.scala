@@ -15,11 +15,11 @@
  */
 package io.gatling.core.action.builder
 
+import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.validation.SuccessWrapper
 import io.gatling.core.action.Switch
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
-import io.gatling.core.util.RoundRobin
-import io.gatling.core.validation.SuccessWrapper
 
 import akka.actor.ActorRef
 

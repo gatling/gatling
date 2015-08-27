@@ -15,8 +15,7 @@
  */
 package io.gatling.jms.protocol
 
-import io.gatling.BaseSpec
-import io.gatling.core.ValidationValues
+import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 

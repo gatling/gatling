@@ -19,7 +19,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.BaseSpec
-import io.gatling.core.util.Io.withCloseable
+import io.gatling.commons.util.Io.withCloseable
 import io.gatling.recorder.config.ConfigKeys.http.InferHtmlResources
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ ResponseBodyBytes, PauseElement, RequestElement }

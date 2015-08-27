@@ -18,8 +18,8 @@ package io.gatling.http.feeder
 import java.io.File
 
 import io.gatling.BaseSpec
+import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.util.FileResource
-import io.gatling.core.validation.{ Success, Failure }
 
 class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
 

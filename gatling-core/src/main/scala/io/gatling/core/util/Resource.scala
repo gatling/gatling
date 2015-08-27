@@ -20,10 +20,11 @@ import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Path
 
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import io.gatling.core.util.Io._
-import io.gatling.core.util.PathHelper._
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.commons.util.Io
+import io.gatling.commons.util.Io._
+import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.validation._
+import io.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 
 object Resource {
 

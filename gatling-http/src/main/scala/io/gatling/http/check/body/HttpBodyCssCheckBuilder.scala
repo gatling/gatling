@@ -15,11 +15,11 @@
  */
 package io.gatling.http.check.body
 
+import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.validation._
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.css._
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.StringHelper.RichString
-import io.gatling.core.validation._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
@@ -36,7 +36,7 @@ object HttpBodyCssCheckBuilder {
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 
   def cssPreparer(implicit extractorFactory: CssExtractorFactory): Preparer[Response, NodeSelector] = (response: Response) =>
-    safe(ErrorMapper) {
+    safely(ErrorMapper) {
       extractorFactory.selectors.parse(response.body.string.unsafeChars).success
     }
 

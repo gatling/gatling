@@ -15,9 +15,9 @@
  */
 package io.gatling.http.fetch
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.validation.Validation
 import io.gatling.http.HeaderNames
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http

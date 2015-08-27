@@ -17,8 +17,7 @@ package io.gatling.http.request.builder
 
 import scala.collection.JavaConversions._
 
-import io.gatling.BaseSpec
-import io.gatling.core.ValidationValues
+import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._

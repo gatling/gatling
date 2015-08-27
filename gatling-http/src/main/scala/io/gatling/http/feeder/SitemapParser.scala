@@ -20,8 +20,9 @@ import java.io.InputStream
 import scala.collection.breakOut
 import scala.collection.mutable
 import scala.xml.Node
+
+import io.gatling.commons.util.Io._
 import io.gatling.core.feeder.Record
-import io.gatling.core.util.Io._
 import io.gatling.core.util.Resource
 
 /**

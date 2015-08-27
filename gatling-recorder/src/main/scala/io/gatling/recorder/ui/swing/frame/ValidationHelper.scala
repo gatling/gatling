@@ -22,7 +22,7 @@ import scala.swing._
 import scala.swing.Swing.MatteBorder
 import scala.util.Try
 
-import io.gatling.core.util.StringHelper.RichString
+import io.gatling.commons.util.StringHelper.RichString
 
 private[swing] object ValidationHelper {
 

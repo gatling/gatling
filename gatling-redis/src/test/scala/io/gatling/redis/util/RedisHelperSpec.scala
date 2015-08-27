@@ -16,7 +16,7 @@
 package io.gatling.redis.util
 
 import io.gatling.BaseSpec
-import io.gatling.core.util.StringHelper.Crlf
+import io.gatling.commons.util.StringHelper.Crlf
 import io.gatling.redis.util.RedisHelper.generateRedisProtocol
 
 class RedisHelperSpec extends BaseSpec {

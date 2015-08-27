@@ -20,8 +20,8 @@ import java.text.SimpleDateFormat
 
 import scala.util.Try
 
-import io.gatling.core.util.StringHelper.RichString
-import Json.{ JsonToInt, JsonToString }
+import io.gatling.commons.util.StringHelper.RichString
+import io.gatling.recorder.har.Json.{ JsonToInt, JsonToString }
 
 import org.asynchttpclient.util.Base64
 

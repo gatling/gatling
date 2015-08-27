@@ -18,8 +18,8 @@ package io.gatling.core.json
 import java.io.InputStream
 import java.nio.charset.Charset
 
+import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.validation._
 
 object JsonParsers {
 
@@ -33,13 +33,13 @@ case class JsonParsers(jackson: Jackson, boon: Boon, preferJackson: Boolean) {
   private val BoonErrorMapper: String => String = "Boon failed to parse into a valid AST: " + _
 
   def safeParseJackson(string: String): Validation[Object] =
-    safe(JacksonErrorMapper)(jackson.parse(string).success)
+    safely(JacksonErrorMapper)(jackson.parse(string).success)
 
   def safeParseJackson(is: InputStream, charset: Charset): Validation[Object] =
-    safe(JacksonErrorMapper)(jackson.parse(is, charset).success)
+    safely(JacksonErrorMapper)(jackson.parse(is, charset).success)
 
   def safeParseBoon(string: String): Validation[Object] =
-    safe(BoonErrorMapper)(boon.parse(string).success)
+    safely(BoonErrorMapper)(boon.parse(string).success)
 
   def safeParse(string: String): Validation[Object] =
     if (preferJackson)

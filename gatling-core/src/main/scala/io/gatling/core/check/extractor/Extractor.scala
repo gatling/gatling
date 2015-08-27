@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor
 
-import io.gatling.core.validation.Validation
+import io.gatling.commons.validation.Validation
 
 trait Extractor[P, X] {
   def name: String

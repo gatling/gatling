@@ -15,13 +15,13 @@
  */
 package io.gatling.core.action
 
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper.nowMillis
 
 object Exit {
 

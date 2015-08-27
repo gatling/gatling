@@ -17,11 +17,11 @@ package io.gatling.http.request
 
 import java.nio.charset.Charset
 
+import io.gatling.commons.util.Io._
+import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ FileWithCachedBytes, ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.util.Io._
-import io.gatling.core.validation.Validation
 
 import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 

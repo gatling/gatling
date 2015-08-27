@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor
 
-import io.gatling.core.validation.Validation
+import io.gatling.commons.validation.Validation
 
 abstract class SingleExtractor[P, T, X] {
   def extract(prepared: P, criterion: T, occurrence: Int): Validation[Option[X]]

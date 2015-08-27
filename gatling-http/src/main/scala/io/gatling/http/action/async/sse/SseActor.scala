@@ -17,10 +17,10 @@ package io.gatling.http.action.async.sse
 
 import scala.collection.mutable
 
+import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.validation.Success
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ KO, OK }
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Success
 import io.gatling.http.action.async._
 import io.gatling.http.check.async._
 

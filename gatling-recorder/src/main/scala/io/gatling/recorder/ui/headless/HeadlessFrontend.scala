@@ -18,7 +18,7 @@ package io.gatling.recorder.ui.headless
 import java.io.{ PrintStream, File }
 import java.lang.management.ManagementFactory
 
-import io.gatling.core.util.Io._
+import io.gatling.commons.util.Io._
 import io.gatling.recorder.config.RecorderMode.Proxy
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController

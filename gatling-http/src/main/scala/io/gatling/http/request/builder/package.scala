@@ -20,8 +20,8 @@ import java.util.{ ArrayList => JArrayList, Collections => JCollections, List =>
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
+import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation._
 
 import org.asynchttpclient.Param
 

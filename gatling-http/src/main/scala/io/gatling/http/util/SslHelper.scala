@@ -19,7 +19,7 @@ import java.io.{ FileNotFoundException, InputStream, File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
 import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, TrustManagerFactory }
 
-import io.gatling.core.util.Io._
+import io.gatling.commons.util.Io._
 
 import org.asynchttpclient.AsyncHttpClientConfig
 

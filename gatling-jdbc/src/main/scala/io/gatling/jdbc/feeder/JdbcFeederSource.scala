@@ -20,8 +20,8 @@ import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
 import scala.annotation.tailrec
 import scala.collection.breakOut
 
+import io.gatling.commons.util.Io._
 import io.gatling.core.feeder.Record
-import io.gatling.core.util.Io.withCloseable
 
 object JdbcFeederSource {
 

@@ -20,17 +20,16 @@ import java.io.{ File, IOException }
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
-import com.typesafe.scalalogging.StrictLogging
-
-import io.gatling.core.util.Io._
-import io.gatling.core.util.PathHelper._
-import io.gatling.core.validation._
+import io.gatling.commons.util.Io._
+import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.validation._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.scenario.template.SimulationTemplate
+
+import com.dongxiguo.fastring.Fastring.Implicits._
+import com.typesafe.scalalogging.StrictLogging
 
 private[recorder] object ScenarioExporter extends StrictLogging {
 
@@ -53,7 +52,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     f"${config.core.className}_${request.id.filled(4, '0')}_response.txt"
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
-    safe(_ => "Error while processing HAR file") {
+    safely(_ => "Error while processing HAR file") {
       val har = HarReader(harFilePath)
       if (har.elements.isEmpty) {
         "the selected file doesn't contain any valid HTTP requests".failure
@@ -115,7 +114,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
               .filterNot {
                 case (headerName, headerValue) =>
                   val isFiltered = filteredHeaders contains headerName
-                  val isAlreadyInBaseHeaders = baseHeaders.get(headerName).exists(_ == headerValue)
+                  val isAlreadyInBaseHeaders = baseHeaders.get(headerName).contains(headerValue)
                   val isPostWithFormParams = element.method == "POST" && headerValue == HeaderValues.ApplicationFormUrlEncoded
                   isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams
               }

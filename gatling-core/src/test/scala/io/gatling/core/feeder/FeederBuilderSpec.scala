@@ -18,9 +18,9 @@ package io.gatling.core.feeder
 import scala.collection.immutable
 
 import io.gatling.BaseSpec
+import io.gatling.commons.validation.Failure
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.structure.ScenarioContext
-import io.gatling.core.validation.Failure
 
 class FeederBuilderSpec extends BaseSpec with FeederSupport {
 

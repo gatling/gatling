@@ -20,11 +20,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.DurationLong
 
+import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
-import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario._

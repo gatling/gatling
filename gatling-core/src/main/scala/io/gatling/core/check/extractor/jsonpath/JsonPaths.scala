@@ -15,9 +15,9 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
+import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.JsonPath
 
 class JsonPaths(implicit configuration: GatlingConfiguration) {

@@ -19,6 +19,7 @@ import scala.concurrent.{ Future, Await }
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
+import io.gatling.commons.util.ReflectionHelper._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
@@ -27,7 +28,6 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.{ DefaultStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.{ Init, ShortScenarioDescription, RunMessage }
-import io.gatling.core.util.ReflectionHelper._
 
 import akka.actor.{ Props, Actor, ActorSystem }
 import akka.pattern._

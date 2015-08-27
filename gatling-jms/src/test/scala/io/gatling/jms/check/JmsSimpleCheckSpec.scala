@@ -20,8 +20,8 @@ import javax.jms._
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
+import io.gatling.commons.validation._
 import io.gatling.core.session.Session
-import io.gatling.core.validation._
 import io.gatling.jms._
 
 class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {

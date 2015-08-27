@@ -15,8 +15,8 @@
  */
 package io.gatling.http.request.builder.sse
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.session.Session
-import io.gatling.core.validation.Validation
 import io.gatling.http.ahc.AhcRequestBuilder
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }

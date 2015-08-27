@@ -16,9 +16,9 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.validation._
 import io.gatling.core.session._
 import io.gatling.core.stats.DefaultStatsEngine
-import io.gatling.core.validation._
 
 import akka.testkit._
 

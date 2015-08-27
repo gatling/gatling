@@ -17,7 +17,7 @@ package io.gatling.redis.util
 
 import java.nio.charset.StandardCharsets._
 
-import io.gatling.core.util.StringHelper.Crlf
+import io.gatling.commons.util.StringHelper.Crlf
 
 object RedisHelper {
 

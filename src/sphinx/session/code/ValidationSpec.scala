@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 //#import
-import io.gatling.core.validation._
+
+import io.gatling.commons.validation._
 //#import
 
 class ValidationSpec {

@@ -15,12 +15,13 @@
  */
 package io.gatling.http.action.async
 
+import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ OK, KO, ResponseTimings, Status }
-import io.gatling.core.util.TimeHelper._
+import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.check.async.AsyncCheck
 
 import akka.actor.ActorRef

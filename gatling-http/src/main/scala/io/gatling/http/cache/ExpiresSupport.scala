@@ -17,8 +17,8 @@ package io.gatling.http.cache
 
 import java.text.ParsePosition
 
-import io.gatling.core.util.NumberHelper._
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.commons.util.NumberHelper._
+import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.response.Response
 

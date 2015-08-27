@@ -21,8 +21,8 @@ import java.nio.file.Path
 
 import scala.util.Properties
 
+import io.gatling.commons.util.PathHelper._
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.util.PathHelper._
 
 private[app] object SimulationClassLoader {
 

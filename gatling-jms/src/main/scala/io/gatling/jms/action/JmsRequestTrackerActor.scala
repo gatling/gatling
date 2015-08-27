@@ -19,13 +19,14 @@ import javax.jms.Message
 
 import scala.collection.mutable
 
+import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.validation.Failure
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Failure
+import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.jms._
 
 import akka.actor.{ ActorRef, Props }

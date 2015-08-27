@@ -15,11 +15,11 @@
  */
 package io.gatling.charts.template
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.Statistics.printable
-import io.gatling.core.stats.reader.DataReader
+import io.gatling.commons.stats.GeneralStats
+
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
@@ -28,7 +28,7 @@ private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boo
       def style[T: Numeric](value: T) =
         if (raw) {
           // raw mode is used for JSON extract, non-raw for displaying in the reports
-          if (value == DataReader.NoPlotMagicValue) "0"
+          if (value == GeneralStats.NoPlotMagicValue) "0"
           else value.toString
         } else
           s""""${printable(value)}""""

@@ -15,9 +15,9 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.gatling.core.util.StringHelper._
-
 import scala.annotation.tailrec
+
+import io.gatling.commons.util.StringHelper._
 
 object EventStreamParser {
 

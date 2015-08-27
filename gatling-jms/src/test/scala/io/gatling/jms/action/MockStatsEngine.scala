@@ -15,12 +15,14 @@
  */
 package io.gatling.jms.action
 
-import akka.actor.ActorSystem
-import com.typesafe.scalalogging.StrictLogging
+import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.DefaultStatsEngine
-import io.gatling.core.stats.message.{ Status, ResponseTimings }
+import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer.{ GroupMessage, ResponseMessage, DataWriterMessage }
+
+import akka.actor.ActorSystem
+import com.typesafe.scalalogging.StrictLogging
 
 class MockStatsEngine(system: ActorSystem) extends DefaultStatsEngine(system, Nil) with StrictLogging {
 

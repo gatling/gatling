@@ -20,11 +20,12 @@ import java.util.{ Map => JMap }
 
 import scala.collection.JavaConversions._
 
+import io.gatling.commons.util.Io._
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.util.Resource
+
 import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader, MappingIterator }
 import com.fasterxml.jackson.dataformat.csv.{ CsvSchema, CsvMapper }
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.Io._
-import io.gatling.core.util.Resource
 
 object SeparatedValuesParser {
 

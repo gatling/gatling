@@ -15,9 +15,9 @@
  */
 package io.gatling.http.check.header
 
+import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
 import io.gatling.core.check.extractor.regex.{ Patterns, GroupExtractor }
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.response.Response
 
 class HttpHeaderRegexExtractorFactory(implicit patterns: Patterns) extends CriterionExtractorFactory[Response, (String, String)]("headerRegex") {

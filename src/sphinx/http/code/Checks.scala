@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import io.gatling.commons.validation._
 import io.gatling.core.Predef._
-import io.gatling.core.validation._
 import io.gatling.http.Predef._
 
 class Checks {

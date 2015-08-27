@@ -19,11 +19,11 @@ import java.util.UUID
 
 import scala.concurrent.duration.Duration
 
+import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.validation._
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder.chainOf
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.SuccessWrapper
 
 object Loops {
 

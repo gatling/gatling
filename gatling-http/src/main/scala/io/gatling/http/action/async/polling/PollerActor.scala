@@ -17,17 +17,16 @@ package io.gatling.http.action.async.polling
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.validation._
+import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.sync.HttpTx
-
-import akka.actor.Props
-
-import io.gatling.core.session.Session
-import io.gatling.core.validation._
 import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilderFactory
+
+import akka.actor.Props
 
 object PollerActor {
   def props(
