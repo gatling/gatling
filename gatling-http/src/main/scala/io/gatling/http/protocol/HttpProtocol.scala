@@ -104,7 +104,7 @@ object HttpProtocol extends StrictLogging {
       )
     )
 
-  def baseUrlIterator(urls: List[Uri]): Iterator[Option[Uri]] =
+  def baseUrlIterator(urls: List[String]): Iterator[Option[String]] =
     urls match {
       case Nil        => Iterator.continually(None)
       case url :: Nil => Iterator.continually(Some(url))
@@ -124,7 +124,7 @@ object HttpProtocol extends StrictLogging {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-  baseURLs:     List[Uri],
+  baseURLs:     List[String],
   warmUpUrl:    Option[String],
   enginePart:   HttpProtocolEnginePart,
   requestPart:  HttpProtocolRequestPart,
@@ -137,14 +137,14 @@ case class HttpProtocol(
   type Components = HttpComponents
 
   private val httpBaseUrlIterator = HttpProtocol.baseUrlIterator(baseURLs)
-  def baseURL: Option[Uri] = httpBaseUrlIterator.next()
+  def baseURL: Option[String] = httpBaseUrlIterator.next()
 
   def makeAbsoluteHttpUri(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
       Uri.create(url).success
     else
       baseURL match {
-        case Some(root) => Uri.create(root, url).success
+        case Some(root) => Uri.create(root + url).success
         case _          => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }
 }
@@ -182,19 +182,19 @@ case class HttpProtocolResponsePart(
 )
 
 case class HttpProtocolWsPart(
-    wsBaseURLs:    List[Uri],
+    wsBaseURLs:    List[String],
     reconnect:     Boolean,
     maxReconnects: Option[Int]
 ) {
 
   private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseURLs)
-  def wsBaseURL: Option[Uri] = wsBaseUrlIterator.next()
+  def wsBaseURL: Option[String] = wsBaseUrlIterator.next()
   def makeAbsoluteWsUri(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
       Uri.create(url).success
     else
       wsBaseURL match {
-        case Some(root) => Uri.create(root, url).success
+        case Some(root) => Uri.create(root + url).success
         case _          => s"No protocol.wsBaseURL defined but provided url is relative : $url".failure
       }
 }
