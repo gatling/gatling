@@ -88,7 +88,7 @@ package object util {
         buff.append(Eol)
       }
 
-      if (request.getFile != null) buff.append("file=").append(request.getFile.getAbsolutePath).append(Eol)
+      if (request.getFile != null) buff.append("file=").append(request.getFile.getCanonicalPath).append(Eol)
 
       if (request.getParts != null && !request.getParts.isEmpty) {
         buff.append("parts=").append(Eol)
@@ -113,7 +113,7 @@ package object util {
               .append(" transferEncoding=").append(part.getTransferEncoding)
               .append(" contentId=").append(part.getContentId)
               .append(" filename=").append(part.getFileName)
-              .append(" file=").append(part.getFile.getAbsolutePath)
+              .append(" file=").append(part.getFile.getCanonicalPath)
               .append(Eol)
 
           case part: ByteArrayPart =>

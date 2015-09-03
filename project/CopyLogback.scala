@@ -15,6 +15,6 @@ object CopyLogback {
     val outputPath = sourceDirectory / "conf"
     val targetFile = outputPath / (configFile.base + ".xml")
     IO.copyFile(configFile, targetFile)
-    Seq(targetFile.getAbsoluteFile)
+    Seq(targetFile.getCanonicalFile)
   }
 }

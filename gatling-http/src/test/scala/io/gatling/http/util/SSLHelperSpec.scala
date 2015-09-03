@@ -27,7 +27,7 @@ class SSLHelperSpec extends BaseSpec {
   val classLoader = this.getClass.getClassLoader
 
   def fileFromResource(classPathResource: String): String = {
-    new File(classLoader.getResource(classPathResource).getFile).getAbsolutePath
+    new File(classLoader.getResource(classPathResource).getFile).getCanonicalPath
   }
 
   "SSLHelperSpec" should "load keystore from file" in {

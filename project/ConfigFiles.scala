@@ -40,6 +40,6 @@ object ConfigFiles {
     val configFile = (resourceDirectory ** new ExactFilter("gatling-defaults.conf")).get.head
     val targetFile = destDirectory / configFile.getName
     IO.copyFile(configFile, targetFile)
-    Seq(targetFile.getAbsoluteFile)
+    Seq(targetFile.getCanonicalFile)
   }
 }
