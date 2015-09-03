@@ -20,16 +20,15 @@ import java.nio.file._
 
 import scala.collection.JavaConversions.mapAsJavaMap
 
-import com.typesafe.config.ConfigFactory
-
 import io.gatling.compiler.config.ConfigUtils._
 import io.gatling.compiler.config.cli.{ CommandLineOverrides, ArgsParser }
+
+import com.typesafe.config.ConfigFactory
 
 private[compiler] case class CompilerConfiguration(
   encoding:             String,
   simulationsDirectory: Path,
   binariesDirectory:    Path,
-  classesDirectory:     Path,
   classpathElements:    Seq[File]
 )
 
@@ -64,11 +63,10 @@ private[compiler] object CompilerConfiguration {
 
     val encoding = config.getString(encodingKey)
     val simulationsDirectory = resolvePath(Paths.get(config.getString(simulationsDirectoryKey)))
-    val binariesDirectory = string2option(config.getString(binariesDirectoryKey)).map(Paths.get(_)).getOrElse(GatlingHome.resolve("target"))
-    val classesDirectory = binariesDirectory.resolve("test-classes")
+    val binariesDirectory = string2option(config.getString(binariesDirectoryKey)).map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")
     val classpathElements = commandLineOverrides.classpathElements.split(File.pathSeparator).map(new File(_))
 
-    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, classesDirectory, classpathElements)
+    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, classpathElements)
   }
 
 }

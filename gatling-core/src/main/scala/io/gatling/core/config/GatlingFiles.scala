@@ -31,7 +31,7 @@ object GatlingFiles {
   val GatlingAssetsStylePackage = GatlingAssetsPackage / GatlingStyleFolder
 
   private def resolvePath(path: Path): Path =
-    if (path.isAbsolute || path.exists) path else GatlingHome / path
+    (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize().toAbsolutePath
 
   def dataDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.data)
   def bodiesDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.bodies)

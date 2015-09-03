@@ -21,11 +21,21 @@ import scala.util.Properties._
 
 private[compiler] object ConfigUtils {
 
+  implicit def string2path(pathString: String): Path = Paths.get(pathString)
+
+  implicit class RichPath(val path: Path) extends AnyVal {
+
+    def /(pathString: String) = path.resolve(pathString)
+
+    def /(other: Path) = path.resolve(other)
+
+    def exists = Files.exists(path)
+  }
+
   val GatlingHome = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
-  def resolvePath(path: Path): Path = {
-    if (path.isAbsolute || Files.exists(path)) path else GatlingHome.resolve(path)
-  }
+  def resolvePath(path: Path): Path =
+    (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize().toAbsolutePath
 
   def string2option(string: String) = string.trim match {
     case "" => None

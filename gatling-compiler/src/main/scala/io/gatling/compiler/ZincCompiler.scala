@@ -22,7 +22,6 @@ import java.util.jar.{ Manifest => JManifest, Attributes }
 
 import scala.collection.JavaConversions._
 import scala.reflect.io.Directory
-import scala.reflect.io.Path.string2path
 import scala.util.Try
 
 import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
@@ -51,7 +50,7 @@ object ZincCompiler extends App {
     "-language:postfixOps"
   )
 
-  Files.createDirectories(configuration.classesDirectory)
+  Files.createDirectories(configuration.binariesDirectory)
 
   private val compilerClasspath = {
     val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
@@ -92,15 +91,15 @@ object ZincCompiler extends App {
       .toSeq
 
       def analysisCacheMapEntry(directoryName: String) =
-        (GatlingHome.toString / directoryName).jfile -> (configuration.binariesDirectory.toString / "cache" / directoryName).jfile
+        (GatlingHome / directoryName).toFile -> (configuration.binariesDirectory / "cache" / directoryName).toFile
 
     Inputs.inputs(
       classpath = configuration.classpathElements,
       sources = sources,
-      classesDirectory = configuration.classesDirectory.toFile,
+      classesDirectory = configuration.binariesDirectory.toFile,
       scalacOptions = compilerOptions,
       javacOptions = Nil,
-      analysisCache = Some((configuration.binariesDirectory.toString / "zincCache").jfile),
+      analysisCache = Some((configuration.binariesDirectory / "zincCache").toFile),
       analysisCacheMap = FoldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
       forceClean = false,
       javaOnly = false,
