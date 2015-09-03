@@ -53,6 +53,8 @@ trait ThrottlingSupport {
   def jumpToRps(target: Int) = Jump(target)
 }
 
+case class Throttlings(global: Option[Throttling], perScenario: Map[String, Throttling])
+
 object Throttling {
 
   def apply(steps: Iterable[ThrottleStep]): Throttling = {

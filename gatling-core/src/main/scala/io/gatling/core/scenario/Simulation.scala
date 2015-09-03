@@ -20,7 +20,7 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
+import io.gatling.core.controller.throttle.{ Throttlings, ThrottleStep, Throttling }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols, Protocol }
 import io.gatling.core.session.Expression
@@ -120,8 +120,7 @@ abstract class Simulation {
       _populationBuilders,
       _globalProtocols,
       _globalPauseType,
-      _globalThrottling,
-      scenarioThrottlings,
+      Throttlings(_globalThrottling, scenarioThrottlings),
       maxDuration,
       _assertions,
       _beforeSteps,
@@ -131,22 +130,21 @@ abstract class Simulation {
 }
 
 case class SimulationParams(
-    name:                String,
-    populationBuilders:  List[PopulationBuilder],
-    globalProtocols:     Protocols,
-    globalPauseType:     PauseType,
-    globalThrottling:    Option[Throttling],
-    scenarioThrottlings: Map[String, Throttling],
-    maxDuration:         Option[FiniteDuration],
-    assertions:          Seq[Assertion],
-    beforeSteps:         List[() => Unit],
-    afterSteps:          List[() => Unit]
+    name:               String,
+    populationBuilders: List[PopulationBuilder],
+    globalProtocols:    Protocols,
+    globalPauseType:    PauseType,
+    throttlings:        Throttlings,
+    maxDuration:        Option[FiniteDuration],
+    assertions:         Seq[Assertion],
+    beforeSteps:        List[() => Unit],
+    afterSteps:         List[() => Unit]
 ) {
 
   def scenarios(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): List[Scenario] = {
 
     val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, globalProtocols)
 
-    populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistry, globalProtocols, globalPauseType, globalThrottling))
+    populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistry, globalProtocols, globalPauseType, throttlings.global))
   }
 }
