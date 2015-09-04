@@ -25,6 +25,8 @@ import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request._
 import io.gatling.http.response.Response
 
+import com.softwaremill.quicklens._
+
 case class HttpAttributes(
   checks:                List[HttpCheck]                              = Nil,
   ignoreDefaultChecks:   Boolean                                      = false,
@@ -58,42 +60,40 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 
-  private[http] def newInstance(httpAttributes: HttpAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
-
   /**
    * Stops defining the request and adds checks on the response
    *
    * @param checks the checks that will be performed on the response
    */
-  def check(checks: HttpCheck*): HttpRequestBuilder = newInstance(httpAttributes.copy(checks = httpAttributes.checks ::: checks.toList))
+  def check(checks: HttpCheck*): HttpRequestBuilder = this.modify(_.httpAttributes.checks).using(_ ::: checks.toList)
 
   /**
    * Ignore the default checks configured on HttpProtocol
    */
-  def ignoreDefaultChecks: HttpRequestBuilder = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
+  def ignoreDefaultChecks: HttpRequestBuilder = this.modify(_.httpAttributes.ignoreDefaultChecks).setTo(true)
 
-  def silent: HttpRequestBuilder = newInstance(httpAttributes.copy(silent = Some(true)))
+  def silent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(true))
 
-  def notSilent: HttpRequestBuilder = newInstance(httpAttributes.copy(silent = Some(false)))
+  def notSilent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(false))
 
-  def disableFollowRedirect: HttpRequestBuilder = newInstance(httpAttributes.copy(followRedirect = false))
+  def disableFollowRedirect: HttpRequestBuilder = this.modify(_.httpAttributes.followRedirect).setTo(false)
 
-  def extraInfoExtractor(f: ExtraInfoExtractor): HttpRequestBuilder = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
+  def extraInfoExtractor(f: ExtraInfoExtractor): HttpRequestBuilder = this.modify(_.httpAttributes.extraInfoExtractor).setTo(Some(f))
 
   /**
    * @param responseTransformer transforms the response before it's handled to the checks pipeline
    */
-  def transformResponse(responseTransformer: PartialFunction[Response, Response]): HttpRequestBuilder = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
+  def transformResponse(responseTransformer: PartialFunction[Response, Response]): HttpRequestBuilder = this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
 
-  def body(bd: Body): HttpRequestBuilder = newInstance(httpAttributes.copy(body = Some(bd)))
+  def body(bd: Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).setTo(Some(bd))
 
-  def processRequestBody(processor: Body => Body): HttpRequestBuilder = newInstance(httpAttributes.copy(body = httpAttributes.body.map(processor)))
+  def processRequestBody(processor: Body => Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).using(_.map(processor))
 
-  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = newInstance(httpAttributes.copy(bodyParts = httpAttributes.bodyParts ::: List(bodyPart)))
+  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts).using(_ ::: List(bodyPart))
 
-  def resources(res: HttpRequestBuilder*): HttpRequestBuilder = newInstance(httpAttributes.copy(explicitResources = res.toList))
+  def resources(res: HttpRequestBuilder*): HttpRequestBuilder = this.modify(_.httpAttributes.explicitResources).setTo(res.toList)
 
-  def disableResponseChunksDiscarding = newInstance(httpAttributes.copy(discardResponseChunks = false))
+  def disableResponseChunksDiscarding = this.modify(_.httpAttributes.discardResponseChunks).setTo(false)
 
   /**
    * Adds Content-Type header to the request set with "multipart/form-data" value
@@ -111,7 +111,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestBuilder = formParam(ParamMap(map))
 
   private def formParam(formParam: HttpParam): HttpRequestBuilder = {
-    val withFormParam = newInstance(httpAttributes.copy(formParams = httpAttributes.formParams ::: List(formParam)))
+    val withFormParam = this.modify(_.httpAttributes.formParams).using(_ ::: List(formParam))
 
     if (httpAttributes.bodyParts.isEmpty)
       withFormParam.asFormUrlEncoded
@@ -120,7 +120,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   }
 
   def form(form: Expression[Map[String, Seq[String]]]): HttpRequestBuilder =
-    newInstance(httpAttributes.copy(form = Some(form)))
+    this.modify(_.httpAttributes.form).setTo(Some(form))
 
   def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) =
     bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath)).asMultipartForm

@@ -23,6 +23,8 @@ import io.gatling.core.session._
 import io.gatling.jms._
 import io.gatling.jms.action.JmsReqReplyActionBuilder
 
+import com.softwaremill.quicklens._
+
 case class JmsRequestBuilderBase(requestName: String) {
 
   def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder.apply)
@@ -71,14 +73,12 @@ case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes =
   /**
    * Add JMS message properties (aka headers) to the outbound message
    */
-  def property(key: Expression[String], value: Expression[Any]) =
-    new JmsRequestBuilder(attributes.copy(messageProperties = attributes.messageProperties + (key -> value)), factory)
+  def property(key: Expression[String], value: Expression[Any]) = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
 
   /**
    * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
    */
-  def check(checks: JmsCheck*) =
-    new JmsRequestBuilder(attributes.copy(checks = attributes.checks ::: checks.toList), factory)
+  def check(checks: JmsCheck*) = this.modify(_.attributes.checks).using(_ ::: checks.toList)
 
   def build(): ActionBuilder = factory(attributes)
 }

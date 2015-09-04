@@ -23,6 +23,7 @@ import io.gatling.core.body.{ FileWithCachedBytes, ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 
+import com.softwaremill.quicklens._
 import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 
 object BodyPart {
@@ -80,13 +81,13 @@ case class BodyPart(
     attributes:  BodyPartAttributes
 ) {
 
-  def contentType(contentType: Expression[String]) = copy(attributes = attributes.copy(contentType = Some(contentType)))
-  def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(Charset.forName(charset))))
-  def dispositionType(dispositionType: Expression[String]) = copy(attributes = attributes.copy(dispositionType = Some(dispositionType)))
-  def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
-  def contentId(contentId: Expression[String]) = copy(attributes = attributes.copy(contentId = Some(contentId)))
-  def transferEncoding(transferEncoding: String) = copy(attributes = attributes.copy(transferEncoding = Some(transferEncoding)))
-  def header(name: String, value: Expression[String]) = copy(attributes = attributes.copy(customHeaders = attributes.customHeaders ::: List(name -> value)))
+  def contentType(contentType: Expression[String]) = this.modify(_.attributes.contentType).setTo(Some(contentType))
+  def charset(charset: String) = this.modify(_.attributes.charset).setTo(Some(Charset.forName(charset)))
+  def dispositionType(dispositionType: Expression[String]) = this.modify(_.attributes.dispositionType).setTo(Some(dispositionType))
+  def fileName(fileName: Expression[String]) = this.modify(_.attributes.fileName).setTo(Some(fileName))
+  def contentId(contentId: Expression[String]) = this.modify(_.attributes.contentId).setTo(Some(contentId))
+  def transferEncoding(transferEncoding: String) = this.modify(_.attributes.transferEncoding).setTo(Some(transferEncoding))
+  def header(name: String, value: Expression[String]) = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
 
   def toMultiPart(session: Session): Validation[Part] =
     for {

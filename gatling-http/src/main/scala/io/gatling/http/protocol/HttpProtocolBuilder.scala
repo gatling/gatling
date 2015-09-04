@@ -28,6 +28,7 @@ import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
+import com.softwaremill.quicklens._
 import org.asynchttpclient.{ RequestBuilderBase, Realm, Request, SignatureCalculator }
 
 /**
@@ -48,19 +49,18 @@ object HttpProtocolBuilder {
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol) {
 
-  def baseURL(url: String) = copy(protocol = protocol.copy(baseURLs = List(url)))
+  def baseURL(url: String) = baseURLs(List(url))
   def baseURLs(urls: String*): HttpProtocolBuilder = baseURLs(urls.toList)
-  def baseURLs(urls: List[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = urls))
-  def warmUp(url: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(warmUpUrl = Some(url))))
-  def disableWarmUp: HttpProtocolBuilder = copy(protocol = protocol.copy(warmUpUrl = None))
+  def baseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseURLs).setTo(urls)
+  def warmUp(url: String): HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(Some(url))
+  def disableWarmUp: HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(None)
 
   // enginePart
-  private def newEnginePart(enginePart: HttpProtocolEnginePart) = copy(protocol = copy(protocol.copy(enginePart = enginePart)))
-  def disableClientSharing = newEnginePart(protocol.enginePart.copy(shareClient = false))
-  def shareConnections = newEnginePart(protocol.enginePart.copy(shareConnections = true))
-  def shareDnsCache = newEnginePart(protocol.enginePart.copy(shareDnsCache = true))
-  def virtualHost(virtualHost: Expression[String]) = newEnginePart(protocol.enginePart.copy(virtualHost = Some(virtualHost)))
-  def localAddress(localAddress: Expression[InetAddress]) = newEnginePart(protocol.enginePart.copy(localAddress = Some(localAddress)))
+  def disableClientSharing = this.modify(_.protocol.enginePart.shareClient).setTo(false)
+  def shareConnections = this.modify(_.protocol.enginePart.shareConnections).setTo(true)
+  def shareDnsCache = this.modify(_.protocol.enginePart.shareDnsCache).setTo(true)
+  def virtualHost(virtualHost: Expression[String]) = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
+  def localAddress(localAddress: Expression[InetAddress]) = this.modify(_.protocol.enginePart.localAddress).setTo(Some(localAddress))
   def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)
   def maxConnectionsPerHostLikeFirefox = maxConnectionsPerHost(6)
   def maxConnectionsPerHostLikeOperaOld = maxConnectionsPerHost(4)
@@ -71,14 +71,13 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def maxConnectionsPerHostLikeIE8 = maxConnectionsPerHost(6)
   def maxConnectionsPerHostLikeIE10 = maxConnectionsPerHost(8)
   def maxConnectionsPerHostLikeChrome = maxConnectionsPerHost(6)
-  def maxConnectionsPerHost(max: Int): HttpProtocolBuilder = newEnginePart(protocol.enginePart.copy(maxConnectionsPerHost = max))
+  def maxConnectionsPerHost(max: Int): HttpProtocolBuilder = this.modify(_.protocol.enginePart.maxConnectionsPerHost).setTo(max)
 
   // requestPart
-  private def newRequestPart(requestPart: HttpProtocolRequestPart) = copy(protocol = copy(protocol.copy(requestPart = requestPart)))
-  def disableAutoReferer = newRequestPart(protocol.requestPart.copy(autoReferer = false))
-  def disableCaching = newRequestPart(protocol.requestPart.copy(cache = false))
-  def header(name: String, value: Expression[String]) = newRequestPart(protocol.requestPart.copy(headers = protocol.requestPart.headers + (name -> value)))
-  def headers(headers: Map[String, String]) = newRequestPart(protocol.requestPart.copy(headers = protocol.requestPart.headers ++ headers.mapValues(_.el[String])))
+  def disableAutoReferer = this.modify(_.protocol.requestPart.autoReferer).setTo(false)
+  def disableCaching = this.modify(_.protocol.requestPart.cache).setTo(false)
+  def header(name: String, value: Expression[String]) = this.modify(_.protocol.requestPart.headers).using(_ + (name -> value))
+  def headers(headers: Map[String, String]) = this.modify(_.protocol.requestPart.headers).using(_ ++ headers.mapValues(_.el[String]))
   def acceptHeader(value: Expression[String]) = header(Accept, value)
   def acceptCharsetHeader(value: Expression[String]) = header(AcceptCharset, value)
   def acceptEncodingHeader(value: Expression[String]) = header(AcceptEncoding, value)
@@ -91,43 +90,43 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, ntlmDomain, ntlmHost))
-  def authRealm(realm: Expression[Realm]) = newRequestPart(protocol.requestPart.copy(realm = Some(realm)))
-  def silentResources = newRequestPart(protocol.requestPart.copy(silentResources = true))
-  def silentURI(regex: String) = newRequestPart(protocol.requestPart.copy(silentURI = Some(regex.r.pattern)))
-  def disableUrlEncoding = newRequestPart(protocol.requestPart.copy(disableUrlEncoding = true))
-  def signatureCalculator(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = newRequestPart(protocol.requestPart.copy(signatureCalculator = Some(calculator)))
+  def authRealm(realm: Expression[Realm]) = this.modify(_.protocol.requestPart.realm).setTo(Some(realm))
+  def silentResources = this.modify(_.protocol.requestPart.silentResources).setTo(true)
+  def silentURI(regex: String) = this.modify(_.protocol.requestPart.silentURI).setTo(Some(regex.r.pattern))
+  def disableUrlEncoding = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
+  def signatureCalculator(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = signatureCalculator(calculator.expressionSuccess)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
 
   // responsePart
-  private def newResponsePart(responsePart: HttpProtocolResponsePart) = copy(protocol = copy(protocol.copy(responsePart = responsePart)))
-  def disableFollowRedirect = newResponsePart(protocol.responsePart.copy(followRedirect = false))
-  def maxRedirects(max: Int) = newResponsePart(protocol.responsePart.copy(maxRedirects = Some(max)))
-  def strict302Handling = newResponsePart(protocol.responsePart.copy(strict302Handling = true))
-  def disableResponseChunksDiscarding = newResponsePart(protocol.responsePart.copy(discardResponseChunks = false))
-  def extraInfoExtractor(f: ExtraInfoExtractor) = newResponsePart(protocol.responsePart.copy(extraInfoExtractor = Some(f)))
-  def transformResponse(responseTransformer: PartialFunction[Response, Response]) = newResponsePart(protocol.responsePart.copy(responseTransformer = Some(responseTransformer)))
-  def check(checks: HttpCheck*) = newResponsePart(protocol.responsePart.copy(checks = protocol.responsePart.checks ::: checks.toList))
+  def disableFollowRedirect = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
+  def maxRedirects(max: Int) = this.modify(_.protocol.responsePart.maxRedirects).setTo(Some(max))
+  def strict302Handling = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
+  def disableResponseChunksDiscarding = this.modify(_.protocol.responsePart.discardResponseChunks).setTo(false)
+  def extraInfoExtractor(f: ExtraInfoExtractor) = this.modify(_.protocol.responsePart.extraInfoExtractor).setTo(Some(f))
+  def transformResponse(responseTransformer: PartialFunction[Response, Response]) = this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
+  def check(checks: HttpCheck*) = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
   def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList())))
   def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, black)))
   def inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, white)))
-  private def inferHtmlResources(filters: Option[Filters]) = newResponsePart(protocol.responsePart.copy(inferHtmlResources = true, htmlResourcesInferringFilters = filters))
+  private def inferHtmlResources(filters: Option[Filters]) =
+    this
+      .modify(_.protocol.responsePart.inferHtmlResources).setTo(true)
+      .modify(_.protocol.responsePart.htmlResourcesInferringFilters).setTo(filters)
 
   // wsPart
-  private def newWsPart(wsPart: HttpProtocolWsPart) = copy(protocol = copy(protocol.copy(wsPart = wsPart)))
-  def wsBaseURL(url: String) = newWsPart(protocol.wsPart.copy(wsBaseURLs = List(url)))
+  def wsBaseURL(url: String) = wsBaseURLs(List(url))
   def wsBaseURLs(urls: String*): HttpProtocolBuilder = wsBaseURLs(urls.toList)
-  def wsBaseURLs(urls: List[String]): HttpProtocolBuilder = newWsPart(protocol.wsPart.copy(wsBaseURLs = urls))
-  def wsReconnect = newWsPart(protocol.wsPart.copy(reconnect = true))
-  def wsMaxReconnects(max: Int) = newWsPart(protocol.wsPart.copy(maxReconnects = Some(max)))
+  def wsBaseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseURLs).setTo(urls)
+  def wsReconnect = this.modify(_.protocol.wsPart.reconnect).setTo(true)
+  def wsMaxReconnects(max: Int) = this.modify(_.protocol.wsPart.maxReconnects).setTo(Some(max))
 
   // proxyPart
-  private def newProxyPart(proxyPart: HttpProtocolProxyPart) = copy(protocol = copy(protocol.copy(proxyPart = proxyPart)))
-  def noProxyFor(hosts: String*): HttpProtocolBuilder = newProxyPart(protocol.proxyPart.copy(proxyExceptions = hosts))
-  def proxy(httpProxy: Proxy): HttpProtocolBuilder = newProxyPart(protocol.proxyPart.copy(proxies = Some(httpProxy.proxyServers)))
+  def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)
+  def proxy(httpProxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxies).setTo(Some(httpProxy.proxyServers))
 
   def build = {
     require(protocol.enginePart.shareClient || !protocol.enginePart.shareConnections, "Invalid protocol configuration: if you stop sharing the HTTP client, you can't share connections!")

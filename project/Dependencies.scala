@@ -35,6 +35,7 @@ object Dependencies {
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                 % "2.1.6"
   private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru"  % "1.4.2"
   private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"               % "1.52"
+  private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                    % "1.4.0"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"               % "1.0"
 
   /***********************/
@@ -58,7 +59,7 @@ object Dependencies {
   /****************************/
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
     Seq(akkaActor, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt, jzlib) ++

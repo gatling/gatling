@@ -26,6 +26,7 @@ import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
 
+import com.softwaremill.quicklens._
 import org.asynchttpclient._
 import org.asynchttpclient.proxy._
 import org.asynchttpclient.uri.Uri
@@ -74,7 +75,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def queryParamMap(map: Map[String, Any]): B = queryParamSeq(map2SeqExpression(map))
   def queryParamMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 
-  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.copy(queryParams = commonAttributes.queryParams ::: List(param)))
+  private def queryParam(param: HttpParam): B = newInstance(modify(commonAttributes)(_.queryParams).using(_ ::: List(param)))
 
   /**
    * Adds a header to the request
@@ -82,14 +83,14 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param name the name of the header
    * @param value the value of the header
    */
-  def header(name: String, value: Expression[String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers + (name -> value)))
+  def header(name: String, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ + (name -> value)))
 
   /**
    * Adds several headers to the request at the same time
    *
    * @param newHeaders a scala map containing the headers to add
    */
-  def headers(newHeaders: Map[String, String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers ++ newHeaders.mapValues(_.el[String])))
+  def headers(newHeaders: Map[String, String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.mapValues(_.el[String])))
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values
@@ -111,20 +112,20 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def digestAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]): B =
     authRealm(HttpHelper.buildNTLMAuthRealm(username, password, ntlmDomain, ntlmHost))
-  def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.copy(realm = Some(realm)))
+  def authRealm(realm: Expression[Realm]): B = newInstance(modify(commonAttributes)(_.realm).setTo(Some(realm)))
 
   /**
    * @param virtualHost a virtual host to override default compute one
    */
-  def virtualHost(virtualHost: Expression[String]): B = newInstance(commonAttributes.copy(virtualHost = Some(virtualHost)))
+  def virtualHost(virtualHost: Expression[String]): B = newInstance(modify(commonAttributes)(_.virtualHost).setTo(Some(virtualHost)))
 
-  def address(address: Expression[InetAddress]): B = newInstance(commonAttributes.copy(address = Some(address)))
+  def address(address: Expression[InetAddress]): B = newInstance(modify(commonAttributes)(_.address).setTo(Some(address)))
 
-  def disableUrlEncoding: B = newInstance(commonAttributes.copy(disableUrlEncoding = Some(true)))
+  def disableUrlEncoding: B = newInstance(modify(commonAttributes)(_.disableUrlEncoding).setTo(Some(true)))
 
-  def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxies = Some(httpProxy.proxyServers)))
+  def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxies).setTo(Some(httpProxy.proxyServers)))
 
-  def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(commonAttributes.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
   def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expressionSuccess)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
