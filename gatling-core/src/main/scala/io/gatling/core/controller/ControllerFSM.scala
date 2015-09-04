@@ -15,35 +15,37 @@
  */
 package io.gatling.core.controller
 
-import scala.concurrent.duration.FiniteDuration
-
-import io.gatling.core.controller.inject.{ PushbackIterator, Injector }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.akka.BaseActor
 
 import akka.actor.{ ActorRef, FSM }
 
-private[controller] case class UserStream(scenario: Scenario, stream: PushbackIterator[FiniteDuration])
-
 private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 
 private[controller] sealed trait ControllerState
-private[controller] case object WaitingToStart extends ControllerState
-private[controller] case object Started extends ControllerState
-private[controller] case object WaitingForResourcesToStop extends ControllerState
-private[controller] case object Stopped extends ControllerState
+private[controller] object ControllerState {
+  case object WaitingToStart extends ControllerState
+  case object Started extends ControllerState
+  case object WaitingForResourcesToStop extends ControllerState
+  case object Stopped extends ControllerState
+}
+
+private[controller] class UserCounts(var completed: Long, var expected: Long) {
+  def allStopped: Boolean = expected > 0 && completed == expected
+}
 
 private[controller] sealed trait ControllerData
-private[controller] case object NoData extends ControllerData
-private[controller] case class InitData(launcher: ActorRef, scenarios: List[Scenario])
-private[controller] class UserCounts(var completed: Long, var expected: Long) {
-  def allStopped: Boolean = completed == expected
+private[controller] object ControllerData {
+  case object NoData extends ControllerData
+  case class InitData(launcher: ActorRef, scenarios: List[Scenario])
+  case class StartedData(initData: InitData, userCounts: UserCounts) extends ControllerData
+  case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 }
-private[controller] case class StartedData(initData: InitData, injector: Injector, userCounts: UserCounts, injectionContinue: Boolean) extends ControllerData
-private[controller] case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 
-sealed trait ControllerMessage
-case class Start(scenarios: List[Scenario]) extends ControllerMessage
-case class ForceStop(e: Option[Exception] = None) extends ControllerMessage
-case object StatsEngineStopped extends ControllerMessage
-case object ScheduleNextInjection extends ControllerMessage
+sealed trait ControllerCommand
+object ControllerCommand {
+  case class Start(scenarios: List[Scenario]) extends ControllerCommand
+  case class InjectionStopped(count: Long) extends ControllerCommand
+  case class ForceStop(e: Option[Exception] = None) extends ControllerCommand
+  case object StatsEngineStopped extends ControllerCommand
+}

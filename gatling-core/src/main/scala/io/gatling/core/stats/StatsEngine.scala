@@ -22,7 +22,7 @@ import scala.concurrent.duration._
 
 import io.gatling.commons.stats.Status
 import io.gatling.commons.util.TimeHelper._
-import io.gatling.core.controller.StatsEngineStopped
+import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer._
@@ -115,6 +115,6 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
     if (active.getAndSet(false)) {
       implicit val dataWriterTimeOut = Timeout(5 seconds)
       val responses = dataWriters.map(_ ? Stop)
-      Future.sequence(responses).onComplete(_ => replyTo ! StatsEngineStopped)
+      Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
     }
 }

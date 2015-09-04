@@ -17,127 +17,162 @@ package io.gatling.core.controller.inject
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.util.{ LongCounter, PushbackIterator }
 import io.gatling.commons.util.TimeHelper._
-import io.gatling.core.controller.UserStream
+import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.Start
 import io.gatling.core.stats.writer.UserMessage
 
-import akka.actor.{ Cancellable, ActorSystem }
-import com.typesafe.scalalogging.StrictLogging
+import akka.actor.{ Cancellable, Props, ActorSystem, ActorRef }
 
-class PushbackIterator[T](it: Iterator[T]) extends Iterator[T] {
-
-  private var pushedbackValue: Option[T] = None
-
-  override def hasNext: Boolean = pushedbackValue.isDefined || it.hasNext
-
-  override def next(): T = pushedbackValue match {
-    case None => it.next()
-    case Some(value) =>
-      pushedbackValue = None
-      value
-  }
-
-  def pushback(value: T): Unit = pushedbackValue = Some(value)
+sealed trait InjectorCommand
+object InjectorCommand {
+  case object Start extends InjectorCommand
+  case class OverrideStart(overrides: Map[String, UserStream]) extends InjectorCommand
+  case object OverrideStop extends InjectorCommand
+  case object Tick extends InjectorCommand
 }
 
-object Injection {
+private[inject] case class UserStream(scenario: Scenario, stream: PushbackIterator[FiniteDuration])
+
+private[inject] object Injection {
   val Empty = Injection(0, continue = false)
 }
 
-case class Injection(count: Long, continue: Boolean) {
+private[inject] case class Injection(count: Long, continue: Boolean) {
   def +(other: Injection): Injection =
     Injection(count + other.count, continue && other.continue)
 }
 
 object Injector {
 
-  def apply(system: ActorSystem, statsEngine: StatsEngine, scenarios: List[Scenario]): Injector = {
+  val InjectorActorName = "gatling-injector"
+
+  def apply(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, scenarios: List[Scenario]): ActorRef = {
     val userStreams = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers))).toMap
-    new DefaultInjector(system, statsEngine, userStreams)
+    system.actorOf(Props(new Injector(controller, statsEngine, userStreams)), InjectorActorName)
   }
 }
 
-trait Injector {
-  def inject(batchWindow: FiniteDuration): Injection
-}
+private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, defaultStreams: Map[String, UserStream]) extends InjectorFSM {
 
-// not thread-safe, supposed to be called only by controller which is an Actor and guarantees thread-safety
-class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams: Map[String, UserStream]) extends Injector with StrictLogging {
+  import InjectorState._
+  import InjectorData._
+  import InjectorCommand._
 
-  implicit val dispatcher = system.dispatcher
-  var startTime: Long = _
-  var userIdGen: Long = _
-  var timer: Option[Cancellable] = None
+  private val tickPeriod = 1 second
+  private val initialBatchWindow = tickPeriod * 2
 
-  private def initStartTime(): Unit =
-    if (startTime == 0L) {
-      startTime = nowMillis
+  val userIdGen = new LongCounter
+
+  private def inject(streams: Map[String, UserStream], batchWindow: FiniteDuration, startMillis: Long, count: Long, timer: Cancellable): State = {
+    val injection = injectStreams(streams, batchWindow, startMillis)
+    val newCount = injection.count + count
+    if (injection.continue) {
+      goto(Started) using StartedData(startMillis, newCount, timer)
+
+    } else {
+      controller ! ControllerCommand.InjectionStopped(newCount)
+      timer.cancel()
+      stop()
     }
-
-  private def newUserId(): Long = {
-    userIdGen += 1
-    userIdGen
   }
 
-  override def inject(batchWindow: FiniteDuration): Injection = {
-    initStartTime()
-    val injections = userStreams.values.map(injectUserStream(_, batchWindow))
+  private def injectStreams(streams: Map[String, UserStream], batchWindow: FiniteDuration, startTime: Long): Injection = {
+    val injections = streams.values.map(withStream(_, batchWindow, startTime)(injectUser))
     val totalCount = injections.map(_.count).sum
     val totalContinue = injections.exists(_.continue)
     Injection(totalCount, totalContinue)
   }
 
-  private def injectUserStream(userStream: UserStream, batchWindow: FiniteDuration): Injection = {
+  private def startUser(scenario: Scenario, userId: Long): Unit = {
+    val session = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
+    scenario.entry ! session
+    logger.info(s"Start user #${session.userId}")
+    val userStart = UserMessage(session, io.gatling.core.stats.message.Start, session.startDate)
+    statsEngine.logUser(userStart)
+  }
+
+  private def injectUser(scenario: Scenario, delay: FiniteDuration): Unit = {
+    val userId = userIdGen.incrementAndGet()
+
+    if (delay <= ZeroMs) {
+      startUser(scenario, userId)
+    } else {
+      // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+      system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(scenario, userId))
+    }
+  }
+
+  private def withStream(userStream: UserStream, batchWindow: FiniteDuration, startTime: Long)(f: (Scenario, FiniteDuration) => Unit): Injection = {
 
     val scenario = userStream.scenario
     val stream = userStream.stream
-
-      def startUser(userId: Long): Unit = {
-        val session = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
-        scenario.entry ! session
-        logger.info(s"Start user #${session.userId}")
-        val userStart = UserMessage(session, Start, session.startDate)
-        statsEngine.logUser(userStart)
-      }
 
     if (stream.hasNext) {
       val batchTimeOffset = (nowMillis - startTime).millis
       val nextBatchTimeOffset = batchTimeOffset + batchWindow
 
       var continue = true
-      var notLast = true
+      var streamNonEmpty = true
       var count = 0L
 
-      while (notLast && continue) {
+      while (streamNonEmpty && continue) {
 
         val startingTime = stream.next()
-        notLast = stream.hasNext
+        streamNonEmpty = stream.hasNext
         val delay = startingTime - batchTimeOffset
         continue = startingTime < nextBatchTimeOffset
 
         if (continue) {
           count += 1
-          val userId = newUserId()
-
-          if (delay <= ZeroMs) {
-            startUser(userId)
-          } else {
-            // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-            system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(userId))
-          }
+          f(scenario, delay)
         } else {
-          notLast = true
+          streamNonEmpty = true
           stream.pushback(startingTime)
         }
       }
 
-      Injection(count, notLast)
+      Injection(count, streamNonEmpty)
     } else {
       Injection.Empty
     }
+  }
+
+  startWith(WaitingToStart, NoData)
+
+  when(WaitingToStart) {
+    case Event(Start, NoData) =>
+      val timer = system.scheduler.schedule(initialBatchWindow, tickPeriod, self, Tick)
+      inject(defaultStreams, initialBatchWindow, nowMillis, 0, timer)
+  }
+
+  when(Started) {
+    case Event(Tick, StartedData(startMillis, count, timer)) =>
+      inject(defaultStreams, tickPeriod, startMillis, count, timer)
+
+    case Event(OverrideStart(overrides), startedData: StartedData) =>
+      goto(Overridden) using OverriddenData(startedData, overrides)
+
+    case Event(OverrideStop, _) =>
+      // out of band
+      stay()
+  }
+
+  when(Overridden) {
+    case Event(Tick, OverriddenData(StartedData(startMillis, count, timer), overrides)) =>
+      // we still have to pull default streams, just drop them
+      defaultStreams.values.foreach {
+        withStream(_, tickPeriod, startMillis)((_, _) => ())
+      }
+      inject(overrides, tickPeriod, startMillis, count, timer)
+
+    case Event(OverrideStart(overrides), OverriddenData(startedData, _)) =>
+      goto(Overridden) using OverriddenData(startedData, overrides)
+
+    case Event(OverrideStop, OverriddenData(startedData, _)) =>
+      goto(Started) using startedData
   }
 }

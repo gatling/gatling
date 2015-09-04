@@ -15,11 +15,10 @@
  */
 package io.gatling.core.controller
 
-import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.Injector
+import io.gatling.core.controller.inject.{ InjectorCommand, Injector }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
@@ -39,20 +38,19 @@ object Controller {
 class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
     extends ControllerFSM {
 
+  import ControllerState._
+  import ControllerData._
+  import ControllerCommand._
+
   val maxDurationTimer = "maxDurationTimer"
-  val injectionTimer = "injectionTimer"
-  val injectorPeriod = 1 second
 
   startWith(WaitingToStart, NoData)
-
-  // -- STEP 1 :  Waiting for Gatling to start the Controller -- //
 
   when(WaitingToStart) {
     case Event(Start(scenarios), NoData) =>
       val initData = InitData(sender(), scenarios)
 
-      val injector = Injector(system, statsEngine, initData.scenarios)
-      val startedData = StartedData(initData, injector, new UserCounts(0L, 0L), injectionContinue = true)
+      val injector = Injector(system, self, statsEngine, initData.scenarios)
 
       simulationParams.maxDuration.foreach { maxDuration =>
         logger.debug("Setting up max duration")
@@ -60,49 +58,32 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       }
 
       throttler.start()
+      injector ! InjectorCommand.Start
 
-      // inject twice: one period ahead to avoid bumps
-      val state = inject(startedData, injectorPeriod * 2)
-
-      goto(Started) using state.stateData
+      goto(Started) using StartedData(initData, new UserCounts(0L, 0L))
   }
-
-  private def inject(startedData: StartedData, window: FiniteDuration): State = {
-    val injection = startedData.injector.inject(injectorPeriod)
-    startedData.userCounts.expected += injection.count
-    if (injection.continue) {
-      setTimer(injectionTimer, ScheduleNextInjection, injectorPeriod, repeat = false)
-      stay() using startedData
-    } else {
-      stay() using startedData.copy(injectionContinue = false)
-    }
-  }
-  // -- STEP 2 : The Controller is fully initialized, Simulation is now running -- //
 
   when(Started) {
     case Event(UserMessage(_, End, _), startedData: StartedData) =>
-      processUserMessage(startedData)
+      startedData.userCounts.completed += 1
+      evaluateUserCounts(startedData)
 
-    case Event(ScheduleNextInjection, startedData: StartedData) =>
-      inject(startedData, injectorPeriod)
+    case Event(InjectionStopped(expectedCount), startedData: StartedData) =>
+      startedData.userCounts.expected = expectedCount
+      evaluateUserCounts(startedData)
 
     case Event(ForceStop(exception), startedData: StartedData) =>
       stop(startedData, exception)
   }
 
-  private def processUserMessage(startedData: StartedData): State = {
-
-    startedData.userCounts.completed += 1
-
-    if (startedData.userCounts.allStopped && !startedData.injectionContinue)
+  private def evaluateUserCounts(startedData: StartedData): State =
+    if (startedData.userCounts.allStopped)
       stop(startedData, None)
     else
       stay()
-  }
 
   private def stop(startedData: StartedData, exception: Option[Exception]): State = {
     cancelTimer(maxDurationTimer)
-    cancelTimer(injectionTimer)
     statsEngine.stop(self)
     goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
   }

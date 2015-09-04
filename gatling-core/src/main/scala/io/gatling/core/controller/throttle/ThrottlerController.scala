@@ -62,6 +62,10 @@ private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throt
 
     case Event(OverrideStart(overrides), StartedData(tick)) =>
       goto(Overridden) using OverrideData(overrides, tick)
+
+    case Event(OverrideStop, _) =>
+      // out fo band
+      stay()
   }
 
   when(Overridden) {

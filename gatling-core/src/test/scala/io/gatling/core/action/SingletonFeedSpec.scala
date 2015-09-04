@@ -17,7 +17,7 @@ package io.gatling.core.action
 
 import akka.testkit._
 import io.gatling.AkkaSpec
-import io.gatling.core.controller.ForceStop
+import io.gatling.core.controller.ControllerCommand.ForceStop
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
 

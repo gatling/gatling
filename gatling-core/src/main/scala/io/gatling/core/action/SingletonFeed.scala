@@ -17,7 +17,7 @@ package io.gatling.core.action
 
 import io.gatling.commons.validation._
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.controller.ForceStop
+import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.{ Expression, Session }
 
@@ -58,7 +58,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
         case Success(s) => s
         case Failure(message) =>
           logger.error(s"Injection failed: $message, please report.")
-          controller ! ForceStop(Some(new IllegalStateException(message)))
+          controller ! ControllerCommand.ForceStop(Some(new IllegalStateException(message)))
           session
       }
 

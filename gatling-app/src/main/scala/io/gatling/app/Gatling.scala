@@ -23,7 +23,7 @@ import io.gatling.app.cli.{ StatusCode, ArgsParser }
 import io.gatling.commons.util.{ Ga, StringHelper }
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.Start
+import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.stats.writer.RunMessage
 
 import akka.actor.ActorSystem
@@ -104,7 +104,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       val timeout = Int.MaxValue.milliseconds - 10.seconds
 
       println(s"Simulation ${simulationClass.getName} started...")
-      val runResult = coreComponents.controller.ask(Start(scenarios))(timeout).mapTo[Try[String]]
+      val runResult = coreComponents.controller.ask(ControllerCommand.Start(scenarios))(timeout).mapTo[Try[String]]
       val res = Await.result(runResult, timeout)
       println(s"Simulation ${simulationClass.getName} completed")
 

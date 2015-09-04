@@ -19,18 +19,18 @@ import io.gatling.core.akka.BaseActor
 
 import akka.actor.FSM
 
-private[throttle] object ThrottlerControllerState {
-  private[throttle] case object WaitingToStart extends ThrottlerControllerState
-  private[throttle] case object Started extends ThrottlerControllerState
-  private[throttle] case object Overridden extends ThrottlerControllerState
-}
 private[throttle] sealed trait ThrottlerControllerState
-
-private[throttle] object ThrottlerControllerData {
-  private[throttle] case object NoData extends ThrottlerControllerData
-  private[throttle] case class StartedData(tick: Int) extends ThrottlerControllerData
-  private[throttle] case class OverrideData(overrides: Throttlings, tick: Int) extends ThrottlerControllerData
+private[throttle] object ThrottlerControllerState {
+  case object WaitingToStart extends ThrottlerControllerState
+  case object Started extends ThrottlerControllerState
+  case object Overridden extends ThrottlerControllerState
 }
+
 private[throttle] sealed trait ThrottlerControllerData
+private[throttle] object ThrottlerControllerData {
+  case object NoData extends ThrottlerControllerData
+  case class StartedData(tick: Int) extends ThrottlerControllerData
+  case class OverrideData(overrides: Throttlings, tick: Int) extends ThrottlerControllerData
+}
 
 private[throttle] class ThrottlerControllerFSM extends BaseActor with FSM[ThrottlerControllerState, ThrottlerControllerData]
