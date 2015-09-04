@@ -20,15 +20,19 @@ import scala.concurrent.duration._
 import akka.actor.ActorRef
 
 sealed trait ThrottlerControllerCommand
-case object ThrottlerControllerStart extends ThrottlerControllerCommand
-case class ThrottlerControllerOverrideStart(overrides: Throttlings) extends ThrottlerControllerCommand
-case object ThrottlerControllerOverrideStop extends ThrottlerControllerCommand
-case object ThrottlerControllerTick extends ThrottlerControllerCommand
 
-class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends ThrottlerControllerFSM {
+object ThrottlerControllerCommand {
+  case object Start extends ThrottlerControllerCommand
+  case class OverrideStart(overrides: Throttlings) extends ThrottlerControllerCommand
+  case object OverrideStop extends ThrottlerControllerCommand
+  case object Tick extends ThrottlerControllerCommand
+}
+
+private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends ThrottlerControllerFSM {
 
   import ThrottlerControllerState._
   import ThrottlerControllerData._
+  import ThrottlerControllerCommand._
 
   def notifyThrottler(throttlings: Throttlings, tick: Int): Unit = {
 
@@ -44,29 +48,29 @@ class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends Th
 
   when(WaitingToStart) {
 
-    case Event(ThrottlerControllerStart, NoData) =>
-      system.scheduler.schedule(Duration.Zero, 1 second, self, ThrottlerControllerTick)
+    case Event(Start, NoData) =>
+      system.scheduler.schedule(Duration.Zero, 1 second, self, Tick)
       notifyThrottler(defaults, 0)
       goto(Started) using StartedData(0)
   }
 
   when(Started) {
 
-    case Event(ThrottlerControllerTick, StartedData(tick)) =>
+    case Event(Tick, StartedData(tick)) =>
       notifyThrottler(defaults, tick)
       stay() using StartedData(tick + 1)
 
-    case Event(ThrottlerControllerOverrideStart(overrides), StartedData(tick)) =>
+    case Event(OverrideStart(overrides), StartedData(tick)) =>
       goto(Overridden) using OverrideData(overrides, tick)
   }
 
   when(Overridden) {
 
-    case Event(ThrottlerControllerTick, OverrideData(overrides, tick)) =>
+    case Event(Tick, OverrideData(overrides, tick)) =>
       notifyThrottler(overrides, tick)
       stay() using OverrideData(overrides, tick + 1)
 
-    case Event(ThrottlerControllerOverrideStop, OverrideData(_, tick)) =>
+    case Event(OverrideStop, OverrideData(_, tick)) =>
       goto(Started) using StartedData(tick)
   }
 }

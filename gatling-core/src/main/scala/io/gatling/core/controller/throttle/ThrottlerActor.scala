@@ -22,19 +22,18 @@ import scala.collection.mutable
 
 case class ThrottledRequest(scenarioName: String, request: () => Unit)
 
-class ThrottlerActor extends ThrottlerFSM {
+class ThrottlerActor extends ThrottlerActorFSM {
 
-  import ThrottlerState._
-  import ThrottlerData._
-
-  // FIXME use a capped size? or kill when overflow?
+  import ThrottlerActorState._
+  import ThrottlerActorData._
 
   startWith(WaitingToStart, NoData)
 
   when(WaitingToStart) {
 
     case Event(throttles: Throttles, NoData) =>
-      goto(Started) using StartedData(throttles, mutable.ArrayBuffer.empty[(String, () => Unit)], nanoTime)
+      // FIXME use a capped size? or kill when overflow?
+      goto(Started) using StartedData(throttles, mutable.ArrayBuffer.empty[ThrottledRequest], nanoTime)
   }
 
   def millisSinceTick(tickNanos: Long): Int = ((nanoTime - tickNanos) / 1000000).toInt
@@ -51,33 +50,27 @@ class ThrottlerActor extends ThrottlerFSM {
     }
   }
 
-  private def sendOrEnqueueRequest(data: StartedData, scenarioName: String, request: () => Unit): Unit = {
+  private def sendOrEnqueueRequest(data: StartedData, throttledRequest: ThrottledRequest): Unit = {
     import data._
-    if (throttles.limitReached(scenarioName)) {
-      buffer += (scenarioName -> request)
+    if (throttles.limitReached(throttledRequest.scenarioName)) {
+      buffer += throttledRequest
 
     } else {
-      sendRequest(data, request)
+      sendRequest(data, throttledRequest.request)
       throttles.global.foreach(_.increment())
-      throttles.perScenario.get(scenarioName).foreach(_.increment())
+      throttles.perScenario.get(throttledRequest.scenarioName).foreach(_.increment())
       data.incrementCount()
     }
   }
 
   when(Started) {
     case Event(throttles: Throttles, data: StartedData) =>
-
-      val newData = new StartedData(throttles, new mutable.ArrayBuffer[(String, () => Unit)](data.buffer.size), nanoTime)
-
-      data.buffer.foreach {
-        case (scenarioName, request) =>
-          sendOrEnqueueRequest(newData, scenarioName, request)
-      }
-
+      val newData = new StartedData(throttles, new mutable.ArrayBuffer[ThrottledRequest](data.buffer.size), nanoTime)
+      data.buffer.foreach(sendOrEnqueueRequest(newData, _))
       stay() using newData
 
-    case Event(ThrottledRequest(scenarioName, request), data: StartedData) =>
-      sendOrEnqueueRequest(data, scenarioName, request)
+    case Event(throttledRequest: ThrottledRequest, data: StartedData) =>
+      sendOrEnqueueRequest(data, throttledRequest)
       stay()
   }
 }
