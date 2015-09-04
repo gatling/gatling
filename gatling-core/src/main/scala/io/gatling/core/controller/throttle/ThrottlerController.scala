@@ -70,6 +70,9 @@ private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throt
       notifyThrottler(overrides, tick)
       stay() using OverrideData(overrides, tick + 1)
 
+    case Event(OverrideStart(newOverrides), OverrideData(_, tick)) =>
+      stay() using OverrideData(newOverrides, tick)
+
     case Event(OverrideStop, OverrideData(_, tick)) =>
       goto(Started) using StartedData(tick)
   }
