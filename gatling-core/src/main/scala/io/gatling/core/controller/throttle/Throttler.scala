@@ -48,7 +48,7 @@ object Throttler {
 
 class Throttler(throttlerController: ActorRef, throttlerActor: ActorRef) {
 
-  def start(): Unit = throttlerActor ! ThrottlerControllerCommand.Start
+  def start(): Unit = throttlerController ! ThrottlerControllerCommand.Start
 
   def throttle(scenarioName: String, action: () => Unit): Unit =
     throttlerActor ! ThrottledRequest(scenarioName, action)
