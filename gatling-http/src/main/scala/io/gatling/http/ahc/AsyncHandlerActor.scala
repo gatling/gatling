@@ -218,6 +218,12 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           .setRealm(originalRequest.getRealm)
           .setHeaders(newHeaders)
 
+        if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
+          val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
+          val protocolProxy = httpProtocol.proxyPart.proxies.map { case (httpProxy, httpsProxy) => if (HttpHelper.isSecure(redirectUri)) httpsProxy else httpProxy }
+          originalRequestProxy.orElse(protocolProxy).foreach(requestBuilder.setProxyServer)
+        }
+
         if (keepBody) {
           requestBuilder.setBodyCharset(originalRequest.getBodyCharset)
           if (originalRequest.getFormParams.nonEmpty)
