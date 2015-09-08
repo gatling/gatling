@@ -85,7 +85,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     CONTINUE
   }
 
-  override def onContentWriten: State = {
+  override def onContentWritten: State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }
