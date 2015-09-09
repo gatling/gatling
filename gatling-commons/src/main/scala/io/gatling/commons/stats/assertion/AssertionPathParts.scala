@@ -15,9 +15,9 @@
  */
 package io.gatling.commons.stats.assertion
 
-object AssertionPath {
-  implicit def string2assertionPath(path: String) = AssertionPath(List(path))
+object AssertionPathParts {
+  implicit def string2PathParts(path: String) = AssertionPathParts(List(path))
 }
-case class AssertionPath(parts: List[String]) {
+case class AssertionPathParts(parts: List[String]) {
   def /(part: String) = copy(parts = parts :+ part)
 }

@@ -25,20 +25,20 @@ trait Printable {
 // -- Assertion ADT -- //
 // ------------------- //
 
-case class Assertion(path: Path, target: Target, condition: Condition)
+case class Assertion(path: AssertionPath, target: Target, condition: Condition)
 
 // -------------- //
 // -- Path ADT -- //
 // -------------- //
 
-sealed trait Path extends Printable
-case object Global extends Path {
+sealed trait AssertionPath extends Printable
+case object Global extends AssertionPath {
   val printable = "Global"
 }
-case object ForAll extends Path {
+case object ForAll extends AssertionPath {
   val printable = "For all requests"
 }
-case class Details(parts: List[String]) extends Path {
+case class Details(parts: List[String]) extends AssertionPath {
   def printable =
     if (parts.isEmpty)
       Global.printable

@@ -18,7 +18,7 @@ package io.gatling.core.assertion
 import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
-class AssertionWithPath(path: Path)(implicit configuration: GatlingConfiguration) {
+class AssertionWithPath(path: AssertionPath)(implicit configuration: GatlingConfiguration) {
 
   def responseTime = new AssertionWithPathAndTimeMetric(path, ResponseTime)
   def allRequests = new AssertionWithPathAndCountMetric(path, AllRequests)
@@ -27,7 +27,7 @@ class AssertionWithPath(path: Path)(implicit configuration: GatlingConfiguration
   def requestsPerSec = new AssertionWithPathAndTarget(path, MeanRequestsPerSecondTarget)
 }
 
-class AssertionWithPathAndTimeMetric(path: Path, metric: TimeMetric)(implicit configuration: GatlingConfiguration) {
+class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric)(implicit configuration: GatlingConfiguration) {
 
   private def next(selection: TimeSelection) =
     new AssertionWithPathAndTarget(path, TimeTarget(metric, selection))
@@ -42,7 +42,7 @@ class AssertionWithPathAndTimeMetric(path: Path, metric: TimeMetric)(implicit co
   def percentile4 = next(Percentiles(configuration.charting.indicators.percentile4))
 }
 
-class AssertionWithPathAndCountMetric(path: Path, metric: CountMetric) {
+class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
 
   private def next(selection: CountSelection) =
     new AssertionWithPathAndTarget(path, CountTarget(metric, selection))
@@ -52,7 +52,7 @@ class AssertionWithPathAndCountMetric(path: Path, metric: CountMetric) {
   def perMillion = next(PerMillion)
 }
 
-class AssertionWithPathAndTarget(path: Path, target: Target) {
+class AssertionWithPathAndTarget(path: AssertionPath, target: Target) {
 
   def next(condition: Condition) =
     Assertion(path, target, condition)
