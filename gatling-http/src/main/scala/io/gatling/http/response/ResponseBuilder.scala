@@ -15,7 +15,6 @@
  */
 package io.gatling.http.response
 
-import java.net.InetAddress
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
@@ -33,6 +32,7 @@ import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, i
 
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient._
+import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.netty.NettyResponseBodyPart
 import org.jboss.netty.buffer.ChannelBuffer
@@ -91,7 +91,7 @@ class ResponseBuilder(
   private val chunks = new ArrayBuffer[ChannelBuffer]
   private var digests: Map[String, MessageDigest] = initDigests()
   private var nettyRequest: Option[NettyRequest] = None
-  private var remoteAddress: Option[InetAddress] = None
+  private var nameResolutions: Option[Array[NameResolution]] = None
 
   def initDigests(): Map[String, MessageDigest] =
     if (computeChecksums)
@@ -106,8 +106,8 @@ class ResponseBuilder(
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
 
-  def setRemoteAddress(remoteAddress: InetAddress) =
-    this.remoteAddress = Some(remoteAddress)
+  def setNameResolutions(nameResolutions: Array[NameResolution]) =
+    this.nameResolutions = Some(nameResolutions)
 
   def reset(): Unit = {
     firstByteSent = nowMillis
@@ -185,7 +185,7 @@ class ResponseBuilder(
         ByteArrayResponseBody(chunks, resolvedCharset)
 
     val timings = ResponseTimings(firstByteSent, lastByteReceived)
-    val rawResponse = HttpResponse(request, nettyRequest, remoteAddress, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
+    val rawResponse = HttpResponse(request, nettyRequest, nameResolutions, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseTransformer match {
       case None              => rawResponse

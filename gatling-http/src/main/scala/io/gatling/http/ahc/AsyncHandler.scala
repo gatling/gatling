@@ -22,6 +22,7 @@ import io.gatling.http.action.sync.HttpTx
 
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient._
+import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.handler._
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State._
@@ -57,16 +58,18 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   override def onConnectionOpen(): Unit = start()
 
-  override def onConnectionOpened(channel: Any): Unit = {}
-
   override def onConnectionPool(): Unit = {}
+
+  override def onConnectionSuccess(channel: Any, address: InetAddress): Unit = {}
+
+  override def onConnectionFailure(address: InetAddress): Unit = {}
 
   override def onConnectionPooled(channel: Any): Unit = {}
 
   override def onConnectionOffer(channel: Any): Unit = {}
 
-  override def onDnsResolved(address: InetAddress): Unit =
-    responseBuilder.setRemoteAddress(address)
+  override def onDnsResolved(nameResolutions: Array[NameResolution]): Unit =
+    responseBuilder.setNameResolutions(nameResolutions)
 
   override def onSslHandshakeCompleted(): Unit = {}
 
@@ -80,12 +83,12 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
 
-  override def onHeadersWritten: State = {
+  override def onHeadersWritten(): State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }
 
-  override def onContentWritten: State = {
+  override def onContentWritten(): State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }

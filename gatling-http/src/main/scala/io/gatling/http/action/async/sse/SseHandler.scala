@@ -28,6 +28,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
+import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.NettyResponseBodyPart
 import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
@@ -44,8 +45,10 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onConnectionOpen(): Unit = ()
 
-  override def onConnectionOpened(connection: Any): Unit =
+  override def onConnectionSuccess(connection: Any, address: InetAddress): Unit =
     state = Open
+
+  override def onConnectionFailure(address: InetAddress): Unit = {}
 
   override def onConnectionPool(): Unit = ()
 
@@ -53,7 +56,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onConnectionOffer(connection: Any): Unit = ()
 
-  override def onDnsResolved(address: InetAddress): Unit = ()
+  override def onDnsResolved(address: Array[NameResolution]): Unit = ()
 
   override def onSslHandshakeCompleted(): Unit = ()
 

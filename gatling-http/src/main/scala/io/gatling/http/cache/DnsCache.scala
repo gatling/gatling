@@ -15,12 +15,12 @@
  */
 package io.gatling.http.cache
 
-import java.net.InetAddress
-
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.http.protocol.HttpProtocol
+
+import org.asynchttpclient.channel.NameResolution
 
 object DnsCache {
   val DnsCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
@@ -30,18 +30,24 @@ trait DnsCache {
 
   import DnsCache._
 
-  val dnsCacheHandler = new SessionCacheHandler[String, InetAddress](DnsCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
+  val dnsCacheHandler = new SessionCacheHandler[String, Array[NameResolution]](DnsCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def configuration: GatlingConfiguration
 
-  def cacheDnsLookup(httpProtocol: HttpProtocol, name: String, address: Option[InetAddress]): Session => Session =
+  def cacheDnsLookup(httpProtocol: HttpProtocol, name: String, nameResolutions: Option[Array[NameResolution]]): Session => Session =
     if (httpProtocol.enginePart.shareDnsCache)
       Session.Identity
-    else address match {
-      case Some(a) => dnsCacheHandler.addEntry(_, name, a)
-      case _       => Session.Identity
+    else nameResolutions match {
+      case Some(resolutions) => dnsCacheHandler.addEntry(_, name, resolutions)
+      case _                 => Session.Identity
     }
 
-  def dnsLookupCacheEntry(session: Session, name: String): Option[InetAddress] =
-    dnsCacheHandler.getEntry(session, name)
+  def dnsLookupCacheEntry(session: Session, name: String): Option[Array[NameResolution]] =
+    dnsCacheHandler.getEntry(session, name).flatMap { resolutions =>
+      val nonExpiredResolutions = resolutions.filter(_.expiration > System.currentTimeMillis)
+      if (nonExpiredResolutions.nonEmpty)
+        Some(nonExpiredResolutions)
+      else
+        None
+    }
 }

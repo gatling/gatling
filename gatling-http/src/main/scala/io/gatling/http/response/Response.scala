@@ -15,11 +15,11 @@
  */
 package io.gatling.http.response
 
-import java.net.InetAddress
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.asScalaBuffer
 
+import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.cookie.{ Cookie, CookieDecoder }
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
@@ -34,7 +34,7 @@ abstract class Response {
 
   def request: AHCRequest
   def nettyRequest: Option[NettyRequest]
-  def remoteAddress: Option[InetAddress]
+  def nameResolutions: Option[Array[NameResolution]]
   def isReceived: Boolean
 
   def status: Option[HttpResponseStatus]
@@ -62,16 +62,16 @@ abstract class Response {
 }
 
 case class HttpResponse(
-    request:       AHCRequest,
-    nettyRequest:  Option[NettyRequest],
-    remoteAddress: Option[InetAddress],
-    status:        Option[HttpResponseStatus],
-    headers:       FluentCaseInsensitiveStringsMap,
-    body:          ResponseBody,
-    checksums:     Map[String, String],
-    bodyLength:    Int,
-    charset:       Charset,
-    timings:       ResponseTimings
+    request:         AHCRequest,
+    nettyRequest:    Option[NettyRequest],
+    nameResolutions: Option[Array[NameResolution]],
+    status:          Option[HttpResponseStatus],
+    headers:         FluentCaseInsensitiveStringsMap,
+    body:            ResponseBody,
+    checksums:       Map[String, String],
+    bodyLength:      Int,
+    charset:         Charset,
+    timings:         ResponseTimings
 ) extends Response {
 
   def isReceived = status.isDefined
@@ -99,7 +99,7 @@ class ResponseWrapper(delegate: Response) extends Response {
 
   def request: AHCRequest = delegate.request
   def nettyRequest: Option[NettyRequest] = delegate.nettyRequest
-  def remoteAddress: Option[InetAddress] = delegate.remoteAddress
+  def nameResolutions: Option[Array[NameResolution]] = delegate.nameResolutions
   def isReceived = delegate.isReceived
 
   def status = delegate.status
