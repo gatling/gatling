@@ -11,7 +11,7 @@ Thanks to this plugin, Gatling can be launched when building your project, for e
 Versions
 ========
 
-Check out available versions on `Maven Central <http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.gatling%22%20AND%20a%3A%22gatling-maven-plugin%22>`.
+Check out available versions on `Maven Central <http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.gatling%22%20AND%20a%3A%22gatling-maven-plugin%22>`_.
 
 Beware that milestones (M versions) are undocumented and releases for Gatling customers.
 
