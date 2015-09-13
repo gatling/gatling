@@ -28,7 +28,7 @@ object Dependencies {
   private val boopickle                     = "me.chrons"                             %% "boopickle"                    % "1.1.0"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                        % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                  % "3.0"
-  private val zinc                          = "com.typesafe.zinc"                      % "zinc"                         % "0.3.7" exclude("org.scala-lang", "scala-compiler")
+  private val zinc                          = "com.typesafe.zinc"                      % "zinc"                         % "0.3.8.1" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"        % "1.1.1"
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"              % "1.1.3"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                     % "3.1"
