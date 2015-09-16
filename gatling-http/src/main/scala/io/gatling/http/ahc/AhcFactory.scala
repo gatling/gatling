@@ -96,7 +96,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   }
 
   private def newNettyConfig(nioThreadPool: ExecutorService, timer: Timer, channelPool: ChannelPool): NettyAsyncHttpProviderConfig = {
-    val numWorkers = ahcConfig.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+    val numWorkers = 2 * Runtime.getRuntime.availableProcessors
     val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, timer, null), new NioWorkerPool(nioThreadPool, numWorkers))
     system.registerOnTermination(socketChannelFactory.releaseExternalResources())
     val nettyConfig = new NettyAsyncHttpProviderConfig
@@ -119,12 +119,12 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setReadTimeout(ahcConfig.readTimeout)
       .setConnectionTTL(ahcConfig.connectionTTL)
-      .setIOThreadMultiplier(ahcConfig.ioThreadMultiplier)
+      .setIOThreadMultiplier(2)
       .setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
       .setMaxConnections(ahcConfig.maxConnections)
       .setMaxRequestRetry(ahcConfig.maxRetry)
       .setRequestTimeout(ahcConfig.requestTimeOut)
-      .setUseProxyProperties(ahcConfig.useProxyProperties)
+      .setUseProxyProperties(false)
       .setUserAgent(null)
       .setExecutorService(applicationThreadPool)
       .setAsyncHttpClientProviderConfig(nettyConfig)
@@ -143,7 +143,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setHttpClientCodecMaxInitialLineLength(ahcConfig.httpClientCodecMaxInitialLineLength)
       .setHttpClientCodecMaxHeaderSize(ahcConfig.httpClientCodecMaxHeaderSize)
       .setHttpClientCodecMaxChunkSize(ahcConfig.httpClientCodecMaxChunkSize)
-      .setKeepEncodingHeader(ahcConfig.keepEncodingHeader)
+      .setKeepEncodingHeader(true)
       .setWebSocketMaxFrameSize(ahcConfig.webSocketMaxFrameSize)
 
     val trustManagers = configuration.http.ssl.trustStore
