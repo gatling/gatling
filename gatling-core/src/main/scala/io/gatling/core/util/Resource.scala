@@ -43,7 +43,7 @@ object Resource {
       }
   }
 
-  private object FileInFolderResource {
+  private object DirectoryChildResource {
     def unapply(location: Location): Option[Validation[Resource]] =
       (location.directory / location.path).ifFile(f => FileResource(f).success)
   }
@@ -55,10 +55,10 @@ object Resource {
 
   private def load(directory: Path, path: String): Validation[Resource] =
     Location(directory, path) match {
-      case ClasspathResource(res)    => res
-      case FileInFolderResource(res) => res
-      case AbsoluteFileResource(res) => res
-      case _                         => s"file $path doesn't exist".failure
+      case ClasspathResource(res)      => res
+      case DirectoryChildResource(res) => res
+      case AbsoluteFileResource(res)   => res
+      case _                           => s"file $path doesn't exist".failure
     }
 
   private case class Location(directory: Path, path: String)
