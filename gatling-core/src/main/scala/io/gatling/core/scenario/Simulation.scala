@@ -116,7 +116,6 @@ abstract class Simulation {
     }
 
     SimulationParams(
-      getClass.getName,
       _populationBuilders,
       _globalProtocols,
       _globalPauseType,
@@ -130,7 +129,6 @@ abstract class Simulation {
 }
 
 case class SimulationParams(
-    name:               String,
     populationBuilders: List[PopulationBuilder],
     globalProtocols:    Protocols,
     globalPauseType:    PauseType,

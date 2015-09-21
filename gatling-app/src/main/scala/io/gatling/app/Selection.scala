@@ -25,7 +25,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
 import io.gatling.core.scenario.Simulation
 
-case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
+case class Selection(simulationClass: Class[Simulation], userDefinedSimulationId: Option[String], defaultSimulationId: String, description: String)
 
 object Selection {
 
@@ -44,13 +44,13 @@ object Selection {
 
       // -- Ask for simulation ID and run description if required -- //
       val muteModeActive = configuration.core.muteMode || configuration.core.simulationClass.isDefined
-      val defaultBaseName = defaultOutputDirectoryBaseName(simulation)
+      val defaultSimulationId = defaultOutputDirectoryBaseName(simulation)
       val optionalDescription = configuration.core.runDescription
 
-      val simulationId = if (muteModeActive) defaultBaseName else askSimulationId(simulation, defaultBaseName)
+      val simulationId = if (muteModeActive) None else askSimulationId(simulation, defaultSimulationId)
       val runDescription = optionalDescription.getOrElse(if (muteModeActive) "" else askRunDescription())
 
-      Selection(simulation, simulationId, runDescription)
+      Selection(simulation, simulationId, defaultSimulationId, runDescription)
     }
 
     private def loadSimulations: SimulationClasses = {
@@ -120,10 +120,10 @@ object Selection {
       simulationClasses(readSimulationNumber)
     }
 
-    private def askSimulationId(clazz: Class[Simulation], defaultBaseName: String): String = {
+    private def askSimulationId(clazz: Class[Simulation], defaultSimulationId: String): Option[String] = {
         @tailrec
         def loop(): String = {
-          println(s"Select simulation id (default is '$defaultBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
+          println(s"Select simulation id (default is '$defaultSimulationId'). Accepted characters are a-z, A-Z, 0-9, - and _")
           val input = StdIn.readLine().trim
           if (input.matches("[\\w-_]*")) input
           else {
@@ -133,7 +133,7 @@ object Selection {
         }
 
       val input = loop()
-      if (input.nonEmpty) input else defaultBaseName
+      if (input.nonEmpty) Some(input) else None
     }
 
     private def askRunDescription(): String = {

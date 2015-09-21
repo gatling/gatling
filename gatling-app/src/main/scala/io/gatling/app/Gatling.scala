@@ -93,7 +93,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
 
       simulationParams.beforeSteps.foreach(_.apply())
 
-      val runMessage = RunMessage(selection.simulationClass.getName, selection.simulationId, nowMillis, selection.description)
+      val runMessage = RunMessage(selection.simulationClass.getName, selection.userDefinedSimulationId, selection.defaultSimulationId, nowMillis, selection.description)
 
       val coreComponents = coreComponentsFactory.coreComponents(system, simulationParams, runMessage)
 

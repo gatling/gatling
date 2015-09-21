@@ -24,12 +24,14 @@ import io.gatling.core.stats.message.{ ResponseTimings, MessageEvent }
 case class ShortScenarioDescription(name: String, userCount: Int)
 
 case class RunMessage(
-    simulationClassName: String,
-    simulationId:        String,
-    start:               Long,
-    runDescription:      String
+    simulationClassName:     String,
+    userDefinedSimulationId: Option[String],
+    defaultSimulationId:     String,
+    start:                   Long,
+    runDescription:          String
 ) {
 
+  val simulationId = userDefinedSimulationId.getOrElse(defaultSimulationId)
   val runId = simulationId + "-" + start
 }
 
