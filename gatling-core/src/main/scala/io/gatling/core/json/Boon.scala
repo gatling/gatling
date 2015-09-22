@@ -18,7 +18,7 @@ package io.gatling.core.json
 import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 
-import org.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSource }
+import io.advantageous.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSource }
 
 class Boon extends JsonParser {
 
