@@ -64,7 +64,7 @@ The example below shows the default values.
   <!--   <failOnError>true</failOnError> -->
   </configuration>
 
-See `source code <https://github.com/gatling/gatling-maven-plugin/blob/master/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation.
+See `source code <https://github.com/gatling/gatling-maven/blob/master/gatling-maven-plugin/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation.
 
 Override the logback.xml file
 =============================
