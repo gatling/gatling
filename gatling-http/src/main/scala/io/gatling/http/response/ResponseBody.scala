@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets._
 import scala.annotation.switch
 
 import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInputStream }
+import io.gatling.http.util.BytesHelper._
 
 import io.netty.buffer.ByteBuf
 
@@ -48,20 +49,7 @@ object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
 
 object ResponseBody {
 
-  def byteBufsToBytes(bufs: Seq[ByteBuf]): Array[Byte] = {
-    val bytes = new Array[Byte](bufs.map(_.readableBytes).sum)
 
-    var pos = 0
-    bufs.foreach { buf =>
-      val i = buf.readableBytes
-      buf.getBytes(0, bytes, pos, i)
-      pos += i
-    }
-
-    bytes
-  }
-
-  val EmptyBytes = new Array[Byte](0)
 }
 
 sealed trait ResponseBody {
@@ -73,8 +61,7 @@ sealed trait ResponseBody {
 object StringResponseBody {
 
   def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-    val bytes = ResponseBody.byteBufsToBytes(chunks)
-    val string = new String(bytes, charset)
+    val string = byteBufsToString(chunks, charset)
     new StringResponseBody(string, charset)
   }
 }
@@ -88,7 +75,7 @@ class StringResponseBody(val string: String, charset: Charset) extends ResponseB
 object ByteArrayResponseBody {
 
   def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-    val bytes = ResponseBody.byteBufsToBytes(chunks)
+    val bytes = byteBufsToBytes(chunks)
     new ByteArrayResponseBody(bytes, charset)
   }
 }
@@ -117,28 +104,28 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
 
   def stream = (chunks.size: @switch) match {
 
-    case 0 => new FastByteArrayInputStream(ResponseBody.EmptyBytes)
+    case 0 => new FastByteArrayInputStream(EmptyBytes)
     case 1 => new ByteArrayInputStream(chunks.head)
     case _ => new CompositeByteArrayInputStream(chunks)
   }
 
+  private var bytesLoaded = false
   lazy val bytes = {
-    val all = new Array[Byte](chunks.map(_.length).sum)
-    var pos = 0
-    chunks.foreach { chunk =>
-      System.arraycopy(chunk, 0, all, pos, chunk.length)
-      pos += chunk.length
-    }
-
-    all
+    bytesLoaded = true
+    byteArraysToByteArray(chunks)
   }
 
-  lazy val string = new String(bytes, charset)
+  lazy val string = {
+    if (bytesLoaded)
+      new String(bytes, charset)
+    else
+      byteArraysToString(chunks, charset)
+  }
 }
 
 object NoResponseBody extends ResponseBody {
   val charset = UTF_8
-  val bytes = ResponseBody.EmptyBytes
+  val bytes = EmptyBytes
   def stream = new FastByteArrayInputStream(bytes)
   val string = ""
 }
