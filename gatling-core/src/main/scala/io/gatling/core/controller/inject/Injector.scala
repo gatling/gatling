@@ -18,6 +18,7 @@ package io.gatling.core.controller.inject
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.{ LongCounter, PushbackIterator }
+import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.Scenario
@@ -82,7 +83,7 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
 
   private def injectStreams(streams: Map[String, UserStream], batchWindow: FiniteDuration, startTime: Long): Injection = {
     val injections = streams.values.map(withStream(_, batchWindow, startTime)(injectUser))
-    val totalCount = injections.map(_.count).sum
+    val totalCount = injections.sumBy(_.count)
     val totalContinue = injections.exists(_.continue)
     Injection(totalCount, totalContinue)
   }

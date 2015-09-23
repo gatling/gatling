@@ -13,18 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.controller.inject
+package io.gatling.commons.util
 
-import scala.concurrent.duration.FiniteDuration
+object Collections {
 
-import io.gatling.commons.util.Collections._
+  implicit class PimpedTraversableOnce[A](val t: TraversableOnce[A]) extends AnyVal {
 
-/**
- * This class represents the configuration of a scenario
- *
- * @param injectionSteps the number of users that will behave as this scenario says
- */
-case class InjectionProfile(injectionSteps: Iterable[InjectionStep]) {
-  val userCount = injectionSteps.sumBy(_.users)
-  val allUsers = injectionSteps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
+    def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
+      var sum = num.zero
+      for(x <- this) sum = num.plus(sum, f(x))
+      sum
+    }
+  }
 }

@@ -20,12 +20,14 @@ import java.nio.charset.{CharacterCodingException, Charset}
 
 import scala.annotation.switch
 
+import io.gatling.commons.util.Collections._
+
 import io.netty.buffer.ByteBuf
 
 object BytesHelper {
 
   def byteBufsToBytes(bufs: Seq[ByteBuf]): Array[Byte] = {
-    val bytes = new Array[Byte](bufs.map(_.readableBytes).sum)
+    val bytes = new Array[Byte](bufs.sumBy(_.readableBytes))
 
     var pos = 0
     bufs.foreach { buf =>
@@ -42,7 +44,7 @@ object BytesHelper {
       case 0 => Array.empty
       case 1 => arrays.head
       case _ =>
-      val all = new Array[Byte](arrays.map(_.length).sum)
+      val all = new Array[Byte](arrays.sumBy(_.length))
       var pos = 0
       arrays.foreach { array =>
         System.arraycopy(array, 0, all, pos, array.length)
@@ -61,7 +63,7 @@ object BytesHelper {
   def byteBuffersToString(bufs: Seq[ByteBuffer], cs: Charset): String = {
 
     val cd = cs.newDecoder
-    val len = bufs.map(_.remaining).sum
+    val len = bufs.sumBy(_.remaining)
     val en = (len * cd.maxCharsPerByte.toDouble).toInt
     val ca = new Array[Char](en)
     cd.reset()

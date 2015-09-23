@@ -17,6 +17,7 @@ package io.gatling.core.controller.throttle
 
 import scala.collection.mutable
 
+import io.gatling.commons.util.Collections._
 import io.gatling.core.akka.BaseActor
 
 import akka.actor.FSM
@@ -44,7 +45,7 @@ private[throttle] object ThrottlerActorData {
         if (throttles.perScenario.isEmpty)
           Int.MaxValue
         else
-          throttles.perScenario.values.map(_.limit).sum
+          throttles.perScenario.values.sumBy(_.limit)
       val limit = math.min(globalLimit, perScenarioLimit)
 
       1000.0 / limit

@@ -17,6 +17,7 @@ package io.gatling.charts.report
 
 import io.gatling.charts.util.Colors._
 import io.gatling.commons.stats.{ OK, Status }
+import io.gatling.commons.util.Collections._
 import io.gatling.core.stats.CountsVsTimePlot
 
 private[charts] object ReportGenerator {
@@ -27,11 +28,10 @@ private[charts] object ReportGenerator {
 private[charts] abstract class ReportGenerator {
   def generate(): Unit
 
-  def count(records: Seq[CountsVsTimePlot], status: Status): Int = records.iterator.map { counts =>
+  def count(records: Seq[CountsVsTimePlot], status: Status): Int = records.sumBy { counts =>
     status match {
       case OK => counts.oks
       case _  => counts.kos
     }
-
-  }.sum
+  }
 }

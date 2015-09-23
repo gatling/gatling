@@ -17,12 +17,14 @@ package io.gatling.commons.util
 
 import java.io.InputStream
 
+import io.gatling.commons.util.Collections._
+
 class CompositeByteArrayInputStream(parts: Seq[Array[Byte]]) extends InputStream {
 
   private var currentPos = 0
   private var bytePos = -1
   private var active: Array[Byte] = parts(currentPos)
-  private var _available = parts.map(_.length).sum
+  private var _available = parts.sumBy(_.length)
 
   override val available: Int = _available
 

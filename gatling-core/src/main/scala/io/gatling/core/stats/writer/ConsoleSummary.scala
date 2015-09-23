@@ -22,6 +22,7 @@ import scala.collection.mutable
 import scala.math.{ ceil, floor }
 
 import io.gatling.commons.stats.ErrorStats
+import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 
@@ -95,8 +96,8 @@ $writeErrors$NewBlock
 """.toString
 
     val complete = {
-      val totalWaiting = usersCounters.values.map(_.waitingCount).sum
-      val totalRunning = usersCounters.values.map(_.activeCount).sum
+      val totalWaiting = usersCounters.values.sumBy(_.waitingCount)
+      val totalRunning = usersCounters.values.sumBy(_.activeCount)
       (totalWaiting == 0) && (totalRunning == 0)
     }
 

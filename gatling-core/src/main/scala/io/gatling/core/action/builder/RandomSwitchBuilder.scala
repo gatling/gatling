@@ -19,6 +19,7 @@ import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.commons.validation._
+import io.gatling.commons.util.Collections._
 import io.gatling.core.action.Switch
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
@@ -46,7 +47,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
   import RandomSwitchBuilder._
 
-  val sum = possibilities.map(_._1).sum
+  val sum = possibilities.sumBy(_._1)
   require(sum <= Accuracy, s"Random switch weights sum is ${sum / Accuracy}, mustn't be bigger than 100%")
   if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
