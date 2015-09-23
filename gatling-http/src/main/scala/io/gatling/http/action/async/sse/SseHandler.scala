@@ -30,8 +30,8 @@ import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
 import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.handler._
-import org.asynchttpclient.netty.NettyResponseBodyPart
-import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
+import org.asynchttpclient.netty.LazyNettyResponseBodyPart
+import io.netty.handler.codec.http.HttpResponseStatus.OK
 
 class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
@@ -71,7 +71,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     val statusCode = responseStatus.getStatusCode
     logger.debug(s"Status $statusCode received for sse '${tx.requestName}")
 
-    if (statusCode == OK.getCode) {
+    if (statusCode == OK.code) {
       sseActor ! OnOpen(tx, this, nowMillis)
       CONTINUE
 
@@ -92,7 +92,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
       bodyPart.markUnderlyingConnectionAsToBeClosed()
       ABORT
     } else {
-      val payload = bodyPart.asInstanceOf[NettyResponseBodyPart].getChannelBuffer.toString(UTF_8)
+      val payload = bodyPart.asInstanceOf[LazyNettyResponseBodyPart].getBuf.toString(UTF_8)
       parse(payload)
       CONTINUE
     }

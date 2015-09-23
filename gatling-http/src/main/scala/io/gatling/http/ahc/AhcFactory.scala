@@ -25,17 +25,18 @@ import io.gatling.core.session.Session
 import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.util.concurrent.DefaultThreadFactory
 import org.asynchttpclient._
 import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig
-import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
+import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
 import org.asynchttpclient.netty.ws.NettyWebSocket
 import org.asynchttpclient.ws.WebSocketListener
 import com.typesafe.scalalogging.StrictLogging
-import org.jboss.netty.channel.Channel
-import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
-import org.jboss.netty.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
-import org.jboss.netty.util.{ Timer, HashedWheelTimer }
+import io.netty.channel.{ EventLoopGroup, Channel }
+import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
+import io.netty.util.{ Timer, HashedWheelTimer }
 
 private[gatling] object AhcFactory {
 
@@ -73,10 +74,10 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     applicationThreadPool
   }
 
-  private def newNioThreadPool: ExecutorService = {
-    val nioThreadPool = Executors.newCachedThreadPool
-    system.registerOnTermination(() => nioThreadPool.shutdown())
-    nioThreadPool
+  private def newEventLoopGroup: EventLoopGroup = {
+    val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("gatling-netty-thread"))
+    system.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
+    eventLoopGroup
   }
 
   private def newTimer: Timer = {
@@ -95,18 +96,17 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     )
   }
 
-  private def newNettyConfig(nioThreadPool: ExecutorService, timer: Timer, channelPool: ChannelPool): NettyAsyncHttpProviderConfig = {
-    val numWorkers = 2 * Runtime.getRuntime.availableProcessors
-    val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, timer, null), new NioWorkerPool(nioThreadPool, numWorkers))
-    system.registerOnTermination(socketChannelFactory.releaseExternalResources())
+  private def newNettyConfig(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool): NettyAsyncHttpProviderConfig = {
+
     val nettyConfig = new NettyAsyncHttpProviderConfig
-    nettyConfig.setSocketChannelFactory(socketChannelFactory)
+    nettyConfig.setEventLoopGroup(eventLoopGroup)
     nettyConfig.setNettyTimer(timer)
     nettyConfig.setChannelPool(channelPool)
     nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
       override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
         new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
     })
+    nettyConfig.setBodyPartFactory(new LazyResponseBodyPartFactory)
     nettyConfig
   }
 
@@ -160,10 +160,10 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
   private val defaultAhcConfig = {
     val applicationThreadPool = newApplicationThreadPool
-    val nioThreadPool = newNioThreadPool
+    val eventLoopGroup = newEventLoopGroup
     val timer = newTimer
     val channelPool = newChannelPool(timer)
-    val nettyConfig = newNettyConfig(nioThreadPool, timer, channelPool)
+    val nettyConfig = newNettyConfig(eventLoopGroup, timer, channelPool)
     val ahcConfigBuilder = newAhcConfigBuilder(applicationThreadPool, nettyConfig)
     ahcConfigBuilder.build
   }

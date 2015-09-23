@@ -20,7 +20,7 @@ import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
-import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
+import io.gatling.http.response.{ InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
 
 trait HttpBodyJsonPathOfType {
   self: HttpBodyJsonPathCheckBuilder[String] =>
@@ -30,7 +30,7 @@ trait HttpBodyJsonPathOfType {
 
 object HttpBodyJsonPathCheckBuilder {
 
-  val CharsParsingThreshold = 1000000
+  val CharsParsingThreshold = 200 * 1000
 
   def preparer(jsonParsers: JsonParsers): Preparer[Response, Any] =
     response => {
@@ -50,10 +50,7 @@ object HttpBodyJsonPathCheckBuilder {
 
   val JacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
     def bodyUsage(bodyLength: Int) =
-      if (bodyLength <= CharsParsingThreshold)
-        ByteArrayResponseBodyUsage
-      else
-        InputStreamResponseBodyUsage
+      InputStreamResponseBodyUsage
   }
 
   def responseBodyUsageStrategy(jsonParsers: JsonParsers) =

@@ -31,11 +31,11 @@ import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
 
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.buffer.ByteBuf
 import org.asynchttpclient._
 import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.netty.NettyResponseBodyPart
-import org.jboss.netty.buffer.ChannelBuffer
+import org.asynchttpclient.netty.LazyNettyResponseBodyPart
 
 object ResponseBuilder extends StrictLogging {
 
@@ -88,7 +88,7 @@ class ResponseBuilder(
   var lastByteReceived = 0L
   private var status: Option[HttpResponseStatus] = None
   private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.EmptyHeaders
-  private val chunks = new ArrayBuffer[ChannelBuffer]
+  private val chunks = new ArrayBuffer[ByteBuf]
   private var digests: Map[String, MessageDigest] = initDigests()
   private var nettyRequest: Option[NettyRequest] = None
   private var nameResolutions: Option[Array[NameResolution]] = None
@@ -114,6 +114,7 @@ class ResponseBuilder(
     lastByteReceived = 0L
     status = None
     headers = ResponseBuilder.EmptyHeaders
+    chunks.foreach(_.release())
     chunks.clear()
     digests = initDigests()
   }
@@ -137,13 +138,19 @@ class ResponseBuilder(
 
     updateLastByteReceived()
 
-    val channelBuffer = bodyPart.asInstanceOf[NettyResponseBodyPart].getChannelBuffer
+    val byteBuf = bodyPart.asInstanceOf[LazyNettyResponseBodyPart].getBuf
 
-    if (storeBodyParts || storeHtmlOrCss)
-      chunks += channelBuffer
+    if (byteBuf.readableBytes > 0) {
+      if (storeBodyParts || storeHtmlOrCss) {
+        chunks += byteBuf.retain() // beware, we have to retain!
+      }
 
-    if (computeChecksums)
-      digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
+      if (computeChecksums)
+        for {
+          nioBuffer <- byteBuf.nioBuffers
+          digest <- digests.values
+        } digest.update(nioBuffer.duplicate)
+    }
   }
 
   def build: Response = {
@@ -184,6 +191,7 @@ class ResponseBuilder(
       else
         ByteArrayResponseBody(chunks, resolvedCharset)
 
+    chunks.foreach(_.release())
     val timings = ResponseTimings(firstByteSent, lastByteReceived)
     val rawResponse = HttpResponse(request, nettyRequest, nameResolutions, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 

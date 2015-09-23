@@ -10,8 +10,8 @@ object Dependencies {
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                  % "1.0.2"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                    % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"     % "1.0.4"
-  private val ahc                           = "org.asynchttpclient"                    % "async-http-client-netty3"     % "2.0.0-alpha12"
-  private val netty                         = "io.netty"                               % "netty"                        % "3.10.4.Final"
+  private val ahc                           = "org.asynchttpclient"                    % "async-http-client-netty4"     % "2.0.0-alpha12"
+  private val netty3                        = "io.netty"                               % "netty"                        % "3.10.4.Final"
   private val dnsJava                       = "dnsjava"                                % "dnsjava"                      % "2.1.7"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.3.14"
   private val config                        = "com.typesafe"                           % "config"                       % "1.2.1"
@@ -67,7 +67,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, netty, dnsJava, scalaXml) ++ testDeps
+  val httpDependencies = Seq(ahc, dnsJava, scalaXml, netty3 % "test") ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, activemqCore) ++ testDeps
 
@@ -80,7 +80,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty3) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
