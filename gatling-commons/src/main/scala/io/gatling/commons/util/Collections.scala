@@ -21,7 +21,7 @@ object Collections {
 
     def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
       var sum = num.zero
-      for(x <- this) sum = num.plus(sum, f(x))
+      for (x <- t) sum = num.plus(sum, f(x))
       sum
     }
   }
