@@ -16,51 +16,77 @@
 package io.gatling.http
 
 import java.net.InetSocketAddress
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.{ TimeUnit, ConcurrentLinkedQueue }
+
+import scala.collection.JavaConversions._
 
 import com.typesafe.scalalogging.LazyLogging
 
-import org.jboss.netty.bootstrap.ServerBootstrap
-import org.jboss.netty.channel._
-import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory
-import org.jboss.netty.handler.codec.http._
-import org.jboss.netty.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
+import io.netty.bootstrap.ServerBootstrap
+import io.netty.channel.ChannelHandler.Sharable
+import io.netty.channel._
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.nio.NioServerSocketChannel
+import io.netty.handler.codec.http._
+import io.netty.handler.logging.{ LoggingHandler, LogLevel }
+import io.netty.util.ReferenceCountUtil
+import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
 
-private[http] class HttpServer(requestHandler: PartialFunction[DefaultHttpRequest, ChannelHandlerContext => Unit], port: Int)
+@Sharable
+private[http] class ServerHandler(
+  requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit],
+  requests:       ConcurrentLinkedQueue[FullHttpRequest]
+)
+    extends ChannelInboundHandlerAdapter with LazyLogging {
+
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
+    msg match {
+      case request: FullHttpRequest =>
+        requests.add(request)
+        if (requestHandler isDefinedAt request) {
+          requestHandler(request)(ctx)
+        } else {
+          logger.error(s"Unhandled request $request")
+          ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
+            .addListener(ChannelFutureListener.CLOSE)
+        }
+      case errorMsg =>
+        logger.error(s"Unknown message $errorMsg")
+        ReferenceCountUtil.release(errorMsg)
+    }
+  }
+}
+
+private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int)
     extends LazyLogging {
 
-  val requests = new ConcurrentLinkedQueue[DefaultHttpRequest]
+  val requests = new ConcurrentLinkedQueue[FullHttpRequest]
 
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  val serverBootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
+  val serverHandler = new ServerHandler(requestHandler, requests)
+  val bossGroup = new NioEventLoopGroup(1)
+  val workerGroup = new NioEventLoopGroup
 
-  serverBootstrap.setPipelineFactory(new ChannelPipelineFactory {
-    val serverHandler = new SimpleChannelUpstreamHandler {
-      override def messageReceived(ctx: ChannelHandlerContext, e: MessageEvent): Unit = e.getMessage match {
-        case request: DefaultHttpRequest =>
-          requests.add(request)
-          if (requestHandler isDefinedAt request) requestHandler(request)(ctx)
-          else {
-            logger.error(s"Unhandled request $request")
-            ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
-          }
-        case msg => logger.error(s"Unknown message $msg")
-      }
-    }
+  val serverBootstrap = new ServerBootstrap()
+    .group(bossGroup, workerGroup)
+    .channel(classOf[NioServerSocketChannel])
+    .handler(new LoggingHandler(LogLevel.DEBUG))
+    .childHandler(new ChannelInitializer[Channel] {
+      override def initChannel(ch: Channel): Unit =
+        ch.pipeline
+          .addLast("httpDecoder", new HttpServerCodec)
+          .addLast("chunkAggregator", new HttpObjectAggregator(Int.MaxValue))
+          .addLast("compressor", new HttpContentCompressor)
+          .addLast("decompressor", new HttpContentDecompressor)
+          .addLast("serverHandler", serverHandler)
+    })
 
-    override def getPipeline = {
-      val pipeline = Channels.pipeline
-      pipeline.addLast("httpDecoder", new HttpServerCodec)
-      pipeline.addLast("chunkAggregator", new HttpChunkAggregator(Int.MaxValue))
-      pipeline.addLast("compressor", new HttpContentCompressor)
-      pipeline.addLast("decompressor", new HttpContentDecompressor)
-      pipeline.addLast("serverHandler", serverHandler)
-      pipeline
-    }
-  })
+  val ch = serverBootstrap.bind(new InetSocketAddress(port)).sync.channel
 
-  serverBootstrap.bind(new InetSocketAddress(port))
-
-  def stop(): Unit = serverBootstrap.shutdown()
+  def stop(): Unit = {
+    requests.foreach(ReferenceCountUtil.release)
+    bossGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
+    workerGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
+  }
 }

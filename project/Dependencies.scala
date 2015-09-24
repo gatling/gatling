@@ -67,7 +67,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, dnsJava, scalaXml, netty3 % "test") ++ testDeps
+  val httpDependencies = Seq(ahc, dnsJava, scalaXml) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, activemqCore) ++ testDeps
 

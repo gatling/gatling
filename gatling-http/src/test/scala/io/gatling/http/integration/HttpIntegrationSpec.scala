@@ -15,7 +15,7 @@
  */
 package io.gatling.http.integration
 
-import org.jboss.netty.handler.codec.http._
+import java.nio.charset.StandardCharsets
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames._
@@ -23,6 +23,11 @@ import io.gatling.http.HttpSpec
 import io.gatling.core.CoreDsl
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheckSupport
+
+import io.netty.buffer.Unpooled
+import io.netty.channel.ChannelFutureListener
+import io.netty.handler.codec.http.{ ServerCookieEncoder => _, DefaultCookie => _, _ }
+import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
@@ -36,19 +41,33 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
-        val cookieEncoder = new CookieEncoder(true)
-        cookieEncoder.addCookie("TestCookie1", "Test1")
-        val headers = Map(SetCookie -> cookieEncoder.encode(), Location -> "/page2")
-        sendResponse(status = HttpResponseStatus.MOVED_PERMANENTLY, headers = headers)
+        val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.MOVED_PERMANENTLY)
+        response.headers()
+          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie1", "Test1")))
+          .set(Location, "/page2")
+          .set(ContentLength, 0)
+
+        ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
 
       case HttpRequest(HttpMethod.GET, "/page2") =>
-        val cookieEncoder = new CookieEncoder(true)
-        cookieEncoder.addCookie("TestCookie2", "Test2")
-        val headers = Map(SetCookie -> cookieEncoder.encode())
-        sendResponse(content = "Hello World", headers = headers)
+        val bytes = "Hello World".getBytes(StandardCharsets.UTF_8)
+
+        val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
+        response.headers()
+          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
+          .set(ContentLength, bytes.length)
+
+        ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
 
       case HttpRequest(HttpMethod.GET, "/page3") =>
-        sendResponse(content = "Hello Again")
+        val bytes = "Hello Again".getBytes(StandardCharsets.UTF_8)
+
+        val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
+        response.headers()
+          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
+          .set(ContentLength, bytes.length)
+
+        ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
     }
 
     runWithHttpServer(handler) { implicit httpServer =>
