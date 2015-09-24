@@ -118,7 +118,7 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
     val newSession = checkSaveUpdate(session)
     error match {
       case None                 => executeNext(newSession, OK)
-      case Some(Failure(error)) => executeNext(newSession.markAsFailed, KO, Some(error))
+      case Some(Failure(message)) => executeNext(newSession.markAsFailed, KO, Some(message))
     }
   }
 }
