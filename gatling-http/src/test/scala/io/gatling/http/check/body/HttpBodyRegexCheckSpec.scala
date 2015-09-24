@@ -42,7 +42,7 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   private def mockResponse(body: String) = {
     val response = mock[Response]
-    when(response.body) thenReturn StringResponseBody(body, UTF_8)
+    when(response.body) thenReturn new StringResponseBody(body, UTF_8)
     response
   }
 

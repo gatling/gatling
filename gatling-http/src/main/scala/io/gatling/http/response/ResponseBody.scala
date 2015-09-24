@@ -47,11 +47,6 @@ object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
   def bodyUsage(bodyLength: Int) = InputStreamResponseBodyUsage
 }
 
-object ResponseBody {
-
-
-}
-
 sealed trait ResponseBody {
   def string: String
   def bytes: Array[Byte]

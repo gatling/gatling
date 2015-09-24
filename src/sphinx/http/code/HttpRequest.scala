@@ -260,7 +260,7 @@ class HttpRequest {
     // ignore when response isn't received (e.g. when connection refused)
     .transformResponse { case response if response.isReceived =>
       new ResponseWrapper(response) {
-        override val body = ByteArrayResponseBody(Base64.decode(response.body.string), UTF_8)
+        override val body = new ByteArrayResponseBody(Base64.decode(response.body.string), UTF_8)
       }
     }
     //#response-processors

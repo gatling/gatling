@@ -15,8 +15,8 @@
  */
 package io.gatling.http.util
 
-import java.nio.{CharBuffer, ByteBuffer}
-import java.nio.charset.{CharacterCodingException, Charset}
+import java.nio.{ CharBuffer, ByteBuffer }
+import java.nio.charset.{ CharacterCodingException, Charset }
 
 import scala.annotation.switch
 
@@ -40,18 +40,18 @@ object BytesHelper {
   }
 
   def byteArraysToByteArray(arrays: Seq[Array[Byte]]): Array[Byte] =
-    (arrays.length : @switch) match {
+    (arrays.length: @switch) match {
       case 0 => Array.empty
       case 1 => arrays.head
       case _ =>
-      val all = new Array[Byte](arrays.sumBy(_.length))
-      var pos = 0
-      arrays.foreach { array =>
-        System.arraycopy(array, 0, all, pos, array.length)
-        pos += array.length
-      }
+        val all = new Array[Byte](arrays.sumBy(_.length))
+        var pos = 0
+        arrays.foreach { array =>
+          System.arraycopy(array, 0, all, pos, array.length)
+          pos += array.length
+        }
 
-      all
+        all
     }
 
   def byteBufsToString(bufs: Seq[ByteBuf], cs: Charset): String =

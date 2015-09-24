@@ -39,7 +39,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   def mockResponse(xml: Elem): Response = {
     val response = mock[Response]
-    when(response.body) thenReturn StringResponseBody(xml.toString(), UTF_8)
+    when(response.body) thenReturn new StringResponseBody(xml.toString(), UTF_8)
     when(response.hasResponseBody) thenReturn true
     response
   }
