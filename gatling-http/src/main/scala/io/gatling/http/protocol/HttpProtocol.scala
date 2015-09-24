@@ -99,7 +99,7 @@ object HttpProtocol extends StrictLogging {
         maxReconnects = None
       ),
       proxyPart = HttpProtocolProxyPart(
-        proxies = None,
+        proxy = None,
         proxyExceptions = Nil
       )
     )
@@ -200,6 +200,6 @@ case class HttpProtocolWsPart(
 }
 
 case class HttpProtocolProxyPart(
-  proxies:         Option[(ProxyServer, ProxyServer)],
+  proxy:           Option[ProxyServer],
   proxyExceptions: Seq[String]
 )

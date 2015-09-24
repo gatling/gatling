@@ -79,11 +79,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
             .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
             .setRequestTimeout(100)
 
-          httpProtocol.proxyPart.proxies.foreach {
-            case (httpProxy, httpsProxy) =>
-              val proxy = if (url.startsWith("https")) httpsProxy else httpProxy
-              requestBuilder.setProxyServer(proxy)
-          }
+          httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 
           try {
             ahcFactory.defaultAhc.executeRequest(requestBuilder.build).get

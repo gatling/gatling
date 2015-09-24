@@ -27,7 +27,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.util.{ DnsHelper, HttpHelper }
+import io.gatling.http.util.DnsHelper
 
 import com.typesafe.scalalogging.LazyLogging
 import org.asynchttpclient.channel.{ NameResolution, NameResolver }
@@ -88,12 +88,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   def configureProxy(requestBuilder: AhcRequestBuilder, uri: Uri): Validation[AhcRequestBuilder] = {
     if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
-      val proxies = commonAttributes.proxies.orElse(protocol.proxyPart.proxies)
-      proxies.foreach {
-        case (httpProxy, httpsProxy) =>
-          val proxy = if (HttpHelper.isSecure(uri)) httpsProxy else httpProxy
-          requestBuilder.setProxyServer(proxy)
-      }
+      val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
+      proxy.foreach(requestBuilder.setProxyServer)
     }
     requestBuilder.success
   }

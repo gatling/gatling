@@ -41,7 +41,7 @@ case class CommonAttributes(
   realm:               Option[Expression[Realm]]               = None,
   virtualHost:         Option[Expression[String]]              = None,
   address:             Option[Expression[InetAddress]]         = None,
-  proxies:             Option[(ProxyServer, ProxyServer)]      = None,
+  proxy:               Option[ProxyServer]                     = None,
   signatureCalculator: Option[Expression[SignatureCalculator]] = None
 )
 
@@ -123,7 +123,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def disableUrlEncoding: B = newInstance(modify(commonAttributes)(_.disableUrlEncoding).setTo(Some(true)))
 
-  def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxies).setTo(Some(httpProxy.proxyServers)))
+  def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxy).setTo(Some(httpProxy.proxyServer)))
 
   def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
   def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expressionSuccess)

@@ -220,7 +220,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
 
         if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
           val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
-          val protocolProxy = httpProtocol.proxyPart.proxies.map { case (httpProxy, httpsProxy) => if (HttpHelper.isSecure(redirectUri)) httpsProxy else httpProxy }
+          val protocolProxy = httpProtocol.proxyPart.proxy
           originalRequestProxy.orElse(protocolProxy).foreach(requestBuilder.setProxyServer)
         }
 
