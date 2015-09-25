@@ -25,18 +25,18 @@ import io.gatling.core.session.Session
 import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
+import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.{ EventLoopGroup, Channel }
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.concurrent.DefaultThreadFactory
+import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
+import io.netty.util.{ Timer, HashedWheelTimer }
 import org.asynchttpclient.AdvancedConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
 import org.asynchttpclient._
 import org.asynchttpclient.AdvancedConfig
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
 import org.asynchttpclient.netty.ws.NettyWebSocket
 import org.asynchttpclient.ws.WebSocketListener
-import com.typesafe.scalalogging.StrictLogging
-import io.netty.channel.{ EventLoopGroup, Channel }
-import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
-import io.netty.util.{ Timer, HashedWheelTimer }
 
 private[gatling] object AhcFactory {
 
