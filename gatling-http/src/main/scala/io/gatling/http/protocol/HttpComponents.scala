@@ -20,14 +20,14 @@ import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 
-import org.asynchttpclient.netty.NettyAsyncHttpProvider
+import org.asynchttpclient.DefaultAsyncHttpClient
 import org.asynchttpclient.netty.channel.pool.ChannelPoolPartitionSelector
 
 case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches) extends ProtocolComponents {
 
   private val onExitF: Session => Unit = session => {
     val (_, ahc) = httpEngine.httpClient(session, httpProtocol)
-    ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
+    ahc.asInstanceOf[DefaultAsyncHttpClient].getChannelPool.flushPartitions(new ChannelPoolPartitionSelector() {
 
       val userId = session.userId
 

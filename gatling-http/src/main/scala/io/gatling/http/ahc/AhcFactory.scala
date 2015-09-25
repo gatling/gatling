@@ -27,9 +27,9 @@ import io.gatling.http.util.SslHelper._
 import akka.actor.ActorSystem
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.concurrent.DefaultThreadFactory
+import org.asynchttpclient.AdvancedConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
 import org.asynchttpclient._
-import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig
-import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
+import org.asynchttpclient.AdvancedConfig
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
 import org.asynchttpclient.netty.ws.NettyWebSocket
 import org.asynchttpclient.ws.WebSocketListener
@@ -96,21 +96,21 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     )
   }
 
-  private def newNettyConfig(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool): NettyAsyncHttpProviderConfig = {
+  private def newAdvancedConfig(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool): AdvancedConfig = {
 
-    val nettyConfig = new NettyAsyncHttpProviderConfig
-    nettyConfig.setEventLoopGroup(eventLoopGroup)
-    nettyConfig.setNettyTimer(timer)
-    nettyConfig.setChannelPool(channelPool)
-    nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
+    val advancedConfig = new AdvancedConfig
+    advancedConfig.setEventLoopGroup(eventLoopGroup)
+    advancedConfig.setNettyTimer(timer)
+    advancedConfig.setChannelPool(channelPool)
+    advancedConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
       override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
         new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
     })
-    nettyConfig.setBodyPartFactory(new LazyResponseBodyPartFactory)
-    nettyConfig
+    advancedConfig.setBodyPartFactory(new LazyResponseBodyPartFactory)
+    advancedConfig
   }
 
-  private[gatling] def newAhcConfigBuilder(applicationThreadPool: ExecutorService, nettyConfig: NettyAsyncHttpProviderConfig) = {
+  private[gatling] def newAhcConfigBuilder(applicationThreadPool: ExecutorService, advancedConfig: AdvancedConfig) = {
     val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
       .setAllowPoolingConnections(ahcConfig.allowPoolingConnections)
       .setAllowPoolingSslConnections(ahcConfig.allowPoolingSslConnections)
@@ -127,7 +127,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setUseProxyProperties(false)
       .setUserAgent(null)
       .setExecutorService(applicationThreadPool)
-      .setAsyncHttpClientProviderConfig(nettyConfig)
+      .setAdvancedConfig(advancedConfig)
       .setWebSocketTimeout(ahcConfig.webSocketTimeout)
       .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
@@ -163,8 +163,8 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     val eventLoopGroup = newEventLoopGroup
     val timer = newTimer
     val channelPool = newChannelPool(timer)
-    val nettyConfig = newNettyConfig(eventLoopGroup, timer, channelPool)
-    val ahcConfigBuilder = newAhcConfigBuilder(applicationThreadPool, nettyConfig)
+    val advancedConfig = newAdvancedConfig(eventLoopGroup, timer, channelPool)
+    val ahcConfigBuilder = newAhcConfigBuilder(applicationThreadPool, advancedConfig)
     ahcConfigBuilder.build
   }
 
