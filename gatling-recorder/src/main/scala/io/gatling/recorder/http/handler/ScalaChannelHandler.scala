@@ -21,11 +21,10 @@ import io.netty.util.concurrent.{ GenericFutureListener, Future }
 private[handler] trait ScalaChannelHandler {
 
   implicit def function2ChannelFutureListener(f: ChannelFuture => Any) = new ChannelFutureListener {
-    def operationComplete(future: ChannelFuture): Unit = f(future)
+    override def operationComplete(future: ChannelFuture): Unit = f(future)
   }
 
   implicit def function2GenericFutureListener(f: Future[Channel] => Any) = new GenericFutureListener[Future[Channel]] {
-    @Override
-    def operationComplete(future: Future[Channel]): Unit = f(future)
+    override def operationComplete(future: Future[Channel]): Unit = f(future)
   }
 }
