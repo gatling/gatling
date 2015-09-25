@@ -25,7 +25,7 @@ private[http] object SslClientContext {
     clientContext
   }
 
-  def createSSLEngine(): SSLEngine = {
+  def createSSLEngine: SSLEngine = {
     val engine = SslContext.createSSLEngine
     engine.setUseClientMode(true)
     engine

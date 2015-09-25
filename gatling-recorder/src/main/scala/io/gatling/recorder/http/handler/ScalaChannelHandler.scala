@@ -15,23 +15,17 @@
  */
 package io.gatling.recorder.http.handler
 
-import scala.collection.JavaConversions.asScalaBuffer
-
-import org.jboss.netty.channel.ChannelFutureListener
-import org.jboss.netty.channel.ChannelFuture
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
+import io.netty.channel.{ Channel, ChannelFutureListener, ChannelFuture }
+import io.netty.util.concurrent.{ GenericFutureListener, Future }
 
 private[handler] trait ScalaChannelHandler {
 
-  implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
-    def operationComplete(future: ChannelFuture): Unit = thunk(future)
+  implicit def function2ChannelFutureListener(f: ChannelFuture => Any) = new ChannelFutureListener {
+    def operationComplete(future: ChannelFuture): Unit = f(future)
   }
 
-  def copyRequestWithNewUri(request: HttpRequest, uri: String): HttpRequest = {
-    val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, uri)
-    newRequest.setChunked(request.isChunked)
-    newRequest.setContent(request.getContent)
-    for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
-    newRequest
+  implicit def function2GenericFutureListener(f: Future[Channel] => Any) = new GenericFutureListener[Future[Channel]] {
+    @Override
+    def operationComplete(future: Future[Channel]): Unit = f(future)
   }
 }

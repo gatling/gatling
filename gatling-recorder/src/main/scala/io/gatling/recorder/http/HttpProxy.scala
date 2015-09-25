@@ -16,16 +16,20 @@
 package io.gatling.recorder.http
 
 import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
 
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.channel.BootstrapFactory.{ newRemoteBootstrap, newUserBootstrap }
+import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.ssl.SslServerContext
-import org.jboss.netty.channel.group.DefaultChannelGroup
 
-private[recorder] case class HttpProxy(controller: RecorderController)(implicit config: RecorderConfiguration) {
+import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.group.DefaultChannelGroup
+import io.netty.util.concurrent.GlobalEventExecutor
 
-  private def port = config.proxy.port
+private[recorder] case class HttpProxy(controller: RecorderController)(implicit config: RecorderConfiguration) extends StrictLogging {
+
   def outgoingProxy =
     for {
       host <- config.proxy.outgoing.host
@@ -35,19 +39,22 @@ private[recorder] case class HttpProxy(controller: RecorderController)(implicit 
   def outgoingUsername = config.proxy.outgoing.username
   def outgoingPassword = config.proxy.outgoing.password
 
-  val remoteBootstrap = newRemoteBootstrap(ssl = false, config)
-  val secureRemoteBootstrap = newRemoteBootstrap(ssl = true, config)
-  private val group = new DefaultChannelGroup("Gatling_Recorder")
-  private val userBootstrap = newUserBootstrap(this, config) // covers both http and https
+  private val clientGroup = new NioEventLoopGroup
+  private val serverBossGroup = new NioEventLoopGroup(1)
+  private val serverWorkerGroup = new NioEventLoopGroup
+  private val group = new DefaultChannelGroup("Gatling_Recorder", GlobalEventExecutor.INSTANCE)
 
-  group.add(userBootstrap.bind(new InetSocketAddress(port)))
+  val userBootstrap = newUserBootstrap(serverBossGroup, serverWorkerGroup, this, config) // covers both http and https
+  group.add(userBootstrap.bind(new InetSocketAddress(config.proxy.port)).sync.channel)
+
+  val remoteBootstrap = newRemoteBootstrap(clientGroup, ssl = false, config)
+  val secureRemoteBootstrap = newRemoteBootstrap(clientGroup, ssl = true, config)
+  val sslServerContext = SslServerContext(config)
 
   def shutdown(): Unit = {
     group.close.awaitUninterruptibly
-    userBootstrap.shutdown()
-    remoteBootstrap.shutdown()
-    secureRemoteBootstrap.shutdown()
+    clientGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
+    serverBossGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
+    serverWorkerGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
   }
-
-  val sslServerContext = SslServerContext(config)
 }

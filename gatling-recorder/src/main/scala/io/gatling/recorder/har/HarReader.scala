@@ -28,7 +28,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario._
 
 import org.asynchttpclient.uri.Uri
-import org.jboss.netty.handler.codec.http.HttpMethod
+import io.netty.handler.codec.http.HttpMethod
 
 /**
  * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
@@ -45,7 +45,7 @@ private[recorder] object HarReader {
     val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
 
     val elements = entries.iterator
-      .filter(e => e.request.method != HttpMethod.CONNECT.getName)
+      .filter(e => e.request.method != HttpMethod.CONNECT.name)
       .filter(e => isValidURL(e.request.url))
       // TODO NICO : can't we move this in Scenario as well ?
       .filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))

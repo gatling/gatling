@@ -17,72 +17,70 @@ package io.gatling.recorder.http.channel
 
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
+import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 import io.gatling.recorder.http.handler.user.PortUnificationUserHandler
 import io.gatling.recorder.http.ssl.SslClientContext
-import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
-import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
-import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
-import org.jboss.netty.handler.codec.http._
-import org.jboss.netty.handler.ssl.SslHandler
+
+import io.netty.channel._
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.channel.socket.nio.{ NioSocketChannel, NioServerSocketChannel }
+import io.netty.handler.codec.http.{ HttpContentDecompressor, HttpContentCompressor, HttpObjectAggregator }
+import io.netty.bootstrap.{ Bootstrap, ServerBootstrap }
+import io.netty.handler.codec.http._
+import io.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.util.AttributeKey
 
 private[http] object BootstrapFactory extends StrictLogging {
 
   val CodecHandlerName = "codec"
+  val SslHandlerSetterName = "ssl-setter"
   val SslHandlerName = "ssl"
   val GatlingHandlerName = "gatling"
   val PortUnificationServerHandler = "port-unification"
+  val TimedHttpRequestAttribute: AttributeKey[TimedHttpRequest] = AttributeKey.valueOf("default")
 
-  def newRemoteBootstrap(ssl: Boolean, config: RecorderConfiguration): ClientBootstrap = {
+  def newRemoteBootstrap(clientGroup: NioEventLoopGroup, ssl: Boolean, config: RecorderConfiguration): Bootstrap = {
 
     import config.netty._
 
-    val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
-    bootstrap.setPipelineFactory(new ChannelPipelineFactory {
-      def getPipeline: ChannelPipeline = {
-        logger.debug("Open new remote channel")
-        val pipeline = Channels.pipeline
-        if (ssl) {
-          val sslHandler = new SslHandler(SslClientContext.createSSLEngine())
-          sslHandler.setCloseOnSSLException(true)
-          pipeline.addLast(SslHandlerName, sslHandler)
+    new Bootstrap().channel(classOf[NioSocketChannel])
+      .group(clientGroup)
+      .handler(new ChannelInitializer[Channel] {
+        override def initChannel(ch: Channel): Unit = {
+          logger.debug("Open new remote channel")
+          val pipeline = ch.pipeline
+          if (ssl)
+            pipeline.addLast(SslHandlerName, new SslHandler(SslClientContext.createSSLEngine))
+          pipeline
+            .addLast(CodecHandlerName, new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+            .addLast("inflater", new HttpContentDecompressor)
+            .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
         }
-        pipeline.addLast(CodecHandlerName, new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
-        pipeline.addLast("inflater", new HttpContentDecompressor)
-        pipeline.addLast("aggregator", new HttpChunkAggregator(maxContentLength))
-        pipeline
-      }
-    })
-
-    bootstrap.setOption("child.tcpNoDelay", true)
-    bootstrap.setOption("child.keepAlive", true)
-
-    bootstrap
+      })
   }
 
-  def newUserBootstrap(proxy: HttpProxy, config: RecorderConfiguration): ServerBootstrap = {
+  def newUserBootstrap(serverBossGroup: NioEventLoopGroup, serverWorkerGroup: NioEventLoopGroup, proxy: HttpProxy, config: RecorderConfiguration): ServerBootstrap = {
 
     import config.netty._
 
-    val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
-
-    bootstrap.setPipelineFactory(new ChannelPipelineFactory {
-      def getPipeline: ChannelPipeline = {
-        logger.debug("Open new user channel")
-        val pipeline = Channels.pipeline
-        pipeline.addLast("decoder", new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize))
-        pipeline.addLast("aggregator", new HttpChunkAggregator(maxContentLength))
-        pipeline.addLast("encoder", new HttpResponseEncoder)
-        pipeline.addLast("deflater", new HttpContentCompressor)
-
-        pipeline.addLast(PortUnificationServerHandler, new PortUnificationUserHandler(proxy, pipeline))
-        pipeline
-      }
-    })
-
-    bootstrap.setOption("child.tcpNoDelay", true)
-    bootstrap.setOption("child.keepAlive", true)
-
-    bootstrap
+    new ServerBootstrap()
+      .option(ChannelOption.SO_BACKLOG, Integer.valueOf(1024))
+      .option(ChannelOption.TCP_NODELAY, java.lang.Boolean.TRUE)
+      .group(serverBossGroup, serverWorkerGroup)
+      .channel(classOf[NioServerSocketChannel])
+      .childHandler(new ChannelInitializer[Channel] {
+        override def initChannel(ch: Channel): Unit = {
+          logger.debug("Open new user channel")
+          val pipeline = ch.pipeline
+          pipeline
+            .addLast("decoder", new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+            .addLast("inflater", new HttpContentDecompressor)
+            .addLast("encoder", new HttpResponseEncoder)
+            .addLast("deflater", new HttpContentCompressor)
+            .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
+            .addLast(PortUnificationServerHandler, new PortUnificationUserHandler(proxy, pipeline))
+        }
+      })
   }
 }

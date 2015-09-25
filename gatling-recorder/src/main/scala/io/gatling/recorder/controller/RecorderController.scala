@@ -27,14 +27,14 @@ import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
+import io.gatling.recorder.http.model.{ SafeHttpResponse, SafeHttpRequest }
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.Base64
-import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
+import io.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 private[recorder] class RecorderController extends StrictLogging {
 
@@ -89,7 +89,7 @@ private[recorder] class RecorderController extends StrictLogging {
     }
   }
 
-  def receiveRequest(request: HttpRequest): Unit =
+  def receiveRequest(request: SafeHttpRequest): Unit =
     // TODO NICO - that's not the appropriate place to synchronize !
     synchronized {
       // If Outgoing Proxy set, we record the credentials to use them when sending the request
@@ -104,12 +104,11 @@ private[recorder] class RecorderController extends StrictLogging {
       }
     }
 
-  def receiveResponse(request: TimedHttpRequest, response: HttpResponse): Unit =
-    if (RecorderConfiguration.configuration.filters.filters.map(_.accept(request.httpRequest.getUri)).getOrElse(true)) {
+  def receiveResponse(request: TimedHttpRequest, response: SafeHttpResponse): Unit =
+    if (RecorderConfiguration.configuration.filters.filters.map(_.accept(request.httpRequest.uri)).getOrElse(true)) {
       val arrivalTime = System.currentTimeMillis
 
-      val requestEl = RequestElement(request.httpRequest, response)
-      currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, requestEl))
+      currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, RequestElement(request.httpRequest, response)))
 
       // Notify the frontend
       val previousSendTime = currentRequests.lastOption.map(_.sendTime)

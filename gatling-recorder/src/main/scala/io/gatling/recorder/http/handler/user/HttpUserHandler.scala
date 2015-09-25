@@ -21,43 +21,40 @@ import scala.util.control.NonFatal
 
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.ScalaChannelHandler
+import io.gatling.recorder.http.model.SafeHttpRequest
 
+import com.softwaremill.quicklens._
 import org.asynchttpclient.uri.Uri
-import org.jboss.netty.channel.{ Channel, ChannelFuture }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
+import io.netty.channel.{ Channel, ChannelFuture }
+import io.netty.handler.codec.http._
 
 private[user] class HttpUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler {
 
-  private def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
-    val relative = Uri.create(request.getUri).toRelativeUrl
-    copyRequestWithNewUri(request, relative)
-  }
-
-  private def writeRequest(userChannel: Channel, request: HttpRequest): Unit = {
+  private def writeRequest(userChannel: Channel, request: SafeHttpRequest): Unit = {
     val remoteRequest = proxy.outgoingProxy match {
-      case None => buildRequestWithRelativeURI(request)
+      case None => request.modify(_.uri).using(uri => Uri.create(uri).toRelativeUrl)
       case _    => request
     }
 
     writeRequestToRemote(userChannel, remoteRequest, request)
   }
 
-  private def writeRequestWithNewChannel(userChannel: Channel, request: HttpRequest): Unit = {
+  private def writeRequestWithNewChannel(userChannel: Channel, request: SafeHttpRequest): Unit = {
     _remoteChannel = None
 
     val inetSocketAddress = proxy.outgoingProxy match {
       case Some((host, port)) =>
         new InetSocketAddress(host, port)
 
-      case None if request.getUri.startsWith("/") =>
-        throw new IllegalArgumentException(s"Request url ${request.getUri} is relative, you're probably directly hitting the proxy")
+      case None if request.uri.startsWith("/") =>
+        throw new IllegalArgumentException(s"Request url ${request.uri} is relative, you're probably directly hitting the proxy")
 
       case None =>
         try {
-          computeInetSocketAddress(Uri.create(request.getUri))
+          computeInetSocketAddress(Uri.create(request.uri))
         } catch {
           case NonFatal(e) =>
-            throw new RuntimeException(s"Could not build address requestURI='${request.getUri}'", e)
+            throw new RuntimeException(s"Could not build address requestURI='${request.uri}'", e)
         }
     }
 
@@ -65,28 +62,28 @@ private[user] class HttpUserHandler(proxy: HttpProxy) extends UserHandler(proxy)
       .connect(inetSocketAddress)
       .addListener { future: ChannelFuture =>
         if (future.isSuccess) {
-          val remoteChannel = future.getChannel
+          val remoteChannel = future.channel
           setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = false)
           writeRequest(userChannel, request)
         } else {
-          val t = future.getCause
+          val t = future.cause
           logger.error(t.getMessage, t)
           // FIXME could be 404 or 500 depending on exception
-          userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
+          userChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
         }
       }
   }
 
-  def propagateRequest(userChannel: Channel, request: HttpRequest): Unit =
+  override def propagateRequest(userChannel: Channel, request: SafeHttpRequest): Unit =
     _remoteChannel match {
-      case Some(remoteChannel) if remoteChannel.isConnected =>
+      case Some(remoteChannel) if remoteChannel.isActive =>
 
-        val remoteAddress = remoteChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
-        val requestUri = Uri.create(request.getUri)
+        val remoteAddress = remoteChannel.remoteAddress.asInstanceOf[InetSocketAddress]
+        val requestUri = Uri.create(request.uri)
 
         if (remoteAddress.getHostString != requestUri.getHost || remoteAddress.getPort != defaultPort(requestUri)) {
           // not connected to the proper remote
-          logger.debug(s"User channel ${userChannel.getId} remote peer ${remoteChannel.getId} is not connected to the proper host, closing it")
+          logger.debug(s"User channel $userChannel remote peer $remoteChannel is not connected to the proper host, closing it")
           remoteChannel.close()
           writeRequestWithNewChannel(userChannel, request)
 

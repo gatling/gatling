@@ -22,22 +22,23 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.remote.{ TimedHttpRequest, RemoteHandler }
+import io.gatling.recorder.http.model.SafeHttpRequest
 
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.util.Base64
 import org.asynchttpclient.uri.Uri
-import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.http.HttpRequest
+import io.netty.channel._
+import io.netty.handler.codec.http.FullHttpRequest
 
-private[user] abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
+private[user] abstract class UserHandler(proxy: HttpProxy) extends ChannelInboundHandlerAdapter with StrictLogging {
 
   @volatile var _remoteChannel: Option[Channel] = None
 
-  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit =
-    event.getMessage match {
-      case request: HttpRequest =>
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit =
+    msg match {
+      case request: FullHttpRequest =>
 
-        logger.debug(s"Received request on user channel ${ctx.getChannel.getId} remote peer is ${_remoteChannel.map(_.getId)}")
+        logger.debug(s"Received request on user channel ${ctx.channel} remote peer is ${_remoteChannel}")
 
         proxy.outgoingProxy match {
           case None =>
@@ -52,28 +53,30 @@ private[user] abstract class UserHandler(proxy: HttpProxy) extends SimpleChannel
             } request.headers.set(HeaderNames.ProxyAuthorization, proxyAuth)
         }
 
-        propagateRequest(ctx.getChannel, request)
+        val safeRequest = SafeHttpRequest.fromNettyRequest(request)
 
-        proxy.controller.receiveRequest(request)
+        propagateRequest(ctx.channel, safeRequest)
+
+        proxy.controller.receiveRequest(safeRequest)
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
 
-  def propagateRequest(userChannel: Channel, request: HttpRequest): Unit
+  def propagateRequest(userChannel: Channel, request: SafeHttpRequest): Unit
 
-  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
+  override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable): Unit = {
     if (logger.underlying.isDebugEnabled)
-      logger.error(s"Exception caught on user channel ${ctx.getChannel.getId}", e.getCause)
+      logger.error(s"Exception caught on user channel ${ctx.channel}", cause.getCause)
     else
-      logger.error(s"Exception caught on user channel ${ctx.getChannel.getId}: ${e.getCause.getClass.getSimpleName} ${e.getCause.getMessage}")
+      logger.error(s"Exception caught on user channel ${ctx.channel}: ${cause.getCause.getClass.getSimpleName} ${cause.getCause.getMessage}")
 
-    if (ctx.getChannel.isReadable) {
-      logger.debug(s"Exception, closing user channel ${ctx.getChannel.getId}")
-      ctx.getChannel.close()
+    if (ctx.channel.isActive) {
+      logger.debug(s"Exception, closing user channel ${ctx.channel}")
+      ctx.channel.close()
     }
     _remoteChannel.foreach { remoteChannel =>
-      if (remoteChannel.isReadable) {
-        logger.debug(s"Exception, closing remote channel ${ctx.getChannel.getId} too")
+      if (remoteChannel.isActive) {
+        logger.debug(s"Exception, closing remote channel ${ctx.channel} too")
         remoteChannel.close()
       }
     }
@@ -91,26 +94,26 @@ private[user] abstract class UserHandler(proxy: HttpProxy) extends SimpleChannel
   def computeInetSocketAddress(uri: Uri): InetSocketAddress =
     new InetSocketAddress(uri.getHost, defaultPort(uri))
 
-  def writeRequestToRemote(userChannel: Channel, remoteRequest: HttpRequest, loggedRequest: HttpRequest): Unit =
+  def writeRequestToRemote(userChannel: Channel, remoteRequest: SafeHttpRequest, loggedRequest: SafeHttpRequest): Unit =
     _remoteChannel.foreach { remoteChannel =>
-      remoteChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
-      logger.debug(s"Propagating request from user channel ${userChannel.getId} to remote channel ${remoteChannel.getId} connected=${remoteChannel.isConnected}")
-      remoteChannel.write(remoteRequest)
+      remoteChannel.pipeline.context(GatlingHandlerName).attr(TimedHttpRequestAttribute).set(TimedHttpRequest(loggedRequest))
+      logger.debug(s"Propagating request from user channel $userChannel to remote channel $remoteChannel active=${remoteChannel.isActive}")
+      remoteChannel.writeAndFlush(remoteRequest.toNettyRequest)
     }
 
   def setupRemoteChannel(userChannel: Channel, remoteChannel: Channel, controller: RecorderController, performConnect: Boolean, reconnect: Boolean): Unit = {
-    logger.debug(s"Attaching user channel ${userChannel.getId} and remote peer ${remoteChannel.getId}")
+    logger.debug(s"Attaching user channel $userChannel and remote peer $remoteChannel")
     _remoteChannel = Some(remoteChannel)
-    remoteChannel.getPipeline.addLast(GatlingHandlerName, new RemoteHandler(controller, proxy.sslServerContext, userChannel, performConnect, reconnect))
+    remoteChannel.pipeline.addLast(GatlingHandlerName, new RemoteHandler(controller, proxy.sslServerContext, userChannel, performConnect, reconnect))
   }
 
-  override def channelDisconnected(ctx: ChannelHandlerContext, event: ChannelStateEvent): Unit = {
-    logger.debug(s"User channel ${ctx.getChannel.getId} was closed, remote peer is ${_remoteChannel.map(_.getId)}")
-    super.channelDisconnected(ctx, event)
+  override def channelInactive(ctx: ChannelHandlerContext): Unit = {
+    logger.debug(s"User channel ${ctx.channel} was closed, remote peer is ${_remoteChannel}")
+    super.channelInactive(ctx)
     _remoteChannel.foreach { remoteChannel =>
       _remoteChannel = None
-      if (remoteChannel.isReadable) {
-        logger.debug(s"User channel ${ctx.getChannel.getId} was closed, closing peer remote channel ${remoteChannel.getId}")
+      if (remoteChannel.isActive) {
+        logger.debug(s"User channel ${ctx.channel} was closed, closing peer remote channel $remoteChannel)}")
         remoteChannel.close()
       }
     }

@@ -22,27 +22,28 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
 import io.gatling.recorder.http.handler.user.SslHandlerSetter
+import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse }
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 
 import com.typesafe.scalalogging.StrictLogging
-import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.http._
-import org.jboss.netty.handler.ssl.SslHandler
+import io.netty.channel._
+import io.netty.handler.codec.http._
+import io.netty.handler.ssl.SslHandler
+import io.netty.util.concurrent.Future
 
-private[recorder] case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
+private[recorder] case class TimedHttpRequest(httpRequest: SafeHttpRequest, sendTime: Long = nowMillis)
 
 private[handler] class RemoteHandler(
-  controller:         RecorderController,
-  sslServerContext:   SslServerContext,
-  userChannel:        Channel,
-  var performConnect: Boolean,
-  reconnect:          Boolean
-)
-    extends SimpleChannelHandler with ScalaChannelHandler with StrictLogging {
+    controller:         RecorderController,
+    sslServerContext:   SslServerContext,
+    userChannel:        Channel,
+    var performConnect: Boolean,
+    reconnect:          Boolean
+) extends ChannelInboundHandlerAdapter with ScalaChannelHandler with StrictLogging {
 
-  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
 
-      def handleConnect(response: HttpResponse): Unit = {
+      def handleConnect(response: SafeHttpResponse): Unit = {
 
           def upgradeRemotePipeline(remotePipeline: ChannelPipeline, clientSslHandler: SslHandler): Unit = {
             // the HttpClientCodec has to be regenerated, don't ask me why...
@@ -50,57 +51,52 @@ private[handler] class RemoteHandler(
             remotePipeline.addFirst(SslHandlerName, clientSslHandler)
           }
 
-        if (response.getStatus == HttpResponseStatus.OK) {
+        if (response.status == HttpResponseStatus.OK) {
           performConnect = false
           val remoteSslHandler = new SslHandler(SslClientContext.createSSLEngine)
-          remoteSslHandler.setCloseOnSSLException(true)
-          upgradeRemotePipeline(ctx.getChannel.getPipeline, remoteSslHandler)
+          upgradeRemotePipeline(ctx.channel.pipeline, remoteSslHandler)
 
           // if we're reconnecting, server channel is already set up
           if (!reconnect)
-            remoteSslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
-              val inetSocketAddress = handshakeFuture.getChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
-              userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter(inetSocketAddress.getHostString, sslServerContext))
-              userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+            remoteSslHandler.handshakeFuture.addListener { handshakeFuture: Future[Channel] =>
+              if (handshakeFuture.isSuccess) {
+                val inetSocketAddress = handshakeFuture.get.remoteAddress.asInstanceOf[InetSocketAddress]
+                userChannel.pipeline.addFirst(SslHandlerSetterName, new SslHandlerSetter(inetSocketAddress.getHostString, sslServerContext))
+                userChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+              } else {
+                logger.error(s"Handshake failure", handshakeFuture.cause)
+              }
             }
         } else
-          throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.getStatus}")
+          throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.status}")
       }
 
-      def handleRequest(response: HttpResponse): Unit =
-        ctx.getAttachment match {
+      def handleResponse(response: SafeHttpResponse): Unit =
+        ctx.attr(TimedHttpRequestAttribute).getAndRemove() match {
           case request: TimedHttpRequest =>
             controller.receiveResponse(request, response)
 
-            ctx.setAttachment(null)
-
-            if (userChannel.isConnected) {
-              logger.debug(s"Write response to user channel ${userChannel.getId}")
-              userChannel.write(response)
+            if (userChannel.isActive) {
+              logger.debug(s"Write response $response to user channel $userChannel")
+              userChannel.writeAndFlush(response.toNettyResponse)
 
             } else
-              logger.error(s"Can't write response to disconnected user channel ${userChannel.getId}, aborting request:${request.httpRequest.getUri}")
+              logger.error(s"Can't write response to disconnected user channel $userChannel, aborting request:${request.httpRequest.uri}")
 
-          case _ => throw new IllegalStateException("Couldn't find request attachment")
+          case _ => throw new IllegalStateException("Couldn't find request attribute")
         }
 
-    event.getMessage match {
-      case response: HttpResponse =>
+    msg match {
+      case response: FullHttpResponse =>
+
+        val safeResponse = SafeHttpResponse.fromNettyResponse(response)
+
         if (performConnect)
-          handleConnect(response)
+          handleConnect(safeResponse)
         else
-          handleRequest(response)
-
-      case chunk: HttpChunk =>
-        if (userChannel.isConnected) {
-          logger.debug(s"Write response chunk to user channel ${userChannel.getId}")
-          userChannel.write(chunk)
-
-        } else
-          logger.error(s"Can't write response chunk to disconnected user channel ${userChannel.getId}, ignoring")
+          handleResponse(safeResponse)
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
   }
-
 }

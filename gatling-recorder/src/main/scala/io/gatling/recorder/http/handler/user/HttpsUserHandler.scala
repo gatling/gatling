@@ -21,28 +21,31 @@ import java.net.InetSocketAddress
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
+import io.gatling.recorder.http.model.SafeHttpRequest
 
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.util.concurrent.Future
 import org.asynchttpclient.uri.Uri
-import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, ExceptionEvent }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
-import org.jboss.netty.handler.ssl.SslHandler
+import io.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext }
+import io.netty.handler.codec.http._
+import io.netty.handler.ssl.SslHandler
 
 private[user] class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
   var targetHostUri: Uri = _
 
-  def propagateRequest(userChannel: Channel, request: HttpRequest): Unit = {
+  def propagateRequest(userChannel: Channel, request: SafeHttpRequest): Unit = {
 
-      def handleConnect(reconnect: Boolean): Unit = {
+      def handleConnect(reconnectRemote: Boolean): Unit = {
 
           def connectRemoteChannelThroughProxy(proxyAddress: InetSocketAddress): Unit =
             proxy.remoteBootstrap
               .connect(proxyAddress)
               .addListener { connectFuture: ChannelFuture =>
-                val remoteChannel = connectFuture.getChannel
-                setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = true, reconnect = reconnect)
-                remoteChannel.write(request)
+                val remoteChannel = connectFuture.channel
+                setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = true, reconnect = reconnectRemote)
+                logger.debug(s"Write request ${request.toNettyRequest} to remoteChannel $remoteChannel")
+                remoteChannel.writeAndFlush(request.toNettyRequest)
               }
 
           def connectRemoteChannelDirect(address: InetSocketAddress): Unit =
@@ -50,33 +53,34 @@ private[user] class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
                 if (connectFuture.isSuccess) {
-                  connectFuture.getChannel.getPipeline.get(SslHandlerName) match {
+                  connectFuture.channel.pipeline.get(SslHandlerName) match {
                     case sslHandler: SslHandler =>
-                      sslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
+                      sslHandler.handshakeFuture.addListener { handshakeFuture: Future[Channel] =>
 
                         if (handshakeFuture.isSuccess) {
-                          val remoteChannel = handshakeFuture.getChannel
-                          val inetSocketAddress = remoteChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
-                          setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnect)
-                          if (!reconnect) {
-                            userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter(inetSocketAddress.getHostString, proxy.sslServerContext))
-                            userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+                          val remoteChannel = handshakeFuture.get
+                          val inetSocketAddress = remoteChannel.remoteAddress.asInstanceOf[InetSocketAddress]
+                          setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnectRemote)
+                          if (!reconnectRemote) {
+                            userChannel.pipeline.addFirst(SslHandlerSetterName, new SslHandlerSetter(inetSocketAddress.getHostString, proxy.sslServerContext))
+                            logger.debug(s"Write OK response to userChannel $userChannel")
+                            userChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
                           } else
                             handlePropagatableRequest()
 
                         } else
-                          logger.error(s"Handshake failure with $address", handshakeFuture.getCause)
+                          logger.error(s"Handshake failure with $address", handshakeFuture.cause)
                       }
 
                     case _ => throw new IllegalStateException("SslHandler missing from secureClientBootstrap")
                   }
                 } else
-                  logger.error(s"Could not connect to $address", connectFuture.getCause)
+                  logger.error(s"Could not connect to $address", connectFuture.cause)
               }
 
         // only real CONNECT has an absolute url with the host, not reconnection
-        if (!reconnect)
-          targetHostUri = Uri.create("https://" + request.getUri)
+        if (!reconnectRemote)
+          targetHostUri = Uri.create("https://" + request.uri)
 
         proxy.outgoingProxy match {
           case Some((proxyHost, proxyPort)) => connectRemoteChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))
@@ -86,33 +90,32 @@ private[user] class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy
 
       def handlePropagatableRequest(): Unit =
         _remoteChannel match {
-          case Some(remoteChannel) if remoteChannel.isConnected =>
+          case Some(remoteChannel) if remoteChannel.isActive =>
             // set full uri so that it's correctly recorded
-            val absoluteUri = Uri.create(targetHostUri, request.getUri).toString
-            val loggedRequest = copyRequestWithNewUri(request, absoluteUri)
+            val loggedRequest = request.copy(uri = Uri.create(targetHostUri, request.uri).toString)
             writeRequestToRemote(userChannel, request, loggedRequest)
 
           case _ =>
             _remoteChannel = None
-            handleConnect(reconnect = true)
+            handleConnect(reconnectRemote = true)
         }
 
-    logger.info(s"Received ${request.getMethod} on ${request.getUri}")
-    request.getMethod match {
-      case HttpMethod.CONNECT => handleConnect(reconnect = false)
+    logger.info(s"Received ${request.method} on ${request.uri}")
+    request.method match {
+      case HttpMethod.CONNECT => handleConnect(reconnectRemote = false)
       case _                  => handlePropagatableRequest()
     }
   }
 
-  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
+  override def exceptionCaught(ctx: ChannelHandlerContext, cause: Throwable): Unit = {
 
-    e.getCause match {
+    cause match {
       case e: IOException =>
         logger.error(s"SslException, did you accept the certificate for $targetHostUri?")
         proxy.controller.secureConnection(targetHostUri)
       case _ =>
     }
 
-    super.exceptionCaught(ctx, e)
+    super.exceptionCaught(ctx, cause)
   }
 }

@@ -24,7 +24,7 @@ import io.gatling.recorder.config.ConfigKeys.http.{ InferHtmlResources, FollowRe
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 import org.asynchttpclient.uri.Uri
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
+import io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 
 class ScenarioSpec extends BaseSpec {
 

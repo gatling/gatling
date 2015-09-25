@@ -11,7 +11,7 @@ object Dependencies {
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                    % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"     % "1.0.4"
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client-netty4"     % "2.0.0-alpha12"
-  private val netty3                        = "io.netty"                               % "netty"                        % "3.10.4.Final"
+  private val netty4                        = "io.netty"                               % "netty-codec-http"             % "4.0.31.Final"
   private val dnsJava                       = "dnsjava"                                % "dnsjava"                      % "2.1.7"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.3.14"
   private val config                        = "com.typesafe"                           % "config"                       % "1.2.1"
@@ -80,7 +80,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty3) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty4) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 

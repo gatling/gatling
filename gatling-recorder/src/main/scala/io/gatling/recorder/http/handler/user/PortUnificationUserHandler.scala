@@ -15,29 +15,30 @@
  */
 package io.gatling.recorder.http.handler.user
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
-import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, MessageEvent, SimpleChannelHandler }
-import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest }
 
-private[http] class PortUnificationUserHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
+import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.{ ChannelHandlerContext, ChannelInboundHandlerAdapter, ChannelPipeline }
+import io.netty.handler.codec.http.{ HttpMethod, HttpRequest }
 
-  override def messageReceived(requestContext: ChannelHandlerContext, event: MessageEvent): Unit =
+private[http] class PortUnificationUserHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends ChannelInboundHandlerAdapter with StrictLogging {
+
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit =
     try
-      event.getMessage match {
+      msg match {
         case request: HttpRequest =>
           val serverHandler =
-            if (request.getMethod.toString == HttpMethod.CONNECT.getName)
+            if (request.getMethod.toString == HttpMethod.CONNECT.name)
               new HttpsUserHandler(proxy)
             else
               new HttpUserHandler(proxy)
           pipeline.addLast(GatlingHandlerName, serverHandler)
           pipeline.remove(PortUnificationServerHandler)
 
-        case unknown => logger.warn(s"Received unknown message: $unknown , in event : $event")
+        case unknown => logger.warn(s"Received unknown message: $unknown")
       }
 
     finally
-      super.messageReceived(requestContext, event)
+      super.channelRead(ctx, msg)
 }
