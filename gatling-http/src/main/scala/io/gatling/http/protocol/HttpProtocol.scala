@@ -188,12 +188,11 @@ case class HttpProtocolWsPart(
 ) {
 
   private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseURLs)
-  def wsBaseURL: Option[String] = wsBaseUrlIterator.next()
   def makeAbsoluteWsUri(url: String): Validation[Uri] =
-    if (HttpHelper.isAbsoluteHttpUrl(url))
+    if (HttpHelper.isAbsoluteWsUrl(url))
       Uri.create(url).success
     else
-      wsBaseURL match {
+      wsBaseUrlIterator.next() match {
         case Some(root) => Uri.create(root + url).success
         case _          => s"No protocol.wsBaseURL defined but provided url is relative : $url".failure
       }
