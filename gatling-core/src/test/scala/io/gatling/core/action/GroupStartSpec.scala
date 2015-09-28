@@ -15,19 +15,18 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.stats.DefaultStatsEngine
-
-import akka.testkit._
 import io.gatling.AkkaSpec
-
 import io.gatling.core.session.el.El
 import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.stats.DataWritersStatsEngine
+
+import akka.testkit._
 
 class GroupStartSpec extends AkkaSpec {
 
   "GroupStart" should "resolve the group name from the session and create a new group" in {
     val dataWriterProbe = TestProbe()
-    val statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))
+    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
     val groupExpr = "${theGroupName}".el[String]
 
     val groupStart = TestActorRef(GroupStart.props(groupExpr, statsEngine, self))

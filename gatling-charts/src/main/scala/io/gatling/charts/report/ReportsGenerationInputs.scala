@@ -15,11 +15,11 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.stats.FileDataReader
+import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.AssertionResult
 
 private[gatling] case class ReportsGenerationInputs(
   reportFolderName: String,
-  dataReader:       FileDataReader,
+  logFileReader:    LogFileReader,
   assertionResults: List[AssertionResult]
 )

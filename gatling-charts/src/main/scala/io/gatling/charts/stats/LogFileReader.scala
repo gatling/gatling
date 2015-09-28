@@ -35,16 +35,16 @@ import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
 import jodd.util.Base64
 
-object FileDataReader {
+object LogFileReader {
 
   val LogStep = 100000
   val SecMillisecRatio = 1000.0
   val SimulationFilesNamePattern = """.*\.log"""
 }
 
-class FileDataReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends GeneralStatsSource with StrictLogging {
+class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends GeneralStatsSource with StrictLogging {
 
-  import FileDataReader._
+  import LogFileReader._
 
   println("Parsing log file(s)...")
 
@@ -87,7 +87,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
       count += 1
       if (count % LogStep == 0) logger.info(s"First pass, read $count lines")
 
-      line.split(FileDataWriter.Separator) match {
+      line.split(LogFileDataWriter.Separator) match {
 
         case RawRequestRecord(array) =>
           updateRunLimits(array(5).toLong, array(6).toLong)
@@ -146,7 +146,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
         count += 1
         if (count % LogStep == 0) logger.info(s"Second pass, read $count lines")
 
-        line.split(FileDataWriter.Separator) match {
+        line.split(LogFileDataWriter.Separator) match {
           case requestRecordParser(record) => resultsHolder.addRequestRecord(record)
           case groupRecordParser(record)   => resultsHolder.addGroupRecord(record)
           case userRecordParser(record)    => resultsHolder.addUserRecord(record)

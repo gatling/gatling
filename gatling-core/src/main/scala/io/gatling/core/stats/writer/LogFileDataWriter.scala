@@ -30,7 +30,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import jodd.util.Base64
 
-object FileDataWriter {
+object LogFileDataWriter {
 
   val Separator = '\t'
 
@@ -125,9 +125,9 @@ case class FileData(limit: Int, buffer: ByteBuffer, encoder: CharsetEncoder, cha
  *
  * It writes the data of the simulation if a tabulation separated values file
  */
-class FileDataWriter extends DataWriter[FileData] {
+class LogFileDataWriter extends DataWriter[FileData] {
 
-  import FileDataWriter._
+  import LogFileDataWriter._
 
   def onInit(init: Init): FileData = {
 

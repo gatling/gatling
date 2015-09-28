@@ -18,7 +18,7 @@ package io.gatling.core.action
 import io.gatling.AkkaSpec
 import io.gatling.commons.validation._
 import io.gatling.core.session._
-import io.gatling.core.stats.DefaultStatsEngine
+import io.gatling.core.stats.DataWritersStatsEngine
 
 import akka.testkit._
 
@@ -26,7 +26,7 @@ class FeedSpec extends AkkaSpec {
 
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {
     val dataWriterProbe = TestProbe()
-    val statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))
+    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
     val singleton = TestProbe()
     val controller = TestProbe()
     val number: Expression[Int] = session => 1.success

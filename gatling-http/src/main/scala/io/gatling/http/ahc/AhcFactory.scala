@@ -18,7 +18,6 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ ExecutorService, TimeUnit, ThreadFactory, Executors }
 
-import io.gatling.commons.util.ReflectionHelper._
 import io.gatling.core.{ CoreComponents, ConfigKeys }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
@@ -40,11 +39,15 @@ import org.asynchttpclient.ws.WebSocketListener
 
 private[gatling] object AhcFactory {
 
-  val AhcFactorySystemProperty = "gatling.ahcFactory"
-
-  def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory =
-    sys.props.get(AhcFactorySystemProperty).map(newInstance[AhcFactory](_, system, coreComponents, configuration))
-      .getOrElse(new DefaultAhcFactory(system, coreComponents))
+  def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory = {
+    //
+    //
+    //
+    //
+    //
+    //
+    new DefaultAhcFactory(system, coreComponents)
+  }
 }
 
 private[gatling] trait AhcFactory {
