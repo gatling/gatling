@@ -63,8 +63,6 @@ trait StatsEngine {
 
 class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extends StatsEngine {
 
-  implicit val dispatcher = system.dispatcher
-
   private val active = new AtomicBoolean(true)
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
@@ -109,10 +107,12 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
       group.status
     ))
 
-  override def logError(session: Session, requestName: String, error: String, date: Long): Unit = dispatch(ErrorMessage(s"$error ", date))
+  override def logError(session: Session, requestName: String, error: String, date: Long): Unit =
+    dispatch(ErrorMessage(s"$error ", date))
 
   override def stop(replyTo: ActorRef): Unit =
     if (active.getAndSet(false)) {
+      implicit val dispatcher = system.dispatcher
       implicit val dataWriterTimeOut = Timeout(5 seconds)
       val responses = dataWriters.map(_ ? Stop)
       Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
