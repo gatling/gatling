@@ -17,16 +17,20 @@ package io.gatling.jms.action
 
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.stats.DefaultStatsEngine
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.stats.writer.{ GroupMessage, ResponseMessage, DataWriterMessage }
+import io.gatling.core.stats.writer.{ UserMessage, GroupMessage, ResponseMessage, DataWriterMessage }
 
-import akka.actor.ActorSystem
+import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 
-class MockStatsEngine(system: ActorSystem) extends DefaultStatsEngine(system, Nil) with StrictLogging {
+class MockStatsEngine extends StatsEngine with StrictLogging {
 
   var dataWriterMsg: List[DataWriterMessage] = List()
+
+  override def logUser(userMessage: UserMessage): Unit = {}
+
+  override def logRequest(session: Session, requestName: String): Unit = {}
 
   override def logResponse(
     session:      Session,
@@ -51,6 +55,12 @@ class MockStatsEngine(system: ActorSystem) extends DefaultStatsEngine(system, Ni
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitDate: Long): Unit =
     handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startDate, exitDate, group.cumulatedResponseTime, group.status))
+
+  override def logError(session: Session, requestName: String, error: String, date: Long): Unit = {}
+
+  override def stop(replyTo: ActorRef): Unit = {}
+
+  override def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit = {}
 
   private def handle(msg: DataWriterMessage) = {
     dataWriterMsg = msg :: dataWriterMsg

@@ -39,7 +39,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
   val session = Session("mockSession", 0)
 
   "JmsRequestTrackerActor" should "pass to next to next actor when matching message is received" in {
-    val statsEngine = new MockStatsEngine(system)
+    val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
     tracker ! MessageSent("1", 15, Nil, session, testActor, "success")
@@ -53,7 +53,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
   }
 
   it should "pass to next to next actor even if messages are out of sync" in {
-    val statsEngine = new MockStatsEngine(system)
+    val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
     tracker ! MessageReceived("1", 30, textMessage("test"))
@@ -68,7 +68,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
 
   it should "pass KO to next actor when check fails" in {
     val failedCheck = JmsSimpleCheck(_ => false)
-    val statsEngine = new MockStatsEngine(system)
+    val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
     tracker ! MessageSent("1", 15, List(failedCheck), session, testActor, "failure")
@@ -83,7 +83,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
 
   it should "pass updated session to next actor if modified by checks" in {
     val check: JmsCheck = xpath("/id").saveAs("id")
-    val statsEngine = new MockStatsEngine(system)
+    val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
     tracker ! MessageSent("1", 15, List(check), session, testActor, "updated")
@@ -97,7 +97,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
   }
 
   it should "pass information to session about response time in case group are used" in {
-    val statsEngine = new MockStatsEngine(system)
+    val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
     val groupSession = session.enterGroup("group")
