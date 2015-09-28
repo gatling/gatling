@@ -30,9 +30,9 @@ The building blocks for profile injection the way you want are:
 #. ``constantUsersPerSec(rate) during(duration) randomized``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
 #. ``rampUsersPerSec(rate1) to (rate2) during(duration)``: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
 #. ``rampUsersPerSec(rate1) to(rate2) during(duration) randomized``: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
-#. ``heavisideUsers(nbUsers) over(duration)``: Injects a given number of users following a smooth approximation of the `heaviside step function <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ stretched to a given duration.
 #. ``splitUsers(nbUsers) into(injectionStep) separatedBy(duration)``: Repeatedly execute the defined injection step separated by a pause of the given duration until reaching *nbUsers*, the total number of users to inject.
 #. ``splitUsers(nbUsers) into(injectionStep1) separatedBy(injectionStep2)``: Repeatedly execute the first defined injection step (*injectionStep1*) separated by the execution of the second injection step (*injectionStep2*) until reaching *nbUsers*, the total number of users to inject.
+#. ``heavisideUsers(nbUsers) over(duration)``: Injects a given number of users following a smooth approximation of the `heaviside step function <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ stretched to a given duration.
 
 .. warning::
 
