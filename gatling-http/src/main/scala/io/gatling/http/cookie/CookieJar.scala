@@ -16,7 +16,6 @@
 package io.gatling.http.cookie
 
 import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.http.util.HttpHelper.isSecure
 
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri
@@ -125,12 +124,10 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
       val thisRequestPath = requestPath(requestUri)
 
-      val secureUri = isSecure(requestUri)
-
         def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
           domainsMatch(key.domain, thisRequestDomain, storedCookie.hostOnly) &&
             pathsMatch(key.path, thisRequestPath) &&
-            (!storedCookie.cookie.isSecure || secureUri)
+            (!storedCookie.cookie.isSecure || requestUri.isSecured)
 
       val matchingCookies = store.filter {
         case (key, storedCookie) => isCookieMatching(key, storedCookie)

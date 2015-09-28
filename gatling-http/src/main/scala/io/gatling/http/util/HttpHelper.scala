@@ -34,9 +34,7 @@ import com.typesafe.scalalogging.StrictLogging
 object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
-  val HttpsScheme = "https"
   val WsScheme = "ws"
-  val WssScheme = "wss"
   val OkCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209)
   val RedirectStatusCodes = Vector(301, 302, 303, 307, 308)
 
@@ -109,8 +107,6 @@ object HttpHelper extends StrictLogging {
   def isRedirect(statusCode: Int) = RedirectStatusCodes.contains(statusCode)
   def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301 || statusCode == 308
   def isNotModified(statusCode: Int) = statusCode == 304
-
-  def isSecure(uri: Uri) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
 
   def isAbsoluteHttpUrl(url: String) = url.startsWith(HttpScheme)
   def isAbsoluteWsUrl(url: String) = url.startsWith(WsScheme)
