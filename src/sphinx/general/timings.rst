@@ -38,7 +38,7 @@ The response time is the elasped time between the beginning of the request's sen
 Latency
 -------
 
-The latency is the elapsed time between the beginning of the request's sending and the start of the response's receiving:
+The latency is the elapsed time between the end of the request's sending and the beginning of the response's receiving:
 
 * The end of request's sending is the instant when the last bytes of the request have been sent over the wire by Gatling.
 * The beginning of the response's receiving is the instant when at least the response's HTTP status has been been received by Gatling.
