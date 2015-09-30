@@ -16,7 +16,7 @@
 package io.gatling.http.ahc
 
 import java.util.{ ArrayList => JArrayList }
-import java.util.concurrent.{ ExecutorService, TimeUnit, ThreadFactory, Executors }
+import java.util.concurrent.TimeUnit
 
 import io.gatling.core.{ CoreComponents, ConfigKeys }
 import io.gatling.core.config.GatlingConfiguration
@@ -64,19 +64,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  private def newApplicationThreadPool: ExecutorService = {
-
-    val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
-      override def newThread(r: Runnable) = {
-        val t = new Thread(r, "Netty Thread")
-        t.setDaemon(true)
-        t
-      }
-    })
-    system.registerOnTermination(() => applicationThreadPool.shutdown())
-    applicationThreadPool
-  }
-
   private def newEventLoopGroup: EventLoopGroup = {
     val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("gatling-netty-thread"))
     system.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
@@ -113,7 +100,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     advancedConfig
   }
 
-  private[gatling] def newAhcConfigBuilder(applicationThreadPool: ExecutorService, advancedConfig: AdvancedConfig) = {
+  private[gatling] def newAhcConfigBuilder(advancedConfig: AdvancedConfig) = {
     val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
       .setAllowPoolingConnections(ahcConfig.allowPoolingConnections)
       .setAllowPoolingSslConnections(ahcConfig.allowPoolingSslConnections)
@@ -122,14 +109,12 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setReadTimeout(ahcConfig.readTimeout)
       .setConnectionTTL(ahcConfig.connectionTTL)
-      .setIOThreadMultiplier(2)
       .setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
       .setMaxConnections(ahcConfig.maxConnections)
       .setMaxRequestRetry(ahcConfig.maxRetry)
       .setRequestTimeout(ahcConfig.requestTimeOut)
       .setUseProxyProperties(false)
       .setUserAgent(null)
-      .setExecutorService(applicationThreadPool)
       .setAdvancedConfig(advancedConfig)
       .setWebSocketTimeout(ahcConfig.webSocketTimeout)
       .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
@@ -162,12 +147,11 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   }
 
   private val defaultAhcConfig = {
-    val applicationThreadPool = newApplicationThreadPool
     val eventLoopGroup = newEventLoopGroup
     val timer = newTimer
     val channelPool = newChannelPool(timer)
     val advancedConfig = newAdvancedConfig(eventLoopGroup, timer, channelPool)
-    val ahcConfigBuilder = newAhcConfigBuilder(applicationThreadPool, advancedConfig)
+    val ahcConfigBuilder = newAhcConfigBuilder(advancedConfig)
     ahcConfigBuilder.build
   }
 
