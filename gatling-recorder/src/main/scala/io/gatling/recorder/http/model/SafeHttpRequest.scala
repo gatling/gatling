@@ -15,6 +15,9 @@
  */
 package io.gatling.recorder.http.model
 
+import scala.collection.JavaConversions._
+
+import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.http.util.BytesHelper
 
 import io.netty.buffer.Unpooled
@@ -37,12 +40,12 @@ object SafeHttpRequest {
 }
 
 case class SafeHttpRequest(
-  httpVersion:     HttpVersion,
-  method:          HttpMethod,
-  uri:             String,
-  headers:         HttpHeaders,
-  trailingHeaders: HttpHeaders,
-  body:            Array[Byte]
+    httpVersion:     HttpVersion,
+    method:          HttpMethod,
+    uri:             String,
+    headers:         HttpHeaders,
+    trailingHeaders: HttpHeaders,
+    body:            Array[Byte]
 ) {
 
   def toNettyRequest: FullHttpRequest = {
@@ -51,4 +54,8 @@ case class SafeHttpRequest(
     request.trailingHeaders.set(trailingHeaders)
     request
   }
+
+  def summary: String =
+    s"""$httpVersion $method $uri
+     |${(headers ++ trailingHeaders).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
 }
