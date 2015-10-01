@@ -84,8 +84,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
     status:       Status,
     response:     Response,
     errorMessage: Option[String] = None
-  ): Unit = {
-
+  ): Unit =
     if (!tx.silent) {
       val fullRequestName = if (tx.redirectCount > 0)
         s"${tx.request.requestName} Redirect ${tx.redirectCount}"
@@ -132,7 +131,6 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         extraInfo
       )
     }
-  }
 
   /**
    * This method is used to send a message to the data writer actor and then execute the next action
