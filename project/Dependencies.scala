@@ -13,7 +13,7 @@ object Dependencies {
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.0-alpha14"
   private val netty4                        = "io.netty"                               % "netty-codec-http"             % "4.0.32.Final"
   private val dnsJava                       = "dnsjava"                                % "dnsjava"                      % "2.1.7"
-  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.3.14"
+  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.0"
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                     % "9.6.0-7"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.12"

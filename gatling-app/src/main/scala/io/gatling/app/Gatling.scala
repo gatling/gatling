@@ -113,8 +113,8 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       }
 
     } finally {
-      system.shutdown()
-      system.awaitTermination()
+      val whenTerminated = system.terminate()
+      Await.result(whenTerminated, 2 seconds)
     }
   }
 }
