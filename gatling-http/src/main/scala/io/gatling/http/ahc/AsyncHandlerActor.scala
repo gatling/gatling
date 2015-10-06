@@ -202,7 +202,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           .delete(HeaderNames.Cookie)
           .delete(HeaderNames.ContentType)
 
-        val switchToGet = originalMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
+        val switchToGet = originalMethod != "GET" && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
         val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
 
         val requestBuilder = new RequestBuilder(if (switchToGet) "GET" else originalMethod)
