@@ -119,8 +119,6 @@ class ResponseBuilder(
     digests = initDigests()
   }
 
-  def updateLastByteSent(): Unit = {}
-
   def updateLastByteReceived(): Unit = lastByteReceived = nowMillis
 
   def accumulate(status: HttpResponseStatus): Unit = {

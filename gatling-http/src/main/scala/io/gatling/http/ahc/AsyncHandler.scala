@@ -85,15 +85,9 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
 
-  override def onHeadersWritten(): State = {
-    if (!done.get) responseBuilder.updateLastByteSent()
-    CONTINUE
-  }
+  override val onHeadersWritten: State = CONTINUE
 
-  override def onContentWritten(): State = {
-    if (!done.get) responseBuilder.updateLastByteSent()
-    CONTINUE
-  }
+  override val onContentWritten: State = CONTINUE
 
   override def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
