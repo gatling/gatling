@@ -58,7 +58,7 @@ object LogFileDataWriter {
     def serialize(runMessage: RunMessage): Fastring = {
       import runMessage._
       val description = if (runDescription.isEmpty) " " else runDescription
-      fast"${RunRecordHeader.value}$Separator$simulationClassName$Separator${userDefinedSimulationId.getOrElse("")}$Separator${defaultSimulationId}$Separator$start$Separator$description${Separator}2.0$Eol"
+      fast"${RunRecordHeader.value}$Separator$simulationClassName$Separator${userDefinedSimulationId.getOrElse("")}$Separator$defaultSimulationId$Separator$start$Separator$description${Separator}2.0$Eol"
     }
   }
 
@@ -66,7 +66,7 @@ object LogFileDataWriter {
 
     def serialize(user: UserMessage): Fastring = {
       import user._
-      fast"${UserRecordHeader.value}$Separator${session.scenario}$Separator${session.userId}$Separator${event.name}$Separator${session.startDate}$Separator$date$Eol"
+      fast"${UserRecordHeader.value}$Separator${session.scenario}$Separator${session.userId}$Separator${event.name}$Separator${session.startDate}$Separator$timestamp$Eol"
     }
   }
 
@@ -84,7 +84,7 @@ object LogFileDataWriter {
     def serialize(response: ResponseMessage): Fastring = {
       import response._
       import timings._
-      fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$startDate$Separator$endDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
+      fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$startTimestamp$Separator$endTimestamp$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }
 
@@ -92,7 +92,7 @@ object LogFileDataWriter {
 
     def serialize(group: GroupMessage): Fastring = {
       import group._
-      fast"${GroupRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator$cumulatedResponseTime$Separator$status$Eol"
+      fast"${GroupRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$startTimestamp$Separator$endTimestamp$Separator$cumulatedResponseTime$Separator$status$Eol"
     }
   }
 

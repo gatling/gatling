@@ -38,7 +38,7 @@ trait StatsEngine {
 
   def logUser(userMessage: UserMessage): Unit
 
-  def logRequest(session: Session, requestName: String): Unit
+  def logRequest(session: Session, requestName: String, timestamp: Long): Unit
 
   def logResponse(
     session:      Session,
@@ -51,9 +51,9 @@ trait StatsEngine {
   ): Unit
 
   def logGroupEnd(
-    session:  Session,
-    group:    GroupBlock,
-    exitDate: Long
+    session:       Session,
+    group:         GroupBlock,
+    exitTimestamp: Long
   ): Unit
 
   def logError(session: Session, requestName: String, error: String, date: Long): Unit
@@ -99,7 +99,7 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
 
   override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
-  override def logRequest(session: Session, requestName: String): Unit = {}
+  override def logRequest(session: Session, requestName: String, date: Long): Unit = {}
 
   override def logResponse(
     session:      Session,
@@ -123,16 +123,16 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
     ))
 
   override def logGroupEnd(
-    session:  Session,
-    group:    GroupBlock,
-    exitDate: Long
+    session:       Session,
+    group:         GroupBlock,
+    exitTimestamp: Long
   ): Unit =
     dispatch(GroupMessage(
       session.scenario,
       session.userId,
       group.hierarchy,
-      group.startDate,
-      exitDate,
+      group.startTimestamp,
+      exitTimestamp,
       group.cumulatedResponseTime,
       group.status
     ))
