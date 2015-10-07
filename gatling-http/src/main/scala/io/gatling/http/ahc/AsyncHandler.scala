@@ -53,7 +53,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      val firstByteSent = responseBuilder.updateFirstByteSent()
+      val firstByteSent = responseBuilder.updateStartTimestamp()
       httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName, firstByteSent)
     }
 
@@ -113,7 +113,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   override def onThrowable(throwable: Throwable): Unit =
     if (done.compareAndSet(false, true)) {
-      responseBuilder.updateLastByteReceived()
+      responseBuilder.updateEndTimestamp()
       sendOnThrowable(throwable)
     }
 
