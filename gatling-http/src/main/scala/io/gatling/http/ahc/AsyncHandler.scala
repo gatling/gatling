@@ -18,7 +18,6 @@ package io.gatling.http.ahc
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
-import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.sync.HttpTx
 
 import io.netty.channel.Channel
@@ -54,8 +53,8 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName, nowMillis)
-      responseBuilder.updateFirstByteSent()
+      val firstByteSent = responseBuilder.updateFirstByteSent()
+      httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName, firstByteSent)
     }
 
   override def onConnectionOpen(): Unit = start()

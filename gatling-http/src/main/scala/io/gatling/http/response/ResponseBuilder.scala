@@ -101,7 +101,10 @@ class ResponseBuilder(
     else
       Map.empty[String, MessageDigest]
 
-  def updateFirstByteSent(): Unit = firstByteSent = nowMillis
+  def updateFirstByteSent(): Long = {
+    firstByteSent = nowMillis
+    firstByteSent
+  }
 
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
