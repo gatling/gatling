@@ -15,3 +15,4 @@ General
     timings
     reports
     functional_specs
+    debugging
