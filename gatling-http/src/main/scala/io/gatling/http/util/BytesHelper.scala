@@ -16,7 +16,7 @@
 package io.gatling.http.util
 
 import java.nio.{ CharBuffer, ByteBuffer }
-import java.nio.charset.{ CharacterCodingException, Charset }
+import java.nio.charset.{ CoderResult, Charset }
 
 import scala.annotation.switch
 
@@ -71,19 +71,15 @@ object BytesHelper {
 
     val bbIt = bufs.iterator
 
+    var cr: CoderResult = null
     bbIt.foreach { buf =>
-
-      try {
-        var cr = cd.decode(buf, cb, !bbIt.hasNext)
-        if (!cr.isUnderflow)
-          cr.throwException()
-        cr = cd.flush(cb)
-        if (!cr.isUnderflow)
-          cr.throwException()
-      } catch {
-        case x: CharacterCodingException => throw new Error(x)
-      }
+      cr = cd.decode(buf, cb, !bbIt.hasNext)
+      if (!cr.isUnderflow)
+        cr.throwException()
     }
+    cr = cd.flush(cb)
+    if (!cr.isUnderflow)
+      cr.throwException()
 
     new String(ca, 0, cb.position)
   }
