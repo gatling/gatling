@@ -77,7 +77,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
             .setHeader(AcceptEncoding, "gzip")
             .setHeader(Connection, KeepAlive)
             .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-            .setRequestTimeout(100)
+            .setRequestTimeout(1000)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 
