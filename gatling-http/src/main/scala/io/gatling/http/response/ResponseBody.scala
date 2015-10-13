@@ -16,7 +16,7 @@
 package io.gatling.http.response
 
 import java.io.{ ByteArrayInputStream, InputStream }
-import java.nio.charset.Charset
+import java.nio.charset.{ MalformedInputException, Charset }
 import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
@@ -24,6 +24,7 @@ import scala.annotation.switch
 import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInputStream }
 import io.gatling.http.util.BytesHelper._
 
+import com.typesafe.scalalogging.{ LazyLogging, StrictLogging }
 import io.netty.buffer.ByteBuf
 
 sealed trait ResponseBodyUsage
@@ -53,10 +54,17 @@ sealed trait ResponseBody {
   def stream: InputStream
 }
 
-object StringResponseBody {
+object StringResponseBody extends StrictLogging {
 
   def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-    val string = byteBufsToString(chunks, charset)
+    val string =
+      try {
+        byteBufsToString(chunks, charset)
+      } catch {
+        case e: MalformedInputException =>
+          logger.error(s"Response body is not valid ${charset.name} bytes")
+          ""
+      }
     new StringResponseBody(string, charset)
   }
 }
@@ -95,7 +103,7 @@ object InputStreamResponseBody {
   }
 }
 
-class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody {
+class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
 
   def stream = (chunks.size: @switch) match {
 
@@ -114,7 +122,13 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
     if (bytesLoaded)
       new String(bytes, charset)
     else
-      byteArraysToString(chunks, charset)
+      try {
+        byteArraysToString(chunks, charset)
+      } catch {
+        case e: MalformedInputException =>
+          logger.error(s"Response body is not valid ${charset.name} bytes")
+          ""
+      }
   }
 }
 
