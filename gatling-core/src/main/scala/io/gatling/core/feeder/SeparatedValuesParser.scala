@@ -33,15 +33,15 @@ object SeparatedValuesParser {
   val SemicolonSeparator = ';'
   val TabulationSeparator = '\t'
 
-  def parse(resource: Resource, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean)(implicit configuration: GatlingConfiguration): IndexedSeq[Record[String]] =
+  def parse(resource: Resource, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean, escapeChar: Char)(implicit configuration: GatlingConfiguration): IndexedSeq[Record[String]] =
     withCloseable(resource.inputStream) { source =>
-      stream(source, columnSeparator, quoteChar, rawSplit).toVector
+      stream(source, columnSeparator, quoteChar, rawSplit, escapeChar).toVector
     }
 
-  def stream(is: InputStream, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean): Iterator[Record[String]] = {
+  def stream(is: InputStream, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean, escapeChar: Char): Iterator[Record[String]] = {
 
     val mapper = new CsvMapper().disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
-    val schema = CsvSchema.emptySchema.withHeader.withColumnSeparator(columnSeparator).withQuoteChar(quoteChar).withEscapeChar('\\')
+    val schema = CsvSchema.emptySchema.withHeader.withColumnSeparator(columnSeparator).withQuoteChar(quoteChar).withEscapeChar(escapeChar)
 
     val reader: ObjectReader = mapper.readerFor(classOf[JMap[_, _]])
 

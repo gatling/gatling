@@ -76,6 +76,11 @@ A solution can be to turn the parsing into a raw split:
 
 Of course, don't use ``csv`` for JSON with rawSplit as the JSON commas will be interpreted as separators !
 
+Also, in a JSON string, double-quotes are escaped with ``\``. So you might prefer Gatling not to escape the backslash and be fully compliant
+with the RFC and nothing more. In that case, you can do the following:
+
+.. includecode:: code/Feeders.scala#escape-char
+
 .. _feeder-json:
 
 JSON feeders
