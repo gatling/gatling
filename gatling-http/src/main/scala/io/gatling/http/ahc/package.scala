@@ -17,8 +17,9 @@ package io.gatling.http
 
 import io.gatling.http.protocol.Proxy
 
+import org.asynchttpclient.Dsl
+import org.asynchttpclient.Realm.AuthScheme
 import org.asynchttpclient.proxy.ProxyServer
-import org.asynchttpclient.proxy.ProxyServer.Protocol
 
 package object ahc {
 
@@ -28,7 +29,7 @@ package object ahc {
 
     def proxyServer: ProxyServer = {
       val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(NoCredentials)
-      new ProxyServer(Protocol.HTTP, proxy.host, proxy.port, proxy.securePort, username, password)
+      Dsl.proxyServer(proxy.host, proxy.port).setSecuredPort(proxy.securePort).setRealm(Dsl.realm(AuthScheme.BASIC, username, password).build).build
     }
   }
 }

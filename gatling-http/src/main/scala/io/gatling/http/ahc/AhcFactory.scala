@@ -30,9 +30,9 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
 import io.netty.util.{ Timer, HashedWheelTimer }
-import org.asynchttpclient.AdvancedConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
 import org.asynchttpclient._
-import org.asynchttpclient.AdvancedConfig
+import org.asynchttpclient.Dsl._
+import org.asynchttpclient.AdvancedConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
 import org.asynchttpclient.netty.ws.NettyWebSocket
 import org.asynchttpclient.ws.WebSocketListener
@@ -80,35 +80,32 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   private def newChannelPool(timer: Timer): ChannelPool = {
     new DefaultChannelPool(
       ahcConfig.pooledConnectionIdleTimeout,
-      ahcConfig.connectionTTL,
-      ahcConfig.allowPoolingSslConnections,
+      ahcConfig.connectionTtl,
       timer
     )
   }
 
-  private def newAdvancedConfig(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool): AdvancedConfig = {
+  private def newAdvancedConfig(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool): AdvancedConfig =
 
-    val advancedConfig = new AdvancedConfig
-    advancedConfig.setEventLoopGroup(eventLoopGroup)
-    advancedConfig.setNettyTimer(timer)
-    advancedConfig.setChannelPool(channelPool)
-    advancedConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
-      override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
-        new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
-    })
-    advancedConfig.setBodyPartFactory(new LazyResponseBodyPartFactory)
-    advancedConfig
-  }
+    advancedConfig()
+      .setEventLoopGroup(eventLoopGroup)
+      .setNettyTimer(timer)
+      .setChannelPool(channelPool)
+      .setNettyWebSocketFactory(new NettyWebSocketFactory {
+        override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
+          new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
+      })
+      .setResponseBodyPartFactory(new LazyResponseBodyPartFactory)
+      .build
 
   private[gatling] def newAhcConfigBuilder(advancedConfig: AdvancedConfig) = {
-    val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+    val ahcConfigBuilder = new DefaultAsyncHttpClientConfig.Builder()
       .setAllowPoolingConnections(ahcConfig.allowPoolingConnections)
-      .setAllowPoolingSslConnections(ahcConfig.allowPoolingSslConnections)
       .setCompressionEnforced(ahcConfig.compressionEnforced)
       .setConnectTimeout(ahcConfig.connectTimeout)
       .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setReadTimeout(ahcConfig.readTimeout)
-      .setConnectionTTL(ahcConfig.connectionTTL)
+      .setConnectionTtl(ahcConfig.connectionTtl)
       .setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
       .setMaxConnections(ahcConfig.maxConnections)
       .setMaxRequestRetry(ahcConfig.maxRetry)
@@ -141,7 +138,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
 
     if (trustManagers.isDefined || keyManagers.isDefined)
-      ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
+      ahcConfigBuilder.setSslContext(trustManagers, keyManagers)
 
     ahcConfigBuilder
   }
@@ -178,7 +175,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
       trustManagers.orElse(keyManagers).map { _ =>
         logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-        new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+        new DefaultAsyncHttpClientConfig.Builder(defaultAhcConfig).setSslContext(trustManagers, keyManagers).build
       }
 
     }.getOrElse(defaultAhcConfig)

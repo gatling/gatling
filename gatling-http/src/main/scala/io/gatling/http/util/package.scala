@@ -18,13 +18,14 @@ package io.gatling.http
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import java.util.{ List => JList, Map => JMap }
+import java.util.{ List => JList }
 
 import scala.collection.JavaConversions._
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.http.response.Response
 
+import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.netty.request.body.NettyMultipartBody
 import org.asynchttpclient.{ Param, Request }
@@ -34,8 +35,8 @@ package object util {
 
   implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
-    def appendAhcStringsMap(map: JMap[String, JList[String]]): JStringBuilder =
-      map.entrySet.foldLeft(buff) { (buf, entry) =>
+    def appendHttpHeaders(headers: HttpHeaders): JStringBuilder =
+      headers.foldLeft(buff) { (buf, entry) =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
 
@@ -60,9 +61,9 @@ package object util {
           }
 
         case _ =>
-          if (request.getHeaders != null && !request.getHeaders.isEmpty) {
+          if (!request.getHeaders.isEmpty) {
             buff.append("headers=").append(Eol)
-            buff.appendAhcStringsMap(request.getHeaders)
+            buff.appendHttpHeaders(request.getHeaders)
           }
 
           if (!request.getCookies.isEmpty) {
@@ -73,7 +74,7 @@ package object util {
           }
       }
 
-      if (request.getFormParams != null && !request.getFormParams.isEmpty) {
+      if (!request.getFormParams.isEmpty) {
         buff.append("params=").append(Eol)
         buff.appendParamJList(request.getFormParams)
       }
@@ -90,9 +91,9 @@ package object util {
 
       if (request.getFile != null) buff.append("file=").append(request.getFile.getCanonicalPath).append(Eol)
 
-      if (request.getParts != null && !request.getParts.isEmpty) {
+      if (!request.getBodyParts.isEmpty) {
         buff.append("parts=").append(Eol)
-        request.getParts.foreach {
+        request.getBodyParts.foreach {
           case part: StringPart =>
             buff
               .append("StringPart:")
@@ -133,9 +134,9 @@ package object util {
         val multipartBody = nettyRequest match {
           case Some(req) =>
             val originalMultipartBody = req.getBody.asInstanceOf[NettyMultipartBody].getBody.asInstanceOf[MultipartBody]
-            new MultipartBody(request.getParts, originalMultipartBody.getContentType, originalMultipartBody.getContentLength, originalMultipartBody.getBoundary)
+            new MultipartBody(request.getBodyParts, originalMultipartBody.getContentType, originalMultipartBody.getContentLength, originalMultipartBody.getBoundary)
 
-          case None => MultipartUtils.newMultipartBody(request.getParts, request.getHeaders)
+          case None => MultipartUtils.newMultipartBody(request.getBodyParts, request.getHeaders)
         }
 
         val byteBuffer = ByteBuffer.allocate(8 * 1024)
@@ -158,7 +159,7 @@ package object util {
 
         if (!response.headers.isEmpty) {
           buff.append("headers= ").append(Eol)
-          buff.appendAhcStringsMap(response.headers).append(Eol)
+          buff.appendHttpHeaders(response.headers).append(Eol)
         }
 
         if (response.hasResponseBody)

@@ -26,7 +26,8 @@ import scala.util.control.NonFatal
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 
-import org.asynchttpclient.{ FluentCaseInsensitiveStringsMap, Realm }
+import io.netty.handler.codec.http.HttpHeaders
+import org.asynchttpclient.Realm
 import org.asynchttpclient.Realm.AuthScheme
 import org.asynchttpclient.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
@@ -74,20 +75,18 @@ object HttpHelper extends StrictLogging {
         passwordValue <- password(session)
         ntlmDomainValue <- resolveOptionalExpression(ntlmDomain, session)
         ntlmHostValue <- resolveOptionalExpression(ntlmHost, session)
-      } yield new Realm.RealmBuilder()
-        .setPrincipal(usernameValue)
-        .setPassword(passwordValue)
-        .setUsePreemptiveAuth(preemptive)
+      } yield new Realm.Builder(usernameValue, passwordValue)
         .setScheme(authScheme)
+        .setUsePreemptiveAuth(preemptive)
         .setNtlmDomain(ntlmDomainValue.orNull)
         .setNtlmHost(ntlmHostValue.orNull)
         .build
 
-  private def headerExists(headers: FluentCaseInsensitiveStringsMap, headerName: String, f: String => Boolean): Boolean = Option(headers.getFirstValue(headerName)).exists(f)
-  def isCss(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
-  def isHtml(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
-  def isAjax(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
-  def isTxt(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
+  private def headerExists(headers: HttpHeaders, headerName: String, f: String => Boolean): Boolean = Option(headers.get(headerName)).exists(f)
+  def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
+  def isHtml(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
+  def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
+  def isTxt(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))

@@ -32,6 +32,7 @@ import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, i
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
+import io.netty.handler.codec.http.{ HttpHeaders, DefaultHttpHeaders }
 import org.asynchttpclient._
 import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.netty.request.NettyRequest
@@ -39,7 +40,7 @@ import org.asynchttpclient.netty.LazyNettyResponseBodyPart
 
 object ResponseBuilder extends StrictLogging {
 
-  val EmptyHeaders = new FluentCaseInsensitiveStringsMap
+  val EmptyHeaders = new DefaultHttpHeaders
 
   val Identity: Response => Response = identity[Response]
 
@@ -87,7 +88,7 @@ class ResponseBuilder(
   var startTimestamp: Long = _
   var endTimestamp: Long = _
   private var status: Option[HttpResponseStatus] = None
-  private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.EmptyHeaders
+  private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
   private val chunks = new ArrayBuffer[ByteBuf]
   private var digests: Map[String, MessageDigest] = initDigests()
   private var nettyRequest: Option[NettyRequest] = None
@@ -171,7 +172,7 @@ class ResponseBuilder(
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-    val resolvedCharset = Option(headers.getFirstValue(HeaderNames.ContentType))
+    val resolvedCharset = Option(headers.get(HeaderNames.ContentType))
       .flatMap(extractCharsetFromContentType)
       .getOrElse(charset)
 
