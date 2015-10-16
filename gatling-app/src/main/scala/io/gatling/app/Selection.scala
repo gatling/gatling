@@ -43,7 +43,7 @@ object Selection {
       val simulation = singleSimulation.getOrElse(interactiveSelect(simulations))
 
       // -- Ask for simulation ID and run description if required -- //
-      val muteModeActive = configuration.core.muteMode || configuration.core.simulationClass.isDefined
+      val muteModeActive = configuration.core.muteMode || configuration.core.simulationClass.isDefined || selectedSimulationClass.isDefined
       val defaultSimulationId = defaultOutputDirectoryBaseName(simulation)
       val optionalDescription = configuration.core.runDescription
 
