@@ -54,8 +54,6 @@ By default, our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`
 
 For example, a very classic pitfall is trailing spaces in header names: they don't get trimmed.
 
-Besides escaping features described in the RFC, one can use a ``\`` character and escape characters that would match the separator or the double quotes.
-
 .. includecode:: code/Feeders.scala#sep-values-feeders
 
 Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
@@ -76,8 +74,8 @@ A solution can be to turn the parsing into a raw split:
 
 Of course, don't use ``csv`` for JSON with rawSplit as the JSON commas will be interpreted as separators !
 
-Also, in a JSON string, double-quotes are escaped with ``\``. So you might prefer Gatling not to escape the backslash and be fully compliant
-with the RFC and nothing more. In that case, you can do the following:
+Besides escaping features described in the RFC, one can specify your own character in order to escape characters
+that would match the separator or the double quotes.
 
 .. includecode:: code/Feeders.scala#escape-char
 

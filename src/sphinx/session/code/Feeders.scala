@@ -69,7 +69,7 @@ class Feeders {
 
   {
     //#escape-char
-    val csvFeeder = csv("foo.csv", escapeChar = '\0')
+    val csvFeeder = csv("foo.csv", escapeChar = '\\')
     //#escape-char
   }
 
