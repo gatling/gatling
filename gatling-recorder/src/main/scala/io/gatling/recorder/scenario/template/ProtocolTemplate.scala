@@ -77,7 +77,7 @@ object ProtocolTemplate {
         protocol.headers.toList.sorted
           .filter {
             case (HeaderNames.Connection, value) => value == "close"
-            case _                               => false
+            case _                               => true
           }.flatMap { case (headerName, headerValue) => BaseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
       }
 
