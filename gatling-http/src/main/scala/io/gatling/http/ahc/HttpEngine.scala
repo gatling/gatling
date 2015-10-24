@@ -43,9 +43,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
 
   val asyncHandlerActors: ActorRef = {
     val poolSize = 3 * Runtime.getRuntime.availableProcessors
-    val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
-
-    asyncHandlerActors
+    system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
   }
 
   def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) = {
