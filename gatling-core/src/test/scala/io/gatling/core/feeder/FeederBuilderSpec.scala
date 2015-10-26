@@ -36,7 +36,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
   "RecordSeqFeederBuilder" should "throw an exception when provided with bad resource" in {
     an[IllegalArgumentException] should be thrownBy
-      feederBuilder(Failure(""))(SeparatedValuesParser.parse(_, SeparatedValuesParser.CommaSeparator, '\'', rawSplit = false))
+      feederBuilder(Failure(""))(SeparatedValuesParser.parse(_, SeparatedValuesParser.CommaSeparator, '\'', escapeChar = Option('\\'), rawSplit = false))
   }
 
   "RecordSeqFeederBuilder" should "build a Feeder with a queue strategy" in {

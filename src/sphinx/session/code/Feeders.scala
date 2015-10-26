@@ -68,6 +68,12 @@ class Feeders {
   }
 
   {
+    //#escape-char
+    val csvFeeder = csv("foo.csv", escapeChar = '\\')
+    //#escape-char
+  }
+
+  {
     //#json-feeders
     val jsonFileFeeder = jsonFile("foo.json")
     val jsonUrlFeeder = jsonUrl("http://me.com/foo.json")

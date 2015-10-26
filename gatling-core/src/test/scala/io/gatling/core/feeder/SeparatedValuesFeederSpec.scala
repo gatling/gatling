@@ -62,6 +62,16 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
   "SeparatedValuesParser" should "throw an exception when provided with bad resource" in {
     import io.gatling.core.feeder.SeparatedValuesParser._
     an[Exception] should be thrownBy
-      stream(this.getClass.getClassLoader.getResourceAsStream("empty.csv"), CommaSeparator, '\'', rawSplit = false)
+      stream(this.getClass.getClassLoader.getResourceAsStream("empty.csv"), CommaSeparator, '\'', escapeChar = Option('\\'), rawSplit = false)
+  }
+
+  "SeparatedValuesParser" should "be compliant with the RFC4180" in {
+    val data = csv("sample4.csv").build(mock[ScenarioContext]).toArray
+    data shouldBe Array(Map("id" -> "id", "payload" -> """{"key": "\"value\""}"""))
+  }
+
+  "SeparatedValuesParser" should "allow an escape char" in {
+    val data = csv("sample3.csv", escapeChar = '\\').build(mock[ScenarioContext]).toArray
+    data shouldBe Array(Map("id" -> "id", "payload" -> """{"k1": "v1", "k2": "v2"}""""))
   }
 }
