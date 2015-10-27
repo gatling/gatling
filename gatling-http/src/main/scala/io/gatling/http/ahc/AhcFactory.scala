@@ -101,10 +101,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setEventLoopGroup(eventLoopGroup)
       .setNettyTimer(timer)
       .setChannelPool(channelPool)
-      .setNettyWebSocketFactory(new NettyWebSocketFactory {
-        override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
-          new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
-      })
       .setResponseBodyPartFactory(ResponseBodyPartFactory.LAZY)
       .setWebSocketTimeout(ahcConfig.webSocketTimeout)
       .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
