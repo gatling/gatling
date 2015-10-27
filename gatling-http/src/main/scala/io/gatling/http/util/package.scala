@@ -134,13 +134,14 @@ package object util {
         val multipartBody = nettyRequest match {
           case Some(req) =>
             val originalMultipartBody = req.getBody.asInstanceOf[NettyMultipartBody].getBody.asInstanceOf[MultipartBody]
-            new MultipartBody(request.getBodyParts, originalMultipartBody.getContentType, originalMultipartBody.getContentLength, originalMultipartBody.getBoundary)
+            val multipartParts = MultipartUtils.generateMultipartParts(request.getBodyParts, originalMultipartBody.getBoundary)
+            new MultipartBody(multipartParts, originalMultipartBody.getContentType, originalMultipartBody.getBoundary)
 
           case None => MultipartUtils.newMultipartBody(request.getBodyParts, request.getHeaders)
         }
 
         val byteBuffer = ByteBuffer.allocate(8 * 1024)
-        multipartBody.read(byteBuffer)
+        multipartBody.transferTo(byteBuffer)
         byteBuffer.flip()
         buff.append(charset.decode(byteBuffer).toString)
       }
