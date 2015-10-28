@@ -24,44 +24,49 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  "tsv" should "handle file without escape char" in {
-    val data = tsv("sample1.tsv").build(mock[ScenarioContext]).toArray
-    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
-  }
-
-  it should "handle file with escape char" in {
-    val data = tsv("sample2.tsv").build(mock[ScenarioContext]).toArray
-    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
-  }
-
-  "ssv" should "not handle file without escape char" in {
-    val data = ssv("sample1.tsv").build(mock[ScenarioContext]).toArray
-    data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
-  }
-
-  it should "handle file with escape char" in {
-    val data = ssv("sample2.ssv").build(mock[ScenarioContext]).toArray
-    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
-  }
-
-  "csv" should "not handle file without escape char" in {
+  "csv" should "not handle file without quote char" in {
     val data = csv("sample1.tsv").build(mock[ScenarioContext]).toArray
     data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
-  it should "handle file with escape char" in {
+  it should "handle file with quote char" in {
     val data = csv("sample2.csv").build(mock[ScenarioContext]).toArray
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
-  "SeparatedValuesParser" should "have a proper raw split" in {
-    val data = tsv("sample1.tsv", rawSplit = true).build(mock[ScenarioContext]).toArray
+  it should "allow an escape char" in {
+    val data = csv("sample3.csv", escapeChar = '\\').build(mock[ScenarioContext]).toArray
+    data shouldBe Array(Map("id" -> "id", "payload" -> """{"k1": "v1", "k2": "v2"}"""))
+  }
+
+  it should "be compliant with the RFC4180 by default (no escape char by default)" in {
+    val data = csv("sample4.csv").build(mock[ScenarioContext]).toArray
+    data shouldBe Array(Map("id" -> "id", "payload" -> """{"key": "\"value\""}"""))
+  }
+
+  "tsv" should "handle file without quote char" in {
+    val data = tsv("sample1.tsv").build(mock[ScenarioContext]).toArray
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
-  "SeparatedValuesParser" should "throw an exception when provided with bad resource" in {
+  it should "handle file with quote char" in {
+    val data = tsv("sample2.tsv").build(mock[ScenarioContext]).toArray
+    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
+  }
+
+  "ssv" should "not handle file without quote char" in {
+    val data = ssv("sample1.ssv").build(mock[ScenarioContext]).toArray
+    data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
+  }
+
+  it should "handle file with quote char" in {
+    val data = ssv("sample2.ssv").build(mock[ScenarioContext]).toArray
+    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
+  }
+
+  "SeparatedValuesParser.stream" should "throw an exception when provided with bad resource" in {
     import io.gatling.core.feeder.SeparatedValuesParser._
     an[Exception] should be thrownBy
-      stream(this.getClass.getClassLoader.getResourceAsStream("empty.csv"), CommaSeparator, '\'', rawSplit = false)
+      stream(this.getClass.getClassLoader.getResourceAsStream("empty.csv"), CommaSeparator, quoteChar = '\'', escapeChar = 0)
   }
 }

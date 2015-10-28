@@ -50,7 +50,7 @@ private[scenario] object RequestTemplate {
         }.getOrElse("")
 
       def renderLongString(value: String) =
-          value.grouped(65535).map(protectWithTripleQuotes).mkFastring(" + ")
+        value.grouped(65535).map(protectWithTripleQuotes).mkFastring(" + ")
 
       def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""

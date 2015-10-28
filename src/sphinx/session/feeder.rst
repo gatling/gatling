@@ -50,11 +50,9 @@ Gatling provides several builtins for reading character-separated values files.
 
 Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see :ref:`configuration`.
 
-By default, our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honor this specification.
+By default, our parser respects `RFC4180 <https://tools.ietf.org/html/rfc4180>`_, so don't expect behaviors that don't honor this specification.
 
-For example, a very classic pitfall is trailing spaces in header names: they don't get trimmed.
-
-Besides escaping features described in the RFC, one can use a ``\`` character and escape characters that would match the separator or the double quotes.
+The only difference is that header fields get trimmed of wrapping whitespaces.
 
 .. includecode:: code/Feeders.scala#sep-values-feeders
 
@@ -65,16 +63,9 @@ Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the w
   This is due to JVM's internal UTF-16 char encoding and object headers overhead.
   If memory is an issue for you, you might want to read from the filesystem on the fly and build your own Feeder.
 
-.. _feeder-csv-json:
+Besides quoting feature described in the RFC, one can specify an escape character so some content characters don't get confused for separator or quoting ones.
 
-Some users might be interested in storing JSON bodies inside a Feeder file.
-
-The problem here is that RFC4180 escaping is very cumbersome with JSON strings as they contains tons of double quotes and commas.
-A solution can be to turn the parsing into a raw split:
-
-.. includecode:: code/Feeders.scala#raw-split
-
-Of course, don't use ``csv`` for JSON with rawSplit as the JSON commas will be interpreted as separators !
+.. includecode:: code/Feeders.scala#escape-char
 
 .. _feeder-json:
 
