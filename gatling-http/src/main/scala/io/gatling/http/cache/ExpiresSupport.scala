@@ -15,8 +15,6 @@
  */
 package io.gatling.http.cache
 
-import java.text.ParsePosition
-
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.{ HeaderValues, HeaderNames }
@@ -62,7 +60,7 @@ trait ExpiresSupport {
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
 
-    Option(DateParser.get.parse(trimmedTimeString, new ParsePosition(0))).map(_.getTime)
+    Option(DateParser.parse(trimmedTimeString)).map(_.getTime)
   }
 
   def getResponseExpires(response: Response): Option[Long] = {
