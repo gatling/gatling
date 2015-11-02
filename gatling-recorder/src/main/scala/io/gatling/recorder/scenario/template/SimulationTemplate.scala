@@ -105,6 +105,7 @@ $mapContent)"""
         }
 
     val extractedUris = new ExtractedUris(flatScenarioElements(scenarioElements))
+    val nonBaseUrls = extractedUris.vals.filter(_.value != protocol.baseUrl)
 
     fast"""$renderPackage
 import scala.concurrent.duration._
@@ -119,7 +120,7 @@ class $simulationClassName extends Simulation {
 
 $renderHeaders
 
-${ValuesTemplate.render(extractedUris.vals)}
+${ValuesTemplate.render(nonBaseUrls)}
 
 	${renderScenario(extractedUris)}
 

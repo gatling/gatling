@@ -22,7 +22,7 @@ import java.util.jar.{ Manifest => JManifest, Attributes }
 
 import scala.collection.JavaConversions._
 import scala.reflect.io.Directory
-import scala.util.Try
+import scala.util.{ Failure, Try }
 
 import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
 import org.slf4j.LoggerFactory
@@ -151,8 +151,12 @@ object ZincCompiler extends App {
   private val inputs = simulationInputs
   Inputs.debug(inputs, zincLogger)
 
-  if (Try(zincCompiler.compile(inputs)(zincLogger)).isFailure) {
+  Try(zincCompiler.compile(inputs)(zincLogger)) match {
+    case Failure(t) =>
+      logger.error("Compilation crashed", t)
+      System.exit(1)
+    case _ =>
+      logger.debug("Compilation successful")
     // Zinc is already logging all the issues, no need to deal with the exception.
-    System.exit(1)
   }
 }

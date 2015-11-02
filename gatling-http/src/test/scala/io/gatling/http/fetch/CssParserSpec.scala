@@ -46,4 +46,55 @@ class CssParserSpec extends BaseSpec {
 
     rulesUri(css) shouldBe Seq("http://akka.io/import2.css")
   }
+
+  def extractUrl(s: String): Option[String] =
+    CssParser.extractUrl(s, 0, s.length)
+
+  "extractUrl" should "handle unquoted url" in {
+    extractUrl("import2.css") shouldBe Some("import2.css")
+  }
+
+  it should "handle unquoted url surrounded with whitespaces" in {
+    extractUrl(" import2.css ") shouldBe Some("import2.css")
+  }
+
+  it should "handle double quoted url" in {
+    extractUrl("\"import2.css\"") shouldBe Some("import2.css")
+  }
+
+  it should "handle double quoted url surrounded with whitespaces" in {
+    extractUrl("\" import2.css \"") shouldBe Some("import2.css")
+  }
+
+  it should "handle single quoted url" in {
+    extractUrl("'import2.css'") shouldBe Some("import2.css")
+  }
+
+  it should "handle single quoted url surrounded with whitespaces" in {
+    extractUrl("' import2.css '") shouldBe Some("import2.css")
+  }
+
+  it should "handle empty unquoted url" in {
+    extractUrl("") shouldBe None
+  }
+
+  it should "handle empty unquoted url surrounded with whitespaces" in {
+    extractUrl("  ") shouldBe None
+  }
+
+  it should "handle empty double quoted url" in {
+    extractUrl("\"\"") shouldBe None
+  }
+
+  it should "handle empty double quoted url surrounded with whitespaces" in {
+    extractUrl("\"  \"") shouldBe None
+  }
+
+  it should "handle empty single quoted url" in {
+    extractUrl("''") shouldBe None
+  }
+
+  it should "handle empty single quoted url surrounded with whitespaces" in {
+    extractUrl("'  '") shouldBe None
+  }
 }

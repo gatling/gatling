@@ -15,7 +15,7 @@
  */
 package io.gatling.core.stats.message
 
-case class ResponseTimings(startDate: Long, endDate: Long) {
+case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) {
 
-  val responseTime = (endDate - startDate).toInt
+  val responseTime = (endTimestamp - startTimestamp).toInt
 }

@@ -15,10 +15,8 @@
  */
 package io.gatling.http.ahc
 
-import org.asynchttpclient.{ Request, RequestBuilderBase }
+import org.asynchttpclient.RequestBuilderBase
 
 class AhcRequestBuilder(method: String, disableUrlEncoding: Boolean)
-    extends RequestBuilderBase[AhcRequestBuilder](classOf[AhcRequestBuilder], method, disableUrlEncoding) {
-
-  def underlyingRequest: Request = request
+    extends RequestBuilderBase[AhcRequestBuilder](method, disableUrlEncoding) {
 }

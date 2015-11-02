@@ -25,7 +25,7 @@ private[charts] class AssertionsReportGenerator(reportsGenerationInputs: Reports
   import reportsGenerationInputs._
 
   def generate(): Unit = {
-    new TemplateWriter(assertionsJUnitFile(reportFolderName)).writeToFile(new AssertionsJUnitTemplate(dataReader.runMessage, assertionResults).getOutput)
-    new TemplateWriter(assertionsJsonFile(reportFolderName)).writeToFile(new AssertionsJsonTemplate(dataReader.runMessage, dataReader.scenarioNames, assertionResults).getOutput)
+    new TemplateWriter(assertionsJUnitFile(reportFolderName)).writeToFile(new AssertionsJUnitTemplate(logFileReader.runMessage, assertionResults).getOutput)
+    new TemplateWriter(assertionsJsonFile(reportFolderName)).writeToFile(new AssertionsJsonTemplate(logFileReader.runMessage, logFileReader.scenarioNames, assertionResults).getOutput)
   }
 }

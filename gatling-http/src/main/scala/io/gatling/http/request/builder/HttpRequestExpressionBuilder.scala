@@ -19,13 +19,14 @@ import scala.collection.JavaConversions._
 
 import io.gatling.commons.validation._
 import io.gatling.core.body._
-import io.gatling.core.session.Session
+import io.gatling.core.session._
 import io.gatling.http.ahc.AhcRequestBuilder
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.BodyPart
 
+import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
@@ -33,15 +34,15 @@ import org.asynchttpclient.request.body.multipart.StringPart
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
-  def configureCaches(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+  def configureCaches(session: Session)(request: Request): Request = {
 
-    httpCaches.contentCacheEntry(session, requestBuilder.underlyingRequest).foreach {
+    httpCaches.contentCacheEntry(session, request).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
-        etag.foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
-        lastModified.foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
+        etag.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
+        lastModified.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
     }
 
-    requestBuilder
+    request
   }
 
   def configureFormParams(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
@@ -98,7 +99,12 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
     super.configureRequestBuilder(session, uri, requestBuilder)
-      .map(configureCaches(session))
       .flatMap(configureFormParams(session))
       .flatMap(configureParts(session))
+
+  // hack because we need the request with the final uri
+  override def build: Expression[Request] = {
+    val exp = super.build
+    session => exp(session).map(configureCaches(session))
+  }
 }

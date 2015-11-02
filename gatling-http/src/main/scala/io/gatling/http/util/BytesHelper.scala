@@ -60,7 +60,7 @@ object BytesHelper {
   def byteArraysToString(bufs: Seq[Array[Byte]], cs: Charset): String =
     byteBuffersToString(bufs.map(ByteBuffer.wrap), cs)
 
-  def byteBuffersToString(bufs: Seq[ByteBuffer], cs: Charset): String = {
+  private def byteBuffersToString(bufs: Seq[ByteBuffer], cs: Charset): String = {
 
     val cd = cs.newDecoder
     val len = bufs.sumBy(_.remaining)

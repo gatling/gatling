@@ -165,8 +165,8 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
    * @param requestInfo The outgoing request info
    */
   private def showRequest(requestInfo: RequestInfo): Unit = {
-    requestHeaders.textArea.text = requestInfo.request.toString
-    responseHeaders.textArea.text = requestInfo.response.toString
+    requestHeaders.textArea.text = requestInfo.request.summary
+    responseHeaders.textArea.text = requestInfo.response.summary
     requestBodies.textArea.text = requestInfo.requestBody
     responseBodies.textArea.text = requestInfo.responseBody
     infoPanels.foreach(_.preferredSize = newSize)

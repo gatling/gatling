@@ -169,13 +169,12 @@ object GatlingConfiguration extends StrictLogging {
           SslConfiguration(trustStore, keyStore)
         },
         ahc = AhcConfiguration(
-          allowPoolingConnections = config.getBoolean(http.ahc.AllowPoolingConnections),
-          allowPoolingSslConnections = config.getBoolean(http.ahc.AllowPoolingSslConnections),
+          keepAlive = config.getBoolean(http.ahc.KeepAlive),
           compressionEnforced = config.getBoolean(http.ahc.CompressionEnforced),
           connectTimeout = config.getInt(http.ahc.ConnectTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           readTimeout = config.getInt(http.ahc.ReadTimeout),
-          connectionTTL = config.getInt(http.ahc.ConnectionTTL),
+          connectionTtl = config.getInt(http.ahc.ConnectionTtl),
           maxConnectionsPerHost = config.getInt(http.ahc.MaxConnectionsPerHost),
           maxConnections = config.getInt(http.ahc.MaxConnections),
           maxRetry = config.getInt(http.ahc.MaxRetry),
@@ -220,6 +219,11 @@ object GatlingConfiguration extends StrictLogging {
           writeInterval = config.getInt(data.graphite.WriteInterval)
         )
       ),
+//
+//
+//
+//
+//
       config = config
     )
 
@@ -302,13 +306,12 @@ case class HttpConfiguration(
 )
 
 case class AhcConfiguration(
-  allowPoolingConnections:             Boolean,
-  allowPoolingSslConnections:          Boolean,
+  keepAlive:                           Boolean,
   compressionEnforced:                 Boolean,
   connectTimeout:                      Int,
   pooledConnectionIdleTimeout:         Int,
   readTimeout:                         Int,
-  connectionTTL:                       Int,
+  connectionTtl:                       Int,
   maxConnectionsPerHost:               Int,
   maxConnections:                      Int,
   maxRetry:                            Int,
@@ -370,10 +373,19 @@ case class GraphiteDataWriterConfiguration(
   writeInterval:  Int
 )
 
+//
+//
+//
+//
+//
+
 case class GatlingConfiguration(
   core:     CoreConfiguration,
   charting: ChartingConfiguration,
   http:     HttpConfiguration,
   data:     DataConfiguration,
+  //
+  //
+  //
   config:   Config
 )

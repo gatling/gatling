@@ -19,10 +19,11 @@ import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.asScalaBuffer
 
+import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.cookie.{ Cookie, CookieDecoder }
 import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
+import org.asynchttpclient.{ HttpResponseStatus, Request => AHCRequest }
 import org.asynchttpclient.uri.Uri
 
 import io.gatling.core.stats.message.ResponseTimings
@@ -43,7 +44,7 @@ abstract class Response {
   def isRedirect: Boolean
 
   def header(name: String): Option[String]
-  def headers: FluentCaseInsensitiveStringsMap
+  def headers: HttpHeaders
   def headers(name: String): Seq[String]
   def cookies: List[Cookie]
 
@@ -66,7 +67,7 @@ case class HttpResponse(
     nettyRequest:    Option[NettyRequest],
     nameResolutions: Option[Array[NameResolution]],
     status:          Option[HttpResponseStatus],
-    headers:         FluentCaseInsensitiveStringsMap,
+    headers:         HttpHeaders,
     body:            ResponseBody,
     checksums:       Map[String, String],
     bodyLength:      Int,
@@ -83,13 +84,10 @@ case class HttpResponse(
   }
   def uri = status.map(_.getUri)
 
-  def header(name: String): Option[String] = Option(headers.getFirstValue(name))
-  def headers(name: String): Seq[String] = Option(headers.get(name)) match {
-    case Some(h) => h.toSeq
-    case _       => Nil
-  }
+  def header(name: String): Option[String] = Option(headers.get(name))
+  def headers(name: String): Seq[String] = headers.getAll(name)
 
-  lazy val cookies = headers.get(HeaderNames.SetCookie).flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
+  lazy val cookies = headers.getAll(HeaderNames.SetCookie).flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
 
   def checksum(algorithm: String) = checksums.get(algorithm)
   def hasResponseBody = bodyLength != 0

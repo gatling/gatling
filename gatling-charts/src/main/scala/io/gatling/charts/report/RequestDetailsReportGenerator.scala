@@ -33,7 +33,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
       def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
 
           def responseTimeDistributionChartComponent: Component = {
-            val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
+            val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, Some(requestName), group)
             val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
             val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
 
@@ -41,7 +41,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           }
 
           def responseTimeChartComponent: Component =
-            percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
+            percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
           def percentilesChartComponent(
             dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
@@ -51,14 +51,14 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
             val successData = dataSource(OK, Some(requestName), group)
             val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
 
-            componentFactory(dataReader.runStart, successSeries)
+            componentFactory(logFileReader.runStart, successSeries)
           }
 
           def requestsChartComponent: Component =
-            countsChartComponent(dataReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+            countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
 
           def responsesChartComponent: Component =
-            countsChartComponent(dataReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+            countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
           def countsChartComponent(
             dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
@@ -72,11 +72,11 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
             val koPieSlice = PieSlice(Series.KO, count(counts, KO))
             val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
 
-            componentFactory(dataReader.runStart, countsSeries, pieRequestsSeries)
+            componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
           }
 
           def responseTimeScatterChartComponent: Component =
-            scatterChartComponent(dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
+            scatterChartComponent(logFileReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
 
           def scatterChartComponent(
             dataSource:       (Status, String, Option[Group]) => Seq[IntVsTimePlot],
@@ -95,7 +95,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           new RequestDetailsPageTemplate(path, requestName, group,
             new StatisticsTextComponent,
             componentLibrary.getRequestDetailsIndicatorChartComponent,
-            new ErrorsTableComponent(dataReader.errors(Some(requestName), group)),
+            new ErrorsTableComponent(logFileReader.errors(Some(requestName), group)),
             responseTimeDistributionChartComponent,
             responseTimeChartComponent,
             requestsChartComponent,
@@ -105,7 +105,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
         new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
       }
 
-    dataReader.statsPaths.foreach {
+    logFileReader.statsPaths.foreach {
       case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)
       case _                                =>
     }

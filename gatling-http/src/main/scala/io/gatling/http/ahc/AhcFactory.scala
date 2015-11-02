@@ -16,9 +16,8 @@
 package io.gatling.http.ahc
 
 import java.util.{ ArrayList => JArrayList }
-import java.util.concurrent.{ ExecutorService, TimeUnit, ThreadFactory, Executors }
+import java.util.concurrent.TimeUnit
 
-import io.gatling.commons.util.ReflectionHelper._
 import io.gatling.core.{ CoreComponents, ConfigKeys }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
@@ -31,20 +30,23 @@ import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
 import io.netty.util.{ Timer, HashedWheelTimer }
-import org.asynchttpclient.AdvancedConfig.{ LazyResponseBodyPartFactory, NettyWebSocketFactory }
+import org.asynchttpclient.AsyncHttpClientConfig._
 import org.asynchttpclient._
-import org.asynchttpclient.AdvancedConfig
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
 import org.asynchttpclient.netty.ws.NettyWebSocket
 import org.asynchttpclient.ws.WebSocketListener
 
 private[gatling] object AhcFactory {
 
-  val AhcFactorySystemProperty = "gatling.ahcFactory"
-
-  def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory =
-    sys.props.get(AhcFactorySystemProperty).map(newInstance[AhcFactory](_, system, coreComponents, configuration))
-      .getOrElse(new DefaultAhcFactory(system, coreComponents))
+  def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory = {
+    //
+    //
+    //
+    //
+    //
+    //
+    new DefaultAhcFactory(system, coreComponents)
+  }
 }
 
 private[gatling] trait AhcFactory {
@@ -60,19 +62,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
-
-  private def newApplicationThreadPool: ExecutorService = {
-
-    val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
-      override def newThread(r: Runnable) = {
-        val t = new Thread(r, "Netty Thread")
-        t.setDaemon(true)
-        t
-      }
-    })
-    system.registerOnTermination(() => applicationThreadPool.shutdown())
-    applicationThreadPool
-  }
 
   private def newEventLoopGroup: EventLoopGroup = {
     val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("gatling-netty-thread"))
@@ -90,44 +79,29 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   private def newChannelPool(timer: Timer): ChannelPool = {
     new DefaultChannelPool(
       ahcConfig.pooledConnectionIdleTimeout,
-      ahcConfig.connectionTTL,
-      ahcConfig.allowPoolingSslConnections,
+      ahcConfig.connectionTtl,
       timer
     )
   }
 
-  private def newAdvancedConfig(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool): AdvancedConfig = {
-
-    val advancedConfig = new AdvancedConfig
-    advancedConfig.setEventLoopGroup(eventLoopGroup)
-    advancedConfig.setNettyTimer(timer)
-    advancedConfig.setChannelPool(channelPool)
-    advancedConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
-      override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
-        new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
-    })
-    advancedConfig.setBodyPartFactory(new LazyResponseBodyPartFactory)
-    advancedConfig
-  }
-
-  private[gatling] def newAhcConfigBuilder(applicationThreadPool: ExecutorService, advancedConfig: AdvancedConfig) = {
-    val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-      .setAllowPoolingConnections(ahcConfig.allowPoolingConnections)
-      .setAllowPoolingSslConnections(ahcConfig.allowPoolingSslConnections)
+  private[gatling] def newAhcConfigBuilder(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool) = {
+    val ahcConfigBuilder = new DefaultAsyncHttpClientConfig.Builder()
+      .setKeepAlive(ahcConfig.keepAlive)
       .setCompressionEnforced(ahcConfig.compressionEnforced)
       .setConnectTimeout(ahcConfig.connectTimeout)
       .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setReadTimeout(ahcConfig.readTimeout)
-      .setConnectionTTL(ahcConfig.connectionTTL)
-      .setIOThreadMultiplier(2)
+      .setConnectionTtl(ahcConfig.connectionTtl)
       .setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
       .setMaxConnections(ahcConfig.maxConnections)
       .setMaxRequestRetry(ahcConfig.maxRetry)
       .setRequestTimeout(ahcConfig.requestTimeOut)
       .setUseProxyProperties(false)
       .setUserAgent(null)
-      .setExecutorService(applicationThreadPool)
-      .setAdvancedConfig(advancedConfig)
+      .setEventLoopGroup(eventLoopGroup)
+      .setNettyTimer(timer)
+      .setChannelPool(channelPool)
+      .setResponseBodyPartFactory(ResponseBodyPartFactory.LAZY)
       .setWebSocketTimeout(ahcConfig.webSocketTimeout)
       .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
@@ -153,18 +127,16 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
 
     if (trustManagers.isDefined || keyManagers.isDefined)
-      ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
+      ahcConfigBuilder.setSslContext(trustManagers, keyManagers)
 
     ahcConfigBuilder
   }
 
   private val defaultAhcConfig = {
-    val applicationThreadPool = newApplicationThreadPool
     val eventLoopGroup = newEventLoopGroup
     val timer = newTimer
     val channelPool = newChannelPool(timer)
-    val advancedConfig = newAdvancedConfig(eventLoopGroup, timer, channelPool)
-    val ahcConfigBuilder = newAhcConfigBuilder(applicationThreadPool, advancedConfig)
+    val ahcConfigBuilder = newAhcConfigBuilder(eventLoopGroup, timer, channelPool)
     ahcConfigBuilder.build
   }
 
@@ -191,7 +163,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
       trustManagers.orElse(keyManagers).map { _ =>
         logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-        new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+        new DefaultAsyncHttpClientConfig.Builder(defaultAhcConfig).setSslContext(trustManagers, keyManagers).build
       }
 
     }.getOrElse(defaultAhcConfig)
