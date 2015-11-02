@@ -24,14 +24,8 @@ object UserAgent {
   val IE = "MSIE"
   private val MsIeUserAgentRegex = "MSIE ([0-9]+.[0-9]+)".r
 
-  def getAgent(request: Request): Option[UserAgent] = {
-
-    if (request.getHeaders.containsKey(HeaderNames.UserAgent)) {
-      val agentStr = request.getHeaders.getFirstValue(HeaderNames.UserAgent)
-      parseFromHeader(agentStr)
-    } else
-      None
-  }
+  def getAgent(request: Request): Option[UserAgent] =
+    Option(request.getHeaders.get(HeaderNames.UserAgent)).flatMap(parseFromHeader)
 
   def parseFromHeader(userAgent: String): Option[UserAgent] =
     MsIeUserAgentRegex.findFirstMatchIn(userAgent) match {

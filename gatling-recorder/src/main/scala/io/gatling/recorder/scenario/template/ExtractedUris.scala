@@ -46,7 +46,7 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   val urls = uris.map(uri => new URL(uri)).toList
   var values: List[Value] = Nil
 
-  val urlGroups = urls.groupBy(url => SchemeHost(url.getProtocol, url.getHost)).toMap
+  val urlGroups = urls.groupBy(url => SchemeHost(url.getProtocol, url.getHost))
 
   val renders = {
     val maxNbDigits = urlGroups.size.toString.length

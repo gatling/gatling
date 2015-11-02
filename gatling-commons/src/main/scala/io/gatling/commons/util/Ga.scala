@@ -20,37 +20,39 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
 import javax.net.ssl.HttpsURLConnection
 
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.util.Properties._
-import scala.util.Try
+import scala.util.Success
 
-import Io._
+import io.gatling.commons.util.Io._
 
 object Ga {
 
-  def send(version: String): Unit =
-    Try {
+  def send(version: String): Unit = {
+    import ExecutionContext.Implicits.global
 
+    val whenConnected = Future {
       val url = new URL("https://ssl.google-analytics.com/collect")
+      url.openConnection().asInstanceOf[HttpsURLConnection]
+    }
 
-      val conn = url.openConnection().asInstanceOf[HttpsURLConnection]
+    whenConnected.map { conn =>
+      conn.connect()
+      conn.setReadTimeout(1000)
+      conn.setConnectTimeout(1000)
+      conn.setRequestMethod("POST")
+      conn.setRequestProperty("Connection", "Close")
+      conn.setRequestProperty("User-Agent", s"java/$javaVersion")
+      conn.setUseCaches(false)
 
-      try {
-        conn.connect()
-        conn.setReadTimeout(2000)
-        conn.setConnectTimeout(2000)
-        conn.setRequestMethod("POST")
-        conn.setRequestProperty("Connection", "Close")
-        conn.setRequestProperty("User-Agent", s"java/$javaVersion")
-        conn.setUseCaches(false)
+      withCloseable(conn.getOutputStream) { os =>
 
-        withCloseable(conn.getOutputStream) { os =>
+        val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
 
-          val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
+          def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
 
-            def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
-
-          val body =
-            s"""tid=$trackingId&
+        val body =
+          s"""tid=$trackingId&
               |dl=${encode("http://gatling.io/" + version)}&
               |de=UTF-8}&
               |ul=en-US}&
@@ -58,11 +60,15 @@ object Ga {
               |dt=${encode(version)}&
               |cid=${encode(UUID.randomUUID.toString)}""".stripMargin
 
-          os.write(body.getBytes(UTF_8))
-          os.flush()
-        }
-      } finally {
-        conn.disconnect()
+        os.write(body.getBytes(UTF_8))
+        os.flush()
       }
+      conn
+    }.recoverWith {
+      case _ => whenConnected
+    }.onComplete {
+      case Success(conn) => conn.disconnect()
+      case _             =>
     }
+  }
 }

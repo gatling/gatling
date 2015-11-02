@@ -25,6 +25,7 @@ import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.Channel
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
@@ -32,6 +33,7 @@ import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.LazyNettyResponseBodyPart
 import io.netty.handler.codec.http.HttpResponseStatus.OK
+import org.asynchttpclient.netty.request.NettyRequest
 
 class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
@@ -45,16 +47,16 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onConnectionOpen(): Unit = ()
 
-  override def onConnectionSuccess(connection: Any, address: InetAddress): Unit =
+  override def onConnectionSuccess(connection: Channel, address: InetAddress): Unit =
     state = Open
 
   override def onConnectionFailure(address: InetAddress): Unit = {}
 
   override def onConnectionPool(): Unit = ()
 
-  override def onConnectionPooled(connection: Any): Unit = ()
+  override def onConnectionPooled(connection: Channel): Unit = ()
 
-  override def onConnectionOffer(connection: Any): Unit = ()
+  override def onConnectionOffer(connection: Channel): Unit = ()
 
   override def onDnsResolved(address: Array[NameResolution]): Unit = ()
 
@@ -63,7 +65,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def onRetry(): Unit =
     if (done.get) logger.error("onRetry is not supposed to be called once done")
 
-  override def onRequestSend(request: Any): Unit =
+  override def onRequestSend(request: NettyRequest): Unit =
     logger.debug(s"Request $request has been sent by the http client")
 
   override def onStatusReceived(responseStatus: HttpResponseStatus): State = {

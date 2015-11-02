@@ -49,12 +49,15 @@ private[scenario] object RequestTemplate {
 			.headers(${headersBlockName(id)})"""
         }.getOrElse("")
 
+      def renderLongString(value: String) =
+        value.grouped(65535).map(protectWithTripleQuotes).mkFastring(" + ")
+
       def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""
 			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
         case RequestBodyParams(params) => params.map {
           case (key, value) => fast"""
-			.formParam(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
+			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
         }.mkFastring
       }.getOrElse(EmptyFastring)
 

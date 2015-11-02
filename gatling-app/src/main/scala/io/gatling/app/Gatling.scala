@@ -54,26 +54,23 @@ object Gatling {
 
 private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(implicit configuration: GatlingConfiguration) {
 
-  val coreComponentsFactory = CoreComponentsFactory(configuration)
-
   def start: StatusCode = {
-
     StringHelper.checkSupportedJavaVersion()
-
-    val runResult = runIfNecessary
-    coreComponentsFactory.resultsProcessor.processResults(runResult)
+    val coreComponentsFactory = CoreComponentsFactory(configuration)
+    val runResult = runIfNecessary(coreComponentsFactory)
+    coreComponentsFactory.runResultProcessor.processRunResult(runResult)
   }
 
-  private def runIfNecessary: RunResult =
+  private def runIfNecessary(coreComponentsFactory: CoreComponentsFactory): RunResult =
     configuration.core.directory.reportsOnly match {
       case Some(reportsOnly) => RunResult(reportsOnly, hasAssertions = true)
       case _ =>
         if (configuration.http.enableGA) Ga.send(configuration.core.version)
         // -- Run Gatling -- //
-        run(Selection(selectedSimulationClass))
+        run(Selection(selectedSimulationClass), coreComponentsFactory)
     }
 
-  private def run(selection: Selection): RunResult = {
+  private def run(selection: Selection, coreComponentsFactory: CoreComponentsFactory): RunResult = {
 
     // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
     val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
@@ -116,8 +113,8 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       }
 
     } finally {
-      system.shutdown()
-      system.awaitTermination()
+      val whenTerminated = system.terminate()
+      Await.result(whenTerminated, 2 seconds)
     }
   }
 }

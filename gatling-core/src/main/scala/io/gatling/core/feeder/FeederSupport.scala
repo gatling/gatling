@@ -30,18 +30,18 @@ trait FeederSupport {
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
   implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
-  def csv(fileName: String, rawSplit: Boolean = false)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(fileName, CommaSeparator, rawSplit = rawSplit)
-  def ssv(fileName: String, rawSplit: Boolean = false)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(fileName, SemicolonSeparator, rawSplit = rawSplit)
-  def tsv(fileName: String, rawSplit: Boolean = false)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(fileName, TabulationSeparator, rawSplit = rawSplit)
+  def csv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
+    separatedValues(fileName, CommaSeparator, quoteChar, escapeChar)
+  def ssv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
+    separatedValues(fileName, SemicolonSeparator, quoteChar, escapeChar)
+  def tsv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
+    separatedValues(fileName, TabulationSeparator, quoteChar, escapeChar)
 
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', rawSplit: Boolean = false)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(Resource.feeder(fileName), separator, quoteChar, rawSplit)
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
+    separatedValues(Resource.feeder(fileName), separator, quoteChar, escapeChar)
 
-  def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char, rawSplit: Boolean)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    feederBuilder(resource)(SeparatedValuesParser.parse(_, separator, quoteChar, rawSplit))
+  def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char, escapeChar: Char)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
+    feederBuilder(resource)(SeparatedValuesParser.parse(_, separator, quoteChar, escapeChar))
 
   def jsonFile(fileName: String)(implicit configuration: GatlingConfiguration, jsonParsers: JsonParsers): RecordSeqFeederBuilder[Any] = jsonFile(Resource.feeder(fileName))
   def jsonFile(resource: Validation[Resource])(implicit jsonParsers: JsonParsers): RecordSeqFeederBuilder[Any] =
@@ -50,7 +50,7 @@ trait FeederSupport {
   def feederBuilder[T](resource: Validation[Resource])(recordParser: Resource => IndexedSeq[Record[T]]): RecordSeqFeederBuilder[T] =
     resource match {
       case Success(res)     => RecordSeqFeederBuilder(recordParser(res))
-      case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
+      case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
   def jsonUrl(url: String)(implicit jsonParsers: JsonParsers) = RecordSeqFeederBuilder(new JsonFeederFileParser().url(url))

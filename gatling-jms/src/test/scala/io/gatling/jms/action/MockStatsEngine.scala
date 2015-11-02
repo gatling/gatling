@@ -30,7 +30,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def logUser(userMessage: UserMessage): Unit = {}
 
-  override def logRequest(session: Session, requestName: String): Unit = {}
+  override def logRequest(session: Session, requestName: String, timestamp: Long): Unit = {}
 
   override def logResponse(
     session:      Session,
@@ -53,10 +53,10 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
       extraInfo
     ))
 
-  override def logGroupEnd(session: Session, group: GroupBlock, exitDate: Long): Unit =
-    handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startDate, exitDate, group.cumulatedResponseTime, group.status))
+  override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
+    handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startTimestamp, exitTimestamp, group.cumulatedResponseTime, group.status))
 
-  override def logError(session: Session, requestName: String, error: String, date: Long): Unit = {}
+  override def logError(session: Session, requestName: String, error: String, timestamp: Long): Unit = {}
 
   override def stop(replyTo: ActorRef): Unit = {}
 

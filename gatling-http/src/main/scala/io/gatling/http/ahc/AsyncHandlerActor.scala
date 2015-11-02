@@ -84,8 +84,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
     status:       Status,
     response:     Response,
     errorMessage: Option[String] = None
-  ): Unit = {
-
+  ): Unit =
     if (!tx.silent) {
       val fullRequestName = if (tx.redirectCount > 0)
         s"${tx.request.requestName} Redirect ${tx.redirectCount}"
@@ -132,7 +131,6 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         extraInfo
       )
     }
-  }
 
   /**
    * This method is used to send a message to the data writer actor and then execute the next action
@@ -149,7 +147,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           context.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
 
         case None =>
-          tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endDate)
+          tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
       }
 
     } else {
@@ -199,20 +197,20 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         val originalMethod = originalRequest.getMethod
 
         val newHeaders = originalRequest.getHeaders
-          .delete(HeaderNames.Host)
-          .delete(HeaderNames.ContentLength)
-          .delete(HeaderNames.Cookie)
-          .delete(HeaderNames.ContentType)
+          .remove(HeaderNames.Host)
+          .remove(HeaderNames.ContentLength)
+          .remove(HeaderNames.Cookie)
+          .remove(HeaderNames.ContentType)
 
-        val switchToGet = originalMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
+        val switchToGet = originalMethod != "GET" && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
         val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
 
         val requestBuilder = new RequestBuilder(if (switchToGet) "GET" else originalMethod)
           .setUri(redirectUri)
-          .setBodyCharset(configuration.core.charset)
+          .setCharset(configuration.core.charset)
           .setConnectionPoolPartitioning(originalRequest.getConnectionPoolPartitioning)
-          .setInetAddress(originalRequest.getInetAddress)
-          .setLocalInetAddress(originalRequest.getLocalAddress)
+          .setAddress(originalRequest.getAddress)
+          .setLocalAddress(originalRequest.getLocalAddress)
           .setVirtualHost(originalRequest.getVirtualHost)
           .setProxyServer(originalRequest.getProxyServer)
           .setRealm(originalRequest.getRealm)
@@ -225,7 +223,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         }
 
         if (keepBody) {
-          requestBuilder.setBodyCharset(originalRequest.getBodyCharset)
+          requestBuilder.setCharset(originalRequest.getCharset)
           if (originalRequest.getFormParams.nonEmpty)
             requestBuilder.setFormParams(originalRequest.getFormParams)
           Option(originalRequest.getStringData).foreach(requestBuilder.setBody)

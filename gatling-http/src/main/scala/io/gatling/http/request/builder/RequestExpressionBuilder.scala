@@ -143,7 +143,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   def configureLocalAddress(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
     commonAttributes.address.orElse(protocol.enginePart.localAddress) match {
-      case Some(localAddress) => localAddress(session).map(requestBuilder.setLocalInetAddress)
+      case Some(localAddress) => localAddress(session).map(requestBuilder.setLocalAddress)
       case None               => requestBuilder.success
     }
 
@@ -164,7 +164,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     (session: Session) => {
       val requestBuilder = new AhcRequestBuilder(commonAttributes.method, disableUrlEncoding)
 
-      requestBuilder.setBodyCharset(charset)
+      requestBuilder.setCharset(charset)
 
       if (!protocol.enginePart.shareConnections)
         requestBuilder.setConnectionPoolPartitioning(new ChannelPoolPartitioning(session))

@@ -44,9 +44,9 @@ case object Stop extends DataWriterMessage
 sealed trait LoadEventMessage extends DataWriterMessage
 
 case class UserMessage(
-  session: Session,
-  event:   MessageEvent,
-  date:    Long
+  session:   Session,
+  event:     MessageEvent,
+  timestamp: Long
 ) extends LoadEventMessage
 
 case class ResponseMessage(
@@ -65,12 +65,12 @@ case class GroupMessage(
     scenario:              String,
     userId:                Long,
     groupHierarchy:        List[String],
-    startDate:             Long,
-    endDate:               Long,
+    startTimestamp:        Long,
+    endTimestamp:          Long,
     cumulatedResponseTime: Int,
     status:                Status
 ) extends LoadEventMessage {
-  val duration = (endDate - startDate).toInt
+  val duration = (endTimestamp - startTimestamp).toInt
 }
 
 case class ErrorMessage(message: String, date: Long) extends LoadEventMessage

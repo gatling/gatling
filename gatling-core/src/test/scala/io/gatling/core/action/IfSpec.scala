@@ -20,7 +20,7 @@ import akka.testkit._
 import io.gatling.AkkaSpec
 import io.gatling.core.session.Session
 import io.gatling.core.session.el.El
-import io.gatling.core.stats.DefaultStatsEngine
+import io.gatling.core.stats.DataWritersStatsEngine
 
 class IfSpec extends AkkaSpec {
 
@@ -31,7 +31,7 @@ class IfSpec extends AkkaSpec {
     val thenActorProbe = TestProbe()
     val elseActorProbe = TestProbe()
     val dataWriterProbe = TestProbe()
-    val statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))
+    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
 
     val ifAction = TestActorRef(If.props(condition, thenActorProbe.ref, elseActorProbe.ref, statsEngine, self))
 

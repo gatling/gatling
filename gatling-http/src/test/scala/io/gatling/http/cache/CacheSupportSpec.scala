@@ -25,6 +25,7 @@ import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.{ MockUtils, HeaderNames, HeaderValues }
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
+import io.netty.handler.codec.http.DefaultHttpHeaders
 import org.asynchttpclient._
 import org.asynchttpclient.uri.Uri
 
@@ -42,7 +43,7 @@ class CacheSupportSpec extends BaseSpec {
     def getResponseExpire(headers: Seq[(String, String)]) = {
       val status = mock[HttpResponseStatus]
       val body = mock[ResponseBody]
-      val headersMap = new FluentCaseInsensitiveStringsMap
+      val headersMap = new DefaultHttpHeaders
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
       val response = HttpResponse(request, None, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, ResponseTimings(-1, -1))
 

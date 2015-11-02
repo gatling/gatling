@@ -22,6 +22,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
 
+import io.netty.handler.codec.http.DefaultHttpHeaders
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.mockito.Mockito._
@@ -39,6 +40,7 @@ object MockUtils extends MockitoSugar {
     when(requestPart.silentURI) thenReturn None
     when(requestPart.silentResources) thenReturn false
     when(request.getUri) thenReturn Uri.create(uri)
+    when(request.getHeaders) thenReturn new DefaultHttpHeaders
     when(protocol.requestPart) thenReturn requestPart
 
     HttpTx(

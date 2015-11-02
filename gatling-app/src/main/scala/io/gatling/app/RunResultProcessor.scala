@@ -19,21 +19,21 @@ import java.lang.System.currentTimeMillis
 
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerator, ReportsGenerationInputs }
-import io.gatling.charts.stats.FileDataReader
+import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.{ AssertionValidator, AssertionResult }
 import io.gatling.core.config.GatlingConfiguration
 
-trait ResultsProcessor {
+trait RunResultProcessor {
 
-  def processResults(runResult: RunResult): StatusCode
+  def processRunResult(runResult: RunResult): StatusCode
 }
 
-class DefaultResultsProcessor(implicit configuration: GatlingConfiguration) extends ResultsProcessor {
+class LogFileProcessor(implicit configuration: GatlingConfiguration) extends RunResultProcessor {
 
-  override def processResults(runResult: RunResult): StatusCode = {
+  override def processRunResult(runResult: RunResult): StatusCode = {
     val start = currentTimeMillis
 
-    initDataReader(runResult) match {
+    initLogFileReader(runResult) match {
       case Some(reader) =>
         val assertionResults = AssertionValidator.validateAssertions(reader)
 
@@ -49,9 +49,9 @@ class DefaultResultsProcessor(implicit configuration: GatlingConfiguration) exte
     }
   }
 
-  private def initDataReader(runResult: RunResult): Option[FileDataReader] =
+  private def initLogFileReader(runResult: RunResult): Option[LogFileReader] =
     if (reportsGenerationEnabled || runResult.hasAssertions)
-      Some(new FileDataReader(runResult.runId))
+      Some(new LogFileReader(runResult.runId))
     else
       None
 

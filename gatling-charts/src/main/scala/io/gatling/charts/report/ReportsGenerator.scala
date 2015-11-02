@@ -31,7 +31,7 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     import reportsGenerationInputs._
 
       def hasAtLeastOneRequestReported: Boolean =
-        dataReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
+        logFileReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
       def generateMenu(): Unit = new TemplateWriter(menuFile(reportFolderName)).writeToFile(new MenuTemplate().getOutput)
 
@@ -57,7 +57,7 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
 
     copyAssets()
     generateMenu()
-    PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runEnd)
+    PageTemplate.setRunInfo(logFileReader.runMessage, logFileReader.runEnd)
     reportGenerators.foreach(_.generate())
     generateStats()
     generateAssertions()
