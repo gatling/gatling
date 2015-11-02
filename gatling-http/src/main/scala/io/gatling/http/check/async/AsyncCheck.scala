@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.async
 
 import scala.collection.mutable
@@ -28,12 +29,12 @@ case class ExpectedCount(count: Int) extends Expectation
 case class ExpectedRange(range: Range) extends Expectation
 
 case class AsyncCheck(
-    wrapped:     Check[String],
+    wrapped:     Check[AsyncMessage],
     blocking:    Boolean,
     timeout:     FiniteDuration,
     expectation: Expectation,
-    timestamp:   Long           = nowMillis
-) extends Check[String] {
-  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]) =
+    timestamp:   Long                = nowMillis
+) extends Check[AsyncMessage] {
+  override def check(message: AsyncMessage, session: Session)(implicit cache: mutable.Map[Any, Any]) =
     wrapped.check(message, session)
 }

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.action.async.sse
 
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Interruptable
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async.AsyncTx
@@ -37,7 +39,7 @@ object SseOpenAction {
     statsEngine:    StatsEngine,
     httpComponents: HttpComponents,
     next:           ActorRef
-  ) =
+  )(implicit configuration: GatlingConfiguration) =
     Props(new SseOpenAction(requestName, sseName, request, checkBuilder, statsEngine, httpComponents, next))
 }
 
@@ -49,7 +51,7 @@ class SseOpenAction(
     val statsEngine: StatsEngine,
     httpComponents:  HttpComponents,
     val next:        ActorRef
-) extends Interruptable with SseAction {
+)(implicit configuration: GatlingConfiguration) extends Interruptable with SseAction {
 
   import httpComponents._
 

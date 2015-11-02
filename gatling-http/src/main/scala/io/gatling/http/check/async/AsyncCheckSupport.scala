@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.excilys.com)
  *
@@ -33,6 +34,7 @@ package io.gatling.http.check.async
 import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
 import io.gatling.core.check.extractor.regex.RegexExtractorFactory
 import io.gatling.core.json.JsonParsers
+import io.gatling.http.check.async.message._
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -40,7 +42,7 @@ import io.gatling.core.session.Expression
 
 trait AsyncCheckSupport extends AsyncCheckDSL {
 
-  implicit def checkTypeStep2Check(step: CheckTypeStep): AsyncCheckBuilder = step.message.find.exists
+  implicit def checkTypeStep2Check(step: CheckTypeStep): AsyncCheckBuilder = step.string.find.exists
 }
 
 trait AsyncCheckDSL {
@@ -62,14 +64,16 @@ trait AsyncCheckDSL {
   class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
     def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
-      AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncMessageRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
 
     def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncMessageJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
 
     def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncMessageJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
 
-    val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.extender(await, timeout, expectation))
+    val string = AsyncMessageStringCheckBuilder.string(AsyncCheckBuilders.extender(await, timeout, expectation))
+
+    val bytes = AsyncMessageBytesCheckBuilder.bytes(AsyncCheckBuilders.extender(await, timeout, expectation))
   }
 }

@@ -13,35 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.async
+
+package io.gatling.http.check.async.message
 
 import io.gatling.core.check.extractor.jsonpath._
-import io.gatling.core.check.{ Extender, DefaultMultipleFindCheckBuilder, Preparer }
+import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender, Preparer }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
+import io.gatling.http.check.async.{ AsyncCheck, AsyncMessage }
 import io.gatling.http.check.body.HttpBodyJsonpJsonPathCheckBuilder
 
-trait AsyncJsonpJsonPathOfType {
-  self: AsyncJsonpJsonPathCheckBuilder[String] =>
+trait AsyncMessageJsonpJsonPathOfType {
+  self: AsyncMessageJsonpJsonPathCheckBuilder[String] =>
 
   def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) =
-    new AsyncJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
+    new AsyncMessageJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
-object AsyncJsonpJsonPathCheckBuilder {
+object AsyncMessageJsonpJsonPathCheckBuilder {
 
-  def asyncJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString(_, jsonParsers)
+  def jsonpPreparer(jsonParsers: JsonParsers): Preparer[AsyncMessage, Any] =
+    message => HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString(message.string, jsonParsers)
 
-  def jsonpJsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-    new AsyncJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with AsyncJsonpJsonPathOfType
+  def jsonpJsonPath(path: Expression[String], extender: Extender[AsyncCheck, AsyncMessage])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    new AsyncMessageJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with AsyncMessageJsonpJsonPathOfType
 }
 
-class AsyncJsonpJsonPathCheckBuilder[X: JsonFilter](
+class AsyncMessageJsonpJsonPathCheckBuilder[X: JsonFilter](
   private[async] val path:        Expression[String],
-  private[async] val extender:    Extender[AsyncCheck, String],
+  private[async] val extender:    Extender[AsyncCheck, AsyncMessage],
   private[async] val jsonParsers: JsonParsers
 )(implicit extractorFactory: JsonPathExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](extender, AsyncJsonpJsonPathCheckBuilder.asyncJsonpPreparer(jsonParsers)) {
+    extends DefaultMultipleFindCheckBuilder[AsyncCheck, AsyncMessage, Any, X](extender, AsyncMessageJsonpJsonPathCheckBuilder.jsonpPreparer(jsonParsers)) {
 
   import extractorFactory._
 

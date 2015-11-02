@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check
 
 import io.gatling.core.check.CheckBuilder
 
 package object async {
 
-  type AsyncCheckBuilder = CheckBuilder[AsyncCheck, String, _, String]
+  type AsyncCheckBuilder = CheckBuilder[AsyncCheck, AsyncMessage, _, _]
 }

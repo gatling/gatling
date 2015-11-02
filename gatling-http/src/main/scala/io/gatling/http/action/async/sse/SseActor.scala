@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.action.async.sse
+
+import io.gatling.core.config.GatlingConfiguration
 
 import scala.collection.mutable
 
@@ -27,11 +30,11 @@ import io.gatling.http.check.async._
 import akka.actor.Props
 
 object SseActor {
-  def props(sseName: String, statsEngine: StatsEngine) =
+  def props(sseName: String, statsEngine: StatsEngine)(implicit configuration: GatlingConfiguration) =
     Props(new SseActor(sseName, statsEngine))
 }
 
-class SseActor(sseName: String, statsEngine: StatsEngine) extends AsyncProtocolActor(statsEngine) {
+class SseActor(sseName: String, statsEngine: StatsEngine)(implicit configuration: GatlingConfiguration) extends AsyncProtocolActor(statsEngine) {
 
   private def goToOpenState(sseStream: SseStream): NextTxBasedBehaviour =
     tx => openState(sseStream, tx)
@@ -107,11 +110,12 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends AsyncProtocolA
     case OnMessage(message, time) =>
       logger.debug(s"Received message '$message' for user #${tx.session.userId}")
 
+      val charset = configuration.core.charset
       tx.check.foreach { check =>
 
         implicit val cache = mutable.Map.empty[Any, Any]
 
-        check.check(message, tx.session) match {
+        check.check(new StringAsyncMessage(message, charset), tx.session) match {
           case Success(result) =>
             val results = result :: tx.pendingCheckSuccesses
 

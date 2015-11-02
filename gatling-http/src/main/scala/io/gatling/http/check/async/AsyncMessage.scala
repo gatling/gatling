@@ -16,17 +16,31 @@
 
 package io.gatling.http.check.async
 
-import scala.concurrent.duration.FiniteDuration
+import java.nio.charset.Charset
 
-import io.gatling.commons.validation._
-import io.gatling.core.check.{ Extender, Preparer }
+sealed trait AsyncMessage {
+  def string: String
+  def bytes: Array[Byte]
+}
 
-object AsyncCheckBuilders {
+object StringAsyncMessage {
 
-  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, AsyncMessage] =
-    wrapped => new AsyncCheck(wrapped, await, timeout, expectation)
+  def apply(string: String, charset: Charset) = {
+    new StringAsyncMessage(string, charset)
+  }
+}
 
-  val AsyncMessageStringPreparer: Preparer[AsyncMessage, String] = (message: AsyncMessage) => message.string.success
-  val AsyncMessageBytesPreparer: Preparer[AsyncMessage, Array[Byte]] = (message: AsyncMessage) => message.bytes.success
+class StringAsyncMessage(val string: String, charset: Charset) extends AsyncMessage {
+  lazy val bytes = string.getBytes(charset)
+}
 
+object ByteArrayAsyncMessage {
+
+  def apply(bytes: Array[Byte], charset: Charset) = {
+    new ByteArrayAsyncMessage(bytes, charset)
+  }
+}
+
+class ByteArrayAsyncMessage(val bytes: Array[Byte], charset: Charset) extends AsyncMessage {
+  lazy val string = new String(bytes, charset)
 }

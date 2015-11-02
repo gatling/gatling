@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.action.async.ws
+
+import io.gatling.core.config.GatlingConfiguration
 
 import scala.collection.mutable
 
@@ -29,11 +32,11 @@ import akka.actor.Props
 import org.asynchttpclient.ws.WebSocket
 
 object WsActor {
-  def props(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) =
+  def props(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) =
     Props(new WsActor(wsName, statsEngine, httpEngine))
 }
 
-class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) extends AsyncProtocolActor(statsEngine) {
+class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) extends AsyncProtocolActor(statsEngine) {
 
   private def goToOpenState(webSocket: WebSocket): NextTxBasedBehaviour =
     tx => openState(webSocket, tx)
@@ -151,11 +154,11 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       case OnTextMessage(message, time) =>
         logger.debug(s"Received text message on websocket '$wsName':$message")
 
+        val charset = configuration.core.charset
         tx.check.foreach { check =>
 
           implicit val cache = mutable.Map.empty[Any, Any]
-
-          check.check(message, tx.session) match {
+          check.check(StringAsyncMessage(message, charset), tx.session) match {
             case Success(result) =>
               val results = result :: tx.pendingCheckSuccesses
 
@@ -174,7 +177,29 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
         }
 
       case OnByteMessage(message, time) =>
-        logger.debug(s"Received byte message on websocket '$wsName':$message. Beware, byte message checks are currently not supported")
+        logger.debug(s"Received byte message on websocket '$wsName':$message")
+
+        val charset = configuration.core.charset
+        tx.check.foreach { check =>
+
+          implicit val cache = mutable.Map.empty[Any, Any]
+          check.check(ByteArrayAsyncMessage(message, charset), tx.session) match {
+            case Success(result) =>
+              val results = result :: tx.pendingCheckSuccesses
+
+              check.expectation match {
+                case UntilCount(count) if count == results.length =>
+                  succeedPendingCheck(tx, results, goToOpenState(webSocket))
+
+                case _ =>
+                  // let's pile up
+                  val newTx = tx.copy(pendingCheckSuccesses = results)
+                  context.become(openState(webSocket, newTx))
+              }
+
+            case _ =>
+          }
+        }
 
       case Reconciliate(requestName, next, session) =>
         logger.debug(s"Reconciliating websocket '$wsName'")
