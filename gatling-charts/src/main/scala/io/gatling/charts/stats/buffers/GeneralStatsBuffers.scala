@@ -17,7 +17,7 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.{ GroupRecord, RequestRecord, FileDataReader }
+import io.gatling.charts.stats.{ GroupRecord, RequestRecord, LogFileReader }
 import io.gatling.commons.stats.{ Group, GeneralStats, Status }
 import io.gatling.core.stats.IntVsTimePlot
 
@@ -86,7 +86,7 @@ private[stats] class GeneralStatsBuffer(duration: Long) {
       val count = digest.size
       val mean = (sum / count).toInt
       val stdDev = math.sqrt((sumOfSquares - (sum * sum) / count) / count).toInt
-      val meanRequestsPerSec = valuesCount / (duration / FileDataReader.SecMillisecRatio)
+      val meanRequestsPerSec = valuesCount / (duration / LogFileReader.SecMillisecRatio)
 
       val min = digest.quantile(0).toInt
       val max = digest.quantile(1).toInt

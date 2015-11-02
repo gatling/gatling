@@ -32,20 +32,20 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       def activeSessionsChartComponent = {
 
         val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
-        val seriesColors = Iterator.continually(baseColors).flatten.take(dataReader.scenarioNames.size).toList
+        val seriesColors = Iterator.continually(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
 
-        val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = dataReader
+        val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader
           .scenarioNames
-          .map { scenarioName => scenarioName -> dataReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
+          .map { scenarioName => scenarioName -> logFileReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
           .reverse
           .zip(seriesColors)
           .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
 
-        componentLibrary.getActiveSessionsChartComponent(dataReader.runStart, activeSessionsSeries)
+        componentLibrary.getActiveSessionsChartComponent(logFileReader.runStart, activeSessionsSeries)
       }
 
       def responseTimeDistributionChartComponent: Component = {
-        val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, None, None)
+        val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, None, None)
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
         val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
 
@@ -53,7 +53,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       }
 
       def responseTimeChartComponent: Component =
-        percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
+        percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
       def percentilesChartComponent(
         dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
@@ -63,14 +63,14 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         val successData = dataSource(OK, None, None)
         val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
 
-        componentFactory(dataReader.runStart, successSeries)
+        componentFactory(logFileReader.runStart, successSeries)
       }
 
       def requestsChartComponent: Component =
-        countsChartComponent(dataReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+        countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
 
       def responsesChartComponent: Component =
-        countsChartComponent(dataReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+        countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
       def countsChartComponent(
         dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
@@ -83,15 +83,15 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         val koPieSlice = PieSlice(Series.KO, count(counts, KO))
         val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
 
-        componentFactory(dataReader.runStart, countsSeries, pieRequestsSeries)
+        componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
       }
 
     val template = new GlobalPageTemplate(
-      componentLibrary.getNumberOfRequestsChartComponent(dataReader.requestNames.size),
+      componentLibrary.getNumberOfRequestsChartComponent(logFileReader.requestNames.size),
       componentLibrary.getRequestDetailsIndicatorChartComponent,
       new AssertionsTableComponent(assertionResults),
       new StatisticsTableComponent,
-      new ErrorsTableComponent(dataReader.errors(None, None)),
+      new ErrorsTableComponent(logFileReader.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
       responseTimeChartComponent,

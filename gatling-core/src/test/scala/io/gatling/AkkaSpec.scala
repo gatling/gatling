@@ -15,6 +15,9 @@
  */
 package io.gatling
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import akka.actor.ActorSystem
 import akka.testkit.{ TestKit, ImplicitSender }
 import org.scalatest.BeforeAndAfterAll
@@ -25,5 +28,8 @@ abstract class AkkaSpec
     with ImplicitSender
     with BeforeAndAfterAll {
 
-  override def afterAll() = system.shutdown()
+  override def afterAll() = {
+    val whenTerminated = system.terminate()
+    Await.result(whenTerminated, 2 seconds)
+  }
 }

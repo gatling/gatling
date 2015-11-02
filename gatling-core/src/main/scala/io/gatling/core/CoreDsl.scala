@@ -48,7 +48,7 @@ trait CoreDsl extends StructureSupport
   implicit def value2Success[T](value: T): Validation[T] = value.success
   implicit def value2Expression[T](value: T): Expression[T] = value.expressionSuccess
 
-  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
+  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "))
 
   def WhiteList(patterns: String*) = io.gatling.core.filter.WhiteList(patterns.toList)
 

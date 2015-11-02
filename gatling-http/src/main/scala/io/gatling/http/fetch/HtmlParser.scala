@@ -70,9 +70,9 @@ object HtmlParser extends StrictLogging {
       logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
 >>>>>>>>>>>>>>>>>>>>>>>
 $htmlContent
-<<<<<<<<<<<<<<<<<<<<<<<""")
+<<<<<<<<<<<<<<<<<<<<<<<""", e)
     else
-      logger.error("HTML parser crashed, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
+      logger.error(s"HTML parser crashed: ${e.getMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
 }
 
 class HtmlParser extends StrictLogging {

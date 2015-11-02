@@ -36,9 +36,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
-        val total = dataReader.requestGeneralStats(requestName, group, None)
-        val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
-        val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
+        val total = logFileReader.requestGeneralStats(requestName, group, None)
+        val ok = logFileReader.requestGeneralStats(requestName, group, Some(OK))
+        val ko = logFileReader.requestGeneralStats(requestName, group, Some(KO))
 
         val numberOfRequestsStatistics = Statistics("request count", total.count, ok.count, ko.count)
         val minResponseTimeStatistics = Statistics("min response time", total.min, ok.min, ko.min)
@@ -54,7 +54,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         val percentiles4 = percentiles(configuration.charting.indicators.percentile4, percentilesTitle, total, ok, ko)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-        val groupedCounts = dataReader
+        val groupedCounts = logFileReader
           .numberOfRequestInResponseTimeRange(requestName, group).map {
             case (rangeName, count) => GroupedCount(rangeName, count, total.count)
           }
@@ -69,9 +69,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       def computeGroupStats(name: String, group: Group): RequestStatistics = {
 
-        val total = dataReader.groupCumulatedResponseTimeGeneralStats(group, None)
-        val ok = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(OK))
-        val ko = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(KO))
+        val total = logFileReader.groupCumulatedResponseTimeGeneralStats(group, None)
+        val ok = logFileReader.groupCumulatedResponseTimeGeneralStats(group, Some(OK))
+        val ko = logFileReader.groupCumulatedResponseTimeGeneralStats(group, Some(KO))
 
         val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
         val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
@@ -85,7 +85,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         val percentiles4 = percentiles(configuration.charting.indicators.percentile4, _ => "percentiles4", total, ok, ko)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-        val groupedCounts = dataReader
+        val groupedCounts = logFileReader
           .numberOfRequestInResponseTimeRange(None, Some(group)).map {
             case (rangeName, count) => GroupedCount(rangeName, count, total.count)
           }
@@ -97,7 +97,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
     val rootContainer = GroupContainer.root(computeRequestStats(GlobalPageName, None, None))
 
-    val statsPaths = dataReader.statsPaths
+    val statsPaths = logFileReader.statsPaths
 
     val groupsByHierarchy: Map[List[String], Group] = statsPaths
       .collect {
@@ -136,6 +136,6 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     new TemplateWriter(statsJsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
     new TemplateWriter(statsJsonFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
     new TemplateWriter(globalStatsJsonFile(reportFolderName)).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
-    println(ConsoleTemplate(dataReader, rootContainer.stats))
+    println(ConsoleTemplate.println(rootContainer.stats, logFileReader.errors(None, None)))
   }
 }

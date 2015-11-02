@@ -21,10 +21,10 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.ResponseTimings
 
-class FileDataWriterSpec extends BaseSpec {
+class LogFileDataWriterSpec extends BaseSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  import FileDataWriter._
+  import LogFileDataWriter._
 
   def logMessage(record: ResponseMessage)(implicit serializer: DataWriterMessageSerializer[ResponseMessage]): String = serializer.serialize(record).toString
 

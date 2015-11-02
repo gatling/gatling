@@ -21,7 +21,7 @@ import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, 
 
 import io.gatling.commons.util.Io._
 
-import org.asynchttpclient.AsyncHttpClientConfig
+import org.asynchttpclient.DefaultAsyncHttpClientConfig
 
 object SslHelper {
 
@@ -58,12 +58,12 @@ object SslHelper {
     }
   }
 
-  implicit class RichAsyncHttpClientConfigBuilder(val ahcConfigBuilder: AsyncHttpClientConfig.Builder) extends AnyVal {
+  implicit class RichAsyncHttpClientConfigBuilder(val ahcConfigBuilder: DefaultAsyncHttpClientConfig.Builder) extends AnyVal {
 
-    def setSSLContext(trustManagers: Option[Array[TrustManager]], keyManagers: Option[Array[KeyManager]]): AsyncHttpClientConfig.Builder = {
+    def setSslContext(trustManagers: Option[Array[TrustManager]], keyManagers: Option[Array[KeyManager]]): DefaultAsyncHttpClientConfig.Builder = {
       val sslContext = SSLContext.getInstance("TLS")
       sslContext.init(keyManagers.orNull, trustManagers.orNull, new SecureRandom)
-      ahcConfigBuilder.setSSLContext(sslContext)
+      ahcConfigBuilder.setSslContext(sslContext)
     }
   }
 }

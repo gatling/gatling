@@ -51,7 +51,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.signatureCalculator(sigCalc))
       .build("requestName", Session("scenarioName", 0))
-      .map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
+      .map(_.ahcRequest.getHeaders.get("X-Token")).succeeded shouldBe "foo"
   }
 
   it should "work when passed as a function" in {
@@ -59,7 +59,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.signatureCalculator(sigCalc _))
       .build("requestName", Session("scenarioName", 0))
-      .map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
+      .map(_.ahcRequest.getHeaders.get("X-Token")).succeeded shouldBe "foo"
   }
 
   "form" should "work when overriding a value" in {

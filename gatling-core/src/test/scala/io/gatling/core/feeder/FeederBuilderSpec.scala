@@ -36,7 +36,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
   "RecordSeqFeederBuilder" should "throw an exception when provided with bad resource" in {
     an[IllegalArgumentException] should be thrownBy
-      feederBuilder(Failure(""))(SeparatedValuesParser.parse(_, SeparatedValuesParser.CommaSeparator, '\'', rawSplit = false))
+      feederBuilder(Failure(""))(SeparatedValuesParser.parse(_, SeparatedValuesParser.CommaSeparator, quoteChar = '\'', escapeChar = 0))
   }
 
   "RecordSeqFeederBuilder" should "build a Feeder with a queue strategy" in {
@@ -87,13 +87,13 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test")))
     val convertedValue: Option[Any] = queuedFeeder.convert {
       case ("1", attr) => attr.concat("s are boring !")
-    }.records(0).get("1")
+    }.records.head.get("1")
 
     convertedValue.fold(fail("Could not find key"))(_ shouldBe "Tests are boring !")
 
     val cantConvert: Option[Any] = queuedFeeder.convert {
       case ("Can't find because don't exist", shouldKeepAsIs) => shouldKeepAsIs.concat("s are boring !")
-    }.records(0).get("1")
+    }.records.head.get("1")
 
     cantConvert.fold(fail("Could not find key"))(_ shouldBe "Test")
   }

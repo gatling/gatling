@@ -22,7 +22,7 @@ import io.gatling.AkkaSpec
 import io.gatling.commons.validation.Failure
 import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.DefaultStatsEngine
+import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.ErrorMessage
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
@@ -112,7 +112,7 @@ class PollerActorSpec extends AkkaSpec {
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
         httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, mock[HttpCaches]),
-        statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))
+        statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
       )
     )
 

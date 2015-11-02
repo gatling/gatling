@@ -22,7 +22,7 @@ import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.cookie.RFC2616DateParser
+import org.asynchttpclient.cookie.DateParser
 
 trait ExpiresSupport {
 
@@ -62,7 +62,7 @@ trait ExpiresSupport {
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
 
-    Option(RFC2616DateParser.get.parse(trimmedTimeString, new ParsePosition(0))).map(_.getTime)
+    Option(DateParser.get.parse(trimmedTimeString, new ParsePosition(0))).map(_.getTime)
   }
 
   def getResponseExpires(response: Response): Option[Long] = {

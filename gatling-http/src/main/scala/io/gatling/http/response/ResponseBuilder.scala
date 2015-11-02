@@ -32,6 +32,7 @@ import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, i
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
+import io.netty.handler.codec.http.{ HttpHeaders, DefaultHttpHeaders }
 import org.asynchttpclient._
 import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.netty.request.NettyRequest
@@ -39,7 +40,7 @@ import org.asynchttpclient.netty.LazyNettyResponseBodyPart
 
 object ResponseBuilder extends StrictLogging {
 
-  val EmptyHeaders = new FluentCaseInsensitiveStringsMap
+  val EmptyHeaders = new DefaultHttpHeaders
 
   val Identity: Response => Response = identity[Response]
 
@@ -83,11 +84,11 @@ class ResponseBuilder(
 ) {
 
   val computeChecksums = checksumChecks.nonEmpty
-  var storeHtmlOrCss = false
-  var firstByteSent = nowMillis
-  var lastByteReceived = 0L
+  var storeHtmlOrCss: Boolean = _
+  var startTimestamp: Long = _
+  var endTimestamp: Long = _
   private var status: Option[HttpResponseStatus] = None
-  private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.EmptyHeaders
+  private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
   private val chunks = new ArrayBuffer[ByteBuf]
   private var digests: Map[String, MessageDigest] = initDigests()
   private var nettyRequest: Option[NettyRequest] = None
@@ -101,7 +102,10 @@ class ResponseBuilder(
     else
       Map.empty[String, MessageDigest]
 
-  def updateFirstByteSent(): Unit = firstByteSent = nowMillis
+  def updateStartTimestamp(): Long = {
+    startTimestamp = nowMillis
+    startTimestamp
+  }
 
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
@@ -110,8 +114,7 @@ class ResponseBuilder(
     this.nameResolutions = Some(nameResolutions)
 
   def reset(): Unit = {
-    firstByteSent = nowMillis
-    lastByteReceived = 0L
+    endTimestamp = 0L
     status = None
     headers = ResponseBuilder.EmptyHeaders
     chunks.foreach(_.release())
@@ -119,24 +122,22 @@ class ResponseBuilder(
     digests = initDigests()
   }
 
-  def updateLastByteSent(): Unit = {}
-
-  def updateLastByteReceived(): Unit = lastByteReceived = nowMillis
+  def updateEndTimestamp(): Unit = endTimestamp = nowMillis
 
   def accumulate(status: HttpResponseStatus): Unit = {
     this.status = Some(status)
-    lastByteReceived = nowMillis
+    endTimestamp = nowMillis
   }
 
   def accumulate(headers: HttpResponseHeaders): Unit = {
     this.headers = headers.getHeaders
     storeHtmlOrCss = inferHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
-    updateLastByteReceived()
+    updateEndTimestamp()
   }
 
   def accumulate(bodyPart: HttpResponseBodyPart): Unit = {
 
-    updateLastByteReceived()
+    updateEndTimestamp()
 
     val byteBuf = bodyPart.asInstanceOf[LazyNettyResponseBodyPart].getBuf
 
@@ -158,7 +159,7 @@ class ResponseBuilder(
     // time measurement is imprecise due to multi-core nature
     // moreover, ProgressListener might be called AFTER ChannelHandler methods 
     // ensure response doesn't end before starting
-    lastByteReceived = max(lastByteReceived, firstByteSent)
+    endTimestamp = max(endTimestamp, startTimestamp)
 
     val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
       val (algo, md) = entry
@@ -171,7 +172,7 @@ class ResponseBuilder(
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-    val resolvedCharset = Option(headers.getFirstValue(HeaderNames.ContentType))
+    val resolvedCharset = Option(headers.get(HeaderNames.ContentType))
       .flatMap(extractCharsetFromContentType)
       .getOrElse(charset)
 
@@ -192,7 +193,7 @@ class ResponseBuilder(
         ByteArrayResponseBody(chunks, resolvedCharset)
 
     chunks.foreach(_.release())
-    val timings = ResponseTimings(firstByteSent, lastByteReceived)
+    val timings = ResponseTimings(startTimestamp, endTimestamp)
     val rawResponse = HttpResponse(request, nettyRequest, nameResolutions, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseTransformer match {

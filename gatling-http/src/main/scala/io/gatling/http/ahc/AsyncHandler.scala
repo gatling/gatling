@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import io.gatling.http.action.sync.HttpTx
 
+import io.netty.channel.Channel
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient._
 import org.asynchttpclient.channel.NameResolution
@@ -52,28 +53,28 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName)
-      responseBuilder.updateFirstByteSent()
+      val firstByteSent = responseBuilder.updateStartTimestamp()
+      httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName, firstByteSent)
     }
 
   override def onConnectionOpen(): Unit = start()
 
   override def onConnectionPool(): Unit = {}
 
-  override def onConnectionSuccess(channel: Any, address: InetAddress): Unit = {}
+  override def onConnectionSuccess(channel: Channel, address: InetAddress): Unit = {}
 
   override def onConnectionFailure(address: InetAddress): Unit = {}
 
-  override def onConnectionPooled(channel: Any): Unit = {}
+  override def onConnectionPooled(channel: Channel): Unit = {}
 
-  override def onConnectionOffer(channel: Any): Unit = {}
+  override def onConnectionOffer(channel: Channel): Unit = {}
 
   override def onDnsResolved(nameResolutions: Array[NameResolution]): Unit =
     responseBuilder.setNameResolutions(nameResolutions)
 
   override def onSslHandshakeCompleted(): Unit = {}
 
-  override def onRequestSend(request: Any): Unit = {
+  override def onRequestSend(request: NettyRequest): Unit = {
     start()
     if (AsyncHandler.DebugEnabled)
       responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
@@ -83,15 +84,9 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
 
-  override def onHeadersWritten(): State = {
-    if (!done.get) responseBuilder.updateLastByteSent()
-    CONTINUE
-  }
+  override val onHeadersWritten: State = CONTINUE
 
-  override def onContentWritten(): State = {
-    if (!done.get) responseBuilder.updateLastByteSent()
-    CONTINUE
-  }
+  override val onContentWritten: State = CONTINUE
 
   override def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
@@ -118,7 +113,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   override def onThrowable(throwable: Throwable): Unit =
     if (done.compareAndSet(false, true)) {
-      responseBuilder.updateLastByteReceived()
+      responseBuilder.updateEndTimestamp()
       sendOnThrowable(throwable)
     }
 

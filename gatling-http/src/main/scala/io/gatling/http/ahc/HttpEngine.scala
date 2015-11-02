@@ -43,9 +43,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
 
   val asyncHandlerActors: ActorRef = {
     val poolSize = 3 * Runtime.getRuntime.availableProcessors
-    val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
-
-    asyncHandlerActors
+    system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
   }
 
   def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) = {
@@ -77,7 +75,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
             .setHeader(AcceptEncoding, "gzip")
             .setHeader(Connection, KeepAlive)
             .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-            .setRequestTimeout(100)
+            .setRequestTimeout(1000)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 

@@ -153,10 +153,12 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
       def getMostFrequentHeaderValue(headerName: String): Option[String] = {
         val headers = requestElements.flatMap {
-          _.headers.collect { case (name, value) if name == headerName => value }
+          _.headers.collect { case (`headerName`, value) => value }
         }
 
-        if (headers.isEmpty) None
+        if (headers.isEmpty || headers.length != requestElements.length)
+          // a header has to be defined on all requestElements to be turned into a common one
+          None
         else {
           val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
           val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1

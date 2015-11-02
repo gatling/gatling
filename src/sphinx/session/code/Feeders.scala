@@ -61,10 +61,9 @@ class Feeders {
   }
 
   {
-    //#raw-split
-    val tsvFeeder = tsv("foo.tsv", rawSplit = true)
-    val ssvFeeder = ssv("foo.ssv", rawSplit = true)
-    //#raw-split
+    //#escape-char
+    val csvFeeder = csv("foo.csv", escapeChar = '\\')
+    //#escape-char
   }
 
   {
