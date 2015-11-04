@@ -65,7 +65,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   it should "correctly support Expires header" in new CacheContext {
-    getResponseExpire(List(HeaderNames.Expires -> "Wed, 16 Oct 2033 21:56:44 GMT")) shouldBe 'defined
+    getResponseExpire(List(HeaderNames.Expires -> "Sun, 16 Oct 2033 21:56:44 GMT")) shouldBe 'defined
   }
 
   it should "give priority to Cache-Control over Expires" in new CacheContext {
