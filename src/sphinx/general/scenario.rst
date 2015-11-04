@@ -335,6 +335,7 @@ Groups definition
 
 Create group of requests to model process or requests in a same page.
 Groups can be nested.
+Beware that group names mustn't contain commas.
 
 .. _scenario-protocols:
 
