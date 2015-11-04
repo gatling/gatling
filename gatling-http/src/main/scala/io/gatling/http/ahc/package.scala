@@ -28,8 +28,8 @@ package object ahc {
   implicit class ProxyConverter(val proxy: Proxy) extends AnyVal {
 
     def proxyServer: ProxyServer = {
-      val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(NoCredentials)
-      Dsl.proxyServer(proxy.host, proxy.port).setSecuredPort(proxy.securePort).setRealm(Dsl.realm(AuthScheme.BASIC, username, password).build).build
+      val realm = proxy.credentials.map(c => Dsl.realm(AuthScheme.BASIC, c.username, c.password).build)
+      Dsl.proxyServer(proxy.host, proxy.port).setSecuredPort(proxy.securePort).setRealm(realm.orNull).build
     }
   }
 }
