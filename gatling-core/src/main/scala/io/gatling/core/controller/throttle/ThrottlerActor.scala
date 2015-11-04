@@ -36,7 +36,7 @@ class ThrottlerActor extends ThrottlerActorFSM {
       goto(Started) using StartedData(throttles, mutable.ArrayBuffer.empty[ThrottledRequest], nanoTime)
   }
 
-  def millisSinceTick(tickNanos: Long): Int = ((nanoTime - tickNanos) / 1000000).toInt
+  private def millisSinceTick(tickNanos: Long): Int = ((nanoTime - tickNanos) / 1000000).toInt
 
   private def sendRequest(data: StartedData, request: () => Unit): Unit = {
     import data._
@@ -57,8 +57,7 @@ class ThrottlerActor extends ThrottlerActorFSM {
 
     } else {
       sendRequest(data, throttledRequest.request)
-      throttles.global.foreach(_.increment())
-      throttles.perScenario.get(throttledRequest.scenarioName).foreach(_.increment())
+      throttles.increment(throttledRequest.scenarioName)
       data.incrementCount()
     }
   }

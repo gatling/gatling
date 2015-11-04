@@ -16,6 +16,7 @@
 package io.gatling.http.action.async
 
 import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
@@ -80,7 +81,7 @@ abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
             val mergedCaptures = checkResults
               .collect { case CheckResult(Some(value), Some(saveAs)) => saveAs -> value }
               .groupBy(_._1)
-              .mapValues(_.flatMap(_._2 match {
+              .forceMapValues(_.flatMap(_._2 match {
                 case s: Seq[Any] => s
                 case v           => Seq(v)
               }))
