@@ -143,6 +143,7 @@ package object util {
         val byteBuf = ByteBufAllocator.DEFAULT.buffer(8 * 1024)
         multipartBody.transferTo(byteBuf)
         buff.append(byteBuf.toString(charset))
+        multipartBody.close()
         byteBuf.release()
       }
 
