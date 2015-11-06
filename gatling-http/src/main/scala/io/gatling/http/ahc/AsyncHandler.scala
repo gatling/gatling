@@ -54,7 +54,9 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
       val firstByteSent = responseBuilder.updateStartTimestamp()
-      httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName, firstByteSent)
+      // [pro]
+      //
+      // [pro]
     }
 
   override def onConnectionOpen(): Unit = start()

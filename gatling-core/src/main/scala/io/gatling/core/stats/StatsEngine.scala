@@ -38,7 +38,9 @@ trait StatsEngine {
 
   def logUser(userMessage: UserMessage): Unit
 
-  def logRequest(session: Session, requestName: String, timestamp: Long): Unit
+  // [pro]
+  //
+  // [pro]
 
   def logResponse(
     session:      Session,
@@ -99,7 +101,9 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
 
   override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
-  override def logRequest(session: Session, requestName: String, date: Long): Unit = {}
+  // [pro]
+  //
+  // [pro]
 
   override def logResponse(
     session:      Session,
