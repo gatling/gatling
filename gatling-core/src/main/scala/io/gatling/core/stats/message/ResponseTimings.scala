@@ -15,7 +15,17 @@
  */
 package io.gatling.core.stats.message
 
-case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) {
+import com.typesafe.scalalogging.LazyLogging
 
-  val responseTime = (endTimestamp - startTimestamp).toInt
+case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
+
+  val responseTime = {
+    val rt = (endTimestamp - startTimestamp).toInt
+    if (rt >= 0) {
+      rt
+    } else {
+      logger.error(s"Got a negative response time startTimestamp=$startTimestamp endTimestamp=$endTimestamp")
+      1
+    }
+  }
 }
