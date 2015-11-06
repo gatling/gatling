@@ -39,13 +39,13 @@ private[controller] object ControllerData {
   case object NoData extends ControllerData
   case class InitData(launcher: ActorRef, scenarios: List[Scenario])
   case class StartedData(initData: InitData, userCounts: UserCounts) extends ControllerData
-  case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
+  case class EndData(initData: InitData, exception: Option[Throwable]) extends ControllerData
 }
 
 sealed trait ControllerCommand
 object ControllerCommand {
   case class Start(scenarios: List[Scenario]) extends ControllerCommand
   case class InjectionStopped(count: Long) extends ControllerCommand
-  case class ForceStop(e: Option[Exception] = None) extends ControllerCommand
+  case class ForceStop(e: Option[Throwable] = None) extends ControllerCommand
   case object StatsEngineStopped extends ControllerCommand
 }

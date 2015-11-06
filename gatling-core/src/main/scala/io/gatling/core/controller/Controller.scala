@@ -82,7 +82,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     else
       stay()
 
-  private def stop(startedData: StartedData, exception: Option[Exception]): State = {
+  private def stop(startedData: StartedData, exception: Option[Throwable]): State = {
     cancelTimer(maxDurationTimer)
     statsEngine.stop(self)
     goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
