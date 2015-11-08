@@ -18,12 +18,12 @@ Snapshots are available on Sonatype.
 
 In ``project/plugins.sbt``, add::
 
-  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.1.7")
+  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.2.0")
 
 You'll also need those two dependencies::
 
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.7" % "test"
-  "io.gatling"            % "gatling-test-framework"    % "2.1.7" % "test"
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.0" % "test"
+  "io.gatling"            % "gatling-test-framework"    % "2.2.0" % "test"
 
 And then, in your ``.scala`` build::
 
@@ -52,6 +52,13 @@ Usage
 =====
 
 As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard ``test``, ``testOnly``, ``testQuick``, etc... tasks.
+However, since the SBT Plugin introduces many customizations that we don't want interfering with unit tests, those commands are integrated into custom configurations,
+meaning you'll need to prefix them with `gatling` or `gatling-it`, eg. `gatling:test` or `gatling-it:test`.
+
+.. note::
+
+This behavior differs from what previously possible, eg. calling `test` without prefixing started Gatling simulations.
+However, this caused many interferences with other testing libraries and forcing the use of a prefix solves those issues.
 
 'Test' vs 'Integration Tests' configurations
 ============================================
@@ -69,7 +76,7 @@ You can expect a relatively short simulation to run easily with the default JVM 
 
 .. note::
 
-  When using the ``GatlingIt`` configuration, you must prefix the various tasks and settings you may want to use by ``it``, e.g. ``test`` becomes ``it:test``, etc...
+  When using the ``GatlingIt`` configuration, you must use the ``gatling-it`` prefix, e.g. ``gatling:test`` becomes ``gatling-it:test``, etc...
 
 Default settings
 ================
@@ -89,11 +96,11 @@ Additional tasks
 
 Gatling's SBT plugin also offers four additional tasks:
 
-* ``startRecorder``: starts the Recorder, configured to save recorded simulations to the location specified by ``scalaSource in Gatling`` (by default, ``src/test/scala``).
-* ``generateReport``: generates reports for a specified report folder.
-* ``lastReport``: opens by the last generated report in your web browser. A simulation name can be specified to open the last report for that simulation.
-* ``copyConfigFiles``: copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
-* ``copyLogbackXml``: copies Gatling's default logback.xml.
+* ``gatling(-it):startRecorder``: starts the Recorder, configured to save recorded simulations to the location specified by ``scalaSource in Gatling`` (by default, ``src/test/scala``).
+* ``gatling(-it):generateReport``: generates reports for a specified report folder.
+* ``gatling(-it):lastReport``: opens by the last generated report in your web browser. A simulation name can be specified to open the last report for that simulation.
+* ``gatling(-it):copyConfigFiles``: copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
+* ``gatling(-it):copyLogbackXml``: copies Gatling's default logback.xml.
 
 Overriding JVM options
 ======================
@@ -104,4 +111,3 @@ However, should you need to tweak them, you can use ``overrideDefaultJavaOptions
 E.g., if you want to tweak Xms/Xmx to give more memory to Gatling::
 
   javaOptions in Gatling := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
-  
