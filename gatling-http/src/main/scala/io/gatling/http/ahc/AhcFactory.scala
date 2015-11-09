@@ -15,7 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.TimeUnit
 
 import io.gatling.core.{ CoreComponents, ConfigKeys }
@@ -25,7 +24,7 @@ import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.channel.{ EventLoopGroup, Channel }
+import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
@@ -33,8 +32,6 @@ import io.netty.util.{ Timer, HashedWheelTimer }
 import org.asynchttpclient.AsyncHttpClientConfig._
 import org.asynchttpclient._
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
-import org.asynchttpclient.netty.ws.NettyWebSocket
-import org.asynchttpclient.ws.WebSocketListener
 
 private[gatling] object AhcFactory {
 
@@ -102,7 +99,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setNettyTimer(timer)
       .setChannelPool(channelPool)
       .setResponseBodyPartFactory(ResponseBodyPartFactory.LAZY)
-      .setWebSocketTimeout(ahcConfig.webSocketTimeout)
       .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
         case Nil => null
@@ -112,22 +108,23 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
         case Nil => null
         case ps  => ps.toArray
       })
-      .setSslSessionCacheSize(if (ahcConfig.sslSessionCacheSize > 0) ahcConfig.sslSessionCacheSize else null)
-      .setSslSessionTimeout(if (ahcConfig.sslSessionTimeout > 0) ahcConfig.sslSessionTimeout else null)
+      .setSslSessionCacheSize(ahcConfig.sslSessionCacheSize)
+      .setSslSessionTimeout(ahcConfig.sslSessionTimeout)
       .setHttpClientCodecMaxInitialLineLength(ahcConfig.httpClientCodecMaxInitialLineLength)
       .setHttpClientCodecMaxHeaderSize(ahcConfig.httpClientCodecMaxHeaderSize)
       .setHttpClientCodecMaxChunkSize(ahcConfig.httpClientCodecMaxChunkSize)
       .setKeepEncodingHeader(true)
       .setWebSocketMaxFrameSize(ahcConfig.webSocketMaxFrameSize)
+      .setUseOpenSsl(ahcConfig.useOpenSsl)
 
-    val trustManagers = configuration.http.ssl.trustStore
-      .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
+    val keyManagerFactory = configuration.http.ssl.keyStore
+      .map(config => newKeyManagerFactory(config.storeType, config.file, config.password, config.algorithm))
 
-    val keyManagers = configuration.http.ssl.keyStore
-      .map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
+    val trustManagerFactory = configuration.http.ssl.trustStore
+      .map(config => newTrustManagerFactory(config.storeType, config.file, config.password, config.algorithm))
 
-    if (trustManagers.isDefined || keyManagers.isDefined)
-      ahcConfigBuilder.setSslContext(trustManagers, keyManagers)
+    if (keyManagerFactory.isDefined || trustManagerFactory.isDefined)
+      ahcConfigBuilder.setSslContext(ahcConfig, keyManagerFactory, trustManagerFactory)
 
     ahcConfigBuilder
   }
@@ -145,30 +142,30 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   override def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
 
   private def newAhc(session: Option[Session]) = {
-    val ahcConfig = session.flatMap { session =>
+    val config = session.flatMap { session =>
 
-      val trustManagers = for {
-        file <- session(ConfigKeys.http.ssl.trustStore.File).asOption[String]
-        password <- session(ConfigKeys.http.ssl.trustStore.Password).asOption[String]
-        storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
-        algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
-      } yield newTrustManagers(storeType, file, password, algorithm)
-
-      val keyManagers = for {
+      val keyManagerFactory = for {
         file <- session(ConfigKeys.http.ssl.keyStore.File).asOption[String]
         password <- session(ConfigKeys.http.ssl.keyStore.Password).asOption[String]
         storeType = session(ConfigKeys.http.ssl.keyStore.Type).asOption[String]
         algorithm = session(ConfigKeys.http.ssl.keyStore.Algorithm).asOption[String]
-      } yield newKeyManagers(storeType, file, password, algorithm)
+      } yield newKeyManagerFactory(storeType, file, password, algorithm)
 
-      trustManagers.orElse(keyManagers).map { _ =>
-        logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-        new DefaultAsyncHttpClientConfig.Builder(defaultAhcConfig).setSslContext(trustManagers, keyManagers).build
+      val trustManagerFactory = for {
+        file <- session(ConfigKeys.http.ssl.trustStore.File).asOption[String]
+        password <- session(ConfigKeys.http.ssl.trustStore.Password).asOption[String]
+        storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
+        algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
+      } yield newTrustManagerFactory(storeType, file, password, algorithm)
+
+      trustManagerFactory.orElse(keyManagerFactory).map { _ =>
+        logger.info(s"Setting a custom SslContext for user ${session.userId}")
+        new DefaultAsyncHttpClientConfig.Builder(defaultAhcConfig).setSslContext(ahcConfig, keyManagerFactory, trustManagerFactory).build
       }
 
     }.getOrElse(defaultAhcConfig)
 
-    val client = new DefaultAsyncHttpClient(ahcConfig)
+    val client = new DefaultAsyncHttpClient(config)
     system.registerOnTermination(client.close())
     client
   }

@@ -74,17 +74,17 @@ object ConfigKeys {
     val EnableGA = "gatling.http.enableGA"
 
     object ssl {
-      object trustStore {
-        val Type = "gatling.http.ssl.trustStore.type"
-        val File = "gatling.http.ssl.trustStore.file"
-        val Password = "gatling.http.ssl.trustStore.password"
-        val Algorithm = "gatling.http.ssl.trustStore.algorithm"
-      }
       object keyStore {
         val Type = "gatling.http.ssl.keyStore.type"
         val File = "gatling.http.ssl.keyStore.file"
         val Password = "gatling.http.ssl.keyStore.password"
         val Algorithm = "gatling.http.ssl.keyStore.algorithm"
+      }
+      object trustStore {
+        val Type = "gatling.http.ssl.trustStore.type"
+        val File = "gatling.http.ssl.trustStore.file"
+        val Password = "gatling.http.ssl.trustStore.password"
+        val Algorithm = "gatling.http.ssl.trustStore.algorithm"
       }
     }
 
@@ -99,7 +99,6 @@ object ConfigKeys {
       val MaxConnections = "gatling.http.ahc.maxConnections"
       val MaxRetry = "gatling.http.ahc.maxRetry"
       val RequestTimeout = "gatling.http.ahc.requestTimeout"
-      val WebSocketTimeout = "gatling.http.ahc.webSocketTimeout"
       val AcceptAnyCertificate = "gatling.http.ahc.acceptAnyCertificate"
       val HttpClientCodecMaxInitialLineLength = "gatling.http.ahc.httpClientCodecMaxInitialLineLength"
       val HttpClientCodecMaxHeaderSize = "gatling.http.ahc.httpClientCodecMaxHeaderSize"
@@ -109,6 +108,7 @@ object ConfigKeys {
       val SslEnabledCipherSuites = "gatling.http.ahc.sslEnabledCipherSuites"
       val SslSessionCacheSize = "gatling.http.ahc.sslSessionCacheSize"
       val SslSessionTimeout = "gatling.http.ahc.sslSessionTimeout"
+      val UseOpenSsl = "gatling.http.ahc.useOpenSsl"
     }
   }
 

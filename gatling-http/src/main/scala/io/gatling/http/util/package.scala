@@ -16,7 +16,6 @@
 package io.gatling.http
 
 import java.lang.{ StringBuilder => JStringBuilder }
-import java.nio.ByteBuffer
 import java.nio.charset.Charset
 import java.util.{ List => JList }
 
@@ -25,6 +24,7 @@ import scala.collection.JavaConversions._
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.http.response.Response
 
+import io.netty.buffer.ByteBufAllocator
 import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.netty.request.body.NettyMultipartBody
@@ -140,10 +140,10 @@ package object util {
           case None => MultipartUtils.newMultipartBody(request.getBodyParts, request.getHeaders)
         }
 
-        val byteBuffer = ByteBuffer.allocate(8 * 1024)
-        multipartBody.transferTo(byteBuffer)
-        byteBuffer.flip()
-        buff.append(charset.decode(byteBuffer).toString)
+        val byteBuf = ByteBufAllocator.DEFAULT.buffer(8 * 1024)
+        multipartBody.transferTo(byteBuf)
+        buff.append(byteBuf.toString(charset))
+        byteBuf.release()
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
