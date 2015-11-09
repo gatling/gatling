@@ -91,7 +91,6 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): State = {
     if (done.get) {
-      bodyPart.markUnderlyingConnectionAsToBeClosed()
       ABORT
     } else {
       val payload = bodyPart.asInstanceOf[LazyNettyResponseBodyPart].getBuf.toString(UTF_8)

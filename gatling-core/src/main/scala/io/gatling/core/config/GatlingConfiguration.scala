@@ -163,8 +163,8 @@ object GatlingConfiguration extends StrictLogging {
               storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
             }
 
-          val trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
           val keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm)
+          val trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
 
           SslConfiguration(trustStore, keyStore)
         },
@@ -179,7 +179,6 @@ object GatlingConfiguration extends StrictLogging {
           maxConnections = config.getInt(http.ahc.MaxConnections),
           maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeOut = config.getInt(http.ahc.RequestTimeout),
-          webSocketTimeout = config.getInt(http.ahc.WebSocketTimeout),
           acceptAnyCertificate = {
             val accept = config.getBoolean(http.ahc.AcceptAnyCertificate)
             if (accept) {
@@ -195,7 +194,8 @@ object GatlingConfiguration extends StrictLogging {
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).toList,
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
-          sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout)
+          sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
+          useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl)
         )
       ),
       data = DataConfiguration(
@@ -316,7 +316,6 @@ case class AhcConfiguration(
   maxConnections:                      Int,
   maxRetry:                            Int,
   requestTimeOut:                      Int,
-  webSocketTimeout:                    Int,
   acceptAnyCertificate:                Boolean,
   httpClientCodecMaxInitialLineLength: Int,
   httpClientCodecMaxHeaderSize:        Int,
@@ -325,12 +324,13 @@ case class AhcConfiguration(
   sslEnabledProtocols:                 List[String],
   sslEnabledCipherSuites:              List[String],
   sslSessionCacheSize:                 Int,
-  sslSessionTimeout:                   Int
+  sslSessionTimeout:                   Int,
+  useOpenSsl:                          Boolean
 )
 
 case class SslConfiguration(
-  trustStore: Option[StoreConfiguration],
-  keyStore:   Option[StoreConfiguration]
+  keyStore:   Option[StoreConfiguration],
+  trustStore: Option[StoreConfiguration]
 )
 
 case class StoreConfiguration(

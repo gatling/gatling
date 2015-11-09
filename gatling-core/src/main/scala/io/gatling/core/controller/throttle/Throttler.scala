@@ -21,7 +21,17 @@ import akka.actor.{ Props, ActorSystem, ActorRef }
 
 case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
 
-  def limitReached(scenario: String) = global.map(_.limitReached).orElse(perScenario.get(scenario).map(_.limitReached)).getOrElse(false)
+  def limitReached(scenario: String) = {
+    global.map(_.limitReached) match {
+      case Some(true) => true
+      case _          => perScenario.collectFirst { case (`scenario`, throttle) => throttle.limitReached }.getOrElse(false)
+    }
+  }
+
+  def increment(scenario: String) = {
+    global.foreach(_.increment())
+    perScenario.get(scenario).foreach(_.increment())
+  }
 }
 
 class Throttle(val limit: Int, var count: Int = 0) {
@@ -30,7 +40,7 @@ class Throttle(val limit: Int, var count: Int = 0) {
 
   def limitReached: Boolean = count >= limit
 
-  override def toString = s"ThisSecondThrottle(limit=$limit, count=$count)"
+  override def toString = s"Throttle(limit=$limit, count=$count)"
 }
 
 object Throttler {
