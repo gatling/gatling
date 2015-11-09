@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.async.sse
 
-import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
@@ -29,13 +29,12 @@ import io.netty.channel.Channel
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
-import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.LazyNettyResponseBodyPart
 import io.netty.handler.codec.http.HttpResponseStatus.OK
 import org.asynchttpclient.netty.request.NettyRequest
 
-class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
+class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[Unit]
     with AsyncHandlerExtensions
     with SseStream
     with EventStreamDispatcher
@@ -45,22 +44,8 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   private val done = new AtomicBoolean
   private var state: SseState = Opening
 
-  override def onConnectionOpen(): Unit = ()
-
-  override def onConnectionSuccess(connection: Channel, address: InetAddress): Unit =
+  override def onTcpConnectSuccess(address: InetSocketAddress, connection: Channel): Unit =
     state = Open
-
-  override def onConnectionFailure(address: InetAddress): Unit = {}
-
-  override def onConnectionPool(): Unit = ()
-
-  override def onConnectionPooled(connection: Channel): Unit = ()
-
-  override def onConnectionOffer(connection: Channel): Unit = ()
-
-  override def onDnsResolved(address: Array[NameResolution]): Unit = ()
-
-  override def onSslHandshakeCompleted(): Unit = ()
 
   override def onRetry(): Unit =
     if (done.get) logger.error("onRetry is not supposed to be called once done")

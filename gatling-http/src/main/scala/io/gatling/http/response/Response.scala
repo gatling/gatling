@@ -20,7 +20,6 @@ import java.nio.charset.Charset
 import scala.collection.JavaConversions.asScalaBuffer
 
 import io.netty.handler.codec.http.HttpHeaders
-import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.cookie.{ Cookie, CookieDecoder }
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.{ HttpResponseStatus, Request => AHCRequest }
@@ -35,7 +34,6 @@ abstract class Response {
 
   def request: AHCRequest
   def nettyRequest: Option[NettyRequest]
-  def nameResolutions: Option[Array[NameResolution]]
   def isReceived: Boolean
 
   def status: Option[HttpResponseStatus]
@@ -63,16 +61,15 @@ abstract class Response {
 }
 
 case class HttpResponse(
-    request:         AHCRequest,
-    nettyRequest:    Option[NettyRequest],
-    nameResolutions: Option[Array[NameResolution]],
-    status:          Option[HttpResponseStatus],
-    headers:         HttpHeaders,
-    body:            ResponseBody,
-    checksums:       Map[String, String],
-    bodyLength:      Int,
-    charset:         Charset,
-    timings:         ResponseTimings
+    request:      AHCRequest,
+    nettyRequest: Option[NettyRequest],
+    status:       Option[HttpResponseStatus],
+    headers:      HttpHeaders,
+    body:         ResponseBody,
+    checksums:    Map[String, String],
+    bodyLength:   Int,
+    charset:      Charset,
+    timings:      ResponseTimings
 ) extends Response {
 
   def isReceived = status.isDefined
@@ -97,7 +94,6 @@ class ResponseWrapper(delegate: Response) extends Response {
 
   def request: AHCRequest = delegate.request
   def nettyRequest: Option[NettyRequest] = delegate.nettyRequest
-  def nameResolutions: Option[Array[NameResolution]] = delegate.nameResolutions
   def isReceived = delegate.isReceived
 
   def status = delegate.status

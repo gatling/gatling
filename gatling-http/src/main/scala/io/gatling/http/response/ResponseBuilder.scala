@@ -34,7 +34,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ HttpHeaders, DefaultHttpHeaders }
 import org.asynchttpclient._
-import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.netty.LazyNettyResponseBodyPart
 
@@ -92,7 +91,6 @@ class ResponseBuilder(
   private val chunks = new ArrayBuffer[ByteBuf]
   private var digests: Map[String, MessageDigest] = initDigests()
   private var nettyRequest: Option[NettyRequest] = None
-  private var nameResolutions: Option[Array[NameResolution]] = None
 
   def initDigests(): Map[String, MessageDigest] =
     if (computeChecksums)
@@ -109,9 +107,6 @@ class ResponseBuilder(
 
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
-
-  def setNameResolutions(nameResolutions: Array[NameResolution]) =
-    this.nameResolutions = Some(nameResolutions)
 
   def reset(): Unit = {
     endTimestamp = 0L
@@ -194,7 +189,7 @@ class ResponseBuilder(
 
     chunks.foreach(_.release())
     val timings = ResponseTimings(startTimestamp, endTimestamp)
-    val rawResponse = HttpResponse(request, nettyRequest, nameResolutions, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseTransformer match {
       case None              => rawResponse

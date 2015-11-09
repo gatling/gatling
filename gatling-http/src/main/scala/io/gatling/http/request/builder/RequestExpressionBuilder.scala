@@ -15,8 +15,6 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.InetAddress
-
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
@@ -27,17 +25,13 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.util.DnsHelper
 
 import com.typesafe.scalalogging.LazyLogging
-import org.asynchttpclient.channel.{ NameResolution, NameResolver }
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 
 object RequestExpressionBuilder {
   val BuildRequestErrorMapper = "Failed to build request: " + _
-
-  val LoopbackAddress = Array(new NameResolution(InetAddress.getLoopbackAddress, Long.MaxValue))
 }
 
 abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)
@@ -63,25 +57,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       case Right(uri) => uri.success
     }
 
-  def configureAddressNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+  def configureNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
     if (!protocol.enginePart.shareDnsCache) {
-      requestBuilder.setNameResolver(new NameResolver {
-        override def resolve(name: String): Array[NameResolution] = name match {
-          case "localhost" => LoopbackAddress
-          case _ =>
-            httpCaches.dnsLookupCacheEntry(session, name) match {
-              case Some(addresses) => addresses
-              case None =>
-                try {
-                  DnsHelper.getAddressesByName(name)
-                } catch {
-                  case NonFatal(e) =>
-                    logger.warn(s"Failed to resolve address of name $name")
-                    NameResolver.JdkNameResolver.INSTANCE.resolve(name)
-                }
-            }
-        }
-      })
+      requestBuilder.setNameResolver(httpCaches.dnsLookupCacheEntry(session))
     }
     requestBuilder
   }
@@ -149,7 +127,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
     configureProxy(requestBuilder.setUri(uri), uri)
-      .map(configureAddressNameResolver(session, httpCaches))
+      .map(configureNameResolver(session, httpCaches))
       .map(configureCookies(session, uri))
       .flatMap(configureQuery(session, uri))
       .flatMap(configureVirtualHost(session))

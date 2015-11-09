@@ -290,7 +290,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
 
         val cacheContentUpdate = httpCaches.cacheContent(httpProtocol, tx.request.ahcRequest, response)
 
-        val dsnCacheUpdate = httpCaches.cacheDnsLookup(httpProtocol, tx.request.ahcRequest.getUri.getHost, response.nameResolutions)
+        val dsnCacheUpdate = httpCaches.cacheDnsLookup(httpProtocol, tx.request.ahcRequest.getNameResolver)
 
         val totalUpdate = sessionUpdate andThen cacheContentUpdate andThen dsnCacheUpdate andThen checkSaveUpdate
 

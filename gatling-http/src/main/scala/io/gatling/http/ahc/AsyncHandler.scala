@@ -15,15 +15,13 @@
  */
 package io.gatling.http.ahc
 
-import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
 import io.gatling.http.action.sync.HttpTx
 
-import io.netty.channel.Channel
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient._
-import org.asynchttpclient.channel.NameResolution
 import org.asynchttpclient.handler._
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State._
@@ -45,7 +43,7 @@ object AsyncHandler extends StrictLogging {
  * @param tx the data about the request to be sent and processed
  * @param httpEngine the HTTP engine
  */
-class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with LazyLogging {
+class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHandler[Unit] with ProgressAsyncHandler[Unit] with LazyLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
@@ -59,22 +57,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
       // [pro]
     }
 
-  override def onConnectionOpen(): Unit = start()
-
-  override def onConnectionPool(): Unit = {}
-
-  override def onConnectionSuccess(channel: Channel, address: InetAddress): Unit = {}
-
-  override def onConnectionFailure(address: InetAddress): Unit = {}
-
-  override def onConnectionPooled(channel: Channel): Unit = {}
-
-  override def onConnectionOffer(channel: Channel): Unit = {}
-
-  override def onDnsResolved(nameResolutions: Array[NameResolution]): Unit =
-    responseBuilder.setNameResolutions(nameResolutions)
-
-  override def onSslHandshakeCompleted(): Unit = {}
+  override def onTcpConnect(address: InetSocketAddress): Unit = start()
 
   override def onRequestSend(request: NettyRequest): Unit = {
     start()
