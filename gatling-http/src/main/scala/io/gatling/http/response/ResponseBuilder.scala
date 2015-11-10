@@ -18,9 +18,9 @@ package io.gatling.http.response
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
-import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
+import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.core.config.GatlingConfiguration
@@ -88,8 +88,7 @@ class ResponseBuilder(
   @volatile var endTimestamp: Long = _
   @volatile private var status: Option[HttpResponseStatus] = None
   @volatile private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
-  // FIXME investigate if we really need to handle memory visibility here
-  private val chunks = new ArrayBuffer[ByteBuf]
+  @volatile private var chunks: List[ByteBuf] = Nil
   @volatile private var digests: Map[String, MessageDigest] = initDigests()
   @volatile private var nettyRequest: Option[NettyRequest] = None
 
@@ -113,9 +112,13 @@ class ResponseBuilder(
     endTimestamp = 0L
     status = None
     headers = ResponseBuilder.EmptyHeaders
-    chunks.foreach(_.release())
-    chunks.clear()
+    resetChunks()
     digests = initDigests()
+  }
+
+  private def resetChunks(): Unit = {
+    chunks.foreach(_.release())
+    chunks = Nil
   }
 
   def updateEndTimestamp(): Unit = endTimestamp = nowMillis
@@ -139,7 +142,7 @@ class ResponseBuilder(
 
     if (byteBuf.readableBytes > 0) {
       if (storeBodyParts || storeHtmlOrCss) {
-        chunks += byteBuf.retain() // beware, we have to retain!
+        chunks = byteBuf.retain() :: chunks // beware, we have to retain!
       }
 
       if (computeChecksums)
@@ -162,9 +165,7 @@ class ResponseBuilder(
       map + (algo -> bytes2Hex(md.digest))
     }
 
-    val bodyLength = chunks.foldLeft(0) { (sum, chunk) =>
-      sum + chunk.readableBytes
-    }
+    val bodyLength = chunks.sumBy(_.readableBytes)
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
@@ -172,25 +173,25 @@ class ResponseBuilder(
       .flatMap(extractCharsetFromContentType)
       .getOrElse(charset)
 
+    val properlyOrderedChunks = chunks.reverse
     val body: ResponseBody =
-      if (chunks.isEmpty)
+      if (properlyOrderedChunks.isEmpty)
         NoResponseBody
 
       else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
-        ByteArrayResponseBody(chunks, resolvedCharset)
+        ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
       else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
-        InputStreamResponseBody(chunks, resolvedCharset)
+        InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
 
       else if (isTxt(headers))
-        StringResponseBody(chunks, resolvedCharset)
+        StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
       else
-        ByteArrayResponseBody(chunks, resolvedCharset)
+        ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-    chunks.foreach(_.release())
-    val timings = ResponseTimings(startTimestamp, endTimestamp)
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
+    resetChunks()
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, ResponseTimings(startTimestamp, endTimestamp))
 
     responseTransformer match {
       case None              => rawResponse
