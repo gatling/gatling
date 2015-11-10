@@ -24,7 +24,7 @@ object Dependencies {
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"       % jackson.revision
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                    % "0.5.5"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                     % "0.6.4"
-  private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                 % "3.6.6"
+  private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                 % "3.6.7"
   private val boopickle                     = "me.chrons"                             %% "boopickle"                    % "1.1.0"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                        % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                  % "3.0"
