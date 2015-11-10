@@ -116,6 +116,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setKeepEncodingHeader(true)
       .setWebSocketMaxFrameSize(ahcConfig.webSocketMaxFrameSize)
       .setUseOpenSsl(ahcConfig.useOpenSsl)
+      .setUseNativeTransport(ahcConfig.useNativeTransport)
 
     val keyManagerFactory = configuration.http.ssl.keyStore
       .map(config => newKeyManagerFactory(config.storeType, config.file, config.password, config.algorithm))

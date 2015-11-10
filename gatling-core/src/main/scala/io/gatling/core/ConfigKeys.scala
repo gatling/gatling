@@ -109,6 +109,7 @@ object ConfigKeys {
       val SslSessionCacheSize = "gatling.http.ahc.sslSessionCacheSize"
       val SslSessionTimeout = "gatling.http.ahc.sslSessionTimeout"
       val UseOpenSsl = "gatling.http.ahc.useOpenSsl"
+      val UseNativeTransport = "gatling.http.ahc.useNativeTransport"
     }
   }
 

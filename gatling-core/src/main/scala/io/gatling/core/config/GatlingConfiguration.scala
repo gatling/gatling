@@ -195,7 +195,8 @@ object GatlingConfiguration extends StrictLogging {
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
-          useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl)
+          useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
+          useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport)
         )
       ),
       data = DataConfiguration(
@@ -325,7 +326,8 @@ case class AhcConfiguration(
   sslEnabledCipherSuites:              List[String],
   sslSessionCacheSize:                 Int,
   sslSessionTimeout:                   Int,
-  useOpenSsl:                          Boolean
+  useOpenSsl:                          Boolean,
+  useNativeTransport:                  Boolean
 )
 
 case class SslConfiguration(
