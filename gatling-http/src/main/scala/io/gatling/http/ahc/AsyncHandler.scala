@@ -18,7 +18,9 @@ package io.gatling.http.ahc
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
+import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.sync.HttpTx
+import io.netty.channel.Channel
 
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient._
@@ -48,6 +50,13 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
   private val done = new AtomicBoolean
+  // [pro]
+  //
+  //
+  //
+  //
+  //
+  // [pro]
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
@@ -57,7 +66,44 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
       // [pro]
     }
 
-  override def onTcpConnect(address: InetSocketAddress): Unit = start()
+  override def onDnsResolution(name: String): Unit = {
+    start()
+    // [pro]
+    //
+    // [pro]
+  }
+
+  override def onTcpConnect(address: InetSocketAddress): Unit = {
+    start()
+    // [pro]
+    //
+    // [pro]
+  }
+
+  // [pro]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // [pro]
 
   override def onRequestSend(request: NettyRequest): Unit = {
     start()

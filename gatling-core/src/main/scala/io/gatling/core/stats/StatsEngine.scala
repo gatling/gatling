@@ -15,6 +15,7 @@
  */
 package io.gatling.core.stats
 
+import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.concurrent.{ Await, Future }
@@ -39,6 +40,12 @@ trait StatsEngine {
   def logUser(userMessage: UserMessage): Unit
 
   // [pro]
+  //
+  //
+  //
+  //
+  //
+  //
   //
   // [pro]
 
@@ -102,6 +109,12 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
   override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
   // [pro]
+  //
+  //
+  //
+  //
+  //
+  //
   //
   // [pro]
 
