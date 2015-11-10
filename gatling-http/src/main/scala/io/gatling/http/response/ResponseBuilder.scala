@@ -83,14 +83,14 @@ class ResponseBuilder(
 ) {
 
   val computeChecksums = checksumChecks.nonEmpty
-  var storeHtmlOrCss: Boolean = _
-  var startTimestamp: Long = _
-  var endTimestamp: Long = _
-  private var status: Option[HttpResponseStatus] = None
-  private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
-  private val chunks = new ArrayBuffer[ByteBuf]
-  private var digests: Map[String, MessageDigest] = initDigests()
-  private var nettyRequest: Option[NettyRequest] = None
+  @volatile var storeHtmlOrCss: Boolean = _
+  @volatile var startTimestamp: Long = _
+  @volatile var endTimestamp: Long = _
+  @volatile private var status: Option[HttpResponseStatus] = None
+  @volatile private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
+  @volatile private val chunks = new ArrayBuffer[ByteBuf]
+  @volatile private var digests: Map[String, MessageDigest] = initDigests()
+  @volatile private var nettyRequest: Option[NettyRequest] = None
 
   def initDigests(): Map[String, MessageDigest] =
     if (computeChecksums)
