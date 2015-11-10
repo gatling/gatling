@@ -17,9 +17,8 @@ package io.gatling.http.response
 
 import java.nio.charset.Charset
 import java.security.MessageDigest
-import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
 import io.gatling.commons.util.StringHelper.bytes2Hex
@@ -89,7 +88,8 @@ class ResponseBuilder(
   @volatile var endTimestamp: Long = _
   @volatile private var status: Option[HttpResponseStatus] = None
   @volatile private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
-  private val chunks = new ConcurrentLinkedQueue[ByteBuf]
+  // FIXME investigate if we really need to handle memory visibility here
+  private val chunks = new ArrayBuffer[ByteBuf]
   @volatile private var digests: Map[String, MessageDigest] = initDigests()
   @volatile private var nettyRequest: Option[NettyRequest] = None
 
