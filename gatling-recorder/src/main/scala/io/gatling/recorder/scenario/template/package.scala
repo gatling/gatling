@@ -22,9 +22,9 @@ package object template {
   val SimpleQuotes = "\""
   val TripleQuotes = SimpleQuotes * 3
 
-  private def isEscapeCharacter(char: Char) = char == '\\' || char == '"'
+  private def isUnsafeStringChar(char: Char) = char == '\\' || char == '"' || char == '\n'
 
-  private def containsEscapeCharacters(string: String) = string.exists(isEscapeCharacter)
+  private def containsEscapeCharacters(string: String) = string.exists(isUnsafeStringChar)
 
   def protectWithTripleQuotes(string: String): Fastring = {
     val stringDelimiter = if (containsEscapeCharacters(string)) TripleQuotes else SimpleQuotes
