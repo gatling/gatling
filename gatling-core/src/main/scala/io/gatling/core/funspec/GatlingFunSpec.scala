@@ -17,6 +17,7 @@ package io.gatling.core.funspec
 
 import io.gatling.core.Predef._
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.Protocol
 import io.gatling.core.structure.ChainBuilder
 
@@ -42,7 +43,7 @@ abstract class GatlingFunSpec extends Simulation {
       .assertions(forAll.failedRequests.percent.is(0))
   }
 
-  private[gatling] override def params = {
+  private[gatling] override def params(implicit configuration: GatlingConfiguration) = {
     setupRegisteredSpecs()
     super.params
   }

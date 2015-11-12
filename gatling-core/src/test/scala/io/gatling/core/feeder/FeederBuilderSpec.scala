@@ -19,7 +19,7 @@ import scala.collection.immutable
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation.Failure
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config._
 import io.gatling.core.structure.ScenarioContext
 
 class FeederBuilderSpec extends BaseSpec with FeederSupport {
@@ -97,6 +97,37 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     cantConvert.fold(fail("Could not find key"))(_ shouldBe "Test")
   }
+
+  // [pro]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // [pro]
 
   "FeederBuilder" should "have working implicit conversions" in {
     IndexedSeq(Map("1" -> "Test")).build(mock[ScenarioContext]) shouldBe a[Feeder[_]]

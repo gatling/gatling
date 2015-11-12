@@ -220,11 +220,19 @@ object GatlingConfiguration extends StrictLogging {
           writeInterval = config.getInt(data.graphite.WriteInterval)
         )
       ),
+// [pro]
 //
 //
 //
 //
 //
+//
+//
+//
+//
+//
+//
+// [pro]
       config = config
     )
 
@@ -375,11 +383,13 @@ case class GraphiteDataWriterConfiguration(
   writeInterval:  Int
 )
 
+// [pro]
 //
 //
 //
 //
 //
+// [pro]
 
 case class GatlingConfiguration(
   core:     CoreConfiguration,

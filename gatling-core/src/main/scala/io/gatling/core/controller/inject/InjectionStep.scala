@@ -18,10 +18,39 @@ package io.gatling.core.controller.inject
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.duration.{ DurationLong, DurationDouble, FiniteDuration }
+import scala.concurrent.duration._
 import scala.math.{ abs, sqrt }
 
-trait InjectionStep {
+object InjectionStep {
+
+  def resolve(injectionSteps: Iterable[InjectionStep])(implicit configuration: io.gatling.core.config.GatlingConfiguration): Iterable[InjectionStep] =
+    // [pro]
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    // [pro]
+      injectionSteps
+}
+
+sealed trait InjectionStep {
   /**
    * Iterator of time deltas in between any injected user and the beginning of the simulation
    */
@@ -77,23 +106,24 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
  * The injection scheduling follows this equation
  * u = r1*t + (r2-r1)/(2*duration)*t²
  *
- * @param r1 Initial injection rate in users/seconds
- * @param r2 Final injection rate in users/seconds
+ * @param startRate Initial injection rate in users/seconds
+ * @param endRate Final injection rate in users/seconds
  * @param duration Injection duration
  */
-case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) extends InjectionStep {
-  require(r1 > 0 && r2 > 0, "injection rates must be strictly positive values")
+case class RampRateInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends InjectionStep {
+  require(startRate > 0 && endRate > 0, "injection rates must be strictly positive values")
 
-  val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
-  def randomized = PoissonInjection(duration, r1, r2)
+  val users = ((startRate + (endRate - startRate) / 2) * duration.toSeconds).toInt
+
+  def randomized = PoissonInjection(duration, startRate, endRate)
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    if ((r2 - r1).abs < 0.0001)
-      ConstantRateInjection(r1, duration).chain(chained)
+    if ((endRate - startRate).abs < 0.0001)
+      ConstantRateInjection(startRate, duration).chain(chained)
     else {
-      val a = (r2 - r1) / (2 * duration.toSeconds)
-      val b = r1
-      val b2 = r1 * r1
+      val a = (endRate - startRate) / (2 * duration.toSeconds)
+      val b = startRate
+      val b2 = startRate * startRate
 
         def userScheduling(u: Int) = {
           val c = -u

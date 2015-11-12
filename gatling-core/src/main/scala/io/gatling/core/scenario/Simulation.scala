@@ -35,7 +35,7 @@ abstract class Simulation {
   private var _assertions = Seq.empty[Assertion]
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
-  private var _globalThrottling: Option[Throttling] = None
+  private var _globalThrottleSteps: Iterable[ThrottleStep] = Nil
   private var _beforeSteps: List[() => Unit] = Nil
   private var _afterSteps: List[() => Unit] = Nil
 
@@ -78,7 +78,7 @@ abstract class Simulation {
     def throttle(throttleSteps: ThrottleStep*): SetUp = throttle(throttleSteps.toIterable)
 
     def throttle(throttleSteps: Iterable[ThrottleStep]): SetUp = {
-      _globalThrottling = Some(Throttling(throttleSteps))
+      _globalThrottleSteps = throttleSteps
       this
     }
 
@@ -94,19 +94,42 @@ abstract class Simulation {
     }
   }
 
-  private[gatling] def params = {
+  private[gatling] def params(implicit configuration: GatlingConfiguration) = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
     val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
     _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    val scenarioThrottlings: Map[String, Throttling] = _populationBuilders
-      .flatMap(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).toMap
+    val populationBuilders =
+      // [pro]
+      //
+      //
+      //
+      //
+      //
+        // [pro]
+        _populationBuilders
+
+    val scenarioThrottlings: Map[String, Throttling] = populationBuilders.flatMap { scn =>
+
+      val steps = scn.scenarioThrottleSteps
+
+      if (steps.isEmpty)
+        None
+      else
+        Some(scn.scenarioBuilder.name -> Throttling(steps))
+    }.toMap
+
+    val globalThrottling =
+      if (_globalThrottleSteps.isEmpty)
+        None
+      else
+        Some(Throttling(_globalThrottleSteps))
 
     val maxDuration = {
 
-      val globalThrottlingMaxDuration = _globalThrottling.map(_.duration)
+      val globalThrottlingMaxDuration = globalThrottling.map(_.duration)
       val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
 
       _maxDuration.map(List(_)).getOrElse(Nil) ::: globalThrottlingMaxDuration.map(List(_)).getOrElse(Nil) ::: scenarioThrottlingMaxDurations match {
@@ -116,10 +139,10 @@ abstract class Simulation {
     }
 
     SimulationParams(
-      _populationBuilders,
+      populationBuilders,
       _globalProtocols,
       _globalPauseType,
-      Throttlings(_globalThrottling, scenarioThrottlings),
+      Throttlings(globalThrottling, scenarioThrottlings),
       maxDuration,
       _assertions,
       _beforeSteps,

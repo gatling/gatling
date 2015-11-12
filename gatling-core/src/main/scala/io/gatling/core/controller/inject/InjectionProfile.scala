@@ -25,6 +25,6 @@ import io.gatling.commons.util.Collections._
  * @param injectionSteps the number of users that will behave as this scenario says
  */
 case class InjectionProfile(injectionSteps: Iterable[InjectionStep]) {
-  val userCount = injectionSteps.sumBy(_.users)
-  val allUsers = injectionSteps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
+  def userCount: Int = injectionSteps.sumBy(_.users)
+  def allUsers: Iterator[FiniteDuration] = injectionSteps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
 }
