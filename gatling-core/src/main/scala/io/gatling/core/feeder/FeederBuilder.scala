@@ -25,11 +25,13 @@ case class FeederWrapper[T](feeder: Feeder[T]) extends FeederBuilder[T] {
   def build(ctx: ScenarioContext) = feeder
 }
 
-case class RecordSeqFeederBuilder[T](records: IndexedSeq[Record[T]],
-                                     // [pro]
-                                     //
-                                     // [pro]
-                                     strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
+case class RecordSeqFeederBuilder[T](
+  records: IndexedSeq[Record[T]],
+  // [pro]
+  //
+  // [pro]
+  strategy: FeederStrategy = Queue
+) extends FeederBuilder[T] {
 
   def convert(conversion: PartialFunction[(String, T), Any]): RecordSeqFeederBuilder[Any] = {
     val useValueAsIs: PartialFunction[(String, T), Any] = { case (_, value) => value }
@@ -49,7 +51,7 @@ case class RecordSeqFeederBuilder[T](records: IndexedSeq[Record[T]],
     //
     //
     // [pro]
-    strategy.feeder(records, ctx)
+      strategy.feeder(records, ctx)
   }
 
   def queue = copy(strategy = Queue)

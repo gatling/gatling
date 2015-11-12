@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration._
 import scala.math.{ abs, sqrt }
 
+import io.gatling.core.util.Shard
+
 object InjectionStep {
 
   def resolve(injectionSteps: Iterable[InjectionStep])(implicit configuration: io.gatling.core.config.GatlingConfiguration): Iterable[InjectionStep] =
@@ -69,8 +71,50 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
   require(users > 0, "The number of users must be a strictly positive value")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    val interval = duration / users
-    Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ chained.map(_ + duration)
+
+    val durationInSeconds = duration.toSeconds.toInt
+
+    new Iterator[FiniteDuration] {
+
+      private var finished = false
+      private var thisSecond: Int = -1
+      private var thisSecondIterator: Iterator[FiniteDuration] = _
+
+      def moveToNextSecond(): Unit = {
+        thisSecond += 1
+
+        if (thisSecond < durationInSeconds) {
+          val thisSecondUsers = Shard.shard(users, thisSecond, durationInSeconds).length
+          thisSecondIterator = Shard.shards(thisSecondUsers, 1000)
+            .zipWithIndex
+            .flatMap {
+              case (millisUsers, millis) =>
+                if (millisUsers > 0)
+                  Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis) milliseconds)
+                else
+                  Iterator.empty
+            }
+        } else {
+          finished = true
+        }
+      }
+
+      override def hasNext: Boolean =
+        if (finished) {
+          false
+        } else if (thisSecondIterator.hasNext) {
+          true
+        } else {
+          // update thisSecondIterator
+          moveToNextSecond()
+          !finished
+        }
+
+      override def next(): FiniteDuration = thisSecondIterator.next()
+
+      // init
+      moveToNextSecond()
+    }
   }
 }
 
@@ -78,10 +122,9 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
  * Inject users at constant rate : an other expression of a RampInjection
  */
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
-  val users = (duration.toSeconds * rate).toInt
-  val ramp = RampInjection(users, duration)
+  val users = math.round(duration.toSeconds * rate).toInt
   def randomized = PoissonInjection(duration, rate, rate)
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(chained)
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = RampInjection(users, duration).chain(chained)
 }
 
 /**
