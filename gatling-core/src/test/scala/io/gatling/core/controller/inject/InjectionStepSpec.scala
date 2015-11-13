@@ -22,6 +22,8 @@ import io.gatling.BaseSpec
 class InjectionStepSpec extends BaseSpec {
 
   val ramp = RampInjection(5, 1 second)
+  val rampScheduling = ramp.chain(Iterator.empty).toList
+
   "RampInjection" should "return the correct number of users" in {
     ramp.users shouldBe 5
   }
@@ -30,9 +32,8 @@ class InjectionStepSpec extends BaseSpec {
     ramp.duration shouldBe (1 second)
   }
 
-  val rampScheduling = ramp.chain(Iterator.empty).toList
-
   it should "schedule with a correct interval" in {
+
     val interval0 = rampScheduling(1) - rampScheduling.head
     val interval1 = rampScheduling(2) - rampScheduling(1)
 
@@ -52,7 +53,7 @@ class InjectionStepSpec extends BaseSpec {
 
   "ConstantRateInjection" should "return the correct number of users" in {
     ConstantRateInjection(1.0, 5 seconds).users shouldBe 5
-    ConstantRateInjection(0.4978, 100 seconds).users shouldBe 49
+    ConstantRateInjection(0.4978, 100 seconds).users shouldBe 50
   }
 
   val waiting = NothingForInjection(1 second)
@@ -86,6 +87,8 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   val rampRate = RampRateInjection(2, 4, 10 seconds)
+  val rampRateScheduling = rampRate.chain(Iterator.empty).toList
+
   "RampRateInjection" should "return the correct injection duration" in {
     rampRate.duration shouldBe (10 seconds)
   }
@@ -94,15 +97,13 @@ class InjectionStepSpec extends BaseSpec {
     rampRate.users shouldBe 30
   }
 
-  val rampRateScheduling = rampRate.chain(Iterator.empty).toList
-
   it should "provides an injection scheduling with the correct number of elements" in {
     rampRateScheduling.length shouldBe rampRate.users
   }
 
   it should "provides an injection scheduling with the correct values" in {
     rampRateScheduling.head shouldBe Duration.Zero
-    rampRateScheduling(1) shouldBe (488 milliseconds)
+    rampRateScheduling(1) shouldBe (500 milliseconds)
   }
 
   val constantRampRate = RampRateInjection(1.0, 1.0, 10 seconds)
@@ -191,5 +192,4 @@ class InjectionStepSpec extends BaseSpec {
     scheduling.head.toMillis shouldBe 0L +- 200L
     scheduling(7500).toMillis shouldBe 30000L +- 1000L // Half-way through ramp-up we should have run a quarter of users
   }
-
 }

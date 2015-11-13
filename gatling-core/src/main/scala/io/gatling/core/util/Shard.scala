@@ -16,10 +16,11 @@
 package io.gatling.core.util
 
 object Shard {
+
   def shard(total: Int, nodeId: Int, nodeCount: Int): Shard =
-    if (nodeCount == 1)
+    if (nodeCount == 1) {
       Shard(0, total)
-    else {
+    } else {
       val largeBucketCount = total % nodeCount
       val smallBucketSize = total / nodeCount
       val largeBucketSize = smallBucketSize + 1
@@ -31,12 +32,36 @@ object Shard {
         Shard(largeBucketCount * largeBucketSize + (nodeId - largeBucketCount) * smallBucketSize, smallBucketSize)
     }
 
+  private def interleave(largestCount: Long, largestValue: Long, smallestCount: Long, smallestValue: Long, totalCount: Int): Iterator[Long] = {
+    // assume more small than large
+    val smallForLargeRatio = (largestCount / smallestCount).toInt
+    val interleavedSmallAndLargeCount1 = totalCount / (smallForLargeRatio + 1)
+    val interleavedSmallAndLargeCount2 = (totalCount % (smallForLargeRatio + 1)) / (smallForLargeRatio + 2)
+
+    (Iterator.fill(interleavedSmallAndLargeCount1)(Iterator.single(smallestValue) ++ Iterator.fill(smallForLargeRatio)(largestValue)) ++
+      Iterator.fill(interleavedSmallAndLargeCount2)(Iterator.single(smallestValue) ++ Iterator.fill(smallForLargeRatio + 1)(largestValue))).flatten
+  }
+
   def shards(total: Long, nodeCount: Int): Iterator[Long] = {
-    val largeBucketCount = total % nodeCount
+
     val smallBucketSize = total / nodeCount
     val largeBucketSize = smallBucketSize + 1
 
-    Iterator.fill(largeBucketCount.toInt)(largeBucketSize) ++ Iterator.fill((total - largeBucketCount).toInt)(smallBucketSize)
+    val largeBucketCount = total % nodeCount
+    val smallBucketCount = nodeCount - largeBucketCount
+
+    if (largeBucketCount == 0) {
+      Iterator.fill(smallBucketCount.toInt)(smallBucketSize)
+
+    } else if (smallBucketCount == 0) {
+      Iterator.fill(largeBucketCount.toInt)(largeBucketSize)
+
+    } else if (smallBucketCount > largeBucketCount) {
+      interleave(smallBucketCount, smallBucketSize, largeBucketCount, largeBucketSize, nodeCount)
+
+    } else {
+      interleave(largeBucketCount, largeBucketSize, smallBucketCount, smallBucketSize, nodeCount)
+    }
   }
 }
 

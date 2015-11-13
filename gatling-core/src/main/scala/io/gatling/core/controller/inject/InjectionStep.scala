@@ -19,7 +19,7 @@ import java.util.Random
 import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration._
-import scala.math.{ abs, sqrt }
+import scala.math.abs
 
 import io.gatling.core.util.Shard
 
@@ -64,6 +64,61 @@ sealed trait InjectionStep {
   def users: Int
 }
 
+abstract class InjectionIterator(durationInSeconds: Int) extends Iterator[FiniteDuration] {
+
+  private var finished = false
+  private var thisSecond: Int = -1
+  private var thisSecondIterator: Iterator[FiniteDuration] = Iterator.empty
+
+  protected def thisSecondUsers(thisSecond: Int): Int
+
+  private def moveToNextSecond(): Unit = {
+    while (!finished) {
+
+      thisSecond += 1
+
+      if (thisSecond == durationInSeconds) {
+        finished = true
+        thisSecondIterator = Iterator.empty
+      } else {
+        val users = thisSecondUsers(thisSecond)
+
+        if (users > 0) {
+          thisSecondIterator = Shard.shards(users, 1000)
+            .zipWithIndex
+            .flatMap {
+              case (millisUsers, millis) =>
+                if (millisUsers > 0)
+                  Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis) milliseconds)
+                else
+                  Iterator.empty
+            }
+          return
+        }
+      }
+    }
+  }
+
+  override def hasNext(): Boolean =
+    if (finished) {
+      false
+    } else if (thisSecondIterator.hasNext) {
+      true
+    } else {
+      // update thisSecondIterator
+      do {
+        moveToNextSecond()
+      } while (!finished && !thisSecondIterator.hasNext)
+
+      !finished
+    }
+
+  override def next(): FiniteDuration = thisSecondIterator.next()
+
+  // init
+  hasNext()
+}
+
 /**
  * Ramp a given number of users over a given duration
  */
@@ -74,47 +129,9 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
 
     val durationInSeconds = duration.toSeconds.toInt
 
-    new Iterator[FiniteDuration] {
-
-      private var finished = false
-      private var thisSecond: Int = -1
-      private var thisSecondIterator: Iterator[FiniteDuration] = _
-
-      def moveToNextSecond(): Unit = {
-        thisSecond += 1
-
-        if (thisSecond < durationInSeconds) {
-          val thisSecondUsers = Shard.shard(users, thisSecond, durationInSeconds).length
-          thisSecondIterator = Shard.shards(thisSecondUsers, 1000)
-            .zipWithIndex
-            .flatMap {
-              case (millisUsers, millis) =>
-                if (millisUsers > 0)
-                  Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis) milliseconds)
-                else
-                  Iterator.empty
-            }
-        } else {
-          finished = true
-        }
-      }
-
-      override def hasNext: Boolean =
-        if (finished) {
-          false
-        } else if (thisSecondIterator.hasNext) {
-          true
-        } else {
-          // update thisSecondIterator
-          moveToNextSecond()
-          !finished
-        }
-
-      override def next(): FiniteDuration = thisSecondIterator.next()
-
-      // init
-      moveToNextSecond()
-    }
+    new InjectionIterator(durationInSeconds) {
+      override protected def thisSecondUsers(thisSecond: Int): Int = Shard.shard(users, thisSecond, durationInSeconds).length
+    } ++ chained.map(_ + duration)
   }
 }
 
@@ -146,9 +163,6 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
 }
 
 /**
- * The injection scheduling follows this equation
- * u = r1*t + (r2-r1)/(2*duration)*t²
- *
  * @param startRate Initial injection rate in users/seconds
  * @param endRate Final injection rate in users/seconds
  * @param duration Injection duration
@@ -161,23 +175,25 @@ case class RampRateInjection(startRate: Double, endRate: Double, duration: Finit
   def randomized = PoissonInjection(duration, startRate, endRate)
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    if ((endRate - startRate).abs < 0.0001)
-      ConstantRateInjection(startRate, duration).chain(chained)
-    else {
-      val a = (endRate - startRate) / (2 * duration.toSeconds)
-      val b = startRate
-      val b2 = startRate * startRate
 
-        def userScheduling(u: Int) = {
-          val c = -u
-          val delta = b2 - 4 * a * c
+    val durationInSeconds = duration.toSeconds.toInt
+    val a: Double = (endRate - startRate) / (2 * durationInSeconds)
 
-          val t = (-b + sqrt(delta)) / (2 * a)
-          (t * 1000).toLong.milliseconds
-        }
+    new InjectionIterator(durationInSeconds) {
 
-      Iterator.range(0, users).map(userScheduling) ++ chained.map(_ + duration)
-    }
+      var pendingFraction: Double = 0d
+
+      override protected def thisSecondUsers(thisSecond: Int): Int = {
+        val thisSecondUsersDouble = a * (2 * thisSecond + 1) + startRate + pendingFraction
+        val thisSecondUsersIntValue = thisSecondUsersDouble.toInt
+        pendingFraction = thisSecondUsersDouble - thisSecondUsersIntValue
+
+        if (thisSecond + 1 == durationInSeconds)
+          thisSecondUsersIntValue + math.round(pendingFraction).toInt
+        else
+          thisSecondUsersIntValue
+      }
+    } ++ chained.map(_ + duration)
   }
 }
 
@@ -222,7 +238,7 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
 case class HeavisideInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 
   override def chain(chained: Iterator[FiniteDuration]) = {
-      def heavisideInv(u: Int) = {
+      def heavisideInv(u: Int): Double = {
         val x = u.toDouble / (users + 2)
         Erf.erfinv(2 * x - 1)
       }
