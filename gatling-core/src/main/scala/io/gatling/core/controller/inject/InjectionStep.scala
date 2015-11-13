@@ -18,6 +18,7 @@ package io.gatling.core.controller.inject
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
+import scala.collection.AbstractIterator
 import scala.concurrent.duration._
 import scala.math.abs
 
@@ -64,7 +65,7 @@ sealed trait InjectionStep {
   def users: Int
 }
 
-abstract class InjectionIterator(durationInSeconds: Int) extends Iterator[FiniteDuration] {
+abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterator[FiniteDuration] {
 
   private var finished = false
   private var thisSecond: Int = -1
