@@ -26,13 +26,10 @@ object BuildSettings {
   )
 
   val developers = Seq(
-    GatlingDeveloper("slandelle@excilys.com", "Stephane Landelle", true),
+    GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", true),
     GatlingDeveloper("nremond@gmail.com", "Nicolas Rémond", false),
-    GatlingDeveloper("pdalpra@excilys.com", "Pierre Dal-Pra", false),
-    GatlingDeveloper("aduffy@gilt.com", "Andrew Duffy", false),
-    GatlingDeveloper("jasonk@bluedevel.com", "Jason Koch", false),
-    GatlingDeveloper("ivan.mushketik@gmail.com", "Ivan Mushketyk", false),
-    GatlingDeveloper("gcorre@excilys.com", "Guillaume Corré", true)
+    GatlingDeveloper("pdalpra@gatling.io", "Pierre Dal-Pra", false),
+    GatlingDeveloper("gcorre@gatling.io", "Guillaume Corré", true)
   )
 
   /****************************/
