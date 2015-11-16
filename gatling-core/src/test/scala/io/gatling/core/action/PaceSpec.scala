@@ -22,6 +22,8 @@ import io.gatling.core.Predef.value2Expression
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
+import akka.testkit._
+
 class PaceSpec extends AkkaSpec {
 
   "pace" should "run actions with a minimum wait time" in {
@@ -48,7 +50,7 @@ class PaceSpec extends AkkaSpec {
     val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Wait 3 seconds - simulate overrunning action
-    Thread.sleep(3000L)
+    Thread.sleep(3.seconds.dilated.toMillis)
 
     // Send second session, expect response near-instantly
     instance ! session1
