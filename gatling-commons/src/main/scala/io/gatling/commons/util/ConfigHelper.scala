@@ -29,4 +29,12 @@ object ConfigHelper {
    */
   def configChain(config: Config, fallbacks: Config*) =
     fallbacks.foldLeft(config)(_ withFallback _).resolve
+
+  implicit class PimpedConfig(val config: Config) extends AnyVal {
+
+    def withChild[T](path: String)(f: Config => T) = f(config.getConfig(path))
+
+    def getStringOption(path: String): Option[String] =
+      if (config.hasPath(path)) Some(config.getString(path)) else None
+  }
 }
