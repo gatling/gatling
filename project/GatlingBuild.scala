@@ -20,7 +20,7 @@ object GatlingBuild extends Build {
     .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
     .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
-    .settings(noCodeToPublish: _*)
+    .settings(noArtifactToPublish)
     .settings(docSettings(bundle): _*)
     .settings(libraryDependencies ++= docDependencies)
 
@@ -89,5 +89,5 @@ object GatlingBuild extends Build {
     .settings(generateConfigFiles(recorder): _*)
     .settings(copyLogbackXml(core): _*)
     .settings(bundleSettings: _*)
-    .settings(noCodeToPublish: _*)
+    .settings(noArtifactToPublish)
 }

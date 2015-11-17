@@ -16,20 +16,31 @@ object BuildSettings {
     license := ApacheV2,
     githubPath := "gatling/gatling",
     projectDevelopers := developers
+    // [pro]
+    //
+    //
+    // [pro]
   )
 
   lazy val gatlingModuleSettings =
     basicSettings ++ scaladocSettings
 
-  lazy val noCodeToPublish = Seq(
+  lazy val noArtifactToPublish =
     publishArtifact in Compile := false
-  )
+
+  // [pro]
+  //
+  //
+  //
+  //
+  //
+  // [pro]
 
   val developers = Seq(
-    GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", true),
-    GatlingDeveloper("nremond@gmail.com", "Nicolas Rémond", false),
-    GatlingDeveloper("pdalpra@gatling.io", "Pierre Dal-Pra", false),
-    GatlingDeveloper("gcorre@gatling.io", "Guillaume Corré", true)
+    GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", isGatlingCorp = true),
+    GatlingDeveloper("nremond@gmail.com", "Nicolas Rémond", isGatlingCorp = false),
+    GatlingDeveloper("pdalpra@gatling.io", "Pierre Dal-Pra", isGatlingCorp = false),
+    GatlingDeveloper("gcorre@gatling.io", "Guillaume Corré", isGatlingCorp = true)
   )
 
   /****************************/
@@ -55,9 +66,9 @@ object BuildSettings {
     javaOptions in Test := Seq("-DGATLING_HOME=gatling-charts") // Allows FileDataReaderSpec to run
   )
 
-  lazy val excludeDummyComponentLibrary =  Seq(
+  lazy val excludeDummyComponentLibrary = Seq(
     mappings in (Compile, packageBin) := {
-      val compiledClassesMappings = (mappings in (Compile, packageBin)).value 
+      val compiledClassesMappings = (mappings in (Compile, packageBin)).value
       compiledClassesMappings.filter { case (file, path) => !path.contains("io/gatling/charts/component/impl") }
     }
   )
