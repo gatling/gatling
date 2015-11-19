@@ -30,7 +30,7 @@ import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
 import org.asynchttpclient.handler._
-import org.asynchttpclient.netty.LazyNettyResponseBodyPart
+import org.asynchttpclient.netty.LazyResponseBodyPart
 import io.netty.handler.codec.http.HttpResponseStatus.OK
 import org.asynchttpclient.netty.request.NettyRequest
 
@@ -78,7 +78,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
     if (done.get) {
       ABORT
     } else {
-      val payload = bodyPart.asInstanceOf[LazyNettyResponseBodyPart].getBuf.toString(UTF_8)
+      val payload = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf.toString(UTF_8)
       parse(payload)
       CONTINUE
     }

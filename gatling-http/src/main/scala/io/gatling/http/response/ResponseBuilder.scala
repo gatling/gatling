@@ -35,7 +35,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ HttpHeaders, DefaultHttpHeaders }
 import org.asynchttpclient._
 import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.netty.LazyNettyResponseBodyPart
+import org.asynchttpclient.netty.LazyResponseBodyPart
 
 object ResponseBuilder extends StrictLogging {
 
@@ -138,7 +138,7 @@ class ResponseBuilder(
 
     updateEndTimestamp()
 
-    val byteBuf = bodyPart.asInstanceOf[LazyNettyResponseBodyPart].getBuf
+    val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
 
     if (byteBuf.readableBytes > 0) {
       if (storeBodyParts || storeHtmlOrCss) {
