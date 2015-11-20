@@ -103,13 +103,15 @@ HTTP Client Sharing
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
 Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
 
-.. _http-protocol-dns-sharing:
+.. _http-protocol-name-resolution:
 
-DNS Cache Sharing
------------------
+Name Resolution
+---------------
 
-By default, Gatling will have one DNS cache per virtual user.
-This can be tuned with the ``.shareDnsCache`` param so all virtual users share the same DNS cache.
+By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
+
+One can change this behaviour and set `.perUserNameResolution`` so all virtual users resolve names on their own.
+This feature is experimental, but will become the default in future versions.
 
 .. _http-protocol-virtual-host:
 
