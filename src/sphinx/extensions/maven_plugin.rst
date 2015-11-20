@@ -64,7 +64,20 @@ The example below shows the default values.
   <!--   <failOnError>true</failOnError> -->
   </configuration>
 
-See `source code <https://github.com/gatling/gatling-maven/blob/master/gatling-maven-plugin/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation.
+Please check `source code <https://github.com/gatling/gatling-maven/blob/master/gatling-maven-plugin/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for all,possible options.
+
+Coexisting with scala-maven-plugin
+==================================
+
+If you decide to turn your maven project into a full blown Scala and use the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_,
+depending on how you run your maven tasks, you might end up compiling your simulations twice: once by the scala-maven-plugin, and once by the gatling-maven-plugin.
+
+If so, you can disable the gatling-maven-plugin compiling phase::
+
+  <configuration>
+    <disableCompiler>true</disableCompiler>
+  </configuration>
+
 
 Override the logback.xml file
 =============================
