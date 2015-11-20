@@ -284,6 +284,9 @@ Typically used after capturing a whole form with a ``form`` check.
 
 You can override the form field values with the ``formParam`` and the likes.
 
+.. note:: Gatling will automatically set the `Content-Type` header for you if you didn't specify one.
+          It will use `application/x-www-form-urlencoded` except if there's also some body parts, in which case it will set `multipart/form-data`.
+
 .. _http-multipart-form:
 
 Multipart Form
@@ -298,6 +301,8 @@ The uploaded file must be located in ``user-files/bodies``. The ``Content-Type``
 One can call ``formUpload()`` multiple times in order to upload multiple files.
 
 .. includecode:: code/HttpRequest.scala#formUpload
+
+.. note:: Gatling will automatically set the `Content-Type` header to `multipart/form-data` if you didn't specify one.
 
 .. note:: The MIME Type of the uploaded file defaults to ``application/octet-stream`` and the character set defaults to the one configured in ``gatling.conf`` (``UTF-8`` by default).
           Don't forget to override them when needed.
