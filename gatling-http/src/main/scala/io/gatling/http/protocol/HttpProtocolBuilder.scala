@@ -58,7 +58,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   // enginePart
   def disableClientSharing = this.modify(_.protocol.enginePart.shareClient).setTo(false)
   def shareConnections = this.modify(_.protocol.enginePart.shareConnections).setTo(true)
-  def shareDnsCache = this.modify(_.protocol.enginePart.shareDnsCache).setTo(true)
+  def perUserNameResolution = this.modify(_.protocol.enginePart.perUserNameResolution).setTo(true)
   def virtualHost(virtualHost: Expression[String]) = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
   def localAddress(localAddress: Expression[InetAddress]) = this.modify(_.protocol.enginePart.localAddress).setTo(Some(localAddress))
   def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)

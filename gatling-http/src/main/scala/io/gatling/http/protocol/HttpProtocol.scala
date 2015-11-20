@@ -67,7 +67,7 @@ object HttpProtocol extends StrictLogging {
       enginePart = HttpProtocolEnginePart(
         shareClient = true,
         shareConnections = false,
-        shareDnsCache = false,
+        perUserNameResolution = false,
         maxConnectionsPerHost = 6,
         virtualHost = None,
         localAddress = None
@@ -153,7 +153,7 @@ case class HttpProtocolEnginePart(
   shareClient:           Boolean,
   shareConnections:      Boolean,
   maxConnectionsPerHost: Int,
-  shareDnsCache:         Boolean,
+  perUserNameResolution: Boolean,
   virtualHost:           Option[Expression[String]],
   localAddress:          Option[Expression[InetAddress]]
 )

@@ -58,7 +58,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     }
 
   def configureNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    if (!protocol.enginePart.shareDnsCache) {
+    if (protocol.enginePart.perUserNameResolution) {
       requestBuilder.setNameResolver(httpCaches.dnsLookupCacheEntry(session))
     }
     requestBuilder

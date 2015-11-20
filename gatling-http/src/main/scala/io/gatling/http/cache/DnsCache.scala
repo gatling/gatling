@@ -33,10 +33,10 @@ trait DnsCache {
   def configuration: GatlingConfiguration
 
   def cacheDnsLookup(httpProtocol: HttpProtocol, nameResolver: NameResolver): Session => Session =
-    if (httpProtocol.enginePart.shareDnsCache)
-      Session.Identity
-    else
+    if (httpProtocol.enginePart.perUserNameResolution)
       _.set(DnsCacheAttributeName, nameResolver)
+    else
+      Session.Identity
 
   def dnsLookupCacheEntry(session: Session): NameResolver =
     session(DnsCacheAttributeName).asOption[NameResolver].getOrElse(new DnsJavaNameResolver)
