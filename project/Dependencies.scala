@@ -11,7 +11,8 @@ object Dependencies {
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                    % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"     % "1.0.4"
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.0-alpha24"
-  private val netty4                        = "io.netty"                               % "netty-codec-http"             % "4.0.33.Final"
+  private val netty                         = "io.netty"                               % "netty-codec-http"             % "4.0.33.Final"
+  private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll" % netty.revision classifier "linux-x86_64"
   private val dnsJava                       = "dnsjava"                                % "dnsjava"                      % "2.1.7"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.0"
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
@@ -67,7 +68,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, dnsJava, scalaXml) ++ testDeps
+  val httpDependencies = Seq(ahc, nettyNativeTransport, dnsJava, scalaXml) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, activemqCore) ++ testDeps
 
@@ -80,7 +81,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty4) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
