@@ -32,7 +32,7 @@ import org.xbill.DNS.Address._
 
 import scala.util.control.NonFatal
 
-case class DnsCacheEntry(address: InetSocketAddress, expires: Long)
+case class DnsCacheEntry(address: InetSocketAddress, expires: Long = Long.MaxValue)
 
 class DnsJavaNameResolver extends NameResolver with LazyLogging {
 
@@ -56,13 +56,13 @@ class DnsJavaNameResolver extends NameResolver with LazyLogging {
 
   private def doResolve(name: String, port: Int): Seq[DnsCacheEntry] =
     name match {
-      case "localhost" => Seq(DnsCacheEntry(new InetSocketAddress(InetAddress.getLoopbackAddress, port), Long.MaxValue))
+      case "localhost" => Seq(DnsCacheEntry(new InetSocketAddress(InetAddress.getLoopbackAddress, port)))
       case _ => try {
         getAddressesByName(name, port)
       } catch {
         case NonFatal(e) =>
           logger.warn(s"Failed to resolve address of name $name with DNS, resolving to JDK as address could be mapped locally")
-          InetAddress.getAllByName(name).map(address => DnsCacheEntry(new InetSocketAddress(address, port), Long.MaxValue))
+          InetAddress.getAllByName(name).map(address => DnsCacheEntry(new InetSocketAddress(address, port)))
       }
     }
 
@@ -71,13 +71,18 @@ class DnsJavaNameResolver extends NameResolver with LazyLogging {
     toByteArray(name, IPv4) match {
       case null => toByteArray(name, IPv6) match {
         case null      => lookupHostNameAddresses(name, port)
-        case ipV6Bytes => Seq(newDnsCacheEntry(name, ipV6Bytes, port, Long.MaxValue))
+        case ipV6Bytes => Seq(newDnsCacheEntry(name, ipV6Bytes, port))
       }
-      case ipV4Bytes => Seq(newDnsCacheEntry(name, ipV4Bytes, port, Long.MaxValue))
+      case ipV4Bytes => Seq(newDnsCacheEntry(name, ipV4Bytes, port))
     }
 
-  private def newDnsCacheEntry(name: String, address: Array[Byte], port: Int, ttl: Long): DnsCacheEntry =
-    new DnsCacheEntry(new InetSocketAddress(InetAddress.getByAddress(name, address), port), nowMillis + ttl * 1000L)
+  private def newDnsCacheEntry(name: String, address: Array[Byte], port: Int, ttl: Option[Long] = None): DnsCacheEntry = {
+    val inetSocketAddress = new InetSocketAddress(InetAddress.getByAddress(name, address), port)
+    ttl match {
+      case None    => DnsCacheEntry(inetSocketAddress)
+      case Some(t) => DnsCacheEntry(inetSocketAddress, nowMillis + t * 1000L)
+    }
+  }
 
   @throws(classOf[UnknownHostException])
   private def lookupHostNameAddresses(name: String, port: Int): Seq[DnsCacheEntry] =
@@ -88,12 +93,12 @@ class DnsJavaNameResolver extends NameResolver with LazyLogging {
           case Lookup.TYPE_NOT_FOUND =>
             new Lookup(name, Type.AAAA).run match {
               case null => throw new UnknownHostException("unknown host")
-              case rec  => rec.collect { case aaaa: AAAARecord => newDnsCacheEntry(name, aaaa.getAddress.getAddress, port, aaaa.getTTL) }
+              case rec  => rec.collect { case aaaa: AAAARecord => newDnsCacheEntry(name, aaaa.getAddress.getAddress, port, Some(aaaa.getTTL)) }
             }
           case _ => throw new UnknownHostException("unknown host")
         }
 
-        case rec => rec.collect { case a: ARecord => newDnsCacheEntry(name, a.getAddress.getAddress, port, a.getTTL) }
+        case rec => rec.collect { case a: ARecord => newDnsCacheEntry(name, a.getAddress.getAddress, port, Some(a.getTTL)) }
       }
     } catch {
       case e: TextParseException => throw new UnknownHostException("invalid name")
