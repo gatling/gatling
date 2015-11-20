@@ -77,6 +77,6 @@ class HostsFileParserSpec extends BaseSpec {
   it should "throw away invalid addresses after conversion to arrays of bytes" in {
     val source = Source.fromString(sample3)
 
-    asByteArray(parse(source)).keys shouldBe Set("pi0")
+    asInetAddress(parse(source)).keys shouldBe Set("pi0")
   }
 }

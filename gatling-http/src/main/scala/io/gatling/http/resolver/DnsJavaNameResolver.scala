@@ -36,6 +36,8 @@ case class DnsCacheEntry(address: InetSocketAddress, expires: Long = Long.MaxVal
 
 class DnsJavaNameResolver extends NameResolver with LazyLogging {
 
+  private val hostAliases = HostsFileParser.nameToAddress
+
   private val cache = new ConcurrentHashMap[String, Seq[DnsCacheEntry]]()
 
   override def resolve(name: String, port: Int): Future[JList[InetSocketAddress]] = {
@@ -55,15 +57,9 @@ class DnsJavaNameResolver extends NameResolver with LazyLogging {
   }
 
   private def doResolve(name: String, port: Int): Seq[DnsCacheEntry] =
-    name match {
-      case "localhost" => Seq(DnsCacheEntry(new InetSocketAddress(InetAddress.getLoopbackAddress, port)))
-      case _ => try {
-        getAddressesByName(name, port)
-      } catch {
-        case NonFatal(e) =>
-          logger.warn(s"Failed to resolve address of name $name with DNS, resolving to JDK as address could be mapped locally")
-          InetAddress.getAllByName(name).map(address => DnsCacheEntry(new InetSocketAddress(address, port)))
-      }
+    hostAliases.get(name) match {
+      case Some(inetAddress) => Seq(DnsCacheEntry(new InetSocketAddress(inetAddress, port)))
+      case _                 => getAddressesByName(name, port)
     }
 
   @throws(classOf[UnknownHostException])

@@ -15,6 +15,8 @@
  */
 package io.gatling.http.resolver
 
+import java.net.InetAddress
+
 import scala.io.Source
 import scala.util.{ Failure, Success, Try }
 
@@ -27,7 +29,7 @@ object HostsFileParser {
 
   private def tryHostsFile: Try[Source] = {
     val path =
-      if (PlatformDependent.isWindows) "C:\\Windows\\system32\\drivers\\etc\\hosts"
+      if (PlatformDependent.isWindows) """C:\Windows\system32\drivers\etc\hosts"""
       else "/etc/hosts"
 
     Try(Source.fromFile(path))
@@ -50,18 +52,22 @@ object HostsFileParser {
       case ipV4Bytes => ipV4Bytes
     }
 
-  private[resolver] def asByteArray(addressesByHost: Map[String, String]): Map[String, Array[Byte]] = {
+  private[resolver] def asInetAddress(addressesByHost: Map[String, String]): Map[String, InetAddress] = {
 
     import Maps._
 
-    addressesByHost.forceMapValues(addressToByteArray).filter {
-      case (_, address) => address != null
+    addressesByHost.forceMapValues(addressToByteArray).collect {
+      case (host, address) if address != null => host -> InetAddress.getByAddress(host, address)
     }
   }
 
-  def nameToAddress: Map[String, Array[Byte]] =
-    tryHostsFile match {
-      case Failure(_)      => Map.empty
-      case Success(source) => asByteArray(parse(source))
+  def nameToAddress: Map[String, InetAddress] = {
+
+    val aliases = tryHostsFile match {
+      case Failure(_)      => Map.empty[String, InetAddress]
+      case Success(source) => asInetAddress(parse(source))
     }
+
+    aliases.updated("localhost", InetAddress.getLoopbackAddress)
+  }
 }
