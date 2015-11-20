@@ -75,17 +75,13 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
           case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
         }
 
-      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] = {
-        if (!commonAttributes.headers.contains(HeaderNames.ContentType))
-          requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
-
+      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
         bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
           for {
             requestBuilder <- requestBuilder
             part <- part.toMultiPart(session)
           } yield requestBuilder.addBodyPart(part)
         }
-      }
 
     httpAttributes.body match {
       case Some(body) => setBody(body)
@@ -95,6 +91,17 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         case bodyParts => setBodyParts(bodyParts)
       }
     }
+  }
+
+  override protected def addDefaultHeaders(session: Session, headers: Map[String, Expression[String]])(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+    super.addDefaultHeaders(session, headers)(requestBuilder)
+    if (!headers.contains(HeaderNames.ContentType)) {
+      if (httpAttributes.bodyParts.nonEmpty)
+        requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
+      else if (httpAttributes.formParams.nonEmpty)
+        requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.ApplicationFormUrlEncoded)
+    }
+    requestBuilder
   }
 
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =

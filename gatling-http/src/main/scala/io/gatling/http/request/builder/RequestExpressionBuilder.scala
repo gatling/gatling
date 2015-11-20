@@ -89,6 +89,13 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       case Some(virtualHost) => virtualHost(session).map(requestBuilder.setVirtualHost)
     }
 
+  protected def addDefaultHeaders(session: Session, headers: Map[String, Expression[String]])(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+    if (!headers.contains(HeaderNames.Referer)) {
+      RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HeaderNames.Referer, _))
+    }
+    requestBuilder
+  }
+
   def configureHeaders(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
 
     val headers = protocol.requestPart.headers ++ commonAttributes.headers
@@ -101,16 +108,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       } yield requestBuilder.addHeader(key, value)
     }
 
-    val additionalRefererHeader =
-      if (headers.contains(HeaderNames.Referer))
-        None
-      else
-        RefererHandling.getStoredReferer(session)
-
-    additionalRefererHeader match {
-      case Some(referer) => requestBuilderWithHeaders.map(_.addHeader(HeaderNames.Referer, referer))
-      case _             => requestBuilderWithHeaders
-    }
+    requestBuilderWithHeaders.map(addDefaultHeaders(session, headers))
   }
 
   def configureRealm(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
