@@ -85,13 +85,14 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
     val injections = streams.values.map(withStream(_, batchWindow, startTime)(injectUser))
     val totalCount = injections.sumBy(_.count)
     val totalContinue = injections.exists(_.continue)
+    logger.debug(s"Injecting $totalCount users")
     Injection(totalCount, totalContinue)
   }
 
   private def startUser(scenario: Scenario, userId: Long): Unit = {
     val session = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
     scenario.entry ! session
-    logger.info(s"Start user #${session.userId}")
+    logger.debug(s"Start user #${session.userId}")
     val userStart = UserMessage(session, io.gatling.core.stats.message.Start, session.startDate)
     statsEngine.logUser(userStart)
   }

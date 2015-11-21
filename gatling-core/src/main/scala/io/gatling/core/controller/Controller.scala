@@ -64,15 +64,18 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
   }
 
   when(Started) {
-    case Event(UserMessage(_, End, _), startedData: StartedData) =>
+    case Event(UserMessage(session, End, _), startedData: StartedData) =>
+      logger.debug(s"End user #${session.userId}")
       startedData.userCounts.completed += 1
       evaluateUserCounts(startedData)
 
     case Event(InjectionStopped(expectedCount), startedData: StartedData) =>
+      logger.info("InjectionStopped")
       startedData.userCounts.expected = expectedCount
       evaluateUserCounts(startedData)
 
     case Event(ForceStop(exception), startedData: StartedData) =>
+      logger.info("ForceStop")
       stop(startedData, exception)
   }
 
@@ -84,6 +87,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
   private def stop(startedData: StartedData, exception: Option[Throwable]): State = {
     cancelTimer(maxDurationTimer)
+    logger.info("Asking StatsEngine to stop")
     statsEngine.stop(self)
     goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
   }
@@ -92,6 +96,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
   when(WaitingForResourcesToStop) {
     case Event(StatsEngineStopped, endData: EndData) =>
+      logger.info("StatsEngineStopped")
       endData.initData.launcher ! replyToLauncher(endData)
       goto(Stopped) using NoData
 
