@@ -15,6 +15,7 @@
  */
 package io.gatling.core.session
 
+import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
@@ -119,7 +120,19 @@ case class Session(
       })
   }
 
-  def groupHierarchy: List[String] = blockStack.collectFirst { case g: GroupBlock => g.hierarchy }.getOrElse(Nil)
+  def groupHierarchy: List[String] = {
+
+    @tailrec
+    def gh(blocks: List[Block]): List[String] = blocks match {
+      case Nil => Nil
+      case head :: tail => head match {
+        case g: GroupBlock => g.hierarchy
+        case _ => gh(tail)
+      }
+    }
+
+    gh(blockStack)
+  }
 
   private[gatling] def enterTryMax(counterName: String, loopActor: ActorRef) =
     copy(blockStack = TryMaxBlock(counterName, loopActor) :: blockStack).initCounter(counterName)
