@@ -35,12 +35,17 @@ object HttpTx extends ActorNames with StrictLogging {
 
     val requestPart = request.config.httpComponents.httpProtocol.requestPart
 
+      def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
+        case Some(silentUri) => silentUri.matcher(request.ahcRequest.getUrl).matches
+        case None            => false
+      }
+
       def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
 
-      def silentBecauseProtocolSilentURI: Option[Boolean] = requestPart.silentURI
-        .map(_.matcher(request.ahcRequest.getUrl).matches)
-
-    request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
+    request.config.silent match {
+      case None         => silentBecauseProtocolSilentURI || silentBecauseProtocolSilentResources
+      case Some(silent) => silent
+    }
   }
 
   private def startWithCache(origTx: HttpTx, ctx: ActorContext, httpComponents: HttpComponents)(f: HttpTx => Unit): Unit = {
