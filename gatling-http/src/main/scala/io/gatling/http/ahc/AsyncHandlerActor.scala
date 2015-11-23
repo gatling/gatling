@@ -197,14 +197,16 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         val originalRequest = tx.request.ahcRequest
         val originalMethod = originalRequest.getMethod
 
+        val switchToGet = originalMethod != GET.name && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
+        val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
+
         val newHeaders = originalRequest.getHeaders
           .remove(HeaderNames.Host)
           .remove(HeaderNames.ContentLength)
           .remove(HeaderNames.Cookie)
-          .remove(HeaderNames.ContentType)
 
-        val switchToGet = originalMethod != GET.name && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
-        val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
+        if (!keepBody)
+          newHeaders.remove(HeaderNames.ContentType)
 
         val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET.name else originalMethod, false)
           .setUri(redirectUri)
