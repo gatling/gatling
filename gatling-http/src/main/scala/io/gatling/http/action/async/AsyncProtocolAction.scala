@@ -21,6 +21,9 @@ import akka.actor.ActorRef
 
 trait AsyncProtocolAction {
 
+  // import optimized TypeCaster
+  import io.gatling.http.util.HttpTypeHelper._
+
   def actorFetchErrorMessage: String
 
   final def fetchActor(actorName: String, session: Session) =

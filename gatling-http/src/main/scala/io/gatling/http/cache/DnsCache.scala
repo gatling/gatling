@@ -19,6 +19,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.resolver.DnsJavaNameResolver
+import io.gatling.http.util.HttpTypeHelper
 
 import org.asynchttpclient.resolver.NameResolver
 
@@ -29,6 +30,9 @@ object DnsCache {
 trait DnsCache {
 
   import DnsCache._
+
+  // import optimized TypeCaster
+  import HttpTypeHelper._
 
   def configuration: GatlingConfiguration
 

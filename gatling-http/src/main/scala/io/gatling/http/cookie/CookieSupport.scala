@@ -18,11 +18,15 @@ package io.gatling.http.cookie
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.session.Expression
+import io.gatling.http.util.HttpTypeHelper
 
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri
 
 object CookieSupport {
+
+  // import optimized TypeCaster
+  import HttpTypeHelper._
 
   val CookieJarAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
 

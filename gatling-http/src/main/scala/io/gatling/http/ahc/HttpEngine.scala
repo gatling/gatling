@@ -15,6 +15,8 @@
  */
 package io.gatling.http.ahc
 
+import io.gatling.http.util.HttpTypeHelper
+
 import scala.util.control.NonFatal
 
 import io.gatling.core.CoreComponents
@@ -47,6 +49,10 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
   }
 
   def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) = {
+
+    // import optimized TypeCaster
+    import HttpTypeHelper._
+
     if (httpProtocol.enginePart.shareClient)
       (session, ahcFactory.defaultAhc)
     else

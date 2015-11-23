@@ -21,6 +21,9 @@ import io.gatling.core.session.Session
 
 trait PollingAction {
 
+  // import optimized TypeCaster
+  import io.gatling.http.util.HttpTypeHelper._
+
   def fetchPoller(pollerName: String, session: Session) =
     session(pollerName)
       .validate[ActorRef]
