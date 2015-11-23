@@ -39,7 +39,7 @@ import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
 import akka.actor.Props
-import org.asynchttpclient.{ Request, RequestBuilder }
+import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.StringUtils.stringBuilder
 import io.netty.handler.codec.http.HttpMethod.GET
