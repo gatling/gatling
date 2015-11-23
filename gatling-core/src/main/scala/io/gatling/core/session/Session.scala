@@ -21,6 +21,7 @@ import scala.reflect.ClassTag
 import io.gatling.commons.NotNothing
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.session.el.ElMessages
@@ -39,8 +40,8 @@ object SessionPrivateAttributes {
 case class SessionAttribute(session: Session, key: String) {
 
   def as[T: NotNothing]: T = session.attributes(key).asInstanceOf[T]
-  def asOption[T: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).flatMap(_.asOption[T])
-  def validate[T: ClassTag: NotNothing]: Validation[T] = session.attributes.get(key) match {
+  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).flatMap(_.asOption[T])
+  def validate[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = session.attributes.get(key) match {
     case Some(value) => value.asValidation[T]
     case None        => ElMessages.undefinedSessionAttribute(key)
   }
