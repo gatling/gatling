@@ -21,8 +21,29 @@ import org.asynchttpclient.channel.pool.ConnectionPoolPartitioning
 import org.asynchttpclient.proxy.ProxyServer
 import org.asynchttpclient.uri.Uri
 
+case class ChannelPoolKey(userId: Long, remoteKey: Any)
+case class RemoteServerKey(scheme: String, hostname: String, port: Int)
+case class ProxyServerKey(hostname: String, port: Int, secure: Boolean, targetHostKey: Any)
+
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 
-  def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): (Long, Any) =
-    (session.userId, ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, virtualHost, proxyServer))
+  override def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): ChannelPoolKey = {
+
+    val targetHostKey =
+      if (virtualHost == null)
+        RemoteServerKey(uri.getScheme, uri.getHost, uri.getExplicitPort)
+      else
+        virtualHost
+
+    val remoteKey =
+      if (proxyServer == null) {
+        targetHostKey
+      } else if (uri.isSecured) {
+        new ProxyServerKey(proxyServer.getHost, proxyServer.getSecuredPort, true, targetHostKey)
+      } else {
+        new ProxyServerKey(proxyServer.getHost, proxyServer.getPort, false, targetHostKey)
+      }
+
+    ChannelPoolKey(session.userId, remoteKey)
+  }
 }
