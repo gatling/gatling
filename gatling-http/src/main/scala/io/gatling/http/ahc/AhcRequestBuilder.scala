@@ -18,5 +18,4 @@ package io.gatling.http.ahc
 import org.asynchttpclient.RequestBuilderBase
 
 class AhcRequestBuilder(method: String, disableUrlEncoding: Boolean)
-    extends RequestBuilderBase[AhcRequestBuilder](method, disableUrlEncoding) {
-}
+  extends RequestBuilderBase[AhcRequestBuilder](method, disableUrlEncoding, false)

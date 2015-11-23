@@ -42,6 +42,7 @@ import akka.actor.Props
 import org.asynchttpclient.{ Request, RequestBuilder }
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.StringUtils.stringBuilder
+import io.netty.handler.codec.http.HttpMethod.GET
 
 object AsyncHandlerActor {
   def props(statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) =
@@ -202,10 +203,10 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           .remove(HeaderNames.Cookie)
           .remove(HeaderNames.ContentType)
 
-        val switchToGet = originalMethod != "GET" && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
+        val switchToGet = originalMethod != GET.name && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
         val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
 
-        val requestBuilder = new RequestBuilder(if (switchToGet) "GET" else originalMethod)
+        val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET.name else originalMethod, false)
           .setUri(redirectUri)
           .setCharset(configuration.core.charset)
           .setConnectionPoolPartitioning(originalRequest.getConnectionPoolPartitioning)

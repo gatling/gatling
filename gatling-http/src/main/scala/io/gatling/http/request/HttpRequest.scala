@@ -48,7 +48,7 @@ case class HttpRequestDef(
       def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
         signatureCalculator match {
           case None     => request
-          case Some(sc) => new RequestBuilder(request).setSignatureCalculator(sc).build
+          case Some(sc) => new RequestBuilder(request).setSignatureCalculator(sc).build // FIXME disable header validation
         }
 
     for {
