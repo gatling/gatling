@@ -31,8 +31,8 @@ import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
 import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.LazyResponseBodyPart
-import io.netty.handler.codec.http.HttpResponseStatus.OK
 import org.asynchttpclient.netty.request.NettyRequest
+import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 
 class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[Unit]
     with AsyncHandlerExtensions
@@ -58,7 +58,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
     val statusCode = responseStatus.getStatusCode
     logger.debug(s"Status $statusCode received for sse '${tx.requestName}")
 
-    if (statusCode == OK.code) {
+    if (statusCode == OK_200) {
       sseActor ! OnOpen(tx, this, nowMillis)
       CONTINUE
 

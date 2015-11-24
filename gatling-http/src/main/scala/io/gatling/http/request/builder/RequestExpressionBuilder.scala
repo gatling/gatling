@@ -20,7 +20,7 @@ import scala.util.control.NonFatal
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.HeaderNames
-import io.gatling.http.ahc.{ AhcRequestBuilder, ChannelPoolPartitioning }
+import io.gatling.http.ahc.{ AhcRequestBuilder, AhcChannelPoolPartitioning }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpComponents
@@ -143,7 +143,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       requestBuilder.setCharset(charset)
 
       if (!protocol.enginePart.shareConnections)
-        requestBuilder.setConnectionPoolPartitioning(new ChannelPoolPartitioning(session))
+        requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
 
       safely(BuildRequestErrorMapper) {
         for {

@@ -31,7 +31,8 @@ import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactor
 import io.netty.util.{ Timer, HashedWheelTimer }
 import org.asynchttpclient.AsyncHttpClientConfig._
 import org.asynchttpclient._
-import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
+import org.asynchttpclient.channel.ChannelPool
+import org.asynchttpclient.netty.channel.DefaultChannelPool
 
 private[gatling] object AhcFactory {
 

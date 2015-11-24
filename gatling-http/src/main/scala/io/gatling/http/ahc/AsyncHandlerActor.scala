@@ -41,8 +41,9 @@ import io.gatling.http.util.HttpStringBuilder
 import akka.actor.Props
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
+import org.asynchttpclient.util.HttpConstants.Methods._
+import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 import org.asynchttpclient.util.StringUtils.stringBuilder
-import io.netty.handler.codec.http.HttpMethod.GET
 
 object AsyncHandlerActor {
   def props(statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) =
@@ -197,8 +198,8 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         val originalRequest = tx.request.ahcRequest
         val originalMethod = originalRequest.getMethod
 
-        val switchToGet = originalMethod != GET.name && (statusCode == 301 || statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
-        val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
+        val switchToGet = originalMethod != GET && (statusCode == MOVED_PERMANENTLY_301 || statusCode == SEE_OTHER_303 || (statusCode == FOUND_302 && !httpProtocol.responsePart.strict302Handling))
+        val keepBody = statusCode == TEMPORARY_REDIRECT_307 || (statusCode == FOUND_302 && httpProtocol.responsePart.strict302Handling)
 
         val newHeaders = originalRequest.getHeaders
           .remove(HeaderNames.Host)
@@ -208,10 +209,10 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         if (!keepBody)
           newHeaders.remove(HeaderNames.ContentType)
 
-        val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET.name else originalMethod, false)
+        val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET else originalMethod, false)
           .setUri(redirectUri)
           .setCharset(configuration.core.charset)
-          .setConnectionPoolPartitioning(originalRequest.getConnectionPoolPartitioning)
+          .setChannelPoolPartitioning(originalRequest.getChannelPoolPartitioning)
           .setAddress(originalRequest.getAddress)
           .setLocalAddress(originalRequest.getLocalAddress)
           .setVirtualHost(originalRequest.getVirtualHost)
