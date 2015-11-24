@@ -17,25 +17,16 @@ package io.gatling.http.protocol
 
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.ahc.{GatlingChannelPoolPartitionSelector, HttpEngine}
 import io.gatling.http.cache.HttpCaches
 
 import org.asynchttpclient.DefaultAsyncHttpClient
-import org.asynchttpclient.netty.channel.pool.ChannelPoolPartitionSelector
 
 case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches) extends ProtocolComponents {
 
   private val onExitF: Session => Unit = session => {
-    val (_, ahc) = httpEngine.httpClient(session, httpProtocol)
-    ahc.asInstanceOf[DefaultAsyncHttpClient].getChannelPool.flushPartitions(new ChannelPoolPartitionSelector() {
-
-      val userId = session.userId
-
-      override def select(partitionKey: Object): Boolean = partitionKey match {
-        case (`userId`, _) => true
-        case _             => false
-      }
-    })
+    val (_, ahc: DefaultAsyncHttpClient) = httpEngine.httpClient(session, httpProtocol)
+    ahc.getChannelPool.flushPartitions(new GatlingChannelPoolPartitionSelector(session.userId))
   }
 
   def onExit: Option[Session => Unit] = Some(onExitF)

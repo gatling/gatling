@@ -18,6 +18,7 @@ package io.gatling.http.ahc
 import io.gatling.core.session.Session
 
 import org.asynchttpclient.channel.pool.ConnectionPoolPartitioning
+import org.asynchttpclient.netty.channel.pool.ChannelPoolPartitionSelector
 import org.asynchttpclient.proxy.ProxyServer
 import org.asynchttpclient.uri.Uri
 
@@ -45,5 +46,13 @@ class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioni
       }
 
     ChannelPoolKey(session.userId, remoteKey)
+  }
+}
+
+class GatlingChannelPoolPartitionSelector(userId: Long) extends ChannelPoolPartitionSelector {
+
+  override def select(partitionKey: Object): Boolean = partitionKey match {
+    case ChannelPoolKey(`userId`, _) => true
+    case _ => false
   }
 }
