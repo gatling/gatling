@@ -16,9 +16,7 @@
 package io.gatling.core
 
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
 
-import io.gatling.commons.validation._
 import io.gatling.core.assertion.AssertionSupport
 import io.gatling.core.body.BodyProcessors
 import io.gatling.core.check.CheckSupport
@@ -29,8 +27,6 @@ import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
 import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
-import io.gatling.core.session._
-import io.gatling.core.session.el._
 
 trait CoreDsl extends StructureSupport
     with PauseSupport
@@ -39,14 +35,11 @@ trait CoreDsl extends StructureSupport
     with InjectionSupport
     with ThrottlingSupport
     with AssertionSupport
-    with CoreDefaultImplicits {
+    with CoreDefaultImplicits
+    with ValidationImplicits {
 
   def gzipBody(implicit configuration: GatlingConfiguration) = BodyProcessors.gzip
   def streamBody(implicit configuration: GatlingConfiguration) = BodyProcessors.stream
-
-  implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
-  implicit def value2Success[T](value: T): Validation[T] = value.success
-  implicit def value2Expression[T](value: T): Expression[T] = value.expressionSuccess
 
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "))
 
