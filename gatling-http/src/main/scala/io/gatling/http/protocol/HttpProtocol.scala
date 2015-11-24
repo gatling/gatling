@@ -18,7 +18,7 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.util.{ Iterators, RoundRobin }
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -106,8 +106,8 @@ object HttpProtocol extends StrictLogging {
 
   def baseUrlIterator(urls: List[String]): Iterator[Option[String]] =
     urls match {
-      case Nil        => Iterator.continually(None)
-      case url :: Nil => Iterator.continually(Some(url))
+      case Nil        => Iterators.infinitely(None)
+      case url :: Nil => Iterators.infinitely(Some(url))
       case _          => RoundRobin(urls.map(Some(_)).toVector)
     }
 }

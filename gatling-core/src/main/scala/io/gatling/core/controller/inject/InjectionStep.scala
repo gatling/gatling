@@ -18,6 +18,8 @@ package io.gatling.core.controller.inject
 import java.util.Random
 import java.util.concurrent.TimeUnit
 
+import io.gatling.commons.util.Iterators
+
 import scala.collection.AbstractIterator
 import scala.concurrent.duration._
 import scala.math.abs
@@ -160,7 +162,7 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
   require(users > 0, "The number of users must be a strictly positive value")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    Iterator.continually(0 milliseconds).take(users) ++ chained
+    Iterators.infinitely(0 milliseconds).take(users) ++ chained
 }
 
 /**
