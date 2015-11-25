@@ -17,6 +17,7 @@ package io.gatling.core.body
 
 import java.io.InputStream
 
+import io.gatling.commons.util.CompositeByteArrayInputStream
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
@@ -27,7 +28,7 @@ object ElFileBody {
   def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies) = CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath))
 }
 
-trait Body
+sealed trait Body
 
 case class StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
 
@@ -67,6 +68,8 @@ case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]])(implicit 
     bs.foreach(b => sb.append(new String(b, configuration.core.charset)))
     sb.toString
   }
+
+  def asStream: Expression[InputStream] = bytes.map(new CompositeByteArrayInputStream(_))
 }
 
 case class InputStreamBody(is: Expression[InputStream]) extends Body

@@ -24,26 +24,19 @@ object GzipHelper {
 
   def gzip(string: String): Array[Byte] = gzip(string.getBytes)
 
-  def gzip(bytes: Array[Byte]): Array[Byte] = {
-    val bytesOut = new ByteArrayOutputStream(bytes.length)
-
-    withCloseable(new GZIPOutputStream(bytesOut)) {
-      _.write(bytes)
-    }
-
-    bytesOut.toByteArray
-  }
+  def gzip(bytes: Array[Byte]): Array[Byte] =
+    gzip(new FastByteArrayInputStream(bytes))
 
   val GzipDefaultBufferSize = 512
 
-  def gzip(in: InputStream, bufferSize: Int = GzipDefaultBufferSize): Array[Byte] = {
+  def gzip(in: InputStream, bufferSize: Int = GzipDefaultBufferSize): Array[Byte] =
+    withCloseable(in) { is =>
+      val out = new ByteArrayOutputStream(bufferSize)
 
-    val bytesOut = new ByteArrayOutputStream(bufferSize)
+      withCloseable(new GZIPOutputStream(out)) {
+        in.copyTo(_, bufferSize)
+      }
 
-    withCloseable(new GZIPOutputStream(bytesOut)) {
-      in.copyTo(_, bufferSize)
+      out.toByteArray
     }
-
-    bytesOut.toByteArray
-  }
 }
