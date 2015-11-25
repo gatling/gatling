@@ -15,14 +15,15 @@
  */
 package io.gatling.core
 
+import scala.language.reflectiveCalls
+import scala.reflect.ClassTag
+
 import io.gatling.commons.Exclude
 import io.gatling.commons.validation._
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
-
-import scala.reflect.ClassTag
 
 sealed trait NonValidable
 
