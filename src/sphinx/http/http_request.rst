@@ -127,7 +127,9 @@ Here are some examples:
 Signature Calculator
 ====================
 
-You might want to generate some `HMAC <http://en.wikipedia.org/wiki/Hash-based_message_authentication_code>`_ header based on other request information: url, headers and/or body.
+You might want to edit the HTTP requests before they're being sent over the wire, based on other request information: url, headers and/or body.
+For example, you might want to generate some `HMAC <http://en.wikipedia.org/wiki/Hash-based_message_authentication_code>`_ header.
+
 This can only happen after Gatling has resolved the request, e.g. computed the body based on a template.
 
 Gatling exposes AsyncHttpClient's ``SignatureCalculator`` API::
