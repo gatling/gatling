@@ -69,8 +69,9 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
     val customConfig = configFile.map(path => ConfigFactory.parseFile(path.toFile)).getOrElse {
       // Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
-      println("Maven archetype or SBT template outdated: Please create a new one or check the migration guide on how to update it.")
-      println("Recorder preferences won't be saved until then.")
+      println("recorder.conf file couldn't be located or is outdated")
+      println("Recorder preferences won't be saved.")
+      println("""If running from sbt, please run "copyConfigFiles" and check the plugin documentation.""")
       ConfigFactory.empty
     }
     val propertiesConfig = ConfigFactory.parseMap(props)
