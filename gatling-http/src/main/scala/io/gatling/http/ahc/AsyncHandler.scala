@@ -41,7 +41,7 @@ object AsyncHandler extends StrictLogging {
  *
  * It is part of the HttpRequestAction
  *
- * @constructor constructs a GatlingAsyncHandler
+ * @constructor constructs a Gatling AsyncHandler
  * @param tx the data about the request to be sent and processed
  * @param httpEngine the HTTP engine
  */
