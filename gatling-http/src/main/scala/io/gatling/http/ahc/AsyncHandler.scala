@@ -66,21 +66,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
       // [pro]
     }
 
-  override def onDnsResolution(name: String): Unit = {
-    start()
-    // [pro]
-    //
-    // [pro]
-  }
-
-  override def onTcpConnect(address: InetSocketAddress): Unit = {
-    start()
-    // [pro]
-    //
-    // [pro]
-  }
-
-  // [pro]
+  // [fl]
   //
   //
   //
@@ -103,7 +89,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
   //
   //
   //
-  // [pro]
+  // [fl]
 
   override def onRequestSend(request: NettyRequest): Unit = {
     start()
