@@ -16,7 +16,7 @@ object Dependencies {
   private val dnsJava                       = "dnsjava"                                % "dnsjava"                      % "2.1.7"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.1"
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
-  private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                     % "9.6.0-7"
+  private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                     % "9.7.0-1"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.13"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                     % "0.2.4"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                        % "3.3.0"
