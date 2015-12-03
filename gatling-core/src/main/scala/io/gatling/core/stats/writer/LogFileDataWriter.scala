@@ -20,17 +20,19 @@ import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.CharsetEncoder
 import java.nio.channels.FileChannel
 
+import scala.util.control.NonFatal
+
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 
 import boopickle.Default._
+import com.typesafe.scalalogging.StrictLogging
 import com.dongxiguo.fastring.Fastring.Implicits._
-
 import jodd.util.Base64
 
-object LogFileDataWriter {
+object LogFileDataWriter extends StrictLogging {
 
   val Separator = '\t'
 
@@ -73,7 +75,13 @@ object LogFileDataWriter {
   implicit val ResponseMessageSerializer = new DataWriterMessageSerializer[ResponseMessage] {
 
     private def serializeExtraInfo(extraInfo: List[Any]): Fastring =
-      extraInfo.map(info => fast"$Separator${info.toString.sanitize}").mkFastring
+      try {
+        extraInfo.map(info => fast"$Separator${info.toString.sanitize}").mkFastring
+      } catch {
+        case NonFatal(e) =>
+          logger.error("Crash on extraInfo serialization", e)
+          EmptyFastring
+      }
 
     private def serializeMessage(message: Option[String]): String =
       message match {
