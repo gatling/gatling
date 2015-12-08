@@ -33,6 +33,14 @@ private[metrics] object MetricsSender {
       case Udp => Props(new UdpSender(remote))
     }
   }
+
+  def statsdProps(configuration: GatlingConfiguration): Props = {
+    val remote = new InetSocketAddress(configuration.data.statsd.host, configuration.data.statsd.port)
+    configuration.data.statsd.protocol match {
+      case Tcp => Props(new TcpSender(remote, 5, 5.seconds))
+      case Udp => Props(new UdpSender(remote))
+    }
+  }
 }
 
 private[metrics] abstract class MetricsSender extends BaseActor with Stash

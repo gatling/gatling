@@ -4,8 +4,9 @@
 Realtime monitoring
 ###################
 
-Gatling provides live statistics via the Graphite protocol so that you don't have to wait for the generation of the final report to analyse the simulation.
+Gatling provides live statistics via the Graphite protocol or statsD so that you don't have to wait for the generation of the final report to analyse the simulation.
 The graphite protocol is widely suppported by a number of tools. This includes both serverside monitoring and analytics databases.
+While statsD is a popular and simple network daemon that collects statistics and aggregates the results to one or more pluggable backend services (e.g. Graphite).
 
 In this way you can also monitor what happens in Gatling AND the system under test. All the data can be collected in one central repository for correlation.
 
@@ -21,6 +22,7 @@ Two types of metrics are provided by Gatling  :
  * Requests metrics
 
 Gatling pushes this data to Graphite every second by default, but the push frequency can be changed by setting the "writeInterval" in the GraphiteDataWriter section of gatling.conf
+If you are using statsD, gatling pushes this data instantly to statsD.
 
 User metrics
 ------------
@@ -82,7 +84,7 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
 ::
 
   data {
-    writers = [console, file, graphite]
+    writers = [console, file, graphite, statsd]
     reader = file
 
     graphite {
@@ -93,6 +95,12 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
       #rootPathPrefix = "gatling" # The common prefix of all metrics sent to Graphite
       #bufferSize = 8192          # GraphiteDataWriter's internal data buffer size, in bytes
       #writeInterval = 1          # GraphiteDataWriter's write interval, in seconds
+    }
+    statsd {
+      light = false       # only send the all* stats
+      host = "localhost"  # The host where the statsd server is located
+      port = 8125         # The port to which the statsd server listens to (8125 is the default)
+      protocol = "udp"    # The protocol used to send data to statsd (currently supported : "tcp", "udp")
     }
   }
 
@@ -146,7 +154,7 @@ It does not have a charting component however, so it integrates with a dedicated
 ::
 
   [input_plugins]
-   
+
   # Configure the graphite api
   [input_plugins.graphite]
   enabled = true
@@ -223,14 +231,14 @@ Scripts for running netcat and processing the output:
     print "--------- stats ....... timestamp RPS error_percent 95percentile_response_time active_users -----";
     curr=0
   }
-  
+
   {
     if($NF != curr) {
       print $NF" "n" "epct" "ptile" "u;
     }
     curr=$NF
   }
-  
+
   /allRequests.all.count/        {n=$2}
   /allRequests.ko.count/         {e=$2; if(n==0){epct=0}else{epct=int(e/n*100)}}
   /allRequests.ok.percentiles95/ {ptile=$2}
@@ -256,3 +264,22 @@ One can easily graph the total number of requests executed thanks to the Graphit
 
 .. image:: img/count_integral.png
   :alt: CountTotal
+
+Customizable console output via statsD datastream
+---------------------------------------------------
+
+Similar to how you can collect Graphite output via the console, the same can be done with statsD due to its also simple protocol.
+However instead of Graphite statistics, you will be getting a stream of events. When these events are send to a statsD daemon it
+calculates the statistics and then forwards it to a Graphite server.
+
+
+Scripts for running netcat and processing the output:
+
+::
+
+  # command to run the statsd console output
+  nc -lu 8125
+
+::
+
+In which you could also pipe this output to another shell process to parse the event stream.

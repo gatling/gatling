@@ -38,3 +38,17 @@ private[metrics] object GraphiteMetrics extends StrictLogging {
     GraphiteMetrics(ByteString(sb.toString, UTF_8.name))
   }
 }
+
+private[metrics] case class StatsdMetrics(byteString: ByteString)
+
+private[metrics] object StatsdMetrics extends StrictLogging {
+  def apply(name: String, value: Long, statType: String): StatsdMetrics = {
+
+    val sb = StringHelper.stringBuilder()
+    sb.append(name).append('|').append(value).append('|').append(statType).append('\n')
+
+    if (logger.underlying.isDebugEnabled)
+      logger.debug(s"statsdMetrics=${sb.toString}")
+    StatsdMetrics(ByteString(sb.toString, UTF_8.name))
+  }
+}

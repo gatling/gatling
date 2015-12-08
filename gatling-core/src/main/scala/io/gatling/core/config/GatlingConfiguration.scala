@@ -217,6 +217,12 @@ object GatlingConfiguration extends StrictLogging {
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize),
           writeInterval = config.getInt(data.graphite.WriteInterval)
+        ),
+        statsd = StatsdDataWriterConfiguration(
+          light = config.getBoolean(data.statsd.Light),
+          host = config.getString(data.statsd.Host),
+          port = config.getInt(data.statsd.Port),
+          protocol = TransportProtocol(config.getString(data.statsd.Protocol).trim)
         )
       ),
 //
@@ -345,7 +351,8 @@ case class DataConfiguration(
     file:        FileDataWriterConfiguration,
     leak:        LeakDataWriterConfiguration,
     console:     ConsoleDataWriterConfiguration,
-    graphite:    GraphiteDataWriterConfiguration
+    graphite:    GraphiteDataWriterConfiguration,
+    statsd:      StatsdDataWriterConfiguration
 ) {
 
   def fileDataWriterEnabled: Boolean = dataWriters.contains(FileDataWriterType)
@@ -373,19 +380,17 @@ case class GraphiteDataWriterConfiguration(
   writeInterval:  Int
 )
 
-//
-//
-//
-//
-//
+case class StatsdDataWriterConfiguration(
+  light:      Boolean,
+  host:       String,
+  port:       Int,
+  protocol: TransportProtocol
+)
 
 case class GatlingConfiguration(
   core:     CoreConfiguration,
   charting: ChartingConfiguration,
   http:     HttpConfiguration,
   data:     DataConfiguration,
-  //
-  //
-  //
   config:   Config
 )
