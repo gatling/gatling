@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.util.AddressHelper
 import io.netty.channel.Channel
 
 import org.asynchttpclient.netty.request.NettyRequest
@@ -50,24 +51,38 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
   private val done = new AtomicBoolean
-  // [pro]
+  // [fl]
   //
   //
   //
   //
   //
-  // [pro]
+  // [fl]
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
       val firstByteSent = responseBuilder.updateStartTimestamp()
-      // [pro]
+      // [fl]
       //
-      // [pro]
+      // [fl]
     }
 
+  override def onHostnameResolutionAttempt(name: String): Unit = {
+    start()
+    // [fl]
+    //
+    // [fl]
+  }
+
+  override def onTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {
+    start()
+    // [fl]
+    //
+    //
+    // [fl]
+  }
+
   // [fl]
-  //
   //
   //
   //

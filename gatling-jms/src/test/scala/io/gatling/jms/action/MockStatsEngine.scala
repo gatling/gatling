@@ -15,8 +15,6 @@
  */
 package io.gatling.jms.action
 
-import java.net.InetSocketAddress
-
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
@@ -32,7 +30,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def logUser(userMessage: UserMessage): Unit = {}
 
-  // [pro]
+  // [fl]
   //
   //
   //
@@ -40,7 +38,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
   //
   //
   //
-  // [pro]
+  // [fl]
 
   override def logResponse(
     session:      Session,
