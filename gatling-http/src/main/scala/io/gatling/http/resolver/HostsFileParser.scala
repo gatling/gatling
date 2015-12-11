@@ -37,7 +37,7 @@ object HostsFileParser {
 
   private[resolver] def parse(source: Source): Map[String, String] = {
     val lines = Io.withSource(source)(_.getLines.toList)
-    val stripped = lines.flatMap(_.split("#").headOption)
+    val stripped = lines.flatMap(_.split("#").headOption) // take everything before comment
     val trimmed = stripped.map(_.trim).filterNot(_.isEmpty)
     val entries = trimmed.map(_.split("[ \t]+").toList)
 
