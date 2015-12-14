@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics
+package io.gatling.metrics.graphite
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.RunMessage
+import io.gatling.metrics.MetricSeries
 import io.gatling.metrics.MetricSeries._
 
 class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) extends GraphitePathPattern(runMessage, configuration) {

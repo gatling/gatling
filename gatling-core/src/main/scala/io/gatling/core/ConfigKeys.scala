@@ -138,12 +138,7 @@ object ConfigKeys {
       val Port = "gatling.data.statsd.port"
       val Protocol = "gatling.data.statsd.protocol"
       val RootPathPrefix = "gatling.data.statsd.rootPathPrefix"
+      val ResponseSampleRate = "gatling.data.statsd.responseSampleRate"
     }
   }
-
-  //
-  //
-  //
-  //
-  //
 }

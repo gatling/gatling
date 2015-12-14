@@ -222,7 +222,8 @@ object GatlingConfiguration extends StrictLogging {
           host = config.getString(data.statsd.Host),
           port = config.getInt(data.statsd.Port),
           protocol = TransportProtocol(config.getString(data.statsd.Protocol).trim),
-          rootPathPrefix = config.getString(data.statsd.RootPathPrefix)
+          rootPathPrefix = config.getString(data.statsd.RootPathPrefix),
+          responseSampleRate = config.getDouble(data.statsd.ResponseSampleRate)
         )
       ),
       config = config
@@ -376,10 +377,11 @@ case class GraphiteDataWriterConfiguration(
 )
 
 case class StatsdDataWriterConfiguration(
-  host:       String,
-  port:       Int,
-  protocol: TransportProtocol,
-  rootPathPrefix: String
+  host:               String,
+  port:               Int,
+  protocol:           TransportProtocol,
+  rootPathPrefix:     String,
+  responseSampleRate: Double
 )
 
 case class GatlingConfiguration(

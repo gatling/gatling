@@ -17,10 +17,13 @@ package io.gatling.metrics.message
 
 import java.nio.charset.StandardCharsets.UTF_8
 
+import akka.actor.ActorRef
 import io.gatling.commons.util.StringHelper
 
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
+
+import scala.util.Random
 
 private[metrics] case class GraphiteMetrics(byteString: ByteString)
 
@@ -42,13 +45,63 @@ private[metrics] object GraphiteMetrics extends StrictLogging {
 private[metrics] case class StatsdMetrics(byteString: ByteString)
 
 private[metrics] object StatsdMetrics extends StrictLogging {
-  def apply(name: String, value: Long, statType: String): StatsdMetrics = {
 
-    val sb = StringHelper.stringBuilder()
-    sb.append(name).append('|').append(value).append('|').append(statType).append('\n')
+  private val rand = new Random()
 
+  object StatsDProtocol {
+    val TIMING_METRIC = "ms"
+    val COUNTER_METRIC = "c"
+    val GAUGE_METRIC = "g"
+
+    /**
+     * @return Returns a string that conforms to the StatsD protocol:
+     *         KEY:VALUE|METRIC or KEY:VALUE|METRIC|@SAMPLE_RATE
+     */
+    def stat(key: String, value: String, metric: String, sampleRate: Double) = {
+      val sampleRateString = if (sampleRate < 1) "|@" + sampleRate else ""
+      key + ":" + value + "|" + metric + sampleRateString
+    }
+  }
+
+  def timing(actorRef: ActorRef, key: String, value: Int, sampleRate: Double = 1.0) = {
+    send(actorRef, key, value.toString, StatsDProtocol.TIMING_METRIC, sampleRate)
+  }
+
+  def decrementCount(actorRef: ActorRef, key: String, magnitude: Int = -1, sampleRate: Double = 1.0) = {
+    incrementCount(actorRef, key, magnitude, sampleRate)
+  }
+
+  def incrementCount(actorRef: ActorRef, key: String, magnitude: Int = 1, sampleRate: Double = 1.0) = {
+    send(actorRef, key, magnitude.toString, StatsDProtocol.COUNTER_METRIC, sampleRate)
+  }
+
+  def decrementGauge(actorRef: ActorRef, key: String, value: String = "-1", sampleRate: Double = 1.0) = {
+    gauge(actorRef, key, value, sampleRate)
+  }
+
+  def incrementGauge(actorRef: ActorRef, key: String, value: String = "+1", sampleRate: Double = 1.0) = {
+    gauge(actorRef, key, value, sampleRate)
+  }
+
+  def gauge(actorRef: ActorRef, key: String, value: String = "1", sampleRate: Double = 1.0) = {
+    send(actorRef, key, value, StatsDProtocol.GAUGE_METRIC, sampleRate)
+  }
+
+  /**
+   * Checks the sample rate and sends the stat to the actor if it passes
+   */
+  private def send(actorRef: ActorRef, key: String, value: String, metric: String, sampleRate: Double): Boolean = {
+    if (sampleRate >= 1 || rand.nextDouble <= sampleRate) {
+      actorRef ! apply(StatsDProtocol.stat(key, value, metric, sampleRate))
+      true
+    } else {
+      false
+    }
+  }
+
+  def apply(stat: String): StatsdMetrics = {
     if (logger.underlying.isDebugEnabled)
-      logger.debug(s"statsdMetrics=${sb.toString}")
-    StatsdMetrics(ByteString(sb.toString, UTF_8.name))
+      logger.debug(s"statsdMetrics=${stat}")
+    StatsdMetrics(ByteString(stat, UTF_8.name))
   }
 }

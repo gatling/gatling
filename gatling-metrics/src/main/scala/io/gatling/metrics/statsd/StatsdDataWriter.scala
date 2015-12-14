@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics
+package io.gatling.metrics.statsd
 
-import io.gatling.core.stats.message.{ End, Start }
-
-import scala.collection.mutable
-
+import akka.actor.ActorRef
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.stats.writer._
 import io.gatling.metrics.message.StatsdMetrics
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types._
-
-import akka.actor.ActorRef
 
 case class StatsdData(
   configuration: GatlingConfiguration,
@@ -47,44 +43,40 @@ private[gatling] class StatsdDataWriter extends DataWriter[StatsdData] {
 
     val data = StatsdData(configuration, metricsSender, pattern)
 
+    scenarios.foreach(scenario =>
+      StatsdMetrics.gauge(metricsSender, data.format.usersPath(scenario.name).bucket, scenario.userCount.toString))
+
     data
   }
 
   def onFlush(data: StatsdData): Unit = {}
-
-  private def onSimulationStart(init: Init, data: StatsdData): Unit = {
-    import data._
-    import init._
-
-    scenarios.foreach(scenario => sendMetricsToStatsd(data, format.usersPath(scenario.name).bucket, scenario.userCount, "c"))
-
-  }
 
   private def onUserMessage(userMessage: UserMessage, data: StatsdData): Unit = {
     import data._
     import format._
 
     val userEventMetricRoot = usersPath(userMessage.session.scenario)
-    val metricCountType = "c"
 
     userMessage.event match {
       case Start =>
-        sendMetricsToStatsd(data, activeUsers(userEventMetricRoot).bucket, 1l, metricCountType)
-        sendMetricsToStatsd(data, waitingUsers(userEventMetricRoot).bucket, -1l, metricCountType)
+        StatsdMetrics.incrementGauge(metricsSender, activeUsers(userEventMetricRoot).bucket)
+        StatsdMetrics.decrementGauge(metricsSender, waitingUsers(userEventMetricRoot).bucket)
       case End =>
-        sendMetricsToStatsd(data, doneUsers(userEventMetricRoot).bucket, 1l, metricCountType)
-        sendMetricsToStatsd(data, activeUsers(userEventMetricRoot).bucket, -1l, metricCountType)
+        StatsdMetrics.incrementGauge(metricsSender, doneUsers(userEventMetricRoot).bucket)
+        StatsdMetrics.decrementGauge(metricsSender, activeUsers(userEventMetricRoot).bucket)
     }
 
-    sendMetricsToStatsd(data, format.usersPath(userMessage.session.scenario).bucket, 1l, "c")
+    StatsdMetrics.incrementGauge(metricsSender, usersPath(userMessage.session.scenario).bucket)
   }
 
   private def onResponseMessage(response: ResponseMessage, data: StatsdData): Unit = {
     import data._
-    import response._
     import format._
+    import response._
 
-    sendMetricsToStatsd(data, (responsePath(name, groupHierarchy) add status.name).bucket, timings.responseTime, "ms")
+    val responseSampleRate = configuration.data.statsd.responseSampleRate
+
+    StatsdMetrics.timing(metricsSender, (responsePath(name, groupHierarchy) add status.name).bucket, timings.responseTime, responseSampleRate)
   }
 
   override def onMessage(message: LoadEventMessage, data: StatsdData): Unit = message match {
@@ -96,17 +88,5 @@ private[gatling] class StatsdDataWriter extends DataWriter[StatsdData] {
   override def onCrash(cause: String, data: StatsdData): Unit = {}
 
   override def onStop(data: StatsdData): Unit = {}
-
-  private def sendMetricsToStatsd(
-    data:     StatsdData,
-    name:     String,
-    value:    Long,
-    statType: String
-  ): Unit = {
-
-    import data._
-
-    metricsSender ! StatsdMetrics(name, value, statType)
-  }
 
 }
