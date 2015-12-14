@@ -219,7 +219,6 @@ object GatlingConfiguration extends StrictLogging {
           writeInterval = config.getInt(data.graphite.WriteInterval)
         ),
         statsd = StatsdDataWriterConfiguration(
-          light = config.getBoolean(data.statsd.Light),
           host = config.getString(data.statsd.Host),
           port = config.getInt(data.statsd.Port),
           protocol = TransportProtocol(config.getString(data.statsd.Protocol).trim),
@@ -377,7 +376,6 @@ case class GraphiteDataWriterConfiguration(
 )
 
 case class StatsdDataWriterConfiguration(
-  light:      Boolean,
   host:       String,
   port:       Int,
   protocol: TransportProtocol,

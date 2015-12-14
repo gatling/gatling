@@ -97,7 +97,6 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
       #writeInterval = 1          # GraphiteDataWriter's write interval, in seconds
     }
     statsd {
-      light = false       # only send the all* stats
       host = "localhost"  # The host where the statsd server is located
       port = 8125         # The port to which the statsd server listens to (8125 is the default)
       protocol = "udp"    # The protocol used to send data to statsd (currently supported : "tcp", "udp")

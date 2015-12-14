@@ -134,7 +134,6 @@ object ConfigKeys {
       val WriteInterval = "gatling.data.graphite.writeInterval"
     }
     object statsd {
-      val Light = "gatling.data.statsd.light"
       val Host = "gatling.data.statsd.host"
       val Port = "gatling.data.statsd.port"
       val Protocol = "gatling.data.statsd.protocol"
