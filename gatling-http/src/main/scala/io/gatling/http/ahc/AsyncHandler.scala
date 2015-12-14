@@ -150,11 +150,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
     }
 
   def sendOnThrowable(throwable: Throwable): Unit = {
-    val className = throwable.getClass.getName
-    val errorMessage = throwable.getMessage match {
-      case null => className
-      case m    => s"$className: $m"
-    }
+    val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
 
     if (AsyncHandler.DebugEnabled)
       logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
