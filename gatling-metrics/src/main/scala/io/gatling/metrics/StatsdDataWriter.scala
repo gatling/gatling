@@ -82,9 +82,9 @@ private[gatling] class StatsdDataWriter extends DataWriter[StatsdData] {
   private def onResponseMessage(response: ResponseMessage, data: StatsdData): Unit = {
     import data._
     import response._
+    import format._
 
-    sendMetricsToStatsd(data, format.responsePath(name, groupHierarchy).bucket, timings.responseTime, "ms")
-
+    sendMetricsToStatsd(data, (responsePath(name, groupHierarchy) add status.name).bucket, timings.responseTime, "ms")
   }
 
   override def onMessage(message: LoadEventMessage, data: StatsdData): Unit = message match {
