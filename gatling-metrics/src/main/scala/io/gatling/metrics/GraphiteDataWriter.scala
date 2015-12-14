@@ -31,8 +31,8 @@ import akka.actor.ActorRef
 case class GraphiteData(
   configuration:   GatlingConfiguration,
   metricsSender:   ActorRef,
-  requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
-  usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
+  requestsByPath:  mutable.Map[MetricSeries, RequestMetricsBuffer],
+  usersByScenario: mutable.Map[MetricSeries, UserBreakdownBuffer],
   format:          GraphitePathPattern
 ) extends DataWriterData
 
@@ -47,8 +47,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     import init._
 
     val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), actorName("metricsSender"))
-    val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
-    val usersByScenario = mutable.Map.empty[GraphitePath, UserBreakdownBuffer]
+    val requestsByPath = mutable.Map.empty[MetricSeries, RequestMetricsBuffer]
+    val usersByScenario = mutable.Map.empty[MetricSeries, UserBreakdownBuffer]
 
     val pattern: GraphitePathPattern = new OldGraphitePathPattern(runMessage, configuration)
 
@@ -100,8 +100,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   private def sendMetricsToGraphite(
     data:            GraphiteData,
     epoch:           Long,
-    requestsMetrics: Map[GraphitePath, MetricByStatus],
-    userBreakdowns:  Map[GraphitePath, UserBreakdown]
+    requestsMetrics: Map[MetricSeries, MetricByStatus],
+    userBreakdowns:  Map[MetricSeries, UserBreakdown]
   ): Unit = {
 
     import data._

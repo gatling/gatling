@@ -21,12 +21,12 @@ import io.gatling.metrics.types.{ Metrics, MetricByStatus, UserBreakdown }
 
 abstract class GraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) {
 
-  def allUsersPath: GraphitePath
-  def usersPath(scenario: String): GraphitePath
-  def allResponsesPath: GraphitePath
-  def responsePath(requestName: String, groups: List[String]): GraphitePath
+  def allUsersPath: MetricSeries
+  def usersPath(scenario: String): MetricSeries
+  def allResponsesPath: MetricSeries
+  def responsePath(requestName: String, groups: List[String]): MetricSeries
 
-  def metrics(userBreakdowns: Map[GraphitePath, UserBreakdown], responseMetricsByStatus: Map[GraphitePath, MetricByStatus]): Iterator[(String, Long)] = {
+  def metrics(userBreakdowns: Map[MetricSeries, UserBreakdown], responseMetricsByStatus: Map[MetricSeries, MetricByStatus]): Iterator[(String, Long)] = {
 
     val userMetrics = userBreakdowns.iterator.flatMap(byProgress)
 
@@ -39,28 +39,28 @@ abstract class GraphitePathPattern(runMessage: RunMessage, configuration: Gatlin
     val responseMetrics = targetResponseMetrics.flatMap(byStatus).flatMap(byMetric)
 
     (userMetrics ++ responseMetrics)
-      .map { case (path, value) => (metricRootPath / path).pathKey -> value }
+      .map { case (seriesTree, value) => seriesTree.bucket -> value }
   }
 
-  private def byProgress(metricsEntry: (GraphitePath, UserBreakdown)): Seq[(GraphitePath, Long)] = {
-    val (path, usersBreakdown) = metricsEntry
+  private def byProgress(metricsEntry: (MetricSeries, UserBreakdown)): Seq[(MetricSeries, Long)] = {
+    val (metricSeries, usersBreakdown) = metricsEntry
     Seq(
-      activeUsers(path) -> usersBreakdown.active,
-      waitingUsers(path) -> usersBreakdown.waiting,
-      doneUsers(path) -> usersBreakdown.done
+      activeUsers(metricSeries) -> usersBreakdown.active,
+      waitingUsers(metricSeries) -> usersBreakdown.waiting,
+      doneUsers(metricSeries) -> usersBreakdown.done
     )
   }
 
-  private def byStatus(metricsEntry: (GraphitePath, MetricByStatus)): Seq[(GraphitePath, Option[Metrics])] = {
-    val (path, metricByStatus) = metricsEntry
+  private def byStatus(metricsEntry: (MetricSeries, MetricByStatus)): Seq[(MetricSeries, Option[Metrics])] = {
+    val (metricSeries, metricByStatus) = metricsEntry
     Seq(
-      okResponses(path) -> metricByStatus.ok,
-      koResponses(path) -> metricByStatus.ko,
-      allResponses(path) -> metricByStatus.all
+      okResponses(metricSeries) -> metricByStatus.ok,
+      koResponses(metricSeries) -> metricByStatus.ko,
+      allResponses(metricSeries) -> metricByStatus.all
     )
   }
 
-  private def byMetric(metricsEntry: (GraphitePath, Option[Metrics])): Seq[(GraphitePath, Long)] =
+  private def byMetric(metricsEntry: (MetricSeries, Option[Metrics])): Seq[(MetricSeries, Long)] =
     metricsEntry match {
       case (path, None) => Seq(count(path) -> 0)
       case (path, Some(m)) =>
@@ -77,20 +77,20 @@ abstract class GraphitePathPattern(runMessage: RunMessage, configuration: Gatlin
         )
     }
 
-  protected def metricRootPath: GraphitePath
-  protected def activeUsers(path: GraphitePath): GraphitePath
-  protected def waitingUsers(path: GraphitePath): GraphitePath
-  protected def doneUsers(path: GraphitePath): GraphitePath
-  protected def okResponses(path: GraphitePath): GraphitePath
-  protected def koResponses(path: GraphitePath): GraphitePath
-  protected def allResponses(path: GraphitePath): GraphitePath
-  protected def count(path: GraphitePath): GraphitePath
-  protected def min(path: GraphitePath): GraphitePath
-  protected def max(path: GraphitePath): GraphitePath
-  protected def mean(path: GraphitePath): GraphitePath
-  protected def stdDev(path: GraphitePath): GraphitePath
-  protected def percentiles1(path: GraphitePath): GraphitePath
-  protected def percentiles2(path: GraphitePath): GraphitePath
-  protected def percentiles3(path: GraphitePath): GraphitePath
-  protected def percentiles4(path: GraphitePath): GraphitePath
+  protected def metricRoot: MetricSeries
+  protected def activeUsers(path: MetricSeries): MetricSeries
+  protected def waitingUsers(path: MetricSeries): MetricSeries
+  protected def doneUsers(path: MetricSeries): MetricSeries
+  protected def okResponses(path: MetricSeries): MetricSeries
+  protected def koResponses(path: MetricSeries): MetricSeries
+  protected def allResponses(path: MetricSeries): MetricSeries
+  protected def count(path: MetricSeries): MetricSeries
+  protected def min(path: MetricSeries): MetricSeries
+  protected def max(path: MetricSeries): MetricSeries
+  protected def mean(path: MetricSeries): MetricSeries
+  protected def stdDev(path: MetricSeries): MetricSeries
+  protected def percentiles1(path: MetricSeries): MetricSeries
+  protected def percentiles2(path: MetricSeries): MetricSeries
+  protected def percentiles3(path: MetricSeries): MetricSeries
+  protected def percentiles4(path: MetricSeries): MetricSeries
 }

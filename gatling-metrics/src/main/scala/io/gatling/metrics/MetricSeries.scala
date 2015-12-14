@@ -17,17 +17,17 @@ package io.gatling.metrics
 
 import scala.collection.mutable
 
-private[metrics] object GraphitePath {
+private[metrics] object MetricSeries {
   private val sanitizeStringMemo = mutable.Map.empty[String, String]
   def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
-  def graphitePath(root: String) = new GraphitePath(List(sanitizeString(root)))
-  def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
+  def metricSeries(metricSeries: String) = new MetricSeries(List(sanitizeString(metricSeries)))
+  def metricSeries(seriesTree: List[String]) = new MetricSeries(seriesTree.map(sanitizeString))
 }
 
-private[metrics] case class GraphitePath private (path: List[String]) {
-  import GraphitePath.sanitizeString
-  def /(subPath: String) = new GraphitePath(sanitizeString(subPath) :: path)
-  def /(subPath: GraphitePath) = new GraphitePath(subPath.path.map(sanitizeString) ::: path)
-  def pathKey = path.reverse.mkString(".")
+private[metrics] case class MetricSeries private (seriesRootTree: List[String]) {
+  import MetricSeries.sanitizeString
+  def add(seriesNode: String) = new MetricSeries(sanitizeString(seriesNode) :: seriesRootTree)
+  def add(seriesTree: MetricSeries) = new MetricSeries(seriesTree.seriesRootTree.map(sanitizeString) ::: seriesRootTree)
+  def bucket = seriesRootTree.reverse.mkString(".")
 }

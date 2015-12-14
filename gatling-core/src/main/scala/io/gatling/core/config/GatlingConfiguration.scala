@@ -222,14 +222,10 @@ object GatlingConfiguration extends StrictLogging {
           light = config.getBoolean(data.statsd.Light),
           host = config.getString(data.statsd.Host),
           port = config.getInt(data.statsd.Port),
-          protocol = TransportProtocol(config.getString(data.statsd.Protocol).trim)
+          protocol = TransportProtocol(config.getString(data.statsd.Protocol).trim),
+          rootPathPrefix = config.getString(data.statsd.RootPathPrefix)
         )
       ),
-//
-//
-//
-//
-//
       config = config
     )
 
@@ -384,7 +380,8 @@ case class StatsdDataWriterConfiguration(
   light:      Boolean,
   host:       String,
   port:       Int,
-  protocol: TransportProtocol
+  protocol: TransportProtocol,
+  rootPathPrefix: String
 )
 
 case class GatlingConfiguration(
