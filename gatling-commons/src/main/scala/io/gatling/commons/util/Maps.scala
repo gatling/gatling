@@ -15,7 +15,7 @@
  */
 package io.gatling.commons.util
 
-import scala.collection.{ TraversableOnce, mutable }
+import scala.collection.mutable
 
 object Maps {
 
