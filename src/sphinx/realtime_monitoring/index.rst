@@ -24,6 +24,8 @@ Two types of metrics are provided by Gatling  :
 Gatling pushes this data to Graphite every second by default, but the push frequency can be changed by setting the "writeInterval" in the GraphiteDataWriter section of gatling.conf
 If you are using statsD, gatling pushes this data instantly to statsD.
 
+StatsD takes a stream of metric events which can have different metric types (count, set, guage, timer) from the events it can generate metric values to forward to graphite like P99 response times.
+
 User metrics
 ------------
 
@@ -53,6 +55,9 @@ The metric path for requests metrics is *gatling.simulationId.requestName.status
 * *requestName* is the name of your request
 * *status* is either **ok** (for successful requests), **ko** (for failed requests) or **all** (for both successful and failed requests)
 * *metric* is one of the metrics described above
+
+* StatsD Specific settings
+** *responseSampleRate* is a percentage (represented as a double) to control how often response metrics will be reported to statsD. This sample rate it sent to statsD so it can take it into account when generating metrics to forward to graphite (like P99).
 
 System under test metrics
 -------------------------
@@ -100,6 +105,8 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
       host = "localhost"  # The host where the statsd server is located
       port = 8125         # The port to which the statsd server listens to (8125 is the default)
       protocol = "udp"    # The protocol used to send data to statsd (currently supported : "tcp", "udp")
+      rootPathPrefix = "gatling"  # The common prefix of all metrics sent to statsd
+      responseSampleRate = 1.0    # A double between 0 and 1. Will only send data this percentage of the time. The statsd server will take the sample rate into account for counters.
     }
   }
 
@@ -282,3 +289,6 @@ Scripts for running netcat and processing the output:
 ::
 
 In which you could also pipe this output to another shell process to parse the event stream.
+
+Note that if you set *responseSampleRate* you will be missing some response events. However setting this value is useful to control if you are having
+throughput issues to your Graphite server.
