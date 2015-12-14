@@ -15,6 +15,7 @@
  */
 package io.gatling.core.controller.inject
 
+import scala.collection.breakOut
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.{ LongCounter, PushbackIterator }
@@ -52,7 +53,7 @@ object Injector {
   val InjectorActorName = "gatling-injector"
 
   def apply(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, scenarios: List[Scenario]): ActorRef = {
-    val userStreams = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers))).toMap
+    val userStreams: Map[String, UserStream] = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers)))(breakOut)
     system.actorOf(Props(new Injector(controller, statsEngine, userStreams)), InjectorActorName)
   }
 }
