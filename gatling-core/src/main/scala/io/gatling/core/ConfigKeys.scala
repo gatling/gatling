@@ -133,11 +133,12 @@ object ConfigKeys {
       val BufferSize = "gatling.data.graphite.bufferSize"
       val WriteInterval = "gatling.data.graphite.writeInterval"
     }
+    object statsd {
+      val Host = "gatling.data.statsd.host"
+      val Port = "gatling.data.statsd.port"
+      val Protocol = "gatling.data.statsd.protocol"
+      val RootPathPrefix = "gatling.data.statsd.rootPathPrefix"
+      val ResponseSampleRate = "gatling.data.statsd.responseSampleRate"
+    }
   }
-
-  //
-  //
-  //
-  //
-  //
 }

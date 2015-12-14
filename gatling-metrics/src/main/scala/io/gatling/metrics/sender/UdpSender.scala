@@ -17,7 +17,7 @@ package io.gatling.metrics.sender
 
 import java.net.InetSocketAddress
 
-import io.gatling.metrics.message.GraphiteMetrics
+import io.gatling.metrics.message.{ StatsdMetrics, GraphiteMetrics }
 
 import akka.actor.ActorRef
 import akka.io.{ IO, Udp }
@@ -39,5 +39,6 @@ private[metrics] class UdpSender(remote: InetSocketAddress) extends MetricsSende
 
   private def connected(connection: ActorRef): Receive = {
     case GraphiteMetrics(bytes) => connection ! Send(bytes, remote)
+    case StatsdMetrics(bytes)   => connection ! Send(bytes, remote)
   }
 }

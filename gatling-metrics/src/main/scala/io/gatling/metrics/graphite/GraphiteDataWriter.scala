@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics
+package io.gatling.metrics.graphite
 
-import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
-
+import akka.actor.ActorRef
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.TimeHelper.nowSeconds
 import io.gatling.core.config.GatlingConfiguration
@@ -25,14 +23,16 @@ import io.gatling.core.stats.writer._
 import io.gatling.metrics.message.GraphiteMetrics
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types._
+import io.gatling.metrics.MetricSeries
 
-import akka.actor.ActorRef
+import scala.collection.mutable
+import scala.concurrent.duration.DurationInt
 
 case class GraphiteData(
   configuration:   GatlingConfiguration,
   metricsSender:   ActorRef,
-  requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
-  usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
+  requestsByPath:  mutable.Map[MetricSeries, RequestMetricsBuffer],
+  usersByScenario: mutable.Map[MetricSeries, UserBreakdownBuffer],
   format:          GraphitePathPattern
 ) extends DataWriterData
 
@@ -46,9 +46,9 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   def onInit(init: Init): GraphiteData = {
     import init._
 
-    val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), actorName("metricsSender"))
-    val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
-    val usersByScenario = mutable.Map.empty[GraphitePath, UserBreakdownBuffer]
+    val metricsSender: ActorRef = context.actorOf(MetricsSender.graphiteProps(configuration), actorName("metricsSender"))
+    val requestsByPath = mutable.Map.empty[MetricSeries, RequestMetricsBuffer]
+    val usersByScenario = mutable.Map.empty[MetricSeries, UserBreakdownBuffer]
 
     val pattern: GraphitePathPattern = new OldGraphitePathPattern(runMessage, configuration)
 
@@ -100,8 +100,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   private def sendMetricsToGraphite(
     data:            GraphiteData,
     epoch:           Long,
-    requestsMetrics: Map[GraphitePath, MetricByStatus],
-    userBreakdowns:  Map[GraphitePath, UserBreakdown]
+    requestsMetrics: Map[MetricSeries, MetricByStatus],
+    userBreakdowns:  Map[MetricSeries, UserBreakdown]
   ): Unit = {
 
     import data._
