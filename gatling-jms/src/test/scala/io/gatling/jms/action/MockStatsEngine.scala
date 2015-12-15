@@ -28,6 +28,10 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   var dataWriterMsg: List[DataWriterMessage] = List()
 
+  override def start(): Unit = {}
+
+  override def stop(replyTo: ActorRef): Unit = {}
+
   override def logUser(userMessage: UserMessage): Unit = {}
 
   // [fl]
@@ -65,8 +69,6 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
     handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startTimestamp, exitTimestamp, group.cumulatedResponseTime, group.status))
 
   override def logError(session: Session, requestName: String, error: String, timestamp: Long): Unit = {}
-
-  override def stop(replyTo: ActorRef): Unit = {}
 
   override def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit = {}
 

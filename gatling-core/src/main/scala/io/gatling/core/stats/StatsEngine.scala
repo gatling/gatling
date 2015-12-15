@@ -36,6 +36,10 @@ import akka.util.Timeout
 
 trait StatsEngine {
 
+  def start()
+
+  def stop(replyTo: ActorRef): Unit
+
   def logUser(userMessage: UserMessage): Unit
 
   // [fl]
@@ -65,8 +69,6 @@ trait StatsEngine {
   ): Unit
 
   def logError(session: Session, requestName: String, error: String, date: Long): Unit
-
-  def stop(replyTo: ActorRef): Unit
 
   def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
     logError(session, requestName, s"Failed to build request $requestName: $errorMessage", nowMillis)
@@ -102,6 +104,16 @@ object DataWritersStatsEngine {
 class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extends StatsEngine {
 
   private val active = new AtomicBoolean(true)
+
+  override def start(): Unit = {}
+
+  override def stop(replyTo: ActorRef): Unit =
+    if (active.getAndSet(false)) {
+      implicit val dispatcher = system.dispatcher
+      implicit val dataWriterTimeOut = Timeout(5 seconds)
+      val responses = dataWriters.map(_ ? Stop)
+      Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
+    }
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
@@ -155,12 +167,4 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
 
   override def logError(session: Session, requestName: String, error: String, date: Long): Unit =
     dispatch(ErrorMessage(s"$error ", date))
-
-  override def stop(replyTo: ActorRef): Unit =
-    if (active.getAndSet(false)) {
-      implicit val dispatcher = system.dispatcher
-      implicit val dataWriterTimeOut = Timeout(5 seconds)
-      val responses = dataWriters.map(_ ? Stop)
-      Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
-    }
 }

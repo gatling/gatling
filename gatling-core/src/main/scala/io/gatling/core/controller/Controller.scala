@@ -58,6 +58,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       }
 
       throttler.start()
+      statsEngine.start()
       injector ! InjectorCommand.Start
 
       goto(Started) using StartedData(initData, new UserCounts(0L, 0L))
