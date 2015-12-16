@@ -119,6 +119,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setUseOpenSsl(ahcConfig.useOpenSsl)
       .setUseNativeTransport(ahcConfig.useNativeTransport)
       .setValidateResponseHeaders(false)
+      .setUsePooledMemory(ahcConfig.usePooledMemory)
 
     val keyManagerFactory = configuration.http.ssl.keyStore
       .map(config => newKeyManagerFactory(config.storeType, config.file, config.password, config.algorithm))
