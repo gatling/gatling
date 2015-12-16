@@ -18,19 +18,19 @@ package io.gatling.http.ahc
 import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
+import scala.util.control.NonFatal
+
+import io.gatling.commons.util.ClassHelper._
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.util.AddressHelper
-import io.netty.channel.Channel
 
-import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient._
-import org.asynchttpclient.handler._
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State._
+import org.asynchttpclient.handler._
+import org.asynchttpclient.netty.request.NettyRequest
 import com.typesafe.scalalogging._
-
-import scala.util.control.NonFatal
+import io.netty.channel.Channel
 
 object AsyncHandler extends StrictLogging {
   val DebugEnabled = logger.underlying.isDebugEnabled
@@ -150,7 +150,11 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
     }
 
   def sendOnThrowable(throwable: Throwable): Unit = {
-    val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
+    val classShortName = throwable.getClass.getShortName
+    val errorMessage = throwable.getMessage match {
+      case null => classShortName
+      case m    => s"$classShortName: $m"
+    }
 
     if (AsyncHandler.DebugEnabled)
       logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
