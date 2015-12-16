@@ -53,7 +53,7 @@ Automatic warm up
 -----------------
 
 The Java/NIO engine start up introduces an overhead on the first request to be executed.
-In order to compensate this effect, Gatling automatically performs a request to http://gatling-tool.org.
+In order to compensate this effect, Gatling automatically performs a request to http://gatling.io.
 
 To disable this feature, just add ``.disableWarmUp`` to an HTTP Protocol Configuration definition.
 To change the warm up url, just add ``.warmUp("newUrl")``.
