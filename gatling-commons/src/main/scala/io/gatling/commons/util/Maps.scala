@@ -15,6 +15,7 @@
  */
 package io.gatling.commons.util
 
+import scala.collection.immutable.ListMap
 import scala.collection.mutable
 
 object Maps {
@@ -83,5 +84,11 @@ object Maps {
       }
       mm
     }
+
+    def sortByKey(implicit odering: Ordering[K]): Map[K, V] =
+      ListMap(iterable.toSeq.sortBy(_._1): _*)
+
+    def sortBy[T](f: K => T)(implicit odering: Ordering[T]): Map[K, V] =
+      ListMap(iterable.toSeq.sortBy(t => f(t._1)): _*)
   }
 }
