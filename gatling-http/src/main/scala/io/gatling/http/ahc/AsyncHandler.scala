@@ -61,7 +61,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      val firstByteSent = responseBuilder.updateStartTimestamp()
+      responseBuilder.updateStartTimestamp()
       // [fl]
       //
       // [fl]

@@ -100,10 +100,8 @@ class ResponseBuilder(
     else
       Map.empty[String, MessageDigest]
 
-  def updateStartTimestamp(): Long = {
+  def updateStartTimestamp(): Unit =
     startTimestamp = nowMillis
-    startTimestamp
-  }
 
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
