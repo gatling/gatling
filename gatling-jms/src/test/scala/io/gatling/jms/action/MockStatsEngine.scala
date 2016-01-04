@@ -68,7 +68,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
   override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
     handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startTimestamp, exitTimestamp, group.cumulatedResponseTime, group.status))
 
-  override def logError(session: Session, requestName: String, error: String, timestamp: Long): Unit = {}
+  override def logCrash(session: Session, requestName: String, error: String): Unit = {}
 
   override def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit = {}
 
