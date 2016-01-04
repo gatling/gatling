@@ -36,7 +36,7 @@ import akka.util.Timeout
 
 trait StatsEngine {
 
-  def start()
+  def start(): Unit
 
   def stop(replyTo: ActorRef): Unit
 
