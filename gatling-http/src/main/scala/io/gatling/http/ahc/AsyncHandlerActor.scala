@@ -114,8 +114,8 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
 
       val extraInfo: List[Any] = try {
         tx.request.config.extraInfoExtractor match {
+          case None            => Nil
           case Some(extractor) => extractor(ExtraInfo(tx.request.requestName, status, tx.session, tx.request.ahcRequest, response))
-          case _               => Nil
         }
       } catch {
         case NonFatal(e) =>
