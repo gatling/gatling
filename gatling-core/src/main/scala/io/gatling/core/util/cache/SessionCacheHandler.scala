@@ -36,7 +36,7 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
     }
   }
 
-  def getEntry(session: Session, key: K): Option[V] =
+  def getEntry(session: Session, key: => K): Option[V] =
     getCache(session).flatMap(_.get(key))
 
   def removeEntry(session: Session, key: K): Session =
