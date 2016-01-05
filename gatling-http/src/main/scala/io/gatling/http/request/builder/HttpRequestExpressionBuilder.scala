@@ -34,7 +34,9 @@ import org.asynchttpclient.request.body.multipart.StringPart
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
-  def configureCaches(session: Session)(request: Request): Request = {
+  import RequestExpressionBuilder._
+
+  private def configureCaches(session: Session)(request: Request): Request = {
 
     httpCaches.contentCacheEntry(session, request).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
@@ -45,8 +47,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     request
   }
 
-  def configureFormParams(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
-    httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
+  private val configureFormParams0: RequestBuilderConfigure =
+    session => requestBuilder => httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
       if (httpAttributes.bodyParts.isEmpty) {
         // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
         requestBuilder.setFormParams(resolvedFormParams)
@@ -57,40 +59,50 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       }
     }
 
-  def configureParts(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
+  private val configureFormParams: RequestBuilderConfigure =
+    if (httpAttributes.formParams.isEmpty && httpAttributes.form.isEmpty)
+      ConfigureIdentity
+    else
+      configureFormParams0
 
-    require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
+  private val configureParts0: RequestBuilderConfigure =
+    session => requestBuilder => {
 
-      def setBody(body: Body): Validation[AhcRequestBuilder] =
-        body match {
-          case StringBody(string) => string(session).map(requestBuilder.setBody)
-          case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes(session).map { f =>
-            f.cachedBytes match {
-              case Some(bytes) => requestBuilder.setBody(bytes)
-              case None        => requestBuilder.setBody(f.file)
+        def setBody(body: Body): Validation[AhcRequestBuilder] =
+          body match {
+            case StringBody(string) => string(session).map(requestBuilder.setBody)
+            case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes(session).map { f =>
+              f.cachedBytes match {
+                case Some(bytes) => requestBuilder.setBody(bytes)
+                case None        => requestBuilder.setBody(f.file)
+              }
             }
+            case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
+            case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs))
+            case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
           }
-          case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
-          case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs))
-          case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
-        }
 
-      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
-        bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
-          for {
-            requestBuilder <- requestBuilder
-            part <- part.toMultiPart(session)
-          } yield requestBuilder.addBodyPart(part)
-        }
+        def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
+          bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
+            for {
+              requestBuilder <- requestBuilder
+              part <- part.toMultiPart(session)
+            } yield requestBuilder.addBodyPart(part)
+          }
 
-    httpAttributes.body match {
-      case Some(body) => setBody(body)
-
-      case None => httpAttributes.bodyParts match {
-        case Nil       => requestBuilder.success
-        case bodyParts => setBodyParts(bodyParts)
+      httpAttributes.body match {
+        case None       => setBodyParts(httpAttributes.bodyParts)
+        case Some(body) => setBody(body)
       }
     }
+
+  private val configureParts: RequestBuilderConfigure = {
+    require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
+
+    if (httpAttributes.body.isEmpty && httpAttributes.bodyParts.isEmpty)
+      ConfigureIdentity
+    else
+      configureParts0
   }
 
   override protected def addDefaultHeaders(session: Session, headers: Map[String, Expression[String]])(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
