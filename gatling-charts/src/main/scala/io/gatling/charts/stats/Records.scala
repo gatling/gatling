@@ -21,7 +21,7 @@ import io.gatling.commons.stats.{ Group, KO, Status }
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequestRecord, RawUserRecord }
 
-private[stats] class UserRecordParser(bucketFunction: Long => Int, runStart: Long) {
+private[stats] class UserRecordParser {
 
   def unapply(array: Array[String]) = RawUserRecord.unapply(array).map(parseUserRecord)
 
@@ -33,11 +33,11 @@ private[stats] class UserRecordParser(bucketFunction: Long => Int, runStart: Lon
     val startTimestamp = strings(4).toLong
     val endTimestamp = strings(5).toLong
 
-    UserRecord(scenario, userId, event, bucketFunction(startTimestamp), bucketFunction(endTimestamp))
+    UserRecord(scenario, userId, event, startTimestamp, endTimestamp)
   }
 }
 
-private[stats] class RequestRecordParser(bucketFunction: Long => Int, runStart: Long) {
+private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
 
   def unapply(array: Array[String]) = RawRequestRecord.unapply(array).map(parseRequestRecord)
 
@@ -68,7 +68,7 @@ private[stats] object GroupRecordParser {
   def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
 }
 
-private[stats] class GroupRecordParser(bucketFunction: Long => Int, runStart: Long) {
+private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
 
   def unapply(array: Array[String]) = RawGroupRecord.unapply(array).map(parseGroupRecord)
 
@@ -99,5 +99,5 @@ private[stats] object ErrorRecordParser {
 
 private[stats] case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String])
 private[stats] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, startBucket: Int)
-private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startBucket: Int, endBucket: Int)
+private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startTimestamp: Long, endTimestamp: Long)
 private[stats] case class ErrorRecord(message: String, date: Long)

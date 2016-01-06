@@ -137,9 +137,9 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
     var count = 0
 
-    val requestRecordParser = new RequestRecordParser(bucketFunction, runStart)
-    val groupRecordParser = new GroupRecordParser(bucketFunction, runStart)
-    val userRecordParser = new UserRecordParser(bucketFunction, runStart)
+    val requestRecordParser = new RequestRecordParser(bucketFunction)
+    val groupRecordParser = new GroupRecordParser(bucketFunction)
+    val userRecordParser = new UserRecordParser
 
     records
       .foreach { line =>
@@ -155,7 +155,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
         }
       }
 
-    resultsHolder.endOrphanUserRecords(bucketFunction(runEnd))
+    resultsHolder.endOrphanUserRecords()
 
     logger.info(s"Second pass: read $count lines")
 

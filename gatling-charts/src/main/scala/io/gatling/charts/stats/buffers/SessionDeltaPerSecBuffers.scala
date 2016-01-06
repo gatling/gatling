@@ -16,6 +16,8 @@
 package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
+
+import io.gatling.commons.util.Maps._
 import io.gatling.charts.stats.UserRecord
 import io.gatling.core.stats.IntVsTimePlot
 import io.gatling.core.stats.message.{ End, Start }
@@ -30,50 +32,70 @@ private[stats] case class SessionDeltas(starts: Int, ends: Int) {
   def addEnd() = copy(ends = ends + 1)
 }
 
-private[stats] class SessionDeltaBuffer(buckets: Array[Int]) {
+private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int]) {
 
-  val startCounts: Array[Int] = Array.fill(buckets.length)(0)
-  val endCounts: Array[Int] = Array.fill(buckets.length)(0)
+  private val runDurationInSeconds = math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt
+  private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
+  private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
 
-  def addStart(bucket: Int): Unit = startCounts(bucket) = startCounts(bucket) + 1
+  private def offset(timestamp: Long): Int = ((timestamp - minTimestamp) / 1000).toInt
 
-  def addEnd(bucket: Int): Unit = endCounts(bucket) = endCounts(bucket) + 1
+  def addStart(timestamp: Long): Unit = startCounts(offset(timestamp)) += 1
 
-  def distribution: List[IntVsTimePlot] =
-    buckets.view.zipWithIndex.foldLeft(List.empty[IntVsTimePlot]) { (activeSessions, timeAndBucketNumber) =>
-      val (time, bucketNumber) = timeAndBucketNumber
-      val previousSessions = if (activeSessions.isEmpty) 0 else activeSessions.head.value
-      val previousEnds = if (bucketNumber == 0) 0 else endCounts(bucketNumber - 1)
-      val bucketSessions = previousSessions - previousEnds + startCounts(bucketNumber)
-      IntVsTimePlot(time, bucketSessions) :: activeSessions
-    }.reverse
+  def addEnd(timestamp: Long): Unit = endCounts(offset(timestamp)) += 1
+
+  private val bucketWidthInMillis = ((maxTimestamp - minTimestamp) / buckets.length).toInt
+  private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, buckets.length - 1)
+
+  def distribution: List[IntVsTimePlot] = {
+
+    val eachSecondActiveSessions = Array.fill(runDurationInSeconds)(0)
+
+    for { second <- 0 until runDurationInSeconds } {
+      val previousSessions = if (second == 0) 0 else eachSecondActiveSessions(second - 1)
+      val previousEnds = if (second == 0) 0 else endCounts(second - 1)
+      val bucketSessions = previousSessions - previousEnds + startCounts(second)
+      eachSecondActiveSessions.update(second, bucketSessions)
+    }
+
+    eachSecondActiveSessions.zipWithIndex.iterator
+      .map { case (sessions, second) => second -> sessions }
+      .groupByKey(secondToBucket)
+      .map {
+        case (bucket, sessionCounts) =>
+          val averageSessionCount = sessionCounts.sum / sessionCounts.size
+          val time = buckets(bucket)
+          IntVsTimePlot(time, averageSessionCount)
+      }.toList.sortBy(_.time)
+  }
 }
 
 private[stats] trait SessionDeltaPerSecBuffers {
-  this: Buckets =>
+  this: Buckets with RunTimes =>
 
-  val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.Map.empty
-  val orphanStartRecords = mutable.Map.empty[String, UserRecord]
+  private val sessionDeltaPerSecBuffers = mutable.Map.empty[Option[String], SessionDeltaBuffer]
+  private val orphanStartRecords = mutable.Map.empty[String, UserRecord]
 
-  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer(buckets))
+  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer =
+    sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer(minTimestamp, maxTimestamp, buckets))
 
   def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {
       case Start =>
-        getSessionDeltaPerSecBuffers(None).addStart(record.startBucket)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startBucket)
+        getSessionDeltaPerSecBuffers(None).addStart(record.startTimestamp)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startTimestamp)
         orphanStartRecords += record.userId -> record
 
       case End =>
-        getSessionDeltaPerSecBuffers(None).addEnd(record.endBucket)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endBucket)
+        getSessionDeltaPerSecBuffers(None).addEnd(record.endTimestamp)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endTimestamp)
         orphanStartRecords -= record.userId
     }
   }
 
-  def endOrphanUserRecords(endDateBucket: Int): Unit =
+  def endOrphanUserRecords(): Unit =
     orphanStartRecords.values.foreach { start =>
-      getSessionDeltaPerSecBuffers(None).addEnd(endDateBucket)
-      getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(endDateBucket)
+      getSessionDeltaPerSecBuffers(None).addEnd(maxTimestamp)
+      getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(maxTimestamp)
     }
 }

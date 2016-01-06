@@ -18,9 +18,10 @@ package io.gatling.charts.stats
 import io.gatling.charts.stats.buffers._
 import io.gatling.core.config.GatlingConfiguration
 
-private[stats] class ResultsHolder(minTime: Long, maxTime: Long, val buckets: Array[Int])(implicit configuration: GatlingConfiguration)
-    extends GeneralStatsBuffers(maxTime - minTime)
+private[stats] class ResultsHolder(val minTimestamp: Long, val maxTimestamp: Long, val buckets: Array[Int])(implicit configuration: GatlingConfiguration)
+    extends GeneralStatsBuffers(math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt)
     with Buckets
+    with RunTimes
     with NamesBuffers
     with RequestsPerSecBuffers
     with ResponseTimeRangeBuffers
