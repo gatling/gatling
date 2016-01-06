@@ -151,16 +151,20 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       val keyManagerFactory = for {
         file <- session(ConfigKeys.http.ssl.keyStore.File).asOption[String]
         password <- session(ConfigKeys.http.ssl.keyStore.Password).asOption[String]
-        storeType = session(ConfigKeys.http.ssl.keyStore.Type).asOption[String]
-        algorithm = session(ConfigKeys.http.ssl.keyStore.Algorithm).asOption[String]
-      } yield newKeyManagerFactory(storeType, file, password, algorithm)
+      } yield {
+        val storeType = session(ConfigKeys.http.ssl.keyStore.Type).asOption[String]
+        val algorithm = session(ConfigKeys.http.ssl.keyStore.Algorithm).asOption[String]
+        newKeyManagerFactory(storeType, file, password, algorithm)
+      }
 
       val trustManagerFactory = for {
         file <- session(ConfigKeys.http.ssl.trustStore.File).asOption[String]
         password <- session(ConfigKeys.http.ssl.trustStore.Password).asOption[String]
-        storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
-        algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
-      } yield newTrustManagerFactory(storeType, file, password, algorithm)
+      } yield {
+        val storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
+        val algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
+        newTrustManagerFactory(storeType, file, password, algorithm)
+      }
 
       trustManagerFactory.orElse(keyManagerFactory).map { _ =>
         logger.info(s"Setting a custom SslContext for user ${session.userId}")

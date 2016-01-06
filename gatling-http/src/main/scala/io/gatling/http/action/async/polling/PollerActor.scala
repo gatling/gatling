@@ -74,10 +74,10 @@ class PollerActor(
           statsEngine.reportUnbuildableRequest(session, pollerName, errorMessage)
           errorMessage
         }
-
-        nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, self, root = false)
-
-      } yield HttpTx.start(nonBlockingTx, httpComponents)
+      } yield {
+        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, self, root = false)
+        HttpTx.start(nonBlockingTx, httpComponents)
+      }
 
       outcome match {
         case _: Success[_] =>

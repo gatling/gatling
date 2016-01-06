@@ -40,11 +40,13 @@ package object builder {
           for {
             resolvedFormParams <- formParams
             resolvedForm <- form(session)
-            formParamsByName = resolvedFormParams.groupBy(_.getName)
-            formFieldsByName = resolvedForm.map { case (key, values) => key -> values.map(value => new Param(key, value)) }
+          } yield {
+            val formParamsByName = resolvedFormParams.groupBy(_.getName)
+            val formFieldsByName = resolvedForm.map { case (key, values) => key -> values.map(value => new Param(key, value)) }
             // override form with formParams
-            javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq
-          } yield javaParams
+            val javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq
+            javaParams
+          }
 
         case None =>
           formParams

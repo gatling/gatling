@@ -49,8 +49,10 @@ private[user] abstract class UserHandler(proxy: HttpProxy) extends ChannelInboun
             for {
               username <- proxy.outgoingUsername
               password <- proxy.outgoingPassword
-              proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-            } request.headers.set(HeaderNames.ProxyAuthorization, proxyAuth)
+            } {
+              val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
+              request.headers.set(HeaderNames.ProxyAuthorization, proxyAuth)
+            }
         }
 
         val safeRequest = SafeHttpRequest.fromNettyRequest(request)

@@ -54,8 +54,10 @@ case class HttpRequestDef(
     for {
       rawAhcRequest <- ahcRequest(session)
       sc <- resolveOptionalExpression(signatureCalculator, session)
-      signedRequest = sign(rawAhcRequest, sc)
-    } yield HttpRequest(requestName, signedRequest, config)
+    } yield {
+      val signedRequest = sign(rawAhcRequest, sc)
+      HttpRequest(requestName, signedRequest, config)
+    }
   }
 }
 

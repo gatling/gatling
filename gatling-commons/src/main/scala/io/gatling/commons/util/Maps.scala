@@ -72,8 +72,8 @@ object Maps {
       val mm = new mutable.HashMap[K2, mutable.ArrayBuffer[V]]
       for {
         (k1, value) <- iterable
-        k2 = f(k1)
       } {
+        val k2 = f(k1)
         if (mm.contains(k2)) {
           mm(k2) += value
         } else {

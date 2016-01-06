@@ -65,8 +65,10 @@ class WsOpenAction(
         for {
           requestName <- requestName(session)
           request <- request(session)
-          check = checkBuilder.map(_.build)
-        } yield open(AsyncTx(session, next, requestName, request, httpComponents.httpProtocol, nowMillis, check = check))
+        } yield {
+          val check = checkBuilder.map(_.build)
+          open(AsyncTx(session, next, requestName, request, httpComponents.httpProtocol, nowMillis, check = check))
+        }
     }
   }
 }

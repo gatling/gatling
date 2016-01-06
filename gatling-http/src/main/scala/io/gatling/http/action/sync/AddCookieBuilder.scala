@@ -69,8 +69,10 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       value <- value(session)
       domain <- resolvedDomain(session)
       path <- resolvedPath(session)
-      cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
-    } yield storeCookie(session, domain, path, cookie)
+    } yield {
+      val cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
+      storeCookie(session, domain, path, cookie)
+    }
 
     system.actorOf(SessionHook.props(expression, coreComponents.statsEngine, next, interruptable = true), actorName("addCookie"))
   }

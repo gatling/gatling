@@ -89,8 +89,8 @@ class JdkXmlParsers(implicit configuration: GatlingConfiguration) {
 
     (for {
       i <- 0 until nodes.getLength
-      item = nodes.item(i)
     } yield {
+      val item = nodes.item(i)
       item.getNodeType match {
         case Node.ELEMENT_NODE if item.getChildNodes.getLength > 0 =>
           val firstChild = item.getChildNodes.item(0)

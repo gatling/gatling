@@ -63,11 +63,12 @@ trait AssertionGenerator {
     Gen.oneOf(lessThan, greaterThan, is, between, in)
   }
 
-  val assertionGen: Gen[Assertion] = for {
-    path <- pathGen
-    target <- targetGen
-    condition <- conditionGen
-  } yield Assertion(path, target, condition)
+  val assertionGen: Gen[Assertion] =
+    for {
+      path <- pathGen
+      target <- targetGen
+      condition <- conditionGen
+    } yield Assertion(path, target, condition)
 }
 
 class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
