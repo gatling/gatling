@@ -56,7 +56,7 @@ class LogFileProcessor(implicit configuration: GatlingConfiguration) extends Run
       None
 
   private def reportsGenerationEnabled =
-    configuration.data.fileDataWriterEnabled && !configuration.charting.noReports
+    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
 
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")
