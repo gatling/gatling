@@ -25,6 +25,7 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
+import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.NumberHelper._
@@ -169,7 +170,7 @@ object ElCompiler {
 
   def parse(string: String): List[Part[Any]] = TheELCompiler.get.parseEl(string)
 
-  def compile[T: ClassTag: NotNothing](string: String): Expression[T] =
+  def compile[T: TypeCaster: ClassTag: NotNothing](string: String): Expression[T] =
     parse(string) match {
       case List(StaticPart(staticStr)) =>
         val stringV = staticStr.asValidation[T]
