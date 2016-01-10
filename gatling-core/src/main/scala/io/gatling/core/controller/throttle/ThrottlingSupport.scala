@@ -72,7 +72,7 @@ object Throttling {
   def apply(steps: Iterable[ThrottleStep])(implicit configuration: GatlingConfiguration): Throttling = {
 
     val resolvedSteps =
-      // [pro]
+      // [fl]
       //
       //
       //
@@ -89,8 +89,8 @@ object Throttling {
       //
       //
       //
-      // [pro]
-        steps
+      // [fl]
+      steps
 
     val reversedSteps = resolvedSteps.toList
     val limit: (Long => Int) = (now: Long) => valueAt(reversedSteps, now, 0)

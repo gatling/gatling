@@ -16,11 +16,11 @@ object BuildSettings {
     license := ApacheV2,
     githubPath := "gatling/gatling",
     projectDevelopers := developers
-    // [pro]
+    // [fl]
     //
     //
     //
-    // [pro]
+    // [fl]
   )
 
   lazy val gatlingModuleSettings =
@@ -29,13 +29,13 @@ object BuildSettings {
   lazy val noArtifactToPublish =
     publishArtifact in Compile := false
 
-  // [pro]
+  // [fl]
   //
   //
   //
   //
   //
-  // [pro]
+  // [fl]
 
   val developers = Seq(
     GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", isGatlingCorp = true),

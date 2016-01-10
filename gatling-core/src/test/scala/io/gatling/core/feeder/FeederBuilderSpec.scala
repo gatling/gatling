@@ -98,7 +98,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     cantConvert.fold(fail("Could not find key"))(_ shouldBe "Test")
   }
 
-  // [pro]
+  // [fl]
   //
   //
   //
@@ -127,7 +127,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   //
   //
   //
-  // [pro]
+  // [fl]
 
   "FeederBuilder" should "have working implicit conversions" in {
     IndexedSeq(Map("1" -> "Test")).build(mock[ScenarioContext]) shouldBe a[Feeder[_]]

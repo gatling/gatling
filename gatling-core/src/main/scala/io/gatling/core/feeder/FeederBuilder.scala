@@ -26,11 +26,11 @@ case class FeederWrapper[T](feeder: Feeder[T]) extends FeederBuilder[T] {
 }
 
 case class RecordSeqFeederBuilder[T](
-  records: IndexedSeq[Record[T]],
-  // [pro]
-  //
-  // [pro]
-  strategy: FeederStrategy = Queue
+    records: IndexedSeq[Record[T]],
+    // [fl]
+    //
+    // [fl]
+    strategy: FeederStrategy = Queue
 ) extends FeederBuilder[T] {
 
   def convert(conversion: PartialFunction[(String, T), Any]): RecordSeqFeederBuilder[Any] = {
@@ -41,7 +41,7 @@ case class RecordSeqFeederBuilder[T](
   }
 
   def build(ctx: ScenarioContext): Feeder[T] = {
-    // [pro]
+    // [fl]
     //
     //
     //
@@ -50,8 +50,8 @@ case class RecordSeqFeederBuilder[T](
     //
     //
     //
-    // [pro]
-      strategy.feeder(records, ctx)
+    // [fl]
+    strategy.feeder(records, ctx)
   }
 
   def queue = copy(strategy = Queue)
@@ -59,7 +59,7 @@ case class RecordSeqFeederBuilder[T](
   def shuffle = copy(strategy = Shuffle)
   def circular = copy(strategy = Circular)
 
-  // [pro]
+  // [fl]
   //
-  // [pro]
+  // [fl]
 }

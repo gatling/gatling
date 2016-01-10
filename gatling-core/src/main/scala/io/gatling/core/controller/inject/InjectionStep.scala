@@ -29,7 +29,7 @@ import io.gatling.core.util.Shard
 object InjectionStep {
 
   def resolve(injectionSteps: Iterable[InjectionStep])(implicit configuration: io.gatling.core.config.GatlingConfiguration): Iterable[InjectionStep] =
-    // [pro]
+    // [fl]
     //
     //
     //
@@ -51,8 +51,8 @@ object InjectionStep {
     //
     //
     //
-    // [pro]
-      injectionSteps
+    // [fl]
+    injectionSteps
 }
 
 sealed trait InjectionStep {
