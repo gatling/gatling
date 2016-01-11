@@ -48,21 +48,20 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
     system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
   }
 
-  def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) = {
-
-    // import optimized TypeCaster
-    import HttpTypeHelper._
-
-    if (httpProtocol.enginePart.shareClient)
+  def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) =
+    if (httpProtocol.enginePart.shareClient) {
       (session, ahcFactory.defaultAhc)
-    else
+
+    } else {
+      // import optimized TypeCaster
+      import HttpTypeHelper._
       session(HttpEngine.AhcAttributeName).asOption[AsyncHttpClient] match {
         case Some(client) => (session, client)
         case _ =>
           val httpClient = ahcFactory.newAhc(session)
           (session.set(HttpEngine.AhcAttributeName, httpClient), httpClient)
       }
-  }
+    }
 
   private var warmedUp = false
 
