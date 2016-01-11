@@ -60,10 +60,10 @@ class WsCompileTest extends Simulation {
         ).exec(
             ws("Message3")
               .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-              .check(wsListen.within(30 seconds).expect(1).message)
+              .check(wsListen.within(30 seconds).expect(1).string)
           ).exec(
               ws("Message3")
-                .check(wsListen.within(30 seconds).expect(1).message)
+                .check(wsListen.within(30 seconds).expect(1).string)
             ).exec(
                 ws("Cancel").wsName("foo")
                 .cancelCheck
