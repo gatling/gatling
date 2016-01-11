@@ -101,7 +101,7 @@ case class PopulationBuilder(
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
-    new Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onExit, injectionProfile, ctx)
+    new Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onStart, protocolComponentsRegistry.onExit, injectionProfile, ctx)
   }
 }
 

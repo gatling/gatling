@@ -20,5 +20,6 @@ import io.gatling.core.session.Session
 
 case class JmsComponents(jmsProtocol: JmsProtocol) extends ProtocolComponents {
 
+  def onStart: Option[Session => Session] = None
   def onExit: Option[Session => Unit] = None
 }

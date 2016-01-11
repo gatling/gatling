@@ -64,9 +64,23 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       case Right(uri) => uri.success
     }
 
+  // note: DNS cache is supposed to be set early
   private val configureNameResolver: RequestBuilderConfigureRaw =
     if (protocol.enginePart.perUserNameResolution)
-      session => requestBuilder => requestBuilder.setNameResolver(httpCaches.dnsLookupCacheEntry(session))
+      session => httpCaches.nameResolver(session) match {
+        case None => identity
+        case Some(nameResolver) =>
+          // [fl]
+          //
+          //
+          //
+          //
+          //
+          //
+          // [fl]
+          _.setNameResolver(nameResolver)
+      }
+
     else
       ConfigureIdentityRaw
 

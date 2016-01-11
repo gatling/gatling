@@ -97,13 +97,6 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHand
   //
   //
   //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
   // [fl]
 
   override def onRequestSend(request: NettyRequest): Unit = {

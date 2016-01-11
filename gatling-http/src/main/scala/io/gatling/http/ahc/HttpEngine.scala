@@ -15,7 +15,9 @@
  */
 package io.gatling.http.ahc
 
+import io.gatling.http.resolver.DelegatingNameResolver
 import io.gatling.http.util.HttpTypeHelper
+import io.netty.resolver.dns.DefaultDnsCache
 
 import scala.util.control.NonFatal
 
@@ -48,6 +50,10 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
     system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
   }
 
+  private lazy val dnsResolver = ahcFactory.newNameResolver()
+
+  def newDnsResolver: DelegatingNameResolver = DelegatingNameResolver(dnsResolver, new DefaultDnsCache)
+
   def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) =
     if (httpProtocol.enginePart.shareClient) {
       (session, ahcFactory.defaultAhc)
@@ -71,6 +77,11 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
       warmedUp = true
 
       import httpComponents._
+
+      if (httpProtocol.enginePart.perUserNameResolution) {
+        // eager load
+        val unused = dnsResolver
+      }
 
       httpProtocol.warmUpUrl match {
         case Some(url) =>

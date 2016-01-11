@@ -31,15 +31,18 @@ object PermanentRedirectCacheKey {
 
 case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
 
-object PermanentRedirectCache {
+object PermanentRedirectCacheSupport {
   val HttpPermanentRedirectCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 }
 
-trait PermanentRedirectCache {
+trait PermanentRedirectCacheSupport {
+
+  import PermanentRedirectCacheSupport._
 
   def configuration: GatlingConfiguration
 
-  private val httpPermanentRedirectCacheHandler = new SessionCacheHandler[PermanentRedirectCacheKey, Uri](PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
+  private val httpPermanentRedirectCacheHandler =
+    new SessionCacheHandler[PermanentRedirectCacheKey, Uri](HttpPermanentRedirectCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def addRedirect(session: Session, from: Request, to: Uri): Session =
     httpPermanentRedirectCacheHandler.addEntry(session, PermanentRedirectCacheKey(from), to)

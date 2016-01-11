@@ -22,14 +22,14 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.SuccessWrapper
 
 class HttpCaches(implicit val configuration: GatlingConfiguration)
-    extends HttpContentCache
-    with PermanentRedirectCache
-    with DnsCache
+    extends HttpContentCacheSupport
+    with PermanentRedirectCacheSupport
+    with DnsCacheSupport
     with StrictLogging {
 
   val FlushCache: Expression[Session] = _.removeAll(
-    HttpContentCache.HttpContentCacheAttributeName,
-    DnsCache.DnsCacheAttributeName,
-    PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName
+    HttpContentCacheSupport.HttpContentCacheAttributeName,
+    DnsCacheSupport.DnsCacheAttributeName,
+    PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName
   ).success
 }

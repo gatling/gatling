@@ -38,6 +38,7 @@ trait ProtocolKey {
 }
 
 trait ProtocolComponents {
+  def onStart: Option[Session => Session]
   def onExit: Option[Session => Unit]
 }
 
@@ -66,8 +67,14 @@ class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreCompon
     componentsCache.clear()
   }
 
-  def onExit: Session => Unit =
-    componentsCache.values.flatMap(any => any.asInstanceOf[ProtocolComponents].onExit).toList match {
+  lazy val onStart: Session => Session =
+    componentsCache.values.collect { case any: ProtocolComponents => any.onStart }.flatten.toList match {
+      case Nil          => Session.Identity
+      case head :: tail => tail.foldLeft(head)(_ andThen _)
+    }
+
+  lazy val onExit: Session => Unit =
+    componentsCache.values.collect { case any: ProtocolComponents => any.onExit }.flatten.toList match {
       case Nil => _ => ()
       case onExits => session => onExits.foreach(_(session))
     }

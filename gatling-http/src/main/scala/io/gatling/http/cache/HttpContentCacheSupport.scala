@@ -33,13 +33,13 @@ case class ContentCacheKey(uri: Uri, method: String, cookies: Cookies)
 
 case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
 
-object HttpContentCache {
+object HttpContentCacheSupport {
   val HttpContentCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.contentCache"
 }
 
-trait HttpContentCache extends ExpiresSupport {
+trait HttpContentCacheSupport extends ExpiresSupport {
 
-  import HttpContentCache._
+  import HttpContentCacheSupport._
 
   def configuration: GatlingConfiguration
 

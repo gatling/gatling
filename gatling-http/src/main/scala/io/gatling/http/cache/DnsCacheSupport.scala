@@ -17,31 +17,26 @@ package io.gatling.http.cache
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.resolver.DnsJavaNameResolver
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.resolver.{ DelegatingNameResolver }
 import io.gatling.http.util.HttpTypeHelper
 
-import org.asynchttpclient.resolver.NameResolver
-
-object DnsCache {
+object DnsCacheSupport {
   val DnsCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 }
 
-trait DnsCache {
+trait DnsCacheSupport {
 
-  import DnsCache._
+  import DnsCacheSupport._
 
   // import optimized TypeCaster
   import HttpTypeHelper._
 
   def configuration: GatlingConfiguration
 
-  def cacheDnsLookup(httpProtocol: HttpProtocol, nameResolver: NameResolver): Session => Session =
-    if (httpProtocol.enginePart.perUserNameResolution)
-      _.set(DnsCacheAttributeName, nameResolver)
-    else
-      Session.Identity
+  def setNameResolver(httpEngine: HttpEngine): Session => Session =
+    _.set(DnsCacheAttributeName, httpEngine.newDnsResolver)
 
-  def dnsLookupCacheEntry(session: Session): NameResolver =
-    session(DnsCacheAttributeName).asOption[NameResolver].getOrElse(new DnsJavaNameResolver)
+  val nameResolver: (Session => Option[DelegatingNameResolver]) =
+    _(DnsCacheAttributeName).asOption[DelegatingNameResolver]
 }

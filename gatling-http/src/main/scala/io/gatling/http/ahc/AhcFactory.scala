@@ -26,6 +26,7 @@ import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.resolver.dns.ExtendedDnsNameResolver
 import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
 import io.netty.util.{ Timer, HashedWheelTimer }
@@ -52,6 +53,8 @@ private[gatling] trait AhcFactory {
   def defaultAhc: AsyncHttpClient
 
   def newAhc(session: Session): AsyncHttpClient
+
+  def newNameResolver(): ExtendedDnsNameResolver
 }
 
 private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents)(implicit val configuration: GatlingConfiguration) extends AhcFactory with StrictLogging {
@@ -61,8 +64,8 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  private def newEventLoopGroup: EventLoopGroup = {
-    val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("gatling-netty-thread"))
+  private def newEventLoopGroup(poolName: String): EventLoopGroup = {
+    val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory(poolName))
     system.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
     eventLoopGroup
   }
@@ -134,7 +137,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   }
 
   private val defaultAhcConfig = {
-    val eventLoopGroup = newEventLoopGroup
+    val eventLoopGroup = newEventLoopGroup("gatling-http-thread")
     val timer = newTimer
     val channelPool = newChannelPool(timer)
     val ahcConfigBuilder = newAhcConfigBuilder(eventLoopGroup, timer, channelPool)
@@ -176,5 +179,12 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     val client = new DefaultAsyncHttpClient(config)
     system.registerOnTermination(client.close())
     client
+  }
+
+  def newNameResolver(): ExtendedDnsNameResolver = {
+    val executor = newEventLoopGroup("gatling-dns-thread")
+    val resolver = new ExtendedDnsNameResolver(executor.next())
+    system.registerOnTermination(resolver.close())
+    resolver
   }
 }

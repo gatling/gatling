@@ -19,9 +19,9 @@ import akka.actor.ActorRef
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.http.cookie.CookieJar
+import io.gatling.http.resolver.DelegatingNameResolver
 
 import org.asynchttpclient.AsyncHttpClient
-import org.asynchttpclient.resolver.NameResolver
 
 object HttpTypeHelper {
 
@@ -40,18 +40,18 @@ object HttpTypeHelper {
       }
   }
 
-  implicit val NameResolverTypeCaster = new TypeCaster[NameResolver] {
+  implicit val NameResolverTypeCaster = new TypeCaster[DelegatingNameResolver] {
     @throws[ClassCastException]
-    override def cast(value: Any): NameResolver =
+    override def cast(value: Any): DelegatingNameResolver =
       value match {
-        case v: NameResolver => v
-        case _               => throw new ClassCastException(cceMessage(value, classOf[NameResolver]))
+        case v: DelegatingNameResolver => v
+        case _                         => throw new ClassCastException(cceMessage(value, classOf[DelegatingNameResolver]))
       }
 
-    override def validate(value: Any): Validation[NameResolver] =
+    override def validate(value: Any): Validation[DelegatingNameResolver] =
       value match {
-        case v: NameResolver => v.success
-        case _               => cceMessage(value, classOf[NameResolver]).failure
+        case v: DelegatingNameResolver => v.success
+        case _                         => cceMessage(value, classOf[DelegatingNameResolver]).failure
       }
   }
 

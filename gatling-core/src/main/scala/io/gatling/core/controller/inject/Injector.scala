@@ -91,7 +91,8 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
   }
 
   private def startUser(scenario: Scenario, userId: Long): Unit = {
-    val session = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
+    val rawSession = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
+    val session = scenario.onStart(rawSession)
     scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")
     val userStart = UserMessage(session, io.gatling.core.stats.message.Start, session.startDate)
