@@ -17,7 +17,7 @@ package io.gatling.core.check.extractor.xpath
 
 import java.io.StringReader
 import javax.xml.namespace.NamespaceContext
-import javax.xml.parsers.{ ParserConfigurationException, DocumentBuilder, DocumentBuilderFactory }
+import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
 import javax.xml.xpath.XPathConstants._
 import javax.xml.xpath.XPathFactory
 
