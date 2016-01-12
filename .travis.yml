@@ -5,12 +5,12 @@ sbt_args: -Xmx2048M
 before_script: ./make_credentials.sh
 script: 
   - sbt test
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publish || true"
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
 # If building master, Publish to Sonatype and trigger builds
 after_success:
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publish"
   - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-highcharts"
   - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-vtd"
   - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-maven"
