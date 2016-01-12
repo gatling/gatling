@@ -50,7 +50,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
     system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
   }
 
-  private lazy val dnsResolver = ahcFactory.newNameResolver()
+  private[this] lazy val dnsResolver = ahcFactory.newNameResolver()
 
   def newDnsResolver: DelegatingNameResolver = DelegatingNameResolver(dnsResolver, new DefaultDnsCache)
 
@@ -69,7 +69,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
       }
     }
 
-  private var warmedUp = false
+  private[this] var warmedUp = false
 
   def warmpUp(httpComponents: HttpComponents): Unit =
     if (!warmedUp) {

@@ -26,7 +26,8 @@ import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 
 object ContentCacheKey {
-  def apply(request: Request) = new ContentCacheKey(request.getUri, request.getMethod, new Cookies(request.getCookies))
+  def apply(request: Request): ContentCacheKey =
+    new ContentCacheKey(request.getUri, request.getMethod, new Cookies(request.getCookies))
 }
 
 case class ContentCacheKey(uri: Uri, method: String, cookies: Cookies)
@@ -64,6 +65,6 @@ trait HttpContentCacheSupport extends ExpiresSupport {
   def contentCacheEntry(session: Session, request: Request): Option[ContentCacheEntry] =
     httpContentCacheHandler.getEntry(session, ContentCacheKey(request))
 
-  def clearContentCache(session: Session, request: Request) =
+  def clearContentCache(session: Session, request: Request): Session =
     httpContentCacheHandler.removeEntry(session, ContentCacheKey(request))
 }

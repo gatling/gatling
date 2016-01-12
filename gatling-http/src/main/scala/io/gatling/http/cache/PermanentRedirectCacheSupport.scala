@@ -26,7 +26,8 @@ import org.asynchttpclient.{ Request, RequestBuilder }
 import org.asynchttpclient.uri.Uri
 
 object PermanentRedirectCacheKey {
-  def apply(request: Request) = new PermanentRedirectCacheKey(request.getUri, new Cookies(request.getCookies))
+  def apply(request: Request): PermanentRedirectCacheKey =
+    new PermanentRedirectCacheKey(request.getUri, new Cookies(request.getCookies))
 }
 
 case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
@@ -41,13 +42,13 @@ trait PermanentRedirectCacheSupport {
 
   def configuration: GatlingConfiguration
 
-  private val httpPermanentRedirectCacheHandler =
+  private[this] val httpPermanentRedirectCacheHandler =
     new SessionCacheHandler[PermanentRedirectCacheKey, Uri](HttpPermanentRedirectCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def addRedirect(session: Session, from: Request, to: Uri): Session =
     httpPermanentRedirectCacheHandler.addEntry(session, PermanentRedirectCacheKey(from), to)
 
-  private def permanentRedirect(session: Session, request: Request): Option[(Uri, Int)] = {
+  private[this] def permanentRedirect(session: Session, request: Request): Option[(Uri, Int)] = {
 
       @tailrec def permanentRedirect1(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
 
@@ -63,7 +64,7 @@ trait PermanentRedirectCacheSupport {
     permanentRedirect1(PermanentRedirectCacheKey(request), 0)
   }
 
-  private def redirectRequest(request: Request, toUri: Uri): Request = {
+  private[this] def redirectRequest(request: Request, toUri: Uri): Request = {
     val requestBuilder = new RequestBuilder(request)
     requestBuilder.setUri(toUri)
     requestBuilder.build

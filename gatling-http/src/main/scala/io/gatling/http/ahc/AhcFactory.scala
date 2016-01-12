@@ -64,20 +64,20 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  private def newEventLoopGroup(poolName: String): EventLoopGroup = {
+  private[this] def newEventLoopGroup(poolName: String): EventLoopGroup = {
     val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory(poolName))
     system.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
     eventLoopGroup
   }
 
-  private def newTimer: Timer = {
+  private[this] def newTimer: Timer = {
     val timer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS)
     timer.start()
     system.registerOnTermination(timer.stop())
     timer
   }
 
-  private def newChannelPool(timer: Timer): ChannelPool = {
+  private[this] def newChannelPool(timer: Timer): ChannelPool = {
     new DefaultChannelPool(
       ahcConfig.pooledConnectionIdleTimeout,
       ahcConfig.connectionTtl,
@@ -136,7 +136,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     ahcConfigBuilder
   }
 
-  private val defaultAhcConfig = {
+  private[this] val defaultAhcConfig = {
     val eventLoopGroup = newEventLoopGroup("gatling-http-thread")
     val timer = newTimer
     val channelPool = newChannelPool(timer)
@@ -148,7 +148,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
   override def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
 
-  private def newAhc(session: Option[Session]) = {
+  private[this] def newAhc(session: Option[Session]) = {
     val config = session.flatMap { session =>
 
       val keyManagerFactory = for {
