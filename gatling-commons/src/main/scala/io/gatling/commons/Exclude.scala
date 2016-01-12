@@ -18,8 +18,8 @@ package io.gatling.commons
 trait Exclude[Scope, X]
 
 object Exclude {
-  implicit def $$NOT_FOR_USER_CODE$$[X, A]: Exclude[X, A] = new Exclude[X, A] {}
+  implicit def NOT_FOR_USER_CODE[X, A]: Exclude[X, A] = new Exclude[X, A] {}
   def list[X] = new {
-    def apply[A] = $$NOT_FOR_USER_CODE$$[X, A]
+    def apply[A] = NOT_FOR_USER_CODE[X, A]
   }
 }
