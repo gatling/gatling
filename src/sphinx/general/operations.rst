@@ -7,15 +7,10 @@ Operations
 Java version
 ============
 
-Gatling is mostly tested against JDK7 packages provided by Oracle.
-Gatling 2 requires **at least JDK7u6**.
+Gatling is mostly tested against JDK8 packages provided by Oracle.
+Gatling requires **JDK8**. We recommend that you use an up-to-date JDK.
 
 If some launch scripts options are not available on your JVM, e.g. because you run a 32 bit version, please edit the scripts and remove the unsupported options.
-
-However, we recommend that you use an up-to-date JDK:
-
-* NIO bugs are frequently fixed. For example, NIO was broken on Oracle JDK7 until 7u10.
-* Gatling is tested against modern JDKs
 
 IPv4 vs IPv6
 ============

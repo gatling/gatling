@@ -23,7 +23,7 @@ Just unzip the downloaded bundle to a folder of your choice.
   Windows users : we recommend that you do not place Gatling in the *Programs* folder as there may be permission issues.
 
 In order to run Gatling, you need to have a JDK installed.
-Gatling requires **at least JDK7u6**, yet we recommend that you use an up-to-date version.
+Gatling requires **JDK8**, yet we recommend that you use an up-to-date version.
 
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations` section.
 
@@ -31,7 +31,7 @@ For all details regarding the installation and the tuning of the operating syste
   Gatling launch scripts and Gatling maven plugin honor ``JAVA_HOME`` env var if it's set.
   OS, like OSX, have their own tricky way of discovering which version of Java to run,
   so you might end up running a different version than the one ``java -version`` tells you.
-  If you get strange errors such as ``Unsupported major.minor version 51.0`` and you were expecting to run a JDK7,
+  If you get strange errors such as ``Unsupported major.minor version 51.0`` and you were expecting to run a JDK8,
   you might want to explicitly set ``JAVA_HOME``.
 
 A Word on Encoding
