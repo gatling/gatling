@@ -37,7 +37,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  "Gatling" should "send cookies returned in redirects in subsequent requests" in {
+  ignore should "send cookies returned in redirects in subsequent requests" in {
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
@@ -99,7 +99,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
-  it should "retrieve linked resources, when resource downloading is enabled" in {
+  ignore should "retrieve linked resources, when resource downloading is enabled" in {
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, path) =>
@@ -130,7 +130,7 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
   }
 
-  it should "fetch resources in conditional comments" in {
+  ignore should "fetch resources in conditional comments" in {
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, path) =>
