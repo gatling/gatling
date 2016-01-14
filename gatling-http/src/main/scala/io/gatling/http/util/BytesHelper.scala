@@ -15,8 +15,8 @@
  */
 package io.gatling.http.util
 
-import java.nio.{ CharBuffer, ByteBuffer }
-import java.nio.charset.{ CoderResult, Charset }
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
 
 import scala.annotation.switch
 
@@ -55,34 +55,10 @@ object BytesHelper {
     }
 
   def byteBufsToString(bufs: Seq[ByteBuf], cs: Charset): String =
-    byteBuffersToString(bufs.flatMap(_.nioBuffers), cs)
+    ByteBuffersDecoder.decode(bufs.flatMap(_.nioBuffers), cs)
 
   def byteArraysToString(bufs: Seq[Array[Byte]], cs: Charset): String =
-    byteBuffersToString(bufs.map(ByteBuffer.wrap), cs)
-
-  private def byteBuffersToString(bufs: Seq[ByteBuffer], cs: Charset): String = {
-
-    val cd = cs.newDecoder
-    val len = bufs.sumBy(_.remaining)
-    val en = (len * cd.maxCharsPerByte.toDouble).toInt
-    val ca = new Array[Char](en)
-    cd.reset()
-    val cb = CharBuffer.wrap(ca)
-
-    val bbIt = bufs.iterator
-
-    var cr: CoderResult = null
-    bbIt.foreach { buf =>
-      cr = cd.decode(buf, cb, !bbIt.hasNext)
-      if (!cr.isUnderflow)
-        cr.throwException()
-    }
-    cr = cd.flush(cb)
-    if (!cr.isUnderflow)
-      cr.throwException()
-
-    new String(ca, 0, cb.position)
-  }
+    ByteBuffersDecoder.decode(bufs.map(ByteBuffer.wrap), cs)
 
   val EmptyBytes = new Array[Byte](0)
 }
