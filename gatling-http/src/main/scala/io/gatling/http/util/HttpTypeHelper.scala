@@ -15,12 +15,14 @@
  */
 package io.gatling.http.util
 
-import akka.actor.ActorRef
+import java.net.InetAddress
+
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.http.cookie.CookieJar
-import io.gatling.http.resolver.DelegatingNameResolver
 
+import akka.actor.ActorRef
+import io.netty.resolver.NameResolver
 import org.asynchttpclient.AsyncHttpClient
 
 object HttpTypeHelper {
@@ -40,18 +42,18 @@ object HttpTypeHelper {
       }
   }
 
-  implicit val NameResolverTypeCaster = new TypeCaster[DelegatingNameResolver] {
+  implicit val NameResolverTypeCaster = new TypeCaster[NameResolver[InetAddress]] {
     @throws[ClassCastException]
-    override def cast(value: Any): DelegatingNameResolver =
+    override def cast(value: Any): NameResolver[InetAddress] =
       value match {
-        case v: DelegatingNameResolver => v
-        case _                         => throw new ClassCastException(cceMessage(value, classOf[DelegatingNameResolver]))
+        case v: NameResolver[_] => v.asInstanceOf[NameResolver[InetAddress]]
+        case _                  => throw new ClassCastException(cceMessage(value, classOf[NameResolver[InetAddress]]))
       }
 
-    override def validate(value: Any): Validation[DelegatingNameResolver] =
+    override def validate(value: Any): Validation[NameResolver[InetAddress]] =
       value match {
-        case v: DelegatingNameResolver => v.success
-        case _                         => cceMessage(value, classOf[DelegatingNameResolver]).failure
+        case v: NameResolver[_] => v.asInstanceOf[NameResolver[InetAddress]].success
+        case _                  => cceMessage(value, classOf[NameResolver[InetAddress]]).failure
       }
   }
 

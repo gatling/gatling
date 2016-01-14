@@ -15,13 +15,24 @@
  */
 package io.gatling.http.cache
 
+import java.net.InetAddress
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.resolver.{ DelegatingNameResolver }
+import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.resolver.ShuffleJdkNameResolver
 import io.gatling.http.util.HttpTypeHelper
 
+import io.netty.resolver.{ DefaultNameResolver, NameResolver }
+import io.netty.util.concurrent.ImmediateEventExecutor
+
 object DnsCacheSupport {
+
+  val JavaDnsCacheEternal = sys.props.get("sun.net.inetaddr.ttl").getOrElse(-1) == -1
+
+  val JavaNameResolver = new DefaultNameResolver(ImmediateEventExecutor.INSTANCE)
+
   val DnsCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 }
 
@@ -34,9 +45,19 @@ trait DnsCacheSupport {
 
   def configuration: GatlingConfiguration
 
-  def setNameResolver(httpEngine: HttpEngine): Session => Session =
-    _.set(DnsCacheAttributeName, httpEngine.newDnsResolver)
+  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session =
+    if (httpProtocol.enginePart.perUserNameResolution)
+      // use per user resolver
+      _.set(DnsCacheAttributeName, httpEngine.newDnsResolver)
 
-  val nameResolver: (Session => Option[DelegatingNameResolver]) =
-    _(DnsCacheAttributeName).asOption[DelegatingNameResolver]
+    else if (JavaDnsCacheEternal)
+      // mitigate missing round robin
+      _.set(DnsCacheAttributeName, new ShuffleJdkNameResolver)
+
+    else
+      // user tuned Java behavior, let him have the standard behavior
+      _.set(DnsCacheAttributeName, JavaNameResolver)
+
+  val nameResolver: (Session => Option[NameResolver[InetAddress]]) =
+    _(DnsCacheAttributeName).asOption[NameResolver[InetAddress]]
 }

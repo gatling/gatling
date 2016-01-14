@@ -66,23 +66,20 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   // note: DNS cache is supposed to be set early
   private val configureNameResolver: RequestBuilderConfigureRaw =
-    if (protocol.enginePart.perUserNameResolution)
-      session => httpCaches.nameResolver(session) match {
-        case None => identity
-        case Some(nameResolver) =>
-          // [fl]
-          //
-          //
-          //
-          //
-          //
-          //
-          // [fl]
-          _.setNameResolver(nameResolver)
+    session => httpCaches.nameResolver(session) match {
+      case None => identity // shouldn't happen
+      case Some(nameResolver) =>
+        // [fl]
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // [fl]
+        _.setNameResolver(nameResolver)
       }
-
-    else
-      ConfigureIdentityRaw
 
   // FIXME resolve proxy presence once
   private def configureProxy(requestBuilder: AhcRequestBuilder, uri: Uri): Validation[AhcRequestBuilder] = {

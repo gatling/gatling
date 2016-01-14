@@ -29,11 +29,7 @@ case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, ht
     ahc.getChannelPool.flushPartitions(new AhcChannelPoolPartitionSelector(session.userId))
   }
 
-  def onStart: Option[Session => Session] =
-    if (httpProtocol.enginePart.perUserNameResolution)
-      Some(httpCaches.setNameResolver(httpEngine))
-    else
-      None
+  def onStart: Option[Session => Session] = Some(httpCaches.setNameResolver(httpProtocol, httpEngine))
 
   def onExit: Option[Session => Unit] = Some(onExitF)
 }
