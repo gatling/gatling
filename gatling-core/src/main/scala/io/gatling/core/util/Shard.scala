@@ -32,14 +32,13 @@ object Shard {
         Shard(largeBucketCount * largeBucketSize + (nodeId - largeBucketCount) * smallBucketSize, smallBucketSize)
     }
 
-  private def interleave(largestCount: Long, largestValue: Long, smallestCount: Long, smallestValue: Long, totalCount: Int): Iterator[Long] = {
-    // assume more small than large
-    val smallForLargeRatio = (largestCount / smallestCount).toInt
-    val interleavedSmallAndLargeCount1 = totalCount / (smallForLargeRatio + 1)
-    val interleavedSmallAndLargeCount2 = (totalCount % (smallForLargeRatio + 1)) / (smallForLargeRatio + 2)
+  private[this] def interleave(largestCount: Long, largestValue: Long, smallestCount: Long, smallestValue: Long, totalCount: Int): Iterator[Long] = {
+    // more large than small
+    val largeForSmallRatio = (largestCount / smallestCount).toInt
+    val rest = (totalCount - smallestCount * (largeForSmallRatio + 1)).toInt
 
-    (Iterator.fill(interleavedSmallAndLargeCount1)(Iterator.single(smallestValue) ++ Iterator.fill(smallForLargeRatio)(largestValue)) ++
-      Iterator.fill(interleavedSmallAndLargeCount2)(Iterator.single(smallestValue) ++ Iterator.fill(smallForLargeRatio + 1)(largestValue))).flatten
+    Iterator.fill(smallestCount.toInt)(Iterator.single(smallestValue) ++ Iterator.fill(largeForSmallRatio)(largestValue)).flatten ++
+      Iterator.fill(rest)(largestValue)
   }
 
   def shards(total: Long, nodeCount: Int): Iterator[Long] = {
