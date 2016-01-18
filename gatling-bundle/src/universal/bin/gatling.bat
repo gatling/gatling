@@ -61,12 +61,12 @@ goto exit
 
 
 :badHome
-echo The GATLING_HOME environnement variable points to the wrong directory.
+echo The GATLING_HOME environment variable points to the wrong directory.
 echo Please set it to the correct folder and try to launch Gatling again.
 goto exit
 
 :noHome
-echo GATLING_HOME environnement variable is not set and could not be guessed automatically.
+echo GATLING_HOME environment variable is not set and could not be guessed automatically.
 echo Please set GATLING_HOME and try to launch Gatling again.
 goto exit
 
