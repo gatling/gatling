@@ -58,6 +58,8 @@ ${writeRequestCounters(meanStatistics)}
 ${writeRequestCounters(stdDeviationStatistics)}
 ${writeRequestCounters(percentiles1)}
 ${writeRequestCounters(percentiles2)}
+${writeRequestCounters(percentiles3)}
+${writeRequestCounters(percentiles4)}
 ${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
 ${writeSubTitle("Response Time Distribution")}
 ${groupedCounts.map(writeGroupedCounters).mkFastring(Eol)}
