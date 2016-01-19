@@ -83,7 +83,7 @@ object HttpTx extends ActorNames with StrictLogging {
     startWithCache(origTx, ctx, httpComponents) { tx =>
 
       val httpEngine = httpComponents.httpEngine
-      logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+      logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
       val requestConfig = tx.request.config
 
