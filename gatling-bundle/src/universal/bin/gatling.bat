@@ -49,16 +49,23 @@ set COMMON_CLASSPATH=%GATLING_CONF%;%JAVA_CLASSPATH%
 set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\zinc\*;%COMMON_CLASSPATH%
 set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%COMMON_CLASSPATH%
 
+set JAVA=java
+if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
+goto run
 
+:setJavaHome
+set JAVA="%JAVA_HOME%\bin\java.exe"
+
+:run
+echo JAVA = "%JAVA%"
 rem Run the compiler
 set COMPILATION_CLASSPATH=""
 for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
-java %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
+%JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
 rem Run Gatling
-java %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
+%JAVA% %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
 
 goto exit
-
 
 :badHome
 echo The GATLING_HOME environment variable points to the wrong directory.
