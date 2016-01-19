@@ -112,6 +112,11 @@ object ConfigKeys {
       val UseNativeTransport = "gatling.http.ahc.useNativeTransport"
       val UsePooledMemory = "gatling.http.ahc.usePooledMemory"
     }
+
+    object dns {
+      val QueryTimeout = "gatling.http.dns.queryTimeout"
+      val MaxQueriesPerResolve = "gatling.http.dns.maxQueriesPerResolve"
+    }
   }
 
   object data {

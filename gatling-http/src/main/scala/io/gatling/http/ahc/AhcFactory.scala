@@ -183,7 +183,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
   def newNameResolver(): ExtendedDnsNameResolver = {
     val executor = newEventLoopGroup("gatling-dns-thread")
-    val resolver = new ExtendedDnsNameResolver(executor.next())
+    val resolver = new ExtendedDnsNameResolver(executor.next(), configuration)
     system.registerOnTermination(resolver.close())
     resolver
   }

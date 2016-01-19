@@ -18,6 +18,8 @@ package io.netty.resolver.dns
 import java.net.InetAddress
 import java.util.{ List => JList }
 
+import com.typesafe.scalalogging.StrictLogging
+import io.gatling.core.config.GatlingConfiguration
 import io.netty.bootstrap.ChannelFactory
 import io.netty.channel.EventLoop
 import io.netty.channel.socket.DatagramChannel
@@ -25,7 +27,11 @@ import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.resolver.HostsFileEntriesResolver
 import io.netty.util.concurrent.Promise
 
-class ExtendedDnsNameResolver(eventLoop: EventLoop)
+object ExtendedDnsNameResolver extends StrictLogging {
+  val DebugEnabled = logger.underlying.isDebugEnabled
+}
+
+class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfiguration)
     extends DnsNameResolver(
       eventLoop,
       new ChannelFactory[DatagramChannel] {
@@ -34,10 +40,10 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop)
       DnsNameResolver.ANY_LOCAL_ADDR,
       DnsServerAddresses.defaultAddresses,
       NoopDnsCache.INSTANCE,
-      5000,
+      configuration.http.dns.queryTimeout,
       DnsNameResolver.DEFAULT_RESOLVE_ADDRESS_TYPES,
-      true,
-      3,
+      ExtendedDnsNameResolver.DebugEnabled,
+      configuration.http.dns.maxQueriesPerResolve,
       false,
       4096,
       true,
