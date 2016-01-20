@@ -19,6 +19,7 @@ import scala.language.reflectiveCalls
 import scala.reflect.ClassTag
 
 import io.gatling.commons.Exclude
+import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session._
@@ -44,7 +45,7 @@ trait ValidationImplicits {
 
   import NonValidable._
 
-  implicit def stringToExpression[T: Types[NonValidable]#DoesNotContain: ClassTag](string: String): Expression[T] = string.el
-  implicit def value2Success[T: Types[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
-  implicit def value2Expression[T: Types[NonValidable]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
+  implicit def stringToExpression[T: TypeCaster: Types[NonValidable]#DoesNotContain: ClassTag](string: String): Expression[T] = string.el
+  implicit def value2Success[T: TypeCaster: Types[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
+  implicit def value2Expression[T: TypeCaster: Types[NonValidable]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
 }
