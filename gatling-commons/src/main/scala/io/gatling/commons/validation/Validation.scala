@@ -15,7 +15,7 @@
  */
 package io.gatling.commons.validation
 
-sealed abstract class Validation[+T] {
+sealed trait Validation[@specialized(Short, Int, Long, Boolean) +T] {
   def map[A](f: T => A): Validation[A]
   def flatMap[A](f: T => Validation[A]): Validation[A]
   def mapError(f: String => String): Validation[T]
