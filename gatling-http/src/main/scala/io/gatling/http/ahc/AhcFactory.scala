@@ -20,13 +20,13 @@ import java.util.concurrent.TimeUnit
 import io.gatling.core.{ CoreComponents, ConfigKeys }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
+import io.gatling.http.resolver.ExtendedDnsNameResolver
 import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
-import io.netty.resolver.dns.ExtendedDnsNameResolver
 import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
 import io.netty.util.{ Timer, HashedWheelTimer }

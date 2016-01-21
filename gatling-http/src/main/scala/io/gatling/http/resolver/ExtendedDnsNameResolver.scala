@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.netty.resolver.dns
+package io.gatling.http.resolver
 
 import java.net.InetAddress
 import java.util.{ List => JList }
@@ -25,23 +25,27 @@ import io.netty.channel.EventLoop
 import io.netty.channel.socket.DatagramChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.resolver.HostsFileEntriesResolver
+import io.netty.resolver.dns._
 import io.netty.util.concurrent.Promise
 
 object ExtendedDnsNameResolver extends StrictLogging {
+
   val DebugEnabled = logger.underlying.isDebugEnabled
+
+  val NioDatagramChannelFactory = new ChannelFactory[DatagramChannel] {
+    override def newChannel(): DatagramChannel = new NioDatagramChannel
+  }
 }
 
 class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfiguration)
     extends DnsNameResolver(
       eventLoop,
-      new ChannelFactory[DatagramChannel] {
-        override def newChannel(): DatagramChannel = new NioDatagramChannel
-      },
-      DnsNameResolver.ANY_LOCAL_ADDR,
+      ExtendedDnsNameResolver.NioDatagramChannelFactory,
+      NettyDnsConstants.AnyLocalAddress,
       DnsServerAddresses.defaultAddresses,
       NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
-      DnsNameResolver.DEFAULT_RESOLVE_ADDRESS_TYPES,
+      NettyDnsConstants.DefaultResolveAddressTypes,
       ExtendedDnsNameResolver.DebugEnabled,
       configuration.http.dns.maxQueriesPerResolve,
       false,
