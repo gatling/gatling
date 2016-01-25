@@ -16,7 +16,7 @@ object Dependencies {
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.1"
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                     % "9.7.0-2"
-  private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.13"
+  private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.14"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                     % "0.2.4"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                        % "3.3.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                % "3.1.0"
