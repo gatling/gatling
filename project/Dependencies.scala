@@ -11,7 +11,7 @@ object Dependencies {
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                    % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"     % "1.0.4"
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.0-RC7"
-  private val netty                         = "io.netty"                               % "netty-codec-http"             % "4.0.33.Final"
+  private val netty                         = "io.netty"                               % "netty-codec-http"             % "4.0.34.Final"
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll" % netty.revision classifier "linux-x86_64"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.1"
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
@@ -26,7 +26,6 @@ object Dependencies {
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                     % "0.6.4"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                 % "3.6.7"
   private val boopickle                     = "me.chrons"                             %% "boopickle"                    % "1.1.1"
-  private val jzlib                         = "com.jcraft"                             % "jzlib"                        % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                  % "3.0"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                         % "0.3.9" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"        % "1.1.1"
@@ -62,7 +61,7 @@ object Dependencies {
     Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt, jzlib) ++
+    Seq(akkaActor, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
