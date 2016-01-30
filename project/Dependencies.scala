@@ -25,7 +25,7 @@ object Dependencies {
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                    % "0.5.6.RELEASE"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                     % "0.6.4"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                 % "3.6.7"
-  private val boopickle                     = "me.chrons"                             %% "boopickle"                    % "1.1.1"
+  private val boopickle                     = "me.chrons"                             %% "boopickle"                    % "1.1.2"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                  % "3.0"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                         % "0.3.9" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"        % "1.1.1"
