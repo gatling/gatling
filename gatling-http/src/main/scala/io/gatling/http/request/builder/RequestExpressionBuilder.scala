@@ -49,6 +49,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   protected val httpCaches = httpComponents.httpCaches
   protected val charset = httpComponents.httpEngine.configuration.core.charset
   protected val headers = protocol.requestPart.headers ++ commonAttributes.headers
+  private val refererHeaderIsUndefined = !headers.contains(HeaderNames.Referer)
+  protected val contentTypeHeaderIsUndefined = !headers.contains(HeaderNames.ContentType)
+  private val disableUrlEncoding = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
 
   protected def makeAbsolute(url: String): Validation[Uri] =
     protocol.makeAbsoluteHttpUri(url)
@@ -115,18 +118,17 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     session => requestBuilder => virtualHost(session).map(requestBuilder.setVirtualHost)
 
   protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    if (!headers.contains(HeaderNames.Referer)) {
+    if (refererHeaderIsUndefined) {
       RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HeaderNames.Referer, _))
     }
     requestBuilder
   }
 
-  private val configureHeaders: RequestBuilderConfigure = {
-    if (headers.nonEmpty)
-      configureHeaders0
-    else
+  private val configureHeaders: RequestBuilderConfigure =
+    if (headers.isEmpty)
       ConfigureIdentity
-  }
+    else
+      configureHeaders0
 
   private val configureHeaders0: RequestBuilderConfigure =
     session => requestBuilder => {
@@ -143,8 +145,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(protocol.requestPart.realm) match {
-      case Some(realm) => configureRealm0(realm)
       case None        => ConfigureIdentity
+      case Some(realm) => configureRealm0(realm)
     }
 
   private def configureRealm0(realm: Expression[Realm]): RequestBuilderConfigure =
@@ -152,8 +154,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   private val configureLocalAddress: RequestBuilderConfigure =
     commonAttributes.address.orElse(protocol.enginePart.localAddress) match {
-      case Some(localAddress) => configureLocalAddress0(localAddress)
       case None               => ConfigureIdentity
+      case Some(localAddress) => configureLocalAddress0(localAddress)
     }
 
   private def configureLocalAddress0(localAddress: Expression[InetAddress]): RequestBuilderConfigure =
@@ -169,13 +171,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       .flatMap(configureRealm(session))
       .flatMap(configureLocalAddress(session))
 
-  def build: Expression[Request] = {
-
-    val disableUrlEncoding = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
-
+  def build: Expression[Request] =
     (session: Session) => {
       val requestBuilder = new AhcRequestBuilder(commonAttributes.method, disableUrlEncoding)
-
       requestBuilder.setCharset(charset)
 
       if (!protocol.enginePart.shareConnections)
@@ -188,5 +186,4 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
         } yield rb.build
       }
     }
-  }
 }

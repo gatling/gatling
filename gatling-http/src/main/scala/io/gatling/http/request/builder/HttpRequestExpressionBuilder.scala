@@ -36,17 +36,6 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
   import RequestExpressionBuilder._
 
-  private def configureCaches(session: Session)(request: Request): Request = {
-
-    httpCaches.contentCacheEntry(session, request).foreach {
-      case ContentCacheEntry(_, etag, lastModified) =>
-        etag.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
-        lastModified.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
-    }
-
-    request
-  }
-
   private val configureFormParams0: RequestBuilderConfigure =
     session => requestBuilder => httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
       if (httpAttributes.bodyParts.isEmpty) {
@@ -107,7 +96,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
   override protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
     super.addDefaultHeaders(session)(requestBuilder)
-    if (!headers.contains(HeaderNames.ContentType)) {
+    if (contentTypeHeaderIsUndefined) {
       if (httpAttributes.bodyParts.nonEmpty)
         requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
       else if (httpAttributes.formParams.nonEmpty)
@@ -121,9 +110,20 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       .flatMap(configureFormParams(session))
       .flatMap(configureParts(session))
 
+  private def configureCachingHeaders(session: Session)(request: Request): Request = {
+
+    httpCaches.contentCacheEntry(session, request).foreach {
+      case ContentCacheEntry(_, etag, lastModified) =>
+        etag.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
+        lastModified.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
+    }
+
+    request
+  }
+
   // hack because we need the request with the final uri
   override def build: Expression[Request] = {
     val exp = super.build
-    session => exp(session).map(configureCaches(session))
+    session => exp(session).map(configureCachingHeaders(session))
   }
 }
