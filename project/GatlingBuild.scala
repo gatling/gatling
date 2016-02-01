@@ -1,5 +1,7 @@
 import io.gatling.build.SonatypeReleasePlugin
 
+import pl.project13.scala.sbt.JmhPlugin
+
 import BuildSettings._
 import Bundle._
 import ConfigFiles._
@@ -18,7 +20,7 @@ object GatlingBuild extends Build {
   lazy val root = Project("gatling-parent", file("."))
     .enablePlugins(SonatypeReleasePlugin)
     .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-    .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
+    .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler, benchmarks)
     .settings(basicSettings: _*)
     .settings(noArtifactToPublish)
     .settings(docSettings(bundle): _*)
@@ -29,7 +31,7 @@ object GatlingBuild extends Build {
   /*************/
 
   def gatlingModule(id: String) = Project(id, file(id))
-    .enablePlugins(SonatypeReleasePlugin)
+    .enablePlugins(SonatypeReleasePlugin, JmhPlugin)
     .settings(gatlingModuleSettings: _*)
 
   lazy val commons = gatlingModule("gatling-commons")
@@ -71,6 +73,10 @@ object GatlingBuild extends Build {
   lazy val compiler = gatlingModule("gatling-compiler")
     .settings(scalaVersion := "2.10.6")
     .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
+
+  lazy val benchmarks = gatlingModule("gatling-benchmarks")
+    .dependsOn(core, http)
+    .settings(libraryDependencies ++= benchmarkDependencies)
 
   lazy val app = gatlingModule("gatling-app")
     .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
