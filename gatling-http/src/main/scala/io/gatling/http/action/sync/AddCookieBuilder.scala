@@ -51,7 +51,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
   import AddCookieBuilder._
 
   private def defaultDomain(httpProtocol: HttpProtocol) =
-    httpProtocol.baseURL match {
+    httpProtocol.baseUrl() match {
       case Some(uri) => Uri.create(uri).getHost.expressionSuccess
       case _         => NoBaseUrlFailure
     }

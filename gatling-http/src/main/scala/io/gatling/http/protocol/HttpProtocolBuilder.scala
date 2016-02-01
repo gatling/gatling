@@ -51,7 +51,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
 
   def baseURL(url: String) = baseURLs(List(url))
   def baseURLs(urls: String*): HttpProtocolBuilder = baseURLs(urls.toList)
-  def baseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseURLs).setTo(urls)
+  def baseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseUrls).setTo(urls)
   def warmUp(url: String): HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(Some(url))
   def disableWarmUp: HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(None)
 
@@ -120,7 +120,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   // wsPart
   def wsBaseURL(url: String) = wsBaseURLs(List(url))
   def wsBaseURLs(urls: String*): HttpProtocolBuilder = wsBaseURLs(urls.toList)
-  def wsBaseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseURLs).setTo(urls)
+  def wsBaseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseUrls).setTo(urls)
   def wsReconnect = this.modify(_.protocol.wsPart.reconnect).setTo(true)
   def wsMaxReconnects(max: Int) = this.modify(_.protocol.wsPart.maxReconnects).setTo(Some(max))
 

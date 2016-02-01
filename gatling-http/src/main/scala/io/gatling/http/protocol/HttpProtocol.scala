@@ -62,7 +62,7 @@ object HttpProtocol extends StrictLogging {
 
   def apply(configuration: GatlingConfiguration): HttpProtocol =
     HttpProtocol(
-      baseURLs = Nil,
+      baseUrls = Nil,
       warmUpUrl = configuration.http.warmUpUrl,
       enginePart = HttpProtocolEnginePart(
         shareClient = true,
@@ -94,7 +94,7 @@ object HttpProtocol extends StrictLogging {
         htmlResourcesInferringFilters = None
       ),
       wsPart = HttpProtocolWsPart(
-        wsBaseURLs = Nil,
+        wsBaseUrls = Nil,
         reconnect = false,
         maxReconnects = None
       ),
@@ -115,7 +115,7 @@ object HttpProtocol extends StrictLogging {
 /**
  * Class containing the configuration for the HTTP protocol
  *
- * @param baseURLs the radixes of all the URLs that will be used (eg: http://mywebsite.tld)
+ * @param baseUrls the radixes of all the URLs that will be used (eg: http://mywebsite.tld)
  * @param warmUpUrl the url used to load the TCP stack
  * @param enginePart the HTTP engine related configuration
  * @param requestPart the request related configuration
@@ -124,7 +124,7 @@ object HttpProtocol extends StrictLogging {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-  baseURLs:     List[String],
+  baseUrls:     List[String],
   warmUpUrl:    Option[String],
   enginePart:   HttpProtocolEnginePart,
   requestPart:  HttpProtocolRequestPart,
@@ -136,16 +136,16 @@ case class HttpProtocol(
 
   type Components = HttpComponents
 
-  private val httpBaseUrlIterator = HttpProtocol.baseUrlIterator(baseURLs)
-  def baseURL: Option[String] = httpBaseUrlIterator.next()
+  private val httpBaseUrlIterator = HttpProtocol.baseUrlIterator(baseUrls)
+  def baseUrl(): Option[String] = httpBaseUrlIterator.next()
 
   def makeAbsoluteHttpUri(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
       Uri.create(url).success
     else
-      baseURL match {
+      baseUrl() match {
         case Some(root) => Uri.create(root + url).success
-        case _          => s"No protocol.baseURL defined but provided url is relative : $url".failure
+        case _          => s"No protocol.baseUrl defined but provided url is relative : $url".failure
       }
 }
 
@@ -182,19 +182,19 @@ case class HttpProtocolResponsePart(
 )
 
 case class HttpProtocolWsPart(
-    wsBaseURLs:    List[String],
+    wsBaseUrls:    List[String],
     reconnect:     Boolean,
     maxReconnects: Option[Int]
 ) {
 
-  private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseURLs)
+  private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseUrls)
   def makeAbsoluteWsUri(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteWsUrl(url))
       Uri.create(url).success
     else
       wsBaseUrlIterator.next() match {
         case Some(root) => Uri.create(root + url).success
-        case _          => s"No protocol.wsBaseURL defined but provided url is relative : $url".failure
+        case _          => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
       }
 }
 

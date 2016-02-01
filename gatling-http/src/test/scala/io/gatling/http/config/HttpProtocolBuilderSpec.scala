@@ -52,7 +52,7 @@ class HttpProtocolBuilderSpec extends BaseSpec {
 
     val config: HttpProtocol = builder.build
 
-    Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) shouldBe Seq(url, url, url)
+    Seq(config.baseUrl.get, config.baseUrl.get, config.baseUrl.get) shouldBe Seq(url, url, url)
   }
 
   it should "provide a Round-Robin strategy when multiple urls are provided" in {
@@ -65,7 +65,7 @@ class HttpProtocolBuilderSpec extends BaseSpec {
 
     val config: HttpProtocol = builder.build
 
-    Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) shouldBe Seq(url1, url2, url1)
+    Seq(config.baseUrl.get, config.baseUrl.get, config.baseUrl.get) shouldBe Seq(url1, url2, url1)
   }
 
   it should "set a silent URI regex" in {
