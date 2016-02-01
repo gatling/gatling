@@ -45,14 +45,14 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     extends LazyLogging {
 
   import RequestExpressionBuilder._
-  val protocol = httpComponents.httpProtocol
-  val httpCaches = httpComponents.httpCaches
+  protected val protocol = httpComponents.httpProtocol
+  protected val httpCaches = httpComponents.httpCaches
   protected val charset = httpComponents.httpEngine.configuration.core.charset
 
-  def makeAbsolute(url: String): Validation[Uri] =
+  protected def makeAbsolute(url: String): Validation[Uri] =
     protocol.makeAbsoluteHttpUri(url)
 
-  def buildURI(session: Session): Validation[Uri] =
+  private def buildURI(session: Session): Validation[Uri] =
     commonAttributes.urlOrURI match {
       case Left(url) =>
         try {
@@ -152,7 +152,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   private def configureRealm0(realm: Expression[Realm]): RequestBuilderConfigure =
     session => requestBuilder => realm(session).map(requestBuilder.setRealm)
 
-  val configureLocalAddress: RequestBuilderConfigure =
+  private val configureLocalAddress: RequestBuilderConfigure =
     commonAttributes.address.orElse(protocol.enginePart.localAddress) match {
       case Some(localAddress) => configureLocalAddress0(localAddress)
       case None               => ConfigureIdentity
