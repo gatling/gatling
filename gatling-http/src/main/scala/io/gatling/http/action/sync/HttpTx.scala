@@ -56,7 +56,7 @@ object HttpTx extends ActorNames with StrictLogging {
 
     httpCaches.contentCacheEntry(tx.session, ahcRequest) match {
 
-      case None =>
+      case None | Some(ContentCacheEntry(None, _, _)) =>
         f(tx)
 
       case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
