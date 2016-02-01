@@ -38,7 +38,7 @@ trait LowPriorityTypeCaster {
     override def cast(value: Any): T = {
       val valueClass = value.getClass
       val targetClass = implicitly[ClassTag[T]].runtimeClass
-      if (targetClass.isAssignableFrom(valueClass) || targetClass.isAssignableFrom(valueClass))
+      if (targetClass.isAssignableFrom(valueClass))
         value.asInstanceOf[T]
       else
         throw new ClassCastException(cceMessage(value, targetClass))
@@ -47,7 +47,7 @@ trait LowPriorityTypeCaster {
     override def validate(value: Any): Validation[T] = {
       val valueClass = value.getClass
       val targetClass = implicitly[ClassTag[T]].runtimeClass
-      if (targetClass.isAssignableFrom(valueClass) || targetClass.isAssignableFrom(valueClass))
+      if (targetClass.isAssignableFrom(valueClass))
         value.asInstanceOf[T].success
       else
         cceMessage(value, targetClass).failure
