@@ -48,6 +48,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   protected val protocol = httpComponents.httpProtocol
   protected val httpCaches = httpComponents.httpCaches
   protected val charset = httpComponents.httpEngine.configuration.core.charset
+  protected val headers = protocol.requestPart.headers ++ commonAttributes.headers
 
   protected def makeAbsolute(url: String): Validation[Uri] =
     protocol.makeAbsoluteHttpUri(url)
@@ -113,7 +114,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   private def configureVirtualHost0(virtualHost: Expression[String]): RequestBuilderConfigure =
     session => requestBuilder => virtualHost(session).map(requestBuilder.setVirtualHost)
 
-  protected def addDefaultHeaders(session: Session, headers: Map[String, Expression[String]])(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+  protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
     if (!headers.contains(HeaderNames.Referer)) {
       RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HeaderNames.Referer, _))
     }
@@ -121,16 +122,13 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   }
 
   private val configureHeaders: RequestBuilderConfigure = {
-
-    val headers = protocol.requestPart.headers ++ commonAttributes.headers
-
     if (headers.nonEmpty)
-      configureHeaders0(headers)
+      configureHeaders0
     else
       ConfigureIdentity
   }
 
-  private def configureHeaders0(headers: Map[String, Expression[String]]): RequestBuilderConfigure =
+  private val configureHeaders0: RequestBuilderConfigure =
     session => requestBuilder => {
       val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
         val (key, value) = header
@@ -140,7 +138,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
         } yield requestBuilder.addHeader(key, value)
       }
 
-      requestBuilderWithHeaders.map(addDefaultHeaders(session, headers))
+      requestBuilderWithHeaders.map(addDefaultHeaders(session))
     }
 
   private val configureRealm: RequestBuilderConfigure =

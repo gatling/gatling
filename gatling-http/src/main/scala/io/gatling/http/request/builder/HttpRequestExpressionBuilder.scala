@@ -105,8 +105,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       configureParts0
   }
 
-  override protected def addDefaultHeaders(session: Session, headers: Map[String, Expression[String]])(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    super.addDefaultHeaders(session, headers)(requestBuilder)
+  override protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+    super.addDefaultHeaders(session)(requestBuilder)
     if (!headers.contains(HeaderNames.ContentType)) {
       if (httpAttributes.bodyParts.nonEmpty)
         requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
