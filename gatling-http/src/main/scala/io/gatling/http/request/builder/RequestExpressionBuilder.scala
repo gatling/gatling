@@ -124,12 +124,6 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     requestBuilder
   }
 
-  private val configureHeaders: RequestBuilderConfigure =
-    if (headers.isEmpty)
-      ConfigureIdentity
-    else
-      configureHeaders0
-
   private val configureHeaders0: RequestBuilderConfigure =
     session => requestBuilder => {
       val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
@@ -142,6 +136,12 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
       requestBuilderWithHeaders.map(addDefaultHeaders(session))
     }
+
+  private val configureHeaders: RequestBuilderConfigure =
+    if (headers.isEmpty)
+      ConfigureIdentity
+    else
+      configureHeaders0
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(protocol.requestPart.realm) match {
