@@ -40,8 +40,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
     httpCaches.contentCacheEntry(session, request).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
-        etag.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
-        lastModified.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
+        etag.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
+        lastModified.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
     }
 
     request
