@@ -160,7 +160,27 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     requestBuilder
   }
 
-  private val configureHeaders0: RequestBuilderConfigure =
+  private val configureHeaders: RequestBuilderConfigure =
+    if (headers.isEmpty)
+      session => addDefaultHeaders(session)(_).success
+    else {
+      val staticHeaders = headers.collect { case (key, StaticStringExpression(value)) => key -> value }
+
+      if (staticHeaders.size == headers.size)
+        configureStaticHeaders(staticHeaders)
+      else
+        configureDynamicHeaders
+    }
+
+  private def configureStaticHeaders(staticHeaders: Iterable[(String, String)]): RequestBuilderConfigure = {
+    val addHeaders: AhcRequestBuilder => Validation[AhcRequestBuilder] = requestBuilder => {
+      staticHeaders.foreach { case (key, value) => requestBuilder.addHeader(key, value) }
+      requestBuilder.success
+    }
+    session => requestBuilder => addHeaders(requestBuilder).map(addDefaultHeaders(session))
+  }
+
+  private def configureDynamicHeaders: RequestBuilderConfigure =
     session => requestBuilder => {
       val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
         val (key, value) = header
@@ -172,12 +192,6 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
       requestBuilderWithHeaders.map(addDefaultHeaders(session))
     }
-
-  private val configureHeaders: RequestBuilderConfigure =
-    if (headers.isEmpty)
-      session => addDefaultHeaders(session)(_).success
-    else
-      configureHeaders0
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(protocol.requestPart.realm) match {
