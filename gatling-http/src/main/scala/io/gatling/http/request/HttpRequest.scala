@@ -16,6 +16,7 @@
 package io.gatling.http.request
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.protocol.HttpComponents
@@ -32,6 +33,7 @@ case class HttpRequestConfig(
   silent:                Option[Boolean],
   followRedirect:        Boolean,
   discardResponseChunks: Boolean,
+  coreComponents:        CoreComponents,
   httpComponents:        HttpComponents,
   explicitResources:     List[HttpRequestDef]
 )

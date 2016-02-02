@@ -52,18 +52,18 @@ class PollingStartAction(
 
   def executeOrFail(session: Session) = {
 
-    val httpComponents = requestDef.config.httpComponents
+    import requestDef.config._
 
     val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-      requestDef.config.checks,
-      requestDef.config.responseTransformer,
-      requestDef.config.discardResponseChunks,
+      checks,
+      responseTransformer,
+      discardResponseChunks,
       httpComponents.httpProtocol.responsePart.inferHtmlResources
     )
 
       def startPolling(period: FiniteDuration): Unit = {
         logger.info(s"Starting poller $pollerName")
-        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, requestDef, responseBuilderFactory, statsEngine, httpComponents), actorName("pollingActor"))
+        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, requestDef, responseBuilderFactory, statsEngine), actorName("pollingActor"))
 
         val newSession = session.set(pollerName, pollingActor)
 

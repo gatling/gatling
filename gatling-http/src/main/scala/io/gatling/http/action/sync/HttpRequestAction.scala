@@ -19,9 +19,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.RequestAction
-import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
@@ -30,8 +28,8 @@ import com.typesafe.scalalogging.StrictLogging
 
 object HttpRequestAction extends ActorNames with StrictLogging {
 
-  def props(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine, httpEngine: HttpEngine, next: ActorRef)(implicit configuration: GatlingConfiguration) =
-    Props(new HttpRequestAction(httpRequestDef, statsEngine, httpEngine, next))
+  def props(httpRequestDef: HttpRequestDef, next: ActorRef)(implicit configuration: GatlingConfiguration) =
+    Props(new HttpRequestAction(httpRequestDef, next))
 }
 
 /**
@@ -39,12 +37,10 @@ object HttpRequestAction extends ActorNames with StrictLogging {
  *
  * @constructor constructs an HttpRequestAction
  * @param httpRequestDef the request definition
- * @param statsEngine the StatsEngine
- * @param httpEngine the HttpEngine
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine, httpEngine: HttpEngine, val next: ActorRef)(implicit configuration: GatlingConfiguration)
-    extends RequestAction(statsEngine) {
+class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef)(implicit configuration: GatlingConfiguration)
+    extends RequestAction(httpRequestDef.config.coreComponents.statsEngine) {
 
   import httpRequestDef._
 
@@ -66,6 +62,6 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine
         next
       )
 
-      HttpTx.start(tx, config.httpComponents)
+      HttpTx.start(tx)
     }
 }

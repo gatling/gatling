@@ -43,7 +43,12 @@ object HttpEngine {
     new HttpEngine(system, coreComponents, AhcFactory(system, coreComponents))
 }
 
-class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFactory: AhcFactory)(implicit val configuration: GatlingConfiguration) extends ResourceFetcher with ActorNames with StrictLogging {
+class HttpEngine(
+  system:                       ActorSystem,
+  protected val coreComponents: CoreComponents,
+  ahcFactory:                   AhcFactory
+)(implicit protected val configuration: GatlingConfiguration)
+    extends ResourceFetcher with ActorNames with StrictLogging {
 
   val asyncHandlerActors: ActorRef = {
     val poolSize = 3 * Runtime.getRuntime.availableProcessors
@@ -110,13 +115,13 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
             .get(expression)
             .header("bar", expression)
             .queryParam(expression, expression)
-            .build(httpComponents, throttled = false)
+            .build(coreComponents, httpComponents, throttled = false)
 
           new Http(expression)
             .post(expression)
             .header("bar", expression)
             .formParam(expression, expression)
-            .build(httpComponents, throttled = false)
+            .build(coreComponents, httpComponents, throttled = false)
       }
 
       logger.info("Warm up done")

@@ -22,7 +22,6 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.fetch.RegularResourceFetched
-import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilderFactory
 
@@ -34,10 +33,9 @@ object PollerActor {
     period:                 FiniteDuration,
     requestDef:             HttpRequestDef,
     responseBuilderFactory: ResponseBuilderFactory,
-    statsEngine:            StatsEngine,
-    httpComponents:         HttpComponents
+    statsEngine:            StatsEngine
   ): Props =
-    Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, statsEngine, httpComponents))
+    Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, statsEngine))
 
   private[polling] val PollTimerName = "pollTimer"
 }
@@ -47,8 +45,7 @@ class PollerActor(
   period:                 FiniteDuration,
   requestDef:             HttpRequestDef,
   responseBuilderFactory: ResponseBuilderFactory,
-  statsEngine:            StatsEngine,
-  httpComponents:         HttpComponents
+  statsEngine:            StatsEngine
 )
     extends PollerFSM {
 
@@ -76,7 +73,7 @@ class PollerActor(
         }
       } yield {
         val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, self, root = false)
-        HttpTx.start(nonBlockingTx, httpComponents)
+        HttpTx.start(nonBlockingTx)
       }
 
       outcome match {

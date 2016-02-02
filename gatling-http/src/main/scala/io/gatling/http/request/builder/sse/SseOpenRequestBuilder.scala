@@ -15,6 +15,7 @@
  */
 package io.gatling.http.request.builder.sse
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.async.sse._
@@ -42,6 +43,6 @@ case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: St
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 
-  def build(httpComponents: HttpComponents): Expression[Request] =
-    new SseRequestExpressionBuilder(commonAttributes, httpComponents).build
+  def build(coreComponents: CoreComponents, httpComponents: HttpComponents): Expression[Request] =
+    new SseRequestExpressionBuilder(commonAttributes, coreComponents, httpComponents).build
 }

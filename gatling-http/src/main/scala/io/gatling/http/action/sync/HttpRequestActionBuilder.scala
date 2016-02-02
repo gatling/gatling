@@ -32,8 +32,8 @@ class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpA
   def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
     import ctx._
     implicit val configuration = ctx.configuration
-    val hc = httpComponents(protocolComponentsRegistry)
-    val httpRequest = requestBuilder.build(hc, throttled)
-    system.actorOf(HttpRequestAction.props(httpRequest, coreComponents.statsEngine, hc.httpEngine, next), actorName("httpRequest"))
+    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
+    val httpRequest = requestBuilder.build(coreComponents, httpComponents, throttled)
+    system.actorOf(HttpRequestAction.props(httpRequest, next), actorName("httpRequest"))
   }
 }

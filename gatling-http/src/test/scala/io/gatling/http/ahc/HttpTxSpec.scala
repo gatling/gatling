@@ -16,6 +16,7 @@
 package io.gatling.http.ahc
 
 import io.gatling.BaseSpec
+import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.sync.HttpTx
@@ -33,6 +34,8 @@ class HttpTxSpec extends BaseSpec {
 
   trait Context {
     val httpCaches = new HttpCaches
+    val coreComponents = mock[CoreComponents]
+    when(coreComponents.configuration).thenReturn(configuration)
     val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches)
     var session = Session("mockSession", 0)
 
@@ -45,6 +48,7 @@ class HttpTxSpec extends BaseSpec {
       silent = None,
       followRedirect = false,
       discardResponseChunks = true,
+      coreComponents = coreComponents,
       httpComponents = httpComponents,
       explicitResources = Nil
     )

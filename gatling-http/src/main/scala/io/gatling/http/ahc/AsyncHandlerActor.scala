@@ -269,7 +269,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
 
                 val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
                 val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
-                HttpTx.start(redirectTx, tx.request.config.httpComponents)
+                HttpTx.start(redirectTx)
 
               case None =>
                 ko(tx, update, response, "Redirect status, yet no Location header")

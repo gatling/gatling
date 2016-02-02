@@ -15,6 +15,7 @@
  */
 package io.gatling.http
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.ahc.HttpEngine
@@ -32,6 +33,7 @@ object MockUtils extends MockitoSugar {
 
   def txTo(uri: String, session: Session, redirectCount: Int = 0, cache: Boolean = false) = {
     val protocol = mock[HttpProtocol]
+    val coreComponents = mock[CoreComponents]
     val httpComponents = HttpComponents(protocol, mock[HttpEngine], mock[HttpCaches])
     val request = mock[Request]
     val requestPart = mock[HttpProtocolRequestPart]
@@ -57,6 +59,7 @@ object MockUtils extends MockitoSugar {
           silent = None,
           followRedirect = true,
           discardResponseChunks = true,
+          coreComponents = coreComponents,
           httpComponents = httpComponents,
           explicitResources = Nil
         )

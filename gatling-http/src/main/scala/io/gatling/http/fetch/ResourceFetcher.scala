@@ -20,6 +20,7 @@ import scala.collection.mutable
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
+import io.gatling.core.CoreComponents
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
@@ -60,9 +61,9 @@ trait ResourceFetcher {
       case none    => resources
     }
 
-  def resourcesToRequests(resources: List[EmbeddedResource], session: Session, httpComponents: HttpComponents, throttled: Boolean): List[HttpRequest] =
+  def resourcesToRequests(resources: List[EmbeddedResource], session: Session, coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): List[HttpRequest] =
     resources.flatMap {
-      _.toRequest(session, httpComponents, throttled) match {
+      _.toRequest(session, coreComponents, httpComponents, throttled) match {
         case Success(httpRequest) => Some(httpRequest)
         case Failure(m) =>
           // shouldn't happen, only static values
@@ -74,13 +75,14 @@ trait ResourceFetcher {
   private def inferPageResources(request: Request, response: Response, session: Session, config: HttpRequestConfig): List[HttpRequest] = {
 
     val htmlDocumentUri = response.request.getUri
+    val coreComponents = config.coreComponents
     val httpComponents = config.httpComponents
     val httpProtocol = httpComponents.httpProtocol
 
       def inferredResourcesRequests(): List[HttpRequest] = {
         val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.string, UserAgent.getAgent(request))
         val filtered = applyResourceFilters(inferred, httpProtocol.responsePart.htmlResourcesInferringFilters)
-        resourcesToRequests(filtered, session, httpComponents, config.throttled)
+        resourcesToRequests(filtered, session, coreComponents, httpComponents, config.throttled)
       }
 
     response.statusCode match {
@@ -181,6 +183,7 @@ trait ResourceFetcher {
 class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration) extends BaseActor {
 
   // immutable state
+  val coreComponents = rootTx.request.config.coreComponents
   val httpComponents = rootTx.request.config.httpComponents
   import httpComponents._
   val throttled = rootTx.request.config.throttled
@@ -216,7 +219,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
       root = false
     )
 
-    HttpTx.start(resourceTx, httpComponents)
+    HttpTx.start(resourceTx)
   }
 
   private def handleCachedResource(resource: HttpRequest): Unit = {
@@ -326,7 +329,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
       def parseCssResources(): List[HttpRequest] = {
         val inferred = httpEngine.CssContentCache.cache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))
         val filtered = httpEngine.applyResourceFilters(inferred, filters)
-        httpEngine.resourcesToRequests(filtered, session, httpComponents, throttled)
+        httpEngine.resourcesToRequests(filtered, session, coreComponents, httpComponents, throttled)
       }
 
     if (status == OK) {

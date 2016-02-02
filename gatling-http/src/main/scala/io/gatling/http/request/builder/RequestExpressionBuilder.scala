@@ -17,6 +17,8 @@ package io.gatling.http.request.builder
 
 import java.net.InetAddress
 
+import io.gatling.core.CoreComponents
+
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
@@ -41,13 +43,14 @@ object RequestExpressionBuilder {
   val ConfigureIdentity: RequestBuilderConfigure = session => requestBuilder => requestBuilder.success
 }
 
-abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)
+abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
     extends LazyLogging {
 
   import RequestExpressionBuilder._
   protected val protocol = httpComponents.httpProtocol
   protected val httpCaches = httpComponents.httpCaches
-  protected val charset = httpComponents.httpEngine.configuration.core.charset
+  protected val configuration = coreComponents.configuration
+  protected val charset = configuration.core.charset
   protected val headers = protocol.requestPart.headers ++ commonAttributes.headers
   private val refererHeaderIsUndefined = !headers.contains(HeaderNames.Referer)
   protected val contentTypeHeaderIsUndefined = !headers.contains(HeaderNames.ContentType)
@@ -83,7 +86,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
         //
         // [fl]
         _.setNameResolver(nameResolver)
-      }
+    }
 
   // FIXME resolve proxy presence once
   private def configureProxy(requestBuilder: AhcRequestBuilder, uri: Uri): Validation[AhcRequestBuilder] = {

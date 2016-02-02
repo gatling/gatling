@@ -19,10 +19,9 @@ import io.gatling.commons.stats.OK
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.AsyncHandler
-import io.gatling.http.cache.ContentCacheEntry
+import io.gatling.http.ahc.{ HttpEngine, AsyncHandler }
+import io.gatling.http.cache.{ HttpCaches, ContentCacheEntry }
 import io.gatling.http.fetch.RegularResourceFetched
-import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
 
@@ -48,9 +47,8 @@ object HttpTx extends ActorNames with StrictLogging {
     }
   }
 
-  private def startWithCache(origTx: HttpTx, ctx: ActorContext, httpComponents: HttpComponents)(f: HttpTx => Unit): Unit = {
-    import httpComponents._
-    val tx = httpComponents.httpCaches.applyPermanentRedirect(origTx)
+  private def startWithCache(origTx: HttpTx, ctx: ActorContext, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
+    val tx = httpCaches.applyPermanentRedirect(origTx)
     val ahcRequest = tx.request.ahcRequest
     val uri = ahcRequest.getUri
 
@@ -79,10 +77,12 @@ object HttpTx extends ActorNames with StrictLogging {
     }
   }
 
-  def start(origTx: HttpTx, httpComponents: HttpComponents)(implicit ctx: ActorContext): Unit =
-    startWithCache(origTx, ctx, httpComponents) { tx =>
+  def start(origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
 
-      val httpEngine = httpComponents.httpEngine
+    import origTx.request.config.httpComponents._
+
+    startWithCache(origTx, ctx, httpEngine, httpCaches) { tx =>
+
       logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
       val requestConfig = tx.request.config
@@ -91,16 +91,17 @@ object HttpTx extends ActorNames with StrictLogging {
         case (newSession, client) =>
           val newTx = tx.copy(session = newSession)
           val ahcRequest = newTx.request.ahcRequest
-          val handler = new AsyncHandler(newTx, httpEngine)
+          val handler = new AsyncHandler(newTx)
 
           if (requestConfig.throttled)
-            httpEngine.coreComponents.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler))
+            origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler))
           else
             client.executeRequest(ahcRequest, handler)
 
         case _ => // client has been shutdown, ignore
       }
     }
+  }
 }
 
 case class HttpTx(

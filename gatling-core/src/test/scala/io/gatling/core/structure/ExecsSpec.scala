@@ -29,7 +29,7 @@ import io.gatling.core.session.Session
 class ExecsSpec extends AkkaSpec with CoreDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef])
+  val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef], configuration)
   val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, mock[Protocols])
   val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, configuration, Constant, throttled = false)
 

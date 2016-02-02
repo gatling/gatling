@@ -44,13 +44,13 @@ object AsyncHandler extends StrictLogging {
  *
  * @constructor constructs a Gatling AsyncHandler
  * @param tx the data about the request to be sent and processed
- * @param httpEngine the HTTP engine
  */
-class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ExtendedAsyncHandler[Unit] with ProgressAsyncHandler[Unit] with LazyLogging {
+class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressAsyncHandler[Unit] with LazyLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
   private val done = new AtomicBoolean
+  private val httpEngine = tx.request.config.httpComponents.httpEngine
   // [fl]
   //
   //

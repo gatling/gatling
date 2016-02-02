@@ -77,7 +77,7 @@ object Dependencies {
 
   val metricsDependencies = hdrHistogram +: testDeps
 
-  val benchmarkDependencies = Seq(mockitoCore.copy(configurations = None), jmh)
+  val benchmarkDependencies = Seq(jmh)
 
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)

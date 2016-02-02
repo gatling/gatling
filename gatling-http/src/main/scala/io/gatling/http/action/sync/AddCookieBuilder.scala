@@ -60,8 +60,8 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
     import ctx._
 
-    val hc = httpComponents(protocolComponentsRegistry)
-    val resolvedDomain = domain.getOrElse(defaultDomain(hc.httpProtocol))
+    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
+    val resolvedDomain = domain.getOrElse(defaultDomain(httpComponents.httpProtocol))
     val resolvedPath = path.getOrElse(DefaultPath)
 
     val expression: Expression[Session] = session => for {

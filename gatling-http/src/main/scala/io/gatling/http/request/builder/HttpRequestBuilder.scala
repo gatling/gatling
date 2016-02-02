@@ -15,6 +15,7 @@
  */
 package io.gatling.http.request.builder
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.session._
 import io.gatling.http.action.sync.HttpRequestActionBuilder
@@ -122,10 +123,11 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   /**
    * This method builds the request that will be sent
    *
+   * @param coreComponents the CoreComponents
    * @param httpComponents the HttpComponents
    * @param throttled if throttling is enabled
    */
-  def build(httpComponents: HttpComponents, throttled: Boolean): HttpRequestDef = {
+  def build(coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): HttpRequestDef = {
 
     val httpProtocol = httpComponents.httpProtocol
 
@@ -145,11 +147,11 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
     val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(httpProtocol.responsePart.responseTransformer)
 
-    val resolvedResources = httpAttributes.explicitResources.map(_.build(httpComponents, throttled))
+    val resolvedResources = httpAttributes.explicitResources.map(_.build(coreComponents, httpComponents, throttled))
 
     val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(httpProtocol.responsePart.extraInfoExtractor)
 
-    val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpComponents).build
+    val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, coreComponents, httpComponents).build
 
     val resolvedSignatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
@@ -168,6 +170,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
         discardResponseChunks = resolvedDiscardResponseChunks,
+        coreComponents = coreComponents,
         httpComponents = httpComponents,
         explicitResources = resolvedResources
       )

@@ -15,6 +15,7 @@
  */
 package io.gatling.http.request.builder.ws
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.Expression
 import io.gatling.http.action.async.ws.WsOpenActionBuilder
 import io.gatling.http.protocol.HttpComponents
@@ -32,6 +33,6 @@ case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: Stri
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new WsOpenRequestBuilder(commonAttributes, wsName)
 
-  def build(httpComponents: HttpComponents): Expression[Request] =
-    new WsRequestExpressionBuilder(commonAttributes, httpComponents).build
+  def build(coreComponents: CoreComponents, httpComponents: HttpComponents): Expression[Request] =
+    new WsRequestExpressionBuilder(commonAttributes, coreComponents, httpComponents).build
 }

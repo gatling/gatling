@@ -18,6 +18,7 @@ package io.gatling.http.request.builder
 import scala.collection.JavaConversions._
 
 import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
@@ -33,15 +34,16 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
   implicit val configuration = GatlingConfiguration.loadForTest()
+  val coreComponents = mock[CoreComponents]
+  when(coreComponents.configuration).thenReturn(configuration)
   implicit val httpEngine = mock[HttpEngine]
-  when(httpEngine.configuration) thenReturn configuration
   implicit val httpCaches = new HttpCaches
   val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches)
 
   def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, "GET", Right(Uri.create("http://gatling.io")))
     val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
-    builder.build(httpComponents, throttled = false)
+    builder.build(coreComponents, httpComponents, throttled = false)
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {

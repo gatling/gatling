@@ -15,6 +15,8 @@
  */
 package io.gatling.http.request.builder
 
+import io.gatling.core.CoreComponents
+
 import scala.collection.JavaConversions._
 
 import io.gatling.commons.validation._
@@ -31,8 +33,8 @@ import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
 
-class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
-    extends RequestExpressionBuilder(commonAttributes, httpComponents) {
+class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
+    extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   import RequestExpressionBuilder._
 

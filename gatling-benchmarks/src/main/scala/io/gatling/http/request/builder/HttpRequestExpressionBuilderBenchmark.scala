@@ -16,16 +16,14 @@
 package io.gatling.http.request.builder
 
 import io.gatling.commons.validation.Validation
+import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol._
 
 import org.asynchttpclient.Request
 import org.openjdk.jmh.annotations.Benchmark
-import com.softwaremill.quicklens._
-import org.mockito.Mockito._
 
 object HttpRequestExpressionBuilderBenchmark {
 
@@ -36,9 +34,6 @@ object HttpRequestExpressionBuilderBenchmark {
     val httpProtocol = HttpProtocolBuilder(config)
       .baseURL("http://localhost:8000")
       .build
-
-    val httpEngine = mock(classOf[HttpEngine])
-    when(httpEngine.configuration).thenReturn(config)
 
     val httpCaches = new HttpCaches
 
@@ -53,9 +48,16 @@ object HttpRequestExpressionBuilderBenchmark {
       httpAttributes = HttpAttributes(
         checks = Nil
       ),
+      coreComponents = CoreComponents(
+        controller = null,
+        throttler = null,
+        statsEngine = null,
+        exit = null,
+        configuration = config
+      ),
       httpComponents = HttpComponents(
         httpProtocol = httpProtocol,
-        httpEngine = httpEngine,
+        httpEngine = null,
         httpCaches = httpCaches
       )
     )
