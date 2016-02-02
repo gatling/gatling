@@ -34,7 +34,6 @@ class SseOpenActionBuilder(
 
   override def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
     import ctx._
-    implicit val configuration = ctx.configuration
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
     system.actorOf(SseOpenAction.props(requestName, sseName, request, checkBuilder, coreComponents.statsEngine, httpComponents, next), actorName("sseOpen"))

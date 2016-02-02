@@ -18,7 +18,6 @@ package io.gatling.http.ahc
 import java.util.concurrent.TimeUnit
 
 import io.gatling.core.{ CoreComponents, ConfigKeys }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.resolver.ExtendedDnsNameResolver
 import io.gatling.http.util.SslHelper._
@@ -37,13 +36,13 @@ import org.asynchttpclient.netty.channel.DefaultChannelPool
 
 private[gatling] object AhcFactory {
 
-  def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory = {
+  def apply(system: ActorSystem, coreComponents: CoreComponents): AhcFactory = {
+    // [fl]
     //
     //
     //
     //
-    //
-    //
+    // [fl]
     new DefaultAhcFactory(system, coreComponents)
   }
 }
@@ -57,9 +56,10 @@ private[gatling] trait AhcFactory {
   def newNameResolver(): ExtendedDnsNameResolver
 }
 
-private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents)(implicit val configuration: GatlingConfiguration) extends AhcFactory with StrictLogging {
+private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents) extends AhcFactory with StrictLogging {
 
-  import configuration.http.{ ahc => ahcConfig }
+  val configuration = coreComponents.configuration
+  val ahcConfig = configuration.http.ahc
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)

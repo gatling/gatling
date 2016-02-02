@@ -29,10 +29,10 @@ case class Selection(simulationClass: Class[Simulation], userDefinedSimulationId
 
 object Selection {
 
-  def apply(selectedSimulationClass: SelectedSimulationClass)(implicit configuration: GatlingConfiguration): Selection =
-    new Selector(selectedSimulationClass).selection
+  def apply(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration): Selection =
+    new Selector(selectedSimulationClass, configuration).selection
 
-  private class Selector(selectedSimulationClass: SelectedSimulationClass)(implicit configuration: GatlingConfiguration) {
+  private class Selector(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration) {
 
     def selection = {
 
@@ -58,7 +58,7 @@ object Selection {
       val reportsOnly = configuration.core.directory.reportsOnly.isDefined
 
       if (fromSbt || reportsOnly) Nil
-      else SimulationClassLoader(GatlingFiles.binariesDirectory).simulationClasses.sortBy(_.getName)
+      else SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.getName)
     }
 
     private def trySelectingSingleSimulation(simulationClasses: SimulationClasses): SelectedSimulationClass = {

@@ -32,15 +32,14 @@ class PollingStartBuilder(
 
   override def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._
-    implicit val configuration = ctx.configuration
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val requestDef = requestBuilder.build(coreComponents, httpComponents, throttled)
-    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, coreComponents.statsEngine, next), actorName("pollingStart"))
+    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, next), actorName("pollingStart"))
   }
 }
 
 class PollingStopBuilder(pollerName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(PollingStopAction.props(pollerName, ctx.coreComponents.statsEngine, next), actorName("pollingStop"))
+    ctx.system.actorOf(PollingStopAction.props(pollerName, ctx.coreComponents, next), actorName("pollingStop"))
 }

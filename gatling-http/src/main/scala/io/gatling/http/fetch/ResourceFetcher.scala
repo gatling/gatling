@@ -22,7 +22,6 @@ import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.session._
 import io.gatling.core.util.cache._
@@ -52,8 +51,8 @@ trait ResourceFetcher {
   self: HttpEngine =>
 
   // FIXME should CssContentCache use the same key?
-  val CssContentCache = ThreadSafeCache[Uri, List[EmbeddedResource]](configuration.http.fetchedCssCacheMaxCapacity)
-  val InferredResourcesCache = ThreadSafeCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
+  val CssContentCache = ThreadSafeCache[Uri, List[EmbeddedResource]](coreComponents.configuration.http.fetchedCssCacheMaxCapacity)
+  val InferredResourcesCache = ThreadSafeCache[InferredResourcesCacheKey, InferredPageResources](coreComponents.configuration.http.fetchedHtmlCacheMaxCapacity)
 
   def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
     filters match {
@@ -180,7 +179,7 @@ trait ResourceFetcher {
 }
 
 // FIXME handle crash
-class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration) extends BaseActor {
+class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) extends BaseActor {
 
   // immutable state
   val coreComponents = rootTx.request.config.coreComponents
@@ -208,7 +207,8 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
       resource.config.checks,
       resource.config.responseTransformer,
       httpProtocol.responsePart.discardResponseChunks,
-      httpProtocol.responsePart.inferHtmlResources
+      httpProtocol.responsePart.inferHtmlResources,
+      coreComponents.configuration
     )
 
     val resourceTx = rootTx.copy(

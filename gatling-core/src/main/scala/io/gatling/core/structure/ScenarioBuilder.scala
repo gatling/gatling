@@ -17,17 +17,16 @@ package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols, Protocol }
-
-import akka.actor.ActorSystem
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._
+import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols, Protocol }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
+
+import akka.actor.ActorSystem
 import com.typesafe.scalalogging.LazyLogging
 
 /**
@@ -84,7 +83,7 @@ case class PopulationBuilder(
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(system: ActorSystem, coreComponents: CoreComponents, protocolComponentsRegistry: ProtocolComponentsRegistry, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling])(implicit configuration: GatlingConfiguration): Scenario = {
+  private[core] def build(system: ActorSystem, coreComponents: CoreComponents, protocolComponentsRegistry: ProtocolComponentsRegistry, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling]): Scenario = {
 
     val resolvedPauseType =
       if (scenarioThrottleSteps.nonEmpty || globalThrottling.isDefined) {
@@ -97,7 +96,7 @@ case class PopulationBuilder(
     // beware, have to set scenarioProtocols into mutable protocolComponents
     protocolComponentsRegistry.setScenarioProtocols(scenarioProtocols)
 
-    val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, configuration, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
+    val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
@@ -109,7 +108,6 @@ case class ScenarioContext(
   system:                     ActorSystem,
   coreComponents:             CoreComponents,
   protocolComponentsRegistry: ProtocolComponentsRegistry,
-  configuration:              GatlingConfiguration,
   pauseType:                  PauseType,
   throttled:                  Boolean
 )

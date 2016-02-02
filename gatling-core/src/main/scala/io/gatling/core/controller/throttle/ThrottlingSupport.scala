@@ -69,7 +69,7 @@ object Throttling {
         valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
   }
 
-  def apply(steps: Iterable[ThrottleStep])(implicit configuration: GatlingConfiguration): Throttling = {
+  def apply(steps: Iterable[ThrottleStep], configuration: GatlingConfiguration): Throttling = {
 
     val resolvedSteps =
       // [fl]

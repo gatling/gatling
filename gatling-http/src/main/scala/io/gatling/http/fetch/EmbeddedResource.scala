@@ -17,7 +17,6 @@ package io.gatling.http.fetch
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
 import io.gatling.http.protocol.HttpComponents
@@ -38,7 +37,7 @@ sealed abstract class EmbeddedResource {
   def acceptHeader: Expression[String]
   val url = uri.toString
 
-  def toRequest(session: Session, coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean)(implicit configuration: GatlingConfiguration): Validation[HttpRequest] = {
+  def toRequest(session: Session, coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): Validation[HttpRequest] = {
 
     val requestName = {
       val start = url.lastIndexOf('/') + 1

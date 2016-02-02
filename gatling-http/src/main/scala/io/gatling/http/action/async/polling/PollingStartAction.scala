@@ -20,7 +20,6 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.request.HttpRequestDef
@@ -30,40 +29,37 @@ import akka.actor.{ ActorRef, Props }
 object PollingStartAction {
 
   def props(
-    pollerName:  String,
-    period:      Expression[FiniteDuration],
-    requestDef:  HttpRequestDef,
-    statsEngine: StatsEngine,
-    next:        ActorRef
-  )(implicit configuration: GatlingConfiguration): Props =
-    Props(new PollingStartAction(pollerName, period, requestDef, statsEngine, next))
+    pollerName: String,
+    period:     Expression[FiniteDuration],
+    requestDef: HttpRequestDef,
+    next:       ActorRef
+  ): Props =
+    Props(new PollingStartAction(pollerName, period, requestDef, requestDef.config.coreComponents.statsEngine, next))
 }
 
 class PollingStartAction(
-  pollerName:      String,
-  period:          Expression[FiniteDuration],
-  requestDef:      HttpRequestDef,
-  val statsEngine: StatsEngine,
-  val next:        ActorRef
-)(implicit configuration: GatlingConfiguration)
-    extends Interruptable
-    with Failable
-    with PollingAction {
+    pollerName:      String,
+    period:          Expression[FiniteDuration],
+    httpRequestDef:  HttpRequestDef,
+    val statsEngine: StatsEngine,
+    val next:        ActorRef
+) extends Interruptable with Failable with PollingAction {
+
+  import httpRequestDef._
+
+  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
+    config.checks,
+    config.responseTransformer,
+    config.discardResponseChunks,
+    config.httpComponents.httpProtocol.responsePart.inferHtmlResources,
+    config.coreComponents.configuration
+  )
 
   def executeOrFail(session: Session) = {
 
-    import requestDef.config._
-
-    val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-      checks,
-      responseTransformer,
-      discardResponseChunks,
-      httpComponents.httpProtocol.responsePart.inferHtmlResources
-    )
-
       def startPolling(period: FiniteDuration): Unit = {
         logger.info(s"Starting poller $pollerName")
-        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, requestDef, responseBuilderFactory, statsEngine), actorName("pollingActor"))
+        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), actorName("pollingActor"))
 
         val newSession = session.set(pollerName, pollingActor)
 

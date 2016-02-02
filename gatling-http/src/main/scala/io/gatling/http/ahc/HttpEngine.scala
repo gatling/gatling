@@ -23,7 +23,6 @@ import scala.util.control.NonFatal
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.akka.ActorNames
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
@@ -39,7 +38,7 @@ import com.typesafe.scalalogging.StrictLogging
 object HttpEngine {
   val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 
-  def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): HttpEngine =
+  def apply(system: ActorSystem, coreComponents: CoreComponents): HttpEngine =
     new HttpEngine(system, coreComponents, AhcFactory(system, coreComponents))
 }
 
@@ -47,12 +46,12 @@ class HttpEngine(
   system:                       ActorSystem,
   protected val coreComponents: CoreComponents,
   ahcFactory:                   AhcFactory
-)(implicit protected val configuration: GatlingConfiguration)
+)
     extends ResourceFetcher with ActorNames with StrictLogging {
 
   val asyncHandlerActors: ActorRef = {
     val poolSize = 3 * Runtime.getRuntime.availableProcessors
-    system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents.statsEngine, this)), actorName("asyncHandler"))
+    system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents, this)), actorName("asyncHandler"))
   }
 
   private[this] lazy val dnsResolver = ahcFactory.newNameResolver()

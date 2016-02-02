@@ -35,7 +35,6 @@ class WsOpenActionBuilder(
 
   override def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._
-    implicit val configuration = ctx.configuration
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
     system.actorOf(WsOpenAction.props(requestName, wsName, request, checkBuilder, coreComponents.statsEngine, httpComponents, next), actorName("wsOpen"))

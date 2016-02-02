@@ -46,14 +46,14 @@ object HttpProtocol extends StrictLogging {
     type Components = HttpComponents
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[HttpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
-    def defaultValue(implicit configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
+    def defaultValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): HttpProtocol => HttpComponents = {
+    def newComponents(system: ActorSystem, coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
 
       val httpEngine = HttpEngine(system, coreComponents)
 
       httpProtocol => {
-        val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches)
+        val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(coreComponents.configuration))
         httpEngine.warmpUp(httpComponents)
         httpComponents
       }

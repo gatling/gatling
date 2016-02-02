@@ -21,6 +21,7 @@ import scala.collection.JavaConversions._
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.core.CoreComponents
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
@@ -46,11 +47,11 @@ import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 import org.asynchttpclient.util.StringUtils.stringBuilder
 
 object AsyncHandlerActor {
-  def props(statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) =
-    Props(new AsyncHandlerActor(statsEngine, httpEngine))
+  def props(coreComponents: CoreComponents, httpEngine: HttpEngine) =
+    Props(new AsyncHandlerActor(coreComponents.statsEngine, httpEngine, coreComponents.configuration))
 }
 
-class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) extends BaseActor {
+class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration) extends BaseActor {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 

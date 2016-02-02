@@ -94,7 +94,7 @@ abstract class Simulation {
     }
   }
 
-  private[gatling] def params(implicit configuration: GatlingConfiguration) = {
+  private[gatling] def params(configuration: GatlingConfiguration) = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
     val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
@@ -118,14 +118,14 @@ abstract class Simulation {
       if (steps.isEmpty)
         None
       else
-        Some(scn.scenarioBuilder.name -> Throttling(steps))
+        Some(scn.scenarioBuilder.name -> Throttling(steps, configuration))
     }.toMap
 
     val globalThrottling =
       if (_globalThrottleSteps.isEmpty)
         None
       else
-        Some(Throttling(_globalThrottleSteps))
+        Some(Throttling(_globalThrottleSteps, configuration))
 
     val maxDuration = {
 
@@ -162,7 +162,7 @@ case class SimulationParams(
     afterSteps:         List[() => Unit]
 ) {
 
-  def scenarios(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): List[Scenario] = {
+  def scenarios(system: ActorSystem, coreComponents: CoreComponents): List[Scenario] = {
 
     val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, globalProtocols)
 

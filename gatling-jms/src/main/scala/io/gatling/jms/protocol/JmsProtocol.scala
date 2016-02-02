@@ -30,9 +30,9 @@ object JmsProtocol {
 
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[JmsProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
-    def defaultValue(implicit configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
+    def defaultValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): JmsProtocol => JmsComponents =
+    def newComponents(system: ActorSystem, coreComponents: CoreComponents): JmsProtocol => JmsComponents =
       jmsProtocol => JmsComponents(jmsProtocol)
   }
 }

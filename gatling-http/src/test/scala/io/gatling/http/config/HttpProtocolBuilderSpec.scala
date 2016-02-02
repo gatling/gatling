@@ -26,10 +26,10 @@ import org.asynchttpclient.uri.Uri
 
 class HttpProtocolBuilderSpec extends BaseSpec {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val httpCaches = new HttpCaches
-  implicit val httpEngine = mock[HttpEngine]
-  implicit val httpProtocolBuilder = HttpProtocolBuilder(configuration)
+  val configuration = GatlingConfiguration.loadForTest()
+  val httpCaches = new HttpCaches(configuration)
+  val httpEngine = mock[HttpEngine]
+  val httpProtocolBuilder = HttpProtocolBuilder(configuration)
 
   "http protocol configuration builder" should "support an optional extra info extractor" in {
 

@@ -33,11 +33,11 @@ import org.mockito.Mockito.when
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  val configuration = GatlingConfiguration.loadForTest()
   val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
-  implicit val httpEngine = mock[HttpEngine]
-  implicit val httpCaches = new HttpCaches
+  val httpEngine = mock[HttpEngine]
+  val httpCaches = new HttpCaches(configuration)
   val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches)
 
   def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {

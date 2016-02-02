@@ -19,12 +19,23 @@ import scala.collection.immutable
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation.Failure
+import io.gatling.core.CoreComponents
 import io.gatling.core.config._
 import io.gatling.core.structure.ScenarioContext
+
+import org.mockito.Mockito._
 
 class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
+
+  def scenarioContext(cfg: GatlingConfiguration = configuration) = {
+    val ctx = mock[ScenarioContext]
+    val coreComponents = mock[CoreComponents]
+    when(coreComponents.configuration) thenReturn cfg
+    when(ctx.coreComponents) thenReturn coreComponents
+    ctx
+  }
 
   "RecordSeqFeederBuilder" should "be able to use all the strategies" in {
     val builder = RecordSeqFeederBuilder(IndexedSeq())
@@ -40,7 +51,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   "RecordSeqFeederBuilder" should "build a Feeder with a queue strategy" in {
-    val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build(mock[ScenarioContext])
+    val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build(scenarioContext())
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
   }
 
@@ -51,7 +62,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val testsOutcome: immutable.IndexedSeq[Boolean] =
       (1 to 3).map { _ =>
-        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build(mock[ScenarioContext])
+        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build(scenarioContext())
         randomFeeder.hasNext shouldBe true
         val retrievedMaps = fiftyTimes.map(_ => randomFeeder.next())
         retrievedMaps != orderedMaps
@@ -67,7 +78,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val shuffledOutcome: immutable.IndexedSeq[IndexedSeq[Record[String]]] =
       (1 to 3).map { _ =>
-        val shuffleFeeder = RecordSeqFeederBuilder(orderedMaps).shuffle.build(mock[ScenarioContext])
+        val shuffleFeeder = RecordSeqFeederBuilder(orderedMaps).shuffle.build(scenarioContext())
         shuffleFeeder.hasNext shouldBe true
         fiftyTimes.map(_ => shuffleFeeder.next())
       }
@@ -77,7 +88,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   it should "build a Feeder with a circular strategy" in {
-    val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(mock[ScenarioContext])
+    val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(scenarioContext())
     circularFeeder.next()
     circularFeeder.next()
     circularFeeder.next() shouldBe Map("1" -> "Test")
@@ -123,15 +134,11 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   //
   //
   //
-  //
-  //
-  //
-  //
   // [fl]
 
   "FeederBuilder" should "have working implicit conversions" in {
-    IndexedSeq(Map("1" -> "Test")).build(mock[ScenarioContext]) shouldBe a[Feeder[_]]
-    val convertedObj = Array(Map("1" -> "Test")).build(mock[ScenarioContext])
+    IndexedSeq(Map("1" -> "Test")).build(scenarioContext()) shouldBe a[Feeder[_]]
+    val convertedObj = Array(Map("1" -> "Test")).build(scenarioContext())
     convertedObj shouldBe a[Feeder[_]]
     convertedObj.build(mock[ScenarioContext]) shouldBe a[Feeder[_]]
   }

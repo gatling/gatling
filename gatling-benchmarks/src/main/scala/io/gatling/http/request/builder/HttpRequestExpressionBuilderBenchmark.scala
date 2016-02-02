@@ -35,7 +35,7 @@ object HttpRequestExpressionBuilderBenchmark {
       .baseURL("http://localhost:8000")
       .build
 
-    val httpCaches = new HttpCaches
+    val httpCaches = new HttpCaches(config)
 
     new HttpRequestExpressionBuilder(
       commonAttributes = CommonAttributes(

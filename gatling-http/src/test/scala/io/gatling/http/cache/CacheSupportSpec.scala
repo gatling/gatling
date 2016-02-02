@@ -32,9 +32,9 @@ import org.asynchttpclient.uri.Uri
 class CacheSupportSpec extends BaseSpec {
 
   // Default config
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val httpCaches = new HttpCaches
-  implicit val httpEngine = mock[HttpEngine]
+  val configuration = GatlingConfiguration.loadForTest()
+  val httpCaches = new HttpCaches(configuration)
+  val httpEngine = mock[HttpEngine]
 
   class CacheContext {
 

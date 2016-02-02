@@ -49,8 +49,9 @@ object ResponseBuilder extends StrictLogging {
     checks:                List[HttpCheck],
     responseTransformer:   Option[PartialFunction[Response, Response]],
     discardResponseChunks: Boolean,
-    inferHtmlResources:    Boolean
-  )(implicit configuration: GatlingConfiguration): ResponseBuilderFactory = {
+    inferHtmlResources:    Boolean,
+    configuration:         GatlingConfiguration
+  ): ResponseBuilderFactory = {
 
     val checksumChecks = checks.collect {
       case checksumCheck: ChecksumCheck => checksumCheck
@@ -60,6 +61,8 @@ object ResponseBuilder extends StrictLogging {
 
     val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
+    val charset = configuration.core.charset
+
     request => new ResponseBuilder(
       request,
       checksumChecks,
@@ -67,7 +70,7 @@ object ResponseBuilder extends StrictLogging {
       responseTransformer,
       storeBodyParts,
       inferHtmlResources,
-      configuration.core.charset
+      charset
     )
   }
 }

@@ -46,13 +46,13 @@ object Gatling {
 
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
 
-    implicit val configuration = GatlingConfiguration.load(overrides)
+    val configuration = GatlingConfiguration.load(overrides)
 
-    new Gatling(selectedSimulationClass).start.code
+    new Gatling(selectedSimulationClass, configuration).start.code
   }
 }
 
-private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(implicit configuration: GatlingConfiguration) {
+private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration) {
 
   def start: StatusCode = {
     StringHelper.checkSupportedJavaVersion()
@@ -67,7 +67,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       case _ =>
         if (configuration.http.enableGA) Ga.send(configuration.core.version)
         // -- Run Gatling -- //
-        run(Selection(selectedSimulationClass), coreComponentsFactory)
+        run(Selection(selectedSimulationClass, configuration), coreComponentsFactory)
     }
 
   private def run(selection: Selection, coreComponentsFactory: CoreComponentsFactory): RunResult = {
@@ -86,7 +86,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
 
       val simulation = simulationClass.newInstance
 
-      val simulationParams = simulation.params
+      val simulationParams = simulation.params(configuration)
 
       simulationParams.beforeSteps.foreach(_.apply())
 

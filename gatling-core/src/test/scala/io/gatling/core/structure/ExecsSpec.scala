@@ -31,7 +31,7 @@ class ExecsSpec extends AkkaSpec with CoreDsl {
   implicit val configuration = GatlingConfiguration.loadForTest()
   val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef], configuration)
   val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, mock[Protocols])
-  val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, configuration, Constant, throttled = false)
+  val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, Constant, throttled = false)
 
   "Execs" should "wrap Scenarios in chains, using exec" in {
 

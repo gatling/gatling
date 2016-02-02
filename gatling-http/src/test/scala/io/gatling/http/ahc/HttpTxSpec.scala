@@ -33,7 +33,7 @@ class HttpTxSpec extends BaseSpec {
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   trait Context {
-    val httpCaches = new HttpCaches
+    val httpCaches = new HttpCaches(configuration)
     val coreComponents = mock[CoreComponents]
     when(coreComponents.configuration).thenReturn(configuration)
     val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches)

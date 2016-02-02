@@ -33,8 +33,8 @@ trait ProtocolKey {
   type Components
   def protocolClass: Class[io.gatling.core.protocol.Protocol]
 
-  def defaultValue(implicit configuration: GatlingConfiguration): Protocol
-  def newComponents(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): Protocol => Components
+  def defaultValue(configuration: GatlingConfiguration): Protocol
+  def newComponents(system: ActorSystem, coreComponents: CoreComponents): Protocol => Components
 }
 
 trait ProtocolComponents {
@@ -42,7 +42,7 @@ trait ProtocolComponents {
   def onExit: Option[Session => Unit]
 }
 
-class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols)(implicit configuration: GatlingConfiguration) {
+class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols) {
 
   // mustn't reset
   val componentsFactoryCache = mutable.Map.empty[ProtocolKey, Any]
@@ -55,7 +55,7 @@ class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreCompon
   def components(key: ProtocolKey): key.Components = {
 
       def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
-      def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultValue)).asInstanceOf[key.Protocol]
+      def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
       def comps = componentsFactory(protocol)
 
     componentsCache.getOrElseUpdate(key, comps).asInstanceOf[key.Components]

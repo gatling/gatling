@@ -15,15 +15,16 @@
  */
 package io.gatling.http.action.async.polling
 
-import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ ActorRef, Props }
+import io.gatling.core.CoreComponents
 import io.gatling.core.session._
+import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.UnnamedRequestAction
 
+import akka.actor.{ ActorRef, Props }
+
 object PollingStopAction {
-  def props(pollerName: String, statsEngine: StatsEngine, next: ActorRef): Props =
-    Props(new PollingStopAction(pollerName, statsEngine, next))
+  def props(pollerName: String, coreComponents: CoreComponents, next: ActorRef): Props =
+    Props(new PollingStopAction(pollerName, coreComponents.statsEngine, next))
 }
 class PollingStopAction(
   pollerName:  String,
