@@ -77,21 +77,25 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     }
 
   // note: DNS cache is supposed to be set early
-  private val configureNameResolver: (Session, AhcRequestBuilder) => Unit = (session, requestBuilder) =>
-    httpCaches.nameResolver(session) match {
-      case None => // shouldn't happen
-      case Some(nameResolver) =>
-        // [fl]
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        // [fl]
-        requestBuilder.setNameResolver(nameResolver)
-    }
+  private val configureNameResolver: (Session, AhcRequestBuilder) => Unit =
+    // [fl]
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    //
+    // [fl]
+    (session, requestBuilder) => httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
+
+  private def configureChannelPoolPartitioning(session: Session, requestBuilder: AhcRequestBuilder): Unit =
+    if (!protocol.enginePart.shareConnections)
+      requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
 
   private def configureProxy(requestBuilder: AhcRequestBuilder): Unit = {
     val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
@@ -168,6 +172,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
 
     requestBuilder.setUri(uri)
+    configureChannelPoolPartitioning(session, requestBuilder)
     configureProxy(requestBuilder)
     configureCookies(session, requestBuilder)
     configureNameResolver(session, requestBuilder)
@@ -183,9 +188,6 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     (session: Session) => {
       val requestBuilder = new AhcRequestBuilder(commonAttributes.method, disableUrlEncoding)
       requestBuilder.setCharset(charset)
-
-      if (!protocol.enginePart.shareConnections)
-        requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
 
       safely(BuildRequestErrorMapper) {
         for {
