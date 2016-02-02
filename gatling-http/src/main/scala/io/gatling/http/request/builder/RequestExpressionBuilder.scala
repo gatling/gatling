@@ -61,6 +61,10 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
+      case Left(StaticStringExpression(staticUrl)) if protocol.baseUrls.size <= 1 =>
+        val uri = makeAbsolute(staticUrl)
+        session => uri
+
       case Left(url) =>
         session =>
           try {
