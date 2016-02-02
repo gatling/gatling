@@ -93,27 +93,55 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     // [fl]
     (session, requestBuilder) => httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
 
-  private def configureChannelPoolPartitioning(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    if (!protocol.enginePart.shareConnections)
-      requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
+  private val configureChannelPoolPartitioning: (Session, AhcRequestBuilder) => Unit =
+    if (protocol.enginePart.shareConnections)
+      (session, requestBuilder) => ()
+    else
+      (session, requestBuilder) => requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
 
-  private def configureProxy(requestBuilder: AhcRequestBuilder): Unit = {
-    val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
-    if (proxy.isDefined && !protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
-      proxy.foreach(requestBuilder.setProxyServer)
+  private val configureProxy: AhcRequestBuilder => Unit = {
+    commonAttributes.proxy.orElse(protocol.proxyPart.proxy) match {
+      case Some(proxy) =>
+        requestBuilder =>
+          if (!protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
+            requestBuilder.setProxyServer(proxy)
+          }
+
+      case _ => requestBuilder => ()
     }
   }
 
   private def configureCookies(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     CookieSupport.getStoredCookies(session, requestBuilder.getUri).foreach(requestBuilder.addCookie)
 
-  private val configureQuery: RequestBuilderConfigure =
+  private val configureQueryParams: RequestBuilderConfigure =
     commonAttributes.queryParams match {
-      case Nil         => ConfigureIdentity
-      case queryParams => configureQuery0(queryParams)
+      case Nil => ConfigureIdentity
+      case queryParams =>
+        val staticParams: Iterable[(String, String)] =
+          commonAttributes.queryParams.collect {
+            case SimpleParam(StaticStringExpression(key), StaticStringExpression(value)) => key -> value
+          }
+
+        if (staticParams.size == queryParams.size)
+          configureStaticQueryParams(staticParams)
+        else
+          configureDynamicQueryParams(queryParams)
     }
 
-  private def configureQuery0(queryParams: List[HttpParam]): RequestBuilderConfigure =
+  private def configureStaticQueryParams(queryParams: Iterable[(String, String)]): RequestBuilderConfigure = {
+    val addQueryParams: AhcRequestBuilder => Validation[AhcRequestBuilder] = requestBuilder => {
+      queryParams.foreach {
+        case (key, value) =>
+          requestBuilder.addQueryParam(key, value)
+      }
+      requestBuilder.success
+    }
+
+    _ => addQueryParams
+  }
+
+  private def configureDynamicQueryParams(queryParams: List[HttpParam]): RequestBuilderConfigure =
     session => requestBuilder => queryParams.resolveParamJList(session).map(requestBuilder.addQueryParams)
 
   private val configureVirtualHost: RequestBuilderConfigure =
@@ -177,7 +205,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     configureCookies(session, requestBuilder)
     configureNameResolver(session, requestBuilder)
 
-    configureQuery(session)(requestBuilder)
+    configureQueryParams(session)(requestBuilder)
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))

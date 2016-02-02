@@ -22,6 +22,7 @@ import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol._
 
+import com.softwaremill.quicklens._
 import org.asynchttpclient.Request
 import org.openjdk.jmh.annotations.Benchmark
 
@@ -53,10 +54,29 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
     new Http("requestName").get("/ping")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
 
-  val RequestWithHeaders: Expression[Request] =
+  val RequestWithStaticQueryParams: Expression[Request] =
     new Http("requestName").get("/ping")
       .queryParam("hello", "world")
+      .queryParam("foo", "bar")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
+
+  val RequestWithStaticHeaders: Expression[Request] = {
+
+    val httpProtocol = HttpProtocolBuilder(config)
+      .baseURL("http://localhost:8000")
+      .acceptEncodingHeader("gzip, deflate")
+      .acceptLanguageHeader("en-GB,en;q=0.5")
+      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:35.0) Gecko/20100101 Firefox/35.0")
+      .build
+
+    new Http("requestName").get("/ping")
+      .build(
+        coreComponents,
+        httpComponents.modify(_.httpProtocol).setTo(httpProtocol),
+        throttled = false
+      ).ahcRequest
+
+  }
 
   val EmptySession: Session = Session("scenario", 0)
 }
@@ -70,6 +90,10 @@ class HttpRequestExpressionBuilderBenchmark {
   //    SimpleRequest(EmptySession)
 
   @Benchmark
-  def testRequestWithHeaders(): Validation[Request] =
-    RequestWithHeaders(EmptySession)
+  def testRequestWithStaticQueryParams(): Validation[Request] =
+    RequestWithStaticQueryParams(EmptySession)
+
+  //  @Benchmark
+  //  def testRequestWithStaticHeaders(): Validation[Request] =
+  //    RequestWithStaticHeaders(EmptySession)
 }
