@@ -85,15 +85,15 @@ class HttpRequestExpressionBuilderBenchmark {
 
   import HttpRequestExpressionBuilderBenchmark._
 
-  //  @Benchmark
-  //  def testSimpleRequest(): Validation[Request] =
-  //    SimpleRequest(EmptySession)
+  @Benchmark
+  def testSimpleRequest(): Validation[Request] =
+    SimpleRequest(EmptySession)
 
   @Benchmark
   def testRequestWithStaticQueryParams(): Validation[Request] =
     RequestWithStaticQueryParams(EmptySession)
 
-  //  @Benchmark
-  //  def testRequestWithStaticHeaders(): Validation[Request] =
-  //    RequestWithStaticHeaders(EmptySession)
+  @Benchmark
+  def testRequestWithStaticHeaders(): Validation[Request] =
+    RequestWithStaticHeaders(EmptySession)
 }
