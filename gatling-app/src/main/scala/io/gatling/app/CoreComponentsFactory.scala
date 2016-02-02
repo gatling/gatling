@@ -29,13 +29,13 @@ import akka.actor.ActorSystem
 private[gatling] object CoreComponentsFactory {
 
   def apply(configuration: GatlingConfiguration): CoreComponentsFactory = {
+    // [fl]
     //
     //
     //
     //
-    //
-    //
-    new DefaultCoreComponentsFactory()(configuration)
+    // [fl]
+     new DefaultCoreComponentsFactory(configuration)
   }
 }
 
@@ -46,7 +46,7 @@ private[gatling] trait CoreComponentsFactory {
   def runResultProcessor: RunResultProcessor
 }
 
-private[gatling] class DefaultCoreComponentsFactory(implicit configuration: GatlingConfiguration) extends CoreComponentsFactory {
+private[gatling] class DefaultCoreComponentsFactory(configuration: GatlingConfiguration) extends CoreComponentsFactory {
 
   def coreComponents(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage): CoreComponents = {
     val statsEngine = DataWritersStatsEngine(system, simulationParams, runMessage, configuration)
@@ -58,5 +58,5 @@ private[gatling] class DefaultCoreComponentsFactory(implicit configuration: Gatl
   }
 
   def runResultProcessor: RunResultProcessor =
-    new LogFileProcessor
+    new LogFileProcessor(configuration)
 }

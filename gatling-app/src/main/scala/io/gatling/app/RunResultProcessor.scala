@@ -28,7 +28,9 @@ trait RunResultProcessor {
   def processRunResult(runResult: RunResult): StatusCode
 }
 
-class LogFileProcessor(implicit configuration: GatlingConfiguration) extends RunResultProcessor {
+class LogFileProcessor(configuration: GatlingConfiguration) extends RunResultProcessor {
+
+  implicit val config = configuration
 
   override def processRunResult(runResult: RunResult): StatusCode = {
     val start = currentTimeMillis
