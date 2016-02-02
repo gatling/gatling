@@ -21,9 +21,12 @@ import org.asynchttpclient.channel.{ ChannelPoolPartitioning, ChannelPoolPartiti
 import org.asynchttpclient.proxy.ProxyServer
 import org.asynchttpclient.uri.Uri
 
-case class ChannelPoolKey(userId: Long, remoteKey: Any)
-case class RemoteServerKey(scheme: String, hostname: String, port: Int)
-case class ProxyServerKey(hostname: String, port: Int, secure: Boolean, targetHostKey: Any)
+case class ChannelPoolKey(userId: Long, remoteKey: RemoteKey)
+
+sealed trait RemoteKey
+case class RemoteServerKey(scheme: String, hostname: String, port: Int) extends RemoteKey
+case class VirtualHostKey(virtualHost: String) extends RemoteKey
+case class ProxyServerKey(hostname: String, port: Int, secure: Boolean, targetHostKey: RemoteKey) extends RemoteKey
 
 class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioning {
 
@@ -33,7 +36,7 @@ class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioni
       if (virtualHost == null)
         RemoteServerKey(uri.getScheme, uri.getHost, uri.getExplicitPort)
       else
-        virtualHost
+        VirtualHostKey(virtualHost)
 
     val remoteKey =
       if (proxyServer == null) {
