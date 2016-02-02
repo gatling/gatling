@@ -142,7 +142,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   private val configureHeaders: RequestBuilderConfigure =
     if (headers.isEmpty)
-      ConfigureIdentity
+      session => addDefaultHeaders(session)(_).success
     else
       configureHeaders0
 
