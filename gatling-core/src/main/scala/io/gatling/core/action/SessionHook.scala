@@ -15,17 +15,18 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.{ Expression, Session }
 
+import akka.actor.{ Props, ActorRef }
+
 object SessionHook {
-  def props(sessionFunction: Expression[Session], statsEngine: StatsEngine, next: ActorRef, interruptable: Boolean) =
+  def props(sessionFunction: Expression[Session], coreComponents: CoreComponents, next: ActorRef, interruptable: Boolean) =
     if (interruptable)
-      Props(new SessionHook(sessionFunction, statsEngine, next) with Interruptable)
+      Props(new SessionHook(sessionFunction, coreComponents.statsEngine, next) with Interruptable)
     else
-      Props(new SessionHook(sessionFunction, statsEngine, next))
+      Props(new SessionHook(sessionFunction, coreComponents.statsEngine, next))
 }
 
 /**

@@ -26,6 +26,6 @@ class FlushCacheBuilder extends HttpActionBuilder {
   def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
     import ctx._
     val expression = lookUpHttpComponents(protocolComponentsRegistry).httpCaches.FlushCache
-    system.actorOf(SessionHook.props(expression, coreComponents.statsEngine, next, interruptable = true), actorName("flushCache"))
+    system.actorOf(SessionHook.props(expression, coreComponents, next, interruptable = true), actorName("flushCache"))
   }
 }

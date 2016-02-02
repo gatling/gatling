@@ -78,6 +78,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }
-    system.actorOf(Switch.props(nextAction, coreComponents.statsEngine, next), actorName("randomSwitch"))
+    system.actorOf(Switch.props(nextAction, coreComponents, next), actorName("randomSwitch"))
   }
 }

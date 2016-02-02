@@ -31,5 +31,5 @@ import akka.actor.ActorRef
 class SessionHookBuilder(sessionFunction: Expression[Session], interruptable: Boolean = false) extends ActionBuilder {
 
   def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(SessionHook.props(sessionFunction, ctx.coreComponents.statsEngine, next, interruptable), actorName("sessionHook"))
+    ctx.system.actorOf(SessionHook.props(sessionFunction, ctx.coreComponents, next, interruptable), actorName("sessionHook"))
 }

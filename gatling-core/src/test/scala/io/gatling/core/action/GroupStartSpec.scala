@@ -16,11 +16,13 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.el.El
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.DataWritersStatsEngine
 
 import akka.testkit._
+import org.mockito.Mockito._
 
 class GroupStartSpec extends AkkaSpec {
 
@@ -29,7 +31,10 @@ class GroupStartSpec extends AkkaSpec {
     val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
     val groupExpr = "${theGroupName}".el[String]
 
-    val groupStart = TestActorRef(GroupStart.props(groupExpr, statsEngine, self))
+    val coreComponents = mock[CoreComponents]
+    when(coreComponents.statsEngine).thenReturn(statsEngine)
+
+    val groupStart = TestActorRef(GroupStart.props(groupExpr, coreComponents, self))
 
     val session = Session("scenario", 0, attributes = Map("theGroupName" -> "foo"))
 

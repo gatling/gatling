@@ -31,5 +31,5 @@ import akka.actor.ActorRef
 class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
 
   def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(Pace.props(interval, counter, ctx.coreComponents.statsEngine, next), actorName("pace"))
+    ctx.system.actorOf(Pace.props(interval, counter, ctx.coreComponents, next), actorName("pace"))
 }

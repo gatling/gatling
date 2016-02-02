@@ -15,14 +15,15 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.{ Expression, Session }
 
+import akka.actor.{ Props, ActorRef }
+
 object GroupStart {
-  def props(groupName: Expression[String], statsEngine: StatsEngine, next: ActorRef) =
-    Props(new GroupStart(groupName, statsEngine, next))
+  def props(groupName: Expression[String], coreComponents: CoreComponents, next: ActorRef) =
+    Props(new GroupStart(groupName, coreComponents.statsEngine, next))
 }
 
 class GroupStart(groupName: Expression[String], val statsEngine: StatsEngine, val next: ActorRef) extends Interruptable with Failable {

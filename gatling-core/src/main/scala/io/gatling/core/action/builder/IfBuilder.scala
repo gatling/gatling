@@ -34,6 +34,6 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
     val safeCondition = condition.safe
     val thenNextActor = thenNext.build(ctx, next)
     val elseNextActor = elseNext.map(_.build(ctx, next)).getOrElse(next)
-    system.actorOf(If.props(safeCondition, thenNextActor, elseNextActor, coreComponents.statsEngine, next), actorName("if"))
+    system.actorOf(If.props(safeCondition, thenNextActor, elseNextActor, coreComponents, next), actorName("if"))
   }
 }

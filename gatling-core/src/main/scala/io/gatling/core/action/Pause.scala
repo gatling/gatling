@@ -18,14 +18,15 @@ package io.gatling.core.action
 import scala.concurrent.duration.DurationLong
 
 import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.{ Props, ActorRef }
 
 object Pause {
-  def props(delayGenerator: Expression[Long], statsEngine: StatsEngine, next: ActorRef) =
-    Props(new Pause(delayGenerator, statsEngine, next))
+  def props(delayGenerator: Expression[Long], coreComponents: CoreComponents, next: ActorRef) =
+    Props(new Pause(delayGenerator, coreComponents.statsEngine, next))
 }
 
 /**

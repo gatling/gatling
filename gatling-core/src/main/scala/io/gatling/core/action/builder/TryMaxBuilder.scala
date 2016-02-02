@@ -24,7 +24,7 @@ class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) ext
 
   def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._
-    val tryMaxActor = system.actorOf(TryMax.props(times, counterName, coreComponents.statsEngine, next), actorName("tryMax"))
+    val tryMaxActor = system.actorOf(TryMax.props(times, counterName, coreComponents, next), actorName("tryMax"))
     val loopContent = loopNext.build(ctx, tryMaxActor)
     tryMaxActor ! loopContent
     tryMaxActor

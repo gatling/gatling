@@ -15,18 +15,19 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.Session
 import io.gatling.core.session.Expression
 
+import akka.actor.{ Props, ActorRef }
+
 object Feed {
-  def props(singleton: ActorRef, controller: ActorRef, number: Expression[Int], statsEngine: StatsEngine, next: ActorRef) =
-    Props(new Feed(singleton, controller, number, statsEngine, next))
+  def props(singleton: ActorRef, number: Expression[Int], coreComponents: CoreComponents, next: ActorRef) =
+    Props(new Feed(singleton, number, coreComponents.controller, coreComponents.statsEngine, next))
 }
 
-class Feed(singleton: ActorRef, controller: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val next: ActorRef) extends Action with Interruptable {
+class Feed(singleton: ActorRef, number: Expression[Int], controller: ActorRef, val statsEngine: StatsEngine, val next: ActorRef) extends Action with Interruptable {
 
   def execute(session: Session): Unit = singleton ! FeedMessage(session, number, controller, next)
 }

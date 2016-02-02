@@ -17,14 +17,15 @@ package io.gatling.core.action
 
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.{ Props, ActorRef }
 
 object ExitHereIfFailed {
-  def props(exit: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new ExitHereIfFailed(exit, statsEngine, next))
+  def props(coreComponents: CoreComponents, next: ActorRef) =
+    Props(new ExitHereIfFailed(coreComponents.exit, coreComponents.statsEngine, next))
 }
 
 class ExitHereIfFailed(exit: ActorRef, statsEngine: StatsEngine, val next: ActorRef) extends Chainable {

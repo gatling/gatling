@@ -15,14 +15,15 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.{ Expression, Session }
 
+import akka.actor.{ Props, ActorRef }
+
 object If {
-  def props(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new If(condition, thenNext, elseNext, statsEngine, next))
+  def props(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, coreComponents: CoreComponents, next: ActorRef) =
+    Props(new If(condition, thenNext, elseNext, coreComponents.statsEngine, next))
 }
 
 /**

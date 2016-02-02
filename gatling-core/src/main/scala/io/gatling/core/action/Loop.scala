@@ -15,15 +15,16 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.CoreComponents
+import io.gatling.core.akka.BaseActor
+import io.gatling.core.session.{ LoopBlock, Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.session.{ LoopBlock, Expression, Session }
 
 object Loop {
-  def props(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new Loop(continueCondition, counterName, exitASAP, statsEngine, next))
+  def props(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, coreComponents: CoreComponents, next: ActorRef) =
+    Props(new Loop(continueCondition, counterName, exitASAP, coreComponents.statsEngine, next))
 }
 
 /**

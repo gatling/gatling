@@ -24,6 +24,6 @@ object ExitHereIfFailedBuilder extends ActionBuilder {
 
   def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._
-    system.actorOf(ExitHereIfFailed.props(coreComponents.exit, coreComponents.statsEngine, next), actorName("exitHereIfFailed"))
+    system.actorOf(ExitHereIfFailed.props(coreComponents, next), actorName("exitHereIfFailed"))
   }
 }

@@ -16,14 +16,15 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.{ Props, ActorRef }
 
 object GroupEnd {
-  def props(statsEngine: StatsEngine, next: ActorRef) =
-    Props(new GroupEnd(statsEngine, next))
+  def props(coreComponents: CoreComponents, next: ActorRef) =
+    Props(new GroupEnd(coreComponents.statsEngine, next))
 }
 
 class GroupEnd(statsEngine: StatsEngine, val next: ActorRef) extends Chainable {

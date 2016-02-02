@@ -39,6 +39,6 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
-    ctx.system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("switch"))
+    ctx.system.actorOf(Switch.props(nextAction, ctx.coreComponents, next), actorName("switch"))
   }
 }

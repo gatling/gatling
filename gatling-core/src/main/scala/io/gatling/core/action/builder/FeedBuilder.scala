@@ -35,6 +35,6 @@ class FeedBuilder(feederBuilder: FeederBuilder[_], number: Expression[Int]) exte
   def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._
     val feederInstance = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, system.actorOf(SingletonFeed.props(feederBuilder.build(ctx)), actorName("singletonFeed")))
-    system.actorOf(Feed.props(feederInstance, coreComponents.controller, number, coreComponents.statsEngine, next), actorName("feed"))
+    system.actorOf(Feed.props(feederInstance, number, coreComponents, next), actorName("feed"))
   }
 }

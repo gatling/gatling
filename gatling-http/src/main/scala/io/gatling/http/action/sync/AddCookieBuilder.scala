@@ -74,6 +74,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       storeCookie(session, domain, path, cookie)
     }
 
-    system.actorOf(SessionHook.props(expression, coreComponents.statsEngine, next, interruptable = true), actorName("addCookie"))
+    system.actorOf(SessionHook.props(expression, coreComponents, next, interruptable = true), actorName("addCookie"))
   }
 }
