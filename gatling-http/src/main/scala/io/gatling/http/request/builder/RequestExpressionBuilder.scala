@@ -94,16 +94,16 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     }
 
   // FIXME resolve proxy presence once
-  private def configureProxy(requestBuilder: AhcRequestBuilder, uri: Uri): Validation[AhcRequestBuilder] = {
+  private def configureProxy(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
     val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
-    if (proxy.isDefined && !protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
+    if (proxy.isDefined && !protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
       proxy.foreach(requestBuilder.setProxyServer)
     }
     requestBuilder.success
   }
 
-  private def configureCookies(session: Session, uri: Uri)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    CookieSupport.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
+  private def configureCookies(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+    CookieSupport.getStoredCookies(session, requestBuilder.getUri).foreach(requestBuilder.addCookie)
     requestBuilder
   }
 
@@ -170,8 +170,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     session => requestBuilder => localAddress(session).map(requestBuilder.setLocalAddress)
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
-    configureProxy(requestBuilder.setUri(uri), uri)
-      .map(configureCookies(session, uri))
+    configureProxy(requestBuilder.setUri(uri))
+      .map(configureCookies(session))
       .map(configureNameResolver(session))
       .flatMap(configureQuery(session))
       .flatMap(configureVirtualHost(session))
