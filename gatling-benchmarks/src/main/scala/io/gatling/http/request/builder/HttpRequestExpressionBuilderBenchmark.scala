@@ -16,7 +16,7 @@
 package io.gatling.http.request.builder
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.CoreComponents
+import io.gatling.core.{ ValidationImplicits, CoreComponents }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
@@ -25,52 +25,51 @@ import io.gatling.http.protocol._
 import org.asynchttpclient.Request
 import org.openjdk.jmh.annotations.Benchmark
 
-object HttpRequestExpressionBuilderBenchmark {
+object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
 
-  val TheBuilder: HttpRequestExpressionBuilder = {
+  private val config = GatlingConfiguration.loadForTest()
 
-    implicit val config = GatlingConfiguration.loadForTest()
+  private val coreComponents = CoreComponents(
+    controller = null,
+    throttler = null,
+    statsEngine = null,
+    exit = null,
+    configuration = config
+  )
 
-    val httpProtocol = HttpProtocolBuilder(config)
-      .baseURL("http://localhost:8000")
-      .build
+  private val httpProtocol = HttpProtocolBuilder(config)
+    .baseURL("http://localhost:8000")
+    .build
 
-    val httpCaches = new HttpCaches(config)
+  private val httpCaches = new HttpCaches(config)
 
-    new HttpRequestExpressionBuilder(
-      commonAttributes = CommonAttributes(
-        requestName = "Ping".expressionSuccess,
-        method = "GET",
-        urlOrURI = Left("/ping".expressionSuccess),
-        queryParams = Nil,
-        headers = Map.empty
-      ),
-      httpAttributes = HttpAttributes(
-        checks = Nil
-      ),
-      coreComponents = CoreComponents(
-        controller = null,
-        throttler = null,
-        statsEngine = null,
-        exit = null,
-        configuration = config
-      ),
-      httpComponents = HttpComponents(
-        httpProtocol = httpProtocol,
-        httpEngine = null,
-        httpCaches = httpCaches
-      )
-    )
-  }
+  private val httpComponents = HttpComponents(
+    httpProtocol = httpProtocol,
+    httpEngine = null,
+    httpCaches = httpCaches
+  )
 
-  val TheSession: Session = Session("scenario", 0)
+  val SimpleRequest: Expression[Request] =
+    new Http("requestName").get("/ping")
+      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+
+  val RequestWithHeaders: Expression[Request] =
+    new Http("requestName").get("/ping")
+      .queryParam("hello", "world")
+      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+
+  val EmptySession: Session = Session("scenario", 0)
 }
 
 class HttpRequestExpressionBuilderBenchmark {
 
   import HttpRequestExpressionBuilderBenchmark._
 
+  //  @Benchmark
+  //  def testSimpleRequest(): Validation[Request] =
+  //    SimpleRequest(EmptySession)
+
   @Benchmark
-  def test(): Validation[Request] =
-    TheBuilder.build(TheSession)
+  def testRequestWithHeaders(): Validation[Request] =
+    RequestWithHeaders(EmptySession)
 }
