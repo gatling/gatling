@@ -22,7 +22,7 @@ import io.gatling.core.CoreComponents
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.{ AhcRequestBuilder, AhcChannelPoolPartitioning }
 import io.gatling.http.cookie.CookieSupport
@@ -59,16 +59,17 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   protected def makeAbsolute(url: String): Validation[Uri] =
     protocol.makeAbsoluteHttpUri(url)
 
-  private def buildURI(session: Session): Validation[Uri] =
+  private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
       case Left(url) =>
-        try {
-          url(session).flatMap(makeAbsolute)
-        } catch {
-          // don't use safe in order to save lambda instances
-          case NonFatal(e) => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
-        }
-      case Right(uri) => uri.success
+        session =>
+          try {
+            url(session).flatMap(makeAbsolute)
+          } catch {
+            // don't use safe in order to save lambda instances
+            case NonFatal(e) => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
+          }
+      case Right(uri) => uri.expressionSuccess
     }
 
   // note: DNS cache is supposed to be set early
