@@ -22,8 +22,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProtocol }
 import io.gatling.http.request.ExtraInfo
 
-import org.asynchttpclient.uri.Uri
-
 class HttpProtocolBuilderSpec extends BaseSpec {
 
   val configuration = GatlingConfiguration.loadForTest()
@@ -52,7 +50,7 @@ class HttpProtocolBuilderSpec extends BaseSpec {
 
     val config: HttpProtocol = builder.build
 
-    Seq(config.baseUrl.get, config.baseUrl.get, config.baseUrl.get) shouldBe Seq(url, url, url)
+    Seq(config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next()) shouldBe Seq(url, url, url)
   }
 
   it should "provide a Round-Robin strategy when multiple urls are provided" in {
@@ -65,7 +63,7 @@ class HttpProtocolBuilderSpec extends BaseSpec {
 
     val config: HttpProtocol = builder.build
 
-    Seq(config.baseUrl.get, config.baseUrl.get, config.baseUrl.get) shouldBe Seq(url1, url2, url1)
+    Seq(config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next()) shouldBe Seq(url1, url2, url1)
   }
 
   it should "set a silent URI regex" in {

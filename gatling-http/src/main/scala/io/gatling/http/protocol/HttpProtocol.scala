@@ -18,7 +18,7 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import io.gatling.commons.util.{ Iterators, RoundRobin }
+import io.gatling.commons.util.RoundRobin
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -103,13 +103,6 @@ object HttpProtocol extends StrictLogging {
         proxyExceptions = Nil
       )
     )
-
-  def baseUrlIterator(urls: List[String]): Iterator[Option[String]] =
-    urls match {
-      case Nil        => Iterators.infinitely(None)
-      case url :: Nil => Iterators.infinitely(Some(url))
-      case _          => RoundRobin(urls.map(Some(_)).toVector)
-    }
 }
 
 /**
@@ -136,17 +129,26 @@ case class HttpProtocol(
 
   type Components = HttpComponents
 
-  private val httpBaseUrlIterator = HttpProtocol.baseUrlIterator(baseUrls)
-  def baseUrl(): Option[String] = httpBaseUrlIterator.next()
+  val baseUrlIterator: Option[Iterator[String]] = baseUrls match {
+    case Nil => None
+    case _ =>
+      Some(RoundRobin(baseUrls.toVector))
+  }
+
+  private val doMakeAbsoluteHttpUri: String => Validation[Uri] =
+    baseUrls match {
+      case Nil => url => s"No protocol.baseUrl defined but provided url is relative : $url".failure
+      case baseUrl :: Nil => url => Uri.create(baseUrl + url).success
+      case _ =>
+        val it = baseUrlIterator.get
+        url => Uri.create(it.next() + url).success
+    }
 
   def makeAbsoluteHttpUri(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
       Uri.create(url).success
     else
-      baseUrl() match {
-        case Some(root) => Uri.create(root + url).success
-        case _          => s"No protocol.baseUrl defined but provided url is relative : $url".failure
-      }
+      doMakeAbsoluteHttpUri(url)
 }
 
 case class HttpProtocolEnginePart(
@@ -187,15 +189,26 @@ case class HttpProtocolWsPart(
     maxReconnects: Option[Int]
 ) {
 
-  private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseUrls)
+  private val wsBaseUrlIterator: Option[Iterator[String]] = wsBaseUrls match {
+    case Nil => None
+    case _ =>
+      Some(RoundRobin(wsBaseUrls.toVector))
+  }
+
+  private val doMakeAbsoluteWsUri: String => Validation[Uri] =
+    wsBaseUrls match {
+      case Nil => url => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
+      case wsBaseUrl :: Nil => url => Uri.create(wsBaseUrl + url).success
+      case _ =>
+        val it = wsBaseUrlIterator.get
+        url => Uri.create(it.next() + url).success
+    }
+
   def makeAbsoluteWsUri(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteWsUrl(url))
       Uri.create(url).success
     else
-      wsBaseUrlIterator.next() match {
-        case Some(root) => Uri.create(root + url).success
-        case _          => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
-      }
+      doMakeAbsoluteWsUri(url)
 }
 
 case class HttpProtocolProxyPart(

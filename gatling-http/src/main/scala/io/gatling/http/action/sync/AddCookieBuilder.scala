@@ -51,9 +51,9 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
   import AddCookieBuilder._
 
   private def defaultDomain(httpProtocol: HttpProtocol) =
-    httpProtocol.baseUrl() match {
-      case Some(uri) => Uri.create(uri).getHost.expressionSuccess
-      case _         => NoBaseUrlFailure
+    httpProtocol.baseUrlIterator match {
+      case Some(it) => Uri.create(it.next()).getHost.expressionSuccess
+      case _        => NoBaseUrlFailure
     }
 
   def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
