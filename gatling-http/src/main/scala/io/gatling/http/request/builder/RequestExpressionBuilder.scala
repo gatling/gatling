@@ -77,9 +77,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     }
 
   // note: DNS cache is supposed to be set early
-  private val configureNameResolver: RequestBuilderConfigureRaw =
-    session => httpCaches.nameResolver(session) match {
-      case None => identity // shouldn't happen
+  private val configureNameResolver: (Session, AhcRequestBuilder) => Unit = (session, requestBuilder) =>
+    httpCaches.nameResolver(session) match {
+      case None => // shouldn't happen
       case Some(nameResolver) =>
         // [fl]
         //
@@ -90,22 +90,18 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
         //
         //
         // [fl]
-        _.setNameResolver(nameResolver)
+        requestBuilder.setNameResolver(nameResolver)
     }
 
-  // FIXME resolve proxy presence once
-  private def configureProxy(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
+  private def configureProxy(requestBuilder: AhcRequestBuilder): Unit = {
     val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
     if (proxy.isDefined && !protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
       proxy.foreach(requestBuilder.setProxyServer)
     }
-    requestBuilder.success
   }
 
-  private def configureCookies(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
+  private def configureCookies(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     CookieSupport.getStoredCookies(session, requestBuilder.getUri).foreach(requestBuilder.addCookie)
-    requestBuilder
-  }
 
   private val configureQuery: RequestBuilderConfigure =
     commonAttributes.queryParams match {
@@ -169,15 +165,19 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private def configureLocalAddress0(localAddress: Expression[InetAddress]): RequestBuilderConfigure =
     session => requestBuilder => localAddress(session).map(requestBuilder.setLocalAddress)
 
-  protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
-    configureProxy(requestBuilder.setUri(uri))
-      .map(configureCookies(session))
-      .map(configureNameResolver(session))
-      .flatMap(configureQuery(session))
+  protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
+
+    requestBuilder.setUri(uri)
+    configureProxy(requestBuilder)
+    configureCookies(session, requestBuilder)
+    configureNameResolver(session, requestBuilder)
+
+    configureQuery(session)(requestBuilder)
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))
       .flatMap(configureLocalAddress(session))
+  }
 
   def build: Expression[Request] =
     (session: Session) => {
