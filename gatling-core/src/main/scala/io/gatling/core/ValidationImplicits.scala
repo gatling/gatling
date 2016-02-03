@@ -46,6 +46,6 @@ trait ValidationImplicits {
   import NonValidable._
 
   implicit def stringToExpression[T: TypeCaster: Types[NonValidable]#DoesNotContain: ClassTag](string: String): Expression[T] = string.el
-  implicit def value2Success[T: TypeCaster: Types[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
-  implicit def value2Expression[T: TypeCaster: Types[NonValidable]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
+  implicit def value2Success[T: Types[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
+  implicit def value2Expression[T: Types[NonValidable]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
 }
