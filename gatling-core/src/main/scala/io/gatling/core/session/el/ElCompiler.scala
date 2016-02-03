@@ -173,7 +173,8 @@ object ElCompiler {
   def compile[T: TypeCaster: ClassTag: NotNothing](string: String): Expression[T] =
     parse(string) match {
       case List(StaticPart(staticStr)) =>
-        if (implicitly[ClassTag[T]].runtimeClass == classOf[String]) {
+        val runtimeClass = implicitly[ClassTag[T]].runtimeClass
+        if (runtimeClass == classOf[String] || runtimeClass == classOf[Any] || runtimeClass == classOf[Object]) {
           StaticStringExpression(staticStr).asInstanceOf[Expression[T]]
         } else {
           val stringV = staticStr.asValidation[T]
