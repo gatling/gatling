@@ -107,7 +107,7 @@ class Scenario {
 
   //#doIf
   doIf("${myBoolean}") {
-    // executed if the session value stored in "myBoolean" equals true
+    // executed if the session value stored in "myBoolean" is true
     exec(http("...").get("..."))
   }
   //#doIf
@@ -120,8 +120,8 @@ class Scenario {
   //#doIf-session
 
   //#doIfEquals
-  doIfEquals("${myKey}", "myValue") {
-    // executed if the session value stored in "myKey" equals "myValue"
+  doIfEquals("${actualValue}", "expectedValue") {
+    // executed if the session value stored in "actualValue" is equal to "expectedValue"
     exec(http("...").get("..."))
   }
   //#doIfEquals
@@ -137,11 +137,11 @@ class Scenario {
   //#doIfOrElse
 
   //#doIfEqualsOrElse
-  doIfEqualsOrElse(session => session("myKey").as[String], "expectedValue") {
-    // executed if the session value stored in "myKey" equals to "expectedValue"
+  doIfEqualsOrElse(session => session("actualValue").as[String], "expectedValue") {
+    // executed if the session value stored in "actualValue" equals to "expectedValue"
     exec(http("if true").get("..."))
   } {
-    // executed if the session value stored in "myKey" not equals to "expectedValue"
+    // executed if the session value stored in "actualValue" is not equal to "expectedValue"
     exec(http("if false").get("..."))
   }
   //#doIfEqualsOrElse

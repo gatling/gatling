@@ -16,7 +16,7 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder._
-import io.gatling.core.session.{ Expression, RichExpression, Session }
+import io.gatling.core.session.{ Expression, Session }
 
 trait ConditionalStatements[B] extends Execs[B] {
 
@@ -29,16 +29,23 @@ trait ConditionalStatements[B] extends Execs[B] {
    */
   def doIf(condition: Expression[Boolean])(thenNext: ChainBuilder): B = doIf(condition, thenNext, None)
 
+  private def equalityCondition(actual: Expression[Any], expected: Expression[Any]): Expression[Boolean] =
+    (session: Session) =>
+      for {
+        expected <- expected(session)
+        actual <- actual(session)
+      } yield expected == actual
+
   /**
    * Method used to add a conditional execution in the scenario
    *
-   * @param sessionKey the key of the session value to be tested for equality
-   * @param value the value to which the session value must be equals
+   * @param actual the real value
+   * @param expected the expected value
    * @param thenNext the chain to be executed if the condition is satisfied
    * @return a new builder with a conditional execution added to its actions
    */
-  def doIfEquals(sessionKey: Expression[String], value: String)(thenNext: ChainBuilder): B =
-    doIf(sessionKey.map(_ == value), thenNext, None)
+  def doIfEquals(actual: Expression[Any], expected: Expression[Any])(thenNext: ChainBuilder): B =
+    doIf(equalityCondition(actual, expected), thenNext, None)
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back
@@ -56,21 +63,14 @@ trait ConditionalStatements[B] extends Execs[B] {
    * Method used to add a conditional execution in the scenario with a fall back
    * action if condition is not satisfied
    *
-   * @param expected the expected value
    * @param actual the real value
+   * @param expected the expected value
    * @param thenNext the chain to be executed if the condition is satisfied
    * @param elseNext the chain to be executed if the condition is not satisfied
    * @return a new builder with a conditional execution added to its actions
    */
-  def doIfEqualsOrElse(expected: Expression[Any], actual: Expression[Any])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = {
-    val condition = (session: Session) =>
-      for {
-        expected <- expected(session)
-        actual <- actual(session)
-      } yield expected == actual
-
-    doIf(condition, thenNext, Some(elseNext))
-  }
+  def doIfEqualsOrElse(actual: Expression[Any], expected: Expression[Any])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B =
+    doIf(equalityCondition(actual, expected), thenNext, Some(elseNext))
 
   /**
    * Private method that actually adds the If Action to the scenario
