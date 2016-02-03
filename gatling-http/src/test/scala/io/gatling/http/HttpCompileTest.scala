@@ -188,7 +188,14 @@ class HttpCompileTest extends Simulation {
         .exec(http("Url from session").get("/aaaa"))
         .pause(1000 milliseconds)
         // Second request to be repeated
-        .exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").body(ElFileBody("create_thing.txt")).asJSON)
+        .exec(http("Create Thing blabla")
+          .post("/things")
+          .queryParam("login", "${login}")
+          .queryParam("password", "${password}")
+          .queryParam("foo", 1) // make sure raw non String objects are converted
+          .queryParam("foo", _ => 1) // make raw non String objects returned by functions are converted
+          .queryParam("foo", (session: Session) => io.gatling.commons.validation.Success(1)) // make sure functions returning expressions of other types are properly converted
+          .body(ElFileBody("create_thing.txt")).asJSON)
         .pause(pause1)
         // Third request to be repeated
         .exec(http("Liste Articles").get("/things").queryParam("firstname", "${firstname}").queryParam("lastname", "${lastname}"))

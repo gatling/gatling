@@ -116,32 +116,11 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   private val configureQueryParams: RequestBuilderConfigure =
     commonAttributes.queryParams match {
-      case Nil => ConfigureIdentity
-      case queryParams =>
-        val staticParams: Iterable[(String, String)] =
-          commonAttributes.queryParams.collect {
-            case SimpleParam(StaticStringExpression(key), StaticStringExpression(value)) => key -> value
-          }
-
-        if (staticParams.size == queryParams.size)
-          configureStaticQueryParams(staticParams)
-        else
-          configureDynamicQueryParams(queryParams)
+      case Nil         => ConfigureIdentity
+      case queryParams => configureQueryParams0(queryParams)
     }
 
-  private def configureStaticQueryParams(queryParams: Iterable[(String, String)]): RequestBuilderConfigure = {
-    val addQueryParams: AhcRequestBuilder => Validation[AhcRequestBuilder] = requestBuilder => {
-      queryParams.foreach {
-        case (key, value) =>
-          requestBuilder.addQueryParam(key, value)
-      }
-      requestBuilder.success
-    }
-
-    _ => addQueryParams
-  }
-
-  private def configureDynamicQueryParams(queryParams: List[HttpParam]): RequestBuilderConfigure =
+  private def configureQueryParams0(queryParams: List[HttpParam]): RequestBuilderConfigure =
     session => requestBuilder => queryParams.resolveParamJList(session).map(requestBuilder.addQueryParams)
 
   private val configureVirtualHost: RequestBuilderConfigure =
