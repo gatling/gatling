@@ -197,7 +197,12 @@ object GatlingConfiguration extends StrictLogging {
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
           useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
           useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport),
-          usePooledMemory = config.getBoolean(http.ahc.UsePooledMemory)
+          usePooledMemory = config.getBoolean(http.ahc.UsePooledMemory),
+          tcpNoDelay = config.getBoolean(http.ahc.TcpNoDelay),
+          soReuseAddress = config.getBoolean(http.ahc.SoReuseAddress),
+          soLinger = config.getInt(http.ahc.SoLinger),
+          soSndBuf = config.getInt(http.ahc.SoSndBuf),
+          soRcvBuf = config.getInt(http.ahc.SoRcvBuf)
         ),
         dns = DnsConfiguration(
           queryTimeout = config.getInt(http.dns.QueryTimeout),
@@ -342,7 +347,12 @@ case class AhcConfiguration(
   sslSessionTimeout:                   Int,
   useOpenSsl:                          Boolean,
   useNativeTransport:                  Boolean,
-  usePooledMemory:                     Boolean
+  usePooledMemory:                     Boolean,
+  tcpNoDelay:                          Boolean,
+  soReuseAddress:                          Boolean,
+  soLinger: Int,
+  soSndBuf: Int,
+  soRcvBuf: Int
 )
 
 case class DnsConfiguration(

@@ -123,6 +123,11 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setUseNativeTransport(ahcConfig.useNativeTransport)
       .setValidateResponseHeaders(false)
       .setUsePooledMemory(ahcConfig.usePooledMemory)
+      .setTcpNoDelay(ahcConfig.tcpNoDelay)
+      .setSoReuseAddress(ahcConfig.soReuseAddress)
+      .setSoLinger(ahcConfig.soLinger)
+      .setSoSndBuf(ahcConfig.soSndBuf)
+      .setSoRcvBuf(ahcConfig.soRcvBuf)
 
     val keyManagerFactory = configuration.http.ssl.keyStore
       .map(config => newKeyManagerFactory(config.storeType, config.file, config.password, config.algorithm))
