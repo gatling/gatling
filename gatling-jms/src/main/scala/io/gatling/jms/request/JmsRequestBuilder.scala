@@ -27,7 +27,7 @@ import com.softwaremill.quicklens._
 
 case class JmsRequestBuilderBase(requestName: String) {
 
-  def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder.apply)
+  def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder.apply(_, configuration))
 }
 
 case class JmsRequestBuilderQueue(

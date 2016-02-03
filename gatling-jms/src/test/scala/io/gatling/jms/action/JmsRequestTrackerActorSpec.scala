@@ -29,7 +29,7 @@ import akka.testkit.TestActorRef
 
 class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  val configuration = GatlingConfiguration.loadForTest()
 
   def ignoreDrift(actual: Session) = {
     actual.drift shouldBe >(0L)

@@ -24,7 +24,7 @@ import io.gatling.jms.request.JmsAttributes
 
 import akka.actor.ActorRef
 
-case class JmsReqReplyActionBuilder(attributes: JmsAttributes)(implicit configuration: GatlingConfiguration) extends ActionBuilder {
+case class JmsReqReplyActionBuilder(attributes: JmsAttributes, configuration: GatlingConfiguration) extends ActionBuilder {
 
   def jmsComponents(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)

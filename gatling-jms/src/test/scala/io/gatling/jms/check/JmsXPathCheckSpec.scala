@@ -26,7 +26,7 @@ import io.gatling.jms.{ MockMessage, JmsCheck }
 
 class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  val configuration = GatlingConfiguration.loadForTest()
   implicit def cache = mutable.Map.empty[Any, Any]
 
   val session = Session("mockSession", 0)
