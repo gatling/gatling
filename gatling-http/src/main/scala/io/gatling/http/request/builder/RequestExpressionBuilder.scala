@@ -17,11 +17,10 @@ package io.gatling.http.request.builder
 
 import java.net.InetAddress
 
-import io.gatling.core.CoreComponents
-
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
+import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.{ AhcRequestBuilder, AhcChannelPoolPartitioning }
@@ -55,6 +54,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private val refererHeaderIsUndefined = !headers.contains(HeaderNames.Referer)
   protected val contentTypeHeaderIsUndefined = !headers.contains(HeaderNames.ContentType)
   private val disableUrlEncoding = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
+  private val signatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
   protected def makeAbsolute(url: String): Validation[Uri] =
     protocol.makeAbsoluteHttpUri(url)
@@ -226,6 +226,19 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
       .flatMap(configureLocalAddress(session))
   }
 
+  private def applySignatureCalculator(session: Session, requestBuilder: AhcRequestBuilder): Validation[Request] = {
+
+    val request = requestBuilder.build
+
+    signatureCalculatorExpression match {
+      case None => request.success
+      case Some(signatureCalculator) => signatureCalculator(session).map { sc =>
+        sc.calculateAndAddSignature(request, requestBuilder)
+        requestBuilder.build
+      }
+    }
+  }
+
   def build: Expression[Request] =
     (session: Session) => {
       val requestBuilder = new AhcRequestBuilder(commonAttributes.method, disableUrlEncoding)
@@ -235,7 +248,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
         for {
           uri <- buildURI(session)
           rb <- configureRequestBuilder(session, uri, requestBuilder)
-        } yield rb.build
+          request <- applySignatureCalculator(session, rb)
+        } yield request
       }
     }
 }

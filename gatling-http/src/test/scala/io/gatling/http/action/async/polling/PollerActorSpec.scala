@@ -40,7 +40,7 @@ class PollerActorSpec extends AkkaSpec {
 
   val requestName = "foo".expressionSuccess
 
-  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, None, mock[HttpRequestConfig])
+  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, mock[HttpRequestConfig])
 
   "PollerActor" should "start in Uninitalized state with NoData" in {
     val dataWriterProbe = TestProbe()

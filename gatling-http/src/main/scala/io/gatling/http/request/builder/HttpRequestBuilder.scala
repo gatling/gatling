@@ -153,14 +153,11 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
     val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, coreComponents, httpComponents).build
 
-    val resolvedSignatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
-
     val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && httpProtocol.responsePart.discardResponseChunks
 
     HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
-      resolvedSignatureCalculatorExpression,
       HttpRequestConfig(
         checks = resolvedChecks,
         responseTransformer = resolvedResponseTransformer,

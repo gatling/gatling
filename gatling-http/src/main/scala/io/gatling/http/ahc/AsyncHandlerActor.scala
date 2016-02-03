@@ -57,9 +57,9 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
       def abort(tx: HttpTx): Unit = {
         logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-        if (tx.root)
+        if (tx.root) {
           tx.next ! tx.session.markAsFailed
-        else {
+        } else {
           val uri = tx.request.ahcRequest.getUri
           tx.next ! RegularResourceFetched(uri, KO, Session.Identity, tx.silent)
         }

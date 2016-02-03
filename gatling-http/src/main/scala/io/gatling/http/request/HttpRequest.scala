@@ -39,28 +39,13 @@ case class HttpRequestConfig(
 )
 
 case class HttpRequestDef(
-    requestName:         Expression[String],
-    ahcRequest:          Expression[Request],
-    signatureCalculator: Option[Expression[SignatureCalculator]],
-    config:              HttpRequestConfig
+    requestName: Expression[String],
+    ahcRequest:  Expression[Request],
+    config:      HttpRequestConfig
 ) {
 
-  def build(requestName: String, session: Session): Validation[HttpRequest] = {
-
-      def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
-        signatureCalculator match {
-          case None     => request
-          case Some(sc) => new RequestBuilder(request, true, false).setSignatureCalculator(sc).build
-        }
-
-    for {
-      rawAhcRequest <- ahcRequest(session)
-      sc <- resolveOptionalExpression(signatureCalculator, session)
-    } yield {
-      val signedRequest = sign(rawAhcRequest, sc)
-      HttpRequest(requestName, signedRequest, config)
-    }
-  }
+  def build(requestName: String, session: Session): Validation[HttpRequest] =
+    ahcRequest(session).map(HttpRequest(requestName, _, config))
 }
 
 case class HttpRequest(requestName: String, ahcRequest: Request, config: HttpRequestConfig)
