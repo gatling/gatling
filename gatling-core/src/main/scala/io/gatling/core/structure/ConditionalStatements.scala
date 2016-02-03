@@ -37,7 +37,7 @@ trait ConditionalStatements[B] extends Execs[B] {
    * @param thenNext the chain to be executed if the condition is satisfied
    * @return a new builder with a conditional execution added to its actions
    */
-  def doIf(sessionKey: Expression[String], value: String)(thenNext: ChainBuilder): B =
+  def doIfEquals(sessionKey: Expression[String], value: String)(thenNext: ChainBuilder): B =
     doIf(sessionKey.map(_ == value), thenNext, None)
 
   /**

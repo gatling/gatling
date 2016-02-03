@@ -196,15 +196,21 @@ Conditional statements
 
 Gatling's DSL has conditional execution support.
 If you want to execute a specific chain of actions only when some condition is satisfied, you can do so using the ``doIf`` method.
-It will check if a value in the session equals the one you specified:
 
-.. includecode:: code/Scenario.scala#doIf-expr
+.. includecode:: code/Scenario.scala#doIf
 
-As you can see, the executed actions if the condition is false are optional.
-
-If you want to test conditions other than equality, you'll have to use an ``Expression[Boolean]`` to write it:
+If you want to test complex conditions, you'll have to pass an ``Expression[Boolean]``:
 
 .. includecode:: code/Scenario.scala#doIf-session
+
+.. _scenario-doifequals:
+
+``doIfEquals``
+^^^^^^^^^^^^^
+
+Îf your test condition is simply to compare two values, you can simply use ``doIfEquals``:
+
+.. includecode:: code/Scenario.scala#doIfEquals
 
 .. _scenario-doiforelse:
 
@@ -222,7 +228,7 @@ Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 ``doIfEqualsOrElse``
 ^^^^^^^^^^^^^^^^^^^^
 
-Similar to ``doIfOrElse`` but tests the equality of an expected and an actual value.
+Similar to ``doIfEquals`` but with a fallback if the condition evaluates to false.
 
 .. includecode:: code/Scenario.scala#doIfEqualsOrElse
 

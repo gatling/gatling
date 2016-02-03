@@ -105,12 +105,12 @@ class Scenario {
   }
   //#forever
 
-  //#doIf-expr
-  doIf("${myKey}", "myValue") {
-    // executed if the session value stored in "myKey" equals "myValue"
+  //#doIf
+  doIf("${myBoolean}") {
+    // executed if the session value stored in "myBoolean" equals true
     exec(http("...").get("..."))
   }
-  //#doIf-expr
+  //#doIf
 
   //#doIf-session
   doIf(session => session("myKey").as[String].startsWith("admin")) {
@@ -118,6 +118,13 @@ class Scenario {
     exec(http("if true").get("..."))
   }
   //#doIf-session
+
+  //#doIfEquals
+  doIfEquals("${myKey}", "myValue") {
+    // executed if the session value stored in "myKey" equals "myValue"
+    exec(http("...").get("..."))
+  }
+  //#doIfEquals
 
   //#doIfOrElse
   doIfOrElse(session => session("myKey").as[String].startsWith("admin")) {
