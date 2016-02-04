@@ -20,7 +20,7 @@ object GatlingBuild extends Build {
   lazy val root = Project("gatling-parent", file("."))
     .enablePlugins(SonatypeReleasePlugin)
     .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-    .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler, benchmarks)
+    .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noArtifactToPublish)
     .settings(docSettings(bundle): _*)
@@ -31,7 +31,7 @@ object GatlingBuild extends Build {
   /*************/
 
   def gatlingModule(id: String) = Project(id, file(id))
-    .enablePlugins(SonatypeReleasePlugin, JmhPlugin)
+    .enablePlugins(SonatypeReleasePlugin)
     .settings(gatlingModuleSettings: _*)
 
   lazy val commons = gatlingModule("gatling-commons")
@@ -76,6 +76,7 @@ object GatlingBuild extends Build {
 
   lazy val benchmarks = gatlingModule("gatling-benchmarks")
     .dependsOn(core, http)
+    .enablePlugins(JmhPlugin)
     .settings(libraryDependencies ++= benchmarkDependencies)
 
   lazy val app = gatlingModule("gatling-app")
