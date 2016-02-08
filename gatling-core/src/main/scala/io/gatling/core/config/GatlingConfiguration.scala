@@ -170,13 +170,9 @@ object GatlingConfiguration extends StrictLogging {
         },
         ahc = AhcConfiguration(
           keepAlive = config.getBoolean(http.ahc.KeepAlive),
-          compressionEnforced = config.getBoolean(http.ahc.CompressionEnforced),
           connectTimeout = config.getInt(http.ahc.ConnectTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           readTimeout = config.getInt(http.ahc.ReadTimeout),
-          connectionTtl = config.getInt(http.ahc.ConnectionTtl),
-          maxConnectionsPerHost = config.getInt(http.ahc.MaxConnectionsPerHost),
-          maxConnections = config.getInt(http.ahc.MaxConnections),
           maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeOut = config.getInt(http.ahc.RequestTimeout),
           acceptAnyCertificate = {
@@ -327,13 +323,9 @@ case class HttpConfiguration(
 
 case class AhcConfiguration(
   keepAlive:                           Boolean,
-  compressionEnforced:                 Boolean,
   connectTimeout:                      Int,
   pooledConnectionIdleTimeout:         Int,
   readTimeout:                         Int,
-  connectionTtl:                       Int,
-  maxConnectionsPerHost:               Int,
-  maxConnections:                      Int,
   maxRetry:                            Int,
   requestTimeOut:                      Int,
   acceptAnyCertificate:                Boolean,

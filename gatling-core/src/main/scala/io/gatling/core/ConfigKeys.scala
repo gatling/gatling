@@ -90,13 +90,9 @@ object ConfigKeys {
 
     object ahc {
       val KeepAlive = "gatling.http.ahc.keepAlive"
-      val CompressionEnforced = "gatling.http.ahc.compressionEnforced"
       val ConnectTimeout = "gatling.http.ahc.connectTimeout"
       val PooledConnectionIdleTimeout = "gatling.http.ahc.pooledConnectionIdleTimeout"
       val ReadTimeout = "gatling.http.ahc.readTimeout"
-      val ConnectionTtl = "gatling.http.ahc.connectionTtl"
-      val MaxConnectionsPerHost = "gatling.http.ahc.maxConnectionsPerHost"
-      val MaxConnections = "gatling.http.ahc.maxConnections"
       val MaxRetry = "gatling.http.ahc.maxRetry"
       val RequestTimeout = "gatling.http.ahc.requestTimeout"
       val AcceptAnyCertificate = "gatling.http.ahc.acceptAnyCertificate"

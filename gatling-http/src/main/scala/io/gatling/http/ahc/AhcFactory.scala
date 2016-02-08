@@ -80,7 +80,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   private[this] def newChannelPool(timer: Timer): ChannelPool = {
     new DefaultChannelPool(
       ahcConfig.pooledConnectionIdleTimeout,
-      ahcConfig.connectionTtl,
+      -1,
       timer
     )
   }
@@ -88,13 +88,9 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   private[gatling] def newAhcConfigBuilder(eventLoopGroup: EventLoopGroup, timer: Timer, channelPool: ChannelPool) = {
     val ahcConfigBuilder = new DefaultAsyncHttpClientConfig.Builder()
       .setKeepAlive(ahcConfig.keepAlive)
-      .setCompressionEnforced(ahcConfig.compressionEnforced)
       .setConnectTimeout(ahcConfig.connectTimeout)
       .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setReadTimeout(ahcConfig.readTimeout)
-      .setConnectionTtl(ahcConfig.connectionTtl)
-      .setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
-      .setMaxConnections(ahcConfig.maxConnections)
       .setMaxRequestRetry(ahcConfig.maxRetry)
       .setRequestTimeout(ahcConfig.requestTimeOut)
       .setUseProxyProperties(false)
