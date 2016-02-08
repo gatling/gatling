@@ -17,7 +17,9 @@ package io.gatling.jms.client
 
 import javax.jms._
 
-import io.gatling.jms.request.{ JmsTopic, JmsQueue }
+import scala.beans.BeanProperty
+
+import io.gatling.jms.request.JmsQueue
 import io.gatling.jms.MockMessage
 
 class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
@@ -68,7 +70,8 @@ class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
   }
 
   it should "send and pick up object message" in withJmsClient("object") { (client, consumer, name) =>
-    val payload = JmsTopic(name)
+
+    val payload = Payload(name)
     val properties = Map(propKey -> name)
     val sentMsg = client.sendObjectMessage(payload, properties).asInstanceOf[ObjectMessage]
     val receivedMsg = consumer.receive().asInstanceOf[ObjectMessage]
@@ -77,4 +80,24 @@ class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
     receivedMsg.getObject shouldBe payload
     receivedMsg.getStringProperty(propKey) shouldBe name
   }
+}
+
+object Payload {
+  def apply(name: String): Payload = {
+    val payload = new Payload()
+    payload.name = name
+    payload
+  }
+}
+
+class Payload(@BeanProperty var name: String) extends Serializable {
+
+  def this() {
+    this(null)
+  }
+
+  override def hashCode(): Int = name.hashCode
+
+  override def equals(other: Any): Boolean =
+    other.isInstanceOf[Payload] && name == other.asInstanceOf[Payload].name
 }

@@ -25,7 +25,10 @@ import io.gatling.AkkaSpec
 
 trait BrokerBasedSpec extends AkkaSpec {
 
-  override def beforeAll() = startBroker()
+  override def beforeAll() = {
+    sys.props += "org.apache.activemq.SERIALIZABLE_PACKAGES" -> "io.gatling"
+    startBroker()
+  }
 
   override def afterAll() = {
     super.afterAll()
