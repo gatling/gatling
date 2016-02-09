@@ -27,6 +27,7 @@ import io.gatling.http.response._
 
 import akka.actor.{ ActorContext, ActorRef, Props }
 import com.typesafe.scalalogging.StrictLogging
+import org.asynchttpclient.{ AsyncHttpClient, Request }
 
 object HttpTx extends ActorNames with StrictLogging {
 
@@ -77,6 +78,11 @@ object HttpTx extends ActorNames with StrictLogging {
     }
   }
 
+  private def executeRequest(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit = {
+    handler.start()
+    client.executeRequest(ahcRequest, handler)
+  }
+
   def start(origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
 
     import origTx.request.config.httpComponents._
@@ -94,9 +100,9 @@ object HttpTx extends ActorNames with StrictLogging {
           val handler = new AsyncHandler(newTx)
 
           if (requestConfig.throttled)
-            origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler))
+            origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => executeRequest(client, ahcRequest, handler))
           else
-            client.executeRequest(ahcRequest, handler)
+            executeRequest(client, ahcRequest, handler)
 
         case _ => // client has been shutdown, ignore
       }

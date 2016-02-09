@@ -59,7 +59,7 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
   //
   // [fl]
 
-  private def start(): Unit =
+  private[http] def start(): Unit =
     if (init.compareAndSet(false, true)) {
       responseBuilder.updateStartTimestamp()
       // [fl]
@@ -67,23 +67,16 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
       // [fl]
     }
 
-  override def onHostnameResolutionAttempt(name: String): Unit = {
-    start()
-    // [fl]
-    //
-    // [fl]
-  }
-
-  override def onTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {
-    start()
-    // [fl]
-    //
-    //
-    //
-    // [fl]
-  }
-
   // [fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   //
   //
   //
@@ -101,7 +94,6 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
   // [fl]
 
   override def onRequestSend(request: NettyRequest): Unit = {
-    start()
     if (AsyncHandler.DebugEnabled)
       responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
   }
