@@ -163,10 +163,9 @@ object GatlingConfiguration extends StrictLogging {
               storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
             }
 
-          val keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm)
-          val trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
-
-          SslConfiguration(trustStore, keyStore)
+          SslConfiguration(
+            keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm),
+            trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm))
         },
         ahc = AhcConfiguration(
           keepAlive = config.getBoolean(http.ahc.KeepAlive),
