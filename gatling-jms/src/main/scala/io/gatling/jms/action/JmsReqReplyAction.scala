@@ -67,6 +67,7 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
               tracker ! MessageReceived(messageMatcher.responseID(msg), nowMillis, msg)
               logMessage(s"Message received ${msg.getJMSMessageID}", msg)
             case _ =>
+              tracker ! FailureReceivingMessage()
               throw BlockingReceiveReturnedNull
           }
         }

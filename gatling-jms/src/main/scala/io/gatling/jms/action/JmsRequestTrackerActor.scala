@@ -48,6 +48,12 @@ case class MessageSent(
  */
 case class MessageReceived(responseId: String, received: Long, message: Message)
 
+/**
+ * Advise actor that something went wrong while receiving a message
+ * This includes timeouts
+ */
+case class FailureReceivingMessage()
+
 object JmsRequestTrackerActor {
   def props(statsEngine: StatsEngine) = Props(new JmsRequestTrackerActor(statsEngine))
 }
@@ -92,6 +98,15 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
           val receivedMessage = (receivedDate, message)
           receivedMessages += corrId -> receivedMessage
       }
+
+    case FailureReceivingMessage() =>
+      //Fail all the sent messages because we do not even have a correlation id
+      val keys = sentMessages.keySet
+      keys.foreach((corrId) => {
+        val Some((startDate, checks, session, next, title)) = sentMessages.get(corrId)
+        processMessage(session, startDate, System.currentTimeMillis, checks, null, next, title)
+        sentMessages -= corrId
+      })
   }
 
   /**
