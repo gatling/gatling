@@ -16,12 +16,14 @@
 package io.gatling.jms.protocol
 
 import io.gatling.core.CoreComponents
+import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.{ GatlingConfiguration, Credentials }
 import io.gatling.core.protocol.{ ProtocolKey, Protocol }
+import io.gatling.jms.action.JmsRequestTrackerActor
 
 import akka.actor.ActorSystem
 
-object JmsProtocol {
+object JmsProtocol extends ActorNames {
 
   val JmsProtocolKey = new ProtocolKey {
 
@@ -33,7 +35,10 @@ object JmsProtocol {
     def defaultValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
     def newComponents(system: ActorSystem, coreComponents: CoreComponents): JmsProtocol => JmsComponents =
-      jmsProtocol => JmsComponents(jmsProtocol)
+      jmsProtocol => {
+        val tracker = system.actorOf(JmsRequestTrackerActor.props(coreComponents.statsEngine), actorName("jmsRequestTracker"))
+        JmsComponents(jmsProtocol, tracker)
+      }
   }
 }
 

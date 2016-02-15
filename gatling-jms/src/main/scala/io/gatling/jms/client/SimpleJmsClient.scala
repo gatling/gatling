@@ -16,14 +16,14 @@
 package io.gatling.jms.client
 
 import java.util.{ Hashtable => JHashtable }
+
+import io.gatling.core.config.Credentials
 import io.gatling.jms.protocol.JmsMessageMatcher
 import io.gatling.jms.request._
 
 import com.typesafe.scalalogging.StrictLogging
 import javax.jms._
 import javax.naming.{ Context, InitialContext }
-import io.gatling.jms._
-import io.gatling.core.config.Credentials
 
 /**
  * Trivial JMS client, allows sending messages and use of a MessageListener
@@ -84,6 +84,8 @@ class SimpleJmsClient(
       case JmsTemporaryTopic => session.createTemporaryTopic()
     }
   }
+
+  override val replyDestinationName = replyJmsDestination.toString
 
   /**
    * Gets a new consumer for the reply queue

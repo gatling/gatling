@@ -24,20 +24,18 @@ import javax.jms.Message
  */
 trait JmsMessageMatcher {
   def prepareRequest(msg: Message): Unit
-  def requestID(msg: Message): String
-  def responseID(msg: Message): String
+  def requestMatchId(msg: Message): String
+  def responseMatchId(msg: Message): String
 }
 
 object MessageIDMessageMatcher extends JmsMessageMatcher {
-
   override def prepareRequest(msg: Message): Unit = {}
-  override def requestID(msg: Message): String = msg.getJMSMessageID
-  override def responseID(msg: Message): String = msg.getJMSCorrelationID
+  override def requestMatchId(msg: Message): String = msg.getJMSMessageID
+  override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }
 
 object CorrelationIDMessageMatcher extends JmsMessageMatcher {
-
   override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(UUID.randomUUID.toString)
-  override def requestID(msg: Message): String = msg.getJMSCorrelationID
-  override def responseID(msg: Message): String = msg.getJMSCorrelationID
+  override def requestMatchId(msg: Message): String = msg.getJMSCorrelationID
+  override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }

@@ -25,8 +25,8 @@ import io.gatling.jms.protocol.JmsMessageMatcher
 
 object IdentificationMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = {}
-  override def responseID(msg: Message): String = requestID(msg)
-  override def requestID(msg: Message): String = msg.getStringProperty("identification")
+  override def responseMatchId(msg: Message): String = requestMatchId(msg)
+  override def requestMatchId(msg: Message): String = msg.getStringProperty("identification")
 }
 
 class JMSCompileTest extends Simulation {

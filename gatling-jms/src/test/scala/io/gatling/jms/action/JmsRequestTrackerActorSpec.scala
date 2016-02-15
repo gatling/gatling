@@ -42,8 +42,8 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
     val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
-    tracker ! MessageSent("1", 15, Nil, session, testActor, "success")
-    tracker ! MessageReceived("1", 30, textMessage("test"))
+    tracker ! MessageSent("replyDestinationName", "1", 15, Nil, session, testActor, "success")
+    tracker ! MessageReceived("replyDestinationName", "1", 30, textMessage("test"))
 
     val nextSession = expectMsgType[Session]
 
@@ -56,8 +56,8 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
     val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
-    tracker ! MessageReceived("1", 30, textMessage("test"))
-    tracker ! MessageSent("1", 15, Nil, session, testActor, "outofsync")
+    tracker ! MessageReceived("replyDestinationName", "1", 30, textMessage("test"))
+    tracker ! MessageSent("replyDestinationName", "1", 15, Nil, session, testActor, "outofsync")
 
     val nextSession = expectMsgType[Session]
 
@@ -71,8 +71,8 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
     val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
-    tracker ! MessageSent("1", 15, List(failedCheck), session, testActor, "failure")
-    tracker ! MessageReceived("1", 30, textMessage("test"))
+    tracker ! MessageSent("replyDestinationName", "1", 15, List(failedCheck), session, testActor, "failure")
+    tracker ! MessageReceived("replyDestinationName", "1", 30, textMessage("test"))
 
     val nextSession = expectMsgType[Session]
 
@@ -86,8 +86,8 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
     val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
-    tracker ! MessageSent("1", 15, List(check), session, testActor, "updated")
-    tracker ! MessageReceived("1", 30, textMessage("<id>5</id>"))
+    tracker ! MessageSent("replyDestinationName", "1", 15, List(check), session, testActor, "updated")
+    tracker ! MessageReceived("replyDestinationName", "1", 30, textMessage("<id>5</id>"))
 
     val nextSession = expectMsgType[Session]
 
@@ -101,15 +101,15 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with 
     val tracker = TestActorRef(new JmsRequestTrackerActor(statsEngine))
 
     val groupSession = session.enterGroup("group")
-    tracker ! MessageSent("1", 15, Nil, groupSession, testActor, "logGroupResponse")
-    tracker ! MessageReceived("1", 30, textMessage("group"))
+    tracker ! MessageSent("replyDestinationName", "1", 15, Nil, groupSession, testActor, "logGroupResponse")
+    tracker ! MessageReceived("replyDestinationName", "1", 30, textMessage("group"))
 
     val newSession = groupSession.logGroupRequest(15, OK)
     val nextSession1 = expectMsgType[Session]
 
     val failedCheck = JmsSimpleCheck(_ => false)
-    tracker ! MessageSent("2", 25, List(failedCheck), newSession, testActor, "logGroupResponse")
-    tracker ! MessageReceived("2", 50, textMessage("group"))
+    tracker ! MessageSent("replyDestinationName", "2", 25, List(failedCheck), newSession, testActor, "logGroupResponse")
+    tracker ! MessageReceived("replyDestinationName", "2", 50, textMessage("group"))
 
     val nextSession2 = expectMsgType[Session]
 

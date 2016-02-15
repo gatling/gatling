@@ -18,7 +18,9 @@ package io.gatling.jms.protocol
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
 
-case class JmsComponents(jmsProtocol: JmsProtocol) extends ProtocolComponents {
+import akka.actor.ActorRef
+
+case class JmsComponents(jmsProtocol: JmsProtocol, tracker: ActorRef) extends ProtocolComponents {
 
   def onStart: Option[Session => Session] = None
   def onExit: Option[Session => Unit] = None

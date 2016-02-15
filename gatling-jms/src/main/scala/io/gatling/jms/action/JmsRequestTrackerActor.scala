@@ -35,22 +35,30 @@ import akka.actor.{ ActorRef, Props }
  * Advise actor a message was sent to JMS provider
  */
 case class MessageSent(
-  requestId: String,
-  startDate: Long,
-  checks:    List[JmsCheck],
-  session:   Session,
-  next:      ActorRef,
-  title:     String
+  replyDestinationName: String,
+  matchId:              String,
+  sent:                 Long,
+  checks:               List[JmsCheck],
+  session:              Session,
+  next:                 ActorRef,
+  title:                String
 )
 
 /**
  * Advise actor a response message was received from JMS provider
  */
-case class MessageReceived(responseId: String, received: Long, message: Message)
+case class MessageReceived(
+  replyDestinationName: String,
+  matchId:              String,
+  received:             Long,
+  message:              Message
+)
 
 object JmsRequestTrackerActor {
   def props(statsEngine: StatsEngine) = Props(new JmsRequestTrackerActor(statsEngine))
 }
+
+case class MessageKey(replyDestinationName: String, matchId: String)
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages
@@ -58,39 +66,38 @@ object JmsRequestTrackerActor {
  */
 class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
 
-  // messages to be tracked through this HashMap - note it is a mutable hashmap
-  val sentMessages = mutable.HashMap.empty[String, (Long, List[JmsCheck], Session, ActorRef, String)]
-  val receivedMessages = mutable.HashMap.empty[String, (Long, Message)]
+  val sentMessages = mutable.HashMap.empty[MessageKey, MessageSent]
+  val receivedMessages = mutable.HashMap.empty[MessageKey, MessageReceived]
 
   // Actor receive loop
   def receive = {
 
     // message was sent; add the timestamps to the map
-    case MessageSent(corrId, startDate, checks, session, next, title) =>
-      receivedMessages.get(corrId) match {
-        case Some((receivedDate, message)) =>
-          // message was received out of order, lets just deal with it
-          processMessage(session, startDate, receivedDate, checks, message, next, title)
-          receivedMessages -= corrId
-
+    case messageSent @ MessageSent(queueName, correlationId, sent, checks, session, next, title) =>
+      val messageKey = MessageKey(queueName, correlationId)
+      receivedMessages.get(messageKey) match {
         case None =>
           // normal path
-          val sentMessage = (startDate, checks, session, next, title)
-          sentMessages += corrId -> sentMessage
+          sentMessages += messageKey -> messageSent
+
+        case Some(MessageReceived(_, _, received, message)) =>
+          // message was received out of order, lets just deal with it
+          processMessage(session, sent, received, checks, message, next, title)
+          receivedMessages -= messageKey
       }
 
     // message was received; publish to the datawriter and remove from the hashmap
-    case MessageReceived(corrId, receivedDate, message) =>
-      sentMessages.get(corrId) match {
-        case Some((startDate, checks, session, next, title)) =>
-          processMessage(session, startDate, receivedDate, checks, message, next, title)
-          sentMessages -= corrId
+    case messageReceived @ MessageReceived(queueName, correlationId, received, message) =>
+      val messageKey = MessageKey(queueName, correlationId)
+      sentMessages.get(messageKey) match {
+        case Some(MessageSent(_, _, sent, checks, session, next, title)) =>
+          processMessage(session, sent, received, checks, message, next, title)
+          sentMessages -= messageKey
 
         case None =>
           // failed to find message; early receive? or bad return correlation id?
           // let's add it to the received messages buffer just in case
-          val receivedMessage = (receivedDate, message)
-          receivedMessages += corrId -> receivedMessage
+          receivedMessages += messageKey -> messageReceived
       }
   }
 
@@ -117,8 +124,8 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
     val (checkSaveUpdate, error) = Check.check(message, session, checks)
     val newSession = checkSaveUpdate(session)
     error match {
-      case None                   => executeNext(newSession, OK)
-      case Some(Failure(message)) => executeNext(newSession.markAsFailed, KO, Some(message))
+      case None                        => executeNext(newSession, OK)
+      case Some(Failure(errorMessage)) => executeNext(newSession.markAsFailed, KO, Some(errorMessage))
     }
   }
 }

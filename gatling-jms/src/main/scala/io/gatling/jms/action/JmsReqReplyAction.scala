@@ -55,6 +55,7 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
 
   val receiveTimeout = protocol.receiveTimeout.getOrElse(0L)
   val messageMatcher = protocol.messageMatcher
+  val replyDestinationName = client.replyDestinationName
 
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
     def run(): Unit = {
@@ -64,9 +65,9 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
           val m = replyConsumer.receive(receiveTimeout)
           m match {
             case msg: Message =>
-              val responseId = messageMatcher.responseID(msg)
-              tracker ! MessageReceived(responseId, nowMillis, msg)
-              logMessage(s"Message received JMSMessageID=${msg.getJMSMessageID} responseId=$responseId", msg)
+              val matchId = messageMatcher.responseMatchId(msg)
+              logMessage(s"Message received JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
+              tracker ! MessageReceived(replyDestinationName, matchId, nowMillis, msg)
             case _ =>
               throw BlockingReceiveReturnedNull
           }
@@ -119,9 +120,9 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
 
     msg.map { msg =>
       // notify the tracker that a message was sent
-      val requestID = messageMatcher.requestID(msg)
-      tracker ! MessageSent(requestID, startDate, attributes.checks, session, next, attributes.requestName)
-      logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} requestID=$requestID", msg)
+      val matchId = messageMatcher.requestMatchId(msg)
+      logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
+      tracker ! MessageSent(replyDestinationName, matchId, startDate, attributes.checks, session, next, attributes.requestName)
     }
   }
 

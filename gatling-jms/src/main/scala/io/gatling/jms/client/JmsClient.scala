@@ -43,6 +43,12 @@ trait JmsClient {
   def createReplyConsumer(selector: String = null): MessageConsumer
 
   /**
+   *
+   * @return the name of the reply destination
+   */
+  def replyDestinationName: String
+
+  /**
    * Wrapper to send a BytesMessage, returns the message ID of the sent message
    */
   def sendBytesMessage(bytes: Array[Byte], props: Map[String, Any]): Message
@@ -67,5 +73,4 @@ trait JmsClient {
   def sendTextMessage(messageText: String, props: Map[String, Any]): Message
 
   def close(): Unit
-
 }
