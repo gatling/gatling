@@ -33,7 +33,7 @@ import io.gatling.jms.request._
 import akka.actor.{ ActorRef, Props }
 
 object JmsReqReplyAction {
-  val BlockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+  val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 
   def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
     Props(new JmsReqReplyAction(attributes, protocol, tracker, statsEngine, next))
@@ -69,8 +69,8 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
               logMessage(s"Message received JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
               tracker ! MessageReceived(replyDestinationName, matchId, nowMillis, msg)
             case _ =>
-              tracker ! FailureReceivingMessage()
-              throw BlockingReceiveReturnedNull
+              tracker ! BlockingReceiveReturnedNull
+              throw BlockingReceiveReturnedNullException
           }
         }
       } catch {

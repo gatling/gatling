@@ -55,10 +55,9 @@ case class MessageReceived(
 )
 
 /**
- * Advise actor that something went wrong while receiving a message
- * This includes timeouts
+ * Advise actor that the blocking receive failed
  */
-case class FailureReceivingMessage()
+case object BlockingReceiveReturnedNull
 
 object JmsRequestTrackerActor {
   def props(statsEngine: StatsEngine) = Props(new JmsRequestTrackerActor(statsEngine))
@@ -106,41 +105,48 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
           receivedMessages += messageKey -> messageReceived
       }
 
-    case FailureReceivingMessage() =>
+    case BlockingReceiveReturnedNull =>
       //Fail all the sent messages because we do not even have a correlation id
-      val keys = sentMessages.keySet
-      keys.foreach((corrId) => {
-        val Some((startDate, checks, session, next, title)) = sentMessages.get(corrId)
-        processMessage(session, startDate, System.currentTimeMillis, checks, null, next, title)
-        sentMessages -= corrId
-      })
+      sentMessages.foreach {
+        case (messageKey, MessageSent(_, _, sent, checks, session, next, title)) =>
+          executeNext(session, sent, nowMillis, KO, next, title, Some("Blocking received returned null"))
+          sentMessages -= messageKey
+      }
+  }
+
+  private def executeNext(
+    session:  Session,
+    sent:     Long,
+    received: Long,
+    status:   Status,
+    next:     ActorRef,
+    title:    String,
+    message:  Option[String] = None
+  ) = {
+    val timings = ResponseTimings(sent, received)
+    statsEngine.logResponse(session, title, timings, status, None, message)
+    next ! session.logGroupRequest(timings.responseTime, status).increaseDrift(nowMillis - received)
   }
 
   /**
    * Processes a matched message
    */
-  def processMessage(
-    session:      Session,
-    startDate:    Long,
-    receivedDate: Long,
-    checks:       List[JmsCheck],
-    message:      Message,
-    next:         ActorRef,
-    title:        String
+  private def processMessage(
+    session:  Session,
+    sent:     Long,
+    received: Long,
+    checks:   List[JmsCheck],
+    message:  Message,
+    next:     ActorRef,
+    title:    String
   ): Unit = {
-
-      def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
-        val timings = ResponseTimings(startDate, receivedDate)
-        statsEngine.logResponse(updatedSession, title, timings, status, None, message)
-        next ! updatedSession.logGroupRequest(timings.responseTime, status).increaseDrift(nowMillis - receivedDate)
-      }
 
     // run all the checks, advise the Gatling API that it is complete and move to next
     val (checkSaveUpdate, error) = Check.check(message, session, checks)
     val newSession = checkSaveUpdate(session)
     error match {
-      case None                        => executeNext(newSession, OK)
-      case Some(Failure(errorMessage)) => executeNext(newSession.markAsFailed, KO, Some(errorMessage))
+      case None                        => executeNext(newSession, sent, received, OK, next, title)
+      case Some(Failure(errorMessage)) => executeNext(newSession.markAsFailed, sent, received, KO, next, title, Some(errorMessage))
     }
   }
 }
