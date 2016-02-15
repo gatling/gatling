@@ -64,8 +64,9 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
           val m = replyConsumer.receive(receiveTimeout)
           m match {
             case msg: Message =>
-              tracker ! MessageReceived(messageMatcher.responseID(msg), nowMillis, msg)
-              logMessage(s"Message received ${msg.getJMSMessageID}", msg)
+              val responseId = messageMatcher.responseID(msg)
+              tracker ! MessageReceived(responseId, nowMillis, msg)
+              logMessage(s"Message received JMSMessageID=${msg.getJMSMessageID} responseId=$responseId", msg)
             case _ =>
               throw BlockingReceiveReturnedNull
           }
@@ -118,8 +119,9 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
 
     msg.map { msg =>
       // notify the tracker that a message was sent
-      tracker ! MessageSent(messageMatcher.requestID(msg), startDate, attributes.checks, session, next, attributes.requestName)
-      logMessage(s"Message sent ${msg.getJMSMessageID}", msg)
+      val requestID = messageMatcher.requestID(msg)
+      tracker ! MessageSent(requestID, startDate, attributes.checks, session, next, attributes.requestName)
+      logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} requestID=$requestID", msg)
     }
   }
 
