@@ -15,13 +15,11 @@
  */
 package io.gatling.http.ahc
 
-import java.net.InetSocketAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ClassHelper._
-import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.sync.HttpTx
 
 import org.asynchttpclient._
@@ -30,7 +28,6 @@ import org.asynchttpclient.AsyncHandler.State._
 import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.request.NettyRequest
 import com.typesafe.scalalogging._
-import io.netty.channel.Channel
 
 object AsyncHandler extends StrictLogging {
   val DebugEnabled = logger.underlying.isDebugEnabled
@@ -68,6 +65,10 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
     }
 
   // [fl]
+  //
+  //
+  //
+  //
   //
   //
   //
