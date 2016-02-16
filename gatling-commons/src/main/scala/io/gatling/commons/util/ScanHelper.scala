@@ -15,10 +15,10 @@
  */
 package io.gatling.commons.util
 
-import java.io.InputStream
+import java.io.{ FileInputStream, InputStream }
 import java.net.JarURLConnection
 import java.nio.file.{ Path, StandardCopyOption }
-import java.util.jar.JarFile
+import java.util.jar.{ JarEntry, JarFile }
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
@@ -32,25 +32,34 @@ object ScanHelper {
   sealed trait Resource {
     def path: Path
     def copyTo(target: Path): Unit
+    def inputStream(): InputStream
   }
 
   case class FileResource(path: Path) extends Resource {
-    def copyTo(target: Path): Unit = {
+
+    override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs
       path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
     }
+
+    override def inputStream(): InputStream = new FileInputStream(path.toFile)
   }
 
-  case class JarResource(path: Path, inputStream: InputStream) extends Resource {
-    def copyTo(target: Path): Unit = {
+  case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
+
+    override def path = jarEntry.getName
+
+    override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs
 
-      withCloseable(inputStream) { input =>
+      withCloseable(inputStream()) { input =>
         withCloseable(target.outputStream) { output =>
           input.copyTo(output)
         }
       }
     }
+
+    override def inputStream(): InputStream = jar.getInputStream(jarEntry)
   }
 
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
@@ -73,7 +82,7 @@ object ScanHelper {
           val jar = new JarFile(connection.getJarFileURL.toFile)
           jar.entries.collect {
             case jarEntry if isResourceInRootDir(jarEntry.getName, rootDir) =>
-              JarResource(jarEntry.getName, jar.getInputStream(jarEntry))
+              JarResource(jar, jarEntry)
           }
 
         case _ => throw new UnsupportedOperationException
