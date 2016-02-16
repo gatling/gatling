@@ -38,14 +38,16 @@ object ScanHelper {
 
   case class FileResource(path: Path) extends Resource {
 
+    private val file = path.toFile
+
     override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs
       path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
-    override def inputStream(): InputStream = new FileInputStream(path.toFile)
+    override def inputStream(): InputStream = new FileInputStream(file)
 
-    override def lastModified: Long = path.toFile.lastModified
+    override def lastModified: Long = file.lastModified
   }
 
   case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
