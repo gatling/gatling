@@ -33,6 +33,7 @@ object ScanHelper {
     def path: Path
     def copyTo(target: Path): Unit
     def inputStream(): InputStream
+    def lastModified: Long
   }
 
   case class FileResource(path: Path) extends Resource {
@@ -43,6 +44,8 @@ object ScanHelper {
     }
 
     override def inputStream(): InputStream = new FileInputStream(path.toFile)
+
+    override def lastModified: Long = path.toFile.lastModified
   }
 
   case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
@@ -60,6 +63,8 @@ object ScanHelper {
     }
 
     override def inputStream(): InputStream = jar.getInputStream(jarEntry)
+
+    override def lastModified: Long = jarEntry.getTime
   }
 
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
