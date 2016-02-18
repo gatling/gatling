@@ -45,6 +45,20 @@ class Scenario {
   }
   //#session-lambda
 
+  def someSessionBasedCondition(session: Session): Boolean = true
+
+  //#session-improper
+  exec { session =>
+
+    if (someSessionBasedCondition(session)) {
+      // just create a builder that is immediately discarded, hence doesn't do anything
+      // you should be using a doIf here
+      http("Get Homepage").get("http://github.com/gatling/gatling")
+    }
+    session
+  }
+  //#session-improper
+
   //#flattenMapIntoAttributes
   // assuming the Session contains an attribute named "theMap" whose content is :
   // Map("foo" -> "bar", "baz" -> "qix")

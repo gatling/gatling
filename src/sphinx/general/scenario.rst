@@ -45,6 +45,15 @@ This can be used for manually debugging or editing the :ref:`Session <expression
   For those who wonder how the plumbing works and how you can return a ``Session`` instead of of ``Validation[Session]`` in the above examples,
   that's thanks to an implicit conversion.
 
+.. warning::
+  Gatling DSL components are immutable ``ActionBuilder``s that have to be chained altogether and are only built once on startup.
+  The results is a workflow chain of ``Action``s.
+  These builders don't do anything by themselves, they don't trigger any side effect, they are just definitions.
+  As a result, creating such DSL components at runtime in functions is completely meaningless.
+  If you want conditional paths in your execution flow, use the proper DSL components (``doIf``, ``randomSwitch``, etc)
+
+.. includecode:: code/Scenario.scala#session-improper
+
 .. _scenario-exec-function-flatten:
 
 ``flattenMapIntoAttributes`` is a built-in Session Expression as mentioned above.
