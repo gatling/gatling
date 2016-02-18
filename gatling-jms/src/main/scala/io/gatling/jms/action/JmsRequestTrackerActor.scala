@@ -17,8 +17,7 @@ package io.gatling.jms.action
 
 import javax.jms.Message
 
-import scala.collection.mutable
-
+import akka.actor.{ ActorRef, Props }
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation.Failure
@@ -29,7 +28,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.jms._
 
-import akka.actor.{ ActorRef, Props }
+import scala.collection.mutable
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -48,6 +47,12 @@ case class MessageSent(
  */
 case class MessageReceived(responseId: String, received: Long, message: Message)
 
+/**
+ * Advise actor that something went wrong while receiving a message
+ * This includes timeouts
+ */
+case class FailureReceivingMessage()
+
 object JmsRequestTrackerActor {
   def props(statsEngine: StatsEngine) = Props(new JmsRequestTrackerActor(statsEngine))
 }
@@ -61,37 +66,25 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
   // messages to be tracked through this HashMap - note it is a mutable hashmap
   val sentMessages = mutable.HashMap.empty[String, (Long, List[JmsCheck], Session, ActorRef, String)]
   val receivedMessages = mutable.HashMap.empty[String, (Long, Message)]
+  RequestResponseCorrelator.statsEngine = statsEngine
 
   // Actor receive loop
   def receive = {
 
     // message was sent; add the timestamps to the map
-    case MessageSent(corrId, startDate, checks, session, next, title) =>
-      receivedMessages.get(corrId) match {
-        case Some((receivedDate, message)) =>
-          // message was received out of order, lets just deal with it
-          processMessage(session, startDate, receivedDate, checks, message, next, title)
-          receivedMessages -= corrId
-
-        case None =>
-          // normal path
-          val sentMessage = (startDate, checks, session, next, title)
-          sentMessages += corrId -> sentMessage
-      }
+    case MessageSent(corrId, startDate, checks, session, next, title) => {
+      logger.debug("====> tracker sent message")
+      RequestResponseCorrelator.sentMessages.put(corrId, (startDate, checks, session, next, title))
+    }
 
     // message was received; publish to the datawriter and remove from the hashmap
-    case MessageReceived(corrId, receivedDate, message) =>
-      sentMessages.get(corrId) match {
-        case Some((startDate, checks, session, next, title)) =>
-          processMessage(session, startDate, receivedDate, checks, message, next, title)
-          sentMessages -= corrId
+    case MessageReceived(corrId, receivedDate, message) => {
+      logger.debug("====> tracker received message")
+      RequestResponseCorrelator.receivedMessages.put(corrId, (receivedDate, message))
+    }
 
-        case None =>
-          // failed to find message; early receive? or bad return correlation id?
-          // let's add it to the received messages buffer just in case
-          val receivedMessage = (receivedDate, message)
-          receivedMessages += corrId -> receivedMessage
-      }
+    case FailureReceivingMessage() =>
+      RequestResponseCorrelator.messageReceiveFailed.set(true)
   }
 
   /**
