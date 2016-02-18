@@ -10,6 +10,7 @@ object Dependencies {
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                  % "1.0.2"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                    % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"     % "1.0.4"
+  private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"           % "0.7.0"
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.0-RC10"
   private val netty                         = "io.netty"                               % "netty-codec-http"             % "4.0.34.Final"
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll" % netty.revision classifier "linux-x86_64"
@@ -45,7 +46,7 @@ object Dependencies {
   private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                  % "1.12.4"            % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaActor.revision  % "test"
   private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.10.19"           % "test"
-  private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.13.1"             % "test"
+  private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.13.1"            % "test"
   private val h2                             = "com.h2database"                         % "h2"                          % "1.4.187"           % "test"
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                  % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
   private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                    % "1.11.3"
@@ -59,10 +60,10 @@ object Dependencies {
   /****************************/
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt) ++
+    Seq(akkaActor, jacksonCsv, boopickle, java8Compat, lru, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps

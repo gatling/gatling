@@ -21,8 +21,9 @@ import java.nio.charset.StandardCharsets._
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.{ Function => JFunction }
 
+import scala.compat.java8.FunctionConverters._
+
 import io.gatling.commons.util.Collections._
-import io.gatling.commons.util.JFunctions._
 
 object ByteBuffersDecoder {
 
@@ -34,9 +35,10 @@ object ByteBuffersDecoder {
     override def initialValue = new UsAsciiByteBuffersDecoder
   }
 
-  private[this] val newGenericDecoders: JFunction[Charset, ThreadLocal[ByteBuffersDecoder]] = (charset: Charset) => new ThreadLocal[ByteBuffersDecoder] {
+  private[this] val newGenericDecodersScalaFunction: Charset => ThreadLocal[ByteBuffersDecoder] = charset => new ThreadLocal[ByteBuffersDecoder] {
     override def initialValue = new GenericByteBuffersDecoder(charset)
   }
+  private[this] val newGenericDecoders: JFunction[Charset, ThreadLocal[ByteBuffersDecoder]] = newGenericDecodersScalaFunction.asJava
 
   private[this] val otherDecoders = new ConcurrentHashMap[Charset, ThreadLocal[ByteBuffersDecoder]]()
 
