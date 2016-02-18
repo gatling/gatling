@@ -72,12 +72,16 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
   def receive = {
 
     // message was sent; add the timestamps to the map
-    case MessageSent(corrId, startDate, checks, session, next, title) =>
-      RequestResponseCorrelator.sentMessages.putIfAbsent(corrId, (startDate, checks, session, next, title))
+    case MessageSent(corrId, startDate, checks, session, next, title) => {
+      logger.debug("====> tracker sent message")
+      RequestResponseCorrelator.sentMessages.put(corrId, (startDate, checks, session, next, title))
+    }
 
     // message was received; publish to the datawriter and remove from the hashmap
-    case MessageReceived(corrId, receivedDate, message) =>
-      RequestResponseCorrelator.receivedMessages.putIfAbsent(corrId, (receivedDate, message))
+    case MessageReceived(corrId, receivedDate, message) => {
+      logger.debug("====> tracker received message")
+      RequestResponseCorrelator.receivedMessages.put(corrId, (receivedDate, message))
+    }
 
     case FailureReceivingMessage() =>
       RequestResponseCorrelator.messageReceiveFailed.set(true)

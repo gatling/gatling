@@ -44,7 +44,7 @@ object RequestResponseCorrelator extends LazyLogging {
   val totalActorNotifications: AtomicInteger = new AtomicInteger(0)
   val sentMessages = new ConcurrentHashMap[String, (Long, List[JmsCheck], Session, ActorRef, String)].asScala
   val receivedMessages = new ConcurrentHashMap[String, (Long, Message)].asScala
-  val correlator = Executors.newScheduledThreadPool(16)
+  val correlator = Executors.newScheduledThreadPool(6)
 
   val correlationActivity = new Runnable {
     override def run(): Unit = {
