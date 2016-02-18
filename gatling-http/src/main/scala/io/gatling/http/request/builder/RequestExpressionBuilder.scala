@@ -79,7 +79,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
         //
         // [fl]
         _.setNameResolver(nameResolver)
-      }
+    }
 
   // FIXME resolve proxy presence once
   private def configureProxy(requestBuilder: AhcRequestBuilder, uri: Uri): Validation[AhcRequestBuilder] = {
