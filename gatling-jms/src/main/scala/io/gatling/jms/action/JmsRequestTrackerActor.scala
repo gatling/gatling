@@ -71,8 +71,8 @@ case class MessageKey(replyDestinationName: String, matchId: String)
  */
 class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
 
-  val sentMessages = mutable.HashMap.empty[MessageKey, MessageSent]
-  val receivedMessages = mutable.HashMap.empty[MessageKey, MessageReceived]
+  private val sentMessages = mutable.HashMap.empty[MessageKey, MessageSent]
+  private val receivedMessages = mutable.HashMap.empty[MessageKey, MessageReceived]
 
   // Actor receive loop
   def receive = {
