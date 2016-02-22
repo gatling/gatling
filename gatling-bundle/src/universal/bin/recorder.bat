@@ -1,6 +1,6 @@
 @ECHO OFF
 @REM
-@REM Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+@REM Copyright 2011-2016 GatlingCorp (http://gatling.io)
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
