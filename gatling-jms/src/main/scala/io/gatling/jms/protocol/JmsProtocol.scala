@@ -16,14 +16,13 @@
 package io.gatling.jms.protocol
 
 import io.gatling.core.CoreComponents
-import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.{ GatlingConfiguration, Credentials }
 import io.gatling.core.protocol.{ ProtocolKey, Protocol }
 import io.gatling.jms.action.JmsRequestTrackerActor
 
 import akka.actor.ActorSystem
 
-object JmsProtocol extends ActorNames {
+object JmsProtocol {
 
   val JmsProtocolKey = new ProtocolKey {
 
