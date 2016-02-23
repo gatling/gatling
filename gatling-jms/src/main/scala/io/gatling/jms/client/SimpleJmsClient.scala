@@ -25,6 +25,8 @@ import com.typesafe.scalalogging.StrictLogging
 import javax.jms._
 import javax.naming.{ Context, InitialContext }
 
+import scala.util.control.NonFatal
+
 /**
  * Trivial JMS client, allows sending messages and use of a MessageListener
  * @author jasonk@bluedevel.com
@@ -156,8 +158,12 @@ class SimpleJmsClient(
   }
 
   def close(): Unit = {
-    producer.close()
-    session.close()
-    conn.stop()
+    try {
+      producer.close()
+      session.close()
+      conn.stop()
+    } catch {
+      case NonFatal(e) => logger.debug("Exception while closing SimpleJmsClient: " + e.getMessage)
+    }
   }
 }
