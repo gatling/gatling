@@ -21,7 +21,8 @@ Third Parties
 * `Cassandra plugin <https://github.com/Mishail/GatlingCql>`_
 * `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_
 * `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_
-* `RabbitMQ plugin <https://github.com/fhalim/gatling-rabbitmq>`_
+* `RabbitMQ (obsolete) plugin <https://github.com/fhalim/gatling-rabbitmq>`_
+* `AMQP plugin <https://github.com/maiha/gatling-amqp>`_
 
 .. warning::
   Those projects are third parties and are not maintained but the Gatling core committers.
