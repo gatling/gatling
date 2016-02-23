@@ -34,11 +34,10 @@ object JmsProtocol extends ActorNames {
 
     def defaultValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents): JmsProtocol => JmsComponents =
-      jmsProtocol => {
-        val tracker = system.actorOf(JmsRequestTrackerActor.props(coreComponents.statsEngine), actorName("jmsRequestTracker"))
-        JmsComponents(jmsProtocol, tracker)
-      }
+    def newComponents(system: ActorSystem, coreComponents: CoreComponents): JmsProtocol => JmsComponents = {
+      val tracker = system.actorOf(JmsRequestTrackerActor.props(coreComponents.statsEngine), "jmsRequestTracker")
+      jmsProtocol => JmsComponents(jmsProtocol, tracker)
+    }
   }
 }
 
