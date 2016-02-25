@@ -55,7 +55,8 @@ object ConfigKeys {
   object charting {
     val NoReports = "gatling.charting.noReports"
     val MaxPlotPerSeries = "gatling.charting.maxPlotPerSeries"
-
+    val UseGroupDurationInsteadOfCumulatedResponseTime = "gatling.charting.useGroupDurationInsteadOfCumulatedResponseTime"
+    
     object indicators {
       val LowerBound = "gatling.charting.indicators.lowerBound"
       val HigherBound = "gatling.charting.indicators.higherBound"
