@@ -137,6 +137,7 @@ object GatlingConfiguration extends StrictLogging {
       charting = ChartingConfiguration(
         noReports = config.getBoolean(charting.NoReports),
         maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
+        useGroupDurationInsteadOfCumulatedResponseTime = config.getBoolean(charting.UseGroupDurationInsteadOfCumulatedResponseTime),
         indicators = IndicatorsConfiguration(
           lowerBound = config.getInt(charting.indicators.LowerBound),
           higherBound = config.getInt(charting.indicators.HigherBound),
@@ -292,6 +293,7 @@ case class DirectoryConfiguration(
 case class ChartingConfiguration(
   noReports:         Boolean,
   maxPlotsPerSeries: Int,
+  useGroupDurationInsteadOfCumulatedResponseTime: Boolean,
   indicators:        IndicatorsConfiguration
 )
 
