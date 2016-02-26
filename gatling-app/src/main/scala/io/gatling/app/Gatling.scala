@@ -21,7 +21,7 @@ import scala.util.{ Failure, Try }
 
 import io.gatling.app.Gatling.SimulationFactory
 import io.gatling.app.cli.{ StatusCode, ArgsParser }
-import io.gatling.commons.util.{ Ga, StringHelper }
+import io.gatling.commons.util.Ga
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
@@ -61,7 +61,6 @@ object Gatling {
 private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory, configuration: GatlingConfiguration) {
 
   def start: StatusCode = {
-    StringHelper.checkSupportedJavaVersion()
     val coreComponentsFactory = CoreComponentsFactory(configuration)
     val runResult = runIfNecessary(coreComponentsFactory)
     coreComponentsFactory.runResultProcessor.processRunResult(runResult)
