@@ -16,6 +16,7 @@
 package io.gatling.commons.validation
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.ExceptionHelper._
 
 class ValidationSpec extends BaseSpec {
 
@@ -33,11 +34,7 @@ class ValidationSpec extends BaseSpec {
 
   it should "return a failure if the provided Validation threw exceptions" in {
       def exceptionThrower = {
-          def thrower = {
-            val e = new Exception("Woops")
-            e.setStackTrace(Array.empty)
-            throw e
-          }
+          def thrower = throw new Exception("Woops").noStackTrace()
 
         thrower
         Success(1)

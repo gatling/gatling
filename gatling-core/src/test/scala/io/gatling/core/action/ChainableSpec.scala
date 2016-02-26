@@ -17,8 +17,10 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import akka.testkit.TestActorRef
+
 import io.gatling.AkkaSpec
 import io.gatling.core.session.Session
+import io.gatling.commons.util.ExceptionHelper._
 
 class ChainableSpec extends AkkaSpec {
 
@@ -27,9 +29,7 @@ class ChainableSpec extends AkkaSpec {
 
     override def execute(session: Session): Unit =
       if (fail) {
-        val e = new Exception("expected crash")
-        e.setStackTrace(Array.empty)
-        throw e
+        throw new Exception("expected crash").noStackTrace()
       } else hasRun = true
   }
 
