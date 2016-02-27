@@ -39,6 +39,8 @@ The top panel shows some standard statistics such as min, max, average, standard
 
 .. note:: these percentiles can be configured in the ``gatling.conf`` file.
 
+.. note:: If your scenario contains groups, this panel becomes a tree : each group is a non leaf node, and each request is a descendant leaf of a group. Group timings are by default the cumulated response times of all elements inside the group. Group duration can be displayed instead of group cumulated response time by editing the ``gatling.conf`` file.
+
 The bottom panel shows some details on the failed requests.
 
 Active users over time
