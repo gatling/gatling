@@ -16,6 +16,8 @@
 package io.gatling.commons.util
 
 import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
+import java.nio.charset.StandardCharsets._
+import java.security.MessageDigest
 import java.text.Normalizer
 
 import scala.util.Try
@@ -94,6 +96,9 @@ object StringHelper {
     }
 
     def unsafeChars: Array[Char] = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
+
+    def isConstantTimeEqual(other: String): Boolean =
+      MessageDigest.isEqual(string.getBytes(UTF_8), other.getBytes(UTF_8))
   }
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {
