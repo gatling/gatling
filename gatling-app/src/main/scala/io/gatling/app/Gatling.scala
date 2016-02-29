@@ -19,11 +19,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
 
+import io.gatling.app.Gatling.SimulationFactory
 import io.gatling.app.cli.{ StatusCode, ArgsParser }
 import io.gatling.commons.util.{ Ga, StringHelper }
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
+import io.gatling.core.scenario.Simulation
 import io.gatling.core.stats.writer.RunMessage
 
 import akka.actor.ActorSystem
@@ -34,25 +36,29 @@ import akka.pattern.ask
  */
 object Gatling {
 
+  type SimulationFactory = (Class[_ <: Simulation]) => Simulation
+
+  private val defaultSimulationFactory: SimulationFactory = _.newInstance()
+
   def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
 
-  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
+  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None, defaultSimulationFactory)
 
-  def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int =
+  def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory = defaultSimulationFactory): Int =
     new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, selectedSimulationClass)
+      case Left(overrides)   => start(overrides, selectedSimulationClass, simulationFactory)
       case Right(statusCode) => statusCode.code
     }
 
-  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
+  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory) = {
 
     implicit val configuration = GatlingConfiguration.load(overrides)
 
-    new Gatling(selectedSimulationClass).start.code
+    new Gatling(selectedSimulationClass, simulationFactory).start.code
   }
 }
 
-private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(implicit configuration: GatlingConfiguration) {
+private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory)(implicit configuration: GatlingConfiguration) {
 
   def start: StatusCode = {
     StringHelper.checkSupportedJavaVersion()
@@ -84,7 +90,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       // ugly way to pass the configuration to the Simulation constructor
       io.gatling.core.Predef.configuration = configuration
 
-      val simulation = simulationClass.newInstance
+      val simulation = simulationFactory(selection.simulationClass)
 
       val simulationParams = simulation.params
 
