@@ -70,19 +70,19 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       def computeGroupStats(name: String, group: Group): RequestStatistics = {
 
-        def groupStatsFunction: (Group, Option[Status]) => GeneralStats = 
-          if (configuration.charting.useGroupDurationMetric) {
-            logger.debug("Use group duration stats.")
-            logFileReader.groupDurationGeneralStats _
-          } else {
-            logger.debug("Use group cumulated response time stats.")
-            logFileReader.groupCumulatedResponseTimeGeneralStats _
-          }
-        
+          def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
+            if (configuration.charting.useGroupDurationMetric) {
+              logger.debug("Use group duration stats.")
+              logFileReader.groupDurationGeneralStats _
+            } else {
+              logger.debug("Use group cumulated response time stats.")
+              logFileReader.groupCumulatedResponseTimeGeneralStats _
+            }
+
         val total = groupStatsFunction(group, None)
         val ok = groupStatsFunction(group, Some(OK))
         val ko = groupStatsFunction(group, Some(KO))
-        
+
         val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
         val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
         val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
