@@ -23,7 +23,7 @@ import io.gatling.commons.util.PathHelper._
 
 object GatlingFiles {
 
-  val GatlingHome: Path = string2path(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
+  val GatlingHome: Path = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
   val GatlingAssetsPackage: Path = "assets"
   val GatlingJsFolder: Path = "js"
   val GatlingStyleFolder: Path = "style"
