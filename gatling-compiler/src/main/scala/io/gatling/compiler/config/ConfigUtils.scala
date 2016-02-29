@@ -21,6 +21,7 @@ import scala.util.Properties._
 
 private[compiler] object ConfigUtils {
 
+  // WARN copied from io.gatling.commons.util.PathHelper
   implicit def string2path(pathString: String): Path = Paths.get(pathString)
 
   implicit class RichPath(val path: Path) extends AnyVal {
@@ -32,6 +33,7 @@ private[compiler] object ConfigUtils {
     def exists = Files.exists(path)
   }
 
+  // WARN copied from io.gatling.core.config.GatlingFiles
   val GatlingHome = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
   def resolvePath(path: Path): Path =
