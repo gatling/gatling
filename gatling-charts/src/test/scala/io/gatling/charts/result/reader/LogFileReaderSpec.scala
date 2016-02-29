@@ -25,7 +25,6 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 class LogFileReaderSpec extends BaseSpec {
 
   val props = new GatlingPropertiesBuilder
-  props.sourcesDirectory("src/test/resources")
   props.resultsDirectory("src/test/resources")
 
   implicit val configuration = GatlingConfiguration.loadForTest(props.build)
