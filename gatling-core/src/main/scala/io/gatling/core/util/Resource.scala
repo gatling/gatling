@@ -53,20 +53,23 @@ object Resource {
       string2path(location.path).ifFile(f => FileResource(f).success)
   }
 
-  private def load(directory: Path, path: String): Validation[Resource] =
+  private def resolveResource(directory: Path, possibleClasspathPackage: String, path: String): Validation[Resource] =
     Location(directory, path) match {
       case ClasspathResource(res)      => res
       case DirectoryChildResource(res) => res
       case AbsoluteFileResource(res)   => res
-      case _                           => s"file $path doesn't exist".failure
+      case _ => Location(directory, possibleClasspathPackage + "/" + path) match {
+        case ClasspathResource(res) => res
+        case _                      => s"file $path doesn't exist".failure
+      }
     }
 
   private case class Location(directory: Path, path: String)
 
   def feeder(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    load(GatlingFiles.dataDirectory, fileName)
+    resolveResource(GatlingFiles.dataDirectory, "data", fileName)
   def body(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    load(GatlingFiles.bodiesDirectory, fileName)
+    resolveResource(GatlingFiles.bodiesDirectory, "bodies", fileName)
 }
 
 sealed trait Resource {
