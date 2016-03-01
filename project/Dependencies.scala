@@ -31,7 +31,7 @@ object Dependencies {
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                  % "3.0"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                         % "0.3.9" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"        % "1.1.1"
-  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"              % "1.1.5"
+  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"              % "1.1.6"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                     % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                 % "2.1.8"
   private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru"  % "1.4.2"
