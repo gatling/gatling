@@ -94,6 +94,8 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       else tx.request.requestName
 
         def dump = {
+          // hack: pre-cache url because it would reset the StringBuilder
+          tx.request.ahcRequest.getUrl
           val buff = stringBuilder
           buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
           buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
