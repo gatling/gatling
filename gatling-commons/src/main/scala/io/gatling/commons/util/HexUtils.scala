@@ -15,17 +15,15 @@
  */
 package io.gatling.commons.util
 
-import java.nio.ByteBuffer
-
 object HexUtils {
 
   def fromHexString(hexString: String): Array[Byte] =
     hexString.grouped(2).map(Integer.parseInt(_, 16).toByte).toArray
 
-  def toHexString(bytes: ByteBuffer): String = {
+  def toHexString(bytes: Array[Byte]): String = {
     val sb = new StringBuilder
-    while (bytes.remaining > 0) {
-      sb.append(f"${bytes.get()}%02X")
+    bytes.foreach { byte =>
+      sb.append(f"$byte%02X")
     }
     sb.toString
   }
