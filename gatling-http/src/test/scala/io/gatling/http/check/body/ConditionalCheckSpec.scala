@@ -88,8 +88,8 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
 
   "checkIfOrElse.true.failed" should "perform the failed then nested check" in {
     val response = mockResponse("""[{"then":"1072920417"},"then":"1072920418","else":"1072920442"]""")
-    val thenSubstringValue = """"then":""""
-    val elseSubstringValue = """"else":""""
+    val thenSubstringValue = """"!then":""""
+    val elseSubstringValue = """"!else":""""
     val thenCheck: HttpCheck = substring(thenSubstringValue).findAll.exists
     val elseCheck: HttpCheck = substring(elseSubstringValue).findAll.exists
     val check: HttpCheck = checkIfOrElse((r: Response, s: Session) => Success(true))(thenCheck)(elseCheck)
@@ -106,8 +106,8 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
 
   "checkIfOrElse.false.failed" should "perform the failed else nested check" in {
     val response = mockResponse("""[{"then":"1072920417"},"then":"1072920418","else":"1072920442"]""")
-    val thenSubstringValue = """"then":""""
-    val elseSubstringValue = """"else":""""
+    val thenSubstringValue = """"!then":""""
+    val elseSubstringValue = """"!else":""""
     val thenCheck: HttpCheck = substring(thenSubstringValue).findAll.exists
     val elseCheck: HttpCheck = substring(elseSubstringValue).findAll.exists
     val check: HttpCheck = checkIfOrElse((r: Response, s: Session) => Success(false))(thenCheck)(elseCheck)
