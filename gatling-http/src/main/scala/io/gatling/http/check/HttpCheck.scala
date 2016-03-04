@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check
 
 import scala.collection.mutable
@@ -29,7 +30,7 @@ import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
  * @param scope the part of the response this check targets
  * @param responseBodyUsageStrategy how this check uses the response body
  */
-case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
+case class HttpCheck(wrapped: Check[Response], scope: Set[HttpCheckScope], responseBodyUsageStrategy: Set[ResponseBodyUsageStrategy])
     extends Check[Response] {
   override def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
     wrapped.check(response, session)

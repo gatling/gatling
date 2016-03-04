@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.response
 
 import java.nio.charset.Charset
@@ -56,7 +57,7 @@ object ResponseBuilder extends StrictLogging {
       case checksumCheck: ChecksumCheck => checksumCheck
     }
 
-    val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
+    val responseBodyUsageStrategies: Set[ResponseBodyUsageStrategy] = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
     val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 

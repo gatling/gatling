@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check
 
 import io.gatling.commons.validation._
@@ -23,6 +24,9 @@ import io.gatling.http.response._
 object HttpCheckBuilders {
 
   private def extender(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): Extender[HttpCheck, Response] =
+    (wrapped: Check[Response]) => HttpCheck(wrapped, Set(target), responseBodyUsageStrategy match { case Some(r) => Set(r) case None => Set() })
+
+  private def extender(target: Set[HttpCheckScope], responseBodyUsageStrategy: Set[ResponseBodyUsageStrategy]): Extender[HttpCheck, Response] =
     (wrapped: Check[Response]) => HttpCheck(wrapped, target, responseBodyUsageStrategy)
 
   val StatusExtender = extender(Status, None)

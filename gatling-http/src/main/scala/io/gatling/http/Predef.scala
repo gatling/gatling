@@ -17,17 +17,25 @@
 package io.gatling.http
 
 import io.gatling.core.check.Check
-import io.gatling.core.check.ConditionalCheck.CheckWrapper
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope
+import io.gatling.core.check.ConditionalCheck.ConditionalCheckWrapper
+import io.gatling.core.check.ConditionalCheck
+import io.gatling.core.check.ConditionalCheck.ConditionalCheck
+import io.gatling.http.check.HttpCheck
 
 object Predef extends HttpDsl {
 
   type Request = org.asynchttpclient.Request
   type Response = io.gatling.http.response.Response
 
-  implicit object HttpCheckWrapper extends CheckWrapper[Response, HttpCheck] {
-    def wrap(check: Check[Response]): HttpCheck = new HttpCheck(check, HttpCheckScope.Body, None)
+  implicit object HttpConditionalCheckWrapper extends ConditionalCheckWrapper[Response, HttpCheck] {
+    def wrap(check: ConditionalCheck[Response, HttpCheck]) = {
+      val elseScope = check.elseCheck match { case Some(c) => c.scope case None => Set.empty }
+      val elseResponseBodyUsageStrategy = check.elseCheck match { case Some(c) => c.responseBodyUsageStrategy case None => Set.empty }
+
+      HttpCheck(check, check.thenCheck.scope ++ elseScope, check.thenCheck.responseBodyUsageStrategy ++ elseResponseBodyUsageStrategy)
+    }
   }
 
 }

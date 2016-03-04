@@ -16,6 +16,8 @@
 
 
 
+
+
 package io.gatling.core.check
 
 import java.util.UUID
@@ -28,29 +30,27 @@ import io.gatling.core.session.Expression
 
 object ConditionalCheck extends LazyLogging {
   
-  implicit def conditionalCheckBuilder2Check[C <: Check[R], R](conditionalCheckBuilder: ConditionalCheckBuilder[R, C]) = conditionalCheckBuilder.build
-  
-  trait CheckWrapper[R, C <: Check[R]] {
-    def wrap(check: Check[R]): C
+  implicit def conditionalCheckBuilder2Check[R, C <: Check[R]](conditionalCheckBuilder: ConditionalCheckBuilder[R, C]): ConditionalCheck[R, C] = conditionalCheckBuilder.build
+
+  trait ConditionalCheckWrapper[R, C <: Check[R]] {
+    def wrap(check: ConditionalCheck[R, C]): C
   }
 
-  def checkIf[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = cw.wrap(new ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck, None))
+  def checkIf[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck, None))
   
-  def checkIfOrElse[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: Check[R])(elseCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = cw.wrap(new ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck, Some(elseCheck)))
+  def checkIfOrElse[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: C)(elseCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck, Some(elseCheck)))
   
-  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = 
-    cw.wrap(new ConditionalCheckBuilder((r: R,s: Session) => condition(r, s), thenCheck, None))
+  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = 
+    cw.wrap(ConditionalCheckBuilder((r: R,s: Session) => condition(r, s), thenCheck, None))
         
-  def checkIfOrElse[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: Check[R])(elseCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = 
-    cw.wrap(new ConditionalCheckBuilder((r: R,s: Session) => condition(r, s), thenCheck, Some(elseCheck)))
+  def checkIfOrElse[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(elseCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = 
+    cw.wrap(ConditionalCheckBuilder((r: R,s: Session) => condition(r, s), thenCheck, Some(elseCheck)))
 
   case class ConditionalCheckBuilder[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C]) {
-    def build: Check[R] = {
-      new ConditionalCheck[R, C](condition, thenCheck, elseCheck)
-    }
+    def build = ConditionalCheck[R, C](condition, thenCheck, elseCheck)
   }
 
-  class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C]) extends Check[R] {
+  case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C]) extends Check[R] {
 
     val checkUuid: String = UUID.randomUUID.toString
     

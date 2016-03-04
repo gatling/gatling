@@ -287,6 +287,6 @@ class HttpCompileTest extends Simulation {
     response.isReceived && response.header(HttpHeaderNames.ContentType).exists { x => x.contains(JSON_CONTENT_TYPE_VALUE) }
   }
 
-  def securedJsonCheck(check: Check[Response]): HttpCheck = ConditionalCheck.checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
+  def securedJsonCheck(check: HttpCheck): HttpCheck = ConditionalCheck.checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
 
 }
