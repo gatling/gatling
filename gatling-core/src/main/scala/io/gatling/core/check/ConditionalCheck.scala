@@ -1,19 +1,34 @@
+/**
+ * Copyright 2011-2016 GatlingCorp (http://gatling.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+
 package io.gatling.core.check
+
+import java.util.UUID
 
 import com.typesafe.scalalogging.LazyLogging
 
-import io.gatling.core.session._
 import io.gatling.commons.validation.Validation
-import io.gatling.commons.validation.Success
-import io.gatling.core.check.extractor.Extractor
-import java.util.UUID
-import io.gatling.core.check.CheckResult
-import io.gatling.core.check.Check
-import io.gatling.core.check.DefaultFindCheckBuilder
-import io.gatling.core.check.{ Check, Extender, Preparer }
-import io.gatling.core.Predef._
+import io.gatling.core.Predef.Session
+import io.gatling.core.session.Expression
 
 object ConditionalCheck extends LazyLogging {
+  
+  implicit def conditionalCheckBuilder2Check[C <: Check[R], R](conditionalCheckBuilder: ConditionalCheckBuilder[R, C]) = conditionalCheckBuilder.build
   
   trait CheckWrapper[R, C <: Check[R]] {
     def wrap(check: Check[R]): C
@@ -24,34 +39,18 @@ object ConditionalCheck extends LazyLogging {
   def checkIfOrElse[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: Check[R])(elseCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = cw.wrap(new ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck, Some(elseCheck)))
   
   def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = 
-    cw.wrap(new ConditionalCheckBuilder(
-        (r: R,s: Session) => condition(r, s)
-        , thenCheck
-        , None))
+    cw.wrap(new ConditionalCheckBuilder((r: R,s: Session) => condition(r, s), thenCheck, None))
         
   def checkIfOrElse[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: Check[R])(elseCheck: Check[R])(implicit cw: CheckWrapper[R, C]): C = 
-    cw.wrap(new ConditionalCheckBuilder(
-        (r: R,s: Session) => condition(r, s)
-        , thenCheck
-        , Some(elseCheck)))
+    cw.wrap(new ConditionalCheckBuilder((r: R,s: Session) => condition(r, s), thenCheck, Some(elseCheck)))
 
-  class DummyExtractor[R] extends Extractor[R, R] {
-    def name = "dummy"
-    def arity = "dummy"
-    def apply(prepared: R): Validation[Option[R]] = { Success(Some(prepared)) }
+  case class ConditionalCheckBuilder[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C]) {
+    def build: Check[R] = {
+      new ConditionalCheck[R, C](condition, thenCheck, elseCheck)
+    }
   }
 
-  def dummyPreparer[R]: Preparer[R, R] = (r: R) => Success(r)
-  def dummyExtractor[R]: Expression[Extractor[R, R]] = new ExpressionSuccessWrapper(new DummyExtractor[R]()).expressionSuccess
-
-  class ConditionalCheckBuilder[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C]) 
-      extends DefaultFindCheckBuilder[Check[R], R, R, R](
-          (wrapped: Check[R]) => new ConditionalCheck[R, C](wrapped, condition, thenCheck, elseCheck), dummyPreparer, dummyExtractor) {
-
-  }
-  
-  class ConditionalCheck[R, C <: Check[R]](wrapped: Check[R], condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C])
-    extends Check[R] {
+  class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C, elseCheck: Option[C]) extends Check[R] {
 
     val checkUuid: String = UUID.randomUUID.toString
     
@@ -60,23 +59,25 @@ object ConditionalCheck extends LazyLogging {
     }
     
     def check(response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] = {
-      val validationResult = condition.apply(response, session).flatMap { c => {
+      val validationResult = condition(response, session).flatMap { c => 
         if (c) {
           logger.trace("Check: [{}] condition evaluate to true: perform nested then check.", checkUuid)
           performNestedCheck(thenCheck, response, session)
         } else {
-          if (elseCheck.isDefined) {
+          elseCheck match {
+          case Some(check) => 
             logger.trace("Check: [{}] condition evaluate to false: perform nested else check.", checkUuid)
             performNestedCheck(elseCheck.get, response, session)
-          } else {
+          case None =>
             logger.trace("Check: [{}] condition is false: do not perform any check.", checkUuid)
             CheckResult.NoopCheckResultSuccess
           }
-        }} 
+        }
       }
 
       validationResult
     }
+
   }
   
 }

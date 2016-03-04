@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
+import io.gatling.http.check.HttpCheck
+import io.gatling.core.check.Check
+import io.gatling.commons.validation.Success
+import io.gatling.core.check.ConditionalCheck
+import io.netty.handler.codec.http.HttpHeaders
 
 class HttpCompileTest extends Simulation {
 
@@ -274,4 +280,13 @@ class HttpCompileTest extends Simulation {
     .exponentialPauses
     .uniformPauses(1.5)
     .uniformPauses(1337 seconds)
+
+  val JSON_CONTENT_TYPE_VALUE: String = "application/json"
+
+  def isJsonResponse(response: Response): Boolean = {
+    response.isReceived && response.header(HttpHeaderNames.ContentType).exists { x => x.contains(JSON_CONTENT_TYPE_VALUE) }
+  }
+
+  def securedJsonCheck(check: Check[Response]): HttpCheck = ConditionalCheck.checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
+
 }

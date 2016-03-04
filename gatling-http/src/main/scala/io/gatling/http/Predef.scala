@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.response.Response
-import io.gatling.http.check.HttpCheckScope
-
-import io.gatling.commons.validation.Success
-
-import io.gatling.core.session._
 import io.gatling.core.check.Check
-import io.gatling.core.check.ConditionalCheck._
+import io.gatling.core.check.ConditionalCheck.CheckWrapper
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckScope
 
 object Predef extends HttpDsl {
 
@@ -33,14 +29,5 @@ object Predef extends HttpDsl {
   implicit object HttpCheckWrapper extends CheckWrapper[Response, HttpCheck] {
     def wrap(check: Check[Response]): HttpCheck = new HttpCheck(check, HttpCheckScope.Body, None)
   }
-
-  val HTTP_CONTENT_TYPE_HEADER_KEY: String = "Content-Type"
-  val JSON_CONTENT_TYPE_VALUE: String = "application/json"
-  
-  def isJsonResponse(response: Response): Boolean = {
-    response.isReceived && response.header(HTTP_CONTENT_TYPE_HEADER_KEY).exists { x => x.contains(JSON_CONTENT_TYPE_VALUE) }
-  }
-
-  def securedJsonCheck(check: Check[Response]): HttpCheck = checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
 
 }
