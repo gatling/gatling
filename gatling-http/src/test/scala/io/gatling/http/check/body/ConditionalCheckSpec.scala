@@ -80,38 +80,42 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
 
   "checkIfOrElse.true.succeed" should "perform the succeed then nested check" in {
     val response = mockResponse("""[{"then":"1072920417"},"then":"1072920418","else":"1072920442"]""")
-    val thenCheck: HttpCheck = substring(""""then":"""").count
-    val elseCheck: HttpCheck = substring(""""else":"""").count
+    val thenSubstringValue = """then"""
+    val elseSubstringValue = """else"""
+    val thenCheck: HttpCheck = substring(thenSubstringValue).count.is(2)
+    val elseCheck: HttpCheck = substring(elseSubstringValue).count.is(1)
     val check: HttpCheck = checkIfOrElse((r: Response, s: Session) => Success(true))(thenCheck)(elseCheck)
     check.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   "checkIfOrElse.true.failed" should "perform the failed then nested check" in {
     val response = mockResponse("""[{"then":"1072920417"},"then":"1072920418","else":"1072920442"]""")
-    val thenSubstringValue = """"!then":""""
-    val elseSubstringValue = """"!else":""""
-    val thenCheck: HttpCheck = substring(thenSubstringValue).findAll.exists
-    val elseCheck: HttpCheck = substring(elseSubstringValue).findAll.exists
+    val thenSubstringValue = """!then"""
+    val elseSubstringValue = """else"""
+    val thenCheck: HttpCheck = substring(thenSubstringValue).count.is(2)
+    val elseCheck: HttpCheck = substring(elseSubstringValue).count.is(1)
     val check: HttpCheck = checkIfOrElse((r: Response, s: Session) => Success(true))(thenCheck)(elseCheck)
-    check.check(response, session).failed shouldBe s"substring($thenSubstringValue).findAll.exists, found nothing"
+    check.check(response, session).failed shouldBe s"substring($thenSubstringValue).count.is(2), but actually found 0"
   }
 
   "checkIfOrElse.false.succeed" should "perform the succeed else nested check" in {
     val response = mockResponse("""[{"then":"1072920417"},"then":"1072920418","else":"1072920442"]""")
-    val thenCheck: HttpCheck = substring(""""then":"""").count
-    val elseCheck: HttpCheck = substring(""""else":"""").count
+    val thenSubstringValue = """then"""
+    val elseSubstringValue = """else"""
+    val thenCheck: HttpCheck = substring(thenSubstringValue).count.is(2)
+    val elseCheck: HttpCheck = substring(elseSubstringValue).count.is(1)
     val check: HttpCheck = checkIfOrElse((r: Response, s: Session) => Success(false))(thenCheck)(elseCheck)
     check.check(response, session).succeeded shouldBe CheckResult(Some(1), None)
   }
 
   "checkIfOrElse.false.failed" should "perform the failed else nested check" in {
     val response = mockResponse("""[{"then":"1072920417"},"then":"1072920418","else":"1072920442"]""")
-    val thenSubstringValue = """"!then":""""
-    val elseSubstringValue = """"!else":""""
-    val thenCheck: HttpCheck = substring(thenSubstringValue).findAll.exists
-    val elseCheck: HttpCheck = substring(elseSubstringValue).findAll.exists
+    val thenSubstringValue = """then"""
+    val elseSubstringValue = """!else"""
+    val thenCheck: HttpCheck = substring(thenSubstringValue).count.is(2)
+    val elseCheck: HttpCheck = substring(elseSubstringValue).count.is(1)
     val check: HttpCheck = checkIfOrElse((r: Response, s: Session) => Success(false))(thenCheck)(elseCheck)
-    check.check(response, session).failed shouldBe s"substring($elseSubstringValue).findAll.exists, found nothing"
+    check.check(response, session).failed shouldBe s"substring($elseSubstringValue).count.is(1), but actually found 0"
   }
 
 }
