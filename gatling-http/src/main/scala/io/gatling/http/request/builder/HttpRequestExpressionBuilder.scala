@@ -126,6 +126,10 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
   // hack because we need the request with the final uri
   override def build: Expression[Request] = {
     val exp = super.build
-    session => exp(session).map(configureCachingHeaders(session))
+    if (httpComponents.httpProtocol.requestPart.cache) {
+      session => exp(session).map(configureCachingHeaders(session))
+    } else {
+      exp
+    }
   }
 }
