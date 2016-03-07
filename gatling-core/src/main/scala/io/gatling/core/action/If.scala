@@ -15,36 +15,33 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
-
-import akka.actor.{ Props, ActorRef }
-
-object If {
-  def props(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, coreComponents: CoreComponents, next: ActorRef) =
-    Props(new If(condition, thenNext, elseNext, coreComponents.statsEngine, next))
-}
+import io.gatling.core.util.NameGen
 
 /**
  * A conditional Action
  *
  * @constructor create an IfAction
  * @param condition the condition that decides whether to execute thenNext or elseNext
- * @param thenNext the chain of actions executed if condition evaluates to true
- * @param elseNext chain of actions executed if condition evaluates to false
+ * @param thenNext the action executed if condition evaluates to true
+ * @param elseNext the action executed if condition evaluates to false
  * @param statsEngine the StatsEngine
- * @param next chain of actions executed if condition evaluates to false and elseNext equals None
+ * @param next the action executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val statsEngine: StatsEngine, val next: ActorRef) extends Interruptable with Failable {
+class If(condition: Expression[Boolean], thenNext: Action, elseNext: Action, val statsEngine: StatsEngine, val next: Action) extends ExitableAction with NameGen {
+
+  override val name: String = genName("if")
 
   /**
    * Evaluates the condition and decides what to do next
    *
    * @param session the session of the virtual user
    */
-  def executeOrFail(session: Session) = condition(session).map { condition =>
-    val n = if (condition) thenNext else elseNext
-    n ! session
+  override def execute(session: Session): Unit = recover(session) {
+    condition(session).map { condition =>
+      val n = if (condition) thenNext else elseNext
+      n ! session
+    }
   }
 }

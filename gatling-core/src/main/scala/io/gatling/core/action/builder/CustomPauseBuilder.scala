@@ -15,12 +15,11 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.Pause
+import io.gatling.core.action.{ Action, Pause }
 import io.gatling.core.pause.Disabled
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
-
-import akka.actor.ActorRef
+import io.gatling.core.util.NameGen
 
 /**
  * Builder for the custom 'pause' action.
@@ -28,11 +27,11 @@ import akka.actor.ActorRef
  * @constructor create a new PauseActionBuilder
  * @param delayGenerator the strategy for computing the duration of the generated pause, in milliseconds
  */
-class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder {
+class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder with NameGen {
 
-  def build(ctx: ScenarioContext, next: ActorRef) =
+  override def build(ctx: ScenarioContext, next: Action): Action =
     ctx.pauseType match {
       case Disabled => next
-      case _        => ctx.system.actorOf(Pause.props(delayGenerator, ctx.coreComponents, next), actorName("customPause"))
+      case _        => new Pause(delayGenerator, ctx.system, ctx.coreComponents.statsEngine, genName("customPause"), next)
     }
 }

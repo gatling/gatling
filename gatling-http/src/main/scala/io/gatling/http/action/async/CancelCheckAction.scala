@@ -15,25 +15,18 @@
  */
 package io.gatling.http.action.async
 
-import scala.reflect.ClassTag
-
 import io.gatling.commons.validation.Validation
+import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.RequestAction
 
-import akka.actor.{ Actor, ActorRef, Props }
-
-abstract class CancelCheckActionCreator[T <: CancelCheckAction: ClassTag] {
-  def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =
-    Props(implicitly[ClassTag[T]].runtimeClass, requestName, sseName, statsEngine, next)
-}
 abstract class CancelCheckAction(
     val requestName: Expression[String],
     actorName:       String,
     statsEngine:     StatsEngine,
-    val next:        ActorRef
-) extends RequestAction(statsEngine) with Actor with AsyncProtocolAction {
+    val next:        Action
+) extends RequestAction(statsEngine) with AsyncProtocolAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for (actor <- fetchActor(actorName, session)) yield actor ! CancelCheck(requestName, next, session)

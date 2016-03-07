@@ -15,19 +15,18 @@
  */
 package io.gatling.http.action.async.ws
 
+import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ SetCheckAction, SetCheckActionCreator }
-import io.gatling.http.check.async.AsyncCheckBuilder
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.async.ReconciliateAction
 
-import akka.actor.ActorRef
+class WsReconciliate(
+    requestName: Expression[String],
+    wsName:      String,
+    statsEngine: StatsEngine,
+    next:        Action
+) extends ReconciliateAction(requestName, wsName, statsEngine, next) with WsAction with NameGen {
+  override val name = genName("wsReconciliate")
+}
 
-object WsSetCheckAction extends SetCheckActionCreator[WsSetCheckAction]
-
-class WsSetCheckAction(
-  requestName:  Expression[String],
-  checkBuilder: AsyncCheckBuilder,
-  wsName:       String,
-  statsEngine:  StatsEngine,
-  next:         ActorRef
-) extends SetCheckAction(requestName, checkBuilder, wsName, statsEngine, next) with WsAction

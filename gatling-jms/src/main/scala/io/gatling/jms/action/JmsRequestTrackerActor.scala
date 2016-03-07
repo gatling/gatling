@@ -22,14 +22,15 @@ import scala.collection.mutable
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation.Failure
-import io.gatling.core.Predef.Session
+import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
+import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.jms._
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.Props
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -40,7 +41,7 @@ case class MessageSent(
   sent:                 Long,
   checks:               List[JmsCheck],
   session:              Session,
-  next:                 ActorRef,
+  next:                 Action,
   title:                String
 )
 
@@ -119,7 +120,7 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
     sent:     Long,
     received: Long,
     status:   Status,
-    next:     ActorRef,
+    next:     Action,
     title:    String,
     message:  Option[String] = None
   ) = {
@@ -137,7 +138,7 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
     received: Long,
     checks:   List[JmsCheck],
     message:  Message,
-    next:     ActorRef,
+    next:     Action,
     title:    String
   ): Unit = {
 

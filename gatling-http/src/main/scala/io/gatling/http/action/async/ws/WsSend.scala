@@ -16,34 +16,22 @@
 package io.gatling.http.action.async.ws
 
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
+import io.gatling.core.action.Action
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.NameGen
 import io.gatling.http.action.RequestAction
 import io.gatling.http.check.async.AsyncCheckBuilder
 
-object WsSendAction {
-  def props(
-    requestName:  Expression[String],
-    wsName:       String,
-    message:      Expression[WsMessage],
-    checkBuilder: Option[AsyncCheckBuilder],
-    statsEngine:  StatsEngine,
-    next:         ActorRef
-  ) =
-    Props(new WsSendAction(requestName, wsName, message, checkBuilder, statsEngine, next))
-}
+class WsSend(
+    val requestName: Expression[String],
+    wsName:          String,
+    message:         Expression[WsMessage],
+    checkBuilder:    Option[AsyncCheckBuilder],
+    statsEngine:     StatsEngine,
+    val next:        Action
+) extends RequestAction(statsEngine) with WsAction with NameGen {
 
-class WsSendAction(
-  val requestName: Expression[String],
-  wsName:          String,
-  message:         Expression[WsMessage],
-  checkBuilder:    Option[AsyncCheckBuilder],
-  statsEngine:     StatsEngine,
-  val next:        ActorRef
-)
-    extends RequestAction(statsEngine)
-    with WsAction {
+  override val name = genName("wsSend")
 
   override def sendRequest(requestName: String, session: Session) =
     for {

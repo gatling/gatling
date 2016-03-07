@@ -18,11 +18,9 @@ package io.gatling.core.action
 import akka.testkit._
 
 import io.gatling.AkkaSpec
-import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.session.el.El
 import io.gatling.core.stats.DataWritersStatsEngine
-import org.mockito.Mockito._
 
 class IfSpec extends AkkaSpec {
 
@@ -35,10 +33,7 @@ class IfSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
 
-    val coreComponents = mock[CoreComponents]
-    when(coreComponents.statsEngine).thenReturn(statsEngine)
-
-    val ifAction = TestActorRef(If.props(condition, thenActorProbe.ref, elseActorProbe.ref, coreComponents, self))
+    val ifAction = new If(condition, new ActorDelegatingAction("ifChain", thenActorProbe.ref), new ActorDelegatingAction("elseChain", elseActorProbe.ref), statsEngine, new ActorDelegatingAction("next", self))
 
     val sessionWithTrueCondition = baseSession.set("condition", true)
     ifAction ! sessionWithTrueCondition

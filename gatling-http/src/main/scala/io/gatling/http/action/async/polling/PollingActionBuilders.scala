@@ -17,12 +17,11 @@ package io.gatling.http.action.async.polling
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.core.action.Action
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
-
-import akka.actor.ActorRef
 
 class PollingStartBuilder(
     pollerName:     String,
@@ -30,16 +29,16 @@ class PollingStartBuilder(
     requestBuilder: HttpRequestBuilder
 ) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef) = {
+  override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val requestDef = requestBuilder.build(coreComponents, httpComponents, throttled)
-    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, next), actorName("pollingStart"))
+    new PollingStart(pollerName, period, requestDef, system, coreComponents.statsEngine, next)
   }
 }
 
 class PollingStopBuilder(pollerName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(PollingStopAction.props(pollerName, ctx.coreComponents, next), actorName("pollingStop"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new PollingStop(pollerName, ctx.coreComponents.statsEngine, next)
 }

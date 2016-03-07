@@ -215,8 +215,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       session = this.session,
       request = resource,
       responseBuilderFactory = responseBuilderFactory,
-      next = self,
-      root = false
+      resourceFetcher = Some(self)
     )
 
     HttpTx.start(resourceTx)

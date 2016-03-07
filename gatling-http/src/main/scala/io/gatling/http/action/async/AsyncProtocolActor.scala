@@ -18,14 +18,13 @@ package io.gatling.http.action.async
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.TimeHelper._
+import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.check.async.AsyncCheck
-
-import akka.actor.ActorRef
 
 abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
 
@@ -42,7 +41,7 @@ abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
   }
 
   protected def setCheck(tx: AsyncTx, requestName: String, check: AsyncCheck,
-                         next: ActorRef, session: Session, nextState: NextTxBasedBehaviour): Unit = {
+                         next: Action, session: Session, nextState: NextTxBasedBehaviour): Unit = {
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 
     // schedule timeout
@@ -108,7 +107,7 @@ abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
     }
   }
 
-  protected def reconciliate(tx: AsyncTx, next: ActorRef, session: Session, nextState: NextTxBasedBehaviour): Unit = {
+  protected def reconciliate(tx: AsyncTx, next: Action, session: Session, nextState: NextTxBasedBehaviour): Unit = {
     val newTx = tx.applyUpdates(session)
     context.become(nextState(newTx))
     next ! newTx.session

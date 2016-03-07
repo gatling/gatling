@@ -15,17 +15,16 @@
  */
 package io.gatling.http.action.sync
 
-import io.gatling.core.action.SessionHook
+import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.structure.ScenarioContext
+import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 
-import akka.actor.ActorRef
+class FlushCacheBuilder extends HttpActionBuilder with NameGen {
 
-class FlushCacheBuilder extends HttpActionBuilder {
-
-  def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+  def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val expression = lookUpHttpComponents(protocolComponentsRegistry).httpCaches.FlushCache
-    system.actorOf(SessionHook.props(expression, coreComponents, next, interruptable = true), actorName("flushCache"))
+    new SessionHook(expression, genName("flushCache"), coreComponents.statsEngine, next) with ExitableAction
   }
 }

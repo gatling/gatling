@@ -15,19 +15,15 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.session.Session
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.NameGen
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.ActorRef
 
-object Feed {
-  def props(singleton: ActorRef, number: Expression[Int], coreComponents: CoreComponents, next: ActorRef) =
-    Props(new Feed(singleton, number, coreComponents.controller, coreComponents.statsEngine, next))
-}
+class Feed(singleton: ActorRef, number: Expression[Int], controller: ActorRef, val statsEngine: StatsEngine, val next: Action) extends ExitableAction with NameGen {
 
-class Feed(singleton: ActorRef, number: Expression[Int], controller: ActorRef, val statsEngine: StatsEngine, val next: ActorRef) extends Action with Interruptable {
+  override val name: String = genName("feed")
 
-  def execute(session: Session): Unit = singleton ! FeedMessage(session, number, controller, next)
+  override def execute(session: Session): Unit = singleton ! FeedMessage(session, number, controller, next)
 }

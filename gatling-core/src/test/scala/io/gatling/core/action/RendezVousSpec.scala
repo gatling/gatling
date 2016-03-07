@@ -15,14 +15,14 @@
  */
 package io.gatling.core.action
 
-import akka.testkit._
 import io.gatling.AkkaSpec
 import io.gatling.core.session.Session
+import io.gatling.core.stats.StatsEngine
 
 class RendezVousSpec extends AkkaSpec {
 
   "RendezVous" should "block the specified number of sessions until they have all reached it" in {
-    val rendezVous = TestActorRef(RendezVous.props(3, self))
+    val rendezVous = RendezVous(3, system, mock[StatsEngine], new ActorDelegatingAction("next", self))
 
     val session = Session("scenario", 0)
 

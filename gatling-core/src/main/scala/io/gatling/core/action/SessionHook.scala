@@ -15,34 +15,26 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.CoreComponents
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
-
-import akka.actor.{ Props, ActorRef }
-
-object SessionHook {
-  def props(sessionFunction: Expression[Session], coreComponents: CoreComponents, next: ActorRef, interruptable: Boolean) =
-    if (interruptable)
-      Props(new SessionHook(sessionFunction, coreComponents.statsEngine, next) with Interruptable)
-    else
-      Props(new SessionHook(sessionFunction, coreComponents.statsEngine, next))
-}
 
 /**
  * Hook for interacting with the Session
  *
  * @constructor Constructs a SimpleAction
  * @param sessionFunction a function for manipulating the Session
+ * @param name the Action name
  * @param statsEngine the StatsEngine
  * @param next the action to be executed after this one
  */
-class SessionHook(sessionFunction: Expression[Session], val statsEngine: StatsEngine, val next: ActorRef) extends Chainable with Failable {
+class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val next: Action) extends ChainableAction {
 
   /**
    * Applies the function to the Session
    *
    * @param session the session of the virtual user
    */
-  def executeOrFail(session: Session) = sessionFunction(session).map(newSession => next ! newSession)
+  override def execute(session: Session) = recover(session) {
+    sessionFunction(session).map(newSession => next ! newSession)
+  }
 }

@@ -23,32 +23,39 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
-import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.action._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
 import io.gatling.jms.client.JmsClient
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
-import akka.actor.{ ActorRef, Props }
-
-object JmsReqReplyAction {
-  val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
-
-  def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new JmsReqReplyAction(attributes, protocol, tracker, statsEngine, next))
-}
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
 /**
  * Core JMS Action to handle Request-Reply semantics
- * <p>
+ *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: ActorRef)
-    extends Interruptable with Failable {
+object JmsReqReply extends NameGen {
 
-  import JmsReqReplyAction._
+  def apply(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, statsEngine: StatsEngine, next: Action) = {
+    val actor = system.actorOf(JmsReqReplyActor.props(attributes, protocol, tracker, statsEngine, next))
+    new ExitableActorDelegatingAction(genName("jmsReqReply"), statsEngine, next, actor)
+  }
+}
+
+object JmsReqReplyActor {
+  val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+
+  def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: Action) =
+    Props(new JmsReqReplyActor(attributes, protocol, tracker, statsEngine, next))
+}
+
+class JmsReqReplyActor(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
+    extends ValidatedActionActor {
 
   // Create a client to refer to
   val client = JmsClient(protocol, attributes.destination, attributes.replyDestination)
@@ -70,7 +77,7 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
               tracker ! MessageReceived(replyDestinationName, matchId, nowMillis, msg)
             case _ =>
               tracker ! BlockingReceiveReturnedNull
-              throw BlockingReceiveReturnedNullException
+              throw JmsReqReplyActor.BlockingReceiveReturnedNullException
           }
         }
       } catch {

@@ -13,54 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.ws
+package io.gatling.http.action.async.sse
 
 import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.commons.validation._
-import io.gatling.core.action.Interruptable
+import io.gatling.commons.validation.{ Failure, Success }
+import io.gatling.core.action.{ Action, ChainableAction, ExitableAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.protocol.HttpComponents
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.ActorSystem
 import org.asynchttpclient.Request
 
-object WsOpenAction {
-  def props(
-    requestName:    Expression[String],
-    wsName:         String,
-    request:        Expression[Request],
-    checkBuilder:   Option[AsyncCheckBuilder],
-    statsEngine:    StatsEngine,
-    httpComponents: HttpComponents,
-    next:           ActorRef
-  ) =
-    Props(new WsOpenAction(requestName, wsName, request, checkBuilder, statsEngine, httpComponents, next))
-}
-
-class WsOpenAction(
+class SseOpen(
     requestName:     Expression[String],
-    wsName:          String,
+    sseName:         String,
     request:         Expression[Request],
     checkBuilder:    Option[AsyncCheckBuilder],
-    val statsEngine: StatsEngine,
     httpComponents:  HttpComponents,
-    val next:        ActorRef
-) extends Interruptable with WsAction {
+    system:          ActorSystem,
+    val statsEngine: StatsEngine,
+    val next:        Action
+) extends ChainableAction with ExitableAction with SseAction with NameGen {
 
-  def execute(session: Session): Unit = {
+  override val name = genName("sseOpen")
+
+  override def execute(session: Session): Unit = {
 
       def open(tx: AsyncTx): Unit = {
-        logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-        val wsActor = context.actorOf(WsActor.props(wsName, statsEngine, httpComponents.httpEngine), actorName("wsActor"))
-        WsTx.start(tx, wsActor, httpComponents.httpEngine)
+        logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
+        val sseActor = system.actorOf(SseActor.props(sseName, statsEngine), genName("sseActor"))
+        SseTx.start(tx, sseActor, httpComponents.httpEngine)
       }
 
-    fetchActor(wsName, session) match {
+    fetchActor(sseName, session) match {
       case _: Success[_] =>
-        Failure(s"Unable to create a new WebSocket with name $wsName: Already exists")
+        Failure(s"Unable to create a new SSE with name $sseName: Already exists")
       case _ =>
         for {
           requestName <- requestName(session)

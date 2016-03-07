@@ -17,20 +17,15 @@ package io.gatling.core.action
 
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
 
-import akka.actor.{ Props, ActorRef }
+class ExitHereIfFailed(exit: Action, statsEngine: StatsEngine, val next: Action) extends Action with ChainableAction with NameGen {
 
-object ExitHereIfFailed {
-  def props(coreComponents: CoreComponents, next: ActorRef) =
-    Props(new ExitHereIfFailed(coreComponents.exit, coreComponents.statsEngine, next))
-}
+  override val name: String = genName("exitHereIfFailed")
 
-class ExitHereIfFailed(exit: ActorRef, statsEngine: StatsEngine, val next: ActorRef) extends Chainable {
-
-  def execute(session: Session): Unit = {
+  override def execute(session: Session): Unit = {
 
     val nextStep = session.status match {
       case KO =>
@@ -46,6 +41,6 @@ class ExitHereIfFailed(exit: ActorRef, statsEngine: StatsEngine, val next: Actor
       case _ => next
     }
 
-    nextStep ! session
+    nextStep.execute(session)
   }
 }

@@ -17,7 +17,7 @@ package io.gatling.http.request.builder.ws
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Expression
-import io.gatling.http.action.async.ws.WsOpenActionBuilder
+import io.gatling.http.action.async.ws.WsOpenBuilder
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
@@ -25,8 +25,8 @@ import org.asynchttpclient.Request
 
 object WsOpenRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder): WsOpenActionBuilder =
-    new WsOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
+  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder): WsOpenBuilder =
+    new WsOpenBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
 }
 
 case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String) extends RequestBuilder[WsOpenRequestBuilder] {

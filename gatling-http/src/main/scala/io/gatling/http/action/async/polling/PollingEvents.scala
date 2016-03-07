@@ -15,10 +15,10 @@
  */
 package io.gatling.http.action.async.polling
 
-import akka.actor.ActorRef
+import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 
 private[polling] sealed trait PollingEvent
 private[polling] case class StartPolling(session: Session) extends PollingEvent
 private[polling] case object Poll extends PollingEvent
-private[polling] case class StopPolling(next: ActorRef, session: Session) extends PollingEvent
+private[polling] case class StopPolling(next: Action, session: Session) extends PollingEvent

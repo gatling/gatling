@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.sse
+package io.gatling.core.util
 
-import io.gatling.core.session.Expression
-import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ CloseAction, CloseActionCreator }
+import java.util.concurrent.atomic.AtomicLong
 
-import akka.actor.ActorRef
+object NameGen {
+  val IdGen = new AtomicLong
+}
 
-object SseCloseAction extends CloseActionCreator[SseCloseAction]
+trait NameGen {
+  import NameGen._
 
-class SseCloseAction(
-  requestName: Expression[String],
-  sseName:     String,
-  statsEngine: StatsEngine,
-  next:        ActorRef
-) extends CloseAction(requestName, sseName, statsEngine, next) with SseAction
+  def genName(base: String) = base + "-" + IdGen.incrementAndGet
+}

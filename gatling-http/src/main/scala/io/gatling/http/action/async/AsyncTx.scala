@@ -19,13 +19,13 @@ import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.http.check.async.AsyncCheck
 import io.gatling.http.protocol.HttpProtocol
+import io.gatling.core.action.Action
 
-import akka.actor.ActorRef
 import org.asynchttpclient.Request
 
 case class AsyncTx(
     session:               Session,
-    next:                  ActorRef,
+    next:                  Action,
     requestName:           String,
     request:               Request,
     protocol:              HttpProtocol,

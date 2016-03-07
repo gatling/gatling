@@ -17,13 +17,15 @@ package io.gatling.http.ahc
 
 import io.gatling.BaseSpec
 import io.gatling.core.CoreComponents
+import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocol, HttpProtocolRequestPart }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
+import akka.actor.ActorRef
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.mockito.Mockito._
@@ -63,8 +65,8 @@ class HttpTxSpec extends BaseSpec {
         config = config
       ),
       responseBuilderFactory = null,
-      root = root,
-      next = null,
+      next = mock[Action],
+      resourceFetcher = if (root) None else Some(mock[ActorRef]),
       redirectCount = 0
     )
 

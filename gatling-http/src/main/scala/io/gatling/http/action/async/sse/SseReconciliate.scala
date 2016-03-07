@@ -15,17 +15,17 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ CancelCheckAction, CancelCheckActionCreator }
-
-import akka.actor.ActorRef
+import io.gatling.core.action.Action
 import io.gatling.core.session._
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.async.ReconciliateAction
 
-object SseCancelCheckAction extends CancelCheckActionCreator[SseCancelCheckAction]
-
-class SseCancelCheckAction(
-  requestName: Expression[String],
-  sseName:     String,
-  statsEngine: StatsEngine,
-  next:        ActorRef
-) extends CancelCheckAction(requestName, sseName, statsEngine, next) with SseAction
+class SseReconciliate(
+    requestName: Expression[String],
+    sseName:     String,
+    statsEngine: StatsEngine,
+    next:        Action
+) extends ReconciliateAction(requestName, sseName, statsEngine, next) with SseAction with NameGen {
+  override val name = genName("sseReconciliate")
+}

@@ -15,19 +15,20 @@
  */
 package io.gatling.http.action.async.sse
 
+import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ SetCheckAction, SetCheckActionCreator }
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.async.SetCheckAction
 import io.gatling.http.check.async.AsyncCheckBuilder
 
-import akka.actor.ActorRef
+class SseSetCheck(
+    requestName:  Expression[String],
+    checkBuilder: AsyncCheckBuilder,
+    sseName:      String,
+    statsEngine:  StatsEngine,
+    next:         Action
+) extends SetCheckAction(requestName, checkBuilder, sseName, statsEngine, next) with SseAction with NameGen {
 
-object SseSetCheckAction extends SetCheckActionCreator[SseSetCheckAction]
-
-class SseSetCheckAction(
-  requestName:  Expression[String],
-  checkBuilder: AsyncCheckBuilder,
-  sseName:      String,
-  statsEngine:  StatsEngine,
-  next:         ActorRef
-) extends SetCheckAction(requestName, checkBuilder, sseName, statsEngine, next) with SseAction
+  override val name = genName("sseSetCheck")
+}

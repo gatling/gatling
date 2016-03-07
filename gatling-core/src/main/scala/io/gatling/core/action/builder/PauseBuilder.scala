@@ -17,12 +17,11 @@ package io.gatling.core.action.builder
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.core.action.Pause
-import io.gatling.core.pause.{ PauseType, Disabled }
+import io.gatling.core.action.{ Action, Pause }
+import io.gatling.core.pause.{ Disabled, PauseType }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
-
-import akka.actor.ActorRef
+import io.gatling.core.util.NameGen
 
 /**
  * Builder for the 'pause' action.
@@ -31,17 +30,13 @@ import akka.actor.ActorRef
  * @param duration mean duration of the generated pause
  * @param force if the global pause type has to be overridden
  */
-class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder {
+class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder with NameGen {
 
-  def build(ctx: ScenarioContext, next: ActorRef) = {
-
-    import ctx._
-
+  override def build(ctx: ScenarioContext, next: Action): Action =
     force.getOrElse(ctx.pauseType) match {
       case Disabled => next
       case pauseType =>
         val generator = pauseType.generator(duration)
-        system.actorOf(Pause.props(generator, coreComponents, next), actorName("pause"))
+        new Pause(generator, ctx.system, ctx.coreComponents.statsEngine, genName("pause"), next)
     }
-  }
 }

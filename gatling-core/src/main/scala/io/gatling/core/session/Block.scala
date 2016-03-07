@@ -18,8 +18,8 @@ package io.gatling.core.session
 import io.gatling.commons.stats.{ OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
+import io.gatling.core.action.Action
 
-import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging
 
 sealed trait Block
@@ -31,7 +31,7 @@ sealed trait CounterBlock extends Block {
 object LoopBlock extends LazyLogging {
 
   def unapply(block: Block): Option[String] = block match {
-    case ExitASAPLoopBlock(counterName, _, _) => Some(counterName)
+    case ExitAsapLoopBlock(counterName, _, _) => Some(counterName)
     case ExitOnCompleteLoopBlock(counterName) => Some(counterName)
     case _                                    => None
   }
@@ -46,8 +46,8 @@ object LoopBlock extends LazyLogging {
 
 case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
 
-case class ExitASAPLoopBlock(counterName: String, condition: Expression[Boolean], loopActor: ActorRef) extends CounterBlock
+case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], loopAction: Action) extends CounterBlock
 
-case class TryMaxBlock(counterName: String, tryMaxActor: ActorRef, status: Status = OK) extends CounterBlock
+case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status = OK) extends CounterBlock
 
 case class GroupBlock(hierarchy: List[String], startTimestamp: Long = nowMillis, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block

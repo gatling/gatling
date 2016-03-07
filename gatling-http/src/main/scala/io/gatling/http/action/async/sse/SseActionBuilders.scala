@@ -15,51 +15,50 @@
  */
 package io.gatling.http.action.async.sse
 
+import io.gatling.core.action.Action
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.sse.SseOpenRequestBuilder
 
-import akka.actor.ActorRef
-
-class SseOpenActionBuilder(
+class SseOpenBuilder(
     requestName:    Expression[String],
     sseName:        String,
     requestBuilder: SseOpenRequestBuilder,
     checkBuilder:   Option[AsyncCheckBuilder] = None
 ) extends HttpActionBuilder {
 
-  def check(checkBuilder: AsyncCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new SseOpenBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 
-  override def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+  override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
-    system.actorOf(SseOpenAction.props(requestName, sseName, request, checkBuilder, coreComponents.statsEngine, httpComponents, next), actorName("sseOpen"))
+    new SseOpen(requestName, sseName, request, checkBuilder, httpComponents, system, coreComponents.statsEngine, next)
   }
 }
 
-class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String) extends HttpActionBuilder {
+class SseSetCheckBuilder(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String) extends HttpActionBuilder {
 
-  def build(ctx: ScenarioContext, next: ActorRef): ActorRef =
-    ctx.system.actorOf(SseSetCheckAction.props(requestName, checkBuilder, sseName, ctx.coreComponents.statsEngine, next), actorName("sseSetCheck"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new SseSetCheck(requestName, checkBuilder, sseName, ctx.coreComponents.statsEngine, next)
 }
 
-class SseCancelCheckActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseCancelCheckBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
-  def build(ctx: ScenarioContext, next: ActorRef): ActorRef =
-    ctx.system.actorOf(SseCancelCheckAction.props(requestName, sseName, ctx.coreComponents.statsEngine, next), actorName("sseCancelCheck"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new SseCancelCheck(requestName, sseName, ctx.coreComponents.statsEngine, next)
 }
 
-class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseReconciliateBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef): ActorRef =
-    ctx.system.actorOf(SseReconciliateAction.props(requestName, sseName, ctx.coreComponents.statsEngine, next), actorName("sseReconciliate"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new SseReconciliate(requestName, sseName, ctx.coreComponents.statsEngine, next)
 }
 
-class SseCloseActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseCloseBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef): ActorRef =
-    ctx.system.actorOf(SseCloseAction.props(requestName, sseName, ctx.coreComponents.statsEngine, next), actorName("sseClose"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, next)
 }

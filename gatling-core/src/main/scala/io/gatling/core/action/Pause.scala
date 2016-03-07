@@ -18,25 +18,22 @@ package io.gatling.core.action
 import scala.concurrent.duration.DurationLong
 
 import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.{ Props, ActorRef }
-
-object Pause {
-  def props(delayGenerator: Expression[Long], coreComponents: CoreComponents, next: ActorRef) =
-    Props(new Pause(delayGenerator, coreComponents.statsEngine, next))
-}
+import akka.actor.ActorSystem
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
  *
  * @param pauseDuration a function that can be used to generate a delay for the pause action
+ * @param system the ActorSystem
  * @param statsEngine the StatsEngine
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(pauseDuration: Expression[Long], val statsEngine: StatsEngine, val next: ActorRef) extends Interruptable with Failable {
+class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngine: StatsEngine, val name: String, val next: Action) extends ExitableAction {
+
+  import system._
 
   /**
    * Generates a duration if required or use the one given and defer
@@ -44,7 +41,7 @@ class Pause(pauseDuration: Expression[Long], val statsEngine: StatsEngine, val n
    *
    * @param session the session of the virtual user
    */
-  def executeOrFail(session: Session) = {
+  override def execute(session: Session): Unit = recover(session) {
 
       def schedule(durationInMillis: Long) = {
         val drift = session.drift

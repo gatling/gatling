@@ -34,8 +34,8 @@ object SseOpenRequestBuilder {
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
-  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder): SseOpenActionBuilder =
-    new SseOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
+  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder): SseOpenBuilder =
+    new SseOpenBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
 
 case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: String)

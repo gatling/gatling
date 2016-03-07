@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.ws
+package io.gatling.http.action.async.sse
 
-import io.gatling.core.session._
+import io.gatling.core.action.Action
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ ReconciliateAction, ReconciliateActionCreator }
+import io.gatling.core.session._
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.async.CancelCheckAction
 
-import akka.actor.ActorRef
+class SseCancelCheck(
+    requestName: Expression[String],
+    sseName:     String,
+    statsEngine: StatsEngine,
+    next:        Action
+) extends CancelCheckAction(requestName, sseName, statsEngine, next) with SseAction with NameGen {
 
-object WsReconciliateAction extends ReconciliateActionCreator[WsReconciliateAction]
-
-class WsReconciliateAction(
-  requestName: Expression[String],
-  wsName:      String,
-  statsEngine: StatsEngine,
-  next:        ActorRef
-) extends ReconciliateAction(requestName, wsName, statsEngine, next) with WsAction
+  override val name = genName("sseCancelCheck")
+}

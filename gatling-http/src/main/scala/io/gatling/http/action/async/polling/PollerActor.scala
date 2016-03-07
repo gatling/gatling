@@ -41,13 +41,12 @@ object PollerActor {
 }
 
 class PollerActor(
-  pollerName:             String,
-  period:                 FiniteDuration,
-  requestDef:             HttpRequestDef,
-  responseBuilderFactory: ResponseBuilderFactory,
-  statsEngine:            StatsEngine
-)
-    extends PollerFSM {
+    pollerName:             String,
+    period:                 FiniteDuration,
+    requestDef:             HttpRequestDef,
+    responseBuilderFactory: ResponseBuilderFactory,
+    statsEngine:            StatsEngine
+) extends PollerFSM {
 
   import PollerActor.PollTimerName
 
@@ -72,7 +71,8 @@ class PollerActor(
           errorMessage
         }
       } yield {
-        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, self, root = false)
+        // FIXME BROKEN
+        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, null, Some(self))
         HttpTx.start(nonBlockingTx)
       }
 

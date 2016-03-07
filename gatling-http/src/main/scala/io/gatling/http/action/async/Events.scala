@@ -15,10 +15,9 @@
  */
 package io.gatling.http.action.async
 
+import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.async.AsyncCheck
-
-import akka.actor.ActorRef
 
 trait AsyncEvent
 case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends AsyncEvent
@@ -26,11 +25,11 @@ case class CheckTimeout(check: AsyncCheck) extends AsyncEvent
 
 trait UserAction {
   def requestName: String
-  def next: ActorRef
+  def next: Action
   def session: Session
 }
 
-case class SetCheck(requestName: String, check: AsyncCheck, next: ActorRef, session: Session) extends UserAction
-case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends UserAction
-case class Close(requestName: String, next: ActorRef, session: Session) extends UserAction
-case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends UserAction
+case class SetCheck(requestName: String, check: AsyncCheck, next: Action, session: Session) extends UserAction
+case class CancelCheck(requestName: String, next: Action, session: Session) extends UserAction
+case class Close(requestName: String, next: Action, session: Session) extends UserAction
+case class Reconciliate(requestName: String, next: Action, session: Session) extends UserAction

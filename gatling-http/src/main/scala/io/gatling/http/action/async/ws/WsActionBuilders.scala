@@ -20,60 +20,59 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
-
 import akka.actor.ActorRef
+import io.gatling.core.action.Action
 
-class WsOpenActionBuilder(
-  requestName:    Expression[String],
-  wsName:         String,
-  requestBuilder: WsOpenRequestBuilder,
-  checkBuilder:   Option[AsyncCheckBuilder] = None
-)
-    extends HttpActionBuilder {
+class WsOpenBuilder(
+    requestName:    Expression[String],
+    wsName:         String,
+    requestBuilder: WsOpenRequestBuilder,
+    checkBuilder:   Option[AsyncCheckBuilder] = None
+) extends HttpActionBuilder {
 
-  def check(checkBuilder: AsyncCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new WsOpenBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
 
-  override def build(ctx: ScenarioContext, next: ActorRef) = {
+  override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
-    system.actorOf(WsOpenAction.props(requestName, wsName, request, checkBuilder, coreComponents.statsEngine, httpComponents, next), actorName("wsOpen"))
+    new WsOpen(requestName, wsName, request, checkBuilder, httpComponents, system, coreComponents.statsEngine, next)
   }
 }
 
-class WsSendActionBuilder(
+class WsSendBuilder(
     requestName:  Expression[String],
     wsName:       String,
     message:      Expression[WsMessage],
     checkBuilder: Option[AsyncCheckBuilder] = None
 ) extends HttpActionBuilder {
 
-  def check(checkBuilder: AsyncCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new WsSendBuilder(requestName, wsName, message, Some(checkBuilder))
 
-  override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(WsSendAction.props(requestName, wsName, message, checkBuilder, ctx.coreComponents.statsEngine, next), actorName("wsSend"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsSend(requestName, wsName, message, checkBuilder, ctx.coreComponents.statsEngine, next)
 }
 
-class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, wsName: String) extends HttpActionBuilder {
+class WsSetCheckBuilder(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, wsName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(WsSetCheckAction.props(requestName, checkBuilder, wsName, ctx.coreComponents.statsEngine, next), actorName("wsSetCheck"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsSetCheck(requestName, checkBuilder, wsName, ctx.coreComponents.statsEngine, next)
 }
 
-class WsCancelCheckActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsCancelCheckBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(WsCancelCheckAction.props(requestName, wsName, ctx.coreComponents.statsEngine, next), actorName("wsCancelCheck"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsCancelCheck(requestName, wsName, ctx.coreComponents.statsEngine, next)
 }
 
-class WsReconciliateActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsReconciliateBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(WsReconciliateAction.props(requestName, wsName, ctx.coreComponents.statsEngine, next), actorName("wsReconciliate"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsReconciliate(requestName, wsName, ctx.coreComponents.statsEngine, next)
 }
 
-class WsCloseActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsCloseBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: ActorRef) =
-    ctx.system.actorOf(WsCloseAction.props(requestName, wsName, ctx.coreComponents.statsEngine, next), actorName("wsClose"))
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsClose(requestName, wsName, ctx.coreComponents.statsEngine, next)
 }

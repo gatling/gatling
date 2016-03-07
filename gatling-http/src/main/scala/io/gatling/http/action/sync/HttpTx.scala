@@ -17,19 +17,20 @@ package io.gatling.http.action.sync
 
 import io.gatling.commons.stats.OK
 import io.gatling.commons.util.TimeHelper._
-import io.gatling.core.akka.ActorNames
+import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.{ HttpEngine, AsyncHandler }
-import io.gatling.http.cache.{ HttpCaches, ContentCacheEntry }
+import io.gatling.core.util.NameGen
+import io.gatling.http.ahc.{ AsyncHandler, HttpEngine }
+import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
 
-import akka.actor.{ ActorContext, ActorRef, Props }
+import akka.actor.{ ActorRef, ActorRefFactory, Props }
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.{ AsyncHttpClient, Request }
 
-object HttpTx extends ActorNames with StrictLogging {
+object HttpTx extends NameGen with StrictLogging {
 
   def silent(request: HttpRequest, root: Boolean): Boolean = {
 
@@ -48,7 +49,7 @@ object HttpTx extends ActorNames with StrictLogging {
     }
   }
 
-  private def startWithCache(origTx: HttpTx, ctx: ActorContext, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
+  private def startWithCache(origTx: HttpTx, actorRefFactory: ActorRefFactory, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
     val ahcRequest = tx.request.ahcRequest
     val uri = ahcRequest.getUri
@@ -66,14 +67,14 @@ object HttpTx extends ActorNames with StrictLogging {
         httpEngine.resourceFetcherActorForCachedPage(uri, tx) match {
           case Some(resourceFetcherActor) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
-            ctx.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
+            actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
-            if (tx.root)
-              tx.next ! tx.session
-            else
-              tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
+            tx.resourceFetcher match {
+              case None                  => tx.next ! tx.session
+              case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
+            }
         }
     }
   }
@@ -83,11 +84,11 @@ object HttpTx extends ActorNames with StrictLogging {
     client.executeRequest(ahcRequest, handler)
   }
 
-  def start(origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
+  def start(origTx: HttpTx)(implicit actorRefFactory: ActorRefFactory): Unit = {
 
     import origTx.request.config.httpComponents._
 
-    startWithCache(origTx, ctx, httpEngine, httpCaches) { tx =>
+    startWithCache(origTx, actorRefFactory, httpEngine, httpCaches) { tx =>
 
       logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
@@ -114,11 +115,10 @@ case class HttpTx(
     session:                Session,
     request:                HttpRequest,
     responseBuilderFactory: ResponseBuilderFactory,
-    next:                   ActorRef,
-    root:                   Boolean                = true,
+    next:                   Action,
+    resourceFetcher:        Option[ActorRef]       = None,
     redirectCount:          Int                    = 0,
     update:                 Session => Session     = Session.Identity
 ) {
-
-  val silent: Boolean = HttpTx.silent(request, root)
+  val silent: Boolean = HttpTx.silent(request, resourceFetcher.isEmpty)
 }

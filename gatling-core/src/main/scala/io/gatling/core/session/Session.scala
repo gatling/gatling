@@ -25,8 +25,8 @@ import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.session.el.ElMessages
+import io.gatling.core.action.Action
 
-import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging
 
 /**
@@ -135,8 +135,8 @@ case class Session(
     gh(blockStack)
   }
 
-  private[gatling] def enterTryMax(counterName: String, loopActor: ActorRef) =
-    copy(blockStack = TryMaxBlock(counterName, loopActor) :: blockStack).initCounter(counterName)
+  private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
+    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName)
 
   private[gatling] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
@@ -184,11 +184,11 @@ case class Session(
 
   def markAsFailed: Session = updateStatus(KO)
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopActor: ActorRef, exitASAP: Boolean): Session = {
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopAction: Action, exitASAP: Boolean): Session = {
 
     val newBlock =
       if (exitASAP)
-        ExitASAPLoopBlock(counterName, condition, loopActor)
+        ExitAsapLoopBlock(counterName, condition, loopAction)
       else
         ExitOnCompleteLoopBlock(counterName)
 

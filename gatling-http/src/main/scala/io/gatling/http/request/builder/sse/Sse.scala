@@ -27,8 +27,8 @@ class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)
 
   def sseName(sseName: String) = new Sse(requestName, sseName)
   def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)
-  def check(checkBuilder: AsyncCheckBuilder) = new SseSetCheckActionBuilder(requestName, checkBuilder, sseName)
-  def cancelCheck = new SseCancelCheckActionBuilder(requestName, sseName)
-  def reconciliate() = new SseReconciliateActionBuilder(requestName, sseName)
-  def close() = new SseCloseActionBuilder(requestName, sseName)
+  def check(checkBuilder: AsyncCheckBuilder) = new SseSetCheckBuilder(requestName, checkBuilder, sseName)
+  def cancelCheck = new SseCancelCheckBuilder(requestName, sseName)
+  def reconciliate() = new SseReconciliateBuilder(requestName, sseName)
+  def close() = new SseCloseBuilder(requestName, sseName)
 }

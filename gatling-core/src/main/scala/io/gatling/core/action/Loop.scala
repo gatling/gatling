@@ -15,17 +15,8 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.CoreComponents
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.session.{ LoopBlock, Expression, Session }
+import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
-
-object Loop {
-  def props(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, coreComponents: CoreComponents, next: ActorRef) =
-    Props(new Loop(continueCondition, counterName, exitASAP, coreComponents.statsEngine, next))
-}
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -36,40 +27,25 @@ object Loop {
  * @param statsEngine the StatsEngine
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, statsEngine: StatsEngine, next: ActorRef) extends BaseActor {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, statsEngine: StatsEngine, val name: String, next: Action) extends Action {
 
-  def initialized(innerLoop: ActorRef): Receive =
-    Interruptable.interrupt(statsEngine) orElse { case m => innerLoop forward m }
+  private[this] var innerLoop: Action = _
 
-  val uninitialized: Receive = {
-    case loopNext: ActorRef =>
-      val innerLoopName = self.path.name + "-inner"
-      val innerLoop = context.actorOf(InnerLoop.props(continueCondition, loopNext, counterName, exitASAP, next), innerLoopName)
-      context.become(initialized(innerLoop))
-  }
+  private[core] def initialize(loopNext: Action): Unit =
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterName, exitASAP, name + "-inner", next)
 
-  override def receive = uninitialized
-}
-
-object InnerLoop {
-  def props(
-    continueCondition: Expression[Boolean],
-    loopNext:          ActorRef,
-    counterName:       String,
-    exitASAP:          Boolean,
-    next:              ActorRef
-  ) =
-    Props(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
+  override def execute(session: Session): Unit =
+    ExitableAction.exitOrElse(session, statsEngine)(innerLoop.!)
 }
 
 class InnerLoop(
-  continueCondition: Expression[Boolean],
-  loopNext:          ActorRef,
-  counterName:       String,
-  exitASAP:          Boolean,
-  val next:          ActorRef
-)
-    extends Chainable {
+    continueCondition: Expression[Boolean],
+    loopNext:          Action,
+    counterName:       String,
+    exitASAP:          Boolean,
+    val name:          String,
+    val next:          Action
+) extends ChainableAction {
 
   /**
    * Evaluates the condition and if true executes the first action of loopNext
@@ -81,7 +57,7 @@ class InnerLoop(
 
     val incrementedSession =
       if (!session.contains(counterName))
-        session.enterLoop(counterName, continueCondition, self, exitASAP)
+        session.enterLoop(counterName, continueCondition, this, exitASAP)
       else
         session.incrementCounter(counterName)
 

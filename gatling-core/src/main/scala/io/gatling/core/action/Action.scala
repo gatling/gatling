@@ -15,19 +15,24 @@
  */
 package io.gatling.core.action
 
+import scala.util.control.NonFatal
+
 import io.gatling.commons.validation.Validation
+import io.gatling.core.session.Session
+import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorRef
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.session.Session
+import com.typesafe.scalalogging.StrictLogging
 
 /**
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
-trait Action extends BaseActor {
+trait Action extends StrictLogging {
 
-  def receive = { case session: Session => execute(session) }
+  def name: String
+
+  def !(session: Session): Unit = execute(session)
 
   /**
    * Core method executed when the Action received a Session message
@@ -43,36 +48,32 @@ trait Action extends BaseActor {
  * Almost all Gatling Actions are Chainable.
  * For example, the final Action at the end of a scenario workflow is not.
  */
-trait Chainable extends Action {
+trait ChainableAction extends Action {
 
   /**
    * @return the next Action in the scenario workflow
    */
-  def next: ActorRef
+  def next: Action
 
-  /**
-   * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
-   */
-  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
-    message.foreach {
-      case session: Session =>
-        logger.error(s"'${self.path.name}' crashed on session $session, forwarding to the next one", reason)
-        next ! session.markAsFailed
-      case _ =>
-        logger.error(s"'${self.path.name}' crashed on unknown message $message, dropping", reason)
+  abstract override def !(session: Session): Unit =
+    try {
+      super.!(session)
+    } catch {
+      case NonFatal(reason) =>
+        logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
+        next.execute(session.markAsFailed)
+    }
+
+  def recover(session: Session)(v: Validation[_]): Unit =
+    v.onFailure { message =>
+      logger.error(s"'$name' failed to execute: $message")
+      next.execute(session.markAsFailed)
     }
 }
 
-/**
- * An Action that handles failures gracefully by returning a Validation
- */
-trait Failable { this: Chainable =>
+class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
 
-  def execute(session: Session): Unit =
-    executeOrFail(session).onFailure { message =>
-      logger.error(s"'${self.path.name}' failed to execute: $message")
-      next ! session.markAsFailed
-    }
-
-  def executeOrFail(session: Session): Validation[_]
+  def execute(session: Session): Unit = actor ! session
 }
+
+class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val next: Action, actor: ActorRef) extends ActorDelegatingAction(name, actor) with ExitableAction

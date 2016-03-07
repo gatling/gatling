@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.action.builder
+package io.gatling.http.action.async.sse
 
-import scala.concurrent.duration.Duration
-
-import io.gatling.core.action.{ Action, Pace }
-import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.CloseAction
+import io.gatling.core.action.Action
+import io.gatling.core.util.NameGen
 
-/**
- * Builder for the Pace action
- *
- * Originally contributed by James Pickering.
- */
-class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
-
-  override def build(ctx: ScenarioContext, next: Action): Action =
-    new Pace(interval, counter, ctx.system, ctx.coreComponents.statsEngine, next)
+class SseClose(
+    requestName: Expression[String],
+    sseName:     String,
+    statsEngine: StatsEngine,
+    next:        Action
+) extends CloseAction(requestName, sseName, statsEngine, next) with SseAction with NameGen {
+  override val name = genName("sseClose")
 }
+

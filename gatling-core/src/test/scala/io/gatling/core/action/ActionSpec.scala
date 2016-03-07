@@ -15,25 +15,23 @@
  */
 package io.gatling.core.action
 
-import akka.testkit._
-import io.gatling.AkkaSpec
+import io.gatling.BaseSpec
 import io.gatling.core.session.Session
 
-class ActionSpec extends AkkaSpec {
+class ActionSpec extends BaseSpec {
 
   class TestAction extends Action {
     var hasRun = false
 
-    override def execute(session: Session): Unit =
-      hasRun = true
+    override val name = "test"
+    override def execute(session: Session): Unit = hasRun = true
   }
 
   "An Action" should "call the execute method when receiving a Session" in {
-    val testAction = TestActorRef(new TestAction)
+    val testAction = new TestAction
 
-    testAction.underlyingActor.hasRun shouldBe false
+    testAction.hasRun shouldBe false
     testAction ! Session("scenario", 0)
-
-    testAction.underlyingActor.hasRun shouldBe true
+    testAction.hasRun shouldBe true
   }
 }

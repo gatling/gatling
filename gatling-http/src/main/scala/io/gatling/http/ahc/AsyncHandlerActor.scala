@@ -17,7 +17,6 @@ package io.gatling.http.ahc
 
 import scala.util.control.NonFatal
 import scala.collection.JavaConversions._
-
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.util.StringHelper.Eol
@@ -38,8 +37,8 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
-
 import akka.actor.Props
+import io.gatling.core.util.NameGen
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.HttpConstants.Methods._
@@ -51,17 +50,15 @@ object AsyncHandlerActor {
     Props(new AsyncHandlerActor(coreComponents.statsEngine, httpEngine, coreComponents.configuration))
 }
 
-class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration) extends BaseActor {
+class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration) extends BaseActor with NameGen {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 
       def abort(tx: HttpTx): Unit = {
         logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-        if (tx.root) {
-          tx.next ! tx.session.markAsFailed
-        } else {
-          val uri = tx.request.ahcRequest.getUri
-          tx.next ! RegularResourceFetched(uri, KO, Session.Identity, tx.silent)
+        tx.resourceFetcher match {
+          case None                  => tx.next ! tx.session.markAsFailed
+          case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.ahcRequest.getUri, KO, Session.Identity, tx.silent)
         }
       }
 
@@ -146,24 +143,25 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
    * @param response the response
    */
   private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response): Unit =
-    if (tx.root) {
-      httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
-        case Some(resourceFetcherActor) =>
-          context.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
+    tx.resourceFetcher match {
+      case None =>
+        httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
+          case Some(resourceFetcherActor) =>
+            context.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
 
-        case None =>
-          tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
-      }
+          case None =>
+            tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
+        }
 
-    } else {
-      val uri = response.request.getUri
+      case Some(resourceFetcher) =>
+        val uri = response.request.getUri
 
-      if (isCss(response.headers)) {
-        val httpProtocol = tx.request.config.httpComponents.httpProtocol
-        tx.next ! CssResourceFetched(uri, status, update, tx.silent, response.statusCode, response.lastModifiedOrEtag(httpProtocol), response.body.string)
-      } else {
-        tx.next ! RegularResourceFetched(uri, status, update, tx.silent)
-      }
+        if (isCss(response.headers)) {
+          val httpProtocol = tx.request.config.httpComponents.httpProtocol
+          resourceFetcher ! CssResourceFetched(uri, status, update, tx.silent, response.statusCode, response.lastModifiedOrEtag(httpProtocol), response.body.string)
+        } else {
+          resourceFetcher ! RegularResourceFetched(uri, status, update, tx.silent)
+        }
     }
 
   private def logAndExecuteNext(tx: HttpTx, update: Session => Session, status: Status, response: Response, message: Option[String]): Unit = {
@@ -184,7 +182,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
     logAndExecuteNext(tx, update, KO, response, Some(message))
 
   private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Int): Session => Session =
-    if (tx.root && !tx.silent)
+    if (tx.resourceFetcher.isEmpty && !tx.silent)
       // resource logging is done in ResourceFetcher
       _.logGroupRequest(responseTimeInMillis, status)
     else
@@ -325,7 +323,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
               tx.request.config.checks
 
           val storeRefererUpdate =
-            if (tx.root)
+            if (tx.resourceFetcher.isEmpty)
               RefererHandling.storeReferer(tx.request.ahcRequest, response, httpProtocol)
             else Session.Identity
 

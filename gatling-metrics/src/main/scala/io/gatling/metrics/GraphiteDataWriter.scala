@@ -22,6 +22,7 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.TimeHelper.nowSeconds
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer._
+import io.gatling.core.util.NameGen
 import io.gatling.metrics.message.GraphiteMetrics
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types._
@@ -36,7 +37,7 @@ case class GraphiteData(
   format:          GraphitePathPattern
 ) extends DataWriterData
 
-private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
+private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with NameGen {
 
   def newResponseMetricsBuffer(configuration: GatlingConfiguration): RequestMetricsBuffer =
     new HistogramRequestMetricsBuffer(configuration)
@@ -46,7 +47,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   def onInit(init: Init): GraphiteData = {
     import init._
 
-    val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), actorName("metricsSender"))
+    val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), genName("metricsSender"))
     val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
     val usersByScenario = mutable.Map.empty[GraphitePath, UserBreakdownBuffer]
 

@@ -15,23 +15,24 @@
  */
 package io.gatling.jms.integration
 
-import scala.concurrent.duration._
-
 import javax.jms.{ Message, MessageListener }
 
-import io.gatling.core.stats.StatsEngine
+import scala.concurrent.duration._
 
-import akka.actor.ActorRef
 import io.gatling.core.CoreComponents
+import io.gatling.core.action.{ Action, ActorDelegatingAction }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols }
 import io.gatling.core.session.Session
-import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
-import io.gatling.jms.client.{ SimpleJmsClient, BrokerBasedSpec }
+import io.gatling.jms.client.{ BrokerBasedSpec, SimpleJmsClient }
 import io.gatling.jms.request.JmsDestination
+
+import akka.actor.ActorRef
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
 class JmsMockCustomer(client: SimpleJmsClient, mockResponse: PartialFunction[Message, String]) extends MessageListener {
@@ -62,8 +63,9 @@ trait JmsMockingSpec extends BrokerBasedSpec with JmsDsl {
     .listenerCount(1)
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
-    val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef], configuration)
-    val actor = sb.build(ScenarioContext(system, coreComponents, new ProtocolComponentsRegistry(system, coreComponents, protocols), Constant, throttled = false), self)
+    val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
+    val next = new ActorDelegatingAction("next", self)
+    val actor = sb.build(ScenarioContext(system, coreComponents, new ProtocolComponentsRegistry(system, coreComponents, protocols), Constant, throttled = false), next)
     actor ! Session("TestSession", 0)
     val session = expectMsgClass(timeout, classOf[Session])
 

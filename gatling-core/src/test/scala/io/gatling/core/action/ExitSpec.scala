@@ -17,16 +17,14 @@ package io.gatling.core.action
 
 import io.gatling.AkkaSpec
 import io.gatling.core.session.Session
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
-import io.gatling.core.stats.StatsEngine
-
-import akka.testkit._
 
 class ExitSpec extends AkkaSpec {
 
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
-    val exit = TestActorRef(Exit.props(self, mock[StatsEngine]))
+    val exit = new Exit(self, mock[StatsEngine])
 
     var hasTerminated = false
 
@@ -38,6 +36,5 @@ class ExitSpec extends AkkaSpec {
     val userMessage = expectMsgType[UserMessage]
     userMessage.session shouldBe session
     userMessage.event shouldBe End
-
   }
 }

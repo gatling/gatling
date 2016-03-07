@@ -16,20 +16,14 @@
 package io.gatling.http.action.sync
 
 import io.gatling.commons.validation._
-import io.gatling.core.akka.ActorNames
+import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+import io.gatling.core.util.NameGen
 import io.gatling.http.action.RequestAction
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
-import akka.actor.{ ActorRef, Props }
-import com.typesafe.scalalogging.StrictLogging
-
-object HttpRequestAction extends ActorNames with StrictLogging {
-
-  def props(httpRequestDef: HttpRequestDef, next: ActorRef) =
-    Props(new HttpRequestAction(httpRequestDef, next))
-}
+import akka.actor.ActorSystem
 
 /**
  * This is an action that sends HTTP requests
@@ -38,8 +32,10 @@ object HttpRequestAction extends ActorNames with StrictLogging {
  * @param httpRequestDef the request definition
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef)
-    extends RequestAction(httpRequestDef.config.coreComponents.statsEngine) {
+class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val next: Action)
+    extends RequestAction(httpRequestDef.config.coreComponents.statsEngine) with NameGen {
+
+  override val name = genName("httpRequest")
 
   import httpRequestDef._
 
@@ -62,6 +58,6 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef)
         next
       )
 
-      HttpTx.start(tx)
+      HttpTx.start(tx)(system)
     }
 }

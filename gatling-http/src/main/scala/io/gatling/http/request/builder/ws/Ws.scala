@@ -46,35 +46,35 @@ class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketNa
    *
    * @param bytes The message
    */
-  def sendBytes(bytes: Expression[Array[Byte]]) = new WsSendActionBuilder(requestName, wsName, bytes.map(BinaryMessage))
+  def sendBytes(bytes: Expression[Array[Byte]]) = new WsSendBuilder(requestName, wsName, bytes.map(BinaryMessage))
 
   /**
    * Sends a text message on the given websocket.
    *
    * @param text The message
    */
-  def sendText(text: Expression[String]) = new WsSendActionBuilder(requestName, wsName, text.map(TextMessage))
+  def sendText(text: Expression[String]) = new WsSendBuilder(requestName, wsName, text.map(TextMessage))
 
   /**
    * Check for incoming messages on the given websocket.
    *
    * @param checkBuilder The check builder
    */
-  def check(checkBuilder: AsyncCheckBuilder) = new WsSetCheckActionBuilder(requestName, checkBuilder, wsName)
+  def check(checkBuilder: AsyncCheckBuilder) = new WsSetCheckBuilder(requestName, checkBuilder, wsName)
 
   /**
    * Cancel current check on the given websocket.
    *
    */
-  def cancelCheck = new WsCancelCheckActionBuilder(requestName, wsName)
+  def cancelCheck = new WsCancelCheckBuilder(requestName, wsName)
 
   /**
    * Reconciliate the main state with the one of the websocket flow.
    */
-  def reconciliate = new WsReconciliateActionBuilder(requestName, wsName)
+  def reconciliate = new WsReconciliateBuilder(requestName, wsName)
 
   /**
    * Closes a websocket.
    */
-  def close = new WsCloseActionBuilder(requestName, wsName)
+  def close = new WsCloseBuilder(requestName, wsName)
 }

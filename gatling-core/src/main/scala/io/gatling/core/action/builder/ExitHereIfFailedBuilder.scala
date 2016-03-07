@@ -15,15 +15,11 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.ExitHereIfFailed
+import io.gatling.core.action.{ Action, ExitHereIfFailed }
 import io.gatling.core.structure.ScenarioContext
-
-import akka.actor.ActorRef
 
 object ExitHereIfFailedBuilder extends ActionBuilder {
 
-  def build(ctx: ScenarioContext, next: ActorRef) = {
-    import ctx._
-    system.actorOf(ExitHereIfFailed.props(coreComponents, next), actorName("exitHereIfFailed"))
-  }
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new ExitHereIfFailed(ctx.coreComponents.exit, ctx.coreComponents.statsEngine, next)
 }

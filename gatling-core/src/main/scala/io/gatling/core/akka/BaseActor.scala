@@ -15,13 +15,12 @@
  */
 package io.gatling.core.akka
 
-import com.typesafe.scalalogging.LazyLogging
-
-import akka.actor.{ Actor, Terminated }
-
 import scala.concurrent.duration.Duration
 
-abstract class BaseActor extends Actor with ActorNames with LazyLogging {
+import akka.actor.{ Actor, Terminated }
+import com.typesafe.scalalogging.LazyLogging
+
+abstract class BaseActor extends Actor with LazyLogging {
 
   implicit def system = context.system
   def scheduler = system.scheduler

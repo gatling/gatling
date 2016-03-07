@@ -52,7 +52,7 @@ private[gatling] class DefaultCoreComponentsFactory(configuration: GatlingConfig
     val statsEngine = DataWritersStatsEngine(system, simulationParams, runMessage, configuration)
     val throttler = Throttler(system, simulationParams)
     val controller = system.actorOf(Controller.props(statsEngine, throttler, simulationParams, configuration), Controller.ControllerActorName)
-    val exit = system.actorOf(Exit.props(controller, statsEngine), Exit.ExitActorName)
+    val exit = new Exit(controller, statsEngine)
 
     CoreComponents(controller, throttler, statsEngine, exit, configuration)
   }

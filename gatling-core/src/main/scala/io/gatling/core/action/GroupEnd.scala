@@ -16,18 +16,13 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
 
-import akka.actor.{ Props, ActorRef }
+class GroupEnd(statsEngine: StatsEngine, val next: Action) extends ChainableAction with NameGen {
 
-object GroupEnd {
-  def props(coreComponents: CoreComponents, next: ActorRef) =
-    Props(new GroupEnd(coreComponents.statsEngine, next))
-}
-
-class GroupEnd(statsEngine: StatsEngine, val next: ActorRef) extends Chainable {
+  val name: String = genName("groupEnd")
 
   def execute(session: Session): Unit =
     session.blockStack match {

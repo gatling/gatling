@@ -17,12 +17,10 @@ package io.gatling.core.action
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.validation._
-import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.core.stats.DataWritersStatsEngine
 
 import akka.testkit._
-import org.mockito.Mockito._
 
 class FeedSpec extends AkkaSpec {
 
@@ -32,12 +30,9 @@ class FeedSpec extends AkkaSpec {
     val singleton = TestProbe()
     val controller = TestProbe()
     val number: Expression[Int] = session => 1.success
+    val next = new ActorDelegatingAction("next", self)
 
-    val coreComponents = mock[CoreComponents]
-    when(coreComponents.controller).thenReturn(controller.ref)
-    when(coreComponents.statsEngine).thenReturn(statsEngine)
-
-    val feed = TestActorRef(Feed.props(singleton.ref, number, coreComponents, self))
+    val feed = new Feed(singleton.ref, number, controller.ref, statsEngine, next)
 
     val session = Session("scenario", 0)
 
@@ -46,6 +41,6 @@ class FeedSpec extends AkkaSpec {
     val feedMessage = singleton.expectMsgType[FeedMessage]
     feedMessage.session shouldBe session
     feedMessage.controller shouldBe controller.ref
-    feedMessage.next shouldBe self
+    feedMessage.next shouldBe next
   }
 }

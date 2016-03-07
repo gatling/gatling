@@ -21,17 +21,11 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
 
-import akka.actor.{ Props, ActorRef }
-
-object Exit {
-
-  val ExitActorName = "gatling-exit"
-
-  def props(controller: ActorRef, statsEngine: StatsEngine) =
-    Props(new Exit(controller, statsEngine))
-}
+import akka.actor.ActorRef
 
 class Exit(controller: ActorRef, statsEngine: StatsEngine) extends Action {
+
+  override val name = "gatling-exit"
 
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")

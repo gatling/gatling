@@ -15,11 +15,10 @@
  */
 package io.gatling.http.action.sync
 
+import io.gatling.core.action.Action
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
-
-import akka.actor.ActorRef
 
 /**
  * Builder for HttpRequestActionBuilder
@@ -29,10 +28,10 @@ import akka.actor.ActorRef
  */
 class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpActionBuilder {
 
-  def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+  override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val httpRequest = requestBuilder.build(coreComponents, httpComponents, throttled)
-    system.actorOf(HttpRequestAction.props(httpRequest, next), actorName("httpRequest"))
+    new HttpRequestAction(httpRequest, system, next)
   }
 }

@@ -15,24 +15,16 @@
  */
 package io.gatling.http.action.async
 
-import scala.reflect.ClassTag
-
+import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.RequestAction
-
-import akka.actor.{ Props, ActorRef }
-
-abstract class ReconciliateActionCreator[T <: ReconciliateAction: ClassTag] {
-  def props(requestName: Expression[String], wsName: String, statsEngine: StatsEngine, next: ActorRef) =
-    Props(implicitly[ClassTag[T]].runtimeClass, requestName, wsName, statsEngine, next)
-}
 
 abstract class ReconciliateAction(
     val requestName: Expression[String],
     wsName:          String,
     statsEngine:     StatsEngine,
-    val next:        ActorRef
+    val next:        Action
 ) extends RequestAction(statsEngine) with AsyncProtocolAction {
 
   override def sendRequest(requestName: String, session: Session) = {

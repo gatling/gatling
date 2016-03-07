@@ -17,10 +17,11 @@ package io.gatling.core.action.builder
 
 import scala.collection.mutable
 
-import io.gatling.core.action.{ Feed, SingletonFeed }
+import io.gatling.core.action.{ Action, Feed, SingletonFeed }
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
+import io.gatling.core.util.NameGen
 
 import akka.actor.ActorRef
 
@@ -30,11 +31,16 @@ object FeedBuilder {
   val Instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 }
 
-class FeedBuilder(feederBuilder: FeederBuilder[_], number: Expression[Int]) extends ActionBuilder {
+class FeedBuilder(feederBuilder: FeederBuilder[_], number: Expression[Int]) extends ActionBuilder with NameGen {
 
-  def build(ctx: ScenarioContext, next: ActorRef) = {
+  private[this] def newSingletonFeed(ctx: ScenarioContext): ActorRef = {
     import ctx._
-    val feederInstance = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, system.actorOf(SingletonFeed.props(feederBuilder.build(ctx)), actorName("singletonFeed")))
-    system.actorOf(Feed.props(feederInstance, number, coreComponents, next), actorName("feed"))
+    val props = SingletonFeed.props(feederBuilder.build(ctx))
+    system.actorOf(props, genName("singletonFeed"))
+  }
+
+  override def build(ctx: ScenarioContext, next: Action): Action = {
+    val feederSingleton = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, newSingletonFeed(ctx))
+    new Feed(feederSingleton, number, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
   }
 }

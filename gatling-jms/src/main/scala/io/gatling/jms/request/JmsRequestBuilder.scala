@@ -21,13 +21,13 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.jms._
-import io.gatling.jms.action.JmsReqReplyActionBuilder
+import io.gatling.jms.action.JmsReqReplyBuilder
 
 import com.softwaremill.quicklens._
 
 case class JmsRequestBuilderBase(requestName: String) {
 
-  def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder.apply(_, configuration))
+  def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyBuilder.apply(_, configuration))
 }
 
 case class JmsRequestBuilderQueue(

@@ -19,31 +19,24 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.action.{ Action, ExitableAction }
 import io.gatling.core.session._
+import io.gatling.core.util.NameGen
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.request.HttpRequestDef
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.ActorSystem
 
-object PollingStartAction {
-
-  def props(
-    pollerName: String,
-    period:     Expression[FiniteDuration],
-    requestDef: HttpRequestDef,
-    next:       ActorRef
-  ): Props =
-    Props(new PollingStartAction(pollerName, period, requestDef, requestDef.config.coreComponents.statsEngine, next))
-}
-
-class PollingStartAction(
+class PollingStart(
     pollerName:      String,
     period:          Expression[FiniteDuration],
     httpRequestDef:  HttpRequestDef,
+    system:          ActorSystem,
     val statsEngine: StatsEngine,
-    val next:        ActorRef
-) extends Interruptable with Failable with PollingAction {
+    val next:        Action
+) extends ExitableAction with PollingAction with NameGen {
+
+  override val name = genName(pollerName)
 
   import httpRequestDef._
 
@@ -55,11 +48,11 @@ class PollingStartAction(
     config.coreComponents.configuration
   )
 
-  def executeOrFail(session: Session) = {
+  override def execute(session: Session): Unit = recover(session) {
 
       def startPolling(period: FiniteDuration): Unit = {
         logger.info(s"Starting poller $pollerName")
-        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), actorName("pollingActor"))
+        val pollingActor = system.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), name + "-actor")
 
         val newSession = session.set(pollerName, pollingActor)
 

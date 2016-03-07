@@ -16,20 +16,20 @@
 package io.gatling.http.action
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.action.ExitableAction
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-abstract class RequestAction(val statsEngine: StatsEngine) extends Interruptable with Failable {
+abstract class RequestAction(val statsEngine: StatsEngine) extends ExitableAction {
 
   def requestName: Expression[String]
   def sendRequest(requestName: String, session: Session): Validation[Unit]
 
-  def executeOrFail(session: Session): Validation[Unit] =
+  override def execute(session: Session): Unit = recover(session) {
     requestName(session).flatMap { resolvedRequestName =>
-
       val outcome = sendRequest(resolvedRequestName, session)
       outcome.onFailure(errorMessage => statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage))
       outcome
     }
+  }
 }

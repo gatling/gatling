@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.akka
+package io.gatling.http.action.async.ws
 
-import java.util.concurrent.atomic.AtomicLong
+import io.gatling.core.session._
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.CancelCheckAction
+import io.gatling.core.action.Action
+import io.gatling.core.util.NameGen
 
-object ActorNames {
-  val IdGen = new AtomicLong()
-}
-
-trait ActorNames {
-  import ActorNames._
-
-  def actorName(base: String) = base + "-" + IdGen.incrementAndGet
+class WsCancelCheck(
+    requestName: Expression[String],
+    wsName:      String,
+    statsEngine: StatsEngine,
+    next:        Action
+) extends CancelCheckAction(requestName, wsName, statsEngine, next) with WsAction with NameGen {
+  override val name = genName("wsCancelCheck")
 }

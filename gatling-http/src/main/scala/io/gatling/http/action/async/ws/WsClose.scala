@@ -15,17 +15,18 @@
  */
 package io.gatling.http.action.async.ws
 
-import io.gatling.core.session._
+import io.gatling.core.action.Action
+import io.gatling.core.session.Expression
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ CancelCheckAction, CancelCheckActionCreator }
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.async.CloseAction
 
-import akka.actor.ActorRef
+class WsClose(
+    requestName: Expression[String],
+    wsName:      String,
+    statsEngine: StatsEngine,
+    next:        Action
+) extends CloseAction(requestName, wsName, statsEngine, next) with WsAction with NameGen {
+  override val name = genName("wsClose")
+}
 
-object WsCancelCheckAction extends CancelCheckActionCreator[WsCancelCheckAction]
-
-class WsCancelCheckAction(
-  requestName: Expression[String],
-  wsName:      String,
-  statsEngine: StatsEngine,
-  next:        ActorRef
-) extends CancelCheckAction(requestName, wsName, statsEngine, next) with WsAction

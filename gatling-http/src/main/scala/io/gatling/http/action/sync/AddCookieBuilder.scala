@@ -15,15 +15,15 @@
  */
 package io.gatling.http.action.sync
 
-import io.gatling.core.action.SessionHook
+import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
+import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport.storeCookie
 import io.gatling.http.protocol.HttpProtocol
 
-import akka.actor.ActorRef
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri
 
@@ -46,7 +46,7 @@ object AddCookieBuilder {
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Long) extends HttpActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Long) extends HttpActionBuilder with NameGen {
 
   import AddCookieBuilder._
 
@@ -56,7 +56,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       case _        => NoBaseUrlFailure
     }
 
-  def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+  def build(ctx: ScenarioContext, next: Action): Action = {
 
     import ctx._
 
@@ -74,6 +74,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       storeCookie(session, domain, path, cookie)
     }
 
-    system.actorOf(SessionHook.props(expression, coreComponents, next, interruptable = true), actorName("addCookie"))
+    new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, next) with ExitableAction
   }
 }

@@ -17,40 +17,24 @@ package io.gatling.core.action
 
 import io.gatling.commons.stats.KO
 import io.gatling.commons.validation._
-import io.gatling.core.CoreComponents
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.session.{ TryMaxBlock, Session }
+import io.gatling.core.session.{ Session, TryMaxBlock }
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
 
-import akka.actor.{ Props, ActorRef }
+class TryMax(times: Int, counterName: String, statsEngine: StatsEngine, next: Action) extends Action with NameGen {
 
-object TryMax {
-  def props(times: Int, counterName: String, coreComponents: CoreComponents, next: ActorRef) =
-    Props(new TryMax(times, counterName, coreComponents.statsEngine, next))
+  override val name = genName("tryMax")
+
+  private[this] var innerTryMax: Action = _
+  private[core] def initialize(loopNext: Action): Unit =
+    innerTryMax = new InnerTryMax(times, loopNext, counterName, name + "-inner", next)
+
+  override def execute(session: Session): Unit =
+    ExitableAction.exitOrElse(session, statsEngine)(innerTryMax.!)
 }
 
-class TryMax(times: Int, counterName: String, statsEngine: StatsEngine, next: ActorRef) extends BaseActor {
-
-  def initialized(innerTryMax: ActorRef): Receive =
-    Interruptable.interrupt(statsEngine) orElse { case m => innerTryMax forward m }
-
-  val uninitialized: Receive = {
-    case loopNext: ActorRef =>
-      val actorName = self.path.name + "-inner"
-      val innerTryMax = context.actorOf(InnerTryMax.props(times, loopNext, counterName, next), actorName)
-      context.become(initialized(innerTryMax))
-  }
-
-  override def receive = uninitialized
-}
-
-object InnerTryMax {
-  def props(times: Int, loopNext: ActorRef, counterName: String, next: ActorRef) =
-    Props(new InnerTryMax(times, loopNext, counterName, next))
-}
-
-class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef)
-    extends Chainable {
+class InnerTryMax(times: Int, loopNext: Action, counterName: String, val name: String, val next: Action)
+    extends ChainableAction {
 
   private def blockFailed(session: Session): Boolean = session.blockStack.headOption match {
     case Some(TryMaxBlock(_, _, KO)) => true
@@ -73,9 +57,9 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
    * @param session the session of the virtual user
    */
   def execute(session: Session): Unit =
-    if (!session.contains(counterName))
-      loopNext ! session.enterTryMax(counterName, self)
-    else {
+    if (!session.contains(counterName)) {
+      loopNext ! session.enterTryMax(counterName, this)
+    } else {
       val incrementedSession = session.incrementCounter(counterName)
 
       if (continue(incrementedSession))

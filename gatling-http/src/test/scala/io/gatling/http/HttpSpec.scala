@@ -26,13 +26,14 @@ import scala.util.Try
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.Io._
 import io.gatling.core.CoreComponents
+import io.gatling.core.action.{ Action, ActorDelegatingAction }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
+import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.http.protocol.HttpProtocolBuilder
 
 import akka.actor.ActorRef
@@ -67,8 +68,9 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   )(implicit configuration: GatlingConfiguration) = {
     // FIXME should initialize with this
     val protocols = Protocols(protocolCustomizer(httpProtocol))
-    val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef], configuration)
-    val actor = sb.build(ScenarioContext(system, coreComponents, new ProtocolComponentsRegistry(system, coreComponents, protocols), Constant, throttled = false), self)
+    val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
+    val next = new ActorDelegatingAction("next", self)
+    val actor = sb.build(ScenarioContext(system, coreComponents, new ProtocolComponentsRegistry(system, coreComponents, protocols), Constant, throttled = false), next)
     actor ! Session("TestSession", 0)
     expectMsgClass(timeout, classOf[Session])
   }

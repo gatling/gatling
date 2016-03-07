@@ -15,11 +15,10 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.Loop
+import io.gatling.core.action.{ Action, Loop }
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
-
-import akka.actor.ActorRef
+import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
+import io.gatling.core.util.NameGen
 
 sealed abstract class LoopType(val name: String)
 case object RepeatLoopType extends LoopType("repeat")
@@ -35,14 +34,14 @@ case object AsLongAsLoopType extends LoopType("asLongAs")
  * @param counterName the name of the loop counter
  * @param exitASAP if the loop is to be exited as soon as the condition no longer holds
  */
-class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder {
+class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder with NameGen {
 
-  def build(ctx: ScenarioContext, next: ActorRef) = {
+  def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val safeCondition = condition.safe
-    val whileActor = system.actorOf(Loop.props(safeCondition, counterName, exitASAP, coreComponents, next), actorName(loopType.name))
-    val loopNextActor = loopNext.build(ctx, whileActor)
-    whileActor ! loopNextActor
-    whileActor
+    val loopAction = new Loop(safeCondition, counterName, exitASAP, coreComponents.statsEngine, genName(loopType.name), next)
+    val loopNextAction = loopNext.build(ctx, loopAction)
+    loopAction.initialize(loopNextAction)
+    loopAction
   }
 }

@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.ws
+package io.gatling.http.action.async.polling
 
-import io.gatling.core.session.Expression
+import io.gatling.core.action.Action
+import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ CloseAction, CloseActionCreator }
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.UnnamedRequestAction
 
-import akka.actor.ActorRef
+class PollingStop(pollerName: String, statsEngine: StatsEngine, val next: Action)
+    extends UnnamedRequestAction(statsEngine) with PollingAction with NameGen {
 
-object WsCloseAction extends CloseActionCreator[WsCloseAction]
+  override val name = genName("pollingStop")
 
-class WsCloseAction(
-  requestName: Expression[String],
-  wsName:      String,
-  statsEngine: StatsEngine,
-  next:        ActorRef
-) extends CloseAction(requestName, wsName, statsEngine, next) with WsAction
+  override def sendRequest(requestName: String, session: Session) =
+    for {
+      pollingActor <- fetchPoller(pollerName, session)
+    } yield pollingActor ! StopPolling(next, session)
+}

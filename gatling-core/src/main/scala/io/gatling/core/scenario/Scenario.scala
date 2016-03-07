@@ -15,11 +15,9 @@
  */
 package io.gatling.core.scenario
 
-import io.gatling.core.session.Session
-
-import akka.actor.ActorRef
-
+import io.gatling.core.action.Action
 import io.gatling.core.controller.inject.InjectionProfile
+import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioContext
 
-case class Scenario(name: String, entry: ActorRef, onStart: Session => Session, onExit: Session => Unit, injectionProfile: InjectionProfile, ctx: ScenarioContext)
+case class Scenario(name: String, entry: Action, onStart: Session => Session, onExit: Session => Unit, injectionProfile: InjectionProfile, ctx: ScenarioContext)

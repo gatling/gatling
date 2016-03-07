@@ -13,19 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.sse
+package io.gatling.http.action.async.ws
 
+import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.{ ReconciliateAction, ReconciliateActionCreator }
+import io.gatling.core.util.NameGen
+import io.gatling.http.action.async.SetCheckAction
+import io.gatling.http.check.async.AsyncCheckBuilder
 
-import akka.actor.ActorRef
-
-object SseReconciliateAction extends ReconciliateActionCreator[SseReconciliateAction]
-
-class SseReconciliateAction(
-  requestName: Expression[String],
-  sseName:     String,
-  statsEngine: StatsEngine,
-  next:        ActorRef
-) extends ReconciliateAction(requestName, sseName, statsEngine, next) with SseAction
+class WsSetCheck(
+    requestName:  Expression[String],
+    checkBuilder: AsyncCheckBuilder,
+    wsName:       String,
+    statsEngine:  StatsEngine,
+    next:         Action
+) extends SetCheckAction(requestName, checkBuilder, wsName, statsEngine, next) with WsAction with NameGen {
+  override val name = genName("wsSetCheck")
+}
