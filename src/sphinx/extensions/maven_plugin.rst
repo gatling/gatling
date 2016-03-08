@@ -62,6 +62,7 @@ The example below shows the default values.
   <!--    <fork>true</fork> -->
   <!--    <propagateSystemProperties>true</propagateSystemProperties> -->
   <!--   <failOnError>true</failOnError> -->
+  <!--   <runDescription>The run description shown in the report</runDescription> -->
   </configuration>
 
 Please check `source code <https://github.com/gatling/gatling-maven/blob/master/gatling-maven-plugin/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for all,possible options.
