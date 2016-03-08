@@ -53,6 +53,7 @@ The example below shows the default values.
     <resultsFolder>${project.basedir}/target/gatling/results</resultsFolder>
     <bodiesFolder>${project.basedir}/src/test/resources/bodies</bodiesFolder>
     <simulationsFolder>${project.basedir}/src/test/scala</simulationsFolder>
+    <runDescription>This-is-the-run-description</runDescription>
   <!--    <noReports>false</noReports> -->
   <!--   <reportsOnly>directoryName</reportsOnly> -->
   <!--   <simulationClass>foo.Bar</simulationClass> -->
