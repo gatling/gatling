@@ -15,8 +15,8 @@
  */
 package io.gatling.http.util
 
-import java.nio.{ ByteBuffer, CharBuffer }
-import java.nio.charset.{ CoderResult, CharsetDecoder, Charset }
+import java.nio.ByteBuffer
+import java.nio.charset.{ CharacterCodingException, Charset }
 import java.nio.charset.StandardCharsets._
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.{ Function => JFunction }
@@ -35,68 +35,29 @@ object ByteBuffersDecoder {
     override def initialValue = new UsAsciiByteBuffersDecoder
   }
 
-  private[this] val newGenericDecodersScalaFunction: Charset => ThreadLocal[ByteBuffersDecoder] = charset => new ThreadLocal[ByteBuffersDecoder] {
-    override def initialValue = new GenericByteBuffersDecoder(charset)
+  private[this] val newCharsetDecodersScalaFunction: Charset => ThreadLocal[ByteBuffersDecoder] = charset => new ThreadLocal[ByteBuffersDecoder] {
+    override def initialValue = new CharsetDecoderByteBuffersDecoder(charset)
   }
-  private[this] val newGenericDecoders: JFunction[Charset, ThreadLocal[ByteBuffersDecoder]] = newGenericDecodersScalaFunction.asJava
+  private[this] val newCharsetDecoders: JFunction[Charset, ThreadLocal[ByteBuffersDecoder]] = newCharsetDecodersScalaFunction.asJava
 
   private[this] val otherDecoders = new ConcurrentHashMap[Charset, ThreadLocal[ByteBuffersDecoder]]()
 
   private[this] def decoder(charset: Charset): ByteBuffersDecoder = charset match {
     case UTF_8    => utf8Decoders.get()
     case US_ASCII => usAsciiDecoders.get()
-    case _        => otherDecoders.computeIfAbsent(charset, newGenericDecoders).get()
+    case _        => otherDecoders.computeIfAbsent(charset, newCharsetDecoders).get()
   }
 
   def decode(bufs: Seq[ByteBuffer], charset: Charset): String =
     decoder(charset).decode(bufs)
 }
 
-sealed abstract class ByteBuffersDecoder(charset: Charset) {
+sealed trait ByteBuffersDecoder {
 
-  private[this] val decoder = charset.newDecoder
-  private[this] var cachedChars: Array[Char] = _
-
-  def decode(bufs: Seq[ByteBuffer]): String = {
-    decoder.reset()
-
-    val nonEmptyBufs = bufs.filter(_.remaining > 0)
-
-    if (nonEmptyBufs.isEmpty) {
-      ""
-
-    } else {
-      val len = nonEmptyBufs.sumBy(_.remaining)
-      val chars =
-        if (cachedChars == null) {
-          // init cache
-          cachedChars = new Array(len)
-          cachedChars
-        } else if (len < 200000) {
-          // increase cache
-          cachedChars = new Array(len)
-          cachedChars
-        } else {
-          // too large, don't cache
-          new Array[Char](len)
-        }
-
-      val charBuffer = CharBuffer.wrap(chars)
-      decode0(nonEmptyBufs, charBuffer, decoder)
-
-      val coderResult = decoder.flush(charBuffer)
-      if (!coderResult.isUnderflow) {
-        coderResult.throwException()
-      }
-
-      new String(chars, 0, charBuffer.position)
-    }
-  }
-
-  protected def decode0(bufs: Seq[ByteBuffer], charBuffer: CharBuffer, charsetDecoder: CharsetDecoder): Unit
+  def decode(bufs: Seq[ByteBuffer]): String
 }
 
-class GenericByteBuffersDecoder(charset: Charset) extends ByteBuffersDecoder(charset) {
+class CharsetDecoderByteBuffersDecoder(charset: Charset) extends ByteBuffersDecoder {
 
   private[this] def mergeByteBuffers(bufs: Seq[ByteBuffer]): Array[Byte] = {
 
@@ -109,101 +70,85 @@ class GenericByteBuffersDecoder(charset: Charset) extends ByteBuffersDecoder(cha
 
   override def decode(bufs: Seq[ByteBuffer]): String =
     new String(mergeByteBuffers(bufs), charset)
-
-  override protected def decode0(bufs: Seq[ByteBuffer], charBuffer: CharBuffer, charsetDecoder: CharsetDecoder): Unit =
-    throw new UnsupportedOperationException
 }
 
-class UsAsciiByteBuffersDecoder extends ByteBuffersDecoder(US_ASCII) {
+class UsAsciiByteBuffersDecoder extends ByteBuffersDecoder {
 
-  override protected def decode0(bufs: Seq[ByteBuffer], charBuffer: CharBuffer, charsetDecoder: CharsetDecoder): Unit = {
+  private val sb = new StringBuilder
 
-    val bufIt = bufs.iterator
-
-    var coderResult: CoderResult = null
-    bufIt.foreach { buf =>
-
-      // decode rest of buffer
-      coderResult = charsetDecoder.decode(buf, charBuffer, bufIt.hasNext)
-      if (!coderResult.isUnderflow) {
-        coderResult.throwException()
+  override def decode(bufs: Seq[ByteBuffer]): String = {
+    sb.setLength(0)
+    bufs.foreach { buf =>
+      while (buf.remaining > 0) {
+        sb.append(buf.get().toChar)
       }
     }
+    sb.toString
   }
 }
 
-class Utf8ByteBuffersDecoder extends ByteBuffersDecoder(UTF_8) {
+object Utf8ByteBuffersDecoder {
+  val Utf8Accept = 0
+  val Utf8Reject = 12
 
-  private[this] def peekByte(buf: ByteBuffer): Byte = {
-    val b = buf.get()
-    buf.position(buf.position - 1)
-    b
+  val Types = Array[Byte](
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+    10, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 11, 6, 6, 6, 5, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+  )
+
+  val States = Array[Byte](
+    0, 12, 24, 36, 60, 96, 84, 12, 12, 12, 48, 72, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+    12, 0, 12, 12, 12, 12, 12, 0, 12, 0, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 24, 12, 12,
+    12, 12, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 24, 12, 12, 12, 12, 12, 12, 12, 24, 12, 12,
+    12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12,
+    12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12
+  )
+}
+
+class Utf8ByteBuffersDecoder extends ByteBuffersDecoder {
+
+  import Utf8ByteBuffersDecoder._
+
+  private val sb = new StringBuilder
+  private var state = Utf8Accept
+  private var codep = 0
+
+  private def write(b: Byte): Unit = {
+    val t = Types(b & 0xFF)
+
+    codep = if (state != Utf8Accept) (b & 0x3f) | (codep << 6) else (0xff >> t) & b
+    state = States(state + t)
+
+    if (state == Utf8Accept) {
+      if (codep < Character.MIN_HIGH_SURROGATE) {
+        sb.append(codep.toChar)
+      } else {
+        Character.toChars(codep).foreach(sb.append)
+      }
+    } else if (state == Utf8Reject) {
+      throw new CharacterCodingException
+    }
   }
 
-  private[this] def numberOfUtf8Bytes(firstByte: Byte, coderResult: CoderResult): Int =
-    if (firstByte >= 0) {
-      // 1 byte, impossible to be malformed!!!
-      coderResult.throwException()
-      1
-    } else if (firstByte >= -16) {
-      // 2 bytes
-      2
-    } else if (firstByte >= -32) {
-      // 3 bytes
-      3
-    } else if (firstByte >= -64) {
-      // 4 bytes
-      4
+  override def decode(bufs: Seq[ByteBuffer]): String = {
+
+    sb.setLength(0)
+    bufs.foreach { buf =>
+      while (buf.remaining > 0) {
+        write(buf.get())
+      }
+    }
+
+    if (state == Utf8Accept) {
+      sb.toString
     } else {
-      // not a char first byte, malformed
-      coderResult.throwException()
-      1
-    }
-
-  private[this] def decodeSplitChar(buf1: ByteBuffer, buf2: ByteBuffer, charBytes: Int, charBuffer: CharBuffer, charsetDecoder: CharsetDecoder): Unit = {
-
-    val temp = ByteBuffer.allocate(charBytes)
-    val pendingBytes = buf1.remaining()
-    // copy pending bytes
-    temp.put(buf1)
-    // copy missing bytes
-    for (_ <- 0 until charBytes - pendingBytes)
-      temp.put(buf2.get())
-
-    // decode temp
-    temp.flip()
-    val coderResult = charsetDecoder.decode(temp, charBuffer, true)
-    if (!coderResult.isUnderflow) {
-      coderResult.throwException()
-    }
-  }
-
-  override protected def decode0(bufs: Seq[ByteBuffer], charBuffer: CharBuffer, charsetDecoder: CharsetDecoder): Unit = {
-
-    val bufIt = bufs.iterator
-
-    var expectedBytes: Int = 0
-    var pendingBuffer: ByteBuffer = null
-
-    var coderResult: CoderResult = null
-    bufIt.foreach { buf =>
-      if (pendingBuffer != null) {
-        decodeSplitChar(pendingBuffer, buf, expectedBytes, charBuffer, charsetDecoder)
-        expectedBytes = 0
-        pendingBuffer = null
-      }
-
-      // decode rest of buffer
-      coderResult = charsetDecoder.decode(buf, charBuffer, true)
-      if (!coderResult.isUnderflow) {
-        if (bufIt.hasNext) {
-          // compute pending bytes
-          pendingBuffer = buf
-          expectedBytes = numberOfUtf8Bytes(peekByte(buf), coderResult)
-        } else {
-          coderResult.throwException()
-        }
-      }
+      throw new CharacterCodingException
     }
   }
 }
