@@ -17,6 +17,7 @@ package io.gatling.core.session
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 
@@ -87,7 +88,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "loopTimestampValue" should "return a counter stored in the session as an Int" in {
-    val timestamp = System.currentTimeMillis()
+    val timestamp = nowMillis
     val session = newSession.set("timestamp.foo", timestamp)
     session.loopTimestampValue("foo") shouldBe timestamp
   }

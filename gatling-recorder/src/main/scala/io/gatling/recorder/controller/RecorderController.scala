@@ -21,13 +21,14 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration.DurationLong
 
 import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.model.{ SafeHttpResponse, SafeHttpRequest }
+import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse }
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
@@ -106,7 +107,7 @@ private[recorder] class RecorderController extends StrictLogging {
 
   def receiveResponse(request: TimedHttpRequest, response: SafeHttpResponse): Unit =
     if (RecorderConfiguration.configuration.filters.filters.map(_.accept(request.httpRequest.uri)).getOrElse(true)) {
-      val arrivalTime = System.currentTimeMillis
+      val arrivalTime = nowMillis
 
       currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, RequestElement(request.httpRequest, response)))
 
@@ -121,7 +122,7 @@ private[recorder] class RecorderController extends StrictLogging {
     }
 
   def addTag(text: String): Unit = {
-    val now = System.currentTimeMillis
+    val now = nowMillis
     currentTags.add(TimedScenarioElement(now, now, TagElement(text)))
     frontEnd.receiveEventInfo(TagInfo(text))
   }

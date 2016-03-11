@@ -15,12 +15,11 @@
  */
 package io.gatling.app
 
-import java.lang.System.currentTimeMillis
-
 import io.gatling.app.cli.StatusCode
-import io.gatling.charts.report.{ ReportsGenerator, ReportsGenerationInputs }
+import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.charts.stats.LogFileReader
-import io.gatling.commons.stats.assertion.{ AssertionValidator, AssertionResult }
+import io.gatling.commons.stats.assertion.{ AssertionResult, AssertionValidator }
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 trait RunResultProcessor {
@@ -33,7 +32,7 @@ class LogFileProcessor(configuration: GatlingConfiguration) extends RunResultPro
   implicit val config = configuration
 
   override def processRunResult(runResult: RunResult): StatusCode = {
-    val start = currentTimeMillis
+    val start = nowMillis
 
     initLogFileReader(runResult) match {
       case Some(reader) =>
@@ -63,7 +62,7 @@ class LogFileProcessor(configuration: GatlingConfiguration) extends RunResultPro
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")
     val indexFile = new ReportsGenerator().generateFor(reportsGenerationInputs)
-    println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
+    println(s"Reports generated in ${(nowMillis - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }
 

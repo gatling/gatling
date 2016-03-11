@@ -15,12 +15,11 @@
  */
 package io.gatling.core.stats.writer
 
-import java.lang.System.currentTimeMillis
-
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ End, Start }
 
@@ -58,7 +57,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
     import init._
 
-    val data = new ConsoleData(configuration, currentTimeMillis)
+    val data = new ConsoleData(configuration, nowMillis)
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.userCount)))
 
@@ -70,7 +69,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
   override def onFlush(data: ConsoleData): Unit = {
     import data._
 
-    val runDuration = (currentTimeMillis - startUpTime) / 1000
+    val runDuration = (nowMillis - startUpTime) / 1000
 
     val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration)
     complete = summary.complete
