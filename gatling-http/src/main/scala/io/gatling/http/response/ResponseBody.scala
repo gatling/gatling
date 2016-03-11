@@ -106,7 +106,6 @@ object InputStreamResponseBody {
 class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
 
   def stream = (chunks.size: @switch) match {
-
     case 0 => new FastByteArrayInputStream(EmptyBytes)
     case 1 => new ByteArrayInputStream(chunks.head)
     case _ => new CompositeByteArrayInputStream(chunks)
