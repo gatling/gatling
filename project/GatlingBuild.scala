@@ -1,4 +1,3 @@
-import io.gatling.build.ScalaCompilerKeys._
 import io.gatling.build.SonatypeReleasePlugin
 
 import pl.project13.scala.sbt.JmhPlugin
@@ -73,7 +72,6 @@ object GatlingBuild extends Build {
 
   lazy val compiler = gatlingModule("gatling-compiler")
     .settings(scalaVersion := "2.10.6")
-    .settings(scalacOptions := defaultScalacOptions.value)
     .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
 
   lazy val benchmarks = gatlingModule("gatling-benchmarks")
