@@ -120,12 +120,11 @@ object ExitableAction {
 
   import BlockExit._
 
-  def exitOrElse(session: Session, statsEngine: StatsEngine)(f: Session => Unit): Unit = {
+  def exitOrElse(session: Session, statsEngine: StatsEngine)(f: Session => Unit): Unit =
     exitAsapLoop(session).orElse(exitTryMax(session)) match {
       case None            => f(session)
       case Some(blockExit) => blockExit.exitBlock(statsEngine)
     }
-  }
 }
 
 /**
