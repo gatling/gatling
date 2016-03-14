@@ -41,13 +41,13 @@ object AsyncHandler extends StrictLogging {
  *
  * @constructor constructs a Gatling AsyncHandler
  * @param tx the data about the request to be sent and processed
+ * @param responseProcessor the responseProcessor
  */
-class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressAsyncHandler[Unit] with LazyLogging {
+class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends ExtendedAsyncHandler[Unit] with ProgressAsyncHandler[Unit] with LazyLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
   private val done = new AtomicBoolean
-  private val httpEngine = tx.request.config.httpComponents.httpEngine
   // [fl]
   //
   //
@@ -94,10 +94,8 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
   //
   // [fl]
 
-  override def onRequestSend(request: NettyRequest): Unit = {
-    if (AsyncHandler.DebugEnabled)
-      responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
-  }
+  override def onRequestSend(request: NettyRequest): Unit =
+    if (AsyncHandler.DebugEnabled) responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
 
   override def onRetry(): Unit =
     if (!done.get) responseBuilder.reset()
@@ -126,7 +124,7 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
 
   override def onCompleted: Unit =
     if (done.compareAndSet(false, true)) {
-      try { httpEngine.asyncHandlerActors ! OnCompleted(tx, responseBuilder.build) }
+      try { responseProcessor.onCompleted(tx, responseBuilder.build) }
       catch { case NonFatal(e) => sendOnThrowable(e) }
     }
 
@@ -148,6 +146,6 @@ class AsyncHandler(tx: HttpTx) extends ExtendedAsyncHandler[Unit] with ProgressA
     else if (AsyncHandler.InfoEnabled)
       logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
-    httpEngine.asyncHandlerActors ! OnThrowable(tx, responseBuilder.build, errorMessage)
+    responseProcessor.onThrowable(tx, responseBuilder.build, errorMessage)
   }
 }

@@ -98,7 +98,7 @@ object HttpTx extends NameGen with StrictLogging {
         case (newSession, client) =>
           val newTx = tx.copy(session = newSession)
           val ahcRequest = newTx.request.ahcRequest
-          val handler = new AsyncHandler(newTx)
+          val handler = new AsyncHandler(newTx, httpEngine.responseProcessor)
 
           if (requestConfig.throttled)
             origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => executeRequest(client, ahcRequest, handler))

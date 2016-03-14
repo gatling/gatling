@@ -17,15 +17,15 @@ package io.gatling.http.ahc
 
 import scala.util.control.NonFatal
 import scala.collection.JavaConversions._
+
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.util.StringHelper.Eol
-import io.gatling.core.CoreComponents
-import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
@@ -37,47 +37,38 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
-import akka.actor.Props
-import io.gatling.core.util.NameGen
+
+import akka.actor.{ ActorRefFactory, Props }
+import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.HttpConstants.Methods._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 import org.asynchttpclient.util.StringUtils.stringBuilder
 
-object AsyncHandlerActor {
-  def props(coreComponents: CoreComponents, httpEngine: HttpEngine) =
-    Props(new AsyncHandlerActor(coreComponents.statsEngine, httpEngine, coreComponents.configuration))
-}
+class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
 
-class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration) extends BaseActor with NameGen {
-
-  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
-
-      def abort(tx: HttpTx): Unit = {
-        logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-        tx.resourceFetcher match {
-          case None                  => tx.next ! tx.session.markAsFailed
-          case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.ahcRequest.getUri, KO, Session.Identity, tx.silent)
-        }
-      }
-
-    message match {
-      case Some(OnCompleted(tx, _)) =>
-        abort(tx)
-
-      case Some(OnThrowable(tx, _, _)) =>
-        abort(tx)
-
-      case _ =>
-        logger.error(s"AsyncHandlerActor crashed on unknown message $message, dropping")
+  private def abort(tx: HttpTx, t: Throwable): Unit = {
+    logger.error(s"AsyncHandlerActor crashed on tx $tx, forwarding user to the next action", t)
+    tx.resourceFetcher match {
+      case None                  => tx.next ! tx.session.markAsFailed
+      case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.ahcRequest.getUri, KO, Session.Identity, tx.silent)
     }
   }
 
-  def receive = {
-    case OnCompleted(tx, response)               => processResponse(tx, response)
-    case OnThrowable(tx, response, errorMessage) => ko(tx, Session.Identity, response, errorMessage)
-  }
+  def onCompleted(tx: HttpTx, response: Response): Unit =
+    try {
+      processResponse(tx, response)
+    } catch {
+      case NonFatal(t) => abort(tx, t)
+    }
+
+  def onThrowable(tx: HttpTx, response: Response, errorMessage: String): Unit =
+    try {
+      ko(tx, Session.Identity, response, errorMessage)
+    } catch {
+      case NonFatal(t) => abort(tx, t)
+    }
 
   private def logRequest(
     tx:           HttpTx,
@@ -147,7 +138,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       case None =>
         httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
           case Some(resourceFetcherActor) =>
-            context.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
+            actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
 
           case None =>
             tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)

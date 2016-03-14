@@ -28,8 +28,7 @@ import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.DelegatingNameResolver
 import io.gatling.http.util.HttpTypeHelper
 
-import akka.actor.{ ActorRef, ActorSystem }
-import akka.routing.RoundRobinPool
+import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.resolver.dns.DefaultDnsCache
 import org.asynchttpclient.{ AsyncHttpClient, RequestBuilder }
@@ -48,10 +47,8 @@ class HttpEngine(
 )
     extends ResourceFetcher with NameGen with StrictLogging {
 
-  val asyncHandlerActors: ActorRef = {
-    val poolSize = 3 * Runtime.getRuntime.availableProcessors
-    system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(coreComponents, this)), genName("asyncHandler"))
-  }
+  val responseProcessor: ResponseProcessor =
+    new ResponseProcessor(coreComponents.statsEngine, this, coreComponents.configuration)(system)
 
   private[this] lazy val dnsResolver = ahcFactory.newNameResolver()
 
