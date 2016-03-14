@@ -20,18 +20,9 @@ import java.util.UUID
 import scala.concurrent.duration.Duration
 
 import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.commons.validation._
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder.chainOf
-
-object Loops {
-
-  val trueExpression: Expression[Boolean] = {
-    val trueSuccess = true.success
-    _ => trueSuccess
-  }
-}
 
 trait Loops[B] extends Execs[B] {
 
@@ -63,7 +54,7 @@ trait Loops[B] extends Execs[B] {
   def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = false)(chain)
 
   def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
-    asLongAs(Loops.trueExpression, counterName, exitASAP, ForeverLoopType)(chain)
+    asLongAs(TrueExpressionSuccess, counterName, exitASAP, ForeverLoopType)(chain)
 
   def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false, loopType: LoopType = AsLongAsLoopType)(chain: ChainBuilder): B =
     exec(new LoopBuilder(condition, chain, counterName, exitASAP, loopType))
