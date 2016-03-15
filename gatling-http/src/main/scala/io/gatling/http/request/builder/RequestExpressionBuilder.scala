@@ -133,7 +133,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     session => requestBuilder => virtualHost(session).map(requestBuilder.setVirtualHost)
 
   protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    if (refererHeaderIsUndefined) {
+    if (protocol.requestPart.autoReferer && refererHeaderIsUndefined) {
       RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HeaderNames.Referer, _))
     }
     requestBuilder
