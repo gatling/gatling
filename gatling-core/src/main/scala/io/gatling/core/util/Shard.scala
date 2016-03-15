@@ -17,28 +17,73 @@ package io.gatling.core.util
 
 object Shard {
 
+  private[this] def pick(countA: Long, valueA: Long, countB: Long, valueB: Long, nodeId: Int): Shard = {
+    // assumes countA > countB
+    // pattern = (A... ratio times) then (B once), order depend on valueA >= valueB
+    val ratioAforB = (countA / countB).toInt
+    val patternLength = ratioAforB + 1
+    val numberOfFullPatterns = nodeId / patternLength
+    val modulo = nodeId % patternLength
+    val patternValue = ratioAforB * valueA + valueB
+    val fullPatternsValue = numberOfFullPatterns * patternValue
+
+    if (valueA >= valueB) {
+      // A first
+      if (modulo == ratioAforB) {
+        // (A, ..., A, B)
+        Shard((fullPatternsValue + patternValue - valueB).toInt, valueB.toInt)
+      } else {
+        // (A, ..., A)
+        Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
+      }
+
+    } else {
+      // B first
+      if (modulo == 0) {
+        // (... A)()
+        Shard((fullPatternsValue).toInt, valueB.toInt)
+      } else {
+        // (B, A, ..., A)
+        Shard((fullPatternsValue + valueB + (modulo - 1) * valueA).toInt, valueA.toInt)
+      }
+    }
+  }
+
   def shard(total: Int, nodeId: Int, nodeCount: Int): Shard =
     if (nodeCount == 1) {
       Shard(0, total)
     } else {
       val largeBucketCount = total % nodeCount
+      val smallBucketCount = nodeCount - largeBucketCount
       val smallBucketSize = total / nodeCount
       val largeBucketSize = smallBucketSize + 1
 
-      // large buckets first
-      if (nodeId < largeBucketCount)
+      if (smallBucketCount == 0) {
         Shard(nodeId * largeBucketSize, largeBucketSize)
+
+      } else if (largeBucketCount == 0) {
+        Shard(nodeId * smallBucketSize, smallBucketSize)
+
+      } else if (largeBucketCount > smallBucketCount)
+        pick(largeBucketCount, largeBucketSize, smallBucketCount, smallBucketSize, nodeId)
       else
-        Shard(largeBucketCount * largeBucketSize + (nodeId - largeBucketCount) * smallBucketSize, smallBucketSize)
+        pick(smallBucketCount, smallBucketSize, largeBucketCount, largeBucketSize, nodeId)
     }
 
-  private[this] def interleave(largestCount: Long, largestValue: Long, smallestCount: Long, smallestValue: Long, totalCount: Int): Iterator[Long] = {
-    // more large than small
-    val largeForSmallRatio = (largestCount / smallestCount).toInt
-    val rest = (totalCount - smallestCount * (largeForSmallRatio + 1)).toInt
+  private[this] def interleave(countA: Long, valueA: Long, countB: Long, valueB: Long, totalCount: Int): Iterator[Long] = {
+    // assumes countA > countB
+    val ratioAforB = (countA / countB).toInt
+    val rest = (totalCount - countB * (ratioAforB + 1)).toInt
 
-    Iterator.fill(smallestCount.toInt)(Iterator.single(smallestValue) ++ Iterator.fill(largeForSmallRatio)(largestValue)).flatten ++
-      Iterator.fill(rest)(largestValue)
+    // largest values first
+    val pattern =
+      if (valueA >= valueB) {
+        () => Iterator.fill(ratioAforB)(valueA) ++ Iterator.single(valueB)
+      } else {
+        () => Iterator.single(valueB) ++ Iterator.fill(ratioAforB)(valueA)
+      }
+
+    Iterator.fill(countB.toInt)(pattern()).flatten ++ Iterator.fill(rest)(valueA)
   }
 
   def shards(total: Long, nodeCount: Int): Iterator[Long] = {

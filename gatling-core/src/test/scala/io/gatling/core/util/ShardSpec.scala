@@ -25,4 +25,17 @@ class ShardSpec extends BaseSpec {
       Shard.shards(total, 1000).sum shouldBe total
     }
   }
+
+  "Shard.shard" should "evenly distribute value" in {
+    Shard.shard(5, 0, 10) shouldBe Shard(0, 1)
+    Shard.shard(5, 1, 10) shouldBe Shard(1, 0)
+    Shard.shard(5, 2, 10) shouldBe Shard(1, 1)
+    Shard.shard(5, 3, 10) shouldBe Shard(2, 0)
+    Shard.shard(5, 4, 10) shouldBe Shard(2, 1)
+    Shard.shard(5, 5, 10) shouldBe Shard(3, 0)
+    Shard.shard(5, 6, 10) shouldBe Shard(3, 1)
+    Shard.shard(5, 7, 10) shouldBe Shard(4, 0)
+    Shard.shard(5, 8, 10) shouldBe Shard(4, 1)
+    Shard.shard(5, 9, 10) shouldBe Shard(5, 0)
+  }
 }
