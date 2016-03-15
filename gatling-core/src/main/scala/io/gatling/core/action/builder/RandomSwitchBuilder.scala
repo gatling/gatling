@@ -48,7 +48,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
   import RandomSwitchBuilder._
 
   val sum = possibilities.sumBy(_._1)
-  require(sum <= Accuracy, s"Random switch weights sum is ${sum / Accuracy}, mustn't be bigger than 100%")
+  require(sum <= Accuracy, s"Random switch weights sum is ${sum.toDouble / 100}, mustn't be bigger than 100%")
   if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
