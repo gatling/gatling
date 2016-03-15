@@ -17,14 +17,14 @@ package io.gatling.http.request.builder
 
 import scala.collection.JavaConversions._
 
-import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.protocol.{ HttpProtocol, HttpComponents }
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 
 import org.asynchttpclient.{ Request, RequestBuilderBase, SignatureCalculator }
 import org.asynchttpclient.uri.Uri
@@ -36,9 +36,8 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   val configuration = GatlingConfiguration.loadForTest()
   val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
-  val httpEngine = mock[HttpEngine]
   val httpCaches = new HttpCaches(configuration)
-  val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches)
+  val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches, mock[ResponseProcessor])
 
   def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, "GET", Right(Uri.create("http://gatling.io")))

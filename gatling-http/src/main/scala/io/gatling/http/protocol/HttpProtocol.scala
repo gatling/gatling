@@ -23,15 +23,14 @@ import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
-import io.gatling.core.protocol.{ ProtocolKey, Protocol }
+import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.core.session._
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
-
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient._
@@ -53,7 +52,13 @@ object HttpProtocol extends StrictLogging {
       val httpEngine = HttpEngine(system, coreComponents)
 
       httpProtocol => {
-        val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(coreComponents.configuration))
+        val httpComponents = HttpComponents(
+          httpProtocol,
+          httpEngine,
+          new HttpCaches(coreComponents.configuration),
+          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(system)
+        )
+
         httpEngine.warmpUp(httpComponents)
         httpComponents
       }

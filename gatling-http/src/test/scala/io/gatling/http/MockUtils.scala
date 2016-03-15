@@ -18,10 +18,10 @@ package io.gatling.http
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
-import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocol, HttpProtocolRequestPart }
+import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
 import io.netty.handler.codec.http.DefaultHttpHeaders
 import org.asynchttpclient.Request
@@ -34,7 +34,7 @@ object MockUtils extends MockitoSugar {
   def txTo(uri: String, session: Session, redirectCount: Int = 0, cache: Boolean = false) = {
     val protocol = mock[HttpProtocol]
     val coreComponents = mock[CoreComponents]
-    val httpComponents = HttpComponents(protocol, mock[HttpEngine], mock[HttpCaches])
+    val httpComponents = HttpComponents(protocol, mock[HttpEngine], mock[HttpCaches], mock[ResponseProcessor])
     val request = mock[Request]
     val requestPart = mock[HttpProtocolRequestPart]
 

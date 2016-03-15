@@ -38,7 +38,7 @@ class HttpTxSpec extends BaseSpec {
     val httpCaches = new HttpCaches(configuration)
     val coreComponents = mock[CoreComponents]
     when(coreComponents.configuration).thenReturn(configuration)
-    val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches)
+    val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches, mock[ResponseProcessor])
     var session = Session("mockSession", 0)
 
     val configBase = HttpRequestConfig(

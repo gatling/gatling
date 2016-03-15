@@ -47,9 +47,6 @@ class HttpEngine(
 )
     extends ResourceFetcher with NameGen with StrictLogging {
 
-  val responseProcessor: ResponseProcessor =
-    new ResponseProcessor(coreComponents.statsEngine, this, coreComponents.configuration)(system)
-
   private[this] lazy val dnsResolver = ahcFactory.newNameResolver()
 
   def newDnsResolver: DelegatingNameResolver = DelegatingNameResolver(dnsResolver, new DefaultDnsCache)

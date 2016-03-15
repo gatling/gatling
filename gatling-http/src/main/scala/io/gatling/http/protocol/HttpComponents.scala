@@ -17,12 +17,12 @@ package io.gatling.http.protocol
 
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.{ AhcChannelPoolPartitionSelector, HttpEngine }
+import io.gatling.http.ahc.{ AhcChannelPoolPartitionSelector, HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
 
 import org.asynchttpclient.DefaultAsyncHttpClient
 
-case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches) extends ProtocolComponents {
+case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor) extends ProtocolComponents {
 
   private val onExitF: Session => Unit = session => {
     val (_, ahc: DefaultAsyncHttpClient) = httpEngine.httpClient(session, httpProtocol)
