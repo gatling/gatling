@@ -13,7 +13,7 @@ Versions
 
 Check out available versions on `Maven Central <http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.gatling%22%20AND%20a%3A%22gatling-maven-plugin%22>`_.
 
-Beware that milestones (M versions) are undocumented and releases for Gatling customers.
+Beware that milestones (M versions) are undocumented and released for Gatling customers.
 
 
 Set up the gatling-maven-plugin
