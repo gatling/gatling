@@ -13,30 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.async
+
+package io.gatling.http.check.async.message
 
 import io.gatling.core.check._
-import io.gatling.core.session._
 import io.gatling.core.check.extractor.regex._
+import io.gatling.core.session._
 import io.gatling.http.check.async.AsyncCheckBuilders._
+import io.gatling.http.check.async.{ AsyncCheck, AsyncMessage }
 
-trait AsyncRegexOfType {
-  self: AsyncRegexCheckBuilder[String] =>
+trait AsyncMessageRegexOfType {
+  self: AsyncMessageRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new AsyncRegexCheckBuilder[X](expression, extender)
+  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new AsyncMessageRegexCheckBuilder[X](expression, extender)
 }
 
-object AsyncRegexCheckBuilder {
+object AsyncMessageRegexCheckBuilder {
 
-  def regex(expression: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: RegexExtractorFactory) =
-    new AsyncRegexCheckBuilder[String](expression, extender) with AsyncRegexOfType
+  def regex(expression: Expression[String], extender: Extender[AsyncCheck, AsyncMessage])(implicit extractorFactory: RegexExtractorFactory) =
+    new AsyncMessageRegexCheckBuilder[String](expression, extender) with AsyncMessageRegexOfType
 }
 
-class AsyncRegexCheckBuilder[X: GroupExtractor](
+class AsyncMessageRegexCheckBuilder[X: GroupExtractor](
   private[async] val expression: Expression[String],
-  private[async] val extender:   Extender[AsyncCheck, String]
+  private[async] val extender:   Extender[AsyncCheck, AsyncMessage]
 )(implicit extractorFactory: RegexExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, CharSequence, X](extender, PassThroughMessagePreparer) {
+    extends DefaultMultipleFindCheckBuilder[AsyncCheck, AsyncMessage, CharSequence, X](extender, AsyncMessageStringPreparer) {
 
   import extractorFactory._
 

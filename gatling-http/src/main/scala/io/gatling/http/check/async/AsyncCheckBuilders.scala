@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.async
 
 import scala.concurrent.duration.FiniteDuration
@@ -22,8 +23,10 @@ import io.gatling.core.check.{ Extender, Preparer }
 
 object AsyncCheckBuilders {
 
-  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
+  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, AsyncMessage] =
     wrapped => new AsyncCheck(wrapped, await, timeout, expectation)
 
-  val PassThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success
+  val AsyncMessageStringPreparer: Preparer[AsyncMessage, String] = (message: AsyncMessage) => message.string.success
+  val AsyncMessageBytesPreparer: Preparer[AsyncMessage, Array[Byte]] = (message: AsyncMessage) => message.bytes.success
+
 }

@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.action.async.ws
 
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.action.Interruptable
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async.AsyncTx
@@ -36,7 +38,7 @@ object WsOpenAction {
     statsEngine:    StatsEngine,
     httpComponents: HttpComponents,
     next:           ActorRef
-  ) =
+  )(implicit configuration: GatlingConfiguration) =
     Props(new WsOpenAction(requestName, wsName, request, checkBuilder, statsEngine, httpComponents, next))
 }
 
@@ -48,7 +50,7 @@ class WsOpenAction(
     val statsEngine: StatsEngine,
     httpComponents:  HttpComponents,
     val next:        ActorRef
-) extends Interruptable with WsAction {
+)(implicit configuration: GatlingConfiguration) extends Interruptable with WsAction {
 
   def execute(session: Session): Unit = {
 
