@@ -215,7 +215,7 @@ If you want to test complex conditions, you'll have to pass an ``Expression[Bool
 .. _scenario-doifequals:
 
 ``doIfEquals``
-^^^^^^^^^^^^^
+^^^^^^^^^^^^^^
 
 Îf your test condition is simply to compare two values, you can simply use ``doIfEquals``:
 
