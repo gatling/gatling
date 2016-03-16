@@ -116,7 +116,7 @@ You then have to configure an `execution <http://maven.apache.org/guides/mini/gu
   </plugin>
 
 Then, you may want to run the plugin several times in a build (e.g. in order to run several Simulations sequentially).
-A solution is to configure several ``execution``s with each having a different ``configuration`` block.
+A solution is to configure several ``execution`` blocks with each having a different ``configuration`` block.
 If you do so, beware that those won't be used when running ``gatling:test``, as executions are triggered by maven phases.
 
 ::
