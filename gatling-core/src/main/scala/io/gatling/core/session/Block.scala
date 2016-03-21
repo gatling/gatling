@@ -20,7 +20,7 @@ import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 
-import com.typesafe.scalalogging.LazyLogging
+import com.typesafe.scalalogging.StrictLogging
 
 sealed trait Block
 
@@ -28,7 +28,7 @@ sealed trait CounterBlock extends Block {
   def counterName: String
 }
 
-object LoopBlock extends LazyLogging {
+object LoopBlock extends StrictLogging {
 
   def unapply(block: Block): Option[String] = block match {
     case ExitAsapLoopBlock(counterName, _, _) => Some(counterName)
