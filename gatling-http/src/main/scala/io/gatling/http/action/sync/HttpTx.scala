@@ -79,7 +79,8 @@ object HttpTx extends NameGen with StrictLogging {
     }
   }
 
-  private def executeRequest(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit = {
+  private def executeRequest(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
+  if (!client.isClosed) {
     handler.start()
     client.executeRequest(ahcRequest, handler)
   }
