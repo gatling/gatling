@@ -119,5 +119,5 @@ case class HttpTx(
     redirectCount:          Int                    = 0,
     update:                 Session => Session     = Session.Identity
 ) {
-  val silent: Boolean = HttpTx.silent(request, resourceFetcher.isEmpty)
+  lazy val silent: Boolean = HttpTx.silent(request, resourceFetcher.isEmpty)
 }
