@@ -53,9 +53,13 @@ class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngin
 
           val pauseStart = nowMillis
 
-          scheduler.scheduleOnce(durationMinusDrift milliseconds) {
-            val newDrift = nowMillis - pauseStart - durationMinusDrift
-            next ! session.setDrift(newDrift)
+          try {
+            scheduler.scheduleOnce(durationMinusDrift milliseconds) {
+              val newDrift = nowMillis - pauseStart - durationMinusDrift
+              next ! session.setDrift(newDrift)
+            }
+          } catch {
+            case ise: IllegalStateException => // engine was shutdown
           }
 
         } else {
