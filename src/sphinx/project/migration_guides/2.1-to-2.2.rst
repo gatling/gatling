@@ -27,6 +27,12 @@ Core
 ``doIf(actual, expected)`` that only execute wrapped block when ``actual`` evaluates to ``expected`` was renamed into
 ``doIfEquals`` for clarity and consistency.
 
+Pauses
+======
+
+``normalPauses(stdDev: Double)`` was confusing and was replaced by
+``normalPausesWithPercentageDuration(stdDev: Double)`` and ``normalPausesWithStdDevDuration(stdDev: Duration)``
+
 HTTP
 ====
 
@@ -57,6 +63,7 @@ Reports
 
 ``latency`` charts were dropped, as this metric (time between last byte sent and first by received)
 didn't make sense for most people and only brought confusion.
+
 
 SBT Plugin
 ==========
