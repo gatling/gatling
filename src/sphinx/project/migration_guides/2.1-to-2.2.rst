@@ -38,3 +38,15 @@ Cookie
 
 ``Cookie.withExpires`` was dropped, as it would be very cumbersome to compute and pass a date.
 Use `Cookie.withMaxAge` instead.
+
+Check
+-----
+
+``latencyInMillis`` was dropped, as this metric (time between last byte sent and first by received)
+didn't make sense for most people and only brought confusion.
+
+Reports
+=======
+
+``latency`` charts were dropped, as this metric (time between last byte sent and first by received)
+didn't make sense for most people and only brought confusion.
