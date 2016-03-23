@@ -20,6 +20,13 @@ Global changes
 
 * Some configuration options have been renamed or dropped, please check the logs or update to a fresh gatling.config file copy.
 
+
+Core
+====
+
+``doIf(actual, expected)`` that only execute wrapped block when ``actual`` evaluates to ``expected`` was renamed into
+``doIfEquals`` for clarity and consistency.
+
 HTTP
 ====
 
