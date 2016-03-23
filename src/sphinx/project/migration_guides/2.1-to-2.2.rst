@@ -17,6 +17,9 @@ Global changes
   * ``gatling.http.ahc.httpsEnabledCipherSuites`` : by default ``""``, now ``[]``
   * ``gatling.data.writers`` : by default ``"console, file"``, now ``[console, file]``
 
+
+* Some configuration options have been renamed or dropped, please check the logs or update to a fresh gatling.config file copy.
+
 HTTP
 ====
 
@@ -29,3 +32,9 @@ ElFileBody
 ----------
 
 ``ELFileBody`` has been renamed to ``ElFileBody``.
+
+Cookie
+------
+
+``Cookie.withExpires`` was dropped, as it would be very cumbersome to compute and pass a date.
+Use `Cookie.withMaxAge` instead.
