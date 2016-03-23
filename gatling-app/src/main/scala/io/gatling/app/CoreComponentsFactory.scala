@@ -35,7 +35,7 @@ private[gatling] object CoreComponentsFactory {
     //
     //
     // [fl]
-     new DefaultCoreComponentsFactory(configuration)
+    new DefaultCoreComponentsFactory(configuration)
   }
 }
 
