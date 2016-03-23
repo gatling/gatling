@@ -64,6 +64,11 @@ Reports
 ``latency`` charts were dropped, as this metric (time between last byte sent and first by received)
 didn't make sense for most people and only brought confusion.
 
+Maven Plugin
+============
+
+``execute`` task is now deprecated and will be removed in a future version.
+Please now use ``test`` and ``integration-test``.
 
 SBT Plugin
 ==========
