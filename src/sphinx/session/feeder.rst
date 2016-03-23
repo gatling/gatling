@@ -18,7 +18,6 @@ This defines a workflow step where **every virtual user** feed on the same Feede
 
 Every time a virtual user reaches this step, it will pop a record out of the Feeder, which will be injected into the user's Session, resulting in a new Session instance.
 
-
 If the Feeder can't produce enough records, Gatling will complain about it and your simulation will stop.
 
 .. note::

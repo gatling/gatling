@@ -8,13 +8,26 @@ JDK
 Gatling now requires JDK8.
 JVM default tuning uses G1 Garbage Collector, so we strongly advice you use a very up-to-date JDK, not early versions.
 
+Core
+====
+
+Feeder Shuffle
+--------------
+
+You can now ``shuffle`` a feeder content before enqueuing its content, see :ref:`Feeder documentation <feeder>` for more details.
+
+Assertions
+----------
+
+Gatling now supports "per-million" assertions, similar to "percent" ones.
+
 HTTP
 ====
 
 Native Transport
 ----------------
 
-Gatling is now based on Netty 4 that provide an optional native NIO re-implementation (different from JDK NIO) which can give better throughput.
+Gatling is now based on Netty 4 that provide an optional native epoll-based NIO re-implementation (different from JDK NIO) which can give better throughput.
 This option is only available on Linux.
 See `Netty documentation <http://netty.io/wiki/native-transports.html>`_ for more details.
 
@@ -40,6 +53,23 @@ You can now use the ``form("cssSelector").saveAs("myForm")`` check to capture a 
 
 You can then feed them back to a later request. See :ref:`HTTP request documentation <http-parameters>` for more details.
 
+Polling Support
+---------------
+
+Gatling now supports HTTP polling, see :ref:`HTTP polling documentation <http-polling>` for more details.
+
+DNS Resolution
+--------------
+
+By default, virtual users now use a shuffled list of the DNS records Gatling gets from the JDK.
+If you use DNS round-robin, this will balance your virtual users amongst the nodes of a static cluster.
+
+Alternatively, you can enable ``perUserNameResolution`` on the HTTP protocol and have each virtual user perform DNS resolution on its own.
+This, way, your virtual users would be properly balanced if your cluster grows elastically under load.
+See :ref:`HTTP protocol documentation <http-protocol-name-resolution>` for more details.
+
+We also support DNS fail-over, meaning that virtual users will try the next DNS record of they couldn't connect to the first address.
+
 Reports
 =======
 
@@ -49,8 +79,14 @@ JUnit Format Report File
 Gatling now generates a JUNIt format report file based on the assertions in your simulation.
 This file is generated as ``/js/assertions.xml``.
 
+Groups Duration
+---------------
+
+You can switch from Group cumulated response times to duration when generating the reports.
+See ``gatling.charting.useGroupDurationMetric`` option in ``gatling.conf``
+
 Maven Plugin
-------------
+============
 
 The Gatling Maven plugin now provides ``test`` and ``integration-test`` that are bound to the phases of the same name.
 

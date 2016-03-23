@@ -110,7 +110,7 @@ Name Resolution
 
 By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
 
-One can change this behaviour and set `.perUserNameResolution`` so all virtual users resolve names on their own.
+One can change this behaviour and set ``.perUserNameResolution`` so all virtual users resolve names on their own.
 This feature is experimental, but will become the default in future versions.
 
 .. _http-protocol-virtual-host:
