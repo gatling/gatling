@@ -1,0 +1,58 @@
+#################
+What's New in 2.2
+#################
+
+JDK
+===
+
+Gatling now requires JDK8.
+JVM default tuning uses G1 Garbage Collector, so we strongly advice you use a very up-to-date JDK, not early versions.
+
+HTTP
+====
+
+Native Transport
+----------------
+
+Gatling is now based on Netty 4 that provide an optional native NIO re-implementation (different from JDK NIO) which can give better throughput.
+This option is only available on Linux.
+See `Netty documentation <http://netty.io/wiki/native-transports.html>`_ for more details.
+
+Gatling ships with the required jar, but the option is turned down by default.
+
+In order to enable it, set ``gatling.http.ahc.useNativeTransport`` to ``true`` in ``gatling.conf``.
+
+OpenSSL Support
+---------------
+
+Netty 4 also provides a support for OpenSSL and BoringSSL.
+See `Netty documentation <http://netty.io/wiki/forked-tomcat-native.html>`_ for more details.
+
+Gatling doesn't ship the required jar and it depends on your operating system and if you want static or dynamic binding.
+You're expected to manually add the suited library to Gatling's classpath.
+
+In order to enable it, set ``gatling.http.ahc.useOpenSsl`` to ``true`` in ``gatling.conf``.
+
+Forms Support
+-------------
+
+You can now use the ``form("cssSelector").saveAs("myForm")`` check to capture a ``Map[String, Seq[String]]`` of all the inputs of an HTML form at once.
+
+You can then feed them back to a later request. See :ref:`HTTP request documentation <http-parameters>` for more details.
+
+Reports
+=======
+
+JUnit Format Report File
+------------------------
+
+Gatling now generates a JUNIt format report file based on the assertions in your simulation.
+This file is generated as ``/js/assertions.xml``.
+
+Maven Plugin
+------------
+
+The Gatling Maven plugin now provides ``test`` and ``integration-test`` that are bound to the phases of the same name.
+
+It also now provides a ``useOldJenkinsJUnitSupport`` that exposes our JUnit file to Jenkins.
+At some point, we'll provide a native support.
