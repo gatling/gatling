@@ -57,3 +57,13 @@ Reports
 
 ``latency`` charts were dropped, as this metric (time between last byte sent and first by received)
 didn't make sense for most people and only brought confusion.
+
+SBT Plugin
+==========
+
+In order to not conflict with "standard" tests frameworks, you're now required to prefix your command with ``gatling:``,
+e.g. ``gatling:test`` instead of ``test``.
+
+
+
+
