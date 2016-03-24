@@ -37,8 +37,8 @@ private[stats] trait NamesBuffers {
     scenarioNameBuffer.update(record.scenario, record.startTimestamp)
 
   def addRequestName(record: RequestRecord): Unit =
-    groupAndRequestsNameBuffer.update(RequestStatsPath(record.name, record.group), record.startBucket)
+    groupAndRequestsNameBuffer.update(RequestStatsPath(record.name, record.group), record.start)
 
   def addGroupName(record: GroupRecord): Unit =
-    groupAndRequestsNameBuffer.update(GroupStatsPath(record.group), record.startBucket)
+    groupAndRequestsNameBuffer.update(GroupStatsPath(record.group), record.start)
 }
