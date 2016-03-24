@@ -70,6 +70,8 @@ Maven Plugin
 ``execute`` task is now deprecated and will be removed in a future version.
 Please now use ``test`` and ``integration-test``.
 
+Reports files are now generated in ``/target/gatling`` instead of ``/target/results``.
+
 SBT Plugin
 ==========
 
