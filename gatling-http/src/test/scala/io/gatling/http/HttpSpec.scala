@@ -17,7 +17,7 @@ package io.gatling.http
 
 import java.io.RandomAccessFile
 import java.net.ServerSocket
-import javax.activation.MimetypesFileTypeMap
+import javax.activation.FileTypeMap
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
@@ -79,7 +79,6 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   // In case Content Type setting fails under JDK < 8, amend mime.types to add the necessary mappings.
   def sendFile(name: String): ChannelProcessor = ctx => {
     val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK)
-    val mimeTypesMap = new MimetypesFileTypeMap
 
     val resource = getClass.getClassLoader.getResource(name)
     val fileUri = resource.getFile
@@ -87,7 +86,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
 
     response.headers
-      .set(HeaderNames.ContentType, mimeTypesMap.getContentType(fileUri))
+      .set(HeaderNames.ContentType, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
       .set(HeaderNames.ContentLength, raf.length)
 
     ctx.write(response)
