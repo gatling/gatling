@@ -25,5 +25,5 @@ object AsyncCheckBuilders {
   def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
     wrapped => new AsyncCheck(wrapped, await, timeout, expectation)
 
-  val PassThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success
+  val PassThroughMessagePreparer: Preparer[String, String] = _.success
 }
