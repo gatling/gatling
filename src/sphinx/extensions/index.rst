@@ -17,7 +17,7 @@ Official Extensions
 Third Parties
 =============
 
-* `Gradle plugin <https://github.com/alphagov/gradle-gatling-plugin>`_
+* `Gradle plugin <https://github.com/lkishalmi/gradle-gatling-plugin>`_
 * `Cassandra plugin <https://github.com/Mishail/GatlingCql>`_
 * `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_
 * `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_
