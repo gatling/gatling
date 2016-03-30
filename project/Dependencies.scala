@@ -18,7 +18,7 @@ object Dependencies {
   private val akkaSlf4j                     = "com.typesafe.akka"                     %% "akka-slf4j"                   % akkaActor.revision
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                     % "9.7.0-4"
-  private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.19"
+  private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.20"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                     % "0.2.4"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                        % "3.4.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                % "3.1.0"
@@ -31,7 +31,7 @@ object Dependencies {
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                  % "3.0"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                         % "0.3.9" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"        % "1.1.1"
-  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"              % "1.1.6"
+  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"              % "1.1.7"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                     % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                 % "2.1.8"
   private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru"  % "1.4.2"
