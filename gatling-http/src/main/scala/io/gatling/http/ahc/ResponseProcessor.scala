@@ -136,12 +136,15 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
   private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response): Unit =
     tx.resourceFetcher match {
       case None =>
-        httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
-          case Some(resourceFetcherActor) =>
-            actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
+        val maybeResourceFetcherActor =
+          if (status == KO)
+            None
+          else
+            httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx)
 
-          case None =>
-            tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
+        maybeResourceFetcherActor match {
+          case Some(resourceFetcherActor) => actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
+          case None                       => tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
         }
 
       case Some(resourceFetcher) =>
