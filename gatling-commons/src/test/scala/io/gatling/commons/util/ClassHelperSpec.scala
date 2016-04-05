@@ -25,4 +25,12 @@ class ClassHelperSpec extends BaseSpec {
 
     classOf[java.util.concurrent.TimeoutException].getShortName shouldBe "j.u.c.TimeoutException"
   }
+
+  "toClassShortName" should "shorten String with package" in {
+    toClassShortName(classOf[java.util.concurrent.TimeoutException].getName) shouldBe "j.u.c.TimeoutException"
+  }
+
+  it should "shorten String without package" in {
+    toClassShortName("Foo") shouldBe "Foo"
+  }
 }

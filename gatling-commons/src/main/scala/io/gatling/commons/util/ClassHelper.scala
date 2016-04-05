@@ -15,29 +15,20 @@
  */
 package io.gatling.commons.util
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.function.{ Function => JFunction }
-
-import scala.compat.java8.FunctionConverters._
-
 object ClassHelper {
 
-  object PimpedClass {
-    private val ShortClassNamesCache = new ConcurrentHashMap[Class[_], String]
-    private val ShortClassNameFunction: Class[_] => String = clazz => {
-      val sb = new StringBuilder
-      clazz.getPackage.getName.split('.').foreach { p =>
-        sb.append(p.head).append('.')
-      }
-      sb.append(clazz.getSimpleName).toString
+  def toClassShortName(className: String): String = {
+    val sb = new StringBuilder
+    val parts = className.split('.')
+    var i = 0
+    while (i < parts.length - 1) {
+      sb.append(parts(i).head).append('.')
+      i += 1
     }
-    private val ShortClassNameComputer: JFunction[Class[_], String] = ShortClassNameFunction.asJava
+    sb.append(parts.last).toString
   }
 
   implicit class PimpedClass(val clazz: Class[_]) extends AnyVal {
-
-    import PimpedClass._
-
-    def getShortName: String = ShortClassNamesCache.computeIfAbsent(clazz, ShortClassNameComputer)
+    def getShortName: String = toClassShortName(clazz.getName)
   }
 }
