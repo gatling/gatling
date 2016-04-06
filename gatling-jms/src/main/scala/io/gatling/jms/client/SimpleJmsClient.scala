@@ -78,14 +78,13 @@ class SimpleJmsClient(
   // delivery mode based on input from caller
   producer.setDeliveryMode(deliveryMode)
 
-  private def createDestination(destination: JmsDestination): Destination = {
+  private def createDestination(destination: JmsDestination): Destination =
     destination match {
       case JmsQueue(name)    => session.createQueue(name)
       case JmsTopic(name)    => session.createTopic(name)
       case JmsTemporaryQueue => session.createTemporaryQueue()
       case JmsTemporaryTopic => session.createTemporaryTopic()
     }
-  }
 
   override val replyDestinationName = replyJmsDestination.toString
 
