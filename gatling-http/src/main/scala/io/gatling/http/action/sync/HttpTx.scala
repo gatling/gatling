@@ -120,4 +120,10 @@ case class HttpTx(
     update:                 Session => Session     = Session.Identity
 ) {
   lazy val silent: Boolean = HttpTx.silent(request, resourceFetcher.isEmpty)
+
+  lazy val fullRequestName =
+    if (redirectCount > 0)
+      s"${request.requestName} Redirect ${redirectCount}"
+    else
+      request.requestName
 }

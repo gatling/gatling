@@ -77,10 +77,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
     errorMessage: Option[String] = None
   ): Unit =
     if (!tx.silent) {
-      val fullRequestName = if (tx.redirectCount > 0)
-        s"${tx.request.requestName} Redirect ${tx.redirectCount}"
-      else tx.request.requestName
-
+      val fullRequestName = tx.fullRequestName
         def dump = {
           // hack: pre-cache url because it would reset the StringBuilder
           tx.request.ahcRequest.getUrl
