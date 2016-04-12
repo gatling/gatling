@@ -103,15 +103,19 @@ HTTP Client Sharing
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
 Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
 
-.. _http-protocol-name-resolution:
+.. _http-protocol-dns:
 
-Name Resolution
----------------
+DNS
+---
 
 By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
+This cache can be disabled with ``-Dsun.net.inetaddr.ttl=0``.
 
 One can change this behaviour and set ``.perUserNameResolution`` so all virtual users resolve names on their own.
-This feature is experimental, but will become the default in future versions.
+This feature is experimental, but might become the default in future versions.
+
+This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,
+for example with AWS Elastic Load Balancer (ELB).
 
 .. _http-protocol-virtual-host:
 

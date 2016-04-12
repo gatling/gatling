@@ -101,18 +101,6 @@ It was possible in old versions, but it caused tons of problems, so we removed t
 
 However, just like scheduling, that's something very easy to achieve outside Gatling. For example, one can configure `multiple executions <http://maven.apache.org/guides/mini/guide-default-execution-ids.html>`_ of the Gatling maven plugin, or multiple Jenkins jobs.
 
-.. _faq-elb:
-
-* **Using Amazon Elastic Load Balancing?**
-
-See `this page <http://aws.amazon.com/articles/1636185810492479>`_.
-
-.. note::
-  DNS Resolution
-  If clients do not re-resolve the DNS at least once per minute, then the new resources Elastic Load Balancing adds to DNS will not be used by clients. This can mean that clients continue to overwhelm a small portion of the allocated Elastic Load Balancing resources, while overall Elastic Load Balancing is not being heavily utilized. This is not a problem that can occur in real-world scenarios, but it is a likely problem for load testing tools that do not offer the control needed to ensure that clients are re-resolving DNS frequently.
-
-Basically, Gatling/JVM's DNS cache has to tuned. A solution is to add ``-Dsun.net.inetaddr.ttl=0`` to the command line.
-
 .. _faq-method_too_large:
 
 * **I have a HUGE simulation and I get a "Method too large" compile error**
