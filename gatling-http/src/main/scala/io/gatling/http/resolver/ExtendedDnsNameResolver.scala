@@ -37,6 +37,11 @@ object ExtendedDnsNameResolver extends StrictLogging {
   }
 }
 
+/**
+ * DnsNameResolver whose sole purpose is to publicly expose the doResolve and executor methods that are protected
+ * @param eventLoop the event loop
+ * @param configuration the config
+ */
 class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfiguration)
     extends DnsNameResolver(
       eventLoop,

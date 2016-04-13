@@ -103,10 +103,10 @@ HTTP Client Sharing
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
 Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
 
-.. _http-protocol-dns:
+.. _http-protocol-hostname-resolution:
 
-DNS
----
+Hostname Resolution
+-------------------
 
 By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
 This cache can be disabled with ``-Dsun.net.inetaddr.ttl=0``.
@@ -116,6 +116,16 @@ This feature is experimental, but might become the default in future versions.
 
 This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,
 for example with AWS Elastic Load Balancer (ELB).
+
+.. _http-protocol-hostname-aliasing:
+
+Hostname Aliasing
+-----------------
+
+You can of course define hostname aliases at the OS level in the ``/etc/hosts`` file.
+
+But you can also pass a ``Map[String, String]`` to ``.hostNameAliases`` where values are valid IP addresses.
+Note that, just like with ``/etc/hosts`` you can only define one IP per alias.
 
 .. _http-protocol-virtual-host:
 

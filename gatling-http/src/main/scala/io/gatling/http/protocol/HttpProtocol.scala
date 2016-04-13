@@ -73,6 +73,7 @@ object HttpProtocol extends StrictLogging {
         shareClient = true,
         shareConnections = false,
         perUserNameResolution = false,
+        hostNameAliases = Map.empty,
         maxConnectionsPerHost = 6,
         virtualHost = None,
         localAddress = None
@@ -161,6 +162,7 @@ case class HttpProtocolEnginePart(
   shareConnections:      Boolean,
   maxConnectionsPerHost: Int,
   perUserNameResolution: Boolean,
+  hostNameAliases:       Map[String, InetAddress],
   virtualHost:           Option[Expression[String]],
   localAddress:          Option[Expression[InetAddress]]
 )

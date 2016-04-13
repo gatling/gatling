@@ -58,8 +58,8 @@ Polling Support
 
 Gatling now supports HTTP polling, see :ref:`HTTP polling documentation <http-polling>` for more details.
 
-DNS Resolution
---------------
+Hostname Resolution
+-------------------
 
 By default, virtual users now use a shuffled list of the DNS records Gatling gets from the JDK.
 If you use DNS round-robin, this will balance your virtual users amongst the nodes of a static cluster.
@@ -69,6 +69,12 @@ This, way, your virtual users would be properly balanced if your cluster grows e
 See :ref:`HTTP protocol documentation <http-protocol-name-resolution>` for more details.
 
 We also support DNS fail-over, meaning that virtual users will try the next DNS record of they couldn't connect to the first address.
+
+Hostname Aliasing
+-----------------
+
+You can bypass hostname resolution and define aliases in ``hostNameAliases`` on the HTTP protocol.
+See :ref:`HTTP protocol documentation <http-protocol-hostname-aliasing>` for more details.
 
 Reports
 =======

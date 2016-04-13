@@ -21,7 +21,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.resolver.ShuffleJdkNameResolver
+import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
 import io.gatling.http.util.HttpTypeHelper
 
 import io.netty.resolver.{ DefaultNameResolver, NameResolver }
@@ -40,24 +40,43 @@ trait DnsCacheSupport {
 
   import DnsCacheSupport._
 
-  // import optimized TypeCaster
-  import HttpTypeHelper._
-
   def configuration: GatlingConfiguration
 
-  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session =
-    if (httpProtocol.enginePart.perUserNameResolution)
-      // use per user resolver
-      _.set(DnsCacheAttributeName, httpEngine.newDnsResolver)
+  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
 
-    else if (JavaDnsCacheEternal)
-      // mitigate missing round robin
-      _.set(DnsCacheAttributeName, new ShuffleJdkNameResolver)
+    val hostAliases = httpProtocol.enginePart.hostNameAliases
+    if (hostAliases.isEmpty) {
+      if (httpProtocol.enginePart.perUserNameResolution) {
+        // use per user resolver
+        _.set(DnsCacheAttributeName, httpEngine.newDnsResolver)
 
-    else
-      // user tuned Java behavior, let him have the standard behavior
-      _.set(DnsCacheAttributeName, JavaNameResolver)
+      } else if (JavaDnsCacheEternal) {
+        // mitigate missing round robin
+        _.set(DnsCacheAttributeName, new ShuffleJdkNameResolver)
 
-  val nameResolver: (Session => Option[NameResolver[InetAddress]]) =
+      } else {
+        // user tuned Java behavior, let him have the standard behavior
+        _.set(DnsCacheAttributeName, JavaNameResolver)
+      }
+    } else {
+      if (httpProtocol.enginePart.perUserNameResolution) {
+        // use per user resolver
+        _.set(DnsCacheAttributeName, new AliasesAwareNameResolver(hostAliases, httpEngine.newDnsResolver))
+
+      } else if (JavaDnsCacheEternal) {
+        // mitigate missing round robin
+        _.set(DnsCacheAttributeName, new AliasesAwareNameResolver(hostAliases, new ShuffleJdkNameResolver))
+
+      } else {
+        // user tuned Java behavior, let him have the standard behavior
+        _.set(DnsCacheAttributeName, new AliasesAwareNameResolver(hostAliases, JavaNameResolver))
+      }
+    }
+  }
+
+  val nameResolver: (Session => Option[NameResolver[InetAddress]]) = {
+    // import optimized TypeCaster
+    import HttpTypeHelper._
     _(DnsCacheAttributeName).asOption[NameResolver[InetAddress]]
+  }
 }
