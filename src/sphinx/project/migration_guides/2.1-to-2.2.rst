@@ -56,7 +56,13 @@ Check
 -----
 
 ``latencyInMillis`` was dropped, as this metric (time between last byte sent and first by received)
-didn't make sense for most people and only brought confusion.
+didn't make sense for most people and only brought confusion.`
+
+Local Address
+-------------
+
+``localAddress`` is now only available at HTTP protocol level, not request, and take one or many Strings,
+instead of a single `Expression[InetAddress]``.
 
 Reports
 =======

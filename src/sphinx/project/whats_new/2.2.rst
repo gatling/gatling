@@ -76,6 +76,12 @@ Hostname Aliasing
 You can bypass hostname resolution and define aliases in ``hostNameAliases`` on the HTTP protocol.
 See :ref:`HTTP protocol documentation <http-protocol-hostname-aliasing>` for more details.
 
+Local Addresses
+---------------
+
+It's now possible to pass multiple local addresses to the HTTP protocol in ``localAddresses``.
+See :ref:`HTTP protocol documentation <http-protocol-local-address>` for more details.
+
 Reports
 =======
 

@@ -77,7 +77,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     }
 
   // note: DNS cache is supposed to be set early
-  private val configureNameResolver: (Session, AhcRequestBuilder) => Unit =
+  private def configureNameResolver(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     // [fl]
     //
     //
@@ -88,28 +88,21 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     //
     //
     //
-    //
-    //
     // [fl]
-    (session, requestBuilder) => httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
+    httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
 
-  private val configureChannelPoolPartitioning: (Session, AhcRequestBuilder) => Unit =
-    if (protocol.enginePart.shareConnections)
-      (session, requestBuilder) => ()
-    else
-      (session, requestBuilder) => requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
+  private def configureChannelPoolPartitioning(session: Session, requestBuilder: AhcRequestBuilder): Unit =
+    if (!protocol.enginePart.shareConnections)
+      requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
 
-  private val configureProxy: AhcRequestBuilder => Unit = {
-    commonAttributes.proxy.orElse(protocol.proxyPart.proxy) match {
-      case Some(proxy) =>
-        requestBuilder =>
-          if (!protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
-            requestBuilder.setProxyServer(proxy)
-          }
+  private val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
 
-      case _ => requestBuilder => ()
+  private def configureProxy(requestBuilder: AhcRequestBuilder): Unit =
+    proxy.foreach { proxy =>
+      if (!protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
+        requestBuilder.setProxyServer(proxy)
+      }
     }
-  }
 
   private def configureCookies(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     CookieSupport.getStoredCookies(session, requestBuilder.getUri).foreach(requestBuilder.addCookie)
@@ -181,14 +174,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private def configureRealm0(realm: Expression[Realm]): RequestBuilderConfigure =
     session => requestBuilder => realm(session).map(requestBuilder.setRealm)
 
-  private val configureLocalAddress: RequestBuilderConfigure =
-    commonAttributes.address.orElse(protocol.enginePart.localAddress) match {
-      case None               => ConfigureIdentity
-      case Some(localAddress) => configureLocalAddress0(localAddress)
-    }
-
-  private def configureLocalAddress0(localAddress: Expression[InetAddress]): RequestBuilderConfigure =
-    session => requestBuilder => localAddress(session).map(requestBuilder.setLocalAddress)
+  private def configureLocalAddress(session: Session, requestBuilder: AhcRequestBuilder): Unit =
+    if (protocol.enginePart.localAddresses.nonEmpty)
+      httpCaches.localAddress(session).foreach(requestBuilder.setLocalAddress)
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
 
@@ -197,12 +185,12 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     configureProxy(requestBuilder)
     configureCookies(session, requestBuilder)
     configureNameResolver(session, requestBuilder)
+    configureLocalAddress(session, requestBuilder)
 
     configureQueryParams(session)(requestBuilder)
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))
-      .flatMap(configureLocalAddress(session))
   }
 
   private def applySignatureCalculator(session: Session, requestBuilder: AhcRequestBuilder): Validation[Request] = {

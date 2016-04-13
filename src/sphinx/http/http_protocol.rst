@@ -141,9 +141,12 @@ One can set a different Host than the url one::
 Local address
 -------------
 
-You can bind the sockets from a specific local address instead of the default one::
+You can bind the sockets from specific local addresses instead of the default one::
 
-  localAddress(localAddress: InetAddress)
+  localAddress(localAddress: String)
+  localAddresses(localAddress1: String, localAddress2: String)
+
+When setting multiple addresses, each virtual user is assigned to one single local address once and for all.
 
 Request building parameters
 ===========================

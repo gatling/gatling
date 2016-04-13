@@ -76,7 +76,7 @@ object HttpProtocol extends StrictLogging {
         hostNameAliases = Map.empty,
         maxConnectionsPerHost = 6,
         virtualHost = None,
-        localAddress = None
+        localAddresses = Nil
       ),
       requestPart = HttpProtocolRequestPart(
         headers = Map.empty,
@@ -123,22 +123,20 @@ object HttpProtocol extends StrictLogging {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-  baseUrls:     List[String],
-  warmUpUrl:    Option[String],
-  enginePart:   HttpProtocolEnginePart,
-  requestPart:  HttpProtocolRequestPart,
-  responsePart: HttpProtocolResponsePart,
-  wsPart:       HttpProtocolWsPart,
-  proxyPart:    HttpProtocolProxyPart
-)
-    extends Protocol {
+    baseUrls:     List[String],
+    warmUpUrl:    Option[String],
+    enginePart:   HttpProtocolEnginePart,
+    requestPart:  HttpProtocolRequestPart,
+    responsePart: HttpProtocolResponsePart,
+    wsPart:       HttpProtocolWsPart,
+    proxyPart:    HttpProtocolProxyPart
+) extends Protocol {
 
   type Components = HttpComponents
 
   val baseUrlIterator: Option[Iterator[String]] = baseUrls match {
     case Nil => None
-    case _ =>
-      Some(RoundRobin(baseUrls.toVector))
+    case _   => Some(RoundRobin(baseUrls.toVector))
   }
 
   private val doMakeAbsoluteHttpUri: String => Validation[Uri] =
@@ -164,7 +162,7 @@ case class HttpProtocolEnginePart(
   perUserNameResolution: Boolean,
   hostNameAliases:       Map[String, InetAddress],
   virtualHost:           Option[Expression[String]],
-  localAddress:          Option[Expression[InetAddress]]
+  localAddresses:        List[InetAddress]
 )
 
 case class HttpProtocolRequestPart(
@@ -198,8 +196,7 @@ case class HttpProtocolWsPart(
 
   private val wsBaseUrlIterator: Option[Iterator[String]] = wsBaseUrls match {
     case Nil => None
-    case _ =>
-      Some(RoundRobin(wsBaseUrls.toVector))
+    case _   => Some(RoundRobin(wsBaseUrls.toVector))
   }
 
   private val doMakeAbsoluteWsUri: String => Validation[Uri] =

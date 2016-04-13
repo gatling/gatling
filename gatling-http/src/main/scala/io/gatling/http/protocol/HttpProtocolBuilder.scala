@@ -64,7 +64,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
     this.modify(_.protocol.enginePart.hostNameAliases).setTo(aliasesToInetAddresses)
   }
   def virtualHost(virtualHost: Expression[String]) = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
-  def localAddress(localAddress: Expression[InetAddress]) = this.modify(_.protocol.enginePart.localAddress).setTo(Some(localAddress))
+  def localAddress(address: String) = localAddresses(List(address))
+  def localAddresses(addresses: String*): HttpProtocolBuilder = localAddresses(addresses.toList)
+  def localAddresses(addresses: List[String]): HttpProtocolBuilder = this.modify(_.protocol.enginePart.localAddresses).setTo(addresses.map(InetAddress.getByName))
   def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)
   def maxConnectionsPerHostLikeFirefox = maxConnectionsPerHost(6)
   def maxConnectionsPerHostLikeOperaOld = maxConnectionsPerHost(4)

@@ -40,7 +40,6 @@ case class CommonAttributes(
   headers:             Map[String, Expression[String]]         = Map.empty,
   realm:               Option[Expression[Realm]]               = None,
   virtualHost:         Option[Expression[String]]              = None,
-  address:             Option[Expression[InetAddress]]         = None,
   proxy:               Option[ProxyServer]                     = None,
   signatureCalculator: Option[Expression[SignatureCalculator]] = None
 )
@@ -118,8 +117,6 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param virtualHost a virtual host to override default compute one
    */
   def virtualHost(virtualHost: Expression[String]): B = newInstance(modify(commonAttributes)(_.virtualHost).setTo(Some(virtualHost)))
-
-  def address(address: Expression[InetAddress]): B = newInstance(modify(commonAttributes)(_.address).setTo(Some(address)))
 
   def disableUrlEncoding: B = newInstance(modify(commonAttributes)(_.disableUrlEncoding).setTo(Some(true)))
 

@@ -68,7 +68,7 @@ class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreCompon
   }
 
   lazy val onStart: Session => Session =
-    componentsCache.values.collect { case any: ProtocolComponents => any.onStart }.flatten.toList match {
+    componentsCache.values.collect { case protocolComponents: ProtocolComponents => protocolComponents.onStart }.flatten.toList match {
       case Nil          => Session.Identity
       case head :: tail => tail.foldLeft(head)(_ andThen _)
     }

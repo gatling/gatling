@@ -57,6 +57,21 @@ object HttpTypeHelper {
       }
   }
 
+  implicit val InetAddressTypeCaster = new TypeCaster[InetAddress] {
+    @throws[ClassCastException]
+    override def cast(value: Any): InetAddress =
+      value match {
+        case v: InetAddress => v
+        case _              => throw new ClassCastException(cceMessage(value, classOf[InetAddress]))
+      }
+
+    override def validate(value: Any): Validation[InetAddress] =
+      value match {
+        case v: InetAddress => v.success
+        case _              => cceMessage(value, classOf[InetAddress]).failure
+      }
+  }
+
   implicit val CookieJarTypeCaster = new TypeCaster[CookieJar] {
     @throws[ClassCastException]
     override def cast(value: Any): CookieJar =
