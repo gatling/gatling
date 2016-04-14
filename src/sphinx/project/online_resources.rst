@@ -23,7 +23,7 @@ Public talks
 
 * Devoxx 2012 Tool in Action:
 
-  - `<http://www.devoxx.com/display/DV12/Blast+your+webapp+with+Gatling>`_
+  - `<https://www.youtube.com/watch?v=pIGo77gX2bs>`_
   - `<http://parleys.com/#st=5&id=3542>`_
   - `Slides <http://www.slideshare.net/slandelle/gatling-tool-in-action-at-devoxx-2012>`__
 
