@@ -21,8 +21,8 @@ extlinks = {
 ################
 
 project = u'Gatling'
-copyright = u'2015 Gatling Corp 2000-2015'
-version = '2.0.0-SNAPSHOT'
+copyright = u'2016 Gatling Corp 2000-2016'
+version = '2.2.1-SNAPSHOT'
 release = version
 
 ####################
