@@ -28,6 +28,8 @@ User's guide
 .. toctree::
     :maxdepth: 1
 
+    whats_new/index
+    migration_guides/index
     quickstart
     advanced_tutorial
     general/index
