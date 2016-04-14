@@ -121,6 +121,10 @@ object ConfigKeys {
     }
   }
 
+  object jms {
+    val AcknowledgedMessagesBufferSize = "gatling.jms.acknowledgedMessagesBufferSize"
+  }
+
   object data {
     val Writers = "gatling.data.writers"
 

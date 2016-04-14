@@ -15,6 +15,8 @@
  */
 package io.gatling.jms.action
 
+import java.lang.{ Boolean => JBoolean }
+import java.util.{ Collections => JCollections, LinkedHashMap => JLinkedHashMap, Map => JMap }
 import javax.jms.Message
 
 import scala.collection.mutable
@@ -25,6 +27,7 @@ import io.gatling.commons.validation.Failure
 import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
@@ -61,7 +64,7 @@ case class MessageReceived(
 case object BlockingReceiveReturnedNull
 
 object JmsRequestTrackerActor {
-  def props(statsEngine: StatsEngine) = Props(new JmsRequestTrackerActor(statsEngine))
+  def props(statsEngine: StatsEngine, configuration: GatlingConfiguration) = Props(new JmsRequestTrackerActor(statsEngine, configuration))
 }
 
 case class MessageKey(replyDestinationName: String, matchId: String)
@@ -70,10 +73,16 @@ case class MessageKey(replyDestinationName: String, matchId: String)
  * Bookkeeping actor to correlate request and response JMS messages
  * Once a message is correlated, it publishes to the Gatling core DataWriter
  */
-class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
+class JmsRequestTrackerActor(statsEngine: StatsEngine, configuration: GatlingConfiguration) extends BaseActor {
 
   private val sentMessages = mutable.HashMap.empty[MessageKey, MessageSent]
   private val receivedMessages = mutable.HashMap.empty[MessageKey, MessageReceived]
+  private val duplicateMessageProtectionEnabled = configuration.jms.acknowledgedMessagesBufferSize > 0
+  private val acknowledgedMessagesHistory: JMap[MessageKey, JBoolean] =
+    if (duplicateMessageProtectionEnabled)
+      new JLinkedHashMap[MessageKey, JBoolean](configuration.jms.acknowledgedMessagesBufferSize, 0.75f, false)
+    else
+      JCollections.emptyMap()
 
   // Actor receive loop
   def receive = {
@@ -99,11 +108,17 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
         case Some(MessageSent(_, _, sent, checks, session, next, title)) =>
           processMessage(session, sent, received, checks, message, next, title)
           sentMessages -= messageKey
+          if (duplicateMessageProtectionEnabled) {
+            acknowledgedMessagesHistory.put(messageKey, JBoolean.TRUE)
+          }
 
         case None =>
-          // failed to find message; early receive? or bad return correlation id?
-          // let's add it to the received messages buffer just in case
-          receivedMessages += messageKey -> messageReceived
+          if (!acknowledgedMessagesHistory.containsValue(messageKey)) {
+            // failed to find message; early receive? or bad return correlation id?
+            // let's add it to the received messages buffer just in case
+            receivedMessages += messageKey -> messageReceived
+          }
+        // else, message was already acked and is a dup
       }
 
     case BlockingReceiveReturnedNull =>
