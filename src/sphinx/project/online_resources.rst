@@ -23,7 +23,7 @@ Public talks
 
 * Devoxx 2012 Tool in Action:
 
-  - `<https://www.youtube.com/watch?v=pIGo77gX2bs>`_
+  - `Blast your App with Gatling <https://www.youtube.com/watch?v=pIGo77gX2bs>`_
   - `<http://parleys.com/#st=5&id=3542>`_
   - `Slides <http://www.slideshare.net/slandelle/gatling-tool-in-action-at-devoxx-2012>`__
 
@@ -31,7 +31,7 @@ Public talks
 * `Lausanne JUG (in french) <http://parleys.com/#st=5&id=3665&sl=0>`_
 * DevoxxFR 2012 Tool in Action (in french):
 
-  - `<http://www.devoxx.fr/display/FR12/Realiser+des+tests+de+charges+avec+Gatling>`_
+  - `Réaliser des Tests de Charge avec Gatling <https://www.youtube.com/watch?v=m3u3w0qbn9o>`_
   - `<http://parleys.com/#st=5&id=3317>`_
   - `Slides <http://www.slideshare.net/slandelle/gatling-devoxxfr-2012-12715696>`__
 
