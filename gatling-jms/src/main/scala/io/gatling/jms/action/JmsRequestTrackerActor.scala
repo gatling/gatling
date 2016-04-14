@@ -74,6 +74,7 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
 
   private val sentMessages = mutable.HashMap.empty[MessageKey, MessageSent]
   private val receivedMessages = mutable.HashMap.empty[MessageKey, MessageReceived]
+  private val historicallySentMessages = mutable.HashMap.empty[MessageKey, Null]
 
   // Actor receive loop
   def receive = {
@@ -99,11 +100,19 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
         case Some(MessageSent(_, _, sent, checks, session, next, title)) =>
           processMessage(session, sent, received, checks, message, next, title)
           sentMessages -= messageKey
+          historicallySentMessages += messageKey -> null
 
         case None =>
-          // failed to find message; early receive? or bad return correlation id?
-          // let's add it to the received messages buffer just in case
-          receivedMessages += messageKey -> messageReceived
+          // failed to find related sent message;
+          // could be another response message for a previous request message
+          historicallySentMessages.get(messageKey) match {
+            case None =>
+              // early receive? or bad return correlation id?
+              // let's add it to the received messages buffer just in case
+              receivedMessages += messageKey -> messageReceived
+            case Some(null) =>
+            // ignore the received message because it an additional response
+          }
       }
 
     case BlockingReceiveReturnedNull =>
