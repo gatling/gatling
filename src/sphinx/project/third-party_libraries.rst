@@ -1,10 +1,10 @@
 #####################
-Third-party libraries
+Third-party Libraries
 #####################
 
 Gatling uses several third-party libraries, which are listed here, along their respective licenses.
 
-Bundled dependencies
+Bundled Dependencies
 ====================
 
 +-----------------------------+-------------------------------+
@@ -55,7 +55,7 @@ Bundled dependencies
 | SBT Test Interface          | `3-Clause BSD License`_       |
 +-----------------------------+-------------------------------+
 
-Test dependencies
+Test Dependencies
 =================
 
 +------------+-------------------------------+

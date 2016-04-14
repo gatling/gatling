@@ -1,5 +1,5 @@
 ##############
-Issue tracking
+Issue Tracking
 ##############
 
 We use `Github's Bug Tracker <https://github.com/gatling/gatling/issues>`_.

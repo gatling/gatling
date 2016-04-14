@@ -1,6 +1,6 @@
 .. _migration-guides:
 
-Migration guides
+Migration Guides
 ================
 
 .. toctree::
