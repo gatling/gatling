@@ -42,7 +42,7 @@ When you don't need to poll a request anymore, you can stop the poller:
 
 For example:
 
-.. includecode:: code/Polling.scala#pollerStart
+.. includecode:: code/Polling.scala#pollerStop
 
 .. note::
   Stopping a poller works works in the same fashion as SSE or WebSockets ``reconciliate``:
