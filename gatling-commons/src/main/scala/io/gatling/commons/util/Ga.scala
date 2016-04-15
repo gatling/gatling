@@ -15,6 +15,7 @@
  */
 package io.gatling.commons.util
 
+import java.io.{ BufferedReader, InputStreamReader }
 import java.net.{ URL, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
@@ -28,6 +29,8 @@ import io.gatling.commons.util.Io._
 
 object Ga {
 
+  private[this] def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
+
   def send(version: String): Unit = {
     import ExecutionContext.Implicits.global
 
@@ -36,32 +39,40 @@ object Ga {
       url.openConnection().asInstanceOf[HttpsURLConnection]
     }
 
+    val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
+
+    val body =
+      s"""tid=$trackingId&dl=${encode("http://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(UUID.randomUUID.toString)}"""
+
+    val bytes = body.getBytes(UTF_8)
+
     whenConnected.map { conn =>
-      conn.connect()
       conn.setReadTimeout(1000)
       conn.setConnectTimeout(1000)
-      conn.setRequestMethod("POST")
-      conn.setRequestProperty("Connection", "Close")
-      conn.setRequestProperty("User-Agent", s"java/$javaVersion")
+      conn.setDoInput(true)
+      conn.setDoOutput(true)
       conn.setUseCaches(false)
+      conn.setRequestMethod("POST")
+      conn.setRequestProperty("Accept", "*/*")
+      conn.setRequestProperty("Connection", "Close")
+      conn.setRequestProperty("Content-Length", Integer.toString(bytes.length))
+      conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+      conn.setRequestProperty("Host", "ssl.google-analytics.com")
+      conn.setRequestProperty("User-Agent", s"java/$javaVersion")
 
       withCloseable(conn.getOutputStream) { os =>
-
-        val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
-
-          def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
-
-        val body =
-          s"""tid=$trackingId&
-              |dl=${encode("http://gatling.io/" + version)}&
-              |de=UTF-8}&
-              |ul=en-US}&
-              |t=pageview&
-              |dt=${encode(version)}&
-              |cid=${encode(UUID.randomUUID.toString)}""".stripMargin
-
-        os.write(body.getBytes(UTF_8))
+        os.write(bytes)
         os.flush()
+        os.close()
+
+        // get response before closing
+        val is = conn.getInputStream()
+        val rd = new BufferedReader(new InputStreamReader(is))
+        var line: String = rd.readLine()
+        while (line != null) {
+          line = rd.readLine()
+        }
+        rd.close()
       }
       conn
     }.recoverWith {
