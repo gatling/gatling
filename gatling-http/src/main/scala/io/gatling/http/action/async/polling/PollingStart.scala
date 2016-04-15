@@ -52,7 +52,7 @@ class PollingStart(
 
       def startPolling(period: FiniteDuration): Unit = {
         logger.info(s"Starting poller $pollerName")
-        val pollingActor = system.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), name + "-actor")
+        val pollingActor = system.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), name + "-actor-" + session.userId)
 
         val newSession = session.set(pollerName, pollingActor)
 
