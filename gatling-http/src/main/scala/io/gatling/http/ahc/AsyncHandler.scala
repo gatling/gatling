@@ -43,7 +43,7 @@ object AsyncHandler extends StrictLogging {
  * @param tx the data about the request to be sent and processed
  * @param responseProcessor the responseProcessor
  */
-class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends ExtendedAsyncHandler[Unit] with ProgressAsyncHandler[Unit] with LazyLogging {
+class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends ExtendedAsyncHandler[Unit] with LazyLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
@@ -100,12 +100,6 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
   override def onRetry(): Unit =
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
-
-  override val onHeadersWritten: State = CONTINUE
-
-  override val onContentWritten: State = CONTINUE
-
-  override def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
   override def onStatusReceived(status: HttpResponseStatus): State = {
     if (!done.get) responseBuilder.accumulate(status)
