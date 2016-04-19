@@ -183,10 +183,7 @@ object GatlingConfiguration extends StrictLogging {
             }
             accept
           },
-          httpClientCodecMaxInitialLineLength = config.getInt(http.ahc.HttpClientCodecMaxInitialLineLength),
-          httpClientCodecMaxHeaderSize = config.getInt(http.ahc.HttpClientCodecMaxHeaderSize),
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
-          webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize),
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).toList,
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
@@ -338,10 +335,7 @@ case class AhcConfiguration(
   maxRetry:                            Int,
   requestTimeOut:                      Int,
   acceptAnyCertificate:                Boolean,
-  httpClientCodecMaxInitialLineLength: Int,
-  httpClientCodecMaxHeaderSize:        Int,
   httpClientCodecMaxChunkSize:         Int,
-  webSocketMaxFrameSize:               Int,
   sslEnabledProtocols:                 List[String],
   sslEnabledCipherSuites:              List[String],
   sslSessionCacheSize:                 Int,
