@@ -45,7 +45,7 @@ object Exponential extends PauseType {
   }
 
   def generator(duration: Expression[Duration]) = duration.map {
-    duration => math.round(nextValue * duration.toMillis)
+    duration => (nextValue * duration.toMillis).round
   }
 }
 
@@ -74,7 +74,7 @@ case class UniformPercentage(plusOrMinus: Double) extends PauseType {
 
   def generator(duration: Expression[Duration]) = duration.map { d =>
     val mean = d.toMillis
-    val halfWidth = math.round(mean * plusOrMinusPercent)
+    val halfWidth = (mean * plusOrMinusPercent).round
     val least = math.max(0L, mean - halfWidth)
     val bound = mean + halfWidth + 1
     ThreadLocalRandom.current.nextLong(least, bound)

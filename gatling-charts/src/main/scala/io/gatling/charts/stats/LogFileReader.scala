@@ -185,7 +185,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     .getSessionDeltaPerSecBuffers(scenarioName)
     .distribution
 
-  private def toNumberPerSec(value: Int) = math.round(value / step * SecMillisecRatio).toInt
+  private def toNumberPerSec(value: Int) = (value / step * SecMillisecRatio).round.toInt
 
   private def countBuffer2IntVsTimePlots(buffer: CountsBuffer): Seq[CountsVsTimePlot] =
     buffer
@@ -224,7 +224,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
       val halfStep = step / 2
       val bucketFunction = (t: Int) => {
         val value = t min (max - 1)
-        math.round(value - (value - min) % step + halfStep).toInt
+        (value - (value - min) % step + halfStep).round.toInt
       }
 
         def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {

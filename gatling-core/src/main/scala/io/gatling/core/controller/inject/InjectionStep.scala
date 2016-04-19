@@ -144,7 +144,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
  * Inject users at constant rate : an other expression of a RampInjection
  */
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
-  val users = math.round(duration.toSeconds * rate).toInt
+  val users = (duration.toSeconds * rate).round.toInt
   def randomized = PoissonInjection(duration, rate, rate)
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = RampInjection(users, duration).chain(chained)
 }
@@ -194,7 +194,7 @@ case class RampRateInjection(startRate: Double, endRate: Double, duration: Finit
         pendingFraction = thisSecondUsersDouble - thisSecondUsersIntValue
 
         if (thisSecond + 1 == durationInSeconds)
-          thisSecondUsersIntValue + math.round(pendingFraction).toInt
+          thisSecondUsersIntValue + (pendingFraction).round.toInt
         else
           thisSecondUsersIntValue
       }

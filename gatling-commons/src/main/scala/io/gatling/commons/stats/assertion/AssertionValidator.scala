@@ -80,7 +80,7 @@ object AssertionValidator {
     val printableTarget = assertion.target.printable
 
     val realValues = assertion.target match {
-      case MeanRequestsPerSecondTarget => stats(None).map(s => math.round(s.meanRequestsPerSec).toInt)
+      case MeanRequestsPerSecondTarget => stats(None).map(s => (s.meanRequestsPerSec).round.toInt)
       case target: CountTarget         => resolveCountTargetRealValues(target, stats)
       case target: TimeTarget          => resolveTimeTargetRealValues(target, stats)
     }
@@ -100,10 +100,10 @@ object AssertionValidator {
       case Count => resolvedStats.map(_.count)
       case Percent =>
         val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
-        metricCountsAndAllCounts.map { case (metricCount, allCount) => math.round(metricCount.toDouble / allCount * 100).toInt }
+        metricCountsAndAllCounts.map { case (metricCount, allCount) => (metricCount.toDouble / allCount * 100).round.toInt }
       case PerMillion =>
         val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
-        metricCountsAndAllCounts.map { case (metricCount, allCount) => math.round(metricCount.toDouble / allCount * 1000000).toInt }
+        metricCountsAndAllCounts.map { case (metricCount, allCount) => (metricCount.toDouble / allCount * 1000000).round.toInt }
     }
   }
 
