@@ -31,7 +31,7 @@ class ConsoleTemplateSpec extends BaseSpec {
   }
 
   it should "format the grouped counts properly" in {
-    val out = ConsoleTemplate.writeGroupedCounters(GroupedCount("t < 42 ms", 90, math.round(90 / 0.42d).toInt))
+    val out = ConsoleTemplate.writeGroupedCounters(GroupedCount("t < 42 ms", 90, (90 / 0.42d).round.toInt))
     out.mkString shouldBe "> t < 42 ms                                             90 ( 42%)"
   }
 }

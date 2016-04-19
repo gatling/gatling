@@ -18,7 +18,7 @@ package io.gatling.charts.stats
 private[stats] object StatsHelper {
   def buckets(min: Long, max: Long, step: Double): Array[Int] = {
     val halfStep = step / 2
-    (0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt).toArray
+    (0 until math.ceil((max - min) / step).toInt).map(i => (min + step * i + halfStep).round.toInt).toArray
   }
 
   def step(min: Long, max: Long, maxPlots: Int): Double = {
@@ -28,5 +28,5 @@ private[stats] object StatsHelper {
   }
 
   def timeToBucketNumber(start: Long, step: Double, maxPlots: Int)(time: Long): Int =
-    math.min(math.round((time - start) / step).toInt, maxPlots - 1)
+    math.min(((time - start) / step).round.toInt, maxPlots - 1)
 }
