@@ -139,6 +139,9 @@ class Utf8ByteBuffersDecoder extends ByteBuffersDecoder {
   override def decode(bufs: Seq[ByteBuffer]): String = {
 
     sb.setLength(0)
+    state = Utf8Accept
+    codep = 0
+
     bufs.foreach { buf =>
       while (buf.remaining > 0) {
         write(buf.get())
