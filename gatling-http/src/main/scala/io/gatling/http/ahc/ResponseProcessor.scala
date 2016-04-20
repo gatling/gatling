@@ -49,7 +49,7 @@ import org.asynchttpclient.util.StringUtils.stringBuilder
 class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
 
   private def abort(tx: HttpTx, t: Throwable): Unit = {
-    logger.error(s"ResponseProcessor crashed on tx $tx, forwarding user to the next action", t)
+    logger.error(s"ResponseProcessor crashed on session=${tx.session} request=${tx.request.requestName}: ${tx.request.ahcRequest} resourceFetcher=${tx.resourceFetcher} redirectCount=${tx.redirectCount}, forwarding user to the next action", t)
     tx.resourceFetcher match {
       case None                  => tx.next ! tx.session.markAsFailed
       case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.ahcRequest.getUri, KO, Session.Identity, tx.silent)
