@@ -29,9 +29,13 @@ import io.gatling.recorder.config.RecorderConfiguration
 
 private[http] sealed trait SslServerContext {
 
-  def password: Array[Char]
+  val GatlingPassword = "gatling"
+
+  def keyStorePassword: Array[Char] = GatlingPassword.toCharArray
 
   def keyStore: KeyStore
+
+  def keyManagerFactoryPassword: Array[Char] = GatlingPassword.toCharArray
 
   def context(alias: String): SSLContext
 
@@ -46,7 +50,6 @@ private[recorder] object SslServerContext {
 
   val GatlingSelfSignedKeyStore = "gatling.jks"
   val GatlingKeyStoreType = KeyStoreType.JKS
-  val GatlingPassword = "gatling"
   val GatlingCAKeyFile = "gatlingCA.key.pem"
   val GatlingCACrtFile = "gatlingCA.cert.pem"
   val Algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
@@ -62,8 +65,8 @@ private[recorder] object SslServerContext {
       case HttpsMode.ProvidedKeyStore =>
         val ksFile = new File(keyStore.path)
         val keyStoreType = keyStore.keyStoreType
-        val password = keyStore.password.toCharArray
-        new ProvidedKeystore(ksFile, keyStoreType, password)
+        val keyStorePassword = keyStore.password.toCharArray
+        new ProvidedKeystore(ksFile, keyStoreType, keyStorePassword)
 
       case HttpsMode.CertificateAuthority =>
         new CertificateAuthority(certificateAuthority.certificatePath, certificateAuthority.privateKeyPath)
@@ -77,14 +80,14 @@ private[recorder] object SslServerContext {
 
     lazy val keyStore = {
       val ks = KeyStore.getInstance(keyStoreType.toString)
-      withCloseable(keyStoreInitStream) { ks.load(_, password) }
+      withCloseable(keyStoreInitStream) { ks.load(_, keyStorePassword) }
       ks
     }
 
     lazy val context = {
       // Set up key manager factory to use our key store
       val kmf = KeyManagerFactory.getInstance(Algorithm)
-      kmf.init(keyStore, password)
+      kmf.init(keyStore, keyManagerFactoryPassword)
 
       // Initialize the SSLContext to work with our key managers.
       val serverContext = SSLContext.getInstance(Protocol)
@@ -100,11 +103,13 @@ private[recorder] object SslServerContext {
 
     def keyStoreInitStream: InputStream = classpathResourceAsStream(GatlingSelfSignedKeyStore)
     val keyStoreType = GatlingKeyStoreType
-
-    val password: Array[Char] = GatlingPassword.toCharArray
   }
 
-  class ProvidedKeystore(ksFile: File, val keyStoreType: KeyStoreType, val password: Array[Char]) extends ImmutableFactory {
+  class ProvidedKeystore(
+      ksFile:                        File,
+      val keyStoreType:              KeyStoreType,
+      override val keyStorePassword: Array[Char]
+  ) extends ImmutableFactory {
 
     def keyStoreInitStream: InputStream = new FileInputStream(ksFile)
   }
@@ -120,20 +125,18 @@ private[recorder] object SslServerContext {
     def ca(): Try[Ca]
 
     private def newAliasContext(alias: String): SSLContext =
-      SslCertUtil.updateKeystoreWithNewAlias(keyStore, password, alias, ca) match {
+      SslCertUtil.updateKeystoreWithNewAlias(keyStore, keyStorePassword, alias, ca) match {
         case Failure(t) => throw t
         case _ =>
           // Set up key manager factory to use our key store
           val kmf = KeyManagerFactory.getInstance(Algorithm)
-          kmf.init(keyStore, password)
+          kmf.init(keyStore, keyManagerFactoryPassword)
 
           // Initialize the SSLContext to work with our key manager
           val serverContext = SSLContext.getInstance(Protocol)
           serverContext.init(Array(new KeyManagerDelegate(kmf.getKeyManagers.head.asInstanceOf[X509KeyManager], alias)), null, null)
           serverContext
       }
-
-    val password: Array[Char] = GatlingPassword.toCharArray
 
     lazy val keyStore = {
       val ks = KeyStore.getInstance(GatlingKeyStoreType.toString)
