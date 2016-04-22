@@ -55,6 +55,10 @@ private[recorder] object ConfigKeys {
         val Type = "recorder.proxy.https.keyStore.type"
       }
 
+      object keyManagerFactory {
+        val Password = "recorder.proxy.https.keyManagerFactory.password"
+      }
+
       object certificateAuthority {
         val CertificatePath = "recorder.proxy.https.certificateAuthority.certificatePath"
         val PrivateKeyPath = "recorder.proxy.https.certificateAuthority.privateKeyPath"
