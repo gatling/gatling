@@ -55,7 +55,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   private val outgoingProxyHttpPort = new TextField(4) { enabled = false }
   private val outgoingProxyHttpsPort = new TextField(4) { enabled = false }
   private val outgoingProxyUsername = new TextField(10) { enabled = false }
-  private val outgoingProxyPassword = new TextField(10) { enabled = false }
+  private val outgoingProxyPassword = new PasswordField(10) { enabled = false }
 
   /* HTTPS mode components */
   private val httpsModes = new LabelledComboBox[HttpsMode](HttpsMode.AllHttpsModes)
