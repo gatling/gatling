@@ -15,9 +15,12 @@
  */
 package io.gatling.http
 
+import scala.concurrent.duration._
+
+import io.gatling.commons.validation.Success
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import scala.concurrent.duration._
+import io.gatling.http.check.HttpCheck
 
 class HttpCompileTest extends Simulation {
 
@@ -281,4 +284,9 @@ class HttpCompileTest extends Simulation {
     .exponentialPauses
     .uniformPauses(1.5)
     .uniformPauses(1337 seconds)
+
+  // Conditionnal check compile test
+  def isJsonResponse(response: Response): Boolean = response.isReceived && response.header(HttpHeaderNames.ContentType).exists { x => x.contains(HttpHeaderValues.ApplicationJson) }
+  def securedJsonCheck(check: HttpCheck): HttpCheck = checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
+
 }
