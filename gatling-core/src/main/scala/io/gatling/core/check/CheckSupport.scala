@@ -15,6 +15,10 @@
  */
 package io.gatling.core.check
 
+import io.gatling.core.session.Expression
+import io.gatling.core.session.Session
+import io.gatling.commons.validation.Validation
+
 trait CheckSupport {
 
   implicit def checkBuilder2Check[C <: Check[R], R, P, X](checkBuilder: CheckBuilder[C, R, P, X]) = checkBuilder.build
@@ -23,4 +27,9 @@ trait CheckSupport {
   implicit def findCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: FindCheckBuilder[C, R, P, X]) = findCheckBuilder.find
   implicit def findCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: FindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists
   implicit def findCheckBuilder2Check[C <: Check[R], R, P, X](findCheckBuilder: FindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists.build
+
+  implicit def conditionalCheckBuilder2Check[R, C <: Check[R]](conditionalCheckBuilder: ConditionalCheckBuilder[R, C]): ConditionalCheck[R, C] = conditionalCheckBuilder.build
+  def checkIf[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck))
+  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(r, s), thenCheck))
+
 }

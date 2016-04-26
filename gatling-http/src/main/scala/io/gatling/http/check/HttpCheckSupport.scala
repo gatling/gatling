@@ -15,6 +15,8 @@
  */
 package io.gatling.http.check
 
+import io.gatling.core.check.ConditionalCheckWrapper
+import io.gatling.core.check.ConditionalCheck
 import io.gatling.core.check.extractor.css.CssExtractorFactory
 import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexExtractorFactory }
@@ -27,6 +29,7 @@ import io.gatling.http.check.header.{ HttpHeaderRegexExtractorFactory, HttpHeade
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
 import io.gatling.http.check.url.{ CurrentLocationRegexCheckBuilder, CurrentLocationCheckBuilder }
+import io.gatling.http.response.Response
 
 trait HttpCheckSupport {
 
@@ -70,4 +73,9 @@ trait HttpCheckSupport {
   val sha1 = HttpChecksumCheckBuilder.Sha1
 
   val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
+
+  implicit object HttpConditionalCheckWrapper extends ConditionalCheckWrapper[Response, HttpCheck] {
+    override def wrap(check: ConditionalCheck[Response, HttpCheck]) = HttpCheck(check, check.thenCheck.scope, check.thenCheck.responseBodyUsageStrategy)
+  }
+
 }

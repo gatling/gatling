@@ -15,9 +15,12 @@
  */
 package io.gatling.http
 
+import scala.concurrent.duration._
+
+import io.gatling.commons.validation.Success
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import scala.concurrent.duration._
+import io.gatling.http.check.HttpCheck
 
 class HttpCompileTest extends Simulation {
 
@@ -104,13 +107,11 @@ class HttpCompileTest extends Simulation {
         http("Catégorie Poney").post("/").multivaluedFormParam("foo", "${bar}"),
         http("Catégorie Poney").get("/").queryParam("omg", "foo"),
         http("Catégorie Poney").get("/").queryParam("omg", "${foo}"),
-        http("Catégorie Poney").get("/").queryParam("omg", session => "foo")
-      ))
+        http("Catégorie Poney").get("/").queryParam("omg", session => "foo")))
     .uniformRandomSwitch(exec(http("Catégorie Poney").get("/")), exec(http("Catégorie Licorne").get("/")))
     .randomSwitch(
       40d -> exec(http("Catégorie Poney").get("/")),
-      50d -> exec(http("Catégorie Licorne").get("/"))
-    )
+      50d -> exec(http("Catégorie Licorne").get("/")))
     .randomSwitch(40d -> exec(http("Catégorie Poney").get("/")))
     .pause(pause2)
     // Loop
@@ -143,9 +144,7 @@ class HttpCompileTest extends Simulation {
               xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
               md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
               substring("Foo"),
-              responseTimeInMillis.lessThan(1000)
-            )
-        )
+              responseTimeInMillis.lessThan(1000)))
         .during(12000 milliseconds, "foo") {
           exec(http("In During 1").get("http://localhost:3000/aaaa"))
             .pause(2, constantPauses)
@@ -207,7 +206,7 @@ class HttpCompileTest extends Simulation {
         .randomSwitch(
           40d -> exec(http("Possibility 1").get("/p1")),
           55d -> exec(http("Possibility 2").get("/p2")) // last 5% bypass
-        )
+          )
         .exec(http("Create Thing omgomg")
           .post("/things").queryParam("postTest", "${sessionParam}").body(RawFileBody("create_thing.txt")).asJSON
           .check(status.is(201).saveAs("status")))
@@ -234,12 +233,11 @@ class HttpCompileTest extends Simulation {
     .pace("${foo}", "${bar}")
     .doSwitch("${foo}")(
       "a" -> exec(http("a").get("/")),
-      "b" -> exec(http("b").get("/"))
-    )
+      "b" -> exec(http("b").get("/")))
     .doSwitchOrElse("${foo}")(
       "a" -> exec(http("a").get("/")),
       "b" -> exec(http("b").get("/")) //
-    )(exec(http("else").get("/")))
+      )(exec(http("else").get("/")))
 
   val inject1 = nothingFor(10 milliseconds)
   val inject2 = rampUsers(10).over(10 minutes)
@@ -254,8 +252,7 @@ class HttpCompileTest extends Simulation {
   setUp(
     lambdaUser.inject(inject1),
     lambdaUser.inject(injectionSeq: _*),
-    lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds))
-  )
+    lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)))
     .protocols(httpProtocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))
     .disablePauses
@@ -272,8 +269,7 @@ class HttpCompileTest extends Simulation {
       forAll.responseTime.max.is(100),
       details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0),
       details("Admins" / "Create").failedRequests.percent.lessThan(90),
-      details("request_9").requestsPerSec.greaterThan(10)
-    )
+      details("request_9").requestsPerSec.greaterThan(10))
     .throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds))
     // Applies on the setup
     .constantPauses
@@ -281,4 +277,9 @@ class HttpCompileTest extends Simulation {
     .exponentialPauses
     .uniformPauses(1.5)
     .uniformPauses(1337 seconds)
+
+  // Conditionnal check compile test
+  def isJsonResponse(response: Response): Boolean = response.isReceived && response.header(HttpHeaderNames.ContentType).exists { x => x.contains(HttpHeaderValues.ApplicationJson) }
+  def securedJsonCheck(check: HttpCheck): HttpCheck = checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
+
 }
