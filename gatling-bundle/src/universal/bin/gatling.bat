@@ -64,8 +64,8 @@ for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
 rem Run Gatling
 %JAVA% %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
-rem Exit with the Java exit signal if Gatling failed
 if %errorlevel% neq 0 exit /b %errorlevel%
+rem The above line will forward any potential exit codes from Java if Gatling failed
 
 goto exit
 
