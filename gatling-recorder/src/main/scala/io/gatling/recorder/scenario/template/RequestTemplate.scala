@@ -79,7 +79,7 @@ private[scenario] object RequestTemplate {
       def renderResponseBodyCheck: Fastring =
         if (request.responseBody.isDefined && config.http.checkResponseBodies)
           fast"""
-			.check(bodyString.is(RawFileBody("${ScenarioExporter.responseBodyFileName(request)}")))"""
+			.check(bodyBytes.is(RawFileBody("${ScenarioExporter.responseBodyFileName(request)}")))"""
         else
           EmptyFastring
 
