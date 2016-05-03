@@ -30,8 +30,8 @@ object Predef extends CoreDsl {
   type Node = jodd.lagarto.dom.Node
 
   /**
-   * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Integer.
-   * @param i the Java's integer that will converted to [[scala.concurrent.duration.FiniteDuration]]
+   * Offers the same implicits conversions as scala.concurrent.duration.DurationInt for java.lang.Integer.
+   * @param i the Java's integer that will converted to scala.concurrent.duration.FiniteDuration
    */
   implicit class DurationInteger(val i: Integer) extends AnyVal {
 
@@ -64,8 +64,8 @@ object Predef extends CoreDsl {
   }
 
   /**
-   * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Long.
-   * @param l the Java's Long that will converted to [[scala.concurrent.duration.FiniteDuration]]
+   * Offers the same implicits conversions as scala.concurrent.duration.DurationInt for java.lang.Long.
+   * @param l the Java's Long that will converted to scala.concurrent.duration.FiniteDuration
    */
   implicit class DurationJLong(val l: java.lang.Long) extends AnyVal {
 
