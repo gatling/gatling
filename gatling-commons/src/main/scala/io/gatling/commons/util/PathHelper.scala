@@ -23,6 +23,8 @@ import java.nio.file._
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
+import io.gatling.commons.util.Io._
+
 object PathHelper {
 
   implicit def string2path(pathString: String): Path = Paths.get(pathString)
@@ -93,15 +95,15 @@ object PathHelper {
 
     def deepList(maxDepth: Int = -1): List[Path] = {
         @tailrec
-        def deepListAux(current: Path, unvisited: List[Path], acc: List[Path], maxDepth: Int): List[Path] = {
-          val entries = Files.newDirectoryStream(current).toList
+        def deepListRec(current: Path, unvisited: List[Path], acc: List[Path], maxDepth: Int): List[Path] = {
+          val entries = withCloseable(Files.newDirectoryStream(current))(_.toList)
           val toVisit = unvisited ++ entries.filter(p => p.isDirectory)
           if (toVisit.isEmpty || maxDepth == 0) acc ++ entries
-          else deepListAux(toVisit.head, toVisit.tail, acc ++ entries, maxDepth - 1)
+          else deepListRec(toVisit.head, toVisit.tail, acc ++ entries, maxDepth - 1)
         }
 
       if (path.exists)
-        deepListAux(path, Nil, Nil, maxDepth)
+        deepListRec(path, Nil, Nil, maxDepth)
       else Nil
     }
 
