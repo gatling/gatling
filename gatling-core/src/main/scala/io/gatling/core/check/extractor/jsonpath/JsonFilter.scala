@@ -24,35 +24,59 @@ import io.gatling.core.json.Json
 trait LowPriorityJsonFilterImplicits {
 
   implicit val stringJsonFilter = new JsonFilter[String] {
-    val filter: PartialFunction[Any, String] = { case e: Any => Json.stringify(e) }
+    val filter: PartialFunction[Any, String] = {
+      case e: Any => Json.stringify(e)
+      case null   => null
+    }
   }
 
   implicit val jBooleanJsonFilter = new JsonFilter[Boolean] {
-    val filter: PartialFunction[Any, Boolean] = { case e: java.lang.Boolean => e }
+    val filter: PartialFunction[Any, Boolean] = {
+      case e: java.lang.Boolean => e
+      case null                 => null.asInstanceOf[Boolean]
+    }
   }
 
   implicit val integerJsonFilter = new JsonFilter[Int] {
-    val filter: PartialFunction[Any, Int] = { case e: Number => e.intValue }
+    val filter: PartialFunction[Any, Int] = {
+      case e: Number => e.intValue
+      case null      => null.asInstanceOf[Int]
+    }
   }
 
   implicit val jLongJsonFilter = new JsonFilter[Long] {
-    val filter: PartialFunction[Any, Long] = { case e: Number => e.longValue }
+    val filter: PartialFunction[Any, Long] = {
+      case e: Number => e.longValue
+      case null      => null.asInstanceOf[Long]
+    }
   }
 
   implicit val jDoubleJsonFilter = new JsonFilter[Double] {
-    val filter: PartialFunction[Any, Double] = { case e: Number => e.doubleValue }
+    val filter: PartialFunction[Any, Double] = {
+      case e: Number => e.doubleValue
+      case null      => null.asInstanceOf[Double]
+    }
   }
 
   implicit val jFloatJsonFilter = new JsonFilter[Float] {
-    val filter: PartialFunction[Any, Float] = { case e: Number => e.floatValue }
+    val filter: PartialFunction[Any, Float] = {
+      case e: Number => e.floatValue
+      case null      => null.asInstanceOf[Float]
+    }
   }
 
   implicit val jListJsonFilter = new JsonFilter[Seq[Any]] {
-    val filter: PartialFunction[Any, Seq[Any]] = { case e: java.util.List[_] => e }
+    val filter: PartialFunction[Any, Seq[Any]] = {
+      case e: java.util.List[_] => e
+      case null                 => null.asInstanceOf[Seq[Any]]
+    }
   }
 
   implicit val jMapJsonFilter = new JsonFilter[Map[String, Any]] {
-    val filter: PartialFunction[Any, Map[String, Any]] = { case e: java.util.Map[_, _] => e.map { case (key, value) => key.toString -> value }(breakOut) }
+    val filter: PartialFunction[Any, Map[String, Any]] = {
+      case e: java.util.Map[_, _] => e.map { case (key, value) => key.toString -> value }(breakOut)
+      case null                   => null.asInstanceOf[Map[String, Any]]
+    }
   }
 
   implicit val anyJsonFilter = new JsonFilter[Any] {

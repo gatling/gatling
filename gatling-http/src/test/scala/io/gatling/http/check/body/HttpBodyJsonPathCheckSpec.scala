@@ -15,19 +15,20 @@
  */
 package io.gatling.http.check.body
 
-import scala.collection.mutable
-
 import java.nio.charset.StandardCharsets._
 
-import org.mockito.Mockito._
+import scala.collection.mutable
 
-import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
+import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ Response, StringResponseBody }
+
+import org.mockito.Mockito._
 
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
@@ -58,5 +59,18 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
   it should "find single result into Map object form" in {
     val response = mockResponse(storeJson)
     jsonPath("$.street").ofType[Map[String, Any]].find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Map("book" -> "On the street")), None)
+  }
+
+  private def testNullAttributeValue[X: JsonFilter]: Unit = {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[X].find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
+  }
+
+  it should "find a null attribute value" in {
+    testNullAttributeValue[String]
+    testNullAttributeValue[Any]
+    testNullAttributeValue[Int]
+    testNullAttributeValue[Seq[Any]]
+    testNullAttributeValue[Map[String, Any]]
   }
 }
