@@ -32,12 +32,12 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
     extractor(sample.boonAST).succeeded shouldBe Some(expected)
     extractor(sample.jacksonAST).succeeded shouldBe Some(expected)
   }
-  def testSingle(path: String, occurrence: Int, sample: JsonSample, expected: Option[String]): Unit = {
+  def testSingle[T](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
     val extractor = newSingleExtractor[String](path, occurrence)
     extractor(sample.boonAST).succeeded shouldBe expected
     extractor.apply(sample.jacksonAST).succeeded shouldBe expected
   }
-  def testMultiple(path: String, sample: JsonSample, expected: Option[List[String]]): Unit = {
+  def testMultiple[T](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
     val extractor = newMultipleExtractor[String](path)
     extractor(sample.boonAST).succeeded shouldBe expected
     extractor(sample.jacksonAST).succeeded shouldBe expected
@@ -97,6 +97,18 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
   it should "support @" in {
     testSingle("$.object[*]['@id']", 0, Json3, Some("3"))
+  }
+
+  it should "support null attribute value when expected type is Any" in {
+    testSingle("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
+  }
+
+  it should "support null attribute value when expected type is String" in {
+    testSingle[String]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
+  }
+
+  it should "support null attribute value when expected type is Int" in {
+    testSingle[Int]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null.asInstanceOf[Int]))
   }
 
   "extractMultiple" should "return expected result with anywhere expression" in {
