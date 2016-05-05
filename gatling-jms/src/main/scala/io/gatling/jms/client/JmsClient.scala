@@ -51,7 +51,7 @@ trait JmsClient {
   /**
    * Wrapper to send a BytesMessage, returns the message ID of the sent message
    */
-  def sendBytesMessage(bytes: Array[Byte], props: Map[String, Any]): Message
+  def sendBytesMessage(bytes: Array[Byte], props: Map[String, Any], jmsType: Option[String]): Message
 
   /**
    * Wrapper to send a MapMessage, returns the message ID of the sent message
@@ -60,17 +60,17 @@ trait JmsClient {
    * for the objectified primitive object types (Integer, Double, Long ...), String objects,
    * and byte arrays."
    */
-  def sendMapMessage(map: Map[String, Any], props: Map[String, Any]): Message
+  def sendMapMessage(map: Map[String, Any], props: Map[String, Any], jmsType: Option[String]): Message
 
   /**
    * Wrapper to send an ObjectMessage, returns the message ID of the sent message
    */
-  def sendObjectMessage(o: java.io.Serializable, props: Map[String, Any]): Message
+  def sendObjectMessage(o: java.io.Serializable, props: Map[String, Any], jmsType: Option[String]): Message
 
   /**
    * Wrapper to send a TextMessage, returns the message ID of the sent message
    */
-  def sendTextMessage(messageText: String, props: Map[String, Any]): Message
+  def sendTextMessage(messageText: String, props: Map[String, Any], jmsType: Option[String]): Message
 
   def close(): Unit
 }

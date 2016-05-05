@@ -34,5 +34,6 @@ case class JmsAttributes(
   selector:          Option[String],
   message:           JmsMessage,
   messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
+  jmsType:           Option[Expression[String]]               = None,
   checks:            List[JmsCheck]                           = Nil
 )
