@@ -74,6 +74,11 @@ Properties
 
 One can send additional properties with ``property(Expression[String], Expression[Any])``.
 
+JMS Type
+----------
+
+Jms type can be specified with ``jmsType(Expression[String])``.
+
 JMS Check API
 =============
 

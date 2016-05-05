@@ -3003,8 +3003,21 @@
           <div class="function-details">
             Sends additional properties
             <dl>
-              <dt>(property)</dt>
-              <dd>Where <i>name</i> is the name of the queue</dd>
+              <dt>(key, value)</dt>
+              <dd>Sets <i>value</i> as an object property <i>key</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="property">jmsType</label>
+          <input type="checkbox" id="jmsType" name="jmsType">
+
+          <div class="function-details">
+            Sends additional properties
+            <dl>
+              <dt>(value)</dt>
+              <dd>Sets <i>value</i> as a <a href="https://docs.oracle.com/javaee/6/api/javax/jms/Message.html#setJMSType(java.lang.String)">JMSType</a></dd>
             </dl>
           </div>
         </div>

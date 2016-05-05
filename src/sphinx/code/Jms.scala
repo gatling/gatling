@@ -40,6 +40,7 @@ class TestJmsDsl extends Simulation {
       .queue("jmstestq")
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
+      .jmsType("test_jms_type")
       .check(simpleCheck(checkBodyTextCorrect))
     )
   }

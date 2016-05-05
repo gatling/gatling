@@ -24,7 +24,7 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.action._
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ Expression, Session, resolveOptionalExpression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.jms.client.JmsClient
@@ -114,17 +114,20 @@ class JmsReqReplyActor(attributes: JmsAttributes, protocol: JmsProtocol, tracker
 
     val messageProperties = resolveProperties(attributes.messageProperties, session)
 
+    val jmsType = resolveOptionalExpression(attributes.jmsType, session)
+
     // send the message
     val startDate = nowMillis
 
-    val msg = messageProperties.flatMap { props =>
-      attributes.message match {
-        case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, props))
-        case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, props))
-        case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, props))
-        case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, props))
-      }
-    }
+    val msg = jmsType.flatMap(jmsType =>
+      messageProperties.flatMap { props =>
+        attributes.message match {
+          case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, props, jmsType))
+          case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, props, jmsType))
+          case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, props, jmsType))
+          case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, props, jmsType))
+        }
+      })
 
     msg.map { msg =>
       // notify the tracker that a message was sent
