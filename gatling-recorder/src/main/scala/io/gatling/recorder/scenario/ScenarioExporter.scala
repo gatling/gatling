@@ -85,8 +85,10 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
     // extract the request elements and set all the necessary
     val elements = scenarioElements.map {
-      case reqEl: RequestElement => reqEl.makeRelativeTo(baseUrl)
-      case el                    => el
+      case reqEl: RequestElement =>
+        reqEl.nonEmbeddedResources.foreach(_.makeRelativeTo(baseUrl))
+        reqEl.makeRelativeTo(baseUrl)
+      case el => el
     }
 
     // FIXME mutability!!!
