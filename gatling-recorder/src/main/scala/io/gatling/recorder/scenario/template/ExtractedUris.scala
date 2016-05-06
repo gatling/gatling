@@ -46,17 +46,16 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   val urls = uris.map(uri => new URL(uri)).toList
   var values: List[Value] = Nil
 
-  val urlGroups = urls.groupBy(url => SchemeHost(url.getProtocol, url.getHost))
+  val urlGroups: Map[SchemeHost, List[URL]] = urls.groupBy(url => SchemeHost(url.getProtocol, url.getHost))
 
-  val renders = {
+  val renders: Map[String, Fastring] = {
     val maxNbDigits = urlGroups.size.toString.length
 
     urlGroups.zipWithIndex.map {
-      case (keyVal, index) =>
-        val urls = keyVal._2
+      case ((_, urls), index) =>
 
         val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
-        if (urls.size > 1 && schemesPortAreSame(urls)) {
+        if (urls.size == 1 || schemesPortAreSame(urls)) {
           val paths = urls.map(url => url.getPath)
           val longestCommonPath = longestCommonRoot(paths)
 
@@ -79,12 +78,12 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   private def extractLongestPathUrls(urls: List[URL], longestCommonPath: String, valName: String): List[(String, Fastring)] =
     urls.map(url => {
       val restPath = url.getPath.substring(longestCommonPath.length)
-      (url.toString, fast"$valName + ${value(s"${restPath}${query(url)}")}")
+      (url.toString, fast"$valName + ${value(s"$restPath${query(url)}")}")
     })
 
   private def longestCommonRoot(pathsStrs: List[String]): String = {
       def longestCommonRoot2(sa1: Array[String], sa2: Array[String]) = {
-        val minLen = sa1.size.min(sa2.size)
+        val minLen = math.min(sa1.length, sa2.length)
         var p = 0
         while (p < minLen && sa1(p) == sa2(p)) {
           p += 1
