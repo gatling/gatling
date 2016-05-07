@@ -75,6 +75,8 @@ case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes =
    */
   def property(key: Expression[String], value: Expression[Any]) = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
 
+  def jmsType(jmsType: Expression[String]) = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+
   /**
    * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
    */
