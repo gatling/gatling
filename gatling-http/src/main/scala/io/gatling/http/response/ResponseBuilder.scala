@@ -199,4 +199,7 @@ class ResponseBuilder(
       case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
     }
   }
+
+  def buildSafeResponse: Response =
+    HttpResponse(request, nettyRequest, status, headers, NoResponseBody, Map.empty, 0, charset, ResponseTimings(startTimestamp, endTimestamp))
 }
