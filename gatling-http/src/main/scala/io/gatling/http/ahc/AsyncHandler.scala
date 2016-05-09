@@ -21,8 +21,9 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ClassHelper._
 import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.response.Response
 
-import org.asynchttpclient._
+import org.asynchttpclient.{ Response => _, _ }
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State._
 import org.asynchttpclient.handler._
@@ -116,19 +117,32 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
     CONTINUE
   }
 
-  override def onCompleted: Unit =
+  private def withResponse(f: Response => Unit): Unit =
     if (done.compareAndSet(false, true)) {
-      try { responseProcessor.onCompleted(tx, responseBuilder.build) }
-      catch { case NonFatal(e) => sendOnThrowable(e) }
+      responseBuilder.updateEndTimestamp()
+      try {
+        val response = responseBuilder.build
+        f(response)
+      } catch {
+        case NonFatal(t) => sendOnThrowable(responseBuilder.buildSafeResponse, t)
+      }
+    }
+
+  override def onCompleted: Unit =
+    withResponse { response =>
+      try {
+        responseProcessor.onCompleted(tx, response)
+      } catch {
+        case NonFatal(t) => sendOnThrowable(response, t)
+      }
     }
 
   override def onThrowable(throwable: Throwable): Unit =
-    if (done.compareAndSet(false, true)) {
-      responseBuilder.updateEndTimestamp()
-      sendOnThrowable(throwable)
+    withResponse { response =>
+      sendOnThrowable(response, throwable)
     }
 
-  def sendOnThrowable(throwable: Throwable): Unit = {
+  private def sendOnThrowable(response: Response, throwable: Throwable): Unit = {
     val classShortName = throwable.getClass.getShortName
     val errorMessage = throwable.getMessage match {
       case null => classShortName
@@ -140,6 +154,6 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
     else if (AsyncHandler.InfoEnabled)
       logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
-    responseProcessor.onThrowable(tx, responseBuilder.build, errorMessage)
+    responseProcessor.onThrowable(tx, response, errorMessage)
   }
 }
