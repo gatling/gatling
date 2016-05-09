@@ -166,6 +166,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
     val newTx = tx.copy(session = totalUpdate(tx.session))
     logRequest(newTx, status, response, message)
+    // we pass update and not totalUpdate because it's only used for resources where updates are handled differently
     executeNext(newTx, update, status, response)
   }
 
