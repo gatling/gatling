@@ -11,6 +11,8 @@ import VersionFile._
 import sbt.Keys._
 import sbt._
 
+import xerial.sbt.Pack._
+
 object GatlingBuild extends Build {
 
   /******************/
@@ -55,6 +57,10 @@ object GatlingBuild extends Build {
     .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= httpDependencies)
 
+  lazy val eureka = gatlingModule("gatling-eureka")
+    .dependsOn(core % "compile->compile;test->test")
+    .settings(libraryDependencies ++= httpDependencies)    
+
   lazy val jms = gatlingModule("gatling-jms")
     .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= jmsDependencies)
@@ -80,7 +86,7 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= benchmarkDependencies)
 
   lazy val app = gatlingModule("gatling-app")
-    .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
+    .dependsOn(core, http, eureka, jms, jdbc, redis, metrics, charts)
 
   lazy val recorder = gatlingModule("gatling-recorder")
     .dependsOn(core  % "compile->compile;test->test", http)
@@ -96,5 +102,6 @@ object GatlingBuild extends Build {
     .settings(generateConfigFiles(recorder): _*)
     .settings(copyLogbackXml(core): _*)
     .settings(bundleSettings: _*)
+    .settings(packAutoSettings )
     .settings(noArtifactToPublish)
 }
