@@ -11,8 +11,6 @@ import VersionFile._
 import sbt.Keys._
 import sbt._
 
-import xerial.sbt.Pack._
-
 object GatlingBuild extends Build {
 
   /******************/
@@ -102,6 +100,5 @@ object GatlingBuild extends Build {
     .settings(generateConfigFiles(recorder): _*)
     .settings(copyLogbackXml(core): _*)
     .settings(bundleSettings: _*)
-    .settings(packAutoSettings )
     .settings(noArtifactToPublish)
 }
