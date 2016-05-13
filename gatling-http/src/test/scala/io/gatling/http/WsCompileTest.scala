@@ -48,7 +48,7 @@ class WsCompileTest extends Simulation {
     .exec(
       ws("Message1")
         .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-        .check(wsAwait.within(30 seconds).expect(1).jsonPath("$.message").saveAs("message1"))
+        .check(wsAwait.within(30 seconds).expect(1).jsonPath("$.message").findAll.saveAs("message1"))
     ).exec(
         ws("Message2")
           .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
