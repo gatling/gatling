@@ -19,5 +19,5 @@ import io.gatling.core.check.CheckBuilder
 
 package object async {
 
-  type AsyncCheckBuilder = CheckBuilder[AsyncCheck, String, _, String]
+  type AsyncCheckBuilder = CheckBuilder[AsyncCheck, String, _, _]
 }
