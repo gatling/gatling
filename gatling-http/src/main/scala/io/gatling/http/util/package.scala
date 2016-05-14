@@ -20,10 +20,13 @@ import java.nio.charset.Charset
 import java.util.{ List => JList }
 
 import scala.collection.JavaConversions._
+import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.http.response.Response
+import io.gatling.http.util.HttpHelper.isTxt
 
+import com.typesafe.scalalogging.LazyLogging
 import io.netty.buffer.ByteBufAllocator
 import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.netty.request.NettyRequest
@@ -31,7 +34,7 @@ import org.asynchttpclient.netty.request.body.NettyMultipartBody
 import org.asynchttpclient.{ Param, Request }
 import org.asynchttpclient.request.body.multipart._
 
-package object util {
+package object util extends LazyLogging {
 
   implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
@@ -164,8 +167,22 @@ package object util {
           buff.appendHttpHeaders(response.headers).append(Eol)
         }
 
-        if (response.hasResponseBody)
-          buff.append("body=").append(Eol).append(response.body.string)
+        if (response.hasResponseBody) {
+          buff.append("body=").append(Eol)
+          if (isTxt(response.headers)) {
+            try {
+              buff.append(response.body.string)
+            } catch {
+              case NonFatal(t) =>
+                val message = "Could not decode response body"
+                logger.trace(message, t)
+                buff.append(s"$message: ${t.getMessage}")
+            }
+          } else {
+            buff.append("<<<BINARY CONTENT>>>")
+          }
+
+        }
       }
 
       buff
