@@ -15,8 +15,6 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.InetAddress
-
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
