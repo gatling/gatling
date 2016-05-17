@@ -224,6 +224,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       context.become(reconnectingState(status, reason, action))
 
     case unexpected =>
+      // FIXME we're losing check timeout!
       logger.info(s"Discarding unknown message $unexpected while in disconnected state")
   }
 
@@ -238,6 +239,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       self ! pendingAction
 
     case unexpected =>
+      // FIXME we're losing check timeout!
       logger.info(s"Discarding unknown message $unexpected while in reconnecting state")
   }
 
