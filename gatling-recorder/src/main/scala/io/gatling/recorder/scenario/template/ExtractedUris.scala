@@ -40,7 +40,7 @@ private[scenario] case class SchemeHost(scheme: String, host: String)
 private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   var values: List[Value] = Nil
 
-  val renders: Map[String, Fastring] = {
+  private val renders: Map[String, Fastring] = {
     val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
     val uris = requestElements.map(_.uri) ++
       requestElements.map(_.embeddedResources).reduce(_ ++ _).map(_.url) ++
