@@ -38,20 +38,19 @@ private[scenario] case class SchemeHost(scheme: String, host: String)
  * @param scenarioElements - contains uris to extracts common parts from
  */
 private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
-  var requestElements = scenarioElements.collect { case elem: RequestElement => elem }
-  val uris = requestElements.map(_.uri) ++
-    requestElements.map(_.embeddedResources).reduce(_ ++ _).map(_.url) ++
-    requestElements.map(_.nonEmbeddedResources).reduce(_ ++ _).map(_.uri)
-
-  val urls = uris.map(uri => new URL(uri)).toList
   var values: List[Value] = Nil
 
-  val urlGroups: Map[SchemeHost, List[URL]] = urls.groupBy(url => SchemeHost(url.getProtocol, url.getHost))
-
   val renders: Map[String, Fastring] = {
+    val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
+    val uris = requestElements.map(_.uri) ++
+      requestElements.map(_.embeddedResources).reduce(_ ++ _).map(_.url) ++
+      requestElements.map(_.nonEmbeddedResources).reduce(_ ++ _).map(_.uri)
+    val urls = uris.map(uri => new URL(uri)).toList
+    val urlGroups: Map[String, List[URL]] = urls.groupBy(url => url.getHost)
+
     val maxNbDigits = urlGroups.size.toString.length
 
-    urlGroups.zipWithIndex.map {
+    urlGroups.zipWithIndex.flatMap {
       case ((_, urls), index) =>
 
         val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
@@ -68,7 +67,7 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
           extractCommonHostUrls(urls, valName)
         }
-    }.flatten.toMap
+    }
   }
 
   private def extractCommonHostUrls(urls: List[URL], valName: String): List[(String, Fastring)] =
