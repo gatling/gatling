@@ -16,8 +16,8 @@
 package io.gatling.core.stats.writer
 
 import java.io.RandomAccessFile
-import java.nio.{ CharBuffer, ByteBuffer }
-import java.nio.charset.CharsetEncoder
+import java.nio.{ ByteBuffer, CharBuffer }
+import java.nio.charset.{ CharsetEncoder, CoderResult }
 import java.nio.channels.FileChannel
 
 import scala.util.control.NonFatal
@@ -158,11 +158,16 @@ class LogFileDataWriter extends DataWriter[FileData] {
 
   override def onFlush(data: FileData): Unit = {}
 
-  private def flush(data: FileData): Unit = {
+  private def flush(data: FileData, overflown: Boolean): Unit = {
     import data._
     buffer.flip()
-    while (buffer.hasRemaining)
+    while (buffer.hasRemaining) {
       channel.write(buffer)
+    }
+    if (overflown) {
+      logger.error("Buffer overflow, you shouldn't be logging that much data. Truncating.")
+      channel.write(ByteBuffer.wrap(EolBytes))
+    }
     buffer.clear()
   }
 
@@ -171,11 +176,14 @@ class LogFileDataWriter extends DataWriter[FileData] {
     import data._
 
     val fs = serializer.serialize(message)
+    var overflow = false
 
-    for (string <- fs)
-      encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
-    if (buffer.position >= limit)
-      flush(data)
+    for (string <- fs) {
+      val coderResult = encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
+      overflow = coderResult.isOverflow
+    }
+    if (buffer.position >= limit || overflow)
+      flush(data, overflown = overflow)
   }
 
   override def onMessage(message: LoadEventMessage, data: FileData): Unit = message match {
@@ -189,7 +197,7 @@ class LogFileDataWriter extends DataWriter[FileData] {
   override def onCrash(cause: String, data: FileData): Unit = {}
 
   override def onStop(data: FileData): Unit = {
-    flush(data)
+    flush(data, overflown = false)
     data.channel.force(true)
   }
 }
