@@ -94,12 +94,11 @@ Explanations:
      This user has two new session attributes named *searchCriterion*, *searchComputerName*.
   4. We use session data through Gatling's EL to parametrize the search.
   5. We use a CSS selector with an EL to capture a part of the HTML response, here a hyperlink, and save it in the user session with the name *computerURL*.
-     Note how Scala triple quotes are handy: you don't have to escape double quotes inside the regex with backslashes.
   6. We use the previously saved hyperlink to get a specific page.
 
 .. note::
     For more details regarding *Feeders*, please check out :ref:`Feeder reference page <feeder>`.
-    
+
     For more details regarding *HTTP Checks*, please check out :ref:`Checks reference page <http-check>`.
 
 Step 04: Looping
