@@ -42,7 +42,7 @@ This can be used for manually debugging or editing the :ref:`Session <expression
 .. includecode:: code/Scenario.scala#session-lambda
 
 .. note::
-  For those who wonder how the plumbing works and how you can return a ``Session`` instead of of ``Validation[Session]`` in the above examples,
+  For those who wonder how the plumbing works and how you can return a ``Session`` instead of ``Validation[Session]`` in the above examples,
   that's thanks to an implicit conversion.
 
 .. warning::
