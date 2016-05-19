@@ -426,7 +426,7 @@ Saving is an **optional** step for storing the result of the previous step (extr
 
 .. _http-check-conditional:
 
-Conditional checking
+Conditional Checking
 ====================
 
 Check execution can be enslave to a condition.
