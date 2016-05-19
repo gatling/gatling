@@ -424,6 +424,8 @@ Saving is an **optional** step for storing the result of the previous step (extr
 
 *key* is a ``String``.
 
+.. _http-check-conditional:
+
 Conditional checking
 ====================
 
