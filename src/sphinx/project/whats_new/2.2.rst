@@ -21,6 +21,12 @@ Assertions
 
 Gatling now supports "per-million" assertions, similar to "percent" ones.
 
+Conditional Checks (since 2.2.1)
+--------------------------------
+
+It's now possible to only perform a given check when a given condition is met.
+See :ref:`Conditional Checks documentation <http-check-conditional>` for more details.
+
 HTTP
 ====
 
