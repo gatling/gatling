@@ -38,7 +38,7 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
-import akka.actor.{ ActorRefFactory, Props }
+import akka.actor.{ ActorSystem, Props }
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
@@ -46,7 +46,7 @@ import org.asynchttpclient.util.HttpConstants.Methods._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 import org.asynchttpclient.util.StringUtils.stringBuilder
 
-class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
+class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit system: ActorSystem) extends StrictLogging with NameGen {
 
   private def abort(tx: HttpTx, t: Throwable): Unit = {
     logger.error(s"ResponseProcessor crashed on session=${tx.session} request=${tx.request.requestName}: ${tx.request.ahcRequest} resourceFetcher=${tx.resourceFetcher} redirectCount=${tx.redirectCount}, forwarding user to the next action", t)
@@ -140,7 +140,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
             httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx)
 
         maybeResourceFetcherActor match {
-          case Some(resourceFetcherActor) => actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
+          case Some(resourceFetcherActor) => system.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
           case None                       => tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
         }
 
