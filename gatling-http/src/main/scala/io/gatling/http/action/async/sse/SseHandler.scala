@@ -22,9 +22,13 @@ import javax.xml.ws.http.HTTPException
 
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
+import io.gatling.http.response.ResponseBody
+import io.gatling.http.util.BytesHelper._
+import io.gatling.commons.util.StringHelper._
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
@@ -43,6 +47,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
 
   private val done = new AtomicBoolean
   private var state: SseState = Opening
+  @volatile private var chunks: List[ByteBuf] = Nil
 
   override def onTcpConnectSuccess(address: InetSocketAddress, connection: Channel): Unit =
     state = Open
@@ -78,10 +83,25 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
     if (done.get) {
       ABORT
     } else {
-      val payload = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf.toString(UTF_8)
-      parse(payload)
+      val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
+      if (byteBuf.readableBytes > 0) {
+        chunks = byteBuf.retain() :: chunks
+      }
+      val string = byteBuf.toString(UTF_8)
+      val chars = ArrayCharSequence(string.unsafeChars)
+      val length = string.length
+      if (length > 0 && chars.charAt(length - 2).toInt == 10 && chars.charAt(length - 1).toInt == 10) {
+        val properlyOrderedChunks = chunks.reverse
+        parse(byteBufsToString(properlyOrderedChunks, UTF_8))
+        resetChunks()
+      }
       CONTINUE
     }
+  }
+
+  private def resetChunks(): Unit = {
+    chunks.foreach(_.release())
+    chunks = Nil
   }
 
   override def onCompleted(): Unit =
