@@ -32,7 +32,7 @@ JAVA_OPTS="${JAVA_OPTS} -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSiz
 JAVA_OPTS="${JAVA_OPTS} -XX:+PerfDisableSharedMem -XX:+AggressiveOpts -XX:+OptimizeStringConcat"
 JAVA_OPTS="${JAVA_OPTS} -XX:+HeapDumpOnOutOfMemoryError"
 JAVA_OPTS="${JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false"
-COMPILER_OPTS="$JAVA_OPTS -Xss10M"
+COMPILER_OPTS="$JAVA_OPTS -Xss100M"
 
 # Setup classpaths
 COMMON_CLASSPATH="$GATLING_CONF:${JAVA_CLASSPATH}"
