@@ -431,7 +431,7 @@ Conditional checking
 
 Check execution can be enslave to a condition.
 
-``checkiIf(condition)(thenCheck)``
+``checkIf(condition)(thenCheck)``
 
 The condition can be of two types:
 * Expression[Boolean]
