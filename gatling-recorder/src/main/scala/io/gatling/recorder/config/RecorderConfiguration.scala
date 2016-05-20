@@ -153,6 +153,9 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
             password = config.getString(proxy.https.keyStore.Password),
             keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))
           ),
+          keyManagerFactory = KeyManagerFactoryConfiguration(
+            password = config.getString(proxy.https.keyManagerFactory.Password)
+          ),
           certificateAuthority = CertificateAuthorityConfiguration(
             certificatePath = config.getString(proxy.https.certificateAuthority.CertificatePath),
             privateKeyPath = config.getString(proxy.https.certificateAuthority.PrivateKeyPath)
@@ -217,6 +220,10 @@ private[recorder] case class KeyStoreConfiguration(
   keyStoreType: KeyStoreType
 )
 
+private[recorder] case class KeyManagerFactoryConfiguration(
+  password: String
+)
+
 private[recorder] case class CertificateAuthorityConfiguration(
   certificatePath: String,
   privateKeyPath:  String
@@ -225,6 +232,7 @@ private[recorder] case class CertificateAuthorityConfiguration(
 private[recorder] case class HttpsModeConfiguration(
   mode:                 HttpsMode,
   keyStore:             KeyStoreConfiguration,
+  keyManagerFactory:     KeyManagerFactoryConfiguration,
   certificateAuthority: CertificateAuthorityConfiguration
 )
 
