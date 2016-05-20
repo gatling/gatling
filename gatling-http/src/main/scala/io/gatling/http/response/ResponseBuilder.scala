@@ -126,13 +126,12 @@ class ResponseBuilder(
 
   def accumulate(status: HttpResponseStatus): Unit = {
     this.status = Some(status)
-    endTimestamp = nowMillis
+    updateEndTimestamp()
   }
 
   def accumulate(headers: HttpResponseHeaders): Unit = {
     this.headers = headers.getHeaders
     storeHtmlOrCss = inferHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
-    updateEndTimestamp()
   }
 
   def accumulate(bodyPart: HttpResponseBodyPart): Unit = {
