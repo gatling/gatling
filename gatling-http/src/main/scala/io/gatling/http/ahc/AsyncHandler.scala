@@ -119,7 +119,6 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
 
   private def withResponse(f: Response => Unit): Unit =
     if (done.compareAndSet(false, true)) {
-      responseBuilder.updateEndTimestamp()
       try {
         val response = responseBuilder.build
         f(response)
@@ -137,10 +136,12 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
       }
     }
 
-  override def onThrowable(throwable: Throwable): Unit =
+  override def onThrowable(throwable: Throwable): Unit = {
+    responseBuilder.updateEndTimestamp()
     withResponse { response =>
       sendOnThrowable(response, throwable)
     }
+  }
 
   private def sendOnThrowable(response: Response, throwable: Throwable): Unit = {
     val classShortName = throwable.getClass.getShortName
