@@ -116,7 +116,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         fullRequestName,
         response.timings,
         status,
-        response.status.map(httpStatus => String.valueOf(httpStatus.getStatusCode)),
+        response.status.map(httpStatus => Integer.toString(httpStatus.getStatusCode)),
         errorMessage,
         extraInfo
       )
