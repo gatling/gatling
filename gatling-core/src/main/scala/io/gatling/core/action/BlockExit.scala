@@ -70,7 +70,7 @@ object BlockExit {
    * @param session the session
    * @return the potential Interruption to process
    */
-  def exitAsapLoop(session: Session): Option[BlockExit] = {
+  private def exitAsapLoop(session: Session): Option[BlockExit] = {
 
       @tailrec
       def exitAsapLoopRec(leftToRightBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
@@ -96,7 +96,7 @@ object BlockExit {
    * @param session the session
    * @return the potential Interruption to process
    */
-  def exitTryMax(session: Session): Option[BlockExit] = {
+  private def exitTryMax(session: Session): Option[BlockExit] = {
 
       @tailrec
       def exitTryMaxRec(stack: List[Block]): Option[BlockExit] = stack match {
@@ -114,28 +114,25 @@ object BlockExit {
 
     exitTryMaxRec(session.blockStack)
   }
-}
 
-object ExitableAction {
-
-  import BlockExit._
-
-  def exitOrElse(session: Session, statsEngine: StatsEngine)(f: Session => Unit): Unit =
+  def noBlockExitTriggered(session: Session, statsEngine: StatsEngine): Boolean =
     exitAsapLoop(session).orElse(exitTryMax(session)) match {
-      case None            => f(session)
-      case Some(blockExit) => blockExit.exitBlock(statsEngine)
+      case None => true
+      case Some(blockExit) =>
+        blockExit.exitBlock(statsEngine)
+        false
     }
 }
 
 /**
- * An Action that can trigger an forced exit and bypass regular workflow.
+ * An Action that can trigger a forced exit and bypass regular workflow.
  */
 trait ExitableAction extends ChainableAction {
-
-  import ExitableAction._
 
   def statsEngine: StatsEngine
 
   abstract override def !(session: Session): Unit =
-    exitOrElse(session, statsEngine)(super.!)
+    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
+      super.!(session)
+    }
 }

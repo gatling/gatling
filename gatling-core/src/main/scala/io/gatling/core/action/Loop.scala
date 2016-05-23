@@ -45,7 +45,9 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
   }
 
   override def execute(session: Session): Unit =
-    ExitableAction.exitOrElse(session, statsEngine)(innerLoop.!)
+    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
+      innerLoop ! session
+    }
 }
 
 class InnerLoop(
