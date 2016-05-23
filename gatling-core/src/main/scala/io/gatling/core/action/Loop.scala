@@ -24,15 +24,25 @@ import io.gatling.core.stats.StatsEngine
  * @constructor creates a Loop in the scenario
  * @param continueCondition the condition that decides when to exit the loop
  * @param counterName the name of the counter for this loop
+ * @param exitASAP if loop condition should be evaluated between chain elements to exit ASAP
+ * @param timeBased if loop is based on time and should compute entry timestamp
  * @param statsEngine the StatsEngine
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, statsEngine: StatsEngine, val name: String, next: Action) extends Action {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, statsEngine: StatsEngine, val name: String, next: Action) extends Action {
 
   private[this] var innerLoop: Action = _
 
-  private[core] def initialize(loopNext: Action): Unit =
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterName, exitASAP, name + "-inner", next)
+  private[core] def initialize(loopNext: Action): Unit = {
+
+    val counterIncrement = (session: Session) =>
+      if (!session.contains(counterName))
+        session.enterLoop(counterName, continueCondition, this, exitASAP, timeBased)
+      else
+        session.incrementCounter(counterName)
+
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", next)
+  }
 
   override def execute(session: Session): Unit =
     ExitableAction.exitOrElse(session, statsEngine)(innerLoop.!)
@@ -41,8 +51,7 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
 class InnerLoop(
     continueCondition: Expression[Boolean],
     loopNext:          Action,
-    counterName:       String,
-    exitASAP:          Boolean,
+    counterIncrement:  Session => Session,
     val name:          String,
     val next:          Action
 ) extends ChainableAction {
@@ -55,11 +64,7 @@ class InnerLoop(
    */
   def execute(session: Session): Unit = {
 
-    val incrementedSession =
-      if (!session.contains(counterName))
-        session.enterLoop(counterName, continueCondition, this, exitASAP)
-      else
-        session.incrementCounter(counterName)
+    val incrementedSession = counterIncrement(session)
 
     if (LoopBlock.continue(continueCondition, incrementedSession))
       // TODO maybe find a way not to reevaluate in case of exitASAP
