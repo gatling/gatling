@@ -299,7 +299,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "enterLoop" should "add an ExitASAPLoopBlock on top of the stack and init a counter when exitASAP = true" in {
-    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = true)
+    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = true, timebased = false)
 
     session.blockStack.head shouldBe a[ExitAsapLoopBlock]
     session.contains("loop") shouldBe true
@@ -307,7 +307,7 @@ class SessionSpec extends BaseSpec {
   }
 
   it should "add an ExitOnCompleteLoopBlock on top of the stack and init a counter when exitASAP = false" in {
-    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false)
+    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timebased = false)
 
     session.blockStack.head shouldBe a[ExitOnCompleteLoopBlock]
     session.contains("loop") shouldBe true
@@ -315,7 +315,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "exitLoop" should "remove the LoopBlock from the top of the stack and its associated counter" in {
-    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false)
+    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timebased = false)
     val sessionOutOfLoop = session.exitLoop
 
     sessionOutOfLoop.blockStack shouldBe empty
@@ -329,7 +329,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "initCounter" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
-    val session = newSession.initCounter("counter")
+    val session = newSession.initCounter("counter", withTimestamp = true)
 
     session.contains("counter") shouldBe true
     session.attributes("counter") shouldBe 0
@@ -337,7 +337,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "incrementCounter" should "increment a counter in session" in {
-    val session = newSession.initCounter("counter")
+    val session = newSession.initCounter("counter", withTimestamp = false)
     val sessionWithUpdatedCounter = session.incrementCounter("counter")
 
     sessionWithUpdatedCounter.attributes("counter") shouldBe 1
@@ -350,7 +350,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "removeCounter" should "remove a counter and its associated timestamp from the session" in {
-    val session = newSession.initCounter("counter")
+    val session = newSession.initCounter("counter", withTimestamp = true)
     val sessionWithRemovedCounter = session.removeCounter("counter")
 
     sessionWithRemovedCounter.contains("counter") shouldBe false
@@ -416,7 +416,7 @@ class SessionSpec extends BaseSpec {
 
   it should "throw an exception when the value isn't of the expected type" in {
     val session = newSession.set("foo", "bar")
-    a[java.lang.ClassCastException] shouldBe thrownBy(session("foo").asOption[Int])
+    a[ClassCastException] shouldBe thrownBy(session("foo").asOption[Int])
   }
 
   "validate[T]" should "return a Validation(value) when key is defined and value of the expected type" in {

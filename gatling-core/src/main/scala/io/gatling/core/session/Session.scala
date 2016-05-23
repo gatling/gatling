@@ -136,7 +136,7 @@ case class Session(
   }
 
   private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
-    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName)
+    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName, withTimestamp = false)
 
   private[gatling] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
@@ -184,7 +184,7 @@ case class Session(
 
   def markAsFailed: Session = updateStatus(KO)
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopAction: Action, exitASAP: Boolean): Session = {
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopAction: Action, exitASAP: Boolean, timebased: Boolean): Session = {
 
     val newBlock =
       if (exitASAP)
@@ -192,7 +192,7 @@ case class Session(
       else
         ExitOnCompleteLoopBlock(counterName)
 
-    copy(blockStack = newBlock :: blockStack).initCounter(counterName)
+    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timebased)
   }
 
   private[gatling] def exitLoop: Session = blockStack match {
@@ -202,8 +202,15 @@ case class Session(
       this
   }
 
-  private[gatling] def initCounter(counterName: String): Session =
-    copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis))
+  private[gatling] def initCounter(counterName: String, withTimestamp: Boolean): Session = {
+    val withCounter = attributes.updated(counterName, 0)
+    val newAttributes =
+      if (withTimestamp)
+        withCounter.updated(timestampName(counterName), nowMillis)
+      else
+        withCounter
+    copy(attributes = newAttributes)
+  }
 
   private[gatling] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
@@ -215,7 +222,8 @@ case class Session(
 
   private[gatling] def removeCounter(counterName: String): Session =
     attributes.get(counterName) match {
-      case Some(counterValue: Int) => copy(attributes = attributes - counterName - timestampName(counterName))
+      case Some(counterValue: Int) =>
+        copy(attributes = attributes - counterName - timestampName(counterName))
       case _ =>
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
         this
