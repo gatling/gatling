@@ -214,7 +214,7 @@ case class Session(
 
   private[gatling] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
-      case Some(counterValue: Int) => copy(attributes = attributes + (counterName -> (counterValue + 1)))
+      case Some(counterValue: Int) => copy(attributes = attributes.updated(counterName, counterValue + 1))
       case _ =>
         logger.error(s"incrementCounter called but attribute for counterName $counterName is missing, please report.")
         this
