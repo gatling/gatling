@@ -106,6 +106,9 @@ class ResponseBuilder(
   def updateStartTimestamp(): Unit =
     startTimestamp = nowMillis
 
+  def updateEndTimestamp(): Unit =
+    endTimestamp = nowMillis
+
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
 
@@ -121,8 +124,6 @@ class ResponseBuilder(
     chunks.foreach(_.release())
     chunks = Nil
   }
-
-  def updateEndTimestamp(): Unit = endTimestamp = nowMillis
 
   def accumulate(status: HttpResponseStatus): Unit = {
     this.status = Some(status)
