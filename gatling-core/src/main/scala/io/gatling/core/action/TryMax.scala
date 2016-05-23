@@ -30,7 +30,9 @@ class TryMax(times: Int, counterName: String, statsEngine: StatsEngine, next: Ac
     innerTryMax = new InnerTryMax(times, loopNext, counterName, name + "-inner", next)
 
   override def execute(session: Session): Unit =
-    ExitableAction.exitOrElse(session, statsEngine)(innerTryMax.!)
+    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
+      innerTryMax ! session
+    }
 }
 
 class InnerTryMax(times: Int, loopNext: Action, counterName: String, val name: String, val next: Action)
