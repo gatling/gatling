@@ -40,11 +40,25 @@ object Shard {
     } else {
       // B first
       if (modulo == 0) {
-        // (... A)()
-        Shard((fullPatternsValue).toInt, valueB.toInt)
+        // next value is B, except if we've reached countB
+        if (numberOfFullPatterns < countB) {
+          // (... A)(B)
+          Shard(fullPatternsValue.toInt, valueB.toInt)
+        } else {
+          // (... A)(A)
+          Shard(fullPatternsValue.toInt, valueA.toInt)
+        }
+
       } else {
-        // (B, A, ..., A)
-        Shard((fullPatternsValue + valueB + (modulo - 1) * valueA).toInt, valueA.toInt)
+        // next value is B, except if we've reached countB
+        if (numberOfFullPatterns < countB) {
+          // (B, A, ..., A)
+          Shard((fullPatternsValue + valueB + (modulo - 1) * valueA).toInt, valueA.toInt)
+
+        } else {
+          // (A, ..., A)
+          Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
+        }
       }
     }
   }
@@ -64,10 +78,12 @@ object Shard {
       } else if (largeBucketCount == 0) {
         Shard(nodeId * smallBucketSize, smallBucketSize)
 
-      } else if (largeBucketCount > smallBucketCount)
+      } else if (largeBucketCount > smallBucketCount) {
         pick(largeBucketCount, largeBucketSize, smallBucketCount, smallBucketSize, nodeId)
-      else
+
+      } else {
         pick(smallBucketCount, smallBucketSize, largeBucketCount, largeBucketSize, nodeId)
+      }
     }
 
   private[this] def interleave(countA: Long, valueA: Long, countB: Long, valueB: Long, totalCount: Int): Iterator[Long] = {
