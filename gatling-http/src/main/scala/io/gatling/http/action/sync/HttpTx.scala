@@ -61,7 +61,7 @@ object HttpTx extends NameGen with StrictLogging {
       case None | Some(ContentCacheEntry(None, _, _)) =>
         f(tx)
 
-      case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
+      case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
         val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, ahcRequest))
         f(newTx)
 
