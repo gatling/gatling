@@ -15,7 +15,7 @@
  */
 package io.gatling.http.cookie
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.TimeHelper._
 
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri
@@ -109,7 +109,7 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
         } else {
           val persistent = cookie.getMaxAge != UnspecifiedMaxAge
-          updatedStore + (CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
+          updatedStore + (CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, unpreciseNowMillis))
         }
     }
 

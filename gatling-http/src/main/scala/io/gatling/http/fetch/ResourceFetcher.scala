@@ -18,7 +18,7 @@ package io.gatling.http.fetch
 import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.TimeHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.akka.BaseActor
@@ -257,7 +257,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       val ahcRequest = resource.ahcRequest
       httpCaches.contentCacheEntry(session, ahcRequest) match {
         case None => false
-        case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
+        case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
           // beware, side effecting
           session = httpCaches.clearContentCache(session, ahcRequest)
           false
@@ -301,7 +301,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
                 // recycle token, fetch a buffered resource
                 fetchResource(request)
 
-              case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
+              case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
                 // expire reached
                 session = httpCaches.clearContentCache(session, ahcRequest)
                 fetchResource(request)

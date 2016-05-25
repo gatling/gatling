@@ -16,8 +16,8 @@
 package io.gatling.http.cache
 
 import io.gatling.commons.util.NumberHelper._
-import io.gatling.commons.util.TimeHelper.nowMillis
-import io.gatling.http.{ HeaderValues, HeaderNames }
+import io.gatling.commons.util.TimeHelper.unpreciseNowMillis
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.Response
 
 import org.asynchttpclient.cookie.DateParser
@@ -71,9 +71,9 @@ trait ExpiresSupport {
         if (maxAge < 0)
           maxAge
         else
-          maxAge * 1000 + nowMillis
+          maxAge * 1000 + unpreciseNowMillis
       }
-      def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > nowMillis)
+      def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > unpreciseNowMillis)
 
     if (pragmaNoCache || cacheControlNoCache) {
       None
