@@ -28,5 +28,12 @@ abstract class CloseAction(
 ) extends RequestAction(statsEngine) with AsyncProtocolAction {
 
   override def sendRequest(requestName: String, session: Session) =
-    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! Close(requestName, next, session)
+    for {
+      wsActor <- fetchActor(wsName, session)
+    } yield {
+      // [fl]
+      //
+      // [fl]
+      wsActor ! Close(requestName, next, session)
+    }
 }
