@@ -15,6 +15,7 @@
  */
 package io.gatling.http.action.async.ws
 
+import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.ahc.HttpEngine
 
@@ -23,7 +24,7 @@ import org.asynchttpclient.ws.WebSocketUpgradeHandler
 
 object WsTx {
 
-  def start(tx: AsyncTx, wsActor: ActorRef, httpEngine: HttpEngine): Unit = {
+  def start(tx: AsyncTx, wsActor: ActorRef, httpEngine: HttpEngine, statsEngine: StatsEngine): Unit = {
     val (newTx, client) = {
       val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
       (tx.copy(session = newSession), client)
@@ -32,6 +33,10 @@ object WsTx {
     val listener = new WsListener(newTx, wsActor)
 
     val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+
+    // [fl]
+    //
+    // [fl]
     client.executeRequest(tx.request, handler)
   }
 }

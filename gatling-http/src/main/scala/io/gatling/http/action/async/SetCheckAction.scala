@@ -30,5 +30,12 @@ abstract class SetCheckAction(
 ) extends RequestAction(statsEngine) with AsyncProtocolAction {
 
   override def sendRequest(requestName: String, session: Session) =
-    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! SetCheck(requestName, checkBuilder.build, next, session)
+    for {
+      wsActor <- fetchActor(wsName, session)
+    } yield {
+      // [fl]
+      //
+      // [fl]
+      wsActor ! SetCheck(requestName, checkBuilder.build, next, session)
+    }
 }

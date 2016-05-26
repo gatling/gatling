@@ -219,7 +219,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
     case action: WsUserAction =>
       // reconnect on first client message tentative
       val newTx = tx.copy(reconnectCount = tx.reconnectCount + 1)
-      WsTx.start(newTx, self, httpEngine)
+      WsTx.start(newTx, self, httpEngine, statsEngine)
 
       context.become(reconnectingState(status, reason, action))
 

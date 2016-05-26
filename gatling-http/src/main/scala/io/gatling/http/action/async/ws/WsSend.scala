@@ -39,6 +39,12 @@ class WsSend(
       resolvedMessage <- message(session)
     } yield {
       val check = checkBuilder.map(_.build)
+
+      // [fl]
+      //
+      //
+      // [fl]
+
       wsActor ! Send(requestName, resolvedMessage, check, next, session)
     }
 }
