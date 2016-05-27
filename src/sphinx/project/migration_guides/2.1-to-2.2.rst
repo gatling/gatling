@@ -4,6 +4,11 @@
 Migrating from 2.1 to 2.2
 #########################
 
+JKD8
+====
+
+We've dropped support for JDK7 and now require JDK8.
+
 Global changes
 ==============
 
