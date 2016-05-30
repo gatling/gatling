@@ -21,7 +21,7 @@ object Dependencies {
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                    % "1.7.21"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                     % "0.2.4"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                        % "3.4.0"
-  private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                % "3.1.0"
+  private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                % "3.4.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"             % "2.7.4"
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"       % jackson.revision
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                    % "0.6.1"
