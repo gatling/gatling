@@ -47,7 +47,8 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
   private val httpComponents = HttpComponents(
     httpProtocol = httpProtocol,
     httpEngine = null,
-    httpCaches = httpCaches
+    httpCaches = httpCaches,
+    responseProcessor = null
   )
 
   val SimpleRequest: Expression[Request] =
