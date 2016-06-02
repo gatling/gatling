@@ -71,7 +71,7 @@ class PollerActor(
           errorMessage
         }
       } yield {
-        // FIXME BROKEN
+        // FIXME: we REALLY shouldn't be passing a null ref
         val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, null, Some(self))
         HttpTx.start(nonBlockingTx)
       }
