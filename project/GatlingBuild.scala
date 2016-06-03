@@ -1,13 +1,12 @@
 import io.gatling.build.SonatypeReleasePlugin
 
-import pl.project13.scala.sbt.JmhPlugin
-
 import BuildSettings._
 import Bundle._
 import ConfigFiles._
 import CopyLogback._
 import Dependencies._
 import VersionFile._
+import pl.project13.scala.sbt.JmhPlugin
 import sbt.Keys._
 import sbt._
 
@@ -23,7 +22,7 @@ object GatlingBuild extends Build {
     .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noArtifactToPublish)
-    .settings(docSettings(bundle): _*)
+    .settings(docSettings(benchmarks, bundle): _*)
     .settings(libraryDependencies ++= docDependencies)
 
   /*************/
@@ -38,13 +37,13 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
 
   lazy val core = gatlingModule("gatling-core")
-    .dependsOn(commons  % "compile->compile;test->test")
+    .dependsOn(commons % "compile->compile;test->test")
     .settings(libraryDependencies ++= coreDependencies)
     .settings(generateVersionFileSettings: _*)
     .settings(copyGatlingDefaults(compiler): _*)
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
-    .dependsOn(core  % "compile->compile;test->test")
+    .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= jdbcDependencies)
 
   lazy val redis = gatlingModule("gatling-redis")
@@ -61,7 +60,7 @@ object GatlingBuild extends Build {
     .settings(parallelExecution in Test := false)
 
   lazy val charts = gatlingModule("gatling-charts")
-    .dependsOn(core  % "compile->compile;test->test")
+    .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= chartsDependencies)
     .settings(excludeDummyComponentLibrary: _*)
     .settings(chartTestsSettings: _*)
@@ -83,7 +82,7 @@ object GatlingBuild extends Build {
     .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
 
   lazy val recorder = gatlingModule("gatling-recorder")
-    .dependsOn(core  % "compile->compile;test->test", http)
+    .dependsOn(core % "compile->compile;test->test", http)
     .settings(libraryDependencies ++= recorderDependencies)
 
   lazy val testFramework = gatlingModule("gatling-test-framework")
