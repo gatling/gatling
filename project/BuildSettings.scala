@@ -1,14 +1,13 @@
-import sbt._
-import sbt.Keys._
+import io.gatling.build.LicenseKeys._
+import io.gatling.build.MavenPublishKeys._
+import io.gatling.build.license._
 
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
-
-import io.gatling.build.license._
-import io.gatling.build.LicenseKeys._
-import io.gatling.build.MavenPublishKeys._
-import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
+import sbt.Keys._
+import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
+import sbtunidoc.Plugin.{ScalaUnidoc, unidocSettings}
 
 object BuildSettings {
 
@@ -53,7 +52,6 @@ object BuildSettings {
   )
 
   def docSettings(excludedProjects: ProjectReference*) = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
-    site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api"),
     unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get,
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(excludedProjects: _*)
   ) ++ scaladocSettings
