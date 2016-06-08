@@ -62,7 +62,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   val ahcConfig = configuration.http.ahc
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
-  InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
+  InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)
 
   private[this] def newEventLoopGroup(poolName: String): EventLoopGroup = {
     val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory(poolName))
