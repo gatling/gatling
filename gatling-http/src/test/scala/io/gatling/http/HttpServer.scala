@@ -62,7 +62,7 @@ private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, 
 
   val requests = new ConcurrentLinkedQueue[FullHttpRequest]
 
-  InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
+  InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)
 
   val serverHandler = new ServerHandler(requestHandler, requests)
   val bossGroup = new NioEventLoopGroup(1)
