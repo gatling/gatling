@@ -105,8 +105,7 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
     if (delay <= ZeroMs) {
       startUser(scenario, userId)
     } else {
-      // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-      system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(scenario, userId))
+      system.scheduler.scheduleOnce(delay)(startUser(scenario, userId))
     }
   }
 
@@ -132,6 +131,7 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
 
         if (continue) {
           count += 1
+          // TODO instead of scheduling each user separately, we could group them by rounded-up delay (Akka defaults to 10ms)
           f(scenario, delay)
         } else {
           streamNonEmpty = true

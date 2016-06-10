@@ -30,10 +30,4 @@ object TimeHelper {
   def nowMillis = computeTimeMillisFromNanos(nanoTime)
   def unpreciseNowMillis = currentTimeMillis
   def nowSeconds = computeTimeMillisFromNanos(nanoTime) / 1000
-
-  def toMillisPrecision(t: FiniteDuration): FiniteDuration =
-    t.unit match {
-      case MICROSECONDS | NANOSECONDS => t.toMillis.milliseconds
-      case _                          => t
-    }
 }
