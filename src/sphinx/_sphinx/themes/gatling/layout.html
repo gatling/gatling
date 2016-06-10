@@ -90,18 +90,117 @@ gatling/layout.html
 
       <nav id="navbar-collapse" class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/#/">HOME</a></li>
-          <li><a href="/#/download">DOWNLOAD</a></li>
-          <li class="active"><a href="/#/docs">DOCUMENTATION</a></li>
-          <li><a href="/#/services">PROFESSIONAL SERVICES</a></li>
-          <li><a class="icon icon-github" href="https://github.com/gatling/gatling"></a></li>
-          <li><a class="icon icon-twitter" href="https://twitter.com/GatlingTool"></a></li>
-          <li><a class="icon icon-googlegroup" href="https://groups.google.com/forum/#!forum/gatling"></a></li>
+
+          <li>
+            <a href="/#/"><i class="fa fa-home" style="line-height:inherit"></i></a>
+          </li>
+
+          <!-- Resources -->
+
+          <li class="dropdown active">
+            <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button">
+              <span>RESOURCES</span>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="/#/resources/download">Download</a></li>
+              <li><a href="/#/resources/documentation" class="active-sub-menu">Documentation</a></li>
+              <li><a href="/#/resources/talks">Talks</a></li>
+              <li><a href="/#/resources/about">About Gatling</a></li>
+            </ul>
+          </li>
+
+          <!-- Professional Services -->
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+              <span>PROFESSIONAL SERVICES</span>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="/#/services">Support &amp; Consulting</a></li>
+              <li><a href="/#/services/training">Training</a></li>
+              <li><a href="/#/services/frontline">Gatling FrontLine&reg;</a></li>
+              <li><a href="/#/stories">Users stories</a></li>
+              <li><a href="/#/why">Why Gatling?</a></li>
+            </ul>
+          </li>
+
+          <!-- Company -->
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
+              <span>COMPANY</span>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="/#/company/values">Our values</a></li>
+              <li><a href="/#/company/history">History</a></li>
+              <li><a href="/#/company/team">The team</a></li>
+              <li><a href="/#/company/contact">Contact</a></li>
+            </ul>
+          </li>
+
+          <!-- Blog -->
+
+          <li><a class="not-focused" href="http://blog.gatling.io/" target="_blank">BLOG</a></li>
+
+          <!-- Share -->
+
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" role="button" href="#/">
+              <i class="fa fa-users"></i>
+              <span>COMMUNITY</span>
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a href="https://github.com/gatling/gatling" target="_blank">
+                  <i class="fa fa-github"></i>
+                  <span>Github</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://groups.google.com/forum/#!forum/gatling" target="_blank">
+                  <i class="fa fa-envelope"></i>
+                  <span>Mailing list</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/GatlingTool" target="_blank">
+                  <i class="fa fa-twitter"></i>
+                  <span>Twitter</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.linkedin.com/company/gatling" target="_blank">
+                  <i class="fa fa-linkedin"></i>
+                  <span>LinkedIn</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.facebook.com/GatlingTool" target="_blank">
+                  <i class="fa fa-facebook-official"></i>
+                  <span>Facebook</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/channel/UCaNih6sKuJ9DIMjTEW1EAlQ" target="_blank">
+                  <i class="fa fa-youtube"></i>
+                  <span>Youtube</span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.crunchbase.com/organization/gatling-corp#/entity" target="_blank">
+                  <img src="/images/icon-crunchbase.png" style="margin-bottom:3px;" width="14px" height="14px" alt="CrunchBase">
+                  <span>CrunchBase</span>
+                </a>
+              </li>
+            </ul>
+          </li>
         </ul>
       </nav>
-      <!-- /.navbar-collapse -->
     </div>
-    <!-- /.container -->
   </div>
 </header>
 {%- endblock %}
