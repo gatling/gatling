@@ -28,7 +28,7 @@ import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorRefFactory, Props }
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.{ AsyncHttpClient, Request }
 
@@ -51,7 +51,7 @@ object HttpTx extends NameGen with StrictLogging {
     }
   }
 
-  private def startWithCache(origTx: HttpTx, system: ActorSystem, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
+  private def startWithCache(origTx: HttpTx, actorRefFactory: ActorRefFactory, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
     val ahcRequest = tx.request.ahcRequest
     val uri = ahcRequest.getUri
@@ -69,17 +69,12 @@ object HttpTx extends NameGen with StrictLogging {
         httpEngine.resourceFetcherActorForCachedPage(uri, tx) match {
           case Some(resourceFetcherActor) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
-            system.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
+            actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             tx.resourceFetcher match {
-              case None =>
-                // schedule so we don't risk creating a busy loop
-                import system.dispatcher
-                system.scheduler.scheduleOnce(5 milliseconds) {
-                  tx.next ! tx.session
-                }
+              case None                  => tx.next ! tx.session
               case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
             }
         }
@@ -92,11 +87,11 @@ object HttpTx extends NameGen with StrictLogging {
       client.executeRequest(ahcRequest, handler)
     }
 
-  def start(origTx: HttpTx)(implicit system: ActorSystem): Unit = {
+  def start(origTx: HttpTx)(implicit actorRefFactory: ActorRefFactory): Unit = {
 
     import origTx.request.config.httpComponents._
 
-    startWithCache(origTx, system, httpEngine, httpCaches) { tx =>
+    startWithCache(origTx, actorRefFactory, httpEngine, httpCaches) { tx =>
 
       logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 

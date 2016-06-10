@@ -184,11 +184,11 @@ case class Session(
 
   def markAsFailed: Session = updateStatus(KO)
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopAction: Action, exitASAP: Boolean, timebased: Boolean): Session = {
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timebased: Boolean): Session = {
 
     val newBlock =
       if (exitASAP)
-        ExitAsapLoopBlock(counterName, condition, loopAction)
+        ExitAsapLoopBlock(counterName, condition, exitAction)
       else
         ExitOnCompleteLoopBlock(counterName)
 
