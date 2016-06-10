@@ -46,7 +46,7 @@ object LoopBlock extends StrictLogging {
 
 case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
 
-case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], loopAction: Action) extends CounterBlock
+case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends CounterBlock
 
 case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status = OK) extends CounterBlock
 

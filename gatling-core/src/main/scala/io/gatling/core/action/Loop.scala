@@ -15,8 +15,12 @@
  */
 package io.gatling.core.action
 
+import scala.concurrent.duration._
+
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
+
+import akka.actor.ActorSystem
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -29,19 +33,19 @@ import io.gatling.core.stats.StatsEngine
  * @param statsEngine the StatsEngine
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, statsEngine: StatsEngine, val name: String, next: Action) extends Action {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, statsEngine: StatsEngine, override val name: String, next: Action) extends Action {
 
   private[this] var innerLoop: Action = _
 
-  private[core] def initialize(loopNext: Action): Unit = {
+  private[core] def initialize(loopNext: Action, system: ActorSystem): Unit = {
 
     val counterIncrement = (session: Session) =>
-      if (!session.contains(counterName))
-        session.enterLoop(counterName, continueCondition, this, exitASAP, timeBased)
-      else
+      if (session.contains(counterName))
         session.incrementCounter(counterName)
+      else
+        session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased)
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, system, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
@@ -54,9 +58,18 @@ class InnerLoop(
     continueCondition: Expression[Boolean],
     loopNext:          Action,
     counterIncrement:  Session => Session,
+    system:            ActorSystem,
     val name:          String,
     val next:          Action
 ) extends ChainableAction {
+
+  private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]
+
+  private[this] def getAndSetLastUserId(session: Session): Long = {
+    val lastUserId = lastUserIdThreadLocal.get()
+    lastUserIdThreadLocal.set(session.userId)
+    lastUserId
+  }
 
   /**
    * Evaluates the condition and if true executes the first action of loopNext
@@ -65,13 +78,26 @@ class InnerLoop(
    * @param session the session of the virtual user
    */
   def execute(session: Session): Unit = {
-
     val incrementedSession = counterIncrement(session)
+    val lastUserId = getAndSetLastUserId(session)
 
-    if (LoopBlock.continue(continueCondition, incrementedSession))
-      // TODO maybe find a way not to reevaluate in case of exitASAP
-      loopNext ! incrementedSession
-    else
+    if (LoopBlock.continue(continueCondition, incrementedSession)) {
+
+      if (incrementedSession.userId == lastUserId) {
+        // except if we're running only one user, it's very likely we're hitting an empty loop
+        // let's schedule so we don't spin
+        import system.dispatcher
+        system.scheduler.scheduleOnce(1 millisecond) {
+          // actual delay is tick (10 ms by default)
+          loopNext ! incrementedSession
+        }
+
+      } else {
+        loopNext ! incrementedSession
+      }
+
+    } else {
       next ! incrementedSession.exitLoop
+    }
   }
 }
