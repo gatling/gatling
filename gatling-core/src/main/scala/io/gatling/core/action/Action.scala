@@ -60,7 +60,12 @@ trait ChainableAction extends Action {
       super.!(session)
     } catch {
       case NonFatal(reason) =>
-        logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
+        if (logger.underlying.isInfoEnabled)
+          logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
+        else if (reason.getMessage == null)
+          logger.error(s"'$name' crashed with '${reason.getClass.getName}', forwarding to the next one")
+        else
+          logger.error(s"'$name' crashed with '${reason.getClass.getName}: ${reason.getMessage}', forwarding to the next one")
         next.execute(session.markAsFailed)
     }
 
