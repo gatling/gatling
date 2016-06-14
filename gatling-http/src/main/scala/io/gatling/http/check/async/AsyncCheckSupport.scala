@@ -31,30 +31,51 @@ trait AsyncCheckSupport extends AsyncCheckDSL {
 trait AsyncCheckDSL {
 
   // TODO: rename those !
-  val wsListen = new TimeoutStep(false)
-  val wsAwait = new TimeoutStep(true)
+  val wsListen = new TimeoutStep()
+  val wsAwait = new AwaitTimeoutStep()
 
-  class TimeoutStep(await: Boolean) {
-    def within(timeout: FiniteDuration) = new ExpectationStep(await, timeout)
+  class TimeoutStep() {
+    def within(timeout: FiniteDuration) = new ExpectationStep(timeout)
   }
 
-  class ExpectationStep(await: Boolean, timeout: FiniteDuration) {
-    def until(count: Int) = new CheckTypeStep(await, timeout, UntilCount(count))
-    def expect(count: Int) = new CheckTypeStep(await, timeout, ExpectedCount(count))
-    def expect(range: Range) = new CheckTypeStep(await, timeout, ExpectedRange(range))
+  class AwaitTimeoutStep() {
+    def within(timeout: FiniteDuration) = new AwaitExpectationStep(timeout)
   }
 
-  class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
+  class AwaitExpectationStep(timeout: FiniteDuration) {
+    def until(count: Int) = new CheckTypeStep(true, timeout, UntilCount(count))
+    def expect(count: Int) = new CheckTypeStep(true, timeout, ExpectedCount(count))
+    def expect(range: Range) = new CheckTypeStep(true, timeout, ExpectedRange(range))
+  }
+
+  class ExpectationStep(timeout: FiniteDuration) {
+    def until(count: Int) = new CheckTypeStep(false, timeout, UntilCount(count))
+    def expect(count: Int) = new CheckTypeStep(false, timeout, ExpectedCount(count))
+    def expect(range: Range) = new CheckTypeStep(false, timeout, ExpectedRange(range))
+
+    /**
+     * Checks of this type will all be kept until they're matched by any async server message, or they timeout
+     *
+     * until/expect can't be used: they're necessarily checked until they're ok once
+     *
+     * can only be called on 'wsListen'/non blocking step
+     *
+     * Implemented ONLY on Websocket - NOT on SSE
+     */
+    def accumulate = new CheckTypeStep(false, timeout, UntilCount(1), true)
+  }
+
+  class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation, shouldAccumulate: Boolean = false) {
 
     def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
-      AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation, shouldAccumulate))
 
     def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation, shouldAccumulate))
 
     def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation, shouldAccumulate))
 
-    val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.extender(await, timeout, expectation))
+    val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.extender(await, timeout, expectation, shouldAccumulate))
   }
 }
