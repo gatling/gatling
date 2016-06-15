@@ -181,7 +181,6 @@ class SessionSpec extends BaseSpec {
 
     session.blockStack.head shouldBe a[TryMaxBlock]
     session.contains("tryMax") shouldBe true
-    session.contains("timestamp.tryMax") shouldBe true
   }
 
   "exitTryMax" should "simply exit the closest TryMaxBlock and remove its associated counter if it has not failed" in {
@@ -189,7 +188,6 @@ class SessionSpec extends BaseSpec {
 
     session.blockStack shouldBe empty
     session.contains("tryMax") shouldBe false
-    session.contains("timestamp.tryMax") shouldBe false
   }
 
   it should "simply exit the TryMaxBlock and remove its associated counter if it has failed but with no other TryMaxBlock in the stack" in {
@@ -197,7 +195,6 @@ class SessionSpec extends BaseSpec {
 
     session.blockStack.head shouldBe a[GroupBlock]
     session.contains("tryMax") shouldBe false
-    session.contains("timestamp.tryMax") shouldBe false
   }
 
   it should "exit the TryMaxBlock, remove its associated counter and set the closest TryMaxBlock in the stack's status to KO if it has failed" in {
@@ -207,7 +204,6 @@ class SessionSpec extends BaseSpec {
     session.blockStack(1) shouldBe a[TryMaxBlock]
     session.blockStack(1).asInstanceOf[TryMaxBlock].status shouldBe KO
     session.contains("tryMax2") shouldBe false
-    session.contains("timestamp.tryMax2") shouldBe false
   }
 
   it should "leave the session unmodified if there is no TryMaxBlock on top of the stack" in {
