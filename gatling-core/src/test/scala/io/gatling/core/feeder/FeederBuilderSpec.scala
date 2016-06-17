@@ -134,6 +134,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   //
   //
   //
+  //
   // [fl]
 
   "FeederBuilder" should "have working implicit conversions" in {
