@@ -226,24 +226,24 @@ object GatlingConfiguration extends StrictLogging {
           writeInterval = config.getInt(data.graphite.WriteInterval)
         )
       ),
-// [fl]
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// [fl]
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      // [fl]
       config = config
     )
 
@@ -301,10 +301,10 @@ case class DirectoryConfiguration(
 )
 
 case class ChartingConfiguration(
-  noReports:         Boolean,
-  maxPlotsPerSeries: Int,
+  noReports:              Boolean,
+  maxPlotsPerSeries:      Int,
   useGroupDurationMetric: Boolean,
-  indicators:        IndicatorsConfiguration
+  indicators:             IndicatorsConfiguration
 )
 
 case class IndicatorsConfiguration(
@@ -344,7 +344,7 @@ case class AhcConfiguration(
   useNativeTransport:                  Boolean,
   usePooledMemory:                     Boolean,
   tcpNoDelay:                          Boolean,
-  soReuseAddress:                          Boolean,
+  soReuseAddress:                      Boolean,
   soLinger: Int,
   soSndBuf: Int,
   soRcvBuf: Int
@@ -415,13 +415,13 @@ case class GraphiteDataWriterConfiguration(
 // [fl]
 
 case class GatlingConfiguration(
-  core:     CoreConfiguration,
-  charting: ChartingConfiguration,
-  http:     HttpConfiguration,
-  jms:      JmsConfiguration,
-  data:     DataConfiguration,
-  //
-  //
-  //
-  config:   Config
+     core:      CoreConfiguration,
+     charting:  ChartingConfiguration,
+     http:      HttpConfiguration,
+     jms:       JmsConfiguration,
+     data:      DataConfiguration,
+     // [fl]
+     //
+     // [fl]
+     config:    Config
 )
