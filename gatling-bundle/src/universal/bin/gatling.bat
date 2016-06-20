@@ -59,7 +59,6 @@ set JAVA="%JAVA_HOME%\bin\java.exe"
 :run
 echo JAVA = "%JAVA%"
 rem Run the compiler
-set COMPILATION_CLASSPATH=""
 for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
 rem Run Gatling
