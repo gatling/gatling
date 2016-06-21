@@ -75,7 +75,7 @@ Gatling can be started with several options listed below:
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -rd <description> | --run-description <description>        | A short <description> of the run to include in the report                                        |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -m                | --mute                                 | Runs in mute mode: doesn't ask for run description nor simulation ID, uses defaults              |
+| -m                | --mute                                 | Runs in mute mode: doesn't ask for run description or simulation ID, uses defaults               |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 
 $JAVA_OPTS

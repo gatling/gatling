@@ -34,7 +34,7 @@ private[app] class ArgsParser(args: Array[String]) {
 
     opt[Unit](Mute)
       .foreach(_ => props.mute())
-      .text("Runs in mute mode: don't asks for run description nor simulation ID, use defaults")
+      .text("Runs in mute mode: doesn't ask for run description or simulation ID, uses defaults")
 
     opt[String](ReportsOnly)
       .foreach(props.reportsOnly)
