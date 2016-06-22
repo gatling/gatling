@@ -28,14 +28,19 @@ import org.asynchttpclient.util.Base64
 private[har] object HarMapping {
 
   private val ProtectedValue = """"(.*)\"""".r
-  private val Iso8601ZonedDateAndTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
   // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
   val Charset = StandardCharsets.UTF_8
 
   def jsonToHttpArchive(json: Json): HttpArchive = HttpArchive(buildLog(json.log))
 
-  private def parseMillisFromIso8601DateTime(time: String): Long = Iso8601ZonedDateAndTime.parse(time).getTime
+  // Correctly parse the date when the millisecond field contains more than three digits
+  // IOW, fix this error:
+  // java.text.ParseException: Unparseable date: "2016-06-16T13:22:09.1137657-05:00"
+  //     at java.text.DateFormat.parse(DateFormat.java:366)
+  //     at io.gatling.recorder.har.HarMapping$.parseMillisFromIso8601DateTime(HarMapping.scala:38)
+  //     ...
+  private def parseMillisFromIso8601DateTime(time: String): Long = java.time.ZonedDateTime.parse(time).toInstant().toEpochMilli
 
   private def buildLog(log: Json): Log = {
     val entries = log.entries.iterator
