@@ -24,9 +24,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]]): (Session => Session, Option[Failure]) = {
-
-    implicit val cache = mutable.Map.empty[Any, Any]
+  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit cache: mutable.Map[Any, Any] = mutable.Map.empty[Any, Any]): (Session => Session, Option[Failure]) = {
 
       @tailrec
       def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
