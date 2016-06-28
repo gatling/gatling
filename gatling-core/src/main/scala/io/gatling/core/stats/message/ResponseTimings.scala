@@ -19,13 +19,16 @@ import com.typesafe.scalalogging.LazyLogging
 
 case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
 
-  val responseTime = {
-    val rt = (endTimestamp - startTimestamp).toInt
-    if (rt >= 0) {
-      rt
+  val responseTime =
+    if (endTimestamp < 0) {
+      Int.MinValue
     } else {
-      logger.error(s"Got a negative response time startTimestamp=$startTimestamp endTimestamp=$endTimestamp")
-      1
+      val rt = (endTimestamp - startTimestamp).toInt
+      if (rt >= 0) {
+        rt
+      } else {
+        logger.error(s"Got a negative response time startTimestamp=$startTimestamp endTimestamp=$endTimestamp")
+        1
+      }
     }
-  }
 }
