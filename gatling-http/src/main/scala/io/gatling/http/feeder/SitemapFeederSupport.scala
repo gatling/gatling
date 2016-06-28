@@ -30,6 +30,6 @@ trait SitemapFeederSupport {
   def sitemap(resource: Validation[Resource]): RecordSeqFeederBuilder[String] =
     resource match {
       case Success(res)     => RecordSeqFeederBuilder(SitemapParser.parse(res))
-      case Failure(message) => throw new IllegalArgumentException(s"Could not locate sitemap file; $message")
+      case Failure(message) => throw new IllegalArgumentException(s"Could not locate sitemap file: $message")
     }
 }
