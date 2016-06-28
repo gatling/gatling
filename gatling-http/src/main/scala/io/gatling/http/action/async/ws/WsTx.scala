@@ -15,12 +15,14 @@
  */
 package io.gatling.http.action.async.ws
 
+import java.util.{ ArrayList => JArrayList }
+
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.ahc.HttpEngine
 
 import akka.actor.ActorRef
-import org.asynchttpclient.ws.WebSocketUpgradeHandler
+import org.asynchttpclient.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 
 object WsTx {
 
@@ -30,9 +32,12 @@ object WsTx {
       (tx.copy(session = newSession), client)
     }
 
-    val listener = new WsListener(newTx, wsActor)
-
-    val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+    val handler = {
+      // can't use a singletonList as list will be cleared on close
+      val listeners = new JArrayList[WebSocketListener](1)
+      listeners.add(new WsListener(newTx, wsActor))
+      new WebSocketUpgradeHandler(listeners)
+    }
 
     // [fl]
     //
