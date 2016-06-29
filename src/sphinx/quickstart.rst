@@ -12,7 +12,7 @@ In this section we will use Gatling to load test a simple cloud hosted web serve
 Getting the bundle
 ------------------
 
-You can get Gatling bundles as a .zip file `here </#/download>`__.
+You can get Gatling bundles as a .zip file `here </#/resources/download>`__.
 
 Installing
 ----------
