@@ -21,10 +21,10 @@ import scala.collection.mutable
 import scala.xml.Elem
 
 import org.mockito.Mockito._
-
-import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
+import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
@@ -33,6 +33,7 @@ import io.gatling.http.response.{ Response, StringResponseBody }
 class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val provider = new HttpBodyXPathProvider(new Saxon, new JdkXmlParsers)
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", 0)
@@ -48,7 +49,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
     val response = mockResponse(<id>1072920417</id>)
 
-    xpath("/id", Nil).find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("/id", Nil).find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
@@ -57,7 +58,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//id").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("//id").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "xpath.findAll.exists" should "find all occurrences" in {
@@ -66,7 +67,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//id").findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    xpath("//id").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
@@ -75,7 +76,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").findAll.exists.build.check(response, session).failed shouldBe "xpath((//fo,List())).findAll.exists, found nothing"
+    xpath("//fo").findAll.exists.check(response, session).failed shouldBe "xpath((//fo,List())).findAll.exists, found nothing"
   }
 
   "xpath.count.exists" should "find all occurrences" in {
@@ -84,7 +85,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//id").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    xpath("//id").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
@@ -93,6 +94,6 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    xpath("//fo").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

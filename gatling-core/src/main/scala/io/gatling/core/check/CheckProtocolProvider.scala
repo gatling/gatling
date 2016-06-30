@@ -13,15 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.check.extractor.jsonpath
+package io.gatling.core.check
 
-import io.gatling.core.json.JsonParsers
+trait CheckProtocolProvider[A, C <: Check[R], R, P] {
 
-trait JsonSample {
+  def extender: Extender[C, R]
 
-  def value: String
-
-  def boonAST(jsonParsers: JsonParsers) = jsonParsers.boon.parse(value)
-
-  def jacksonAST(jsonParsers: JsonParsers) = jsonParsers.jackson.parse(value)
+  def preparer: Preparer[R, P]
 }

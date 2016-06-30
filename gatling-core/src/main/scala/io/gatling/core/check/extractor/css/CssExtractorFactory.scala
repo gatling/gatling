@@ -19,10 +19,9 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
 import jodd.lagarto.dom.NodeSelector
 
-class CssExtractorFactory(implicit val selectors: CssSelectors) extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {
+class CssExtractorFactory(selectors: CssSelectors) extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {
 
   implicit def defaultSingleExtractor[X: NodeConverter] = new SingleExtractor[NodeSelector, (String, Option[String]), X] {
-
     def extract(prepared: NodeSelector, criterion: (String, Option[String]), occurrence: Int): Validation[Option[X]] =
       selectors.extractAll(prepared, criterion).lift(occurrence).success
   }

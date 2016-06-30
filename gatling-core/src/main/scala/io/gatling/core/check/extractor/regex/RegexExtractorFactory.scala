@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.regex
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
 
-class RegexExtractorFactory(implicit patterns: Patterns) extends CriterionExtractorFactory[CharSequence, String]("regex") {
+class RegexExtractorFactory(patterns: Patterns) extends CriterionExtractorFactory[CharSequence, String]("regex") {
 
   implicit def defaultSingleExtractor[X: GroupExtractor] = new SingleExtractor[CharSequence, String, X] {
 

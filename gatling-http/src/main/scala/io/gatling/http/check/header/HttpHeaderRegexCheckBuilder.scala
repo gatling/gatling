@@ -15,39 +15,50 @@
  */
 package io.gatling.http.check.header
 
-import io.gatling.core.check.DefaultMultipleFindCheckBuilder
-import io.gatling.core.check.extractor.regex.{ RegexExtractorFactory, GroupExtractor }
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.regex.{ GroupExtractor, Patterns }
 import io.gatling.core.session.{ Expression, RichExpression, Session }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
+trait HttpHeaderRegexCheckType
+
 trait HttpHeaderRegexOfType {
   self: HttpHeaderRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor](implicit extractorFactory: HttpHeaderRegexExtractorFactory) = new HttpHeaderRegexCheckBuilder[X](headerName, pattern)
+  def ofType[X: GroupExtractor] = new HttpHeaderRegexCheckBuilder[X](headerName, pattern, patterns)
 }
 
 object HttpHeaderRegexCheckBuilder {
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory) =
-    new HttpHeaderRegexCheckBuilder[String](headerName, pattern) with HttpHeaderRegexOfType
+  def headerRegex(headerName: Expression[String], pattern: Expression[String], patterns: Patterns) =
+    new HttpHeaderRegexCheckBuilder[String](headerName, pattern, patterns) with HttpHeaderRegexOfType
 }
 
-class HttpHeaderRegexCheckBuilder[X: GroupExtractor](private[header] val headerName: Expression[String], val pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, X](
-      HeaderExtender,
-      PassThroughResponsePreparer
-    ) {
+class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
+  private[header] val headerName: Expression[String],
+  private[header] val pattern:    Expression[String],
+  private[header] val patterns:   Patterns
+)
+    extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X] {
 
-  val headerAndPattern = (session: Session) => for {
+  private val headerAndPattern = (session: Session) => for {
     headerName <- headerName(session)
     pattern <- pattern(session)
   } yield (headerName, pattern)
 
+  private val extractorFactory = new HttpHeaderRegexExtractorFactory(patterns)
   import extractorFactory._
 
   def findExtractor(occurrence: Int) = headerAndPattern.map(newSingleExtractor[X](_, occurrence))
   def findAllExtractor = headerAndPattern.map(newMultipleExtractor[X])
   def countExtractor = headerAndPattern.map(newCountExtractor)
+}
+
+object HttpHeaderRegexProvider extends CheckProtocolProvider[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {
+
+  override val extender: Extender[HttpCheck, Response] = HeaderExtender
+
+  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

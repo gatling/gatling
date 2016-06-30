@@ -20,15 +20,18 @@ import javax.jms.{ Message, TextMessage }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath._
+import io.gatling.core.check.extractor.xpath.{ JdkDom, _ }
 import io.gatling.jms.JmsCheck
+
 import org.xml.sax.InputSource
 
-object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] {
+class JmsXPathProvider(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends CheckProtocolProvider[XPathCheckType, JmsCheck, Message, Option[Dom]] {
 
-  private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
+  override val extender: Extender[JmsCheck, Message] = identity
 
-  def preparer[T](f: InputSource => T)(message: Message): Validation[Option[T]] =
+  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
+
+  private def xpathPreparer[T](f: InputSource => T)(message: Message): Validation[Option[T]] =
     safely(ErrorMapper) {
       message match {
         case tm: TextMessage => Some(f(new InputSource(new StringReader(tm.getText)))).success
@@ -36,5 +39,9 @@ object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] {
       }
     }
 
-  val CheckBuilder: Extender[JmsCheck, Message] = (wrapped: JmsCheck) => wrapped
+  override val preparer: Preparer[Message, Option[Dom]] =
+    if (saxon.enabled)
+      xpathPreparer(is => SaxonDom(saxon.parse(is)))
+    else
+      xpathPreparer(is => JdkDom(jdkXmlParsers.parse(is)))
 }

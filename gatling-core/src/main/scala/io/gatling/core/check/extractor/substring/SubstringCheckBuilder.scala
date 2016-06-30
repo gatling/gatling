@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.check.extractor.jsonpath
+package io.gatling.core.check.extractor.substring
 
-import io.gatling.core.json.JsonParsers
+import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.session.Expression
 
-trait JsonSample {
+trait SubstringCheckType
 
-  def value: String
-
-  def boonAST(jsonParsers: JsonParsers) = jsonParsers.boon.parse(value)
-
-  def jacksonAST(jsonParsers: JsonParsers) = jsonParsers.jackson.parse(value)
+class SubstringCheckBuilder(pattern: Expression[String]) extends DefaultMultipleFindCheckBuilder[SubstringCheckType, String, Int] {
+  import SubstringExtractorFactory._
+  def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[Int](_, occurrence))
+  def findAllExtractor = pattern.map(newMultipleExtractor[Int])
+  def countExtractor = pattern.map(newCountExtractor)
 }

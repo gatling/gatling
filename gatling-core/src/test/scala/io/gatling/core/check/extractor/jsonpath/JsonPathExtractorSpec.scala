@@ -22,25 +22,25 @@ import io.gatling.core.json.JsonParsers
 class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val jsonPaths = new JsonPaths
-  implicit val jsonParsers = JsonParsers()
-  val extractorFactory = new JsonPathExtractorFactory
+  val jsonPaths = new JsonPaths
+  val jsonParsers = JsonParsers()
+  val extractorFactory = new JsonPathExtractorFactory(jsonPaths)
   import extractorFactory._
 
   def testCount(path: String, sample: JsonSample, expected: Int): Unit = {
     val extractor = newCountExtractor(path)
-    extractor(sample.boonAST).succeeded shouldBe Some(expected)
-    extractor(sample.jacksonAST).succeeded shouldBe Some(expected)
+    extractor(sample.boonAST(jsonParsers)).succeeded shouldBe Some(expected)
+    extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe Some(expected)
   }
   def testSingle[T](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
     val extractor = newSingleExtractor[String](path, occurrence)
-    extractor(sample.boonAST).succeeded shouldBe expected
-    extractor.apply(sample.jacksonAST).succeeded shouldBe expected
+    extractor(sample.boonAST(jsonParsers)).succeeded shouldBe expected
+    extractor.apply(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
   def testMultiple[T](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
     val extractor = newMultipleExtractor[String](path)
-    extractor(sample.boonAST).succeeded shouldBe expected
-    extractor(sample.jacksonAST).succeeded shouldBe expected
+    extractor(sample.boonAST(jsonParsers)).succeeded shouldBe expected
+    extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
 
   "count" should "return expected result with anywhere expression" in {

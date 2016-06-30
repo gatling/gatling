@@ -16,23 +16,31 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check._
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
+trait HttpBodyStringCheckType
+
 object HttpBodyStringCheckBuilder {
 
-  val BodyStringExtractor = new Extractor[String, String] with SingleArity {
-    val name = "bodyString"
-    def apply(prepared: String) = Some(prepared).success
-  }.expressionSuccess
+  val BodyString = {
 
-  val BodyString = new DefaultFindCheckBuilder[HttpCheck, Response, String, String](
-    StringBodyExtender,
-    ResponseBodyStringPreparer,
-    BodyStringExtractor
-  )
+    val bodyStringExtractor = new Extractor[String, String] with SingleArity {
+      val name = "bodyString"
+      def apply(prepared: String) = Some(prepared).success
+    }.expressionSuccess
+
+    new DefaultFindCheckBuilder[HttpBodyStringCheckType, String, String](bodyStringExtractor)
+  }
+}
+
+object HttpBodyStringProvider extends CheckProtocolProvider[HttpBodyStringCheckType, HttpCheck, Response, String] {
+
+  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
+
+  override val preparer: Preparer[Response, String] = ResponseBodyStringPreparer
 }

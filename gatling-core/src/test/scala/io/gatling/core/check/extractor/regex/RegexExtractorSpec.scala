@@ -21,8 +21,7 @@ import io.gatling.core.config.GatlingConfiguration
 class RegexExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val patterns = new Patterns()
-  val extractorFactory = new RegexExtractorFactory
+  val extractorFactory = new RegexExtractorFactory(new Patterns())
   import extractorFactory._
 
   "count" should "return Some(0) when no results" in {

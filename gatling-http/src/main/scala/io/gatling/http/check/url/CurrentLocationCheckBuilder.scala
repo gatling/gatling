@@ -16,23 +16,30 @@
 package io.gatling.http.check.url
 
 import io.gatling.commons.validation.SuccessWrapper
-import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check.{ CheckProtocolProvider, DefaultFindCheckBuilder, Extender, Preparer }
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
+trait CurrentLocationCheckType
+
 object CurrentLocationCheckBuilder {
 
-  val CurrentLocationExtractor = new Extractor[Response, String] with SingleArity {
-    val name = "currentLocation"
-    def apply(prepared: Response) = Some(prepared.request.getUrl).success
-  }.expressionSuccess
+  val CurrentLocation = {
+    val extractor = new Extractor[Response, String] with SingleArity {
+      val name = "currentLocation"
+      def apply(prepared: Response) = Some(prepared.request.getUrl).success
+    }.expressionSuccess
 
-  val CurrentLocation = new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
-    UrlExtender,
-    PassThroughResponsePreparer,
-    CurrentLocationExtractor
-  )
+    new DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String](extractor)
+  }
+}
+
+object CurrentLocationProvider extends CheckProtocolProvider[CurrentLocationCheckType, HttpCheck, Response, Response] {
+
+  override val extender: Extender[HttpCheck, Response] = UrlExtender
+
+  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

@@ -15,18 +15,23 @@
  */
 package io.gatling.http.check.header
 
-import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check._
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpHeaderCheckBuilder {
+trait HttpHeaderCheckType
 
-  def header(headerName: Expression[String]) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, String](HeaderExtender, PassThroughResponsePreparer) {
-      def findExtractor(occurrence: Int) = headerName.map(new SingleHttpHeaderExtractor(_, occurrence))
-      def findAllExtractor = headerName.map(new MultipleHttpHeaderExtractor(_))
-      def countExtractor = headerName.map(new CountHttpHeaderExtractor(_))
-    }
+class HttpHeaderCheckBuilder(headerName: Expression[String]) extends DefaultMultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] {
+  def findExtractor(occurrence: Int) = headerName.map(new SingleHttpHeaderExtractor(_, occurrence))
+  def findAllExtractor = headerName.map(new MultipleHttpHeaderExtractor(_))
+  def countExtractor = headerName.map(new CountHttpHeaderExtractor(_))
+}
+
+object HttpHeaderProvider extends CheckProtocolProvider[HttpHeaderCheckType, HttpCheck, Response, Response] {
+
+  override val extender: Extender[HttpCheck, Response] = HeaderExtender
+
+  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

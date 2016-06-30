@@ -19,28 +19,39 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
 
-trait FindCheckBuilder[A, P, X] {
+@deprecated
+trait OldFindCheckBuilder[C <: Check[R], R, P, X] {
 
-  def find: ValidatorCheckBuilder[A, P, X]
+  def find: OldValidatorCheckBuilder[C, R, P, X]
 }
 
-class DefaultFindCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]])
-    extends FindCheckBuilder[A, P, X] {
+@deprecated
+class OldDefaultFindCheckBuilder[C <: Check[R], R, P, X](
+                                                       extender:  Extender[C, R],
+                                                       preparer:  Preparer[R, P],
+                                                       extractor: Expression[Extractor[P, X]]
+                                                     )
+  extends OldFindCheckBuilder[C, R, P, X] {
 
-  def find: ValidatorCheckBuilder[A, P, X] = ValidatorCheckBuilder(extractor)
+  def find: OldValidatorCheckBuilder[C, R, P, X] = OldValidatorCheckBuilder(extender, preparer, extractor)
 }
 
-trait MultipleFindCheckBuilder[A, P, X] extends FindCheckBuilder[A, P, X] {
+@deprecated
+trait OldMultipleFindCheckBuilder[C <: Check[R], R, P, X] extends OldFindCheckBuilder[C, R, P, X] {
 
-  def find(occurrence: Int): ValidatorCheckBuilder[A, P, X]
+  def find(occurrence: Int): OldValidatorCheckBuilder[C, R, P, X]
 
-  def findAll: ValidatorCheckBuilder[A, P, Seq[X]]
+  def findAll: OldValidatorCheckBuilder[C, R, P, Seq[X]]
 
-  def count: ValidatorCheckBuilder[A, P, Int]
+  def count: OldValidatorCheckBuilder[C, R, P, Int]
 }
 
-abstract class DefaultMultipleFindCheckBuilder[A, P, X]
-    extends MultipleFindCheckBuilder[A, P, X] {
+@deprecated
+abstract class OldDefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](
+                                                                        extender: Extender[C, R],
+                                                                        preparer: Preparer[R, P]
+                                                                      )
+  extends OldMultipleFindCheckBuilder[C, R, P, X] {
 
   def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
 
@@ -50,21 +61,27 @@ abstract class DefaultMultipleFindCheckBuilder[A, P, X]
 
   def find = find(0)
 
-  def find(occurrence: Int): ValidatorCheckBuilder[A, P, X] = ValidatorCheckBuilder(findExtractor(occurrence))
+  def find(occurrence: Int): OldValidatorCheckBuilder[C, R, P, X] = OldValidatorCheckBuilder(extender, preparer, findExtractor(occurrence))
 
-  def findAll: ValidatorCheckBuilder[A, P, Seq[X]] = ValidatorCheckBuilder(findAllExtractor)
+  def findAll: OldValidatorCheckBuilder[C, R, P, Seq[X]] = OldValidatorCheckBuilder(extender, preparer, findAllExtractor)
 
-  def count: ValidatorCheckBuilder[A, P, Int] = ValidatorCheckBuilder(countExtractor)
+  def count: OldValidatorCheckBuilder[C, R, P, Int] = OldValidatorCheckBuilder(extender, preparer, countExtractor)
 }
 
-object ValidatorCheckBuilder {
+@deprecated
+object OldValidatorCheckBuilder {
   val TransformErrorMapper: String => String = "transform crashed: " + _
   val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
 }
 
-case class ValidatorCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]]) {
+@deprecated
+case class OldValidatorCheckBuilder[C <: Check[R], R, P, X](
+                                                          extender:  Extender[C, R],
+                                                          preparer:  Preparer[R, P],
+                                                          extractor: Expression[Extractor[P, X]]
+                                                        ) {
 
-  import ValidatorCheckBuilder._
+  import OldValidatorCheckBuilder._
 
   private def transformExtractor[X2](transformation: X => X2)(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
@@ -77,10 +94,10 @@ case class ValidatorCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]]
         }
     }
 
-  def transform[X2](transformation: X => X2): ValidatorCheckBuilder[A, P, X2] =
+  def transform[X2](transformation: X => X2): OldValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = extractor.map(transformExtractor(transformation)))
 
-  def transform[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[A, P, X2] =
+  def transform[X2](transformation: (X, Session) => X2): OldValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = session => extractor(session).map(transformExtractor(transformation(_, session))))
 
   private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(extractor: Extractor[P, X]) =
@@ -94,16 +111,16 @@ case class ValidatorCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]]
         }
     }
 
-  def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[A, P, X2] =
+  def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): OldValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = extractor.map(transformOptionExtractor(transformation)))
 
-  def transformOption[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[A, P, X2] =
+  def transformOption[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): OldValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
-  def validate(validator: Expression[Validator[X]]): CheckBuilder[A, P, X] with SaveAs[A, P, X] =
-    new CheckBuilder(this, validator) with SaveAs[A, P, X]
+  def validate(validator: Expression[Validator[X]]): OldCheckBuilder[C, R, P, X] with OldSaveAs[C, R, P, X] =
+    new OldCheckBuilder(this, validator) with OldSaveAs[C, R, P, X]
 
-  def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[A, P, X] with SaveAs[A, P, X] =
+  def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): OldCheckBuilder[C, R, P, X] with OldSaveAs[C, R, P, X] =
     validate((session: Session) => new Validator[X] {
       def name = opName
       def apply(actual: Option[X]): Validation[Option[X]] = validator(actual, session)
@@ -122,18 +139,20 @@ case class ValidatorCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]]
   def greaterThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", ordering.gteq, _)))
 }
 
-case class CheckBuilder[A, P, X](
-    validatorCheckBuilder: ValidatorCheckBuilder[A, P, X],
-    validator:             Expression[Validator[X]],
-    saveAs:                Option[String] = None) {
+@deprecated
+case class OldCheckBuilder[C <: Check[R], R, P, X](
+                                                 validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X],
+                                                 validator:             Expression[Validator[X]],
+                                                 saveAs:                Option[String]                    = None
+                                               ) {
 
-  def build[C <: Check[R], R](protocolProvider: CheckProtocolProvider[A, C, R, P]): C = {
-    import protocolProvider._
-    val base: CheckBase[R, P, X] = CheckBase(preparer, validatorCheckBuilder.extractor, validator, saveAs)
-    extender(base)
+  def build: C = {
+    val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, saveAs)
+    validatorCheckBuilder.extender(base)
   }
 }
 
-trait SaveAs[C, P, X] { this: CheckBuilder[C, P, X] =>
-  def saveAs(key: String): CheckBuilder[C, P, X] = copy(saveAs = Some(key))
+@deprecated
+trait OldSaveAs[C <: Check[R], R, P, X] { this: OldCheckBuilder[C, R, P, X] =>
+  def saveAs(key: String): OldCheckBuilder[C, R, P, X] = copy(saveAs = Some(key))
 }

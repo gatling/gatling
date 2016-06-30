@@ -16,21 +16,14 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
-import io.gatling.core.check.extractor.jsonpath._
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.jsonpath.JsonpJsonPathCheckType
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-trait HttpBodyJsonpJsonPathOfType {
-  self: HttpBodyJsonpJsonPathCheckBuilder[String] =>
-
-  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new HttpBodyJsonpJsonPathCheckBuilder[X](path, jsonParsers)
-}
-
-object HttpBodyJsonpJsonPathCheckBuilder {
+object HttpBodyJsonpJsonPathProvider {
 
   val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
@@ -41,23 +34,11 @@ object HttpBodyJsonpJsonPathCheckBuilder {
   }
 
   def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] = response => parseJsonpString(response.body.string, jsonParsers)
-
-  def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-    new HttpBodyJsonpJsonPathCheckBuilder[String](path, jsonParsers) with HttpBodyJsonpJsonPathOfType
 }
 
-class HttpBodyJsonpJsonPathCheckBuilder[X: JsonFilter](
-  private[body] val path:        Expression[String],
-  private[body] val jsonParsers: JsonParsers
-)(implicit extractorFactory: JsonPathExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
-      StringBodyExtender,
-      HttpBodyJsonpJsonPathCheckBuilder.jsonpPreparer(jsonParsers)
-    ) {
+class HttpBodyJsonpJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider[JsonpJsonPathCheckType, HttpCheck, Response, Any] {
 
-  import extractorFactory._
+  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
 
-  def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
-  def findAllExtractor = path.map(newMultipleExtractor[X])
-  def countExtractor = path.map(newCountExtractor)
+  override val preparer: Preparer[Response, Any] = HttpBodyJsonpJsonPathProvider.jsonpPreparer(jsonParsers)
 }

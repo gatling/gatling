@@ -15,9 +15,9 @@
  */
 package io.gatling.http.check
 
-import io.gatling.core.check.CheckBuilder
+import io.gatling.core.check.OldCheckBuilder
 
 package object async {
 
-  type AsyncCheckBuilder = CheckBuilder[AsyncCheck, String, _, _]
+  type AsyncCheckBuilder = OldCheckBuilder[AsyncCheck, String, _, _]
 }

@@ -20,7 +20,7 @@ import io.gatling.core.check.extractor._
 import io.gatling.core.check.extractor.regex.{ Patterns, GroupExtractor }
 import io.gatling.http.response.Response
 
-class HttpHeaderRegexExtractorFactory(implicit patterns: Patterns) extends CriterionExtractorFactory[Response, (String, String)]("headerRegex") {
+class HttpHeaderRegexExtractorFactory(patterns: Patterns) extends CriterionExtractorFactory[Response, (String, String)]("headerRegex") {
 
   private def extractHeadersValues[X: GroupExtractor](response: Response, headerNameAndPattern: (String, String)) = {
     val (headerName, pattern) = headerNameAndPattern

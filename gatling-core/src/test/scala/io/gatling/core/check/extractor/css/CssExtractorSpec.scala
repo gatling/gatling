@@ -26,8 +26,8 @@ import jodd.lagarto.dom.NodeSelector
 class CssExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val cssSelectors = new CssSelectors
-  val extractorFactory = new CssExtractorFactory
+  val cssSelectors = new CssSelectors
+  val extractorFactory = new CssExtractorFactory(cssSelectors)
   import extractorFactory._
 
   def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>

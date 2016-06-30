@@ -15,13 +15,24 @@
  */
 package io.gatling.jms.check
 
-import io.gatling.core.check.extractor.xpath.{ JdkXPathExtractorFactory, SaxonXPathExtractorFactory }
-import io.gatling.core.session.Expression
+import javax.jms.Message
+
+import io.gatling.core.check.{ CheckBuilder, CheckProtocolProvider, FindCheckBuilder, ValidatorCheckBuilder }
+import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
+import io.gatling.jms.JmsCheck
 
 trait JmsCheckSupport {
 
   def simpleCheck = JmsSimpleCheck
 
-  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil)(implicit saxonXPathExtractorFactory: SaxonXPathExtractorFactory, jdkXPathExtractorFactory: JdkXPathExtractorFactory) =
-    JmsXPathCheckBuilder.xpath(expression, namespaces)
+  implicit def checkBuilder2JmsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
+    checkBuilder.build(provider)
+
+  implicit def validatorCheckBuilder2JmsCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
+    validatorCheckBuilder.exists
+
+  implicit def findCheckBuilder2JmsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
+    findCheckBuilder.find.exists
+
+  implicit def jmsXPathProvider(implicit saxon: Saxon, jdkXmlParsers: JdkXmlParsers) = new JmsXPathProvider(saxon, jdkXmlParsers)
 }

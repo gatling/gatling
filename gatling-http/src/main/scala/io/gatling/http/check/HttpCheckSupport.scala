@@ -15,67 +15,69 @@
  */
 package io.gatling.http.check
 
-import io.gatling.core.check.ConditionalCheckWrapper
-import io.gatling.core.check.ConditionalCheck
-import io.gatling.core.check.extractor.css.CssExtractorFactory
-import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
-import io.gatling.core.check.extractor.regex.{ Patterns, RegexExtractorFactory }
-import io.gatling.core.check.extractor.xpath.{ JdkXPathExtractorFactory, SaxonXPathExtractorFactory }
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.css.CssSelectors
+import io.gatling.core.check.extractor.regex.Patterns
+import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
-import io.gatling.http.check.body._
-import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
-import io.gatling.http.check.header.{ HttpHeaderRegexExtractorFactory, HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
-import io.gatling.http.check.status.HttpStatusCheckBuilder
-import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
-import io.gatling.http.check.url.{ CurrentLocationRegexCheckBuilder, CurrentLocationCheckBuilder }
+import io.gatling.http.check.body.{ HttpBodyRegexProvider, _ }
+import io.gatling.http.check.checksum.{ HttpChecksumCheckBuilder, HttpChecksumProvider }
+import io.gatling.http.check.header._
+import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusProvider }
+import io.gatling.http.check.time.{ HttpResponseTimeCheckBuilder, HttpResponseTimeProvider }
+import io.gatling.http.check.url.{ CurrentLocationCheckBuilder, CurrentLocationProvider, CurrentLocationRegexCheckBuilder, CurrentLocationRegexProvider }
 import io.gatling.http.response.Response
 
 trait HttpCheckSupport {
 
-  def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
-    HttpBodyRegexCheckBuilder.regex(expression)
+  implicit def checkBuilder2HttpCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, HttpCheck, Response, P]): HttpCheck =
+    checkBuilder.build(provider)
 
-  val substring = HttpBodySubstringCheckBuilder.substring _
+  implicit def validatorCheckBuilder2HttpCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, HttpCheck, Response, P]): HttpCheck =
+    validatorCheckBuilder.exists
 
-  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil)(implicit extractorFactory: SaxonXPathExtractorFactory, jdkXPathExtractorFactory: JdkXPathExtractorFactory) =
-    HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
-
-  def css(selector: Expression[String])(implicit extractorFactory: CssExtractorFactory) =
-    HttpBodyCssCheckBuilder.css(selector, None)
-  def css(selector: Expression[String], nodeAttribute: String)(implicit extractorFactory: CssExtractorFactory) =
-    HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
-
-  def form(selector: Expression[String])(implicit extractorFactory: CssExtractorFactory) = css(selector).ofType[Map[String, Seq[String]]]
-
-  def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-    HttpBodyJsonPathCheckBuilder.jsonPath(path)
-  def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-    HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath(path)
-
-  val bodyString = HttpBodyStringCheckBuilder.BodyString
-  val bodyBytes = HttpBodyBytesCheckBuilder.BodyBytes
-
-  val header = HttpHeaderCheckBuilder.header _
-
-  implicit def defaultHttpHeaderRegexExtractorFactory(implicit patterns: Patterns) = new HttpHeaderRegexExtractorFactory
-
-  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory) =
-    HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
-
-  val status = HttpStatusCheckBuilder.Status
+  implicit def findCheckBuilder2HttpCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, HttpCheck, Response, P]): HttpCheck =
+    findCheckBuilder.find.exists
 
   val currentLocation = CurrentLocationCheckBuilder.CurrentLocation
-  def currentLocationRegex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
-    CurrentLocationRegexCheckBuilder.currentLocationRegex(expression)
+  implicit val currentLocationProvider = CurrentLocationProvider
+
+  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns) =
+    CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
+  implicit val currentLocationRegexProvider = CurrentLocationRegexProvider
+
+  val status = HttpStatusCheckBuilder.Status
+  implicit val httpStatusProvider = HttpStatusProvider
+
+  val header = new HttpHeaderCheckBuilder(_)
+  implicit val httpHeaderProvider = HttpHeaderProvider
+
+  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns) =
+    HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
+  implicit val httpHeaderRegexProvider = HttpHeaderRegexProvider
+
+  val bodyBytes = HttpBodyBytesCheckBuilder.BodyBytes
+  implicit val httpBodyBytesProvider = HttpBodyBytesProvider
+  val bodyString = HttpBodyStringCheckBuilder.BodyString
+  implicit val httpBodyStringProvider = HttpBodyStringProvider
+
+  implicit val httpBodyRegexProvider = HttpBodyRegexProvider
+  implicit val httpBodySubstringProvider = HttpBodySubstringProvider
+  implicit def httpBodyXPathProvider(implicit saxon: Saxon, jdkXmlParsers: JdkXmlParsers) = new HttpBodyXPathProvider(saxon, jdkXmlParsers)
+  implicit def httpBodyCssProvider(implicit selectors: CssSelectors) = new HttpBodyCssProvider(selectors)
+  implicit def httpBodyJsonPathProvider(implicit jsonParsers: JsonParsers) = new HttpBodyJsonPathProvider(jsonParsers)
+  implicit def httpBodyJsonpJsonPathProvider(implicit jsonParsers: JsonParsers) = new HttpBodyJsonpJsonPathProvider(jsonParsers)
 
   val md5 = HttpChecksumCheckBuilder.Md5
+  implicit val md5Provider = HttpChecksumProvider.Md5
   val sha1 = HttpChecksumCheckBuilder.Sha1
+  implicit val sha1Provider = HttpChecksumProvider.Sha1
 
   val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
+  implicit val httpResponseTimeProvider = HttpResponseTimeProvider
 
   implicit object HttpConditionalCheckWrapper extends ConditionalCheckWrapper[Response, HttpCheck] {
     override def wrap(check: ConditionalCheck[Response, HttpCheck]) = HttpCheck(check, check.thenCheck.scope, check.thenCheck.responseBodyUsageStrategy)
   }
-
 }

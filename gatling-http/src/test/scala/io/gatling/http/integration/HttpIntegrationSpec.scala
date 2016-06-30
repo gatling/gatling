@@ -31,9 +31,7 @@ import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
-  // FIXME
-  object RegexSupport extends HttpCheckSupport
-  val regexCheck = RegexSupport.regex _
+  val regexCheck = super[CoreDsl].regex(_)
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

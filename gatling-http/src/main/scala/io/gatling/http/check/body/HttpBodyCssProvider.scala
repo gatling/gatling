@@ -13,33 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.time
+package io.gatling.http.check.body
 
+import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor._
-import io.gatling.core.session._
+import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-trait HttpResponseTimeCheckType
+import jodd.lagarto.dom.NodeSelector
 
-object HttpResponseTimeCheckBuilder {
+class HttpBodyCssProvider(selectors: CssSelectors) extends CheckProtocolProvider[CssCheckType, HttpCheck, Response, NodeSelector] {
 
-  val ResponseTimeInMillis = {
-    val extractor = new Extractor[Response, Int] with SingleArity {
-      val name = "responseTimeInMillis"
-      def apply(prepared: Response) = Some(prepared.timings.responseTime).success
-    }.expressionSuccess
+  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
 
-    new DefaultFindCheckBuilder[HttpResponseTimeCheckType, Response, Int](extractor)
-  }
-}
+  private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 
-object HttpResponseTimeProvider extends CheckProtocolProvider[HttpResponseTimeCheckType, HttpCheck, Response, Response] {
-
-  override val extender: Extender[HttpCheck, Response] = TimeExtender
-
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  override val preparer: Preparer[Response, NodeSelector] = response =>
+    safely(ErrorMapper) {
+      selectors.parse(response.body.string.unsafeChars).success
+    }
 }

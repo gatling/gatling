@@ -16,26 +16,33 @@
 package io.gatling.http.check.status
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check._
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
+trait HttpStatusCheckType
+
 object HttpStatusCheckBuilder {
 
-  val StatusExtractor = new Extractor[Response, Int] with SingleArity {
-    val name = "status"
-    def apply(prepared: Response) = prepared.statusCode match {
-      case None => "Response wasn't received".failure
-      case code => code.success
-    }
-  }.expressionSuccess
+  val Status = {
+    val statusExtractor = new Extractor[Response, Int] with SingleArity {
+      val name = "status"
+      def apply(prepared: Response) = prepared.statusCode match {
+        case None => "Response wasn't received".failure
+        case code => code.success
+      }
+    }.expressionSuccess
 
-  val Status = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
-    StatusExtender,
-    PassThroughResponsePreparer,
-    StatusExtractor
-  )
+    new DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](statusExtractor)
+  }
+}
+
+object HttpStatusProvider extends CheckProtocolProvider[HttpStatusCheckType, HttpCheck, Response, Response] {
+
+  override val extender: Extender[HttpCheck, Response] = StatusExtender
+
+  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

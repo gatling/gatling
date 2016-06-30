@@ -19,8 +19,6 @@ import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
 
-import net.sf.saxon.s9api.XdmNode
-import org.w3c.dom.Document
 import org.xml.sax.InputSource
 
 abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
@@ -28,9 +26,27 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
   implicit val configuration = GatlingConfiguration.loadForTest()
   val namespaces = List("foo" -> "http://foo/foo")
 
-  def testCount(expression: String, file: String, expected: Int): Unit
-  def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit
-  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit
+  val saxon = new Saxon
+  val jdkXmlParsers = new JdkXmlParsers
+  val extractorFactory = new XPathExtractorFactory(saxon, jdkXmlParsers)
+  import extractorFactory._
+
+  def dom(file: String): Option[Dom]
+
+  def testCount(expression: String, file: String, expected: Int): Unit = {
+    val extractor = newCountExtractor(expression, namespaces)
+    extractor(dom(file)).succeeded shouldBe Some(expected)
+  }
+
+  def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
+    val extractor = newSingleExtractor((expression, namespaces), occurrence)
+    extractor(dom(file)).succeeded shouldBe expected
+  }
+
+  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+    val extractor = newMultipleExtractor(expression, namespaces)
+    extractor(dom(file)).succeeded shouldBe expected
+  }
 
   "count" should "return expected result with anywhere expression" in {
     testCount("//author", "/test.xml", 4)
@@ -91,54 +107,16 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
 class SaxonXPathExtractorSpec extends XPathExtractorSpec {
 
-  implicit val saxon = new Saxon
-  val extractorFactory = new SaxonXPathExtractorFactory
-  import extractorFactory._
-
-  def xdmNode(file: String): Option[XdmNode] =
+  def dom(file: String): Option[Dom] =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(saxon.parse(new InputSource(is)))
+      Some(SaxonDom(saxon.parse(new InputSource(is))))
     }
-
-  def testCount(expression: String, file: String, expected: Int): Unit = {
-    val extractor = newCountExtractor(expression, namespaces)
-    extractor(xdmNode(file)).succeeded shouldBe Some(expected)
-  }
-
-  def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
-    val extractor = newSingleExtractor((expression, namespaces), occurrence)
-    extractor(xdmNode(file)).succeeded shouldBe expected
-  }
-
-  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
-    val extractor = newMultipleExtractor(expression, namespaces)
-    extractor(xdmNode(file)).succeeded shouldBe expected
-  }
 }
 
 class JdkXPathExtractorSpec extends XPathExtractorSpec {
 
-  implicit val jdkXmlParsers = new JdkXmlParsers
-  val extractorFactory = new JdkXPathExtractorFactory
-  import extractorFactory._
-
-  def document(file: String): Option[Document] =
+  def dom(file: String): Option[Dom] =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(jdkXmlParsers.parse(new InputSource(is)))
+      Some(JdkDom(jdkXmlParsers.parse(new InputSource(is))))
     }
-
-  def testCount(expression: String, file: String, expected: Int): Unit = {
-    val extractor = newCountExtractor(expression, namespaces)
-    extractor(document(file)).succeeded shouldBe Some(expected)
-  }
-
-  def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
-    val extractor = newSingleExtractor((expression, namespaces), occurrence)
-    extractor(document(file)).succeeded shouldBe expected
-  }
-
-  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
-    val extractor = newMultipleExtractor(expression, namespaces)
-    extractor(document(file)).succeeded shouldBe expected
-  }
 }

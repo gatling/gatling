@@ -16,7 +16,7 @@
 package io.gatling.http.check.async
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ Extender, DefaultFindCheckBuilder }
+import io.gatling.core.check.{ Extender, OldDefaultFindCheckBuilder }
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
 import io.gatling.http.check.async.AsyncCheckBuilders._
@@ -33,7 +33,7 @@ object AsyncPlainCheckBuilder {
 }
 
 class AsyncPlainCheckBuilder(extender: Extender[AsyncCheck, String])
-  extends DefaultFindCheckBuilder[AsyncCheck, String, String, String](
+  extends OldDefaultFindCheckBuilder[AsyncCheck, String, String, String](
     extender,
     PassThroughMessagePreparer,
     AsyncPlainCheckBuilder.WsPlainExtractor

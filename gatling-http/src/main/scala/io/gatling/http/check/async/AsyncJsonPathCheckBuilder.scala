@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.async
 
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender }
+import io.gatling.core.check.{ OldDefaultMultipleFindCheckBuilder, Extender }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.session.Expression
@@ -37,7 +37,7 @@ class AsyncJsonPathCheckBuilder[X: JsonFilter](
   private[async] val extender:    Extender[AsyncCheck, String],
   private[async] val jsonParsers: JsonParsers
 )(implicit extractorFactory: JsonPathExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](
+    extends OldDefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](
       extender,
       jsonParsers.safeParse
     ) {

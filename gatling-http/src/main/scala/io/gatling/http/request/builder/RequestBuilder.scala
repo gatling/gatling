@@ -19,8 +19,9 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._
-import io.gatling.http.{ HeaderNames, HeaderValues }
+import io.gatling.http.{HeaderNames, HeaderValues}
 import io.gatling.http.ahc.ProxyConverter
+import io.gatling.http.check.status.HttpStatusProvider
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
 
@@ -49,7 +50,7 @@ object RequestBuilder {
    */
   val OkCodesExpression = OkCodes.expressionSuccess
 
-  val DefaultHttpCheck = Status.find.in(OkCodesExpression).build
+  val DefaultHttpCheck = Status.find.in(OkCodesExpression).build(HttpStatusProvider)
 
   val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
   val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess

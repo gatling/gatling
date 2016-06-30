@@ -17,30 +17,28 @@ package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor._
-import io.gatling.core.session._
+import io.gatling.core.check.extractor.xpath._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-trait HttpBodyBytesCheckType
+import org.xml.sax.InputSource
 
-object HttpBodyBytesCheckBuilder {
+class HttpBodyXPathProvider(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends CheckProtocolProvider[XPathCheckType, HttpCheck, Response, Option[Dom]] {
 
-  val BodyBytes = {
+  override val extender: Extender[HttpCheck, Response] = StreamBodyExtender
 
-    val bodyBytesExtractor = new Extractor[Array[Byte], Array[Byte]] with SingleArity {
-      val name = "bodyBytes"
-      def apply(prepared: Array[Byte]) = Some(prepared).success
-    }.expressionSuccess
+  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
-    new DefaultFindCheckBuilder[HttpBodyBytesCheckType, Array[Byte], Array[Byte]](bodyBytesExtractor)
-  }
-}
+  private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
+    safely(ErrorMapper) {
+      val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
+      root.success
+    }
 
-object HttpBodyBytesProvider extends CheckProtocolProvider[HttpBodyBytesCheckType, HttpCheck, Response, Array[Byte]] {
-
-  override val extender: Extender[HttpCheck, Response] = BytesBodyExtender
-
-  override val preparer: Preparer[Response, Array[Byte]] = ResponseBodyBytesPreparer
+  override val preparer: Preparer[Response, Option[Dom]] =
+    if (saxon.enabled)
+      xpathPreparer(is => SaxonDom(saxon.parse(is)))
+    else
+      xpathPreparer(is => JdkDom(jdkXmlParsers.parse(is)))
 }

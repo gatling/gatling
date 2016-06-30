@@ -15,23 +15,15 @@
  */
 package io.gatling.http.check.body
 
-import io.gatling.commons.validation._
-import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath.XPathCheckBuilder
+import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.{ CheckProtocolProvider, Extender, Preparer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
-import org.xml.sax.InputSource
 
-object HttpBodyXPathCheckBuilder extends XPathCheckBuilder[HttpCheck, Response] {
+object HttpBodyRegexProvider extends CheckProtocolProvider[RegexCheckType, HttpCheck, Response, CharSequence] {
 
-  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
+  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
 
-  def preparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
-    safely(ErrorMapper) {
-      val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
-      root.success
-    }
-
-  val CheckBuilder: Extender[HttpCheck, Response] = StreamBodyExtender
+  override val preparer: Preparer[Response, CharSequence] = ResponseBodyStringPreparer
 }

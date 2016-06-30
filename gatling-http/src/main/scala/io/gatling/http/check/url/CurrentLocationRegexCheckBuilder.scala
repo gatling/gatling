@@ -15,40 +15,44 @@
  */
 package io.gatling.http.check.url
 
-import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check._
 import io.gatling.core.check.extractor.regex._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-trait CurrentLocationRegexOfType { self: CurrentLocationRegexCheckBuilder[String] =>
+trait CurrentLocationRegexCheckType
 
-  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new CurrentLocationRegexCheckBuilder[X](expression)
+trait CurrentLocationRegexOfType {
+  self: CurrentLocationRegexCheckBuilder[String] =>
+
+  def ofType[X: GroupExtractor] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
 }
 
 object CurrentLocationRegexCheckBuilder {
 
-  def currentLocationRegex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
-    new CurrentLocationRegexCheckBuilder[String](expression) with CurrentLocationRegexOfType
+  def currentLocationRegex(pattern: Expression[String], patterns: Patterns) =
+    new CurrentLocationRegexCheckBuilder[String](pattern, patterns) with CurrentLocationRegexOfType
 }
 
-/**
- * Gatling check builder that allows for validating request URLs
- * with regex patterns.
- *
- * @param expression
- * @tparam X
- */
-class CurrentLocationRegexCheckBuilder[X: GroupExtractor](private[url] val expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
-      StringBodyExtender,
-      UrlStringPreparer
-    ) {
+class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
+  private[url] val pattern:  Expression[String],
+  private[url] val patterns: Patterns
+)
+    extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X] {
 
+  private val extractorFactory = new RegexExtractorFactory(patterns)
   import extractorFactory._
 
-  def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[X](_, occurrence))
-  def findAllExtractor = expression.map(newMultipleExtractor[X])
-  def countExtractor = expression.map(newCountExtractor)
+  def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = pattern.map(newMultipleExtractor[X])
+  def countExtractor = pattern.map(newCountExtractor)
+}
+
+object CurrentLocationRegexProvider extends CheckProtocolProvider[CurrentLocationRegexCheckType, HttpCheck, Response, String] {
+
+  override val extender: Extender[HttpCheck, Response] = UrlExtender
+
+  override val preparer: Preparer[Response, String] = UrlStringPreparer
 }

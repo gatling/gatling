@@ -24,6 +24,7 @@ import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ Response, StringResponseBody }
@@ -33,6 +34,7 @@ import org.mockito.Mockito._
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val provider = new HttpBodyJsonPathProvider(JsonParsers())
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", 0)
@@ -53,17 +55,17 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   "jsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonPath("$.street").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)
+    jsonPath("$.street").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)
   }
 
   it should "find single result into Map object form" in {
     val response = mockResponse(storeJson)
-    jsonPath("$.street").ofType[Map[String, Any]].find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Map("book" -> "On the street")), None)
+    jsonPath("$.street").ofType[Map[String, Any]].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(Map("book" -> "On the street")), None)
   }
 
   private def testNullAttributeValue[X: JsonFilter]: Unit = {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[X].find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
+    jsonPath("$.foo").ofType[X].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
   }
 
   it should "find a null attribute value" in {

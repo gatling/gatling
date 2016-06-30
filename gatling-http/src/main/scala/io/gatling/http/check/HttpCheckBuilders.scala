@@ -27,7 +27,6 @@ object HttpCheckBuilders {
 
   val StatusExtender = extender(Status, None)
   val UrlExtender = extender(Url, None)
-  val ChecksumExtender = extender(Checksum, None)
   val HeaderExtender = extender(Header, None)
   def bodyExtender(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = extender(Body, Some(responseBodyUsageStrategy))
   val StringBodyExtender = bodyExtender(StringResponseBodyUsageStrategy)

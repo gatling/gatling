@@ -16,30 +16,38 @@
 package io.gatling.http.check.checksum
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ DefaultFindCheckBuilder, Check }
+import io.gatling.core.check._
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
+trait HttpMd5CheckType
+trait HttpSha1CheckType
+
 object HttpChecksumCheckBuilder {
 
-  def checksum(algorithm: String) = {
-
-    val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorithm, wrapped)
+  def httpChecksum[T](algorithm: String) = {
     val extractor = new Extractor[Response, String] with SingleArity {
       val name = algorithm
       def apply(prepared: Response) = prepared.checksum(algorithm).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
-      checksumCheckFactory,
-      PassThroughResponsePreparer,
-      extractor
-    )
+    new DefaultFindCheckBuilder[T, Response, String](extractor)
   }
 
-  val Md5 = checksum("MD5")
-  val Sha1 = checksum("SHA1")
+  val Md5 = httpChecksum[HttpMd5CheckType]("MD5")
+  val Sha1 = httpChecksum[HttpSha1CheckType]("SHA1")
+}
+
+object HttpChecksumProvider {
+
+  val Md5 = new HttpChecksumProvider[HttpMd5CheckType](wrapped => new ChecksumCheck("MD5", wrapped))
+  val Sha1 = new HttpChecksumProvider[HttpSha1CheckType](wrapped => new ChecksumCheck("SHA1", wrapped))
+}
+
+class HttpChecksumProvider[T](override val extender: Extender[HttpCheck, Response]) extends CheckProtocolProvider[T, HttpCheck, Response, Response] {
+
+  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

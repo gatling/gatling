@@ -15,41 +15,36 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import io.gatling.commons.validation.Validation
-import io.gatling.core.check._
-import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.session._
+
 import net.sf.saxon.s9api.XdmNode
 import org.w3c.dom.Document
-import org.xml.sax.InputSource
 
-trait XPathCheckBuilder[C <: Check[R], R] {
+trait XPathCheckType
 
-  def preparer[T](f: InputSource => T)(response: R): Validation[Option[T]]
+sealed trait Dom
+case class SaxonDom(document: XdmNode) extends Dom
+case class JdkDom(document: Document) extends Dom
 
-  val CheckBuilder: Extender[C, R]
+class XPathCheckBuilder(
+  path:          Expression[String],
+  namespaces:    List[(String, String)],
+  saxon:         Saxon,
+  jdkXmlParsers: JdkXmlParsers
+)
+    extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] {
 
-  def saxonXPathPreparer(saxon: Saxon): Preparer[R, Option[XdmNode]] = preparer(saxon.parse)
+  private val extractorFactory = new XPathExtractorFactory(saxon, jdkXmlParsers)
+  import extractorFactory._
 
-  def jdkXPathPreparer(jdkXPath: JdkXmlParsers): Preparer[R, Option[Document]] = preparer(jdkXPath.parse)
+  override def findExtractor(occurrence: Int): Expression[Extractor[Option[Dom], String]] =
+    path.map(path => newSingleExtractor((path, namespaces), occurrence))
 
-  def xpath(expression: Expression[String], namespaces: List[(String, String)])(implicit saxonXPathExtractorFactory: SaxonXPathExtractorFactory, jdkXPathExtractorFactory: JdkXPathExtractorFactory) =
-    if (saxonXPathExtractorFactory.saxon.enabled) {
+  override def findAllExtractor: Expression[Extractor[Option[Dom], Seq[String]]] =
+    path.map(newMultipleExtractor(_, namespaces))
 
-      import saxonXPathExtractorFactory._
-
-      new DefaultMultipleFindCheckBuilder[C, R, Option[XdmNode], String](CheckBuilder, saxonXPathPreparer(saxon)) {
-        def findExtractor(occurrence: Int) = expression.map(path => newSingleExtractor((path, namespaces), occurrence))
-        def findAllExtractor = expression.map(newMultipleExtractor(_, namespaces))
-        def countExtractor = expression.map(newCountExtractor(_, namespaces))
-      }
-    } else {
-
-      import jdkXPathExtractorFactory._
-
-      new DefaultMultipleFindCheckBuilder[C, R, Option[Document], String](CheckBuilder, jdkXPathPreparer(jdkXmlParsers)) {
-        def findExtractor(occurrence: Int) = expression.map(path => newSingleExtractor((path, namespaces), occurrence))
-        def findAllExtractor = expression.map(newMultipleExtractor(_, namespaces))
-        def countExtractor = expression.map(newCountExtractor(_, namespaces))
-      }
-    }
+  override def countExtractor: Expression[Extractor[Option[Dom], Int]] =
+    path.map(newCountExtractor(_, namespaces))
 }

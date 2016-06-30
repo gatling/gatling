@@ -15,20 +15,15 @@
  */
 package io.gatling.http.check.body
 
-import io.gatling.core.check.DefaultMultipleFindCheckBuilder
-import io.gatling.core.check.extractor.substring._
-import io.gatling.core.session._
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpBodySubstringCheckBuilder {
+object HttpBodySubstringProvider extends CheckProtocolProvider[SubstringCheckType, HttpCheck, Response, String] {
 
-  def substring(expression: Expression[String]) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, String, Int](StringBodyExtender, ResponseBodyStringPreparer) {
-      import SubstringExtractorFactory._
-      def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[Int](_, occurrence))
-      def findAllExtractor = expression.map(newMultipleExtractor[Int])
-      def countExtractor = expression.map(newCountExtractor)
-    }
+  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
+
+  override val preparer: Preparer[Response, String] = ResponseBodyStringPreparer
 }
