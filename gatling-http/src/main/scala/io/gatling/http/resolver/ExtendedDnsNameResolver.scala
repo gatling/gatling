@@ -46,7 +46,6 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
     extends DnsNameResolver(
       eventLoop,
       ExtendedDnsNameResolver.NioDatagramChannelFactory,
-      NettyDnsConstants.AnyLocalAddress,
       DnsServerAddresses.defaultAddresses,
       NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
