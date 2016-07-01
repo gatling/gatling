@@ -80,7 +80,14 @@ private[scenario] object ProtocolTemplate {
             case (HeaderNames.Connection, value) => value == "close"
             case _                               => true
           }.flatMap {
-            case (headerName, headerValue) => BaseHeaders.get(headerName).map(renderHeader(_, headerValue))
+            case (headerName, headerValue) =>
+              val properHeaderValue =
+                if (headerName == HeaderNames.AcceptEncoding)
+                  headerValue.stripSuffix(", br")
+                else
+                  headerValue
+
+              BaseHeaders.get(headerName).map(renderHeader(_, properHeaderValue))
           }.mkFastring
       }
 
