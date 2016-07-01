@@ -17,6 +17,7 @@ package io.gatling.http.action.ws2
 
 import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, ExitableAction }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -36,6 +37,7 @@ class WsConnect(
     httpComponents:           HttpComponents,
     system:                   ActorSystem,
     statsEngine:              StatsEngine,
+    configuration:            GatlingConfiguration,
     val next:                 Action
 ) extends RequestAction(statsEngine) with WsAction with ExitableAction with NameGen {
 
@@ -53,11 +55,12 @@ class WsConnect(
             wsName,
             request,
             requestName,
+            connectCheckSequences,
+            onConnected,
             statsEngine,
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
-            connectCheckSequences,
-            onConnected
+            configuration
           ), genName("wsActor"))
 
           wsActor ! PerformInitialConnect(session, next)

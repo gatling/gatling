@@ -24,6 +24,7 @@ import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
@@ -54,21 +55,23 @@ object WsActor {
     wsName:               String,
     connectRequest:       Request,
     connectActionName:    String,
+    connectCheckSequence: List[WsCheckSequence],
+    onConnected:          Option[Action],
     statsEngine:          StatsEngine,
     httpEngine:           HttpEngine,
     httpProtocol:         HttpProtocol,
-    connectCheckSequence: List[WsCheckSequence],
-    onConnected:          Option[Action]
+    configuration:        GatlingConfiguration
   ) =
     Props(new WsActor(
       wsName,
       connectRequest,
       connectActionName,
+      connectCheckSequence,
+      onConnected,
       statsEngine,
       httpEngine,
       httpProtocol,
-      connectCheckSequence,
-      onConnected
+      configuration
     ))
 }
 
@@ -76,11 +79,12 @@ class WsActor(
     wsName:               String,
     connectRequest:       Request,
     connectActionName:    String,
+    connectCheckSequence: List[WsCheckSequence],
+    onConnected:          Option[Action],
     statsEngine:          StatsEngine,
     httpEngine:           HttpEngine,
     httpProtocol:         HttpProtocol,
-    connectCheckSequence: List[WsCheckSequence],
-    onConnected:          Option[Action]
+    configuration:        GatlingConfiguration
 ) extends WsActorFSM {
 
   private var _timeoutId = 0L
@@ -125,6 +129,11 @@ class WsActor(
       // can't use a singletonList as list will be cleared on close
       val listeners = new JArrayList[WebSocketListener](1)
       listeners.add(new WsListener(self))
+      // [fl]
+      //
+      //
+      //
+      // [fl]
       new WebSocketUpgradeHandler(listeners)
     }
 

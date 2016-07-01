@@ -50,6 +50,7 @@ case class WsConnectBuilder(
       httpComponents = httpComponents,
       ctx.system,
       ctx.coreComponents.statsEngine,
+      ctx.coreComponents.configuration,
       next = next
     )
   }
