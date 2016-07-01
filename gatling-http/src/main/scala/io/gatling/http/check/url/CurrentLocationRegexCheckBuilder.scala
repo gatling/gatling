@@ -45,9 +45,9 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
   private val extractorFactory = new RegexExtractorFactory(patterns)
   import extractorFactory._
 
-  def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[X](_, occurrence))
-  def findAllExtractor = pattern.map(newMultipleExtractor[X])
-  def countExtractor = pattern.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[X](_, occurrence))
+  override def findAllExtractor = pattern.map(newMultipleExtractor[X])
+  override def countExtractor = pattern.map(newCountExtractor)
 }
 
 object CurrentLocationRegexProvider extends CheckProtocolProvider[CurrentLocationRegexCheckType, HttpCheck, Response, String] {

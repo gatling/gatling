@@ -51,9 +51,9 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
   private val extractorFactory = new HttpHeaderRegexExtractorFactory(patterns)
   import extractorFactory._
 
-  def findExtractor(occurrence: Int) = headerAndPattern.map(newSingleExtractor[X](_, occurrence))
-  def findAllExtractor = headerAndPattern.map(newMultipleExtractor[X])
-  def countExtractor = headerAndPattern.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = headerAndPattern.map(newSingleExtractor[X](_, occurrence))
+  override def findAllExtractor = headerAndPattern.map(newMultipleExtractor[X])
+  override def countExtractor = headerAndPattern.map(newCountExtractor)
 }
 
 object HttpHeaderRegexProvider extends CheckProtocolProvider[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {

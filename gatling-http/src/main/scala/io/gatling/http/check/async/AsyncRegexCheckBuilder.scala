@@ -40,7 +40,7 @@ class AsyncRegexCheckBuilder[X: GroupExtractor](
 
   import extractorFactory._
 
-  def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[X](_, occurrence))
-  def findAllExtractor = expression.map(newMultipleExtractor[X])
-  def countExtractor = expression.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[X](_, occurrence))
+  override def findAllExtractor = expression.map(newMultipleExtractor[X])
+  override def countExtractor = expression.map(newCountExtractor)
 }

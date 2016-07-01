@@ -43,7 +43,7 @@ class CssCheckBuilder[X: NodeConverter](
   private val extractorFactory = new CssExtractorFactory(selectors)
   import extractorFactory._
 
-  def findExtractor(occurrence: Int) = expression.map(criterion => newSingleExtractor((criterion, nodeAttribute), occurrence))
-  def findAllExtractor = expression.map(newMultipleExtractor(_, nodeAttribute))
-  def countExtractor = expression.map(newCountExtractor(_, nodeAttribute))
+  override def findExtractor(occurrence: Int) = expression.map(criterion => newSingleExtractor((criterion, nodeAttribute), occurrence))
+  override def findAllExtractor = expression.map(newMultipleExtractor(_, nodeAttribute))
+  override def countExtractor = expression.map(newCountExtractor(_, nodeAttribute))
 }

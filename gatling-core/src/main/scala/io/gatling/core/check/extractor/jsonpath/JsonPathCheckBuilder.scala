@@ -40,7 +40,7 @@ class JsonPathCheckBuilder[X: JsonFilter](
   private val extractorFactory = new JsonPathExtractorFactory(jsonPaths)
   import extractorFactory._
 
-  def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
-  def findAllExtractor = path.map(newMultipleExtractor[X])
-  def countExtractor = path.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
+  override def findAllExtractor = path.map(newMultipleExtractor[X])
+  override def countExtractor = path.map(newCountExtractor)
 }

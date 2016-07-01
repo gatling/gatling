@@ -22,7 +22,7 @@ trait SubstringCheckType
 
 class SubstringCheckBuilder(pattern: Expression[String]) extends DefaultMultipleFindCheckBuilder[SubstringCheckType, String, Int] {
   import SubstringExtractorFactory._
-  def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[Int](_, occurrence))
-  def findAllExtractor = pattern.map(newMultipleExtractor[Int])
-  def countExtractor = pattern.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[Int](_, occurrence))
+  override def findAllExtractor = pattern.map(newMultipleExtractor[Int])
+  override def countExtractor = pattern.map(newCountExtractor)
 }
