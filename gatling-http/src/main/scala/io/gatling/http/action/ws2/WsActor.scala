@@ -110,6 +110,11 @@ class WsActor(
     _remainingReconnects = maxConsecutiveReconnects
   }
 
+  //[fl]
+  //
+  //
+  //[fl]
+
   private def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
     val timings = ResponseTimings(start, end)
     val newSession = session.logGroupRequest(timings.responseTime, status)
@@ -201,6 +206,9 @@ class WsActor(
             }
 
           val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
+          //[fl]
+          //
+          //[fl]
           goto(PerformingCheck) using PerformingCheckData(
             websocket = webSocket,
             ongoingChecks = firstCheckSequence.checks,
@@ -282,12 +290,18 @@ class WsActor(
                     logger.debug("Perform next check sequence")
                     // perform next CheckSequence
                     val timeoutId = scheduleTimeout(nextCheckSequence.timeout)
+                    //[fl]
+                    //
+                    //[fl]
                     stay() using data.copy(ongoingChecks = nextCheckSequence.checks, checkSequenceStart = nowMillis, checkSequenceTimeoutId = timeoutId, remainingCheckSequences = nextRemainingCheckSequences, session = newSession)
                 }
 
               case nextCheck :: _ =>
                 // perform next check
                 logger.debug("Perform next check")
+                //[fl]
+                //
+                //[fl]
                 stay() using data.copy(ongoingChecks = remainingChecks, session = newSession)
             }
 
@@ -335,6 +349,9 @@ class WsActor(
         case firstCheckSequence :: remainingCheckSequences =>
           logger.debug("Trigger check after send message")
           val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
+          //[fl]
+          //
+          //[fl]
           goto(PerformingCheck) using PerformingCheckData(
             websocket = websocket,
             ongoingChecks = firstCheckSequence.checks,
