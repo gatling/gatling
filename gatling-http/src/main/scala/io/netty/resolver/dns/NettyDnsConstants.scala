@@ -17,6 +17,5 @@ package io.netty.resolver.dns
 
 object NettyDnsConstants {
 
-  val AnyLocalAddress = DnsNameResolver.ANY_LOCAL_ADDR
   val DefaultResolveAddressTypes = DnsNameResolver.DEFAULT_RESOLVE_ADDRESS_TYPES
 }
