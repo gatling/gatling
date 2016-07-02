@@ -34,7 +34,7 @@ case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[G
   def exitBlock(statsEngine: StatsEngine): Unit = {
     val now = nowMillis
     groupsToClose.foreach(statsEngine.logGroupEnd(session, _, now))
-    exitAction.execute(session)
+    exitAction ! session
   }
 }
 
@@ -52,7 +52,6 @@ object BlockExit {
    */
   @tailrec
   private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
-
     case Nil => BlockExit(exitAction, session, groupsToClose)
 
     case head :: tail => head match {
@@ -80,7 +79,8 @@ object BlockExit {
 
           case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
             val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
-            Some(exit)
+            // block stack head is now the loop itself, we must exit it
+            Some(exit.copy(session = exit.session.exitLoop))
 
           case _ => exitAsapLoopRec(tail)
         }
@@ -105,6 +105,7 @@ object BlockExit {
         case head :: tail => head match {
 
           case TryMaxBlock(_, tryMaxActor, KO) =>
+            // block stack head is now the tryMax itself, leave as is
             val exit = blockExit(session.blockStack, head, tryMaxActor, session, Nil)
             Some(exit)
 
