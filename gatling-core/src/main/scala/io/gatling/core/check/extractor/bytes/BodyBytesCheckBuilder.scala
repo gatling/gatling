@@ -26,11 +26,11 @@ object BodyBytesCheckBuilder {
 
   val BodyBytes = {
 
-    val bodyBytesExtractor = new Extractor[Array[Byte], Array[Byte]] with SingleArity {
+    val extractor = new Extractor[Array[Byte], Array[Byte]] with SingleArity {
       val name = "bodyBytes"
       def apply(prepared: Array[Byte]) = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](bodyBytesExtractor)
+    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](extractor)
   }
 }

@@ -26,11 +26,11 @@ object BodyStringCheckBuilder {
 
   val BodyString = {
 
-    val bodyStringExtractor = new Extractor[String, String] with SingleArity {
+    val extractor = new Extractor[String, String] with SingleArity {
       val name = "bodyString"
       def apply(prepared: String) = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[BodyStringCheckType, String, String](bodyStringExtractor)
+    new DefaultFindCheckBuilder[BodyStringCheckType, String, String](extractor)
   }
 }
