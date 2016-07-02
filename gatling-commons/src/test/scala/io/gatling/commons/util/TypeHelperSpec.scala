@@ -23,11 +23,6 @@ import io.gatling.commons.validation._
 
 class TypeHelperSpec extends BaseSpec {
 
-  "typeMatches" should "be able to check that object matches the specified type" in {
-    val s: CharSequence = "foo"
-    typeMatches[String](s) shouldBe true
-  }
-
   "asValidation" should "return the string representation of the object when asking for type String" in {
     3.2.asValidation[String] shouldBe Success("3.2")
   }
