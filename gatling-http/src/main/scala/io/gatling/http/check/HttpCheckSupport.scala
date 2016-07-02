@@ -15,6 +15,8 @@
  */
 package io.gatling.http.check
 
+import scala.annotation.implicitNotFound
+
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.css.CssSelectors
 import io.gatling.core.check.extractor.regex.Patterns
@@ -31,12 +33,15 @@ import io.gatling.http.response.Response
 
 trait HttpCheckSupport {
 
+  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid HTTP one.")
   implicit def checkBuilder2HttpCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, HttpCheck, Response, P]): HttpCheck =
     checkBuilder.build(provider)
 
+  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid HTTP one.")
   implicit def validatorCheckBuilder2HttpCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, HttpCheck, Response, P]): HttpCheck =
     validatorCheckBuilder.exists
 
+  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid HTTP one.")
   implicit def findCheckBuilder2HttpCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, HttpCheck, Response, P]): HttpCheck =
     findCheckBuilder.find.exists
 

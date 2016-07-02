@@ -17,6 +17,8 @@ package io.gatling.jms.check
 
 import javax.jms.Message
 
+import scala.annotation.implicitNotFound
+
 import io.gatling.core.check.{ CheckBuilder, CheckProtocolProvider, FindCheckBuilder, ValidatorCheckBuilder }
 import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
 import io.gatling.jms.JmsCheck
@@ -25,12 +27,15 @@ trait JmsCheckSupport {
 
   def simpleCheck = JmsSimpleCheck
 
+  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid JMS one.")
   implicit def checkBuilder2JmsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
     checkBuilder.build(provider)
 
+  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid JMS one.")
   implicit def validatorCheckBuilder2JmsCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
     validatorCheckBuilder.exists
 
+  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid JMS one.")
   implicit def findCheckBuilder2JmsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
     findCheckBuilder.find.exists
 
