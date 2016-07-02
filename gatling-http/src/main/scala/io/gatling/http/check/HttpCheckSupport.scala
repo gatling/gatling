@@ -62,9 +62,7 @@ trait HttpCheckSupport {
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
   implicit val httpHeaderRegexProvider = HttpHeaderRegexProvider
 
-  val bodyBytes = HttpBodyBytesCheckBuilder.BodyBytes
   implicit val httpBodyBytesProvider = HttpBodyBytesProvider
-  val bodyString = HttpBodyStringCheckBuilder.BodyString
   implicit val httpBodyStringProvider = HttpBodyStringProvider
 
   implicit val httpBodyRegexProvider = HttpBodyRegexProvider

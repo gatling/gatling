@@ -18,9 +18,11 @@ package io.gatling.core.check
 import io.gatling.core.session.Expression
 import io.gatling.core.session.Session
 import io.gatling.commons.validation.Validation
+import io.gatling.core.check.extractor.bytes.BodyBytesCheckBuilder
 import io.gatling.core.check.extractor.css.{CssCheckBuilder, CssSelectors}
 import io.gatling.core.check.extractor.jsonpath.{JsonPathCheckBuilder, JsonPaths, JsonpJsonPathCheckBuilder}
 import io.gatling.core.check.extractor.regex.{Patterns, RegexCheckBuilder, RegexOfType}
+import io.gatling.core.check.extractor.string.BodyStringCheckBuilder
 import io.gatling.core.check.extractor.substring.SubstringCheckBuilder
 import io.gatling.core.check.extractor.xpath.{JdkXmlParsers, Saxon, XPathCheckBuilder}
 
@@ -48,6 +50,10 @@ trait CheckSupport {
   def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(r, s), thenCheck))
 
   def regex(pattern: Expression[String])(implicit patterns: Patterns): RegexCheckBuilder[String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
+
+  val bodyString = BodyStringCheckBuilder.BodyString
+
+  val bodyBytes = BodyBytesCheckBuilder.BodyBytes
 
   def substring(pattern: Expression[String]) = new SubstringCheckBuilder(pattern)
 

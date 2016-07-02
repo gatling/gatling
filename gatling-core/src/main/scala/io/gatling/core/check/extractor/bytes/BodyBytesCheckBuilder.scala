@@ -13,34 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.body
+package io.gatling.core.check.extractor.bytes
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
-import io.gatling.http.response.Response
 
-trait HttpBodyStringCheckType
+trait BodyBytesCheckType
 
-object HttpBodyStringCheckBuilder {
+object BodyBytesCheckBuilder {
 
-  val BodyString = {
+  val BodyBytes = {
 
-    val bodyStringExtractor = new Extractor[String, String] with SingleArity {
-      val name = "bodyString"
-      def apply(prepared: String) = Some(prepared).success
+    val bodyBytesExtractor = new Extractor[Array[Byte], Array[Byte]] with SingleArity {
+      val name = "bodyBytes"
+      def apply(prepared: Array[Byte]) = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[HttpBodyStringCheckType, String, String](bodyStringExtractor)
+    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](bodyBytesExtractor)
   }
-}
-
-object HttpBodyStringProvider extends CheckProtocolProvider[HttpBodyStringCheckType, HttpCheck, Response, String] {
-
-  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
-
-  override val preparer: Preparer[Response, String] = ResponseBodyStringPreparer
 }
