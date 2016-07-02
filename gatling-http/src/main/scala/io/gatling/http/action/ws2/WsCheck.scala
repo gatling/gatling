@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.stats.message
+package io.gatling.http.action.ws2
 
-import com.typesafe.scalalogging.LazyLogging
+import scala.concurrent.duration.FiniteDuration
 
-case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
+case class WsCheckSequence(timeout: FiniteDuration, checks: List[WsCheck])
 
-  val responseTime =
-    // < 0 means incoming message without duration
-    if (endTimestamp < 0)
-      Int.MinValue
-    else
-      math.max(1, (endTimestamp - startTimestamp).toInt)
+case class WsCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck]) {
+
+  def matching(newMatchConditions: WsTextCheck*): WsCheck = copy(matchConditions = matchConditions ::: newMatchConditions.toList)
+
+  def check(newChecks: WsTextCheck*): WsCheck = copy(checks = checks ::: newChecks.toList)
 }

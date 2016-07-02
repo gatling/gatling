@@ -13,16 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.stats.message
+package io.gatling.http.action.ws2
 
-import com.typesafe.scalalogging.LazyLogging
+import io.gatling.core.action.Action
+import io.gatling.core.session._
+import io.gatling.core.structure.ScenarioContext
+import io.gatling.http.action.HttpActionBuilder
 
-case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
+class WsCloseBuilder(
+  requestName: Expression[String],
+  wsName:      String
+) extends HttpActionBuilder {
 
-  val responseTime =
-    // < 0 means incoming message without duration
-    if (endTimestamp < 0)
-      Int.MinValue
-    else
-      math.max(1, (endTimestamp - startTimestamp).toInt)
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsClose(
+      requestName,
+      wsName,
+      ctx.coreComponents.statsEngine,
+      next = next
+    )
 }

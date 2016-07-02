@@ -46,7 +46,7 @@ trait AsyncCheckDSL {
 
   class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
-    def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
+    def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory): AsyncRegexCheckBuilder[String] with AsyncRegexOfType =
       AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
 
     def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =

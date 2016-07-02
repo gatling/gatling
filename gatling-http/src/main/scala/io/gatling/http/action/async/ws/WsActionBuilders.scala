@@ -20,23 +20,20 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
-import akka.actor.ActorRef
 import io.gatling.core.action.Action
 
 class WsOpenBuilder(
-    requestName:    Expression[String],
-    wsName:         String,
     requestBuilder: WsOpenRequestBuilder,
     checkBuilder:   Option[AsyncCheckBuilder] = None
 ) extends HttpActionBuilder {
 
-  def check(checkBuilder: AsyncCheckBuilder) = new WsOpenBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new WsOpenBuilder(requestBuilder, Some(checkBuilder))
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
-    new WsOpen(requestName, wsName, request, checkBuilder, httpComponents, system, coreComponents.statsEngine, next)
+    new WsOpen(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, request, checkBuilder, httpComponents, system, coreComponents.statsEngine, next)
   }
 }
 

@@ -16,12 +16,13 @@
 package io.gatling.http
 
 import io.gatling.commons.stats.KO
-import io.gatling.core.body.{ RawFileBodies, ElFileBodies }
+import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.sync._
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.async.AsyncCheckSupport
+import io.gatling.http.check.w2.WsCheckSupport
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
@@ -30,8 +31,9 @@ import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.polling.Polling
 import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.builder.ws.Ws
+import io.gatling.http.request.builder.ws2.Ws2
 
-trait HttpDsl extends HttpCheckSupport with AsyncCheckSupport with SitemapFeederSupport {
+trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSupport with SitemapFeederSupport {
 
   def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
 
@@ -47,6 +49,7 @@ trait HttpDsl extends HttpCheckSupport with AsyncCheckSupport with SitemapFeeder
   def sse(requestName: Expression[String], sseName: String) = new Sse(requestName, sseName)
   def ws(requestName: Expression[String]) = new Ws(requestName)
   def ws(requestName: Expression[String], wsName: String) = new Ws(requestName, wsName)
+  val ws2 = Ws2
   def polling = new Polling()
 
   val HttpHeaderNames = HeaderNames

@@ -13,25 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request.builder.ws
+package io.gatling.http.request.builder.ws2
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Expression
-import io.gatling.http.action.async.ws.WsOpenBuilder
+import io.gatling.http.action.ws2.WsConnectBuilder
 import io.gatling.http.protocol.HttpComponents
-import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
+import io.gatling.http.request.builder.ws.WsRequestExpressionBuilder
+import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
 
 import org.asynchttpclient.Request
 
-object WsOpenRequestBuilder {
+object WsConnectRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder): WsOpenBuilder =
-    new WsOpenBuilder(requestBuilder)
+  implicit def toActionBuilder(requestBuilder: WsConnectRequestBuilder): WsConnectBuilder =
+    WsConnectBuilder(requestBuilder, Nil, None)
 }
 
-case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String) extends RequestBuilder[WsOpenRequestBuilder] {
+case class WsConnectRequestBuilder(commonAttributes: CommonAttributes, wsName: String) extends RequestBuilder[WsConnectRequestBuilder] {
 
-  private[http] def newInstance(commonAttributes: CommonAttributes) = new WsOpenRequestBuilder(commonAttributes, wsName)
+  private[http] def newInstance(commonAttributes: CommonAttributes) = new WsConnectRequestBuilder(commonAttributes, wsName)
 
   def build(coreComponents: CoreComponents, httpComponents: HttpComponents): Expression[Request] =
     new WsRequestExpressionBuilder(commonAttributes, coreComponents, httpComponents).build

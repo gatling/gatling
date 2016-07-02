@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.stats.message
+package io.gatling.http.check.w2
 
-import com.typesafe.scalalogging.LazyLogging
+import io.gatling.commons.validation._
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.http.action.ws2.WsTextCheck
 
-case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
+object WsRegexProvider extends CheckProtocolProvider[RegexCheckType, WsTextCheck, String, CharSequence] {
 
-  val responseTime =
-    // < 0 means incoming message without duration
-    if (endTimestamp < 0)
-      Int.MinValue
-    else
-      math.max(1, (endTimestamp - startTimestamp).toInt)
+  override val extender: Extender[WsTextCheck, String] = WsTextCheck(_)
+
+  override val preparer: Preparer[String, CharSequence] = _.success
 }

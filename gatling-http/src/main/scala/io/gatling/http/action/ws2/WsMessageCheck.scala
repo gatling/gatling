@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.stats.message
+package io.gatling.http.action.ws2
 
-import com.typesafe.scalalogging.LazyLogging
+import scala.collection.mutable
 
-case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
+import io.gatling.commons.validation.Validation
+import io.gatling.core.check.{ Check, CheckResult }
+import io.gatling.core.session.Session
 
-  val responseTime =
-    // < 0 means incoming message without duration
-    if (endTimestamp < 0)
-      Int.MinValue
-    else
-      math.max(1, (endTimestamp - startTimestamp).toInt)
+sealed trait WsMessageCheck
+case class WsTextCheck(wrapped: Check[String]) extends WsMessageCheck with Check[String] {
+  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+    wrapped.check(message, session)
 }
