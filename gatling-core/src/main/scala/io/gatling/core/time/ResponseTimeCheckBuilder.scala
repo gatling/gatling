@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.time
+package io.gatling.core.time
 
 import io.gatling.commons.validation._
-import io.gatling.core.check._
+import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check.extractor.{ Extractor, SingleArity }
+import io.gatling.core.session._
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.time.ResponseTimeCheckType
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
-import io.gatling.http.response.Response
 
-object HttpResponseTimeProvider extends CheckProtocolProvider[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] {
+trait ResponseTimeCheckType
 
-  override val extender: Extender[HttpCheck, Response] = TimeExtender
+object ResponseTimeCheckBuilder {
 
-  override val preparer: Preparer[Response, ResponseTimings] = _.timings.success
+  val ResponseTimeInMillis = {
+    val extractor = new Extractor[ResponseTimings, Int] with SingleArity {
+      val name = "responseTimeInMillis"
+      def apply(prepared: ResponseTimings) = Some(prepared.responseTime).success
+    }.expressionSuccess
+
+    new DefaultFindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int](extractor)
+  }
 }

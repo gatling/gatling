@@ -26,6 +26,7 @@ import io.gatling.core.check.extractor.regex.{Patterns, RegexCheckBuilder, Regex
 import io.gatling.core.check.extractor.string.BodyStringCheckBuilder
 import io.gatling.core.check.extractor.substring.SubstringCheckBuilder
 import io.gatling.core.check.extractor.xpath.{JdkXmlParsers, Saxon, XPathCheckBuilder}
+import io.gatling.core.time.ResponseTimeCheckBuilder
 
 trait CheckSupport {
 
@@ -75,4 +76,6 @@ trait CheckSupport {
 
   val md5 = ChecksumCheckBuilder.Md5
   val sha1 = ChecksumCheckBuilder.Sha1
+
+  val responseTimeInMillis = ResponseTimeCheckBuilder.ResponseTimeInMillis
 }

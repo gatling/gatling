@@ -27,7 +27,7 @@ import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumProvider
 import io.gatling.http.check.header._
 import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusProvider }
-import io.gatling.http.check.time.{ HttpResponseTimeCheckBuilder, HttpResponseTimeProvider }
+import io.gatling.http.check.time.HttpResponseTimeProvider
 import io.gatling.http.check.url.{ CurrentLocationCheckBuilder, CurrentLocationProvider, CurrentLocationRegexCheckBuilder, CurrentLocationRegexProvider }
 import io.gatling.http.response.Response
 
@@ -75,7 +75,6 @@ trait HttpCheckSupport {
   implicit val httpMd5Provider = HttpChecksumProvider.Md5
   implicit val httpSha1Provider = HttpChecksumProvider.Sha1
 
-  val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
   implicit val httpResponseTimeProvider = HttpResponseTimeProvider
 
   implicit object HttpConditionalCheckWrapper extends ConditionalCheckWrapper[Response, HttpCheck] {
