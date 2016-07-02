@@ -49,6 +49,8 @@ class HttpCompileTest extends Simulation {
     .check(bodyString.transform((string, session) => string.size).lessThan(100000))
     .check(bodyString.transformOption(stringO => stringO.map(_.size)).lessThan(100000))
     .check(bodyString.transformOption((stringO, session) => stringO.map(_.size)).lessThan(100000))
+    .check(md5.is("XXXXX"))
+    .check(sha1.is("XXXXX"))
     .check(form("#form").transform { foo: Map[String, Seq[String]] => foo }.saveAs("theForm"))
     .disableCaching
     .disableWarmUp

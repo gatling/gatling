@@ -19,6 +19,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.session.Session
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.extractor.bytes.BodyBytesCheckBuilder
+import io.gatling.core.check.extractor.checksum.ChecksumCheckBuilder
 import io.gatling.core.check.extractor.css.{CssCheckBuilder, CssSelectors}
 import io.gatling.core.check.extractor.jsonpath.{JsonPathCheckBuilder, JsonPaths, JsonpJsonPathCheckBuilder}
 import io.gatling.core.check.extractor.regex.{Patterns, RegexCheckBuilder, RegexOfType}
@@ -71,4 +72,7 @@ trait CheckSupport {
 
   def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths) =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
+
+  val md5 = ChecksumCheckBuilder.Md5
+  val sha1 = ChecksumCheckBuilder.Sha1
 }

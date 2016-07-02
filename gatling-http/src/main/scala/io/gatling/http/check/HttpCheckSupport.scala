@@ -23,8 +23,8 @@ import io.gatling.core.check.extractor.regex.Patterns
 import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
-import io.gatling.http.check.body.{ HttpBodyRegexProvider, _ }
-import io.gatling.http.check.checksum.{ HttpChecksumCheckBuilder, HttpChecksumProvider }
+import io.gatling.http.check.body._
+import io.gatling.http.check.checksum.HttpChecksumProvider
 import io.gatling.http.check.header._
 import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusProvider }
 import io.gatling.http.check.time.{ HttpResponseTimeCheckBuilder, HttpResponseTimeProvider }
@@ -72,10 +72,8 @@ trait HttpCheckSupport {
   implicit def httpBodyJsonPathProvider(implicit jsonParsers: JsonParsers) = new HttpBodyJsonPathProvider(jsonParsers)
   implicit def httpBodyJsonpJsonPathProvider(implicit jsonParsers: JsonParsers) = new HttpBodyJsonpJsonPathProvider(jsonParsers)
 
-  val md5 = HttpChecksumCheckBuilder.Md5
-  implicit val md5Provider = HttpChecksumProvider.Md5
-  val sha1 = HttpChecksumCheckBuilder.Sha1
-  implicit val sha1Provider = HttpChecksumProvider.Sha1
+  implicit val httpMd5Provider = HttpChecksumProvider.Md5
+  implicit val httpSha1Provider = HttpChecksumProvider.Sha1
 
   val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
   implicit val httpResponseTimeProvider = HttpResponseTimeProvider
