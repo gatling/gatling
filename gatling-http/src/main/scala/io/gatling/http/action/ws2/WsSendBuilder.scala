@@ -23,10 +23,10 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 
 case class WsSendBuilder(
-  requestName:    Expression[String],
-  wsName:         String,
-  message:        Expression[String],
-  checkSequences: List[WsCheckSequence]
+    requestName:    Expression[String],
+    wsName:         String,
+    message:        Expression[String],
+    checkSequences: List[WsCheckSequence]
 ) extends HttpActionBuilder {
 
   def wait(timeout: FiniteDuration)(checks: WsCheck*): WsSendBuilder = copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
