@@ -27,6 +27,6 @@ private[stats] object StatsHelper {
     else range / maxPlots.toDouble
   }
 
-  def timeToBucketNumber(start: Long, step: Double, maxPlots: Int)(time: Long): Int =
-    math.min(((time - start) / step).round.toInt, maxPlots - 1)
+  def timeToBucketNumber(start: Long, step: Double, maxPlots: Int): Long => Int =
+    time => math.min(((time - start) / step).round.toInt, maxPlots - 1)
 }

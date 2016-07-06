@@ -38,11 +38,9 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
   private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
   private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
 
-  private def offset(timestamp: Long): Int = ((timestamp - minTimestamp) / 1000).toInt
+  def addStart(bucket: Int): Unit = startCounts(bucket) += 1
 
-  def addStart(timestamp: Long): Unit = startCounts(offset(timestamp)) += 1
-
-  def addEnd(timestamp: Long): Unit = endCounts(offset(timestamp)) += 1
+  def addEnd(bucket: Int): Unit = endCounts(bucket) += 1
 
   private val bucketWidthInMillis = ((maxTimestamp - minTimestamp) / buckets.length).toInt
   private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, buckets.length - 1)
@@ -82,20 +80,20 @@ private[stats] trait SessionDeltaPerSecBuffers {
   def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {
       case Start =>
-        getSessionDeltaPerSecBuffers(None).addStart(record.startTimestamp)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startTimestamp)
+        getSessionDeltaPerSecBuffers(None).addStart(record.startBucket)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startBucket)
         orphanStartRecords += record.userId -> record
 
       case End =>
-        getSessionDeltaPerSecBuffers(None).addEnd(record.endTimestamp)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endTimestamp)
+        getSessionDeltaPerSecBuffers(None).addEnd(record.endBucket)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endBucket)
         orphanStartRecords -= record.userId
     }
   }
 
   def endOrphanUserRecords(): Unit =
     orphanStartRecords.values.foreach { start =>
-      getSessionDeltaPerSecBuffers(None).addEnd(maxTimestamp)
-      getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(maxTimestamp)
+      getSessionDeltaPerSecBuffers(None).addEnd(buckets.length - 1)
+      getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(buckets.length - 1)
     }
 }

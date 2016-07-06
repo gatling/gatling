@@ -21,7 +21,7 @@ import io.gatling.commons.stats.{ Group, KO, Status }
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequestRecord, RawUserRecord }
 
-private[stats] class UserRecordParser {
+private[stats] class UserRecordParser(bucketFunction: Long => Int) {
 
   def unapply(array: Array[String]) = RawUserRecord.unapply(array).map(parseUserRecord)
 
@@ -30,10 +30,10 @@ private[stats] class UserRecordParser {
     val scenario = strings(1)
     val userId = strings(2)
     val event = MessageEvent(strings(3))
-    val startTimestamp = strings(4).toLong
-    val endTimestamp = strings(5).toLong
+    val start = strings(4).toLong
+    val end = strings(5).toLong
 
-    UserRecord(scenario, userId, event, startTimestamp, endTimestamp)
+    UserRecord(scenario, userId, event, start, bucketFunction(start), end, bucketFunction(end))
   }
 }
 
@@ -49,15 +49,15 @@ private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
     }
     val request = strings(4)
 
-    val startDate = strings(5).toLong
-    val endDate = strings(6).toLong
+    val start = strings(5).toLong
+    val end = strings(6).toLong
 
     val status = Status.apply(strings(7))
     val errorMessage = if (status == KO) Some(strings(8)) else None
 
-    val responseTime = (endDate - startDate).toInt
+    val responseTime = (end - start).toInt
 
-    RequestRecord(group, request, status, startDate, bucketFunction(startDate), bucketFunction(endDate), responseTime, errorMessage)
+    RequestRecord(group, request, status, start, bucketFunction(start), bucketFunction(end), responseTime, errorMessage)
   }
 }
 
@@ -75,12 +75,12 @@ private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
   private def parseGroupRecord(strings: Array[String]): GroupRecord = {
 
     val group = GroupRecordParser.parseGroup(strings(3))
-    val startTimestamp = strings(4).toLong
-    val endTimestamp = strings(5).toLong
+    val start = strings(4).toLong
+    val end = strings(5).toLong
     val cumulatedResponseTime = strings(6).toInt
     val status = Status.apply(strings(7))
-    val duration = (endTimestamp - startTimestamp).toInt
-    GroupRecord(group, duration, cumulatedResponseTime, status, startTimestamp, bucketFunction(startTimestamp))
+    val duration = (end - start).toInt
+    GroupRecord(group, duration, cumulatedResponseTime, status, start, bucketFunction(start))
   }
 }
 
@@ -91,13 +91,13 @@ private[stats] object ErrorRecordParser {
   private def parseErrorRecord(strings: Array[String]): ErrorRecord = {
 
     val message = strings(1)
-    val date = strings(2).toLong
+    val timestamp = strings(2).toLong
 
-    ErrorRecord(message, date)
+    ErrorRecord(message, timestamp)
   }
 }
 
 private[stats] case class RequestRecord(group: Option[Group], name: String, status: Status, start: Long, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String])
 private[stats] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
-private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startTimestamp: Long, endTimestamp: Long)
-private[stats] case class ErrorRecord(message: String, date: Long)
+private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, startBucket: Int, end: Long, endBucket: Int)
+private[stats] case class ErrorRecord(message: String, timestamp: Long)
