@@ -34,7 +34,7 @@ private[stats] trait NamesBuffers {
   val scenarioNameBuffer = new NameBuffer[String]
 
   def addScenarioName(record: UserRecord): Unit =
-    scenarioNameBuffer.update(record.scenario, record.startTimestamp)
+    scenarioNameBuffer.update(record.scenario, record.start)
 
   def addRequestName(record: RequestRecord): Unit =
     groupAndRequestsNameBuffer.update(RequestStatsPath(record.name, record.group), record.start)

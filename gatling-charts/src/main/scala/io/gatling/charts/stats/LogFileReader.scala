@@ -127,7 +127,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
 
   val buckets = StatsHelper.buckets(0, runEnd - runStart, step)
-  val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length) _
+  val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length)
 
   private def secondPass(records: Iterator[String]): ResultsHolder = {
 
@@ -139,7 +139,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
     val requestRecordParser = new RequestRecordParser(bucketFunction)
     val groupRecordParser = new GroupRecordParser(bucketFunction)
-    val userRecordParser = new UserRecordParser
+    val userRecordParser = new UserRecordParser(bucketFunction)
 
     records
       .foreach { line =>
