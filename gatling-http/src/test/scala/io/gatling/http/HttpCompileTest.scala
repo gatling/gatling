@@ -58,6 +58,7 @@ class HttpCompileTest extends Simulation {
     .disableWarmUp
     .warmUp("http://gatling.io")
     .inferHtmlResources(white = WhiteList(".*\\.html"))
+    .hostNameAliases(Map("foo" -> "127.0.0.1"))
 
   val httpConfToVerifyDumpSessionOnFailureBuiltIn = http.extraInfoExtractor(dumpSessionOnFailure)
 
