@@ -4,102 +4,115 @@
 Realtime monitoring
 ###################
 
-Gatling provides live statistics via the Graphite protocol so that you don't have to wait for the generation of the final report to analyse the simulation.
-The graphite protocol is widely suppported by a number of tools. This includes both serverside monitoring and analytics databases.
+Introduction
+============
 
-In this way you can also monitor what happens in Gatling AND the system under test. All the data can be collected in one central repository for correlation.
+Gatling can provide live metrics via the Graphite protocol which can be
+persisted and visualised.
 
-The sections below describe both systems that collect data (Gatling, collectd, "Powershell functions", etc) and tools that recieve and process the data (Graphite, InfluxDB, and other timeseries databases).
+The sections below describe how to configure Gatling with InfluxDB and
+Graphite, and use Grafana as a graphing library. We also present a lo-fi solution
+which prints parsed Graphite data to standard out. 
 
-The data the gatling pumps out via the graphite protocol can also be used to customize, tailor to your specific needs, the console output see below.
+Gatling 
+========
 
-Metrics
-=======
+In the ``gatling.conf`` add "graphite" to the data writers and specify the host
+of the Carbon or InfluxDB server.
 
-Two types of metrics are provided by Gatling  :
- * Users metrics
- * Requests metrics
+:: 
+  
+  data {
+    writers = [console, file, graphite]
+  }
 
-Gatling pushes this data to Graphite every second by default, but the push frequency can be changed by setting the "writeInterval" in the GraphiteDataWriter section of gatling.conf
+  graphite {
+    host = "192.0.2.235"  # InfluxDB or Carbon server
+    # writeInterval = 1   # Default write interval of one second
+  }
 
-User metrics
-------------
+InfluxDB
+========
 
-Users metrics give you, for each scenario of your simulation (or all scenarios using *allUsers*) :
+InfluxDB is one of the new crop of time-series databases [#f1]_. It is
+self-contained, easy-to-install and resource efficient.
 
-* *waiting* : # of users waiting to start the scenario
-* *active* : # of users currently running the scenario
-* *done* : # of users who have completed the scenario
+Install
+-------
 
-The metric path for users metrics is *gatling.scenarioName.users.metric*, where :
-
-* *scenarioName* is the name of your scenario
-* *metric* is one of the metrics described above
-
-Response metrics
-----------------
-
-Response metrics give you, for each request (or all requests using _allRequests_) and by status (OK, KO and both) :
-
-* *count* : responses/sec
-* *min* and *max* : Min and Max response time for the request
-* *percentilesXX* :  1st, 2nd, 3rd and 4th percentiles, as defined in gatling.conf (defaults are 50th, 75th, 95th and 99th percentiles)
-
-The metric path for requests metrics is *gatling.simulationId.requestName.status.metric*, where :
-
-* *simulationId* is a sanitized named computed from the name of your Simulation, or the one you set in the command line prompt
-* *requestName* is the name of your request
-* *status* is either **ok** (for successful requests), **ko** (for failed requests) or **all** (for both successful and failed requests)
-* *metric* is one of the metrics described above
-
-System under test metrics
--------------------------
-
-The system under test can send realtime data as follows to provide good visibility. This could be anything from cpu utilisation to database reads.
-Following the "unix philosophy" sending the data to timeseries database and charting engines provides high quality monitoring and allows Gatling to focus on the load generation.
-
-* For *Linux* collectd can collect system metrics and has plugins for a number of products such as mysql.
-* For *Windows* "Graphite-PowerShell-Functions" on Github exposes windows performance counters to the graphite protocol.
-
-For a complete list of tools that support sending data using the graphite protocol see: http://graphite.readthedocs.org/en/latest/tools.html
+`Install InfluxDB <https://influxdata.com/downloads/#influxdb>`_ through your package manager.
 
 
-Configuration
-=============
+Graphite plugin
+---------------
 
-Gatling needs to be configured to send metrics.
-In addition the tool that recieves and processes the data needs to be configured. For example one of Graphite, InfluxDB or other timeseries database that supports the Graphite protocol.
-
-
-Gatling Configuration
----------------------
-
-In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
-
-* have the GraphiteDataWriter in the list of writers
-* have the correct host and port for Graphite
+Add the below to the Graphite section of ``/etc/influxdb/influxdb.conf``
 
 ::
 
-  data {
-    writers = [console, file, graphite]
-    reader = file
+  [[graphite]]
+    enabled = true
+    database = "gatlingdb"
+    bind-address = ":2003"
+    protocol = "tcp"
+    consistency-level = "one"
+    separator = "."
+  
+  templates = [
+    "gatling.*.*.*.count measurement.simulation.request.status.field",
+    "gatling.*.*.*.min measurement.simulation.request.status.field",
+    "gatling.*.*.*.max measurement.simulation.request.status.field",
+    "gatling.*.*.*.percentiles50 measurement.simulation.request.status.field",
+    "gatling.*.*.*.percentiles75 measurement.simulation.request.status.field",
+    "gatling.*.*.*.percentiles95 measurement.simulation.request.status.field",
+    "gatling.*.*.*.percentiles99 measurement.simulation.request.status.field"
+  ]
+  
 
-    graphite {
-      host = "192.168.56.101"
-      port = 2003
-      #light = false              # only send the all* stats
-      #protocol = "tcp"           # The protocol used to send data to Carbon (currently supported : "tcp", "udp")
-      #rootPathPrefix = "gatling" # The common prefix of all metrics sent to Graphite
-      #bufferSize = 8192          # GraphiteDataWriter's internal data buffer size, in bytes
-      #writeInterval = 1          # GraphiteDataWriter's write interval, in seconds
-    }
-  }
+Start
+-----
 
+::
 
+$ sudo service influxdb start
 
-Graphite tool configuration
----------------------------
+Verification
+------------
+
+From the `gatling-sbt-plugin-demo project <https://github.com/gatling/gatling-sbt-plugin-demo>`_ run the ComputerWorld simulation, and
+
+:: 
+
+$ influx -database 'gatlingdb' -execute 'SELECT * FROM gatling LIMIT 10'
+
+You should be presented with something similar to this:
+
+:: 
+
+  name: gatling
+  -------------
+  time                    count   max     min     percentiles50   percentiles75   percentiles95   percentiles99   request                         simulation      status
+  1461834409000000000     3       36      24      36              36              36              36              addNewComputer                  computerworld   all
+  1461834409000000000     3       94      43      54              54              94              94              getComputers                    computerworld   ok
+  1461834409000000000     3       42      23      34              34              42              42              postComputers                   computerworld   ok
+  1461834409000000000     12      94      23      42              43              57              94              allRequests                     computerworld   ok
+  1461834409000000000     3       57      42      43              43              57              57              postComputers_Redirect_1        computerworld   ok
+  1461834409000000000     0       0       0       0               0               0               0               addNewComputer                  computerworld   ko
+  1461834409000000000     3       36      24      36              36              36              36              addNewComputer                  computerworld   ok
+  1461834409000000000     0       0       0       0               0               0               0               postComputers_Redirect_1        computerworld   ko
+  1461834409000000000     3       57      42      43              43              57              57              postComputers_Redirect_1        computerworld   all
+  1461834409000000000     0       0       0       0               0               0               0               getComputers                    computerworld   ko
+
+Graphite
+========
+
+Install
+-------
+
+Graphite can be installed through `Synthesize <https://github.com/obfuscurity/synthesize>`_ on Ubuntu 14.04
+
+Configuration
+-------------
 
 In ``$GRAPHITE_HOME/conf/storage-schemas.conf``:
 
@@ -110,10 +123,12 @@ In ``$GRAPHITE_HOME/conf/storage-schemas.conf``:
   pattern = ^gatling\..*
   retentions = 1s:6d,10s:60d
 
-
-If you use a different writeInterval in your GraphiteDataWriter configuration, makes sure that your smallest retention is equal or greater than your writeInterval.
+If you use a different writeInterval in your Graphite data writer configuration,
+make sure that your smallest retention is equal or greater than your
+writeInterval.
 
 In ``$GRAPHITE_HOME/conf/storage-aggregation.conf``:
+
 ::
 
   [sum]
@@ -137,29 +152,10 @@ In ``$GRAPHITE_HOME/conf/storage-aggregation.conf``:
   aggregationMethod = average
 
 
-InfluxDB tool configuration
----------------------------
+collectd
+========
 
-InfluxDB does not need any storage configuration initially, but some changes to the config.toml to enable the Graphite protocol.
-It does not have a charting component however, so it integrates with a dedicated charting tool, for example Grafana.
-
-::
-
-  [input_plugins]
-   
-  # Configure the graphite api
-  [input_plugins.graphite]
-  enabled = true
-  port = 2003
-  database = "gatling"  # store graphite data in this database
-  # udp_enabled = true # enable udp interface on the same port as the tcp interface
-
-
-
-collectd configuration
-----------------------
-
-collectd needs configuring in the collectd.conf file after installation:
+In collectd.conf
 
 ::
 
@@ -181,78 +177,71 @@ collectd needs configuring in the collectd.conf file after installation:
   </Plugin>
   ...
 
-Graphite powershell functions configuration
--------------------------------------------
+Grafana
+=======
 
-See the documentation here : https://github.com/MattHodge/Graphite-PowerShell-Functions
+Grafana is a popular open-source graphing application. 
 
-Customizable console output via graphite datastream
----------------------------------------------------
+There are `binaries <http://docs.grafana.org/installation/>`_ for all the major
+GNU/Linux distributions.
 
-Reporting can be a very user/system specific requirement. One possibility to obtain exactly what you want from realtime monitoring in the console is described below.
+Once Grafana is installed and the service is running navigate to :3000 and
+sign-in as admin/admin (change in /etc/grafana/grafana.ini at the earliest
+opportunity).
 
-Advantages of this approach are:
+InfluxDB or Graphite can be set as a datasource as described `here
+<http://docs.grafana.org/datasources/overview/>`_. There is a ready made `Grafana template
+<https://github.com/gatling/gatling/tree/master/src/sphinx/realtime_monitoring/code/gatling.json>`_ 
+if InfluxDB is used as a datasource. The graphs should look similar to the below when running a simulation:
 
-* You can script the format and contents of the output exactly as you want
-* No need to set up Graphite server or timeseries databases as described above, which can take time.
-* Frees up Gatling developers to concentrate on the core DSL and injection, etc, components.
-* Inject load on 1 server and report to a console on another server (ProTip: if you have 5 injectors, the data can be sent to 1 central server...)
+.. image:: img/gatling-grafana.png
+  :alt: gatling-grafana
 
-Limitations:
 
-* currently as described this will only work on X-platforms (Unix, Linux, OS X) load injectors (further work could adapt the setup for Windows in the future)
+Ports
+=====
 
-Set up:
+The ports 2003 (Graphite protocol), 8086 (InfluxDB network communication) and
+3000 (Grafana) will need to be exposed on the Grafana-InfluxDB box. 
 
-* Enable the graphite output in gatling.conf as above
-* open a new console to write the realtime data to
-* Modify to your requirements and run "netcat" listening on port 2003 (the default for the graphite protocol), and pipe the output to commands that will format the data as you wish.
-* Start your test
+Lo-fi
+=====
 
-Scripts for running netcat and processing the output:
-
-::
-
-  # command to run the graphite console output
-  nc -l 2003 | awk -f a.awk | tee gatling_stats.txt
+Netcat can be used to listen to the Graphite port. The below awk
+script parses the data.
 
 ::
 
-  # awk script to process raw graphite protocol data stream
   BEGIN{
     print "--------- stats ....... timestamp RPS error_percent 95percentile_response_time active_users -----";
     curr=0
   }
-  
+
   {
     if($NF != curr) {
-      print $NF" "n" "epct" "ptile" "u;
-    }
+    print $NF" "n" "epct" "ptile" "u;
+  }
     curr=$NF
   }
-  
+
   /allRequests.all.count/        {n=$2}
   /allRequests.ko.count/         {e=$2; if(n==0){epct=0}else{epct=int(e/n*100)}}
   /allRequests.ok.percentiles95/ {ptile=$2}
   /users.allUsers.active/        {u=$2}
 
+To run the script: 
 
-Graphite tool chart Examples
-============================
+:: 
 
-All the following charts have been done with this line mode : ``Graph Options\Line Mode\Connected Line``
+	nc -l 2003 | awk -f a.awk
 
-Graphing the ``.max`` is usually a good start to monitor a given request.
+Frontline 
+=========
 
-.. image:: img/max.png
-  :alt: MaxEvolution
+`Frontline <http://gatling.io/#/services/frontline>`_ offers impressive realtime monitoring
+and persistence. 
 
-One may be interested in monitoring the number of requests per second with ``.count``.
 
-.. image:: img/count.png
-  :alt: CountEvolution
+.. rubric:: Footnotes
 
-One can easily graph the total number of requests executed thanks to the Graphite ``integral()`` function.
-
-.. image:: img/count_integral.png
-  :alt: CountTotal
+.. [#f1] A time series is a sequence of data points that are measured over time and a time-series database optimises that data.
