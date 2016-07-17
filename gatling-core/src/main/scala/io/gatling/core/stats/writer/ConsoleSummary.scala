@@ -88,11 +88,12 @@ ${errorsCounters.toVector.sortBy(-_._2).map { case (message, count) => ConsoleEr
     val text = fast"""
 $NewBlock
 ${ConsoleSummary.Iso8601DateTimeFormat.format(time)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
-${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}
 $writeDetailedRequestsCounter
-$writeErrors$NewBlock
+$writeErrors
+${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
+$NewBlock
 """.toString
 
     val complete = {

@@ -30,9 +30,11 @@ class ConsoleDataWriterSpec extends BaseSpec {
 
   def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
 
-  def progressBar(summary: ConsoleSummary) = lines(summary)(4)
+  def progressBar(summary: ConsoleSummary) = lines(summary)(8)
 
-  def requestsInfo(summary: ConsoleSummary) = lines(summary).splitAt(6)._2.mkString(sys.props("line.separator"))
+  def requestsInfo(summary: ConsoleSummary) = lines(summary).slice(3, 6).mkString(sys.props("line.separator"))
+
+  def errorsInfo(summary: ConsoleSummary) = lines(summary).slice(6, 9).mkString(sys.props("line.separator"))
 
   "console summary progress bar" should "handle it correctly when all the users are waiting" in {
 
@@ -83,8 +85,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
     val actual = requestsInfo(summary)
     actual shouldBe """---- Requests ------------------------------------------------------------------
                       |> Global                                                   (OK=20     KO=0     )
-                      |> request1                                                 (OK=20     KO=0     )
-                      |================================================================================""".stripMargin
+                      |> request1                                                 (OK=20     KO=0     )""".stripMargin
   }
 
   it should "display requests with multiple errors" in {
@@ -94,15 +95,11 @@ class ConsoleDataWriterSpec extends BaseSpec {
     val summary1 = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20),
       requestCounters, errorsCounters1, configuration, time)
 
-    val output = requestsInfo(summary1)
+    val output = errorsInfo(summary1)
 
-    output shouldBe s"""---- Requests ------------------------------------------------------------------
-          |> Global                                                   (OK=0      KO=20    )
-          |> request1                                                 (OK=0      KO=20    )
-          |---- Errors --------------------------------------------------------------------
+    output shouldBe s"""|---- Errors --------------------------------------------------------------------
           |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
-          |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)
-          |================================================================================""".stripMargin
+          |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)""".stripMargin
     all(output.lines.map(_.length).toSet) shouldBe <=(80)
   }
 
@@ -113,15 +110,11 @@ class ConsoleDataWriterSpec extends BaseSpec {
     val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
       requestCounters, errorsCounters, configuration, time)
 
-    val output = requestsInfo(summary)
+    val output = errorsInfo(summary)
 
-    output shouldBe s"""---- Requests ------------------------------------------------------------------
-          |> Global                                                   (OK=0      KO=123456)
-          |> request1                                                 (OK=0      KO=123456)
-          |---- Errors --------------------------------------------------------------------
+    output shouldBe s"""|---- Errors --------------------------------------------------------------------
           |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
-          |do eiusmod tempor incididunt ut labore et dolore magna aliqua....
-          |================================================================================""".stripMargin
+          |do eiusmod tempor incididunt ut labore et dolore magna aliqua....""".stripMargin
     all(output.lines.map(_.length).toSet) shouldBe <=(80)
   }
 }
