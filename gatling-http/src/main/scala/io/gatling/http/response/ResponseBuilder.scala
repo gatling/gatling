@@ -89,6 +89,7 @@ class ResponseBuilder(
   @volatile var storeHtmlOrCss: Boolean = _
   @volatile var startTimestamp: Long = _
   @volatile var endTimestamp: Long = _
+  @volatile private var _reset: Boolean = _
   @volatile private var status: Option[HttpResponseStatus] = None
   @volatile private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
   @volatile private var chunks: List[ByteBuf] = Nil
@@ -112,13 +113,18 @@ class ResponseBuilder(
   def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
 
-  def reset(): Unit = {
-    endTimestamp = 0L
-    status = None
-    headers = ResponseBuilder.EmptyHeaders
-    resetChunks()
-    digests = initDigests()
-  }
+  def markReset(): Unit =
+    _reset = true
+
+  def doReset(): Unit =
+    if (_reset) {
+      _reset = false
+      endTimestamp = 0L
+      status = None
+      headers = ResponseBuilder.EmptyHeaders
+      resetChunks()
+      digests = initDigests()
+    }
 
   private def resetChunks(): Unit = {
     chunks.foreach(_.release())
