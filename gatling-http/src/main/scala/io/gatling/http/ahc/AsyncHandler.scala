@@ -91,12 +91,15 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
   //
   // [fl]
 
-  override def onRequestSend(request: NettyRequest): Unit =
-    if (AsyncHandler.DebugEnabled) responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
+  override def onRequestSend(request: NettyRequest): Unit = {
+    responseBuilder.doReset()
+    if (AsyncHandler.DebugEnabled) {
+      responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
+    }
+  }
 
   override def onRetry(): Unit =
-    if (!done.get) responseBuilder.reset()
-    else logger.error("onRetry is not supposed to be called once done, please report")
+    if (!done.get) responseBuilder.markReset()
 
   override def onStatusReceived(status: HttpResponseStatus): State = {
     if (!done.get) responseBuilder.accumulate(status)
@@ -132,12 +135,11 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
       }
     }
 
-  override def onThrowable(throwable: Throwable): Unit = {
-    responseBuilder.updateEndTimestamp()
+  override def onThrowable(throwable: Throwable): Unit =
     withResponse { response =>
+      responseBuilder.updateEndTimestamp()
       sendOnThrowable(response, throwable)
     }
-  }
 
   private def sendOnThrowable(response: Response, throwable: Throwable): Unit = {
     val classShortName = throwable.getClass.getShortName
