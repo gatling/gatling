@@ -89,6 +89,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     val ahcConfigBuilder = new DefaultAsyncHttpClientConfig.Builder()
       .setKeepAlive(ahcConfig.keepAlive)
       .setConnectTimeout(ahcConfig.connectTimeout)
+      .setHandshakeTimeout(ahcConfig.handshakeTimeout)
       .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setReadTimeout(ahcConfig.readTimeout)
       .setMaxRequestRetry(ahcConfig.maxRetry)
