@@ -92,6 +92,7 @@ object ConfigKeys {
     object ahc {
       val KeepAlive = "gatling.http.ahc.keepAlive"
       val ConnectTimeout = "gatling.http.ahc.connectTimeout"
+      val HandshakeTimeout = "gatling.http.ahc.handshakeTimeout"
       val PooledConnectionIdleTimeout = "gatling.http.ahc.pooledConnectionIdleTimeout"
       val ReadTimeout = "gatling.http.ahc.readTimeout"
       val MaxRetry = "gatling.http.ahc.maxRetry"

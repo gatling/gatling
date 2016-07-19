@@ -171,6 +171,7 @@ object GatlingConfiguration extends StrictLogging {
         ahc = AhcConfiguration(
           keepAlive = config.getBoolean(http.ahc.KeepAlive),
           connectTimeout = config.getInt(http.ahc.ConnectTimeout),
+          handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           readTimeout = config.getInt(http.ahc.ReadTimeout),
           maxRetry = config.getInt(http.ahc.MaxRetry),
@@ -338,6 +339,7 @@ case class HttpConfiguration(
 case class AhcConfiguration(
   keepAlive:                           Boolean,
   connectTimeout:                      Int,
+  handshakeTimeout:                    Int,
   pooledConnectionIdleTimeout:         Int,
   readTimeout:                         Int,
   maxRetry:                            Int,
