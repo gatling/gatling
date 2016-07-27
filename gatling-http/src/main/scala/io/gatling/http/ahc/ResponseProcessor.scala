@@ -98,7 +98,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
         if (!logger.underlying.isTraceEnabled) logger.debug(dump)
       }
-      logger.trace(dump)
+      logger.debug(dump)
 
       val extraInfo: List[Any] = try {
         tx.request.config.extraInfoExtractor match {
