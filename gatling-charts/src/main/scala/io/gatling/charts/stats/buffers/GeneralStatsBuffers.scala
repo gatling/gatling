@@ -84,8 +84,8 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
 
     } else {
       val count = digest.size
-      val mean = (sum / count).toInt
-      val stdDev = math.sqrt(sumOfSquares.toDouble / count - mean * mean).toInt
+      val mean = sum.toDouble / count
+      val stdDev = math.sqrt(sumOfSquares.toDouble / count - math.pow(mean, 2)).toInt
       val meanRequestsPerSec = valuesCount / durationInSec.toDouble
 
       val min = digest.quantile(0).toInt
@@ -93,7 +93,7 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
 
       val percentile: Double => Int = (rank: Double) => digest.quantile(rank / 100.0).toInt
 
-      GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile, meanRequestsPerSec)
+      GeneralStats(min, max, valuesCount, mean.toInt, stdDev, percentile, meanRequestsPerSec)
     }
   }
 
