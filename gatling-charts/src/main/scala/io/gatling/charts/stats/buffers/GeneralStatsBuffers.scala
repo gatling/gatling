@@ -85,7 +85,7 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
     } else {
       val count = digest.size
       val mean = sum.toDouble / count
-      val stdDev = math.sqrt(sumOfSquares.toDouble / count - mean * mean)
+      val stdDev = math.sqrt(sumOfSquares.toDouble / count - math.pow(mean, 2))
       val meanRequestsPerSec = valuesCount.toDouble / durationInSec
 
       val min = digest.quantile(0).toInt
