@@ -68,7 +68,7 @@ Engine parameters
 Max connection per host
 -----------------------
 
-In order to mimic real web browser, Gatling can runs multiple concurrent connections **per virtual user** when fetching resources on the same hosts.
+In order to mimic real web browser, Gatling can run multiple concurrent connections **per virtual user** when fetching resources on the same hosts.
 By default, Gatling caps the number of concurrent connections per remote host per virtual user to 6, but you can change this number with ``maxConnectionsPerHost(max: Int)``.
 
 Gatling ships a bunch of built-ins for well-known browsers:
