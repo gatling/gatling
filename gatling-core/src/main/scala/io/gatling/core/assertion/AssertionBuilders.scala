@@ -58,9 +58,15 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
 
   private[this] def adaptTargetValue(value: Double): Double = if (adaptTargetValuesForPerMillion) value / 10000 else value
 
-  def lessThan(threshold: T): Assertion = next(LessThan(adaptTargetValue(numeric.toDouble(threshold))))
-  def greaterThan(threshold: T): Assertion = next(GreaterThan(adaptTargetValue(numeric.toDouble(threshold))))
-  def between(min: T, max: T): Assertion = next(Between(adaptTargetValue(numeric.toDouble(min)), adaptTargetValue(numeric.toDouble(max))))
+  def lt(threshold: T): Assertion = next(Lt(adaptTargetValue(numeric.toDouble(threshold))))
+  @deprecated("Will be removed in 3.0, use lte instead", "3.0.0-M2")
+  def lessThan(threshold: T): Assertion = lte(threshold)
+  def lte(threshold: T): Assertion = next(Lte(adaptTargetValue(numeric.toDouble(threshold))))
+  def gt(threshold: T): Assertion = next(Gt(adaptTargetValue(numeric.toDouble(threshold))))
+  @deprecated("Will be removed in 3.0, use gte instead", "3.0.0-M2")
+  def greaterThan(threshold: T): Assertion = gte(threshold)
+  def gte(threshold: T): Assertion = next(Gte(adaptTargetValue(numeric.toDouble(threshold))))
+  def between(min: T, max: T, inclusive: Boolean = true): Assertion = next(Between(adaptTargetValue(numeric.toDouble(min)), adaptTargetValue(numeric.toDouble(max)), inclusive))
   def is(value: T): Assertion = next(Is(adaptTargetValue(numeric.toDouble(value))))
   def in(set: Set[T]): Assertion = next(In(set.map(v => adaptTargetValue(numeric.toDouble(v))).toList))
   def in(values: T*): Assertion = in(values.toSet)

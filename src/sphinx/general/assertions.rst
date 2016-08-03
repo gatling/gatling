@@ -93,11 +93,17 @@ Condition
 
 Conditions can be chained to apply several conditions on the same metric.
 
-* ``lessThan(threshold)``: check that the value of the metric is less than the threshold.
+* ``lt(threshold)``: check that the value of the metric is less than the threshold.
 
-* ``greaterThan(threshold)``: check that the value of the metric is greater than the threshold.
+* ``lte(threshold)``: check that the value of the metric is less than or equal to the threshold.
+
+* ``gt(threshold)``: check that the value of the metric is greater than the threshold.
+
+* ``gte(threshold)``: check that the value of the metric is greater than or equal to the threshold.
 
 * ``between(thresholdMin, thresholdMax)``: check that the value of the metric is between two thresholds.
+
+* ``between(thresholdMin, thresholdMax, inclusive = false)``: same as above but doesn't include bounds
 
 * ``is(value)``: check that the value of the metric is equal to the given value.
 

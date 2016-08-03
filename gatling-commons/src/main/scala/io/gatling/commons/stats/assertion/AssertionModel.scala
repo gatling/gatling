@@ -120,11 +120,19 @@ case object MeanRequestsPerSecondTarget extends Target {
 sealed trait Condition extends Printable {
   def values: List[Double]
 }
-case class LessThan(value: Double) extends Condition {
+case class Lte(value: Double) extends Condition {
+  val printable = "is less than or equal to"
+  override def values: List[Double] = List(value)
+}
+case class Gte(value: Double) extends Condition {
+  val printable = "is greater than or equal to"
+  override def values = List(value)
+}
+case class Lt(value: Double) extends Condition {
   val printable = "is less than"
   override def values: List[Double] = List(value)
 }
-case class GreaterThan(value: Double) extends Condition {
+case class Gt(value: Double) extends Condition {
   val printable = "is greater than"
   override def values = List(value)
 }
@@ -132,8 +140,8 @@ case class Is(value: Double) extends Condition {
   val printable = "is"
   override def values = List(value)
 }
-case class Between(lowerBound: Double, upperBound: Double) extends Condition {
-  val printable = "is between"
+case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition {
+  val printable = "is between" + (if (inclusive) " inclusive" else "")
   override def values = List(lowerBound, upperBound)
 }
 case class In(elements: List[Double]) extends Condition {

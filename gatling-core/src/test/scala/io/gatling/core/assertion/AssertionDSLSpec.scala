@@ -26,21 +26,19 @@ class AssertionDSLSpec extends BaseSpec with AssertionSupport {
     implicit val configuration = GatlingConfiguration.loadForTest()
 
     global.responseTime.min.is(100) shouldBe Assertion(Global, TimeTarget(ResponseTime, Min), Is(100))
-    details("Foo" / "Bar").responseTime.max.lessThan(100) shouldBe Assertion(Details(List("Foo", "Bar")), TimeTarget(ResponseTime, Max), LessThan(100))
-    forAll.responseTime.mean.greaterThan(100) shouldBe Assertion(ForAll, TimeTarget(ResponseTime, Mean), GreaterThan(100))
-    global.responseTime.stdDev.between(1, 3) shouldBe Assertion(Global, TimeTarget(ResponseTime, StandardDeviation), Between(1, 3))
+    details("Foo" / "Bar").responseTime.max.lte(100) shouldBe Assertion(Details(List("Foo", "Bar")), TimeTarget(ResponseTime, Max), Lte(100))
+    forAll.responseTime.mean.gte(100) shouldBe Assertion(ForAll, TimeTarget(ResponseTime, Mean), Gte(100))
+    global.responseTime.stdDev.between(1, 3) shouldBe Assertion(Global, TimeTarget(ResponseTime, StandardDeviation), Between(1, 3, true))
     global.responseTime.percentile1.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(50)), Is(300))
     global.responseTime.percentile2.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(75)), In(List(1, 2, 3)))
     global.responseTime.percentile3.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(95)), Is(300))
     global.responseTime.percentile4.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(99)), In(List(1, 2, 3)))
 
     global.allRequests.count.is(20) shouldBe Assertion(Global, CountTarget(AllRequests), Is(20))
-    forAll.allRequests.percent.lessThan(5) shouldBe Assertion(ForAll, PercentTarget(AllRequests), LessThan(5))
-    forAll.allRequests.perMillion.lessThan(5) shouldBe Assertion(ForAll, PercentTarget(AllRequests), LessThan(0.0005))
+    forAll.allRequests.percent.lt(5) shouldBe Assertion(ForAll, PercentTarget(AllRequests), Lt(5))
 
-    global.failedRequests.count.greaterThan(10) shouldBe Assertion(Global, CountTarget(FailedRequests), GreaterThan(10))
-    details("Foo" / "Bar").failedRequests.percent.between(1, 5) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(1, 5))
-    details("Foo" / "Bar").failedRequests.perMillion.between(1, 5) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(0.0001, 0.0005))
+    global.failedRequests.count.gt(10) shouldBe Assertion(Global, CountTarget(FailedRequests), Gt(10))
+    details("Foo" / "Bar").failedRequests.percent.between(1, 5, inclusive = false) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(1, 5, false))
 
     global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests), In(List(1, 2, 4)))
     global.successfulRequests.percent.is(6) shouldBe Assertion(Global, PercentTarget(SuccessfulRequests), Is(6))
