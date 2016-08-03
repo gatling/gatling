@@ -220,13 +220,13 @@ object GatlingConfiguration extends StrictLogging {
           noActivityTimeout = config.getInt(data.leak.NoActivityTimeout)
         ),
         graphite = GraphiteDataWriterConfiguration(
-          light = config.getBoolean(data.graphite.Light),
-          host = config.getString(data.graphite.Host),
-          port = config.getInt(data.graphite.Port),
-          protocol = TransportProtocol(config.getString(data.graphite.Protocol).trim),
-          rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
-          bufferSize = config.getInt(data.graphite.BufferSize),
-          writeInterval = config.getInt(data.graphite.WriteInterval)
+          light = scala.util.Properties.envOrElse("GRAPHITE_LIGHT", config.getString(data.graphite.Light)).toBoolean,
+          host = scala.util.Properties.envOrElse("GRAPHITE_HOST", config.getString(data.graphite.Host)),
+          port = scala.util.Properties.envOrElse("GRAPHITE_PORT", config.getString(data.graphite.Port)).toInt,
+          protocol = TransportProtocol(scala.util.Properties.envOrElse("GRAPHITE_PROTOCOL", config.getString(data.graphite.Protocol).trim)),
+          rootPathPrefix = scala.util.Properties.envOrElse("GRAPHITE_ROOTPATHPREFIX", config.getString(data.graphite.RootPathPrefix)),
+          bufferSize = scala.util.Properties.envOrElse("GRAPHITE_BUFFERSIZE", config.getString(data.graphite.BufferSize)).toInt,
+          writeInterval = scala.util.Properties.envOrElse("GRAPHITE_WRITEINTERVAL", config.getString(data.graphite.WriteInterval)).toInt
         )
       ),
       // [fl]
