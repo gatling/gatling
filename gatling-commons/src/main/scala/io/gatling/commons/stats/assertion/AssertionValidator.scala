@@ -20,30 +20,30 @@ import io.gatling.commons.validation.{ Failure, Success, Validation }
 
 object AssertionValidator {
 
-  type ValidatedRequestPath = Validation[Option[Status] => List[GeneralStats]]
-  type StatsByStatus = Option[Status] => List[GeneralStats]
+  type ValidatedRequestPath = Validation[Option[Status] => GeneralStats]
+  type StatsByStatus = Option[Status] => GeneralStats
 
   def validateAssertions(dataReader: GeneralStatsSource): List[AssertionResult] =
-    dataReader.assertions.map(validateAssertion(_, dataReader))
+    dataReader.assertions.flatMap(validateAssertion(_, dataReader))
 
-  private def validateAssertion(assertion: Assertion, source: GeneralStatsSource): AssertionResult = {
+  private def validateAssertion(assertion: Assertion, source: GeneralStatsSource): List[AssertionResult] = {
 
     val printablePath = assertion.path.printable
 
     assertion.path match {
       case Global =>
-        resolveTarget(assertion, status => List(source.requestGeneralStats(None, None, status)), printablePath)
+        List(resolveTarget(assertion, status => source.requestGeneralStats(None, None, status), printablePath))
 
       case ForAll =>
-        val paths = source.statsPaths.collect { case path: RequestStatsPath => path }
-        val statsList: StatsByStatus = status => paths.map {
+        val detailedAssertions = source.statsPaths.collect {
           case RequestStatsPath(request, group) =>
-            source.requestGeneralStats(Some(request), group, status)
+            assertion.copy(path = Details(group.map(_.hierarchy).getOrElse(Nil) ::: List(request)))
         }
-        resolveTarget(assertion, statsList, printablePath)
+
+        detailedAssertions.flatMap(validateAssertion(_, source))
 
       case Details(parts) if parts.isEmpty =>
-        resolveTarget(assertion, status => List(source.requestGeneralStats(None, None, status)), printablePath)
+        List(resolveTarget(assertion, status => source.requestGeneralStats(None, None, status), printablePath))
 
       case Details(parts) =>
         val generalStats: ValidatedRequestPath = findPath(parts, source) match {
@@ -51,14 +51,14 @@ object AssertionValidator {
             Failure(s"Could not find stats matching assertion path $parts")
 
           case Some(RequestStatsPath(request, group)) =>
-            Success(status => List(source.requestGeneralStats(Some(request), group, status)))
+            Success(status => source.requestGeneralStats(Some(request), group, status))
 
           case Some(GroupStatsPath(group)) =>
-            Success(status => List(source.groupCumulatedResponseTimeGeneralStats(group, status)))
+            Success(status => source.groupCumulatedResponseTimeGeneralStats(group, status))
         }
         generalStats match {
-          case Success(stats) => resolveTarget(assertion, stats, printablePath)
-          case Failure(msg)   => AssertionResult(assertion, result = false, msg, Nil)
+          case Success(stats) => List(resolveTarget(assertion, stats, printablePath))
+          case Failure(msg)   => List(AssertionResult(assertion, result = false, msg, None))
         }
     }
   }
@@ -79,16 +79,26 @@ object AssertionValidator {
 
     val printableTarget = assertion.target.printable
 
-    val realValues = assertion.target match {
-      case MeanRequestsPerSecondTarget => stats(None).map(s => (s.meanRequestsPerSec).round.toInt)
-      case target: CountTarget         => resolveCountTargetRealValues(target, stats)
-      case target: TimeTarget          => resolveTimeTargetRealValues(target, stats)
-    }
+    assertion.target match {
+      case MeanRequestsPerSecondTarget =>
+        val actualValue = stats(None).meanRequestsPerSec.round
+        resolveCondition(assertion, path, printableTarget, actualValue)
 
-    resolveCondition(assertion, path, printableTarget, realValues)
+      case target: CountTarget =>
+        val actualValue = resolveCountTargetActualValue(target, stats)
+        resolveCondition(assertion, path, printableTarget, actualValue)
+
+      case target: PercentTarget =>
+        val actualValue = resolvePercentTargetActualValue(target, stats)
+        resolveCondition(assertion, path, printableTarget, actualValue)
+
+      case target: TimeTarget =>
+        val actualValue = resolveTimeTargetActualValue(target, stats)
+        resolveCondition(assertion, path, printableTarget, actualValue)
+    }
   }
 
-  private def resolveCountTargetRealValues(target: CountTarget, stats: StatsByStatus): List[Int] = {
+  private def resolveCountTargetActualValue(target: CountTarget, stats: StatsByStatus): Long = {
 
     val resolvedStats = target.metric match {
       case AllRequests        => stats(None)
@@ -96,45 +106,50 @@ object AssertionValidator {
       case SuccessfulRequests => stats(Some(OK))
     }
 
-    target.selection match {
-      case Count => resolvedStats.map(_.count)
-      case Percent =>
-        val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
-        metricCountsAndAllCounts.map { case (metricCount, allCount) => (metricCount.toDouble / allCount * 100).round.toInt }
-      case PerMillion =>
-        val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
-        metricCountsAndAllCounts.map { case (metricCount, allCount) => (metricCount.toDouble / allCount * 1000000).round.toInt }
-    }
+    resolvedStats.count
   }
 
-  private def resolveTimeTargetRealValues(target: TimeTarget, stats: StatsByStatus): List[Int] = {
+  private def resolvePercentTargetActualValue(target: PercentTarget, stats: StatsByStatus): Double = {
+
+    val resolvedStats = target.metric match {
+      case AllRequests        => stats(None)
+      case FailedRequests     => stats(Some(KO))
+      case SuccessfulRequests => stats(Some(OK))
+    }
+
+    val metricCount = resolvedStats.count
+    val allCount = stats(None).count
+    metricCount.toDouble / allCount * 100
+  }
+
+  private def resolveTimeTargetActualValue(target: TimeTarget, stats: StatsByStatus): Int = {
 
     val resolvedStats = target.metric match {
       case ResponseTime => stats(None)
     }
 
     target.selection match {
-      case Min                => resolvedStats.map(_.min)
-      case Max                => resolvedStats.map(_.max)
-      case Mean               => resolvedStats.map(_.mean)
-      case StandardDeviation  => resolvedStats.map(_.stdDev)
-      case Percentiles(value) => resolvedStats.map(_.percentile(value))
+      case Min                => resolvedStats.min
+      case Max                => resolvedStats.max
+      case Mean               => resolvedStats.mean
+      case StandardDeviation  => resolvedStats.stdDev
+      case Percentiles(value) => resolvedStats.percentile(value)
     }
   }
 
-  private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, realValues: List[Int]) = {
+  private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, actualValue: Double) = {
 
     val printableCondition = assertion.condition.printable
 
       def assertionResult(result: Boolean, expectedValueMessage: Any) =
-        AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", realValues)
+        AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", Some(actualValue))
 
     assertion.condition match {
-      case LessThan(upper)       => assertionResult(realValues.forall(_ <= upper), upper)
-      case GreaterThan(lower)    => assertionResult(realValues.forall(_ >= lower), lower)
-      case Is(exactValue)        => assertionResult(realValues.forall(_ == exactValue), exactValue)
-      case Between(lower, upper) => assertionResult(realValues.forall(v => lower <= v && v <= upper), s"$lower and $upper")
-      case In(elements)          => assertionResult(realValues.forall(elements contains), elements)
+      case LessThan(upper)       => assertionResult(actualValue <= upper, upper)
+      case GreaterThan(lower)    => assertionResult(actualValue >= lower, lower)
+      case Is(exactValue)        => assertionResult(actualValue == exactValue, exactValue)
+      case Between(lower, upper) => assertionResult(actualValue >= lower && actualValue <= upper, s"$lower and $upper")
+      case In(elements)          => assertionResult(elements.contains(actualValue), elements)
     }
   }
 }

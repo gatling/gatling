@@ -34,17 +34,14 @@ class AssertionDSLSpec extends BaseSpec with AssertionSupport {
     global.responseTime.percentile3.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(95)), Is(300))
     global.responseTime.percentile4.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(99)), In(List(1, 2, 3)))
 
-    global.allRequests.count.is(20) shouldBe Assertion(Global, CountTarget(AllRequests, Count), Is(20))
-    forAll.allRequests.percent.lessThan(5) shouldBe Assertion(ForAll, CountTarget(AllRequests, Percent), LessThan(5))
-    forAll.allRequests.perMillion.lessThan(5) shouldBe Assertion(ForAll, CountTarget(AllRequests, PerMillion), LessThan(5))
+    global.allRequests.count.is(20) shouldBe Assertion(Global, CountTarget(AllRequests), Is(20))
+    forAll.allRequests.percent.lessThan(5) shouldBe Assertion(ForAll, PercentTarget(AllRequests), LessThan(5))
 
-    global.failedRequests.count.greaterThan(10) shouldBe Assertion(Global, CountTarget(FailedRequests, Count), GreaterThan(10))
-    details("Foo" / "Bar").failedRequests.percent.between(1, 5) shouldBe Assertion(Details(List("Foo", "Bar")), CountTarget(FailedRequests, Percent), Between(1, 5))
-    details("Foo" / "Bar").failedRequests.perMillion.between(1, 5) shouldBe Assertion(Details(List("Foo", "Bar")), CountTarget(FailedRequests, PerMillion), Between(1, 5))
+    global.failedRequests.count.greaterThan(10) shouldBe Assertion(Global, CountTarget(FailedRequests), GreaterThan(10))
+    details("Foo" / "Bar").failedRequests.percent.between(1, 5) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(1, 5))
 
-    global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Count), In(List(1, 2, 4)))
-    global.successfulRequests.percent.is(6) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Percent), Is(6))
-    global.successfulRequests.perMillion.is(6) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, PerMillion), Is(6))
+    global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests), In(List(1, 2, 4)))
+    global.successfulRequests.percent.is(6) shouldBe Assertion(Global, PercentTarget(SuccessfulRequests), Is(6))
 
     global.requestsPerSec.is(35) shouldBe Assertion(Global, MeanRequestsPerSecondTarget, Is(35))
 

@@ -22,4 +22,4 @@ object GeneralStats {
   val NoPlot = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
 }
 
-case class GeneralStats(min: Int, max: Int, count: Int, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)
+case class GeneralStats(min: Int, max: Int, count: Long, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)

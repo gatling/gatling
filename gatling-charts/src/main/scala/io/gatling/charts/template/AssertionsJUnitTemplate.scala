@@ -16,6 +16,7 @@
 package io.gatling.charts.template
 
 import io.gatling.commons.stats.assertion.AssertionResult
+import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.stats.writer.RunMessage
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -26,16 +27,15 @@ private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionR
     if (assertionResult.result)
       fast"""<system-out>${assertionResult.message}</system-out>"""
     else
-      fast"""<failure type="${assertionResult.assertion.path.printable}">Actual values: ${assertionResult.values.mkString(", ")}</failure>"""
+      fast"""<failure type="${assertionResult.assertion.path.printable}">Actual value: ${assertionResult.actualValue.getOrElse(-1)}</failure>"""
 
   private[this] def print(assertionResult: AssertionResult): Fastring =
     fast"""<testcase name="${assertionResult.message}" status="${assertionResult.result}" time="0">
   ${printMessage(assertionResult)}
 </testcase>"""
 
-  def getOutput: Fastring = {
+  def getOutput: Fastring =
     fast"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults.count(_.result == false)}" time="0">
-${assertionResults.map(print).mkFastring("\n")}
+${assertionResults.map(print).mkFastring(Eol)}
 </testsuite>"""
-  }
 }

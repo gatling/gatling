@@ -23,7 +23,7 @@ import org.scalacheck.{ Arbitrary, Gen }
 
 trait AssertionGenerator {
 
-  private val intGen = Arbitrary.arbitrary[Int]
+  private val doubleGen = Arbitrary.arbitrary[Double]
 
   private val pathGen = {
 
@@ -34,9 +34,15 @@ trait AssertionGenerator {
   private val targetGen = {
     val countTargetGen = {
       val countMetricGen = Gen.oneOf(AllRequests, FailedRequests, SuccessfulRequests)
-      val countSelectionGen = Gen.oneOf(Count, Percent, PerMillion)
+      val countSelectionGen = Gen.oneOf(Count, Percent)
 
-      for (metric <- countMetricGen; selection <- countSelectionGen) yield CountTarget(metric, selection)
+      for {
+        metric <- countMetricGen
+        selection <- countSelectionGen
+      } yield selection match {
+        case Count   => CountTarget(metric)
+        case Percent => PercentTarget(metric)
+      }
     }
 
     val timeTargetGen = {
@@ -54,11 +60,11 @@ trait AssertionGenerator {
   }
 
   private val conditionGen = {
-    val lessThan = for (d <- intGen) yield LessThan(d)
-    val greaterThan = for (d <- intGen) yield GreaterThan(d)
-    val is = for (d <- intGen) yield Is(d)
-    val between = for (d1 <- intGen; d2 <- intGen) yield Between(d1, d2)
-    val in = for (doubleList <- Gen.nonEmptyListOf(intGen)) yield In(doubleList)
+    val lessThan = for (d <- doubleGen) yield LessThan(d)
+    val greaterThan = for (d <- doubleGen) yield GreaterThan(d)
+    val is = for (d <- doubleGen) yield Is(d)
+    val between = for (d1 <- doubleGen; d2 <- doubleGen) yield Between(d1, d2)
+    val in = for (doubleList <- Gen.nonEmptyListOf(doubleGen)) yield In(doubleList)
 
     Gen.oneOf(lessThan, greaterThan, is, between, in)
   }
