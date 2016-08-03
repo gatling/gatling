@@ -21,8 +21,8 @@ class Assertions extends Simulation {
 
   //#setUp
   setUp(scn).assertions(
-    global.responseTime.max.lessThan(50),
-    global.successfulRequests.percent.greaterThan(95)
+    global.responseTime.max.lt(50),
+    global.successfulRequests.percent.gt(95)
   )
   //#setUp
 
@@ -32,10 +32,10 @@ class Assertions extends Simulation {
 
   //#examples
   // Assert that the max response time of all requests is less than 100 ms
-  setUp(scn).assertions(global.responseTime.max.lessThan(100))
+  setUp(scn).assertions(global.responseTime.max.lt(100))
 
   // Assert that every request has no more than 5% of failing requests
-  setUp(scn).assertions(forAll.failedRequests.percent.lessThan(5))
+  setUp(scn).assertions(forAll.failedRequests.percent.lte(5))
 
   // Assert that the percentage of failed requests named "Index" in the group "Search"
   // is exactly 0 %

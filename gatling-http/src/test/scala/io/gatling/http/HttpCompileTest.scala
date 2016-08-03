@@ -272,15 +272,15 @@ class HttpCompileTest extends Simulation {
     .uniformPauses(1.5)
     .uniformPauses(1337 seconds)
     .assertions(
-      global.responseTime.mean.lessThan(50),
+      global.responseTime.mean.lte(50),
       global.responseTime.max.between(50, 500),
-      global.successfulRequests.count.greaterThan(1500),
+      global.successfulRequests.count.gte(1500),
       global.allRequests.percent.is(100),
       forAll.failedRequests.percent.is(0),
       forAll.responseTime.max.is(100),
-      details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0),
-      details("Admins" / "Create").failedRequests.percent.lessThan(90),
-      details("request_9").requestsPerSec.greaterThan(10)
+      details("Users" / "Search" / "Index page").responseTime.mean.gt(0),
+      details("Admins" / "Create").failedRequests.percent.lt(90),
+      details("request_9").requestsPerSec.gte(10)
     )
     .throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds))
     // Applies on the setup

@@ -983,8 +983,8 @@
         <h3>Assertions conditions</h3>
 
         <div class="function">
-          <label class="function-syntax" for="lessThan">lessThan</label>
-          <input type="checkbox" id="lessThan" name="lessThan">
+          <label class="function-syntax" for="lt">lt</label>
+          <input type="checkbox" id="lt" name="lt">
 
           <div class="function-details">
             Check that the value of the statistic is less than the threshold
@@ -996,11 +996,37 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="greaterThan">greaterThan</label>
-          <input type="checkbox" id="greaterThan" name="greaterThan">
+          <label class="function-syntax" for="lte">lte</label>
+          <input type="checkbox" id="lte" name="lte">
+
+          <div class="function-details">
+            Check that the value of the statistic is less than or equal to the threshold
+            <dl>
+              <dt>(threshold)</dt>
+              <dd>the statistic's higher bound</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="gt">gt</label>
+          <input type="checkbox" id="gt" name="gt">
 
           <div class="function-details">
             Check that the value of the statistic is greater than the threshold
+            <dl>
+              <dt>(threshold)</dt>
+              <dd>the statistic's lower bound</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="gte">gte</label>
+          <input type="checkbox" id="gte" name="gte">
+
+          <div class="function-details">
+            Check that the value of the statistic is greater than or equal to the threshold
             <dl>
               <dt>(threshold)</dt>
               <dd>the statistic's lower bound</dd>
@@ -1017,6 +1043,8 @@
             <dl>
               <dt>(thresholdMin,thresholdMax)</dt>
               <dd>the statistic's bounds</dd>
+              <dt>(thresholdMin,thresholdMax, inclusive = false)</dt>
+              <dd>the statistic's bounds, excluded</dd>
             </dl>
           </div>
         </div>

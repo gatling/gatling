@@ -55,9 +55,11 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
 
   val numeric = implicitly[Numeric[T]]
 
-  def lessThan(threshold: T): Assertion = next(LessThan(numeric.toDouble(threshold)))
-  def greaterThan(threshold: T): Assertion = next(GreaterThan(numeric.toDouble(threshold)))
-  def between(min: T, max: T): Assertion = next(Between(numeric.toDouble(min), numeric.toDouble(max)))
+  def lt(threshold: T): Assertion = next(Lt(numeric.toDouble(threshold)))
+  def lte(threshold: T): Assertion = next(Lte(numeric.toDouble(threshold)))
+  def gt(threshold: T): Assertion = next(Gt(numeric.toDouble(threshold)))
+  def gte(threshold: T): Assertion = next(Gte(numeric.toDouble(threshold)))
+  def between(min: T, max: T, inclusive: Boolean = true): Assertion = next(Between(numeric.toDouble(min), numeric.toDouble(max), inclusive))
   def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
   def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))
   def in(values: T*): Assertion = in(values.toSet)

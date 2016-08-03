@@ -145,11 +145,14 @@ object AssertionValidator {
         AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", Some(actualValue))
 
     assertion.condition match {
-      case LessThan(upper)       => assertionResult(actualValue <= upper, upper)
-      case GreaterThan(lower)    => assertionResult(actualValue >= lower, lower)
-      case Is(exactValue)        => assertionResult(actualValue == exactValue, exactValue)
-      case Between(lower, upper) => assertionResult(actualValue >= lower && actualValue <= upper, s"$lower and $upper")
-      case In(elements)          => assertionResult(elements.contains(actualValue), elements)
+      case Lt(upper)                    => assertionResult(actualValue < upper, upper)
+      case Lte(upper)                   => assertionResult(actualValue <= upper, upper)
+      case Gt(lower)                    => assertionResult(actualValue > lower, lower)
+      case Gte(lower)                   => assertionResult(actualValue >= lower, lower)
+      case Is(exactValue)               => assertionResult(actualValue == exactValue, exactValue)
+      case Between(lower, upper, true)  => assertionResult(actualValue > lower && actualValue < upper, s"$lower and $upper")
+      case Between(lower, upper, false) => assertionResult(actualValue >= lower && actualValue <= upper, s"$lower and $upper")
+      case In(elements)                 => assertionResult(elements.contains(actualValue), elements)
     }
   }
 }
