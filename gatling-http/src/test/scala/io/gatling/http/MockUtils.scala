@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 
 object MockUtils extends MockitoSugar {
 

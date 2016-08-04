@@ -16,7 +16,7 @@
 package io.gatling
 
 import org.scalatest.{ FlatSpecLike, Matchers }
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
 trait BaseSpec extends FlatSpecLike with Matchers with MockitoSugar with GeneratorDrivenPropertyChecks

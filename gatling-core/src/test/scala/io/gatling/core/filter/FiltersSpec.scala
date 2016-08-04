@@ -15,10 +15,12 @@
  */
 package io.gatling.core.filter
 
-import org.scalatest.Inspectors
+import org.scalatest.{ FlatSpecLike, Inspectors, Matchers }
 import io.gatling.BaseSpec
 
-class FiltersSpec extends BaseSpec with Inspectors {
+import org.scalatest.mockito.MockitoSugar
+
+class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Inspectors {
 
   val hosts = List(
     "http://excilys.com",

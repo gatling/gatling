@@ -73,7 +73,7 @@ trait AssertionGenerator {
 
 class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
 
-  override implicit val generatorDrivenConfig = PropertyCheckConfig(minSuccessful = 300)
+  override implicit val generatorDrivenConfig = PropertyCheckConfiguration(minSuccessful = 300)
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {
     forAll(assertionGen) { assertion =>
@@ -81,7 +81,7 @@ class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
       val bytes = Pickle.intoBytes(assertion)
       val roundtrip = Unpickle[Assertion].fromBytes(bytes)
 
-      assertion shouldBe assertion
+      roundtrip shouldBe assertion
     }
   }
 }
