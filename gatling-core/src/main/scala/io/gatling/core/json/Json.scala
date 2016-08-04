@@ -44,7 +44,10 @@ object Json {
     case any                       => writeString(any.toString, rootLevel)
   }
 
-  private def writeString(s: String, rootLevel: Boolean) = if (rootLevel) fast"$s" else fast""""$s""""
+  private def writeString(s: String, rootLevel: Boolean) = {
+    val escapedLineFeeds = s.replace("\n", "\\n")
+    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
+  }
 
   private def writeValue(value: Any) = fast"${value.toString}"
 
