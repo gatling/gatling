@@ -16,7 +16,6 @@
 package io.gatling.core.filter
 
 import org.scalatest.{ FlatSpecLike, Inspectors, Matchers }
-import io.gatling.BaseSpec
 
 import org.scalatest.mockito.MockitoSugar
 

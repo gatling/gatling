@@ -1837,6 +1837,23 @@
         </div>
 
         <div class="function">
+          <label class="function-syntax" for="findRandom">findRandom</label>
+          <input type="checkbox" id="findRandom" name="findRandom">
+
+          <div class="function-details">
+            Fetches random matches.
+            <dl>
+              <dt>&oslash;</dt>
+              <dd>If used as <i>findRandom</i> fetches one single match, returns a single value.</dd>
+              <dt>(num: Int)</dt>
+              <dd>Fetches a given number of occurrences, returns a Seq.</dd>
+              <dt>(num: Int, failIfLess: Boolean)</dt>
+              <dd>Same as above, but fails if the number of actual matches is less than num.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
           <label class="function-syntax" for="count1">count</label>
           <input type="checkbox" id="count1" name="count">
 

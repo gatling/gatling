@@ -15,6 +15,9 @@
  */
 package io.gatling.core.check
 
+import java.util.concurrent.ThreadLocalRandom
+
+import io.gatling.commons.util.ThreadLocalRandoms
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
@@ -36,6 +39,10 @@ trait MultipleFindCheckBuilder[A, P, X] extends FindCheckBuilder[A, P, X] {
 
   def findAll: ValidatorCheckBuilder[A, P, Seq[X]]
 
+  def findRandom: ValidatorCheckBuilder[A, P, X]
+
+  def findRandom(num: Int, failIfLess: Boolean = false): ValidatorCheckBuilder[A, P, Seq[X]]
+
   def count: ValidatorCheckBuilder[A, P, Int]
 }
 
@@ -46,6 +53,51 @@ abstract class DefaultMultipleFindCheckBuilder[A, P, X]
 
   def findAllExtractor: Expression[Extractor[P, Seq[X]]]
 
+  def findRandomExtractor: Expression[Extractor[P, X]] = findAllExtractor.map { fae =>
+
+    new Extractor[P, X] {
+      override def name: String = fae.name
+      override def arity: String = "findRandom"
+
+      override def apply(prepared: P): Validation[Option[X]] =
+        fae(prepared)
+          .map(_.collect { case seq if seq.nonEmpty => seq(ThreadLocalRandom.current.nextInt(seq.size)) })
+    }
+  }
+
+  def findManyRandomExtractor(num: Int, failIfLess: Boolean): Expression[Extractor[P, Seq[X]]] = findAllExtractor.map { fae =>
+
+    new Extractor[P, Seq[X]] {
+      override def name: String = fae.name
+      override def arity: String = s"findRandom($num, $failIfLess)"
+
+      override def apply(prepared: P): Validation[Option[Seq[X]]] =
+        fae(prepared)
+            .flatMap {
+              case Some(seq) =>
+                if (failIfLess && seq.size < num) {
+                  s"Failed to collect $num matches".failure
+
+                } else if (seq.isEmpty) {
+                  NoneSuccess
+
+                } else {
+                  val randomSeq =
+                    if (num >= seq.size) {
+                      seq
+                    } else {
+                      val sortedRandomIndexes = ThreadLocalRandoms.shuffle(seq.indices.toVector).take(num).sorted
+                      sortedRandomIndexes.map(seq)
+                    }
+
+                  Some(randomSeq).success
+                }
+
+              case None => NoneSuccess
+            }
+    }
+  }
+
   def countExtractor: Expression[Extractor[P, Int]]
 
   def find = find(0)
@@ -53,6 +105,10 @@ abstract class DefaultMultipleFindCheckBuilder[A, P, X]
   def find(occurrence: Int): ValidatorCheckBuilder[A, P, X] = ValidatorCheckBuilder(findExtractor(occurrence))
 
   def findAll: ValidatorCheckBuilder[A, P, Seq[X]] = ValidatorCheckBuilder(findAllExtractor)
+
+  def findRandom: ValidatorCheckBuilder[A, P, X] = ValidatorCheckBuilder(findRandomExtractor)
+
+  def findRandom(num: Int, failIfLess: Boolean): ValidatorCheckBuilder[A, P, Seq[X]] = ValidatorCheckBuilder(findManyRandomExtractor(num, failIfLess))
 
   def count: ValidatorCheckBuilder[A, P, Int] = ValidatorCheckBuilder(countExtractor)
 }

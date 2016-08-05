@@ -139,6 +139,8 @@ class HttpCompileTest extends Simulation {
               css(".foo").ofType[Node].count.is(1),
               css(".foo").notExists,
               css("#foo").ofType[Node].transform { node: Node => node.getNodeName },
+              css(".foo").findRandom.is("some text"),
+              css(".foo").findRandom(5).is(Seq("some text")),
               regex("""<input id="text1" type="text" value="aaaa" />""").optional.saveAs("var1"),
               regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
               regex("""<input id="text1" type="test" value="aaaa" />""").notExists,

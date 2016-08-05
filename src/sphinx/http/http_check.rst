@@ -305,13 +305,23 @@ Returns the occurrence of the given rank.
 
 Returns a List of all the occurrences.
 
+.. _http-check-find-random:
+
+* ``findRandom``
+
+Returns a random match.
+
+* ``findRandom(num: Int)`` and ``findRandom(num: Int, failIfLess = true)``
+
+Returns a given number of random matches, optionally failing is the number of actual matches is less than the expected number.
+
 .. _http-check-count:
 
 * ``count``
 
 Returns the number of occurrences.
 
-``find(occurrence)``, ``findAll`` and ``count`` are only available on check types that might produce multiple results.
+``find(occurrence)``, ``findAll``, ``findRandom`` and ``count`` are only available on check types that might produce multiple results.
 For example, ``status`` only has ``find``.
 
 .. _http-check-transform:

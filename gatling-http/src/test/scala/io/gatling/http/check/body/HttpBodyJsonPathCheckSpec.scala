@@ -30,6 +30,7 @@ import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ Response, StringResponseBody }
 
 import org.mockito.Mockito._
+import org.scalatest.matchers.{ MatchResult, Matcher }
 
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
@@ -74,5 +75,40 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     testNullAttributeValue[Int]
     testNullAttributeValue[Seq[Any]]
     testNullAttributeValue[Map[String, Any]]
+  }
+
+  "jsonPath.findAll.exists" should "fetch all matches" in {
+    val response = mockResponse(storeJson)
+    jsonPath("$..book").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("In store", "On the street")), None)
+  }
+
+  def beIn[T](seq: Seq[T]) =
+    new Matcher[T] {
+      def apply(left: T) =
+        MatchResult(
+          seq.contains(left),
+          s"$left was not in $seq",
+          s"$left was in $seq"
+        )
+    }
+
+  "jsonPath.findRandom.exists" should "fetch a single random match" in {
+    val response = mockResponse(storeJson)
+    jsonPath("$..book").findRandom.exists.check(response, session).succeeded.extractedValue.get.asInstanceOf[String] should beIn(Seq("In store", "On the street"))
+  }
+
+  it should "fetch at max num results" in {
+    val response = mockResponse(storeJson)
+    jsonPath("$..book").findRandom(1).exists.check(response, session).succeeded.extractedValue.get.asInstanceOf[Seq[String]] should beIn(Seq(Seq("In store"), Seq("On the street")))
+  }
+
+  it should "fetch all the matches when expected number is greater" in {
+    val response = mockResponse(storeJson)
+    jsonPath("$..book").findRandom(3).exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("In store", "On the street")), None)
+  }
+
+  it should "fail when failIfLess is enabled and expected number is greater" in {
+    val response = mockResponse(storeJson)
+    jsonPath("$..book").findRandom(3, failIfLess = true).exists.check(response, session).failed
   }
 }
