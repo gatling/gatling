@@ -15,18 +15,17 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.InetAddress
-
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
-import io.gatling.http.ahc.{ AhcRequestBuilder, AhcChannelPoolPartitioning }
+import io.gatling.http.ahc.{ AhcChannelPoolPartitioning, AhcRequestBuilder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.referer.RefererHandling
+import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.LazyLogging
 import org.asynchttpclient.{ Realm, Request }
@@ -56,23 +55,35 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private val disableUrlEncoding = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
   private val signatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
-  protected def makeAbsolute(url: String): Validation[Uri] =
-    protocol.makeAbsoluteHttpUri(url)
+  protected def baseUrl: Session => Option[String] = httpCaches.baseUrl
+
+  private def makeAbsolute(session: Session, url: String): Validation[Uri] =
+    if (HttpHelper.isAbsoluteHttpUrl(url))
+      Uri.create(url).success
+    else
+      baseUrl(session) match {
+        case Some(base) =>
+          val fullUrl = base + url
+          try {
+            Uri.create(fullUrl).success
+          } catch {
+            // don't use safe in order to save lambda instances
+            case NonFatal(e) => s"url $fullUrl can't be parsed into an Uri: ${e.getMessage}".failure
+          }
+        case None => s"No baseUrl defined but provided url is relative : $url".failure
+      }
 
   private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
       case Left(StaticStringExpression(staticUrl)) if protocol.baseUrls.size <= 1 =>
-        val uri = makeAbsolute(staticUrl)
-        session => uri
+        makeAbsolute(_, staticUrl)
 
       case Left(url) =>
         session =>
-          try {
-            url(session).flatMap(makeAbsolute)
-          } catch {
-            // don't use safe in order to save lambda instances
-            case NonFatal(e) => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
-          }
+          for {
+            resolvedUrl <- url(session)
+            absoluteUri <- makeAbsolute(session, resolvedUrl)
+          } yield absoluteUri
       case Right(uri) => uri.expressionSuccess
     }
 

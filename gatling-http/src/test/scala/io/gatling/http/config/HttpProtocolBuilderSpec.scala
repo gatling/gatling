@@ -41,31 +41,6 @@ class HttpProtocolBuilderSpec extends BaseSpec {
     config.responsePart.extraInfoExtractor.get shouldBe expectedExtractor
   }
 
-  it should "be able to support a base URL" in {
-    val url = "http://url"
-
-    val builder = httpProtocolBuilder
-      .baseURL(url)
-      .disableWarmUp
-
-    val config: HttpProtocol = builder.build
-
-    Seq(config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next()) shouldBe Seq(url, url, url)
-  }
-
-  it should "provide a Round-Robin strategy when multiple urls are provided" in {
-    val url1 = "http://url1"
-    val url2 = "http://url2"
-
-    val builder = httpProtocolBuilder
-      .baseURLs(url1, url2)
-      .disableWarmUp
-
-    val config: HttpProtocol = builder.build
-
-    Seq(config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next(), config.baseUrlIterator.get.next()) shouldBe Seq(url1, url2, url1)
-  }
-
   it should "set a silent URI regex" in {
     val builder = httpProtocolBuilder
       .silentURI(".*")

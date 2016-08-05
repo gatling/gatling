@@ -32,8 +32,6 @@ trait LocalAddressSupport {
 
   import LocalAddressSupport._
 
-  def configuration: GatlingConfiguration
-
   def setLocalAddress(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.enginePart.localAddresses match {
       case Nil                 => identity

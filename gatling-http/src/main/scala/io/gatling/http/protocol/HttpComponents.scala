@@ -29,7 +29,11 @@ case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, ht
     ahc.getChannelPool.flushPartitions(new AhcChannelPoolPartitionSelector(session.userId))
   }
 
-  def onStart: Option[Session => Session] = Some(httpCaches.setNameResolver(httpProtocol, httpEngine) andThen httpCaches.setLocalAddress(httpProtocol))
+  override def onStart: Option[Session => Session] =
+    Some(httpCaches.setNameResolver(httpProtocol, httpEngine)
+      andThen httpCaches.setLocalAddress(httpProtocol)
+      andThen httpCaches.setBaseUrl(httpProtocol)
+      andThen httpCaches.setWsBaseUrl(httpProtocol))
 
-  def onExit: Option[Session => Unit] = Some(onExitF)
+  override def onExit: Option[Session => Unit] = Some(onExitF)
 }

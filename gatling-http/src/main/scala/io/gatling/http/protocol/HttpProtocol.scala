@@ -133,26 +133,6 @@ case class HttpProtocol(
 ) extends Protocol {
 
   type Components = HttpComponents
-
-  val baseUrlIterator: Option[Iterator[String]] = baseUrls match {
-    case Nil => None
-    case _   => Some(RoundRobin(baseUrls.toVector))
-  }
-
-  private val doMakeAbsoluteHttpUri: String => Validation[Uri] =
-    baseUrls match {
-      case Nil => url => s"No protocol.baseUrl defined but provided url is relative : $url".failure
-      case baseUrl :: Nil => url => Uri.create(baseUrl + url).success
-      case _ =>
-        val it = baseUrlIterator.get
-        url => Uri.create(it.next() + url).success
-    }
-
-  def makeAbsoluteHttpUri(url: String): Validation[Uri] =
-    if (HttpHelper.isAbsoluteHttpUrl(url))
-      Uri.create(url).success
-    else
-      doMakeAbsoluteHttpUri(url)
 }
 
 case class HttpProtocolEnginePart(

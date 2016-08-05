@@ -15,11 +15,13 @@
  */
 package io.gatling.http.action.sync
 
+import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport.storeCookie
 import io.gatling.http.protocol.HttpProtocol
@@ -39,7 +41,7 @@ case class CookieDSL(name: Expression[String], value: Expression[String],
 
 object AddCookieBuilder {
 
-  val NoBaseUrlFailure = "Neither cookie domain nor baseURL".expressionFailure
+  val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
   val DefaultPath = "/".expressionSuccess
 
   def apply(cookie: CookieDSL) =
@@ -50,10 +52,12 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
   import AddCookieBuilder._
 
-  private def defaultDomain(httpProtocol: HttpProtocol) =
-    httpProtocol.baseUrlIterator match {
-      case Some(it) => Uri.create(it.next()).getHost.expressionSuccess
-      case _        => NoBaseUrlFailure
+  private def defaultDomain(httpCaches: HttpCaches): Expression[String] =
+    session => {
+      httpCaches.baseUrl(session) match {
+        case Some(baseUrl) => Uri.create(baseUrl).getHost.success
+        case _             => NoBaseUrlFailure
+      }
     }
 
   def build(ctx: ScenarioContext, next: Action): Action = {
@@ -61,7 +65,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
     import ctx._
 
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val resolvedDomain = domain.getOrElse(defaultDomain(httpComponents.httpProtocol))
+    val resolvedDomain = domain.getOrElse(defaultDomain(httpComponents.httpCaches))
     val resolvedPath = path.getOrElse(DefaultPath)
 
     val expression: Expression[Session] = session => for {

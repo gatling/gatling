@@ -26,6 +26,7 @@ class HttpCaches(val configuration: GatlingConfiguration)
     with PermanentRedirectCacheSupport
     with DnsCacheSupport
     with LocalAddressSupport
+    with BaseUrlSupport
     with StrictLogging {
 
   val FlushCache: Expression[Session] = _.removeAll(
