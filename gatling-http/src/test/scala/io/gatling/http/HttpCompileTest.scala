@@ -80,46 +80,46 @@ class HttpCompileTest extends Simulation {
     // First request outside iteration
     .repeat(2) {
       feed(richTestData)
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_.map(_ + "foo")).saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_.map(_ + "foo")).saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .repeat(2, "counterName") {
       feed(testData.circular)
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").findAll.saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").findAll.saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .during(10 seconds) {
       feed(testData)
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .forever {
       feed(testData)
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .group("C'est ici qu'on trouve des Poneys") {
-      exec(http("Catégorie Poney").post("/")
+      exec(http("Poney").post("/")
         .form("${theForm}")
         .formParam("baz", "${qix}")
         .multivaluedFormParam("foo", Seq("bar")))
-        .exec(http("Catégorie Poney").post("/").multivaluedFormParam("foo", "${bar}"))
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", session => "foo"))
-        .exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
-        .exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", "${foo}"))
-        .exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
+        .exec(http("Poney").post("/").multivaluedFormParam("foo", "${bar}"))
+        .exec(http("Poney").get("/").queryParam("omg", "foo"))
+        .exec(http("Poney").get("/").queryParam("omg", "${foo}"))
+        .exec(http("Poney").get("/").queryParam("omg", session => "foo"))
+        .exec(http("Poney").get("/").multivaluedQueryParam("omg", List("foo")))
+        .exec(http("Poney").get("/").multivaluedQueryParam("omg", "${foo}"))
+        .exec(http("Poney").get("/").multivaluedQueryParam("omg", List("foo")))
     }
-    .exec(http("Catégorie Poney").get("/")
+    .exec(http("Poney").get("/")
       .resources(
-        http("Catégorie Poney").post("/").multivaluedFormParam("foo", "${bar}"),
-        http("Catégorie Poney").get("/").queryParam("omg", "foo"),
-        http("Catégorie Poney").get("/").queryParam("omg", "${foo}"),
-        http("Catégorie Poney").get("/").queryParam("omg", session => "foo")
+        http("Poney").post("/").multivaluedFormParam("foo", "${bar}"),
+        http("Poney").get("/").queryParam("omg", "foo"),
+        http("Poney").get("/").queryParam("omg", "${foo}"),
+        http("Poney").get("/").queryParam("omg", session => "foo")
       ))
-    .uniformRandomSwitch(exec(http("Catégorie Poney").get("/")), exec(http("Catégorie Licorne").get("/")))
+    .uniformRandomSwitch(exec(http("Poney").get("/")), exec(http("Licorne").get("/")))
     .randomSwitch(
-      40d -> exec(http("Catégorie Poney").get("/")),
-      50d -> exec(http("Catégorie Licorne").get("/"))
+      40d -> exec(http("Poney").get("/")),
+      50d -> exec(http("Licorne").get("/"))
     )
-    .randomSwitch(40d -> exec(http("Catégorie Poney").get("/")))
+    .randomSwitch(40d -> exec(http("Poney").get("/")))
     .pause(pause2)
     // Loop
     .repeat(iterations, "titi") {
@@ -130,7 +130,7 @@ class HttpCompileTest extends Simulation {
         session
       })
         .exec(
-          http("Page accueil").get("http://localhost:3000")
+          http("Home Page").get("http://localhost:3000")
             .check(
               xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
               xpath("//input[@id='${aaaa_value}']/@value").notExists,
@@ -223,9 +223,9 @@ class HttpCompileTest extends Simulation {
     // Head request
     .exec(http("head on root").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
     // Second request outside iteration
-    .exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
-    .exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").count.lessThan(10).saveAs("input")))
-    .exec(http("Ajout au panier").get("/").check(regex(session => """<input id="(.*)" type="text" value="(.*)" />""").ofType[(String, String)] saveAs ("input")))
+    .exec(http("Add to Cart").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
+    .exec(http("Add to Cart").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").count.lessThan(10).saveAs("input")))
+    .exec(http("Add to Cart").get("/").check(regex(session => """<input id="(.*)" type="text" value="(.*)" />""").ofType[(String, String)] saveAs ("input")))
     .pause(pause1)
     .exec(polling.every(10.seconds).exec(http("poll").get("/foo")))
     .exec(polling.pollerName("poll").every(10.seconds).exec(http("poll").get("/foo")))
@@ -290,7 +290,7 @@ class HttpCompileTest extends Simulation {
     .uniformPauses(1.5)
     .uniformPauses(1337 seconds)
 
-  // Conditionnal check compile test
+  // Conditional check compile test
   def isJsonResponse(response: Response): Boolean = response.isReceived && response.header(HttpHeaderNames.ContentType).exists { x => x.contains(HttpHeaderValues.ApplicationJson) }
   def securedJsonCheck(check: HttpCheck): HttpCheck = checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
 }
