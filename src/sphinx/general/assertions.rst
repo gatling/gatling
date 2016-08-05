@@ -71,13 +71,15 @@ Applicable to response time
 
 * ``stdDev``: perform the assertion on the standard deviation of the metric.
 
-* ``percentile1``: perform the assertion on the 1st percentile of the metric.
+* ``percentile1``: perform the assertion on the 1st percentile of the metric, as configured in ``gatling.conf``.
 
-* ``percentile2``: perform the assertion on the 2nd percentile of the metric.
+* ``percentile2``: perform the assertion on the 2nd percentile of the metric, as configured in ``gatling.conf``.
 
-* ``percentile3``: perform the assertion on the 3rd percentile of the metric.
+* ``percentile3``: perform the assertion on the 3rd percentile of the metric, as configured in ``gatling.conf``.
 
-* ``percentile4``: perform the assertion on the 4th percentile of the metric.
+* ``percentile4``: perform the assertion on the 4th percentile of the metric, as configured in ``gatling.conf``.
+
+* ``percentile(value: Double)``: perform the assertion on the given percentile of the metric. Parameter is a percentage, between 0 and 100.
 
 Applicable to number of requests (all, failed or successful)
 ------------------------------------------------------------

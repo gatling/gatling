@@ -36,10 +36,11 @@ class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric)(im
   def max = next(Max)
   def mean = next(Mean)
   def stdDev = next(StandardDeviation)
-  def percentile1 = next(Percentiles(configuration.charting.indicators.percentile1))
-  def percentile2 = next(Percentiles(configuration.charting.indicators.percentile2))
-  def percentile3 = next(Percentiles(configuration.charting.indicators.percentile3))
-  def percentile4 = next(Percentiles(configuration.charting.indicators.percentile4))
+  def percentile1 = percentile(configuration.charting.indicators.percentile1)
+  def percentile2 = percentile(configuration.charting.indicators.percentile2)
+  def percentile3 = percentile(configuration.charting.indicators.percentile3)
+  def percentile4 = percentile(configuration.charting.indicators.percentile4)
+  def percentile(value: Double) = next(Percentiles(value))
 }
 
 class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
