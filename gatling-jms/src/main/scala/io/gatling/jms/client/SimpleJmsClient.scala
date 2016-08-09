@@ -58,13 +58,13 @@ class SimpleJmsClient(
   logger.info(s"Got InitialContext $ctx")
 
   // create QueueConnectionFactory
-  val qcf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
-  logger.info(s"Got ConnectionFactory $qcf")
+  val cf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
+  logger.info(s"Got ConnectionFactory $cf")
 
   // create QueueConnection
   val conn = credentials match {
-    case Some(creds) if !anonymousConnect => qcf.createConnection(creds.username, creds.password)
-    case _                                => qcf.createConnection
+    case Some(creds) if !anonymousConnect => cf.createConnection(creds.username, creds.password)
+    case _                                => cf.createConnection
   }
   conn.start()
 

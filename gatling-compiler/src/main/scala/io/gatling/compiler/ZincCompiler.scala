@@ -78,7 +78,6 @@ object ZincCompiler extends App {
       files ++ classPathEntries.flatten
 
     } else {
-
       files
     }
   }
