@@ -16,7 +16,7 @@
 package io.gatling.commons.validation
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.ExceptionHelper._
+import io.gatling.commons.util.Throwables._
 
 class ValidationSpec extends BaseSpec {
 

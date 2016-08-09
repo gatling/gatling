@@ -24,28 +24,36 @@ import java.util.function.{ Function => JFunction }
 import scala.compat.java8.FunctionConverters._
 
 import io.gatling.commons.util.Collections._
+import io.gatling.commons.util.Throwables._
 
 object ByteBuffersDecoder {
 
-  private[this] val utf8Decoders = new ThreadLocal[ByteBuffersDecoder] {
+  private[this] val utf8Decoders = new ThreadLocal[Utf8ByteBuffersDecoder] {
     override def initialValue = new Utf8ByteBuffersDecoder
   }
 
-  private[this] val usAsciiDecoders = new ThreadLocal[ByteBuffersDecoder] {
+  private[this] val usAsciiDecoders = new ThreadLocal[UsAsciiByteBuffersDecoder] {
     override def initialValue = new UsAsciiByteBuffersDecoder
   }
 
-  private[this] val newCharsetDecodersScalaFunction: Charset => ThreadLocal[ByteBuffersDecoder] = charset => new ThreadLocal[ByteBuffersDecoder] {
+  private[this] val newCharsetDecodersScalaFunction: Charset => ThreadLocal[CharsetDecoderByteBuffersDecoder] = charset => new ThreadLocal[CharsetDecoderByteBuffersDecoder] {
     override def initialValue = new CharsetDecoderByteBuffersDecoder(charset)
   }
-  private[this] val newCharsetDecoders: JFunction[Charset, ThreadLocal[ByteBuffersDecoder]] = newCharsetDecodersScalaFunction.asJava
+  private[this] val newCharsetDecoders: JFunction[Charset, ThreadLocal[CharsetDecoderByteBuffersDecoder]] = newCharsetDecodersScalaFunction.asJava
 
-  private[this] val otherDecoders = new ConcurrentHashMap[Charset, ThreadLocal[ByteBuffersDecoder]]()
+  private[this] val otherDecoders = new ConcurrentHashMap[Charset, ThreadLocal[CharsetDecoderByteBuffersDecoder]]()
 
   private[this] def decoder(charset: Charset): ByteBuffersDecoder = charset match {
-    case UTF_8    => utf8Decoders.get()
-    case US_ASCII => usAsciiDecoders.get()
-    case _        => otherDecoders.computeIfAbsent(charset, newCharsetDecoders).get()
+    case UTF_8 =>
+      val decoder = utf8Decoders.get()
+      decoder.reset()
+      decoder
+    case US_ASCII =>
+      val decoder = usAsciiDecoders.get()
+      decoder.reset()
+      decoder
+    case _ =>
+      otherDecoders.computeIfAbsent(charset, newCharsetDecoders).get()
   }
 
   def decode(bufs: Seq[ByteBuffer], charset: Charset): String =
@@ -76,8 +84,10 @@ class UsAsciiByteBuffersDecoder extends ByteBuffersDecoder {
 
   private val sb = new StringBuilder
 
-  override def decode(bufs: Seq[ByteBuffer]): String = {
+  def reset(): Unit =
     sb.setLength(0)
+
+  override def decode(bufs: Seq[ByteBuffer]): String = {
     bufs.foreach { buf =>
       while (buf.remaining > 0) {
         sb.append(buf.get().toChar)
@@ -109,6 +119,8 @@ object Utf8ByteBuffersDecoder {
     12, 12, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12, 12, 36, 12, 12, 12, 12, 12, 36, 12, 36, 12, 12,
     12, 36, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12
   )
+
+  val MissingBytesCharacterCodingException = new CharacterCodingException().unknownStackTrace(classOf[Utf8ByteBuffersDecoder], "decode")
 }
 
 class Utf8ByteBuffersDecoder extends ByteBuffersDecoder {
@@ -117,30 +129,45 @@ class Utf8ByteBuffersDecoder extends ByteBuffersDecoder {
 
   private val sb = new StringBuilder
   private var state = Utf8Accept
-  private var codep = 0
+  private var codePoint = 0
 
   private def write(b: Byte): Unit = {
     val t = Types(b & 0xFF)
 
-    codep = if (state != Utf8Accept) (b & 0x3f) | (codep << 6) else (0xff >> t) & b
+    codePoint = if (state != Utf8Accept) (b & 0x3f) | (codePoint << 6) else (0xff >> t) & b
     state = States(state + t)
 
     if (state == Utf8Accept) {
-      if (codep < Character.MIN_HIGH_SURROGATE) {
-        sb.append(codep.toChar)
+      if (codePoint < Character.MIN_HIGH_SURROGATE) {
+        sb.append(codePoint.toChar)
       } else {
-        Character.toChars(codep).foreach(sb.append)
+        appendCodePointChars()
       }
     } else if (state == Utf8Reject) {
       throw new CharacterCodingException
     }
   }
 
-  override def decode(bufs: Seq[ByteBuffer]): String = {
+  private def appendCodePointChars(): Unit =
+    if (Character.isBmpCodePoint(codePoint)) {
+      sb.append(codePoint.toChar)
 
+    } else if (Character.isValidCodePoint(codePoint)) {
+      val charIndexPlus1 = Character.lowSurrogate(codePoint)
+      val charIndex = Character.highSurrogate(codePoint)
+      sb.append(charIndex).append(charIndexPlus1)
+
+    } else {
+      throw new IllegalArgumentException
+    }
+
+  def reset(): Unit = {
     sb.setLength(0)
     state = Utf8Accept
-    codep = 0
+    codePoint = 0
+  }
+
+  override def decode(bufs: Seq[ByteBuffer]): String = {
 
     bufs.foreach { buf =>
       while (buf.remaining > 0) {
@@ -151,7 +178,7 @@ class Utf8ByteBuffersDecoder extends ByteBuffersDecoder {
     if (state == Utf8Accept) {
       sb.toString
     } else {
-      throw new CharacterCodingException
+      throw MissingBytesCharacterCodingException
     }
   }
 }

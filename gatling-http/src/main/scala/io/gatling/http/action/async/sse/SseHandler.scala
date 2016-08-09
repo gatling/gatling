@@ -78,8 +78,8 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
     if (done.get) {
       ABORT
     } else {
-      val payload = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf.toString(UTF_8)
-      parse(payload)
+      val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
+      parse(byteBuf)
       CONTINUE
     }
   }
