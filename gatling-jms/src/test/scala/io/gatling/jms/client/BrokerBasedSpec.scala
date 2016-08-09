@@ -32,11 +32,19 @@ trait BrokerBasedSpec extends AkkaSpec {
 
   override def afterAll() = {
     super.afterAll()
-    cleanUpActions.foreach(f => f())
+    synchronized {
+      cleanUpActions.foreach(_.apply())
+      cleanUpActions = Nil
+    }
     stopBroker()
   }
 
-  var cleanUpActions: List[(() => Unit)] = Nil
+  private var cleanUpActions: List[(() => Unit)] = Nil
+
+  protected def registerCleanUpAction(f: () => Unit): Unit = synchronized {
+    cleanUpActions = f :: cleanUpActions
+  }
+
   lazy val broker: BrokerService = BrokerFactory.createBroker("broker://()/gatling?persistent=false&useJmx=false")
 
   def startBroker() = {

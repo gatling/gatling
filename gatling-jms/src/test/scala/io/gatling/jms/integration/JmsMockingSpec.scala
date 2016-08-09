@@ -74,6 +74,6 @@ trait JmsMockingSpec extends BrokerBasedSpec with JmsDsl {
 
   def jmsMock(queue: JmsDestination, f: PartialFunction[Message, String]): Unit = {
     val processor = new JmsMockCustomer(createClient(queue), f)
-    cleanUpActions = { () => processor.close() } :: cleanUpActions
+    registerCleanUpAction(() => processor.close())
   }
 }
