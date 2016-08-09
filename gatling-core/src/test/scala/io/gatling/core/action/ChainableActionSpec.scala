@@ -16,7 +16,7 @@
 package io.gatling.core.action
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.ExceptionHelper._
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 

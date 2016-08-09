@@ -15,9 +15,13 @@
  */
 package io.gatling.http.action.async.sse
 
+import java.nio.charset.StandardCharsets._
+
 import scala.annotation.tailrec
 
 import io.gatling.commons.util.StringHelper._
+
+import io.netty.buffer.ByteBuf
 
 object EventStreamParser {
 
@@ -112,8 +116,8 @@ trait EventStreamParser { this: EventStreamDispatcher =>
 
   var currentSse = ServerSentEvent()
 
-  def parse(expression: String): Unit =
-    expression.eventLines.foreach {
+  def parse(byteBuf: ByteBuf): Unit =
+    byteBuf.toString(UTF_8).eventLines.foreach {
       case EventName(name) => currentSse = currentSse.copy(name = Some(name))
       case Id(id)          => currentSse = currentSse.copy(id = Some(id))
       case Retry(retry)    => currentSse = currentSse.copy(retry = Some(retry.toInt))

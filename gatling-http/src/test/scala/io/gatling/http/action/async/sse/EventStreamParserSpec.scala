@@ -15,12 +15,17 @@
  */
 package io.gatling.http.action.async.sse
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import io.gatling.BaseSpec
 
+import io.netty.buffer.Unpooled
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 
 class EventStreamParserSpec extends BaseSpec {
+
+  private def toByteBuffer(s: String) = Unpooled.wrappedBuffer(s.getBytes(UTF_8))
 
   private def parseFullSse(sse: String): ServerSentEvent = {
     val sseDispatcher = mock[EventStreamDispatcher]
@@ -28,7 +33,7 @@ class EventStreamParserSpec extends BaseSpec {
       def dispatchEventStream(sse: ServerSentEvent): Unit = sseDispatcher.dispatchEventStream(sse)
     }
 
-    sseParser.parse(sse)
+    sseParser.parse(toByteBuffer(sse))
 
     val argumentCapture = ArgumentCaptor.forClass(classOf[ServerSentEvent])
     verify(sseDispatcher, times(1)).dispatchEventStream(argumentCapture.capture())
@@ -64,10 +69,10 @@ retry: $retry
       def dispatchEventStream(sse: ServerSentEvent): Unit = sseDispatcher.dispatchEventStream(sse)
     }
 
-    sseParser.parse(s"event: $name\n")
-    sseParser.parse(s"id: $id\n")
-    sseParser.parse(s"data: $data\n")
-    sseParser.parse(s"retry: $retry\n\n")
+    sseParser.parse(toByteBuffer(s"event: $name\n"))
+    sseParser.parse(toByteBuffer(s"id: $id\n"))
+    sseParser.parse(toByteBuffer(s"data: $data\n"))
+    sseParser.parse(toByteBuffer(s"retry: $retry\n\n"))
 
     val argumentCapture = ArgumentCaptor.forClass(classOf[ServerSentEvent])
     verify(sseDispatcher, times(1)).dispatchEventStream(argumentCapture.capture())

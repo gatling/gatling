@@ -15,7 +15,7 @@
  */
 package io.gatling.commons.util
 
-object ExceptionHelper {
+object Throwables {
 
   private[this] val emptyStackTrace = Array.empty[StackTraceElement]
 
@@ -23,6 +23,11 @@ object ExceptionHelper {
 
     def noStackTrace(): T = {
       e.setStackTrace(emptyStackTrace)
+      e
+    }
+
+    def unknownStackTrace(clazz: Class[_], method: String): T = {
+      e.setStackTrace(Array[StackTraceElement](new StackTraceElement(clazz.getName, method, null, -1)))
       e
     }
   }
