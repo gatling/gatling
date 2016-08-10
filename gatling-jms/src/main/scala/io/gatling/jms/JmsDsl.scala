@@ -17,8 +17,8 @@ package io.gatling.jms
 
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.jms.check.JmsCheckSupport
-import io.gatling.jms.protocol.{ JmsProtocolBuilderBase, JmsProtocolBuilder, JmsProtocol }
-import io.gatling.jms.request.{ JmsTopic, JmsQueue, JmsRequestBuilderBase, JmsRequestBuilder }
+import io.gatling.jms.protocol.{ JmsProtocol, JmsProtocolBuilder, JmsProtocolBuilderBase }
+import io.gatling.jms.request.{ JmsQueue, JmsReplyRequestBuilder, JmsRequestBuilderBase, JmsSendRequestBuilder, JmsTopic }
 
 trait JmsDsl extends JmsCheckSupport {
 
@@ -39,7 +39,9 @@ trait JmsDsl extends JmsCheckSupport {
    */
   implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 
-  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build()
+  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsSendRequestBuilder): ActionBuilder = builder.build()
+
+  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsReplyRequestBuilder): ActionBuilder = builder.build()
 
   def topic(name: String) = JmsTopic(name)
   def queue(name: String) = JmsQueue(name)
