@@ -16,6 +16,7 @@
 package io.gatling
 
 import javax.jms.Message
+
 import io.gatling.core.check.Check
 
 package object jms {

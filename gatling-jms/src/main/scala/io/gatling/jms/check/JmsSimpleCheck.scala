@@ -16,7 +16,9 @@
 package io.gatling.jms.check
 
 import javax.jms.Message
+
 import scala.collection.mutable
+
 import io.gatling.commons.validation._
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
