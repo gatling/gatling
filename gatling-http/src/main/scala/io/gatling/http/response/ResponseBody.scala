@@ -16,16 +16,19 @@
 package io.gatling.http.response
 
 import java.io.{ ByteArrayInputStream, InputStream }
-import java.nio.charset.{ MalformedInputException, Charset }
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
+import scala.collection.JavaConversions._
+import scala.util.control.NonFatal
 
 import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInputStream }
 import io.gatling.http.util.BytesHelper._
 
 import com.typesafe.scalalogging.{ LazyLogging, StrictLogging }
 import io.netty.buffer.ByteBuf
+import org.asynchttpclient.util.ByteBufUtils._
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -61,7 +64,7 @@ object StringResponseBody extends StrictLogging {
       try {
         byteBufsToString(chunks, charset)
       } catch {
-        case e: MalformedInputException =>
+        case NonFatal(e) =>
           logger.error(s"Response body is not valid ${charset.name} bytes")
           ""
       }
@@ -77,16 +80,14 @@ class StringResponseBody(val string: String, charset: Charset) extends ResponseB
 
 object ByteArrayResponseBody {
 
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-    val bytes = byteBufsToBytes(chunks)
-    new ByteArrayResponseBody(bytes, charset)
-  }
+  def apply(chunks: Seq[ByteBuf], charset: Charset) =
+    new ByteArrayResponseBody(byteBufs2Bytes(chunks), charset)
 }
 
 class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
   def stream = new FastByteArrayInputStream(bytes)
-  lazy val string = new String(bytes, charset)
+  lazy val string = byteArraysToString(Seq(bytes), charset)
 }
 
 object InputStreamResponseBody {
@@ -111,24 +112,16 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
     case _ => new CompositeByteArrayInputStream(chunks)
   }
 
-  private var bytesLoaded = false
-  lazy val bytes = {
-    bytesLoaded = true
-    byteArraysToByteArray(chunks)
-  }
+  lazy val bytes = byteArraysToByteArray(chunks)
 
-  lazy val string = {
-    if (bytesLoaded)
-      new String(bytes, charset)
-    else
-      try {
-        byteArraysToString(chunks, charset)
-      } catch {
-        case e: MalformedInputException =>
-          logger.error(s"Response body is not valid ${charset.name} bytes")
-          ""
-      }
-  }
+  lazy val string =
+    try {
+      byteArraysToString(chunks, charset)
+    } catch {
+      case NonFatal(e) =>
+        logger.error(s"Response body is not valid ${charset.name} bytes")
+        ""
+    }
 }
 
 object NoResponseBody extends ResponseBody {

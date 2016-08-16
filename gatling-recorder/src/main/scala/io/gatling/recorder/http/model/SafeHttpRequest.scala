@@ -18,10 +18,10 @@ package io.gatling.recorder.http.model
 import scala.collection.JavaConversions._
 
 import io.gatling.commons.util.StringHelper.Eol
-import io.gatling.http.util.BytesHelper
 
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
+import org.asynchttpclient.util.ByteBufUtils
 
 object SafeHttpRequest {
 
@@ -32,7 +32,7 @@ object SafeHttpRequest {
       nettyRequest.getUri,
       nettyRequest.headers,
       nettyRequest.trailingHeaders,
-      BytesHelper.byteBufsToBytes(Seq(nettyRequest.content))
+      ByteBufUtils.byteBuf2Bytes(nettyRequest.content)
     )
     nettyRequest.release()
     request

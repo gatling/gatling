@@ -15,29 +15,20 @@
  */
 package io.gatling.http.util
 
-import java.nio.ByteBuffer
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
+import scala.collection.JavaConversions._
 
 import io.gatling.commons.util.Collections._
 
-import io.netty.buffer.ByteBuf
+import io.netty.buffer.{ ByteBuf, Unpooled }
+import org.asynchttpclient.util.{ UsAsciiByteBufDecoder, Utf8ByteBufDecoder }
 
 object BytesHelper {
 
-  def byteBufsToBytes(bufs: Seq[ByteBuf]): Array[Byte] = {
-    val bytes = new Array[Byte](bufs.sumBy(_.readableBytes))
-
-    var pos = 0
-    bufs.foreach { buf =>
-      val i = buf.readableBytes
-      buf.getBytes(0, bytes, pos, i)
-      pos += i
-    }
-
-    bytes
-  }
+  val EmptyBytes = Array.empty[Byte]
 
   def byteArraysToByteArray(arrays: Seq[Array[Byte]]): Array[Byte] =
     (arrays.length: @switch) match {
@@ -55,10 +46,25 @@ object BytesHelper {
     }
 
   def byteBufsToString(bufs: Seq[ByteBuf], cs: Charset): String =
-    ByteBuffersDecoder.decode(bufs.flatMap(_.nioBuffers), cs)
+    cs match {
+      case UTF_8    => Utf8ByteBufDecoder.getCachedDecoder.decode(bufs)
+      case US_ASCII => UsAsciiByteBufDecoder.getCachedDecoder.decode(bufs)
+      case _ =>
+        var composite: ByteBuf = null
+        try {
+          composite = Unpooled.wrappedBuffer(bufs.map(_.retain()).toArray: _*)
+          composite.toString(cs)
+        } finally {
+          if (composite != null) {
+            composite.release()
+          }
+        }
+    }
 
-  def byteArraysToString(bufs: Seq[Array[Byte]], cs: Charset): String =
-    ByteBuffersDecoder.decode(bufs.map(ByteBuffer.wrap), cs)
-
-  val EmptyBytes = new Array[Byte](0)
+  def byteArraysToString(bytes: Seq[Array[Byte]], cs: Charset): String = {
+    val bufs = bytes.map(Unpooled.wrappedBuffer)
+    val string = byteBufsToString(bufs, cs)
+    bufs.foreach(_.release())
+    string
+  }
 }
