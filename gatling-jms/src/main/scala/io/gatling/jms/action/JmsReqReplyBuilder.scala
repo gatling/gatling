@@ -21,7 +21,6 @@ import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 import io.gatling.jms.request.JmsAttributes
-import akka.actor.ActorRef
 import io.gatling.core.action.Action
 
 case class JmsReqReplyBuilder(attributes: JmsAttributes, configuration: GatlingConfiguration) extends ActionBuilder {
