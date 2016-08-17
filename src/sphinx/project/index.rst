@@ -8,7 +8,6 @@ Project Information
     issue_tracking
     ci
     licenses
-    third-party_libraries
     sponsors
     events
     online_resources
