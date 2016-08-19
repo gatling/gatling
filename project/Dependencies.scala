@@ -14,7 +14,7 @@ object Dependencies {
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.12"
   private val netty                         = "io.netty"                               % "netty-codec-http"             % "4.0.40.Final"
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll" % netty.revision classifier "linux-x86_64"
-  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.8"
+  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.9"
   private val akkaSlf4j                     = "com.typesafe.akka"                     %% "akka-slf4j"                   % akkaActor.revision
   private val config                        = "com.typesafe"                           % "config"                       % "1.3.0"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                     % "9.7.0-7"
