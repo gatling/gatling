@@ -35,7 +35,7 @@ object Dependencies {
   private val tdigest                       = "com.tdunning"                           % "t-digest"                     % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                 % "2.1.9"
   private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru"  % "1.4.2"
-  private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"               % "1.54"
+  private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"               % "1.55"
   private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                    % "1.4.7"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"               % "1.0"
 
