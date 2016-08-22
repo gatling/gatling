@@ -434,8 +434,9 @@ Check execution can be enslave to a condition.
 ``checkIf(condition)(thenCheck)``
 
 The condition can be of two types:
-* Expression[Boolean]
-* (Response, Session) => Validation[Boolean]
+
+* ``Expression[Boolean]``
+* ``(Response, Session) => Validation[Boolean]``
 
 Nested thenCheck will only be performed if condition is successful.
 
