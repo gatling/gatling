@@ -34,7 +34,7 @@ object Dependencies {
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"              % "1.1.7"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                     % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                 % "2.1.9"
-  private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru"  % "1.4.2"
+  private val caffeine                      = "com.github.ben-manes.caffeine"          % "caffeine"                     % "2.3.2"
   private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"               % "1.55"
   private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                    % "1.4.7"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"               % "1.0"
@@ -64,7 +64,7 @@ object Dependencies {
     Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, lru, scalaParserCombinators, scopt) ++
+    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps

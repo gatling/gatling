@@ -21,13 +21,15 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el.{ El, ElCompiler }
 import io.gatling.core.util.Resource
-import io.gatling.core.util.cache._
+import io.gatling.core.util.cache.Cache
+
+import com.github.benmanes.caffeine.cache.LoadingCache
 
 class ElFileBodies(implicit configuration: GatlingConfiguration) {
 
   val charset = configuration.core.charset
 
-  private val elFileBodyStringCache = {
+  private val elFileBodyStringCache: LoadingCache[String, Validation[Expression[String]]] = {
       def compileFile(path: String): Validation[Expression[String]] =
         Resource.body(path).map { resource =>
           withCloseable(resource.inputStream) {
@@ -35,15 +37,15 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) {
           }
         }.map(_.el[String])
 
-    SelfLoadingThreadSafeCache[String, Validation[Expression[String]]](configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
+    Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
   }
-  private val elFileBodyBytesCache = {
+  private val elFileBodyBytesCache: LoadingCache[String, Validation[Expression[Seq[Array[Byte]]]]] = {
       def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
         Resource.body(path).map { resource =>
           ElCompiler.compile2BytesSeq(resource.string(charset), charset)
         }
 
-    SelfLoadingThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
+    Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
   }
 
   def asString(filePath: Expression[String]): Expression[String] =

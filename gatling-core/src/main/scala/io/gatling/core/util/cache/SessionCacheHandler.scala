@@ -49,7 +49,7 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
   def getOrCreateCache(session: Session): Cache[K, V] =
     getCache(session) match {
       case Some(cache) => cache
-      case _           => Cache[K, V](maxCapacity)
+      case _           => Cache.newImmutableCache[K, V](maxCapacity)
     }
 
   def addEntry(session: Session, key: K, value: V): Session = {

@@ -18,11 +18,14 @@ package io.gatling.core.check.extractor.regex
 import java.util.regex.Pattern
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
+import io.gatling.core.util.cache.Cache
+
+import com.github.benmanes.caffeine.cache.LoadingCache
 
 class Patterns(implicit configuration: GatlingConfiguration) {
 
-  private val patternCache = SelfLoadingThreadSafeCache[String, Pattern](configuration.core.extract.regex.cacheMaxCapacity, Pattern.compile)
+  private val patternCache: LoadingCache[String, Pattern] =
+    Cache.newConcurrentLoadingCache(configuration.core.extract.regex.cacheMaxCapacity, Pattern.compile)
 
   def extractAll[G: GroupExtractor](chars: CharSequence, pattern: String): Seq[G] = {
 

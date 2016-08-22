@@ -16,10 +16,14 @@
 package io.gatling.core.check.extractor.xpath
 
 import java.nio.charset.StandardCharsets._
+import java.util.concurrent.ConcurrentMap
 import javax.xml.transform.sax.SAXSource
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache._
+import io.gatling.commons.util.Maps._
+
+import com.github.benmanes.caffeine.cache.Caffeine
 import net.sf.saxon.s9api._
 import org.xml.sax.InputSource
 
@@ -39,9 +43,11 @@ class Saxon(implicit configuration: GatlingConfiguration) {
         compiler
       }
 
-    SelfLoadingThreadSafeCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity, xPathCompiler)
+    Cache.newConcurrentLoadingCache(configuration.core.extract.xpath.cacheMaxCapacity, xPathCompiler)
   }
-  private val executableCache = ThreadSafeCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
+
+  private val executableCacheEnabled = configuration.core.extract.xpath.cacheMaxCapacity > 0
+  private lazy val executableCache: ConcurrentMap[String, XPathExecutable] = Caffeine.newBuilder.maximumSize(configuration.core.extract.xpath.cacheMaxCapacity).build[String, XPathExecutable].asMap
 
   def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
@@ -60,7 +66,7 @@ class Saxon(implicit configuration: GatlingConfiguration) {
   }
 
   private def compileXPath(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-    if (executableCache.enabled)
+    if (executableCacheEnabled)
       executableCache.getOrElsePutIfAbsent(expression, compilerCache.get(namespaces).compile(expression))
     else
       compilerCache.get(namespaces).compile(expression)

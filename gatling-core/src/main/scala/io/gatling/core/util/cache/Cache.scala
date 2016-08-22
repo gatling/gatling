@@ -15,10 +15,32 @@
  */
 package io.gatling.core.util.cache
 
+import scala.collection.concurrent
 import scala.collection.immutable.Queue
+import scala.collection.JavaConversions._
+
+import com.github.benmanes.caffeine.cache.{ CacheLoader, Caffeine, LoadingCache }
 
 object Cache {
-  def apply[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
+
+  def newConcurrentCache[K, V](maxSize: Long): concurrent.Map[K, V] =
+    Caffeine
+      .newBuilder
+      .asInstanceOf[Caffeine[Any, Any]]
+      .maximumSize(maxSize)
+      .build[K, V]
+      .asMap
+
+  def newConcurrentLoadingCache[K, V](maxSize: Long, f: K => V): LoadingCache[K, V] =
+    Caffeine
+      .newBuilder
+      .asInstanceOf[Caffeine[Any, Any]]
+      .maximumSize(maxSize)
+      .build[K, V](new CacheLoader[K, V] {
+        override def load(key: K): V = f(key)
+      })
+
+  def newImmutableCache[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
 }
 
 class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
