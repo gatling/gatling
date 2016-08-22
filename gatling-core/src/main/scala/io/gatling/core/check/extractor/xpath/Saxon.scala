@@ -16,10 +16,16 @@
 package io.gatling.core.check.extractor.xpath
 
 import java.nio.charset.StandardCharsets._
+import java.util.concurrent.ConcurrentMap
+import java.util.function.{ Function => JFunction }
 import javax.xml.transform.sax.SAXSource
+
+import scala.compat.java8.FunctionConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache._
+
+import com.github.benmanes.caffeine.cache.LoadingCache
 import net.sf.saxon.s9api._
 import org.xml.sax.InputSource
 
@@ -30,18 +36,21 @@ class Saxon(implicit configuration: GatlingConfiguration) {
   private val processor = new Processor(false)
   private val documentBuilder = processor.newDocumentBuilder
 
-  private val compilerCache = {
-      def xPathCompiler(namespaces: List[(String, String)]) = {
+  private val expressionToExecutableByNamespacesCache: LoadingCache[List[(String, String)], JFunction[String, XPathExecutable]] = {
+
+      def computer(namespaces: List[(String, String)]): JFunction[String, XPathExecutable] = {
         val compiler = processor.newXPathCompiler
         for {
           (prefix, uri) <- namespaces
         } compiler.declareNamespace(prefix, uri)
-        compiler
+        (compiler.compile _).asJava
       }
 
-    SelfLoadingThreadSafeCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity, xPathCompiler)
+    Cache.newConcurrentLoadingCache(configuration.core.extract.xpath.cacheMaxCapacity, computer)
   }
-  private val executableCache = ThreadSafeCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
+
+  private val cachedExecutables: ConcurrentMap[String, XPathExecutable] =
+    Cache.newConcurrentCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
@@ -60,8 +69,5 @@ class Saxon(implicit configuration: GatlingConfiguration) {
   }
 
   private def compileXPath(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-    if (executableCache.enabled)
-      executableCache.getOrElsePutIfAbsent(expression, compilerCache.get(namespaces).compile(expression))
-    else
-      compilerCache.get(namespaces).compile(expression)
+    cachedExecutables.computeIfAbsent(expression, expressionToExecutableByNamespacesCache.get(namespaces))
 }

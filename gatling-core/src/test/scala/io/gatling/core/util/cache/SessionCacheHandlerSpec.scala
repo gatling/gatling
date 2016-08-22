@@ -29,14 +29,14 @@ class SessionCacheHandlerSpec extends BaseSpec with OptionValues {
   }
 
   it should "return the cache if it exists" in {
-    val newCache = Cache[String, String](2)
+    val newCache = Cache.newImmutableCache[String, String](2)
     val sessionWithCache = defaultSession.set("stringCache", newCache)
     sessionCacheHandler.getCache(sessionWithCache) should not be empty
     sessionCacheHandler.getCache(sessionWithCache).value should be theSameInstanceAs newCache
   }
 
   "getOrCreateCache" should "return the cache if it exists" in {
-    val newCache = Cache[String, String](2)
+    val newCache = Cache.newImmutableCache[String, String](2)
     val sessionWithCache = defaultSession.set("stringCache", newCache)
     sessionCacheHandler.getOrCreateCache(sessionWithCache) should be theSameInstanceAs newCache
   }

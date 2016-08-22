@@ -17,7 +17,7 @@ package io.gatling.core.check.extractor.jsonpath
 
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
+import io.gatling.core.util.cache.Cache
 import io.gatling.jsonpath.JsonPath
 
 class JsonPaths(implicit configuration: GatlingConfiguration) {
@@ -28,7 +28,7 @@ class JsonPaths(implicit configuration: GatlingConfiguration) {
         case Right(path) => path.success
       }
 
-    SelfLoadingThreadSafeCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
+    Cache.newConcurrentLoadingCache(configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
   }
 
   def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
