@@ -34,7 +34,7 @@ private[scenario] object RequestTemplate {
         if (BuiltInHttpMethods.contains(request.method)) {
           fast"${request.method.toLowerCase}($renderUrl)"
         } else {
-          fast"""httpRequest("${request.method}", Left($renderUrl))"""
+          fast"""httpRequest("${request.method}", $renderUrl)"""
         }
 
       def usesBaseUrl: Boolean =

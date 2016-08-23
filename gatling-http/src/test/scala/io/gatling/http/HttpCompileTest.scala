@@ -125,6 +125,7 @@ class HttpCompileTest extends Simulation {
         println("iterate: " + session("titi"))
         session
       })
+        .exec(http("").httpRequest("JSON", "/support/get-plot-data?chartID=66"))
         .exec(
           http("Page accueil").get("http://localhost:3000")
             .check(
