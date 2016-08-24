@@ -34,15 +34,17 @@ import org.asynchttpclient._
 
 private[gatling] object AhcFactory {
 
-  def apply(system: ActorSystem, coreComponents: CoreComponents): AhcFactory = {
-    // [fl]
-    //
-    //
-    //
-    //
-    // [fl]
-    new DefaultAhcFactory(system, coreComponents)
-  }
+  def apply(system: ActorSystem, coreComponents: CoreComponents): AhcFactory =
+    coreComponents.configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      // [fl]
+      new DefaultAhcFactory(system, coreComponents)
+    )
 }
 
 private[gatling] trait AhcFactory {

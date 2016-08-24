@@ -40,17 +40,19 @@ case class RecordSeqFeederBuilder[T](
     copy[Any](records = records.map(_.map { case (key, value) => key -> fullConversion(key -> value) }))
   }
 
-  def build(ctx: ScenarioContext): Feeder[T] = {
-    // [fl]
-    //
-    //
-    //
-    //
-    //
-    //
-    // [fl]
-    strategy.feeder(records, ctx)
-  }
+  def build(ctx: ScenarioContext): Feeder[T] =
+    ctx.coreComponents.configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      //
+      //,
+      // [fl]
+      strategy.feeder(records, ctx)
+    )
 
   def queue = copy(strategy = Queue)
   def random = copy(strategy = Random)

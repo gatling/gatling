@@ -134,12 +134,14 @@ class WsActor(
       // can't use a singletonList as list will be cleared on close
       val listeners = new JArrayList[WebSocketListener](1)
       listeners.add(new WsListener(self))
-      // [fl]
-      //
-      //
-      //
-      // [fl]
-      new WebSocketUpgradeHandler(listeners)
+      configuration.resolve(
+        // [fl]
+        //
+        //
+        //
+        // [fl]
+        new WebSocketUpgradeHandler(listeners)
+      )
     }
 
     // [fl]
