@@ -222,6 +222,11 @@ class HttpCompileTest extends Simulation {
         .exec(http("Create Thing omgomg")
           .post("/things").queryParam("postTest", "${sessionParam}").body(RawFileBody("create_thing.txt")).asJSON
           .check(status.is(201).saveAs("status")))
+        .exec(http("bodyParts")
+          .post("url")
+          .formUpload("name", "path")
+          .bodyPart(RawFileBodyPart("name", "path"))
+          .bodyPart(ElFileBodyPart("name", "path")))
     }
     // Head request
     .exec(http("head on root").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
