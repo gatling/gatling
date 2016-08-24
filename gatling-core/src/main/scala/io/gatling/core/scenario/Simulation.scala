@@ -102,14 +102,34 @@ abstract class Simulation {
     _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
     val populationBuilders =
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      _populationBuilders
+      configuration.resolve(
+        // [fl]
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // [fl]
+        _populationBuilders
+      )
 
     val scenarioThrottlings: Map[String, Throttling] = populationBuilders.flatMap { scn =>
 

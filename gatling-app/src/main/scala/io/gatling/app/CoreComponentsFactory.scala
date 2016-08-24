@@ -28,15 +28,17 @@ import akka.actor.ActorSystem
 
 private[gatling] object CoreComponentsFactory {
 
-  def apply(configuration: GatlingConfiguration): CoreComponentsFactory = {
-    // [fl]
-    //
-    //
-    //
-    //
-    // [fl]
-    new DefaultCoreComponentsFactory(configuration)
-  }
+  def apply(configuration: GatlingConfiguration): CoreComponentsFactory =
+    configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      // [fl]
+      new DefaultCoreComponentsFactory(configuration)
+    )
 }
 
 private[gatling] trait CoreComponentsFactory {

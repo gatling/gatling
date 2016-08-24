@@ -247,13 +247,6 @@ object GatlingConfiguration extends StrictLogging {
       //
       //
       //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
       // [fl]
       config = config
     )
@@ -433,7 +426,6 @@ case class GraphiteDataWriterConfiguration(
 //
 //
 //
-//
 // [fl]
 
 case class GatlingConfiguration(
@@ -446,4 +438,12 @@ case class GatlingConfiguration(
      //
      // [fl]
      config:    Config
-)
+) {
+
+  def resolve[T](value: T): T = value
+
+  // [fl]
+  //
+  //
+  // [fl]
+}

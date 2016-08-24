@@ -26,37 +26,6 @@ import scala.math.abs
 
 import io.gatling.core.util.Shard
 
-object InjectionStep {
-
-  def resolve(injectionSteps: Iterable[InjectionStep], configuration: io.gatling.core.config.GatlingConfiguration): Iterable[InjectionStep] = {
-
-    // [fl]
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    // [fl]
-    injectionSteps
-  }
-}
-
 sealed trait InjectionStep {
   /**
    * Iterator of time deltas in between any injected user and the beginning of the simulation
@@ -194,7 +163,7 @@ case class RampRateInjection(startRate: Double, endRate: Double, duration: Finit
         pendingFraction = thisSecondUsersDouble - thisSecondUsersIntValue
 
         if (thisSecond + 1 == durationInSeconds)
-          thisSecondUsersIntValue + (pendingFraction).round.toInt
+          thisSecondUsersIntValue + pendingFraction.round.toInt
         else
           thisSecondUsersIntValue
       }
