@@ -183,9 +183,7 @@ case class SimulationParams(
 ) {
 
   def scenarios(system: ActorSystem, coreComponents: CoreComponents): List[Scenario] = {
-
     val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, globalProtocols)
-
     populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistry, globalProtocols, globalPauseType, throttlings.global))
   }
 }
