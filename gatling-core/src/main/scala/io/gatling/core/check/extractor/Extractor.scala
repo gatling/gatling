@@ -40,7 +40,7 @@ trait FindArity {
 
   def occurrence: Int
   def arity = occurrence match {
-    case 1 => "find"
+    case 0 => "find"
     case i => s"find($i)"
   }
 }
