@@ -17,11 +17,11 @@ package io.gatling.http.request
 
 import java.nio.charset.Charset
 
-import io.gatling.commons.util.Io._
 import io.gatling.commons.validation.Validation
-import io.gatling.core.body.{ FileWithCachedBytes, ElFileBodies, RawFileBodies }
+import io.gatling.core.body.{ ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.core.util.FileResource
 
 import com.softwaremill.quicklens._
 import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
@@ -29,7 +29,7 @@ import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Par
 object BodyPart {
 
   def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
-    BodyPart(name, fileBodyPartBuilder(rawFileBodies.asFileWithCachedBytes(filePath)), BodyPartAttributes())
+    BodyPart(name, fileBodyPartBuilder(rawFileBodies.asResourceAndCachedBytes(filePath)), BodyPartAttributes())
 
   def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     stringBodyPart(name, elFileBodies.asString(filePath))
@@ -52,13 +52,19 @@ object BodyPart {
       new ByteArrayPart(name, resolvedBytes, contentType.orNull, charset.orNull, fileName.orNull, contentId.orNull, transferEncoding.orNull)
     }
 
-  private def fileBodyPartBuilder(file: Expression[FileWithCachedBytes])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def fileBodyPartBuilder(resource: Expression[ResourceAndCachedBytes])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     session => for {
-      resolvedFile <- file(session)
-      validatedFile <- resolvedFile.file.validateExistingReadable
-    } yield resolvedFile.cachedBytes match {
-      case Some(bytes) => new ByteArrayPart(name, bytes, contentType.orNull, charset.orNull, fileName.getOrElse(validatedFile.getName), contentId.orNull, transferEncoding.orNull)
-      case None        => new FilePart(name, validatedFile, contentType.orNull, charset.orNull, fileName.getOrElse(validatedFile.getName), contentId.orNull, transferEncoding.orNull)
+      ResourceAndCachedBytes(resource, cachedBytes) <- resource(session)
+    } yield cachedBytes match {
+      case Some(bytes) => new ByteArrayPart(name, bytes, contentType.orNull, charset.orNull, fileName.getOrElse(resource.name), contentId.orNull, transferEncoding.orNull)
+      case None =>
+        resource match {
+          case FileResource(_, file) =>
+            new FilePart(name, file, contentType.orNull, charset.orNull, fileName.getOrElse(file.getName), contentId.orNull, transferEncoding.orNull)
+          case _ =>
+            new ByteArrayPart(name, resource.bytes, contentType.orNull, charset.orNull, fileName.getOrElse(resource.name), contentId.orNull, transferEncoding.orNull)
+        }
+
     }
 }
 

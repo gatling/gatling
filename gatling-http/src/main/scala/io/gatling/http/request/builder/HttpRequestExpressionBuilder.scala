@@ -15,13 +15,13 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.CoreComponents
-
 import scala.collection.JavaConversions._
 
 import io.gatling.commons.validation._
+import io.gatling.core.CoreComponents
 import io.gatling.core.body._
 import io.gatling.core.session._
+import io.gatling.core.util.FileResource
 import io.gatling.http.ahc.AhcRequestBuilder
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.ContentCacheEntry
@@ -62,11 +62,16 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         def setBody(body: Body): Validation[AhcRequestBuilder] =
           body match {
             case StringBody(string) => string(session).map(requestBuilder.setBody)
-            case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes(session).map { f =>
-              f.cachedBytes match {
-                case Some(bytes) => requestBuilder.setBody(bytes)
-                case None        => requestBuilder.setBody(f.file)
-              }
+            case RawFileBody(resourceWithCachedBytes) => resourceWithCachedBytes(session).map {
+              case ResourceAndCachedBytes(resource, cachedBytes) =>
+                cachedBytes match {
+                  case Some(bytes) => requestBuilder.setBody(bytes)
+                  case None =>
+                    resource match {
+                      case FileResource(_, file) => requestBuilder.setBody(file)
+                      case _                     => requestBuilder.setBody(resource.bytes)
+                    }
+                }
             }
             case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
             case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs))

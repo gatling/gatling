@@ -15,9 +15,6 @@
  */
 package io.gatling.core.body
 
-import java.io.File
-
-import io.gatling.commons.util.Io._
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
@@ -26,34 +23,29 @@ import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
-case class FileWithCachedBytes(file: File, cachedBytes: Option[Array[Byte]]) {
-  def bytes: Array[Byte] = cachedBytes.getOrElse(file.toByteArray())
-}
+case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
 
 class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
-  private val rawFileBodyCache: LoadingCache[String, Validation[File]] = {
-    val pathToFile: String => Validation[File] = path => Resource.body(path).map(_.file)
-    Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)
+  private val resourceCache: LoadingCache[String, Validation[Resource]] = {
+    val pathToResource: String => Validation[Resource] = path => Resource.body(path)
+    Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, pathToResource)
   }
 
-  private val rawFileBodyBytesCache: LoadingCache[String, Validation[Array[Byte]]] = {
-    val pathToFileBytes: String => Validation[Array[Byte]] = path => Resource.body(path).map(_.file.toByteArray())
-    Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, pathToFileBytes)
+  private val bytesCache: LoadingCache[Resource, Option[Array[Byte]]] = {
+    val resourceToBytes: Resource => Option[Array[Byte]] = resource =>
+      if (resource.file.length > configuration.core.rawFileBodiesInMemoryMaxSize)
+        None
+      else
+        Some(resource.bytes)
+
+    Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, resourceToBytes)
   }
 
-  private def cachedBytes(file: File): Validation[Option[Array[Byte]]] =
-    if (file.length > configuration.core.rawFileBodiesInMemoryMaxSize)
-      Success(None)
-    else
-      rawFileBodyBytesCache.get(file.getPath).map(Some(_))
-
-  def asFileWithCachedBytes(filePath: Expression[String]): Expression[FileWithCachedBytes] =
+  def asResourceAndCachedBytes(filePath: Expression[String]): Expression[ResourceAndCachedBytes] =
     session =>
       for {
         path <- filePath(session)
-        file <- rawFileBodyCache.get(path)
-        validatedFile <- file.validateExistingReadable
-        cachedBytes <- cachedBytes(validatedFile)
-      } yield FileWithCachedBytes(validatedFile, cachedBytes)
+        resource <- resourceCache.get(path)
+      } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
 }

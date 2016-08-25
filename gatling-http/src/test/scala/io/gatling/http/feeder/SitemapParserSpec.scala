@@ -15,17 +15,18 @@
  */
 package io.gatling.http.feeder
 
-import java.io.{ File, InputStream, IOException }
+import java.io.{ File, IOException, InputStream }
+import java.nio.file.Paths
 
-import io.gatling.BaseSpec
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
-import io.gatling.core.util.{ Resource, FileResource }
+import io.gatling.core.util.Resource
 import io.gatling.core.feeder.Record
 
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 
-class SitemapParserSpec extends BaseSpec {
+class SitemapParserSpec extends BaseSpec with ValidationValues {
 
   def getFile(filePath: String) = new File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 
@@ -39,10 +40,9 @@ class SitemapParserSpec extends BaseSpec {
   }
 
   it should "parse valid sitemap file" in {
-    val resource = FileResource(getFile("sitemap.xml"))
-    val records = SitemapParser.parse(resource).toArray
-
-    verifySitemapRecords(records)
+    val resource = Resource.resolveResource(Paths.get(""), "", "sitemap.xml")
+    val records = resource.map(SitemapParser.parse(_).toArray)
+    verifySitemapRecords(records.succeeded)
   }
 
   it should "input stream is closed on error" in {
@@ -96,5 +96,4 @@ class SitemapParserSpec extends BaseSpec {
       "lastmod" -> "2004-11-23"
     )
   }
-
 }

@@ -24,7 +24,8 @@ import io.gatling.commons.util.Io
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
-import io.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.util.Resource.Location
 
 object Resource {
 
@@ -36,8 +37,8 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] =
       Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => FileResource(url.jfile).success
-          case "jar"  => ArchiveResource(url, extension(location.path)).success
+          case "file" => FileResource(location, url.jfile).success
+          case "jar"  => ArchiveResource(location, url, extension(location.path)).success
           case _      => s"$url is neither a file nor a jar".failure
         }
       }
@@ -45,15 +46,15 @@ object Resource {
 
   private object DirectoryChildResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      (location.directory / location.path).ifFile(f => FileResource(f).success)
+      (location.directory / location.path).ifFile(f => FileResource(location, f).success)
   }
 
   private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      string2path(location.path).ifFile(f => FileResource(f).success)
+      string2path(location.path).ifFile(f => FileResource(location, f).success)
   }
 
-  private def resolveResource(directory: Path, possibleClasspathPackage: String, path: String): Validation[Resource] =
+  private[gatling] def resolveResource(directory: Path, possibleClasspathPackage: String, path: String): Validation[Resource] =
     Location(directory, path) match {
       case ClasspathResource(res)      => res
       case DirectoryChildResource(res) => res
@@ -64,7 +65,7 @@ object Resource {
       }
     }
 
-  private case class Location(directory: Path, path: String)
+  case class Location(directory: Path, path: String)
 
   def feeder(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
     resolveResource(GatlingFiles.dataDirectory, "data", fileName)
@@ -73,17 +74,19 @@ object Resource {
 }
 
 sealed trait Resource {
+  def name: String = location.path.substring(location.path.lastIndexOf(File.separatorChar))
+  def location: Location
   def inputStream: InputStream
   def file: File
   def string(charset: Charset) = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte] = Io.withCloseable(inputStream)(_.toByteArray())
 }
 
-case class FileResource(file: File) extends Resource {
+case class FileResource(location: Location, file: File) extends Resource {
   def inputStream = new FileInputStream(file)
 }
 
-case class ArchiveResource(url: URL, extension: String) extends Resource {
+case class ArchiveResource(location: Location, url: URL, extension: String) extends Resource {
 
   def inputStream = url.openStream
 

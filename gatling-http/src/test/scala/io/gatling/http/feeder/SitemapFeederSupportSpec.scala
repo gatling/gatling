@@ -15,20 +15,16 @@
  */
 package io.gatling.http.feeder
 
-import java.io.File
+import java.nio.file.Paths
 
 import io.gatling.BaseSpec
-import io.gatling.commons.validation.{ Failure, Success }
-import io.gatling.core.util.FileResource
+import io.gatling.commons.validation.Failure
+import io.gatling.core.util.Resource
 
 class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
 
-  def getFile(filePath: String) = new File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
-
   "create sitemap feeder" should "get file resource" in {
-    val success = Success(FileResource(getFile("sitemap.xml")))
-    val feederBuilder = sitemap(success)
-
+    val feederBuilder = sitemap(Resource.resolveResource(Paths.get(""), "", "sitemap.xml"))
     feederBuilder.records should have size 5
   }
 

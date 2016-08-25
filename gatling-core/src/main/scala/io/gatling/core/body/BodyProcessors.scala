@@ -28,12 +28,14 @@ object BodyProcessors {
       val gzippedBytes = body match {
         case StringBody(string)       => string.map(GzipHelper.gzip)
         case ByteArrayBody(byteArray) => byteArray.map(GzipHelper.gzip)
-        case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes.map { f =>
-          f.cachedBytes match {
-            case Some(bytes) => GzipHelper.gzip(bytes)
-            case None        => GzipHelper.gzip(new FileInputStream(f.file))
+        case RawFileBody(resourceAndCachedBytes) =>
+          resourceAndCachedBytes.map {
+            case ResourceAndCachedBytes(resource, cachedBytes) =>
+              cachedBytes match {
+                case Some(bytes) => GzipHelper.gzip(bytes)
+                case None        => GzipHelper.gzip(new FileInputStream(resource.file))
+              }
           }
-        }
         case InputStreamBody(inputStream) => inputStream.map(GzipHelper.gzip(_))
         case b: CompositeByteArrayBody    => b.asStream.map(GzipHelper.gzip(_))
       }
@@ -47,11 +49,12 @@ object BodyProcessors {
       val stream = body match {
         case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
         case ByteArrayBody(byteArray) => byteArray.map(new FastByteArrayInputStream(_))
-        case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes.map { f =>
-          f.cachedBytes match {
-            case Some(bytes) => new FastByteArrayInputStream(bytes)
-            case None        => new FileInputStream(f.file)
-          }
+        case RawFileBody(resourceAndCachedBytes) => resourceAndCachedBytes.map {
+          case ResourceAndCachedBytes(resource, cachedBytes) =>
+            cachedBytes match {
+              case Some(bytes) => new FastByteArrayInputStream(bytes)
+              case None        => new FileInputStream(resource.file)
+            }
         }
         case InputStreamBody(inputStream) => inputStream
         case b: CompositeByteArrayBody    => b.asStream
