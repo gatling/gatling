@@ -19,13 +19,13 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 trait OldFindCheckBuilder[C <: Check[R], R, P, X] {
 
   def find: OldValidatorCheckBuilder[C, R, P, X]
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 class OldDefaultFindCheckBuilder[C <: Check[R], R, P, X](
                                                        extender:  Extender[C, R],
                                                        preparer:  Preparer[R, P],
@@ -36,7 +36,7 @@ class OldDefaultFindCheckBuilder[C <: Check[R], R, P, X](
   def find: OldValidatorCheckBuilder[C, R, P, X] = OldValidatorCheckBuilder(extender, preparer, extractor)
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 trait OldMultipleFindCheckBuilder[C <: Check[R], R, P, X] extends OldFindCheckBuilder[C, R, P, X] {
 
   def find(occurrence: Int): OldValidatorCheckBuilder[C, R, P, X]
@@ -46,7 +46,7 @@ trait OldMultipleFindCheckBuilder[C <: Check[R], R, P, X] extends OldFindCheckBu
   def count: OldValidatorCheckBuilder[C, R, P, Int]
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 abstract class OldDefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](
                                                                         extender: Extender[C, R],
                                                                         preparer: Preparer[R, P]
@@ -68,13 +68,13 @@ abstract class OldDefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](
   def count: OldValidatorCheckBuilder[C, R, P, Int] = OldValidatorCheckBuilder(extender, preparer, countExtractor)
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 object OldValidatorCheckBuilder {
   val TransformErrorMapper: String => String = "transform crashed: " + _
   val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 case class OldValidatorCheckBuilder[C <: Check[R], R, P, X](
                                                           extender:  Extender[C, R],
                                                           preparer:  Preparer[R, P],
@@ -139,7 +139,7 @@ case class OldValidatorCheckBuilder[C <: Check[R], R, P, X](
   def greaterThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", ordering.gteq, _)))
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 case class OldCheckBuilder[C <: Check[R], R, P, X](
                                                  validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X],
                                                  validator:             Expression[Validator[X]],
@@ -152,7 +152,7 @@ case class OldCheckBuilder[C <: Check[R], R, P, X](
   }
 }
 
-@deprecated
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 trait OldSaveAs[C <: Check[R], R, P, X] { this: OldCheckBuilder[C, R, P, X] =>
   def saveAs(key: String): OldCheckBuilder[C, R, P, X] = copy(saveAs = Some(key))
 }

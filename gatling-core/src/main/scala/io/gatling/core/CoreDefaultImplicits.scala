@@ -16,7 +16,7 @@
 package io.gatling.core
 
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
-import io.gatling.core.check.extractor.css.{ CssExtractorFactory, CssSelectors }
+import io.gatling.core.check.extractor.css.CssSelectors
 import io.gatling.core.check.extractor.jsonpath.{ JsonPathExtractorFactory, JsonPaths }
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexExtractorFactory }
 import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
@@ -40,14 +40,8 @@ trait CoreDefaultImplicits {
   implicit lazy val elFileBodies = new ElFileBodies
   implicit lazy val rawFileBodies = new RawFileBodies
 
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit lazy val defaultRegexExtractorFactory = new RegexExtractorFactory(defaultPatterns)
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit lazy val defaultJsonPathExtractorFactory = new JsonPathExtractorFactory(defaultJsonPaths)
-  //  @deprecated
-  //  implicit lazy val defaultJdkXPathExtractorFactory = new JdkXPathExtractorFactory(defaultSaxon, defaultJdkXmlParsers)
-  //  @deprecated
-  //  implicit lazy val defaultSaxonXPathExtractorFactory = new SaxonXPathExtractorFactory
-  @deprecated
-  implicit lazy val defaultCssExtractorFactory = new CssExtractorFactory(defaultCssSelectors)
 }

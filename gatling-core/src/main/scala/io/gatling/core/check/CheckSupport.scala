@@ -34,17 +34,17 @@ trait CheckSupport {
   implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find
   implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find.exists
 
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldCheckBuilder2Check[C <: Check[R], R, P, X](checkBuilder: OldCheckBuilder[C, R, P, X]) = checkBuilder.build
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldValidatorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldValidatorCheckBuilder2Check[C <: Check[R], R, P, X](validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists.build
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldFindCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldFindCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists
-  @deprecated
+  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldFindCheckBuilder2Check[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists.build
 
   implicit def conditionalCheckBuilder2Check[R, C <: Check[R]](conditionalCheckBuilder: ConditionalCheckBuilder[R, C]): ConditionalCheck[R, C] = conditionalCheckBuilder.build
