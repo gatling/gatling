@@ -43,7 +43,6 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
   def inject(iss: Iterable[InjectionStep]): PopulationBuilder = {
     require(iss.nonEmpty, "Calling inject with empty injection steps")
-
     new PopulationBuilder(this, InjectionProfile(iss))
   }
 }
