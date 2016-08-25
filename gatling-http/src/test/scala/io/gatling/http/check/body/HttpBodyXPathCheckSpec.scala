@@ -33,7 +33,7 @@ import io.gatling.http.response.{ Response, StringResponseBody }
 class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val provider = new HttpBodyXPathProvider(defaultSaxon, defaultJdkXmlParsers)
+  implicit val provider = new HttpBodyXPathProvider(defaultXmlParsers)
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", 0)

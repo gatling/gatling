@@ -15,24 +15,39 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
-import io.gatling.commons.validation.Validation
 import io.gatling.core.check.extractor._
 
-class JsonPathExtractorFactory(jsonPaths: JsonPaths) extends CriterionExtractorFactory[Any, String]("jsonPath") {
+sealed abstract class JsonPathExtractorFactoryBase(name: String) extends CriterionExtractorFactory[Any, String](name) {
 
-  implicit def defaultSingleExtractor[X: JsonFilter] = new SingleExtractor[Any, String, X] {
+  def newJsonPathSingleExtractor[X: JsonFilter](path: String, occurrence: Int, jsonPaths: JsonPaths) =
+    newSingleExtractor(
+      path,
+      occurrence,
+      jsonPaths.extractAll(_, path).map(_.toSeq.lift(occurrence))
+    )
 
-    def extract(prepared: Any, criterion: String, occurrence: Int): Validation[Option[X]] =
-      jsonPaths.extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
-  }
+  def newJsonPathMultipleExtractor[X: JsonFilter](path: String, jsonPaths: JsonPaths) =
+    newMultipleExtractor(
+      path,
+      jsonPaths.extractAll(_, path).map(_.toVector.liftSeqOption)
+    )
 
-  implicit def defaultMultipleExtractor[X: JsonFilter] = new MultipleExtractor[Any, String, X] {
-    def extract(prepared: Any, criterion: String): Validation[Option[Seq[X]]] =
-      jsonPaths.extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
-  }
+  def newJsonPathCountExtractor(path: String, jsonPaths: JsonPaths) =
+    newCountExtractor(
+      path,
+      jsonPaths.extractAll[Any](_, path).map(i => Some(i.size))
+    )
+}
 
-  implicit val defaultCountExtractor = new CountExtractor[Any, String] {
-    def extract(prepared: Any, criterion: String): Validation[Option[Int]] =
-      jsonPaths.extractAll[Any](prepared, criterion).map(i => Some(i.size))
-  }
+object JsonPathExtractorFactory extends JsonPathExtractorFactoryBase("jsonPath")
+object JsonpJsonPathExtractorFactory extends JsonPathExtractorFactoryBase("jsonpJsonPath")
+
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M3")
+class OldJsonPathExtractorFactory(jsonPaths: JsonPaths) {
+
+  import JsonPathExtractorFactory._
+
+  def newSingleExtractor[X: JsonFilter](path: String, occurrence: Int) = newJsonPathSingleExtractor(path, occurrence, jsonPaths)
+  def newMultipleExtractor[X: JsonFilter](path: String) = newJsonPathMultipleExtractor(path, jsonPaths)
+  def newCountExtractor(path: String) = newJsonPathCountExtractor(path, jsonPaths)
 }

@@ -24,7 +24,7 @@ import io.gatling.http.check.body.HttpBodyJsonpJsonPathProvider
 trait AsyncJsonpJsonPathOfType {
   self: AsyncJsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) =
+  def ofType[X: JsonFilter](implicit extractorFactory: OldJsonPathExtractorFactory) =
     new AsyncJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
@@ -32,7 +32,7 @@ object AsyncJsonpJsonPathCheckBuilder {
 
   def asyncJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathProvider.parseJsonpString(_, jsonParsers)
 
-  def jsonpJsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+  def jsonpJsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
     new AsyncJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with AsyncJsonpJsonPathOfType
 }
 
@@ -40,7 +40,7 @@ class AsyncJsonpJsonPathCheckBuilder[X: JsonFilter](
   private[async] val path:        Expression[String],
   private[async] val extender:    Extender[AsyncCheck, String],
   private[async] val jsonParsers: JsonParsers
-)(implicit extractorFactory: JsonPathExtractorFactory)
+)(implicit extractorFactory: OldJsonPathExtractorFactory)
     extends OldDefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](extender, AsyncJsonpJsonPathCheckBuilder.asyncJsonpPreparer(jsonParsers)) {
 
   import extractorFactory._

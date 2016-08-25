@@ -18,30 +18,47 @@ package io.gatling.core.check.extractor.regex
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
 
-class RegexExtractorFactory(patterns: Patterns) extends CriterionExtractorFactory[CharSequence, String]("regex") {
+class RegexExtractorFactoryBase(name: String) extends CriterionExtractorFactory[CharSequence, String](name) {
 
-  implicit def defaultSingleExtractor[X: GroupExtractor] = new SingleExtractor[CharSequence, String, X] {
+  def newRegexSingleExtractor[X: GroupExtractor](pattern: String, occurrence: Int, patterns: Patterns) =
+    newSingleExtractor(
+      pattern,
+      occurrence,
+      prepared => {
+        val matcher = patterns.compilePattern(pattern).matcher(prepared)
+        matcher.findMatchN(occurrence).success
+      }
+    )
 
-    def extract(prepared: CharSequence, criterion: String, occurrence: Int): Validation[Option[X]] = {
-      val matcher = patterns.compilePattern(criterion).matcher(prepared)
-      matcher.findMatchN(occurrence).success
-    }
-  }
+  def newRegexMultipleExtractor[X: GroupExtractor](pattern: String, patterns: Patterns) =
+    newMultipleExtractor(
+      pattern,
+      patterns.extractAll(_, pattern).liftSeqOption.success
+    )
 
-  implicit def defaultMultipleExtractor[X: GroupExtractor] = new MultipleExtractor[CharSequence, String, X] {
-    def extract(prepared: CharSequence, criterion: String): Validation[Option[Seq[X]]] =
-      patterns.extractAll(prepared, criterion).liftSeqOption.success
-  }
+  def newRegexCountExtractor(pattern: String, patterns: Patterns) =
+    newCountExtractor(
+      pattern,
+      prepared => {
+        val matcher = patterns.compilePattern(pattern).matcher(prepared)
 
-  implicit val defaultCountExtractor = new CountExtractor[CharSequence, String] {
-    def extract(prepared: CharSequence, criterion: String): Validation[Option[Int]] = {
-      val matcher = patterns.compilePattern(criterion).matcher(prepared)
+        var count = 0
+        while (matcher.find)
+          count = count + 1
 
-      var count = 0
-      while (matcher.find)
-        count = count + 1
+        Some(count).success
+      }
+    )
+}
 
-      Some(count).success
-    }
-  }
+object RegexExtractorFactory extends RegexExtractorFactoryBase("regex")
+
+@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
+class OldRegexExtractorFactory(patterns: Patterns) {
+
+  import RegexExtractorFactory._
+
+  def newSingleExtractor[X: GroupExtractor](pattern: String, occurrence: Int) = newRegexSingleExtractor(pattern, occurrence, patterns)
+  def newMultipleExtractor[X: GroupExtractor](pattern: String) = newRegexMultipleExtractor(pattern, patterns)
+  def newCountExtractor(pattern: String) = newRegexCountExtractor(pattern, patterns)
 }

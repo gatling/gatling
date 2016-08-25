@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.check.extractor.css.CssExtractorFactory._
 
 import jodd.lagarto.dom.NodeSelector
 
@@ -27,8 +28,6 @@ class CssExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   val cssSelectors = new CssSelectors
-  val extractorFactory = new CssExtractorFactory(cssSelectors)
-  import extractorFactory._
 
   def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(UTF_8)
@@ -36,82 +35,82 @@ class CssExtractorSpec extends BaseSpec with ValidationValues {
   }
 
   "CssExtractor" should "support browser conditional tests and behave as a non-IE browser" in {
-    val cssExtractor = newCountExtractor("#helloworld", None)
-    cssExtractor.extract(prepared("/IeConditionalTests.html")).succeeded shouldBe Some(1)
+    val cssExtractor = newCssCountExtractor("#helloworld", None, cssSelectors)
+    cssExtractor(prepared("/IeConditionalTests.html")).succeeded shouldBe Some(1)
   }
 
   it should "return expected result with a class selector" in {
-    val cssExtractor = newCountExtractor(".nav-menu", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(3)
+    val cssExtractor = newCssCountExtractor(".nav-menu", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(3)
   }
 
   it should "return expected result with an id selector" in {
-    val cssExtractor = newCountExtractor("#twitter_button", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
+    val cssExtractor = newCssCountExtractor("#twitter_button", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
   }
 
   it should "return expected result with an :empty selector" in {
-    val cssExtractor = newCountExtractor(".frise:empty", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
+    val cssExtractor = newCssCountExtractor(".frise:empty", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
   }
 
   it should "return None when the selector doesn't match anything" in {
-    val cssExtractor = newCountExtractor("bad_selector", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(0)
+    val cssExtractor = newCssCountExtractor("bad_selector", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(0)
   }
 
   "CssExtractor extractMultiple" should "return expected result with a class selector" in {
-    val cssExtractor = newMultipleExtractor[String]("#social", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Social"))
+    val cssExtractor = newCssMultipleExtractor[String]("#social", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Social"))
   }
 
   it should "return expected result with an id selector" in {
-    val cssExtractor = newMultipleExtractor[String](".nav", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Sponsors", "Social"))
+    val cssExtractor = newCssMultipleExtractor[String](".nav", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Sponsors", "Social"))
   }
 
   it should "return expected result with an attribute containg a given substring" in {
-    val cssExtractor = newMultipleExtractor[String](".article a[href*=api]", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("API Documentation"))
+    val cssExtractor = newCssMultipleExtractor[String](".article a[href*=api]", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("API Documentation"))
   }
 
   it should "return expected result with an element being the n-th child of its parent" in {
-    val cssExtractor = newMultipleExtractor[String](".article a:nth-child(2)", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("JMeter's"))
+    val cssExtractor = newCssMultipleExtractor[String](".article a:nth-child(2)", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("JMeter's"))
   }
 
   it should "return expected result with a predecessor selector" in {
-    val cssExtractor = newMultipleExtractor[String]("img ~ p", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Efficient Load Testing"))
+    val cssExtractor = newCssMultipleExtractor[String]("img ~ p", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Efficient Load Testing"))
   }
 
   it should "return None when the selector doesn't match anything" in {
-    val cssExtractor = newMultipleExtractor[String]("bad_selector", None)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
+    val cssExtractor = newCssMultipleExtractor[String]("bad_selector", None, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe None
   }
 
   it should "be able to extract a precise node attribute" in {
-    val cssExtractor = newMultipleExtractor[String]("#sample_requests", Some("href"))
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("http://gatling.io/sample/requests.html"))
+    val cssExtractor = newCssMultipleExtractor[String]("#sample_requests", Some("href"), cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("http://gatling.io/sample/requests.html"))
   }
 
   "CssExtractor extractSingle" should "return expected result with a class selector" in {
-    val cssExtractor = newSingleExtractor[String]((".nav", None), 1)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("Social")
+    val cssExtractor = newCssSingleExtractor[String](".nav", None, 1, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("Social")
   }
 
   it should "return None when the index is out of the range of returned elements" in {
-    val cssExtractor = newSingleExtractor[String]((".nav", None), 3)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
+    val cssExtractor = newCssSingleExtractor[String](".nav", None, 3, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe None
   }
 
   it should "return None when the selector doesn't match anything" in {
-    val cssExtractor = newSingleExtractor[String](("bad_selector", None), 1)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
+    val cssExtractor = newCssSingleExtractor[String]("bad_selector", None, 1, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe None
   }
 
   it should "be able to extract a precise node attribute" in {
-    val cssExtractor = newSingleExtractor[String]((".nav", Some("id")), 1)
-    cssExtractor.extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("social")
+    val cssExtractor = newCssSingleExtractor[String](".nav", Some("id"), 1, cssSelectors)
+    cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("social")
   }
 }

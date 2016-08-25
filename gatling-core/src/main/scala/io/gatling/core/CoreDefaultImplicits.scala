@@ -17,9 +17,9 @@ package io.gatling.core
 
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.check.extractor.css.CssSelectors
-import io.gatling.core.check.extractor.jsonpath.{ JsonPathExtractorFactory, JsonPaths }
-import io.gatling.core.check.extractor.regex.{ Patterns, RegexExtractorFactory }
-import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
+import io.gatling.core.check.extractor.jsonpath.{ JsonPaths, OldJsonPathExtractorFactory }
+import io.gatling.core.check.extractor.regex.{ OldRegexExtractorFactory, Patterns }
+import io.gatling.core.check.extractor.xpath.XmlParsers
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
@@ -32,8 +32,7 @@ trait CoreDefaultImplicits {
   implicit lazy val defaultJsonParsers: JsonParsers = JsonParsers()
   implicit lazy val defaultJsonPaths = new JsonPaths
 
-  implicit lazy val defaultSaxon = new Saxon
-  implicit lazy val defaultJdkXmlParsers = new JdkXmlParsers
+  implicit lazy val defaultXmlParsers = new XmlParsers
 
   implicit lazy val defaultCssSelectors = new CssSelectors
 
@@ -41,7 +40,7 @@ trait CoreDefaultImplicits {
   implicit lazy val rawFileBodies = new RawFileBodies
 
   @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultRegexExtractorFactory = new RegexExtractorFactory(defaultPatterns)
+  implicit lazy val defaultRegexExtractorFactory = new OldRegexExtractorFactory(defaultPatterns)
   @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultJsonPathExtractorFactory = new JsonPathExtractorFactory(defaultJsonPaths)
+  implicit lazy val defaultJsonPathExtractorFactory = new OldJsonPathExtractorFactory(defaultJsonPaths)
 }

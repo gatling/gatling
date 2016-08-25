@@ -17,30 +17,30 @@ package io.gatling.http.check.header
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
-import io.gatling.core.check.extractor.regex.{ Patterns, GroupExtractor }
+import io.gatling.core.check.extractor.regex.{ GroupExtractor, Patterns }
 import io.gatling.http.response.Response
 
-class HttpHeaderRegexExtractorFactory(patterns: Patterns) extends CriterionExtractorFactory[Response, (String, String)]("headerRegex") {
+object HttpHeaderRegexExtractorFactory extends CriterionExtractorFactory[Response, (String, String)]("headerRegex") {
 
-  private def extractHeadersValues[X: GroupExtractor](response: Response, headerNameAndPattern: (String, String)) = {
-    val (headerName, pattern) = headerNameAndPattern
-    val headerValues = response.headers(headerName)
-    headerValues.map(patterns.extractAll(_, pattern)).flatten
-  }
+  private def extractHeadersValues[X: GroupExtractor](response: Response, headerName: String, pattern: String, patterns: Patterns) =
+    response.headers(headerName).flatMap(patterns.extractAll(_, pattern))
 
-  implicit def defaultSingleExtractor[X: GroupExtractor] = new SingleExtractor[Response, (String, String), X] {
+  def newHeaderRegexSingleExtractor[X: GroupExtractor](headerName: String, pattern: String, occurrence: Int, patterns: Patterns) =
+    newSingleExtractor(
+      (headerName, pattern),
+      occurrence,
+      extractHeadersValues(_, headerName, pattern, patterns).lift(occurrence).success
+    )
 
-    def extract(prepared: Response, criterion: (String, String), occurrence: Int): Validation[Option[X]] =
-      extractHeadersValues(prepared, criterion).lift(occurrence).success
-  }
+  def newHeaderRegexMultipleExtractor[X: GroupExtractor](headerName: String, pattern: String, patterns: Patterns) =
+    newMultipleExtractor(
+      (headerName, pattern),
+      extractHeadersValues(_, headerName, pattern, patterns).liftSeqOption.success
+    )
 
-  implicit def defaultMultipleExtractor[X: GroupExtractor] = new MultipleExtractor[Response, (String, String), X] {
-    def extract(prepared: Response, criterion: (String, String)): Validation[Option[Seq[X]]] =
-      extractHeadersValues(prepared, criterion).liftSeqOption.success
-  }
-
-  implicit val defaultCountExtractor = new CountExtractor[Response, (String, String)] {
-    def extract(prepared: Response, criterion: (String, String)): Validation[Option[Int]] =
-      extractHeadersValues[String](prepared, criterion).liftSeqOption.map(_.size).success
-  }
+  def newHeaderRegexCountExtractor(headerName: String, pattern: String, patterns: Patterns) =
+    newCountExtractor(
+      (headerName, pattern),
+      extractHeadersValues[String](_, headerName, pattern, patterns).liftSeqOption.map(_.size).success
+    )
 }

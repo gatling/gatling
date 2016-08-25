@@ -15,17 +15,16 @@
  */
 package io.gatling.core.check
 
-import io.gatling.core.session.Expression
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.extractor.bytes.BodyBytesCheckBuilder
 import io.gatling.core.check.extractor.checksum.ChecksumCheckBuilder
-import io.gatling.core.check.extractor.css.{CssCheckBuilder, CssSelectors}
-import io.gatling.core.check.extractor.jsonpath.{JsonPathCheckBuilder, JsonPaths, JsonpJsonPathCheckBuilder}
-import io.gatling.core.check.extractor.regex.{Patterns, RegexCheckBuilder, RegexOfType}
+import io.gatling.core.check.extractor.css.{ CssCheckBuilder, CssSelectors }
+import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckBuilder, JsonPaths, JsonpJsonPathCheckBuilder }
+import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckBuilder, RegexOfType }
 import io.gatling.core.check.extractor.string.BodyStringCheckBuilder
 import io.gatling.core.check.extractor.substring.SubstringCheckBuilder
-import io.gatling.core.check.extractor.xpath.{JdkXmlParsers, Saxon, XPathCheckBuilder}
+import io.gatling.core.check.extractor.xpath.{ XmlParsers, XPathCheckBuilder }
 import io.gatling.core.time.ResponseTimeCheckBuilder
 
 trait CheckSupport {
@@ -59,8 +58,8 @@ trait CheckSupport {
 
   def substring(pattern: Expression[String]) = new SubstringCheckBuilder(pattern)
 
-  def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(implicit saxon: Saxon, jdkXmlParsers: JdkXmlParsers) =
-    new XPathCheckBuilder(path, namespaces, saxon, jdkXmlParsers)
+  def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(implicit xmlParsers: XmlParsers) =
+    new XPathCheckBuilder(path, namespaces, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors) =
     CssCheckBuilder.css(selector, None, selectors)

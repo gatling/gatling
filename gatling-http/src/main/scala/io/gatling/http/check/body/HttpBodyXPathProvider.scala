@@ -24,7 +24,7 @@ import io.gatling.http.response.Response
 
 import org.xml.sax.InputSource
 
-class HttpBodyXPathProvider(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends CheckProtocolProvider[XPathCheckType, HttpCheck, Response, Option[Dom]] {
+class HttpBodyXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPathCheckType, HttpCheck, Response, Option[Dom]] {
 
   override val extender: Extender[HttpCheck, Response] = StreamBodyExtender
 
@@ -37,8 +37,5 @@ class HttpBodyXPathProvider(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends 
     }
 
   override val preparer: Preparer[Response, Option[Dom]] =
-    if (saxon.enabled)
-      xpathPreparer(is => SaxonDom(saxon.parse(is)))
-    else
-      xpathPreparer(is => JdkDom(jdkXmlParsers.parse(is)))
+    xpathPreparer(xmlParsers.parse)
 }

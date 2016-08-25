@@ -37,10 +37,9 @@ class JsonPathCheckBuilder[X: JsonFilter](
 )
     extends DefaultMultipleFindCheckBuilder[JsonPathCheckType, Any, X] {
 
-  private val extractorFactory = new JsonPathExtractorFactory(jsonPaths)
-  import extractorFactory._
+  import JsonPathExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
-  override def findAllExtractor = path.map(newMultipleExtractor[X])
-  override def countExtractor = path.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
+  override def findAllExtractor = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
+  override def countExtractor = path.map(newJsonPathCountExtractor(_, jsonPaths))
 }

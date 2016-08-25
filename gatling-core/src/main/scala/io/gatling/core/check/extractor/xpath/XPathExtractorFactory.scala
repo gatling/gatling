@@ -20,30 +20,30 @@ import scala.collection.JavaConversions._
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
 
-class XPathExtractorFactory(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends CriterionExtractorFactory[Option[Dom], (String, List[(String, String)])]("xpath") {
+object XPathExtractorFactory extends CriterionExtractorFactory[Option[Dom], (String, List[(String, String)])]("xpath") {
 
-  implicit val defaultSingleExtractor = new SingleExtractor[Option[Dom], (String, List[(String, String)]), String] {
-    override def extract(prepared: Option[Dom], criterion: (String, List[(String, String)]), occurrence: Int): Validation[Option[String]] = {
-      val (path, namespaces) = criterion
-      prepared.flatMap {
+  def newXpathSingleExtractor(path: String, namespaces: List[(String, String)], occurrence: Int, xmlParsers: XmlParsers) =
+    newSingleExtractor(
+      (path, namespaces),
+      occurrence,
+      _.flatMap {
         case SaxonDom(document) =>
-          val xdmValue = saxon.evaluateXPath(path, namespaces, document)
+          val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document)
           if (occurrence < xdmValue.size)
             Some(xdmValue.itemAt(occurrence).getStringValue)
           else
             None
 
-        case JdkDom(document) => jdkXmlParsers.extractAll(document, path, namespaces).lift(occurrence)
+        case JdkDom(document) => xmlParsers.jdk.extractAll(document, path, namespaces).lift(occurrence)
       }.success
-    }
-  }
+    )
 
-  implicit val defaultMultipleExtractor = new MultipleExtractor[Option[Dom], (String, List[(String, String)]), String] {
-    override def extract(prepared: Option[Dom], criterion: (String, List[(String, String)])): Validation[Option[Seq[String]]] = {
-      val (path, namespaces) = criterion
-      prepared.flatMap {
+  def newXpathMultipleExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers) =
+    newMultipleExtractor(
+      (path, namespaces),
+      _.flatMap {
         case SaxonDom(document) =>
-          val xdmValue = saxon.evaluateXPath(path, namespaces, document)
+          val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document)
 
           if (xdmValue.nonEmpty)
             // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream
@@ -52,20 +52,18 @@ class XPathExtractorFactory(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends 
           else
             None
 
-        case JdkDom(document) => jdkXmlParsers.extractAll(document, path, namespaces).liftSeqOption
+        case JdkDom(document) => xmlParsers.jdk.extractAll(document, path, namespaces).liftSeqOption
       }.success
-    }
-  }
+    )
 
-  implicit val defaultCountExtractor = new CountExtractor[Option[Dom], (String, List[(String, String)])] {
-    override def extract(prepared: Option[Dom], criterion: (String, List[(String, String)])): Validation[Option[Int]] = {
-      val (path, namespaces) = criterion
-      prepared.map {
-        case SaxonDom(document) => saxon.evaluateXPath(path, namespaces, document).size
+  def newXpathCountExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers) =
+    newCountExtractor(
+      (path, namespaces),
+      _.map {
+        case SaxonDom(document) => xmlParsers.saxon.evaluateXPath(path, namespaces, document).size
 
-        case JdkDom(document)   => jdkXmlParsers.nodeList(document, path, namespaces).getLength
+        case JdkDom(document)   => xmlParsers.jdk.nodeList(document, path, namespaces).getLength
       }.orElse(Some(0))
         .success
-    }
-  }
+    )
 }

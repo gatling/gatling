@@ -15,8 +15,8 @@
  */
 package io.gatling.http.check.async
 
-import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
-import io.gatling.core.check.extractor.regex.RegexExtractorFactory
+import io.gatling.core.check.extractor.jsonpath.OldJsonPathExtractorFactory
+import io.gatling.core.check.extractor.regex.OldRegexExtractorFactory
 import io.gatling.core.json.JsonParsers
 
 import scala.concurrent.duration.FiniteDuration
@@ -46,13 +46,13 @@ trait AsyncCheckDSL {
 
   class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
-    def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory): AsyncRegexCheckBuilder[String] with AsyncRegexOfType =
+    def regex(expression: Expression[String])(implicit extractorFactory: OldRegexExtractorFactory): AsyncRegexCheckBuilder[String] with AsyncRegexOfType =
       AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
 
-    def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    def jsonPath(path: Expression[String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
       AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
 
-    def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
       AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
 
     val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.extender(await, timeout, expectation))

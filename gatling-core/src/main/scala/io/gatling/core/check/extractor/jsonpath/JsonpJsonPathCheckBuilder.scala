@@ -24,7 +24,7 @@ trait JsonpJsonPathCheckType
 // so we can't make CheckType a parameter
 trait JsonpJsonPathOfType { self: JsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
+  def ofType[X: JsonFilter] = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
 }
 
 object JsonpJsonPathCheckBuilder {
@@ -39,10 +39,9 @@ class JsonpJsonPathCheckBuilder[X: JsonFilter](
 )
     extends DefaultMultipleFindCheckBuilder[JsonpJsonPathCheckType, Any, X] {
 
-  private val extractorFactory = new JsonPathExtractorFactory(jsonPaths)
-  import extractorFactory._
+  import JsonpJsonPathExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
-  override def findAllExtractor = path.map(newMultipleExtractor[X])
-  override def countExtractor = path.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
+  override def findAllExtractor = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
+  override def countExtractor = path.map(newJsonPathCountExtractor(_, jsonPaths))
 }

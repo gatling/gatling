@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.async
+package io.gatling.core.check.extractor.xpath
 
-import scala.concurrent.duration.FiniteDuration
+import io.gatling.core.config.GatlingConfiguration
 
-import io.gatling.commons.validation._
-import io.gatling.core.check.{ Extender, Preparer }
+import org.xml.sax.InputSource
 
-object AsyncCheckBuilders {
+class XmlParsers(implicit configuration: GatlingConfiguration) {
 
-  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
-    wrapped => AsyncCheck(wrapped, await, timeout, expectation)
+  val saxon = new Saxon(configuration)
+  val jdk = new JdkXmlParsers(configuration)
 
-  val PassThroughMessagePreparer: Preparer[String, String] = _.success
+  val parse: InputSource => Dom =
+    if (saxon.enabled)
+      is => SaxonDom(saxon.parse(is))
+    else
+      is => JdkDom(jdk.parse(is))
 }

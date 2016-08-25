@@ -20,7 +20,7 @@ import javax.jms.Message
 import scala.annotation.implicitNotFound
 
 import io.gatling.core.check.{ CheckBuilder, CheckProtocolProvider, FindCheckBuilder, ValidatorCheckBuilder }
-import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
+import io.gatling.core.check.extractor.xpath.XmlParsers
 import io.gatling.jms.JmsCheck
 
 trait JmsCheckSupport {
@@ -39,5 +39,5 @@ trait JmsCheckSupport {
   implicit def findCheckBuilder2JmsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
     findCheckBuilder.find.exists
 
-  implicit def jmsXPathProvider(implicit saxon: Saxon, jdkXmlParsers: JdkXmlParsers) = new JmsXPathProvider(saxon, jdkXmlParsers)
+  implicit def jmsXPathProvider(implicit xmlParsers: XmlParsers) = new JmsXPathProvider(xmlParsers)
 }

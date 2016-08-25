@@ -16,13 +16,13 @@
 package io.gatling.core.check.extractor.substring
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check.extractor.substring.SubstringExtractorFactory._
 import io.gatling.core.session.Expression
 
 trait SubstringCheckType
 
-class SubstringCheckBuilder(pattern: Expression[String]) extends DefaultMultipleFindCheckBuilder[SubstringCheckType, String, Int] {
-  import SubstringExtractorFactory._
-  override def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[Int](_, occurrence))
-  override def findAllExtractor = pattern.map(newMultipleExtractor[Int])
-  override def countExtractor = pattern.map(newCountExtractor)
+class SubstringCheckBuilder(substring: Expression[String]) extends DefaultMultipleFindCheckBuilder[SubstringCheckType, String, Int] {
+  override def findExtractor(occurrence: Int) = substring.map(newSubstringSingleExtractor(_, occurrence))
+  override def findAllExtractor = substring.map(newSubstringMultipleExtractor)
+  override def countExtractor = substring.map(newSubstringCountExtractor)
 }

@@ -18,27 +18,26 @@ package io.gatling.core.check.extractor.jsonpath
 import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
+import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory._
 
 class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   val jsonPaths = new JsonPaths
   val jsonParsers = JsonParsers()
-  val extractorFactory = new JsonPathExtractorFactory(jsonPaths)
-  import extractorFactory._
 
   def testCount(path: String, sample: JsonSample, expected: Int): Unit = {
-    val extractor = newCountExtractor(path)
+    val extractor = newJsonPathCountExtractor(path, jsonPaths)
     extractor(sample.boonAST(jsonParsers)).succeeded shouldBe Some(expected)
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe Some(expected)
   }
   def testSingle[T](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
-    val extractor = newSingleExtractor[String](path, occurrence)
+    val extractor = newJsonPathSingleExtractor[String](path, occurrence, jsonPaths)
     extractor(sample.boonAST(jsonParsers)).succeeded shouldBe expected
-    extractor.apply(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
+    extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
   def testMultiple[T](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
-    val extractor = newMultipleExtractor[String](path)
+    val extractor = newJsonPathMultipleExtractor[String](path, jsonPaths)
     extractor(sample.boonAST(jsonParsers)).succeeded shouldBe expected
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }

@@ -20,7 +20,7 @@ import scala.annotation.implicitNotFound
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.css.CssSelectors
 import io.gatling.core.check.extractor.regex.Patterns
-import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
+import io.gatling.core.check.extractor.xpath.XmlParsers
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
 import io.gatling.http.check.body._
@@ -67,7 +67,7 @@ trait HttpCheckSupport {
 
   implicit val httpBodyRegexProvider = HttpBodyRegexProvider
   implicit val httpBodySubstringProvider = HttpBodySubstringProvider
-  implicit def httpBodyXPathProvider(implicit saxon: Saxon, jdkXmlParsers: JdkXmlParsers) = new HttpBodyXPathProvider(saxon, jdkXmlParsers)
+  implicit def httpBodyXPathProvider(implicit xmlParsers: XmlParsers) = new HttpBodyXPathProvider(xmlParsers)
   implicit def httpBodyCssProvider(implicit selectors: CssSelectors) = new HttpBodyCssProvider(selectors)
   implicit def httpBodyJsonPathProvider(implicit jsonParsers: JsonParsers) = new HttpBodyJsonPathProvider(jsonParsers)
   implicit def httpBodyJsonpJsonPathProvider(implicit jsonParsers: JsonParsers) = new HttpBodyJsonpJsonPathProvider(jsonParsers)

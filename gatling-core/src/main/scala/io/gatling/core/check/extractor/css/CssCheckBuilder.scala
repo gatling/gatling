@@ -40,10 +40,9 @@ class CssCheckBuilder[X: NodeConverter](
 )
     extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X] {
 
-  private val extractorFactory = new CssExtractorFactory(selectors)
-  import extractorFactory._
+  import CssExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = expression.map(criterion => newSingleExtractor((criterion, nodeAttribute), occurrence))
-  override def findAllExtractor = expression.map(newMultipleExtractor(_, nodeAttribute))
-  override def countExtractor = expression.map(newCountExtractor(_, nodeAttribute))
+  override def findExtractor(occurrence: Int) = expression.map(newCssSingleExtractor(_, nodeAttribute, occurrence, selectors))
+  override def findAllExtractor = expression.map(newCssMultipleExtractor(_, nodeAttribute, selectors))
+  override def countExtractor = expression.map(newCssCountExtractor(_, nodeAttribute, selectors))
 }

@@ -16,6 +16,7 @@
 package io.gatling.core.check.extractor.regex
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, RichExpression }
 
 trait RegexCheckType
@@ -37,10 +38,9 @@ class RegexCheckBuilder[X: GroupExtractor](
 )
     extends DefaultMultipleFindCheckBuilder[RegexCheckType, CharSequence, X] {
 
-  private val extractorFactory = new RegexExtractorFactory(patterns)
-  import extractorFactory._
+  import RegexExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[X](_, occurrence))
-  override def findAllExtractor = pattern.map(newMultipleExtractor[X])
-  override def countExtractor = pattern.map(newCountExtractor)
+  override def findExtractor(occurrence: Int): Expression[Extractor[CharSequence, X]] = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
+  override def findAllExtractor: Expression[Extractor[CharSequence, Seq[X]]] = pattern.map(newRegexMultipleExtractor[X](_, patterns))
+  override def countExtractor: Expression[Extractor[CharSequence, Int]] = pattern.map(newRegexCountExtractor(_, patterns))
 }

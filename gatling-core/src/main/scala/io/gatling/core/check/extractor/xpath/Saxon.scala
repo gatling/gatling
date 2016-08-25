@@ -27,7 +27,7 @@ import com.github.benmanes.caffeine.cache.Caffeine
 import net.sf.saxon.s9api._
 import org.xml.sax.InputSource
 
-class Saxon(implicit configuration: GatlingConfiguration) {
+class Saxon(configuration: GatlingConfiguration) {
 
   val enabled = Seq(UTF_8, UTF_16, US_ASCII, ISO_8859_1).contains(configuration.core.charset)
 

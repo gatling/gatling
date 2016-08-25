@@ -17,24 +17,27 @@ package io.gatling.core.check.extractor.css
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
+
 import jodd.lagarto.dom.NodeSelector
 
-class CssExtractorFactory(selectors: CssSelectors) extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {
+object CssExtractorFactory extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {
 
-  implicit def defaultSingleExtractor[X: NodeConverter] = new SingleExtractor[NodeSelector, (String, Option[String]), X] {
-    def extract(prepared: NodeSelector, criterion: (String, Option[String]), occurrence: Int): Validation[Option[X]] =
-      selectors.extractAll(prepared, criterion).lift(occurrence).success
-  }
+  def newCssSingleExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], occurrence: Int, selectors: CssSelectors) =
+    newSingleExtractor(
+      (query, nodeAttribute),
+      occurrence,
+      selectors.extractAll(_, (query, nodeAttribute)).lift(occurrence).success
+    )
 
-  implicit def defaultMultipleExtractor[X: NodeConverter] = new MultipleExtractor[NodeSelector, (String, Option[String]), X] {
-    def extract(prepared: NodeSelector, criterion: (String, Option[String])): Validation[Option[Seq[X]]] =
-      selectors.extractAll(prepared, criterion).liftSeqOption.success
-  }
+  def newCssMultipleExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], selectors: CssSelectors) =
+    newMultipleExtractor(
+      (query, nodeAttribute),
+      selectors.extractAll(_, (query, nodeAttribute)).liftSeqOption.success
+    )
 
-  implicit val defaultCountExtractor = new CountExtractor[NodeSelector, (String, Option[String])] {
-    def extract(prepared: NodeSelector, criterion: (String, Option[String])): Validation[Option[Int]] = {
-      val count = selectors.extractAll[String](prepared, criterion).size
-      Some(count).success
-    }
-  }
+  def newCssCountExtractor(query: String, nodeAttribute: Option[String], selectors: CssSelectors) =
+    newCountExtractor(
+      (query, nodeAttribute),
+      prepared => Some(selectors.extractAll[String](prepared, (query, nodeAttribute)).size).success
+    )
 }

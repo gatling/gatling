@@ -34,6 +34,8 @@ object CurrentLocationRegexCheckBuilder {
 
   def currentLocationRegex(pattern: Expression[String], patterns: Patterns) =
     new CurrentLocationRegexCheckBuilder[String](pattern, patterns) with CurrentLocationRegexOfType
+
+  private val ExtractorFactory = new RegexExtractorFactoryBase("currentLocationRegex")
 }
 
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
@@ -42,12 +44,11 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
 )
     extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X] {
 
-  private val extractorFactory = new RegexExtractorFactory(patterns)
-  import extractorFactory._
+  import CurrentLocationRegexCheckBuilder.ExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = pattern.map(newSingleExtractor[X](_, occurrence))
-  override def findAllExtractor = pattern.map(newMultipleExtractor[X])
-  override def countExtractor = pattern.map(newCountExtractor)
+  override def findExtractor(occurrence: Int) = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
+  override def findAllExtractor = pattern.map(newRegexMultipleExtractor[X](_, patterns))
+  override def countExtractor = pattern.map(newRegexCountExtractor(_, patterns))
 }
 
 object CurrentLocationRegexProvider extends CheckProtocolProvider[CurrentLocationRegexCheckType, HttpCheck, Response, String] {

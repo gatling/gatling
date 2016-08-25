@@ -20,12 +20,12 @@ import javax.jms.{ Message, TextMessage }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath.{ JdkDom, _ }
+import io.gatling.core.check.extractor.xpath._
 import io.gatling.jms.JmsCheck
 
 import org.xml.sax.InputSource
 
-class JmsXPathProvider(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends CheckProtocolProvider[XPathCheckType, JmsCheck, Message, Option[Dom]] {
+class JmsXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPathCheckType, JmsCheck, Message, Option[Dom]] {
 
   override val extender: Extender[JmsCheck, Message] = identity
 
@@ -40,8 +40,5 @@ class JmsXPathProvider(saxon: Saxon, jdkXmlParsers: JdkXmlParsers) extends Check
     }
 
   override val preparer: Preparer[Message, Option[Dom]] =
-    if (saxon.enabled)
-      xpathPreparer(is => SaxonDom(saxon.parse(is)))
-    else
-      xpathPreparer(is => JdkDom(jdkXmlParsers.parse(is)))
+    xpathPreparer(xmlParsers.parse)
 }

@@ -23,18 +23,18 @@ abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, Strin
 
 class SingleHttpHeaderExtractor(val criterion: String, val occurrence: Int) extends HttpHeaderExtractor[String] with FindArity {
 
-  def extract(prepared: Response): Validation[Option[String]] =
+  def apply(prepared: Response): Validation[Option[String]] =
     prepared.headers(criterion).lift(occurrence).success
 }
 
 class MultipleHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Seq[String]] with FindAllArity {
 
-  def extract(prepared: Response): Validation[Option[Seq[String]]] =
+  def apply(prepared: Response): Validation[Option[Seq[String]]] =
     prepared.headers(criterion).liftSeqOption.success
 }
 
 class CountHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Int] with CountArity {
 
-  def extract(prepared: Response): Validation[Option[Int]] =
+  def apply(prepared: Response): Validation[Option[Int]] =
     prepared.headers(criterion).liftSeqOption.map(_.size).success
 }

@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 import org.w3c.dom.{ Node, NodeList, Document }
 import org.xml.sax.{ InputSource, EntityResolver }
 
-class JdkXmlParsers(implicit configuration: GatlingConfiguration) {
+class JdkXmlParsers(configuration: GatlingConfiguration) {
 
   val xpathFactoryTL = new ThreadLocal[XPathFactory] {
     override def initialValue() = XPathFactory.newInstance

@@ -18,6 +18,7 @@ package io.gatling.core.check.extractor.xpath
 import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.check.extractor.xpath.XPathExtractorFactory._
 
 import org.xml.sax.InputSource
 
@@ -26,25 +27,22 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
   implicit val configuration = GatlingConfiguration.loadForTest()
   val namespaces = List("foo" -> "http://foo/foo")
 
-  val saxon = new Saxon
-  val jdkXmlParsers = new JdkXmlParsers
-  val extractorFactory = new XPathExtractorFactory(saxon, jdkXmlParsers)
-  import extractorFactory._
+  val xmlParsers = new XmlParsers
 
   def dom(file: String): Option[Dom]
 
   def testCount(expression: String, file: String, expected: Int): Unit = {
-    val extractor = newCountExtractor(expression, namespaces)
+    val extractor = newXpathCountExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe Some(expected)
   }
 
   def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
-    val extractor = newSingleExtractor((expression, namespaces), occurrence)
+    val extractor = newXpathSingleExtractor(expression, namespaces, occurrence, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 
   def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
-    val extractor = newMultipleExtractor(expression, namespaces)
+    val extractor = newXpathMultipleExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 
@@ -109,7 +107,7 @@ class SaxonXPathExtractorSpec extends XPathExtractorSpec {
 
   def dom(file: String): Option[Dom] =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(SaxonDom(saxon.parse(new InputSource(is))))
+      Some(SaxonDom(xmlParsers.saxon.parse(new InputSource(is))))
     }
 }
 
@@ -117,6 +115,6 @@ class JdkXPathExtractorSpec extends XPathExtractorSpec {
 
   def dom(file: String): Option[Dom] =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(JdkDom(jdkXmlParsers.parse(new InputSource(is))))
+      Some(JdkDom(xmlParsers.jdk.parse(new InputSource(is))))
     }
 }

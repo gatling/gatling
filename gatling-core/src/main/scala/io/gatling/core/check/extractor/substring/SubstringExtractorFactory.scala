@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.substring
 import scala.annotation.tailrec
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.{ CountExtractor, MultipleExtractor, SingleExtractor, CriterionExtractorFactory }
+import io.gatling.core.check.extractor.CriterionExtractorFactory
 
 object SubstringExtractorFactory extends CriterionExtractorFactory[String, String]("substring") {
 
@@ -37,38 +37,42 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
     loop(0, Nil)
   }
 
-  implicit def defaultSingleExtractor = new SingleExtractor[String, String, Int] {
+  def newSubstringSingleExtractor(substring: String, occurrence: Int) =
+    newSingleExtractor(
+      substring,
+      occurrence,
+      text => {
 
-    def extract(prepared: String, criterion: String, occurrence: Int): Validation[Option[Int]] = {
+          @tailrec
+          def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
+            if (fromIndex >= substring.length)
+              NoneSuccess
+            else
+              text.indexOf(substring, fromIndex) match {
+                case -1 => NoneSuccess
+                case i =>
+                  if (occ == occurrence)
+                    Some(i).success
+                  else
+                    loop(i + substring.length, occ + 1)
+              }
 
-        @tailrec
-        def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
-          if (fromIndex >= prepared.length)
-            NoneSuccess
-          else
-            prepared.indexOf(criterion, fromIndex) match {
-              case -1 => NoneSuccess
-              case i =>
-                if (occ == occurrence)
-                  Some(i).success
-                else
-                  loop(i + criterion.length, occ + 1)
-            }
+        loop(0, 0)
+      }
+    )
 
-      loop(0, 0)
-    }
-  }
-
-  implicit def defaultMultipleExtractor = new MultipleExtractor[String, String, Int] {
-    def extract(prepared: String, criterion: String): Validation[Option[Seq[Int]]] =
-      extractAll(prepared, criterion) match {
+  def newSubstringMultipleExtractor(substring: String) =
+    newMultipleExtractor(
+      substring,
+      extractAll(_, substring) match {
         case Nil => NoneSuccess
         case is  => Some(is.reverse).success
       }
-  }
+    )
 
-  implicit val defaultCountExtractor = new CountExtractor[String, String] {
-    def extract(prepared: String, criterion: String): Validation[Option[Int]] =
-      Some(extractAll(prepared, criterion).size).success
-  }
+  def newSubstringCountExtractor(substring: String) =
+    newCountExtractor(
+      substring,
+      text => Some(extractAll(text, substring).size).success
+    )
 }

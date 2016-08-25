@@ -23,12 +23,12 @@ import io.gatling.core.session.Expression
 trait AsyncJsonPathOfType {
   self: AsyncJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new AsyncJsonPathCheckBuilder[X](path, extender, jsonParsers)
+  def ofType[X: JsonFilter](implicit extractorFactory: OldJsonPathExtractorFactory) = new AsyncJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
 object AsyncJsonPathCheckBuilder {
 
-  def jsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+  def jsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
     new AsyncJsonPathCheckBuilder[String](path, extender, jsonParsers) with AsyncJsonPathOfType
 }
 
@@ -36,7 +36,7 @@ class AsyncJsonPathCheckBuilder[X: JsonFilter](
   private[async] val path:        Expression[String],
   private[async] val extender:    Extender[AsyncCheck, String],
   private[async] val jsonParsers: JsonParsers
-)(implicit extractorFactory: JsonPathExtractorFactory)
+)(implicit extractorFactory: OldJsonPathExtractorFactory)
     extends OldDefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](
       extender,
       jsonParsers.safeParse

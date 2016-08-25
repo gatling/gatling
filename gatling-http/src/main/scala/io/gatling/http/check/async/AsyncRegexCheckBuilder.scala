@@ -23,19 +23,19 @@ import io.gatling.http.check.async.AsyncCheckBuilders._
 trait AsyncRegexOfType {
   self: AsyncRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new AsyncRegexCheckBuilder[X](expression, extender)
+  def ofType[X: GroupExtractor](implicit extractorFactory: OldRegexExtractorFactory) = new AsyncRegexCheckBuilder[X](expression, extender)
 }
 
 object AsyncRegexCheckBuilder {
 
-  def regex(expression: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: RegexExtractorFactory) =
+  def regex(expression: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: OldRegexExtractorFactory) =
     new AsyncRegexCheckBuilder[String](expression, extender) with AsyncRegexOfType
 }
 
 class AsyncRegexCheckBuilder[X: GroupExtractor](
   private[async] val expression: Expression[String],
   private[async] val extender:   Extender[AsyncCheck, String]
-)(implicit extractorFactory: RegexExtractorFactory)
+)(implicit extractorFactory: OldRegexExtractorFactory)
     extends OldDefaultMultipleFindCheckBuilder[AsyncCheck, String, CharSequence, X](extender, PassThroughMessagePreparer) {
 
   import extractorFactory._
