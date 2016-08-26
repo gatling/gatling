@@ -13,58 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.util
+package io.gatling.commons.util
 
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
-import scala.collection.JavaConversions._
 
 import io.gatling.commons.util.Collections._
 
-import io.netty.buffer.{ ByteBuf, Unpooled }
-import org.asynchttpclient.util.{ UsAsciiByteBufDecoder, Utf8ByteBufDecoder }
+import io.netty.buffer.Unpooled
 
-object BytesHelper {
+object Bytes {
 
   val EmptyBytes = Array.empty[Byte]
 
   def byteArraysToByteArray(arrays: Seq[Array[Byte]]): Array[Byte] =
     (arrays.length: @switch) match {
-      case 0 => Array.empty
+      case 0 => EmptyBytes
       case 1 => arrays.head
       case _ =>
-        val all = new Array[Byte](arrays.sumBy(_.length))
+        val target = new Array[Byte](arrays.sumBy(_.length))
         var pos = 0
         arrays.foreach { array =>
-          System.arraycopy(array, 0, all, pos, array.length)
+          System.arraycopy(array, 0, target, pos, array.length)
           pos += array.length
         }
 
-        all
+        target
     }
 
-  def byteBufsToString(bufs: Seq[ByteBuf], cs: Charset): String =
+  def byteArraysToString(bytes: Seq[Array[Byte]], cs: Charset): String =
     cs match {
-      case UTF_8    => Utf8ByteBufDecoder.getCachedDecoder.decode(bufs)
-      case US_ASCII => UsAsciiByteBufDecoder.getCachedDecoder.decode(bufs)
-      case _ =>
-        var composite: ByteBuf = null
-        try {
-          composite = Unpooled.wrappedBuffer(bufs.map(_.retain()).toArray: _*)
-          composite.toString(cs)
-        } finally {
-          if (composite != null) {
-            composite.release()
-          }
-        }
-    }
+      case UTF_8 =>
+        Utf8InputStreamDecoder.pooled().decode(new CompositeByteArrayInputStream(bytes))
 
-  def byteArraysToString(bytes: Seq[Array[Byte]], cs: Charset): String = {
-    val bufs = bytes.map(Unpooled.wrappedBuffer)
-    val string = byteBufsToString(bufs, cs)
-    bufs.foreach(_.release())
-    string
-  }
+      case US_ASCII =>
+        UsAsciiInputStreamDecoder.pooled().decode(new CompositeByteArrayInputStream(bytes))
+
+      case _ =>
+        val bufs = bytes.map(Unpooled.wrappedBuffer)
+        val string = ByteBufs.byteBufsToString(bufs, cs)
+        bufs.foreach(_.release())
+        string
+    }
 }

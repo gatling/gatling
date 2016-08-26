@@ -15,7 +15,7 @@
  */
 package io.gatling.commons.util
 
-import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
+import java.io.{ InputStream, OutputStream }
 import java.util.zip.{ CRC32, Deflater, DeflaterOutputStream }
 
 import io.gatling.commons.util.Io._
@@ -27,15 +27,13 @@ object GzipHelper {
   def gzip(bytes: Array[Byte]): Array[Byte] =
     gzip(new FastByteArrayInputStream(bytes))
 
-  val GzipDefaultBufferSize = 512
-
-  def gzip(in: InputStream, bufferSize: Int = GzipDefaultBufferSize): Array[Byte] =
+  def gzip(in: InputStream): Array[Byte] =
     withCloseable(in) { is =>
-      val out = new ByteArrayOutputStream(bufferSize)
+      val out = FastByteArrayOutputStream.pooled()
       val gzip = ReusableGzipOutputStream.forStream(out)
       try {
         gzip.writeHeader()
-        in.copyTo(gzip, bufferSize)
+        in.copyTo(gzip, 1024)
         gzip.finish()
       } finally {
         gzip.reset()

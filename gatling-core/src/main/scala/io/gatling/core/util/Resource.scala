@@ -20,7 +20,6 @@ import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Path
 
-import io.gatling.commons.util.Io
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
@@ -45,7 +44,12 @@ object Resource {
 
   private object DirectoryChildResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      (location.directory / location.path).ifFile(f => FileResource(f).success)
+      (location.directory / location.path).ifFile { f =>
+        if (f.canRead)
+          FileResource(f).success
+        else
+          s"File $f can't be read".failure
+      }
   }
 
   private object AbsoluteFileResource {
@@ -76,11 +80,12 @@ sealed trait Resource {
   def inputStream: InputStream
   def file: File
   def string(charset: Charset) = withCloseable(inputStream) { _.toString(charset) }
-  def bytes: Array[Byte] = Io.withCloseable(inputStream)(_.toByteArray())
+  def bytes: Array[Byte]
 }
 
 case class FileResource(file: File) extends Resource {
   def inputStream = new FileInputStream(file)
+  def bytes: Array[Byte] = file.toByteArray
 }
 
 case class ArchiveResource(url: URL, extension: String) extends Resource {
@@ -97,4 +102,6 @@ case class ArchiveResource(url: URL, extension: String) extends Resource {
     }
     tempFile
   }
+
+  def bytes: Array[Byte] = withCloseable(inputStream)(_.toByteArray())
 }

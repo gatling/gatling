@@ -20,15 +20,14 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
-import scala.collection.JavaConversions._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInputStream }
-import io.gatling.http.util.BytesHelper._
+import io.gatling.commons.util.ByteBufs._
+import io.gatling.commons.util.Bytes._
 
 import com.typesafe.scalalogging.{ LazyLogging, StrictLogging }
 import io.netty.buffer.ByteBuf
-import org.asynchttpclient.util.ByteBufUtils._
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -80,8 +79,9 @@ class StringResponseBody(val string: String, charset: Charset) extends ResponseB
 
 object ByteArrayResponseBody {
 
-  def apply(chunks: Seq[ByteBuf], charset: Charset) =
-    new ByteArrayResponseBody(byteBufs2Bytes(chunks), charset)
+  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
+    new ByteArrayResponseBody(byteBufsToByteArray(chunks), charset)
+  }
 }
 
 class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
