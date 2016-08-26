@@ -166,6 +166,11 @@ This product depends on Quicklens, distributed by Adam Warski:
   * License: license/LICENSE.quicklens.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/adamw/quicklens
 
+This product depends on Caffeine, distributed by Benjamin Manes:
+
+  * License: license/LICENSE.quicklens.al20.txt (Apache License v2.0)
+  * Homepage: https://github.com/ben-manes/caffeine
+
 This product depends on sbt test-interface, distributed by Mark Harrah:
 
   * License: license/LICENSE.sbt-test-interface.bsd3.txt (BSD 3-Clause License)
