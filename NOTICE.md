@@ -181,7 +181,7 @@ This product depends on jQuery, distributed by jQuery Foundation:
   * License: license/LICENSE.jquery.mit.txt (MIT License)
   * Homepage: https://jquery.com/
 
-This product depends on jQuery, distributed by Tim Wood, Iskren Chernev:
+This product depends on MomentJs, distributed by Tim Wood, Iskren Chernev:
 
   * License: license/LICENSE.momentjs.mit.txt (MIT License)
   * Homepage: http://momentjs.com/
