@@ -19,7 +19,7 @@ import java.io.InputStream
 import java.nio.charset.CharacterCodingException
 
 import io.netty.util.concurrent.FastThreadLocal
-import org.asynchttpclient.util.Utf8Decoder
+import org.asynchttpclient.netty.util.Utf8Decoder
 
 object Utf8InputStreamDecoder {
 

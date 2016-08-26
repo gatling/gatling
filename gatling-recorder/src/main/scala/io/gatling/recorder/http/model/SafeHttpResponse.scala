@@ -21,7 +21,7 @@ import io.gatling.commons.util.StringHelper._
 
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
-import org.asynchttpclient.util.ByteBufUtils
+import org.asynchttpclient.netty.util.ByteBufUtils
 
 object SafeHttpResponse {
 
