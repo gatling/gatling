@@ -25,13 +25,13 @@ import io.gatling.core.util.Resource
 import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
 
 case class FileWithCachedBytes(file: File, cachedBytes: Option[Array[Byte]]) {
-  def bytes: Array[Byte] = cachedBytes.getOrElse(file.toByteArray())
+  def bytes: Array[Byte] = cachedBytes.getOrElse(file.toByteArray)
 }
 
 class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
   private val pathToFile: String => Validation[File] = path => Resource.body(path).map(_.file)
-  private val pathToFileBytes: String => Validation[Array[Byte]] = path => Resource.body(path).map(_.file.toByteArray())
+  private val pathToFileBytes: String => Validation[Array[Byte]] = path => Resource.body(path).map(_.file.toByteArray)
 
   private val rawFileBodyCache =
     SelfLoadingThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)

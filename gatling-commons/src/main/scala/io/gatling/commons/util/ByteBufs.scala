@@ -23,7 +23,7 @@ import scala.collection.JavaConversions._
 import io.gatling.commons.util.Collections._
 
 import io.netty.buffer.{ ByteBuf, Unpooled }
-import org.asynchttpclient.util.{ UsAsciiByteBufDecoder, Utf8ByteBufDecoder }
+import org.asynchttpclient.netty.util.{ UsAsciiByteBufDecoder, Utf8ByteBufDecoder }
 
 object ByteBufs {
 
@@ -44,8 +44,8 @@ object ByteBufs {
 
   def byteBufsToString(bufs: Seq[ByteBuf], cs: Charset): String =
     cs match {
-      case UTF_8    => Utf8ByteBufDecoder.getCachedDecoder.decode(bufs)
-      case US_ASCII => UsAsciiByteBufDecoder.getCachedDecoder.decode(bufs)
+      case UTF_8    => Utf8ByteBufDecoder.pooled.decode(bufs)
+      case US_ASCII => UsAsciiByteBufDecoder.pooled.decode(bufs)
       case _ =>
         var composite: ByteBuf = null
         try {

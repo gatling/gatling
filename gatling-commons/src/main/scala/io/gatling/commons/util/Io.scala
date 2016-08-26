@@ -23,6 +23,8 @@ import java.nio.charset.StandardCharsets._
 import scala.io.Source
 import scala.util.Try
 
+import io.gatling.commons.validation._
+
 object Io {
 
   val DefaultBufferSize = 4 * 1024
@@ -47,6 +49,14 @@ object Io {
         is.read(buf)
         buf
       }
+
+    def validateExistingReadable: Validation[JFile] =
+      if (!file.exists)
+        s"File $file doesn't exist".failure
+      else if (!file.canRead)
+        s"File $file can't be read".failure
+      else
+        file.success
   }
 
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
