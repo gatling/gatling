@@ -25,7 +25,12 @@ object ByteBuffers {
 
   def byteBuffer2ByteArray(byteBuffer: ByteBuffer): Array[Byte] = {
     val bytes = new Array[Byte](byteBuffer.remaining)
-    System.arraycopy(byteBuffer.array, byteBuffer.arrayOffset, bytes, 0, bytes.length)
+    if (byteBuffer.hasArray) {
+      System.arraycopy(byteBuffer.array, byteBuffer.arrayOffset, bytes, 0, bytes.length)
+    } else {
+      byteBuffer.get(bytes)
+    }
+
     bytes
   }
 

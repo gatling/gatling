@@ -11,7 +11,7 @@ object Dependencies {
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                    % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"     % "1.0.4"
   private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"           % "0.8.0-RC3"
-  private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.12"
+  private val ahc                           = "org.asynchttpclient"                    % "async-http-client"            % "2.0.13"
   private val netty                         = "io.netty"                               % "netty-codec-http"             % "4.0.40.Final"
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll" % netty.revision classifier "linux-x86_64"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                   % "2.4.9"
@@ -61,7 +61,7 @@ object Dependencies {
   /****************************/
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat, ahc) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
     Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt) ++

@@ -23,7 +23,7 @@ import io.gatling.commons.util.StringHelper.RichString
 
 class StringHelperSpec extends BaseSpec {
 
-  val fileBytes = getClass.getResource("/emoticon.png").toByteArray()
+  val fileBytes = getClass.getResource("/emoticon.png").toByteArray
 
   "bytes2Hex" should "correctly compute file sha-1" in {
     val md = MessageDigest.getInstance("SHA-1")
