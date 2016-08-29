@@ -142,7 +142,7 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
  * @param duration Injection duration
  */
 case class RampRateInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends InjectionStep {
-  require(startRate > 0 && endRate > 0, "injection rates must be strictly positive values")
+  require(startRate >= 0.0 && endRate >= 0.0 && !(startRate == 0.0 && endRate == 0.0), "injection rates must be positive values and both can't be 0")
 
   val users = ((startRate + (endRate - startRate) / 2) * duration.toSeconds).toInt
 
