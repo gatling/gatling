@@ -36,5 +36,8 @@ object ConfigHelper {
 
     def getStringOption(path: String): Option[String] =
       if (config.hasPath(path)) Some(config.getString(path)) else None
+
+    def getIntOption(path: String): Option[Int] =
+      if (config.hasPath(path)) Some(config.getInt(path)) else None
   }
 }
