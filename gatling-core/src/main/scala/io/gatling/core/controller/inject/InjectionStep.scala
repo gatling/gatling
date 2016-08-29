@@ -97,25 +97,36 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
  * Ramp a given number of users over a given duration
  */
 case class RampInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
-  require(users > 0, "The number of users must be a strictly positive value")
 
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+  require(users >= 0, s"The number of users ($users) must be a positive value")
 
-    val durationInSeconds = duration.toSeconds.toInt
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
+    if (users == 0) {
+      NothingForInjection(duration).chain(chained)
+    } else {
+      val durationInSeconds = duration.toSeconds.toInt
 
-    new InjectionIterator(durationInSeconds) {
-      override protected def thisSecondUsers(thisSecond: Int): Int = Shard.shard(users, thisSecond, durationInSeconds).length
-    } ++ chained.map(_ + duration)
-  }
+      new InjectionIterator(durationInSeconds) {
+        override protected def thisSecondUsers(thisSecond: Int): Int = Shard.shard(users, thisSecond, durationInSeconds).length
+      } ++ chained.map(_ + duration)
+    }
 }
 
 /**
  * Inject users at constant rate : an other expression of a RampInjection
  */
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
+
+  require(rate >= 0, s"The rate ($rate) must be a positive value")
   val users = (duration.toSeconds * rate).round.toInt
+
   def randomized = PoissonInjection(duration, rate, rate)
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = RampInjection(users, duration).chain(chained)
+
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
+    if (users == 0)
+      NothingForInjection(duration).chain(chained)
+    else
+      RampInjection(users, duration).chain(chained)
 }
 
 /**
@@ -130,10 +141,13 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
  * Inject all the users at once
  */
 case class AtOnceInjection(users: Int) extends InjectionStep {
-  require(users > 0, "The number of users must be a strictly positive value")
+  require(users >= 0, s"The number of users ($users) must be a positive value")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    Iterators.infinitely(0 milliseconds).take(users) ++ chained
+    if (users == 0)
+      chained
+    else
+      Iterators.infinitely(0 milliseconds).take(users) ++ chained
 }
 
 /**
@@ -142,33 +156,36 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
  * @param duration Injection duration
  */
 case class RampRateInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends InjectionStep {
-  require(startRate >= 0.0 && endRate >= 0.0 && !(startRate == 0.0 && endRate == 0.0), "injection rates must be positive values and both can't be 0")
+  require(startRate >= 0.0 && endRate >= 0.0, "injection rates must be positive values")
 
   val users = ((startRate + (endRate - startRate) / 2) * duration.toSeconds).toInt
 
   def randomized = PoissonInjection(duration, startRate, endRate)
 
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
+    if (startRate == 0 && endRate == 0) {
+      NothingForInjection(duration).chain(chained)
 
-    val durationInSeconds = duration.toSeconds.toInt
-    val a: Double = (endRate - startRate) / (2 * durationInSeconds)
+    } else {
+      val durationInSeconds = duration.toSeconds.toInt
+      val a: Double = (endRate - startRate) / (2 * durationInSeconds)
 
-    new InjectionIterator(durationInSeconds) {
+      new InjectionIterator(durationInSeconds) {
 
-      var pendingFraction: Double = 0d
+        var pendingFraction: Double = 0d
 
-      override protected def thisSecondUsers(thisSecond: Int): Int = {
-        val thisSecondUsersDouble = a * (2 * thisSecond + 1) + startRate + pendingFraction
-        val thisSecondUsersIntValue = thisSecondUsersDouble.toInt
-        pendingFraction = thisSecondUsersDouble - thisSecondUsersIntValue
+        override protected def thisSecondUsers(thisSecond: Int): Int = {
+          val thisSecondUsersDouble = a * (2 * thisSecond + 1) + startRate + pendingFraction
+          val thisSecondUsersIntValue = thisSecondUsersDouble.toInt
+          pendingFraction = thisSecondUsersDouble - thisSecondUsersIntValue
 
-        if (thisSecond + 1 == durationInSeconds)
-          thisSecondUsersIntValue + pendingFraction.round.toInt
-        else
-          thisSecondUsersIntValue
-      }
-    } ++ chained.map(_ + duration)
-  }
+          if (thisSecond + 1 == durationInSeconds)
+            thisSecondUsersIntValue + pendingFraction.round.toInt
+          else
+            thisSecondUsersIntValue
+        }
+      } ++ chained.map(_ + duration)
+    }
 }
 
 /**
@@ -211,18 +228,24 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  */
 case class HeavisideInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 
-  override def chain(chained: Iterator[FiniteDuration]) = {
-      def heavisideInv(u: Int): Double = {
-        val x = u.toDouble / (users + 2)
-        Erf.erfinv(2 * x - 1)
-      }
+  require(users >= 0, s"The number of users ($users) must be a positive value")
 
-    val t0 = abs(heavisideInv(1))
-    val d = t0 * 2
-    val k = duration.toMillis / d
+  override def chain(chained: Iterator[FiniteDuration]) =
+    if (users == 0) {
+      NothingForInjection(duration).chain(chained)
 
-    Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds) ++ chained.map(_ + duration)
-  }
+    } else {
+        def heavisideInv(u: Int): Double = {
+          val x = u.toDouble / (users + 2)
+          Erf.erfinv(2 * x - 1)
+        }
+
+      val t0 = abs(heavisideInv(1))
+      val d = t0 * 2
+      val k = duration.toMillis / d
+
+      Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds) ++ chained.map(_ + duration)
+    }
 }
 
 /**
@@ -242,29 +265,33 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
 case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends InjectionStep {
   private val durationSecs = duration.toUnit(TimeUnit.SECONDS)
 
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+  val users = chain(Iterator.empty).size
+  require(users >= 0, s"The number of users ($users) must be a positive value")
 
-    val rand = new Random(seed)
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
+    if (startRate == 0 && endRate == 0) {
+      NothingForInjection(duration).chain(chained)
 
-    // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
-    val maxLambda = startRate max endRate
-      def shouldKeep(d: Double) = {
-        val actualLambda = startRate + (endRate - startRate) * d / durationSecs
-        rand.nextDouble() < actualLambda / maxLambda
+    } else {
+      val rand = new Random(seed)
+
+      // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
+      val maxLambda = startRate max endRate
+        def shouldKeep(d: Double) = {
+          val actualLambda = startRate + (endRate - startRate) * d / durationSecs
+          rand.nextDouble() < actualLambda / maxLambda
+        }
+
+      val rawIntervals = Iterator.continually {
+        val u = rand.nextDouble()
+        -math.log(u) / maxLambda
       }
 
-    val rawIntervals = Iterator.continually {
-      val u = rand.nextDouble()
-      -math.log(u) / maxLambda
+      rawIntervals
+        .scanLeft(0.0)(_ + _) // Rolling sum
+        .drop(1) // Throw away first value of 0.0. It is not random, but a quirk of using scanLeft
+        .takeWhile(_ < durationSecs)
+        .filter(shouldKeep)
+        .map(_.seconds) ++ chained.map(_ + duration)
     }
-
-    rawIntervals
-      .scanLeft(0.0)(_ + _) // Rolling sum
-      .drop(1) // Throw away first value of 0.0. It is not random, but a quirk of using scanLeft
-      .takeWhile(_ < durationSecs)
-      .filter(shouldKeep)
-      .map(_.seconds) ++ chained.map(_ + duration)
-  }
-
-  val users = chain(Iterator.empty).size
 }
