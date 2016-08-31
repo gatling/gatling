@@ -15,13 +15,16 @@
  */
 package io.gatling.commons.util
 
-import java.io.{File => JFile, _}
-import java.net.{URISyntaxException, URL}
+import java.io.{ File => JFile, _ }
+import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets._
+import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{ FileVisitResult, Files, Path, SimpleFileVisitor }
 
 import scala.io.Source
 import scala.util.Try
+import scala.util.control.NonFatal
 
 object Io {
 
@@ -147,4 +150,50 @@ object Io {
     Option(ClassLoader.getSystemResourceAsStream(path))
       .orElse(Option(getClass.getResourceAsStream(path)))
       .getOrElse(throw new IllegalStateException(s"Couldn't load $path neither from System ClassLoader nor from current one"))
+
+  /**
+    * Delete a possibly non empty directory
+    *
+    * @param directory the directory to delete
+    * @return if directory could be deleted
+    */
+  def deleteDirectory(directory: Path): Boolean = try {
+    Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
+      @throws[IOException]
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        Files.delete(file)
+        FileVisitResult.CONTINUE
+      }
+
+      @throws[IOException]
+      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+        Files.delete(dir)
+        FileVisitResult.CONTINUE
+      }
+    })
+    true
+
+  } catch {
+    case NonFatal(e) => false
+  }
+
+  /**
+    * Make a possibly non empty directory to be deleted on exit
+    *
+    * @param directory the directory to delete
+    */
+  def deleteDirectoryOnExit(directory: Path): Unit =
+  Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
+    @throws[IOException]
+    override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+      file.toFile.deleteOnExit()
+      FileVisitResult.CONTINUE
+    }
+
+    @throws[IOException]
+    override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+      dir.toFile.deleteOnExit()
+      FileVisitResult.CONTINUE
+    }
+  })
 }
