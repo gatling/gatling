@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-OLDDIR=`pwd`
-BIN_DIR=`dirname $0`
-cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
+DEFAULT_GATLING_HOME=$(cd "$(dirname "$(readlink -n "$0")")/.."; pwd)
 
 GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
 GATLING_CONF="${GATLING_CONF:=$GATLING_HOME/conf}"
