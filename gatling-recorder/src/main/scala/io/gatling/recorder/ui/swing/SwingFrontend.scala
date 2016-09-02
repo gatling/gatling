@@ -110,6 +110,6 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
 
   private def lookupFiles(path: String): List[String] = {
     val parent = path.getParent
-    parent.files.filter(_.path.startsWith(path)).map(_.filename).toList
+    parent.files.filter(_.path.startsWith(path)).map(_.path.filename).toList
   }
 }

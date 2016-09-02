@@ -151,6 +151,11 @@ object Io {
       .orElse(Option(getClass.getResourceAsStream(path)))
       .getOrElse(throw new IllegalStateException(s"Couldn't load $path neither from System ClassLoader nor from current one"))
 
+  def deleteDirectoryAsap(directory: Path): Unit =
+    if (!deleteDirectory(directory)) {
+      deleteDirectoryOnExit(directory)
+    }
+
   /**
     * Delete a possibly non empty directory
     *

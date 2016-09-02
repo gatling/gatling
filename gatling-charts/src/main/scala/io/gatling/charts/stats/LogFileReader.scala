@@ -49,7 +49,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   println("Parsing log file(s)...")
 
   val inputFiles = simulationLogDirectory(runUuid, create = false).files
-    .collect { case path if path.filename.matches(SimulationFilesNamePattern) => path }
+    .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
 
   logger.info(s"Collected $inputFiles from $runUuid")
   require(inputFiles.nonEmpty, "simulation directory doesn't contain any log file.")

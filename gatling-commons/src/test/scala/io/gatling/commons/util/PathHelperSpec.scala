@@ -30,7 +30,7 @@ class PathHelperSpec extends BaseSpec {
     an[IllegalArgumentException] should be thrownBy (root / "bar").ancestor(3)
   }
 
-  it should "get the parent of rank n otherwiser" in {
+  it should "get the parent of rank n otherwise" in {
     (root / "foo" / "bar").ancestor(1) shouldBe (root / "foo")
   }
 

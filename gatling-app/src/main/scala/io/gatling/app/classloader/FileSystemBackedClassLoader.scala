@@ -107,6 +107,6 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
   }
 
   override def getPackages =
-    root.deepDirs.map(path => getPackage(path.toString)).toArray
+    root.deepDirs().map(path => getPackage(path.toString)).toArray
 
 }

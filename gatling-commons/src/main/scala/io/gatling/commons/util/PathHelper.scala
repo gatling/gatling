@@ -19,13 +19,16 @@ import java.io.File
 import java.net.{ URI, URL }
 import java.nio.charset.Charset
 import java.nio.file._
+import java.nio.file.attribute.BasicFileAttributes
 
+import scala.compat.java8.FunctionConverters._
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
-
-import io.gatling.commons.util.Io._
+import java.util.function.{ Function => JFunction }
 
 object PathHelper {
+
+  private val toCachingPath: JFunction[Path, Path] = ((path: Path) => CachingPath(path).asInstanceOf[Path]).asJava
 
   implicit def string2path(pathString: String): Path = Paths.get(pathString)
 
@@ -93,24 +96,38 @@ object PathHelper {
 
     def stripExtension = filename stripSuffix ("." + extension)
 
-    def deepList(maxDepth: Int = -1): List[Path] = {
-        @tailrec
-        def deepListRec(current: Path, unvisited: List[Path], acc: List[Path], maxDepth: Int): List[Path] = {
-          val entries = withCloseable(Files.newDirectoryStream(current))(_.toList)
-          val toVisit = unvisited ++ entries.filter(p => p.isDirectory)
-          if (toVisit.isEmpty || maxDepth == 0) acc ++ entries
-          else deepListRec(toVisit.head, toVisit.tail, acc ++ entries, maxDepth - 1)
-        }
+    def deepFiles(f: CachingPath => Boolean = _ => true, maxDepth: Int = Int.MaxValue): Seq[CachingPath] =
+      if (path.exists) {
+        val acc = new collection.mutable.ArrayBuffer[CachingPath]
+        Files.walkFileTree(path, new SimpleFileVisitor[Path] {
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            val cachingPath = CachingPath(file)
+            if (f(cachingPath))
+              acc += cachingPath
+            super.visitFile(path, attrs)
+          }
+        })
+        acc
+      } else {
+        Nil
+      }
 
-      if (path.exists)
-        deepListRec(path, Nil, Nil, maxDepth)
-      else Nil
-    }
+    def files = deepFiles(maxDepth = 1)
 
-    def deepFiles = deepList().filter(_.isFile)
-
-    def deepDirs = deepList().filter(_.isDirectory)
-
-    def files = deepList(maxDepth = 1).filter(_.isFile)
+    def deepDirs(f: CachingPath => Boolean = _ => true): Seq[CachingPath] =
+      if (path.exists) {
+        val acc = new collection.mutable.ArrayBuffer[CachingPath]
+        Files.walkFileTree(path, new SimpleFileVisitor[Path] {
+          override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            val cachingPath = CachingPath(dir)
+            if (f(cachingPath))
+              acc += cachingPath
+            super.preVisitDirectory(path, attrs)
+          }
+        })
+        acc
+      } else {
+        Nil
+      }
   }
 }
