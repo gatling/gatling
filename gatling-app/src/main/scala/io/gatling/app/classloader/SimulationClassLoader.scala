@@ -43,9 +43,10 @@ private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Pa
 
   def simulationClasses: List[Class[Simulation]] =
     binaryDir
-      .deepFiles
-      .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
+      .deepFiles(_.path.hasExtension("class"))
+      .map(file => classLoader.loadClass(pathToClassName(file.path, binaryDir)))
       .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
+      .toList
 
   private def isSimulationClass(clazz: Class[_]): Boolean = {
     val isSimulation = classOf[Simulation].isAssignableFrom(clazz)

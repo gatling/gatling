@@ -80,8 +80,8 @@ object ScanHelper {
       pkgURL.getProtocol match {
         case "file" =>
           val rootDir: Path = pkgURL
-          val files = if (deep) rootDir.deepFiles else rootDir.files
-          files.map(FileResource)
+          val files = if (deep) rootDir.deepFiles() else rootDir.files
+          files.map(f => FileResource(f.path))
 
         case "jar" =>
           val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
