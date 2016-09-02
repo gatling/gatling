@@ -71,13 +71,20 @@ Including / excluding simulations when running multiple simulations
 -------------------------------------------------------------------
 If you would like to run multiple simulations you can use the following option 
 
+::
+
   <configuration>
+    <!--   ...  -->
     <runMultipleSimulations>true</runMultipleSimulations>
+    <!--   ...  -->
   </configuration>
   
 In conjonction of that option you can use the ``includes`` and ``excludes`` filter options. ``includes`` will act as a `whitelist <https://en.wikipedia.org/wiki/Whitelist>`_.
-  
+
+::
+
   <configuration>
+    <!--   ...  -->
     <runMultipleSimulations>true</runMultipleSimulations>
     <includes>
       <param>my.package.MySimu1</param>
@@ -89,7 +96,10 @@ In conjonction of that option you can use the ``includes`` and ``excludes`` filt
 
 ``excludes`` acts as a `blacklist <https://en.wikipedia.org/wiki/Blacklisting>`_.
 
+::
+
   <configuration>
+    <!--   ...  -->
     <runMultipleSimulations>true</runMultipleSimulations>
     <excludes>
       <param>my.package.MySimuNotToRun</param>
