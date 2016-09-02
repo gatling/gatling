@@ -75,18 +75,25 @@ If you would like to run multiple simulations you can use the following option
     <runMultipleSimulations>true</runMultipleSimulations>
   </configuration>
   
-In conjonction of that option you can use the `includes` and `excludes` filter options. `includes` will act as a white list.
+In conjonction of that option you can use the ``includes`` and ``excludes`` filter options. ``includes`` will act as a `whitelist <https://en.wikipedia.org/wiki/Whitelist>`_.
   
   <configuration>
     <runMultipleSimulations>true</runMultipleSimulations>
-    <includes>my.package.MySimu1,my.package.MySimu2</includes>
+    <includes>
+      <param>my.package.MySimu1</param>
+      <param>my.package.MySimu2</param>
+    </includes>
   </configuration>
 
-`excludes` acts as a black list.
+.. note:: The order of parameters does not correspond to the execution order. You can use multiple executions to force an order between your simulations (see last section of this page).
+
+``excludes`` acts as a `blacklist <https://en.wikipedia.org/wiki/Blacklisting>`_.
 
   <configuration>
     <runMultipleSimulations>true</runMultipleSimulations>
-    <excludes>my.package.MySimuNotToRun</includes>
+    <excludes>
+      <param>my.package.MySimuNotToRun</param>
+    </excludes>
   </configuration>
   
 Coexisting with scala-maven-plugin
