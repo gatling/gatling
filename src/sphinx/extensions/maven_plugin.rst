@@ -67,6 +67,45 @@ The example below shows the default values.
 
 Please check `source code <https://github.com/gatling/gatling-maven/blob/master/gatling-maven-plugin/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for all,possible options.
 
+Including / excluding simulations when running multiple simulations
+-------------------------------------------------------------------
+If you would like to run multiple simulations you can use the following option 
+
+::
+
+  <configuration>
+    <!--   ...  -->
+    <runMultipleSimulations>true</runMultipleSimulations>
+    <!--   ...  -->
+  </configuration>
+  
+In conjonction of that option you can use the ``includes`` and ``excludes`` filter options. ``includes`` will act as a `whitelist <https://en.wikipedia.org/wiki/Whitelist>`_.
+
+::
+
+  <configuration>
+    <!--   ...  -->
+    <runMultipleSimulations>true</runMultipleSimulations>
+    <includes>
+      <param>my.package.MySimu1</param>
+      <param>my.package.MySimu2</param>
+    </includes>
+  </configuration>
+
+.. note:: The order of parameters does not correspond to the execution order. You can use multiple executions to force an order between your simulations (see last section of this page).
+
+``excludes`` acts as a `blacklist <https://en.wikipedia.org/wiki/Blacklisting>`_.
+
+::
+
+  <configuration>
+    <!--   ...  -->
+    <runMultipleSimulations>true</runMultipleSimulations>
+    <excludes>
+      <param>my.package.MySimuNotToRun</param>
+    </excludes>
+  </configuration>
+  
 Coexisting with scala-maven-plugin
 ==================================
 
