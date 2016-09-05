@@ -72,7 +72,7 @@ private[handler] class RemoteHandler(
       }
 
       def handleResponse(response: SafeHttpResponse): Unit =
-        ctx.attr(TimedHttpRequestAttribute).getAndRemove() match {
+        ctx.attr(TimedHttpRequestAttribute).getAndSet(null) match {
           case request: TimedHttpRequest =>
             controller.receiveResponse(request, response)
 
