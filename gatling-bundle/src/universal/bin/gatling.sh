@@ -15,7 +15,25 @@
 # limitations under the License.
 #
 
-DEFAULT_GATLING_HOME=$(cd "$(dirname "$(readlink -n "$0")")/.."; pwd)
+
+## resolve links - $0 may be a link to Maven's home
+PRG="$0"
+
+# need this for relative symlinks
+while [ -h "$PRG" ] ; do
+  ls=`ls -ld "$PRG"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '/.*' > /dev/null; then
+    PRG="$link"
+  else
+    PRG="`dirname "$PRG"`/$link"
+  fi
+done
+
+DEFAULT_GATLING_HOME=`dirname "$PRG"`/..
+
+# make it fully qualified
+DEFAULT_GATLING_HOME=`cd "$DEFAULT_GATLING_HOME" && pwd`
 
 GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
 GATLING_CONF="${GATLING_CONF:=$GATLING_HOME/conf}"
