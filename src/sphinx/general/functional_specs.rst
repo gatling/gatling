@@ -2,6 +2,8 @@
 Functional specs
 ################
 
+Functional specs support was initially contributed by Constantijn Visinescu ([@constantijn](https://github.com/constantijn)).
+
 Writing functional specs with gatling
 =====================================
 
@@ -25,4 +27,4 @@ Functional tests written with Gatling look like this:
 Quick start
 ===========
 
-We have an `example project <https://github.com/constantijn/gatling-funtest-example/>`_ configured to run functional specs with sbt to help you get started right away.
+We have an `demo project <https://github.com/gatling/gatling-funspec-demo/>`_ configured to run functional specs with sbt to help you get started right away.
