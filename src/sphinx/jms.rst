@@ -4,7 +4,7 @@
 JMS
 ###
 
-JMS support was initially contributed by Jason Koch.
+JMS support was initially contributed by Jason Koch ([@jasonk000](https://github.com/jasonk000)).
 
 Prerequisites
 =============
