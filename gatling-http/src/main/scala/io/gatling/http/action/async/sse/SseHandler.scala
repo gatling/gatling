@@ -16,7 +16,6 @@
 package io.gatling.http.action.async.sse
 
 import java.net.InetSocketAddress
-import java.nio.charset.StandardCharsets.UTF_8
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
 
@@ -38,11 +37,11 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
     with AsyncHandlerExtensions
     with SseStream
     with EventStreamDispatcher
-    with EventStreamParser
     with StrictLogging {
 
   private val done = new AtomicBoolean
   private var state: SseState = Opening
+  private val decoder = new SseStreamDecoder
 
   override def onTcpConnectSuccess(address: InetSocketAddress, connection: Channel): Unit =
     state = Open
@@ -79,7 +78,8 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
       ABORT
     } else {
       val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
-      parse(byteBuf)
+      val events = decoder.decode(byteBuf)
+      events.foreach(dispatchEventStream)
       CONTINUE
     }
   }
@@ -118,7 +118,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
 
   override def close(): Unit = onCompleted()
 
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJSONString, nowMillis)
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJsonString, nowMillis)
 }
 
 private sealed trait SseState

@@ -18,13 +18,13 @@ package io.gatling.http.action.async.sse
 import io.gatling.core.json.Json
 
 case class ServerSentEvent(
-    data:  Option[String] = None,
     name:  Option[String] = None,
+    data:  Option[String] = None,
     id:    Option[String] = None,
     retry: Option[Int]    = None
 ) {
 
-  def asJSONString: String = {
+  def asJsonString: String = {
 
     // BEWARE: assume Map4 is implemented as an Array, so order is kept
     val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
