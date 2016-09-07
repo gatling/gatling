@@ -79,7 +79,7 @@ $ sudo service influxdb start
 Verification
 ------------
 
-Run the `example simulation <https://github.com/bbc/example-gatling-sbt#run-a-simulation>`_, and
+From the `gatling-sbt-plugin-demo project <https://github.com/gatling/gatling-sbt-plugin-demo>`_ run the ComputerWorld simulation, and
 
 :: 
 
@@ -191,8 +191,8 @@ opportunity).
 
 InfluxDB or Graphite can be set as a datasource as described `here
 <http://docs.grafana.org/datasources/overview/>`_. There is a ready made `Grafana template
-<https://github.com/aidylewis/gatling-grafana-template>`_ if InfluxDB is used as a
-datasource. The graphs should look similar to the below when running a simulation:
+<https://github.com/gatling/gatling/tree/master/src/sphinx/realtime_monitoring/code/gatling.json>`_ 
+if InfluxDB is used as a datasource. The graphs should look similar to the below when running a simulation:
 
 .. image:: img/gatling-grafana.png
   :alt: gatling-grafana
