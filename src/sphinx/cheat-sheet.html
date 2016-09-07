@@ -1542,413 +1542,440 @@
         <small>Verifying server responses</small>
       </h2>
 
-      <!-- Check -->
+      <div class="row-fluid">
 
-      <div class="check group col-lg-4 col-md-6 col-xs-12">
-        <h3>Check</h3>
+        <!-- Check -->
 
-        <div class="function">
-          <label class="function-syntax" for="check">check</label>
-          <input type="checkbox" id="check" name="check">
+        <div class="check group col-lg-4 col-md-6 col-xs-12">
+          <h3>Check</h3>
 
-          <div class="function-details">
-            Declare every check that should apply on the action
-            <dl>
-              <dt>(check...)</dt>
-              <dd>Every check you need to make on the response from the server</dd>
-            </dl>
+          <div class="function">
+            <label class="function-syntax" for="check">check</label>
+            <input type="checkbox" id="check" name="check">
+
+            <div class="function-details">
+              Declare every check that should apply on the action
+              <dl>
+                <dt>(check...)</dt>
+                <dd>Every check you need to make on the response from the server</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <!-- HTTP checks (2/2) -->
+
+        <div class="http-checks group col-lg-4 col-md-6 col-xs-12 pull-right">
+          <h3 class="visible-lg visible-md">&nbsp;</h3>
+
+          <div class="function">
+            <label class="function-syntax" for="substring">substring</label>
+            <input type="checkbox" id="substring" name="substring">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>Extraction will look for <i>expression</i> indices.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="regex1">regex</label>
+            <input type="checkbox" id="regex1" name="regex">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>Extraction will use a regular expression defined by <i>expression</i>.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="xpath1">xpath</label>
+            <input type="checkbox" id="xpath1" name="xpath">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>Extraction will use an XPath expression defined by <i>expression</i></dd>
+                <dt>(expression, namespaces)</dt>
+                <dd>If you want to use namespaces in your XPATH expression, you should specify them. The <i>namespaces</i>
+                  are specified thanks to a List[(prefix,uri)]:<br>List(('c','http://core'), ('f','http://format')).
+                </dd>
+                <dt>(Session => String)</dt>
+                <dd>The expression can be expressed as a <i>Session => String</i> function (with namespaces also)</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="jsonPath1">jsonPath</label>
+            <input type="checkbox" id="jsonPath1" name="jsonPath">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="jsonpJsonPath1">jsonpJsonPath</label>
+            <input type="checkbox" id="jsonpJsonPath1" name="jsonpJsonPath">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="css">css</label>
+            <input type="checkbox" id="css" name="css">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>Uses the <i>css</i> selector to extract the value to be checked.</dd>
+                <dt>(expression, attr)</dt>
+                <dd>Same as above, except that the extracted value is the <i>attr</i> of the selected node.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="cssForm">form</label>
+            <input type="checkbox" id="cssForm" name="cssForm">
+
+            <div class="function-details">
+              Check will be applied to an extract of the HTTP response's body
+              <dl>
+                <dt>(expression)</dt>
+                <dd>Uses the <i>css</i> selector to extract the all the field values of an HTML form.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="md5">md5</label>
+            <input type="checkbox" id="md5" name="md5">
+
+            <div class="function-details">
+              Check will be applied on the md5 checksum of the HTTP response
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="sha1">sha1</label>
+            <input type="checkbox" id="sha1" name="sha1">
+
+            <div class="function-details">
+              Check will be applied on the sha1 checksum of the HTTP response
+            </div>
+          </div>
+        </div>
+
+        <!-- HTTP checks (1/2) -->
+
+        <div class="http-checks group col-lg-4 col-md-6 col-xs-12 pull-right">
+          <h3>Http checks</h3>
+
+          <div class="function">
+            <label class="function-syntax" for="status">status</label>
+            <input type="checkbox" id="status" name="status">
+
+            <div class="function-details">
+              Check will be applied to the status of the HTTP response
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="currentLocation">currentLocation</label>
+            <input type="checkbox" id="currentLocation" name="currentLocation">
+
+            <div class="function-details">
+              Check will be applied to the current url of the response
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="header2">header</label>
+            <input type="checkbox" id="header2" name="header">
+
+            <div class="function-details">
+              Check will be applied to selected headers of the HTTP response
+              <dl>
+                <dt>(headerName)</dt>
+                <dd>The check will be applied on the header corresponding to <i>headerName</i></dd>
+                <dt>(Session => String)</dt>
+                <dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="headerRegex">headerRegex</label>
+            <input type="checkbox" id="headerRegex" name="headerRegex">
+
+            <div class="function-details">
+              Check will be applied to selected headers of the HTTP response
+              <dl>
+                <dt>(headerName, pattern)</dt>
+                <dd>The check will be applied on the headers <i>headerName</i> whose value match the provided
+                  <i>pattern</i>.
+                </dd>
+                <dt>(Session => String)</dt>
+                <dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="responseTimeInMillis">responseTimeInMillis</label>
+            <input type="checkbox" id="responseTimeInMillis" name="responseTimeInMillis">
+
+            <div class="function-details">
+              Check will be applied to the response time of the server
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="latencyInMillis">latencyInMillis</label>
+            <input type="checkbox" id="latencyInMillis" name="latencyInMillis">
+
+            <div class="function-details">
+              Check will be applied to the latency of the request/response round trip
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="bodyString">bodyString</label>
+            <input type="checkbox" id="bodyString" name="bodyString">
+
+            <div class="function-details">
+              Return the full response body String.
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="bodyBytes">bodyBytes</label>
+            <input type="checkbox" id="bodyBytes" name="bodyBytes">
+
+            <div class="function-details">
+              Return the full response body byte array.
+            </div>
+          </div>
+        </div>
+
+        <!-- Check If -->
+
+        <div class="check group col-lg-4 col-md-6 col-xs-12">
+          <h3>CheckIf</h3>
+
+          <div class="function">
+            <label class="function-syntax" for="checkIf">checkIf</label>
+            <input type="checkbox" id="checkIf" name="checkIf">
+
+            <div class="function-details">
+              Enslave check execution to a condition
+              <dl>
+                <dt>checkIf(condition: Expression[Boolean])(thenCheck: Check)</dt>
+                <dd>Only perform <i>thenCheck</i> if <i>condition</i> evaluates to <i>true</i></dd>
+                <dt>checkIf(condition: (Response, Session) => Validation[Boolean])(thenCheck: Check)</dt>
+                <dd>Only perform <i>thenCheck</i> if <i>condition</i> return <i>true</i></dd>
+              </dl>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- HTTP checks (1/2) -->
+      <div class="row-fluid">
 
-      <div class="http-checks group col-lg-4 col-md-6 col-xs-12">
-        <h3>Http checks</h3>
+        <!-- Check extractors -->
 
-        <div class="function">
-          <label class="function-syntax" for="status">status</label>
-          <input type="checkbox" id="status" name="status">
+        <div class="check-extractors group col-lg-4 col-md-6 col-xs-12">
+          <h3>Check extractors</h3>
 
-          <div class="function-details">
-            Check will be applied to the status of the HTTP response
+          <div class="function">
+            <label class="function-syntax" for="find">find</label>
+            <input type="checkbox" id="find" name="find">
+
+            <div class="function-details">
+              Specifies that only one value matching the check definition must be extracted
+              <dl>
+                <dt>&oslash;</dt>
+                <dd>If used as <i>find</i> check will be applied on the first value found. Note that this is the default
+                  behaviour, you don't have to specify it.
+                </dd>
+                <dt>(occurrence)</dt>
+                <dd>Gets the <i>occurrence</i>-th value that matches the check definition.</dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="findAll">findAll</label>
+            <input type="checkbox" id="findAll" name="findAll">
+
+            <div class="function-details">
+              Specifies that every value matching the check definition should be extracted for verification. The resulting
+              type is a list of extracted values.
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="count1">count</label>
+            <input type="checkbox" id="count1" name="count">
+
+            <div class="function-details">
+              The check will be applied on the size of the list returned by findall
+            </div>
           </div>
         </div>
 
-        <div class="function">
-          <label class="function-syntax" for="currentLocation">currentLocation</label>
-          <input type="checkbox" id="currentLocation" name="currentLocation">
+        <!-- Check transformer -->
 
-          <div class="function-details">
-            Check will be applied to the current url of the response
+        <div class="check-transformer group col-lg-4 col-md-6 col-xs-12">
+          <h3>Check transformer</h3>
+
+          <div class="function">
+            <label class="function-syntax" for="transform">transform</label>
+            <input type="checkbox" id="transform" name="transform">
+
+            <div class="function-details">
+              Used to transform data before verification
+              <dl>
+                <dt>(A => B)</dt>
+                <dd>This function is optional. It can be useful sometimes to apply a transformation on the extracted
+                  values before validating them. In this function, type <i>A</i> is the type of the find operation (either
+                  <i>String</i>, <i>List[String]</i> or <i>Int</i>). Type B is whatever you want it to be (could be a case
+                  class for example)
+                </dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="transformOption">transformOption</label>
+            <input type="checkbox" id="transformOption" name="transformOption">
+
+            <div class="function-details">
+              Used to transform data before verification
+              <dl>
+                <dt>(Option[A] => Validation[Option[B]])</dt>
+                <dd>Gives full control over the extracted result, even providing a default value</dd>
+              </dl>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Check verifiers -->
+
+        <div class="check-verifiers group col-lg-4 col-md-6 col-xs-12">
+          <h3>Check verifiers</h3>
+
+          <div class="function">
+            <label class="function-syntax" for="is1">is</label>
+            <input type="checkbox" id="is1" name="is">
+
+            <div class="function-details">
+              Checks for equality
+              <dl>
+                <dt>(expected)</dt>
+                <dd>if the captured (or transformed) value is equal to <i>expected</i> the check will succeed; it will
+                  fail otherwise
+                </dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="not">not</label>
+            <input type="checkbox" id="not" name="not">
+
+            <div class="function-details">
+              Checks for inequality
+              <dl>
+                <dt>(expected)</dt>
+                <dd>If the captured (or transformed) value is different than <i>expected</i> the check will succeed; it
+                  will fail otherwise
+                </dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="exists">exists</label>
+            <input type="checkbox" id="exists" name="exists">
+
+            <div class="function-details">
+              Checks that there's at least one value corresponding to the check definition .This is the default
+              verification (it does not need to be specified)
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="notExists">notExists</label>
+            <input type="checkbox" id="notExists" name="notExists">
+
+            <div class="function-details">
+              Checks that there are no values corresponding to the check definition
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="in1">in</label>
+            <input type="checkbox" id="in1" name="in">
+
+            <div class="function-details">
+              Checks for belonging to a sequence
+              <dl>
+                <dt>(sequence)</dt>
+                <dd>If the captured (or transformed) value is included in the <i>sequence</i> the check will succeed; it
+                  will fail otherwise
+                </dd>
+              </dl>
+            </div>
+          </div>
+
+          <div class="function">
+            <label class="function-syntax" for="optional">optional</label>
+            <input type="checkbox" id="optional" name="optional">
+
+            <div class="function-details">
+              Never fails, used to capture optional values into the session
+            </div>
           </div>
         </div>
 
-        <div class="function">
-          <label class="function-syntax" for="header2">header</label>
-          <input type="checkbox" id="header2" name="header">
-
-          <div class="function-details">
-            Check will be applied to selected headers of the HTTP response
-            <dl>
-              <dt>(headerName)</dt>
-              <dd>The check will be applied on the header corresponding to <i>headerName</i></dd>
-              <dt>(Session => String)</dt>
-              <dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="headerRegex">headerRegex</label>
-          <input type="checkbox" id="headerRegex" name="headerRegex">
-
-          <div class="function-details">
-            Check will be applied to selected headers of the HTTP response
-            <dl>
-              <dt>(headerName, pattern)</dt>
-              <dd>The check will be applied on the headers <i>headerName</i> whose value match the provided
-                <i>pattern</i>.
-              </dd>
-              <dt>(Session => String)</dt>
-              <dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="responseTimeInMillis">responseTimeInMillis</label>
-          <input type="checkbox" id="responseTimeInMillis" name="responseTimeInMillis">
-
-          <div class="function-details">
-            Check will be applied to the response time of the server
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="latencyInMillis">latencyInMillis</label>
-          <input type="checkbox" id="latencyInMillis" name="latencyInMillis">
-
-          <div class="function-details">
-            Check will be applied to the latency of the request/response round trip
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="bodyString">bodyString</label>
-          <input type="checkbox" id="bodyString" name="bodyString">
-
-          <div class="function-details">
-            Return the full response body String.
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="bodyBytes">bodyBytes</label>
-          <input type="checkbox" id="bodyBytes" name="bodyBytes">
-
-          <div class="function-details">
-            Return the full response body byte array.
-          </div>
-        </div>
-      </div>
-
-      <!-- HTTP checks (1/2) -->
-
-      <div class="http-checks group col-lg-4 col-md-6 col-xs-12">
-        <h3 class="visible-lg visible-md">&nbsp;</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="substring">substring</label>
-          <input type="checkbox" id="substring" name="substring">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>Extraction will look for <i>expression</i> indices.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="regex1">regex</label>
-          <input type="checkbox" id="regex1" name="regex">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>Extraction will use a regular expression defined by <i>expression</i>.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="xpath1">xpath</label>
-          <input type="checkbox" id="xpath1" name="xpath">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>Extraction will use an XPath expression defined by <i>expression</i></dd>
-              <dt>(expression, namespaces)</dt>
-              <dd>If you want to use namespaces in your XPATH expression, you should specify them. The <i>namespaces</i>
-                are specified thanks to a List[(prefix,uri)]:<br>List(('c','http://core'), ('f','http://format')).
-              </dd>
-              <dt>(Session => String)</dt>
-              <dd>The expression can be expressed as a <i>Session => String</i> function (with namespaces also)</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="jsonPath1">jsonPath</label>
-          <input type="checkbox" id="jsonPath1" name="jsonPath">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="jsonpJsonPath1">jsonpJsonPath</label>
-          <input type="checkbox" id="jsonpJsonPath1" name="jsonpJsonPath">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="css">css</label>
-          <input type="checkbox" id="css" name="css">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>Uses the <i>css</i> selector to extract the value to be checked.</dd>
-              <dt>(expression, attr)</dt>
-              <dd>Same as above, except that the extracted value is the <i>attr</i> of the selected node.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="cssForm">form</label>
-          <input type="checkbox" id="cssForm" name="cssForm">
-
-          <div class="function-details">
-            Check will be applied to an extract of the HTTP response's body
-            <dl>
-              <dt>(expression)</dt>
-              <dd>Uses the <i>css</i> selector to extract the all the field values of an HTML form.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="md5">md5</label>
-          <input type="checkbox" id="md5" name="md5">
-
-          <div class="function-details">
-            Check will be applied on the md5 checksum of the HTTP response
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="sha1">sha1</label>
-          <input type="checkbox" id="sha1" name="sha1">
-
-          <div class="function-details">
-            Check will be applied on the sha1 checksum of the HTTP response
-          </div>
-        </div>
-      </div>
-
-      <!-- Check extractors -->
-
-      <div class="check-extractors group col-lg-4 col-md-6 col-xs-12">
-        <h3>Check extractors</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="find">find</label>
-          <input type="checkbox" id="find" name="find">
-
-          <div class="function-details">
-            Specifies that only one value matching the check definition must be extracted
-            <dl>
-              <dt>&oslash;</dt>
-              <dd>If used as <i>find</i> check will be applied on the first value found. Note that this is the default
-                behaviour, you don't have to specify it.
-              </dd>
-              <dt>(occurrence)</dt>
-              <dd>Gets the <i>occurrence</i>-th value that matches the check definition.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="findAll">findAll</label>
-          <input type="checkbox" id="findAll" name="findAll">
-
-          <div class="function-details">
-            Specifies that every value matching the check definition should be extracted for verification. The resulting
-            type is a list of extracted values.
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="count1">count</label>
-          <input type="checkbox" id="count1" name="count">
-
-          <div class="function-details">
-            The check will be applied on the size of the list returned by findall
-          </div>
-        </div>
-      </div>
-
-      <!-- Check transformer -->
-
-      <div class="check-transformer group col-lg-4 col-md-6 col-xs-12">
-        <h3>Check transformer</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="transform">transform</label>
-          <input type="checkbox" id="transform" name="transform">
-
-          <div class="function-details">
-            Used to transform data before verification
-            <dl>
-              <dt>(A => B)</dt>
-              <dd>This function is optional. It can be useful sometimes to apply a transformation on the extracted
-                values before validating them. In this function, type <i>A</i> is the type of the find operation (either
-                <i>String</i>, <i>List[String]</i> or <i>Int</i>). Type B is whatever you want it to be (could be a case
-                class for example)
-              </dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="transformOption">transformOption</label>
-          <input type="checkbox" id="transformOption" name="transformOption">
-
-          <div class="function-details">
-            Used to transform data before verification
-            <dl>
-              <dt>(Option[A] => Validation[Option[B]])</dt>
-              <dd>Gives full control over the extracted result, even providing a default value</dd>
-            </dl>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Check verifiers -->
-
-      <div class="check-verifiers group col-lg-4 col-md-6 col-xs-12">
-        <h3>Check verifiers</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="is1">is</label>
-          <input type="checkbox" id="is1" name="is">
-
-          <div class="function-details">
-            Checks for equality
-            <dl>
-              <dt>(expected)</dt>
-              <dd>if the captured (or transformed) value is equal to <i>expected</i> the check will succeed; it will
-                fail otherwise
-              </dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="not">not</label>
-          <input type="checkbox" id="not" name="not">
-
-          <div class="function-details">
-            Checks for inequality
-            <dl>
-              <dt>(expected)</dt>
-              <dd>If the captured (or transformed) value is different than <i>expected</i> the check will succeed; it
-                will fail otherwise
-              </dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="exists">exists</label>
-          <input type="checkbox" id="exists" name="exists">
-
-          <div class="function-details">
-            Checks that there's at least one value corresponding to the check definition .This is the default
-            verification (it does not need to be specified)
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="notExists">notExists</label>
-          <input type="checkbox" id="notExists" name="notExists">
-
-          <div class="function-details">
-            Checks that there are no values corresponding to the check definition
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="in1">in</label>
-          <input type="checkbox" id="in1" name="in">
-
-          <div class="function-details">
-            Checks for belonging to a sequence
-            <dl>
-              <dt>(sequence)</dt>
-              <dd>If the captured (or transformed) value is included in the <i>sequence</i> the check will succeed; it
-                will fail otherwise
-              </dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="optional">optional</label>
-          <input type="checkbox" id="optional" name="optional">
-
-          <div class="function-details">
-            Never fails, used to capture optional values into the session
-          </div>
-        </div>
-      </div>
-
-      <!-- Check saver -->
-
-      <div class="check-saver group col-lg-4 col-md-6 col-xs-12">
-        <h3>Check saver</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="saveAs">saveAs</label>
-          <input type="checkbox" id="saveAs" name="saveAs">
-
-          <div class="function-details">
-            If the check succeeds, it captures the extracted value(s) into the session
-            <dl>
-              <dt>(key)</dt>
-              <dd>The value(s) will be stored in the session under key <i>key</i></dd>
-            </dl>
+        <!-- Check saver -->
+
+        <div class="check-saver group col-lg-4 col-md-6 col-xs-12">
+          <h3>Check saver</h3>
+
+          <div class="function">
+            <label class="function-syntax" for="saveAs">saveAs</label>
+            <input type="checkbox" id="saveAs" name="saveAs">
+
+            <div class="function-details">
+              If the check succeeds, it captures the extracted value(s) into the session
+              <dl>
+                <dt>(key)</dt>
+                <dd>The value(s) will be stored in the session under key <i>key</i></dd>
+              </dl>
+            </div>
           </div>
         </div>
       </div>
