@@ -98,11 +98,16 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
  */
 case class RampInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 
-  require(users >= 0, s"The number of users ($users) must be a positive value")
+  require(users >= 0, s"users ($users) must be >= 0")
+  require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (users == 0) {
       NothingForInjection(duration).chain(chained)
+
+    } else if (duration == Duration.Zero) {
+      AtOnceInjection(users).chain(chained)
+
     } else {
       val durationInSeconds = duration.toSeconds.toInt
 
@@ -117,23 +122,38 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
  */
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
 
-  require(rate >= 0, s"The rate ($rate) must be a positive value")
+  require(rate >= 0, s"rate ($rate) must be >= 0")
+  require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
+  require(!(rate > 0 && duration == Duration.Zero), s"can't inject a non 0 rate ($rate) for a 0 duration")
+
   val users = (duration.toSeconds * rate).round.toInt
 
   def randomized = PoissonInjection(duration, rate, rate)
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    if (users == 0)
+    if (rate == 0) {
       NothingForInjection(duration).chain(chained)
-    else
+
+    } else {
       RampInjection(users, duration).chain(chained)
+    }
 }
 
 /**
  * Don't injection any user for a given duration
  */
 case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = chained.map(_ + duration)
+
+  require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
+
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
+    if (duration == Duration.Zero) {
+      chained
+
+    } else {
+      chained.map(_ + duration)
+    }
+
   override def users = 0
 }
 
@@ -141,7 +161,8 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
  * Inject all the users at once
  */
 case class AtOnceInjection(users: Int) extends InjectionStep {
-  require(users >= 0, s"The number of users ($users) must be a positive value")
+
+  require(users >= 0, s"users ($users) must be >= 0")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (users == 0)
@@ -156,7 +177,10 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
  * @param duration Injection duration
  */
 case class RampRateInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends InjectionStep {
-  require(startRate >= 0.0 && endRate >= 0.0, "injection rates must be positive values")
+
+  require(startRate >= 0.0 && endRate >= 0.0, s"injection rates ($startRate, $endRate) must be >= 0")
+  require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
+  require(!((startRate > 0 || endRate > 0) && duration == Duration.Zero), s"can't inject non 0 rates ($startRate, $endRate) for a 0 duration")
 
   val users = ((startRate + (endRate - startRate) / 2) * duration.toSeconds).toInt
 
@@ -196,6 +220,9 @@ case class RampRateInjection(startRate: Double, endRate: Double, duration: Finit
  *  @param separator Will be injected in between the regular injection steps.
  */
 case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: InjectionStep) extends InjectionStep {
+
+  require(possibleUsers >= 0.0, s"possibleUsers ($possibleUsers) must be >= 0")
+
   private val stepUsers = step.users
   private lazy val separatorUsers = separator.users
 
@@ -228,11 +255,15 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  */
 case class HeavisideInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
 
-  require(users >= 0, s"The number of users ($users) must be a positive value")
+  require(users >= 0, s"users ($users) must be >= 0")
+  require(duration >= Duration.Zero, s"Duration ($duration) must be >= 0")
 
   override def chain(chained: Iterator[FiniteDuration]) =
     if (users == 0) {
       NothingForInjection(duration).chain(chained)
+
+    } else if (duration == Duration.Zero) {
+      AtOnceInjection(users).chain(chained)
 
     } else {
         def heavisideInv(u: Int): Double = {
@@ -263,16 +294,19 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
  * @param seed a seed for the randomization. If the same seed is re-used, the same timings will be obtained
  */
 case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends InjectionStep {
-  private val durationSecs = duration.toUnit(TimeUnit.SECONDS)
+
+  require(startRate >= 0.0 && endRate >= 0.0, s"injection rates ($startRate, $endRate) must be >= 0")
+  require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
+  require(!((startRate > 0 || endRate > 0) && duration == Duration.Zero), s"can't inject non 0 rates ($startRate, $endRate) for a 0 duration")
 
   val users = chain(Iterator.empty).size
-  require(users >= 0, s"The number of users ($users) must be a positive value")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (startRate == 0 && endRate == 0) {
       NothingForInjection(duration).chain(chained)
 
     } else {
+      val durationSecs = duration.toUnit(TimeUnit.SECONDS)
       val rand = new Random(seed)
 
       // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
