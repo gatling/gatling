@@ -71,7 +71,10 @@ class WsCompileTest extends Simulation {
                 ws("Message4")
                   .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
                   .check(wsAwait.within(30 seconds).until(1))
-              )
+                ).exec(
+                  //check without sendText
+                  ws("Message5").check(wsListen.within(30 seconds).accumulate.jsonPath("$.message").findAll.saveAs("message1"))
+                  )
     .exec(ws("Close WS").close)
     .exec(ws("Open Named", "foo").open("/bar"))
 

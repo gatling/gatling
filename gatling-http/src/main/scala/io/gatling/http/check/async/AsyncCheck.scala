@@ -32,6 +32,8 @@ case class AsyncCheck(
     blocking:    Boolean,
     timeout:     FiniteDuration,
     expectation: Expectation,
+    accumulate:  Boolean,
+    name:        Option[String] = None,
     timestamp:   Long           = nowMillis
 ) extends Check[String] {
   override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]) =

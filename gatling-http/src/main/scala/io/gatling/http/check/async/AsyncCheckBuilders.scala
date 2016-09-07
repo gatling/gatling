@@ -22,8 +22,8 @@ import io.gatling.core.check.{ Extender, Preparer }
 
 object AsyncCheckBuilders {
 
-  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
-    wrapped => new AsyncCheck(wrapped, await, timeout, expectation)
+  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation, accumulate: Boolean): Extender[AsyncCheck, String] =
+    wrapped => new AsyncCheck(wrapped, await, timeout, expectation, accumulate)
 
   val PassThroughMessagePreparer: Preparer[String, String] = _.success
 }
