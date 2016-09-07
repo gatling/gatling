@@ -6,6 +6,8 @@
 .scala_dependencies
 .cache
 .worksheet
+.cache-main
+.cache-tests
 
 # idea conf files
 .idea

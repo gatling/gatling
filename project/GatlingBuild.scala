@@ -54,6 +54,10 @@ object GatlingBuild extends Build {
     .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= httpDependencies)
 
+  lazy val eureka = gatlingModule("gatling-eureka")
+    .dependsOn(core % "compile->compile;test->test")
+    .settings(libraryDependencies ++= httpDependencies)    
+
   lazy val jms = gatlingModule("gatling-jms")
     .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= jmsDependencies)
@@ -79,7 +83,7 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= benchmarkDependencies)
 
   lazy val app = gatlingModule("gatling-app")
-    .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
+    .dependsOn(core, http, eureka, jms, jdbc, redis, metrics, charts)
 
   lazy val recorder = gatlingModule("gatling-recorder")
     .dependsOn(core % "compile->compile;test->test", http)
