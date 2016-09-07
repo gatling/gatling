@@ -26,6 +26,6 @@ Third Parties
 * `AMQP plugin <https://github.com/maiha/gatling-amqp>`_
 
 .. warning::
-  Those projects are third parties and are not maintained but the Gatling core committers.
+  Those projects are third parties and are not maintained by the Gatling core committers.
   We'll consider supporting them only if there's enough demand for them.
   If you run into an issue, please contact their respective owners.
