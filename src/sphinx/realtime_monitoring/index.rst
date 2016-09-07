@@ -7,6 +7,26 @@ Realtime monitoring
 Introduction
 ============
 
+By default, Gatling only provides live feedback in the console output, and generates static HTML reports.
+
+Still, it's possible to get live feedback.
+
+FrontLine
+=========
+
+`FrontLine <http://gatling.io/#/services/frontline>`_ is a commercial product from GatlingCorp, the company behind Gatling.
+
+Amongst other features like clustering support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
+FrontLine offers entreprise-grade realtime monitoring and metrics persistence.
+
+.. image:: img/frontline.png
+:alt: FrontLine
+
+For more information, please get in touch at **contact@gatling.io**.
+
+Graphite-InfluxDB-Grafana
+=========================
+
 Gatling can provide live metrics via the Graphite protocol which can be
 persisted and visualised.
 
@@ -15,7 +35,7 @@ Graphite, and use Grafana as a graphing library. We also present a lo-fi solutio
 which prints parsed Graphite data to standard out. 
 
 Gatling 
-========
+-------
 
 In the ``gatling.conf`` add "graphite" to the data writers and specify the host
 of the Carbon or InfluxDB server.
@@ -32,19 +52,19 @@ of the Carbon or InfluxDB server.
   }
 
 InfluxDB
-========
+--------
 
 InfluxDB is one of the new crop of time-series databases [#f1]_. It is
 self-contained, easy-to-install and resource efficient.
 
 Install
--------
+~~~~~~~
 
 `Install InfluxDB <https://influxdata.com/downloads/#influxdb>`_ through your package manager.
 
 
 Graphite plugin
----------------
+~~~~~~~~~~~~~~~
 
 Add the below to the Graphite section of ``/etc/influxdb/influxdb.conf``
 
@@ -70,14 +90,14 @@ Add the below to the Graphite section of ``/etc/influxdb/influxdb.conf``
   
 
 Start
------
+~~~~~
 
 ::
 
 $ sudo service influxdb start
 
 Verification
-------------
+~~~~~~~~~~~~
 
 From the `gatling-sbt-plugin-demo project <https://github.com/gatling/gatling-sbt-plugin-demo>`_ run the ComputerWorld simulation, and
 
@@ -104,15 +124,15 @@ You should be presented with something similar to this:
   1461834409000000000     0       0       0       0               0               0               0               getComputers                    computerworld   ko
 
 Graphite
-========
+--------
 
 Install
--------
+~~~~~~~
 
 Graphite can be installed through `Synthesize <https://github.com/obfuscurity/synthesize>`_ on Ubuntu 14.04
 
 Configuration
--------------
+~~~~~~~~~~~~~
 
 In ``$GRAPHITE_HOME/conf/storage-schemas.conf``:
 
@@ -153,7 +173,7 @@ In ``$GRAPHITE_HOME/conf/storage-aggregation.conf``:
 
 
 collectd
-========
+--------
 
 In collectd.conf
 
@@ -178,7 +198,7 @@ In collectd.conf
   ...
 
 Grafana
-=======
+-------
 
 Grafana is a popular open-source graphing application. 
 
@@ -199,13 +219,13 @@ if InfluxDB is used as a datasource. The graphs should look similar to the below
 
 
 Ports
-=====
+-----
 
 The ports 2003 (Graphite protocol), 8086 (InfluxDB network communication) and
 3000 (Grafana) will need to be exposed on the Grafana-InfluxDB box. 
 
 Lo-fi
-=====
+-----
 
 Netcat can be used to listen to the Graphite port. The below awk
 script parses the data.
@@ -234,13 +254,6 @@ To run the script:
 :: 
 
 	nc -l 2003 | awk -f a.awk
-
-Frontline 
-=========
-
-`Frontline <http://gatling.io/#/services/frontline>`_ offers impressive realtime monitoring
-and persistence. 
-
 
 .. rubric:: Footnotes
 
