@@ -24,7 +24,7 @@ import io.gatling.jms.request.JmsDestination
  * Trivial JMS client, allows sending messages and use of a MessageListener
  * @author jasonk@bluedevel.com
  */
-class JmsReplyClient(
+class JmsReqReplyClient(
   protocol:         JmsProtocol,
   destination:      JmsDestination,
   replyDestination: JmsDestination

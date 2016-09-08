@@ -73,6 +73,6 @@ trait BrokerBasedSpec extends AkkaSpec {
       MessageIDMessageMatcher
     )
 
-    new JmsReplyClient(protocol, destination, destination)
+    new JmsReqReplyClient(protocol, destination, destination)
   }
 }
