@@ -41,8 +41,8 @@ import akka.actor.{ ActorRef, ActorSystem, Props }
  */
 object JmsReqReply extends NameGen {
 
-  def apply(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, statsEngine: StatsEngine, next: Action) = {
-    val actor = system.actorOf(JmsReqReplyActor.props(attributes, protocol, tracker, statsEngine, next))
+  def apply(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, statsEngine: StatsEngine, next: Action) = {
+    val actor = system.actorOf(JmsReqReplyActor.props(attributes, replyDestination, protocol, tracker, statsEngine, next))
     new ExitableActorDelegatingAction(genName("jmsReqReply"), statsEngine, next, actor)
   }
 }
@@ -50,15 +50,15 @@ object JmsReqReply extends NameGen {
 object JmsReqReplyActor {
   val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 
-  def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: Action) =
-    Props(new JmsReqReplyActor(attributes, protocol, tracker, statsEngine, next))
+  def props(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: Action) =
+    Props(new JmsReqReplyActor(attributes, replyDestination, protocol, tracker, statsEngine, next))
 }
 
-class JmsReqReplyActor(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
+class JmsReqReplyActor(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
     extends ValidatedActionActor {
 
   // Create a client to refer to
-  val client = JmsClient(protocol, attributes.destination, attributes.replyDestination)
+  val client = JmsClient(protocol, attributes.destination, replyDestination)
 
   val receiveTimeout = protocol.receiveTimeout.getOrElse(0L)
   val messageMatcher = protocol.messageMatcher
@@ -132,7 +132,9 @@ class JmsReqReplyActor(attributes: JmsAttributes, protocol: JmsProtocol, tracker
     msg.map { msg =>
       // notify the tracker that a message was sent
       val matchId = messageMatcher.requestMatchId(msg)
-      logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
+      if(logger.underlying.isDebugEnabled()){
+        logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
+      }
       tracker ! MessageSent(replyDestinationName, matchId, startDate, attributes.checks, session, next, attributes.requestName)
     }
   }
@@ -143,16 +145,12 @@ class JmsReqReplyActor(attributes: JmsAttributes, protocol: JmsProtocol, tracker
   ): Validation[Map[String, Any]] = {
     properties.foldLeft(Map.empty[String, Any].success) {
       case (resolvedProperties, (key, value)) =>
-        val newProperty: Validation[(String, Any)] =
-          for {
-            key <- key(session)
-            value <- value(session)
-          } yield key -> value
-
         for {
-          newProperty <- newProperty
+          key <- key(session)
+          value <- value(session)
           resolvedProperties <- resolvedProperties
-        } yield resolvedProperties + newProperty
+        } yield resolvedProperties + (key -> value)
+
     }
   }
 

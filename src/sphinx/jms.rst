@@ -42,7 +42,7 @@ Use the ``jms("requestName")`` method in order to create a JMS request.
 Request Type
 ------------
 
-Currently, only ``reqreply`` request type is supported.
+Currently, ``reqreply`` and ``send`` (fire and forget) requests are supported.
 
 Destination
 -----------

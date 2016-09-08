@@ -22,6 +22,9 @@ import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
 import io.gatling.AkkaSpec
+import io.gatling.jms.protocol.JmsProtocol
+
+import javax.jms.DeliveryMode
 
 trait BrokerBasedSpec extends AkkaSpec {
 
@@ -39,7 +42,7 @@ trait BrokerBasedSpec extends AkkaSpec {
     stopBroker()
   }
 
-  private var cleanUpActions: List[(() => Unit)] = Nil
+  var cleanUpActions: List[(() => Unit)] = Nil
 
   protected def registerCleanUpAction(f: () => Unit): Unit = synchronized {
     cleanUpActions = f :: cleanUpActions
@@ -58,16 +61,17 @@ trait BrokerBasedSpec extends AkkaSpec {
   }
 
   def createClient(destination: JmsDestination) = {
-    new SimpleJmsClient(
+    val protocol = new JmsProtocol(
+      classOf[ActiveMQInitialContextFactory].getName,
       "ConnectionFactory",
-      destination,
-      destination,
       "vm://gatling?broker.persistent=false&broker.useJmx=false",
       None,
       false,
-      classOf[ActiveMQInitialContextFactory].getName,
       1,
-      MessageIDMessageMatcher
-    )
+      DeliveryMode.PERSISTENT,
+      None,
+      MessageIDMessageMatcher)
+
+    new JmsReplyClient(protocol, destination, destination)
   }
 }

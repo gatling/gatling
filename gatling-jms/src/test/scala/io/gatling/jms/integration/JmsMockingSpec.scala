@@ -29,13 +29,13 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
-import io.gatling.jms.client.{ BrokerBasedSpec, SimpleJmsClient }
+import io.gatling.jms.client.{ BrokerBasedSpec, JmsReplyClient }
 import io.gatling.jms.request.JmsDestination
 
 import akka.actor.ActorRef
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
-class JmsMockCustomer(client: SimpleJmsClient, mockResponse: PartialFunction[Message, String]) extends MessageListener {
+class JmsMockCustomer(client: JmsReplyClient, mockResponse: PartialFunction[Message, String]) extends MessageListener {
 
   val producer = client.session.createProducer(null)
   client.createReplyConsumer().setMessageListener(this)

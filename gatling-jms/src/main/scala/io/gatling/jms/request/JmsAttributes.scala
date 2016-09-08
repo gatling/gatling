@@ -15,8 +15,8 @@
  */
 package io.gatling.jms.request
 
-import io.gatling.jms.JmsCheck
 import io.gatling.core.session.Expression
+import io.gatling.jms.JmsCheck
 
 /**
  * JmsAttributes carries around the JMS settings.
@@ -30,7 +30,6 @@ import io.gatling.core.session.Expression
 case class JmsAttributes(
   requestName:       String,
   destination:       JmsDestination,
-  replyDestination:  JmsDestination,
   selector:          Option[String],
   message:           JmsMessage,
   messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
