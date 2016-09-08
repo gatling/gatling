@@ -24,10 +24,10 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.TimeHelper.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.action._
-import io.gatling.core.session.{ Expression, Session, resolveOptionalExpression }
+import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.jms.client.JmsClient
+import io.gatling.jms.client.{ JmsClient, JmsReqReplyClient }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
@@ -54,11 +54,11 @@ object JmsReqReplyActor {
     Props(new JmsReqReplyActor(attributes, replyDestination, protocol, tracker, statsEngine, next))
 }
 
-class JmsReqReplyActor(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
-    extends ValidatedActionActor {
+class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
+    extends ValidatedActionActor with JmsAction[JmsReqReplyClient] {
 
   // Create a client to refer to
-  val client = JmsClient(protocol, attributes.destination, replyDestination)
+  override val client = JmsClient(protocol, attributes.destination, replyDestination)
 
   val receiveTimeout = protocol.receiveTimeout.getOrElse(0L)
   val messageMatcher = protocol.messageMatcher
@@ -110,52 +110,14 @@ class JmsReqReplyActor(attributes: JmsAttributes, replyDestination: JmsDestinati
    * Note this does not catch any exceptions (even JMSException) as generally these indicate a
    * configuration failure that is unlikely to be addressed by retrying with another message
    */
-  def executeOrFail(session: Session): Validation[Unit] = {
-
-    val messageProperties = resolveProperties(attributes.messageProperties, session)
-
-    val jmsType = resolveOptionalExpression(attributes.jmsType, session)
-
-    // send the message
-    val startDate = nowMillis
-
-    val msg = jmsType.flatMap(jmsType =>
-      messageProperties.flatMap { props =>
-        attributes.message match {
-          case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, props, jmsType))
-          case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, props, jmsType))
-          case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, props, jmsType))
-          case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, props, jmsType))
+  def executeOrFail(session: Session): Validation[Unit] =
+    sendMessage(session) {
+      case (msg, startDate) =>
+        // notify the tracker that a message was sent
+        val matchId = messageMatcher.requestMatchId(msg)
+        if (logger.underlying.isDebugEnabled()) {
+          logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
         }
-      })
-
-    msg.map { msg =>
-      // notify the tracker that a message was sent
-      val matchId = messageMatcher.requestMatchId(msg)
-      if (logger.underlying.isDebugEnabled()) {
-        logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
-      }
-      tracker ! MessageSent(replyDestinationName, matchId, startDate, attributes.checks, session, next, attributes.requestName)
+        tracker ! MessageSent(replyDestinationName, matchId, startDate, attributes.checks, session, next, attributes.requestName)
     }
-  }
-
-  def resolveProperties(
-    properties: Map[Expression[String], Expression[Any]],
-    session:    Session
-  ): Validation[Map[String, Any]] = {
-    properties.foldLeft(Map.empty[String, Any].success) {
-      case (resolvedProperties, (key, value)) =>
-        for {
-          key <- key(session)
-          value <- value(session)
-          resolvedProperties <- resolvedProperties
-        } yield resolvedProperties + (key -> value)
-
-    }
-  }
-
-  def logMessage(text: String, msg: Message): Unit = {
-    logger.debug(text)
-    logger.trace(msg.toString)
-  }
 }

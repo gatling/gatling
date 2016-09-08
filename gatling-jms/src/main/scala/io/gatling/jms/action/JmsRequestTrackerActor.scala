@@ -156,7 +156,6 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine, configuration: GatlingCon
     next:     Action,
     title:    String
   ): Unit = {
-
     // run all the checks, advise the Gatling API that it is complete and move to next
     val (checkSaveUpdate, error) = Check.check(message, session, checks)
     val newSession = checkSaveUpdate(session)

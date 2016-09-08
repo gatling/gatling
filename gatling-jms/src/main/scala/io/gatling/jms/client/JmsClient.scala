@@ -34,7 +34,7 @@ object JmsClient {
   }
 
   def apply(protocol: JmsProtocol, destination: JmsDestination, replyDestination: JmsDestination) = {
-    new JmsReplyClient(protocol, destination, replyDestination)
+    new JmsReqReplyClient(protocol, destination, replyDestination)
   }
 }
 
