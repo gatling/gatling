@@ -78,7 +78,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
       ABORT
     } else {
       val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
-      val events = decoder.decode(byteBuf)
+      val events = decoder.decodeStream(byteBuf)
       events.foreach(dispatchEventStream)
       CONTINUE
     }

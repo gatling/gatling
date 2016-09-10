@@ -15,15 +15,9 @@
  */
 package io.gatling.commons.util
 
-import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets._
-
-import scala.collection.JavaConversions._
-
 import io.gatling.commons.util.Collections._
 
-import io.netty.buffer.{ ByteBuf, Unpooled }
-import org.asynchttpclient.netty.util.{ UsAsciiByteBufDecoder, Utf8ByteBufDecoder }
+import io.netty.buffer.ByteBuf
 
 object ByteBufs {
 
@@ -41,20 +35,4 @@ object ByteBufs {
 
     bytes
   }
-
-  def byteBufsToString(bufs: Seq[ByteBuf], cs: Charset): String =
-    cs match {
-      case UTF_8    => Utf8ByteBufDecoder.pooled.decode(bufs)
-      case US_ASCII => UsAsciiByteBufDecoder.pooled.decode(bufs)
-      case _ =>
-        var composite: ByteBuf = null
-        try {
-          composite = Unpooled.wrappedBuffer(bufs.map(_.retain()).toArray: _*)
-          composite.toString(cs)
-        } finally {
-          if (composite != null) {
-            composite.release()
-          }
-        }
-    }
 }

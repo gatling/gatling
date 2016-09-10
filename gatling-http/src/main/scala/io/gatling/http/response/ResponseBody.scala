@@ -28,6 +28,7 @@ import io.gatling.commons.util.Bytes._
 
 import com.typesafe.scalalogging.{ LazyLogging, StrictLogging }
 import io.netty.buffer.ByteBuf
+import org.asynchttpclient.netty.util.ByteBufUtils
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -61,7 +62,14 @@ object StringResponseBody extends StrictLogging {
   def apply(chunks: Seq[ByteBuf], charset: Charset) = {
     val string =
       try {
-        byteBufsToString(chunks, charset)
+        (chunks.length: @switch) match {
+          case 0 => ""
+          case 1 =>
+            // FIXME to be done in AHC in 2.0.16
+            ByteBufUtils.byteBuf2String(charset, chunks.head)
+          case _ =>
+            ByteBufUtils.byteBuf2String(charset, chunks: _*)
+        }
       } catch {
         case NonFatal(e) =>
           logger.error(s"Response body is not valid ${charset.name} bytes")
@@ -87,7 +95,7 @@ object ByteArrayResponseBody {
 class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
   def stream = new FastByteArrayInputStream(bytes)
-  lazy val string = byteArraysToString(Seq(bytes), charset)
+  lazy val string = byteArrayToString(bytes, charset)
 }
 
 object InputStreamResponseBody {
