@@ -64,11 +64,7 @@ object Io {
 
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
 
-    def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String =
-      charset match {
-        case UTF_8 => Utf8InputStreamDecoder.pooled().decode(is)
-        case US_ASCII => UsAsciiInputStreamDecoder.pooled().decode(is)
-        case _ =>
+    def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
           val writer = new FastStringWriter(bufferSize)
           val reader = new InputStreamReader(is, charset)
 

@@ -57,7 +57,7 @@ class SseStreamDecoderSpec extends BaseSpec {
     val chunks = Seq(Unpooled.wrappedBuffer(chunk1), Unpooled.wrappedBuffer(chunk2))
     try {
       val decoder = new SseStreamDecoder
-      chunks.flatMap(decoder.decode)
+      chunks.flatMap(decoder.decodeStream)
     } finally {
       chunks.foreach(_.release())
     }

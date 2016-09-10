@@ -16,13 +16,12 @@
 package io.gatling.commons.util
 
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets._
-
 import scala.annotation.switch
 
 import io.gatling.commons.util.Collections._
 
 import io.netty.buffer.Unpooled
+import org.asynchttpclient.netty.util.ByteBufUtils
 
 object Bytes {
 
@@ -43,18 +42,27 @@ object Bytes {
         target
     }
 
+  def byteArrayToString(bytes: Array[Byte], cs: Charset): String = {
+    val buf = Unpooled.wrappedBuffer(bytes)
+    try {
+      ByteBufUtils.byteBuf2String(cs, buf)
+    } finally {
+      buf.release()
+    }
+  }
+
   def byteArraysToString(bytes: Seq[Array[Byte]], cs: Charset): String =
-    cs match {
-      case UTF_8 =>
-        Utf8InputStreamDecoder.pooled().decode(new CompositeByteArrayInputStream(bytes))
-
-      case US_ASCII =>
-        UsAsciiInputStreamDecoder.pooled().decode(new CompositeByteArrayInputStream(bytes))
-
+    (bytes.length: @switch) match {
+      case 0 => ""
+      case 1 =>
+        // FIXME to be done in AHC in 2.0.16
+        byteArrayToString(bytes.head, cs)
       case _ =>
         val bufs = bytes.map(Unpooled.wrappedBuffer)
-        val string = ByteBufs.byteBufsToString(bufs, cs)
-        bufs.foreach(_.release())
-        string
+        try {
+          ByteBufUtils.byteBuf2String(cs, bufs: _*)
+        } finally {
+          bufs.foreach(_.release())
+        }
     }
 }

@@ -15,8 +15,10 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.netty.buffer.{ ByteBuf, ByteBufProcessor }
-import org.asynchttpclient.netty.util.Utf8Decoder
+import java.nio.CharBuffer
+
+import io.netty.buffer.ByteBuf
+import org.asynchttpclient.netty.util.Utf8ByteBufCharsetDecoder
 
 object SseStreamDecoder {
   private val BOM = '\uFEFF'
@@ -29,7 +31,7 @@ object SseStreamDecoder {
   val RetryHeader = "retry:".toCharArray
 }
 
-class SseStreamDecoder extends Utf8Decoder {
+class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
 
   import SseStreamDecoder._
 
@@ -43,15 +45,12 @@ class SseStreamDecoder extends Utf8Decoder {
   private[this] var previousBufferLastCharWasCr = false
   private[this] var position = 0
 
-  private def decodeBytes(buf: ByteBuf): Unit =
-    buf.forEachByte(
-      new ByteBufProcessor {
-        override def process(b: Byte): Boolean = {
-          write(b)
-          true
-        }
-      }
-    )
+  private var charArray: Array[Char] = _
+
+  override protected def allocateCharBuffer(l: Int): CharBuffer = {
+    charArray = new Array[Char](l)
+    CharBuffer.wrap(charArray)
+  }
 
   private def parseLine(lineStart: Int, lineEnd: Int): Unit = {
 
@@ -64,17 +63,17 @@ class SseStreamDecoder extends Utf8Decoder {
         if (lineLength < fieldHeaderLength) {
           None
 
-        } else if ((0 until fieldHeaderLength).forall { i => sb.charAt(lineStart + i) == fieldHeader(i) }) {
+        } else if ((0 until fieldHeaderLength).forall { i => charArray(lineStart + i) == fieldHeader(i) }) {
           val nextPos = lineStart + fieldHeaderLength
           val valueStart =
-            if (sb.charAt(nextPos) == ' ') {
+            if (charArray(nextPos) == ' ') {
               // white space after colon, trim it
               nextPos + 1
             } else {
               nextPos
             }
 
-          Some(sb.substring(valueStart, lineEnd))
+          Some(new String(charArray, valueStart, lineEnd - valueStart))
 
         } else {
           None
@@ -98,7 +97,7 @@ class SseStreamDecoder extends Utf8Decoder {
         pendingRetry = None
       }
 
-    } else if (sb.charAt(lineStart) == ':') {
+    } else if (charArray(lineStart) == ':') {
       // comment, skipping
 
     } else {
@@ -121,11 +120,11 @@ class SseStreamDecoder extends Utf8Decoder {
 
   private def parseChars(): Unit = {
     if (firstEvent) {
-      if (sb.charAt(position) == BOM) {
+      if (charArray(position) == BOM) {
         position += 1
       }
       firstEvent = false
-    } else if (previousBufferLastCharWasCr && sb.charAt(position) == LF) {
+    } else if (previousBufferLastCharWasCr && charArray(position) == LF) {
       // last buffer ended with a terminated line
       // but we were actually in the middle of a CRLF pair
       position += 1
@@ -133,12 +132,13 @@ class SseStreamDecoder extends Utf8Decoder {
 
     // scanning actual content
     var i = position
-    val sbLength = sb.length
+    val sbLength = charBuffer.position
+
     while (i < sbLength) {
-      sb.charAt(i) match {
+      charArray(i) match {
         case CR =>
           parseLine(position, i)
-          if (i < sbLength - 1 && sb.charAt(i + 1) == LF) {
+          if (i < sbLength - 1 && charArray(i + 1) == LF) {
             // skip next LF
             i += 2
           } else {
@@ -158,21 +158,17 @@ class SseStreamDecoder extends Utf8Decoder {
   }
 
   private def translateCharBuffer(): Unit = {
-    val sbLength = sb.length
-    previousBufferLastCharWasCr = sb.charAt(sbLength - 1) == CR
-    if (position > sbLength) {
+    val sbLength = charBuffer.position
+    previousBufferLastCharWasCr = charArray(sbLength - 1) == CR
+    if (position >= sbLength) {
       // all read, clear
-      sb.setLength(0)
-      position = 0
-
+      charBuffer.position(0)
     } else if (position > 0) {
       // partially read, translate
-      for (i <- position until sbLength) {
-        sb.setCharAt(i - position, sb.charAt(i))
-      }
-      sb.setLength(sbLength - position)
-      position = 0
+      System.arraycopy(charArray, position, charArray, 0, sbLength - position)
+      charBuffer.position(sbLength - position)
     }
+    position = 0
   }
 
   private def flushEvents(): Seq[ServerSentEvent] = {
@@ -181,11 +177,16 @@ class SseStreamDecoder extends Utf8Decoder {
     events
   }
 
-  def decode(buf: ByteBuf): Seq[ServerSentEvent] = {
+  def decodeStream(buf: ByteBuf): Seq[ServerSentEvent] = {
     if (buf.readableBytes == 0) {
       Nil
     } else {
-      decodeBytes(buf)
+      if (buf.nioBufferCount() == 1) {
+        decodePartial(buf.internalNioBuffer(buf.readerIndex(), buf.readableBytes()), false)
+      } else {
+        buf.nioBuffers().foreach(decodePartial(_, false))
+      }
+
       parseChars()
       translateCharBuffer()
       flushEvents()
