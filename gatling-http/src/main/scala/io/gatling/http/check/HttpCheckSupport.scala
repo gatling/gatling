@@ -15,20 +15,20 @@
  */
 package io.gatling.http.check
 
-import io.gatling.core.check.ConditionalCheckWrapper
-import io.gatling.core.check.ConditionalCheck
+import io.gatling.commons.validation.Validation
+import io.gatling.core.check.{ ConditionalCheck, TypedConditionalCheckWrapper, UntypedConditionalCheckWrapper }
 import io.gatling.core.check.extractor.css.CssExtractorFactory
 import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexExtractorFactory }
 import io.gatling.core.check.extractor.xpath.{ JdkXPathExtractorFactory, SaxonXPathExtractorFactory }
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
-import io.gatling.http.check.header.{ HttpHeaderRegexExtractorFactory, HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
+import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder, HttpHeaderRegexExtractorFactory }
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
-import io.gatling.http.check.url.{ CurrentLocationRegexCheckBuilder, CurrentLocationCheckBuilder }
+import io.gatling.http.check.url.{ CurrentLocationCheckBuilder, CurrentLocationRegexCheckBuilder }
 import io.gatling.http.response.Response
 
 trait HttpCheckSupport {
@@ -74,8 +74,16 @@ trait HttpCheckSupport {
 
   val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
 
-  implicit object HttpConditionalCheckWrapper extends ConditionalCheckWrapper[Response, HttpCheck] {
-    override def wrap(check: ConditionalCheck[Response, HttpCheck]) = HttpCheck(check, check.thenCheck.scope, check.thenCheck.responseBodyUsageStrategy)
+  implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
+    override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) =
+      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
+  }
+
+  implicit object HttpUntypedConditionalCheckWrapper extends UntypedConditionalCheckWrapper[HttpCheck] {
+    override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck) = {
+      val typedCondition = (response: Response, session: Session) => condition(session)
+      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
+    }
   }
 
 }

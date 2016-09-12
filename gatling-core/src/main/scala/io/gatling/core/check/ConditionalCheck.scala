@@ -16,17 +16,15 @@
 
 package io.gatling.core.check
 
-import java.util.UUID
-
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 
-trait ConditionalCheckWrapper[R, C <: Check[R]] {
-  def wrap(check: ConditionalCheck[R, C]): C
+trait TypedConditionalCheckWrapper[R, C <: Check[R]] {
+  def wrap(condition: (R, Session) => Validation[Boolean], thenCheck: C): C
 }
 
-case class ConditionalCheckBuilder[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) {
-  def build = ConditionalCheck[R, C](condition, thenCheck)
+trait UntypedConditionalCheckWrapper[C <: Check[_]] {
+  def wrap(condition: Expression[Boolean], thenCheck: C): C
 }
 
 case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
@@ -44,5 +42,4 @@ case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validat
       }
     }
   }
-
 }
