@@ -17,12 +17,13 @@ package io.gatling.http.check
 
 import scala.annotation.implicitNotFound
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.css.CssSelectors
 import io.gatling.core.check.extractor.regex.Patterns
 import io.gatling.core.check.extractor.xpath.XmlParsers
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumProvider
 import io.gatling.http.check.header._
@@ -77,7 +78,15 @@ trait HttpCheckSupport {
 
   implicit val httpResponseTimeProvider = HttpResponseTimeProvider
 
-  implicit object HttpConditionalCheckWrapper extends ConditionalCheckWrapper[Response, HttpCheck] {
-    override def wrap(check: ConditionalCheck[Response, HttpCheck]) = HttpCheck(check, check.thenCheck.scope, check.thenCheck.responseBodyUsageStrategy)
+  implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
+    override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) =
+      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
+  }
+
+  implicit object HttpUntypedConditionalCheckWrapper extends UntypedConditionalCheckWrapper[HttpCheck] {
+    override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck) = {
+      val typedCondition = (response: Response, session: Session) => condition(session)
+      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
+    }
   }
 }

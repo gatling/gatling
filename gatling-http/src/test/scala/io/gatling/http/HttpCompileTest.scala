@@ -301,6 +301,21 @@ class HttpCompileTest extends Simulation {
     .uniformPauses(1337 seconds)
 
   // Conditional check compile test
-  def isJsonResponse(response: Response): Boolean = response.isReceived && response.header(HttpHeaderNames.ContentType).exists { x => x.contains(HttpHeaderValues.ApplicationJson) }
-  def securedJsonCheck(check: HttpCheck): HttpCheck = checkIf((response: Response, session: Session) => Success(isJsonResponse(response)))(check)
+  val requestWithUntypedCheckIf =
+    http("untypedCheckIf").get("/")
+      .check(
+        checkIf("${bool}") {
+          jsonPath("$..foo")
+        }
+      )
+
+  def isJsonResponse(response: Response): Boolean = response.header(HttpHeaderNames.ContentType).exists { x => x.contains(HttpHeaderValues.ApplicationJson) }
+
+  val requestWithTypedCheckIf =
+    http("typedCheckIf").get("/")
+      .check(
+        checkIf((response: Response, _: Session) => isJsonResponse(response)) {
+          jsonPath("$..foo")
+        }
+      )
 }

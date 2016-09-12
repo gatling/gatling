@@ -46,9 +46,11 @@ trait CheckSupport {
   @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
   implicit def oldFindCheckBuilder2Check[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists.build
 
-  implicit def conditionalCheckBuilder2Check[R, C <: Check[R]](conditionalCheckBuilder: ConditionalCheckBuilder[R, C]): ConditionalCheck[R, C] = conditionalCheckBuilder.build
-  def checkIf[R, C <: Check[R]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(s), thenCheck))
-  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: ConditionalCheckWrapper[R, C]): C = cw.wrap(ConditionalCheckBuilder((r: R, s: Session) => condition(r, s), thenCheck))
+  def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =
+    cw.wrap(condition, thenCheck)
+
+  def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: TypedConditionalCheckWrapper[R, C]): C =
+    cw.wrap(condition, thenCheck)
 
   def regex(pattern: Expression[String])(implicit patterns: Patterns): RegexCheckBuilder[String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
 
