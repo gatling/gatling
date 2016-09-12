@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import io.gatling.core.check.{ CheckProtocolProvider, Extender, Preparer }
+import io.gatling.core.check.{ CheckProtocolProvider, Preparer, Specializer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
@@ -51,11 +51,11 @@ class HttpBodyJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolPr
 
   import HttpBodyJsonPathProvider._
 
-  override val extender: Extender[HttpCheck, Response] = {
+  override val specializer: Specializer[HttpCheck, Response] = {
     val responseBodyUsageStrategy =
       if (jsonParsers.preferJackson) JacksonResponseBodyUsageStrategy
       else BoonResponseBodyUsageStrategy
-    HttpCheckBuilders.bodyExtender(responseBodyUsageStrategy)
+    HttpCheckBuilders.bodySpecializer(responseBodyUsageStrategy)
   }
 
   override val preparer: Preparer[Response, Any] = jsonPathPreparer(jsonParsers)

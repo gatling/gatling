@@ -31,7 +31,7 @@ class HttpHeaderCheckBuilder(headerName: Expression[String]) extends DefaultMult
 
 object HttpHeaderProvider extends CheckProtocolProvider[HttpHeaderCheckType, HttpCheck, Response, Response] {
 
-  override val extender: Extender[HttpCheck, Response] = HeaderExtender
+  override val specializer: Specializer[HttpCheck, Response] = HeaderSpecializer
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

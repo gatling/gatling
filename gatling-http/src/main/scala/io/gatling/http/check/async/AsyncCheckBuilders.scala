@@ -18,11 +18,11 @@ package io.gatling.http.check.async
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ Extender, Preparer }
+import io.gatling.core.check.{ Preparer, Specializer }
 
 object AsyncCheckBuilders {
 
-  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
+  def specializer(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Specializer[AsyncCheck, String] =
     wrapped => AsyncCheck(wrapped, await, timeout, expectation)
 
   val PassThroughMessagePreparer: Preparer[String, String] = _.success

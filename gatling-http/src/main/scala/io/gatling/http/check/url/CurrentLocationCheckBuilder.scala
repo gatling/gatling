@@ -16,7 +16,7 @@
 package io.gatling.http.check.url
 
 import io.gatling.commons.validation.SuccessWrapper
-import io.gatling.core.check.{ CheckProtocolProvider, DefaultFindCheckBuilder, Extender, Preparer }
+import io.gatling.core.check.{ CheckProtocolProvider, DefaultFindCheckBuilder, Preparer, Specializer }
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
@@ -39,7 +39,7 @@ object CurrentLocationCheckBuilder {
 
 object CurrentLocationProvider extends CheckProtocolProvider[CurrentLocationCheckType, HttpCheck, Response, Response] {
 
-  override val extender: Extender[HttpCheck, Response] = UrlExtender
+  override val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

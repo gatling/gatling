@@ -25,7 +25,7 @@ import io.gatling.http.response.Response
 
 object HttpResponseTimeProvider extends CheckProtocolProvider[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] {
 
-  override val extender: Extender[HttpCheck, Response] = TimeExtender
+  override val specializer: Specializer[HttpCheck, Response] = TimeSpecializer
 
   override val preparer: Preparer[Response, ResponseTimings] = _.timings.success
 }

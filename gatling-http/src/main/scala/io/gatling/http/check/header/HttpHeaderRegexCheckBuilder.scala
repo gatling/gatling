@@ -64,7 +64,7 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
 
 object HttpHeaderRegexProvider extends CheckProtocolProvider[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {
 
-  override val extender: Extender[HttpCheck, Response] = HeaderExtender
+  override val specializer: Specializer[HttpCheck, Response] = HeaderSpecializer
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

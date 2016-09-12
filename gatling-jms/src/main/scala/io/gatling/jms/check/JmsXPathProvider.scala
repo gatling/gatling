@@ -27,7 +27,7 @@ import org.xml.sax.InputSource
 
 class JmsXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPathCheckType, JmsCheck, Message, Option[Dom]] {
 
-  override val extender: Extender[JmsCheck, Message] = identity
+  override val specializer: Specializer[JmsCheck, Message] = identity
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 

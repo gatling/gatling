@@ -17,7 +17,7 @@ package io.gatling.core.check
 
 trait CheckProtocolProvider[A, C <: Check[R], R, P] {
 
-  def extender: Extender[C, R]
+  def specializer: Specializer[C, R]
 
   def preparer: Preparer[R, P]
 }

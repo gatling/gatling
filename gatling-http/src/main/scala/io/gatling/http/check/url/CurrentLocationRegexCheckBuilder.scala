@@ -53,7 +53,7 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
 
 object CurrentLocationRegexProvider extends CheckProtocolProvider[CurrentLocationRegexCheckType, HttpCheck, Response, String] {
 
-  override val extender: Extender[HttpCheck, Response] = UrlExtender
+  override val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
 
   override val preparer: Preparer[Response, String] = UrlStringPreparer
 }

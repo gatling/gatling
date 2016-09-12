@@ -29,7 +29,7 @@ object HttpChecksumProvider {
 
 class HttpChecksumProvider[T](algorithm: String) extends CheckProtocolProvider[T, HttpCheck, Response, String] {
 
-  override val extender: Extender[HttpCheck, Response] = new ChecksumCheck(algorithm, _)
+  override val specializer: Specializer[HttpCheck, Response] = new ChecksumCheck(algorithm, _)
 
   override val preparer: Preparer[Response, String] = _.checksum(algorithm) match {
     case Some(chk) => chk.success

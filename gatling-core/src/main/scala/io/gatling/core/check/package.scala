@@ -27,8 +27,7 @@ package object check {
   type Preparer[R, P] = R => Validation[P]
 
   /**
-   * Build a protocol specific check from a base one.
-   * Usually just decorate the base one and add some more information.
+   * Specializes a generic check for a given protocol.
    */
-  type Extender[C <: Check[R], R] = Check[R] => C
+  type Specializer[C <: Check[R], R] = Check[R] => C
 }

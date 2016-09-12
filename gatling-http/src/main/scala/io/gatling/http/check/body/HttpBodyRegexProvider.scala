@@ -16,14 +16,14 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.extractor.regex.RegexCheckType
-import io.gatling.core.check.{ CheckProtocolProvider, Extender, Preparer }
+import io.gatling.core.check.{ CheckProtocolProvider, Preparer, Specializer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
 object HttpBodyRegexProvider extends CheckProtocolProvider[RegexCheckType, HttpCheck, Response, CharSequence] {
 
-  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
+  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
   override val preparer: Preparer[Response, CharSequence] = ResponseBodyStringPreparer
 }

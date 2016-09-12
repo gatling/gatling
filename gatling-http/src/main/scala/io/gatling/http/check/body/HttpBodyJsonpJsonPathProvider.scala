@@ -38,7 +38,7 @@ object HttpBodyJsonpJsonPathProvider {
 
 class HttpBodyJsonpJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider[JsonpJsonPathCheckType, HttpCheck, Response, Any] {
 
-  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
+  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
   override val preparer: Preparer[Response, Any] = HttpBodyJsonpJsonPathProvider.jsonpPreparer(jsonParsers)
 }

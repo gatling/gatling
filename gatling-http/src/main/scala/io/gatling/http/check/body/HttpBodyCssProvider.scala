@@ -27,7 +27,7 @@ import jodd.lagarto.dom.NodeSelector
 
 class HttpBodyCssProvider(selectors: CssSelectors) extends CheckProtocolProvider[CssCheckType, HttpCheck, Response, NodeSelector] {
 
-  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
+  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 

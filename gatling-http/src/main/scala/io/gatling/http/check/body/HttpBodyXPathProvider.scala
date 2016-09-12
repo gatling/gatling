@@ -26,7 +26,7 @@ import org.xml.sax.InputSource
 
 class HttpBodyXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPathCheckType, HttpCheck, Response, Option[Dom]] {
 
-  override val extender: Extender[HttpCheck, Response] = StreamBodyExtender
+  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 

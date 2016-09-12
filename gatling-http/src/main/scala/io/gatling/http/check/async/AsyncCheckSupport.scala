@@ -47,14 +47,14 @@ trait AsyncCheckDSL {
   class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
     def regex(expression: Expression[String])(implicit extractorFactory: OldRegexExtractorFactory): AsyncRegexCheckBuilder[String] with AsyncRegexOfType =
-      AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.specializer(await, timeout, expectation))
 
     def jsonPath(path: Expression[String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.specializer(await, timeout, expectation))
 
     def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
+      AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.specializer(await, timeout, expectation))
 
-    val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.extender(await, timeout, expectation))
+    val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.specializer(await, timeout, expectation))
   }
 }

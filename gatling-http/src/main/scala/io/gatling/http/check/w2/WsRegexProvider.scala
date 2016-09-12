@@ -22,7 +22,7 @@ import io.gatling.http.action.ws2.WsTextCheck
 
 object WsRegexProvider extends CheckProtocolProvider[RegexCheckType, WsTextCheck, String, CharSequence] {
 
-  override val extender: Extender[WsTextCheck, String] = WsTextCheck(_)
+  override val specializer: Specializer[WsTextCheck, String] = WsTextCheck(_)
 
   override val preparer: Preparer[String, CharSequence] = _.success
 }

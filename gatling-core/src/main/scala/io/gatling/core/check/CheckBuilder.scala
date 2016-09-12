@@ -186,7 +186,7 @@ case class CheckBuilder[A, P, X](
   def build[C <: Check[R], R](protocolProvider: CheckProtocolProvider[A, C, R, P]): C = {
     import protocolProvider._
     val base: CheckBase[R, P, X] = CheckBase(preparer, validatorCheckBuilder.extractor, validator, saveAs)
-    extender(base)
+    specializer(base)
   }
 }
 

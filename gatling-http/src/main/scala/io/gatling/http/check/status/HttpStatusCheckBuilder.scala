@@ -42,7 +42,7 @@ object HttpStatusCheckBuilder {
 
 object HttpStatusProvider extends CheckProtocolProvider[HttpStatusCheckType, HttpCheck, Response, Response] {
 
-  override val extender: Extender[HttpCheck, Response] = StatusExtender
+  override val specializer: Specializer[HttpCheck, Response] = StatusSpecializer
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

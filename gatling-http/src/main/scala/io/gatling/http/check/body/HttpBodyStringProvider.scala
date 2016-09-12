@@ -23,7 +23,7 @@ import io.gatling.http.response.Response
 
 object HttpBodyStringProvider extends CheckProtocolProvider[BodyStringCheckType, HttpCheck, Response, String] {
 
-  override val extender: Extender[HttpCheck, Response] = StringBodyExtender
+  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
   override val preparer: Preparer[Response, String] = ResponseBodyStringPreparer
 }

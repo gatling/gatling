@@ -16,23 +16,23 @@
 package io.gatling.http.check
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ Check, Extender, Preparer }
+import io.gatling.core.check.{ Check, Preparer, Specializer }
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response._
 
 object HttpCheckBuilders {
 
-  private def extender(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): Extender[HttpCheck, Response] =
+  private def specializer(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): Specializer[HttpCheck, Response] =
     (wrapped: Check[Response]) => HttpCheck(wrapped, target, responseBodyUsageStrategy)
 
-  val StatusExtender = extender(Status, None)
-  val UrlExtender = extender(Url, None)
-  val HeaderExtender = extender(Header, None)
-  def bodyExtender(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = extender(Body, Some(responseBodyUsageStrategy))
-  val StringBodyExtender = bodyExtender(StringResponseBodyUsageStrategy)
-  val StreamBodyExtender = bodyExtender(InputStreamResponseBodyUsageStrategy)
-  val BytesBodyExtender = bodyExtender(ByteArrayResponseBodyUsageStrategy)
-  val TimeExtender = extender(Body, None)
+  val StatusSpecializer = specializer(Status, None)
+  val UrlSpecializer = specializer(Url, None)
+  val HeaderSpecializer = specializer(Header, None)
+  def bodySpecializer(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = specializer(Body, Some(responseBodyUsageStrategy))
+  val StringBodySpecializer = bodySpecializer(StringResponseBodyUsageStrategy)
+  val StreamBodySpecializer = bodySpecializer(InputStreamResponseBodyUsageStrategy)
+  val BytesBodySpecializer = bodySpecializer(ByteArrayResponseBodyUsageStrategy)
+  val TimeSpecializer = specializer(Body, None)
 
   val PassThroughResponsePreparer: Preparer[Response, Response] = _.success
   val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success
