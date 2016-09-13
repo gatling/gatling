@@ -196,7 +196,9 @@ object GatlingConfiguration extends StrictLogging {
           soReuseAddress = config.getBoolean(http.ahc.SoReuseAddress),
           soLinger = config.getInt(http.ahc.SoLinger),
           soSndBuf = config.getInt(http.ahc.SoSndBuf),
-          soRcvBuf = config.getInt(http.ahc.SoRcvBuf)
+          soRcvBuf = config.getInt(http.ahc.SoRcvBuf),
+          allocator = config.getString(http.ahc.Allocator),
+          maxThreadLocalCharBufferSize = config.getInt(http.ahc.MaxThreadLocalCharBufferSize)
         ),
         dns = DnsConfiguration(
           queryTimeout = config.getInt(http.dns.QueryTimeout),
@@ -347,9 +349,11 @@ case class AhcConfiguration(
   usePooledMemory:                     Boolean,
   tcpNoDelay:                          Boolean,
   soReuseAddress:                      Boolean,
-  soLinger: Int,
-  soSndBuf: Int,
-  soRcvBuf: Int
+  soLinger:                            Int,
+  soSndBuf:                            Int,
+  soRcvBuf:                            Int,
+  allocator:                           String,
+  maxThreadLocalCharBufferSize:        Int
 )
 
 case class DnsConfiguration(

@@ -111,6 +111,8 @@ object ConfigKeys {
       val SoLinger = "gatling.http.ahc.soLinger"
       val SoSndBuf = "gatling.http.ahc.soSndBuf"
       val SoRcvBuf = "gatling.http.ahc.soRcvBuf"
+      val Allocator = "gatling.http.ahc.allocator"
+      val MaxThreadLocalCharBufferSize = "gatling.http.ahc.maxThreadLocalCharBufferSize"
     }
 
     object dns {
