@@ -67,13 +67,13 @@ class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreCompon
     componentsCache.clear()
   }
 
-  lazy val onStart: Session => Session =
+  def onStart: Session => Session =
     componentsCache.values.collect { case protocolComponents: ProtocolComponents => protocolComponents.onStart }.flatten.toList match {
       case Nil          => Session.Identity
       case head :: tail => tail.foldLeft(head)(_ andThen _)
     }
 
-  lazy val onExit: Session => Unit =
+  def onExit: Session => Unit =
     componentsCache.values.collect { case any: ProtocolComponents => any.onExit }.flatten.toList match {
       case Nil => _ => ()
       case onExits => session => onExits.foreach(_(session))
