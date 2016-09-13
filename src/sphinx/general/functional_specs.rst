@@ -2,7 +2,7 @@
 Functional specs
 ################
 
-Functional specs support was initially contributed by Constantijn Visinescu ([@constantijn](https://github.com/constantijn)).
+Functional specs support was initially contributed by `Constantijn Visinescu <https://github.com/constantijn>`_.
 
 Writing functional specs with gatling
 =====================================
