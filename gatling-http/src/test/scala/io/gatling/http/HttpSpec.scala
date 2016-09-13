@@ -30,7 +30,7 @@ import io.gatling.core.action.{ Action, ActorDelegatingAction }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
-import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols }
+import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
@@ -66,11 +66,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     timeout:            FiniteDuration                             = 10.seconds,
     protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
   )(implicit configuration: GatlingConfiguration) = {
-    // FIXME should initialize with this
     val protocols = Protocols(protocolCustomizer(httpProtocol))
     val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
+    val protocolComponentsRegistry = new ProtocolComponentsRegistries(system, coreComponents, protocols).scenarioRegistry(Protocols(Nil))
     val next = new ActorDelegatingAction("next", self)
-    val actor = sb.build(ScenarioContext(system, coreComponents, new ProtocolComponentsRegistry(system, coreComponents, protocols), Constant, throttled = false), next)
+    val actor = sb.build(ScenarioContext(system, coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     actor ! Session("TestSession", 0)
     expectMsgClass(timeout, classOf[Session])
   }

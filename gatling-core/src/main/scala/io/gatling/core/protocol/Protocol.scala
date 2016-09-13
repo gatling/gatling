@@ -33,7 +33,7 @@ trait ProtocolKey {
   type Components
   def protocolClass: Class[io.gatling.core.protocol.Protocol]
 
-  def defaultValue(configuration: GatlingConfiguration): Protocol
+  def defaultProtocolValue(configuration: GatlingConfiguration): Protocol
   def newComponents(system: ActorSystem, coreComponents: CoreComponents): Protocol => Components
 }
 
@@ -42,29 +42,31 @@ trait ProtocolComponents {
   def onExit: Option[Session => Unit]
 }
 
-class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols) {
+class ProtocolComponentsRegistries(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols) {
 
-  // mustn't reset
   val componentsFactoryCache = mutable.Map.empty[ProtocolKey, Any]
 
-  // must reset
-  var protocols = globalProtocols
+  def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
+    new ProtocolComponentsRegistry(
+      system,
+      coreComponents,
+      globalProtocols ++ scenarioProtocols,
+      componentsFactoryCache
+    )
+}
+
+class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey, Any]) {
+
   val protocolCache = mutable.Map.empty[ProtocolKey, Protocol]
   val componentsCache = mutable.Map.empty[ProtocolKey, Any]
 
   def components(key: ProtocolKey): key.Components = {
 
       def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
-      def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
+      def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
       def comps = componentsFactory(protocol)
 
     componentsCache.getOrElseUpdate(key, comps).asInstanceOf[key.Components]
-  }
-
-  def setScenarioProtocols(scenarioProtocols: Protocols): Unit = {
-    protocols = globalProtocols ++ scenarioProtocols
-    protocolCache.clear()
-    componentsCache.clear()
   }
 
   def onStart: Session => Session =

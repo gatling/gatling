@@ -45,7 +45,7 @@ object HttpProtocol extends StrictLogging {
     type Components = HttpComponents
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[HttpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
-    def defaultValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
+    def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
     def newComponents(system: ActorSystem, coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
 
