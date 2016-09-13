@@ -61,6 +61,14 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   val configuration = coreComponents.configuration
   val ahcConfig = configuration.http.ahc
 
+  private def setSystemPropertyIfUndefined(name: String, value: Any): Unit =
+    if (System.getProperty(name) == null) {
+      System.setProperty(name, value.toString)
+    }
+
+  setSystemPropertyIfUndefined("io.netty.allocator.type", configuration.http.ahc.allocator)
+  setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", configuration.http.ahc.maxThreadLocalCharBufferSize)
+
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)
 
