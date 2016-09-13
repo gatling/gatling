@@ -21,7 +21,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
-import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols }
+import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
@@ -31,7 +31,7 @@ class ExecsSpec extends AkkaSpec with CoreDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
-  val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, mock[Protocols])
+  val protocolComponentsRegistry = new ProtocolComponentsRegistries(system, coreComponents, Protocols(Nil)).scenarioRegistry(Protocols(Nil))
   val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, Constant, throttled = false)
 
   "Execs" should "wrap Scenarios in chains, using exec" in {

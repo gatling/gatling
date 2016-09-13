@@ -22,7 +22,7 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.{ Throttlings, ThrottleStep, Throttling }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
-import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols, Protocol }
+import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols, Protocol }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
 
@@ -183,7 +183,7 @@ case class SimulationParams(
 ) {
 
   def scenarios(system: ActorSystem, coreComponents: CoreComponents): List[Scenario] = {
-    val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, globalProtocols)
-    populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistry, globalProtocols, globalPauseType, throttlings.global))
+    val protocolComponentsRegistries = new ProtocolComponentsRegistries(system, coreComponents, globalProtocols)
+    populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global))
   }
 }
