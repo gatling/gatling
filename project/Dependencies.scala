@@ -10,7 +10,7 @@ object Dependencies {
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                   % "1.0.2"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.5"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"      % "1.0.4"
-  private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0-RC3"
+  private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0-RC7"
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"             % "2.0.15"
   private val ahcNettyUtils                 = "org.asynchttpclient"                    % "async-http-client-netty-utils" % ahc.revision
   private val netty                         = "io.netty"                               % "netty-codec-http"              % "4.0.41.Final"
