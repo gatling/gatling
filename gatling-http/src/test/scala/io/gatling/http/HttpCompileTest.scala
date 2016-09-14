@@ -248,6 +248,15 @@ class HttpCompileTest extends Simulation {
       "a" -> exec(http("a").get("/")),
       "b" -> exec(http("b").get("/")) //
     )(exec(http("else").get("/")))
+    .exec(http("transformResponse")
+      .get("/")
+      .transformResponse {
+        case response if response.isReceived =>
+          import io.gatling.http.response._
+          new ResponseWrapper(response) {
+            override val body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.charset)
+          }
+      })
 
   val inject1 = nothingFor(10 milliseconds)
   val inject2 = rampUsers(10).over(10 minutes)
