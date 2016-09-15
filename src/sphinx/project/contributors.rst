@@ -13,9 +13,13 @@ There's plenty of opportunities!
 
 * `Andrew Duffy <https://github.com/amjjd>`_ originally contributed our WebSocket support.
 
+* `Pierre Dal-Pra <https://github.com/pdalpra>`_ is our sbt roxxor who created our build chain and our sbt plugin.
+
 * `Jason Koch <https://github.com/jasonk000>`_ originally contributed our JMS support.
 
 * `Adrian Lewis <https://github.com/aidylewis>`_ frequently helps on the community mailing list and helped with our documentation, eg on real time monitoring.
+
+* `Nicolas Rémond <https://github.com/nremond>`_ contributed our amazing JsonPath support and our Graphite/InfluxDb intregration.
 
 * `Constantijn Visinescu <https://github.com/constantijn>`_ originally contributed the FunSpec and associated demo project.
 
