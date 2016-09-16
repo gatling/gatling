@@ -19,13 +19,11 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
 
-import io.gatling.app.Gatling.SimulationFactory
 import io.gatling.app.cli.{ StatusCode, ArgsParser }
 import io.gatling.commons.util.Ga
 import io.gatling.commons.util.TimeHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
-import io.gatling.core.scenario.Simulation
 import io.gatling.core.stats.writer.RunMessage
 
 import akka.actor.ActorSystem
@@ -36,29 +34,28 @@ import akka.pattern.ask
  */
 object Gatling {
 
-  type SimulationFactory = (Class[_ <: Simulation]) => Simulation
-
-  private val defaultSimulationFactory: SimulationFactory = _.newInstance()
-
+  // used by bundle
   def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
 
-  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None, defaultSimulationFactory)
+  // used by maven archetype
+  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
 
-  def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory = defaultSimulationFactory): Int =
+  // used by sbt-test-framework
+  private[gatling] def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int =
     new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, selectedSimulationClass, simulationFactory)
+      case Left(overrides)   => start(overrides, selectedSimulationClass)
       case Right(statusCode) => statusCode.code
     }
 
-  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory) = {
+  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
 
     val configuration = GatlingConfiguration.load(overrides)
 
-    new Gatling(selectedSimulationClass, simulationFactory, configuration).start.code
+    new Gatling(selectedSimulationClass, configuration).start.code
   }
 }
 
-private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, simulationFactory: SimulationFactory, configuration: GatlingConfiguration) {
+private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration) {
 
   def start: StatusCode = {
     val coreComponentsFactory = CoreComponentsFactory(configuration)
@@ -71,7 +68,6 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, sim
       case Some(reportsOnly) => RunResult(reportsOnly, hasAssertions = true)
       case _ =>
         if (configuration.http.enableGA) Ga.send(configuration.core.version)
-        // -- Run Gatling -- //
         run(Selection(selectedSimulationClass, configuration), coreComponentsFactory)
     }
 
@@ -89,7 +85,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass, sim
       // ugly way to pass the configuration to the Simulation constructor
       io.gatling.core.Predef.configuration = configuration
 
-      val simulation = simulationFactory(selection.simulationClass)
+      val simulation = selection.simulationClass.newInstance
 
       val simulationParams = simulation.params(configuration)
 
