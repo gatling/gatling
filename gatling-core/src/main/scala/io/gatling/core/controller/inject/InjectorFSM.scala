@@ -23,14 +23,12 @@ private[inject] trait InjectorState
 private[inject] object InjectorState {
   case object WaitingToStart extends InjectorState
   case object Started extends InjectorState
-  case object Overridden extends InjectorState
 }
 
 private[inject] trait InjectorData
 private[inject] object InjectorData {
   case object NoData extends InjectorData
   case class StartedData(startMillis: Long, count: Long, timer: Cancellable) extends InjectorData
-  case class OverriddenData(startedData: StartedData, overrides: Map[String, UserStream]) extends InjectorData
 }
 
 private[inject] class InjectorFSM extends BaseActor with FSM[InjectorState, InjectorData]
