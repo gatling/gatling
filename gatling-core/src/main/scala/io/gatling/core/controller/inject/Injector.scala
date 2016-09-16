@@ -32,8 +32,6 @@ import akka.actor.{ Cancellable, Props, ActorSystem, ActorRef }
 sealed trait InjectorCommand
 object InjectorCommand {
   case object Start extends InjectorCommand
-  case class OverrideStart(overrides: Map[String, UserStream]) extends InjectorCommand
-  case object OverrideStop extends InjectorCommand
   case object Tick extends InjectorCommand
 }
 
@@ -156,27 +154,5 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
   when(Started) {
     case Event(Tick, StartedData(startMillis, count, timer)) =>
       inject(defaultStreams, tickPeriod, startMillis, count, timer)
-
-    case Event(OverrideStart(overrides), startedData: StartedData) =>
-      goto(Overridden) using OverriddenData(startedData, overrides)
-
-    case Event(OverrideStop, _) =>
-      // out of band
-      stay()
-  }
-
-  when(Overridden) {
-    case Event(Tick, OverriddenData(StartedData(startMillis, count, timer), overrides)) =>
-      // we still have to pull default streams, just drop them
-      defaultStreams.values.foreach {
-        withStream(_, tickPeriod, startMillis)((_, _) => ())
-      }
-      inject(overrides, tickPeriod, startMillis, count, timer)
-
-    case Event(OverrideStart(overrides), OverriddenData(startedData, _)) =>
-      goto(Overridden) using OverriddenData(startedData, overrides)
-
-    case Event(OverrideStop, OverriddenData(startedData, _)) =>
-      goto(Started) using startedData
   }
 }
