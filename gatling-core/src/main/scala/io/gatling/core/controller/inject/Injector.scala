@@ -35,7 +35,41 @@ object InjectorCommand {
   case object Tick extends InjectorCommand
 }
 
-private[inject] case class UserStream(scenario: Scenario, stream: PushbackIterator[FiniteDuration])
+private[inject] case class UserStream(scenario: Scenario, stream: PushbackIterator[FiniteDuration]) {
+
+  def withStream(batchWindow: FiniteDuration, injectTime: Long, startTime: Long)(f: (Scenario, FiniteDuration) => Unit): Injection = {
+
+    if (stream.hasNext) {
+      val batchTimeOffset = (injectTime - startTime).millis
+      val nextBatchTimeOffset = batchTimeOffset + batchWindow
+
+      var continue = true
+      var streamNonEmpty = true
+      var count = 0L
+
+      while (streamNonEmpty && continue) {
+
+        val startingTime = stream.next()
+        streamNonEmpty = stream.hasNext
+        val delay = startingTime - batchTimeOffset
+        continue = startingTime < nextBatchTimeOffset
+
+        if (continue) {
+          count += 1
+          // TODO instead of scheduling each user separately, we could group them by rounded-up delay (Akka defaults to 10ms)
+          f(scenario, delay)
+        } else {
+          streamNonEmpty = true
+          stream.pushback(startingTime)
+        }
+      }
+
+      Injection(count, streamNonEmpty)
+    } else {
+      Injection.Empty
+    }
+  }
+}
 
 private[inject] object Injection {
   val Empty = Injection(0, continue = false)
@@ -76,15 +110,16 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
     } else {
       controller ! ControllerCommand.InjectionStopped(newCount)
       timer.cancel()
+      // FIXME do we really need to stop? Or go to a noop state?
       stop()
     }
   }
 
   private def injectStreams(streams: Map[String, UserStream], batchWindow: FiniteDuration, startTime: Long): Injection = {
-    val injections = streams.values.map(withStream(_, batchWindow, startTime)(injectUser))
+    val injections = streams.values.map(_.withStream(batchWindow, nowMillis, startTime)(injectUser))
     val totalCount = injections.sumBy(_.count)
     val totalContinue = injections.exists(_.continue)
-    logger.debug(s"Injecting $totalCount users")
+    logger.debug(s"Injecting $totalCount users, continue=$totalContinue")
     Injection(totalCount, totalContinue)
   }
 
@@ -104,42 +139,6 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
       startUser(scenario, userId)
     } else {
       system.scheduler.scheduleOnce(delay)(startUser(scenario, userId))
-    }
-  }
-
-  private def withStream(userStream: UserStream, batchWindow: FiniteDuration, startTime: Long)(f: (Scenario, FiniteDuration) => Unit): Injection = {
-
-    val scenario = userStream.scenario
-    val stream = userStream.stream
-
-    if (stream.hasNext) {
-      val batchTimeOffset = (nowMillis - startTime).millis
-      val nextBatchTimeOffset = batchTimeOffset + batchWindow
-
-      var continue = true
-      var streamNonEmpty = true
-      var count = 0L
-
-      while (streamNonEmpty && continue) {
-
-        val startingTime = stream.next()
-        streamNonEmpty = stream.hasNext
-        val delay = startingTime - batchTimeOffset
-        continue = startingTime < nextBatchTimeOffset
-
-        if (continue) {
-          count += 1
-          // TODO instead of scheduling each user separately, we could group them by rounded-up delay (Akka defaults to 10ms)
-          f(scenario, delay)
-        } else {
-          streamNonEmpty = true
-          stream.pushback(startingTime)
-        }
-      }
-
-      Injection(count, streamNonEmpty)
-    } else {
-      Injection.Empty
     }
   }
 
