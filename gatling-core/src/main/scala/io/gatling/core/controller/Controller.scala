@@ -71,7 +71,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       evaluateUserCounts(startedData)
 
     case Event(InjectionStopped(expectedCount), startedData: StartedData) =>
-      logger.info("InjectionStopped")
+      logger.info(s"InjectionStopped expectedCount=$expectedCount")
       startedData.userCounts.expected = expectedCount
       evaluateUserCounts(startedData)
 
@@ -81,14 +81,19 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
   }
 
   private def evaluateUserCounts(startedData: StartedData): State =
-    if (startedData.userCounts.allStopped)
+    if (startedData.userCounts.allStopped) {
+      logger.info("All users are stopped")
       stop(startedData, None)
-    else
+    } else {
       stay()
+    }
 
   private def stop(startedData: StartedData, exception: Option[Throwable]): State = {
     cancelTimer(maxDurationTimer)
-    logger.info("Asking StatsEngine to stop")
+    exception match {
+      case None => logger.info("Asking StatsEngine to stop")
+      case Some(e) => logger.error("Asking StatsEngine to stop", e)
+    }
     statsEngine.stop(self)
     goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
   }
