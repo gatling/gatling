@@ -43,7 +43,17 @@ set JAVA_OPTS=-Xms512M -Xmx512M -Xmn100M %JAVA_OPTS%
 set CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\conf;%JAVA_CLASSPATH%
 set COMMAND=-cp %CLASSPATH% io.gatling.recorder.GatlingRecorder
 
-java %JAVA_OPTS% %COMMAND% %1 %2 %3 %4 %5 %6 %7 %8 %9
+set JAVA=java
+if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
+goto run
+
+:setJavaHome
+set JAVA="%JAVA_HOME%\bin\java.exe"
+
+:run
+echo JAVA = "%JAVA%"
+
+%JAVA% %JAVA_OPTS% %COMMAND% %1 %2 %3 %4 %5 %6 %7 %8 %9
 
 goto exit
 
