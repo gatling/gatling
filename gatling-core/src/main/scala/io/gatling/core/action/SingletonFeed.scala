@@ -40,7 +40,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
           else
             feeder.next().success
 
-        def injectRecords(numberOfRecords: Int): Validation[Session] =
+        def feedRecords(numberOfRecords: Int): Validation[Session] =
           numberOfRecords match {
             case 1 =>
               pollRecord().map(session.setAll)
@@ -54,10 +54,10 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
             case n => s"$n is not a valid number of records".failure
           }
 
-      val newSession = number(session).flatMap(injectRecords) match {
+      val newSession = number(session).flatMap(feedRecords) match {
         case Success(s) => s
         case Failure(message) =>
-          logger.error(s"Injection failed: $message, please report.")
+          logger.error(s"Feed failed: $message, please report.")
           controller ! ControllerCommand.ForceStop(Some(new IllegalStateException(message)))
           session
       }
