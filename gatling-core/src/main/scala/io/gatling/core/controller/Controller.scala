@@ -91,7 +91,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
   private def stop(startedData: StartedData, exception: Option[Throwable]): State = {
     cancelTimer(maxDurationTimer)
     exception match {
-      case None => logger.info("Asking StatsEngine to stop")
+      case None    => logger.info("Asking StatsEngine to stop")
       case Some(e) => logger.error("Asking StatsEngine to stop", e)
     }
     statsEngine.stop(self)
