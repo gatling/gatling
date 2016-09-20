@@ -94,7 +94,7 @@ abstract class Simulation {
     }
   }
 
-  private[gatling] def params(configuration: GatlingConfiguration) = {
+  private[gatling] def params(configuration: GatlingConfiguration): SimulationParams = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
     val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
@@ -159,27 +159,28 @@ abstract class Simulation {
     }
 
     SimulationParams(
+      getClass.getName,
       populationBuilders,
       _globalProtocols,
       _globalPauseType,
       Throttlings(globalThrottling, scenarioThrottlings),
       maxDuration,
-      _assertions,
-      _beforeSteps,
-      _afterSteps
+      _assertions
     )
   }
+
+  private[gatling] def executeBefore(): Unit = _beforeSteps.foreach(_.apply())
+  private[gatling] def executeAfter(): Unit = _afterSteps.foreach(_.apply())
 }
 
 case class SimulationParams(
+    name:               String,
     populationBuilders: List[PopulationBuilder],
     globalProtocols:    Protocols,
     globalPauseType:    PauseType,
     throttlings:        Throttlings,
     maxDuration:        Option[FiniteDuration],
-    assertions:         Seq[Assertion],
-    beforeSteps:        List[() => Unit],
-    afterSteps:         List[() => Unit]
+    assertions:         Seq[Assertion]
 ) {
 
   def scenarios(system: ActorSystem, coreComponents: CoreComponents): List[Scenario] = {
