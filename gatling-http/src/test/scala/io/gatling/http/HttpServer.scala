@@ -78,7 +78,6 @@ private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, 
           .addLast("httpDecoder", new HttpServerCodec)
           .addLast("chunkAggregator", new HttpObjectAggregator(Int.MaxValue))
           .addLast("compressor", new HttpContentCompressor)
-          .addLast("decompressor", new HttpContentDecompressor)
           .addLast("serverHandler", serverHandler)
     })
 
