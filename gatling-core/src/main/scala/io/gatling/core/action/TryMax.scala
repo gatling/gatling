@@ -19,13 +19,13 @@ import scala.concurrent.duration._
 
 import io.gatling.commons.stats.KO
 import io.gatling.commons.validation._
-import io.gatling.core.session.{ Session, TryMaxBlock }
+import io.gatling.core.session.{ Expression, Session, TryMaxBlock }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
 import akka.actor.ActorSystem
 
-class TryMax(times: Int, counterName: String, statsEngine: StatsEngine, next: Action) extends Action with NameGen {
+class TryMax(times: Expression[Int], counterName: String, statsEngine: StatsEngine, next: Action) extends Action with NameGen {
 
   override val name = genName("tryMax")
 
@@ -40,7 +40,7 @@ class TryMax(times: Int, counterName: String, statsEngine: StatsEngine, next: Ac
 }
 
 class InnerTryMax(
-    times:       Int,
+    times:       Expression[Int],
     loopNext:    Action,
     counterName: String,
     system:      ActorSystem,
@@ -61,11 +61,18 @@ class InnerTryMax(
     case _                           => false
   }
 
-  private def maxNotReached(session: Session): Boolean = session(counterName).validate[Int] match {
-    case Success(i) => i < times
-    case Failure(message) =>
-      logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
-      false
+  private def maxNotReached(session: Session): Boolean = {
+    val validationResult = for {
+      counter <- session(counterName).validate[Int]
+      max <- times(session)
+    } yield counter < max
+
+    validationResult match {
+      case Success(maxNotReached) => maxNotReached
+      case Failure(message) =>
+        logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
+        false
+    }
   }
 
   private def continue(session: Session): Boolean = blockFailed(session) && maxNotReached(session)

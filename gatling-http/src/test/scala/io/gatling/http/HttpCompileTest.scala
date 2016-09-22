@@ -265,6 +265,12 @@ class HttpCompileTest extends Simulation {
             override val body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.charset)
           }
       })
+    .exec(session => session.set("tryMax", 3))
+    .tryMax("${tryMax}") {
+      exec(http("tryMaxWithExpression")
+        .get("/"))
+    }
+
 
   val inject1 = nothingFor(10 milliseconds)
   val inject2 = rampUsers(10).over(10 minutes)
