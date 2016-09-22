@@ -7,7 +7,7 @@ This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testin
 Versions
 ========
 
-Check out available available versions on `Bintray <https://bintray.com/gatling/sbt-plugins/gatling-sbt/view#>`.
+Check out available versions on `Bintray <https://bintray.com/gatling/sbt-plugins/gatling-sbt/view#>`.
 
 Beware that milestones (M versions) are undocumented and releases for Gatling customers.
 
