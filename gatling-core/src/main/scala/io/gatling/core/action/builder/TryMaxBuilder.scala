@@ -16,9 +16,10 @@
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ Action, TryMax }
+import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 
-class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) extends ActionBuilder {
+class TryMaxBuilder(times: Expression[Int], counterName: String, loopNext: ChainBuilder) extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
