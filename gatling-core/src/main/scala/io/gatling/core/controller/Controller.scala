@@ -18,14 +18,14 @@ package io.gatling.core.controller
 import scala.util.{ Failure, Success, Try }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.{ InjectorCommand, Injector }
+import io.gatling.core.controller.inject.{ Injector, InjectorCommand }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
 
-import akka.actor.Props
+import akka.actor.{ ActorSelection, ActorSystem, Props }
 
 object Controller {
 
@@ -33,6 +33,9 @@ object Controller {
 
   def props(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration) =
     Props(new Controller(statsEngine, throttler, simulationParams, configuration))
+
+  def controllerSelection(system: ActorSystem): ActorSelection =
+    system.actorSelection("/user/" + ControllerActorName)
 }
 
 class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
@@ -54,7 +57,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
       simulationParams.maxDuration.foreach { maxDuration =>
         logger.debug("Setting up max duration")
-        setTimer(maxDurationTimer, ForceStop(), maxDuration)
+        setTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
       }
 
       throttler.start()
@@ -75,36 +78,42 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       startedData.userCounts.expected = expectedCount
       evaluateUserCounts(startedData)
 
-    case Event(ForceStop(exception), startedData: StartedData) =>
-      logger.info("ForceStop")
-      stop(startedData, exception)
+    case Event(MaxDurationReached(maxDuration), startedData: StartedData) =>
+      logger.info(s"Max duration of $maxDuration reached")
+      stopGracefully(startedData, None)
+
+    case Event(Crash(exception), startedData: StartedData) =>
+      logger.error(s"Simulation crashed", exception)
+      cancelTimer(maxDurationTimer)
+      stopGracefully(startedData, Some(exception))
+
+    case Event(Kill, StartedData(initData, _)) =>
+      logger.error(s"Simulation was killed")
+      stop(EndData(initData, None))
   }
 
   private def evaluateUserCounts(startedData: StartedData): State =
     if (startedData.userCounts.allStopped) {
       logger.info("All users are stopped")
-      stop(startedData, None)
+      stopGracefully(startedData, None)
     } else {
       stay()
     }
 
-  private def stop(startedData: StartedData, exception: Option[Throwable]): State = {
-    cancelTimer(maxDurationTimer)
-    exception match {
-      case None    => logger.info("Asking StatsEngine to stop")
-      case Some(e) => logger.error("Asking StatsEngine to stop", e)
-    }
-    statsEngine.stop(self)
+  private def stopGracefully(startedData: StartedData, exception: Option[Exception]): State = {
+    statsEngine.stop(self, exception)
     goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
   }
 
-  // -- STEP 3 : Waiting for StatsEngine to stop, discarding all other messages -- //
+  private def stop(endData: EndData): State = {
+    endData.initData.launcher ! replyToLauncher(endData)
+    goto(Stopped) using NoData
+  }
 
   when(WaitingForResourcesToStop) {
     case Event(StatsEngineStopped, endData: EndData) =>
       logger.info("StatsEngineStopped")
-      endData.initData.launcher ! replyToLauncher(endData)
-      goto(Stopped) using NoData
+      stop(endData)
 
     case Event(message, _) =>
       logger.debug(s"Ignore message $message while waiting for StatsEngine to stop")
@@ -114,7 +123,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
   private def replyToLauncher(endData: EndData): Try[Unit] =
     endData.exception match {
       case Some(exception) => Failure(exception)
-      case None            => Success(())
+      case _               => Success(())
     }
 
   // -- STEP 4 : Controller has been stopped, all new messages will be discarded -- //

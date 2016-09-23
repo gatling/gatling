@@ -19,7 +19,7 @@ import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.stats.writer.{ UserMessage, GroupMessage, ResponseMessage, DataWriterMessage }
+import io.gatling.core.stats.writer.{ DataWriterMessage, GroupMessage, ResponseMessage, UserMessage }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
@@ -30,7 +30,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def start(): Unit = {}
 
-  override def stop(replyTo: ActorRef): Unit = {}
+  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
 
   override def logUser(userMessage: UserMessage): Unit = {}
 
