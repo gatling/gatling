@@ -17,7 +17,7 @@ package io.gatling.core.action
 
 import akka.testkit._
 import io.gatling.AkkaSpec
-import io.gatling.core.controller.ControllerCommand.ForceStop
+import io.gatling.core.controller.ControllerCommand.Crash
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
 
@@ -35,7 +35,7 @@ class SingletonFeedSpec extends AkkaSpec {
     singletonFeed ! FeedMessage(session, failingExpr, controller.ref, new ActorDelegatingAction("next", self))
 
     expectMsg(session)
-    controller.expectMsgType[ForceStop]
+    controller.expectMsgType[Crash]
   }
 
   it should "force the simulation termination if the nb of records to pop is not strictly positive" in {
@@ -45,11 +45,11 @@ class SingletonFeedSpec extends AkkaSpec {
 
     singletonFeed ! FeedMessage(session, 0.expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))
     expectMsg(session)
-    controller.expectMsgType[ForceStop]
+    controller.expectMsgType[Crash]
 
     singletonFeed ! FeedMessage(session, (-1).expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))
     expectMsg(session)
-    controller.expectMsgType[ForceStop]
+    controller.expectMsgType[Crash]
   }
 
   it should "force the simulation termination if the feeder is empty" in {
@@ -59,7 +59,7 @@ class SingletonFeedSpec extends AkkaSpec {
 
     singletonFeed ! FeedMessage(session, 1.expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))
     expectMsg(session)
-    controller.expectMsgType[ForceStop]
+    controller.expectMsgType[Crash]
   }
 
   it should "simply put an entry from the feeder in the session when polling 1 record at a time" in {

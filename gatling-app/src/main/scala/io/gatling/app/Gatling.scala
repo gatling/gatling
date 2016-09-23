@@ -15,8 +15,13 @@
  */
 package io.gatling.app
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
+
+import akka.actor.ActorSystem
 
 /**
  * Object containing entry point of application
@@ -38,7 +43,16 @@ object Gatling {
 
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
     val configuration = GatlingConfiguration.load(overrides)
-    val runResult = Runner(configuration).run(selectedSimulationClass)
+
+    // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
+    val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
+    val runResult =
+      try {
+        Runner(system, configuration).run(selectedSimulationClass)
+      } finally {
+        val whenTerminated = system.terminate()
+        Await.result(whenTerminated, 2 seconds)
+      }
     RunResultProcessor(configuration).processRunResult(runResult).code
   }
 }

@@ -71,10 +71,17 @@ object Selection {
 
         def singleSimulationFromConfig =
           configuration.core.simulationClass.flatMap { className =>
-            val found = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
+            val found: Option[Class[Simulation]] = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
 
-            if (found.isEmpty)
-              err.println(s"The requested class('$className') can not be found in the classpath or does not extends Simulation.")
+            if (found.isEmpty) {
+              val message = s"The requested class '$className' can not be found in the classpath or does not extends Simulation."
+
+              if (configuration.core.muteMode) {
+                throw new IllegalArgumentException(message)
+              } else {
+                err.println(message)
+              }
+            }
 
             found
           }

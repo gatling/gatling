@@ -244,8 +244,6 @@ object GatlingConfiguration extends StrictLogging {
       //
       //
       //
-      //
-      //
       // [fl]
       config = config
     )
@@ -411,11 +409,6 @@ case class GraphiteDataWriterConfiguration(
 )
 
 // [fl]
-//
-//
-//
-//
-//
 //
 //
 //

@@ -58,7 +58,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
         case Success(s) => s
         case Failure(message) =>
           logger.error(s"Feed failed: $message, please report.")
-          controller ! ControllerCommand.ForceStop(Some(new IllegalStateException(message)))
+          controller ! ControllerCommand.Crash(new IllegalStateException(message))
           session
       }
 
