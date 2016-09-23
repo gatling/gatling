@@ -18,7 +18,6 @@ package io.gatling.commons.util
 import java.io.{ File => JFile, _ }
 import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets._
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{ FileVisitResult, Files, Path, SimpleFileVisitor }
 
