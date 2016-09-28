@@ -29,6 +29,8 @@ The first thing to do is start the polling, by specifying the request and how of
 
 ``every(period).exec(request)``
 
+The ``period`` parameter is from response received to next request sent.
+
 For example:
 
 .. includecode:: code/Polling.scala#pollerStart
