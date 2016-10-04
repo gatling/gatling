@@ -49,7 +49,7 @@ case class RecordSeqFeederBuilder[T](
       //
       //
       //
-      //,
+      //
       // [fl]
       strategy.feeder(records, ctx)
     )

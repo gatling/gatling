@@ -420,17 +420,16 @@ case class GraphiteDataWriterConfiguration(
 // [fl]
 
 case class GatlingConfiguration(
-     core:      CoreConfiguration,
-     charting:  ChartingConfiguration,
-     http:      HttpConfiguration,
-     jms:       JmsConfiguration,
-     data:      DataConfiguration,
-     // [fl]
-     //
-     // [fl]
-     config:    Config
+  core:      CoreConfiguration,
+  charting:  ChartingConfiguration,
+  http:      HttpConfiguration,
+  jms:       JmsConfiguration,
+  data:      DataConfiguration,
+  // [fl]
+  //
+  // [fl]
+  config:    Config
 ) {
-
   def resolve[T](value: T): T = value
 
   // [fl]
