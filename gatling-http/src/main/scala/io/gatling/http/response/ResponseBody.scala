@@ -65,7 +65,6 @@ object StringResponseBody extends StrictLogging {
         (chunks.length: @switch) match {
           case 0 => ""
           case 1 =>
-            // FIXME to be done in AHC in 2.0.16
             ByteBufUtils.byteBuf2String(charset, chunks.head)
           case _ =>
             ByteBufUtils.byteBuf2String(charset, chunks: _*)
