@@ -55,7 +55,6 @@ object Bytes {
     (bytes.length: @switch) match {
       case 0 => ""
       case 1 =>
-        // FIXME to be done in AHC in 2.0.16
         byteArrayToString(bytes.head, cs)
       case _ =>
         val bufs = bytes.map(Unpooled.wrappedBuffer)
