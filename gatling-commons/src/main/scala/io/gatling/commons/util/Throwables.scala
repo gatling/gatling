@@ -30,5 +30,23 @@ object Throwables {
       e.setStackTrace(Array[StackTraceElement](new StackTraceElement(clazz.getName, method, null, -1)))
       e
     }
+
+    def rootCause: Throwable = {
+      var cause: Throwable = e
+      while (e.getCause != null) {
+        cause = e.getCause
+      }
+      cause
+    }
+
+    def rootMessage: String = {
+      def rc = rootCause
+      def rcSimpleName = rc.getClass.getSimpleName
+      if (rc.getMessage == null) {
+        rcSimpleName
+      } else {
+        s"$rcSimpleName: ${rc.getMessage}"
+      }
+    }
   }
 }
