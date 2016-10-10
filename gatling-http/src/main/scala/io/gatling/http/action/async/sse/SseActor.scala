@@ -18,7 +18,7 @@ package io.gatling.http.action.async.sse
 import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.Success
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async._

@@ -15,7 +15,7 @@
  */
 package io.gatling.http.cookie
 
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri

@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.ws2
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 
 import akka.actor.ActorRef
 import org.asynchttpclient.ws.{ WebSocket, WebSocketCloseCodeReasonListener, WebSocketTextListener }

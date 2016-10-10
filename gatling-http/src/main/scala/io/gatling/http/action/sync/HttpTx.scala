@@ -18,7 +18,7 @@ package io.gatling.http.action.sync
 import scala.concurrent.duration._
 
 import io.gatling.commons.stats.OK
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen

@@ -19,7 +19,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.commons.util.Collections._
-import io.gatling.commons.util.TimeHelper.nowSeconds
+import io.gatling.commons.util.ClockSingleton.nowSeconds
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer._
 import io.gatling.core.util.NameGen

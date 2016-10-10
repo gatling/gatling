@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._

@@ -20,7 +20,8 @@ import scala.concurrent.duration._
 
 import io.gatling.commons.util.{ LongCounter, PushbackIterator }
 import io.gatling.commons.util.Collections._
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.Clock._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session

@@ -16,7 +16,7 @@
 package io.gatling.jms.action
 
 import io.gatling.commons.stats.{ OK, Status }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.action._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine

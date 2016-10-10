@@ -17,7 +17,7 @@ package io.gatling.jms.action
 
 import javax.jms.Message
 
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
 import io.gatling.core.session._
 import io.gatling.jms.client.JmsClient

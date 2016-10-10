@@ -18,7 +18,7 @@ package io.gatling.core.stats.writer
 import scala.collection.mutable
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.stats.message.{ End, Start }
 
 class LeakData(val noActivityTimeout: FiniteDuration, var lastTouch: Long, val events: mutable.Map[Long, DataWriterMessage]) extends DataWriterData

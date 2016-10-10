@@ -20,7 +20,7 @@ import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
 
 import io.gatling.commons.util.Ga
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
@@ -69,7 +69,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
   protected def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
 
     // important, initialize time reference
-    val timeRef = NanoTimeReference
+    loadClockSingleton()
 
     // ugly way to pass the configuration to the DSL
     io.gatling.core.Predef.configuration = configuration

@@ -18,7 +18,7 @@ package io.gatling.http.check.async
 import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 

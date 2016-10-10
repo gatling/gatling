@@ -20,7 +20,7 @@ import java.util.{ ArrayList => JArrayList }
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check

@@ -18,7 +18,7 @@ package io.gatling.http.fetch
 import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.akka.BaseActor

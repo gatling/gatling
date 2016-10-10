@@ -17,7 +17,7 @@ package io.gatling.commons.util
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 
 private[gatling] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDuration, retries: List[Long]) {
 

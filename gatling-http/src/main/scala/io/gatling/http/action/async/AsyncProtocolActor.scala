@@ -17,7 +17,7 @@ package io.gatling.http.action.async
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Maps._
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult

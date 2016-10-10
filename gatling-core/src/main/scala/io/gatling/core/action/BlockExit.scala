@@ -18,7 +18,7 @@ package io.gatling.core.action
 import scala.annotation.tailrec
 
 import io.gatling.commons.stats.KO
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 

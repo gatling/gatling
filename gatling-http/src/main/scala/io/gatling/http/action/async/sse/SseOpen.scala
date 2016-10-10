@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.{ Action, ChainableAction, ExitableAction }
 import io.gatling.core.session.{ Expression, Session }
