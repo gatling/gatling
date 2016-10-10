@@ -22,7 +22,7 @@ import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.SimulationParams

@@ -19,7 +19,7 @@ import scala.util.control.NonFatal
 import scala.collection.JavaConversions._
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration

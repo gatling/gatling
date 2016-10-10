@@ -22,7 +22,7 @@ import scala.math.max
 
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper.bytes2Hex
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.HeaderNames

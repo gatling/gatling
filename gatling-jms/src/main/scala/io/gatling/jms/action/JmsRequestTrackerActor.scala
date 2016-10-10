@@ -22,7 +22,7 @@ import javax.jms.Message
 import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.Failure
 import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor

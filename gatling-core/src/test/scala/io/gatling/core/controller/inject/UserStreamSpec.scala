@@ -19,7 +19,7 @@ import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.PushbackIterator
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.util.Shard
 

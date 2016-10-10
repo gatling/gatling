@@ -16,7 +16,7 @@
 package io.gatling.http.cache
 
 import io.gatling.commons.util.NumberHelper._
-import io.gatling.commons.util.TimeHelper.unpreciseNowMillis
+import io.gatling.commons.util.ClockSingleton.unpreciseNowMillis
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.Response
 

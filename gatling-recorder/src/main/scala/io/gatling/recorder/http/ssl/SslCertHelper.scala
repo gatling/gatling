@@ -28,7 +28,7 @@ import scala.concurrent.duration._
 
 import io.gatling.commons.util.Io.withCloseable
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }

@@ -17,7 +17,7 @@ package io.gatling.core.action
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen

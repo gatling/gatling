@@ -21,7 +21,7 @@ import javax.jms.Message
 import scala.util.Try
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.action._
 import io.gatling.core.session.Session

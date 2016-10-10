@@ -19,7 +19,7 @@ import java.util.UUID
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.commons.util.TimeHelper.nowMillis
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder.chainOf

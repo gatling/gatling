@@ -21,7 +21,7 @@ import scala.collection.JavaConversions._
 import scala.concurrent.duration.DurationLong
 
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.TimeHelper._
+import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.config.RecorderMode._
