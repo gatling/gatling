@@ -32,7 +32,7 @@ class ShardSpec extends BaseSpec {
     shards.sum shouldBe 3
   }
 
-  "Shard.shard" should "evenly distribute value" in {
+  "Shard.shard" should "evenly distribute value 5 over 10" in {
     Shard.shard(5, 0, 10) shouldBe Shard(0, 1)
     Shard.shard(5, 1, 10) shouldBe Shard(1, 0)
     Shard.shard(5, 2, 10) shouldBe Shard(1, 1)
@@ -45,7 +45,7 @@ class ShardSpec extends BaseSpec {
     Shard.shard(5, 9, 10) shouldBe Shard(5, 0)
   }
 
-  it should "foo" in {
+  it should "evenly distribute value 3 over 8" in {
     Shard.shard(3, 0, 8) shouldBe Shard(0, 1)
     Shard.shard(3, 1, 8) shouldBe Shard(1, 0)
     Shard.shard(3, 2, 8) shouldBe Shard(1, 1)
@@ -54,5 +54,36 @@ class ShardSpec extends BaseSpec {
     Shard.shard(3, 5, 8) shouldBe Shard(3, 0)
     Shard.shard(3, 6, 8) shouldBe Shard(3, 0)
     Shard.shard(3, 7, 8) shouldBe Shard(3, 0)
+  }
+
+  it should "produce the same results as Shard.shards" in {
+    forAll(Gen.chooseNum(1, 100), Gen.chooseNum(1, 100)) { (totalValue, totalCount) =>
+      val shards = Shard.shards(totalValue, totalCount).toArray
+      for (index <- 0 until totalCount) {
+        Shard.shard(totalValue, index, totalCount).length shouldBe shards(index)
+      }
+    }
+  }
+
+  it should "shard all values" in {
+    forAll(Gen.chooseNum(1, 100), Gen.chooseNum(1, 100)) { (totalValue, totalCount) =>
+      (0 until totalCount).map(index => Shard.shard(totalValue, index, totalCount).length).sum shouldBe totalValue
+    }
+  }
+
+  it should "properly compute offsets" in {
+    forAll(Gen.chooseNum(1, 100), Gen.chooseNum(1, 100)) { (totalValue, totalCount) =>
+      var previousOffset = 0
+      var previousLength = 0
+
+      for {
+        index <- 0 until totalCount
+      } {
+        val shard = Shard.shard(totalValue, index, totalCount)
+        shard.offset shouldBe previousOffset + previousLength
+        previousOffset = shard.offset
+        previousLength = shard.length
+      }
+    }
   }
 }

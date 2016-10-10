@@ -17,72 +17,79 @@ package io.gatling.core.util
 
 object Shard {
 
-  private[this] def pick(countA: Long, valueA: Long, countB: Long, valueB: Long, nodeId: Int): Shard = {
+  private[this] def pick(countA: Long, valueA: Long, countB: Long, valueB: Long, index: Int): Shard = {
     // assumes countA > countB
     // pattern = (A... ratio times) then (B once), order depend on valueA >= valueB
     val ratioAforB = (countA / countB).toInt
     val patternLength = ratioAforB + 1
-    val numberOfFullPatterns = nodeId / patternLength
-    val modulo = nodeId % patternLength
+    val numberOfFullPatterns = math.min(index / patternLength, countB)
     val patternValue = ratioAforB * valueA + valueB
     val fullPatternsValue = numberOfFullPatterns * patternValue
 
-    if (valueA >= valueB) {
-      // A first
-      if (modulo == ratioAforB) {
-        // (A, ..., A, B)
-        Shard((fullPatternsValue + patternValue - valueB).toInt, valueB.toInt)
-      } else {
-        // (A, ..., A)
-        Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
-      }
+    if (numberOfFullPatterns == countB) {
+      // we've reached the number of full patterns, next values will only be valueA (the one with the greatest count)
+      Shard((fullPatternsValue + (index - countB * patternLength) * valueA).toInt, valueA.toInt)
 
     } else {
-      // B first
-      if (modulo == 0) {
-        // next value is B, except if we've reached countB
-        if (numberOfFullPatterns < countB) {
-          // (... A)(B)
-          Shard(fullPatternsValue.toInt, valueB.toInt)
-        } else {
-          // (... A)(A)
-          Shard(fullPatternsValue.toInt, valueA.toInt)
-        }
+      val modulo = index % patternLength
 
-      } else {
-        // next value is B, except if we've reached countB
-        if (numberOfFullPatterns < countB) {
-          // (B, A, ..., A)
-          Shard((fullPatternsValue + valueB + (modulo - 1) * valueA).toInt, valueA.toInt)
-
+      if (valueA >= valueB) {
+        // A first
+        if (modulo == ratioAforB) {
+          // (A, ..., A, B)
+          Shard((fullPatternsValue + patternValue - valueB).toInt, valueB.toInt)
         } else {
           // (A, ..., A)
           Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
+        }
+
+      } else {
+        // B first
+        if (modulo == 0) {
+          // next value is B, except if we've reached countB
+          if (numberOfFullPatterns < countB) {
+            // (... A)(B)
+            Shard(fullPatternsValue.toInt, valueB.toInt)
+          } else {
+            // (... A)(A)
+            Shard(fullPatternsValue.toInt, valueA.toInt)
+          }
+
+        } else {
+          // next value is B, except if we've reached countB
+          if (numberOfFullPatterns < countB) {
+            // (B, A, ..., A)
+            Shard((fullPatternsValue + valueB + (modulo - 1) * valueA).toInt, valueA.toInt)
+
+          } else {
+            // (A, ..., A)
+            Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
+          }
         }
       }
     }
   }
 
-  def shard(total: Int, nodeId: Int, nodeCount: Int): Shard =
-    if (nodeCount == 1) {
-      Shard(0, total)
+  def shard(totalValue: Int, index: Int, totalCount: Int): Shard =
+    if (totalCount == 1) {
+      Shard(0, totalValue)
     } else {
-      val largeBucketCount = total % nodeCount
-      val smallBucketCount = nodeCount - largeBucketCount
-      val smallBucketSize = total / nodeCount
-      val largeBucketSize = smallBucketSize + 1
+      val largeCount = totalValue % totalCount
+      val smallCount = totalCount - largeCount
+      val smallValue = totalValue / totalCount
+      val largeValue = smallValue + 1
 
-      if (smallBucketCount == 0) {
-        Shard(nodeId * largeBucketSize, largeBucketSize)
+      if (smallCount == 0) {
+        Shard(index * largeValue, largeValue)
 
-      } else if (largeBucketCount == 0) {
-        Shard(nodeId * smallBucketSize, smallBucketSize)
+      } else if (largeCount == 0) {
+        Shard(index * smallValue, smallValue)
 
-      } else if (largeBucketCount > smallBucketCount) {
-        pick(largeBucketCount, largeBucketSize, smallBucketCount, smallBucketSize, nodeId)
+      } else if (largeCount > smallCount) {
+        pick(largeCount, largeValue, smallCount, smallValue, index)
 
       } else {
-        pick(smallBucketCount, smallBucketSize, largeBucketCount, largeBucketSize, nodeId)
+        pick(smallCount, smallValue, largeCount, largeValue, index)
       }
     }
 
@@ -99,28 +106,29 @@ object Shard {
         () => Iterator.single(valueB) ++ Iterator.fill(ratioAforB)(valueA)
       }
 
+    // countB * (valueB + (countA / countB).toInt * valueA) + (totalCount - countB * (ratioAforB + 1)).toInt * valueA
     Iterator.fill(countB.toInt)(pattern()).flatten ++ Iterator.fill(rest)(valueA)
   }
 
-  def shards(total: Long, nodeCount: Int): Iterator[Long] = {
+  def shards(totalValue: Long, totalCount: Int): Iterator[Long] = {
 
-    val smallBucketSize = total / nodeCount
-    val largeBucketSize = smallBucketSize + 1
+    val smallValue = totalValue / totalCount
+    val largeValue = smallValue + 1
 
-    val largeBucketCount = total % nodeCount
-    val smallBucketCount = nodeCount - largeBucketCount
+    val largeBucketCount = totalValue % totalCount
+    val smallBucketCount = totalCount - largeBucketCount
 
     if (largeBucketCount == 0) {
-      Iterator.fill(smallBucketCount.toInt)(smallBucketSize)
+      Iterator.fill(smallBucketCount.toInt)(smallValue)
 
     } else if (smallBucketCount == 0) {
-      Iterator.fill(largeBucketCount.toInt)(largeBucketSize)
+      Iterator.fill(largeBucketCount.toInt)(largeValue)
 
     } else if (smallBucketCount > largeBucketCount) {
-      interleave(smallBucketCount, smallBucketSize, largeBucketCount, largeBucketSize, nodeCount)
+      interleave(smallBucketCount, smallValue, largeBucketCount, largeValue, totalCount)
 
     } else {
-      interleave(largeBucketCount, largeBucketSize, smallBucketCount, smallBucketSize, nodeCount)
+      interleave(largeBucketCount, largeValue, smallBucketCount, smallValue, totalCount)
     }
   }
 }
