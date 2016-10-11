@@ -50,14 +50,14 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
       NettyDnsConstants.DefaultResolveAddressTypes,
-      ExtendedDnsNameResolver.DebugEnabled,
+      false, // recursionDesired
       configuration.http.dns.maxQueriesPerResolve,
-      false,
+      ExtendedDnsNameResolver.DebugEnabled,
       4096,
       true,
       HostsFileEntriesResolver.DEFAULT,
       NettyDnsConstants.DefaultSearchDomain,
-      1
+      1 // ndots
     ) {
 
   override def doResolve(inetHost: String, promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
