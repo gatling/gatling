@@ -104,10 +104,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
         case Nil => null
         case ps  => ps.toArray
       })
-      .setEnabledCipherSuites(ahcConfig.sslEnabledCipherSuites match {
-        case Nil => null
-        case ps  => ps.toArray
-      })
       .setSslSessionCacheSize(ahcConfig.sslSessionCacheSize)
       .setSslSessionTimeout(ahcConfig.sslSessionTimeout)
       .setHttpClientCodecMaxInitialLineLength(Int.MaxValue)
@@ -124,6 +120,10 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setSoLinger(ahcConfig.soLinger)
       .setSoSndBuf(ahcConfig.soSndBuf)
       .setSoRcvBuf(ahcConfig.soRcvBuf)
+
+    if (ahcConfig.sslEnabledCipherSuites.nonEmpty) {
+      ahcConfigBuilder.setEnabledCipherSuites(ahcConfig.sslEnabledCipherSuites.toArray)
+    }
 
     val keyManagerFactory = configuration.http.ssl.keyStore
       .map(config => newKeyManagerFactory(config.storeType, config.file, config.password, config.algorithm))
