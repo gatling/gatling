@@ -64,18 +64,18 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       statsEngine.start()
       injector ! InjectorCommand.Start
 
-      goto(Started) using StartedData(initData, new UserCounts(0L, 0L))
+      goto(Started) using StartedData(initData, new UserCounts)
   }
 
   when(Started) {
     case Event(UserMessage(session, End, _), startedData: StartedData) =>
       logger.debug(s"End user #${session.userId}")
-      startedData.userCounts.completed += 1
+      startedData.userCounts.incrementCompleted()
       evaluateUserCounts(startedData)
 
     case Event(InjectionStopped(expectedCount), startedData: StartedData) =>
       logger.info(s"InjectionStopped expectedCount=$expectedCount")
-      startedData.userCounts.expected = expectedCount
+      startedData.userCounts.setExpected(expectedCount)
       evaluateUserCounts(startedData)
 
     case Event(MaxDurationReached(maxDuration), startedData: StartedData) =>

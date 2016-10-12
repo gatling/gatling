@@ -32,8 +32,20 @@ private[controller] object ControllerState {
   case object Stopped extends ControllerState
 }
 
-private[controller] class UserCounts(var completed: Long, var expected: Long) {
-  def allStopped: Boolean = expected > 0 && completed == expected
+private[controller] class UserCounts {
+
+  private[this] var expectedSet: Boolean = false
+  private[this] var expected: Long = 0
+  private[this] var completed: Long = 0
+
+  def setExpected(expected: Long): Unit = {
+    expectedSet = true
+    this.expected = expected
+  }
+
+  def incrementCompleted(): Unit = completed += 1
+
+  def allStopped: Boolean = expectedSet && completed == expected
 }
 
 private[controller] sealed trait ControllerData
