@@ -108,7 +108,6 @@ object ConfigKeys {
       val SslSessionTimeout = "gatling.http.ahc.sslSessionTimeout"
       val UseOpenSsl = "gatling.http.ahc.useOpenSsl"
       val UseNativeTransport = "gatling.http.ahc.useNativeTransport"
-      val UsePooledMemory = "gatling.http.ahc.usePooledMemory"
       val TcpNoDelay = "gatling.http.ahc.tcpNoDelay"
       val SoReuseAddress = "gatling.http.ahc.soReuseAddress"
       val SoLinger = "gatling.http.ahc.soLinger"
