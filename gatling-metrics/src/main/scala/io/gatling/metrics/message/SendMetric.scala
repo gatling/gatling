@@ -33,8 +33,7 @@ private[metrics] object GraphiteMetrics extends StrictLogging {
       case (path, value) =>
         sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')
     }
-    if (logger.underlying.isDebugEnabled)
-      logger.debug(s"GraphiteMetrics=${sb.toString}")
+    logger.debug(s"GraphiteMetrics=${sb.toString}")
     GraphiteMetrics(ByteString(sb.toString, UTF_8.name))
   }
 }
