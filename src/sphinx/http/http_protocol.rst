@@ -378,6 +378,6 @@ You can optionally set a different port for HTTPS and credentials:
 
 .. includecode:: code/HttpProtocol.scala#proxy
 
-You can also disable the use of proxy for a given list of host with ``noProxyFor(hosts: String*)``:
+You can also disable the use of proxy for a given list of hosts with ``noProxyFor(hosts: String*)``:
 
 .. includecode:: code/HttpProtocol.scala#noProxyFor
