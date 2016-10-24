@@ -14,6 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+if [ -n "$JAVA_HOME" ]; then
+    JAVA="$JAVA_HOME"/bin/java
+else
+    JAVA=java
+fi
 
 OLDDIR=`pwd`
 BIN_DIR=`dirname $0`
@@ -30,4 +35,4 @@ JAVA_OPTS="-Xms512M -Xmx512M -Xmn100M ${JAVA_OPTS}"
 
 CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:${JAVA_CLASSPATH}"
 
-java $JAVA_OPTS -cp "$CLASSPATH" io.gatling.recorder.GatlingRecorder "$@"
+"$JAVA" $JAVA_OPTS -cp "$CLASSPATH" io.gatling.recorder.GatlingRecorder "$@"
