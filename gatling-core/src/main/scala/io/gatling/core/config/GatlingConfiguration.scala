@@ -20,6 +20,7 @@ import java.util.ResourceBundle
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
+import scala.concurrent.duration._
 import scala.io.Codec
 
 import io.gatling.commons.util.{StringHelper, ConfigHelper}
@@ -240,6 +241,7 @@ object GatlingConfiguration extends StrictLogging {
       //
       //
       //
+      //
       // [fl]
       config = config
     )
@@ -404,6 +406,7 @@ case class GraphiteDataWriterConfiguration(
 )
 
 // [fl]
+//
 //
 //
 //
