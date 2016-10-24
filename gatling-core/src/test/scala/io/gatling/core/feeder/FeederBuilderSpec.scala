@@ -16,6 +16,7 @@
 package io.gatling.core.feeder
 
 import scala.collection.immutable
+import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation.Failure
