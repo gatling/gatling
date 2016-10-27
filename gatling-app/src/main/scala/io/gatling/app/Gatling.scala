@@ -22,11 +22,12 @@ import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
 
 import akka.actor.ActorSystem
+import com.typesafe.scalalogging.StrictLogging
 
 /**
  * Object containing entry point of application
  */
-object Gatling {
+object Gatling extends StrictLogging {
 
   // used by bundle
   def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
@@ -42,13 +43,17 @@ object Gatling {
     }
 
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
+    logger.trace("Starting")
     val configuration = GatlingConfiguration.load(overrides)
-
+    logger.trace("Configuration loaded")
     // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
     val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
+    logger.trace("ActorSystem instantiated")
     val runResult =
       try {
-        Runner(system, configuration).run(selectedSimulationClass)
+        val runner = Runner(system, configuration)
+        logger.trace("Runner instantiated")
+        runner.run(selectedSimulationClass)
       } finally {
         val whenTerminated = system.terminate()
         Await.result(whenTerminated, 2 seconds)
