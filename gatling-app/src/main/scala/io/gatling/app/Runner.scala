@@ -32,6 +32,7 @@ import io.gatling.core.stats.writer.RunMessage
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
+import com.typesafe.scalalogging.StrictLogging
 
 private[app] object Runner {
 
@@ -53,7 +54,7 @@ private[app] object Runner {
     )
 }
 
-private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfiguration) {
+private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfiguration) extends StrictLogging {
 
   private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult =
     configuration.core.directory.reportsOnly match {
@@ -67,7 +68,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     DataWritersStatsEngine(system, simulationParams, runMessage, configuration)
 
   protected def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
-
+    logger.trace("Running")
     // important, initialize time reference
     loadClockSingleton()
 
@@ -76,9 +77,12 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
 
     val selection = Selection(selectedSimulationClass, configuration)
     val simulation = selection.simulationClass.newInstance
+    logger.trace("Simulation instantiated")
     val simulationParams = simulation.params(configuration)
+    logger.trace("Simulation params built")
 
     simulation.executeBefore()
+    logger.trace("Before hooks executed")
 
     val runMessage = RunMessage(simulationParams.name, selection.userDefinedSimulationId, selection.defaultSimulationId, nowMillis, selection.description)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
@@ -86,6 +90,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     val controller = system.actorOf(Controller.props(statsEngine, throttler, simulationParams, configuration), Controller.ControllerActorName)
     val exit = new Exit(controller, statsEngine)
     val coreComponents = CoreComponents(controller, throttler, statsEngine, exit, configuration)
+    logger.trace("CoreComponents instantiated")
 
     val scenarios = simulationParams.scenarios(system, coreComponents)
 
@@ -95,6 +100,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
       case Failure(t) => throw t
       case _ =>
         simulation.executeAfter()
+        logger.trace("After hooks executed")
         RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
@@ -103,6 +109,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = nowMillis
     println(s"Simulation ${simulationParams.name} started...")
+    logger.trace("Asking Controller to start")
     val whenRunDone: Future[Try[String]] = coreComponents.controller.ask(ControllerCommand.Start(scenarios))(timeout).mapTo[Try[String]]
     val runDone = Await.result(whenRunDone, timeout)
     println(s"Simulation ${simulationParams.name} completed in ${(nowMillis - start) / 1000} seconds")
