@@ -28,10 +28,10 @@ private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNam
   "path": "${assertion.path.printable}",
   "target": "${assertion.target.printable}",
   "condition": "${assertion.condition.printable}",
-  "conditionValues": [${assertion.condition.values.mkString(",")}],
+  "expectedValues": [${assertion.condition.values.mkString(",")}],
   "result": $result,
   "message": "$message",
-  "values": [${values.mkString(",")}]
+  "actualValue": ${actualValue.getOrElse(-1)}]
 }"""
   }
 

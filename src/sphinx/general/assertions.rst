@@ -131,19 +131,19 @@ Here are some examples:
       "path": "Global",
       "target": "max of response time",
       "condition": "is less than",
-      "conditionValues": [50],
+      "expectedValues": [50],
       "result": false,
       "message": "Global: max of response time is less than 50",
-      "values": [145]
+      "actualValue": [145]
     },
     {
       "path": "requestName",
       "target": "percent of successful requests",
       "condition": "is greater than",
-      "conditionValues": [95],
+      "expectedValues": [95],
       "result": true,
       "message": "requestName: percent of successful requests is greater than 95",
-      "values": [100]
+      "actualValue": [100]
     }
   ]
 
@@ -153,7 +153,7 @@ Here are some examples:
 
   <testsuite name="GoogleTest" tests="2" errors="0" failures="1" time="0">
     <testcase name="Global: max of response time is less than 50" status="false" time="0">
-      <failure type="Global">Actual values: 145</failure>
+      <failure type="Global">Actual value: 145</failure>
     </testcase>
     <testcase name="selfSigned: percent of successful requests is greater than 95" status="true" time="0">
       <system-out>selfSigned: percent of successful requests is greater than 95</system-out>

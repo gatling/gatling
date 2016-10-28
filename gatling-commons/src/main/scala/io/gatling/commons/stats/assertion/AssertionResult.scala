@@ -15,4 +15,4 @@
  */
 package io.gatling.commons.stats.assertion
 
-case class AssertionResult(assertion: Assertion, result: Boolean, message: String, values: List[Int])
+case class AssertionResult(assertion: Assertion, result: Boolean, message: String, actualValue: Option[Double])

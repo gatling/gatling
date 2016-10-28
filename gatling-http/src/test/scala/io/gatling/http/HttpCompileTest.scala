@@ -263,7 +263,6 @@ class HttpCompileTest extends Simulation {
         .get("/"))
     }
 
-
   val inject1 = nothingFor(10 milliseconds)
   val inject2 = rampUsers(10).over(10 minutes)
   val inject3 = constantUsersPerSec(10).during(1 minute)

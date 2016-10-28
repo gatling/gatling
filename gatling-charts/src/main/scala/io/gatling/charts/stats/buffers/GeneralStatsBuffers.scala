@@ -78,7 +78,7 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
   }
 
   lazy val stats: GeneralStats = {
-    val valuesCount = digest.size.toInt
+    val valuesCount = digest.size
     if (valuesCount == 0) {
       GeneralStats.NoPlot
 
