@@ -56,7 +56,7 @@ object Maps {
 
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
 
-    def forceMapValues[V2](f: V => V2) = map.mapValues(f).view.force
+    def forceMapValues[V2](f: V => V2): Map[K, V2] = map.mapValues(f).view.force
 
     /**
      * Merge with another map. Left is this map and right the other one.
