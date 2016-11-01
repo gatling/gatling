@@ -35,7 +35,7 @@ object Dependencies {
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"               % "1.1.7"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                      % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                  % "2.1.9"
-  private val caffeine                      = "com.github.ben-manes.caffeine"          % "caffeine"                      % "2.3.3"
+  private val caffeine                      = "com.github.ben-manes.caffeine"          % "caffeine"                      % "2.3.4"
   private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"                % "1.55"
   private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                     % "1.4.8"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"                % "1.0"
