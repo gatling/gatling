@@ -42,7 +42,7 @@ if not defined GATLING_CONF set GATLING_CONF="%GATLING_HOME%"\conf
 
 echo GATLING_HOME is set to "%GATLING_HOME%"
 
-set JAVA_OPTS=%JAVA_OPTS% -server -Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=75 -XX:+ParallelRefProcEnabled -XX:+PerfDisableSharedMem -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false
+set JAVA_OPTS=-server -Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=75 -XX:+ParallelRefProcEnabled -XX:+PerfDisableSharedMem -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false %JAVA_OPTS%
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
 set COMMON_CLASSPATH=%GATLING_CONF%;%JAVA_CLASSPATH%
