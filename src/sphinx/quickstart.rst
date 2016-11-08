@@ -67,8 +67,6 @@ In this tutorial, we will use an application named *Computer-Database* deployed 
 
 This application is a simple CRUD application for managing computer models, and was a sample for the `Play Framework <http://www.playframework.com/>`_ before version 2.3.
 
-You can also run it on your local machine: download Play! 2.2.x's bundle and check out `the app <https://github.com/gatling/gatling-computer-database>`__.
-
 Scenario
 --------
 
