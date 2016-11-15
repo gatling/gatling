@@ -57,7 +57,7 @@ meaning you'll need to prefix them with `gatling` or `gatling-it`, eg. `gatling:
 
 .. note::
 
-This behavior differs from what previously possible, eg. calling `test` without prefixing started Gatling simulations.
+This behavior differs from what was previously possible, eg. calling `test` without prefixing started Gatling simulations.
 However, this caused many interferences with other testing libraries and forcing the use of a prefix solves those issues.
 
 'Test' vs 'Integration Tests' configurations
