@@ -96,7 +96,6 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
       if (status == KO) {
         logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
-        if (!logger.underlying.isTraceEnabled) logger.debug(dump)
       }
       logger.debug(dump)
 
