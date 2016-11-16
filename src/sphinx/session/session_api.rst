@@ -50,7 +50,7 @@ There's 3 ways of doing that:
 Fetching Data
 -------------
 
-Once you have injected data into your virtual users, you'll naturally want retrieve and use it.
+Once you have injected data into your virtual users, you'll naturally want to retrieve and use it.
 
 There's 2 ways of doing that:
 
