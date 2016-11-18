@@ -25,7 +25,6 @@ sealed trait Validation[@specialized(Short, Int, Long, Double, Char, Boolean) +T
   def onSuccess(f: T => Any): Unit
   def onFailure(f: String => Any): Unit
   def recover[A >: T](v: => A): Validation[A]
-  def get: T
 }
 
 case class Success[+T](value: T) extends Validation[T] {
@@ -36,7 +35,6 @@ case class Success[+T](value: T) extends Validation[T] {
   def onSuccess(f: T => Any): Unit = f(value)
   def onFailure(f: String => Any): Unit = ()
   override def recover[A >: T](v: => A): Validation[A] = this
-  def get: T = value
 }
 
 case class Failure(message: String) extends Validation[Nothing] {
@@ -47,5 +45,4 @@ case class Failure(message: String) extends Validation[Nothing] {
   def onSuccess(f: Nothing => Any): Unit = ()
   def onFailure(f: String => Any): Unit = f(message)
   override def recover[A >: Nothing](v: => A): Validation[A] = v.success
-  def get: Nothing = throw new UnsupportedOperationException(s"Can't call get on $this")
 }

@@ -136,12 +136,4 @@ class ValidationSpec extends BaseSpec {
   it should "return the passed value wrapped in a Success when called on a Failure" in {
     "foo".failure.recover(4) shouldBe Success(4)
   }
-
-  "get" should "return the value when called on a Success" in {
-    1.success.get shouldBe 1
-  }
-
-  it should "throw an UnsupportedOperationException when called on a Failure" in {
-    an[UnsupportedOperationException] should be thrownBy "foo".failure.get
-  }
 }
