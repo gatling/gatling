@@ -15,24 +15,20 @@
  */
 package io.gatling.commons.util
 
-import io.gatling.commons.util.Collections._
+import io.gatling.BaseSpec
+import io.gatling.commons.util.ByteBufs.byteBufsToByteArray
+import io.netty.buffer.{ByteBuf, Unpooled}
 
-import io.netty.buffer.ByteBuf
+class ByteBufsSpec extends BaseSpec {
 
-object ByteBufs {
+  it should "be able to extract data from multiple ByteBuf instances" in {
+    val buffer1: ByteBuf = Unpooled.buffer(3)
+    val buffer2: ByteBuf = Unpooled.buffer(5)
 
-  def byteBufsToByteArray(bufs: Seq[ByteBuf]): Array[Byte] = {
-    // should be more efficient than creating a CompositeByteBuf
-    val size = bufs.sumBy(_.readableBytes)
-    val bytes = new Array[Byte](size)
+    buffer1.writeBytes(Array[Byte](0,1,2))
+    buffer2.writeBytes(Array[Byte](0,1,2,3,4))
 
-    var offset = 0
-
-    bufs.foreach { buf =>
-      buf.getBytes(0, bytes, offset, buf.readableBytes)
-      offset += buf.readableBytes
-    }
-
-    bytes
+    byteBufsToByteArray(Seq(buffer1, buffer2)) shouldBe Array[Byte](0,1,2,0,1,2,3,4)
   }
+
 }
