@@ -29,7 +29,7 @@ object ByteBufs {
     var offset = 0
 
     bufs.foreach { buf =>
-      buf.getBytes(offset, bytes)
+      buf.getBytes(0, bytes, offset, buf.readableBytes)
       offset += buf.readableBytes
     }
 
