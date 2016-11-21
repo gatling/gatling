@@ -31,7 +31,7 @@ private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNam
   "expectedValues": [${assertion.condition.values.mkString(",")}],
   "result": $result,
   "message": "$message",
-  "actualValue": ${actualValue.getOrElse(-1)}]
+  "actualValue": [${actualValue.getOrElse(-1)}]
 }"""
   }
 
