@@ -76,6 +76,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
             case ByteArrayBody(bytes)             => bytes(session).map(requestBuilder.setBody)
             case CompositeByteArrayBody(bytes, _) => bytes(session).map(bs => requestBuilder.setBody(bs))
             case InputStreamBody(is)              => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
+            case body: PebbleStringBody           => body.apply(session).map(requestBuilder.setBody)
+            case body: PebbleFileBody             => body.apply(session).map(requestBuilder.setBody)
           }
 
         def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =

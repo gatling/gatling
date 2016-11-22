@@ -235,6 +235,13 @@ class HttpRequest {
 
       .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }""")).asJSON
       //#StringBody
+      //#PebbleBody
+      .body(PebbleStringBody("""{ "myContent": "{myDynamicValue}" }""")).asJSON
+
+      // myFileBody.json is a file that contains
+      // { "myContent": "{myDynamicValue}" }
+      .body(PebbleFileBody("myFileBody.json")).asJSON
+      //#PebbleBody
 
     //#templates
     object Templates {

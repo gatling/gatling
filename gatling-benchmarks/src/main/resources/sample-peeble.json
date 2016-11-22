@@ -1,0 +1,47 @@
+[{
+  "_id": {{ id }},
+  "guid": "bfb77e60-00a0-452d-b59e-0317052ff221",
+  "isActive": false,
+  "balance": "$2,335.16",
+  "picture": "http://placehold.it/32x32",
+  "age": 30,
+  "eyeColor": "green",
+  "name": {
+    "first": "Jody",
+    "last": "Foley"
+  },
+  "company": "NETERIA",
+  "email": "jody.foley@neteria.co.uk",
+  "phone": "+1 (977) 588-3795",
+  "address": "548 Hooper Street, Stewartville, Minnesota, 515",
+  "about": "Non sint officia exercitation irure ipsum. Occaecat ad qui qui cillum enim minim consequat dolore nostrud. Amet ex minim culpa ullamco est irure sunt Lorem laboris magna sint mollit. Dolor eu dolore incididunt qui ea amet do et nostrud. Eiusmod ea adipisicing nulla adipisicing pariatur irure duis minim. Ad velit ipsum reprehenderit cillum irure et dolor sit in aliqua Lorem velit.",
+  "registered": "Tuesday, July 12, 2016 7:50 AM",
+  "latitude": "81.099214",
+  "longitude": "33.131921",
+  "tags": [
+  ],
+  "range": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "friends": [{
+    "id": 0,
+    "name": "Burke Blackburn"
+  }, {
+    "id": 1,
+    "name": "Carroll Fisher"
+  }, {
+    "id": 2,
+    "name": "Dyer Yates"
+  }],
+  "greeting": "Hello, Jody! You have 9 unread messages.",
+  "favoriteFruit": "apple"
+}]

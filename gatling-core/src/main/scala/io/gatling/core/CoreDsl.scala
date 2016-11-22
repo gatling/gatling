@@ -25,7 +25,7 @@ import io.gatling.core.controller.inject.InjectionSupport
 import io.gatling.core.controller.throttle.ThrottlingSupport
 import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
-import io.gatling.core.session.{ Session, Expression }
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 
 trait CoreDsl extends StructureSupport
@@ -51,6 +51,10 @@ trait CoreDsl extends StructureSupport
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))
 
   def ElFileBody = io.gatling.core.body.ElFileBody
+
+  def PebbleStringBody(string: String) = io.gatling.core.body.PebbleStringBody(string)
+
+  def PebbleFileBody(string: String) = io.gatling.core.body.PebbleFileBody(string)
 
   def StringBody(string: String) = io.gatling.core.body.CompositeByteArrayBody(string)
 
