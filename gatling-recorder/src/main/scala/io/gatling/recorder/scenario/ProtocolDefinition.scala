@@ -28,7 +28,8 @@ private[scenario] object ProtocolDefinition {
     HeaderNames.Connection -> "connectionHeader",
     HeaderNames.ContentType -> "contentTypeHeader",
     HeaderNames.DNT -> "doNotTrackHeader",
-    HeaderNames.UserAgent -> "userAgentHeader"
+    HeaderNames.UserAgent -> "userAgentHeader",
+    HeaderNames.UpgradeInsecureRequests -> "upgradeInsecureRequestsHeader"
   )
 }
 

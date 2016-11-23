@@ -93,6 +93,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def contentTypeHeader(value: Expression[String]) = header(ContentType, value)
   def doNotTrackHeader(value: Expression[String]) = header(DNT, value)
   def userAgentHeader(value: Expression[String]) = header(UserAgent, value)
+  def upgradeInsecureRequestsHeader(value: Expression[String]) = header(UpgradeInsecureRequests, value)
   def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, ntlmDomain, ntlmHost))

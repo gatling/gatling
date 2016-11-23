@@ -75,6 +75,7 @@ object HeaderNames {
   val TransferEncoding = "Transfer-Encoding"
   val Upgrade = "Upgrade"
   val UserAgent = "User-Agent"
+  val UpgradeInsecureRequests = "Upgrade-Insecure-Requests"
   val VARY = "Vary"
   val Via = "Via"
   val Warning = "Warning"
