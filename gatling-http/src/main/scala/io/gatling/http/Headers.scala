@@ -76,7 +76,7 @@ object HeaderNames {
   val Upgrade = "Upgrade"
   val UserAgent = "User-Agent"
   val UpgradeInsecureRequests = "Upgrade-Insecure-Requests"
-  val VARY = "Vary"
+  val Vary = "Vary"
   val Via = "Via"
   val Warning = "Warning"
   val WebSocketLocation = "WebSocket-Location"
