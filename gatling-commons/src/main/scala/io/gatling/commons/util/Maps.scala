@@ -56,7 +56,7 @@ object Maps {
 
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
 
-    def forceMapValues[V2](f: V => V2): Map[K, V2] = map.mapValues(f).view.force
+    def forceMapValues[V2](f: V => V2): Map[K, V2] = map.map { case (k, v) => k -> f(v) }
 
     /**
      * Merge with another map. Left is this map and right the other one.
@@ -86,12 +86,6 @@ object Maps {
       }
       mm
     }
-
-    def sortByKey(implicit ordering: Ordering[K]): Map[K, V] =
-      ListMap(iterable.toSeq.sortBy(_._1): _*)
-
-    def sortBy[T](f: K => T)(implicit ordering: Ordering[T]): Map[K, V] =
-      ListMap(iterable.toSeq.sortBy(t => f(t._1)): _*)
   }
 
   implicit class PimpedConcurrentMap[K, V](val map: ConcurrentMap[K, V]) extends AnyVal {
