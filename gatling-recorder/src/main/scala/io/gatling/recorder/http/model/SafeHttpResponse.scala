@@ -25,17 +25,14 @@ import org.asynchttpclient.netty.util.ByteBufUtils
 
 object SafeHttpResponse {
 
-  def fromNettyResponse(nettyResponse: FullHttpResponse): SafeHttpResponse = {
-    val response = SafeHttpResponse(
+  def fromNettyResponse(nettyResponse: FullHttpResponse): SafeHttpResponse =
+    SafeHttpResponse(
       nettyResponse.getProtocolVersion,
       nettyResponse.getStatus,
-      nettyResponse.headers(),
-      nettyResponse.trailingHeaders(),
+      nettyResponse.headers,
+      nettyResponse.trailingHeaders,
       ByteBufUtils.byteBuf2Bytes(nettyResponse.content)
     )
-    nettyResponse.release()
-    response
-  }
 }
 
 case class SafeHttpResponse(

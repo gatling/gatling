@@ -13,23 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.ssl
+package io.gatling.recorder.http
 
-import javax.net.ssl.{ SSLContext, SSLEngine }
+import io.gatling.core.config.Credentials
 
-import io.gatling.recorder.http.flows.Remote
-
-private[http] object SslClientContext {
-
-  val SslContext = {
-    val clientContext = SSLContext.getInstance(SslServerContext.Protocol)
-    clientContext.init(null, TrustManagerFactory.LooseTrustManagers, null)
-    clientContext
-  }
-
-  def createSSLEngine: SSLEngine = {
-    val engine = SslContext.createSSLEngine
-    engine.setUseClientMode(true)
-    engine
-  }
-}
+case class OutgoingProxy(host: String, port: Int, sslPort: Int, credentials: Option[Credentials])

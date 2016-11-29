@@ -18,6 +18,7 @@ package io.gatling.recorder.http.model
 import scala.collection.JavaConversions._
 
 import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.recorder.http.flows.Remote
 
 import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
@@ -25,18 +26,15 @@ import org.asynchttpclient.netty.util.ByteBufUtils
 
 object SafeHttpRequest {
 
-  def fromNettyRequest(nettyRequest: FullHttpRequest): SafeHttpRequest = {
-    val request = SafeHttpRequest(
+  def fromNettyRequest(nettyRequest: FullHttpRequest, remote: Remote, https: Boolean): SafeHttpRequest =
+    SafeHttpRequest(
       nettyRequest.getProtocolVersion,
       nettyRequest.getMethod,
-      nettyRequest.getUri,
+      remote.makeAbsoluteUri(nettyRequest.getUri, https),
       nettyRequest.headers,
       nettyRequest.trailingHeaders,
       ByteBufUtils.byteBuf2Bytes(nettyRequest.content)
     )
-    nettyRequest.release()
-    request
-  }
 }
 
 case class SafeHttpRequest(

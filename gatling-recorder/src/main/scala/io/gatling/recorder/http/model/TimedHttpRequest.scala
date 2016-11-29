@@ -13,18 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler
+package io.gatling.recorder.http.model
 
-import io.netty.channel.{ Channel, ChannelFutureListener, ChannelFuture }
-import io.netty.util.concurrent.{ GenericFutureListener, Future }
-
-private[handler] trait ScalaChannelHandler {
-
-  implicit def function2ChannelFutureListener(f: ChannelFuture => Any) = new ChannelFutureListener {
-    override def operationComplete(future: ChannelFuture): Unit = f(future)
-  }
-
-  implicit def function2GenericFutureListener(f: Future[Channel] => Any) = new GenericFutureListener[Future[Channel]] {
-    override def operationComplete(future: Future[Channel]): Unit = f(future)
-  }
-}
+private[recorder] case class TimedHttpRequest(httpRequest: SafeHttpRequest, sendTime: Long)

@@ -25,10 +25,9 @@ import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.config.RecorderMode._
-import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse }
+import io.gatling.recorder.http.Mitm
+import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse, TimedHttpRequest }
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
@@ -41,7 +40,7 @@ private[recorder] class RecorderController extends StrictLogging {
 
   private val frontEnd = RecorderFrontend.newFrontend(this)
 
-  @volatile private var proxy: HttpProxy = _
+  @volatile private var mitm: Mitm = _
 
   // Collection of tuples, (arrivalTime, request)
   private val currentRequests = new ConcurrentLinkedQueue[TimedScenarioElement[RequestElement]]()
@@ -63,10 +62,10 @@ private[recorder] class RecorderController extends StrictLogging {
           case Har =>
             ScenarioExporter.exportScenario(harFilePath) match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case Success(_)      => frontEnd.handleHarExportSuccess()
+              case _               => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
-            proxy = new HttpProxy(this)
+            mitm = Mitm(this, RecorderConfiguration.configuration)
             frontEnd.recordingStarted()
         }
       }
@@ -84,7 +83,7 @@ private[recorder] class RecorderController extends StrictLogging {
       }
 
     } finally {
-      proxy.shutdown()
+      mitm.shutdown()
       clearRecorderState()
       frontEnd.init()
     }
@@ -93,6 +92,7 @@ private[recorder] class RecorderController extends StrictLogging {
   def receiveRequest(request: SafeHttpRequest): Unit =
     // TODO NICO - that's not the appropriate place to synchronize !
     synchronized {
+      // FIXME it's in the configuration!!!!
       // If Outgoing Proxy set, we record the credentials to use them when sending the request
       Option(request.headers.get(PROXY_AUTHORIZATION)).foreach {
         header =>

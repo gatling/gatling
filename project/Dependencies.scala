@@ -86,7 +86,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty, akkaActor) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
