@@ -49,13 +49,15 @@ import org.asynchttpclient.util.Base64
  * @param sslServerContext factory for SSLContexts
  * @param proxy the outgoing proxy
  * @param trafficLogger log the traffic
+ * @param httpClientCodecFactory create new HttpClientCodecs
  */
 class SecuredWithProxyMitmActor(
-  serverChannel:    Channel,
-  clientBootstrap:  Bootstrap,
-  sslServerContext: SslServerContext,
-  proxy:            OutgoingProxy,
-  trafficLogger:    TrafficLogger
+  serverChannel:          Channel,
+  clientBootstrap:        Bootstrap,
+  sslServerContext:       SslServerContext,
+  proxy:                  OutgoingProxy,
+  trafficLogger:          TrafficLogger,
+  httpClientCodecFactory: () => HttpClientCodec
 )
     extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
@@ -98,7 +100,7 @@ class SecuredWithProxyMitmActor(
     case Event(ResponseReceived(response), WaitingForProxyConnectResponseData(remote, pendingRequest, clientChannel)) =>
       if (response.getStatus == HttpResponseStatus.OK) {
         // the HttpClientCodec has to be regenerated, don't ask me why...
-        clientChannel.pipeline.replace(HttpCodecHandlerName, HttpCodecHandlerName, new HttpClientCodec)
+        clientChannel.pipeline.replace(HttpCodecHandlerName, HttpCodecHandlerName, httpClientCodecFactory())
         // install SslHandler on client channel
         val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(remote))
         clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)

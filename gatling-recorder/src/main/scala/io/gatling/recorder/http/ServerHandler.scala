@@ -24,14 +24,15 @@ import akka.actor.{ ActorRef, ActorSystem, Props }
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.{ ChannelHandlerContext, ChannelInboundHandlerAdapter }
-import io.netty.handler.codec.http.{ FullHttpRequest, HttpMethod }
+import io.netty.handler.codec.http.{ FullHttpRequest, HttpClientCodec, HttpMethod }
 
 class ServerHandler(
-    system:           ActorSystem,
-    outgoingProxy:    Option[OutgoingProxy],
-    clientBootstrap:  Bootstrap,
-    sslServerContext: SslServerContext,
-    trafficLogger:    TrafficLogger
+    system:                 ActorSystem,
+    outgoingProxy:          Option[OutgoingProxy],
+    clientBootstrap:        Bootstrap,
+    sslServerContext:       SslServerContext,
+    trafficLogger:          TrafficLogger,
+    httpClientCodecFactory: () => HttpClientCodec
 ) extends ChannelInboundHandlerAdapter with StrictLogging {
 
   @volatile private var https = false
@@ -53,7 +54,7 @@ class ServerHandler(
           mitmActor =
             if (https) {
               outgoingProxy match {
-                case Some(proxy) => system.actorOf(Props(new SecuredWithProxyMitmActor(ctx.channel, clientBootstrap, sslServerContext, proxy, trafficLogger)))
+                case Some(proxy) => system.actorOf(Props(new SecuredWithProxyMitmActor(ctx.channel, clientBootstrap, sslServerContext, proxy, trafficLogger, httpClientCodecFactory)))
                 case _           => system.actorOf(Props(new SecuredNoProxyMitmActor(ctx.channel, clientBootstrap, sslServerContext, trafficLogger)))
               }
             } else {

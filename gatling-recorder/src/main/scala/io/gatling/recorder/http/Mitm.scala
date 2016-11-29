@@ -75,6 +75,7 @@ object Mitm extends StrictLogging {
 
     val trafficLogger = new TrafficLogger(controller)
     val sslServerContext = SslServerContext(config)
+    val httpClientCodecFactory = () => new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize)
 
     val outgoingProxy =
       config.proxy.outgoing.host.map { proxyHost =>
@@ -95,7 +96,7 @@ object Mitm extends StrictLogging {
           override def initChannel(ch: Channel): Unit = {
             logger.debug("Open new client channel")
             ch.pipeline
-              .addLast(HttpCodecHandlerName, new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+              .addLast(HttpCodecHandlerName, httpClientCodecFactory())
               .addLast("contentDecompressor", new HttpContentDecompressor)
               .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
           }
@@ -115,7 +116,7 @@ object Mitm extends StrictLogging {
             .addLast("responseEncoder", new HttpResponseEncoder)
             .addLast("contentCompressor", new HttpContentCompressor)
             .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
-            .addLast(GatlingHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger))
+            .addLast(GatlingHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory))
         }
       })
 
