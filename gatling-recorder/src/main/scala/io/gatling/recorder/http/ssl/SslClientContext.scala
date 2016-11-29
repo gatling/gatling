@@ -19,17 +19,23 @@ import javax.net.ssl.{ SSLContext, SSLEngine }
 
 import io.gatling.recorder.http.flows.Remote
 
+import org.asynchttpclient.netty.ssl.InsecureTrustManagerFactory
+
 private[http] object SslClientContext {
 
   val SslContext = {
     val clientContext = SSLContext.getInstance(SslServerContext.Protocol)
-    clientContext.init(null, TrustManagerFactory.LooseTrustManagers, null)
+    clientContext.init(null, InsecureTrustManagerFactory.INSTANCE.getTrustManagers, null)
     clientContext
   }
 
-  def createSSLEngine: SSLEngine = {
-    val engine = SslContext.createSSLEngine
+  def createSSLEngine(remote: Remote): SSLEngine = {
+    val engine = SslContext.createSSLEngine(remote.host, remote.port)
     engine.setUseClientMode(true)
+    // FIXME have an option for disabling, eg hostname verification
+    val params = engine.getSSLParameters
+    params.setEndpointIdentificationAlgorithm("HTTPS")
+    engine.setSSLParameters(params)
     engine
   }
 }

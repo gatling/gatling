@@ -98,10 +98,9 @@ class SecuredWithProxyMitmActor(
     case Event(ResponseReceived(response), WaitingForProxyConnectResponseData(remote, pendingRequest, clientChannel)) =>
       if (response.getStatus == HttpResponseStatus.OK) {
         // the HttpClientCodec has to be regenerated, don't ask me why...
-        // FIXME missing HttpClientCodec params
         clientChannel.pipeline.replace(HttpCodecHandlerName, HttpCodecHandlerName, new HttpClientCodec)
         // install SslHandler on client channel
-        val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine)
+        val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(remote))
         clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
 
         if (pendingRequest.getMethod == HttpMethod.CONNECT) {

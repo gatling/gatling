@@ -54,7 +54,7 @@ class SecuredNoProxyMitmActor(
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
     // FIXME have an option for disabling
-    val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine)
+    val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(remote))
     clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
     clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger))
 
