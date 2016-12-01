@@ -50,11 +50,11 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
       NettyDnsConstants.DefaultResolveAddressTypes,
-      false, // recursionDesired
+      true, // recursionDesired
       configuration.http.dns.maxQueriesPerResolve,
       ExtendedDnsNameResolver.DebugEnabled,
       4096,
-      true,
+      true, // optResourceEnabled
       HostsFileEntriesResolver.DEFAULT,
       NettyDnsConstants.DefaultSearchDomain,
       1 // ndots
