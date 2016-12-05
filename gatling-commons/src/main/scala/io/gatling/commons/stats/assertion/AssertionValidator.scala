@@ -150,8 +150,8 @@ object AssertionValidator {
       case Gt(lower)                    => assertionResult(actualValue > lower, lower)
       case Gte(lower)                   => assertionResult(actualValue >= lower, lower)
       case Is(exactValue)               => assertionResult(actualValue == exactValue, exactValue)
-      case Between(lower, upper, true)  => assertionResult(actualValue > lower && actualValue < upper, s"$lower and $upper")
-      case Between(lower, upper, false) => assertionResult(actualValue >= lower && actualValue <= upper, s"$lower and $upper")
+      case Between(lower, upper, true)  => assertionResult(actualValue >= lower && actualValue <= upper, s"$lower and $upper")
+      case Between(lower, upper, false) => assertionResult(actualValue > lower && actualValue < upper, s"$lower and $upper")
       case In(elements)                 => assertionResult(elements.contains(actualValue), elements)
     }
   }
