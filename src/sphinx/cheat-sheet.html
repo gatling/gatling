@@ -43,10 +43,11 @@
           <div class="function-details">
             Executes a chain when a condition is satisfied
             <dl>
-              <dt>(actual, expected){chain}</dt>
-              <dd>If the <i>actual</i> value is equal to <i>expected</i>, then, <i>chain</i> is executed.</dd>
+              <dt>(condition){chain}</dt>
+              <dd>If the result of the condition is true, then <i>chain</i> is executed.</dd>
               <dt>(Session => Boolean){chain}</dt>
-              <dd>If the result of the function <i>Session => Boolean</i> is true, then <i>chain</i> is executed.</dd>
+              <dd>If the result of the function <i>Session => Boolean</i> is true, 
+                then <i>chain</i> is executed.</dd>
             </dl>
           </div>
         </div>
@@ -62,6 +63,22 @@
               <dd>If the result of the condition is true, then <i>chain</i> is executed, else
                 <i>otherChain</i> is executed.
               </dd>
+              <dt>(Session => Boolean){chain}{otherChain}</dt>
+              <dd>If the result of the function <i>Session => Boolean</i> is true, 
+                then <i>chain</i> is executed, else <i>otherChain</i> is executed.</dd>
+            </dl>
+          </div>
+        </div>
+        
+        <div class="function">
+          <label class="function-syntax" for="doIfEquals">doIfEquals</label>
+          <input type="checkbox" id="doIfEquals" name="doIfEquals">
+
+          <div class="function-details">
+            Executes a chain when two values are equal
+            <dl>
+              <dt>(expected, actual){chain}</dt>
+              <dd>If expected equals actual, then <i>chain</i> is executed</dd>
             </dl>
           </div>
         </div>
@@ -71,7 +88,7 @@
           <input type="checkbox" id="doIfEqualsOrElse" name="doIfEqualsOrElse">
 
           <div class="function-details">
-            Executes a chain when two values are equals, another if not
+            Executes a chain when two values are equal, another if not
             <dl>
               <dt>(expected, actual){chain}{otherChain}</dt>
               <dd>If expected equals actual, then <i>chain</i> is executed, else
