@@ -81,7 +81,7 @@ object AssertionValidator {
 
     assertion.target match {
       case MeanRequestsPerSecondTarget =>
-        val actualValue = stats(None).meanRequestsPerSec.round
+        val actualValue = stats(None).meanRequestsPerSec
         resolveCondition(assertion, path, printableTarget, actualValue)
 
       case target: CountTarget =>
