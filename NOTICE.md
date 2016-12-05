@@ -201,6 +201,16 @@ This product depends on Highcharts, distributed by Highsoft:
   * License: limited usage, restricted by Gatling Highcharts license
   * Homepage: http://www.highcharts.com/
 
+This product depends on Pebble, distributed by Mitchell Bösecke:
+
+    * License: license/LICENSE.pebble.bsd3.txt (BSD 3-Clause License)
+    * Homepage: http://www.mitchellbosecke.com/pebble/home
+
+This product depends on Coverity Security Library, distributed by Coverity, Inc.:
+
+  * License: license/LICENSE.coverity.bsd3.txt (BSD 3-Clause License)
+  * Homepage: https://github.com/coverity/coverity-security-library
+
 Test and documentation dependencies
 ===================================
 
