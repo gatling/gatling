@@ -17,120 +17,41 @@ package io.gatling.core.util
 
 object Shard {
 
-  private[this] def pick(countA: Long, valueA: Long, countB: Long, valueB: Long, index: Int): Shard = {
-    // assumes countA > countB
-    // pattern = (A... ratio times) then (B once), order depend on valueA >= valueB
-    val ratioAforB = (countA / countB).toInt
-    val patternLength = ratioAforB + 1
-    val numberOfFullPatterns = math.min(index / patternLength, countB)
-    val patternValue = ratioAforB * valueA + valueB
-    val fullPatternsValue = numberOfFullPatterns * patternValue
-
-    if (numberOfFullPatterns == countB) {
-      // we've reached the number of full patterns, next values will only be valueA (the one with the greatest count)
-      Shard((fullPatternsValue + (index - countB * patternLength) * valueA).toInt, valueA.toInt)
-
+  private[this] def sumFromZero(total: Long, buckets: Int, bucketNumber: Int): Long =
+    if (bucketNumber == -1) {
+      0L
+    } else if (bucketNumber == buckets - 1) {
+      // because of rounding, we might be one off on last bucket
+      total
     } else {
-      val modulo = index % patternLength
-
-      if (valueA >= valueB) {
-        // A first
-        if (modulo == ratioAforB) {
-          // (A, ..., A, B)
-          Shard((fullPatternsValue + patternValue - valueB).toInt, valueB.toInt)
-        } else {
-          // (A, ..., A)
-          Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
-        }
-
-      } else {
-        // B first
-        if (modulo == 0) {
-          // next value is B, except if we've reached countB
-          if (numberOfFullPatterns < countB) {
-            // (... A)(B)
-            Shard(fullPatternsValue.toInt, valueB.toInt)
-          } else {
-            // (... A)(A)
-            Shard(fullPatternsValue.toInt, valueA.toInt)
-          }
-
-        } else {
-          // next value is B, except if we've reached countB
-          if (numberOfFullPatterns < countB) {
-            // (B, A, ..., A)
-            Shard((fullPatternsValue + valueB + (modulo - 1) * valueA).toInt, valueA.toInt)
-
-          } else {
-            // (A, ..., A)
-            Shard((fullPatternsValue + modulo * valueA).toInt, valueA.toInt)
-          }
-        }
-      }
-    }
-  }
-
-  def shard(totalValue: Int, index: Int, totalCount: Int): Shard =
-    if (totalCount == 1) {
-      Shard(0, totalValue)
-    } else {
-      val largeCount = totalValue % totalCount
-      val smallCount = totalCount - largeCount
-      val smallValue = totalValue / totalCount
-      val largeValue = smallValue + 1
-
-      if (smallCount == 0) {
-        Shard(index * largeValue, largeValue)
-
-      } else if (largeCount == 0) {
-        Shard(index * smallValue, smallValue)
-
-      } else if (largeCount > smallCount) {
-        pick(largeCount, largeValue, smallCount, smallValue, index)
-
-      } else {
-        pick(smallCount, smallValue, largeCount, largeValue, index)
-      }
+      // +1 is because we want to non zero value in first bucket
+      math.ceil(total.toDouble / buckets * (bucketNumber + 1)).toLong
     }
 
-  private[this] def interleave(countA: Long, valueA: Long, countB: Long, valueB: Long, totalCount: Int): Iterator[Long] = {
-    // assumes countA > countB
-    val ratioAforB = (countA / countB).toInt
-    val rest = (totalCount - countB * (ratioAforB + 1)).toInt
+  def shard(total: Long, bucketNumber: Int, buckets: Int): Shard = {
+    val offset = sumFromZero(total, buckets, bucketNumber - 1)
+    val value = sumFromZero(total, buckets, bucketNumber) - offset
 
-    // largest values first
-    val pattern =
-      if (valueA >= valueB) {
-        () => Iterator.fill(ratioAforB)(valueA) ++ Iterator.single(valueB)
-      } else {
-        () => Iterator.single(valueB) ++ Iterator.fill(ratioAforB)(valueA)
+    Shard(offset.toInt, value.toInt)
+  }
+
+  def shards(total: Long, buckets: Int): Iterator[Long] =
+
+    new Iterator[Long] {
+
+      private[this] var currentIndex = 0
+      private[this] var previousSumFromZero = 0L
+
+      override def hasNext: Boolean = currentIndex < buckets
+
+      override def next(): Long = {
+        val newSumFromZero = sumFromZero(total, buckets, currentIndex)
+        val res = newSumFromZero - previousSumFromZero
+        currentIndex += 1
+        previousSumFromZero = newSumFromZero
+        res
       }
-
-    // countB * (valueB + (countA / countB).toInt * valueA) + (totalCount - countB * (ratioAforB + 1)).toInt * valueA
-    Iterator.fill(countB.toInt)(pattern()).flatten ++ Iterator.fill(rest)(valueA)
-  }
-
-  def shards(totalValue: Long, totalCount: Int): Iterator[Long] = {
-
-    val smallValue = totalValue / totalCount
-    val largeValue = smallValue + 1
-
-    val largeBucketCount = totalValue % totalCount
-    val smallBucketCount = totalCount - largeBucketCount
-
-    if (largeBucketCount == 0) {
-      Iterator.fill(smallBucketCount.toInt)(smallValue)
-
-    } else if (smallBucketCount == 0) {
-      Iterator.fill(largeBucketCount.toInt)(largeValue)
-
-    } else if (smallBucketCount > largeBucketCount) {
-      interleave(smallBucketCount, smallValue, largeBucketCount, largeValue, totalCount)
-
-    } else {
-      interleave(largeBucketCount, largeValue, smallBucketCount, smallValue, totalCount)
     }
-  }
 }
 
 case class Shard(offset: Int, length: Int)

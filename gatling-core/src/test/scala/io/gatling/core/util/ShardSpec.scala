@@ -16,13 +16,16 @@
 package io.gatling.core.util
 
 import io.gatling.BaseSpec
+
 import org.scalacheck.Gen
 
 class ShardSpec extends BaseSpec {
 
   "Shard.shards" should "return the proper count" in {
-    forAll(Gen.chooseNum(1, Int.MaxValue)) { total =>
-      Shard.shards(total, 1000).sum shouldBe total
+    forAll(Gen.choose(1, Int.MaxValue)) { total =>
+      whenever(total >= 1) {
+        Shard.shards(total, 1000).sum shouldBe total
+      }
     }
   }
 
@@ -50,40 +53,49 @@ class ShardSpec extends BaseSpec {
     Shard.shard(3, 1, 8) shouldBe Shard(1, 0)
     Shard.shard(3, 2, 8) shouldBe Shard(1, 1)
     Shard.shard(3, 3, 8) shouldBe Shard(2, 0)
-    Shard.shard(3, 4, 8) shouldBe Shard(2, 1)
-    Shard.shard(3, 5, 8) shouldBe Shard(3, 0)
+    Shard.shard(3, 4, 8) shouldBe Shard(2, 0)
+    Shard.shard(3, 5, 8) shouldBe Shard(2, 1)
     Shard.shard(3, 6, 8) shouldBe Shard(3, 0)
     Shard.shard(3, 7, 8) shouldBe Shard(3, 0)
   }
 
-  it should "produce the same results as Shard.shards" in {
-    forAll(Gen.chooseNum(1, 100), Gen.chooseNum(1, 100)) { (totalValue, totalCount) =>
-      val shards = Shard.shards(totalValue, totalCount).toArray
-      for (index <- 0 until totalCount) {
-        Shard.shard(totalValue, index, totalCount).length shouldBe shards(index)
+  private def forAllPairs(min: Int, max: Int)(f: (Int, Int) => Unit) =
+    forAll(Gen.choose(min, max), Gen.choose(min, max)) { (a, b) =>
+      whenever(a >= min && a <= max && b >= min && b <= max) {
+        f(a, b)
       }
+    }
+
+  it should "produce the same results as Shard.shards" in {
+    forAllPairs(1, 100) {
+      case (totalValue, totalCount) =>
+        val shards = Shard.shards(totalValue, totalCount).toArray
+        for (index <- 0 until totalCount) {
+          Shard.shard(totalValue, index, totalCount).length shouldBe shards(index)
+        }
     }
   }
 
   it should "shard all values" in {
-    forAll(Gen.chooseNum(1, 100), Gen.chooseNum(1, 100)) { (totalValue, totalCount) =>
-      (0 until totalCount).map(index => Shard.shard(totalValue, index, totalCount).length).sum shouldBe totalValue
+    forAllPairs(1, 100) {
+      case (totalValue, totalCount) =>
+        (0 until totalCount).map(index => Shard.shard(totalValue, index, totalCount).length).sum shouldBe totalValue
     }
   }
 
   it should "properly compute offsets" in {
-    forAll(Gen.chooseNum(1, 100), Gen.chooseNum(1, 100)) { (totalValue, totalCount) =>
-      var previousOffset = 0
-      var previousLength = 0
-
-      for {
-        index <- 0 until totalCount
-      } {
-        val shard = Shard.shard(totalValue, index, totalCount)
-        shard.offset shouldBe previousOffset + previousLength
-        previousOffset = shard.offset
-        previousLength = shard.length
-      }
+    forAllPairs(1, 100) {
+      case (totalValue, totalCount) =>
+        var previousOffset = 0
+        var previousLength = 0
+        for {
+          index <- 0 until totalCount
+        } {
+          val shard = Shard.shard(totalValue, index, totalCount)
+          shard.offset shouldBe previousOffset + previousLength
+          previousOffset = shard.offset
+          previousLength = shard.length
+        }
     }
   }
 }
