@@ -154,35 +154,53 @@ case class Session(
 
   def status: Status = if (isFailed) KO else OK
 
-  private def updateStatus(newStatus: Status): Session = {
-
-      def isInTryMax = blockStack.exists(_.isInstanceOf[TryMaxBlock])
-
-      def changeFirstTryMaxStatus(oldStatus: Status, newStatus: Status): List[Block] = {
-        var first = true
-        blockStack.map {
-          case tryMax: TryMaxBlock if first =>
-            first = false
-            if (tryMax.status == oldStatus) tryMax.copy(status = newStatus)
-            else tryMax
-          case b => b
-        }
-      }
-
-    val oldStatus = if (newStatus == OK) KO else OK
-
-    if (!isInTryMax) {
-      if (baseStatus == oldStatus) copy(baseStatus = newStatus)
-      else this
-
-    } else {
-      copy(blockStack = changeFirstTryMaxStatus(oldStatus, newStatus))
+  private def failStatusUntilFirstTryMaxBlock: List[Block] = {
+    var firstTryMaxBlockNotReached = true
+    blockStack.map {
+      case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == OK =>
+        firstTryMaxBlockNotReached = false
+        tryMaxBlock.copy(status = KO)
+      case groupBlock: GroupBlock if firstTryMaxBlockNotReached && groupBlock.status == OK =>
+        groupBlock.copy(status = KO)
+      case b => b
     }
   }
 
-  def markAsSucceeded: Session = updateStatus(OK)
+  private def restoreFirstTryMaxBlockStatus: List[Block] = {
+    var firstTryMaxBlockNotReached = true
+    blockStack.map {
+      case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == KO =>
+        firstTryMaxBlockNotReached = false
+        tryMaxBlock.copy(status = OK)
+      case b => b
+    }
+  }
 
-  def markAsFailed: Session = updateStatus(KO)
+  private def updateStatus(newStatus: Status): Session =
+    if (newStatus == OK) {
+      markAsSucceeded
+    } else {
+      markAsFailed
+    }
+
+  private def isWithinTryMax: Boolean = blockStack.exists(_.isInstanceOf[TryMaxBlock])
+
+  def markAsSucceeded: Session =
+    if (isWithinTryMax) {
+      copy(blockStack = restoreFirstTryMaxBlockStatus)
+    } else if (baseStatus == KO) {
+      copy(baseStatus = OK)
+    } else {
+      this
+    }
+
+  def markAsFailed: Session =
+    if (baseStatus == KO && blockStack.isEmpty) {
+      this
+    } else {
+      val updatedStatus = if (isWithinTryMax) baseStatus else KO
+      copy(baseStatus = updatedStatus, blockStack = failStatusUntilFirstTryMaxBlock)
+    }
 
   private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timebased: Boolean): Session = {
 

@@ -23,7 +23,7 @@ trait Execs[B] {
   private[core] def actionBuilders: List[ActionBuilder]
   private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
 
-  def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
+  def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, exitable = true))
   def exec(actionBuilder: ActionBuilder): B = chain(List(actionBuilder))
   def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
   def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)

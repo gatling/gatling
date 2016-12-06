@@ -25,13 +25,13 @@ import io.gatling.core.util.NameGen
  *
  * @constructor creates a SimpleActionBuilder
  * @param sessionFunction the function that will be executed by the simple action
- * @param interruptable if the action can be interrupted
+ * @param exitable if the action can be interrupted
  */
-class SessionHookBuilder(sessionFunction: Expression[Session], interruptable: Boolean = false) extends ActionBuilder with NameGen {
+class SessionHookBuilder(sessionFunction: Expression[Session], exitable: Boolean) extends ActionBuilder with NameGen {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val name = genName("hook")
-    if (interruptable)
+    if (exitable)
       new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, next) with ExitableAction
     else
       new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, next)

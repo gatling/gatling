@@ -72,7 +72,7 @@ trait ChainableAction extends Action {
   def recover(session: Session)(v: Validation[_]): Unit =
     v.onFailure { message =>
       logger.error(s"'$name' failed to execute: $message")
-      next.execute(session.markAsFailed)
+      next ! session.markAsFailed
     }
 }
 

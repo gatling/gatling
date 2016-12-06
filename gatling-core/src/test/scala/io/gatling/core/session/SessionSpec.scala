@@ -248,7 +248,8 @@ class SessionSpec extends BaseSpec {
   it should "be KO if the session is failed" in {
     newSession.copy(baseStatus = KO).status shouldBe KO
   }
-  "markAsSucceeded" should "only set the baseStatus to OK if it was not set and there is no TryMaxBlock in the stack" in {
+
+  "markAsSucceeded" should "only set the baseStatus to OK if it was originally KO and there is no TryMaxBlock in the stack" in {
     val session = newSession.copy(baseStatus = KO)
     val failedSession = session.markAsSucceeded
 
@@ -263,7 +264,7 @@ class SessionSpec extends BaseSpec {
     failedSession should be theSameInstanceAs session
   }
 
-  it should "set the TryMaxBlock's status to KO if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
+  it should "set the TryMaxBlock's status to OK if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
     val session = newSession.copy(baseStatus = KO).enterGroup("root group").enterTryMax("tryMax", nextAction)
     val failedSession = session.markAsSucceeded
 
@@ -279,7 +280,7 @@ class SessionSpec extends BaseSpec {
     failedSession.baseStatus shouldBe KO
   }
 
-  it should "leave the session unmodified if baseStatus is already KO and there is no TryMaxBlock in the stack" in {
+  it should "leave the session unmodified if baseStatus is already KO and the stack is empty" in {
     val session = newSession.copy(baseStatus = KO)
     val failedSession = session.markAsFailed
 

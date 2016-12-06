@@ -33,7 +33,7 @@ case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[G
 
   def exitBlock(statsEngine: StatsEngine): Unit = {
     val now = nowMillis
-    groupsToClose.foreach(statsEngine.logGroupEnd(session, _, now))
+    groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session, _, now))
     exitAction ! session
   }
 }
