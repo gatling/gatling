@@ -17,7 +17,7 @@ package io.gatling.http.response
 
 import java.nio.charset.Charset
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConverters._
 
 import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.cookie.{ Cookie, CookieDecoder }
@@ -82,9 +82,9 @@ case class HttpResponse(
   def uri = status.map(_.getUri)
 
   def header(name: String): Option[String] = Option(headers.get(name))
-  def headers(name: String): Seq[String] = headers.getAll(name)
+  def headers(name: String): Seq[String] = headers.getAll(name).asScala
 
-  lazy val cookies = headers.getAll(HeaderNames.SetCookie).flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
+  lazy val cookies = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
 
   def checksum(algorithm: String) = checksums.get(algorithm)
   def hasResponseBody = bodyLength != 0

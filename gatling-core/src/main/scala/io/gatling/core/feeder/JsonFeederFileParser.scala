@@ -20,7 +20,7 @@ import java.net.URL
 import java.util.{ Collection => JCollection, Map => JMap }
 
 import scala.collection._
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Io._
 import io.gatling.core.json.JsonParsers
@@ -44,10 +44,10 @@ class JsonFeederFileParser(implicit jsonParsers: JsonParsers) {
 
       case array: JCollection[_] =>
 
-        array.iterator.collect {
+        array.iterator.asScala.collect {
           case element: JMap[_, _] =>
             // type erasure I love u
-            element.asInstanceOf[JMap[String, _]].toMap
+            element.asInstanceOf[JMap[String, _]].asScala.toMap
         }
 
       case _ => throw new IllegalArgumentException("Root element of JSON feeder file isn't an array")

@@ -19,7 +19,7 @@ import java.io.RandomAccessFile
 import java.net.ServerSocket
 import javax.activation.FileTypeMap
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.util.Try
 
@@ -100,7 +100,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   def verifyRequestTo(path: String)(implicit server: HttpServer): Unit = verifyRequestTo(path, 1)
 
   def verifyRequestTo(path: String, count: Int, checks: (FullHttpRequest => Unit)*)(implicit server: HttpServer): Unit = {
-    val filteredRequests = server.requests.filter(_.getUri == path).toList
+    val filteredRequests = server.requests.asScala.filter(_.getUri == path).toList
     val actualCount = filteredRequests.size
     if (actualCount != count) {
       throw new AssertionError(s"Expected to access $path $count times, but actually accessed it $actualCount times.")
@@ -110,7 +110,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   }
 
   def checkCookie(cookie: String, value: String)(request: FullHttpRequest) = {
-    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HeaderNames.Cookie)).toList
+    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HeaderNames.Cookie)).asScala.toList
     val matchingCookies = cookies.filter(_.name == cookie)
 
     matchingCookies match {

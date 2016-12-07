@@ -17,7 +17,7 @@ package io.gatling.recorder.controller
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.DurationLong
 
 import io.gatling.commons.util.PathHelper._
@@ -79,7 +79,7 @@ private[recorder] class RecorderController extends StrictLogging {
       if (currentRequests.isEmpty)
         logger.info("Nothing was recorded, skipping scenario generation")
       else {
-        val scenario = ScenarioDefinition(currentRequests.toVector, currentTags.toVector)
+        val scenario = ScenarioDefinition(currentRequests.asScala.toVector, currentTags.asScala.toVector)
         ScenarioExporter.saveScenario(scenario)
       }
 
@@ -106,13 +106,13 @@ private[recorder] class RecorderController extends StrictLogging {
     }
 
   def receiveResponse(request: TimedHttpRequest, response: SafeHttpResponse): Unit =
-    if (RecorderConfiguration.configuration.filters.filters.map(_.accept(request.httpRequest.uri)).getOrElse(true)) {
+    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.httpRequest.uri))) {
       val arrivalTime = nowMillis
 
       currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, RequestElement(request.httpRequest, response)))
 
       // Notify the frontend
-      val previousSendTime = currentRequests.lastOption.map(_.sendTime)
+      val previousSendTime = currentRequests.asScala.lastOption.map(_.sendTime)
       previousSendTime.foreach { t =>
         val delta = (arrivalTime - t).milliseconds
         if (delta > RecorderConfiguration.configuration.core.thresholdForPauseCreation)

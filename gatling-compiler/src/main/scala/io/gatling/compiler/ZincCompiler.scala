@@ -20,7 +20,7 @@ import java.net.{ URL, URLClassLoader }
 import java.nio.file.Files
 import java.util.jar.{ Manifest => JManifest, Attributes }
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.reflect.io.Directory
 import scala.util.{ Failure, Try }
 
@@ -60,7 +60,7 @@ object ZincCompiler extends App {
       // yippee, we've been started by the manifest-only jar,
       // we have to add the manifest Class-Path entries
 
-      val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF")
+      val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF").asScala
         .map { url =>
           val is = url.openStream()
           try {

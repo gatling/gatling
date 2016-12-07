@@ -18,7 +18,7 @@ package io.gatling.http
 import java.net.InetSocketAddress
 import java.util.concurrent.{ TimeUnit, ConcurrentLinkedQueue }
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -84,7 +84,7 @@ private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, 
   val ch = serverBootstrap.bind(new InetSocketAddress(port)).sync.channel
 
   def stop(): Unit = {
-    requests.foreach(ReferenceCountUtil.release)
+    requests.asScala.foreach(ReferenceCountUtil.release)
     bossGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
     workerGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
   }

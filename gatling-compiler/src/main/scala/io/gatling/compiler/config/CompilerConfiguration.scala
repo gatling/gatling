@@ -18,7 +18,7 @@ package io.gatling.compiler.config
 import java.io.File
 import java.nio.file._
 
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConverters._
 
 import io.gatling.compiler.config.ConfigUtils._
 import io.gatling.compiler.config.cli.{ CommandLineOverrides, ArgsParser }
@@ -56,7 +56,7 @@ private[compiler] object CompilerConfiguration {
     val argsParser = new ArgsParser(args)
     val commandLineOverrides = argsParser.parseArguments
 
-    val cliConfig = ConfigFactory.parseMap(buildConfigurationMap(commandLineOverrides))
+    val cliConfig = ConfigFactory.parseMap(buildConfigurationMap(commandLineOverrides).asJava)
     val customConfig = ConfigFactory.load("gatling.conf")
     val defaultConfig = ConfigFactory.load("gatling-defaults.conf")
     val config = cliConfig.withFallback(customConfig.withFallback(defaultConfig))

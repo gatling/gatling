@@ -15,8 +15,9 @@
  */
 package io.gatling.core.action.builder
 
+import java.util.concurrent.ThreadLocalRandom
+
 import scala.annotation.tailrec
-import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.commons.validation._
 import io.gatling.commons.util.Collections._

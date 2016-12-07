@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.http.model
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.StringHelper.Eol
 
@@ -57,5 +57,5 @@ case class SafeHttpRequest(
 
   def summary: String =
     s"""$httpVersion $method $uri
-     |${(headers ++ trailingHeaders).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
+     |${(headers.asScala ++ trailingHeaders.asScala).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
 }

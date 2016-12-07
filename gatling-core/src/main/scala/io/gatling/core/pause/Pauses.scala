@@ -15,8 +15,9 @@
  */
 package io.gatling.core.pause
 
+import java.util.concurrent.ThreadLocalRandom
+
 import scala.concurrent.duration.Duration
-import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.core.session._
 

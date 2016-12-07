@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
@@ -44,7 +44,7 @@ class SaxonXPathExtractorFactory(implicit val saxon: Saxon) extends CriterionExt
         xdmValue = saxon.evaluateXPath(path, namespaces, node)
         // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream
         // we don't want it to lazy load and hold a reference to the underlying DOM
-        items <- if (xdmValue.size == 0) None else Some(xdmValue.map(_.getStringValue).toVector)
+        items <- if (xdmValue.size == 0) None else Some(xdmValue.asScala.map(_.getStringValue).toVector)
       } yield items
 
       result.success

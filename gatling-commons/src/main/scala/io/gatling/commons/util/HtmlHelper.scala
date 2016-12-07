@@ -17,13 +17,13 @@ package io.gatling.commons.util
 
 import java.util.ResourceBundle
 
-import scala.collection.JavaConversions.enumerationAsScalaIterator
+import scala.collection.JavaConverters._
 
 object HtmlHelper {
 
   val entities = ResourceBundle.getBundle("html-entities")
 
-  val charToHtmlEntities: Map[Char, String] = entities.getKeys.map { entityName => (entities.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
+  val charToHtmlEntities: Map[Char, String] = entities.getKeys.asScala.map { entityName => (entities.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
 
   val htmlEntitiesToChar: Map[String, Char] = charToHtmlEntities.map(_.swap)
 

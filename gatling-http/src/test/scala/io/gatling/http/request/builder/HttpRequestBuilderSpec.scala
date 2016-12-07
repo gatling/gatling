@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreComponents
@@ -70,7 +70,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getFormParams.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
+      .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
   }
 
   it should "work when passing only formParams" in {
@@ -79,7 +79,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getFormParams.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 
   it should "work when passing only a form" in {
@@ -89,6 +89,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getFormParams.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 }
