@@ -18,13 +18,13 @@ package io.gatling.core.feeder
 import java.io.InputStream
 import java.util.{ Map => JMap }
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
-import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader, MappingIterator }
+import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader }
 import com.fasterxml.jackson.dataformat.csv.{ CsvSchema, CsvMapper }
 
 object SeparatedValuesParser {
@@ -45,10 +45,11 @@ object SeparatedValuesParser {
 
     val reader: ObjectReader = mapper.readerFor(classOf[JMap[_, _]])
 
-    val it: MappingIterator[JMap[String, String]] = reader
+    val it: Iterator[JMap[String, String]] = reader
       .`with`(schema)
       .readValues(is)
+      .asScala
 
-    it.map(_.toMap)
+    it.map(_.asScala.toMap)
   }
 }

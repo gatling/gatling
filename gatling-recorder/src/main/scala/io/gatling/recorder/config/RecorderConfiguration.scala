@@ -18,7 +18,7 @@ package io.gatling.recorder.config
 import java.io.FileNotFoundException
 import java.nio.file.Path
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.util.Properties.userHome
@@ -59,7 +59,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
   def fakeConfig(props: mutable.Map[String, _ <: Any]): RecorderConfiguration = {
     val defaultConfig = getDefaultConfig(getClassLoader)
-    buildConfig(configChain(ConfigFactory.parseMap(props), defaultConfig))
+    buildConfig(configChain(ConfigFactory.parseMap(props.asJava), defaultConfig))
   }
 
   def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[Path] = None): Unit = {
@@ -74,7 +74,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       println("""If running from sbt, please run "copyConfigFiles" and check the plugin documentation.""")
       ConfigFactory.empty
     }
-    val propertiesConfig = ConfigFactory.parseMap(props)
+    val propertiesConfig = ConfigFactory.parseMap(props.asJava)
 
     try {
       configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
@@ -87,7 +87,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   }
 
   def reload(props: mutable.Map[String, _ <: Any]): Unit = {
-    val frameConfig = ConfigFactory.parseMap(props)
+    val frameConfig = ConfigFactory.parseMap(props.asJava)
     configuration = buildConfig(configChain(frameConfig, configuration.config))
   }
 
@@ -134,8 +134,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       ),
       filters = FiltersConfiguration(
         filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
-        whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
-        blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)
+        whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).asScala.toList),
+        blackList = BlackList(config.getStringList(filters.BlacklistPatterns).asScala.toList)
       ),
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),

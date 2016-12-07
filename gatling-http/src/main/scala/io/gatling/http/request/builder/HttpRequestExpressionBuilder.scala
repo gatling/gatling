@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
@@ -45,7 +45,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         requestBuilder.setFormParams(resolvedFormParams)
 
       } else {
-        resolvedFormParams.foreach(param => requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset)))
+        resolvedFormParams.asScala.foreach(param => requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset)))
         requestBuilder
       }
     }
@@ -74,7 +74,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
                 }
             }
             case ByteArrayBody(bytes)             => bytes(session).map(requestBuilder.setBody)
-            case CompositeByteArrayBody(bytes, _) => bytes(session).map(bs => requestBuilder.setBody(bs))
+            case CompositeByteArrayBody(bytes, _) => bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
             case InputStreamBody(is)              => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
             case body: PebbleStringBody           => body.apply(session).map(requestBuilder.setBody)
             case body: PebbleFileBody             => body.apply(session).map(requestBuilder.setBody)

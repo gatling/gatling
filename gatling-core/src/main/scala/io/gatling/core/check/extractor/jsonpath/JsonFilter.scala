@@ -16,7 +16,7 @@
 package io.gatling.core.check.extractor.jsonpath
 
 import scala.annotation.implicitNotFound
-import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
+import scala.collection.JavaConverters._
 import scala.collection.breakOut
 
 import io.gatling.core.json.Json
@@ -67,14 +67,14 @@ trait LowPriorityJsonFilterImplicits {
 
   implicit val jListJsonFilter = new JsonFilter[Seq[Any]] {
     val filter: PartialFunction[Any, Seq[Any]] = {
-      case e: java.util.List[_] => e
+      case e: java.util.List[_] => e.asScala
       case null                 => null.asInstanceOf[Seq[Any]]
     }
   }
 
   implicit val jMapJsonFilter = new JsonFilter[Map[String, Any]] {
     val filter: PartialFunction[Any, Map[String, Any]] = {
-      case e: java.util.Map[_, _] => e.map { case (key, value) => key.toString -> value }(breakOut)
+      case e: java.util.Map[_, _] => e.asScala.map { case (key, value) => key.toString -> value }(breakOut)
       case null                   => null.asInstanceOf[Map[String, Any]]
     }
   }

@@ -18,7 +18,7 @@ package io.gatling.http.request
 import java.util.{ ArrayList => JArrayList, Collections => JCollections, List => JList }
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
@@ -41,10 +41,10 @@ package object builder {
             resolvedFormParams <- formParams
             resolvedForm <- form(session)
           } yield {
-            val formParamsByName = resolvedFormParams.groupBy(_.getName)
+            val formParamsByName = resolvedFormParams.asScala.groupBy(_.getName)
             val formFieldsByName = resolvedForm.map { case (key, values) => key -> values.map(value => new Param(key, value)) }
             // override form with formParams
-            val javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq
+            val javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava
             javaParams
           }
 

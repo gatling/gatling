@@ -16,7 +16,6 @@
 package io.gatling.http.ahc
 
 import scala.util.control.NonFatal
-import scala.collection.JavaConversions._
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.ClockSingleton.nowMillis
@@ -221,7 +220,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
         if (keepBody) {
           requestBuilder.setCharset(originalRequest.getCharset)
-          if (originalRequest.getFormParams.nonEmpty)
+          if (!originalRequest.getFormParams.isEmpty)
             requestBuilder.setFormParams(originalRequest.getFormParams)
           Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
           Option(originalRequest.getByteData).foreach(requestBuilder.setBody)

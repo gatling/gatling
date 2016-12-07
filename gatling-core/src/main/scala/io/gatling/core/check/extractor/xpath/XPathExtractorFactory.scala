@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
@@ -43,7 +43,7 @@ object XPathExtractorFactory extends CriterionExtractorFactory[Option[Dom], (Str
       (path, namespaces),
       _.flatMap {
         case SaxonDom(document) =>
-          val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document)
+          val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document).asScala
 
           if (xdmValue.nonEmpty)
             // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream

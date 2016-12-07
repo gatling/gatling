@@ -18,7 +18,7 @@ package io.gatling.recorder.ui.swing.frame
 import java.awt.Font
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConverters._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode._
@@ -115,7 +115,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   /* Frame setup */
   title = "Gatling Recorder - Configuration"
   resizable = true
-  peer.setIconImages(IconList)
+  peer.setIconImages(IconList.asJava)
 
   /* Layout setup */
   val root = new BorderPanel {
@@ -579,8 +579,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
 
       // Filters
       props.filterStrategy(filterStrategies.selection.item.toString)
-      props.whitelist(whiteListTable.getRegexs)
-      props.blacklist(blackListTable.getRegexs)
+      props.whitelist(whiteListTable.getRegexs.asJava)
+      props.blacklist(blackListTable.getRegexs.asJava)
 
       // Simulation config
       props.simulationPackage(simulationPackage.text)

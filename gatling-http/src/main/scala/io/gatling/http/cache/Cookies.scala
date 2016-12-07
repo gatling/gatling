@@ -18,13 +18,13 @@ package io.gatling.http.cache
 import java.util.{ Collection => JCollection }
 
 import scala.collection.breakOut
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import org.asynchttpclient.cookie.Cookie
 
 class Cookies(cookies: JCollection[Cookie]) {
 
-  lazy val cookieNameValuePairs: Map[String, String] = cookies.map(cookie => cookie.getName -> cookie.getPath)(breakOut)
+  lazy val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.getName -> cookie.getPath)(breakOut)
 
   override def hashCode = cookieNameValuePairs.hashCode
 

@@ -15,7 +15,7 @@
  */
 package io.gatling.core.feeder
 
-import scala.concurrent.forkjoin.ThreadLocalRandom
+import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.commons.util.RoundRobin
 import io.gatling.core.structure.ScenarioContext

@@ -18,7 +18,7 @@ package io.gatling.recorder.scenario
 import java.nio.charset.Charset
 
 import scala.collection.breakOut
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 import scala.io.Codec.UTF8
 
@@ -53,7 +53,7 @@ private[recorder] object RequestElement {
   val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
 
   def apply(request: SafeHttpRequest, response: SafeHttpResponse)(implicit configuration: RecorderConfiguration): RequestElement = {
-    val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
+    val requestHeaders: Map[String, String] = request.headers.entries.asScala.map { entry => (entry.getKey, entry.getValue) }(breakOut)
     val requestContentType = requestHeaders.get(ContentType)
     val requestUserAgent = requestHeaders.get(UserAgent)
     val responseContentType = Option(response.headers.get(ContentType))

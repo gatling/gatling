@@ -16,10 +16,9 @@
 package io.gatling.core.structure
 
 import java.util.UUID
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.{ ThreadLocalRandom, TimeUnit }
 
 import scala.concurrent.duration.{ Duration, DurationLong }
-import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.commons.validation._
 import io.gatling.core.action.builder.{ PaceBuilder, PauseBuilder, RendezVousBuilder }

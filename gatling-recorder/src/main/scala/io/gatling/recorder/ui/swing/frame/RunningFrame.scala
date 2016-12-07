@@ -17,7 +17,7 @@ package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Color
 
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConverters._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.ListView.IntervalMode.Single
@@ -63,7 +63,7 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
 
   /* Frame setup */
   title = "Gatling Recorder - Running..."
-  peer.setIconImages(IconList)
+  peer.setIconImages(IconList.asJava)
 
   /* Layout setup */
   val root = new BorderPanel {

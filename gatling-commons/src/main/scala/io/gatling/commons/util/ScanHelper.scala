@@ -20,7 +20,7 @@ import java.net.JarURLConnection
 import java.nio.file.{ Path, StandardCopyOption }
 import java.util.jar.{ JarEntry, JarFile }
 
-import scala.collection.JavaConversions.enumerationAsScalaIterator
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
@@ -76,7 +76,7 @@ object ScanHelper {
         else if (deep) resource.startsWith(rootDir)
         else resource.getParent == rootDir
 
-    getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { pkgURL =>
+    getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).asScala.flatMap { pkgURL =>
       pkgURL.getProtocol match {
         case "file" =>
           val rootDir: Path = pkgURL
@@ -87,7 +87,7 @@ object ScanHelper {
           val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
           val rootDir: Path = connection.getJarEntry.getName
           val jar = new JarFile(connection.getJarFileURL.toFile)
-          jar.entries.collect {
+          jar.entries.asScala.collect {
             case jarEntry if isResourceInRootDir(jarEntry.getName, rootDir) =>
               JarResource(jar, jarEntry)
           }

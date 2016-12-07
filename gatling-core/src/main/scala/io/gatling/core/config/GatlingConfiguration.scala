@@ -18,7 +18,7 @@ package io.gatling.core.config
 import java.nio.charset.Charset
 import java.util.ResourceBundle
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.io.Codec
@@ -54,7 +54,7 @@ object GatlingConfiguration extends StrictLogging {
   def loadForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
 
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, GatlingDefaultsConfigFile)
-    val propertiesConfig = ConfigFactory.parseMap(props)
+    val propertiesConfig = ConfigFactory.parseMap(props.asJava)
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
     mapToGatlingConfig(config)
   }
@@ -66,7 +66,7 @@ object GatlingConfiguration extends StrictLogging {
 
       def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
         val bundle = ResourceBundle.getBundle(bundleName)
-        bundle.getKeys.map(key => creator(key, bundle.getString(key))).toVector
+        bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
       }
 
       def warnAboutRemovedProperties(config: Config): Unit = {
@@ -90,7 +90,7 @@ object GatlingConfiguration extends StrictLogging {
 
     val defaultsConfig = ConfigFactory.parseResources(classLoader, GatlingDefaultsConfigFile)
     val customConfig = ConfigFactory.parseResources(classLoader, GatlingConfigFile)
-    val propertiesConfig = ConfigFactory.parseMap(props)
+    val propertiesConfig = ConfigFactory.parseMap(props.asJava)
 
     val config = configChain(ConfigFactory.systemProperties, customConfig, propertiesConfig, defaultsConfig)
 
@@ -186,8 +186,8 @@ object GatlingConfiguration extends StrictLogging {
             accept
           },
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
-          sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).toList,
-          sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).toList,
+          sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
+          sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
           useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
@@ -209,7 +209,7 @@ object GatlingConfiguration extends StrictLogging {
         acknowledgedMessagesBufferSize = config.getInt(jms.AcknowledgedMessagesBufferSize)
       ),
       data = DataConfiguration(
-        dataWriters = config.getStringList(data.Writers).flatMap(DataWriterType.findByName),
+        dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
         console = ConsoleDataWriterConfiguration(
           light = config.getBoolean(data.console.Light)
         ),

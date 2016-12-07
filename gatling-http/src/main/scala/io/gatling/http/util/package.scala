@@ -19,7 +19,7 @@ import java.lang.{ StringBuilder => JStringBuilder }
 import java.nio.charset.Charset
 import java.util.{ List => JList }
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol
@@ -39,12 +39,12 @@ package object util extends LazyLogging {
   implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
     def appendHttpHeaders(headers: HttpHeaders): JStringBuilder =
-      headers.foldLeft(buff) { (buf, entry) =>
+      headers.asScala.foldLeft(buff) { (buf, entry) =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
 
     def appendParamJList(list: JList[Param]): JStringBuilder =
-      list.foldLeft(buff) { (buf, param) =>
+      list.asScala.foldLeft(buff) { (buf, param) =>
         buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
       }
 
@@ -58,7 +58,7 @@ package object util extends LazyLogging {
           val headers = nr.getHttpRequest.headers
           if (!headers.isEmpty) {
             buff.append("headers=").append(Eol)
-            for (header <- headers) {
+            for (header <- headers.asScala) {
               buff.append(header.getKey).append(": ").append(header.getValue).append(Eol)
             }
           }
@@ -71,7 +71,7 @@ package object util extends LazyLogging {
 
           if (!request.getCookies.isEmpty) {
             buff.append("cookies=").append(Eol)
-            for (cookie <- request.getCookies) {
+            for (cookie <- request.getCookies.asScala) {
               buff.append(cookie).append(Eol)
             }
           }
@@ -88,7 +88,7 @@ package object util extends LazyLogging {
 
       if (request.getCompositeByteData != null) {
         buff.append("compositeByteData=")
-        request.getCompositeByteData.foreach(b => buff.append(new String(b, charset)))
+        request.getCompositeByteData.asScala.foreach(b => buff.append(new String(b, charset)))
         buff.append(Eol)
       }
 
@@ -96,7 +96,7 @@ package object util extends LazyLogging {
 
       if (!request.getBodyParts.isEmpty) {
         buff.append("parts=").append(Eol)
-        request.getBodyParts.foreach {
+        request.getBodyParts.asScala.foreach {
           case part: StringPart =>
             buff
               .append("StringPart:")

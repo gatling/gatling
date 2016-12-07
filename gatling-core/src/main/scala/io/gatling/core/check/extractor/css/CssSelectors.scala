@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.css
 import java.util.{ List => JList }
 
 import scala.collection._
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
@@ -46,7 +46,7 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
     val (query, nodeAttribute) = criterion
     val selectors = selectorCache.get(query)
 
-    selector.select(selectors).flatMap { node =>
+    selector.select(selectors).asScala.flatMap { node =>
       NodeConverter[X].convert(node, nodeAttribute)
     }(breakOut)
   }

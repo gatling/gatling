@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.component
 
-import scala.collection.JavaConversions.enumerationAsScalaIterator
+import scala.collection.JavaConverters._
 
 import io.gatling.core.stats._
 
@@ -33,6 +33,7 @@ private[charts] object ComponentLibrary extends StrictLogging {
     val paths = Option(getClass.getClassLoader)
       .map(_.getResources(StaticLibraryBinderPath))
       .getOrElse(ClassLoader.getSystemResources(StaticLibraryBinderPath))
+      .asScala
       .toList
 
     if (paths.size > 1) {

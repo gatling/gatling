@@ -23,7 +23,7 @@ import java.nio.file.attribute.BasicFileAttributes
 
 import scala.compat.java8.FunctionConverters._
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import java.util.function.{ Function => JFunction }
 
 object PathHelper {
@@ -62,7 +62,7 @@ object PathHelper {
 
     def isDirectory = Files.isDirectory(path)
 
-    def segments = path.iterator.toList
+    def segments: List[Path] = path.iterator.asScala.toList
 
     def ancestor(n: Int): Path = {
         @tailrec
@@ -73,7 +73,8 @@ object PathHelper {
           }
 
       require(n >= 0, s"ancestor rank must be positive but asked for $n")
-      require(n <= path.segments.length, s"can't ask for ancestor rank $n while segments length is ${path.segments.length}")
+      val length = path.segments.length
+      require(n <= length, s"can't ask for ancestor rank $n while segments length is $length")
       loop(path, n)
     }
 

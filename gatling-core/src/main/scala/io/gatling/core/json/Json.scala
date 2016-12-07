@@ -17,7 +17,7 @@ package io.gatling.core.json
 
 import java.util.{ Collection => JCollection, Map => JMap }
 
-import scala.collection.JavaConversions.{ collectionAsScalaIterable, mapAsScalaMap }
+import scala.collection.JavaConverters._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
@@ -37,10 +37,10 @@ object Json {
     case s: String                 => writeString(s, rootLevel)
     case null                      => writeNull
     case map: collection.Map[_, _] => writeMap(map)
-    case jMap: JMap[_, _]          => writeMap(jMap)
+    case jMap: JMap[_, _]          => writeMap(jMap.asScala)
     case array: Array[_]           => writeArray(array)
     case seq: Seq[_]               => writeArray(seq)
-    case coll: JCollection[_]      => writeArray(coll)
+    case coll: JCollection[_]      => writeArray(coll.asScala)
     case any                       => writeString(any.toString, rootLevel)
   }
 
