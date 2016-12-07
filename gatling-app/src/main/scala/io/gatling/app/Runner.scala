@@ -29,6 +29,7 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
+
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
