@@ -45,7 +45,7 @@ object ElMessages {
   def tupleAccessNotSupported(name: String, value: Any) = s"Product $value named $name do not support tuple access".failure
 }
 
-sealed trait Part[+T] extends Expression[T]
+sealed trait Part[+T] extends (Session => Validation[T])
 
 case class StaticPart(string: String) extends Part[String] {
   def apply(session: Session): Validation[String] = string.success

@@ -7,10 +7,10 @@ object Dependencies {
   /**************************/
 
   private def scalaReflect(version: String) = "org.scala-lang"                         % "scala-reflect"                 % version
-  private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                   % "1.0.2"
-  private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.5"
+  private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                   % "2.0.0-M2"
+  private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.6"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"      % "1.0.4"
-  private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0-RC7"
+  private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0"
   private val ahc                           = "org.asynchttpclient"                    % "async-http-client"             % "2.0.24"
   private val ahcNettyUtils                 = "org.asynchttpclient"                    % "async-http-client-netty-utils" % ahc.revision
   private val netty                         = "io.netty"                               % "netty-codec-http"              % "4.0.42.Final"
@@ -20,7 +20,7 @@ object Dependencies {
   private val config                        = "com.typesafe"                           % "config"                        % "1.3.1"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                      % "9.7.0-14"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                     % "1.7.21"
-  private val fastring                      = "com.dongxiguo"                         %% "fastring"                      % "0.2.4"
+  private val fastring                      = "com.dongxiguo"                         %% "fastring"                      % "0.2.5"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                         % "3.5.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.5.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.8.5"
@@ -28,8 +28,8 @@ object Dependencies {
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                      % "0.6.8"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.8.0"
-  private val boopickle                     = "me.chrons"                             %% "boopickle"                     % "1.2.4"
-  private val redisClient                   = "net.debasishg"                         %% "redisclient"                   % "3.2"
+  private val boopickle                     = "me.chrons"                             %% "boopickle"                     % "1.2.5"
+  private val redisClient                   = "net.debasishg"                         %% "redisclient"                   % "3.3"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                          % "0.3.13" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"         % "1.1.1"
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"               % "1.1.7"
@@ -40,6 +40,7 @@ object Dependencies {
   private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                     % "1.4.8"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"                % "1.0"
   private val pebble                        = "com.mitchellbosecke"                    % "pebble"                        % "2.3.0"
+  private val findbugs                      = "com.google.code.findbugs"               % "jsr305"                        % "3.0.1"
 
   /***********************/
   /** Test dependencies **/
@@ -66,7 +67,7 @@ object Dependencies {
     Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat, ahcNettyUtils, pebble) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt) ++
+    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt, findbugs) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps

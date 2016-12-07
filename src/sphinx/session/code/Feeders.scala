@@ -152,7 +152,7 @@ class Feeders {
   {
     //#user-dependent-data
     import io.gatling.core.feeder._
-    import scala.concurrent.forkjoin.ThreadLocalRandom
+    import java.util.concurrent.ThreadLocalRandom
 
     // index records by project
     val recordsByProject: Map[String, IndexedSeq[Record[String]]] =

@@ -31,13 +31,13 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
     extractor(sample.boonAST(jsonParsers)).succeeded shouldBe Some(expected)
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe Some(expected)
   }
-  def testSingle[T](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
-    val extractor = newJsonPathSingleExtractor[String](path, occurrence, jsonPaths)
+  def testSingle[T: JsonFilter](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
+    val extractor = newJsonPathSingleExtractor[T](path, occurrence, jsonPaths)
     extractor(sample.boonAST(jsonParsers)).succeeded shouldBe expected
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
-  def testMultiple[T](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
-    val extractor = newJsonPathMultipleExtractor[String](path, jsonPaths)
+  def testMultiple[T: JsonFilter](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
+    val extractor = newJsonPathMultipleExtractor[T](path, jsonPaths)
     extractor(sample.boonAST(jsonParsers)).succeeded shouldBe expected
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
@@ -67,7 +67,7 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
   }
 
   it should "return expected None with array expression" in {
-    testSingle("$.store.book[2].author", 1, Json1, None)
+    testSingle[String]("$.store.book[2].author", 1, Json1, None)
   }
 
   it should "return expected result with last function expression" in {
@@ -99,7 +99,7 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
   }
 
   it should "support null attribute value when expected type is Any" in {
-    testSingle("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
+    testSingle[Any]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
   }
 
   it should "support null attribute value when expected type is String" in {
