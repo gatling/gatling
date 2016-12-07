@@ -54,7 +54,7 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
     removeDuplicates()
   }
 
-  def validate: List[String] =
+  def verify: List[String] =
     getRegexs
       .map { str => (str, Try(str.r)) }
       .collect {

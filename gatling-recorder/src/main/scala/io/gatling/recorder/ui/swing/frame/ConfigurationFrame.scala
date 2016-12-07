@@ -536,7 +536,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       if (filterStrategies.selection.item == FilterStrategy.Disabled)
         Nil
       else
-        whiteListTable.validate ::: blackListTable.validate
+        whiteListTable.verify ::: blackListTable.verify
 
     if (filterValidationFailures.nonEmpty) {
       frontend.handleFilterValidationFailures(filterValidationFailures)
