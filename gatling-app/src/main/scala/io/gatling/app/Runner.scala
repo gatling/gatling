@@ -29,7 +29,6 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.{ Scenario, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
-
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
@@ -108,11 +107,11 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
   protected def start(simulationParams: SimulationParams, scenarios: List[Scenario], coreComponents: CoreComponents): Try[_] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = nowMillis
-    println(s"Simulation ${simulationParams.name} started...")
+    logger.info(s"Simulation ${simulationParams.name} started...")
     logger.trace("Asking Controller to start")
     val whenRunDone: Future[Try[String]] = coreComponents.controller.ask(ControllerCommand.Start(scenarios))(timeout).mapTo[Try[String]]
     val runDone = Await.result(whenRunDone, timeout)
-    println(s"Simulation ${simulationParams.name} completed in ${(nowMillis - start) / 1000} seconds")
+    logger.info(s"Simulation ${simulationParams.name} completed in ${(nowMillis - start) / 1000} seconds")
     runDone
   }
 }
