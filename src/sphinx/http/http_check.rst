@@ -214,7 +214,7 @@ You can define an different type with the ``ofType[T]`` extra step:
 
 Gatling provides built-in support for the following types:
 
-* String
+* String (default): serializes back to valid JSON (meaning that special characters are escaped, e.g. `\n` and `\"`)
 * Boolean
 * Int
 * Long
@@ -223,7 +223,6 @@ Gatling provides built-in support for the following types:
 * Seq (JSON array)
 * Map (JSON object)
 * Any
-
 
 The example below shows how to extract Ints:
 
