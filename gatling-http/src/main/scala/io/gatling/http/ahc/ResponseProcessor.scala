@@ -46,6 +46,11 @@ import org.asynchttpclient.util.HttpConstants.Methods._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 import org.asynchttpclient.util.StringBuilderPool.DEFAULT.stringBuilder
 
+object ResponseProcessor extends StrictLogging {
+
+  val IsTraceEnabled = logger.underlying.isTraceEnabled
+}
+
 class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
 
   private def abort(tx: HttpTx, t: Throwable): Unit = {
@@ -96,8 +101,12 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
       if (status == KO) {
         logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
+        if (!ResponseProcessor.IsTraceEnabled) {
+          logger.debug(dump)
+        }
       }
-      logger.debug(dump)
+
+      logger.trace(dump)
 
       val extraInfo: List[Any] = try {
         tx.request.config.extraInfoExtractor match {
