@@ -24,7 +24,7 @@ import io.gatling.core.util.Resource
 import io.gatling.core.feeder.Record
 
 import org.mockito.Mockito._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 
 class SitemapParserSpec extends BaseSpec with ValidationValues {
 
@@ -47,11 +47,11 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
 
   it should "input stream is closed on error" in {
     val fileIs = mock[InputStream]
-    val resource = org.mockito.Mockito.mock(classOf[Resource])
+    val resource = mock[Resource]
     when(resource.inputStream).thenReturn(fileIs)
     when(fileIs.read()) thenThrow new IOException
-    when(fileIs.read(any(classOf[Array[Byte]]))) thenThrow new IOException
-    when(fileIs.read(any(classOf[Array[Byte]]), anyInt, anyInt)) thenThrow new IOException
+    when(fileIs.read(any[Array[Byte]])) thenThrow new IOException
+    when(fileIs.read(any[Array[Byte]], anyInt, anyInt)) thenThrow new IOException
 
     a[IOException] shouldBe thrownBy(SitemapParser.parse(resource).toArray)
   }
