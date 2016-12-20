@@ -17,7 +17,6 @@ package io.gatling.commons.util
 
 import java.util.concurrent.ConcurrentMap
 
-import scala.collection.immutable.ListMap
 import scala.collection.mutable
 
 object Maps {
