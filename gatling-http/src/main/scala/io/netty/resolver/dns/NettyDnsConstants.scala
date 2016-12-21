@@ -15,9 +15,22 @@
  */
 package io.netty.resolver.dns
 
+import io.netty.channel.socket.InternetProtocolFamily
+
 object NettyDnsConstants {
 
-  val DefaultResolveAddressTypes = DnsNameResolver.DEFAULT_RESOLVE_ADDRESS_TYPES
+  // FIXME to be removed when upgrading to Netty 4.1
+  val IsIpV4StackPreferred = java.lang.Boolean.getBoolean("java.net.preferIPv4Stack")
+  val IsIpV6AddressesPreferred = java.lang.Boolean.getBoolean("java.net.preferIPv6Addresses")
+
+  val DefaultResolveAddressTypes: Array[InternetProtocolFamily] =
+    if (IsIpV4StackPreferred) {
+      Array(InternetProtocolFamily.IPv4)
+    } else if (IsIpV6AddressesPreferred) {
+      Array(InternetProtocolFamily.IPv6, InternetProtocolFamily.IPv4)
+    } else {
+      Array(InternetProtocolFamily.IPv4, InternetProtocolFamily.IPv6)
+    }
 
   val DefaultSearchDomain = DnsNameResolver.DEFAULT_SEACH_DOMAINS
 }
