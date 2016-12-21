@@ -40,7 +40,7 @@ case class Success[+T](value: T) extends Validation[T] {
 case class Failure(message: String) extends Validation[Nothing] {
   def map[A](f: Nothing => A): Validation[A] = this
   def flatMap[A](f: Nothing => Validation[A]): Validation[A] = this
-  def mapError(f: String => String): Validation[Nothing] = Failure(f(message))
+  def mapError(f: String => String): Failure = Failure(f(message))
   def filter(p: Nothing => Boolean) = this
   def onSuccess(f: Nothing => Any): Unit = ()
   def onFailure(f: String => Any): Unit = f(message)

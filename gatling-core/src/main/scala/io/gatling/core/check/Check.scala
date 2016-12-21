@@ -46,11 +46,12 @@ object Check {
                   checkRec(session, tail, update, failure)
               }
 
-            case f: Failure =>
+            case f @ Failure(msg) =>
               failure match {
                 case None =>
                   checkRec(session, tail, update, Some(f))
-                case _ => checkRec(session, tail, update, failure)
+                case Some(previous) =>
+                  checkRec(session, tail, update, Some(previous.mapError(oldmsg => s"$oldmsg\n$msg")))
               }
           }
         }
