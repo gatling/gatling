@@ -49,7 +49,7 @@ object Dependencies {
   private val scalaTest                      = "org.scalatest"                         %% "scalatest"                    % "3.0.1"             % "test"
   private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                   % "1.13.4"            % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                 % akkaActor.revision  % "test"
-  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                 % "2.3.7"             % "test"
+  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                 % "2.3.11"            % "test"
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"              % "5.14.2"            % "test"
   private val h2                             = "com.h2database"                         % "h2"                           % "1.4.193"           % "test"
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                   % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
