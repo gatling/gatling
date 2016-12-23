@@ -15,15 +15,12 @@
  */
 package io.gatling.jms.client
 
-import java.util.{ Hashtable => JHashtable }
-
 import io.gatling.core.config.Credentials
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request.{ JmsDestination, JmsQueue, JmsTemporaryQueue, JmsTemporaryTopic, JmsTopic }
 
 import com.typesafe.scalalogging.StrictLogging
 import javax.jms._
-import javax.naming.{ Context, InitialContext }
 
 import scala.util.control.NonFatal
 
@@ -39,36 +36,15 @@ object JmsClient {
 }
 
 abstract class JmsClient(
-    connectionFactoryName: String,
-    destination:           JmsDestination,
-    url:                   String,
-    credentials:           Option[Credentials],
-    anonymousConnect:      Boolean,
-    contextFactory:        String,
-    deliveryMode:          Int
+    connectionFactory: ConnectionFactory,
+    destination:       JmsDestination,
+    credentials:       Option[Credentials],
+    deliveryMode:      Int
 ) extends StrictLogging {
 
-  // create InitialContext
-  val properties = new JHashtable[String, String]
-  properties.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory)
-  properties.put(Context.PROVIDER_URL, url)
-
-  credentials.foreach { credentials =>
-    properties.put(Context.SECURITY_PRINCIPAL, credentials.username)
-    properties.put(Context.SECURITY_CREDENTIALS, credentials.password)
-  }
-
-  val ctx = new InitialContext(properties)
-  logger.info(s"Got InitialContext $ctx")
-
-  // create QueueConnectionFactory
-  val qcf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
-  logger.info(s"Got ConnectionFactory $qcf")
-
-  // create QueueConnection
   val conn = credentials match {
-    case Some(creds) if !anonymousConnect => qcf.createConnection(creds.username, creds.password)
-    case _                                => qcf.createConnection
+    case Some(creds) => connectionFactory.createConnection(creds.username, creds.password)
+    case _           => connectionFactory.createConnection
   }
 
   conn.start()

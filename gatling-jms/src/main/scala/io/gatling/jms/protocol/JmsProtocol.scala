@@ -15,11 +15,12 @@
  */
 package io.gatling.jms.protocol
 
-import io.gatling.core.CoreComponents
-import io.gatling.core.config.{ GatlingConfiguration, Credentials }
-import io.gatling.core.protocol.{ ProtocolKey, Protocol }
-import io.gatling.jms.action.JmsRequestTrackerActor
+import javax.jms.ConnectionFactory
 
+import io.gatling.core.CoreComponents
+import io.gatling.core.config.{ Credentials, GatlingConfiguration }
+import io.gatling.core.protocol.{ Protocol, ProtocolKey }
+import io.gatling.jms.action.JmsRequestTrackerActor
 import akka.actor.ActorSystem
 
 object JmsProtocol {
@@ -41,15 +42,12 @@ object JmsProtocol {
 }
 
 case class JmsProtocol(
-    contextFactory:        String,
-    connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials],
-    anonymousConnect:      Boolean,
-    listenerCount:         Int,
-    deliveryMode:          Int,
-    receiveTimeout:        Option[Long],
-    messageMatcher:        JmsMessageMatcher
+    connectionFactory: ConnectionFactory,
+    credentials:       Option[Credentials],
+    listenerCount:     Int,
+    deliveryMode:      Int,
+    receiveTimeout:    Option[Long],
+    messageMatcher:    JmsMessageMatcher
 ) extends Protocol {
 
   type Components = JmsComponents

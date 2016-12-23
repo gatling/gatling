@@ -15,7 +15,7 @@
  */
 package io.gatling.jms.protocol
 
-import javax.jms.DeliveryMode
+import javax.jms.{ ConnectionFactory, DeliveryMode }
 
 import io.gatling.core.config.Credentials
 
@@ -28,54 +28,29 @@ import io.gatling.core.config.Credentials
  */
 case object JmsProtocolBuilderBase {
 
-  def connectionFactoryName(cfn: String) = JmsProtocolBuilderUrlStep(cfn)
+  def connectionFactory(cf: ConnectionFactory) = JmsProtocolBuilderListenerCountStep(cf, None)
 }
 
-case class JmsProtocolBuilderUrlStep(connectionFactoryName: String) {
-
-  def url(theUrl: String) =
-    JmsProtocolBuilderContextFactoryStep(connectionFactoryName, theUrl)
-}
-
-case class JmsProtocolBuilderContextFactoryStep(
-    connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials] = None,
-    anonymousConnect:      Boolean             = true
+case class JmsProtocolBuilderListenerCountStep(
+    connectionFactory: ConnectionFactory,
+    credentials:       Option[Credentials]
 ) {
 
   def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
-  def disableAnonymousConnect = copy(anonymousConnect = false)
-
-  def contextFactory(cf: String) =
-    JmsProtocolBuilderListenerCountStep(connectionFactoryName, url, credentials, anonymousConnect, cf)
-}
-
-case class JmsProtocolBuilderListenerCountStep(
-    connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials],
-    anonymousConnect:      Boolean,
-    contextFactory:        String
-) {
-
   def listenerCount(count: Int) = {
     require(count > 0, "JMS response listener count must be at least 1")
-    JmsProtocolBuilder(connectionFactoryName, url, credentials, anonymousConnect, contextFactory, count)
+    JmsProtocolBuilder(connectionFactory, credentials, count)
   }
 }
 
 case class JmsProtocolBuilder(
-    connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials],
-    anonymousConnect:      Boolean,
-    contextFactory:        String,
-    listenerCount:         Int,
-    deliveryMode:          Int                 = DeliveryMode.NON_PERSISTENT,
-    messageMatcher:        JmsMessageMatcher   = MessageIDMessageMatcher,
-    receiveTimeout:        Option[Long]        = None
+    connectionFactory: ConnectionFactory,
+    credentials:       Option[Credentials],
+    listenerCount:     Int,
+    deliveryMode:      Int                 = DeliveryMode.NON_PERSISTENT,
+    messageMatcher:    JmsMessageMatcher   = MessageIDMessageMatcher,
+    receiveTimeout:    Option[Long]        = None
 ) {
 
   def usePersistentDeliveryMode = copy(deliveryMode = DeliveryMode.PERSISTENT)
@@ -86,14 +61,11 @@ case class JmsProtocolBuilder(
   def receiveTimeout(timeout: Long): JmsProtocolBuilder = copy(receiveTimeout = Some(timeout))
 
   def build = new JmsProtocol(
-    contextFactory = contextFactory,
-    connectionFactoryName = connectionFactoryName,
-    url = url,
     credentials = credentials,
-    anonymousConnect = anonymousConnect,
     listenerCount = listenerCount,
     deliveryMode = deliveryMode,
     messageMatcher = messageMatcher,
-    receiveTimeout = receiveTimeout
+    receiveTimeout = receiveTimeout,
+    connectionFactory = connectionFactory
   )
 }

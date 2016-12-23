@@ -56,10 +56,13 @@ class JmsMockCustomer(client: JmsReqReplyClient, mockResponse: PartialFunction[M
 
 trait JmsMockingSpec extends BrokerBasedSpec with JmsDsl {
 
-  def jmsProtocol = jms
+  def cf = jmsJndiConnectionFactory
     .connectionFactoryName("ConnectionFactory")
     .url("vm://gatling?broker.persistent=false&broker.useJmx=false")
     .contextFactory(classOf[ActiveMQInitialContextFactory].getName)
+
+  def jmsProtocol = jms
+    .connectionFactory(cf)
     .listenerCount(1)
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
