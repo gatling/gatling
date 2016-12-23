@@ -15,18 +15,20 @@
  */
 package io.gatling.jms.protocol
 
-import io.gatling.{ ValidationValues, BaseSpec }
+import javax.jms.ConnectionFactory
+
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 
 class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
 
+  val cf = mock[ConnectionFactory]
+
   "jms protocol" should "pass defined parameters" in {
 
-    val protocol = jms.connectionFactoryName("cfName").url("url").contextFactory("cf").listenerCount(3).build
-    protocol.connectionFactoryName shouldBe "cfName"
-    protocol.url shouldBe "url"
-    protocol.contextFactory shouldBe "cf"
+    val protocol = jms.connectionFactory(cf).listenerCount(3).build
+    protocol.connectionFactory shouldBe cf
     protocol.listenerCount shouldBe 3
 
   }
@@ -34,9 +36,7 @@ class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
   it should "pass receiveTimeout" in {
     val protocol =
       jms
-        .connectionFactoryName("cfName")
-        .url("url")
-        .contextFactory("cf")
+        .connectionFactory(cf)
         .listenerCount(3)
         .receiveTimeout(1500)
         .build

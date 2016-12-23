@@ -18,7 +18,6 @@ package io.gatling.jms
 import javax.jms._
 
 import scala.concurrent.duration.DurationInt
-
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import io.gatling.jms.protocol.JmsMessageMatcher
@@ -31,11 +30,14 @@ object IdentificationMatcher extends JmsMessageMatcher {
 
 class JmsCompileTest extends Simulation {
 
-  val jmsConfig = jms
+  val cf = jmsJndiConnectionFactory
     .connectionFactoryName("FFMQConstants.JNDI_CONNECTION_FACTORY_NAME")
     .url("tcp://localhost:10002")
     .credentials("user", "secret")
     .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
+
+  val jmsConfig = jms
+    .connectionFactory(cf)
     .listenerCount(1)
     .usePersistentDeliveryMode
     .receiveTimeout(1000)

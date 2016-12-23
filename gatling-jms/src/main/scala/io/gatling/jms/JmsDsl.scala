@@ -15,14 +15,19 @@
  */
 package io.gatling.jms
 
+import javax.jms.ConnectionFactory
+
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.jms.check.JmsCheckSupport
+import io.gatling.jms.jndi.{ JmsJndiConnectionFactoryBuilder, JmsJndiConnectionFactoryBuilderBase }
 import io.gatling.jms.protocol.{ JmsProtocol, JmsProtocolBuilder, JmsProtocolBuilderBase }
 import io.gatling.jms.request.{ JmsQueue, JmsReplyRequestBuilder, JmsRequestBuilderBase, JmsSendRequestBuilder, JmsTopic }
 
 trait JmsDsl extends JmsCheckSupport {
 
   val jms = JmsProtocolBuilderBase
+
+  val jmsJndiConnectionFactory = JmsJndiConnectionFactoryBuilderBase
 
   /**
    * DSL text to start the jms builder
@@ -42,6 +47,8 @@ trait JmsDsl extends JmsCheckSupport {
   implicit def jmsRequestBuilder2ActionBuilder(builder: JmsSendRequestBuilder): ActionBuilder = builder.build()
 
   implicit def jmsRequestBuilder2ActionBuilder(builder: JmsReplyRequestBuilder): ActionBuilder = builder.build()
+
+  implicit def jmsJndiConnectionFactory2ActionBuilder(builder: JmsJndiConnectionFactoryBuilder): ConnectionFactory = builder.build()
 
   def topic(name: String) = JmsTopic(name)
   def queue(name: String) = JmsQueue(name)

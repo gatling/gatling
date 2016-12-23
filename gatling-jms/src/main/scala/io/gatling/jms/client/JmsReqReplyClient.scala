@@ -30,12 +30,9 @@ class JmsReqReplyClient(
   replyDestination: JmsDestination
 )
     extends JmsClient(
-      protocol.connectionFactoryName,
+      protocol.connectionFactory,
       destination,
-      protocol.url,
       protocol.credentials,
-      protocol.anonymousConnect,
-      protocol.contextFactory,
       protocol.deliveryMode
     ) {
 

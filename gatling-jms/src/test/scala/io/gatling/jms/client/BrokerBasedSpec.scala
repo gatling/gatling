@@ -17,14 +17,13 @@ package io.gatling.jms.client
 
 import io.gatling.jms.protocol.MessageIDMessageMatcher
 import io.gatling.jms.request.JmsDestination
-
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
-
 import io.gatling.AkkaSpec
 import io.gatling.jms.protocol.JmsProtocol
-
 import javax.jms.DeliveryMode
+
+import io.gatling.jms.jndi.JmsJndiConnectionFactoryBuilder
 
 trait BrokerBasedSpec extends AkkaSpec {
 
@@ -61,12 +60,15 @@ trait BrokerBasedSpec extends AkkaSpec {
   }
 
   def createClient(destination: JmsDestination) = {
-    val protocol = new JmsProtocol(
+    val jmsJndiConnectionFactoryBuilder = new JmsJndiConnectionFactoryBuilder(
       classOf[ActiveMQInitialContextFactory].getName,
       "ConnectionFactory",
       "vm://gatling?broker.persistent=false&broker.useJmx=false",
+      None
+    )
+    val protocol = new JmsProtocol(
+      jmsJndiConnectionFactoryBuilder.build(),
       None,
-      false,
       1,
       DeliveryMode.PERSISTENT,
       None,
