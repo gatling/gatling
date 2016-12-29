@@ -27,7 +27,7 @@ object Dependencies {
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"        % jackson.revision
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                      % "0.6.8"
-  private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.8.0"
+  private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.8.1"
   private val boopickle                     = "me.chrons"                             %% "boopickle"                     % "1.2.5"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                   % "3.3"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                          % "0.3.13" exclude("org.scala-lang", "scala-compiler")
