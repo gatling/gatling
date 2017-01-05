@@ -12,7 +12,6 @@ Official Extensions
     maven_plugin
     maven_archetype
     jenkins_plugin
-    vtd_xml
 
 Third Parties
 =============
