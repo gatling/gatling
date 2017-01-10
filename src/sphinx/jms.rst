@@ -22,11 +22,8 @@ JMS Protocol
 
 Use the ``jms`` object in order to create a JMS protocol.
 
-* ``connectionFactoryName``: mandatory
-* ``url``: mandatory
-* ``contextFactory``: mandatory
-* ``credentials``: optional, for performing JNDI lookup
-* ``disableAnonymousConnect``: optional, by default, connection won't use the above credentials
+* ``connectionFactory``: mandatory, an instance of `ConnectionFactory`. Use `jmsJndiConnectionFactory`_ to obtain one via JNDI lookup or create it by yourself.
+* ``credentials``: optional, to create a JMS connection
 * ``listenerCount``: the number of ReplyConsumers. mandatory (> 0)
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
 * ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
@@ -91,6 +88,18 @@ There is ``simpleCheck`` that accepts just ``javax.jms.Message => Boolean`` func
 There is also ``xpath`` check for ``javax.jms.TextMessage`` that carries XML content.
 
 Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
+
+JMS JNDI Connection Factory
+============
+
+Use `jmsJndiConnectionFactory` object to obtain an instance of JMS `ConnectionFactory` via JNDI lookup.
+
+.. _jmsJndiConnectionFactory:
+
+* ``connectionFactoryName``: mandatory
+* ``url``: mandatory
+* ``contextFactory``: mandatory
+* ``credentials``: optional, for performing JNDI lookup
 
 Example
 =======

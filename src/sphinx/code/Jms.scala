@@ -27,14 +27,14 @@ import scala.concurrent.duration._
 
 class TestJmsDsl extends Simulation {
 
-  val cf = jmsJndiConnectionFactory
+  val connectionFactory = jmsJndiConnectionFactory
     .connectionFactoryName(FFMQConstants.JNDI_CONNECTION_FACTORY_NAME)
     .url("tcp://localhost:10002")
     .credentials("user", "secret")
     .contextFactory(FFMQConstants.JNDI_CONTEXT_FACTORY)
 
   val jmsConfig = jms
-    .connectionFactory(cf)
+    .connectionFactory(connectionFactory)
     .listenerCount(1)
     .usePersistentDeliveryMode
 
