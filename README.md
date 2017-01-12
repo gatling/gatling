@@ -37,5 +37,5 @@ Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues?sor
 
 ## Sponsors
 
-[![eBusiness Information](https://github.com/gatling/gatling/wiki/img/ebi_logo.png)](https://github.com/gatling/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
-[![Highsoft AS](https://github.com/gatling/gatling/wiki/img/highsoft_logo.png)](https://github.com/gatling/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+![eBusiness Information](https://raw.githubusercontent.com/gatling/gatling/master/src/sphinx/project/img/ebi_logo.png)&nbsp;&nbsp;&nbsp;&nbsp;
+![Highsoft AS](https://raw.githubusercontent.com/gatling/gatling/master/src/sphinx/project/img/highsoft_logo.png)&nbsp;&nbsp;&nbsp;&nbsp;
