@@ -139,7 +139,6 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
     val requestRecordParser = new RequestRecordParser(bucketFunction)
     val groupRecordParser = new GroupRecordParser(bucketFunction)
-    val userRecordParser = new UserRecordParser(bucketFunction)
 
     records
       .foreach { line =>
@@ -149,7 +148,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
         line.split(LogFileDataWriter.Separator) match {
           case requestRecordParser(record) => resultsHolder.addRequestRecord(record)
           case groupRecordParser(record)   => resultsHolder.addGroupRecord(record)
-          case userRecordParser(record)    => resultsHolder.addUserRecord(record)
+          case UserRecordParser(record)    => resultsHolder.addUserRecord(record)
           case ErrorRecordParser(record)   => resultsHolder.addErrorRecord(record)
           case _                           =>
         }

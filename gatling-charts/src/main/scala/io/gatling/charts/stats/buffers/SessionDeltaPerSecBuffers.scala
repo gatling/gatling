@@ -32,15 +32,16 @@ private[stats] case class SessionDeltas(starts: Int, ends: Int) {
   def addEnd() = copy(ends = ends + 1)
 }
 
-private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int]) {
+private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int], runDurationInSeconds: Int) {
 
-  private val runDurationInSeconds = math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt
   private val startCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
   private val endCounts: Array[Int] = Array.fill(runDurationInSeconds)(0)
 
-  def addStart(bucket: Int): Unit = startCounts(bucket) += 1
+  def addStart(second: Int): Unit = startCounts(second) += 1
 
-  def addEnd(bucket: Int): Unit = endCounts(bucket) += 1
+  def addEnd(second: Int): Unit = endCounts(second) += 1
+
+  def endOrphan(): Unit = addEnd(runDurationInSeconds - 1)
 
   private val bucketWidthInMillis = ((maxTimestamp - minTimestamp) / buckets.length).toInt
   private def secondToBucket(second: Int): Int = math.min(second * 1000 / bucketWidthInMillis, buckets.length - 1)
@@ -73,27 +74,42 @@ private[stats] trait SessionDeltaPerSecBuffers {
 
   private val sessionDeltaPerSecBuffers = mutable.Map.empty[Option[String], SessionDeltaBuffer]
   private val orphanStartRecords = mutable.Map.empty[String, UserRecord]
+  private val runDurationInSeconds = math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt
 
   def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer =
-    sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer(minTimestamp, maxTimestamp, buckets))
+    sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer(minTimestamp, maxTimestamp, buckets, runDurationInSeconds))
+
+  private def timestamp2SecondOffset(timestamp: Long) = {
+    val millisOffset = timestamp - minTimestamp
+    val includeRightBorderCorrection =
+      if (millisOffset > 0 && millisOffset % 1000 == 0) {
+        1
+      } else {
+        0
+      }
+
+    (millisOffset / 1000).toInt - includeRightBorderCorrection
+  }
 
   def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {
       case Start =>
-        getSessionDeltaPerSecBuffers(None).addStart(record.startBucket)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startBucket)
+        val startSecond = timestamp2SecondOffset(record.start)
+        getSessionDeltaPerSecBuffers(None).addStart(startSecond)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(startSecond)
         orphanStartRecords += record.userId -> record
 
       case End =>
-        getSessionDeltaPerSecBuffers(None).addEnd(record.endBucket)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endBucket)
+        val endSecond = timestamp2SecondOffset(record.end)
+        getSessionDeltaPerSecBuffers(None).addEnd(endSecond)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(endSecond)
         orphanStartRecords -= record.userId
     }
   }
 
   def endOrphanUserRecords(): Unit =
     orphanStartRecords.values.foreach { start =>
-      getSessionDeltaPerSecBuffers(None).addEnd(buckets.length - 1)
-      getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(buckets.length - 1)
+      getSessionDeltaPerSecBuffers(None).endOrphan()
+      getSessionDeltaPerSecBuffers(Some(start.scenario)).endOrphan()
     }
 }
