@@ -21,7 +21,7 @@ import io.gatling.commons.stats.{ Group, KO, Status }
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequestRecord, RawUserRecord }
 
-private[stats] class UserRecordParser(bucketFunction: Long => Int) {
+private[stats] object UserRecordParser {
 
   def unapply(array: Array[String]) = RawUserRecord.unapply(array).map(parseUserRecord)
 
@@ -33,7 +33,7 @@ private[stats] class UserRecordParser(bucketFunction: Long => Int) {
     val start = strings(4).toLong
     val end = strings(5).toLong
 
-    UserRecord(scenario, userId, event, start, bucketFunction(start), end, bucketFunction(end))
+    UserRecord(scenario, userId, event, start, end)
   }
 }
 
@@ -99,5 +99,5 @@ private[stats] object ErrorRecordParser {
 
 private[stats] case class RequestRecord(group: Option[Group], name: String, status: Status, start: Long, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String])
 private[stats] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
-private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, startBucket: Int, end: Long, endBucket: Int)
+private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
 private[stats] case class ErrorRecord(message: String, timestamp: Long)
