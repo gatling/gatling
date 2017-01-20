@@ -15,8 +15,6 @@
  */
 package io.gatling.core.action
 
-import scala.concurrent.duration._
-
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
@@ -85,12 +83,8 @@ class InnerLoop(
 
       if (incrementedSession.userId == lastUserId) {
         // except if we're running only one user, it's very likely we're hitting an empty loop
-        // let's schedule so we don't spin
-        import system.dispatcher
-        system.scheduler.scheduleOnce(1 millisecond) {
-          // actual delay is tick (10 ms by default)
-          loopNext ! incrementedSession
-        }
+        // let's dispatch so we don't spin
+        system.dispatcher.execute(() => loopNext ! incrementedSession)
 
       } else {
         loopNext ! incrementedSession
