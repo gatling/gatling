@@ -118,6 +118,9 @@ class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination:
         if (logger.underlying.isDebugEnabled()) {
           logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
         }
+        // [fl]
+        //
+        // [/fl]
         tracker ! MessageSent(replyDestinationName, matchId, startDate, attributes.checks, session, next, attributes.requestName)
     }
 }

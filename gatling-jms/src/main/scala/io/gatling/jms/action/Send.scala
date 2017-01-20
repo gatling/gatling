@@ -18,6 +18,7 @@ package io.gatling.jms.action
 import io.gatling.commons.stats.{ OK, Status }
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.action._
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
@@ -31,7 +32,7 @@ import io.gatling.jms.request._
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
-class Send(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine: StatsEngine, val next: Action)
+class Send(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
     extends ExitableAction with JmsAction[JmsSendClient] with NameGen {
 
   override val name = genName("jmsSend")
@@ -58,16 +59,24 @@ class Send(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine
   }
 
   private def executeNext(
-    session:  Session,
-    sent:     Long,
-    received: Long,
-    status:   Status,
-    next:     Action,
-    title:    String,
-    message:  Option[String] = None
+    session:     Session,
+    sent:        Long,
+    received:    Long,
+    status:      Status,
+    next:        Action,
+    requestName: String,
+    message:     Option[String] = None
   ) = {
     val timings = ResponseTimings(sent, received)
-    statsEngine.logResponse(session, title, timings, status, None, message)
+    configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      // [fl]
+      statsEngine.logResponse(session, requestName, timings, status, None, message)
+    )
     next ! session.logGroupRequest(timings.responseTime, status).increaseDrift(nowMillis - received)
   }
 }

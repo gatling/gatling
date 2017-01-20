@@ -33,6 +33,6 @@ case class SendBuilder(attributes: JmsAttributes, configuration: GatlingConfigur
     import ctx._
     val jmsComponents = components(protocolComponentsRegistry)
     val statsEngine = coreComponents.statsEngine
-    new Send(attributes, jmsComponents.jmsProtocol, statsEngine, next)
+    new Send(attributes, jmsComponents.jmsProtocol, statsEngine, configuration, next)
   }
 }
