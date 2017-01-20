@@ -47,14 +47,12 @@ class Send(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine
    * configuration failure that is unlikely to be addressed by retrying with another message
    */
   override def execute(session: Session): Unit = recover(session) {
-    sendMessage(session) {
-      case (msg, startDate) =>
-        // done time
-        val endDate = nowMillis
-        if (logger.underlying.isDebugEnabled) {
-          logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID}", msg)
-        }
-        executeNext(session, startDate, endDate, OK, next, attributes.requestName)
+    sendMessage(session) { msg =>
+      val now = nowMillis
+      if (logger.underlying.isDebugEnabled) {
+        logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID}", msg)
+      }
+      executeNext(session, now, now, OK, next, attributes.requestName)
     }
   }
 

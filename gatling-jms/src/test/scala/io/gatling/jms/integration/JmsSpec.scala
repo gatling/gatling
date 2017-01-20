@@ -33,20 +33,19 @@ import io.gatling.jms.client.{ BrokerBasedSpec, JmsRequestReplyClient }
 import io.gatling.jms.request.JmsDestination
 
 import akka.actor.ActorRef
-import org.apache.activemq.jndi.ActiveMQInitialContextFactory
+import org.apache.activemq.ActiveMQConnectionFactory
 
-class JmsMockCustomer(client: JmsRequestReplyClient, mockResponse: PartialFunction[Message, String]) extends MessageListener {
+class Customer(client: JmsRequestReplyClient, response: PartialFunction[Message, String]) extends MessageListener {
 
   val producer = client.session.createProducer(null)
   client.createReplyConsumer().setMessageListener(this)
 
-  override def onMessage(request: Message): Unit = {
-    if (mockResponse.isDefinedAt(request)) {
-      val response = client.session.createTextMessage(mockResponse(request))
-      response.setJMSCorrelationID(request.getJMSMessageID)
-      producer.send(request.getJMSReplyTo, response)
+  override def onMessage(request: Message): Unit =
+    response.lift(request).foreach { txt =>
+      val message = client.session.createTextMessage(txt)
+      message.setJMSCorrelationID(request.getJMSCorrelationID)
+      producer.send(request.getJMSReplyTo, message)
     }
-  }
 
   def close(): Unit = {
     producer.close()
@@ -54,16 +53,14 @@ class JmsMockCustomer(client: JmsRequestReplyClient, mockResponse: PartialFuncti
   }
 }
 
-trait JmsMockingSpec extends BrokerBasedSpec with JmsDsl {
+trait JmsSpec extends BrokerBasedSpec with JmsDsl {
 
-  def cf = jmsJndiConnectionFactory
-    .connectionFactoryName("ConnectionFactory")
-    .url("vm://gatling?broker.persistent=false&broker.useJmx=false")
-    .contextFactory(classOf[ActiveMQInitialContextFactory].getName)
+  def cf = new ActiveMQConnectionFactory("vm://gatling?broker.persistent=false&broker.useJmx=false")
 
   def jmsProtocol = jms
     .connectionFactory(cf)
     .listenerCount(1)
+    .matchByCorrelationID
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
     val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
@@ -76,8 +73,8 @@ trait JmsMockingSpec extends BrokerBasedSpec with JmsDsl {
     session
   }
 
-  def jmsMock(queue: JmsDestination, f: PartialFunction[Message, String]): Unit = {
-    val processor = new JmsMockCustomer(createClient(queue), f)
+  def customer(queue: JmsDestination, f: PartialFunction[Message, String]): Unit = {
+    val processor = new Customer(createClient(queue), f)
     registerCleanUpAction(() => processor.close())
   }
 }

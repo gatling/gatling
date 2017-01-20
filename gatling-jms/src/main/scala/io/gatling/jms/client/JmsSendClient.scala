@@ -38,9 +38,5 @@ class JmsSendClient(
    * <p>
    * Note that exceptions are allowed to bubble up to the caller
    */
-  def sendMessage(message: Message): Message = {
-    producer.send(message)
-    // return the message
-    message
-  }
+  override protected def prepareMessage(message: Message): Unit = {}
 }

@@ -111,16 +111,15 @@ class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination:
    * configuration failure that is unlikely to be addressed by retrying with another message
    */
   def executeOrFail(session: Session): Validation[Unit] =
-    sendMessage(session) {
-      case (msg, startDate) =>
-        // notify the tracker that a message was sent
-        val matchId = messageMatcher.requestMatchId(msg)
-        if (logger.underlying.isDebugEnabled()) {
-          logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
-        }
-        // [fl]
-        //
-        // [/fl]
-        tracker ! MessageSent(replyDestinationName, matchId, startDate, attributes.checks, session, next, attributes.requestName)
+    sendMessage(session) { msg =>
+      // notify the tracker that a message was sent
+      val matchId = messageMatcher.requestMatchId(msg)
+      if (logger.underlying.isDebugEnabled()) {
+        logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
+      }
+      // [fl]
+      //
+      // [/fl]
+      tracker ! MessageSent(replyDestinationName, matchId, nowMillis, attributes.checks, session, next, attributes.requestName)
     }
 }

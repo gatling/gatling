@@ -39,7 +39,8 @@ class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
   "simple client" should "send and pick up text message" in withJmsClient("text", Some("textType")) { (client, consumer, name, jmsType) =>
     val payload = "hello message"
     val properties = Map(propKey -> name)
-    val sentMsg = client.sendTextMessage(payload, properties, jmsType).asInstanceOf[TextMessage]
+    var sentMsg: TextMessage = null
+    client.sendTextMessage(payload, properties, jmsType, message => { sentMsg = message.asInstanceOf[TextMessage] })
     val receivedMsg = consumer.receive().asInstanceOf[TextMessage]
 
     receivedMsg shouldBe sentMsg
@@ -51,7 +52,8 @@ class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
   it should "send and pick up map message" in withJmsClient("map", Some("mapType")) { (client, consumer, name, jmsType) =>
     val payload = Map("msg" -> "hello message")
     val properties = Map(propKey -> name)
-    val sentMsg = client.sendMapMessage(payload, properties, jmsType).asInstanceOf[MapMessage]
+    var sentMsg: MapMessage = null
+    client.sendMapMessage(payload, properties, jmsType, message => { sentMsg = message.asInstanceOf[MapMessage] })
     val receivedMsg = consumer.receive().asInstanceOf[MapMessage]
 
     receivedMsg shouldBe sentMsg
@@ -63,7 +65,8 @@ class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
   it should "send and pick up bytes message" in withJmsClient("bytes", Some("bytesType")) { (client, consumer, name, jmsType) =>
     val payload = Array[Byte](1, 2, 3)
     val properties = Map(propKey -> name)
-    val sentMsg = client.sendBytesMessage(payload, properties, jmsType).asInstanceOf[BytesMessage]
+    var sentMsg: BytesMessage = null
+    client.sendBytesMessage(payload, properties, jmsType, message => { sentMsg = message.asInstanceOf[BytesMessage] })
     val receivedMsg = consumer.receive().asInstanceOf[BytesMessage]
 
     receivedMsg shouldBe sentMsg
@@ -76,7 +79,8 @@ class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
 
     val payload = Payload(name)
     val properties = Map(propKey -> name)
-    val sentMsg = client.sendObjectMessage(payload, properties, jmsType).asInstanceOf[ObjectMessage]
+    var sentMsg: ObjectMessage = null
+    client.sendObjectMessage(payload, properties, jmsType, message => { sentMsg = message.asInstanceOf[ObjectMessage] })
     val receivedMsg = consumer.receive().asInstanceOf[ObjectMessage]
 
     receivedMsg shouldBe sentMsg

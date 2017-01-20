@@ -47,17 +47,8 @@ class JmsRequestReplyClient(
   def createReplyConsumer(selector: String = null): MessageConsumer =
     conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyJmsDestination, selector)
 
-  /**
-   * Sends a JMS message, returns the message of the sent message
-   * <p>
-   * Note that exceptions are allowed to bubble up to the caller
-   */
-  def sendMessage(message: Message): Message = {
+  override protected def prepareMessage(message: Message): Unit = {
     message.setJMSReplyTo(replyJmsDestination)
     protocol.messageMatcher.prepareRequest(message)
-    producer.send(message)
-
-    // return the message
-    message
   }
 }

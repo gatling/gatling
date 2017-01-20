@@ -22,7 +22,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms._
 import io.gatling.jms.request.JmsQueue
 
-class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsDsl {
+class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
@@ -30,10 +30,10 @@ class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsDsl {
 
     val requestQueue = JmsQueue("request")
 
-    jmsMock(requestQueue, {
+    customer(requestQueue, {
       case tm: TextMessage =>
         s"""<response>
-           |<hello>${tm.getText.toUpperCase()}</hello>
+           |<hello>${tm.getText.toUpperCase}</hello>
            |<property><key>${tm.getStringProperty("key")}</key></property>
            |<jmsType>${tm.getJMSType}</jmsType>
            |</response>""".stripMargin
@@ -44,7 +44,7 @@ class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsDsl {
         .exec(_.set("sessionMarker", "test"))
         .exec(
           jms("toUpperCase")
-            .reqreply
+            .requestReply
             .destination(requestQueue)
             .textMessage("hi ${sessionMarker}")
             .property("key", "${sessionMarker} value")

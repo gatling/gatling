@@ -205,9 +205,6 @@ object GatlingConfiguration extends StrictLogging {
           maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
         )
       ),
-      jms = JmsConfiguration(
-        acknowledgedMessagesBufferSize = config.getInt(jms.AcknowledgedMessagesBufferSize)
-      ),
       data = DataConfiguration(
         dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
         console = ConsoleDataWriterConfiguration(
@@ -368,10 +365,6 @@ case class StoreConfiguration(
   algorithm: Option[String]
 )
 
-case class JmsConfiguration(
-  acknowledgedMessagesBufferSize: Int
-)
-
 case class DataConfiguration(
     dataWriters: Seq[DataWriterType],
     file:        FileDataWriterConfiguration,
@@ -418,7 +411,6 @@ case class GatlingConfiguration(
   core:      CoreConfiguration,
   charting:  ChartingConfiguration,
   http:      HttpConfiguration,
-  jms:       JmsConfiguration,
   data:      DataConfiguration,
   // [fl]
   //
