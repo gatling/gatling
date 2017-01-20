@@ -44,28 +44,28 @@ class JmsCompileTest extends Simulation {
     .messageMatcher(IdentificationMatcher)
 
   val scn = scenario("JMS DSL test").repeat(1) {
-    exec(jms("req reply testing").reqreply
+    exec(jms("req reply testing").requestReply
       .queue("jmstestq")
       // -- four message types are supported; only StreamMessage is not currently supported
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
       .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+      .exec(jms("req reply testing").requestReply
         .queue("jmstestq")
         .bytesMessage(new Array[Byte](1))
         .property("test_header", "test_value")
         .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+      .exec(jms("req reply testing").requestReply
         .queue("jmstestq")
         .mapMessage(Map("foo" -> "bar"))
         .property("test_header", "test_value")
         .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+      .exec(jms("req reply testing").requestReply
         .queue("jmstestq")
         .objectMessage("hello!")
         .property("test_header", "test_value")
         .check(checkBodyTextCorrect))
-      .exec(jms("req reply - custom").reqreply
+      .exec(jms("req reply - custom").requestReply
         .queue("requestQueue")
         .replyQueue("responseQueue")
         .textMessage("hello from gatling jms dsl")
@@ -74,21 +74,21 @@ class JmsCompileTest extends Simulation {
   }
 
   val scnExtra = scenario("JMS DSL using destinations").repeat(1) {
-    exec(jms("req reply testing").reqreply
+    exec(jms("req reply testing").requestReply
       .destination(topic("jmstesttopic"))
       .textMessage("hello from gatling jms dsl")
       .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+      .exec(jms("req reply testing").requestReply
         .destination(queue("jmstestq"))
         .replyDestination(queue("jmstestq"))
         .textMessage("hello from gatling jms dsl")
         .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+      .exec(jms("req reply testing").requestReply
         .destination(topic("requestTopic"))
         .replyDestination(topic("replyTopic")).selector("env='myenv'")
         .textMessage("hello from gatling jms dsl")
         .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+      .exec(jms("req reply testing").requestReply
         .destination(topic("requestTopic"))
         .replyDestination(topic("replyTopic")).selector("env='myenv'")
         .textMessage("<test>name</test>")

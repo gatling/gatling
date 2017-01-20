@@ -31,7 +31,7 @@ import io.gatling.jms.request._
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
-class JmsRequestSend(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine: StatsEngine, val next: Action)
+class Send(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine: StatsEngine, val next: Action)
     extends ExitableAction with JmsAction[JmsSendClient] with NameGen {
 
   override val name = genName("jmsSend")

@@ -29,6 +29,18 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
 * ``receiveTimeout``: optional receive timeout for JMS receive method, default is 0 - infinite
 
+JMS JNDI Connection Factory
+===========================
+
+Use `jmsJndiConnectionFactory` object to obtain an instance of JMS `ConnectionFactory` via JNDI lookup.
+
+.. _jmsJndiConnectionFactory:
+
+* ``connectionFactoryName``: mandatory
+* ``url``: mandatory
+* ``contextFactory``: mandatory
+* ``credentials``: optional, for performing JNDI lookup
+
 JMS Request API
 ===============
 
@@ -39,7 +51,7 @@ Use the ``jms("requestName")`` method in order to create a JMS request.
 Request Type
 ------------
 
-Currently, ``reqreply`` and ``send`` (fire and forget) requests are supported.
+Currently, ``requestReply`` and ``send`` (fire and forget) requests are supported.
 
 Destination
 -----------
@@ -89,22 +101,9 @@ There is also ``xpath`` check for ``javax.jms.TextMessage`` that carries XML con
 
 Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
 
-JMS JNDI Connection Factory
-============
-
-Use `jmsJndiConnectionFactory` object to obtain an instance of JMS `ConnectionFactory` via JNDI lookup.
-
-.. _jmsJndiConnectionFactory:
-
-* ``connectionFactoryName``: mandatory
-* ``url``: mandatory
-* ``contextFactory``: mandatory
-* ``credentials``: optional, for performing JNDI lookup
-
 Example
 =======
 
 Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named "jmstestq":
 
 .. includecode:: code/Jms.scala#example-simulation
-

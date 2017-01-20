@@ -21,7 +21,7 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.jms.check.JmsCheckSupport
 import io.gatling.jms.jndi.{ JmsJndiConnectionFactoryBuilder, JmsJndiConnectionFactoryBuilderBase }
 import io.gatling.jms.protocol.{ JmsProtocol, JmsProtocolBuilder, JmsProtocolBuilderBase }
-import io.gatling.jms.request.{ JmsQueue, JmsReplyRequestBuilder, JmsRequestBuilderBase, JmsSendRequestBuilder, JmsTopic }
+import io.gatling.jms.request.{ JmsQueue, JmsDslBuilderBase, RequestReplyDslBuilder, SendDslBuilder, JmsTopic }
 
 trait JmsDsl extends JmsCheckSupport {
 
@@ -35,7 +35,7 @@ trait JmsDsl extends JmsCheckSupport {
    * @param requestName human readable name of request
    * @return a PingBuilder instance which can be used to build up a ping
    */
-  def jms(requestName: String) = JmsRequestBuilderBase(requestName)
+  def jms(requestName: String) = JmsDslBuilderBase(requestName)
 
   /**
    * Convert a JmsProtocolBuilder to a JmsProtocol
@@ -44,9 +44,9 @@ trait JmsDsl extends JmsCheckSupport {
    */
   implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 
-  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsSendRequestBuilder): ActionBuilder = builder.build()
+  implicit def jmsDslBuilder2ActionBuilder(builder: SendDslBuilder): ActionBuilder = builder.build()
 
-  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsReplyRequestBuilder): ActionBuilder = builder.build()
+  implicit def jmsDslBuilder2ActionBuilder(builder: RequestReplyDslBuilder): ActionBuilder = builder.build()
 
   implicit def jmsJndiConnectionFactory2ActionBuilder(builder: JmsJndiConnectionFactoryBuilder): ConnectionFactory = builder.build()
 

@@ -21,47 +21,41 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper }
 import io.gatling.jms.JmsCheck
-import io.gatling.jms.action.{ JmsReqReplyBuilder, JmsRequestSendBuilder }
+import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
 import com.softwaremill.quicklens.ModifyPimp
 
-case class JmsRequestBuilderBase(requestName: String) {
+case class JmsDslBuilderBase(requestName: String) {
 
-  def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestReplyBuilderQueue(requestName, configuration)
+  def send(implicit configuration: GatlingConfiguration) = SendDslBuilderQueue(requestName, configuration)
 
-  def send(implicit configuration: GatlingConfiguration) = JmsRequestSendBuilderQueue(requestName, configuration)
+  @deprecated("Use requestReply, will be removed in 3.0.0", "3.0.0-M5")
+  def reqreply(implicit configuration: GatlingConfiguration) = requestReply
+
+  def requestReply(implicit configuration: GatlingConfiguration) = RequestReplyDslBuilderQueue(requestName, configuration)
 }
 
-/**
- * Builder for sending.
- */
-case class JmsRequestSendBuilderQueue(
+case class SendDslBuilderQueue(
     requestName:   String,
     configuration: GatlingConfiguration
 ) {
 
   def queue(name: String) = destination(JmsQueue(name))
 
-  def destination(destination: JmsDestination) = JmsRequestSendBuilderMessage(requestName, destination, configuration)
+  def destination(destination: JmsDestination) = SendDslDslBuilderMessage(requestName, destination, configuration)
 }
 
-/**
- * Builder for rereply.
- */
-case class JmsRequestReplyBuilderQueue(
+case class RequestReplyDslBuilderQueue(
     requestName:   String,
     configuration: GatlingConfiguration
 ) {
 
   def queue(name: String) = destination(JmsQueue(name))
 
-  def destination(destination: JmsDestination) = JmsRequestReplyBuilderMessage(requestName, destination, JmsTemporaryQueue, None, configuration)
+  def destination(destination: JmsDestination) = RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, None, configuration)
 }
 
-/**
- * Message buildeer for sending.
- */
-case class JmsRequestSendBuilderMessage(
+case class SendDslDslBuilderMessage(
     requestName:   String,
     destination:   JmsDestination,
     configuration: GatlingConfiguration
@@ -72,13 +66,10 @@ case class JmsRequestSendBuilderMessage(
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    JmsSendRequestBuilder(JmsAttributes(requestName, destination, None, mess), JmsRequestSendBuilder.apply(_, configuration))
+    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), SendBuilder.apply(_, configuration))
 }
 
-/**
- * Message builder for rereply.
- */
-case class JmsRequestReplyBuilderMessage(
+case class RequestReplyDslBuilderMessage(
     requestName:     String,
     destination:     JmsDestination,
     replyDest:       JmsDestination,
@@ -98,15 +89,27 @@ case class JmsRequestReplyBuilderMessage(
 
   def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
   def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
-  def mapMessage(map: Map[String, Any]): JmsReplyRequestBuilder = mapMessage(map.expressionSuccess)
-  def mapMessage(map: Expression[Map[String, Any]]): JmsReplyRequestBuilder = message(MapJmsMessage(map))
+  def mapMessage(map: Map[String, Any]): RequestReplyDslBuilder = mapMessage(map.expressionSuccess)
+  def mapMessage(map: Expression[Map[String, Any]]): RequestReplyDslBuilder = message(MapJmsMessage(map))
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    JmsReplyRequestBuilder(JmsAttributes(requestName, destination, messageSelector, mess), JmsReqReplyBuilder.apply(_, replyDest, configuration))
+    RequestReplyDslBuilder(JmsAttributes(requestName, destination, messageSelector, mess), RequestReplyBuilder.apply(_, replyDest, configuration))
 }
 
-case class JmsReplyRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
+case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
+
+  /**
+   * Add JMS message properties (aka headers) to the outbound message
+   */
+  def property(key: Expression[String], value: Expression[Any]) = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
+
+  def jmsType(jmsType: Expression[String]) = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+
+  def build(): ActionBuilder = factory(attributes)
+}
+
+case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
 
   /**
    * Add JMS message properties (aka headers) to the outbound message
@@ -119,18 +122,6 @@ case class JmsReplyRequestBuilder(attributes: JmsAttributes, factory: JmsAttribu
    * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
    */
   def check(checks: JmsCheck*) = this.modify(_.attributes.checks).using(_ ::: checks.toList)
-
-  def build(): ActionBuilder = factory(attributes)
-}
-
-case class JmsSendRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
-
-  /**
-   * Add JMS message properties (aka headers) to the outbound message
-   */
-  def property(key: Expression[String], value: Expression[Any]) = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
-
-  def jmsType(jmsType: Expression[String]) = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
   def build(): ActionBuilder = factory(attributes)
 }

@@ -27,7 +27,7 @@ import io.gatling.core.action._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.jms.client.{ JmsClient, JmsReqReplyClient }
+import io.gatling.jms.client.{ JmsClient, JmsRequestReplyClient }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
@@ -43,7 +43,7 @@ object JmsReqReply extends NameGen {
 
   def apply(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, statsEngine: StatsEngine, next: Action) = {
     val actor = system.actorOf(JmsReqReplyActor.props(attributes, replyDestination, protocol, tracker, statsEngine, next))
-    new ExitableActorDelegatingAction(genName("jmsReqReply"), statsEngine, next, actor)
+    new ExitableActorDelegatingAction(genName("jmsRequestReply"), statsEngine, next, actor)
   }
 }
 
@@ -55,7 +55,7 @@ object JmsReqReplyActor {
 }
 
 class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
-    extends ValidatedActionActor with JmsAction[JmsReqReplyClient] {
+    extends ValidatedActionActor with JmsAction[JmsRequestReplyClient] {
 
   // Create a client to refer to
   override val client = JmsClient(protocol, attributes.destination, replyDestination)

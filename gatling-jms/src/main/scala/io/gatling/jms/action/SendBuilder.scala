@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.action
 
 import io.gatling.core.action.Action
@@ -21,17 +22,17 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
-import io.gatling.jms.request.{ JmsAttributes, JmsDestination }
+import io.gatling.jms.request.JmsAttributes
 
-case class JmsReqReplyBuilder(attributes: JmsAttributes, replyDestination: JmsDestination, configuration: GatlingConfiguration) extends ActionBuilder {
+case class SendBuilder(attributes: JmsAttributes, configuration: GatlingConfiguration) extends ActionBuilder {
 
   private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
-    val statsEngine = coreComponents.statsEngine
     val jmsComponents = components(protocolComponentsRegistry)
-    JmsReqReply(attributes, replyDestination, jmsComponents.jmsProtocol, jmsComponents.tracker, ctx.system, statsEngine, next)
+    val statsEngine = coreComponents.statsEngine
+    new Send(attributes, jmsComponents.jmsProtocol, statsEngine, next)
   }
 }
