@@ -17,6 +17,7 @@ package io.gatling.app
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
@@ -42,6 +43,15 @@ object Gatling extends StrictLogging {
       case Right(statusCode) => statusCode.code
     }
 
+  private def terminateActorSystem(system: ActorSystem, timeout: FiniteDuration): Unit =
+    try {
+      val whenTerminated = system.terminate()
+      Await.result(whenTerminated, timeout)
+    } catch {
+      case NonFatal(e) =>
+        logger.error("Could not terminate ActorSystem", e)
+    }
+
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
     logger.trace("Starting")
     val configuration = GatlingConfiguration.load(overrides)
@@ -55,8 +65,7 @@ object Gatling extends StrictLogging {
         logger.trace("Runner instantiated")
         runner.run(selectedSimulationClass)
       } finally {
-        val whenTerminated = system.terminate()
-        Await.result(whenTerminated, 2 seconds)
+        terminateActorSystem(system, 5 seconds)
       }
     RunResultProcessor(configuration).processRunResult(runResult).code
   }
