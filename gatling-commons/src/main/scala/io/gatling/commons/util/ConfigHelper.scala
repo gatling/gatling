@@ -39,5 +39,8 @@ object ConfigHelper {
 
     def getIntOption(path: String): Option[Int] =
       if (config.hasPath(path)) Some(config.getInt(path)) else None
+
+    def getBooleanOption(path: String): Option[Boolean] =
+      if (config.hasPath(path)) Some(config.getBoolean(path)) else None
   }
 }
