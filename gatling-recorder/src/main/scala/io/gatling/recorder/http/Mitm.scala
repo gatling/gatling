@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-import io.gatling.core.config.Credentials
+import io.gatling.commons.model.Credentials
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.ssl.SslServerContext

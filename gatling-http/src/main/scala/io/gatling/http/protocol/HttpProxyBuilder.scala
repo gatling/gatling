@@ -15,7 +15,7 @@
  */
 package io.gatling.http.protocol
 
-import io.gatling.core.config.Credentials
+import io.gatling.commons.model.Credentials
 
 object HttpProxyBuilder {
 

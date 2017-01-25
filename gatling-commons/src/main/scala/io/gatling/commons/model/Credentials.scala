@@ -13,6 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.config
+package io.gatling.commons.model
 
 case class Credentials(username: String, password: String)

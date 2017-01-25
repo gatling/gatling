@@ -19,7 +19,7 @@ import java.util.{ Hashtable => JHashtable }
 import javax.jms.ConnectionFactory
 import javax.naming.{ Context, InitialContext }
 
-import io.gatling.core.config.Credentials
+import io.gatling.commons.model.Credentials
 
 import com.typesafe.scalalogging.StrictLogging
 

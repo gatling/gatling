@@ -17,7 +17,7 @@ package io.gatling.jms.protocol
 
 import javax.jms.{ ConnectionFactory, DeliveryMode }
 
-import io.gatling.core.config.Credentials
+import io.gatling.commons.model.Credentials
 
 /**
  * JmsProtocolBuilder allows building of the JMS protocol
