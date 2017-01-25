@@ -50,10 +50,10 @@ trait PermanentRedirectCacheSupport {
 
   private[this] def permanentRedirect(session: Session, request: Request): Option[(Uri, Int)] = {
 
-      @tailrec def permanentRedirect1(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
+      @tailrec def permanentRedirectRec(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
 
         httpPermanentRedirectCacheHandler.getEntry(session, from) match {
-          case Some(toUri) => permanentRedirect1(new PermanentRedirectCacheKey(toUri, from.cookies), redirectCount + 1)
+          case Some(toUri) => permanentRedirectRec(new PermanentRedirectCacheKey(toUri, from.cookies), redirectCount + 1)
 
           case None => redirectCount match {
             case 0 => None
@@ -61,7 +61,7 @@ trait PermanentRedirectCacheSupport {
           }
         }
 
-    permanentRedirect1(PermanentRedirectCacheKey(request), 0)
+    permanentRedirectRec(PermanentRedirectCacheKey(request), 0)
   }
 
   private[this] def redirectRequest(request: Request, toUri: Uri): Request = {
