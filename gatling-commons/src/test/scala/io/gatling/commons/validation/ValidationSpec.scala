@@ -136,4 +136,12 @@ class ValidationSpec extends BaseSpec {
   it should "return the passed value wrapped in a Success when called on a Failure" in {
     "foo".failure.recover(4) shouldBe Success(4)
   }
+
+  "Option.toValidation" should "resolve Some to a Success" in {
+    Some("foo").toValidation("error") shouldBe Success("foo")
+  }
+
+  it should "resolve None to a Failure" in {
+    None.toValidation("error") shouldBe Failure("error")
+  }
 }

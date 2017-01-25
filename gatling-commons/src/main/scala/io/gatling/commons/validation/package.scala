@@ -42,4 +42,11 @@ package object validation extends StrictLogging {
   implicit class FailureWrapper(val message: String) extends AnyVal {
     def failure = Failure(message)
   }
+
+  implicit class OptionWrapper[T](val option: Option[T]) extends AnyVal {
+    def toValidation(error: => String): Validation[T] = option match {
+      case Some(value) => Success(value)
+      case _           => Failure(error)
+    }
+  }
 }
