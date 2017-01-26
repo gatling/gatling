@@ -46,10 +46,10 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   }
 
   def requestBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
-    f"${config.core.className}_${request.id.filled(4, '0')}_request.txt"
+    f"${config.core.className}_${request.id.leftPad(4, '0')}_request.txt"
 
   def responseBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
-    f"${config.core.className}_${request.id.filled(4, '0')}_response.txt"
+    f"${config.core.className}_${request.id.leftPad(4, '0')}_response.txt"
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
     safely(_ => "Error while processing HAR file") {
