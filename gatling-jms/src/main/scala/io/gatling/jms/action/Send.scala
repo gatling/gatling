@@ -27,18 +27,23 @@ import io.gatling.jms.client.{ JmsClient, JmsSendClient }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
+import akka.actor.ActorSystem
+
 /**
  * Core JMS Action to handle Send
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
-class Send(val attributes: JmsAttributes, protocol: JmsProtocol, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
+class Send(val attributes: JmsAttributes, protocol: JmsProtocol, system: ActorSystem, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
     extends ExitableAction with JmsAction[JmsSendClient] with NameGen {
 
   override val name = genName("jmsSend")
 
-  // Create a client to refer to
   override val client = JmsClient(protocol, attributes.destination)
+
+  system.registerOnTermination {
+    client.close()
+  }
 
   /**
    * Framework calls the execute() method to send a single request
