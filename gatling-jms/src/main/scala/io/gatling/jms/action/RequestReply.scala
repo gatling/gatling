@@ -33,31 +33,21 @@ import io.gatling.jms.request._
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
 
+object JmsReqReply {
+  val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+}
+
 /**
  * Core JMS Action to handle Request-Reply semantics
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-object JmsReqReply extends NameGen {
+class JmsReqReply(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, val statsEngine: StatsEngine, val next: Action)
+    extends ExitableAction with JmsAction[JmsRequestReplyClient] with NameGen {
 
-  def apply(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, statsEngine: StatsEngine, next: Action) = {
-    val actor = system.actorOf(JmsReqReplyActor.props(attributes, replyDestination, protocol, tracker, statsEngine, next))
-    new ExitableActorDelegatingAction(genName("jmsRequestReply"), statsEngine, next, actor)
-  }
-}
+  override val name = genName("jmsRequestReply")
 
-object JmsReqReplyActor {
-  val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
-
-  def props(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: Action) =
-    Props(new JmsReqReplyActor(attributes, replyDestination, protocol, tracker, statsEngine, next))
-}
-
-class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
-    extends ValidatedActionActor with JmsAction[JmsRequestReplyClient] {
-
-  // Create a client to refer to
   override val client = JmsClient(protocol, attributes.destination, replyDestination)
 
   val receiveTimeout = protocol.receiveTimeout.getOrElse(0L)
@@ -77,7 +67,7 @@ class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination:
               tracker ! MessageReceived(replyDestinationName, matchId, nowMillis, msg)
             case _ =>
               tracker ! BlockingReceiveReturnedNull
-              throw JmsReqReplyActor.BlockingReceiveReturnedNullException
+              throw JmsReqReply.BlockingReceiveReturnedNullException
           }
         }
       } catch {
@@ -99,7 +89,7 @@ class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination:
 
   listenerThreads.foreach(_.start)
 
-  override def postStop(): Unit = {
+  system.registerOnTermination {
     listenerThreads.foreach(thread => Try(thread.close()).recover { case NonFatal(e) => logger.warn("Could not shutdown listener thread", e) })
     client.close()
   }
@@ -110,7 +100,7 @@ class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination:
    * Note this does not catch any exceptions (even JMSException) as generally these indicate a
    * configuration failure that is unlikely to be addressed by retrying with another message
    */
-  def executeOrFail(session: Session): Validation[Unit] =
+  override def execute(session: Session): Unit = recover(session) {
     sendMessage(session) { msg =>
       // notify the tracker that a message was sent
       val matchId = messageMatcher.requestMatchId(msg)
@@ -122,4 +112,5 @@ class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination:
       // [/fl]
       tracker ! MessageSent(replyDestinationName, matchId, nowMillis, attributes.checks, session, next, attributes.requestName)
     }
+  }
 }
