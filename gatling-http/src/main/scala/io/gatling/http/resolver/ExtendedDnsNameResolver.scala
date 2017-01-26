@@ -18,12 +18,14 @@ package io.gatling.http.resolver
 import java.net.InetAddress
 import java.util.{ List => JList }
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.GatlingConfiguration
+
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.ChannelFactory
 import io.netty.channel.EventLoop
 import io.netty.channel.socket.DatagramChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
+import io.netty.handler.codec.dns.DnsRecord
 import io.netty.resolver.HostsFileEntriesResolver
 import io.netty.resolver.dns._
 import io.netty.util.concurrent.Promise
@@ -46,7 +48,7 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
     extends DnsNameResolver(
       eventLoop,
       ExtendedDnsNameResolver.NioDatagramChannelFactory,
-      DnsServerAddresses.defaultAddresses,
+      DnsServerAddresses.defaultAddresses(),
       NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
       NettyDnsConstants.DefaultResolveAddressTypes,
@@ -60,11 +62,11 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       1 // ndots
     ) {
 
-  override def doResolve(inetHost: String, promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
-    super.doResolve(inetHost, promise, resolveCache)
+  override def doResolve(inetHost: String, additionals: Array[DnsRecord], promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
+    super.doResolve(inetHost, additionals, promise, resolveCache)
 
-  override def doResolveAll(inetHost: String, promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
-    super.doResolveAll(inetHost, promise, resolveCache)
+  override def doResolveAll(inetHost: String, additionals: Array[DnsRecord], promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
+    super.doResolveAll(inetHost, additionals, promise, resolveCache)
 
   override def executor: EventLoop = super.executor()
 }

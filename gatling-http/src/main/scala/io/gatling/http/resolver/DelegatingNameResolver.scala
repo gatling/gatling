@@ -29,7 +29,7 @@ case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsC
     resolve(inetHost, resolver.executor.newPromise[InetAddress])
 
   override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] = {
-    resolver.doResolve(inetHost, promise, cache)
+    resolver.doResolve(inetHost, null, promise, cache)
     promise
   }
 
@@ -37,7 +37,7 @@ case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsC
     resolveAll(inetHost, resolver.executor.newPromise[JList[InetAddress]])
 
   override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] = {
-    resolver.doResolveAll(inetHost, promise, cache)
+    resolver.doResolveAll(inetHost, null, promise, cache)
     promise
   }
 
