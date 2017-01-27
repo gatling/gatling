@@ -15,7 +15,6 @@
  */
 package io.gatling.jms.client
 
-import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request.{ JmsDestination, JmsQueue, JmsTemporaryQueue, JmsTemporaryTopic, JmsTopic }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -24,17 +23,6 @@ import javax.jms._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.model.Credentials
-
-object JmsClient {
-
-  def apply(protocol: JmsProtocol, destination: JmsDestination) = {
-    new JmsSendClient(protocol, destination)
-  }
-
-  def apply(protocol: JmsProtocol, destination: JmsDestination, replyDestination: JmsDestination) = {
-    new JmsRequestReplyClient(protocol, destination, replyDestination)
-  }
-}
 
 abstract class JmsClient(
     connectionFactory: ConnectionFactory,

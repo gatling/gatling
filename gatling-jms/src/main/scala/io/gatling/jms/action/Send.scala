@@ -25,7 +25,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.util.NameGen
-import io.gatling.jms.client.{ JmsClient, JmsSendClient }
+import io.gatling.jms.client.JmsSendClient
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
@@ -41,7 +41,7 @@ class Send(val attributes: JmsAttributes, protocol: JmsProtocol, system: ActorSy
 
   override val name = genName("jmsSend")
 
-  override val client = JmsClient(protocol, attributes.destination)
+  override val client = new JmsSendClient(protocol, attributes.destination)
 
   system.registerOnTermination {
     client.close()

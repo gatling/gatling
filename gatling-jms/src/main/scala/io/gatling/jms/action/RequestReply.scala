@@ -26,7 +26,7 @@ import io.gatling.core.action._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.jms.client.{ JmsClient, JmsRequestReplyClient }
+import io.gatling.jms.client.JmsRequestReplyClient
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
@@ -47,7 +47,7 @@ class RequestReply(override val attributes: JmsAttributes, replyDestination: Jms
 
   override val name = genName("jmsRequestReply")
 
-  override val client = JmsClient(protocol, attributes.destination, replyDestination)
+  override val client = new JmsRequestReplyClient(protocol, attributes.destination, replyDestination)
 
   val receiveTimeout = protocol.receiveTimeout.getOrElse(0L)
   val messageMatcher = protocol.messageMatcher
