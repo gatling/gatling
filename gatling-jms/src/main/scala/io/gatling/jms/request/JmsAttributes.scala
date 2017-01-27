@@ -28,7 +28,7 @@ import io.gatling.jms.JmsCheck
  * @author jasonk@bluedevel.com
  */
 case class JmsAttributes(
-  requestName:       String,
+  requestName:       Expression[String],
   destination:       JmsDestination,
   selector:          Option[String],
   message:           JmsMessage,

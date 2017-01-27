@@ -25,7 +25,7 @@ import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
 import com.softwaremill.quicklens.ModifyPimp
 
-case class JmsDslBuilderBase(requestName: String) {
+case class JmsDslBuilderBase(requestName: Expression[String]) {
 
   def send(implicit configuration: GatlingConfiguration) = SendDslBuilderQueue(requestName, configuration)
 
@@ -36,7 +36,7 @@ case class JmsDslBuilderBase(requestName: String) {
 }
 
 case class SendDslBuilderQueue(
-    requestName:   String,
+    requestName:   Expression[String],
     configuration: GatlingConfiguration
 ) {
 
@@ -46,7 +46,7 @@ case class SendDslBuilderQueue(
 }
 
 case class RequestReplyDslBuilderQueue(
-    requestName:   String,
+    requestName:   Expression[String],
     configuration: GatlingConfiguration
 ) {
 
@@ -56,7 +56,7 @@ case class RequestReplyDslBuilderQueue(
 }
 
 case class SendDslDslBuilderMessage(
-    requestName:   String,
+    requestName:   Expression[String],
     destination:   JmsDestination,
     configuration: GatlingConfiguration
 ) {
@@ -70,7 +70,7 @@ case class SendDslDslBuilderMessage(
 }
 
 case class RequestReplyDslBuilderMessage(
-    requestName:     String,
+    requestName:     Expression[String],
     destination:     JmsDestination,
     replyDest:       JmsDestination,
     messageSelector: Option[String],

@@ -18,7 +18,7 @@ package io.gatling.core.action
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorRef
@@ -82,3 +82,17 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
 }
 
 class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val next: Action, actor: ActorRef) extends ActorDelegatingAction(name, actor) with ExitableAction
+
+trait RequestAction extends ExitableAction {
+
+  def requestName: Expression[String]
+  def sendRequest(requestName: String, session: Session): Validation[Unit]
+
+  override def execute(session: Session): Unit = recover(session) {
+    requestName(session).flatMap { resolvedRequestName =>
+      val outcome = sendRequest(resolvedRequestName, session)
+      outcome.onFailure(errorMessage => statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage))
+      outcome
+    }
+  }
+}

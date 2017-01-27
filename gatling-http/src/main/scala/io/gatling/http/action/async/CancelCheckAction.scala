@@ -16,17 +16,16 @@
 package io.gatling.http.action.async
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.Action
+import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.RequestAction
 
 abstract class CancelCheckAction(
     val requestName: Expression[String],
     actorName:       String,
-    statsEngine:     StatsEngine,
+    val statsEngine: StatsEngine,
     val next:        Action
-) extends RequestAction(statsEngine) with AsyncProtocolAction {
+) extends RequestAction with AsyncProtocolAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for (actor <- fetchActor(actorName, session)) yield actor ! CancelCheck(requestName, next, session)

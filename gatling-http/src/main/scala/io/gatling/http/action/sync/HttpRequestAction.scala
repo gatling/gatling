@@ -16,10 +16,10 @@
 package io.gatling.http.action.sync
 
 import io.gatling.commons.validation._
-import io.gatling.core.action.Action
+import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.Session
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.RequestAction
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
@@ -33,11 +33,13 @@ import akka.actor.ActorSystem
  * @param next the next action that will be executed after the request
  */
 class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val next: Action)
-    extends RequestAction(httpRequestDef.config.coreComponents.statsEngine) with NameGen {
+    extends RequestAction with NameGen {
+
+  import httpRequestDef._
 
   override val name = genName("httpRequest")
 
-  import httpRequestDef._
+  override val statsEngine: StatsEngine = config.coreComponents.statsEngine
 
   val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     config.checks,

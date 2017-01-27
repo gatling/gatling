@@ -16,11 +16,10 @@
 package io.gatling.http.action.ws2
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.{ Action, ExitableAction }
+import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.RequestAction
 import io.gatling.http.action.async.ws.WsAction
 
 class WsSend(
@@ -28,9 +27,9 @@ class WsSend(
     wsName:                   String,
     message:                  Expression[String],
     checkSequences:           List[WsCheckSequence],
-    statsEngine:              StatsEngine,
+    val statsEngine:          StatsEngine,
     val next:                 Action
-) extends RequestAction(statsEngine) with WsAction with ExitableAction with NameGen {
+) extends RequestAction with WsAction with ExitableAction with NameGen {
 
   override val name = genName("wsSend")
 

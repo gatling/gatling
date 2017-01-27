@@ -22,7 +22,6 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
-import io.gatling.commons.validation._
 import io.gatling.core.action._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
@@ -31,9 +30,9 @@ import io.gatling.jms.client.{ JmsClient, JmsRequestReplyClient }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSystem }
 
-object JmsReqReply {
+object RequestReply {
   val BlockingReceiveReturnedNullException = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 }
 
@@ -43,8 +42,8 @@ object JmsReqReply {
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-class JmsReqReply(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, val statsEngine: StatsEngine, val next: Action)
-    extends ExitableAction with JmsAction[JmsRequestReplyClient] with NameGen {
+class RequestReply(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, system: ActorSystem, val statsEngine: StatsEngine, val next: Action)
+    extends JmsAction[JmsRequestReplyClient] with ExitableAction with NameGen {
 
   override val name = genName("jmsRequestReply")
 
@@ -67,7 +66,7 @@ class JmsReqReply(override val attributes: JmsAttributes, replyDestination: JmsD
               tracker ! MessageReceived(replyDestinationName, matchId, nowMillis, msg)
             case _ =>
               tracker ! BlockingReceiveReturnedNull
-              throw JmsReqReply.BlockingReceiveReturnedNullException
+              throw RequestReply.BlockingReceiveReturnedNullException
           }
         }
       } catch {
@@ -94,23 +93,15 @@ class JmsReqReply(override val attributes: JmsAttributes, replyDestination: JmsD
     client.close()
   }
 
-  /**
-   * Framework calls the execute() method to send a single request
-   * <p>
-   * Note this does not catch any exceptions (even JMSException) as generally these indicate a
-   * configuration failure that is unlikely to be addressed by retrying with another message
-   */
-  override def execute(session: Session): Unit = recover(session) {
-    sendMessage(session) { msg =>
-      // notify the tracker that a message was sent
-      val matchId = messageMatcher.requestMatchId(msg)
-      if (logger.underlying.isDebugEnabled()) {
-        logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID} matchId=$matchId", msg)
-      }
-      // [fl]
-      //
-      // [/fl]
-      tracker ! MessageSent(replyDestinationName, matchId, nowMillis, attributes.checks, session, next, attributes.requestName)
+  protected override def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
+    // notify the tracker that a message was sent
+    val matchId = messageMatcher.requestMatchId(message)
+    if (logger.underlying.isDebugEnabled()) {
+      logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
     }
+    // [fl]
+    //
+    // [/fl]
+    tracker ! MessageSent(replyDestinationName, matchId, nowMillis, attributes.checks, session, next, requestName)
   }
 }

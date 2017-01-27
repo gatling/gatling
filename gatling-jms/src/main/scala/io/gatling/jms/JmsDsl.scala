@@ -18,10 +18,11 @@ package io.gatling.jms
 import javax.jms.ConnectionFactory
 
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.session._
 import io.gatling.jms.check.JmsCheckSupport
 import io.gatling.jms.jndi.{ JmsJndiConnectionFactoryBuilder, JmsJndiConnectionFactoryBuilderBase }
 import io.gatling.jms.protocol.{ JmsProtocol, JmsProtocolBuilder, JmsProtocolBuilderBase }
-import io.gatling.jms.request.{ JmsQueue, JmsDslBuilderBase, RequestReplyDslBuilder, SendDslBuilder, JmsTopic }
+import io.gatling.jms.request._
 
 trait JmsDsl extends JmsCheckSupport {
 
@@ -35,7 +36,7 @@ trait JmsDsl extends JmsCheckSupport {
    * @param requestName human readable name of request
    * @return a PingBuilder instance which can be used to build up a ping
    */
-  def jms(requestName: String) = JmsDslBuilderBase(requestName)
+  def jms(requestName: Expression[String]) = JmsDslBuilderBase(requestName)
 
   /**
    * Convert a JmsProtocolBuilder to a JmsProtocol

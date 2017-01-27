@@ -15,7 +15,9 @@
  */
 package io.gatling.jms.action
 
-import io.gatling.commons.stats.{ OK, Status }
+import javax.jms.Message
+
+import io.gatling.commons.stats.OK
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.action._
 import io.gatling.core.config.GatlingConfiguration
@@ -35,7 +37,7 @@ import akka.actor.ActorSystem
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
 class Send(val attributes: JmsAttributes, protocol: JmsProtocol, system: ActorSystem, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
-    extends ExitableAction with JmsAction[JmsSendClient] with NameGen {
+    extends JmsAction[JmsSendClient] with NameGen {
 
   override val name = genName("jmsSend")
 
@@ -45,32 +47,13 @@ class Send(val attributes: JmsAttributes, protocol: JmsProtocol, system: ActorSy
     client.close()
   }
 
-  /**
-   * Framework calls the execute() method to send a single request
-   * <p>
-   * Note this does not catch any exceptions (even JMSException) as generally these indicate a
-   * configuration failure that is unlikely to be addressed by retrying with another message
-   */
-  override def execute(session: Session): Unit = recover(session) {
-    sendMessage(session) { msg =>
-      val now = nowMillis
-      if (logger.underlying.isDebugEnabled) {
-        logMessage(s"Message sent JMSMessageID=${msg.getJMSMessageID}", msg)
-      }
-      executeNext(session, now, now, OK, next, attributes.requestName)
+  protected override def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
+    val now = nowMillis
+    if (logger.underlying.isDebugEnabled) {
+      logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
     }
-  }
 
-  private def executeNext(
-    session:     Session,
-    sent:        Long,
-    received:    Long,
-    status:      Status,
-    next:        Action,
-    requestName: String,
-    message:     Option[String] = None
-  ) = {
-    val timings = ResponseTimings(sent, received)
+    val timings = ResponseTimings(now, now)
     configuration.resolve(
       // [fl]
       //
@@ -78,8 +61,8 @@ class Send(val attributes: JmsAttributes, protocol: JmsProtocol, system: ActorSy
       //
       //
       // [fl]
-      statsEngine.logResponse(session, requestName, timings, status, None, message)
+      statsEngine.logResponse(session, requestName, timings, OK, None, None)
     )
-    next ! session.logGroupRequest(timings.responseTime, status).increaseDrift(nowMillis - received)
+    next ! session.logGroupRequest(timings.responseTime, OK)
   }
 }

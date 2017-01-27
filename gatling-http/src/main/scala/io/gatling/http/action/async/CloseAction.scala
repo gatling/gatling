@@ -17,15 +17,14 @@ package io.gatling.http.action.async
 
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.RequestAction
-import io.gatling.core.action.Action
+import io.gatling.core.action.{ Action, RequestAction }
 
 abstract class CloseAction(
     val requestName: Expression[String],
     wsName:          String,
-    statsEngine:     StatsEngine,
+    val statsEngine: StatsEngine,
     val next:        Action
-) extends RequestAction(statsEngine) with AsyncProtocolAction {
+) extends RequestAction with AsyncProtocolAction {
 
   override def sendRequest(requestName: String, session: Session) =
     for {

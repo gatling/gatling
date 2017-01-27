@@ -16,12 +16,11 @@
 package io.gatling.http.action.ws2
 
 import io.gatling.commons.validation._
-import io.gatling.core.action.{ Action, ExitableAction }
+import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.RequestAction
 import io.gatling.http.action.async.ws.WsAction
 import io.gatling.http.protocol.HttpComponents
 
@@ -36,10 +35,10 @@ class WsConnect(
     onConnected:              Option[Action],
     httpComponents:           HttpComponents,
     system:                   ActorSystem,
-    statsEngine:              StatsEngine,
+    val statsEngine:          StatsEngine,
     configuration:            GatlingConfiguration,
     val next:                 Action
-) extends RequestAction(statsEngine) with WsAction with ExitableAction with NameGen {
+) extends RequestAction with WsAction with ExitableAction with NameGen {
 
   override val name = genName("wsOpen")
 
