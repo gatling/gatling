@@ -15,11 +15,10 @@
  */
 package io.gatling.jms.action
 
-import java.lang.{ Boolean => JBoolean }
-import java.util.{ Collections => JCollections, LinkedHashMap => JLinkedHashMap, Map => JMap }
 import javax.jms.Message
 
 import scala.collection.mutable
+import scala.concurrent.duration._
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.ClockSingleton.nowMillis
@@ -39,35 +38,29 @@ import akka.actor.Props
  * Advise actor a message was sent to JMS provider
  */
 case class MessageSent(
-  replyDestinationName: String,
-  matchId:              String,
-  sent:                 Long,
-  checks:               List[JmsCheck],
-  session:              Session,
-  next:                 Action,
-  requestName:          String
+  matchId:      String,
+  sent:         Long,
+  replyTimeout: Long,
+  checks:       List[JmsCheck],
+  session:      Session,
+  next:         Action,
+  requestName:  String
 )
 
 /**
  * Advise actor a response message was received from JMS provider
  */
 case class MessageReceived(
-  replyDestinationName: String,
-  matchId:              String,
-  received:             Long,
-  message:              Message
+  matchId:  String,
+  received: Long,
+  message:  Message
 )
 
-/**
- * Advise actor that the blocking receive failed
- */
-case object BlockingReceiveReturnedNull
+case object TimeoutScan
 
 object Tracker {
   def props(statsEngine: StatsEngine, configuration: GatlingConfiguration) = Props(new Tracker(statsEngine, configuration))
 }
-
-case class MessageKey(replyDestinationName: String, matchId: String)
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages
@@ -75,30 +68,49 @@ case class MessageKey(replyDestinationName: String, matchId: String)
  */
 class Tracker(statsEngine: StatsEngine, configuration: GatlingConfiguration) extends BaseActor {
 
-  private val sentMessages = mutable.HashMap.empty[MessageKey, MessageSent]
+  private val sentMessages = mutable.HashMap.empty[String, MessageSent]
+  private val timedOutMessages = mutable.ArrayBuffer.empty[MessageSent]
+  private val replyTimeoutScanPeriod = configuration.jms.replyTimeoutScanPeriod milliseconds
+  private var periodicTimeoutScanTriggered = false
+
+  def triggerPeriodicTimeoutScan(): Unit =
+    if (!periodicTimeoutScanTriggered) {
+      periodicTimeoutScanTriggered = true
+      scheduler.schedule(replyTimeoutScanPeriod, replyTimeoutScanPeriod) {
+        self ! TimeoutScan
+      }
+    }
 
   def receive = {
     // message was sent; add the timestamps to the map
     case messageSent: MessageSent =>
-      val messageKey = MessageKey(messageSent.replyDestinationName, messageSent.matchId)
-      sentMessages += messageKey -> messageSent
+      sentMessages += messageSent.matchId -> messageSent
+      if (messageSent.replyTimeout > 0) {
+        triggerPeriodicTimeoutScan()
+      }
 
     // message was received; publish stats and remove from the hashmap
-    case MessageReceived(replyDestinationName, matchId, received, message) =>
-      val messageKey = MessageKey(replyDestinationName, matchId)
-      // if key is missing, message was already acked and is a dup
-      sentMessages.remove(messageKey).foreach {
-        case MessageSent(_, _, sent, checks, session, next, requestName) =>
+    case MessageReceived(matchId, received, message) =>
+      // if key is missing, message was already acked and is a dup, or request timedout
+      sentMessages.remove(matchId).foreach {
+        case MessageSent(_, sent, _, checks, session, next, requestName) =>
           processMessage(session, sent, received, checks, message, next, requestName)
       }
 
-    case BlockingReceiveReturnedNull =>
-      // fail all the sent messages because we do not even have a correlation id
-      sentMessages.foreach {
-        case (messageKey, MessageSent(_, _, sent, checks, session, next, requestName)) =>
-          executeNext(session, sent, nowMillis, KO, next, requestName, Some("Blocking received returned null"))
-          sentMessages -= messageKey
+    case TimeoutScan =>
+      val now = nowMillis
+      sentMessages.valuesIterator.foreach { message =>
+        val replyTimeout = message.replyTimeout
+        if (replyTimeout > 0 && (now - message.sent) > replyTimeout) {
+          timedOutMessages += message
+        }
       }
+
+      for (MessageSent(matchId, sent, receivedTimeout, checks, session, next, requestName) <- timedOutMessages) {
+        sentMessages.remove(matchId)
+        executeNext(session.markAsFailed, sent, now, KO, next, requestName, Some(s"Reply timeout after $receivedTimeout ms"))
+      }
+      timedOutMessages.clear()
   }
 
   private def executeNext(

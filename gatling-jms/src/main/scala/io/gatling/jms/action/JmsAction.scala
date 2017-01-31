@@ -20,42 +20,39 @@ import javax.jms.Message
 import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
 import io.gatling.core.session._
-import io.gatling.jms.client.JmsClient
+import io.gatling.core.util.NameGen
+import io.gatling.jms.client.JmsConnectionPool
+import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
-import com.typesafe.scalalogging.StrictLogging
+abstract class JmsAction(attributes: JmsAttributes, protocol: JmsProtocol, pool: JmsConnectionPool)
+    extends RequestAction with JmsLogging with NameGen {
 
-abstract class JmsAction[T <: JmsClient] extends RequestAction with StrictLogging {
+  override val requestName = attributes.requestName
 
-  def attributes: JmsAttributes
-  def requestName: Expression[String] = attributes.requestName
+  protected val jmsConnection = pool.jmsConnection(protocol.connectionFactory, protocol.credentials)
+  private val jmsDestination = jmsConnection.destination(attributes.destination)
+  protected val producer = jmsConnection.producer(jmsDestination, protocol.deliveryMode)
 
-  def client: T
-
-  protected def beforeSend(requestName: String, session: Session)(message: Message): Unit
-
-  def sendRequest(requestName: String, session: Session): Validation[Unit] = {
-
-    val messageProperties = resolveProperties(attributes.messageProperties, session)
-
-    val jmsType = resolveOptionalExpression(attributes.jmsType, session)
-
-    jmsType.flatMap(jmsType =>
-      messageProperties.flatMap { props =>
-        val beforeSend0 = beforeSend(requestName, session) _
-        attributes.message match {
-          case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, props, jmsType, beforeSend0))
-          case MapJmsMessage(map) => map(session).map(map => client.sendMapMessage(map, props, jmsType, beforeSend0))
-          case ObjectJmsMessage(o) => o(session).map(o => client.sendObjectMessage(o, props, jmsType, beforeSend0))
-          case TextJmsMessage(txt) => txt(session).map(txt => client.sendTextMessage(txt, props, jmsType, beforeSend0))
-        }
-      })
-  }
+  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+    for {
+      jmsType <- resolveOptionalExpression(attributes.jmsType, session)
+      props <- resolveProperties(attributes.messageProperties, session)
+    } yield {
+      val beforeSend0 = beforeSend(requestName, session) _
+      val p = producer.get()
+      attributes.message match {
+        case BytesJmsMessage(bytes) => bytes(session).map(bytes => p.sendBytesMessage(bytes, props, jmsType, beforeSend0))
+        case MapJmsMessage(map)     => map(session).map(map => p.sendMapMessage(map, props, jmsType, beforeSend0))
+        case ObjectJmsMessage(o)    => o(session).map(o => p.sendObjectMessage(o, props, jmsType, beforeSend0))
+        case TextJmsMessage(txt)    => txt(session).map(txt => p.sendTextMessage(txt, props, jmsType, beforeSend0))
+      }
+    }
 
   private def resolveProperties(
-                                 properties: Map[Expression[String], Expression[Any]],
-                                 session: Session
-                               ): Validation[Map[String, Any]] =
+    properties: Map[Expression[String], Expression[Any]],
+    session:    Session
+  ): Validation[Map[String, Any]] =
     properties.foldLeft(Map.empty[String, Any].success) {
       case (resolvedProperties, (key, value)) =>
         for {
@@ -65,8 +62,5 @@ abstract class JmsAction[T <: JmsClient] extends RequestAction with StrictLoggin
         } yield resolvedProperties + (key -> value)
     }
 
-  def logMessage(text: String, msg: Message): Unit = {
-    logger.debug(text)
-    logger.trace(msg.toString)
-  }
+  protected def beforeSend(requestName: String, session: Session)(message: Message): Unit
 }

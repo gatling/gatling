@@ -120,6 +120,10 @@ object ConfigKeys {
     }
   }
 
+  object jms {
+    val ReplyTimeoutScanPeriod = "gatling.jms.replyTimeoutScanPeriod"
+  }
+
   object data {
     val Writers = "gatling.data.writers"
 

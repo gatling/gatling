@@ -18,6 +18,7 @@ package io.gatling.jms
 import javax.jms._
 
 import scala.concurrent.duration.DurationInt
+
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import io.gatling.jms.protocol.JmsMessageMatcher
@@ -30,48 +31,53 @@ object IdentificationMatcher extends JmsMessageMatcher {
 
 class JmsCompileTest extends Simulation {
 
-  val cf = jmsJndiConnectionFactory
+  val jndiCf = jmsJndiConnectionFactory
     .connectionFactoryName("FFMQConstants.JNDI_CONNECTION_FACTORY_NAME")
     .url("tcp://localhost:10002")
     .credentials("user", "secret")
     .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
 
-  val jmsConfig = jms
-    .connectionFactory(cf)
-    .listenerCount(1)
+  // create JmsProtocol from JNDI based ConnectionFactory
+  val jmsProtocol = jms
+    .connectionFactory(jndiCf)
     .usePersistentDeliveryMode
-    .receiveTimeout(1000)
+    .replyTimeout(1000)
     .messageMatcher(IdentificationMatcher)
 
-  val scn = scenario("JMS DSL test").repeat(1) {
-    exec(jms("req reply testing").requestReply
-      .queue("jmstestq")
-      // -- four message types are supported; only StreamMessage is not currently supported
-      .textMessage("hello from gatling jms dsl")
-      .property("test_header", "test_value")
-      .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").requestReply
+  // create JmsProtocol from standard ConnectionFactory
+  val jmsProtocol2 = jms
+    .connectionFactory(null: ConnectionFactory)
+
+  val scn = scenario("JMS DSL test")
+    .repeat(1) {
+      exec(jms("req reply testing").requestReply
         .queue("jmstestq")
-        .bytesMessage(new Array[Byte](1))
-        .property("test_header", "test_value")
-        .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").requestReply
-        .queue("jmstestq")
-        .mapMessage(Map("foo" -> "bar"))
-        .property("test_header", "test_value")
-        .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").requestReply
-        .queue("jmstestq")
-        .objectMessage("hello!")
-        .property("test_header", "test_value")
-        .check(checkBodyTextCorrect))
-      .exec(jms("req reply - custom").requestReply
-        .queue("requestQueue")
-        .replyQueue("responseQueue")
+        // -- four message types are supported; only StreamMessage is not currently supported
         .textMessage("hello from gatling jms dsl")
-        .property("identification", "${ID}")
+        .property("test_header", "test_value")
         .check(checkBodyTextCorrect))
-  }
+        .exec(jms("req reply testing").requestReply
+          .queue("jmstestq")
+          .bytesMessage(new Array[Byte](1))
+          .property("test_header", "test_value")
+          .check(checkBodyTextCorrect))
+        .exec(jms("req reply testing").requestReply
+          .queue("jmstestq")
+          .mapMessage(Map("foo" -> "bar"))
+          .property("test_header", "test_value")
+          .check(checkBodyTextCorrect))
+        .exec(jms("req reply testing").requestReply
+          .queue("jmstestq")
+          .objectMessage("hello!")
+          .property("test_header", "test_value")
+          .check(checkBodyTextCorrect))
+        .exec(jms("req reply - custom").requestReply
+          .queue("requestQueue")
+          .replyQueue("responseQueue")
+          .textMessage("hello from gatling jms dsl")
+          .property("identification", "${ID}")
+          .check(checkBodyTextCorrect))
+    }
 
   val scnExtra = scenario("JMS DSL using destinations").repeat(1) {
     exec(jms("req reply testing").requestReply
@@ -131,7 +137,7 @@ class JmsCompileTest extends Simulation {
   }
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
-    .protocols(jmsConfig)
+    .protocols(jmsProtocol)
 
   def checkBodyTextCorrect = simpleCheck {
     case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"

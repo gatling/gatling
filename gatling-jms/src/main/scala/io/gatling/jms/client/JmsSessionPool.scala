@@ -15,28 +15,23 @@
  */
 package io.gatling.jms.client
 
-import javax.jms.Message
+import java.util.Collections
+import java.util.concurrent.ConcurrentHashMap
+import javax.jms._
 
-import io.gatling.jms.protocol.JmsProtocol
-import io.gatling.jms.request.JmsDestination
+import scala.collection.JavaConverters._
 
-/**
- * Trivial JMS client, allows sending messages
- */
-class JmsSendClient(
-  protocol:    JmsProtocol,
-  destination: JmsDestination
-) extends JmsClient(
-  protocol.connectionFactory,
-  destination,
-  protocol.credentials,
-  protocol.deliveryMode
-) {
+class JmsSessionPool(connection: Connection) {
 
-  /**
-   * Sends a JMS message, returns the message of the sent message
-   * <p>
-   * Note that exceptions are allowed to bubble up to the caller
-   */
-  override protected def prepareMessage(message: Message): Unit = {}
+  private val registeredJmsSessions = Collections.newSetFromMap(new ConcurrentHashMap[Session, java.lang.Boolean])
+
+  private val jmsSessions = ThreadLocal.withInitial[Session](() => {
+    val s = connection.createSession(false, Session.AUTO_ACKNOWLEDGE)
+    registeredJmsSessions.add(s)
+    s
+  })
+
+  def jmsSession(): Session = jmsSessions.get()
+
+  def close(): Unit = registeredJmsSessions.asScala.foreach(_.close())
 }

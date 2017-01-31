@@ -17,30 +17,21 @@ package io.gatling.jms.protocol
 
 import javax.jms.ConnectionFactory
 
+import io.gatling.commons.model.Credentials
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 
 class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
 
+  implicit val configuration = GatlingConfiguration.loadForTest()
   val cf = mock[ConnectionFactory]
 
-  "jms protocol" should "pass defined parameters" in {
+  "jms protocol" should "pass defined credentials" in {
 
-    val protocol = jms.connectionFactory(cf).listenerCount(3).build
+    val protocol = jms.connectionFactory(cf).credentials("foo", "bar").build
     protocol.connectionFactory shouldBe cf
-    protocol.listenerCount shouldBe 3
-
+    protocol.credentials shouldBe Some(Credentials("foo", "bar"))
   }
-
-  it should "pass receiveTimeout" in {
-    val protocol =
-      jms
-        .connectionFactory(cf)
-        .listenerCount(3)
-        .receiveTimeout(1500)
-        .build
-    protocol.receiveTimeout shouldBe Some(1500L)
-  }
-
 }

@@ -18,6 +18,7 @@ package io.gatling.jms
 import javax.jms.ConnectionFactory
 
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.jms.check.JmsCheckSupport
 import io.gatling.jms.jndi.{ JmsJndiConnectionFactoryBuilder, JmsJndiConnectionFactoryBuilderBase }
@@ -26,7 +27,7 @@ import io.gatling.jms.request._
 
 trait JmsDsl extends JmsCheckSupport {
 
-  val jms = JmsProtocolBuilderBase
+  def jms(implicit configuration: GatlingConfiguration) = JmsProtocolBuilderBase
 
   val jmsJndiConnectionFactory = JmsJndiConnectionFactoryBuilderBase
 

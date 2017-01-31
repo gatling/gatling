@@ -28,44 +28,32 @@ import io.gatling.commons.model.Credentials
  */
 case object JmsProtocolBuilderBase {
 
-  def connectionFactory(cf: ConnectionFactory) = JmsProtocolBuilderListenerCountStep(cf, None)
-}
-
-case class JmsProtocolBuilderListenerCountStep(
-    connectionFactory: ConnectionFactory,
-    credentials:       Option[Credentials]
-) {
-
-  def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
-
-  def listenerCount(count: Int) = {
-    require(count > 0, "JMS response listener count must be at least 1")
-    JmsProtocolBuilder(connectionFactory, credentials, count)
-  }
+  def connectionFactory(cf: ConnectionFactory) = JmsProtocolBuilder(cf)
 }
 
 case class JmsProtocolBuilder(
     connectionFactory: ConnectionFactory,
-    credentials:       Option[Credentials],
-    listenerCount:     Int,
+    creds:             Option[Credentials] = None,
     deliveryMode:      Int                 = DeliveryMode.NON_PERSISTENT,
     messageMatcher:    JmsMessageMatcher   = MessageIDMessageMatcher,
-    receiveTimeout:    Option[Long]        = None
+    replyTimeout:      Option[Long]        = None
 ) {
 
+  def credentials(user: String, password: String) = copy(creds = Some(Credentials(user, password)))
   def usePersistentDeliveryMode = copy(deliveryMode = DeliveryMode.PERSISTENT)
   def useNonPersistentDeliveryMode = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
   def matchByMessageID = messageMatcher(MessageIDMessageMatcher)
   def matchByCorrelationID = messageMatcher(CorrelationIDMessageMatcher)
   def messageMatcher(matcher: JmsMessageMatcher) = copy(messageMatcher = matcher)
-  def receiveTimeout(timeout: Long): JmsProtocolBuilder = copy(receiveTimeout = Some(timeout))
+  @deprecated("noop, replaced with replyTimeout which is per request, will be removed in 3.0", "3.0.0-M5")
+  def receiveTimeout(timeout: Long): JmsProtocolBuilder = this
+  def replyTimeout(timeout: Long): JmsProtocolBuilder = copy(replyTimeout = Some(timeout))
 
   def build = new JmsProtocol(
-    credentials = credentials,
-    listenerCount = listenerCount,
+    credentials = creds,
     deliveryMode = deliveryMode,
     messageMatcher = messageMatcher,
-    receiveTimeout = receiveTimeout,
+    replyTimeout = replyTimeout,
     connectionFactory = connectionFactory
   )
 }

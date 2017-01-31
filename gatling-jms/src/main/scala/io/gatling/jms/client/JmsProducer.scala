@@ -15,57 +15,15 @@
  */
 package io.gatling.jms.client
 
-import io.gatling.jms.request.{ JmsDestination, JmsQueue, JmsTemporaryQueue, JmsTemporaryTopic, JmsTopic }
+import javax.jms.{ Message, MessageProducer, Session => JmsSession }
 
-import com.typesafe.scalalogging.StrictLogging
-import javax.jms._
-
-import scala.util.control.NonFatal
-
-import io.gatling.commons.model.Credentials
-
-abstract class JmsClient(
-    connectionFactory: ConnectionFactory,
-    destination:       JmsDestination,
-    credentials:       Option[Credentials],
-    deliveryMode:      Int
-) extends StrictLogging {
-
-  val conn = credentials match {
-    case Some(creds) => connectionFactory.createConnection(creds.username, creds.password)
-    case _           => connectionFactory.createConnection
-  }
-
-  conn.start()
-
-  val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
-  logger.info(s"Got Connection $conn")
-
-  //  target destination/producer
-  val producer = session.createProducer(createDestination(destination))
-
-  // delivery mode based on input from caller
-  producer.setDeliveryMode(deliveryMode)
-
-  def createDestination(destination: JmsDestination): Destination =
-    destination match {
-      case JmsQueue(name)    => session.createQueue(name)
-      case JmsTopic(name)    => session.createTopic(name)
-      case JmsTemporaryQueue => session.createTemporaryQueue()
-      case JmsTemporaryTopic => session.createTemporaryTopic()
-    }
-
-  /**
-   * Writes a property map to the message properties
-   */
-  private def writePropsToMessage(props: Map[String, Any], message: Message): Unit =
-    props.foreach { case (key, value) => message.setObjectProperty(key, value) }
+class JmsProducer(jmsSession: JmsSession, producer: MessageProducer) {
 
   /**
    * Wrapper to send a BytesMessage, returns the message ID of the sent message
    */
   def sendBytesMessage(bytes: Array[Byte], props: Map[String, Any], jmsType: Option[String], beforeSend: Message => Unit): Unit = {
-    val message = session.createBytesMessage
+    val message = jmsSession.createBytesMessage
     message.writeBytes(bytes)
     writePropsToMessage(props, message)
     jmsType.foreach(message.setJMSType)
@@ -80,7 +38,7 @@ abstract class JmsClient(
    * and byte arrays."
    */
   def sendMapMessage(map: Map[String, Any], props: Map[String, Any], jmsType: Option[String], beforeSend: Message => Unit): Unit = {
-    val message = session.createMapMessage
+    val message = jmsSession.createMapMessage
     map.foreach { case (key, value) => message.setObject(key, value) }
     writePropsToMessage(props, message)
     jmsType.foreach(message.setJMSType)
@@ -91,7 +49,7 @@ abstract class JmsClient(
    * Wrapper to send an ObjectMessage, returns the message ID of the sent message
    */
   def sendObjectMessage(o: java.io.Serializable, props: Map[String, Any], jmsType: Option[String], beforeSend: Message => Unit): Unit = {
-    val message = session.createObjectMessage(o)
+    val message = jmsSession.createObjectMessage(o)
     writePropsToMessage(props, message)
     jmsType.foreach(message.setJMSType)
     sendMessage(message, beforeSend)
@@ -101,27 +59,20 @@ abstract class JmsClient(
    * Wrapper to send a TextMessage, returns the message ID of the sent message
    */
   def sendTextMessage(messageText: String, props: Map[String, Any], jmsType: Option[String], beforeSend: Message => Unit): Unit = {
-    val message = session.createTextMessage(messageText)
+    val message = jmsSession.createTextMessage(messageText)
     writePropsToMessage(props, message)
     jmsType.foreach(message.setJMSType)
     sendMessage(message, beforeSend)
   }
 
   private def sendMessage(message: Message, beforeSend: Message => Unit): Unit = {
-    prepareMessage(message)
     beforeSend(message)
     producer.send(message)
   }
 
-  protected def prepareMessage(message: Message): Unit
-
-  def close(): Unit = {
-    try {
-      producer.close()
-      session.close()
-      conn.stop()
-    } catch {
-      case NonFatal(e) => logger.debug("Exception while closing JmsReplyClient: " + e.getMessage)
-    }
-  }
+  /**
+   * Writes a property map to the message properties
+   */
+  private def writePropsToMessage(props: Map[String, Any], message: Message): Unit =
+    props.foreach { case (key, value) => message.setObjectProperty(key, value) }
 }

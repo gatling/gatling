@@ -21,33 +21,24 @@ import io.gatling.commons.stats.OK
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.action._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
+import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.util.NameGen
-import io.gatling.jms.client.JmsSendClient
+import io.gatling.jms.client.JmsConnectionPool
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
-
-import akka.actor.ActorSystem
 
 /**
  * Core JMS Action to handle Send
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
-class Send(val attributes: JmsAttributes, protocol: JmsProtocol, system: ActorSystem, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
-    extends JmsAction[JmsSendClient] with NameGen {
+class Send(attributes: JmsAttributes, protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
+    extends JmsAction(attributes, protocol, jmsConnectionPool) {
 
   override val name = genName("jmsSend")
 
-  override val client = new JmsSendClient(protocol, attributes.destination)
-
-  system.registerOnTermination {
-    client.close()
-  }
-
-  protected override def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
+  override protected def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
     val now = nowMillis
     if (logger.underlying.isDebugEnabled) {
       logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)

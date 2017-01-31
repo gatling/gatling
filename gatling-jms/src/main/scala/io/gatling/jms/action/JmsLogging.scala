@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms.protocol
+package io.gatling.jms.action
 
-import io.gatling.core.protocol.ProtocolComponents
-import io.gatling.core.session.Session
-import io.gatling.jms.client.JmsConnectionPool
+import javax.jms.Message
 
-case class JmsComponents(jmsProtocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool) extends ProtocolComponents {
+import com.typesafe.scalalogging.StrictLogging
 
-  def onStart: Option[Session => Session] = None
-  def onExit: Option[Session => Unit] = None
+trait JmsLogging extends StrictLogging {
+
+  def logMessage(text: => String, msg: Message): Unit = {
+    logger.debug(text)
+    logger.trace(msg.toString)
+  }
 }

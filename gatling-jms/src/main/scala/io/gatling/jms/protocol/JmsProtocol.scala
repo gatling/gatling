@@ -21,7 +21,7 @@ import io.gatling.commons.model.Credentials
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
-import io.gatling.jms.action.Tracker
+import io.gatling.jms.client.JmsConnectionPool
 
 import akka.actor.ActorSystem
 
@@ -37,8 +37,11 @@ object JmsProtocol {
     def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
     def newComponents(system: ActorSystem, coreComponents: CoreComponents): JmsProtocol => JmsComponents = {
-      val tracker = system.actorOf(Tracker.props(coreComponents.statsEngine, coreComponents.configuration), "jmsTracker")
-      jmsProtocol => JmsComponents(jmsProtocol, tracker)
+      val jmsConnectionPool = new JmsConnectionPool(system, coreComponents.statsEngine, coreComponents.configuration)
+      system.registerOnTermination {
+        jmsConnectionPool.close()
+      }
+      jmsProtocol => JmsComponents(jmsProtocol, jmsConnectionPool)
     }
   }
 }
@@ -46,9 +49,8 @@ object JmsProtocol {
 case class JmsProtocol(
     connectionFactory: ConnectionFactory,
     credentials:       Option[Credentials],
-    listenerCount:     Int,
     deliveryMode:      Int,
-    receiveTimeout:    Option[Long],
+    replyTimeout:      Option[Long],
     messageMatcher:    JmsMessageMatcher
 ) extends Protocol {
 

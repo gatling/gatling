@@ -24,19 +24,17 @@ import io.gatling.jms.request.JmsQueue
 
 class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-
   "gatling-jms" should "send and receive JMS message" in {
 
     val requestQueue = JmsQueue("request")
 
-    customer(requestQueue, {
-      case tm: TextMessage =>
-        s"""<response>
-           |<hello>${tm.getText.toUpperCase}</hello>
-           |<property><key>${tm.getStringProperty("key")}</key></property>
-           |<jmsType>${tm.getJMSType}</jmsType>
-           |</response>""".stripMargin
+    replier(requestQueue, {
+      case (tm: TextMessage, session) =>
+        session.createTextMessage(s"""<response>
+                                     |<hello>${tm.getText.toUpperCase}</hello>
+                                     |<property><key>${tm.getStringProperty("key")}</key></property>
+                                     |<jmsType>${tm.getJMSType}</jmsType>
+                                     |</response>""".stripMargin)
     })
 
     val session = runScenario(

@@ -205,6 +205,9 @@ object GatlingConfiguration extends StrictLogging {
           maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
         )
       ),
+      jms = JmsConfiguration(
+        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod)
+      ),
       data = DataConfiguration(
         dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
         console = ConsoleDataWriterConfiguration(
@@ -242,7 +245,6 @@ object GatlingConfiguration extends StrictLogging {
       // [fl]
       config = config
     )
-
 }
 
 case class CoreConfiguration(
@@ -321,6 +323,10 @@ case class HttpConfiguration(
   ssl:                         SslConfiguration,
   ahc:                         AhcConfiguration,
   dns:                         DnsConfiguration
+)
+
+case class JmsConfiguration(
+  replyTimeoutScanPeriod: Long
 )
 
 case class AhcConfiguration(
@@ -411,6 +417,7 @@ case class GatlingConfiguration(
   core:      CoreConfiguration,
   charting:  ChartingConfiguration,
   http:      HttpConfiguration,
+  jms:       JmsConfiguration,
   data:      DataConfiguration,
   // [fl]
   //

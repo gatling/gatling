@@ -24,10 +24,9 @@ Use the ``jms`` object in order to create a JMS protocol.
 
 * ``connectionFactory``: mandatory, an instance of `ConnectionFactory`. Use `jmsJndiConnectionFactory`_ to obtain one via JNDI lookup or create it by yourself.
 * ``credentials``: optional, to create a JMS connection
-* ``listenerCount``: the number of ReplyConsumers. mandatory (> 0)
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
 * ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
-* ``receiveTimeout``: optional receive timeout for JMS receive method, default is 0 - infinite
+* ``replyTimeout``: optional reply timeout, in milliseconds, default is none
 
 JMS JNDI Connection Factory
 ===========================
@@ -84,7 +83,7 @@ Properties
 One can send additional properties with ``property(Expression[String], Expression[Any])``.
 
 JMS Type
-----------
+--------
 
 Jms type can be specified with ``jmsType(Expression[String])``.
 

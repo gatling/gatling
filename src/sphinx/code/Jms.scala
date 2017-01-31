@@ -35,11 +35,10 @@ class TestJmsDsl extends Simulation {
 
   val jmsConfig = jms
     .connectionFactory(connectionFactory)
-    .listenerCount(1)
     .usePersistentDeliveryMode
 
   val scn = scenario("JMS DSL test").repeat(1) {
-    exec(jms("req reply testing").reqreply
+    exec(jms("req reply testing").requestReply
       .queue("jmstestq")
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
