@@ -34,15 +34,26 @@ class PebbleFileBodies(implicit configuration: GatlingConfiguration) {
   private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] = {
     val resourceToTemplate: Resource => Validation[PebbleTemplate] = resource =>
       Pebble.stringToTemplate(resource.string(configuration.core.charset))
-
     Cache.newConcurrentLoadingCache(configuration.core.pebbleFileBodiesCacheMaxCapacity, resourceToTemplate)
   }
 
   def asTemplate(filePath: Expression[String]): Expression[PebbleTemplate] =
-    session =>
-      for {
-        path <- filePath(session)
-        resource <- resourceCache.get(path)
-        template <- templatesCache.get(resource)
-      } yield template
+    filePath match {
+      case StaticStringExpression(path) =>
+        val template =
+          for {
+            resource <- resourceCache.get(path)
+            template <- templatesCache.get(resource)
+          } yield template
+
+        _ => template
+
+      case _ =>
+        session =>
+          for {
+            path <- filePath(session)
+            resource <- resourceCache.get(path)
+            template <- templatesCache.get(resource)
+          } yield template
+    }
 }

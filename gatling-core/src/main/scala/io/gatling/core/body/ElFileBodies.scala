@@ -29,38 +29,55 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) {
 
   val charset = configuration.core.charset
 
-  private val elFileBodyStringCache: LoadingCache[String, Validation[Expression[String]]] = {
-      def compileFile(path: String): Validation[Expression[String]] =
-        Resource.body(path).map { resource =>
-          withCloseable(resource.inputStream) {
-            _.toString(charset)
-          }
-        }.map(_.el[String])
+  private def compileFile(path: String): Validation[Expression[String]] =
+    Resource.body(path).map { resource =>
+      withCloseable(resource.inputStream) {
+        _.toString(charset)
+      }
+    }.map(_.el[String])
 
+  private val elFileBodyStringCache: LoadingCache[String, Validation[Expression[String]]] =
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
-  }
-  private val elFileBodyBytesCache: LoadingCache[String, Validation[Expression[Seq[Array[Byte]]]]] = {
-      def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
-        Resource.body(path).map { resource =>
-          ElCompiler.compile2BytesSeq(resource.string(charset), charset)
-        }
 
+  private def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
+    Resource.body(path).map { resource =>
+      ElCompiler.compile2BytesSeq(resource.string(charset), charset)
+    }
+
+  private val elFileBodyBytesCache: LoadingCache[String, Validation[Expression[Seq[Array[Byte]]]]] =
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
-  }
 
   def asString(filePath: Expression[String]): Expression[String] =
-    session =>
-      for {
-        path <- filePath(session)
-        expression <- elFileBodyStringCache.get(path)
-        body <- expression(session)
-      } yield body
+    filePath match {
+      case StaticStringExpression(path) =>
+        elFileBodyStringCache.get(path) match {
+          case Success(expression) => expression
+          case Failure(error)      => error.expressionFailure
+        }
+
+      case _ =>
+        session =>
+          for {
+            path <- filePath(session)
+            expression <- elFileBodyStringCache.get(path)
+            body <- expression(session)
+          } yield body
+    }
 
   def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] =
-    session =>
-      for {
-        path <- filePath(session)
-        expression <- elFileBodyBytesCache.get(path)
-        body <- expression(session)
-      } yield body
+    filePath match {
+      case StaticStringExpression(path) =>
+        elFileBodyBytesCache.get(path) match {
+          case Success(expression) => expression
+          case Failure(error)      => error.expressionFailure
+        }
+
+      case _ =>
+        session =>
+          for {
+            path <- filePath(session)
+            expression <- elFileBodyBytesCache.get(path)
+            body <- expression(session)
+          } yield body
+    }
 }

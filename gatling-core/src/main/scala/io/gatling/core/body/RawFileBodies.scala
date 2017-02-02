@@ -17,7 +17,7 @@ package io.gatling.core.body
 
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, StaticStringExpression }
 import io.gatling.core.util.Resource
 import io.gatling.core.util.cache.Cache
 
@@ -43,9 +43,20 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
   }
 
   def asResourceAndCachedBytes(filePath: Expression[String]): Expression[ResourceAndCachedBytes] =
-    session =>
-      for {
-        path <- filePath(session)
-        resource <- resourceCache.get(path)
-      } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
+    filePath match {
+      case StaticStringExpression(path) =>
+        val resourceAndCachedBytes =
+          for {
+            resource <- resourceCache.get(path)
+          } yield ResourceAndCachedBytes(resource, Some(resource.bytes))
+
+        _ => resourceAndCachedBytes
+
+      case _ =>
+        session =>
+          for {
+            path <- filePath(session)
+            resource <- resourceCache.get(path)
+          } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
+  }
 }
