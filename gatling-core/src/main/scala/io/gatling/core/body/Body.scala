@@ -15,23 +15,16 @@
  */
 package io.gatling.core.body
 
-import java.io.{ File, InputStream }
+import java.io.InputStream
 import java.nio.charset.Charset
-import java.util.{ HashMap => JHashMap, Map => JMap }
-
-import scala.collection.JavaConverters._
-import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper._
-import io.gatling.commons.util.{ CompositeByteArrayInputStream, Io }
+import io.gatling.commons.util.CompositeByteArrayInputStream
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el.ElCompiler
-import io.gatling.core.session.pebble.StringBuilderWriter
 
-import com.mitchellbosecke.pebble.PebbleEngine
-import com.mitchellbosecke.pebble.loader.StringLoader
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
 
@@ -67,7 +60,6 @@ object ByteArrayBody {
 }
 
 case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expression[Array[Byte]] {
-
   def apply(session: Session): Validation[Array[Byte]] =
     bytes(session)
 }
@@ -92,67 +84,19 @@ case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], charset: 
 
 case class InputStreamBody(is: Expression[InputStream]) extends Body
 
-object PebbleBody {
-  implicit val Engine = new PebbleEngine.Builder().loader(new StringLoader).build
-
-  def matchMap(map: Map[String, Any]): JMap[String, AnyRef] = {
-    val jMap: JMap[String, AnyRef] = new JHashMap(map.size)
-    for ((k, v) <- map) {
-      v match {
-        case c: Iterable[Any] => jMap.put(k, c.asJava)
-        case any: AnyRef      => jMap.put(k, any) //The AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
-      }
-    }
-    jMap
-  }
-}
-
 object PebbleStringBody {
-  def apply(string: String)(implicit configuration: GatlingConfiguration): PebbleStringBody = {
-    val template = PebbleBody.Engine.getTemplate(string)
-    implicit val charset = configuration.core.charset
-    new PebbleStringBody(template)
-  }
-}
-
-case class PebbleStringBody(template: PebbleTemplate)(implicit charset: Charset) extends Body with Expression[String] with StrictLogging {
-
-  def apply(session: Session): Validation[String] = {
-    val writer: StringBuilderWriter = StringBuilderWriter.getWriter(charset)
-    val javaMap = PebbleBody.matchMap(session.attributes)
-
-    try {
-      template.evaluate(writer, javaMap)
-      writer.toString.success
-    } catch {
-      case NonFatal(e) =>
-        logger.error("Error while parsing Pebble String", e)
-        e.getMessage.failure
-    }
+  def apply(string: String)(implicit configuration: GatlingConfiguration): PebbleBody = {
+    val template = Pebble.stringToTemplate(string)
+    PebbleBody(_ => template)
   }
 }
 
 object PebbleFileBody {
-  def apply(filePath: String)(implicit configuration: GatlingConfiguration): PebbleFileBody = {
-    val template = PebbleBody.Engine.getTemplate(new String(Io.RichFile(new File(filePath)).toByteArray))
-    implicit val charset = configuration.core.charset
-    new PebbleFileBody(template)
-  }
+  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): PebbleBody =
+    PebbleBody(pebbleFileBodies.asTemplate(filePath))
 }
 
-case class PebbleFileBody(template: PebbleTemplate)(implicit charset: Charset) extends Body with Expression[String] with StrictLogging {
-
-  def apply(session: Session): Validation[String] = {
-    val writer: StringBuilderWriter = StringBuilderWriter.getWriter(charset)
-    val javaMap = PebbleBody.matchMap(session.attributes)
-
-    try {
-      template.evaluate(writer, javaMap)
-      writer.toString.success
-    } catch {
-      case NonFatal(e) =>
-        logger.error("Error while parsing Pebble File", e)
-        e.getMessage.failure
-    }
-  }
+case class PebbleBody(template: Expression[PebbleTemplate]) extends Body with Expression[String] with StrictLogging {
+  def apply(session: Session): Validation[String] =
+    template(session).flatMap(Pebble.evaluateTemplate(_, session))
 }

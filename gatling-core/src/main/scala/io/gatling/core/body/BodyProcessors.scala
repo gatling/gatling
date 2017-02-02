@@ -25,10 +25,9 @@ object BodyProcessors {
   def gzip(implicit configuration: GatlingConfiguration): Body => ByteArrayBody =
     (body: Body) => {
       val gzippedBytes = body match {
-        case StringBody(string)                 => string.map(GzipHelper.gzip)
-        case pebbleStringBody: PebbleStringBody => pebbleStringBody.map(GzipHelper.gzip)
-        case pebbleFileBody: PebbleFileBody     => pebbleFileBody.map(GzipHelper.gzip)
-        case ByteArrayBody(byteArray)           => byteArray.map(GzipHelper.gzip)
+        case StringBody(string)       => string.map(GzipHelper.gzip)
+        case pebbleBody: PebbleBody   => pebbleBody.map(GzipHelper.gzip)
+        case ByteArrayBody(byteArray) => byteArray.map(GzipHelper.gzip)
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map {
             case ResourceAndCachedBytes(resource, cachedBytes) =>
@@ -47,10 +46,9 @@ object BodyProcessors {
   def stream(implicit configuration: GatlingConfiguration): Body => InputStreamBody =
     (body: Body) => {
       val stream = body match {
-        case stringBody: StringBody             => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
-        case pebbleStringBody: PebbleStringBody => pebbleStringBody.map(string => new FastByteArrayInputStream(string.getBytes(configuration.core.charset)))
-        case pebbleFileBody: PebbleFileBody     => pebbleFileBody.map(string => new FastByteArrayInputStream(string.getBytes(configuration.core.charset)))
-        case ByteArrayBody(byteArray)           => byteArray.map(new FastByteArrayInputStream(_))
+        case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
+        case pebbleBody: PebbleBody   => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(configuration.core.charset)))
+        case ByteArrayBody(byteArray) => byteArray.map(new FastByteArrayInputStream(_))
         case RawFileBody(resourceAndCachedBytes) => resourceAndCachedBytes.map {
           case ResourceAndCachedBytes(resource, cachedBytes) =>
             cachedBytes match {
