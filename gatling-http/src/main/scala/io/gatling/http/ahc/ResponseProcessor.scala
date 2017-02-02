@@ -43,7 +43,7 @@ import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.HttpConstants.Methods._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
-import org.asynchttpclient.util.StringUtils.stringBuilder
+import org.asynchttpclient.util.StringBuilderPool.DEFAULT.stringBuilder
 
 object ResponseProcessor extends StrictLogging {
 
