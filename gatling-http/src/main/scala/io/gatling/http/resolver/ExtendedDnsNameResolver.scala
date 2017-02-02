@@ -59,7 +59,8 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       true,
       HostsFileEntriesResolver.DEFAULT,
       NettyDnsConstants.DefaultSearchDomain,
-      1 // ndots
+      1, // ndots
+      true // decodeIdn
     ) {
 
   override def doResolve(inetHost: String, additionals: Array[DnsRecord], promise: Promise[InetAddress], resolveCache: DnsCache): Unit =

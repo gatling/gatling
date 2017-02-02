@@ -44,7 +44,7 @@ import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.HttpConstants.Methods._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
-import org.asynchttpclient.util.StringUtils.stringBuilder
+import org.asynchttpclient.util.StringBuilderPool.DEFAULT.stringBuilder
 
 class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
 
