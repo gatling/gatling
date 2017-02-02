@@ -27,11 +27,11 @@ import io.gatling.jms.request._
 import akka.actor.ActorSystem
 
 class JmsConnection(
-  connection:      Connection,
-  val credentials: Option[Credentials],
-  system:          ActorSystem,
-  statsEngine:     StatsEngine,
-  configuration:   GatlingConfiguration
+    connection:      Connection,
+    val credentials: Option[Credentials],
+    system:          ActorSystem,
+    statsEngine:     StatsEngine,
+    configuration:   GatlingConfiguration
 ) {
 
   private val sessionPool = new JmsSessionPool(connection)

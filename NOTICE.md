@@ -124,7 +124,7 @@ This product depends on Jodd, distributed by Igor Spasic:
 This product depends on Boopickle, distributed by Otto Chrons:
 
   * License: license/LICENSE.boopickle.mit.txt (MIT License)
-  * Homepage: https://github.com/ochrons/boopickle
+  * Homepage: https://github.com/suzaku-io/boopickle
 
 This product depends on scala-redis, distributed by Debasish Ghosh:
 
