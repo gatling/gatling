@@ -62,7 +62,7 @@ object Pebble extends StrictLogging {
       writer.toString.success
     } catch {
       case NonFatal(e) =>
-        logger.error("Error while parsing Pebble template", e)
+        logger.info("Error while evaluate Pebble template", e)
         e.getMessage.failure
     }
   }
