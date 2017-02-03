@@ -45,7 +45,7 @@ object Pebble extends StrictLogging {
     jMap
   }
 
-  def stringToTemplate(string: String): Validation[PebbleTemplate] =
+  def parseStringTemplate(string: String): Validation[PebbleTemplate] =
     try {
       Pebble.Engine.getTemplate(string).success
     } catch {

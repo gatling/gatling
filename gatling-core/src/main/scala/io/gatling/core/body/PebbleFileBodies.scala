@@ -33,7 +33,7 @@ class PebbleFileBodies(implicit configuration: GatlingConfiguration) {
 
   private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] = {
     val resourceToTemplate: Resource => Validation[PebbleTemplate] = resource =>
-      Pebble.stringToTemplate(resource.string(configuration.core.charset))
+      Pebble.parseStringTemplate(resource.string(configuration.core.charset))
     Cache.newConcurrentLoadingCache(configuration.core.pebbleFileBodiesCacheMaxCapacity, resourceToTemplate)
   }
 
