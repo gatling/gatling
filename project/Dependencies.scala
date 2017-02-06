@@ -32,7 +32,7 @@ object Dependencies {
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                   % "3.3"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                          % "0.3.13" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"         % "1.1.1"
-  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"               % "1.1.9"
+  private val logback                       = "ch.qos.logback"                         % "logback-classic"               % "1.1.10"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                      % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                  % "2.1.9"
   private val caffeine                      = "com.github.ben-manes.caffeine"          % "caffeine"                      % "2.3.5"
@@ -55,7 +55,7 @@ object Dependencies {
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                   % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
   private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.17.4"
 
-  private val loggingDeps = Seq(slf4jApi, scalalogging, logbackClassic)
+  private val loggingDeps = Seq(slf4jApi, scalalogging, logback)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
   private val parserDeps = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
@@ -85,7 +85,7 @@ object Dependencies {
   val benchmarkDependencies = Seq(jmh)
 
   def compilerDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
+    Seq(scalaReflect(scalaVersion), config, slf4jApi, logback, zinc, scopt)
 
   val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty, akkaActor) ++ testDeps
 
