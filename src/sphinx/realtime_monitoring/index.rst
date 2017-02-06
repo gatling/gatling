@@ -70,24 +70,14 @@ Add the below to the Graphite section of ``/etc/influxdb/influxdb.conf``
 
 ::
 
-  [[graphite]]
-    enabled = true
-    database = "gatlingdb"
-    bind-address = ":2003"
-    protocol = "tcp"
-    consistency-level = "one"
-    separator = "."
-  
-  templates = [
-    "gatling.*.*.*.count measurement.simulation.request.status.field",
-    "gatling.*.*.*.min measurement.simulation.request.status.field",
-    "gatling.*.*.*.max measurement.simulation.request.status.field",
-    "gatling.*.*.*.percentiles50 measurement.simulation.request.status.field",
-    "gatling.*.*.*.percentiles75 measurement.simulation.request.status.field",
-    "gatling.*.*.*.percentiles95 measurement.simulation.request.status.field",
-    "gatling.*.*.*.percentiles99 measurement.simulation.request.status.field"
-  ]
-  
+	[[graphite]]
+		enabled = true
+		database = "gatlingdb"
+		
+		templates = [
+			"gatling.*.*.*.* measurement.simulation.request.status.field",
+			"gatling.*.users.*.* measurement.simulation.measurement.request.field"
+		]
 
 Start
 ~~~~~
@@ -102,26 +92,27 @@ Verification
 From the `gatling-sbt-plugin-demo project <https://github.com/gatling/gatling-sbt-plugin-demo>`_ run the ComputerWorld simulation, and
 
 :: 
-
-$ influx -database 'gatlingdb' -execute 'SELECT * FROM gatling LIMIT 10'
+	
+$ influx -database 'gatlingdb' -execute 'SELECT * FROM gatling where count != 0 LIMIT 10'
 
 You should be presented with something similar to this:
 
 :: 
 
-  name: gatling
-  -------------
-  time                    count   max     min     percentiles50   percentiles75   percentiles95   percentiles99   request                         simulation      status
-  1461834409000000000     3       36      24      36              36              36              36              addNewComputer                  computerworld   all
-  1461834409000000000     3       94      43      54              54              94              94              getComputers                    computerworld   ok
-  1461834409000000000     3       42      23      34              34              42              42              postComputers                   computerworld   ok
-  1461834409000000000     12      94      23      42              43              57              94              allRequests                     computerworld   ok
-  1461834409000000000     3       57      42      43              43              57              57              postComputers_Redirect_1        computerworld   ok
-  1461834409000000000     0       0       0       0               0               0               0               addNewComputer                  computerworld   ko
-  1461834409000000000     3       36      24      36              36              36              36              addNewComputer                  computerworld   ok
-  1461834409000000000     0       0       0       0               0               0               0               postComputers_Redirect_1        computerworld   ko
-  1461834409000000000     3       57      42      43              43              57              57              postComputers_Redirect_1        computerworld   all
-  1461834409000000000     0       0       0       0               0               0               0               getComputers                    computerworld   ko
+	name: gatling
+	time                count max mean min percentiles50 percentiles75 percentiles95 percentiles99 request                  simulation    status stdDev
+	----                ----- --- ---- --- ------------- ------------- ------------- ------------- -------                  ----------    ------ ------
+	1485784307000000000 3     23  21   21  21            21            23            23            addNewComputer           computerworld all    0
+	1485784307000000000 3     26  23   22  22            22            26            26            postComputers_Redirect_1 computerworld ok     1
+	1485784307000000000 12    81  31   21  23            27            43            81            allRequests              computerworld all    16
+	1485784307000000000 3     27  24   22  24            24            27            27            postComputers            computerworld all    2
+	1485784307000000000 3     81  55   43  43            43            81            81            getComputers             computerworld ok     17
+	1485784307000000000 3     23  21   21  21            21            23            23            addNewComputer           computerworld ok     0
+	1485784307000000000 3     81  55   43  43            43            81            81            getComputers             computerworld all    17
+	1485784307000000000 12    81  31   21  23            27            43            81            allRequests              computerworld ok     16
+	1485784307000000000 3     26  23   22  22            22            26            26            postComputers_Redirect_1 computerworld all    1
+	1485784307000000000 3     27  24   22  24            24            27            27            postComputers            computerworld ok     2
+
 
 Graphite
 --------
