@@ -17,7 +17,7 @@ package io.gatling.http.cookie
 
 import io.gatling.BaseSpec
 
-import org.asynchttpclient.cookie.CookieDecoder.decode
+import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 import org.asynchttpclient.uri.Uri
 
 class CookieJarSpec extends BaseSpec {
@@ -88,7 +88,7 @@ class CookieJarSpec extends BaseSpec {
 
     val storedCookies = cookieStore.add(uri, List(decode("ALPHA=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
     storedCookies should have size 1
-    storedCookies.head.getValue shouldBe "VALUE2"
+    storedCookies.head.value shouldBe "VALUE2"
   }
 
   it should "not replace cookies when they don't have the same name" in {
@@ -118,10 +118,10 @@ class CookieJarSpec extends BaseSpec {
 
     val storedCookies1 = cookieStore.get(uri1)
     storedCookies1 should have size 1
-    storedCookies1.head.getValue shouldBe "VALUE1"
+    storedCookies1.head.value shouldBe "VALUE1"
     val storedCookies2 = cookieStore.get(uri2)
     storedCookies2 should have size 1
-    storedCookies2.head.getValue shouldBe "VALUE2"
+    storedCookies2.head.value shouldBe "VALUE2"
   }
 
   it should "handle missing domain as request host" in {
@@ -178,7 +178,7 @@ class CookieJarSpec extends BaseSpec {
 
     val storedCookies = cookieStore.add(uri, List(decode("alpha=VALUE2; Domain=www.foo.com; path=/bar"))).get(uri)
     storedCookies should have size 1
-    storedCookies.head.getValue shouldBe "VALUE2"
+    storedCookies.head.value shouldBe "VALUE2"
   }
 
   it should "handle the cookie path in a case-sensitive manner (RFC 2965 sec. 3.3.3)" in {
@@ -212,7 +212,7 @@ class CookieJarSpec extends BaseSpec {
 
     val cookies = cookieStore.get(Uri.create("https://foo.org/"))
     cookies should have size 1
-    cookies.head.getValue shouldBe "VALUE3"
+    cookies.head.value shouldBe "VALUE3"
   }
 
   it should "should serve cookies based on the host and independently of the port" in {
@@ -225,7 +225,7 @@ class CookieJarSpec extends BaseSpec {
 
     val cookies = cookieStore2.get(Uri.create("http://foo.org/moodle/login"))
     cookies should have size 1
-    cookies.head.getValue shouldBe "VALUE2"
+    cookies.head.value shouldBe "VALUE2"
   }
 
   it should "properly deal with same name cookies" in {
@@ -240,13 +240,13 @@ class CookieJarSpec extends BaseSpec {
 
     val barCookies = cookieStore2.get(Uri.create("http://www.foo.com/foo/bar/"))
     barCookies should have size 2
-    barCookies(0).getValue shouldBe "VALUE1"
-    barCookies(1).getValue shouldBe "VALUE0"
+    barCookies(0).value shouldBe "VALUE1"
+    barCookies(1).value shouldBe "VALUE0"
 
     val bazCookies = cookieStore2.get(Uri.create("http://www.foo.com/foo/baz/"))
     bazCookies should have size 2
-    bazCookies(0).getValue shouldBe "VALUE2"
-    bazCookies(1).getValue shouldBe "VALUE0"
+    bazCookies(0).value shouldBe "VALUE2"
+    bazCookies(1).value shouldBe "VALUE0"
   }
 
   it should "properly deal with trailing slashes in paths" in {
@@ -257,6 +257,6 @@ class CookieJarSpec extends BaseSpec {
 
     val cookies = cookieStore.get(Uri.create("https://vagrant.moolb.com/app/consumer/"))
     cookies should have size 1
-    cookies(0).getValue shouldBe "211D17F016132BCBD31D9ABB31D90960"
+    cookies(0).value shouldBe "211D17F016132BCBD31D9ABB31D90960"
   }
 }

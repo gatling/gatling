@@ -18,7 +18,6 @@ package io.gatling.recorder.http.flows
 import io.gatling.recorder.http.{ ClientHandler, Mitm, TrafficLogger }
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import io.gatling.recorder.http.Mitm._
-import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM._
 
 import io.netty.bootstrap.Bootstrap
@@ -59,7 +58,7 @@ class SecuredNoProxyMitmActor(
     clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger))
 
     // DIFF FROM HTTP
-    if (pendingRequest.getMethod == HttpMethod.CONNECT) {
+    if (pendingRequest.method == HttpMethod.CONNECT) {
       // install SslHandler on serverChannel with startTls = true so CONNECT response doesn't get encrypted
       val serverSslHandler = new SslHandler(sslServerContext.createSSLEngine(remote.host), true)
       serverChannel.pipeline.addFirst(SslHandlerName, serverSslHandler)

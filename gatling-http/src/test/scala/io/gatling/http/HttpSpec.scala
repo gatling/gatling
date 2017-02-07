@@ -100,7 +100,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   def verifyRequestTo(path: String)(implicit server: HttpServer): Unit = verifyRequestTo(path, 1)
 
   def verifyRequestTo(path: String, count: Int, checks: (FullHttpRequest => Unit)*)(implicit server: HttpServer): Unit = {
-    val filteredRequests = server.requests.asScala.filter(_.getUri == path).toList
+    val filteredRequests = server.requests.asScala.filter(_.uri == path).toList
     val actualCount = filteredRequests.size
     if (actualCount != count) {
       throw new AssertionError(s"Expected to access $path $count times, but actually accessed it $actualCount times.")
@@ -126,7 +126,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   // Extractor for nicer interaction with Scala
   class HttpRequest(val request: FullHttpRequest) {
     def isEmpty = request == null
-    def get: (HttpMethod, String) = (request.getMethod, request.getUri)
+    def get: (HttpMethod, String) = (request.method, request.uri)
   }
 
   object HttpRequest {

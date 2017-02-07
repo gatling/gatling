@@ -20,11 +20,11 @@ import java.util.{ Collection => JCollection }
 import scala.collection.breakOut
 import scala.collection.JavaConverters._
 
-import org.asynchttpclient.cookie.Cookie
+import io.netty.handler.codec.http.cookie.Cookie
 
 class Cookies(cookies: JCollection[Cookie]) {
 
-  lazy val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.getName -> cookie.getPath)(breakOut)
+  lazy val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
 
   override def hashCode = cookieNameValuePairs.hashCode
 

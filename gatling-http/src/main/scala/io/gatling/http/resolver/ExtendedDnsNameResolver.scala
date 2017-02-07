@@ -21,7 +21,7 @@ import java.util.{ List => JList }
 import io.gatling.core.config.GatlingConfiguration
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.bootstrap.ChannelFactory
+import io.netty.channel.ChannelFactory
 import io.netty.channel.EventLoop
 import io.netty.channel.socket.DatagramChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
@@ -50,7 +50,7 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       ExtendedDnsNameResolver.NioDatagramChannelFactory,
       DnsServerAddresses.defaultAddresses(),
       NoopDnsCache.INSTANCE,
-      NoopDnsCache.INSTANCE,
+      // FIXME Netty 4.1.9 NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
       NettyDnsConstants.DefaultResolveAddressTypes,
       true, // recursionDesired
@@ -60,10 +60,9 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       true, // optResourceEnabled
       HostsFileEntriesResolver.DEFAULT,
       NettyDnsConstants.DefaultSearchDomain,
-      1, // ndots
-      true // decodeIdn
+      1 // ndots
+    // FIXME Netty 4.1.9 ,true // decodeIdn
     ) {
-
   override def doResolve(inetHost: String, additionals: Array[DnsRecord], promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
     super.doResolve(inetHost, additionals, promise, resolveCache)
 

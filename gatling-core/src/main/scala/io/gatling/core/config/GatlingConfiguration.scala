@@ -178,13 +178,13 @@ object GatlingConfiguration extends StrictLogging {
           readTimeout = config.getInt(http.ahc.ReadTimeout),
           maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeOut = config.getInt(http.ahc.RequestTimeout),
-          acceptAnyCertificate = {
-            val accept = config.getBoolean(http.ahc.AcceptAnyCertificate)
-            if (accept) {
+          disableHttpsAlgorithm = {
+            val disable = config.getBoolean(http.ahc.DisableHttpsAlgorithm)
+            if (disable) {
               System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
               System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
             }
-            accept
+            disable
           },
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
@@ -339,7 +339,7 @@ case class AhcConfiguration(
   readTimeout:                         Int,
   maxRetry:                            Int,
   requestTimeOut:                      Int,
-  acceptAnyCertificate:                Boolean,
+  disableHttpsAlgorithm:               Boolean,
   httpClientCodecMaxChunkSize:         Int,
   sslEnabledProtocols:                 List[String],
   sslEnabledCipherSuites:              List[String],

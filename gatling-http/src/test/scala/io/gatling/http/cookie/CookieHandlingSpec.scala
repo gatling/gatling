@@ -18,7 +18,7 @@ package io.gatling.http.cookie
 import io.gatling.BaseSpec
 import io.gatling.core.session.Session
 
-import org.asynchttpclient.cookie.CookieDecoder.decode
+import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 import org.asynchttpclient.uri.Uri
 
 class CookieHandlingSpec extends BaseSpec {
@@ -30,7 +30,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
     val originalSession = Session("scenarioName", 0, Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
-    CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) shouldBe List("VALUE1")
+    CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE1")
   }
 
   it should "be called with an empty session" in {

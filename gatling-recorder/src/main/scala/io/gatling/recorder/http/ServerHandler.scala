@@ -15,7 +15,6 @@
  */
 package io.gatling.recorder.http
 
-import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmMessage.{ RequestReceived, ServerChannelInactive }
 import io.gatling.recorder.http.flows._
 import io.gatling.recorder.http.ssl.SslServerContext
@@ -43,11 +42,11 @@ class ServerHandler(
     msg match {
       case request: FullHttpRequest =>
         if (mitmActor == null) {
-          https = request.getMethod == HttpMethod.CONNECT
+          https = request.method == HttpMethod.CONNECT
           remote = {
-            val firstRequestUriWithScheme = Remote.missingScheme(request.getUri, https) match {
-              case Some(scheme) => s"$scheme://${request.getUri}"
-              case _            => request.getUri
+            val firstRequestUriWithScheme = Remote.missingScheme(request.uri, https) match {
+              case Some(scheme) => s"$scheme://${request.uri}"
+              case _            => request.uri
             }
             Remote.fromAbsoluteUri(firstRequestUriWithScheme)
           }

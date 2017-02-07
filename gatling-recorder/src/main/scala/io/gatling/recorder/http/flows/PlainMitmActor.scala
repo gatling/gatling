@@ -41,8 +41,8 @@ abstract class PlainMitmActor(
       stop()
 
     case Event(RequestReceived(request), NoData) =>
-      logger.debug(s"serverChannel=${serverChannel.id} received init request ${request.getUri}, connecting")
-      connectClientChannel(Remote.fromAbsoluteUri(request.getUri), request)
+      logger.debug(s"serverChannel=${serverChannel.id} received init request ${request.uri}, connecting")
+      connectClientChannel(Remote.fromAbsoluteUri(request.uri), request)
   }
 
   when(WaitingForClientChannelConnect) {
@@ -91,9 +91,9 @@ abstract class PlainMitmActor(
       stay()
 
     case Event(RequestReceived(request), ConnectedData(remote, clientChannel)) =>
-      logger.debug(s"Server channel ${serverChannel.id} received Request ${request.getUri} while in Connected state")
+      logger.debug(s"Server channel ${serverChannel.id} received Request ${request.uri} while in Connected state")
 
-      val newRemote = Remote.fromAbsoluteUri(request.getUri)
+      val newRemote = Remote.fromAbsoluteUri(request.uri)
 
       if (newRemote == remote) {
         clientChannel.writeAndFlush(propagatedRequest(request))
@@ -112,6 +112,6 @@ abstract class PlainMitmActor(
 
     case Event(RequestReceived(request), _) =>
       logger.debug(s"Server channel ${serverChannel.id} received Request while in Disconnected state, reconnecting")
-      connectClientChannel(Remote.fromAbsoluteUri(request.getUri), request)
+      connectClientChannel(Remote.fromAbsoluteUri(request.uri), request)
   }
 }

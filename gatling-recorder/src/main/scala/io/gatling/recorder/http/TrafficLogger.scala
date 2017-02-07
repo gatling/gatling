@@ -20,11 +20,11 @@ import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.Remote
 import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse, TimedHttpRequest }
 
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.ChannelId
 import io.netty.handler.codec.http.{ FullHttpRequest, FullHttpResponse, HttpMethod }
 import org.asynchttpclient.uri.Uri
 
@@ -44,7 +44,7 @@ class TrafficLogger(controller: RecorderController) extends StrictLogging {
     }
 
   def logRequest(serverChannelId: ChannelId, request: FullHttpRequest, remote: Remote, https: Boolean): Unit =
-    if (request.getMethod != HttpMethod.CONNECT) {
+    if (request.method != HttpMethod.CONNECT) {
       val now = nowMillis
       val safeRequest = SafeHttpRequest.fromNettyRequest(request, remote, https)
       controller.receiveRequest(safeRequest)

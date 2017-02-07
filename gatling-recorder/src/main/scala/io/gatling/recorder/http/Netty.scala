@@ -23,8 +23,6 @@ import org.asynchttpclient.uri.Uri
 
 object Netty {
 
-  type ChannelId = Long
-
   implicit class PimpedChannelFuture(val cf: ChannelFuture) extends AnyVal {
 
     def addScalaListener(f: Try[Channel] => Unit): ChannelFuture =
@@ -43,8 +41,6 @@ object Netty {
 
   implicit class PimpedChannel(val channel: Channel) extends AnyVal {
 
-    def id: ChannelId = channel.hashCode
-
     def reply500AndClose(): Unit =
       channel
         .writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR))
@@ -54,8 +50,8 @@ object Netty {
   implicit class PimpedFullHttpRequest(val request: FullHttpRequest) extends AnyVal {
 
     def makeRelative: FullHttpRequest = {
-      val relativeUrl = Uri.create(request.getUri).toRelativeUrl
-      val relativeRequest = new DefaultFullHttpRequest(request.getProtocolVersion, request.getMethod, relativeUrl, request.content.retain())
+      val relativeUrl = Uri.create(request.uri).toRelativeUrl
+      val relativeRequest = new DefaultFullHttpRequest(request.protocolVersion, request.method, relativeUrl, request.content.retain())
       relativeRequest.headers.add(request.headers)
       relativeRequest
     }

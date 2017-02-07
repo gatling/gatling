@@ -20,15 +20,15 @@ import java.nio.charset.Charset
 import scala.collection.JavaConverters._
 
 import io.netty.handler.codec.http.HttpHeaders
-import org.asynchttpclient.cookie.{ Cookie, CookieDecoder }
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.{ HttpResponseStatus, Request => AHCRequest }
 import org.asynchttpclient.uri.Uri
-
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.HeaderNames
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
+
+import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
 abstract class Response {
 
@@ -84,7 +84,7 @@ case class HttpResponse(
   def header(name: String): Option[String] = Option(headers.get(name))
   def headers(name: String): Seq[String] = headers.getAll(name).asScala
 
-  lazy val cookies = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
+  lazy val cookies = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(cookie => Option(ClientCookieDecoder.LAX.decode(cookie))).toList
 
   def checksum(algorithm: String) = checksums.get(algorithm)
   def hasResponseBody = bodyLength != 0

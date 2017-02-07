@@ -25,7 +25,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport.storeCookie
 
-import org.asynchttpclient.cookie.Cookie
+import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 import org.asynchttpclient.uri.Uri
 
 case class CookieDSL(name: Expression[String], value: Expression[String],
@@ -72,10 +72,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       value <- value(session)
       domain <- resolvedDomain(session)
       path <- resolvedPath(session)
-    } yield {
-      val cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
-      storeCookie(session, domain, path, cookie)
-    }
+    } yield storeCookie(session, domain, path, new DefaultCookie(name, value))
 
     new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, next) with ExitableAction
   }

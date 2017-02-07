@@ -17,7 +17,7 @@ package io.gatling.recorder.http.flows
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
-import io.netty.handler.codec.http.{ DefaultFullHttpRequest, FullHttpRequest, HttpHeaders, HttpVersion }
+import io.netty.handler.codec.http._
 import org.asynchttpclient.util.Base64
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -54,11 +54,11 @@ class PlainWithProxyMitmActor(
   override protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest =
     proxyBasicAuthHeader match {
       case Some(header) =>
-        val requestWithCreds = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, originalRequest.getMethod, originalRequest.getUri, originalRequest.content)
+        val requestWithCreds = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, originalRequest.method, originalRequest.uri, originalRequest.content)
         requestWithCreds
           .headers
           .set(originalRequest.headers)
-          .set(HttpHeaders.Names.PROXY_AUTHORIZATION, header)
+          .set(HttpHeaderNames.PROXY_AUTHORIZATION, header)
 
         requestWithCreds
 

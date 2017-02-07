@@ -27,8 +27,8 @@ object SafeHttpResponse {
 
   def fromNettyResponse(nettyResponse: FullHttpResponse): SafeHttpResponse =
     SafeHttpResponse(
-      nettyResponse.getProtocolVersion,
-      nettyResponse.getStatus,
+      nettyResponse.protocolVersion,
+      nettyResponse.status,
       nettyResponse.headers,
       nettyResponse.trailingHeaders,
       ByteBufUtils.byteBuf2Bytes(nettyResponse.content)

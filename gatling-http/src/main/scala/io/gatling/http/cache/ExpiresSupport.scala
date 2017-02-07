@@ -20,7 +20,7 @@ import io.gatling.commons.util.ClockSingleton.unpreciseNowMillis
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.cookie.DateParser
+import io.netty.handler.codec.DateFormatter
 
 trait ExpiresSupport {
 
@@ -60,7 +60,7 @@ trait ExpiresSupport {
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
 
-    Option(DateParser.parse(trimmedTimeString)).map(_.getTime)
+    Option(DateFormatter.parseHttpDate(trimmedTimeString)).map(_.getTime)
   }
 
   def getResponseExpires(response: Response): Option[Long] = {

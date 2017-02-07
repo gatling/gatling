@@ -98,7 +98,7 @@ object ConfigKeys {
       val ReadTimeout = "gatling.http.ahc.readTimeout"
       val MaxRetry = "gatling.http.ahc.maxRetry"
       val RequestTimeout = "gatling.http.ahc.requestTimeout"
-      val AcceptAnyCertificate = "gatling.http.ahc.acceptAnyCertificate"
+      val DisableHttpsAlgorithm = "gatling.http.ahc.disableHttpsAlgorithm"
       val HttpClientCodecMaxChunkSize = "gatling.http.ahc.httpClientCodecMaxChunkSize"
       val SslEnabledProtocols = "gatling.http.ahc.sslEnabledProtocols"
       val SslEnabledCipherSuites = "gatling.http.ahc.sslEnabledCipherSuites"

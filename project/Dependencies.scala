@@ -11,9 +11,10 @@ object Dependencies {
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.6"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"      % "1.0.5"
   private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0"
-  private val ahc                           = "org.asynchttpclient"                    % "async-http-client"             % "2.0.29"
+  private val ahc                           = "org.asynchttpclient"                    % "async-http-client"             % "2.1.0-alpha5"
   private val ahcNettyUtils                 = "org.asynchttpclient"                    % "async-http-client-netty-utils" % ahc.revision
-  private val netty                         = "io.netty"                               % "netty-codec-http"              % "4.0.44.Final"
+  private val netty                         = "io.netty"                               % "netty-codec-http"              % "4.1.8.Final"
+  private val nettyHandler                  = "io.netty"                               % "netty-handler"                 % netty.revision
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll"  % netty.revision classifier "linux-x86_64"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                    % "2.4.17"
   private val akkaSlf4j                     = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
@@ -72,7 +73,8 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, nettyNativeTransport, scalaXml) ++ testDeps
+  // force nettyHandler version, otherwise sbt pulls the one from netty-reactive-streams
+  val httpDependencies = Seq(ahc, nettyHandler, nettyNativeTransport, scalaXml) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, activemqCore) ++ testDeps
 

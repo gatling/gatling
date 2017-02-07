@@ -15,9 +15,7 @@
  */
 package io.gatling.recorder.http.flows
 
-import io.gatling.recorder.http.Netty._
-
-import io.netty.channel.Channel
+import io.netty.channel.{ Channel, ChannelId }
 import io.netty.handler.codec.http.{ FullHttpRequest, FullHttpResponse }
 
 sealed trait MitmMessage

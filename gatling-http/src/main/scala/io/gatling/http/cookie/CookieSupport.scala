@@ -20,7 +20,7 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.session.Expression
 import io.gatling.http.util.HttpTypeHelper
 
-import org.asynchttpclient.cookie.Cookie
+import io.netty.handler.codec.http.cookie.Cookie
 import org.asynchttpclient.uri.Uri
 
 object CookieSupport {

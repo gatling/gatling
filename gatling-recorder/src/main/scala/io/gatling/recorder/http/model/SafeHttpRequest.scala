@@ -28,9 +28,9 @@ object SafeHttpRequest {
 
   def fromNettyRequest(nettyRequest: FullHttpRequest, remote: Remote, https: Boolean): SafeHttpRequest =
     SafeHttpRequest(
-      nettyRequest.getProtocolVersion,
-      nettyRequest.getMethod,
-      remote.makeAbsoluteUri(nettyRequest.getUri, https),
+      nettyRequest.protocolVersion,
+      nettyRequest.method,
+      remote.makeAbsoluteUri(nettyRequest.uri, https),
       nettyRequest.headers,
       nettyRequest.trailingHeaders,
       ByteBufUtils.byteBuf2Bytes(nettyRequest.content)

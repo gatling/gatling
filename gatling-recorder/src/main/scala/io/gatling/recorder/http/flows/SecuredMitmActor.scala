@@ -36,9 +36,9 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
       stop()
 
     case Event(RequestReceived(request), NoData) =>
-      logger.debug(s"serverChannel=${serverChannel.id} received init request ${request.getUri}, connecting")
+      logger.debug(s"serverChannel=${serverChannel.id} received init request ${request.uri}, connecting")
       // CONNECT requests don't have a scheme
-      connectClientChannel(Remote.fromAbsoluteUri("http://" + request.getUri), request)
+      connectClientChannel(Remote.fromAbsoluteUri("http://" + request.uri), request)
   }
 
   when(WaitingForClientChannelConnect) {
@@ -85,7 +85,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
       stay()
 
     case Event(RequestReceived(request), ConnectedData(_, clientChannel)) =>
-      logger.debug(s"Server channel ${serverChannel.id} received Request ${request.getUri} while in Connected state")
+      logger.debug(s"Server channel ${serverChannel.id} received Request ${request.uri} while in Connected state")
       // DIFF FROM HTTP
       // https, no outgoing proxy => propagate request
       clientChannel.writeAndFlush(request)

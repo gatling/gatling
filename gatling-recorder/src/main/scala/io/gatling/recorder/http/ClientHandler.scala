@@ -15,12 +15,11 @@
  */
 package io.gatling.recorder.http
 
-import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmMessage.{ ClientChannelException, ClientChannelInactive, ResponseReceived }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.channel.{ ChannelHandlerContext, ChannelInboundHandlerAdapter }
+import io.netty.channel.{ ChannelHandlerContext, ChannelId, ChannelInboundHandlerAdapter }
 import io.netty.handler.codec.http.FullHttpResponse
 
 class ClientHandler(mitmActor: ActorRef, serverChannelId: ChannelId, trafficLogger: TrafficLogger) extends ChannelInboundHandlerAdapter with StrictLogging {

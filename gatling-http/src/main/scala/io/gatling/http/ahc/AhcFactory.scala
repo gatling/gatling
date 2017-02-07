@@ -94,7 +94,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setEventLoopGroup(eventLoopGroup)
       .setNettyTimer(timer)
       .setResponseBodyPartFactory(ResponseBodyPartFactory.LAZY)
-      .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
+      .setDisableHttpsAlgorithm(ahcConfig.disableHttpsAlgorithm)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
         case Nil => null
         case ps  => ps.toArray

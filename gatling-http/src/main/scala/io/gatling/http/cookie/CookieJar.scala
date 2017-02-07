@@ -17,7 +17,7 @@ package io.gatling.http.cookie
 
 import io.gatling.commons.util.ClockSingleton._
 
-import org.asynchttpclient.cookie.Cookie
+import io.netty.handler.codec.http.cookie.Cookie
 import org.asynchttpclient.uri.Uri
 
 case class CookieKey(name: String, domain: String, path: String)
@@ -26,6 +26,7 @@ case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, 
 
 object CookieJar {
 
+  // FIXME to be replace with upcoming Netty constant in 4.1.9
   val UnspecifiedMaxAge = Long.MinValue
 
   def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
@@ -61,7 +62,7 @@ object CookieJar {
   }
 
   def hasExpired(c: Cookie): Boolean = {
-    val maxAge = c.getMaxAge
+    val maxAge = c.maxAge
     maxAge != CookieJar.UnspecifiedMaxAge && maxAge <= 0
   }
 
@@ -100,16 +101,16 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     val newStore = cookies.foldLeft(store) {
       (updatedStore, cookie) =>
 
-        val (keyDomain, hostOnly) = cookieDomain(Option(cookie.getDomain), requestDomain)
+        val (keyDomain, hostOnly) = cookieDomain(Option(cookie.domain), requestDomain)
 
-        val keyPath = cookiePath(Option(cookie.getPath), requestPath)
+        val keyPath = cookiePath(Option(cookie.path), requestPath)
 
         if (hasExpired(cookie)) {
-          updatedStore - CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath)
+          updatedStore - CookieKey(cookie.name.toLowerCase, keyDomain, keyPath)
 
         } else {
-          val persistent = cookie.getMaxAge != UnspecifiedMaxAge
-          updatedStore + (CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, unpreciseNowMillis))
+          val persistent = cookie.maxAge != UnspecifiedMaxAge
+          updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, unpreciseNowMillis))
         }
     }
 
