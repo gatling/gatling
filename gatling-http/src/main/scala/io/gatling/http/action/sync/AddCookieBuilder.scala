@@ -24,7 +24,6 @@ import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport.storeCookie
-import io.gatling.http.protocol.HttpProtocol
 
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri
