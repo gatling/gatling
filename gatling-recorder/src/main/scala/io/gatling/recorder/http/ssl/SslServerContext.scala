@@ -15,10 +15,10 @@
  */
 package io.gatling.recorder.http.ssl
 
-import java.io.{ FileInputStream, InputStream, File }
+import java.io.{ File, FileInputStream }
 import java.nio.file.Path
-import java.security.{ Security, KeyStore }
-import javax.net.ssl.{ SSLEngine, X509KeyManager, KeyManagerFactory, SSLContext }
+import java.security.{ KeyStore, Security }
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, SSLEngine, X509KeyManager }
 
 import scala.collection.concurrent.TrieMap
 import scala.util.{ Failure, Try }
@@ -27,11 +27,10 @@ import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 
+import io.netty.handler.ssl.util.SelfSignedCertificate
+import io.netty.handler.ssl.{ JdkSslContext, SslContextBuilder, SslProvider }
+
 private[http] sealed trait SslServerContext {
-
-  def password: Array[Char]
-
-  def keyStore: KeyStore
 
   def context(alias: String): SSLContext
 
@@ -44,7 +43,6 @@ private[http] sealed trait SslServerContext {
 
 private[recorder] object SslServerContext {
 
-  val GatlingSelfSignedKeyStore = "gatling.jks"
   val GatlingKeyStoreType = KeyStoreType.JKS
   val GatlingPassword = "gatling"
   val GatlingCAKeyFile = "gatlingCA.key.pem"
@@ -70,18 +68,30 @@ private[recorder] object SslServerContext {
     }
   }
 
-  abstract class ImmutableFactory extends SslServerContext {
+  object SelfSignedCertificate extends SslServerContext {
 
-    def keyStoreInitStream: InputStream
-    def keyStoreType: KeyStoreType
-
-    lazy val keyStore = {
-      val ks = KeyStore.getInstance(keyStoreType.toString)
-      withCloseable(keyStoreInitStream) { ks.load(_, password) }
-      ks
+    private lazy val context = {
+      val ssc = new SelfSignedCertificate
+      SslContextBuilder
+        .forServer(ssc.certificate, ssc.privateKey)
+        .sslProvider(SslProvider.JDK)
+        .build
+        .asInstanceOf[JdkSslContext]
+        .context
     }
 
-    lazy val context = {
+    override def context(alias: String): SSLContext = context
+  }
+
+  class ProvidedKeystore(ksFile: File, val keyStoreType: KeyStoreType, val password: Array[Char]) extends SslServerContext {
+
+    private lazy val context = {
+      val keyStore = {
+        val ks = KeyStore.getInstance(keyStoreType.toString)
+        withCloseable(new FileInputStream(ksFile)) { ks.load(_, password) }
+        ks
+      }
+
       // Set up key manager factory to use our key store
       val kmf = KeyManagerFactory.getInstance(Algorithm)
       kmf.init(keyStore, password)
@@ -94,19 +104,7 @@ private[recorder] object SslServerContext {
     }
 
     def context(alias: String): SSLContext = context
-  }
 
-  object SelfSignedCertificate extends ImmutableFactory {
-
-    def keyStoreInitStream: InputStream = classpathResourceAsStream(GatlingSelfSignedKeyStore)
-    val keyStoreType = GatlingKeyStoreType
-
-    val password: Array[Char] = GatlingPassword.toCharArray
-  }
-
-  class ProvidedKeystore(ksFile: File, val keyStoreType: KeyStoreType, val password: Array[Char]) extends ImmutableFactory {
-
-    def keyStoreInitStream: InputStream = new FileInputStream(ksFile)
   }
 
   abstract class OnTheFlyFactory extends SslServerContext {
