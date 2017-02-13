@@ -30,8 +30,9 @@ import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
-import io.gatling.recorder.http.ssl.{ SslServerContext, SslCertUtil, HttpsMode, KeyStoreType }
+import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslCertUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
+import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.Commons._
@@ -69,8 +70,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = DirectoriesOnly }
   private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.saveSelection().foreach { dir =>
     generateCAFiles(dir)
-    certificatePathChooser.setPath(s"$dir/${SslServerContext.GatlingCACrtFile}")
-    privateKeyPathChooser.setPath(s"$dir/${SslServerContext.GatlingCAKeyFile}")
+    certificatePathChooser.setPath(s"$dir/${OnTheFly.GatlingCACrtFile}")
+    privateKeyPathChooser.setPath(s"$dir/${OnTheFly.GatlingCAKeyFile}")
   }))
 
   /* Har Panel components */
@@ -458,8 +459,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   def generateCAFiles(directory: String): Unit = {
     SslCertUtil.generateGatlingCAPEMFiles(
       directory,
-      SslServerContext.GatlingCAKeyFile,
-      SslServerContext.GatlingCACrtFile
+      OnTheFly.GatlingCAKeyFile,
+      OnTheFly.GatlingCACrtFile
     )
 
     Dialog.showMessage(

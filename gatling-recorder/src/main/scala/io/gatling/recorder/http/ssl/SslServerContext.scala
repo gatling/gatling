@@ -18,10 +18,10 @@ package io.gatling.recorder.http.ssl
 import java.io.{ File, FileInputStream }
 import java.nio.file.Path
 import java.security.{ KeyStore, Security }
+import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.{ KeyManagerFactory, SSLContext, SSLEngine, X509KeyManager }
 
-import scala.collection.concurrent.TrieMap
-import scala.util.{ Failure, Try }
+import scala.util.Failure
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
@@ -32,7 +32,7 @@ import io.netty.handler.ssl.{ JdkSslContext, SslContextBuilder, SslProvider }
 
 private[http] sealed trait SslServerContext {
 
-  def context(alias: String): SSLContext
+  protected def context(alias: String): SSLContext
 
   def createSSLEngine(alias: String): SSLEngine = {
     val engine = context(alias).createSSLEngine
@@ -43,10 +43,6 @@ private[http] sealed trait SslServerContext {
 
 private[recorder] object SslServerContext {
 
-  val GatlingKeyStoreType = KeyStoreType.JKS
-  val GatlingPassword = "gatling"
-  val GatlingCAKeyFile = "gatlingCA.key.pem"
-  val GatlingCACrtFile = "gatlingCA.cert.pem"
   val Algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
   val Protocol = "TLS"
 
@@ -64,7 +60,7 @@ private[recorder] object SslServerContext {
         new ProvidedKeystore(ksFile, keyStoreType, password)
 
       case HttpsMode.CertificateAuthority =>
-        new CertificateAuthority(certificateAuthority.certificatePath, certificateAuthority.privateKeyPath)
+        OnTheFly(certificateAuthority.certificatePath, certificateAuthority.privateKeyPath)
     }
   }
 
@@ -107,15 +103,28 @@ private[recorder] object SslServerContext {
 
   }
 
-  abstract class OnTheFlyFactory extends SslServerContext {
+  object OnTheFly {
+    val GatlingCAKeyFile = "gatlingCA.key.pem"
+    val GatlingCACrtFile = "gatlingCA.cert.pem"
+  }
 
-    val aliasContexts = TrieMap.empty[String, SSLContext]
+  case class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
 
-    def context(alias: String): SSLContext = synchronized {
-      aliasContexts.getOrElseUpdate(alias, newAliasContext(alias))
+    require(pemCrtFile.isFile, s"$pemCrtFile is not a file")
+    require(pemKeyFile.isFile, s"$pemKeyFile is not a file")
+
+    private val password: Array[Char] = "gatling".toCharArray
+    private val storeType = KeyStoreType.JKS.toString
+    private val aliasContexts = new ConcurrentHashMap[String, SSLContext]
+    private lazy val ca = SslCertUtil.getCA(pemCrtFile.inputStream, pemKeyFile.inputStream)
+    private lazy val keyStore = {
+      val ks = KeyStore.getInstance(storeType)
+      ks.load(null, null)
+      ks
     }
 
-    def ca(): Try[Ca]
+    def context(alias: String): SSLContext =
+      aliasContexts.computeIfAbsent(alias, newAliasContext)
 
     private def newAliasContext(alias: String): SSLContext =
       SslCertUtil.updateKeystoreWithNewAlias(keyStore, password, alias, ca) match {
@@ -130,21 +139,5 @@ private[recorder] object SslServerContext {
           serverContext.init(Array(new KeyManagerDelegate(kmf.getKeyManagers.head.asInstanceOf[X509KeyManager], alias)), null, null)
           serverContext
       }
-
-    val password: Array[Char] = GatlingPassword.toCharArray
-
-    lazy val keyStore = {
-      val ks = KeyStore.getInstance(GatlingKeyStoreType.toString)
-      ks.load(null, null)
-      ks
-    }
-  }
-
-  case class CertificateAuthority(pemCrtFile: Path, pemKeyFile: Path) extends OnTheFlyFactory {
-
-    require(pemCrtFile.isFile, s"$pemCrtFile is not a file")
-    require(pemKeyFile.isFile, s"$pemKeyFile is not a file")
-
-    lazy val ca = SslCertUtil.getCA(pemCrtFile.inputStream, pemKeyFile.inputStream)
   }
 }
