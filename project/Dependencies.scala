@@ -25,7 +25,7 @@ object Dependencies {
   private val scalaLogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.5.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.8.6"
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"        % jackson.revision
-  private val boon                          = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6"
+  private val boon                          = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                      % "0.6.9"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.8.1"
   private val boopickle                     = "io.suzaku"                             %% "boopickle"                     % "1.2.6"
