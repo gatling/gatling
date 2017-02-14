@@ -71,7 +71,7 @@ object StringResponseBody extends StrictLogging {
         }
       } catch {
         case NonFatal(e) =>
-          logger.error(s"Response body is not valid ${charset.name} bytes")
+          logger.error(s"Response body is not valid ${charset.name} bytes", e)
           ""
       }
     new StringResponseBody(string, charset)
@@ -126,7 +126,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
       byteArraysToString(chunks, charset)
     } catch {
       case NonFatal(e) =>
-        logger.error(s"Response body is not valid ${charset.name} bytes")
+        logger.error(s"Response body is not valid ${charset.name} bytes", e)
         ""
     }
 }
