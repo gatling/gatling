@@ -50,6 +50,7 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       ExtendedDnsNameResolver.NioDatagramChannelFactory,
       DnsServerAddresses.defaultAddresses(),
       NoopDnsCache.INSTANCE,
+      NoopDnsCache.INSTANCE,
       configuration.http.dns.queryTimeout,
       NettyDnsConstants.DefaultResolveAddressTypes,
       true, // recursionDesired
