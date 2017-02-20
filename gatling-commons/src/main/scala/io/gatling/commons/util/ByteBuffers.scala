@@ -34,6 +34,22 @@ object ByteBuffers {
     bytes
   }
 
+  def byteBuffers2ByteArray(byteBuffers: Seq[ByteBuffer]): Array[Byte] = {
+    val bytes = new Array[Byte](byteBuffers.sumBy(_.remaining))
+    var pos = 0
+    byteBuffers.foreach { byteBuffer =>
+      val remaining = byteBuffer.remaining
+      if (byteBuffer.hasArray) {
+        System.arraycopy(byteBuffer.array, byteBuffer.arrayOffset, bytes, pos, remaining)
+      } else {
+        byteBuffer.get(bytes, pos, remaining)
+      }
+      pos += remaining
+    }
+
+    bytes
+  }
+
   def sumByteBuffers(buffers: Iterable[ByteBuffer]): ByteBuffer = {
     val comb = ByteBuffer.allocate(buffers.sumBy(_.remaining))
     copyInto(buffers, comb)
