@@ -35,6 +35,8 @@ import io.gatling.compiler.config.ConfigUtils._
 
 object ZincCompiler extends App {
 
+  private val MisleadingWarningMessage = "Pruning sources from previous analysis, due to incompatible CompileSetup."
+
   private val configuration = CompilerConfiguration.configuration(args)
 
   private val logger = LoggerFactory.getLogger(getClass)
@@ -138,7 +140,12 @@ object ZincCompiler extends App {
 
   private val zincLogger = new Logger {
     def error(arg: F0[String]): Unit = logger.error(arg.apply)
-    def warn(arg: F0[String]): Unit = logger.warn(arg.apply)
+    def warn(arg: F0[String]): Unit = {
+      val message = arg.apply
+      if (message != MisleadingWarningMessage) {
+        logger.warn(arg.apply)
+      }
+    }
     def info(arg: F0[String]): Unit = logger.info(arg.apply)
     def debug(arg: F0[String]): Unit = logger.debug(arg.apply)
     def trace(arg: F0[Throwable]): Unit = logger.trace("", arg.apply)
