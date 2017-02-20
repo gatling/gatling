@@ -92,6 +92,7 @@ object Mitm extends StrictLogging {
     val clientBootstrap =
       new Bootstrap().channel(classOf[NioSocketChannel])
         .group(clientEventLoopGroup)
+        .option(ChannelOption.TCP_NODELAY, java.lang.Boolean.TRUE)
         .handler(new ChannelInitializer[Channel] {
           override def initChannel(ch: Channel): Unit = {
             logger.debug("Open new client channel")
@@ -104,7 +105,6 @@ object Mitm extends StrictLogging {
 
     val serverBootstrap = new ServerBootstrap()
       .option(ChannelOption.SO_BACKLOG, Integer.valueOf(1024))
-      .option(ChannelOption.TCP_NODELAY, java.lang.Boolean.TRUE)
       .group(serverBossEventLoopGroup, serverWorkerEventLoopGroup)
       .channel(classOf[NioServerSocketChannel])
       .childHandler(new ChannelInitializer[Channel] {
