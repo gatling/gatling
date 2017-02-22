@@ -296,7 +296,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "enterLoop" should "add an ExitASAPLoopBlock on top of the stack and init a counter when exitASAP = true" in {
-    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = true, timebased = false)
+    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = true, timeBased = false)
 
     session.blockStack.head shouldBe a[ExitAsapLoopBlock]
     session.contains("loop") shouldBe true
@@ -304,7 +304,7 @@ class SessionSpec extends BaseSpec {
   }
 
   it should "add an ExitOnCompleteLoopBlock on top of the stack and init a counter when exitASAP = false" in {
-    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timebased = false)
+    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timeBased = false)
 
     session.blockStack.head shouldBe a[ExitOnCompleteLoopBlock]
     session.contains("loop") shouldBe true
@@ -312,7 +312,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "exitLoop" should "remove the LoopBlock from the top of the stack and its associated counter" in {
-    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timebased = false)
+    val session = newSession.enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timeBased = false)
     val sessionOutOfLoop = session.exitLoop
 
     sessionOutOfLoop.blockStack shouldBe empty

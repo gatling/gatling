@@ -202,7 +202,7 @@ case class Session(
       copy(baseStatus = updatedStatus, blockStack = failStatusUntilFirstTryMaxBlock)
     }
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timebased: Boolean): Session = {
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timeBased: Boolean): Session = {
 
     val newBlock =
       if (exitASAP)
@@ -210,7 +210,7 @@ case class Session(
       else
         ExitOnCompleteLoopBlock(counterName)
 
-    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timebased)
+    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timeBased)
   }
 
   private[gatling] def exitLoop: Session = blockStack match {

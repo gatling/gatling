@@ -80,55 +80,55 @@ class HttpCompileTest extends Simulation {
     // First request outside iteration
     .repeat(2) {
       feed(richTestData)
-        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_.map(_ + "foo")).saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Request").get("/").queryParam("param", "${param}").queryParam("param2", "${param2}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").transform(_.map(_ + "foo")).saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .repeat(2, "counterName") {
       feed(testData.circular)
-        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").findAll.saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Request").get("/").queryParam("param", "${param}").queryParam("param2", "${param2}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").findAll.saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .during(10 seconds) {
       feed(testData)
-        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Request").get("/").queryParam("param", "${param}").queryParam("param2", "${param2}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .forever {
       feed(testData)
-        .exec(http("Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Request").get("/").queryParam("param", "${param}").queryParam("param2", "${param2}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
-    .group("C'est ici qu'on trouve des Poneys") {
-      exec(http("Poney").post("/")
+    .group("Group") {
+      exec(http("Request").post("/")
         .form("${theForm}")
         .formParam("baz", "${qix}")
         .multivaluedFormParam("foo", Seq("bar")))
-        .exec(http("Poney").post("/").multivaluedFormParam("foo", "${bar}"))
-        .exec(http("Poney").get("/").queryParam("omg", "foo"))
-        .exec(http("Poney").get("/").queryParam("omg", "${foo}"))
-        .exec(http("Poney").get("/").queryParam("omg", session => "foo"))
-        .exec(http("Poney").get("/").multivaluedQueryParam("omg", List("foo")))
-        .exec(http("Poney").get("/").multivaluedQueryParam("omg", "${foo}"))
-        .exec(http("Poney").get("/").multivaluedQueryParam("omg", List("foo")))
+        .exec(http("Request").post("/").multivaluedFormParam("foo", "${bar}"))
+        .exec(http("Request").get("/").queryParam("param", "foo"))
+        .exec(http("Request").get("/").queryParam("param", "${foo}"))
+        .exec(http("Request").get("/").queryParam("param", session => "foo"))
+        .exec(http("Request").get("/").multivaluedQueryParam("param", List("foo")))
+        .exec(http("Request").get("/").multivaluedQueryParam("param", "${foo}"))
+        .exec(http("Request").get("/").multivaluedQueryParam("param", List("foo")))
     }
-    .exec(http("Poney").get("/")
+    .exec(http("Request").get("/")
       .resources(
-        http("Poney").post("/").multivaluedFormParam("foo", "${bar}"),
-        http("Poney").get("/").queryParam("omg", "foo"),
-        http("Poney").get("/").queryParam("omg", "${foo}"),
-        http("Poney").get("/").queryParam("omg", session => "foo")
+        http("Request").post("/").multivaluedFormParam("foo", "${bar}"),
+        http("Request").get("/").queryParam("param", "foo"),
+        http("Request").get("/").queryParam("param", "${foo}"),
+        http("Request").get("/").queryParam("param", session => "foo")
       ))
-    .uniformRandomSwitch(exec(http("Poney").get("/")), exec(http("Licorne").get("/")))
+    .uniformRandomSwitch(exec(http("Request").get("/")), exec(http("Request2").get("/")))
     .randomSwitch(
-      40d -> exec(http("Poney").get("/")),
-      50d -> exec(http("Licorne").get("/"))
+      40d -> exec(http("Request").get("/")),
+      50d -> exec(http("Request2").get("/"))
     )
-    .randomSwitch(40d -> exec(http("Poney").get("/")))
+    .randomSwitch(40d -> exec(http("Request").get("/")))
     .pause(pause2)
     // Loop
-    .repeat(iterations, "titi") {
+    .repeat(iterations, "counter") {
       // What will be repeated ?
       // First request to be repeated
-      exec(session => {
-        println("iterate: " + session("titi"))
+      exec { session =>
+        println("iterate: " + session("counter"))
         session
-      })
+      }
         .exec(http("").httpRequest("JSON", "/support/get-plot-data?chartID=66"))
         .exec(
           http("Home Page").get("http://localhost:3000")
@@ -150,7 +150,7 @@ class HttpCompileTest extends Simulation {
               status.in(Seq(200, 304)).saveAs("blablaParam"),
               bodyBytes.is(RawFileBody("foobar.txt")),
               bodyString.is(ElFileBody("foobar.txt")),
-              xpath("//input[@value='aaaa']/@id").not("omg"),
+              xpath("//input[@value='aaaa']/@id").not("param"),
               xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
               md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
               substring("Foo"),
@@ -161,36 +161,36 @@ class HttpCompileTest extends Simulation {
           exec(http("In During 1").get("http://localhost:3000/aaaa"))
             .pause(2, constantPauses)
             .repeat(2, "tutu") {
-              exec(session => {
+              exec { session =>
                 println("--nested loop: " + session("tutu"))
                 session
-              })
+              }
             }
-            .exec(session => {
+            .exec { session =>
               println("-loopDuring: " + session("foo"))
               session
-            })
+            }
             .exec(http("In During 2").get("/"))
             .pause(2)
         }
         .pause(pause2)
-        .during(12000 milliseconds, "hehe") {
+        .during(12000 milliseconds, "duringCounter") {
           exec(http("In During 1").get("/"))
             .pause(2)
-            .exec(session => {
-              println("-iterate1: " + session("titi") + ", doFor: " + session("hehe"))
+            .exec { session =>
+              println("-iterate1: " + session("counter") + ", doFor: " + session("duringCounter"))
               session
-            })
-            .repeat(2, "hoho") {
-              exec(session => {
-                println("--iterate1: " + session("titi") + ", doFor: " + session("hehe") + ", iterate2: " + session("hoho"))
+            }
+            .repeat(2, "count") {
+              exec { session =>
+                println("--iterate1: " + session("counter") + ", doFor: " + session("duringCounter") + ", iterate2: " + session("count"))
                 session
-              })
+              }
             }
             .exec(http("In During 2").get("/"))
             .pause(2)
         }
-        .exec(session => session.set("test2", "bbbb"))
+        .exec { session => session.set("test2", "bbbb") }
         .doIfEqualsOrElse("test2", "aaaa") {
           exec(http("IF=TRUE Request").get("/"))
         } {
@@ -199,7 +199,7 @@ class HttpCompileTest extends Simulation {
         .exec(http("Url from session").get("/aaaa"))
         .pause(1000 milliseconds)
         // Second request to be repeated
-        .exec(http("Create Thing blabla")
+        .exec(http("Create2")
           .post("/things")
           .queryParam("login", "${login}")
           .queryParam("password", "${password}")
@@ -219,7 +219,7 @@ class HttpCompileTest extends Simulation {
           40d -> exec(http("Possibility 1").get("/p1")),
           55d -> exec(http("Possibility 2").get("/p2")) // last 5% bypass
         )
-        .exec(http("Create Thing omgomg")
+        .exec(http("Create")
           .post("/things").queryParam("postTest", "${sessionParam}").body(RawFileBody("create_thing.txt")).asJSON
           .check(status.is(201).saveAs("status")))
         .exec(http("bodyParts")
@@ -265,7 +265,7 @@ class HttpCompileTest extends Simulation {
             override val body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.charset)
           }
       })
-    .exec(session => session.set("tryMax", 3))
+    .exec { session => session.set("tryMax", 3) }
     .tryMax("${tryMax}") {
       exec(http("tryMaxWithExpression")
         .get("/"))
@@ -275,7 +275,7 @@ class HttpCompileTest extends Simulation {
   val inject2 = rampUsers(10).over(10 minutes)
   val inject3 = constantUsersPerSec(10).during(1 minute)
   val inject4 = atOnceUsers(100)
-  val inject5 = rampUsersPerSec(10) to (20) during (10 minutes)
+  val inject5 = rampUsersPerSec(10) to 20 during (10 minutes)
   val inject6 = splitUsers(1000).into(rampUsers(10) over (10 seconds)).separatedBy(10 seconds)
   val inject7 = splitUsers(1000).into(rampUsers(10) over (10 seconds)).separatedBy(atOnceUsers(30))
   val inject8 = heavisideUsers(1000) over (20 seconds)

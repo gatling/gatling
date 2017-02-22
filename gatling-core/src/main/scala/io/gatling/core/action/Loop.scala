@@ -28,10 +28,11 @@ import akka.actor.ActorSystem
  * @param counterName the name of the counter for this loop
  * @param exitASAP if loop condition should be evaluated between chain elements to exit ASAP
  * @param timeBased if loop is based on time and should compute entry timestamp
+ * @param evaluateConditionAfterLoop if the loop condition is evaluated after the loop execution
  * @param statsEngine the StatsEngine
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, statsEngine: StatsEngine, override val name: String, next: Action) extends Action {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, evaluateConditionAfterLoop: Boolean, statsEngine: StatsEngine, override val name: String, next: Action) extends Action {
 
   private[this] var innerLoop: Action = _
 
@@ -43,7 +44,7 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
       else
         session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased)
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, system, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, system, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
@@ -53,12 +54,14 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
 }
 
 class InnerLoop(
-    continueCondition: Expression[Boolean],
-    loopNext:          Action,
-    counterIncrement:  Session => Session,
-    system:            ActorSystem,
-    val name:          String,
-    val next:          Action
+    continueCondition:          Expression[Boolean],
+    loopNext:                   Action,
+    counterIncrement:           Session => Session,
+    counterName:                String,
+    evaluateConditionAfterLoop: Boolean,
+    system:                     ActorSystem,
+    val name:                   String,
+    val next:                   Action
 ) extends ChainableAction {
 
   private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]
@@ -79,7 +82,9 @@ class InnerLoop(
     val incrementedSession = counterIncrement(session)
     val lastUserId = getAndSetLastUserId(session)
 
-    if (LoopBlock.continue(continueCondition, incrementedSession)) {
+    // checking if we don't need to evaluate the condition the first time
+    if ((incrementedSession.attributes(counterName) == 0 && evaluateConditionAfterLoop)
+      || LoopBlock.continue(continueCondition, incrementedSession)) {
 
       if (incrementedSession.userId == lastUserId) {
         // except if we're running only one user, it's very likely we're hitting an empty loop

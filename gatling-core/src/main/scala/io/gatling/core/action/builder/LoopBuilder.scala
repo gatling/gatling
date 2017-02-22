@@ -20,12 +20,13 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
 
-sealed abstract class LoopType(val name: String, val timeBased: Boolean)
-case object RepeatLoopType extends LoopType("repeat", false)
-case object ForeachLoopType extends LoopType("foreach", false)
-case object DuringLoopType extends LoopType("during", true)
-case object ForeverLoopType extends LoopType("forever", false)
-case object AsLongAsLoopType extends LoopType("asLongAs", false)
+sealed abstract class LoopType(val name: String, val timeBased: Boolean, val evaluateConditionAfterLoop: Boolean)
+case object RepeatLoopType extends LoopType("repeat", false, false)
+case object ForeachLoopType extends LoopType("foreach", false, false)
+case object DuringLoopType extends LoopType("during", true, false)
+case object ForeverLoopType extends LoopType("forever", false, false)
+case object AsLongAsLoopType extends LoopType("asLongAs", false, false)
+case object DoWhileType extends LoopType("doWhile", false, true)
 
 /**
  * @constructor create a new Loop
@@ -40,7 +41,7 @@ class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counte
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val safeCondition = condition.safe
-    val loopAction = new Loop(safeCondition, counterName, exitASAP, loopType.timeBased, coreComponents.statsEngine, genName(loopType.name), next)
+    val loopAction = new Loop(safeCondition, counterName, exitASAP, loopType.timeBased, loopType.evaluateConditionAfterLoop, coreComponents.statsEngine, genName(loopType.name), next)
     val loopNextAction = loopNext.build(ctx, loopAction)
     loopAction.initialize(loopNextAction, ctx.system)
     loopAction

@@ -134,6 +134,8 @@ Loop statements
 ``repeat``
 ^^^^^^^^^^
 
+Repeat the loop a specified amount of times.
+
 .. includecode:: code/Scenario.scala#repeat-example
 
 *times* can be an Int, an EL string pointing to an Int Session attribute, or an ``Expression[Int]``.
@@ -150,6 +152,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 ``foreach``
 ^^^^^^^^^^^
 
+Repeat the loop for each element in the specified sequence.
+
 .. includecode:: code/Scenario.scala#foreach
 
 *sequenceName* can be a sequence, an EL string pointing to a ``Seq[Any]`` Session attribute, or an ``Expression[Seq[Any]]``
@@ -162,6 +166,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 ``during``
 ^^^^^^^^^^
+
+Iterate over the loop during the specified amount of time.
 
 .. includecode:: code/Scenario.scala#during
 
@@ -176,6 +182,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 ``asLongAs``
 ^^^^^^^^^^^^
 
+Iterate over the loop as long as the condition is satisfied.
+
 .. includecode:: code/Scenario.scala#asLongAs
 
 *condition* is a session function that returns a boolean.
@@ -184,10 +192,25 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 *exitASAP* is optional and defaults to false. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
 
+.. _scenario-doWhile:
+
+``doWhile``
+^^^^^^^^^^^
+
+Similar to ``asLongAs`` but the condition is evaluated after the loop.
+
+.. includecode:: code/Scenario.scala#doWhile
+
+*condition* is a session function that returns a boolean.
+
+*counterName* is optional.
+
 .. _scenario-forever:
 
 ``forever``
 ^^^^^^^^^^^
+
+Iterate over the loop forever.
 
 .. includecode:: code/Scenario.scala#forever
 

@@ -341,6 +341,22 @@
         </div>
 
         <div class="function">
+          <label class="function-syntax" for="doWhile">doWhile</label>
+          <input type="checkbox" id="doWhile" name="doWhile">
+
+          <div class="function-details">
+            Repeats a part of the scenario
+            <dl>
+              <dt>(condition){chain}</dt>
+              <dd>Similar to <i>asLongAs</i>, the <i>chain</i> is repeated as long as the condition is satisfied but
+                the condition is evaluated after the loop</dd>
+              <dt>(condition, counterName){chain}</dt>
+              <dd>Same as above with forced counter name</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
           <label class="function-syntax" for="foreach">foreach</label>
           <input type="checkbox" id="foreach" name="foreach">
 
