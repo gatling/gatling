@@ -39,12 +39,11 @@ object HttpBodyJsonPathProvider {
   }
 
   private def jsonPathPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] =
-    response => {
+    response =>
       if (response.bodyLength > CharsParsingThreshold || jsonParsers.preferJackson)
         jsonParsers.safeParseJackson(response.body.stream, response.charset)
       else
         jsonParsers.safeParseBoon(response.body.string)
-    }
 }
 
 class HttpBodyJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider[JsonPathCheckType, HttpCheck, Response, Any] {
