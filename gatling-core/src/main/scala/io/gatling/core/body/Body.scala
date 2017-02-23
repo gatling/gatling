@@ -37,7 +37,7 @@ sealed trait Body
 
 case class StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
 
-  def apply(session: Session): Validation[String] = string(session)
+  override def apply(session: Session): Validation[String] = string(session)
 
   def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
 }
@@ -50,12 +50,12 @@ object RawFileBody {
 }
 
 class RawFileBody(val resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {
-  def apply(session: Session): Validation[Array[Byte]] =
+  override def apply(session: Session): Validation[Array[Byte]] =
     resourceAndCachedBytes(session).map(resourceAndCachedBytes => resourceAndCachedBytes.cachedBytes.getOrElse(resourceAndCachedBytes.resource.bytes))
 }
 
 case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expression[Array[Byte]] {
-  def apply(session: Session): Validation[Array[Byte]] =
+  override def apply(session: Session): Validation[Array[Byte]] =
     bytes(session)
 }
 
