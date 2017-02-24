@@ -29,6 +29,8 @@ case class Selection(simulationClass: Class[Simulation], userDefinedSimulationId
 
 object Selection {
 
+  private val MaxReadSimulationNumberAttempts = 10
+
   def apply(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration): Selection =
     new Selector(selectedSimulationClass, configuration).selection
 
@@ -101,22 +103,27 @@ object Selection {
       val validRange = simulationClasses.indices
 
         @tailrec
-        def readSimulationNumber: Int = {
-          println("Choose a simulation number:")
-          for ((simulation, index) <- simulationClasses.zipWithIndex) {
-            println(s"     [$index] ${simulation.getName}")
-          }
+        def readSimulationNumber(attempts: Int = 0): Int = {
+          if (attempts > MaxReadSimulationNumberAttempts) {
+            println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
+            sys.exit()
+          } else {
+            println("Choose a simulation number:")
+            for ((simulation, index) <- simulationClasses.zipWithIndex) {
+              println(s"     [$index] ${simulation.getName}")
+            }
 
-          Try(StdIn.readInt()) match {
-            case Success(number) =>
-              if (validRange contains number) number
-              else {
-                println(s"Invalid selection, must be in $validRange")
-                readSimulationNumber
-              }
-            case _ =>
-              println("Invalid characters, please provide a correct simulation number:")
-              readSimulationNumber
+            Try(StdIn.readInt()) match {
+              case Success(number) =>
+                if (validRange contains number) number
+                else {
+                  println(s"Invalid selection, must be in $validRange")
+                  readSimulationNumber(attempts + 1)
+                }
+              case _ =>
+                println("Invalid characters, please provide a correct simulation number:")
+                readSimulationNumber(attempts + 1)
+            }
           }
         }
 
@@ -124,7 +131,7 @@ object Selection {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")
         sys.exit()
       }
-      simulationClasses(readSimulationNumber)
+      simulationClasses(readSimulationNumber())
     }
 
     private def askSimulationId(clazz: Class[Simulation], defaultSimulationId: String): Option[String] = {
