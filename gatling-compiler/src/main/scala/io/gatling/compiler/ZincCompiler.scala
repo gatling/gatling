@@ -18,7 +18,7 @@ package io.gatling.compiler
 import java.io.{ File => JFile }
 import java.net.{ URL, URLClassLoader }
 import java.nio.file.Files
-import java.util.jar.{ Manifest => JManifest, Attributes }
+import java.util.jar.{ Attributes, Manifest => JManifest }
 
 import scala.collection.JavaConverters._
 import scala.reflect.io.Directory
@@ -121,8 +121,8 @@ object ZincCompiler extends App {
     val scalaCompiler = jarMatching(configuration.classpathElements, """scala-compiler.*\.jar$""")
     val scalaLibrary = jarMatching(configuration.classpathElements, """scala-library.*\.jar$""")
     val scalaReflect = jarMatching(configuration.classpathElements, """scala-reflect.*\.jar$""")
-    val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
-    val compilerInterfaceSrc: JFile = jarMatching(compilerClasspath, """compiler-interface-.*-sources.jar$""")
+    val sbtInterfaceSrc = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
+    val compilerInterfaceSrc = jarMatching(compilerClasspath, """compiler-interface-.*-sources.jar$""")
 
     Setup.setup(
       scalaCompiler = scalaCompiler,

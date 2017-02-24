@@ -1,6 +1,6 @@
 @ECHO OFF
 @REM
-@REM Copyright 2011-2016 GatlingCorp (http://gatling.io)
+@REM Copyright 2011-2017 GatlingCorp (http://gatling.io)
 @REM
 @REM Licensed under the Apache License, Version 2.0 (the "License");
 @REM you may not use this file except in compliance with the License.
@@ -50,9 +50,9 @@ set JAVA_OPTS=-server -XX:+OptimizeStringConcat %JAVA_OPTS%
 :skipServer
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
-set COMMON_CLASSPATH=%GATLING_CONF%;%JAVA_CLASSPATH%
-set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\zinc\*;%COMMON_CLASSPATH%
-set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%COMMON_CLASSPATH%
+set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\zinc\*;%GATLING_CONF%;
+set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%GATLING_CONF%;
+set COMPILATION_CLASSPATH="%GATLING_HOME%"\lib
 
 set JAVA=java
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
@@ -64,8 +64,6 @@ set JAVA="%JAVA_HOME%\bin\java.exe"
 :run
 echo JAVA = "%JAVA%"
 rem Run the compiler
-set COMPILATION_CLASSPATH=""
-for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
 %JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
 rem Run Gatling
 %JAVA% %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
@@ -88,7 +86,3 @@ goto exit
 if not defined NO_PAUSE pause
 endlocal
 exit /b 0
-
-:addToPath
-set COMPILATION_CLASSPATH=%1;%COMPILATION_CLASSPATH%
-goto :EOF

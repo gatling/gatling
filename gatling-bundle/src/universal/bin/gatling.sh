@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright 2011-2016 GatlingCorp (http://gatling.io)
+# Copyright 2011-2017 GatlingCorp (http://gatling.io)
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,14 +40,11 @@ DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Djava.n
 COMPILER_OPTS="-Xss100M $DEFAULT_JAVA_OPTS $JAVA_OPTS"
 
 # Setup classpaths
-COMMON_CLASSPATH="$GATLING_CONF:${JAVA_CLASSPATH}"
-COMPILER_CLASSPATH="$GATLING_HOME/lib/zinc/*:$COMMON_CLASSPATH"
-GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$COMMON_CLASSPATH"
-
-# Build compilation classpath
-COMPILATION_CLASSPATH=`find "$GATLING_HOME/lib" -maxdepth 1 -name "*.jar" -type f -exec printf :{} ';'`
+COMPILER_CLASSPATH="$GATLING_HOME/lib/zinc/*:$GATLING_CONF:"
+GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$GATLING_CONF:"
+COMPILATION_CLASSPATH="$GATLING_HOME/lib"
 
 # Run the compiler
-"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" "$@"  2> /dev/null
+"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" "$@" 2> /dev/null
 # Run Gatling
 "$JAVA" $DEFAULT_JAVA_OPTS $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling "$@"

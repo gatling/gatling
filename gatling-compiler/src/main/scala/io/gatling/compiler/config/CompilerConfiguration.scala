@@ -21,7 +21,7 @@ import java.nio.file._
 import scala.collection.JavaConverters._
 
 import io.gatling.compiler.config.ConfigUtils._
-import io.gatling.compiler.config.cli.{ CommandLineOverrides, ArgsParser }
+import io.gatling.compiler.config.cli.{ ArgsParser, CommandLineOverrides }
 
 import com.typesafe.config.ConfigFactory
 
@@ -63,10 +63,17 @@ private[compiler] object CompilerConfiguration {
 
     val encoding = config.getString(encodingKey)
     val simulationsDirectory = resolvePath(Paths.get(config.getString(simulationsDirectoryKey)))
-    val binariesDirectory = string2option(config.getString(binariesDirectoryKey)).map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")
-    val classpathElements = commandLineOverrides.classpathElements.split(File.pathSeparator).map(new File(_))
+    val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
+        .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
+
+    val classpathElements = commandLineOverrides.classpathElements.split(File.pathSeparator).flatMap { fileName =>
+      new File(fileName) match {
+        case directory if directory.isDirectory => directory.listFiles
+        case file if file.exists => List(file)
+        case _ => Nil
+      }
+    }
 
     CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, classpathElements)
   }
-
 }
