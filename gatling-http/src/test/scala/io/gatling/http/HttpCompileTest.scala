@@ -93,8 +93,8 @@ class HttpCompileTest extends Simulation {
     .exec(
       http("Request").get("h/")
         .check(
-          xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
-          xpath("//input[@id='${aaaa_value}']/@value").notExists,
+          bodyBytes.is(Array.fill(5)(1.toByte)),
+          bodyBytes.is(RawFileBody("foobar.txt")),
           css(".foo"),
           css("#foo", "href"),
           css(".foo").ofType[Node].count.is(1),
@@ -102,19 +102,28 @@ class HttpCompileTest extends Simulation {
           css("#foo").ofType[Node].transform { node: Node => node.getNodeName },
           css(".foo").findRandom.is("some text"),
           css(".foo").findRandom(5).is(Seq("some text")),
+          jsonPath("$..foo").is("bar"),
+          jsonpJsonPath("$..foo").is("bar"),
           regex("""<input id="text1" type="text" value="aaaa" />""").optional.saveAs("var1"),
           regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
           regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
-          status.in(200 to 210).saveAs("blablaParam"),
-          status.in(200, 210).saveAs("blablaParam"),
-          status.in(Seq(200, 304)).saveAs("blablaParam"),
-          bodyBytes.is(RawFileBody("foobar.txt")),
+          xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
+          bodyString.is("foo"),
           bodyString.is(ElFileBody("foobar.txt")),
+          substring("foo").exists,
+          xpath("//input[@id='${aaaa_value}']/@value").notExists,
           xpath("//input[@value='aaaa']/@id").not("param"),
           xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
           md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
-          substring("Foo"),
-          responseTimeInMillis.lessThan(1000)
+          sha1.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
+          header("FOO").is("BAR"),
+          headerRegex("FOO", "code=(.+)&").is("BAR"),
+          status.in(200 to 210).saveAs("blablaParam"),
+          status.in(200, 210).saveAs("blablaParam"),
+          status.in(Seq(200, 304)).saveAs("blablaParam"),
+          responseTimeInMillis.lessThan(1000),
+          currentLocation.is("http://gatling.io"),
+          currentLocationRegex("code=(.+)&")
         )
     )
     .exec(http("Request").get("/tests").check(header(HttpHeaderNames.ContentType).is("text/html; charset=utf-8")))
