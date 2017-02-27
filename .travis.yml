@@ -11,8 +11,8 @@ script:
 
 # If building master, Publish to Sonatype and trigger builds
 after_success:
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-highcharts"
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-maven"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-highcharts-maven-archetype"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-maven-plugin"
   - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-sbt"
 
 sudo: false
