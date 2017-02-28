@@ -76,6 +76,9 @@ class CoreCompileTest extends Simulation {
       50d -> exec(noop)
     )
     .randomSwitch(40d -> exec(noop))
+    .randomSwitchOrElse(
+      50d -> exec(noop)
+    )(exec(noop))
     .pause(pause2)
     // Loop
     .doWhile("${condition}") {
