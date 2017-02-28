@@ -16,6 +16,7 @@
 package io.gatling.recorder.http.flows
 
 import io.gatling.recorder.http.{ ClientHandler, Mitm, TrafficLogger }
+import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import io.gatling.recorder.http.Mitm._
 import io.gatling.recorder.http.flows.MitmActorFSM._
@@ -68,7 +69,7 @@ class SecuredNoProxyMitmActor(
 
     } else {
       // propagate
-      clientChannel.writeAndFlush(pendingRequest)
+      clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
     }
 
     goto(Connected) using ConnectedData(remote, clientChannel)

@@ -20,6 +20,7 @@ import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
+import io.gatling.recorder.util.HttpUtils
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
@@ -82,10 +83,11 @@ private[scenario] object ProtocolTemplate {
           }.flatMap {
             case (headerName, headerValue) =>
               val properHeaderValue =
-                if (headerName == HeaderNames.AcceptEncoding)
-                  headerValue.stripSuffix(", br")
-                else
+                if (headerName.equalsIgnoreCase(HeaderNames.AcceptEncoding)) {
+                  HttpUtils.filterSupportedEncodings(headerValue)
+                } else {
                   headerValue
+                }
 
               BaseHeaders.get(headerName).map(renderHeader(_, properHeaderValue))
           }.mkFastring

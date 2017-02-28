@@ -18,11 +18,11 @@ package io.gatling.recorder.http.flows
 import java.nio.charset.StandardCharsets._
 
 import io.gatling.recorder.http.{ ClientHandler, Mitm, OutgoingProxy, TrafficLogger }
-import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import io.gatling.recorder.http.Mitm._
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM.{ WaitingForProxyConnectResponse, _ }
 import io.gatling.recorder.http.flows.MitmMessage._
+import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.{ Channel, ChannelFutureListener }
@@ -72,7 +72,7 @@ class SecuredWithProxyMitmActor(
     // send connect request
     val connectRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.CONNECT, s"${remote.host}:${remote.port}")
     proxyBasicAuthHeader.foreach(header => connectRequest.headers.set(HttpHeaders.Names.PROXY_AUTHORIZATION, header))
-    clientChannel.writeAndFlush(connectRequest)
+    clientChannel.writeAndFlush(connectRequest.filterSupportedEncodings)
 
     goto(WaitingForProxyConnectResponse) using WaitingForProxyConnectResponseData(remote, pendingRequest, clientChannel)
   }
@@ -114,7 +114,7 @@ class SecuredWithProxyMitmActor(
 
         } else {
           // dealing with client channel reconnect
-          clientChannel.writeAndFlush(pendingRequest)
+          clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
         }
 
         goto(Connected) using ConnectedData(remote, clientChannel)

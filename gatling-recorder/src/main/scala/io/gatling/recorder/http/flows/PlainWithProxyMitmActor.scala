@@ -15,13 +15,15 @@
  */
 package io.gatling.recorder.http.flows
 
+import java.nio.charset.StandardCharsets.UTF_8
+
+import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
+import io.gatling.recorder.http.Netty._
+
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.handler.codec.http._
 import org.asynchttpclient.util.Base64
-import java.nio.charset.StandardCharsets.UTF_8
-
-import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
 
 /**
  * Standard flow:
@@ -52,7 +54,7 @@ class PlainWithProxyMitmActor(
     proxyRemote
 
   override protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest =
-    proxyBasicAuthHeader match {
+    (proxyBasicAuthHeader match {
       case Some(header) =>
         val requestWithCreds = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, originalRequest.method, originalRequest.uri, originalRequest.content)
         requestWithCreds
@@ -63,5 +65,5 @@ class PlainWithProxyMitmActor(
         requestWithCreds
 
       case _ => originalRequest
-    }
+    }).filterSupportedEncodings
 }

@@ -17,6 +17,8 @@ package io.gatling.recorder.http
 
 import scala.util.{ Failure, Success, Try }
 
+import io.gatling.recorder.util.HttpUtils
+
 import io.netty.channel.{ Channel, ChannelFuture, ChannelFutureListener }
 import io.netty.handler.codec.http._
 import org.asynchttpclient.uri.Uri
@@ -54,6 +56,15 @@ object Netty {
       val relativeRequest = new DefaultFullHttpRequest(request.protocolVersion, request.method, relativeUrl, request.content.retain())
       relativeRequest.headers.add(request.headers)
       relativeRequest
+    }
+
+    def filterSupportedEncodings: FullHttpRequest = {
+      Option(request.headers.get(HttpHeaderNames.ACCEPT_ENCODING))
+        .foreach { acceptEncodingValue =>
+          request.headers.set(HttpHeaderNames.ACCEPT_ENCODING, HttpUtils.filterSupportedEncodings(acceptEncodingValue))
+        }
+
+      request
     }
   }
 }

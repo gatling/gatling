@@ -48,5 +48,5 @@ class PlainNoProxyMitmActor(
     requestRemote
 
   override protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest =
-    originalRequest.makeRelative
+    originalRequest.makeRelative.filterSupportedEncodings
 }
