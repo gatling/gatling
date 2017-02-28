@@ -25,29 +25,32 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport.storeCookie
 
-import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
+import io.netty.handler.codec.http.cookie.DefaultCookie
 import org.asynchttpclient.uri.Uri
 
-case class CookieDSL(name: Expression[String], value: Expression[String],
-                     domain: Option[Expression[String]] = None,
-                     path:   Option[Expression[String]] = None,
-                     maxAge: Option[Long]               = None) {
+case class AddCookieDsl(
+    name:   String,
+    value:  Expression[String],
+    domain: Option[String]     = None,
+    path:   Option[String]     = None,
+    maxAge: Option[Long]       = None
+) {
 
-  def withDomain(domain: Expression[String]) = copy(domain = Some(domain))
-  def withPath(path: Expression[String]) = copy(path = Some(path))
+  def withDomain(domain: String) = copy(domain = Some(domain))
+  def withPath(path: String) = copy(path = Some(path))
   def withMaxAge(maxAge: Int) = copy(maxAge = Some(maxAge))
 }
 
 object AddCookieBuilder {
 
   val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
-  val DefaultPath = "/".expressionSuccess
+  val DefaultPath = "/"
 
-  def apply(cookie: CookieDSL) =
+  def apply(cookie: AddCookieDsl) =
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Long) extends HttpActionBuilder with NameGen {
+class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long) extends HttpActionBuilder with NameGen {
 
   import AddCookieBuilder._
 
@@ -64,15 +67,13 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
     import ctx._
 
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val resolvedDomain = domain.getOrElse(defaultDomain(httpComponents.httpCaches))
+    val resolvedDomain = domain.map(_.expressionSuccess).getOrElse(defaultDomain(httpComponents.httpCaches))
     val resolvedPath = path.getOrElse(DefaultPath)
 
     val expression: Expression[Session] = session => for {
-      name <- name(session)
       value <- value(session)
       domain <- resolvedDomain(session)
-      path <- resolvedPath(session)
-    } yield storeCookie(session, domain, path, new DefaultCookie(name, value))
+    } yield storeCookie(session, domain, resolvedPath, new DefaultCookie(name, value))
 
     new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, next) with ExitableAction
   }
