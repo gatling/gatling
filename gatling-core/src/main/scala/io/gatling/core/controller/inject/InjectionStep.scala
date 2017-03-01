@@ -46,9 +46,8 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
 
   protected def thisSecondUsers(thisSecond: Int): Int
 
-  private def moveToNextSecond(): Unit = {
+  private def moveToNextSecond(): Unit =
     while (!finished) {
-
       thisSecond += 1
 
       if (thisSecond == durationInSeconds) {
@@ -71,7 +70,6 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
         }
       }
     }
-  }
 
   override def hasNext(): Boolean =
     if (finished) {
@@ -133,7 +131,6 @@ case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (rate == 0) {
       NothingForInjection(duration).chain(chained)
-
     } else {
       RampInjection(users, duration).chain(chained)
     }
@@ -149,7 +146,6 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (duration == Duration.Zero) {
       chained
-
     } else {
       chained.map(_ + duration)
     }
@@ -165,10 +161,11 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
   require(users >= 0, s"users ($users) must be >= 0")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    if (users == 0)
+    if (users == 0) {
       chained
-    else
+    } else {
       Iterators.infinitely(0 milliseconds).take(users) ++ chained
+    }
 }
 
 /**
@@ -231,15 +228,17 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
       val n = (possibleUsers - stepUsers) / (stepUsers + separatorUsers)
       val lastScheduling = step.chain(chained)
       (1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
-    } else
+    } else {
       chained
+    }
   }
 
-  def users = {
-    if (possibleUsers > stepUsers)
+  def users =
+    if (possibleUsers > stepUsers) {
       possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
-    else 0
-  }
+    } else {
+      0
+    }
 }
 
 /**

@@ -24,21 +24,18 @@ object Shard {
       // because of rounding, we might be one off on last bucket
       total
     } else {
-      // +1 is because we want to non zero value in first bucket
+      // +1 is because we want a non zero value in first bucket
       math.ceil(total.toDouble / buckets * (bucketNumber + 1)).toLong
     }
 
   def shard(total: Long, bucketNumber: Int, buckets: Int): Shard = {
     val offset = sumFromZero(total, buckets, bucketNumber - 1)
     val value = sumFromZero(total, buckets, bucketNumber) - offset
-
     Shard(offset.toInt, value.toInt)
   }
 
   def shards(total: Long, buckets: Int): Iterator[Long] =
-
     new Iterator[Long] {
-
       private[this] var currentIndex = 0
       private[this] var previousSumFromZero = 0L
 
