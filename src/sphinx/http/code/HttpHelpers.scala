@@ -22,6 +22,10 @@ class HttpHelpers {
   exec(addCookie(Cookie("name", "value")))
   //#cookie
 
+  //#getCookie
+  exec(getCookieValue(CookieKey("name")))
+  //#getCookie
+
   //#flushSessionCookies
   exec(flushSessionCookies)
   //#flushSessionCookies

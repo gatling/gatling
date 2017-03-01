@@ -41,6 +41,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSuppor
 
   def http(requestName: Expression[String]) = new Http(requestName)
   def addCookie(cookie: AddCookieDsl) = AddCookieBuilder(cookie)
+  def getCookieValue(cookie: GetCookieDsl) = GetCookieValueBuilder(cookie)
   def flushSessionCookies = CookieSupport.FlushSessionCookies
   def flushCookieJar = CookieSupport.FlushCookieJar
   def flushHttpCache = new FlushCacheBuilder
@@ -61,6 +62,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSuppor
   }
 
   def Cookie = AddCookieDsl
+  def CookieKey = GetCookieDsl
 
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     BodyPart.elFileBodyPart(None, filePath)

@@ -29,6 +29,7 @@ object CookieSupport {
   import HttpTypeHelper._
 
   val CookieJarAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
+  private val NoCookieJarFailure = "No CookieJar in session".failure
 
   def cookieJar(session: Session): Option[CookieJar] = session(CookieJarAttributeName).asOption[CookieJar]
 
@@ -55,6 +56,17 @@ object CookieSupport {
     val cookieJar = getOrCreateCookieJar(session)
     session.set(CookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
   }
+
+  def getCookieValue(session: Session, domain: String, path: String, name: String): Validation[String] =
+    cookieJar(session) match {
+      case Some(cookieJar) =>
+        cookieJar.get(domain, path, isSecuredUri = None).filter(_.name == name) match {
+          case Nil           => s"No Cookie matching parameters domain=$domain, path=$path, name=$name".failure
+          case cookie :: Nil => cookie.value.success
+          case _             => s"Found more than one matching cookie domain=$domain, path=$path, name=$name !!?".failure
+        }
+      case _ => NoCookieJarFailure
+    }
 
   val FlushSessionCookies: Expression[Session] = session =>
     cookieJar(session) match {

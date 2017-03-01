@@ -26,10 +26,34 @@ One might want to manually add or compute a cookie:
 
 Cookie can also take more optional parameters::
 
-  Cookie(name: Expression[String], value: Expression[String])
-    .withDomain(domain: Expression[String])
-    .withPath(path: Expression[String])
+  Cookie(name: String, value: Expression[String])
+    .withDomain(domain: String)
+    .withPath(path: String)
     .withMaxAge(maxAge: Int)
+
+domain is optional, defaulting to base url domain
+path is optional, defaulting to "/"
+maxAge is optional, defaulting to ``Long.MinValue``
+
+.. _http-helpers-cookie-get:
+
+Getting a Cookie Value
+----------------------
+
+Get the cookie value and put it in the session
+
+.. includecode:: code/HttpHelpers.scala#getCookie
+
+CookieKey can also take more optional parameters::
+
+  CookieKey(name: String)
+    .withDomain(domain: String)
+    .withPath(path: String)
+    .saveAs(key: String)
+
+domain is optional, defaulting to base url domain
+path is optional, defaulting to "/"
+saveAs is optional, defaulting to ``name`` param
 
 .. _http-helpers-cookie-flush-session:
 

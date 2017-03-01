@@ -117,18 +117,14 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     CookieJar(newStore)
   }
 
-  def get(requestUri: Uri): List[Cookie] =
+  def get(domain: String, path: String, isSecuredUri: Option[Boolean]): List[Cookie] =
     if (store.isEmpty) {
       Nil
     } else {
-      val thisRequestDomain = requestDomain(requestUri)
-
-      val thisRequestPath = requestPath(requestUri)
-
         def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
-          domainsMatch(key.domain, thisRequestDomain, storedCookie.hostOnly) &&
-            pathsMatch(key.path, thisRequestPath) &&
-            (!storedCookie.cookie.isSecure || requestUri.isSecured)
+          domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
+            pathsMatch(key.path, path) &&
+            !isSecuredUri.exists(secured => !secured && storedCookie.cookie.isSecure)
 
       val matchingCookies = store.filter {
         case (key, storedCookie) => isCookieMatching(key, storedCookie)
@@ -147,4 +143,11 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
       }.map(_._2.cookie)
     }
+
+  def get(requestUri: Uri): List[Cookie] =
+    get(
+      domain = requestDomain(requestUri),
+      path = requestPath(requestUri),
+      isSecuredUri = Some(requestUri.isSecured)
+    )
 }
