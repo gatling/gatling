@@ -110,6 +110,10 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
     testSingle[Int]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null.asInstanceOf[Int]))
   }
 
+  it should "support square braces in filter compared String" in {
+    testSingle("$.error[?(@.errorMessage=='my service message, actualError=Not Found [404]')].errorCode", 0, Json4, Some("87263"))
+  }
+
   "extractMultiple" should "return expected result with anywhere expression" in {
     testMultiple("$..author", Json1, Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
