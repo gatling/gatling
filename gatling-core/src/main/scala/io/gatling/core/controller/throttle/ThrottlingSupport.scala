@@ -15,8 +15,6 @@
  */
 package io.gatling.core.controller.throttle
 
-import io.gatling.core.config.GatlingConfiguration
-
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 
@@ -69,36 +67,13 @@ object Throttling {
         valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
   }
 
-  def apply(steps: Iterable[ThrottleStep], configuration: GatlingConfiguration): Throttling = {
+  def apply(steps: Iterable[ThrottleStep]): Throttling = {
 
-    val resolvedSteps =
-      configuration.resolve(
-        // [fl]
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        // [fl]
-        steps
-      )
-
-    val reversedSteps = resolvedSteps.toList
+    val reversedSteps = steps.toList
     val limit: (Long => Int) = (now: Long) => valueAt(reversedSteps, now, 0)
 
     val duration: FiniteDuration =
-      resolvedSteps.foldLeft(Duration.Zero) { (acc, step) =>
+      steps.foldLeft(Duration.Zero) { (acc, step) =>
         step match {
           case Reach(_, d) => acc + d
           case Hold(d)     => acc + d

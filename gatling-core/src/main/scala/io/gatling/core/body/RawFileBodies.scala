@@ -58,5 +58,5 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
             path <- filePath(session)
             resource <- resourceCache.get(path)
           } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
-  }
+    }
 }

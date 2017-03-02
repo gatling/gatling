@@ -20,9 +20,9 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.throttle.{ Throttlings, ThrottleStep, Throttling }
-import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
-import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols, Protocol }
+import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling, Throttlings }
+import io.gatling.core.pause._
+import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
 
@@ -94,6 +94,60 @@ abstract class Simulation {
     }
   }
 
+  private def resolvePopulationBuilders(populationBuilders: List[PopulationBuilder], configuration: GatlingConfiguration): List[PopulationBuilder] =
+    configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      // [fl]
+      _populationBuilders
+    )
+
+  private def resolveThrottleSteps(steps: Iterable[ThrottleStep], configuration: GatlingConfiguration): Iterable[ThrottleStep] =
+    configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      // [fl]
+      steps
+    )
+
   private[gatling] def params(configuration: GatlingConfiguration): SimulationParams = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
@@ -101,51 +155,25 @@ abstract class Simulation {
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
     _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    val populationBuilders =
-      configuration.resolve(
-        // [fl]
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        // [fl]
-        _populationBuilders
-      )
+    val populationBuilders = resolvePopulationBuilders(_populationBuilders, configuration)
 
     val scenarioThrottlings: Map[String, Throttling] = populationBuilders.flatMap { scn =>
 
-      val steps = scn.scenarioThrottleSteps
+      val steps = resolveThrottleSteps(scn.scenarioThrottleSteps, configuration)
 
-      if (steps.isEmpty)
+      if (steps.isEmpty) {
         None
-      else
-        Some(scn.scenarioBuilder.name -> Throttling(steps, configuration))
+      } else {
+        Some(scn.scenarioBuilder.name -> Throttling(steps))
+      }
     }.toMap
 
     val globalThrottling =
-      if (_globalThrottleSteps.isEmpty)
+      if (_globalThrottleSteps.isEmpty) {
         None
-      else
-        Some(Throttling(_globalThrottleSteps, configuration))
+      } else {
+        Some(Throttling(resolveThrottleSteps(_globalThrottleSteps, configuration)))
+      }
 
     val maxDuration = {
 
