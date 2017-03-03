@@ -65,8 +65,8 @@ class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngin
         } else {
           // drift is too big
           val remainingDrift = drift - durationInMillis
-          logger.debug(s"can't pause (remaining drift=${remainingDrift}ms)")
-          next ! session.setDrift(remainingDrift)
+          logger.debug(s"Can't pause (remaining drift=${remainingDrift}ms)")
+          system.dispatcher.execute(() => next ! session.setDrift(remainingDrift))
         }
       }
 
