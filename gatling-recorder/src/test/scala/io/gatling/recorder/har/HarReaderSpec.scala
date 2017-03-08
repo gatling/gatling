@@ -22,7 +22,7 @@ import io.gatling.BaseSpec
 import io.gatling.commons.util.Io.withCloseable
 import io.gatling.recorder.config.ConfigKeys.http.InferHtmlResources
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
-import io.gatling.recorder.scenario.{ ResponseBodyBytes, PauseElement, RequestElement }
+import io.gatling.recorder.scenario.{ ResponseBodyBytes, PauseElement, RequestElement, RequestBodyParams }
 
 class HarReaderSpec extends BaseSpec {
 
@@ -133,6 +133,18 @@ class HarReaderSpec extends BaseSpec {
       scn.elements.head.asInstanceOf[RequestElement].responseBody.get shouldBe a[ResponseBodyBytes]
       val responseBodyBytes = scn.elements.head.asInstanceOf[RequestElement].responseBody.get.asInstanceOf[ResponseBodyBytes]
       new String(responseBodyBytes.bytes) should include("stats-semi-blind")
+    }
+  }
+
+  it should "decode url-encoded form parameters when encoding type is application/x-www-form-urlencoded" in {
+    withCloseable(resourceAsStream("har/form-encoding.har")) { is =>
+      val scn = HarReader(is)
+      val requests = scn.elements.collect { case req: RequestElement => req }
+      scn.elements.head.asInstanceOf[RequestElement].body should not be empty
+      scn.elements.head.asInstanceOf[RequestElement].body should not be a[RequestBodyParams]
+      scn.elements.head.asInstanceOf[RequestElement].headers("Content-Type") shouldBe "application/x-www-form-urlencoded"
+      val param = scn.elements.head.asInstanceOf[RequestElement].body.get.asInstanceOf[RequestBodyParams].params.toMap.get("param").get
+      param shouldBe "H@llo"
     }
   }
 }
