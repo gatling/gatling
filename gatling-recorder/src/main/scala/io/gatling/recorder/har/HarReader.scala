@@ -48,7 +48,7 @@ private[recorder] object HarReader {
       .filter(e => e.request.method != HttpMethod.CONNECT.name)
       .filter(e => isValidURL(e.request.url))
       // TODO NICO : can't we move this in Scenario as well ?
-      .filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
+      .filter(e => config.filters.filters.forall(_.accept(e.request.url)))
       .map(createRequestWithArrivalTime)
       .toVector
 
@@ -68,7 +68,7 @@ private[recorder] object HarReader {
       if (postData.params.nonEmpty)
         Some(buildContent(postData.params))
       else
-        postData.textAsBytes map RequestBodyBytes
+        postData.textAsBytes.map(RequestBodyBytes)
     }
 
     val responseBody = entry.response.content.textAsBytes map ResponseBodyBytes
