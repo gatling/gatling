@@ -22,7 +22,9 @@ import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
 
 import akka.actor.ActorSystem
+import ch.qos.logback.classic.LoggerContext
 import com.typesafe.scalalogging.StrictLogging
+import org.slf4j.LoggerFactory
 
 /**
  * Object containing entry point of application
@@ -43,21 +45,25 @@ object Gatling extends StrictLogging {
     }
 
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
-    logger.trace("Starting")
-    val configuration = GatlingConfiguration.load(overrides)
-    logger.trace("Configuration loaded")
-    // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-    val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
-    logger.trace("ActorSystem instantiated")
-    val runResult =
-      try {
-        val runner = Runner(system, configuration)
-        logger.trace("Runner instantiated")
-        runner.run(selectedSimulationClass)
-      } finally {
-        val whenTerminated = system.terminate()
-        Await.result(whenTerminated, 2 seconds)
-      }
-    RunResultProcessor(configuration).processRunResult(runResult).code
+    try {
+      logger.trace("Starting")
+      val configuration = GatlingConfiguration.load(overrides)
+      logger.trace("Configuration loaded")
+      // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
+      val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
+      logger.trace("ActorSystem instantiated")
+      val runResult =
+        try {
+          val runner = Runner(system, configuration)
+          logger.trace("Runner instantiated")
+          runner.run(selectedSimulationClass)
+        } finally {
+          val whenTerminated = system.terminate()
+          Await.result(whenTerminated, 2 seconds)
+        }
+      RunResultProcessor(configuration).processRunResult(runResult).code
+    } finally {
+      LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext].stop()
+    }
   }
 }
