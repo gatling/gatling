@@ -16,13 +16,15 @@
 package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
-import java.net.URL
+import java.net.{ URL, URLDecoder }
 
 import scala.collection.breakOut
+import scala.io.Codec.UTF8
 import scala.util.Try
 
 import io.gatling.commons.util.Io._
 import io.gatling.http.HeaderNames._
+import io.gatling.http.HeaderValues._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario._
@@ -58,6 +60,7 @@ private[recorder] object HarReader {
   private def createRequestWithArrivalTime(entry: Entry): TimedScenarioElement[RequestElement] = {
       def buildContent(postParams: Seq[PostParam]): RequestBody =
         RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
+      def decode(s: String): String = URLDecoder.decode(s, UTF8.name)
 
     val uri = entry.request.url
     val method = entry.request.method
@@ -65,10 +68,18 @@ private[recorder] object HarReader {
 
     // NetExport doesn't copy post params to text field
     val requestBody = entry.request.postData.flatMap { postData =>
-      if (postData.params.nonEmpty)
-        Some(buildContent(postData.params))
-      else
+      if (postData.params.nonEmpty) {
+        val requestContentType = requestHeaders.get(ContentType)
+        val isUrlEncoded = requestContentType.exists(_.contains(ApplicationFormUrlEncoded))
+
+        if (isUrlEncoded) {
+          Some(RequestBodyParams(postData.params.map(postParam => (decode(postParam.name), decode(postParam.value))).toList))
+        } else {
+          Some(RequestBodyParams(postData.params.map(postParam => (postParam.name, postParam.value)).toList))
+        }
+      } else {
         postData.textAsBytes.map(RequestBodyBytes)
+      }
     }
 
     val responseBody = entry.response.content.textAsBytes map ResponseBodyBytes
