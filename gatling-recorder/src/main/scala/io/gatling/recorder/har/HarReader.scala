@@ -88,7 +88,10 @@ private[recorder] object HarReader {
     val headers: Map[String, String] = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value))(breakOut)
 
     // NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
-    entry.request.postData.map(postData => headers.updated(ContentType, postData.mimeType)).getOrElse(headers)
+    entry.request.postData match {
+      case Some(postData) if postData.mimeType.nonEmpty => headers.updated(ContentType, postData.mimeType)
+      case _ => headers
+    }
   }
 
   private def isValidURL(url: String): Boolean = Try(new URL(url)).isSuccess
