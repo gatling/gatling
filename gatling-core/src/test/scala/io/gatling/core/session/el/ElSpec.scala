@@ -95,45 +95,6 @@ class ElSpec extends BaseSpec with ValidationValues {
       }"""
   }
 
-  it should "have jsonStringify deal with String value" in {
-    val session = newSession(Map("value" -> "VALUE"))
-    val expression = """"name": ${value.jsonStringify()}""".el[String]
-    expression(session).succeeded shouldBe """"name": "VALUE""""
-  }
-
-  it should "have jsonStringify deal with number value" in {
-    val session = newSession(Map("value" -> 5.0))
-    val expression = """"name": ${value.jsonStringify()}""".el[String]
-    expression(session).succeeded shouldBe """"name": 5.0"""
-  }
-
-  it should "have jsonStringify deal with null value" in {
-    val session = newSession(Map("value" -> null))
-    val expression = """"name": ${value.jsonStringify()}""".el[String]
-    expression(session).succeeded shouldBe """"name": null"""
-  }
-
-  it should "have jsonStringify deal with key access" in {
-
-    val json = Jackson().parse(
-      """{
-        |"bar": {
-        |    "baz": "qix"
-        |  }
-        |}""".stripMargin
-    )
-    val session = newSession(Map("foo" -> json))
-    val expression = "${foo.bar.jsonStringify()}".el[String]
-    expression(session).succeeded shouldBe """{"baz":"qix"}"""
-  }
-
-  it should "have jsonStringify return the original failure when failing" in {
-    val session = newSession(Map("foo" -> "bar"))
-    val failedKeyAccessExpression = "${foo.bar}".el[String]
-    val failedJsonStringifyExpression = "${foo.bar.jsonStringify()}".el[String]
-    failedJsonStringifyExpression(session).failed shouldBe failedKeyAccessExpression(session).failed
-  }
-
   "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
     val session = newSession(Map("foo" -> "FOO", "bar" -> "BAR"))
     val expression = "${foo} ${bar}".el[String]
@@ -546,5 +507,56 @@ class ElSpec extends BaseSpec with ValidationValues {
 
   it should "be handled correctly when there are several nested attributes" in {
     a[ElParserException] should be thrownBy "${${bar}${bar}}".el[String]
+  }
+
+  "jsonStringify" should "support String value" in {
+    val session = newSession(Map("value" -> "VALUE"))
+    val expression = """"name": ${value.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """"name": "VALUE""""
+  }
+
+  it should "support number value" in {
+    val session = newSession(Map("value" -> 5.0))
+    val expression = """"name": ${value.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """"name": 5.0"""
+  }
+
+  it should "support null value" in {
+    val session = newSession(Map("value" -> null))
+    val expression = """"name": ${value.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """"name": null"""
+  }
+
+  it should "support arrays" in {
+    val session = newSession(Map("value" -> Array("a", 1)))
+    val expression = """${value.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """["a",1]"""
+  }
+
+  it should "support maps/objects" in {
+    val session = newSession(Map("value" -> Map("foo" -> "bar", "baz" -> 1)))
+    val expression = """${value.jsonStringify()}""".el[String]
+    expression(session).succeeded shouldBe """{"foo":"bar","baz":1}"""
+  }
+
+  it should "support key access" in {
+
+    val json = Jackson().parse(
+      """{
+        |"bar": {
+        |    "baz": "qix"
+        |  }
+        |}""".stripMargin
+    )
+    val session = newSession(Map("foo" -> json))
+    val expression = "${foo.bar.jsonStringify()}".el[String]
+    expression(session).succeeded shouldBe """{"baz":"qix"}"""
+  }
+
+  it should "return the original failure when failing" in {
+    val session = newSession(Map("foo" -> "bar"))
+    val failedKeyAccessExpression = "${foo.bar}".el[String]
+    val failedJsonStringifyExpression = "${foo.bar.jsonStringify()}".el[String]
+    failedJsonStringifyExpression(session).failed shouldBe failedKeyAccessExpression(session).failed
   }
 }
