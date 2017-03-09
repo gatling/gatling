@@ -15,6 +15,13 @@
  */
 package io.gatling.commons.validation
 
+object Validation {
+  def sequence[T](seq: Seq[Validation[T]]): Validation[Seq[T]] =
+    seq.foldLeft(Seq.empty[T].success) { (acc, validation) =>
+      for (accValue <- acc; value <- validation) yield accValue :+ value
+    }
+}
+
 sealed trait Validation[@specialized(Short, Int, Long, Double, Char, Boolean) +T] {
   def map[A](f: T => A): Validation[A]
   def flatMap[A](f: T => Validation[A]): Validation[A]
