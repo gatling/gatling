@@ -35,6 +35,7 @@ class JmsCompileTest extends Simulation {
     .connectionFactoryName("FFMQConstants.JNDI_CONNECTION_FACTORY_NAME")
     .url("tcp://localhost:10002")
     .credentials("user", "secret")
+    .property("FFMQConstants.JNDI_ENV_CLIENT_ID", "testclient")
     .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
 
   // create JmsProtocol from JNDI based ConnectionFactory
