@@ -19,6 +19,8 @@ import java.util.{ Hashtable => JHashtable }
 import javax.jms.ConnectionFactory
 import javax.naming.{ Context, InitialContext }
 
+import scala.collection.JavaConverters._
+
 import io.gatling.commons.model.Credentials
 
 import com.typesafe.scalalogging.StrictLogging
@@ -37,20 +39,24 @@ case class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String)
 case class JmsJndiConnectionFactoryBuilderFactoryStep(
     connectionFactoryName: String,
     url:                   String,
-    credentials:           Option[Credentials] = None
+    credentials:           Option[Credentials] = None,
+    properties:            Map[String, String] = Map.empty
 ) {
 
   def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
+  def property(key: String, value: String) = copy(properties = properties.updated(key, value))
+
   def contextFactory(cf: String) =
-    JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials)
+    JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
 }
 
 case class JmsJndiConnectionFactoryBuilder(
     contextFactory:        String,
     connectionFactoryName: String,
     url:                   String,
-    credentials:           Option[Credentials]
+    credentials:           Option[Credentials],
+    jndiProperties:        Map[String, String]
 ) extends StrictLogging {
 
   def build() = {
@@ -63,6 +69,7 @@ case class JmsJndiConnectionFactoryBuilder(
       properties.put(Context.SECURITY_PRINCIPAL, credentials.username)
       properties.put(Context.SECURITY_CREDENTIALS, credentials.password)
     }
+    properties.putAll(jndiProperties.asJava)
 
     val ctx = new InitialContext(properties)
     logger.info(s"Got InitialContext $ctx")
