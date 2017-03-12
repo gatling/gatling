@@ -39,6 +39,7 @@ Use `jmsJndiConnectionFactory` object to obtain an instance of JMS `ConnectionFa
 * ``url``: mandatory
 * ``contextFactory``: mandatory
 * ``credentials``: optional, for performing JNDI lookup
+* ``property``: optional, custom JNDI property
 
 JMS Request API
 ===============
