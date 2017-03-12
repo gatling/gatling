@@ -15,6 +15,7 @@
  */
 package io.gatling.commons
 
+import scala.util.{ Try, Success => TSuccess, Failure => TFailure }
 import scala.util.control.NonFatal
 
 import com.typesafe.scalalogging.StrictLogging
@@ -47,6 +48,14 @@ package object validation extends StrictLogging {
     def toValidation(error: => String): Validation[T] = option match {
       case Some(value) => Success(value)
       case _           => Failure(error)
+    }
+  }
+
+  implicit class TryWrapper[T](val t: Try[T]) extends AnyVal {
+    def toValidation: Validation[T] = t match {
+      case TSuccess(value)                     => Success(value)
+      case TFailure(t) if t.getMessage != null => Failure(t.getClass.getName + " - " + t.getMessage)
+      case TFailure(t)                         => Failure(t.getClass.getName)
     }
   }
 }
