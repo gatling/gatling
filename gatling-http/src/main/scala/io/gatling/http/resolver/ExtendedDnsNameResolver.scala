@@ -37,6 +37,8 @@ object ExtendedDnsNameResolver extends StrictLogging {
   val NioDatagramChannelFactory = new ChannelFactory[DatagramChannel] {
     override def newChannel(): DatagramChannel = new NioDatagramChannel
   }
+
+  val DefaultDnsServerAddressStreamProvider = UnixResolverDnsServerAddressStreamProvider.parseSilently()
 }
 
 /**
@@ -46,22 +48,23 @@ object ExtendedDnsNameResolver extends StrictLogging {
  */
 class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfiguration)
     extends DnsNameResolver(
-      eventLoop,
-      ExtendedDnsNameResolver.NioDatagramChannelFactory,
-      DnsServerAddresses.defaultAddresses(),
-      NoopDnsCache.INSTANCE,
-      // FIXME Netty 4.1.9 NoopDnsCache.INSTANCE,
-      configuration.http.dns.queryTimeout,
-      NettyDnsConstants.DefaultResolveAddressTypes,
+      eventLoop, // eventLoop
+      ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
+      DnsServerAddresses.defaultAddresses(), // nameServerAddresses
+      NoopDnsCache.INSTANCE, // resolveCache
+      NoopDnsCache.INSTANCE, // authoritativeDnsServerCache
+      configuration.http.dns.queryTimeout, // queryTimeoutMillis
+      NettyDnsConstants.DefaultResolveAddressTypes, // resolvedAddressTypes
       true, // recursionDesired
-      configuration.http.dns.maxQueriesPerResolve,
-      ExtendedDnsNameResolver.DebugEnabled,
-      4096,
+      configuration.http.dns.maxQueriesPerResolve, // maxQueriesPerResolve
+      ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
+      4096, // maxPayloadSize
       true, // optResourceEnabled
-      HostsFileEntriesResolver.DEFAULT,
-      NettyDnsConstants.DefaultSearchDomain,
-      1 // ndots
-    // FIXME Netty 4.1.9 ,true // decodeIdn
+      HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
+      ExtendedDnsNameResolver.DefaultDnsServerAddressStreamProvider, // dnsServerAddressStreamProvider
+      NettyDnsConstants.DefaultSearchDomain, // searchDomains
+      1, // ndots
+      true // decodeIdn
     ) {
   override def doResolve(inetHost: String, additionals: Array[DnsRecord], promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
     super.doResolve(inetHost, additionals, promise, resolveCache)

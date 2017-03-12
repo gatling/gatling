@@ -19,5 +19,5 @@ object NettyDnsConstants {
 
   val DefaultResolveAddressTypes = DnsNameResolver.DEFAULT_RESOLVE_ADDRESS_TYPES
 
-  val DefaultSearchDomain = DnsNameResolver.DEFAULT_SEACH_DOMAINS
+  val DefaultSearchDomain = DnsNameResolver.DEFAULT_SEARCH_DOMAINS
 }
