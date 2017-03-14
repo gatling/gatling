@@ -118,8 +118,9 @@ class WsActor(
   private def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
     val timings = ResponseTimings(start, end)
     val newSession = session.logGroupRequest(timings.responseTime, status)
-    statsEngine.logResponse(newSession, actionName, timings, status, code, reason, Nil)
-    newSession
+    val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
+    statsEngine.logResponse(newSessionWithMark, actionName, timings, status, code, reason, Nil)
+    newSessionWithMark
   }
 
   private def logUnmatchedServerMessage(session: Session): Unit =
