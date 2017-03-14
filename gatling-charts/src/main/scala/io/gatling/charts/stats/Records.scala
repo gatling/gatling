@@ -55,9 +55,13 @@ private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
     val status = Status.apply(strings(7))
     val errorMessage = if (status == KO) Some(strings(8)) else None
 
-    val responseTime = (end - start).toInt
-
-    RequestRecord(group, request, status, start, bucketFunction(start), bucketFunction(end), responseTime, errorMessage)
+    if (end != Long.MinValue) {
+      // regular request
+      RequestRecord(group, request, status, start, bucketFunction(start), bucketFunction(end), (end - start).toInt, errorMessage, incoming = false)
+    } else {
+      // unmatched incoming event
+      RequestRecord(group, request, status, start, bucketFunction(start), bucketFunction(start), 0, errorMessage, incoming = true)
+    }
   }
 }
 
@@ -97,7 +101,7 @@ private[stats] object ErrorRecordParser {
   }
 }
 
-private[stats] case class RequestRecord(group: Option[Group], name: String, status: Status, start: Long, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String])
+private[stats] case class RequestRecord(group: Option[Group], name: String, status: Status, start: Long, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String], incoming: Boolean)
 private[stats] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
 private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
 private[stats] case class ErrorRecord(message: String, timestamp: Long)

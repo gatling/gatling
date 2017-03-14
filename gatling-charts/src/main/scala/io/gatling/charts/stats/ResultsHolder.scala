@@ -43,15 +43,16 @@ private[stats] class ResultsHolder(val minTimestamp: Long, val maxTimestamp: Lon
     updateGroupResponseTimeRangeBuffer(record)
   }
 
-  def addRequestRecord(record: RequestRecord): Unit = {
-    updateRequestsPerSecBuffers(record)
-    updateResponsesPerSecBuffers(record)
-    addRequestName(record)
-    updateRequestGeneralStatsBuffers(record)
-    updateResponseTimeRangeBuffer(record)
-    updateErrorBuffers(record)
-    updateRequestPercentilesBuffers(record)
-  }
+  def addRequestRecord(record: RequestRecord): Unit =
+    if (!record.incoming) {
+      updateRequestsPerSecBuffers(record)
+      updateResponsesPerSecBuffers(record)
+      addRequestName(record)
+      updateErrorBuffers(record)
+      updateRequestGeneralStatsBuffers(record)
+      updateResponseTimeRangeBuffer(record)
+      updateRequestPercentilesBuffers(record)
+    }
 
   def addErrorRecord(record: ErrorRecord): Unit = {
     updateGlobalError(record.message)
