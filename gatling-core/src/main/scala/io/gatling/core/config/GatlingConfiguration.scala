@@ -155,6 +155,7 @@ object GatlingConfiguration extends StrictLogging {
         perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
         warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
         enableGA = config.getBoolean(http.EnableGA),
+        prefixHttpNamesWithMethod = config.getBoolean(http.PrefixHttpNamesWithMethod),
         ssl = {
             def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -319,14 +320,15 @@ case class IndicatorsConfiguration(
 )
 
 case class HttpConfiguration(
-  fetchedCssCacheMaxCapacity:  Long,
-  fetchedHtmlCacheMaxCapacity: Long,
-  perUserCacheMaxCapacity:     Int,
-  warmUpUrl:                   Option[String],
-  enableGA:                    Boolean,
-  ssl:                         SslConfiguration,
-  ahc:                         AhcConfiguration,
-  dns:                         DnsConfiguration
+                              fetchedCssCacheMaxCapacity:  Long,
+                              fetchedHtmlCacheMaxCapacity: Long,
+                              perUserCacheMaxCapacity:     Int,
+                              warmUpUrl:                   Option[String],
+                              enableGA:                    Boolean,
+                              prefixHttpNamesWithMethod:   Boolean,
+                              ssl:                         SslConfiguration,
+                              ahc:                         AhcConfiguration,
+                              dns:                         DnsConfiguration
 )
 
 case class JmsConfiguration(

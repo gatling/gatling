@@ -44,8 +44,15 @@ case class HttpRequestDef(
     config:      HttpRequestConfig
 ) {
 
-  def build(requestName: String, session: Session): Validation[HttpRequest] =
-    ahcRequest(session).map(HttpRequest(requestName, _, config))
+  def build(requestName: String, session: Session): Validation[HttpRequest] = {
+    val prefixingEnabled = config.coreComponents.configuration.http.prefixHttpNamesWithMethod
+
+    ahcRequest(session).map(request => {
+      val reqName = if (prefixingEnabled) s"[${request.getMethod.toUpperCase()}] $requestName" else requestName
+      HttpRequest(reqName, request, config)
+    })
+  }
+
 }
 
 case class HttpRequest(requestName: String, ahcRequest: Request, config: HttpRequestConfig)

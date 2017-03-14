@@ -30,12 +30,15 @@ import org.asynchttpclient.{ Request, RequestBuilderBase, SignatureCalculator }
 import org.asynchttpclient.uri.Uri
 import org.mockito.Mockito.when
 
+import scala.collection.mutable
+
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
   val configuration = GatlingConfiguration.loadForTest()
   val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
+
   val httpCaches = new HttpCaches(configuration)
   val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches, mock[ResponseProcessor])
 
@@ -90,5 +93,32 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)
       .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+  }
+
+  "build" should "not prefix requestName with HTTP method type when prefixing is not enabled" in {
+    val requestName = "my request name"
+    val commonAttributes = CommonAttributes(requestName.expressionSuccess, "get", Right(Uri.create("http://gatling.io")))
+    val httpRequestBuilder = new HttpRequestBuilder(commonAttributes, HttpAttributes())
+
+    httpRequestBuilder.build(coreComponents, httpComponents, throttled = false)
+      .build(requestName, Session("scenarioName", 0))
+      .map(_.requestName).succeeded shouldBe "my request name"
+  }
+
+  it should "prefix requestName with HTTP method type when prefixing is enabled" in {
+    val configuration = GatlingConfiguration.loadForTest(mutable.Map("gatling.http.prefixHttpNamesWithMethod" -> true))
+    val coreComponents = mock[CoreComponents]
+    when(coreComponents.configuration).thenReturn(configuration)
+
+    val httpCaches = new HttpCaches(configuration)
+    val httpComponents = HttpComponents(HttpProtocol(configuration), mock[HttpEngine], httpCaches, mock[ResponseProcessor])
+
+    val requestName = "my request name"
+    val commonAttributes = CommonAttributes(requestName.expressionSuccess, "get", Right(Uri.create("http://gatling.io")))
+    val httpRequestBuilder = new HttpRequestBuilder(commonAttributes, HttpAttributes())
+
+    httpRequestBuilder.build(coreComponents, httpComponents, throttled = false)
+      .build(requestName, Session("scenarioName", 0))
+      .map(_.requestName).succeeded shouldBe "[GET] my request name"
   }
 }
