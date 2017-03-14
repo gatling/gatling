@@ -78,11 +78,12 @@ object ConsoleSummary {
           requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
 
       def writeErrors: Fastring =
-        if (errorsCounters.nonEmpty)
+        if (errorsCounters.nonEmpty) {
+          val errorsTotal = errorsCounters.values.sum
           fast"""${writeSubTitle("Errors")}
-${errorsCounters.toVector.sortBy(-_._2).map { case (message, count) => ConsoleErrorsWriter.writeError(ErrorStats(message, count, globalRequestCounters.failedCount)) }.mkFastring(Eol)}
+${errorsCounters.toVector.sortBy(-_._2).map { case (message, count) => ConsoleErrorsWriter.writeError(ErrorStats(message, count, errorsTotal)) }.mkFastring(Eol)}
 """
-        else
+        } else
           EmptyFastring
 
     val text = fast"""
