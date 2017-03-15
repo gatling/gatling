@@ -22,7 +22,7 @@ import org.asynchttpclient.uri.Uri
 /**
  * @param requestName the name of the request
  */
-class Http(requestName: Expression[String]) {
+case class Http(requestName: Expression[String]) {
 
   def get(url: Expression[String]) = httpRequest("GET", url)
   def get(uri: Uri) = httpRequest("GET", Right(uri))
