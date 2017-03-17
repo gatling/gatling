@@ -42,9 +42,9 @@ class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioni
       if (proxyServer == null) {
         targetHostKey
       } else if (uri.isSecured) {
-        new ProxyServerKey(proxyServer.getHost, proxyServer.getSecuredPort, true, targetHostKey)
+        ProxyServerKey(proxyServer.getHost, proxyServer.getSecuredPort, secure = true, targetHostKey)
       } else {
-        new ProxyServerKey(proxyServer.getHost, proxyServer.getPort, false, targetHostKey)
+        ProxyServerKey(proxyServer.getHost, proxyServer.getPort, secure = false, targetHostKey)
       }
 
     ChannelPoolKey(session.userId, remoteKey)

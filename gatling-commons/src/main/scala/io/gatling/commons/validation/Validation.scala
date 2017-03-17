@@ -21,7 +21,7 @@ object Validation {
       for (accValue <- acc; value <- validation) yield accValue :+ value
     }
 
-  val unit: Validation[Unit] = (()).success
+  val unit: Validation[Unit] = ().success
 }
 
 sealed trait Validation[@specialized(Short, Int, Long, Double, Char, Boolean) +T] {
