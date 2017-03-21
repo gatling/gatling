@@ -30,6 +30,18 @@ trait FeederSupport {
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
   implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
+  def csvBatched(fileName: String, batchSize: Long, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): BatchedFeederBuilder[String] = {
+    val validation = Resource.feeder(fileName)
+    validation match {
+      case Success(res) =>
+        BatchedFeederBuilder(
+          SeparatedValuesParser.stream(res.inputStream, CommaSeparator, quoteChar, escapeChar),
+          batchSize
+        )
+      case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
+    }
+  }
+
   def csv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
     separatedValues(fileName, CommaSeparator, quoteChar, escapeChar)
   def ssv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
