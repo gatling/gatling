@@ -161,7 +161,7 @@ Automatic Referer
 The ``Referer`` HTTP header can be automatically computed.
 This feature is enabled by default.
 
-To disable this feature, just add ``.disableAutomaticReferer`` to an HTTP Protocol Configuration definition.
+To disable this feature, just add ``.disableAutoReferer`` to an HTTP Protocol Configuration definition.
 
 .. _http-protocol-caching:
 
