@@ -15,7 +15,7 @@
  */
 package io.gatling.core.feeder
 
-import java.util.concurrent.locks.ReentrantLock
+import java.util.concurrent.atomic.{ AtomicInteger, AtomicLong }
 
 import io.gatling.core.structure.ScenarioContext
 
@@ -27,37 +27,44 @@ case class FeederWrapper[T](feeder: Feeder[T]) extends FeederBuilder[T] {
   def build(ctx: ScenarioContext) = feeder
 }
 
+/**
+  * A [[BatchedFeederBuilder]] builds a [[Feeder]] which delegates to one or more
+  * underlaying [[Feeder]]s. Each of the underlaying [[Feeder]]s wraps a single batch
+  * of records.
+  *
+  * @param records an Iterator over all records available
+  * @param batchSize defines the record size per underlaying Feeder
+  * @param minUsedItemsPerBatch defines the minimum number of times you want to consume
+  *                             from the current batch before moving on to the next batch
+  * @param strategy the FeederStrategy for each underlaying Feeder
+  * @tparam T the record type
+  */
 case class BatchedFeederBuilder[T](
-    records:   Iterator[Record[T]],
-    batchSize: Long,
-    strategy:  FeederStrategy      = Queue
+    records:              Iterator[Record[T]],
+    batchSize:            Long,
+    minUsedItemsPerBatch: Long,
+    strategy:             FeederStrategy      = Queue
 ) extends FeederBuilder[T] {
 
   override def build(ctx: ScenarioContext): Feeder[T] = {
-      def fetchNextBatch(): Feeder[T] = {
+      def nextBatch(): Feeder[T] = {
         val batchRecords = (1L to batchSize).toIterator.zip(records).map {
-          case (_, record) => record
+          case (_, record) =>
+            record
         }.toIndexedSeq
         strategy.feeder(batchRecords, ctx)
       }
 
-    var currentBatch: Feeder[T] = fetchNextBatch()
+    var currentBatch: Feeder[T] = nextBatch()
 
-    var invocations = 1
-    val lock = new ReentrantLock()
+    val itemsUsed = new AtomicLong(-1)
 
     new Feeder[T] {
       def hasNext: Boolean = {
-        lock.lock()
-        try {
-          if (invocations % batchSize == 0) {
-            currentBatch = fetchNextBatch()
-          }
-          invocations += 1
-        } finally {
-          lock.unlock()
+        if (itemsUsed.incrementAndGet() == minUsedItemsPerBatch) {
+          currentBatch = nextBatch()
+          itemsUsed.set(-1)
         }
-
         currentBatch.hasNext
       }
       def next: Record[T] = currentBatch.next()
