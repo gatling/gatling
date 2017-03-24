@@ -36,7 +36,7 @@ object Cache {
       .newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
-      .build[K, V](new CacheLoader[K, V] {
+      .build(new CacheLoader[K, V] {
         override def load(key: K): V = f(key)
       })
 
