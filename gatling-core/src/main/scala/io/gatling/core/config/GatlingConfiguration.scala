@@ -245,6 +245,19 @@ object GatlingConfiguration extends StrictLogging {
       //
       //
       //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
       // [fl]
       config = config
     )
