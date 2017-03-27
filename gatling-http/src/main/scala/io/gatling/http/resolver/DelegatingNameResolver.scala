@@ -18,9 +18,14 @@ package io.gatling.http.resolver
 import java.net.InetAddress
 import java.util.{ List => JList }
 
+import io.netty.handler.codec.dns.DnsRecord
 import io.netty.resolver.NameResolver
 import io.netty.resolver.dns.DnsCache
 import io.netty.util.concurrent.{ Future, Promise }
+
+object DelegatingNameResolver {
+  private val EmptyAdditionals = Array.empty[DnsRecord]
+}
 
 case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
     extends NameResolver[InetAddress] {
@@ -29,7 +34,7 @@ case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsC
     resolve(inetHost, resolver.executor.newPromise[InetAddress])
 
   override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] = {
-    resolver.doResolve(inetHost, null, promise, cache)
+    resolver.doResolve(inetHost, DelegatingNameResolver.EmptyAdditionals, promise, cache)
     promise
   }
 
@@ -37,7 +42,7 @@ case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsC
     resolveAll(inetHost, resolver.executor.newPromise[JList[InetAddress]])
 
   override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] = {
-    resolver.doResolveAll(inetHost, null, promise, cache)
+    resolver.doResolveAll(inetHost, DelegatingNameResolver.EmptyAdditionals, promise, cache)
     promise
   }
 
