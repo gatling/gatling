@@ -15,46 +15,24 @@
  */
 package io.gatling.http.ahc
 
+import java.util.function.Predicate
+
 import io.gatling.core.session.Session
 
-import org.asynchttpclient.channel.{ ChannelPoolPartitioning, ChannelPoolPartitionSelector }
+import org.asynchttpclient.channel.ChannelPoolPartitioning
 import org.asynchttpclient.proxy.ProxyServer
 import org.asynchttpclient.uri.Uri
 
 case class ChannelPoolKey(userId: Long, remoteKey: RemoteKey)
 
-sealed trait RemoteKey
-case class RemoteServerKey(scheme: String, hostname: String, port: Int) extends RemoteKey
-case class VirtualHostKey(virtualHost: String) extends RemoteKey
-case class ProxyServerKey(hostname: String, port: Int, secure: Boolean, targetHostKey: RemoteKey) extends RemoteKey
-
-class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioning {
-
-  override def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): ChannelPoolKey = {
-
-    val targetHostKey =
-      if (virtualHost == null)
-        RemoteServerKey(uri.getScheme, uri.getHost, uri.getExplicitPort)
-      else
-        VirtualHostKey(virtualHost)
-
-    val remoteKey =
-      if (proxyServer == null) {
-        targetHostKey
-      } else if (uri.isSecured) {
-        ProxyServerKey(proxyServer.getHost, proxyServer.getSecuredPort, secure = true, targetHostKey)
-      } else {
-        ProxyServerKey(proxyServer.getHost, proxyServer.getPort, secure = false, targetHostKey)
-      }
-
-    ChannelPoolKey(session.userId, remoteKey)
+object AhcChannelPoolPartitioning {
+  def flushPredicate(session: Session): Predicate[Object] = {
+    case ChannelPoolKey(session.userId, _) => true
+    case _                                 => false
   }
 }
 
-class AhcChannelPoolPartitionSelector(userId: Long) extends ChannelPoolPartitionSelector {
-
-  override def select(partitionKey: Object): Boolean = partitionKey match {
-    case ChannelPoolKey(`userId`, _) => true
-    case _                           => false
-  }
+class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioning {
+  override def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): ChannelPoolKey =
+    ChannelPoolKey(session.userId, RemoteKey(uri, virtualHost, proxyServer))
 }

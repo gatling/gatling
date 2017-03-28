@@ -15,7 +15,7 @@ import sbt._
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(SonatypeReleasePlugin)
   .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-  .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
+  .aggregate(commons, core, jdbc, redis, httpAhc, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
   .settings(docSettings(benchmarks, bundle): _*)
@@ -44,8 +44,12 @@ lazy val redis = gatlingModule("gatling-redis")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= redisDependencies)
 
-lazy val http = gatlingModule("gatling-http")
+lazy val httpAhc = gatlingModule("gatling-http-ahc")
   .dependsOn(core % "compile->compile;test->test")
+  .settings(libraryDependencies ++= httpAhcDependencies)
+
+lazy val http = gatlingModule("gatling-http")
+  .dependsOn(httpAhc % "compile->compile;test->test")
   .settings(libraryDependencies ++= httpDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")
