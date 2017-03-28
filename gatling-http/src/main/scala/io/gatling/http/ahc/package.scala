@@ -23,8 +23,6 @@ import org.asynchttpclient.proxy.ProxyServer
 
 package object ahc {
 
-  val NoCredentials = (null, null)
-
   implicit class ProxyConverter(val proxy: Proxy) extends AnyVal {
 
     def proxyServer: ProxyServer = {
