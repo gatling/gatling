@@ -1,274 +1,92 @@
-{#
-gatling/layout.html
-~~~~~~~~~~~~~~~~~~~
-#}
-
-{%- block doctype -%}
-{%- endblock %}
-
-{% extends "basic/layout.html" %}
-
-{% set css_files = css_files + ['http://fonts.googleapis.com/css?family=Maven+Pro:400,500,700'] %}
-{% set css_files = css_files + ['http://fonts.googleapis.com/css?family=Inconsolata:400,700'] %}
-
-{% set css_files = css_files + ['/styles/main.css'] %}
-
-{% set script_files = script_files + ['/vendor/javascripts/modernizr.min.js'] %}
-{% set script_files = script_files + ['/vendor/javascripts/bootstrap.min.js'] %}
-
-{# do not display relbars #}
-{% block relbar1 %}{% endblock %}
-{% block relbar2 %}{% endblock %}
-
-{% block extrahead %}
-<!--[if IE]>
-<script src="/vendor/javascripts/html5shiv.min.js"></script>
-<![endif]-->
-
-<!--[if IE 6]>
-<script src="/vendor/javascripts/PIE_IE678.min.js"></script>
-<![endif]-->
-<!--[if IE 7]>
-<script src="/vendor/javascripts/PIE_IE678.min.js"></script>
-<![endif]-->
-<!--[if IE 9]>
-<script src="/vendor/javascripts/PIE_IE9.min.js"></script>
-<![endif]-->
-
-<script type="text/javascript">
-  // @formatter:off
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-53375088-1', 'gatling.io');
-  ga('send', 'pageview');
-  // @formatter:on
-</script>
-
-<script type='text/javascript'>
-  $(document).ready(function () {
-    $('#affix').affix({
-      offset: {
-        top: 48
-      }
-    });
-
-    $('body').scrollspy({
-      target: '#affix'
-    })
-  });
-</script>
-{% endblock %}
-
 {% block content %}
-{%- block gatlingheader %}
-<header id="header" class="navbar navbar-static-top" role="banner">
-  <div class="container">
-    <div class="navbar" role="navigation">
-      <form action="{{ pathto('search') }}" class="col-xs-12 col-sm-6 col-md-4" method="get" role="form">
-        <div class="form-group">
-          <div class="input-group">
-            <input type="text" class="form-control" name="q" placeholder="Search through the documentation"/>
 
-            <div class="input-group-addon">
-              <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
-            </div>
-            <div class="input-group-addon">
-              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-              </button>
-            </div>
-          </div>
-        </div>
-        <input type="hidden" name="check_keywords" value="yes"/>
-        <input type="hidden" name="area" value="default"/>
-      </form>
+<ol class="breadcrumb">
+  {%- block rootrellink %}
+  <li><a href="{{ pathto(master_doc) }}">{{ shorttitle }}</a></li>
+  {%- endblock %}
+  {%- for parent in parents %}
+  <li><a href="{{ parent.link | e }}" {% if loop.last %}{{ accesskey('U') }}{% endif %}>
+    {{ parent.title }}
+    </a>
+  </li>
+  {%- endfor %}
+  <li><a href="">
+    {{ title }}
+  </a></li>
+</ol>
 
-      <nav id="navbar-collapse" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav navbar-right">
-
-          <li>
-            <a href="/#/"><i class="fa fa-home" style="line-height:inherit"></i></a>
-          </li>
-
-          <!-- Resources -->
-
-          <li class="dropdown active">
-            <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button">
-              <span>RESOURCES</span>
-              <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="/#/resources/download" data-toggle="collapse" data-target=".navbar-collapse.in">Download</a>
-              </li>
-              <li>
-                <a href="/#/resources/documentation" class="active-sub-menu"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">Documentation</a>
-              </li>
-              <li><a href="/#/resources/talks" data-toggle="collapse" data-target=".navbar-collapse.in">Talks</a></li>
-              <li>
-                <a href="/#/resources/about" data-toggle="collapse" data-target=".navbar-collapse.in">About Gatling</a>
-              </li>
-            </ul>
-          </li>
-
-          <!-- Professional Services -->
-
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
-              <span>PROFESSIONAL SERVICES</span>
-              <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a href="/#/services" data-toggle="collapse" data-target=".navbar-collapse.in">Support &amp;
-                Consulting</a></li>
-              <li><a href="/#/services/training" data-toggle="collapse" data-target=".navbar-collapse.in">Training</a></li>
-              <li><a href="/#/services/frontline" data-toggle="collapse" data-target=".navbar-collapse.in">Gatling
-                FrontLine&reg;</a></li>
-              <li><a href="/#/stories" data-toggle="collapse" data-target=".navbar-collapse.in">Users stories</a></li>
-              <li><a href="/#/why" data-toggle="collapse" data-target=".navbar-collapse.in">Why Gatling?</a></li>
-            </ul>
-          </li>
-
-          <!-- Company -->
-
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button">
-              <span>COMPANY</span>
-              <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a href="/#/company/values" data-toggle="collapse" data-target=".navbar-collapse.in">Our values</a></li>
-              <li><a href="/#/company/history" data-toggle="collapse" data-target=".navbar-collapse.in">History</a></li>
-              <li><a href="/#/company/team" data-toggle="collapse" data-target=".navbar-collapse.in">The team</a></li>
-              <li><a href="/#/company/contact" data-toggle="collapse" data-target=".navbar-collapse.in">Contact</a></li>
-            </ul>
-          </li>
-
-          <!-- Blog -->
-
-          <li><a class="not-focused" href="http://blog.gatling.io/" target="_blank">BLOG</a></li>
-
-          <!-- Share -->
-
-          <li class="dropdown">
-            <a class="dropdown-toggle" data-toggle="dropdown" role="button" href="#/">
-              <i class="fa fa-users"></i>
-              <span>COMMUNITY</span>
-              <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="https://github.com/gatling/gatling" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <i class="fa fa-github"></i>
-                  <span>Github</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://groups.google.com/forum/#!forum/gatling" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <i class="fa fa-envelope"></i>
-                  <span>Mailing list</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://twitter.com/GatlingTool" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <i class="fa fa-twitter"></i>
-                  <span>Twitter</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://www.linkedin.com/company/gatling" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <i class="fa fa-linkedin"></i>
-                  <span>LinkedIn</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://www.facebook.com/GatlingTool" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <i class="fa fa-facebook-official"></i>
-                  <span>Facebook</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://www.youtube.com/channel/UCaNih6sKuJ9DIMjTEW1EAlQ" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <i class="fa fa-youtube"></i>
-                  <span>Youtube</span>
-                </a>
-              </li>
-              <li>
-                <a href="https://www.crunchbase.com/organization/gatling-corp#/entity" target="_blank"
-                   data-toggle="collapse" data-target=".navbar-collapse.in">
-                  <img src="/images/icon-crunchbase.png" style="margin-bottom:3px;" width="14px" height="14px"
-                       alt="CrunchBase">
-                  <span>CrunchBase</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
-</header>
-{%- endblock %}
-
-<section id="doc">
-  <div class="container">
-    <section class="row">
-      {%- if pagename != "search" %}
-      <div class="col-md-9">
-        {%- else %}
-        <div class="col-md-12">
-          {%- endif %}
-          <ul class="breadcrumb">
-            {%- block rootrellink %}
-            <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
-            {%- endblock %}
-            {%- for parent in parents %}
-            <li><a href="{{ parent.link|e }}"
-              {% if loop.last %}{{ accesskey("U") }}{% endif %}>
-              {{ parent.title }}
-              </a>
-            </li>
-            {%- endfor %}
-            <li><a href="">
-              {{ title | e}}
-            </a></li>
-          </ul>
+<div class="content-left-wrap col-md-{% if pagename != 'search' %}9{% else %}12{% endif%}">
+  <div id="primary" class="content-area">
+    <main itemscope="" itemtype="http://schema.org/WebPageElement" itemprop="mainContentOfPage" id="main"
+          class="site-main">
+      <article id="documentation" class="type-post status-publish format-standard hentry category-non-classe">
+        <header class="entry-header">
+          <h1 class="entry-title" itemprop="headline">{{ title }}</h1>
+        </header>
+        <div class="entry-content" itemprop="text">
+          {% if pagename == 'search' %}
           {% block body %}{% endblock %}
+          {% else %}
+          {{ body | regex_replace('<h1>.*</h1>', '') }}
+          {% endif %}
         </div>
-        {%- if pagename != "search" %}
-        <div class="col-md-3">
-          <aside id="affix" class="visible-md visible-lg">
-            {%- block sidebartoc %}
-            {% include "localtoc.html" %}
-            {%- endblock %}
-            {%- block sidebar_relations %}
-            {% include "sidebar_relations.html" %}
-            {%- endblock %}
-          </aside>
-        </div>
-      </div>
-      {%- endif %}
-    </section>
+      </article>
+    </main>
   </div>
-</section>
+</div>
 
-<footer id="footer" style="position:static">
-  <section class="row-fluid">
-    <div class="content-wrapper text-center">&copy;2015 Gatling Corp 2000-2015</div>
-  </section>
-</footer>
+{% if pagename != 'search' %}
+<div class="sidebar-wrap col-md-3 content-left-wrap">
+  <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
+       itemtype="http://schema.org/WPSideBar">
+    <aside id="search-2" class="widget widget_search">
+      <form role="form" method="get" class="search-form" action="{{ pathto('search') }}">
+        <label>
+          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
+          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
+        </label>
+        <input type="submit" class="search-submit" value="Search">
+      </form>
+    </aside>
+    <aside class="widget">
+      <h1 class="widget-title">Table of Content</h1>
+      {{ toc }}
+    </aside>
+    {% if prev %}
+    <aside class="widget">
+      <h1 class="widget-title">Previous topic</h1>
+      <ul>
+        <li>
+          <a href="{{ prev.link | e }}" title="{{ _('Previous Chapter: ') + prev.title | striptags }}">
+            {{ prev.title | striptags | truncate(length=24, killwords=True) }}
+          </a>
+        </li>
+      </ul>
+    </aside>
+    {% endif %}
+    {% if next %}
+    <aside class="widget">
+      <h1 class="widget-title">Next topic</h1>
+      <ul>
+        <li>
+          <a href="{{ next.link | e }}" title="{{ _('Next Chapter: ') + next.title | striptags }}">
+            {{ next.title | striptags | truncate(length=24, killwords=True) }}
+          </a>
+        </li>
+      </ul>
+    </aside>
+    {%- endif %}
+    <aside class="widget">
+      <h1 class="widget-title">Contribute</h1>
+      <ul>
+        <li>
+          <a href="{{ theme_github }}{{ pagename }}.rst">Edit this page on Github</a>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
+{% endif %}
 
 {% block footer %}
 {% endblock %}

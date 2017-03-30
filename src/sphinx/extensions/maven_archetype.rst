@@ -52,7 +52,6 @@ After importing the project, its structure should look like that:
 
 .. image:: img/archetype_structure.png
   :alt: Archetype Structure
-  :scale: 70
 
 The archetype structure closely follows the bundle's structure :
 
