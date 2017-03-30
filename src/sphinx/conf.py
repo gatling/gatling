@@ -2,7 +2,7 @@
 #
 # Gatling documentation build configuration
 
-import sys, os
+import sys, os, re, docutils
 
 ##############
 # Extensions #
@@ -49,3 +49,12 @@ html_use_index = False
 html_show_sourcelink = False
 html_show_sphinx = False
 htmlhelp_basename = 'Gatlingdoc'
+
+def regex_replace(s, find, replace):
+  return re.sub(find, replace, s)
+
+def add_jinja_filters(app):
+  app.builder.templates.environment.filters['regex_replace'] = regex_replace
+
+def setup(app):
+  app.connect('builder-inited', add_jinja_filters)
