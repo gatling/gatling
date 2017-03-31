@@ -42,7 +42,7 @@ object GatlingConfiguration extends StrictLogging {
   private val ActorSystemDefaultsConfigFile = "gatling-akka-defaults.conf"
   private val ActorSystemConfigFile = "gatling-akka.conf"
 
-  def loadActorSystemConfiguration() = {
+  def loadActorSystemConfiguration(): Config = {
     val classLoader = getClass.getClassLoader
 
     val defaultsConfig = ConfigFactory.parseResources(classLoader, ActorSystemDefaultsConfigFile)
@@ -278,7 +278,7 @@ case class CoreConfiguration(
     pebbleFileBodiesCacheMaxCapacity:  Long
 ) {
 
-  val charset = Charset.forName(encoding)
+  val charset: Charset = Charset.forName(encoding)
   val codec: Codec = charset
 }
 
