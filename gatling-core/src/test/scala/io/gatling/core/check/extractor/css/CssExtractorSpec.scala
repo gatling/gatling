@@ -113,4 +113,11 @@ class CssExtractorSpec extends BaseSpec with ValidationValues {
     val cssExtractor = newCssSingleExtractor[String](".nav", Some("id"), 1, cssSelectors)
     cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("social")
   }
+
+  it should "support filtered value with dots" in {
+    val cssExtractor = newCssSingleExtractor[String]("input[name='javax.faces.ViewState']", Some("value"), 0, cssSelectors)
+    cssExtractor(cssSelectors.parse(
+      """<input type="hidden" name="javax.faces.ViewState" value="foo">"""
+    )).succeeded shouldBe Some("foo")
+  }
 }
