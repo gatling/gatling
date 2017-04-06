@@ -416,7 +416,7 @@ class WsActor(
     case Event(ClientCloseRequest(actionName, session, next), CrashedData(errorMessage)) =>
       val newSession = errorMessage match {
         case None =>
-          logger.info("Client issued close order but WebSocket was already ${ if (graceful) closed")
+          logger.info("Client issued close order but WebSocket was already closed")
           session
         case Some(mess) =>
           val newSession = session.markAsFailed
