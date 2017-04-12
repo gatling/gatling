@@ -227,7 +227,7 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
   private lazy val separatorUsers = separator.users
 
   override def chain(chained: Iterator[FiniteDuration]) = {
-    if (possibleUsers > stepUsers) {
+    if (possibleUsers >= stepUsers) {
       val n = (possibleUsers - stepUsers) / (stepUsers + separatorUsers)
       val lastScheduling = step.chain(chained)
       (1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
@@ -235,11 +235,10 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
       chained
   }
 
-  def users = {
-    if (possibleUsers > stepUsers)
+  def users =
+    if (possibleUsers >= stepUsers)
       possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
     else 0
-  }
 }
 
 /**
