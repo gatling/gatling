@@ -146,6 +146,14 @@ class InjectionStepSpec extends BaseSpec {
     ) // 3rd ramp after a pause
   }
 
+  it should "provide an appropriate injection scheduling when there is only one split" in {
+    val scheduling = SplitInjection(1, AtOnceInjection(1), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
+    scheduling.length shouldBe 1
+
+    val schedulingWithInjectionInSeparator = SplitInjection(1, AtOnceInjection(1), AtOnceInjection(1)).chain(Iterator.empty).toList
+    schedulingWithInjectionInSeparator.length shouldBe 1
+  }
+
   it should "should schedule the first and last user through the 'into' injection step" in {
     val scheduling = SplitInjection(5, RampInjection(2, 2 seconds), AtOnceInjection(1)).chain(AtOnceInjection(1).chain(Iterator.empty)).toList
     scheduling shouldBe List(
