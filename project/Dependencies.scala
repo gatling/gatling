@@ -16,7 +16,7 @@ object Dependencies {
   private val netty                         = "io.netty"                               % "netty-codec-http"              % "4.1.9.Final"
   private val nettyHandler                  = "io.netty"                               % "netty-handler"                 % netty.revision
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll"  % netty.revision classifier "linux-x86_64"
-  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.0-RC1"
+  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.0"
   private val akkaSlf4j                     = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
   private val config                        = "com.typesafe"                           % "config"                        % "1.3.1"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                      % "9.7.0-15"
