@@ -7,3 +7,4 @@ Cookbook
   scaling_out
   passing_parameters
   handling_jsf
+  save_body
