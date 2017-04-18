@@ -15,8 +15,6 @@
  */
 package io.gatling.commons.util
 
-import java.util.concurrent.ConcurrentMap
-
 import scala.collection.mutable
 
 object Maps {
@@ -85,17 +83,5 @@ object Maps {
       }
       mm
     }
-  }
-
-  implicit class PimpedConcurrentMap[K, V](val map: ConcurrentMap[K, V]) extends AnyVal {
-
-    def getOrElsePutIfAbsent(key: K, value: => V): V =
-      map.get(key) match {
-        case null =>
-          val v = value
-          map.putIfAbsent(key, v)
-          v
-        case v => v
-      }
   }
 }

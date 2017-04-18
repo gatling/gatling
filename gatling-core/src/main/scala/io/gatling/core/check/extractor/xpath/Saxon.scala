@@ -17,13 +17,15 @@ package io.gatling.core.check.extractor.xpath
 
 import java.nio.charset.StandardCharsets._
 import java.util.concurrent.ConcurrentMap
+import java.util.function.{ Function => JFunction }
 import javax.xml.transform.sax.SAXSource
+
+import scala.compat.java8.FunctionConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache._
-import io.gatling.commons.util.Maps._
 
-import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.LoadingCache
 import net.sf.saxon.s9api._
 import org.xml.sax.InputSource
 
@@ -34,20 +36,21 @@ class Saxon(configuration: GatlingConfiguration) {
   private val processor = new Processor(false)
   private val documentBuilder = processor.newDocumentBuilder
 
-  private val compilerCache = {
-      def xPathCompiler(namespaces: List[(String, String)]) = {
+  private val expressionToExecutableByNamespacesCache: LoadingCache[List[(String, String)], JFunction[String, XPathExecutable]] = {
+
+      def computer(namespaces: List[(String, String)]): JFunction[String, XPathExecutable] = {
         val compiler = processor.newXPathCompiler
         for {
           (prefix, uri) <- namespaces
         } compiler.declareNamespace(prefix, uri)
-        compiler
+        (compiler.compile _).asJava
       }
 
-    Cache.newConcurrentLoadingCache(configuration.core.extract.xpath.cacheMaxCapacity, xPathCompiler)
+    Cache.newConcurrentLoadingCache(configuration.core.extract.xpath.cacheMaxCapacity, computer)
   }
 
-  private val executableCacheEnabled = configuration.core.extract.xpath.cacheMaxCapacity > 0
-  private lazy val executableCache: ConcurrentMap[String, XPathExecutable] = Caffeine.newBuilder.maximumSize(configuration.core.extract.xpath.cacheMaxCapacity).build[String, XPathExecutable].asMap
+  private val cachedExecutables: ConcurrentMap[String, XPathExecutable] =
+    Cache.newConcurrentCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
@@ -66,8 +69,5 @@ class Saxon(configuration: GatlingConfiguration) {
   }
 
   private def compileXPath(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-    if (executableCacheEnabled)
-      executableCache.getOrElsePutIfAbsent(expression, compilerCache.get(namespaces).compile(expression))
-    else
-      compilerCache.get(namespaces).compile(expression)
+    cachedExecutables.computeIfAbsent(expression, expressionToExecutableByNamespacesCache.get(namespaces))
 }

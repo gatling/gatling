@@ -16,6 +16,7 @@
 package io.gatling.http.fetch
 
 import scala.collection.mutable
+import scala.compat.java8.FunctionConverters._
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.ClockSingleton._
@@ -89,7 +90,7 @@ trait ResourceFetcher {
         response.lastModifiedOrEtag(httpProtocol) match {
           case Some(newLastModifiedOrEtag) =>
             val cacheKey = InferredResourcesCacheKey(httpProtocol, htmlDocumentUri)
-            InferredResourcesCache.get(cacheKey) match {
+            Option(InferredResourcesCache.get(cacheKey)) match {
               case Some(InferredPageResources(`newLastModifiedOrEtag`, res)) =>
                 //cache entry didn't expire, use it
                 res
@@ -109,10 +110,10 @@ trait ResourceFetcher {
       case Some(304) =>
         // no content, retrieve from cache if exist
         InferredResourcesCache.get(InferredResourcesCacheKey(httpProtocol, htmlDocumentUri)) match {
-          case Some(inferredPageResources) => inferredPageResources.requests
-          case _ =>
+          case null =>
             logger.warn(s"Got a 304 for $htmlDocumentUri but could find cache entry?!")
             Nil
+          case inferredPageResources => inferredPageResources.requests
         }
 
       case _ => Nil
@@ -149,8 +150,8 @@ trait ResourceFetcher {
 
     val inferredResources =
       InferredResourcesCache.get(InferredResourcesCacheKey(tx.request.config.httpComponents.httpProtocol, htmlDocumentURI)) match {
-        case None            => Nil
-        case Some(resources) => resources.requests
+        case null      => Nil
+        case resources => resources.requests
       }
 
     val explicitResources = buildExplicitResources(tx.request.config.explicitResources, tx.session)
@@ -231,7 +232,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
     val silent = HttpTx.silent(resource, root = false)
 
     val resourceFetched =
-      if (httpEngine.CssContentCache.contains(uri))
+      if (httpEngine.CssContentCache.get(uri) != null)
         CssResourceFetched(uri, OK, Session.Identity, silent, None, None, "")
       else
         RegularResourceFetched(uri, OK, Session.Identity, silent)
@@ -326,7 +327,8 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
   private def cssFetched(uri: Uri, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String): Unit = {
 
       def parseCssResources(): List[HttpRequest] = {
-        val inferred = httpEngine.CssContentCache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))
+        val computer = CssParser.extractResources(_: Uri, content)
+        val inferred = httpEngine.CssContentCache.computeIfAbsent(uri, computer.asJava)
         val filtered = httpEngine.applyResourceFilters(inferred, filters)
         httpEngine.resourcesToRequests(filtered, session, coreComponents, httpComponents, throttled)
       }
@@ -343,7 +345,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
 
                 val cacheKey = InferredResourcesCacheKey(httpProtocol, uri)
 
-                httpEngine.InferredResourcesCache.get(cacheKey) match {
+                Option(httpEngine.InferredResourcesCache.get(cacheKey)) match {
                   case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
                     //cache entry didn't expire, use it
                     inferredResources
@@ -364,10 +366,10 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
           case Some(304) =>
             // resource was already cached
             httpEngine.InferredResourcesCache.get(InferredResourcesCacheKey(httpProtocol, uri)) match {
-              case Some(inferredPageResources) => inferredPageResources.requests
-              case _ =>
+              case null =>
                 logger.warn(s"Got a 304 for $uri but could find cache entry?!")
                 Nil
+              case inferredPageResources => inferredPageResources.requests
             }
           case _ => Nil
         }

@@ -15,15 +15,15 @@
  */
 package io.gatling.core.util.cache
 
-import scala.collection.concurrent
+import java.util.concurrent.ConcurrentMap
+
 import scala.collection.immutable.Queue
-import scala.collection.JavaConversions._
 
 import com.github.benmanes.caffeine.cache.{ CacheLoader, Caffeine, LoadingCache }
 
 object Cache {
 
-  def newConcurrentCache[K, V](maxSize: Long): concurrent.Map[K, V] =
+  def newConcurrentCache[K, V](maxSize: Long): ConcurrentMap[K, V] =
     Caffeine
       .newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
