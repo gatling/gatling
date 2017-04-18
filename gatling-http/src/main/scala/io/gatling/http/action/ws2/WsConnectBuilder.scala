@@ -28,7 +28,8 @@ case class WsConnectBuilder(
     onConnectedChain: Option[ChainBuilder]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: WsCheck*): WsConnectBuilder = copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
+  def wait(timeout: FiniteDuration)(checks: WsCheck*): WsConnectBuilder =
+    copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
 
   def onConnected(chain: ChainBuilder): WsConnectBuilder = copy(onConnectedChain = Some(chain))
 

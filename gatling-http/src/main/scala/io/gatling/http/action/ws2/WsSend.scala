@@ -21,6 +21,7 @@ import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.ws.WsAction
+import io.gatling.http.action.ws2.fsm.SendTextMessage
 
 class WsSend(
     override val requestName: Expression[String],

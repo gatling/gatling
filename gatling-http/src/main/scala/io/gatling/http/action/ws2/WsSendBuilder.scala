@@ -29,7 +29,8 @@ case class WsSendBuilder(
     checkSequences: List[WsCheckSequence]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: WsCheck*): WsSendBuilder = copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
+  def wait(timeout: FiniteDuration)(checks: WsCheck*): WsSendBuilder =
+    copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSend(

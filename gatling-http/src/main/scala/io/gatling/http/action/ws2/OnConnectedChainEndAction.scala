@@ -29,7 +29,13 @@ object OnConnectedChainEndActionBuilder extends ActionBuilder with NameGen {
 
 object OnConnectedChainEndAction {
 
-  val NextAction = SessionPrivateAttributes.PrivateAttributePrefix + "nextAction"
+  private val OnConnectedChainEndCallback: String = SessionPrivateAttributes.PrivateAttributePrefix + "onConnectedChainEndCallback"
+
+  def setOnConnectedChainEndCallback(session: Session, callback: Session => Unit): Session =
+    session.set(OnConnectedChainEndCallback, callback)
+
+  def removeOnConnectedChainEndCallback(session: Session): Session =
+    session.remove(OnConnectedChainEndAction.OnConnectedChainEndCallback)
 }
 
 /**
@@ -41,10 +47,12 @@ object OnConnectedChainEndAction {
  */
 class OnConnectedChainEndAction(override val name: String, exit: Action) extends Action {
 
+  import OnConnectedChainEndAction._
+
   override def execute(session: Session): Unit =
-    session(OnConnectedChainEndAction.NextAction).validate[Action]
+    session(OnConnectedChainEndCallback).validate[Session => Unit]
       .map {
-        _ ! session.remove(OnConnectedChainEndAction.NextAction)
+        _(removeOnConnectedChainEndCallback(session))
       }.onFailure { message =>
         logger.error(s"'$name' failed to execute: $message")
         exit ! session

@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.ws2
+package io.gatling.http.action.ws2.fsm
 
-import scala.concurrent.duration.FiniteDuration
+trait WhenInit { this: WsActor =>
 
-case class WsCheckSequence(timeout: FiniteDuration, checks: List[WsCheck]) {
-  require(checks.nonEmpty, "Can't pass empty check sequence")
-  val head = checks.head
-  val tail = checks.tail
-}
-
-case class WsCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck]) {
-
-  def matching(newMatchConditions: WsTextCheck*): WsCheck = copy(matchConditions = matchConditions ::: newMatchConditions.toList)
-
-  def check(newChecks: WsTextCheck*): WsCheck = copy(checks = checks ::: newChecks.toList)
+  when(Init) {
+    case Event(PerformInitialConnect(session, initialConnectNext), InitData) =>
+      gotoConnecting(session.set(wsName, self), Left(initialConnectNext))
+  }
 }

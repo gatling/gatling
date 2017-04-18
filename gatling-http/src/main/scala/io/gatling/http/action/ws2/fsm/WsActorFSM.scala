@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.ws2
+package io.gatling.http.action.ws2.fsm
 
 import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws2.{ WsCheck, WsCheckSequence }
 
 import akka.actor.FSM
 import org.asynchttpclient.ws.WebSocket
@@ -32,17 +33,18 @@ case object Crashed extends WsActorState
 
 sealed trait WsActorData
 case object InitData extends WsActorData
-case class ConnectingData(session: Session, next: Action, timestamp: Long) extends WsActorData
+case class ConnectingData(session: Session, next: Either[Action, SendTextMessage], timestamp: Long, remainingTries: Int) extends WsActorData
 case class PerformingCheckData(
-  websocket:               WebSocket,
-  ongoingChecks:           List[WsCheck],
+  webSocket:               WebSocket,
+  currentCheck:            WsCheck,
+  remainingChecks:         List[WsCheck],
   checkSequenceStart:      Long,
   checkSequenceTimeoutId:  Long,
   remainingCheckSequences: List[WsCheckSequence],
   session:                 Session,
-  next:                    Action
+  next:                    Either[Action, SendTextMessage]
 ) extends WsActorData
-case class IdleData(session: Session, websocket: WebSocket) extends WsActorData
+case class IdleData(session: Session, webSocket: WebSocket) extends WsActorData
 case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends WsActorData
 case class CrashedData(errorMessage: Option[String]) extends WsActorData
 

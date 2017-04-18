@@ -21,6 +21,7 @@ import io.gatling.core.session.{ Session, _ }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.ws.WsAction
+import io.gatling.http.action.ws2.fsm.ClientCloseRequest
 
 class WsClose(
     override val requestName: Expression[String],

@@ -22,6 +22,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.ws.WsAction
+import io.gatling.http.action.ws2.fsm.{ PerformInitialConnect, WsActor }
 import io.gatling.http.protocol.HttpComponents
 
 import akka.actor.ActorSystem
