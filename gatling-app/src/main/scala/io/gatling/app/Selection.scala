@@ -18,11 +18,11 @@ package io.gatling.app
 import scala.Console._
 import scala.annotation.tailrec
 import scala.io.StdIn
-import scala.util.{ Success, Try }
+import scala.util.{ Failure, Success, Try }
 
 import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.commons.util.StringHelper._
-import io.gatling.core.config.{ GatlingFiles, GatlingConfiguration }
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.scenario.Simulation
 
 case class Selection(simulationClass: Class[Simulation], userDefinedSimulationId: Option[String], defaultSimulationId: String, description: String)
@@ -32,71 +32,66 @@ object Selection {
   private val MaxReadSimulationNumberAttempts = 10
 
   def apply(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration): Selection =
-    new Selector(selectedSimulationClass, configuration).selection
+    new Selector(selectedSimulationClass).selection(configuration)
 
-  private class Selector(selectedSimulationClass: SelectedSimulationClass, configuration: GatlingConfiguration) {
+  private class Selector(selectedSimulationClass: SelectedSimulationClass) {
 
-    def selection = {
+    def selection(configuration: GatlingConfiguration): Selection = {
+      val userDefinedSimulationClass = configuration.core.simulationClass
 
-      val simulations = loadSimulations
-      val singleSimulation = trySelectingSingleSimulation(simulations)
-
-      // -- If no single simulation was available, allow user to select one -- //
-      val simulation = singleSimulation.getOrElse(interactiveSelect(simulations))
-
-      // -- Ask for simulation ID and run description if required -- //
-      val muteModeActive = configuration.core.muteMode || configuration.core.simulationClass.isDefined || selectedSimulationClass.isDefined
-      val defaultSimulationId = defaultOutputDirectoryBaseName(simulation)
-      val optionalDescription = configuration.core.runDescription
-
-      val simulationId = if (muteModeActive) None else askSimulationId(simulation, defaultSimulationId)
-      val runDescription = optionalDescription.getOrElse(if (muteModeActive) "" else askRunDescription())
-
-      Selection(simulation, simulationId, defaultSimulationId, runDescription)
-    }
-
-    private def loadSimulations: SimulationClasses = {
-      val fromSbt = selectedSimulationClass.isDefined
-      val reportsOnly = configuration.core.directory.reportsOnly.isDefined
-
-      if (fromSbt || reportsOnly) Nil
-      else SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.getName)
-    }
-
-    private def trySelectingSingleSimulation(simulationClasses: SimulationClasses): SelectedSimulationClass = {
-
-        def findSelectedSingleSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
-          simulationClasses.find(_.getCanonicalName == className)
-
-        def findSelectedSingleSimulationInClassloader(className: String): SelectedSimulationClass =
-          Try(Class.forName(className)).toOption.collect { case clazz if classOf[Simulation].isAssignableFrom(clazz) => clazz.asInstanceOf[Class[Simulation]] }
-
-        def singleSimulationFromConfig =
-          configuration.core.simulationClass.flatMap { className =>
-            val found: Option[Class[Simulation]] = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
-
-            if (found.isEmpty) {
-              val message = s"The requested class '$className' can not be found in the classpath or does not extends Simulation."
-
-              if (configuration.core.muteMode) {
-                throw new IllegalArgumentException(message)
-              } else {
-                err.println(message)
-              }
+      val simulation: Class[Simulation] =
+        selectedSimulationClass.getOrElse {
+          val simulationClasses: SimulationClasses =
+            if (configuration.core.directory.reportsOnly.isDefined) {
+              Nil
+            } else {
+              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.getName)
             }
 
-            found
-          }
-
-        def singleSimulationFromList = simulationClasses match {
-          case simulation :: Nil =>
-            println(s"${simulation.getName} is the only simulation, executing it.")
-            Some(simulation)
-
-          case _ => None
+          singleSimulationFromConfig(simulationClasses, userDefinedSimulationClass)
+            .orElse(singleSimulationFromList(simulationClasses))
+            .getOrElse(interactiveSelect(simulationClasses))
         }
 
-      selectedSimulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
+      // -- Ask for simulation ID and run description if required -- //
+      val defaultSimulationId = defaultOutputDirectoryBaseName(simulation, configuration)
+      val bypassInteractiveOptions = configuration.core.muteMode || userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined
+      val simulationId = if (bypassInteractiveOptions) None else askSimulationId(simulation, defaultSimulationId)
+      val runDescription = configuration.core.runDescription.getOrElse(if (bypassInteractiveOptions) "" else askRunDescription())
+
+      new Selection(simulation, simulationId, defaultSimulationId, runDescription)
+    }
+
+    private def singleSimulationFromConfig(simulationClasses: SimulationClasses, userDefinedSimulationClass: Option[String]): SelectedSimulationClass = {
+
+        def findUserDefinedSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
+          simulationClasses.find(_.getCanonicalName == className)
+
+        def findUserDefinedSimulationInClassloader(className: String): SelectedSimulationClass =
+          Try(Class.forName(className)) match {
+            case Success(clazz) =>
+              if (classOf[Simulation].isAssignableFrom(clazz)) {
+                Some(clazz.asInstanceOf[Class[Simulation]])
+              } else {
+                throw new IllegalArgumentException(s"User defined Simulation class $className does not extend of Simulation")
+              }
+
+            case Failure(t) =>
+              throw new IllegalArgumentException(s"User defined Simulation class $className could not be loaded", t)
+          }
+
+      userDefinedSimulationClass.flatMap { userDefinedSimulationClassName =>
+        findUserDefinedSimulationAmongstCompiledOnes(userDefinedSimulationClassName)
+          .orElse(findUserDefinedSimulationInClassloader(userDefinedSimulationClassName))
+      }
+    }
+
+    private def singleSimulationFromList(simulationClasses: SimulationClasses) = simulationClasses match {
+      case simulation :: Nil =>
+        println(s"${simulation.getName} is the only simulation, executing it.")
+        Some(simulation)
+
+      case _ => None
     }
 
     private def interactiveSelect(simulationClasses: SimulationClasses): Class[Simulation] = {
@@ -155,7 +150,7 @@ object Selection {
       StdIn.readLine().trim
     }
 
-    private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) =
+    private def defaultOutputDirectoryBaseName(clazz: Class[Simulation], configuration: GatlingConfiguration) =
       configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)
   }
 }
