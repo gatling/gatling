@@ -23,4 +23,6 @@ private[gatling] class GatlingOptionParser(programName: String) extends OptionPa
 
   def opt[A: Read](constant: CommandLineConstant): OptionDef[A, Unit] =
     opt[A](constant.full).abbr(constant.abbr)
+
+  override def errorOnUnknownArgument: Boolean = false
 }
