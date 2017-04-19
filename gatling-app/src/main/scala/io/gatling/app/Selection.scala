@@ -55,7 +55,7 @@ object Selection {
 
       // -- Ask for simulation ID and run description if required -- //
       val defaultSimulationId = defaultOutputDirectoryBaseName(simulation, configuration)
-      val bypassInteractiveOptions = configuration.core.muteMode || userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined
+      val bypassInteractiveOptions = userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined
       val simulationId = if (bypassInteractiveOptions) None else askSimulationId(simulation, defaultSimulationId)
       val runDescription = configuration.core.runDescription.getOrElse(if (bypassInteractiveOptions) "" else askRunDescription())
 

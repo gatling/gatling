@@ -32,10 +32,6 @@ private[app] class ArgsParser(args: Array[String]) {
       .foreach(_ => props.noReports())
       .text("Runs simulation but does not generate reports")
 
-    opt[Unit](Mute)
-      .foreach(_ => props.mute())
-      .text("Runs in mute mode: doesn't ask for run description or simulation ID, uses defaults")
-
     opt[String](ReportsOnly)
       .foreach(props.reportsOnly)
       .valueName("<directoryName>")

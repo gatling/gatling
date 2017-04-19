@@ -20,7 +20,6 @@ import java.util.ResourceBundle
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.concurrent.duration._
 import scala.io.Codec
 
 import io.gatling.commons.util.{StringHelper, ConfigHelper}
@@ -107,7 +106,6 @@ object GatlingConfiguration extends StrictLogging {
         runDescription = config.getString(core.RunDescription).trimToOption,
         encoding = config.getString(core.Encoding),
         simulationClass = config.getString(core.SimulationClass).trimToOption,
-        muteMode = config.getBoolean(core.Mute),
         elFileBodiesCacheMaxCapacity = config.getLong(core.ElFileBodiesCacheMaxCapacity),
         rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
         rawFileBodiesInMemoryMaxSize = config.getLong(core.RawFileBodiesInMemoryMaxSize),
@@ -258,6 +256,7 @@ object GatlingConfiguration extends StrictLogging {
       //
       //
       //
+      //
       // [fl]
       config = config
     )
@@ -271,7 +270,6 @@ case class CoreConfiguration(
     simulationClass:               Option[String],
     extract:                       ExtractConfiguration,
     directory:                     DirectoryConfiguration,
-    muteMode:                      Boolean,
     elFileBodiesCacheMaxCapacity:  Long,
     rawFileBodiesCacheMaxCapacity: Long,
     rawFileBodiesInMemoryMaxSize:  Long,

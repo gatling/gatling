@@ -29,5 +29,4 @@ private[cli] object CommandLineConstants {
   val Simulation = CommandLineConstant("simulation", "s")
   val OutputDirectoryBaseName = CommandLineConstant("output-name", "on")
   val SimulationDescription = CommandLineConstant("run-description", "rd")
-  val Mute = CommandLineConstant("mute", "m")
 }

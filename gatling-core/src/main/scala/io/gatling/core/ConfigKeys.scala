@@ -22,7 +22,6 @@ object ConfigKeys {
     val RunDescription = "gatling.core.runDescription"
     val Encoding = "gatling.core.encoding"
     val SimulationClass = "gatling.core.simulationClass"
-    val Mute = "gatling.core.mute"
     val ElFileBodiesCacheMaxCapacity = "gatling.core.elFileBodiesCacheMaxCapacity"
     val RawFileBodiesCacheMaxCapacity = "gatling.core.rawFileBodiesCacheMaxCapacity"
     val RawFileBodiesInMemoryMaxSize = "gatling.core.rawFileBodiesInMemoryMaxSize"

@@ -23,9 +23,6 @@ class GatlingPropertiesBuilder {
 
   private val props = mutable.Map.empty[String, Any]
 
-  def mute(): Unit =
-    props += core.Mute -> true
-
   def noReports(): Unit =
     props += charting.NoReports -> true
 
@@ -56,5 +53,5 @@ class GatlingPropertiesBuilder {
   def runDescription(v: String): Unit =
     props += core.RunDescription -> v
 
-  def build = props
+  def build: mutable.Map[String, Any] = props
 }
