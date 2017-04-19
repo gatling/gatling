@@ -25,7 +25,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.scenario.Simulation
 
-case class Selection(simulationClass: Class[Simulation], userDefinedSimulationId: Option[String], defaultSimulationId: String, description: String)
+case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
 
 object Selection {
 
@@ -54,12 +54,10 @@ object Selection {
         }
 
       // -- Ask for simulation ID and run description if required -- //
-      val defaultSimulationId = defaultOutputDirectoryBaseName(simulation, configuration)
-      val bypassInteractiveOptions = userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined
-      val simulationId = if (bypassInteractiveOptions) None else askSimulationId(simulation, defaultSimulationId)
-      val runDescription = configuration.core.runDescription.getOrElse(if (bypassInteractiveOptions) "" else askRunDescription())
+      val simulationId = defaultOutputDirectoryBaseName(simulation, configuration)
+      val runDescription = configuration.core.runDescription.getOrElse(if (userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined) "" else askRunDescription())
 
-      new Selection(simulation, simulationId, defaultSimulationId, runDescription)
+      new Selection(simulation, simulationId, runDescription)
     }
 
     private def singleSimulationFromConfig(simulationClasses: SimulationClasses, userDefinedSimulationClass: Option[String]): SelectedSimulationClass = {
@@ -127,22 +125,6 @@ object Selection {
         sys.exit()
       }
       simulationClasses(readSimulationNumber())
-    }
-
-    private def askSimulationId(clazz: Class[Simulation], defaultSimulationId: String): Option[String] = {
-        @tailrec
-        def loop(): String = {
-          println(s"Select simulation id (default is '$defaultSimulationId'). Accepted characters are a-z, A-Z, 0-9, - and _")
-          val input = StdIn.readLine().trim
-          if (input.matches("[\\w-_]*")) input
-          else {
-            println(s"$input contains illegal characters")
-            loop()
-          }
-        }
-
-      val input = loop()
-      if (input.nonEmpty) Some(input) else None
     }
 
     private def askRunDescription(): String = {

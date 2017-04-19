@@ -24,14 +24,12 @@ import io.gatling.core.stats.message.{ ResponseTimings, MessageEvent }
 case class ShortScenarioDescription(name: String, userCount: Int)
 
 case class RunMessage(
-    simulationClassName:     String,
-    userDefinedSimulationId: Option[String],
-    defaultSimulationId:     String,
-    start:                   Long,
-    runDescription:          String
+    simulationClassName: String,
+    simulationId:        String,
+    start:               Long,
+    runDescription:      String
 ) {
 
-  val simulationId = userDefinedSimulationId.getOrElse(defaultSimulationId)
   val runId = simulationId + "-" + start
 }
 
@@ -70,7 +68,7 @@ case class GroupMessage(
     cumulatedResponseTime: Int,
     status:                Status
 ) extends LoadEventMessage {
-  val duration = (endTimestamp - startTimestamp).toInt
+  val duration: Int = (endTimestamp - startTimestamp).toInt
 }
 
 case class ErrorMessage(message: String, date: Long) extends LoadEventMessage

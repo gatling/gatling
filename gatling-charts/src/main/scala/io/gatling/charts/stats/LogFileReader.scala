@@ -25,7 +25,6 @@ import io.gatling.charts.stats.buffers.{ CountsBuffer, GeneralStatsBuffer, Perce
 import io.gatling.commons.stats._
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats._
@@ -99,7 +98,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
           updateRunLimits(array(4).toLong, array(5).toLong)
 
         case RawRunRecord(array) =>
-          runMessages += RunMessage(array(1), array(2).trimToOption, array(3), array(4).toLong, array(5).trim)
+          runMessages += RunMessage(array(1), array(2), array(3).toLong, array(5).trim)
 
         case RawAssertionRecord(array) =>
           val assertion: Assertion = {

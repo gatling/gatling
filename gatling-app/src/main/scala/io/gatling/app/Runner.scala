@@ -84,7 +84,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     simulation.executeBefore()
     logger.trace("Before hooks executed")
 
-    val runMessage = RunMessage(simulationParams.name, selection.userDefinedSimulationId, selection.defaultSimulationId, nowMillis, selection.description)
+    val runMessage = RunMessage(simulationParams.name, selection.simulationId, nowMillis, selection.description)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler(system, simulationParams)
     val controller = system.actorOf(Controller.props(statsEngine, throttler, simulationParams, configuration), Controller.ControllerActorName)

@@ -60,7 +60,7 @@ object LogFileDataWriter extends StrictLogging {
     def serialize(runMessage: RunMessage): Fastring = {
       import runMessage._
       val description = if (runDescription.isEmpty) " " else runDescription
-      fast"${RunRecordHeader.value}$Separator$simulationClassName$Separator${userDefinedSimulationId.getOrElse("")}$Separator$defaultSimulationId$Separator$start$Separator$description${Separator}2.0$Eol"
+      fast"${RunRecordHeader.value}$Separator$simulationClassName$Separator$simulationId$Separator$start$Separator$description${Separator}3.0$Eol"
     }
   }
 
