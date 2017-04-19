@@ -26,8 +26,7 @@ class GroupEnd(statsEngine: StatsEngine, val next: Action) extends ChainableActi
 
   def execute(session: Session): Unit =
     session.blockStack match {
-
-      case (group: GroupBlock) :: tail =>
+      case (group: GroupBlock) :: _ =>
         statsEngine.logGroupEnd(session, group, nowMillis)
         next ! session.exitGroup
 
