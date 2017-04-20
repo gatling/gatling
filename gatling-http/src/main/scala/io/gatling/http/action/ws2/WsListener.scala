@@ -19,11 +19,9 @@ import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.http.action.ws2.fsm.{ TextMessageReceived, WebSocketClosed, WebSocketCrashed, WebSocketOpened }
 
 import akka.actor.ActorRef
-import org.asynchttpclient.ws.{ WebSocket, WebSocketCloseCodeReasonListener, WebSocketTextListener }
+import org.asynchttpclient.ws.{ WebSocket, WebSocketListener }
 
-class WsListener(wsActor: ActorRef)
-    extends WebSocketTextListener
-    with WebSocketCloseCodeReasonListener {
+class WsListener(wsActor: ActorRef) extends WebSocketListener {
 
   override def onOpen(webSocket: WebSocket): Unit =
     wsActor ! WebSocketOpened(webSocket, nowMillis)
@@ -31,11 +29,9 @@ class WsListener(wsActor: ActorRef)
   override def onClose(webSocket: WebSocket, code: Int, reason: String): Unit =
     wsActor ! WebSocketClosed(code, reason, nowMillis)
 
-  override def onMessage(message: String): Unit =
+  override def onTextFrame(message: String, finalFragment: Boolean, rsv: Int): Unit =
     wsActor ! TextMessageReceived(message, nowMillis)
 
   override def onError(t: Throwable): Unit =
     wsActor ! WebSocketCrashed(t, nowMillis)
-
-  override def onClose(webSocket: WebSocket): Unit = {}
 }

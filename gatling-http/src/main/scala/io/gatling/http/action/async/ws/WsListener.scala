@@ -22,26 +22,18 @@ import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging
 import org.asynchttpclient.ws._
 
-class WsListener(tx: AsyncTx, wsActor: ActorRef)
-    extends WebSocketTextListener
-    with WebSocketByteListener
-    with WebSocketCloseCodeReasonListener
-    with WebSocketPingListener
-    with LazyLogging {
+class WsListener(tx: AsyncTx, wsActor: ActorRef) extends WebSocketListener with LazyLogging {
 
   private var state: WsListenerState = Opening
   private var webSocket: WebSocket = _
 
-  // WebSocketListener
-  def onOpen(webSocket: WebSocket): Unit = {
+  override def onOpen(webSocket: WebSocket): Unit = {
     state = Open
     this.webSocket = webSocket
     wsActor ! OnOpen(tx, webSocket, nowMillis)
   }
 
-  def onClose(webSocket: WebSocket): Unit = ()
-
-  def onError(t: Throwable): Unit =
+  override def onError(t: Throwable): Unit =
     state match {
       case Opening =>
         wsActor ! OnFailedOpen(tx, t.getMessage, nowMillis)
@@ -50,8 +42,7 @@ class WsListener(tx: AsyncTx, wsActor: ActorRef)
         logger.warn(s"WebSocket unexpected error '${t.getMessage}'", t)
     }
 
-  // WebSocketCloseCodeReasonListener
-  def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
+  override def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
     state match {
       case Open =>
         state = Closed
@@ -61,17 +52,14 @@ class WsListener(tx: AsyncTx, wsActor: ActorRef)
     }
   }
 
-  // WebSocketTextListener
-  def onMessage(message: String): Unit =
+  override def onTextFrame(message: String, finalFragment: Boolean, rsv: Int): Unit =
     wsActor ! OnTextMessage(message, nowMillis)
 
-  // WebSocketByteListener
-  def onMessage(message: Array[Byte]): Unit =
+  override def onBinaryFrame(message: Array[Byte], finalFragment: Boolean, rsv: Int): Unit =
     wsActor ! OnByteMessage(message, nowMillis)
 
-  // WebSocketPingListener
-  def onPing(message: Array[Byte]): Unit =
-    webSocket.sendPong(message)
+  override def onPingFrame(message: Array[Byte]): Unit =
+    webSocket.sendPongFrame(message)
 }
 
 private sealed trait WsListenerState

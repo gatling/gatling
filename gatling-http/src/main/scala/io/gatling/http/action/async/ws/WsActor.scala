@@ -105,8 +105,8 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
         }
 
         message match {
-          case TextMessage(text)    => webSocket.sendMessage(text)
-          case BinaryMessage(bytes) => webSocket.sendMessage(bytes)
+          case TextMessage(text)    => webSocket.sendTextFrame(text)
+          case BinaryMessage(bytes) => webSocket.sendBinaryFrame(bytes)
         }
 
         logResponse(session, requestName, OK, now, now)
@@ -183,7 +183,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       case Close(requestName, next, session) =>
         logger.debug(s"Closing websocket '$wsName'")
 
-        webSocket.close()
+        webSocket.sendCloseFrame()
 
         val newTx = failPendingCheck(tx, "Check didn't succeed by the time the websocket was asked to closed")
           .applyUpdates(session)

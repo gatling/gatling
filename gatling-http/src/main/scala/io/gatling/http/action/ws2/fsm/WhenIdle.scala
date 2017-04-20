@@ -25,7 +25,7 @@ trait WhenIdle { this: WsActor =>
       logger.debug(s"Send message $actionName $message")
       // actually send message!
       val timestamp = nowMillis
-      webSocket.sendMessage(message)
+      webSocket.sendTextFrame(message)
 
       //[fl]
       //
@@ -70,7 +70,7 @@ trait WhenIdle { this: WsActor =>
 
     case Event(ClientCloseRequest(name, session, next), IdleData(_, webSocket)) =>
       logger.info("Client requested WebSocket close")
-      webSocket.close()
+      webSocket.sendCloseFrame()
       //[fl]
       //
       //[fl]
