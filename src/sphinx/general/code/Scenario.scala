@@ -119,6 +119,18 @@ class Scenario {
   }
   //#doWhile
 
+  //#asLongAsDuring
+  asLongAsDuring(condition, duration, counterName) {
+    myChain
+  }
+  //#asLongAsDuring
+
+  //#doWhileDuring
+  doWhileDuring(condition, duration, counterName) {
+    myChain
+  }
+  //#doWhileDuring
+
   //#forever
   forever(counterName) {
     myChain

@@ -27,6 +27,8 @@ case object DuringLoopType extends LoopType("during", true, false)
 case object ForeverLoopType extends LoopType("forever", false, false)
 case object AsLongAsLoopType extends LoopType("asLongAs", false, false)
 case object DoWhileType extends LoopType("doWhile", false, true)
+case object AsLongAsDuringLoopType extends LoopType("asLongAsDuring", true, false)
+case object DoWhileDuringType extends LoopType("doWhileDuring", true, true)
 
 /**
  * @constructor create a new Loop

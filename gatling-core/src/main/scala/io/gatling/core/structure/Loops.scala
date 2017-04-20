@@ -64,4 +64,27 @@ trait Loops[B] extends Execs[B] {
 
   private def loop(condition: Expression[Boolean], chain: ChainBuilder, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean, loopType: LoopType): B =
     exec(new LoopBuilder(condition, chain, counterName, exitASAP, loopType))
+
+  private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String) =
+    (session: Session) => for {
+      durationValue <- duration(session)
+      conditionValue <- condition(session)
+    } yield nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis && conditionValue
+
+  def asLongAsDuring(
+    condition:   Expression[Boolean],
+    duration:    Expression[Duration],
+    counterName: String               = UUID.randomUUID.toString,
+    exitASAP:    Boolean              = true
+  )(chain: ChainBuilder): B =
+    loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
+
+  def doWhileDuring(
+    condition:   Expression[Boolean],
+    duration:    Expression[Duration],
+    counterName: String               = UUID.randomUUID.toString,
+    exitASAP:    Boolean              = true
+  )(chain: ChainBuilder): B =
+    loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, DoWhileDuringType)
+
 }
