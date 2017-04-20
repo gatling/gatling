@@ -87,6 +87,18 @@ class CoreCompileTest extends Simulation {
     .doWhile("${condition}", "counterName") {
       exec(noop)
     }
+    .asLongAsDuring("${condition}", 10 seconds) {
+      exec(noop)
+    }
+    .asLongAsDuring("${condition}", 10 seconds, "counterName") {
+      exec(noop)
+    }
+    .doWhileDuring("${condition}", 10 seconds) {
+      exec(noop)
+    }
+    .doWhileDuring("${condition}", 10 seconds, "counterName") {
+      exec(noop)
+    }
     .repeat(iterations, "counter") {
       // What will be repeated ?
       // First request to be repeated
