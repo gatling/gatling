@@ -79,23 +79,23 @@ case class Session(
     onExit:     Session => Unit  = Session.NothingOnExit
 ) extends LazyLogging {
 
-  def apply(name: String) = SessionAttribute(this, name)
+  def apply(name: String): SessionAttribute = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
   def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
-  def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))
-  def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
-  def removeAll(keys: String*) = keys.foldLeft(this)(_ remove _)
-  def contains(attributeKey: String) = attributes.contains(attributeKey)
-  def reset = copy(attributes = Map.empty)
+  def set(key: String, value: Any): Session = copy(attributes = attributes + (key -> value))
+  def remove(key: String): Session = if (contains(key)) copy(attributes = attributes - key) else this
+  def removeAll(keys: String*): Session = keys.foldLeft(this)(_ remove _)
+  def contains(attributeKey: String): Boolean = attributes.contains(attributeKey)
+  def reset: Session = copy(attributes = Map.empty)
 
   private[gatling] def setDrift(drift: Long) = copy(drift = drift)
   private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
 
   private def timestampName(counterName: String) = "timestamp." + counterName
 
-  def loopCounterValue(counterName: String) = attributes(counterName).asInstanceOf[Int]
+  def loopCounterValue(counterName: String): Int = attributes(counterName).asInstanceOf[Int]
 
-  def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
+  def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
   private[gatling] def enterGroup(groupName: String) = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
@@ -147,7 +147,7 @@ case class Session(
       this
   }
 
-  def isFailed = baseStatus == KO || blockStack.exists {
+  def isFailed: Boolean = baseStatus == KO || blockStack.exists {
     case TryMaxBlock(_, _, KO) => true
     case _                     => false
   }
@@ -240,11 +240,11 @@ case class Session(
 
   private[gatling] def removeCounter(counterName: String): Session =
     attributes.get(counterName) match {
-      case Some(counterValue: Int) =>
-        copy(attributes = attributes - counterName - timestampName(counterName))
-      case _ =>
+      case None =>
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
         this
+      case _ =>
+        copy(attributes = attributes - counterName - timestampName(counterName))
     }
 
   def update(updates: Iterable[Session => Session]): Session = updates.foldLeft(this) {
