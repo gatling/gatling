@@ -22,7 +22,6 @@ import scala.collection.mutable
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
-import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session._
