@@ -74,7 +74,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     jsonPath("$.foo").ofType[Any].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
   }
 
-  "foo" should "find a null attribute value when expected type is Int" in {
+  it should "find a null attribute value when expected type is Int" in {
     val response = mockResponse("""{"foo": null}""")
     jsonPath("$.foo").ofType[Int].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null.asInstanceOf[Int]), None)
   }
