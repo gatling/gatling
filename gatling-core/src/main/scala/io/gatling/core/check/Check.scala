@@ -24,7 +24,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit cache: mutable.Map[Any, Any] = mutable.Map.empty[Any, Any]): (Session => Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: mutable.Map[Any, Any] = mutable.Map.empty[Any, Any]): (Session => Session, Option[Failure]) = {
 
       @tailrec
       def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
@@ -61,7 +61,7 @@ object Check {
 
 trait Check[R] {
 
-  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult]
+  def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult]
 }
 
 case class CheckBase[R, P, X](
@@ -71,9 +71,9 @@ case class CheckBase[R, P, X](
     saveAs:              Option[String]
 ) extends Check[R] {
 
-  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult] = {
 
-      def memoizedPrepared: Validation[P] = cache
+      def memoizedPrepared: Validation[P] = preparedCache
         .getOrElseUpdate(preparer, preparer(response))
         .asInstanceOf[Validation[P]]
 

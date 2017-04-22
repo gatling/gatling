@@ -49,7 +49,7 @@ case class JmsProtocolBuilder(
   def receiveTimeout(timeout: Long): JmsProtocolBuilder = this
   def replyTimeout(timeout: Long): JmsProtocolBuilder = copy(replyTimeout = Some(timeout))
 
-  def build = new JmsProtocol(
+  def build = JmsProtocol(
     credentials = creds,
     deliveryMode = deliveryMode,
     messageMatcher = messageMatcher,

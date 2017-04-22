@@ -23,7 +23,7 @@ import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper }
 import io.gatling.jms.JmsCheck
 import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
-import com.softwaremill.quicklens.ModifyPimp
+import com.softwaremill.quicklens._
 
 case class JmsDslBuilderBase(requestName: Expression[String]) {
 
@@ -119,7 +119,7 @@ case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttribu
   def jmsType(jmsType: Expression[String]) = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
   /**
-   * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
+   * Add a check that will be performed on each received JMS response message before giving Gatling on OK/KO response
    */
   def check(checks: JmsCheck*) = this.modify(_.attributes.checks).using(_ ::: checks.toList)
 

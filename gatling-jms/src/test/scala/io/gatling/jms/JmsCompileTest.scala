@@ -17,7 +17,7 @@ package io.gatling.jms
 
 import javax.jms._
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._

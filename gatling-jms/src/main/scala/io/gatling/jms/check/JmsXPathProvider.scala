@@ -31,14 +31,11 @@ class JmsXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPa
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
-  private def xpathPreparer[T](f: InputSource => T)(message: Message): Validation[Option[T]] =
-    safely(ErrorMapper) {
+  override val preparer: Preparer[Message, Option[Dom]] =
+    message => safely(ErrorMapper) {
       message match {
-        case tm: TextMessage => Some(f(new InputSource(new StringReader(tm.getText)))).success
+        case tm: TextMessage => Some(xmlParsers.parse(new InputSource(new StringReader(tm.getText)))).success
         case _               => "Unsupported message type".failure
       }
     }
-
-  override val preparer: Preparer[Message, Option[Dom]] =
-    xpathPreparer(xmlParsers.parse)
 }

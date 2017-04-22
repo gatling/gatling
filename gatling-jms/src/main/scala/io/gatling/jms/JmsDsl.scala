@@ -35,7 +35,7 @@ trait JmsDsl extends JmsCheckSupport {
    * DSL text to start the jms builder
    *
    * @param requestName human readable name of request
-   * @return a PingBuilder instance which can be used to build up a ping
+   * @return a JmsDslBuilderBase instance which can be used to build up a JMS action
    */
   def jms(requestName: Expression[String]) = JmsDslBuilderBase(requestName)
 

@@ -18,7 +18,6 @@ package io.gatling.jms.client
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.jms._
-import io.gatling.jms.action.MessageSent
 
 import akka.actor.ActorRef
 
@@ -47,7 +46,7 @@ class JmsTracker(listenerThread: ListenerThread, actor: ActorRef) {
 }
 
 class ListenerThread(runnable: Runnable) extends Thread(runnable) {
-  def close() = {
+  def close(): Unit = {
     interrupt()
     join(1000)
   }

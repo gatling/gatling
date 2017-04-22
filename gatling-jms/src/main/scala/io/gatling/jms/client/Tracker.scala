@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms.action
+package io.gatling.jms.client
 
 import javax.jms.Message
 
@@ -59,18 +59,18 @@ case class MessageReceived(
 case object TimeoutScan
 
 object Tracker {
-  def props(statsEngine: StatsEngine, configuration: GatlingConfiguration) = Props(new Tracker(statsEngine, configuration))
+  def props(statsEngine: StatsEngine, configuration: GatlingConfiguration) =
+    Props(new Tracker(statsEngine, configuration.jms.replyTimeoutScanPeriod milliseconds))
 }
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages
  * Once a message is correlated, it publishes to the Gatling core DataWriter
  */
-class Tracker(statsEngine: StatsEngine, configuration: GatlingConfiguration) extends BaseActor {
+class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) extends BaseActor {
 
   private val sentMessages = mutable.HashMap.empty[String, MessageSent]
   private val timedOutMessages = mutable.ArrayBuffer.empty[MessageSent]
-  private val replyTimeoutScanPeriod = configuration.jms.replyTimeoutScanPeriod milliseconds
   private var periodicTimeoutScanTriggered = false
 
   def triggerPeriodicTimeoutScan(): Unit =
@@ -81,7 +81,7 @@ class Tracker(statsEngine: StatsEngine, configuration: GatlingConfiguration) ext
       }
     }
 
-  def receive = {
+  override def receive: Receive = {
     // message was sent; add the timestamps to the map
     case messageSent: MessageSent =>
       sentMessages += messageSent.matchId -> messageSent
@@ -106,7 +106,7 @@ class Tracker(statsEngine: StatsEngine, configuration: GatlingConfiguration) ext
         }
       }
 
-      for (MessageSent(matchId, sent, receivedTimeout, checks, session, next, requestName) <- timedOutMessages) {
+      for (MessageSent(matchId, sent, receivedTimeout, _, session, next, requestName) <- timedOutMessages) {
         sentMessages.remove(matchId)
         executeNext(session.markAsFailed, sent, now, KO, next, requestName, Some(s"Reply timeout after $receivedTimeout ms"))
       }

@@ -25,7 +25,7 @@ import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.jms.action.{ JmsLogging, MessageReceived, Tracker }
+import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
 
 import akka.actor.ActorSystem

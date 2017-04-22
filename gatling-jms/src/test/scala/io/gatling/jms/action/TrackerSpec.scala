@@ -25,6 +25,7 @@ import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer.ResponseMessage
 import io.gatling.jms._
 import io.gatling.jms.check.JmsSimpleCheck
+import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 
 import akka.testkit.TestActorRef
 
@@ -32,7 +33,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
   val configuration = GatlingConfiguration.loadForTest()
 
-  def ignoreDrift(actual: Session) = {
+  private def ignoreDrift(actual: Session) = {
     actual.drift shouldBe >(0L)
     actual.setDrift(0)
   }
@@ -41,7 +42,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
   "JmsRequestTrackerActor" should "pass to next to next actor when matching message is received" in {
     val statsEngine = new MockStatsEngine
-    val tracker = TestActorRef(new Tracker(statsEngine, configuration))
+    val tracker = TestActorRef(Tracker.props(statsEngine, configuration))
 
     tracker ! MessageSent("1", 15, 0, Nil, session, new ActorDelegatingAction("next", testActor), "success")
     tracker ! MessageReceived("1", 30, textMessage("test"))
@@ -56,7 +57,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
   it should "pass KO to next actor when check fails" in {
     val failedCheck = JmsSimpleCheck(_ => false)
     val statsEngine = new MockStatsEngine
-    val tracker = TestActorRef(new Tracker(statsEngine, configuration))
+    val tracker = TestActorRef(Tracker.props(statsEngine, configuration))
 
     tracker ! MessageSent("1", 15, 0, List(failedCheck), session, new ActorDelegatingAction("next", testActor), "failure")
     tracker ! MessageReceived("1", 30, textMessage("test"))
@@ -71,7 +72,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
   it should "pass updated session to next actor if modified by checks" in {
     val check: JmsCheck = xpath("/id").saveAs("id")
     val statsEngine = new MockStatsEngine
-    val tracker = TestActorRef(new Tracker(statsEngine, configuration))
+    val tracker = TestActorRef(Tracker.props(statsEngine, configuration))
 
     tracker ! MessageSent("1", 15, 0, List(check), session, new ActorDelegatingAction("next", testActor), "updated")
     tracker ! MessageReceived("1", 30, textMessage("<id>5</id>"))
@@ -85,7 +86,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
   it should "pass information to session about response time in case group are used" in {
     val statsEngine = new MockStatsEngine
-    val tracker = TestActorRef(new Tracker(statsEngine, configuration))
+    val tracker = TestActorRef(Tracker.props(statsEngine, configuration))
 
     val groupSession = session.enterGroup("group")
     tracker ! MessageSent("1", 15, 0, Nil, groupSession, new ActorDelegatingAction("next", testActor), "logGroupResponse")
