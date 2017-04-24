@@ -161,12 +161,16 @@ class HttpCompileTest extends Simulation {
     .exec(polling.stop)
     // rendezVous
     .rendezVous(100)
-    // flushSessionCookies
-    .exec(flushSessionCookies)
     // addCookie
     .exec(addCookie(Cookie("foo", "bar").withDomain("foo.com")))
     // getCookieValue
     .exec(getCookieValue(CookieKey("foo").withDomain("foo.com").saveAs("newName")))
+    // flushSessionCookies
+    .exec(flushSessionCookies)
+    // flushCookieJar
+    .exec(flushCookieJar)
+    // flushHttpCache
+    .exec(flushHttpCache)
     // transformResponse
     .exec(http("Request").get("/").transformResponse {
       case response if response.isReceived =>
