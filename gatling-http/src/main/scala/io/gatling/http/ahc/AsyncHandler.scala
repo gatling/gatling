@@ -29,6 +29,7 @@ import org.asynchttpclient.AsyncHandler.State._
 import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.request.NettyRequest
 import com.typesafe.scalalogging._
+import io.netty.handler.codec.http.HttpHeaders
 
 object AsyncHandler extends StrictLogging {
   val DebugEnabled = logger.underlying.isDebugEnabled
@@ -106,7 +107,7 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
     CONTINUE
   }
 
-  override def onHeadersReceived(headers: HttpResponseHeaders): State = {
+  override def onHeadersReceived(headers: HttpHeaders): State = {
     if (!done.get) responseBuilder.accumulate(headers)
     CONTINUE
   }

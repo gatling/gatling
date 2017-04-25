@@ -25,6 +25,7 @@ import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.Channel
+import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
@@ -69,7 +70,7 @@ class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[U
     }
   }
 
-  override def onHeadersReceived(headers: HttpResponseHeaders): State =
+  override def onHeadersReceived(headers: HttpHeaders): State =
     if (done.get) ABORT
     else CONTINUE
 
