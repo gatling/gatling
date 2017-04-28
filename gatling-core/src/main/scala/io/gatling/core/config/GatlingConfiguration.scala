@@ -185,6 +185,7 @@ object GatlingConfiguration extends StrictLogging {
             disable
           },
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
+          httpClientCodecInitialBufferSize = config.getInt(http.ahc.HttpClientCodecInitialBufferSize),
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
@@ -354,6 +355,7 @@ case class AhcConfiguration(
   requestTimeOut:                      Int,
   disableHttpsAlgorithm:               Boolean,
   httpClientCodecMaxChunkSize:         Int,
+  httpClientCodecInitialBufferSize:    Int,
   sslEnabledProtocols:                 List[String],
   sslEnabledCipherSuites:              List[String],
   sslSessionCacheSize:                 Int,

@@ -19,7 +19,7 @@ import javax.net.ssl.{ SSLContext, SSLEngine }
 
 import io.gatling.recorder.http.flows.Remote
 
-import org.asynchttpclient.netty.ssl.InsecureTrustManagerFactory
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
 private[http] object SslClientContext {
 

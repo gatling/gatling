@@ -104,6 +104,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setHttpClientCodecMaxInitialLineLength(Int.MaxValue)
       .setHttpClientCodecMaxHeaderSize(Int.MaxValue)
       .setHttpClientCodecMaxChunkSize(ahcConfig.httpClientCodecMaxChunkSize)
+      .setHttpClientCodecInitialBufferSize(ahcConfig.httpClientCodecInitialBufferSize)
       .setKeepEncodingHeader(true)
       .setWebSocketMaxFrameSize(Int.MaxValue)
       .setUseOpenSsl(ahcConfig.useOpenSsl)
