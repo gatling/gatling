@@ -11,10 +11,9 @@ object Dependencies {
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.6"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"      % "1.0.5"
   private val java8Compat                   = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0"
-  private val ahc                           = "org.asynchttpclient"                    % "async-http-client"             % "2.1.0-alpha16"
+  private val ahc                           = "org.asynchttpclient"                    % "async-http-client"             % "2.1.0-alpha17"
   private val ahcNettyUtils                 = "org.asynchttpclient"                    % "async-http-client-netty-utils" % ahc.revision
   private val netty                         = "io.netty"                               % "netty-codec-http"              % "4.1.10.Final"
-  private val nettyHandler                  = "io.netty"                               % "netty-handler"                 % netty.revision
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll"  % netty.revision classifier "linux-x86_64"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.0"
   private val akkaSlf4j                     = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
@@ -73,8 +72,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  // force nettyHandler version, otherwise sbt pulls the one from netty-reactive-streams
-  val httpAhcDependencies = Seq(ahc, nettyHandler, nettyNativeTransport) ++ testDeps
+  val httpAhcDependencies = Seq(ahc, nettyNativeTransport) ++ testDeps
 
   val httpDependencies = Seq(scalaXml) ++ testDeps
 
