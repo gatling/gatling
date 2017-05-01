@@ -31,7 +31,7 @@ object Dependencies {
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.8.5"
   private val boopickle                     = "io.suzaku"                             %% "boopickle"                     % "1.2.6"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                   % "3.4"
-  private val zinc                          = "com.typesafe.zinc"                      % "zinc"                          % "0.3.13" exclude("org.scala-lang", "scala-compiler")
+  private val zinc                          = "com.typesafe.zinc"                      % "zinc"                          % "0.3.15" exclude("org.scala-lang", "scala-compiler")
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"         % "1.1.1"
   private val logback                       = "ch.qos.logback"                         % "logback-classic"               % "1.2.3"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                      % "3.1"
