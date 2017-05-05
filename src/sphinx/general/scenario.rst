@@ -104,13 +104,13 @@ E.g.:
 
 There are several ways of using it:
 
-* Fixed pause duration:
+* Fixed pace duration:
 
   * ``pace(duration: Duration)``
   * ``pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS)``
   * ``pace(duration: Expression[Duration])``
 
-* Uniform random pause duration:
+* Uniform random pace duration:
 
   * ``pace(min: Duration, max: Duration)``
   * ``pace(min: String, max: String, unit: TimeUnit)``
