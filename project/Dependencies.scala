@@ -53,7 +53,7 @@ object Dependencies {
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"              % "5.14.5"            % "test"
   private val h2                             = "com.h2database"                         % "h2"                           % "1.4.194"           % "test"
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                   % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
-  private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.18"
+  private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.19"
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
