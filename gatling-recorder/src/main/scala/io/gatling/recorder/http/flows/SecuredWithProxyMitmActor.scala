@@ -71,7 +71,7 @@ class SecuredWithProxyMitmActor(
 
     // send connect request
     val connectRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.CONNECT, s"${remote.host}:${remote.port}")
-    proxyBasicAuthHeader.foreach(header => connectRequest.headers.set(HttpHeaders.Names.PROXY_AUTHORIZATION, header))
+    proxyBasicAuthHeader.foreach(header => connectRequest.headers.set(HttpHeaderNames.PROXY_AUTHORIZATION, header))
     clientChannel.writeAndFlush(connectRequest.filterSupportedEncodings)
 
     goto(WaitingForProxyConnectResponse) using WaitingForProxyConnectResponseData(remote, pendingRequest, clientChannel)

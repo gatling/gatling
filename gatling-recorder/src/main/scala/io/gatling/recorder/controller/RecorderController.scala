@@ -34,7 +34,7 @@ import io.gatling.recorder.ui._
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.Base64
-import io.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
+import io.netty.handler.codec.http.HttpHeaderNames.PROXY_AUTHORIZATION
 
 private[recorder] class RecorderController extends StrictLogging {
 

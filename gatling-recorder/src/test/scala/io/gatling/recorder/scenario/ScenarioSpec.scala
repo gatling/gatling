@@ -24,7 +24,7 @@ import io.gatling.recorder.config.ConfigKeys.http.{ InferHtmlResources, FollowRe
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 import org.asynchttpclient.uri.Uri
-import io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
+import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
 
 class ScenarioSpec extends BaseSpec {
 
@@ -53,7 +53,7 @@ class ScenarioSpec extends BaseSpec {
     val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, None, 200,
       List(CssResource(Uri.create("http://gatling.io/main.css")), RegularResource(Uri.create("http://gatling.io/img.jpg"))))
     val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, None, 200, List.empty)
-    val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, None, 200, List.empty)
+    val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE.toString -> "text/html;charset=UTF-8"), None, None, 200, List.empty)
     val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, None, 200, List.empty)
     val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, None, 200, List(CssResource(Uri.create("http://gatling.io/main.css"))))
     val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, None, 200, List.empty)
