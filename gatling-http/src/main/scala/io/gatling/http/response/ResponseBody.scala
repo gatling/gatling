@@ -61,18 +61,12 @@ object StringResponseBody extends StrictLogging {
 
   def apply(chunks: Seq[ByteBuf], charset: Charset) = {
     val string =
-      try {
-        (chunks.length: @switch) match {
-          case 0 => ""
-          case 1 =>
-            ByteBufUtils.byteBuf2String(charset, chunks.head)
-          case _ =>
-            ByteBufUtils.byteBuf2String(charset, chunks: _*)
-        }
-      } catch {
-        case NonFatal(e) =>
-          logger.error(s"Response body is not valid ${charset.name} bytes", e)
-          ""
+      (chunks.length: @switch) match {
+        case 0 => ""
+        case 1 =>
+          ByteBufUtils.byteBuf2String(charset, chunks.head)
+        case _ =>
+          ByteBufUtils.byteBuf2String(charset, chunks: _*)
       }
     new StringResponseBody(string, charset)
   }
