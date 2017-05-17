@@ -17,6 +17,7 @@ package io.gatling.core.action
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
@@ -62,10 +63,8 @@ trait ChainableAction extends Action {
       case NonFatal(reason) =>
         if (logger.underlying.isInfoEnabled)
           logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
-        else if (reason.getMessage == null)
-          logger.error(s"'$name' crashed with '${reason.getClass.getName}', forwarding to the next one")
         else
-          logger.error(s"'$name' crashed with '${reason.getClass.getName}: ${reason.getMessage}', forwarding to the next one")
+          logger.error(s"'$name' crashed with '${reason.detailedMessage}', forwarding to the next one")
         next.execute(session.markAsFailed)
     }
 
@@ -90,8 +89,18 @@ trait RequestAction extends ExitableAction {
 
   override def execute(session: Session): Unit = recover(session) {
     requestName(session).flatMap { resolvedRequestName =>
-      val outcome = sendRequest(resolvedRequestName, session)
-      outcome.onFailure(errorMessage => statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage))
+      val outcome =
+        try {
+          sendRequest(resolvedRequestName, session)
+        } catch {
+          case NonFatal(e) =>
+            statsEngine.reportUnbuildableRequest(session, resolvedRequestName, e.detailedMessage)
+            // rethrow so we trigger exception handling in "!"
+            throw e
+        }
+      outcome.onFailure { errorMessage =>
+        statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage)
+      }
       outcome
     }
   }
