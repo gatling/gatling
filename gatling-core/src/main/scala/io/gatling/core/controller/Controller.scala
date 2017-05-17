@@ -88,7 +88,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       stopGracefully(startedData, Some(exception))
 
     case Event(Kill, StartedData(initData, _)) =>
-      logger.error(s"Simulation was killed")
+      logger.error("Simulation was killed")
       stop(EndData(initData, None))
   }
 
