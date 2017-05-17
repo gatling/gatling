@@ -73,7 +73,7 @@ trait StatsEngine {
   def logCrash(session: Session, requestName: String, error: String): Unit
 
   def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
-    logCrash(session, requestName, s"Failed to build request $requestName: $errorMessage")
+    logCrash(session, requestName, s"Failed to build request: $errorMessage")
 }
 
 object DataWritersStatsEngine {
@@ -170,5 +170,5 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
     ))
 
   override def logCrash(session: Session, requestName: String, error: String): Unit =
-    dispatch(ErrorMessage(s"$error ", nowMillis))
+    dispatch(ErrorMessage(s"$requestName: $error ", nowMillis))
 }
