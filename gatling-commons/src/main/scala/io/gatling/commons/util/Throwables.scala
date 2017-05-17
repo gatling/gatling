@@ -48,5 +48,12 @@ object Throwables {
         s"$rcSimpleName: ${rc.getMessage}"
       }
     }
+
+    def detailedMessage: String =
+      if (e.getMessage == null) {
+        e.getClass.getName
+      } else {
+        s"${e.getClass.getName}: ${e.getMessage}"
+      }
   }
 }
