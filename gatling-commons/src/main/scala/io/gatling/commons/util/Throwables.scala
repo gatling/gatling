@@ -15,6 +15,8 @@
  */
 package io.gatling.commons.util
 
+import java.io.PrintWriter
+
 object Throwables {
 
   private[this] val emptyStackTrace = Array.empty[StackTraceElement]
@@ -55,5 +57,11 @@ object Throwables {
       } else {
         s"${e.getClass.getName}: ${e.getMessage}"
       }
+
+    def stackTraceString: String = {
+      val sw = new FastStringWriter()
+      e.printStackTrace(new PrintWriter(sw))
+      sw.toString
+    }
   }
 }
