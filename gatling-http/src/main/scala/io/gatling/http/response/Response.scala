@@ -84,7 +84,7 @@ case class HttpResponse(
   def header(name: String): Option[String] = Option(headers.get(name))
   def headers(name: String): Seq[String] = headers.getAll(name).asScala
 
-  lazy val cookies = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(cookie => Option(ClientCookieDecoder.LAX.decode(cookie))).toList
+  lazy val cookies = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie))).toList
 
   def checksum(algorithm: String) = checksums.get(algorithm)
   def hasResponseBody = bodyLength != 0

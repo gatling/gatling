@@ -176,8 +176,8 @@ object GatlingConfiguration extends StrictLogging {
           readTimeout = config.getInt(http.ahc.ReadTimeout),
           maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeOut = config.getInt(http.ahc.RequestTimeout),
-          disableHttpsAlgorithm = {
-            val disable = config.getBoolean(http.ahc.DisableHttpsAlgorithm)
+          disableHttpsEndpointIdentificationAlgorithm = {
+            val disable = config.getBoolean(http.ahc.DisableHttpsEndpointIdentificationAlgorithm)
             if (disable) {
               System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
               System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
@@ -346,29 +346,29 @@ case class JmsConfiguration(
 )
 
 case class AhcConfiguration(
-  keepAlive:                           Boolean,
-  connectTimeout:                      Int,
-  handshakeTimeout:                    Int,
-  pooledConnectionIdleTimeout:         Int,
-  readTimeout:                         Int,
-  maxRetry:                            Int,
-  requestTimeOut:                      Int,
-  disableHttpsAlgorithm:               Boolean,
-  httpClientCodecMaxChunkSize:         Int,
-  httpClientCodecInitialBufferSize:    Int,
-  sslEnabledProtocols:                 List[String],
-  sslEnabledCipherSuites:              List[String],
-  sslSessionCacheSize:                 Int,
-  sslSessionTimeout:                   Int,
-  useOpenSsl:                          Boolean,
-  useNativeTransport:                  Boolean,
-  tcpNoDelay:                          Boolean,
-  soReuseAddress:                      Boolean,
-  soLinger:                            Int,
-  soSndBuf:                            Int,
-  soRcvBuf:                            Int,
-  allocator:                           String,
-  maxThreadLocalCharBufferSize:        Int
+  keepAlive:                                   Boolean,
+  connectTimeout:                              Int,
+  handshakeTimeout:                            Int,
+  pooledConnectionIdleTimeout:                 Int,
+  readTimeout:                                 Int,
+  maxRetry:                                    Int,
+  requestTimeOut:                              Int,
+  disableHttpsEndpointIdentificationAlgorithm: Boolean,
+  httpClientCodecMaxChunkSize:                 Int,
+  httpClientCodecInitialBufferSize:            Int,
+  sslEnabledProtocols:                         List[String],
+  sslEnabledCipherSuites:                      List[String],
+  sslSessionCacheSize:                         Int,
+  sslSessionTimeout:                           Int,
+  useOpenSsl:                                  Boolean,
+  useNativeTransport:                          Boolean,
+  tcpNoDelay:                                  Boolean,
+  soReuseAddress:                              Boolean,
+  soLinger:                                    Int,
+  soSndBuf:                                    Int,
+  soRcvBuf:                                    Int,
+  allocator:                                   String,
+  maxThreadLocalCharBufferSize:                Int
 )
 
 case class DnsConfiguration(
