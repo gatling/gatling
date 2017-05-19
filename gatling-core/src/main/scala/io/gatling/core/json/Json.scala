@@ -19,11 +19,12 @@ import java.util.{ Collection => JCollection, Map => JMap }
 
 import scala.collection.JavaConverters._
 
-import io.gatling.commons.util.StringReplace
-
 import com.dongxiguo.fastring.Fastring.Implicits._
+import com.fasterxml.jackson.databind.ObjectMapper
 
 object Json {
+
+  private val objectMapper = new ObjectMapper
 
   def stringify(value: Any, isRootObject: Boolean = true): String =
     fastringify(value, isRootObject).toString()
@@ -47,7 +48,7 @@ object Json {
   }
 
   private def writeString(s: String, rootLevel: Boolean) = {
-    val escapedLineFeeds = StringReplace.replace(s, "\n", "\\n")
+    val escapedLineFeeds = objectMapper.writeValueAsString(s).replaceAll("^\"|\"$", "")
     if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
   }
 
