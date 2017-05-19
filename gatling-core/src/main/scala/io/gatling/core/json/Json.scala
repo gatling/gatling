@@ -21,6 +21,8 @@ import scala.collection.JavaConverters._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
+import com.fasterxml.jackson.databind.ObjectMapper
+
 object Json {
 
   def stringify(value: Any, isRootObject: Boolean = true): String =
@@ -45,8 +47,9 @@ object Json {
   }
 
   private def writeString(s: String, rootLevel: Boolean) = {
-    val escapedLineFeeds = s.replace("\n", "\\n").replace("\"", "\\\"")
-    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
+    val objectMapper = new ObjectMapper
+    val escapedLineFeeds = objectMapper.writeValueAsString(s).replaceAll("^\"|\"$", "")
+    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""   
   }
 
   private def writeValue(value: Any) = fast"${value.toString}"
