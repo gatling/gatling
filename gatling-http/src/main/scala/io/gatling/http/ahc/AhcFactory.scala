@@ -95,6 +95,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setNettyTimer(timer)
       .setResponseBodyPartFactory(ResponseBodyPartFactory.LAZY)
       .setDisableHttpsEndpointIdentificationAlgorithm(ahcConfig.disableHttpsEndpointIdentificationAlgorithm)
+      .setUseLaxCookieEncoder(true)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
         case Nil => null
         case ps  => ps.toArray
