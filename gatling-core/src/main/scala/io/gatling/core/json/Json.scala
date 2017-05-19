@@ -27,6 +27,8 @@ object Json {
 
   def stringify(value: Any, isRootObject: Boolean = true): String =
     fastringify(value, isRootObject).toString()
+  
+  private val objectMapper = new ObjectMapper
 
   private def fastringify(value: Any, rootLevel: Boolean): Fastring = value match {
     case b: Byte                   => writeValue(b)
@@ -47,7 +49,6 @@ object Json {
   }
 
   private def writeString(s: String, rootLevel: Boolean) = {
-    val objectMapper = new ObjectMapper
     val escapedLineFeeds = objectMapper.writeValueAsString(s).replaceAll("^\"|\"$", "")
     if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""   
   }
