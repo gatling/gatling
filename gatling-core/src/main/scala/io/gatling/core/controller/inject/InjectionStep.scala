@@ -224,6 +224,9 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
   private lazy val separatorUsers = separator.users
 
   override def chain(chained: Iterator[FiniteDuration]) = {
+    require(stepUsers > 0, s"stepUsers ($stepUsers) must be > 0")
+    require(separatorUsers >= 0, s"separatorUsers ($separatorUsers) must be >= 0")
+
     if (possibleUsers >= stepUsers) {
       val n = (possibleUsers - stepUsers) / (stepUsers + separatorUsers)
       val lastScheduling = step.chain(chained)
