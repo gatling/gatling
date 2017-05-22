@@ -18,13 +18,13 @@ package io.gatling.core.check.extractor.css
 import scala.collection.mutable
 
 import jodd.lagarto.LagartoParser
-import jodd.lagarto.dom.{ Node, LagartoDomBuilderConfig, LagartoDOMBuilder }
+import jodd.lagarto.dom.{ LagartoDOMBuilder, LagartoDomBuilderConfig, Node }
 import jodd.log.LoggerFactory
-import jodd.log.impl.Slf4jLoggerFactory
+import jodd.log.impl.Slf4jLogger
 
 object Jodd {
 
-  LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
+  LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
 
   val IeVersionDroppingCc = 10.0
 
