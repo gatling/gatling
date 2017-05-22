@@ -50,7 +50,7 @@ object Json {
 
   private def writeString(s: String, rootLevel: Boolean) = {
     val escapedLineFeeds = objectMapper.writeValueAsString(s).replaceAll("^\"|\"$", "")
-    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""   
+    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
   }
 
   private def writeValue(value: Any) = fast"${value.toString}"
