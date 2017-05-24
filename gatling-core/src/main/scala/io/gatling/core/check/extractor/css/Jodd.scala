@@ -62,7 +62,7 @@ object Jodd {
 
       def extractInput(node: Node, parameters: mutable.MultiMap[String, String]): Unit =
         for {
-          typeAttr <- Option(node.getAttribute("type"))
+          typeAttr <- Option(node.getAttribute("type")) if typeAttr != "radio" || node.hasAttribute("checked")
           nameAttr <- Option(node.getAttribute("name"))
           valueAttr <- Option(node.getAttribute("value")).orElse(if (typeAttr == "checkbox" && node.hasAttribute("checked")) Some("on") else None)
         } parameters.addBinding(nameAttr, valueAttr)
