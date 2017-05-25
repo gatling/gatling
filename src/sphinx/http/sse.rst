@@ -111,7 +111,7 @@ This can be done:
 * implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
 * explicitly with the ``reconciliate`` method.
 
-.. includecode:: code/WebSocket.scala#reconciliate
+.. includecode:: code/Sse.scala#reconciliate
 
 .. _http-sse-check-conf:
 
