@@ -26,6 +26,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 private[scenario] object RequestTemplate {
 
   val BuiltInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
+  val MaxLiteralSize = 65534
 
   def headersBlockName(id: Int) = fast"headers_$id"
 
@@ -51,10 +52,10 @@ private[scenario] object RequestTemplate {
         }.getOrElse("")
 
       def renderLongString(value: String) =
-        if (value.nonEmpty)
-          value.grouped(65535).map(protectWithTripleQuotes).mkFastring(" + ")
+        if (value.size > MaxLiteralSize)
+          fast"""Seq(${value.grouped(MaxLiteralSize).map(protectWithTripleQuotes).mkFastring(", ")}).mkString"""
         else
-          protectWithTripleQuotes("")
+          protectWithTripleQuotes(value)
 
       def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""
