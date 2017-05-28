@@ -21,7 +21,6 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
-import io.gatling.http.action.ws2.WsCheckSequence
 
 trait WhenPerformingCheck { this: WsActor =>
 
