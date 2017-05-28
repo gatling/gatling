@@ -36,7 +36,7 @@ object Dependencies {
   private val tdigest                       = "com.tdunning"                           % "t-digest"                      % "3.1"
   private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                  % "2.1.9"
   private val caffeine                      = "com.github.ben-manes.caffeine"          % "caffeine"                      % "2.5.1"
-  private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"                % "1.56"
+  private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"                % "1.57"
   private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                     % "1.4.8"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"                % "1.0"
   private val pebble                        = "com.mitchellbosecke"                    % "pebble"                        % "2.3.0"
