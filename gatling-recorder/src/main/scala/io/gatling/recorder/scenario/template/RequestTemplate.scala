@@ -52,13 +52,13 @@ private[scenario] object RequestTemplate {
         }.getOrElse("")
 
       def renderLongString(value: String) =
-        if (value.size > MaxLiteralSize)
+        if (value.length > MaxLiteralSize)
           fast"""Seq(${value.grouped(MaxLiteralSize).map(protectWithTripleQuotes).mkFastring(", ")}).mkString"""
         else
           protectWithTripleQuotes(value)
 
       def renderBodyOrParams: Fastring = request.body.map {
-        case RequestBodyBytes(_) => fast"""
+        case _: RequestBodyBytes => fast"""
 			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
         case RequestBodyParams(params) => params.map {
           case (key, value) => fast"""
