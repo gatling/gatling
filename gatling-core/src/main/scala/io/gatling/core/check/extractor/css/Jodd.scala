@@ -15,6 +15,8 @@
  */
 package io.gatling.core.check.extractor.css
 
+import java.util.Locale
+
 import scala.collection.mutable
 
 import jodd.lagarto.LagartoParser
@@ -58,11 +60,14 @@ object Jodd {
     lagartoParser
   }
 
+  private val ActionableInputTypes = Set("submit", "reset", "button")
+
   def extractFormInputs(node: Node): Map[String, Seq[String]] = {
 
       def extractInput(node: Node, parameters: mutable.MultiMap[String, String]): Unit =
         for {
-          typeAttr <- Option(node.getAttribute("type")) if typeAttr != "radio" || node.hasAttribute("checked")
+          typeAttr <- Option(node.getAttribute("type")).map(_.toLowerCase(Locale.ENGLISH))
+          if !ActionableInputTypes.contains(typeAttr) && (typeAttr != "radio" || node.hasAttribute("checked"))
           nameAttr <- Option(node.getAttribute("name"))
           valueAttr <- Option(node.getAttribute("value")).orElse(if (typeAttr == "checkbox" && node.hasAttribute("checked")) Some("on") else None)
         } parameters.addBinding(nameAttr, valueAttr)
