@@ -216,7 +216,8 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       session = this.session,
       request = resource,
       responseBuilderFactory = responseBuilderFactory,
-      resourceFetcher = Some(self)
+      resourceFetcher = Some(self),
+      redirectCount = 0
     )
 
     HttpTx.start(resourceTx)
