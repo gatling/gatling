@@ -278,7 +278,7 @@ If you'd like to pass multiple values for your parameter, but all at once, you c
 
 The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
 
-* ``form(seq: Expression[Map[String, Seq[String]])``:
+* ``form(seq: Expression[Map[String, Any])``:
 
 .. includecode:: code/HttpRequest.scala#form
 

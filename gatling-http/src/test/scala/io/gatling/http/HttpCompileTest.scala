@@ -41,7 +41,7 @@ class HttpCompileTest extends Simulation {
     .check(md5.is("XXXXX"))
     .check(sha1.is("XXXXX"))
     .check(responseTimeInMillis.is(100))
-    .check(form("#form").transform { foo: Map[String, Seq[String]] => foo }.saveAs("theForm"))
+    .check(form("#form").transform { foo: Map[String, Any] => foo }.saveAs("theForm"))
     .disableCaching
     .disableWarmUp
     .warmUp("http://gatling.io")

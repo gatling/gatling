@@ -261,7 +261,9 @@ Node is a `Jodd Lagardo <http://jodd.org/doc/lagarto/>`_ DOM `Node <http://jodd.
 
 * ``form(expression)``
 
-This check takes a CSS selector and returns a ``Map[String, Seq[String]]`` of the form field values.
+This check takes a CSS selector and returns a ``Map[String, Any]`` of the form field values.
+Values are either of type ``String`` or `Seq[String]``, depending on if the input is multivalued or not
+(input with ``multiple`` attribute set, or multiple occurrences of the same input name, except for radio).
 
 .. _http-check-checksum:
 

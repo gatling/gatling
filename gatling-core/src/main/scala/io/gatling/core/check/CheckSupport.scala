@@ -67,7 +67,7 @@ trait CheckSupport {
     CssCheckBuilder.css(selector, None, selectors)
   def css(selector: Expression[String], nodeAttribute: String)(implicit selectors: CssSelectors) =
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
-  def form(selector: Expression[String])(implicit selectors: CssSelectors) = css(selector).ofType[Map[String, Seq[String]]]
+  def form(selector: Expression[String])(implicit selectors: CssSelectors) = css(selector).ofType[Map[String, Any]]
 
   def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths) =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
