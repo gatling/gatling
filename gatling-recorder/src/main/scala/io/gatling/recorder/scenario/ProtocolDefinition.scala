@@ -26,7 +26,6 @@ private[scenario] object ProtocolDefinition {
     HeaderNames.AcceptLanguage -> "acceptLanguageHeader",
     HeaderNames.Authorization -> "authorizationHeader",
     HeaderNames.Connection -> "connectionHeader",
-    HeaderNames.ContentType -> "contentTypeHeader",
     HeaderNames.DNT -> "doNotTrackHeader",
     HeaderNames.UserAgent -> "userAgentHeader",
     HeaderNames.UpgradeInsecureRequests -> "upgradeInsecureRequestsHeader"
