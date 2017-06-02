@@ -64,6 +64,7 @@ class PollerActorSpec extends AkkaSpec {
     poller.stateData.asInstanceOf[PollingData] shouldBe PollingData(session, Session.Identity)
   }
 
+  // @ToDo it's not failing when I'll hardcode val prefixingEnabled in HttpRequest:48
   it should "do nothing if the request name could not be resolved and fail the session" in {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
@@ -80,6 +81,7 @@ class PollerActorSpec extends AkkaSpec {
     pollingData.session.isFailed shouldBe true
   }
 
+  // @ToDo it's not failing when I'll hardcode val prefixingEnabled in HttpRequest:48
   it should "do nothing if the request could not be resolved, fail the session and report to the DataWriters" in {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]

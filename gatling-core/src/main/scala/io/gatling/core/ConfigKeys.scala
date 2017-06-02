@@ -73,6 +73,7 @@ object ConfigKeys {
     val PerUserCacheMaxCapacity = "gatling.http.perUserCacheMaxCapacity"
     val WarmUpUrl = "gatling.http.warmUpUrl"
     val EnableGA = "gatling.http.enableGA"
+    val PrefixHttpNamesWithMethod = "gatling.http.prefixHttpNamesWithMethod"
 
     object ssl {
       object keyStore {
