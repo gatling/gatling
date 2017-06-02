@@ -45,7 +45,7 @@ object Json {
   }
 
   private def writeString(s: String, rootLevel: Boolean) = {
-    val escapedLineFeeds = s.replace("\n", "\\n")
+    val escapedLineFeeds = s.replace("\n", "\\n").replace("\"", "\\\"")
     if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
   }
 
