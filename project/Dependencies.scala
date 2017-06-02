@@ -21,7 +21,7 @@ object Dependencies {
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                      % "9.7.0-18"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                     % "1.7.25"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                      % "0.3.1"
-  private val scopt                         = "com.github.scopt"                      %% "scopt"                         % "3.5.0"
+  private val scopt                         = "com.github.scopt"                      %% "scopt"                         % "3.6.0"
   private val scalaLogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.5.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.8.8.1"
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"        % "2.8.8"
