@@ -32,13 +32,11 @@ import io.netty.util.concurrent.Promise
 
 object ExtendedDnsNameResolver extends StrictLogging {
 
-  val DebugEnabled = logger.underlying.isDebugEnabled
+  private val DebugEnabled = logger.underlying.isDebugEnabled
 
-  val NioDatagramChannelFactory = new ChannelFactory[DatagramChannel] {
+  private val NioDatagramChannelFactory = new ChannelFactory[DatagramChannel] {
     override def newChannel(): DatagramChannel = new NioDatagramChannel
   }
-
-  val DefaultDnsServerAddressStreamProvider = UnixResolverDnsServerAddressStreamProvider.parseSilently()
 }
 
 /**
@@ -61,7 +59,7 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       4096, // maxPayloadSize
       true, // optResourceEnabled
       HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
-      ExtendedDnsNameResolver.DefaultDnsServerAddressStreamProvider, // dnsServerAddressStreamProvider
+      DnsServerAddressStreamProviders.platformDefault, // dnsServerAddressStreamProvider
       NettyDnsConstants.DefaultSearchDomain, // searchDomains
       1, // ndots
       true // decodeIdn
