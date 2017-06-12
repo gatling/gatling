@@ -101,8 +101,9 @@ trait WhenConnecting { this: WsActor =>
                   logger.debug("Reconnected, no checks, performing onConnected action before sending pending message")
                   s => self ! sendTextMessage.copy(session = s)
               }
-              onConnectedAction ! session
-              goto(Idle) using IdleData(OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback), webSocket)
+              val newSession = OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback)
+              onConnectedAction ! newSession
+              goto(Idle) using IdleData(newSession, webSocket)
 
             case _ =>
               // send next

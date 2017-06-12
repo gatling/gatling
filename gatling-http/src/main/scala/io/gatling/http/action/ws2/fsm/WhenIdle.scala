@@ -32,6 +32,7 @@ trait WhenIdle { this: WsActor =>
       //[fl]
       checkSequences match {
         case Nil =>
+          nextAction ! session
           stay()
 
         case firstCheckSequence :: remainingCheckSequences =>
