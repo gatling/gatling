@@ -52,7 +52,7 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       NoopDnsCache.INSTANCE, // authoritativeDnsServerCache
       NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
       configuration.http.dns.queryTimeout, // queryTimeoutMillis
-      NettyDnsConstants.DefaultResolveAddressTypes, // resolvedAddressTypes
+      null, // resolvedAddressTypes, defaults to DEFAULT_RESOLVE_ADDRESS_TYPES
       true, // recursionDesired
       configuration.http.dns.maxQueriesPerResolve, // maxQueriesPerResolve
       ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
