@@ -31,7 +31,7 @@ package object builder {
 
   implicit class HttpParams(val params: List[HttpParam]) extends AnyVal {
 
-    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Seq[String]]]], session: Session): Validation[JList[Param]] = {
+    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Any]]], session: Session): Validation[JList[Param]] = {
 
       val formParams = params.resolveParamJList(session)
 

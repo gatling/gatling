@@ -29,18 +29,18 @@ import io.gatling.http.response.Response
 import com.softwaremill.quicklens._
 
 case class HttpAttributes(
-  checks:                List[HttpCheck]                              = Nil,
-  ignoreDefaultChecks:   Boolean                                      = false,
-  silent:                Option[Boolean]                              = None,
-  followRedirect:        Boolean                                      = true,
-  discardResponseChunks: Boolean                                      = true,
-  responseTransformer:   Option[PartialFunction[Response, Response]]  = None,
-  explicitResources:     List[HttpRequestBuilder]                     = Nil,
-  body:                  Option[Body]                                 = None,
-  bodyParts:             List[BodyPart]                               = Nil,
-  formParams:            List[HttpParam]                              = Nil,
-  form:                  Option[Expression[Map[String, Seq[String]]]] = None,
-  extraInfoExtractor:    Option[ExtraInfoExtractor]                   = None
+  checks:                List[HttpCheck]                             = Nil,
+  ignoreDefaultChecks:   Boolean                                     = false,
+  silent:                Option[Boolean]                             = None,
+  followRedirect:        Boolean                                     = true,
+  discardResponseChunks: Boolean                                     = true,
+  responseTransformer:   Option[PartialFunction[Response, Response]] = None,
+  explicitResources:     List[HttpRequestBuilder]                    = Nil,
+  body:                  Option[Body]                                = None,
+  bodyParts:             List[BodyPart]                              = Nil,
+  formParams:            List[HttpParam]                             = Nil,
+  form:                  Option[Expression[Map[String, Any]]]        = None,
+  extraInfoExtractor:    Option[ExtraInfoExtractor]                  = None
 )
 
 object HttpRequestBuilder {
@@ -114,7 +114,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   private def formParam(formParam: HttpParam): HttpRequestBuilder =
     this.modify(_.httpAttributes.formParams).using(_ ::: List(formParam))
 
-  def form(form: Expression[Map[String, Seq[String]]]): HttpRequestBuilder =
+  def form(form: Expression[Map[String, Any]]): HttpRequestBuilder =
     this.modify(_.httpAttributes.form).setTo(Some(form))
 
   def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) =
