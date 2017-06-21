@@ -35,21 +35,11 @@ sealed abstract class EmbeddedResource {
 
   def uri: Uri
   def acceptHeader: Expression[String]
-  val url = uri.toString
+  val url: String = uri.toString
 
   def toRequest(session: Session, coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): Validation[HttpRequest] = {
-
-    val requestName = {
-      val start = url.lastIndexOf('/') + 1
-      if (start < url.length)
-        url.substring(start, url.length)
-      else
-        "/"
-    }
-
-    val http = new Http(requestName.expressionSuccess)
-    val httpRequestDef = http.get(uri).header(HeaderNames.Accept, acceptHeader).build(coreComponents, httpComponents, throttled)
-
+    val requestName = httpComponents.httpProtocol.responsePart.inferredHtmlResourcesNaming(uri)
+    val httpRequestDef = Http(requestName.expressionSuccess).get(uri).header(HeaderNames.Accept, acceptHeader).build(coreComponents, httpComponents, throttled)
     httpRequestDef.build(requestName, session)
   }
 }

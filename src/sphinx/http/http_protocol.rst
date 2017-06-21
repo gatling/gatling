@@ -368,6 +368,15 @@ You can also specify black/white list or custom filters to have a more fine grai
 * ``inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil))``: fetch all resources excepting those matching a pattern in the black list and not in the white list.
 * ``inferHtmlResources(filters: Option[Filters])``
 
+Finally, you can specify the strategy for naming those requests in the reports:
+
+* ``nameInferredHtmlResourcesAfterUrlTrail``(default): name requests after the resource's url trail (after last ``/``)
+* ``nameInferredHtmlResourcesAfterPath``: name requests after the resource's path
+* ``nameInferredHtmlResourcesAfterAbsoluteUrl``: name requests after the resource's absolute url
+* ``nameInferredHtmlResourcesAfterRelativeUrl``: name requests after the resource's relative url
+* ``nameInferredHtmlResourcesAfterLastPathElement``: name requests after the resource's last path element
+* ``nameInferredHtmlResources(f: Uri => String)``: name requests with a custom strategy
+
 .. _http-protocol-proxy:
 
 Proxy parameters

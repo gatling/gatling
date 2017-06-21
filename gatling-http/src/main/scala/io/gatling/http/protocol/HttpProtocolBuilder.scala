@@ -24,12 +24,14 @@ import io.gatling.core.session.el.El
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import org.asynchttpclient.{ RequestBuilderBase, Realm, Request, SignatureCalculator }
+import org.asynchttpclient.uri.Uri
+import org.asynchttpclient.{ Realm, Request, RequestBuilderBase, SignatureCalculator }
 
 /**
  * HttpProtocolBuilder class companion
@@ -123,6 +125,12 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
     this
       .modify(_.protocol.responsePart.inferHtmlResources).setTo(true)
       .modify(_.protocol.responsePart.htmlResourcesInferringFilters).setTo(filters)
+  def nameInferredHtmlResourcesAfterUrlTrail = nameInferredHtmlResources(InferredResourceNaming.UrlTrailInferredResourceNaming)
+  def nameInferredHtmlResourcesAfterAbsoluteUrl = nameInferredHtmlResources(InferredResourceNaming.AbsoluteUrlInferredResourceNaming)
+  def nameInferredHtmlResourcesAfterRelativeUrl = nameInferredHtmlResources(InferredResourceNaming.RelativeUrlInferredResourceNaming)
+  def nameInferredHtmlResourcesAfterPath = nameInferredHtmlResources(InferredResourceNaming.PathInferredResourceNaming)
+  def nameInferredHtmlResourcesAfterLastPathElement = nameInferredHtmlResources(InferredResourceNaming.LastPathElementInferredResourceNaming)
+  def nameInferredHtmlResources(f: Uri => String) = this.modify(_.protocol.responsePart.inferredHtmlResourcesNaming).setTo(f)
 
   // wsPart
   def wsBaseURL(url: String) = wsBaseURLs(List(url))
