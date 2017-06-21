@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 import io.gatling.core.Predef._
-import io.gatling.jdbc.Predef._
-import io.gatling.http.Predef._
 
 class Feeders {
 
@@ -75,12 +73,18 @@ class Feeders {
 
   {
     //#jdbc-feeder
+    // beware: you need to import the jdbc module
+    import io.gatling.jdbc.Predef._
+
     jdbcFeeder("databaseUrl", "username", "password", "SELECT * FROM users")
     //#jdbc-feeder
   }
 
   {
     //#sitemap-feeder
+    // beware: you need to import the http module
+    import io.gatling.http.Predef._
+
     val feeder = sitemap("/path/to/sitemap/file")
     //#sitemap-feeder
   }
