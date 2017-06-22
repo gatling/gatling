@@ -18,6 +18,7 @@ package io.gatling.charts.template
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.Statistics.printable
 import io.gatling.commons.stats.GeneralStats
+import io.gatling.commons.util.StringHelper._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
@@ -34,7 +35,7 @@ private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boo
           s""""${printable(value)}""""
 
     fast"""{
-    "name": "${stats.name}",
+    "name": "${stats.name.escapeJsIllegalChars}",
     "numberOfRequests": {
         "total": ${style(stats.numberOfRequestsStatistics.total)},
         "ok": ${style(stats.numberOfRequestsStatistics.success)},
