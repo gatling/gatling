@@ -65,7 +65,7 @@ The example below shows the default values.
   <!--   <failOnError>true</failOnError> -->
   </configuration>
 
-Please check `source code <https://github.com/gatling/gatling-maven/blob/master/gatling-maven-plugin/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for all,possible options.
+Please check `source code <https://github.com/gatling/gatling-maven-plugin/blob/master/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for all,possible options.
 
 Including / excluding simulations when running multiple simulations
 -------------------------------------------------------------------
