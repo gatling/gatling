@@ -1374,6 +1374,32 @@
               </div>
 
               <div class="function">
+                <label class="function-syntax" for="signatureCalculator">signatureCalculator</label>
+                <input type="checkbox" id="signatureCalculator" name="signatureCalculator">
+
+                <div class="function-details">
+                  Pass a `org.asynchttpclient.SignatureCalculator` to sign the request.
+                  <dl>
+                    <dt>(signatureCalculator)</dt>
+                    <dd>a `org.asynchttpclient.SignatureCalculator`</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="function">
+                <label class="function-syntax" for="signWithOAuth1">signWithOAuth1</label>
+                <input type="checkbox" id="signWithOAuth1" name="signWithOAuth1">
+
+                <div class="function-details">
+                  Sign the request with OAuth1.
+                  <dl>
+                    <dt>(consumerKey, clientSharedSecret, token, tokenSecret)</dt>
+                    <dd>Sign the request with OAuth1</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="function">
                 <label class="function-syntax" for="basicAuth">basicAuth</label>
                 <input type="checkbox" id="basicAuth" name="basicAuth">
 

@@ -19,7 +19,7 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._
-import io.gatling.http.{HeaderNames, HeaderValues}
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.status.HttpStatusProvider
 import io.gatling.http.protocol.Proxy
@@ -27,6 +27,7 @@ import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
 import org.asynchttpclient._
+import org.asynchttpclient.oauth.{ ConsumerKey, OAuthSignatureCalculator, RequestToken }
 import org.asynchttpclient.proxy._
 import org.asynchttpclient.uri.Uri
 
@@ -56,6 +57,17 @@ object RequestBuilder {
   val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
   val AllHeaderHeaderValueExpression = "*/*".expressionSuccess
   val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expressionSuccess
+
+  def oauth1SignatureCalculator(consumerKey: Expression[String],
+                               clientSharedSecret: Expression[String],
+                               token: Expression[String],
+                               tokenSecret: Expression[String]): Expression[SignatureCalculator] = session =>
+    for {
+      ck <- consumerKey(session)
+      css <- clientSharedSecret(session)
+      tk <- token(session)
+      tks <- tokenSecret(session)
+    } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks))
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {
@@ -126,4 +138,6 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
+  def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =
+    signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
 }

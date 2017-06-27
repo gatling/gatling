@@ -154,6 +154,14 @@ There's 3 ways to set a SignatureCalculator on a request::
   // does not work with an anonymous function as in the second signature
   .signatureCalculator(calculator: Expression[SignatureCalculator])
 
+Gatling provides a built-in for OAuth1 (on top of AHC's `org.asynchttpclient.oauth.OAuthSignatureCalculator`) ::
+
+  .signWithOAuth1(consumerKey: Expression[String],
+                  clientSharedSecret: Expression[String],
+                  token: Expression[String],
+                  tokenSecret: Expression[String])
+
+
 .. _http-request-authentication:
 
 Authentication

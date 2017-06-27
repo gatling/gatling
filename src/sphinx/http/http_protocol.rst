@@ -250,6 +250,18 @@ You have also the following built-ins for the more commons headers:
 * ``doNotTrackHeader(value: Expression[String])``: set ``DNT`` header.
 * ``userAgentHeader(value: Expression[String])``: set ``User-Agent`` header.
 
+.. _http-protocol-signature:
+
+Signature Calculator
+--------------------
+
+You can set a SignatureCalculator at protocol level with these methods:
+
+* ``signatureCalculator(calculator: SignatureCalculator)``
+* ``signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String])``
+
+.. note:: For more details see the dedicated section :ref:`here <http-request-signature>`.
+
 .. _http-protocol-auth:
 
 Authentication

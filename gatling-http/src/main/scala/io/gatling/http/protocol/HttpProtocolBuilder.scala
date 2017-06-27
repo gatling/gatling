@@ -26,6 +26,7 @@ import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.ExtraInfoExtractor
+import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
@@ -108,6 +109,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
+  def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
+    signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
 
   // responsePart
   def disableFollowRedirect = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
