@@ -184,6 +184,7 @@ object GatlingConfiguration extends StrictLogging {
             }
             disable
           },
+          useInsecureTrustManager = config.getBoolean(http.ahc.UseInsecureTrustManager),
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
           httpClientCodecInitialBufferSize = config.getInt(http.ahc.HttpClientCodecInitialBufferSize),
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
@@ -354,6 +355,7 @@ case class AhcConfiguration(
   maxRetry:                                    Int,
   requestTimeOut:                              Int,
   disableHttpsEndpointIdentificationAlgorithm: Boolean,
+  useInsecureTrustManager:                     Boolean,
   httpClientCodecMaxChunkSize:                 Int,
   httpClientCodecInitialBufferSize:            Int,
   sslEnabledProtocols:                         List[String],

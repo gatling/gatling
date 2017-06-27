@@ -15,14 +15,15 @@
  */
 package io.gatling.http.util
 
-import java.io.{ FileNotFoundException, InputStream, File, FileInputStream }
+import java.io.{ File, FileInputStream, FileNotFoundException, InputStream }
 import java.security.KeyStore
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.AhcConfiguration
 
-import io.netty.handler.ssl.{ SslProvider, SslContextBuilder }
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import io.netty.handler.ssl.{ SslContextBuilder, SslProvider }
 import org.asynchttpclient.DefaultAsyncHttpClientConfig
 
 object SslHelper {
@@ -66,7 +67,7 @@ object SslHelper {
       val sslContext = SslContextBuilder.forClient
         .sslProvider(if (ahcConfig.useOpenSsl) SslProvider.OPENSSL else SslProvider.JDK)
         .keyManager(keyManagerFactory.orNull)
-        .trustManager(trustManagerFactory.orNull)
+        .trustManager(trustManagerFactory.orElse(if (ahcConfig.useInsecureTrustManager) Some(InsecureTrustManagerFactory.INSTANCE) else None).orNull)
         .sessionCacheSize(ahcConfig.sslSessionCacheSize)
         .sessionTimeout(ahcConfig.sslSessionTimeout)
         .build
