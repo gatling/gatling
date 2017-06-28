@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import scala.concurrent.duration._
-
-import java.util.concurrent.ThreadLocalRandom
-
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+
+import scala.concurrent.duration._
 
 class ComputerWorld extends Simulation {
 
@@ -48,9 +46,9 @@ class ComputerWorld extends Simulation {
 
     //#print-session-value
     .exec { session =>
-    println(session("addComputer").as[String])
-    session
-  }
+      println(session("addComputer").as[String])
+      session
+    }
     //#print-session-value
 
     .exec(http("addNewComputer")

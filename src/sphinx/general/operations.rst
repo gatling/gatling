@@ -74,7 +74,6 @@ For more tuning, you may want to do the following:
   echo 300000 | sudo tee /proc/sys/fs/nr_open
   echo 300000 | sudo tee /proc/sys/fs/file-max
 
-
 Kernel and Network Tuning
 -------------------------
 
@@ -96,4 +95,3 @@ Consider tuning kernel and network and add this kind of following settings in /e
   net.ipv4.tcp_rmem = 4096 277750 134217728
   net.ipv4.tcp_wmem = 4096 277750 134217728
   net.core.netdev_max_backlog = 300000
-

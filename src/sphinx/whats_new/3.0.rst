@@ -9,7 +9,7 @@ Loop
 ----
 
 It's now possible to have a do while loop behavior by using the ``doWhile`` function
-see :ref:`doWhile documentation <doWhile>` for more details.
+see :ref:`doWhile documentation <scenario-doWhile>` for more details.
 
 Http
 ====
@@ -18,4 +18,4 @@ Cookie
 ------
 
 It's now possible to get the cookie value by using ``getCookieValue`` function
-see :ref:`getCookieValue documentation <cookie-get>` for more details.
+see :ref:`getCookieValue documentation <https-helpers-cookie-get>` for more details.

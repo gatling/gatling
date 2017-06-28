@@ -20,7 +20,7 @@ Amongst other features like clustering support, advanced integration with CI too
 FrontLine offers entreprise-grade realtime monitoring and metrics persistence.
 
 .. image:: img/frontline.png
-:alt: FrontLine
+   :alt: FrontLine
 
 For more information, please get in touch at **contact@gatling.io**.
 
