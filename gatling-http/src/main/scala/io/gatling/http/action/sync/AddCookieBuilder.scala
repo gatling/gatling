@@ -40,7 +40,7 @@ case class CookieDSL(name: Expression[String], value: Expression[String],
 object AddCookieBuilder {
 
   val NoBaseUrlFailure = "Neither cookie domain nor baseURL".expressionFailure
-  val DefaultPath = "/".expressionSuccess
+  val DefaultPath = "/"
 
   def apply(cookie: CookieDSL) =
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
@@ -61,17 +61,25 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
     import ctx._
 
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val resolvedDomain = domain.getOrElse(defaultDomain(httpComponents.httpProtocol))
-    val resolvedPath = path.getOrElse(DefaultPath)
+
+    val requestDomain = domain match {
+      case None =>
+        // no cookie domain defined, we absolutely need one from the baseUrl
+        defaultDomain(httpComponents.httpProtocol)
+      case _ =>
+        // use a mock as requestDomain will be ignored in favor of cookie's one
+        EmptyStringExpressionSuccess
+    }
 
     val expression: Expression[Session] = session => for {
-      name <- name(session)
-      value <- value(session)
-      domain <- resolvedDomain(session)
-      path <- resolvedPath(session)
+      resolvedName <- name(session)
+      resolvedValue <- value(session)
+      resolvedCookieDomain <- resolveOptionalExpression(domain, session)
+      resolvedCookiePath <- resolveOptionalExpression(path, session)
+      resolvedRequestDomain <- requestDomain(session)
     } yield {
-      val cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
-      storeCookie(session, domain, path, cookie)
+      val cookie = new Cookie(resolvedName, resolvedValue, false, resolvedCookieDomain.orNull, resolvedCookiePath.orNull, maxAge, false, false)
+      storeCookie(session, resolvedRequestDomain, DefaultPath, cookie)
     }
 
     new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, next) with ExitableAction
