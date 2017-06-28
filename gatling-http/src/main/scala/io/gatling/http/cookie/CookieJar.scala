@@ -26,9 +26,6 @@ case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, 
 
 object CookieJar {
 
-  // FIXME to be replace with upcoming Netty constant in 4.1.9
-  val UnspecifiedMaxAge = Long.MinValue
-
   def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
 
   def requestPath(requestUri: Uri) = requestUri.getPath match {
@@ -63,7 +60,7 @@ object CookieJar {
 
   def hasExpired(c: Cookie): Boolean = {
     val maxAge = c.maxAge
-    maxAge != CookieJar.UnspecifiedMaxAge && maxAge <= 0
+    maxAge != Cookie.UNDEFINED_MAX_AGE && maxAge <= 0
   }
 
   // rfc6265#section-5.1.3
@@ -109,7 +106,7 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
           updatedStore - CookieKey(cookie.name.toLowerCase, keyDomain, keyPath)
 
         } else {
-          val persistent = cookie.maxAge != UnspecifiedMaxAge
+          val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
           updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, unpreciseNowMillis))
         }
     }

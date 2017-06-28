@@ -25,7 +25,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport._
 
-import io.netty.handler.codec.http.cookie.DefaultCookie
+import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 import org.asynchttpclient.uri.Uri
 
 object CookieActionBuilder {
@@ -55,7 +55,7 @@ case class AddCookieDsl(
 object AddCookieBuilder {
 
   def apply(cookie: AddCookieDsl) =
-    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
+    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE))
 }
 
 class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long) extends HttpActionBuilder with NameGen {
