@@ -34,7 +34,7 @@ BaseSpec must be used on every test, as it sets out the structure and commons he
 
 When tests involves Gatling's ``Validation`` API, ``ValidationValues`` provides helpers that allows to match on the ``Validation``'s result.
 
-Example: `ELSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ELSpec.scala>`__
+Example: `ELSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ElSpec.scala>`__
 
 ``AkkaSpec``
 ------------
