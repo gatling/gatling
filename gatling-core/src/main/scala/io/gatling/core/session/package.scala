@@ -27,6 +27,7 @@ package object session {
   type Expression[T] = Session => Validation[T @uncheckedVariance]
 
   val TrueExpressionSuccess = true.expressionSuccess
+  val EmptyStringExpressionSuccess = "".expressionSuccess
 
   case class StaticStringExpression(value: String) extends Expression[String] {
     val valueV = value.success

@@ -26,25 +26,24 @@ case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, 
 
 object CookieJar {
 
-  def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
+  private def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
 
-  def requestPath(requestUri: Uri) = requestUri.getPath match {
+  private def requestPath(requestUri: Uri) = requestUri.getPath match {
     case "" => "/"
     case p  => p
   }
 
   // rfc6265#section-5.2.3
   // Let cookie-domain be the attribute-value without the leading %x2E (".") character.
-  def cookieDomain(cookieDomain: Option[String], requestDomain: String) = cookieDomain match {
+  private def cookieDomain(cookieDomain: Option[String], requestDomain: String) = cookieDomain match {
     case Some(dom) =>
-      val domain = (if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase
-      (domain, false)
+      ((if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase, false)
     case None =>
       (requestDomain, true)
   }
 
   // rfc6265#section-5.2.4
-  def cookiePath(rawCookiePath: Option[String], requestPath: String) = {
+  private def cookiePath(rawCookiePath: Option[String], requestPath: String) = {
 
       // rfc6265#section-5.1.4
       def defaultCookiePath() = requestPath match {
@@ -58,19 +57,19 @@ object CookieJar {
     }
   }
 
-  def hasExpired(c: Cookie): Boolean = {
+  private def hasExpired(c: Cookie): Boolean = {
     val maxAge = c.maxAge
     maxAge != Cookie.UNDEFINED_MAX_AGE && maxAge <= 0
   }
 
   // rfc6265#section-5.1.3
   // check "The string is a host name (i.e., not an IP address)" ignored
-  def domainsMatch(cookieDomain: String, requestDomain: String, hostOnly: Boolean) =
+  private def domainsMatch(cookieDomain: String, requestDomain: String, hostOnly: Boolean) =
     (hostOnly && requestDomain == cookieDomain) ||
       (requestDomain == cookieDomain || requestDomain.endsWith("." + cookieDomain))
 
   // rfc6265#section-5.1.4
-  def pathsMatch(cookiePath: String, requestPath: String) =
+  private def pathsMatch(cookiePath: String, requestPath: String) =
     cookiePath == requestPath ||
       (requestPath.startsWith(cookiePath) && (cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/'))
 

@@ -22,15 +22,14 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.cookie.CookieJar
 import io.gatling.http.cookie.CookieSupport._
 
 import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 import org.asynchttpclient.uri.Uri
 
 object CookieActionBuilder {
-  val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
-  val DefaultPath = "/"
+  private val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
+  val DefaultPath: String = "/"
 
   def defaultDomain(httpCaches: HttpCaches): Expression[String] =
     session =>
@@ -67,13 +66,25 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
     import ctx._
 
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val resolvedDomain = domain.map(_.expressionSuccess).getOrElse(defaultDomain(httpComponents.httpCaches))
-    val resolvedPath = path.getOrElse(DefaultPath)
+
+    val requestDomain = domain match {
+      case None =>
+        // no cookie domain defined, we absolutely need one from the baseUrl
+        defaultDomain(httpComponents.httpCaches)
+      case _ =>
+        // use a mock as requestDomain will be ignored in favor of cookie's one
+        EmptyStringExpressionSuccess
+    }
 
     val expression: Expression[Session] = session => for {
       value <- value(session)
-      domain <- resolvedDomain(session)
-    } yield storeCookie(session, domain, resolvedPath, new DefaultCookie(name, value))
+      resolvedRequestDomain <- requestDomain(session)
+    } yield {
+      val cookie = new DefaultCookie(name, value)
+      domain.foreach(cookie.setDomain)
+      path.foreach(cookie.setPath)
+      storeCookie(session, resolvedRequestDomain, DefaultPath, cookie)
+    }
 
     new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, next) with ExitableAction
   }
