@@ -21,14 +21,10 @@ import java.nio.charset.Charset
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 
-import scala.compat.java8.FunctionConverters._
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
-import java.util.function.{ Function => JFunction }
 
 object PathHelper {
-
-  private val toCachingPath: JFunction[Path, Path] = ((path: Path) => CachingPath(path).asInstanceOf[Path]).asJava
 
   implicit def string2path(pathString: String): Path = Paths.get(pathString)
 
