@@ -55,7 +55,7 @@ class ComputerWorld extends Simulation {
     .get("${addComputer}")
     .check(substring("Add a computer")))
 
-    .exec(_.set("homeComputer", s"homeComputer_${ThreadLocalRandom.current.nextInt(Int.MaxValue)}"))
+    .exec(_.set("homeComputer", s"homeComputer_${java.util.concurrent.ThreadLocalRandom.current.nextInt(Int.MaxValue)}"))
     .exec(http("postComputers")
       .post("/computers")
       .formParam("name", "${homeComputer}")
