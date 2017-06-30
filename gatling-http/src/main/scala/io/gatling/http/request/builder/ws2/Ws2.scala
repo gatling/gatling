@@ -18,11 +18,12 @@ package io.gatling.http.request.builder.ws2
 import io.gatling.core.session._
 import io.gatling.http.action.ws2._
 import io.gatling.http.request.builder.CommonAttributes
-import io.gatling.http.request.builder.ws.Ws
 
 object Ws2 {
 
-  def apply(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketName): Ws2 = new Ws2(requestName, wsName)
+  val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
+
+  def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws2 = new Ws2(requestName, wsName)
 
   def checkTextMessage(name: String) = WsCheck(name, Nil, Nil)
 }
@@ -33,7 +34,7 @@ object Ws2 {
  */
 class Ws2(requestName: Expression[String], wsName: String) {
 
-  def wsName(wsName: String) = new Ws(requestName, wsName)
+  def wsName(wsName: String) = new Ws2(requestName, wsName)
 
   /**
    * Opens a web socket and stores it in the session.
@@ -41,14 +42,14 @@ class Ws2(requestName: Expression[String], wsName: String) {
    * @param url The socket URL
    *
    */
-  def connect(url: Expression[String]) = new WsConnectRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
+  def connect(url: Expression[String]) = WsConnectRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
 
   /**
    * Sends a text message on the given websocket.
    *
    * @param text The message
    */
-  def sendText(text: Expression[String]) = new WsSendBuilder(requestName, wsName, text, Nil)
+  def sendText(text: Expression[String]) = WsSendBuilder(requestName, wsName, text, Nil)
 
   /**
    * Closes a websocket.
