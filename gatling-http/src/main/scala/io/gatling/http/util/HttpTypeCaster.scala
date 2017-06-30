@@ -24,7 +24,7 @@ import io.gatling.http.cookie.CookieJar
 import io.netty.resolver.NameResolver
 import org.asynchttpclient.AsyncHttpClient
 
-object HttpTypeHelper {
+object HttpTypeCaster {
 
   implicit val AhcTypeCaster = new TypeCaster[AsyncHttpClient] {
     @throws[ClassCastException]

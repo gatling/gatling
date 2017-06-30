@@ -18,7 +18,7 @@ package io.gatling.http.cookie
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.session.Expression
-import io.gatling.http.util.HttpTypeHelper
+import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.handler.codec.http.cookie.Cookie
 import org.asynchttpclient.uri.Uri
@@ -26,7 +26,7 @@ import org.asynchttpclient.uri.Uri
 object CookieSupport {
 
   // import optimized TypeCaster
-  import HttpTypeHelper._
+  import HttpTypeCaster._
 
   val CookieJarAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
   private val NoCookieJarFailure = "No CookieJar in session".failure

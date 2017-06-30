@@ -111,7 +111,7 @@ trait RequestAction extends ExitableAction {
 trait ActorBasedAction {
 
   // import optimized TypeCaster
-  import io.gatling.core.util.CoreTypeHelper._
+  import io.gatling.core.util.CoreTypeCaster._
 
   def actorFetchErrorMessage: String
 

@@ -20,7 +20,7 @@ import io.gatling.commons.validation._
 
 import akka.actor.ActorRef
 
-object CoreTypeHelper {
+object CoreTypeCaster {
 
   implicit val ActorRefTypeCaster = new TypeCaster[ActorRef] {
     @throws[ClassCastException]

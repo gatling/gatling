@@ -26,7 +26,7 @@ import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.DelegatingNameResolver
-import io.gatling.http.util.HttpTypeHelper
+import io.gatling.http.util.HttpTypeCaster
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -57,7 +57,7 @@ class HttpEngine(
 
     } else {
       // import optimized TypeCaster
-      import HttpTypeHelper._
+      import HttpTypeCaster._
       session(HttpEngine.AhcAttributeName).asOption[AsyncHttpClient] match {
         case Some(client) => (session, client)
         case _ =>

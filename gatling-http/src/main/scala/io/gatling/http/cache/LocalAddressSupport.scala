@@ -21,7 +21,7 @@ import io.gatling.commons.util.RoundRobin
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.HttpTypeHelper
+import io.gatling.http.util.HttpTypeCaster
 
 object LocalAddressSupport {
 
@@ -44,7 +44,7 @@ trait LocalAddressSupport {
 
   val localAddress: (Session => Option[InetAddress]) = {
     // import optimized TypeCaster
-    import HttpTypeHelper._
+    import HttpTypeCaster._
     _(LocalAddressAttributeName).asOption[InetAddress]
   }
 }

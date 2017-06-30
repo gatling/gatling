@@ -22,7 +22,7 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
-import io.gatling.http.util.HttpTypeHelper
+import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.resolver.{ DefaultNameResolver, NameResolver }
 import io.netty.util.concurrent.ImmediateEventExecutor
@@ -76,7 +76,7 @@ trait DnsCacheSupport {
 
   val nameResolver: (Session => Option[NameResolver[InetAddress]]) = {
     // import optimized TypeCaster
-    import HttpTypeHelper._
+    import HttpTypeCaster._
     _(DnsCacheAttributeName).asOption[NameResolver[InetAddress]]
   }
 }
