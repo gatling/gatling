@@ -41,6 +41,8 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val
 
   override val statsEngine: StatsEngine = config.coreComponents.statsEngine
 
+  override val requestName = httpRequestDef.requestName
+
   val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     config.checks,
     config.responseTransformer,
@@ -48,9 +50,8 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val
     config.httpComponents.httpProtocol.responsePart.inferHtmlResources,
     config.coreComponents.configuration
   )
-  val requestName = httpRequestDef.requestName
 
-  def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     httpRequestDef.build(requestName, session).map { httpRequest =>
 
       val tx = HttpTx(
