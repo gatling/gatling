@@ -21,7 +21,6 @@ import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.http.cookie.CookieJar
 
-import akka.actor.ActorRef
 import io.netty.resolver.NameResolver
 import org.asynchttpclient.AsyncHttpClient
 
@@ -84,21 +83,6 @@ object HttpTypeHelper {
       value match {
         case v: CookieJar => v.success
         case _            => cceMessage(value, classOf[CookieJar]).failure
-      }
-  }
-
-  implicit val ActorRefTypeCaster = new TypeCaster[ActorRef] {
-    @throws[ClassCastException]
-    override def cast(value: Any): ActorRef =
-      value match {
-        case v: ActorRef => v
-        case _           => throw new ClassCastException(cceMessage(value, classOf[ActorRef]))
-      }
-
-    override def validate(value: Any): Validation[ActorRef] =
-      value match {
-        case v: ActorRef => v.success
-        case _           => cceMessage(value, classOf[ActorRef]).failure
       }
   }
 }
