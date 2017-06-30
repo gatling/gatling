@@ -15,8 +15,8 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.async.AsyncProtocolAction
+import io.gatling.core.action.ActorBasedAction
 
-trait SseAction extends AsyncProtocolAction {
+trait SseAction extends ActorBasedAction {
   override val actorFetchErrorMessage = "Couldn't fetch open sse"
 }

@@ -28,6 +28,6 @@ class PollingStop(pollerName: String, statsEngine: StatsEngine, val next: Action
 
   override def sendRequest(requestName: String, session: Session) =
     for {
-      pollingActor <- fetchPoller(pollerName, session)
+      pollingActor <- fetchActor(pollerName, session)
     } yield pollingActor ! StopPolling(next, session)
 }

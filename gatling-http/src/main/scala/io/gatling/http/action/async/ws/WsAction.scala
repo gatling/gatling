@@ -15,8 +15,8 @@
  */
 package io.gatling.http.action.async.ws
 
-import io.gatling.http.action.async.AsyncProtocolAction
+import io.gatling.core.action.ActorBasedAction
 
-trait WsAction extends AsyncProtocolAction {
+trait WsAction extends ActorBasedAction {
   override val actorFetchErrorMessage = "Couldn't fetch open webSocket"
 }

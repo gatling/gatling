@@ -15,17 +15,9 @@
  */
 package io.gatling.http.action.async.polling
 
-import akka.actor.ActorRef
+import io.gatling.core.action.ActorBasedAction
 
-import io.gatling.core.session.Session
+trait PollingAction extends ActorBasedAction {
 
-trait PollingAction {
-
-  // import optimized TypeCaster
-  import io.gatling.http.util.HttpTypeHelper._
-
-  def fetchPoller(pollerName: String, session: Session) =
-    session(pollerName)
-      .validate[ActorRef]
-      .mapError(msg => s"Could fetch poller actor: $msg")
+  override val actorFetchErrorMessage = "Couldn't fetch poller actor"
 }

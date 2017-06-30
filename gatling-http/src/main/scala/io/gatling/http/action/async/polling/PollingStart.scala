@@ -60,7 +60,7 @@ class PollingStart(
         next ! newSession
       }
 
-    fetchPoller(pollerName, session) match {
+    fetchActor(pollerName, session) match {
       case _: Success[_] =>
         Failure(s"Unable to create a new poller with name $pollerName: Already exists")
       case _ =>

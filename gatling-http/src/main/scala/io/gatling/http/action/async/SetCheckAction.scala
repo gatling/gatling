@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.async
 
-import io.gatling.core.action.{ Action, RequestAction }
+import io.gatling.core.action.{ Action, ActorBasedAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.check.async._
@@ -26,7 +26,7 @@ abstract class SetCheckAction(
     wsName:          String,
     val statsEngine: StatsEngine,
     val next:        Action
-) extends RequestAction with AsyncProtocolAction {
+) extends RequestAction with ActorBasedAction {
 
   override def sendRequest(requestName: String, session: Session) =
     for {
