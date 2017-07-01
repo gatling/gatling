@@ -36,10 +36,13 @@ class Jackson(objectMapper: ObjectMapper, defaultCharset: Charset) extends JsonP
   val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
 
   def parse(bytes: Array[Byte], charset: Charset): Object =
+    parse(bytes, 0, bytes.length, charset)
+
+  def parse(bytes: Array[Byte], offset: Int, length: Int, charset: Charset): Object =
     if (JsonSupportedEncodings.contains(charset)) {
-      objectMapper.readValue(bytes, classOf[Object])
+      objectMapper.readValue(bytes, offset, length, classOf[Object])
     } else {
-      val reader = new InputStreamReader(new FastByteArrayInputStream(bytes), charset)
+      val reader = new InputStreamReader(new FastByteArrayInputStream(bytes, offset, length), charset)
       objectMapper.readValue(reader, classOf[Object])
     }
 

@@ -17,10 +17,10 @@ package io.gatling.commons.util
 
 import java.io.InputStream
 
-final class FastByteArrayInputStream(bytes: Array[Byte]) extends InputStream {
+final class FastByteArrayInputStream(bytes: Array[Byte], var offset: Int, var length: Int) extends InputStream {
 
-  var offset: Int = _
-  var length: Int = bytes.length
+  def this(bytes: Array[Byte]) = this(bytes, 0, bytes.length)
+
   var position: Int = _
   var mark: Int = _
 

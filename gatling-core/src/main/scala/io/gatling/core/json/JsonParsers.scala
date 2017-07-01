@@ -38,12 +38,24 @@ case class JsonParsers(jackson: Jackson, boon: Boon, preferJackson: Boolean) {
   def safeParseJackson(is: InputStream, charset: Charset): Validation[Object] =
     safely(JacksonErrorMapper)(jackson.parse(is, charset).success)
 
+  def safeParseJackson(bytes: Array[Byte], offset: Int, length: Int, charset: Charset): Validation[Object] =
+    safely(JacksonErrorMapper)(jackson.parse(bytes, offset, length, charset).success)
+
   def safeParseBoon(string: String): Validation[Object] =
     safely(BoonErrorMapper)(boon.parse(string).success)
+
+  def safeParseBoon(bytes: Array[Byte], charset: Charset): Validation[Object] =
+    safely(BoonErrorMapper)(boon.parse(bytes, charset).success)
 
   def safeParse(string: String): Validation[Object] =
     if (preferJackson)
       safeParseJackson(string)
     else
       safeParseBoon(string)
+
+  def safeParse(bytes: Array[Byte], offset: Int, length: Int, charset: Charset): Validation[Object] =
+    if (preferJackson || (offset == 0 && length == bytes.length))
+      safeParseJackson(bytes, offset, length, charset)
+    else
+      safeParseBoon(bytes, charset)
 }
