@@ -54,11 +54,6 @@ class RawFileBody(val resourceAndCachedBytes: Expression[ResourceAndCachedBytes]
     resourceAndCachedBytes(session).map(resourceAndCachedBytes => resourceAndCachedBytes.cachedBytes.getOrElse(resourceAndCachedBytes.resource.bytes))
 }
 
-object ByteArrayBody {
-  def apply(string: String)(implicit configuration: GatlingConfiguration) =
-    new ByteArrayBody(string.getBytes(configuration.core.charset).expressionSuccess)
-}
-
 case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expression[Array[Byte]] {
   def apply(session: Session): Validation[Array[Byte]] =
     bytes(session)
