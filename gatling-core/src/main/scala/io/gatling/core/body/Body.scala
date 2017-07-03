@@ -60,7 +60,7 @@ case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expre
 }
 
 object CompositeByteArrayBody {
-  def apply(string: String)(implicit configuration: GatlingConfiguration) = {
+  def apply(string: String)(implicit configuration: GatlingConfiguration): CompositeByteArrayBody = {
     val charset = configuration.core.charset
     new CompositeByteArrayBody(ElCompiler.compile2BytesSeq(string, charset), charset)
   }
