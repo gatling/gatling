@@ -84,7 +84,7 @@ class FormExtractorSpec extends BaseSpec {
     inputs.get("foo") shouldBe Some(Seq("bar", "baz"))
   }
 
-  "FormExtractor with select" should "extract nothing when no option is selected" in {
+  "FormExtractor with select" should "extract first option when no option is selected" in {
     val inputs = formInputs(
       """<form>
         | <select name="foo">
@@ -95,7 +95,8 @@ class FormExtractorSpec extends BaseSpec {
       """.stripMargin
     )
 
-    inputs shouldBe empty
+    inputs.size shouldBe 1
+    inputs.get("foo") shouldBe Some("opt1")
   }
 
   it should "extract monovalue when one option is selected" in {

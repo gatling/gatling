@@ -50,31 +50,41 @@ private[css] object FormExtractor {
       case _          => RegularInput(name, value)
     }
 
+  private case class SelectOption(value: String, selected: Boolean)
+
   private def extractSelect(node: Node): Option[SelectInput] = {
 
-      def extractSelectedOptions(currentNode: Node, values: List[String]): List[String] =
+      def extractOptions(currentNode: Node, values: List[SelectOption]): List[SelectOption] =
         (for {
           i <- 0 until currentNode.getChildNodesCount
           child = currentNode.getChild(i)
         } yield child.getNodeName match {
           case "option" =>
             Option(child.getAttribute("value")) match {
-              case Some(value) if child.hasAttribute("selected") && value.nonEmpty => value :: values
-              case _ => values
+              case Some(value) if value.nonEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
+              case _                             => values
             }
           case _ =>
-            extractSelectedOptions(child, values)
+            extractOptions(child, values)
         }).toList.flatten
 
     for {
       name <- Option(node.getAttribute("name"))
       if name.nonEmpty && !node.hasAttribute("disabled")
-      values = extractSelectedOptions(node, Nil)
-      if values.nonEmpty
-    } yield if (node.hasAttribute("multiple")) {
-      MultipleSelectInput(name, values)
-    } else {
-      SingleSelectInput(name, values.head)
+      options = extractOptions(node, Nil)
+      if options.nonEmpty
+      selectedOptionValues = options.collect { case SelectOption(value, true) => value }
+      isMultiple = node.hasAttribute("multiple")
+      if !isMultiple || selectedOptionValues.nonEmpty
+    } yield {
+      if (isMultiple) {
+        MultipleSelectInput(name, selectedOptionValues)
+      } else if (selectedOptionValues.isEmpty) {
+        // no selected options, the first option is selected by default
+        SingleSelectInput(name, options.head.value)
+      } else {
+        SingleSelectInput(name, selectedOptionValues.head)
+      }
     }
   }
 
