@@ -235,4 +235,28 @@ class FormExtractorSpec extends BaseSpec {
 
     inputs shouldBe empty
   }
+
+  "FormExtractor with textarea" should "extract content" in {
+    val inputs = formInputs(
+      """<form>
+        | <textarea name="foo">foo</textarea>
+        |</form>
+      """.stripMargin
+    )
+
+    inputs.size shouldBe 1
+    inputs.get("foo") shouldBe Some("foo")
+  }
+
+  it should "extract empty String when content is empty" in {
+    val inputs = formInputs(
+      """<form>
+        | <textarea name="foo"></textarea>
+        |</form>
+      """.stripMargin
+    )
+
+    inputs.size shouldBe 1
+    inputs.get("foo") shouldBe Some("")
+  }
 }

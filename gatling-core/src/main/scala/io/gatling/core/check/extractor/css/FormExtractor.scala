@@ -92,8 +92,7 @@ private[css] object FormExtractor {
     for {
       name <- Option(node.getAttribute("name"))
       if name.nonEmpty && !node.hasAttribute("disabled")
-      value <- Option(node.getTextContent) if value.nonEmpty
-    } yield RegularInput(name, value)
+    } yield RegularInput(name, Option(node.getTextContent).getOrElse(""))
 
   private def processForm(formNode: Node): Seq[Input] = {
 
