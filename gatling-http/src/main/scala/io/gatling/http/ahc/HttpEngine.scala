@@ -34,7 +34,7 @@ import io.netty.resolver.dns.DefaultDnsCache
 import org.asynchttpclient.{ AsyncHttpClient, RequestBuilder }
 
 object HttpEngine {
-  val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
+  private val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 
   def apply(system: ActorSystem, coreComponents: CoreComponents): HttpEngine =
     new HttpEngine(system, coreComponents, AhcFactory(system, coreComponents))
@@ -77,7 +77,7 @@ class HttpEngine(
 
       if (httpProtocol.enginePart.perUserNameResolution) {
         // eager load
-        val unused = dnsResolver
+        val _ = dnsResolver
       }
 
       httpProtocol.warmUpUrl match {
@@ -103,13 +103,13 @@ class HttpEngine(
 
           implicit val protocol = this
 
-          new Http(expression)
+          Http(expression)
             .get(expression)
             .header("bar", expression)
             .queryParam(expression, expression)
             .build(coreComponents, httpComponents, throttled = false)
 
-          new Http(expression)
+          Http(expression)
             .post(expression)
             .header("bar", expression)
             .formParam(expression, expression)
