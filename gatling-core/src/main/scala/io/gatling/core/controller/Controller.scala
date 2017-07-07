@@ -115,13 +115,13 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       logger.info("StatsEngineStopped")
       stop(endData)
 
-    case Event(message, _) =>
-      logger.debug(s"Ignore message $message while waiting for StatsEngine to stop")
-      stay()
-
     case Event(Kill, endData: EndData) =>
       logger.error("Kill")
       stop(endData)
+
+    case Event(message, _) =>
+      logger.debug(s"Ignore message $message while waiting for StatsEngine to stop")
+      stay()
   }
 
   private def replyToLauncher(endData: EndData): Try[Unit] =
