@@ -60,7 +60,7 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       true, // optResourceEnabled
       HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
       DnsServerAddressStreamProviders.platformDefault, // dnsServerAddressStreamProvider
-      NettyDnsConstants.DefaultSearchDomain, // searchDomains
+      null, // searchDomains
       1, // ndots
       true // decodeIdn
     ) {
