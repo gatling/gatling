@@ -4,7 +4,7 @@
 WebSocket
 #########
 
-Functional specs support was initially contributed by `Andrew Duffy <https://github.com/amjjd>`_.
+WebSocket support was initially contributed by `Andrew Duffy <https://github.com/amjjd>`_.
 
 WebSocket support is an extension to the HTTP DSL, whose entry point is the ``ws(requestName: Expression[String])`` method.
 
