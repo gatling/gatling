@@ -118,7 +118,8 @@ private[recorder] object ScenarioExporter extends StrictLogging {
                   val isFiltered = filteredHeaders contains headerName
                   val isAlreadyInBaseHeaders = baseHeaders.get(headerName).contains(headerValue)
                   val isPostWithFormParams = element.method == "POST" && headerValue == HeaderValues.ApplicationFormUrlEncoded
-                  isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams
+                  val isEmptyContentLength = headerName.equalsIgnoreCase(HeaderNames.ContentLength) && headerValue == "0"
+                  isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
               }
               .sortBy(_._1)
 
