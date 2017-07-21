@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.ClassHelper._
+import io.gatling.commons.util.Throwables._
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.response.Response
 
@@ -55,7 +55,6 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
   //
   //
   //
-  //
   // [fl]
 
   private[http] def start(): Unit =
@@ -67,6 +66,7 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
     }
 
   // [fl]
+  //
   //
   //
   //
@@ -144,11 +144,7 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
     }
 
   private def sendOnThrowable(response: Response, throwable: Throwable): Unit = {
-    val classShortName = throwable.getClass.getShortName
-    val errorMessage = throwable.getMessage match {
-      case null => classShortName
-      case m    => s"$classShortName: $m"
-    }
+    val errorMessage = throwable.detailedMessage
 
     if (AsyncHandler.DebugEnabled)
       logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
