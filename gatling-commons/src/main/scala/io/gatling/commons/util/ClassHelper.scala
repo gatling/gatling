@@ -18,14 +18,14 @@ package io.gatling.commons.util
 object ClassHelper {
 
   def toClassShortName(className: String): String = {
-    val sb = new StringBuilder
-    val parts = className.split('.')
+    val parts = className.split("\\.")
+    val sb = StringHelper.stringBuilder()
     var i = 0
     while (i < parts.length - 1) {
-      sb.append(parts(i).head).append('.')
+      sb.append(parts(i).charAt(0)).append('.')
       i += 1
     }
-    sb.append(parts.last).toString
+    sb.append(parts(i)).toString
   }
 
   implicit class PimpedClass(val clazz: Class[_]) extends AnyVal {
