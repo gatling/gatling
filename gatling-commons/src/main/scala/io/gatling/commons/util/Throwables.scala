@@ -17,6 +17,8 @@ package io.gatling.commons.util
 
 import java.io.PrintWriter
 
+import io.gatling.commons.util.ClassHelper._
+
 object Throwables {
 
   private[this] val emptyStackTrace = Array.empty[StackTraceElement]
@@ -41,21 +43,14 @@ object Throwables {
       t
     }
 
-    def rootMessage: String = {
-      val rc = rootCause
-      val rcSimpleName = rc.getClass.getSimpleName
-      if (rc.getMessage == null) {
-        rcSimpleName
-      } else {
-        s"$rcSimpleName: ${rc.getMessage}"
-      }
-    }
+    def rootMessage: String =
+      rootCause.detailedMessage
 
     def detailedMessage: String =
       if (e.getMessage == null) {
-        e.getClass.getName
+        e.getClass.getShortName
       } else {
-        s"${e.getClass.getName}: ${e.getMessage}"
+        s"${e.getClass.getShortName}: ${e.getMessage}"
       }
 
     def stackTraceString: String = {
