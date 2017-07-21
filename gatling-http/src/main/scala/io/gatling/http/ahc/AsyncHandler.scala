@@ -32,8 +32,8 @@ import com.typesafe.scalalogging._
 import io.netty.handler.codec.http.HttpHeaders
 
 object AsyncHandler extends StrictLogging {
-  val DebugEnabled = logger.underlying.isDebugEnabled
-  val InfoEnabled = logger.underlying.isInfoEnabled
+  private val DebugEnabled = logger.underlying.isDebugEnabled
+  private val InfoEnabled = logger.underlying.isInfoEnabled
 }
 
 /**
@@ -47,7 +47,7 @@ object AsyncHandler extends StrictLogging {
  */
 class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends ExtendedAsyncHandler[Unit] with LazyLogging {
 
-  val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
+  private val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
   private val done = new AtomicBoolean
   // [fl]
