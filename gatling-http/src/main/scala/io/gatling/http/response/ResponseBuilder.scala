@@ -145,7 +145,7 @@ class ResponseBuilder(
 
     val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
 
-    if (byteBuf.readableBytes > 0) {
+    if (byteBuf.isReadable) {
       if (storeBodyParts || storeHtmlOrCss) {
         chunks = byteBuf.retain() :: chunks // beware, we have to retain!
       }
