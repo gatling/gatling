@@ -199,7 +199,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         val originalMethod = originalRequest.getMethod
 
         val switchToGet = originalMethod != GET && (statusCode == MOVED_PERMANENTLY_301 || statusCode == SEE_OTHER_303 || (statusCode == FOUND_302 && !httpProtocol.responsePart.strict302Handling))
-        val keepBody = statusCode == TEMPORARY_REDIRECT_307 || (statusCode == FOUND_302 && httpProtocol.responsePart.strict302Handling)
+        val keepBody = statusCode == TEMPORARY_REDIRECT_307 || statusCode == PERMANENT_REDIRECT_308 || (statusCode == FOUND_302 && httpProtocol.responsePart.strict302Handling)
 
         val newHeaders = originalRequest.getHeaders
           .remove(HeaderNames.Host)
