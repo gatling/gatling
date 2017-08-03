@@ -44,7 +44,7 @@ object Gatling extends StrictLogging {
       case Right(statusCode) => statusCode.code
     }
 
-  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) = {
+  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) =
     try {
       logger.trace("Starting")
       val configuration = GatlingConfiguration.load(overrides)
@@ -65,5 +65,4 @@ object Gatling extends StrictLogging {
     } finally {
       LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext].stop()
     }
-  }
 }
