@@ -41,7 +41,7 @@ object Dependencies {
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"                % "1.0"
   private val pebble                        = "com.mitchellbosecke"                    % "pebble"                        % "2.4.0"
   private val guava                         = "com.google.guava"                       % "guava"                         % "22.0"
-  private val findbugs                      = "com.google.code.findbugs"               % "jsr305"                        % "3.0.1"
+  private val findbugs                      = "com.google.code.findbugs"               % "jsr305"                        % "3.0.2"
 
   /***********************/
   /** Test dependencies **/
@@ -65,10 +65,10 @@ object Dependencies {
   /****************************/
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat, ahcNettyUtils, pebble, guava) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat, ahcNettyUtils, pebble, guava, findbugs) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt, findbugs) ++
+    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
