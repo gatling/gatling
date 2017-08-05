@@ -40,7 +40,7 @@ object Dependencies {
   private val quicklens                     = "com.softwaremill.quicklens"            %% "quicklens"                     % "1.4.8"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"                % "1.0"
   private val pebble                        = "com.mitchellbosecke"                    % "pebble"                        % "2.4.0"
-  private val guava                         = "com.google.guava"                       % "guava"                         % "22.0"
+  private val guava                         = "com.google.guava"                       % "guava"                         % "23.0"
   private val findbugs                      = "com.google.code.findbugs"               % "jsr305"                        % "3.0.2"
 
   /***********************/
