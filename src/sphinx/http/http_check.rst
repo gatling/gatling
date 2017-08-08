@@ -357,6 +357,14 @@ Checks that the value is equal to the expected one, e.g.:
 
 In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Expression[String]``.
 
+.. _http-check-isNull:
+
+* ``isNull``
+
+Checks that the value is null, typically a JSON value, e.g.:
+
+.. includecode:: code/Checks.scala#isNull
+
 .. _http-check-not:
 
 * ``not(expected)``
@@ -368,6 +376,14 @@ Checks that the value is different from the expected one:
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
 In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Expression[String]``.
+
+.. _http-check-notNull:
+
+* ``notNull``
+
+Checks that the value is not null, typically a JSON value, e.g.:
+
+.. includecode:: code/Checks.scala#notNull
 
 .. _http-check-exists:
 

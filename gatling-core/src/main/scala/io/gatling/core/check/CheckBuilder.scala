@@ -166,7 +166,9 @@ case class ValidatorCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]]
     }.success)
 
   def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))
+  def isNull = validate(new IsNullMatcher[X].expressionSuccess)
   def not(expected: Expression[X]) = validate(expected.map(new NotMatcher(_)))
+  def notNull = validate(new NotNullMatcher[X].expressionSuccess)
   def in(expected: X*) = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
   def in(expected: Expression[Seq[X]]) = validate(expected.map(new InMatcher(_)))
   def exists = validate(new ExistsValidator[X]().expressionSuccess)

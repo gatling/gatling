@@ -88,6 +88,26 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     jsonPath("$.foo").ofType[Map[String, Any]].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
   }
 
+  it should "succeed when expecting a null value and getting a null one" in {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[Any].find.isNull.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
+  }
+
+  it should "fail when expecting a null value and getting a non-null one" in {
+    val response = mockResponse("""{"foo": "bar"}""")
+    jsonPath("$.foo").ofType[Any].find.isNull.check(response, session).failed shouldBe "jsonPath($.foo).find.isNull, but actually found bar"
+  }
+
+  it should "succeed when expecting a non-null value and getting a non-null one" in {
+    val response = mockResponse("""{"foo": "bar"}""")
+    jsonPath("$.foo").ofType[Any].find.notNull.check(response, session).succeeded shouldBe CheckResult(Some("bar"), None)
+  }
+
+  it should "fail when expecting a non-null value and getting a null one" in {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[Any].find.notNull.check(response, session).failed shouldBe "jsonPath($.foo).find.notNull, but actually found null"
+  }
+
   "jsonPath.findAll.exists" should "fetch all matches" in {
     val response = mockResponse(storeJson)
     jsonPath("$..book").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("In store", "On the street")), None)

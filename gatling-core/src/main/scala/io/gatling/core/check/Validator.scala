@@ -18,7 +18,7 @@ package io.gatling.core.check
 import io.gatling.commons.validation._
 
 object Validator {
-  val FoundNothingFailure = "found nothing".failure
+  val FoundNothingFailure: Failure = "found nothing".failure
 }
 
 trait Validator[A] {
@@ -46,6 +46,20 @@ class IsMatcher[A](expected: A) extends Matcher[A] {
   }
 }
 
+class IsNullMatcher[A] extends Matcher[A] {
+
+  def name = "isNull"
+
+  def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
+    case Some(actualValue) =>
+      if (actualValue == null)
+        actual.success
+      else
+        s"found $actualValue".failure
+    case None => Validator.FoundNothingFailure
+  }
+}
+
 class NotMatcher[A](expected: A) extends Matcher[A] {
 
   def name = s"not($expected)"
@@ -56,6 +70,20 @@ class NotMatcher[A](expected: A) extends Matcher[A] {
         actual.success
       else
         s"unexpectedly found $actualValue".failure
+    case None => NoneSuccess
+  }
+}
+
+class NotNullMatcher[A] extends Matcher[A] {
+
+  def name = "notNull"
+
+  def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
+    case Some(actualValue) =>
+      if (actualValue != null)
+        actual.success
+      else
+        "found null".failure
     case None => NoneSuccess
   }
 }

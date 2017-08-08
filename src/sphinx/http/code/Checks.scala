@@ -120,9 +120,17 @@ class Checks {
     status.is(200)
     //#is
 
+    //#isNull
+    jsonPath("$.foo").isNull
+    //#isNull
+
     //#not
     status.not(500)
     //#not
+
+    //#isNull
+    jsonPath("$.foo").notNull
+    //#isNull
 
     //#exists
     jsonPath("$..foo").exists
