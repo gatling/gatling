@@ -15,8 +15,9 @@
  */
 package io.gatling.commons.validation
 
+import scala.util.control.NoStackTrace
+
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Throwables._
 
 class ValidationSpec extends BaseSpec {
 
@@ -34,7 +35,7 @@ class ValidationSpec extends BaseSpec {
 
   it should "return a failure if the provided Validation threw exceptions" in {
       def exceptionThrower = {
-          def thrower = throw new Exception("Woops").noStackTrace()
+          def thrower = throw new Exception("Woops") with NoStackTrace
 
         thrower
         Success(1)

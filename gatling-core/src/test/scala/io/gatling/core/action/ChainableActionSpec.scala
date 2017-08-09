@@ -15,8 +15,9 @@
  */
 package io.gatling.core.action
 
+import scala.util.control.NoStackTrace
+
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 
@@ -27,7 +28,7 @@ class ChainableActionSpec extends BaseSpec {
 
     override val name = "chainable"
     override def execute(session: Session): Unit =
-      if (fail) throw new Exception("expected crash").noStackTrace()
+      if (fail) throw new Exception("expected crash") with NoStackTrace
       else hasRun = true
   }
 

@@ -21,14 +21,7 @@ import io.gatling.commons.util.ClassHelper._
 
 object Throwables {
 
-  private[this] val emptyStackTrace = Array.empty[StackTraceElement]
-
   implicit class PimpedException[T <: Throwable](val e: T) extends AnyVal {
-
-    def noStackTrace(): T = {
-      e.setStackTrace(emptyStackTrace)
-      e
-    }
 
     def unknownStackTrace(clazz: Class[_], method: String): T = {
       e.setStackTrace(Array[StackTraceElement](new StackTraceElement(clazz.getName, method, null, -1)))
