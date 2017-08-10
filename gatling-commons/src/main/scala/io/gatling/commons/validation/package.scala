@@ -15,7 +15,7 @@
  */
 package io.gatling.commons
 
-import scala.util.{ Try, Success => TSuccess, Failure => TFailure }
+import scala.util.{ Try, Failure => TFailure, Success => TSuccess }
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._

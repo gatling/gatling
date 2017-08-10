@@ -15,8 +15,6 @@
  */
 package io.gatling.commons.validation
 
-import scala.util.control.NoStackTrace
-
 import io.gatling.BaseSpec
 
 class ValidationSpec extends BaseSpec {
@@ -27,22 +25,6 @@ class ValidationSpec extends BaseSpec {
 
   "FailureWrapper" should "wrap a String in a Failure" in {
     "foo".failure shouldBe Failure("foo")
-  }
-
-  "executeSafe" should "returned the provided Validation if it didn't throw exceptions" in {
-    safely()(1.success) shouldBe 1.success
-  }
-
-  it should "return a failure if the provided Validation threw exceptions" in {
-      def exceptionThrower = {
-          def thrower = throw new Exception("Woops") with NoStackTrace
-
-        thrower
-        Success(1)
-      }
-
-    safely()(exceptionThrower) shouldBe "Exception: Woops".failure
-    safely(_ + "y")(exceptionThrower) shouldBe "Exception: Woopsy".failure
   }
 
   "map" should "apply the passed function to the value when called on a Success" in {
