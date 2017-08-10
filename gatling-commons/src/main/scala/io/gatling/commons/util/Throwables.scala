@@ -39,12 +39,14 @@ object Throwables {
     def rootMessage: String =
       rootCause.detailedMessage
 
-    def detailedMessage: String =
+    def detailedMessage: String = {
+      val nonAnon = e.getClass.nonAnonSuperclass
       if (e.getMessage == null) {
-        e.getClass.getShortName
+        nonAnon.getShortName
       } else {
-        s"${e.getClass.getShortName}: ${e.getMessage}"
+        s"${nonAnon.getShortName}: ${e.getMessage}"
       }
+    }
 
     def stackTraceString: String = {
       val sw = new FastStringWriter()
