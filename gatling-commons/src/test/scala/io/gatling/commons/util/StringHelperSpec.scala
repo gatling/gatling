@@ -23,7 +23,7 @@ import io.gatling.commons.util.StringHelper.RichString
 
 class StringHelperSpec extends BaseSpec {
 
-  val fileBytes = getClass.getResource("/emoticon.png").toByteArray
+  private val fileBytes = getClass.getResource("/emoticon.png").toByteArray
 
   "bytes2Hex" should "correctly compute file sha-1" in {
     val md = MessageDigest.getInstance("SHA-1")
@@ -89,13 +89,5 @@ class StringHelperSpec extends BaseSpec {
 
   it should "not find target when target is longer" in {
     StringHelper.RichCharSequence("$").indexOf("${", 0) shouldBe -1
-  }
-
-  "RichCharSequence.contains" should "find an existing char in a sequence" in {
-    StringHelper.RichCharSequence("foo bar").contains(_ == ' ') shouldBe true
-  }
-
-  it should "not find an missing char in a sequence" in {
-    StringHelper.RichCharSequence("foo bar").contains(_ == 'z') shouldBe false
   }
 }

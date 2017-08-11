@@ -20,8 +20,6 @@ import java.nio.charset.StandardCharsets._
 import java.security.MessageDigest
 import java.text.Normalizer
 
-import scala.util.Try
-
 import io.gatling.commons.util.UnsafeHelper._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -32,7 +30,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 object StringHelper {
 
   private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
-  private val StringOffsetFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption
 
   val Eol = System.getProperty("line.separator")
   val EolBytes = Eol.getBytes(US_ASCII)
@@ -151,32 +148,6 @@ object StringHelper {
         }
         -1
       }
-    }
-
-    def startWith(chars: Array[Char]): Boolean = {
-
-      if (chars.length > source.length)
-        false
-
-      else {
-        var i = 0
-        while (i < source.length && i < chars.length) {
-          if (source.charAt(i) != chars(i))
-            return false
-          i += 1
-        }
-
-        i == chars.length
-      }
-    }
-
-    def contains(f: Char => Boolean): Boolean = {
-      for (i <- 0 until source.length) {
-        if (f(source.charAt(i)))
-          return true
-      }
-
-      false
     }
   }
 }
