@@ -50,7 +50,7 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
 
     val eachSecondActiveSessions = Array.fill(runDurationInSeconds)(0)
 
-    for { second <- 0 until runDurationInSeconds } {
+    for (second <- 0 until runDurationInSeconds) {
       val previousSessions = if (second == 0) 0 else eachSecondActiveSessions(second - 1)
       val previousEnds = if (second == 0) 0 else endCounts(second - 1)
       val bucketSessions = previousSessions - previousEnds + startCounts(second)
