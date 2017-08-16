@@ -32,7 +32,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.jms._
 
-import akka.actor.Props
+import akka.actor.{ Timers, Props }
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -67,7 +67,7 @@ object Tracker {
  * Bookkeeping actor to correlate request and response JMS messages
  * Once a message is correlated, it publishes to the Gatling core DataWriter
  */
-class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) extends BaseActor {
+class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) extends BaseActor with Timers {
 
   private val sentMessages = mutable.HashMap.empty[String, MessageSent]
   private val timedOutMessages = mutable.ArrayBuffer.empty[MessageSent]
@@ -76,9 +76,7 @@ class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) 
   def triggerPeriodicTimeoutScan(): Unit =
     if (!periodicTimeoutScanTriggered) {
       periodicTimeoutScanTriggered = true
-      scheduler.schedule(replyTimeoutScanPeriod, replyTimeoutScanPeriod) {
-        self ! TimeoutScan
-      }
+      timers.startPeriodicTimer("timeoutTimer", TimeoutScan, replyTimeoutScanPeriod)
     }
 
   override def receive: Receive = {
