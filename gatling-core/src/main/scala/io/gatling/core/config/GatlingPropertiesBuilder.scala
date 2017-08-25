@@ -23,35 +23,55 @@ class GatlingPropertiesBuilder {
 
   private val props = mutable.Map.empty[String, Any]
 
-  def noReports(): Unit =
+  def noReports(): GatlingPropertiesBuilder = {
     props += charting.NoReports -> true
+    this
+  }
 
-  def reportsOnly(v: String): Unit =
+  def reportsOnly(v: String): GatlingPropertiesBuilder = {
     props += core.directory.ReportsOnly -> v
+    this
+  }
 
-  def dataDirectory(v: String): Unit =
+  def dataDirectory(v: String): GatlingPropertiesBuilder = {
     props += core.directory.Data -> v
+    this
+  }
 
-  def resultsDirectory(v: String): Unit =
+  def resultsDirectory(v: String): GatlingPropertiesBuilder = {
     props += core.directory.Results -> v
+    this
+  }
 
-  def bodiesDirectory(v: String): Unit =
+  def bodiesDirectory(v: String): GatlingPropertiesBuilder = {
     props += core.directory.Bodies -> v
+    this
+  }
 
-  def sourcesDirectory(v: String): Unit =
+  def sourcesDirectory(v: String): GatlingPropertiesBuilder = {
     props += core.directory.Simulations -> v
+    this
+  }
 
-  def binariesDirectory(v: String): Unit =
+  def binariesDirectory(v: String): GatlingPropertiesBuilder = {
     props += core.directory.Binaries -> v
+    this
+  }
 
-  def simulationClass(v: String): Unit =
+  def simulationClass(v: String): GatlingPropertiesBuilder = {
     props += core.SimulationClass -> v
+    this
+  }
 
-  def outputDirectoryBaseName(v: String): Unit =
+  def outputDirectoryBaseName(v: String): GatlingPropertiesBuilder = {
     props += core.OutputDirectoryBaseName -> v
+    this
+  }
 
-  def runDescription(v: String): Unit =
+  def runDescription(v: String): GatlingPropertiesBuilder = {
     props += core.RunDescription -> v
+    this
+  }
 
   def build: mutable.Map[String, Any] = props
 }
