@@ -16,7 +16,6 @@
 package io.gatling.charts.result.reader
 
 import scala.collection.mutable
-
 import io.gatling.BaseSpec
 import io.gatling.charts.stats.LogFileReader
 import io.gatling.core.ConfigKeys._
@@ -24,10 +23,8 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 
 class LogFileReaderSpec extends BaseSpec {
 
-  val props = new GatlingPropertiesBuilder
-  props.resultsDirectory("src/test/resources")
-
-  implicit val configuration = GatlingConfiguration.loadForTest(props.build)
+  private implicit val configuration =
+    GatlingConfiguration.loadForTest(new GatlingPropertiesBuilder().resultsDirectory("src/test/resources").build)
 
   // FIXME re-enable with fresh and SIMPLE samples
   //	"When reading a single log file, LogFileReader" should {
