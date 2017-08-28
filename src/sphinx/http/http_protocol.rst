@@ -111,13 +111,16 @@ Hostname Resolution
 -------------------
 
 By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
+By default, this cache is eternal.
 This cache can be disabled with ``-Dsun.net.inetaddr.ttl=0``.
 
-One can change this behaviour and set ``.perUserNameResolution`` so all virtual users resolve names on their own.
-This feature is experimental, but might become the default in future versions.
+If you're using the JDK eternal cache and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically round-robin on them.
 
+If you want to make it so that all virtual users perform their own name resolution, generate UPD traffic against your DNS server,
+and have their own DNS cache, you can set ``.perUserNameResolution`` .
+Note this feature is experimental.
 This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,
-for example with AWS Elastic Load Balancer (ELB).
+for example with AWS Application Load Balancer (ALB).
 
 .. _http-protocol-hostname-aliasing:
 
