@@ -22,16 +22,15 @@ import io.gatling.http.cache.HttpCaches
 
 case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor) extends ProtocolComponents {
 
-  private val onExitF: Session => Unit = session => {
-    val (_, ahc) = httpEngine.httpClient(session, httpProtocol)
-    ahc.flushChannelPoolPartitions(AhcChannelPoolPartitioning.flushPredicate(session))
-  }
-
-  override def onStart: Option[Session => Session] =
+  override val onStart: Option[Session => Session] =
     Some(httpCaches.setNameResolver(httpProtocol, httpEngine)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
       andThen httpCaches.setWsBaseUrl(httpProtocol))
 
-  override def onExit: Option[Session => Unit] = Some(onExitF)
+  override val onExit: Option[Session => Unit] =
+    Some(session => {
+      val (_, ahc) = httpEngine.httpClient(session, httpProtocol)
+      ahc.flushChannelPoolPartitions(AhcChannelPoolPartitioning.flushPredicate(session))
+    })
 }
