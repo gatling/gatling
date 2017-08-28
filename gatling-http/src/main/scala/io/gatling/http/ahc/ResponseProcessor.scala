@@ -47,7 +47,7 @@ import org.asynchttpclient.util.StringBuilderPool.DEFAULT.stringBuilder
 
 object ResponseProcessor extends StrictLogging {
 
-  val IsTraceEnabled = logger.underlying.isTraceEnabled
+  private val IsTraceEnabled = logger.underlying.isTraceEnabled
 }
 
 class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
