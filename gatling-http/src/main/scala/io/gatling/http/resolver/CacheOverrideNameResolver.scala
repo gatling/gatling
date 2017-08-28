@@ -18,33 +18,38 @@ package io.gatling.http.resolver
 import java.net.InetAddress
 import java.util.{ List => JList }
 
+import scala.util.control.NonFatal
+
 import io.netty.handler.codec.dns.DnsRecord
 import io.netty.resolver.NameResolver
 import io.netty.resolver.dns.DnsCache
 import io.netty.util.concurrent.{ Future, Promise }
 
-object DelegatingNameResolver {
-  private val EmptyAdditionals = Array.empty[DnsRecord]
+object CacheOverrideNameResolver {
+  private val EmptyDnsRecordArray = Array.empty[DnsRecord]
 }
 
-case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
+case class CacheOverrideNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
     extends NameResolver[InetAddress] {
 
-  override def resolve(inetHost: String): Future[InetAddress] =
-    resolve(inetHost, resolver.executor.newPromise[InetAddress])
+  import CacheOverrideNameResolver._
 
-  override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] = {
-    resolver.doResolve(inetHost, DelegatingNameResolver.EmptyAdditionals, promise, cache)
-    promise
-  }
+  override def resolve(inetHost: String): Future[InetAddress] =
+    throw new UnsupportedOperationException
+
+  override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] =
+    throw new UnsupportedOperationException
 
   override def resolveAll(inetHost: String): Future[JList[InetAddress]] =
-    resolveAll(inetHost, resolver.executor.newPromise[JList[InetAddress]])
+    resolveAll(inetHost, resolver.eventLoop.newPromise[JList[InetAddress]])
 
-  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] = {
-    resolver.doResolveAll(inetHost, DelegatingNameResolver.EmptyAdditionals, promise, cache)
-    promise
-  }
+  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] =
+    try {
+      resolver.doResolveAll(inetHost, EmptyDnsRecordArray, promise, cache)
+      promise
+    } catch {
+      case NonFatal(e) => promise.setFailure(e)
+    }
 
   override def close(): Unit = cache.clear()
 }

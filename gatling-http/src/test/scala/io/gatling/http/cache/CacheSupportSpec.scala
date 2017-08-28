@@ -18,16 +18,22 @@ package io.gatling.http.cache
 import java.nio.charset.StandardCharsets._
 
 import io.gatling.BaseSpec
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.ahc.{ AhcRequestBuilder, HttpEngine }
+import io.gatling.http.ahc.{ AhcRequestBuilder, HttpEngine, ResponseProcessor }
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.http.{ MockUtils, HeaderNames, HeaderValues }
+import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
+import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
 import io.netty.handler.codec.http.DefaultHttpHeaders
 import org.asynchttpclient._
 import org.asynchttpclient.uri.Uri
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 
 class CacheSupportSpec extends BaseSpec {
 
@@ -110,7 +116,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   "redirect memoization" should "return transaction with no redirect cache" in new RedirectContext {
-    val tx = MockUtils.txTo("http://example.com/", session, cache = true)
+    val tx = txTo("http://example.com/", session, cache = true)
     val actualTx = httpCaches.applyPermanentRedirect(tx)
 
     actualTx shouldBe tx
@@ -119,7 +125,7 @@ class CacheSupportSpec extends BaseSpec {
   it should "return updated transaction with single redirect" in new RedirectContext {
     addRedirect("http://example.com/", "http://gatling.io/")
 
-    val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
+    val origTx = txTo("http://example.com/", session, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
     tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling.io/")
@@ -132,7 +138,7 @@ class CacheSupportSpec extends BaseSpec {
     addRedirect("http://gatling.io/", "http://gatling2.io/")
     addRedirect("http://gatling2.io/", "http://gatling3.io/")
 
-    val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
+    val origTx = txTo("http://example.com/", session, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
     tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling3.io/")
@@ -146,11 +152,45 @@ class CacheSupportSpec extends BaseSpec {
     addRedirect("http://gatling2.io/", "http://gatling3.io/")
 
     // Redirect count is already 2
-    val origTx = MockUtils.txTo("http://example.com/", session, 2, cache = true)
+    val origTx = txTo("http://example.com/", session, 2, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
     tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling3.io/")
     // After 3 more redirects it is now equal to 5
     tx.redirectCount shouldBe 5
+  }
+
+  def txTo(uri: String, session: Session, redirectCount: Int = 0, cache: Boolean = false) = {
+    val protocol = HttpProtocol(configuration)
+    val request = mock[Request]
+    val caches = mock[HttpCaches]
+
+    when(request.getUri) thenReturn Uri.create(uri)
+    when(request.getHeaders) thenReturn new DefaultHttpHeaders
+    when(caches.setNameResolver(any[HttpProtocol], any[HttpEngine])) thenReturn (identity[Session] _)
+
+    HttpTx(
+      session,
+      request = HttpRequest(
+        requestName = "mockHttpTx",
+        ahcRequest = request,
+        config = HttpRequestConfig(
+          checks = Nil,
+          responseTransformer = None,
+          extraInfoExtractor = None,
+          maxRedirects = Some(10),
+          throttled = false,
+          silent = None,
+          followRedirect = true,
+          discardResponseChunks = true,
+          coreComponents = mock[CoreComponents],
+          httpComponents = HttpComponents(protocol, mock[HttpEngine], caches, mock[ResponseProcessor]),
+          explicitResources = Nil
+        )
+      ),
+      responseBuilderFactory = null,
+      next = null,
+      redirectCount = redirectCount
+    )
   }
 }

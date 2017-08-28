@@ -37,8 +37,8 @@ object RequestExpressionBuilder {
   type RequestBuilderConfigureRaw = Session => AhcRequestBuilder => AhcRequestBuilder
   type RequestBuilderConfigure = Session => AhcRequestBuilder => Validation[AhcRequestBuilder]
 
-  val ConfigureIdentityRaw: RequestBuilderConfigureRaw = session => requestBuilder => requestBuilder
-  val ConfigureIdentity: RequestBuilderConfigure = session => requestBuilder => requestBuilder.success
+  val ConfigureIdentityRaw: RequestBuilderConfigureRaw = _ => identity
+  val ConfigureIdentity: RequestBuilderConfigure = _ => _.success
 }
 
 abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
@@ -91,7 +91,6 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private def configureNameResolver(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     configuration.resolve(
       // [fl]
-      //
       //
       //
       //

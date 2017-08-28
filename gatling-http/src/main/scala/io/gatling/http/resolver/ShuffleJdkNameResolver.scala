@@ -31,22 +31,15 @@ class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEventExecutor.INS
 
   override def doResolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Unit =
     try {
-      var addresses = cache.get(inetHost)
-      if (addresses == null) {
-        addresses = InetAddress.getAllByName(inetHost) match {
+      val addresses = cache.computeIfAbsent(inetHost, _ => {
+        InetAddress.getAllByName(inetHost) match {
           case Array(single) => JCollections.singletonList(single)
           case array =>
-            val list = JArrays.asList(InetAddress.getAllByName(inetHost): _*)
+            val list = JArrays.asList(array: _*)
             JCollections.shuffle(list)
             list
         }
-
-        val oldAddresses = cache.putIfAbsent(inetHost, addresses)
-        if (oldAddresses != null) {
-          // concurrent update
-          addresses = oldAddresses
-        }
-      }
+      })
       promise.setSuccess(addresses)
     } catch {
       case e: UnknownHostException => promise.setFailure(e)

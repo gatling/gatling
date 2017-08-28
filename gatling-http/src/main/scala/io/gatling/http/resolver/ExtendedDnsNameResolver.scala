@@ -44,7 +44,7 @@ object ExtendedDnsNameResolver extends StrictLogging {
  * @param eventLoop the event loop
  * @param configuration the config
  */
-class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfiguration)
+class ExtendedDnsNameResolver(val eventLoop: EventLoop, configuration: GatlingConfiguration)
     extends DnsNameResolver(
       eventLoop, // eventLoop
       ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
@@ -64,11 +64,6 @@ class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfig
       1, // ndots
       true // decodeIdn
     ) {
-  override def doResolve(inetHost: String, additionals: Array[DnsRecord], promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
-    super.doResolve(inetHost, additionals, promise, resolveCache)
-
   override def doResolveAll(inetHost: String, additionals: Array[DnsRecord], promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
     super.doResolveAll(inetHost, additionals, promise, resolveCache)
-
-  override def executor: EventLoop = super.executor()
 }

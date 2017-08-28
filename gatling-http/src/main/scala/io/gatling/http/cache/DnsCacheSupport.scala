@@ -21,19 +21,18 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
+import io.gatling.http.resolver._
 import io.gatling.http.util.HttpTypeCaster
 
-import io.netty.resolver.{ DefaultNameResolver, NameResolver }
-import io.netty.util.concurrent.ImmediateEventExecutor
+import io.netty.resolver.dns.DefaultDnsCache
+import io.netty.resolver.NameResolver
+import org.asynchttpclient.RequestBuilderBase
 
 object DnsCacheSupport {
 
-  val JavaDnsCacheEternal = sys.props.get("sun.net.inetaddr.ttl").getOrElse(-1) == -1
+  private val UseDefaultJavaEternalDnsCache = sys.props.get("sun.net.inetaddr.ttl").getOrElse(-1) == -1
 
-  val JavaNameResolver = new DefaultNameResolver(ImmediateEventExecutor.INSTANCE)
-
-  val DnsCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
+  val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 }
 
 trait DnsCacheSupport {
@@ -48,35 +47,71 @@ trait DnsCacheSupport {
     if (hostAliases.isEmpty) {
       if (httpProtocol.enginePart.perUserNameResolution) {
         // use per user resolver
-        _.set(DnsCacheAttributeName, httpEngine.newDnsResolver)
+        val defaultDnsNameResolver = httpEngine.defaultDnsNameResolver
+        configuration.resolve(
+          // [fl]
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          // [fl]
+          _.set(DnsNameResolverAttributeName, new CacheOverrideNameResolver(defaultDnsNameResolver, new DefaultDnsCache))
+        )
 
-      } else if (JavaDnsCacheEternal) {
+      } else if (UseDefaultJavaEternalDnsCache) {
         // mitigate missing round robin
-        _.set(DnsCacheAttributeName, new ShuffleJdkNameResolver)
+        _.set(DnsNameResolverAttributeName, new ShuffleJdkNameResolver)
 
       } else {
-        // user tuned Java behavior, let him have the standard behavior
-        _.set(DnsCacheAttributeName, JavaNameResolver)
+        // use AHC's default name resolution
+        identity
       }
     } else {
       if (httpProtocol.enginePart.perUserNameResolution) {
         // use per user resolver
-        _.set(DnsCacheAttributeName, new AliasesAwareNameResolver(hostAliases, httpEngine.newDnsResolver))
+        val defaultDnsNameResolver = httpEngine.defaultDnsNameResolver
+        configuration.resolve(
+          // [fl]
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          // [fl]
+          _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, defaultDnsNameResolver))
+        )
 
-      } else if (JavaDnsCacheEternal) {
+      } else if (UseDefaultJavaEternalDnsCache) {
         // mitigate missing round robin
-        _.set(DnsCacheAttributeName, new AliasesAwareNameResolver(hostAliases, new ShuffleJdkNameResolver))
+        _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, new ShuffleJdkNameResolver))
 
       } else {
         // user tuned Java behavior, let him have the standard behavior
-        _.set(DnsCacheAttributeName, new AliasesAwareNameResolver(hostAliases, JavaNameResolver))
+        _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, RequestBuilderBase.DEFAULT_NAME_RESOLVER))
       }
     }
   }
 
-  val nameResolver: (Session => Option[NameResolver[InetAddress]]) = {
+  def nameResolver(session: Session): Option[NameResolver[InetAddress]] = {
     // import optimized TypeCaster
     import HttpTypeCaster._
-    _(DnsCacheAttributeName).asOption[NameResolver[InetAddress]]
+    session(DnsNameResolverAttributeName).asOption[NameResolver[InetAddress]]
   }
 }

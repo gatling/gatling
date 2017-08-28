@@ -54,7 +54,7 @@ private[gatling] trait AhcFactory {
 
   def newAhc(session: Session): AsyncHttpClient
 
-  def newNameResolver(): ExtendedDnsNameResolver
+  def defaultDnsNameResolver: ExtendedDnsNameResolver
 }
 
 private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents) extends AhcFactory with StrictLogging {
@@ -178,7 +178,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     client
   }
 
-  def newNameResolver(): ExtendedDnsNameResolver = {
+  override lazy val defaultDnsNameResolver: ExtendedDnsNameResolver = {
     val executor = newEventLoopGroup("gatling-dns-thread")
     val resolver = new ExtendedDnsNameResolver(executor.next(), configuration)
     system.registerOnTermination(resolver.close())

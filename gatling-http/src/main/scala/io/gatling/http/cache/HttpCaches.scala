@@ -31,7 +31,7 @@ class HttpCaches(val configuration: GatlingConfiguration)
 
   val FlushCache: Expression[Session] = _.removeAll(
     HttpContentCacheSupport.HttpContentCacheAttributeName,
-    DnsCacheSupport.DnsCacheAttributeName,
+    DnsCacheSupport.DnsNameResolverAttributeName,
     PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName
   ).success
 }

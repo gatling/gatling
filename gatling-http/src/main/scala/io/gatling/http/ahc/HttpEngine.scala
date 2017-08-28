@@ -25,7 +25,7 @@ import io.gatling.http.HeaderValues._
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.builder.Http
-import io.gatling.http.resolver.DelegatingNameResolver
+import io.gatling.http.resolver.{ CacheOverrideNameResolver, ExtendedDnsNameResolver }
 import io.gatling.http.util.HttpTypeCaster
 
 import akka.actor.ActorSystem
@@ -47,9 +47,7 @@ class HttpEngine(
 )
     extends ResourceFetcher with NameGen with StrictLogging {
 
-  private[this] lazy val dnsResolver = ahcFactory.newNameResolver()
-
-  def newDnsResolver: DelegatingNameResolver = DelegatingNameResolver(dnsResolver, new DefaultDnsCache)
+  def defaultDnsNameResolver: ExtendedDnsNameResolver = ahcFactory.defaultDnsNameResolver
 
   def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) =
     if (httpProtocol.enginePart.shareClient) {
@@ -77,7 +75,7 @@ class HttpEngine(
 
       if (httpProtocol.enginePart.perUserNameResolution) {
         // eager load
-        val _ = dnsResolver
+        val _ = defaultDnsNameResolver
       }
 
       httpProtocol.warmUpUrl match {
