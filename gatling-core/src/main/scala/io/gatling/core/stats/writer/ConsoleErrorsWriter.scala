@@ -36,7 +36,7 @@ object ConsoleErrorsWriter {
 
     val percent = if (errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
     val firstLineLen = TextLen.min(msg.length)
-    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(TextLen)} ${count.filled(6)} (${percent.leftPad(5)}%)"
+    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(TextLen)} ${count.leftPad(6)} (${percent.leftPad(5)}%)"
 
     if (msg.length > TextLen) {
       val secondLine = msg.substring(TextLen)

@@ -31,7 +31,7 @@ import io.gatling.http.response.ResponseBuilderFactory
 
 import akka.testkit._
 import org.mockito.Mockito._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {

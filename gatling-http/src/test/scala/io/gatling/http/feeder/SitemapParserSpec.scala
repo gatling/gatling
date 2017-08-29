@@ -23,7 +23,7 @@ import io.gatling.core.util.{ Resource, FileResource }
 import io.gatling.core.feeder.Record
 
 import org.mockito.Mockito._
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 
 class SitemapParserSpec extends BaseSpec {
 
