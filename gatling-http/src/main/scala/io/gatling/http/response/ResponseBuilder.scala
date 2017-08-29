@@ -61,8 +61,6 @@ object ResponseBuilder extends StrictLogging {
 
     val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
-    val charset = configuration.core.charset
-
     request => new ResponseBuilder(
       request,
       checksumChecks,
@@ -70,7 +68,7 @@ object ResponseBuilder extends StrictLogging {
       responseTransformer,
       storeBodyParts,
       inferHtmlResources,
-      charset
+      configuration.core.charset
     )
   }
 }
@@ -82,7 +80,7 @@ class ResponseBuilder(
     responseTransformer: Option[PartialFunction[Response, Response]],
     storeBodyParts:      Boolean,
     inferHtmlResources:  Boolean,
-    charset:             Charset
+    defaultCharset:      Charset
 ) {
 
   val computeChecksums = checksumChecks.nonEmpty
@@ -160,6 +158,10 @@ class ResponseBuilder(
     }
   }
 
+  def resolvedCharset = Option(headers.get(HeaderNames.ContentType))
+    .flatMap(extractCharsetFromContentType)
+    .getOrElse(defaultCharset)
+
   def build: Response = {
 
     // time measurement is imprecise due to multi-core nature
@@ -178,7 +180,7 @@ class ResponseBuilder(
 
     val resolvedCharset = Option(headers.get(HeaderNames.ContentType))
       .flatMap(extractCharsetFromContentType)
-      .getOrElse(charset)
+      .getOrElse(defaultCharset)
 
     val properlyOrderedChunks = chunks.reverse
     val body: ResponseBody =
@@ -207,5 +209,5 @@ class ResponseBuilder(
   }
 
   def buildSafeResponse: Response =
-    HttpResponse(request, nettyRequest, status, headers, NoResponseBody, Map.empty, 0, charset, ResponseTimings(startTimestamp, endTimestamp))
+    HttpResponse(request, nettyRequest, status, headers, NoResponseBody, Map.empty, 0, resolvedCharset, ResponseTimings(startTimestamp, endTimestamp))
 }

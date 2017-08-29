@@ -18,7 +18,6 @@ package io.gatling.core.action.builder
 import io.gatling.core.action.{ Action, If }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
-import akka.actor.ActorRef
 
 /**
  * @constructor create a new IfBuilder

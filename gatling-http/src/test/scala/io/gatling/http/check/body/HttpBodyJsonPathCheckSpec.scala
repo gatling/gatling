@@ -61,16 +61,28 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     jsonPath("$.street").ofType[Map[String, Any]].find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Map("book" -> "On the street")), None)
   }
 
-  private def testNullAttributeValue[X: JsonFilter]: Unit = {
+  it should "find a null attribute value when expected type is String" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[X].find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
+    jsonPath("$.foo").ofType[String].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
   }
 
-  it should "find a null attribute value" in {
-    testNullAttributeValue[String]
-    testNullAttributeValue[Any]
-    testNullAttributeValue[Int]
-    testNullAttributeValue[Seq[Any]]
-    testNullAttributeValue[Map[String, Any]]
+  it should "find a null attribute value when expected type is Any" in {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[Any].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
+  }
+
+  "foo" should "find a null attribute value when expected type is Int" in {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[Int].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null.asInstanceOf[Int]), None)
+  }
+
+  it should "find a null attribute value when expected type is Seq" in {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[Seq[Any]].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
+  }
+
+  it should "find a null attribute value when expected type is Map" in {
+    val response = mockResponse("""{"foo": null}""")
+    jsonPath("$.foo").ofType[Map[String, Any]].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(null), None)
   }
 }

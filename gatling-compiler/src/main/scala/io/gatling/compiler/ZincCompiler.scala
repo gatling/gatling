@@ -42,7 +42,7 @@ object ZincCompiler extends App {
   private val compilerOptions = Seq(
     "-encoding",
     configuration.encoding,
-    "-target:jvm-1.7",
+    "-target:jvm-1.8",
     "-deprecation",
     "-feature",
     "-unchecked",
