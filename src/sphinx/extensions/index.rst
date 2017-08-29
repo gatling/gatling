@@ -16,13 +16,15 @@ Official Extensions
 Third Parties
 =============
 
-* `Laszlo Kishalmi's Gradle plugin <https://github.com/lkishalmi/gradle-gatling-plugin>`_
-* `CommerceHub's Gradle plugin <https://github.com/commercehub-oss/gatling-gradle-plugin>`_
-* `Cassandra plugin <https://github.com/Mishail/GatlingCql>`_
-* `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_
-* `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_
-* `RabbitMQ plugin <https://github.com/maiha/gatling-amqp>`_
-* `AMQP plugin <https://github.com/maiha/gatling-amqp>`_
+* `Gradle plugin <https://github.com/lkishalmi/gradle-gatling-plugin>`_ by Laszlo Kishalmi
+* `Gradle plugin <https://github.com/commercehub-oss/gatling-gradle-plugin>`_ by CommerceHub
+* `Cassandra plugin <https://github.com/Mishail/GatlingCql>`_ by Mikhail Stepura
+* `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_ by Muneyuki Noguchi
+* `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_ by Muneyuki Noguchi
+* `AMQP plugin <https://github.com/maiha/gatling-amqp>`_ by @maiha
+* `Thrift plugin <https://github.com/3tty0n/gatling-thrift>`_ by Yusuke Izawa
+* `JDBC plugin <https://github.com/tmcgrath/gatling-sql>`_ by Todd McGrath
+* `ZeroMQ plugin <https://github.com/softwaremill/gatling-zeromq>`_ by SoftwareMill
 
 .. warning::
   Those projects are third parties and are not maintained by the Gatling core committers.
