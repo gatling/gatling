@@ -24,7 +24,6 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
@@ -83,7 +82,7 @@ class ResponseBuilder(
     defaultCharset:      Charset
 ) {
 
-  val computeChecksums = checksumChecks.nonEmpty
+  private val computeChecksums = checksumChecks.nonEmpty
   @volatile var storeHtmlOrCss: Boolean = _
   @volatile var startTimestamp: Long = _
   @volatile var endTimestamp: Long = _
@@ -108,7 +107,7 @@ class ResponseBuilder(
   def updateEndTimestamp(): Unit =
     endTimestamp = nowMillis
 
-  def setNettyRequest(nettyRequest: NettyRequest) =
+  def setNettyRequest(nettyRequest: NettyRequest): Unit =
     this.nettyRequest = Some(nettyRequest)
 
   def markReset(): Unit =
@@ -158,7 +157,7 @@ class ResponseBuilder(
     }
   }
 
-  def resolvedCharset = Option(headers.get(HeaderNames.ContentType))
+  private def resolvedCharset: Charset = Option(headers.get(HeaderNames.ContentType))
     .flatMap(extractCharsetFromContentType)
     .getOrElse(defaultCharset)
 
@@ -200,7 +199,7 @@ class ResponseBuilder(
         ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
     resetChunks()
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, ResponseTimings(startTimestamp, endTimestamp))
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, startTimestamp, endTimestamp)
 
     responseTransformer match {
       case None              => rawResponse
@@ -209,5 +208,5 @@ class ResponseBuilder(
   }
 
   def buildSafeResponse: Response =
-    HttpResponse(request, nettyRequest, status, headers, NoResponseBody, Map.empty, 0, resolvedCharset, ResponseTimings(startTimestamp, endTimestamp))
+    HttpResponse(request, nettyRequest, status, headers, NoResponseBody, Map.empty, 0, resolvedCharset, startTimestamp, endTimestamp)
 }

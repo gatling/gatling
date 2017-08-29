@@ -19,7 +19,7 @@ import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.{ ResponseTimings, MessageEvent }
+import io.gatling.core.stats.message.MessageEvent
 
 case class ShortScenarioDescription(name: String, userCount: Int)
 
@@ -30,7 +30,7 @@ case class RunMessage(
     runDescription:      String
 ) {
 
-  val runId = simulationId + "-" + start
+  val runId: String = simulationId + "-" + start
 }
 
 sealed trait DataWriterMessage
@@ -52,7 +52,8 @@ case class ResponseMessage(
   userId:         Long,
   groupHierarchy: List[String],
   name:           String,
-  timings:        ResponseTimings,
+  startTimestamp: Long,
+  endTimestamp:   Long,
   status:         Status,
   responseCode:   Option[String],
   message:        Option[String],

@@ -283,7 +283,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
   private def done(): Unit = {
     logger.debug("All resources were fetched")
     // FIXME only do so if not silent
-    rootTx.next ! session.logGroupRequest((nowMillis - start).toInt, globalStatus)
+    rootTx.next ! session.logGroupRequest(start, nowMillis, globalStatus)
     context.stop(self)
   }
 

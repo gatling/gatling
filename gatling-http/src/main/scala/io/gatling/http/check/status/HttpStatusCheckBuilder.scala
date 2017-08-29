@@ -27,10 +27,10 @@ trait HttpStatusCheckType
 
 object HttpStatusCheckBuilder {
 
-  val Status = {
+  val Status: DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int] = {
     val statusExtractor = new Extractor[Response, Int] with SingleArity {
       val name = "status"
-      def apply(prepared: Response) = prepared.statusCode match {
+      def apply(prepared: Response): Validation[Option[Int]] = prepared.statusCode match {
         case None => "Response wasn't received".failure
         case code => code.success
       }

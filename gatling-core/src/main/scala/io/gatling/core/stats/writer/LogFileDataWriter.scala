@@ -17,7 +17,7 @@ package io.gatling.core.stats.writer
 
 import java.io.RandomAccessFile
 import java.nio.{ ByteBuffer, CharBuffer }
-import java.nio.charset.{ CharsetEncoder, CoderResult }
+import java.nio.charset.CharsetEncoder
 import java.nio.channels.FileChannel
 
 import scala.util.control.NonFatal
@@ -34,10 +34,10 @@ import jodd.util.Base64
 
 object LogFileDataWriter extends StrictLogging {
 
-  val Separator = '\t'
+  val Separator: Char = '\t'
 
   object SanitizableString {
-    val SanitizerPattern = """[\n\r\t]""".r
+    private val SanitizerPattern = """[\n\r\t]""".r
   }
 
   implicit class SanitizableString(val string: String) extends AnyVal {
@@ -45,7 +45,7 @@ object LogFileDataWriter extends StrictLogging {
     /**
      * Converts whitespace characters that would break the simulation log format into spaces.
      */
-    def sanitize = SanitizableString.SanitizerPattern.replaceAllIn(string, " ")
+    def sanitize: String = SanitizableString.SanitizerPattern.replaceAllIn(string, " ")
   }
 
   sealed trait DataWriterMessageSerializer[T] {
@@ -91,7 +91,6 @@ object LogFileDataWriter extends StrictLogging {
 
     def serialize(response: ResponseMessage): Fastring = {
       import response._
-      import timings._
       fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$startTimestamp$Separator$endTimestamp$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }

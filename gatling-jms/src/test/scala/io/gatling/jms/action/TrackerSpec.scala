@@ -21,7 +21,6 @@ import io.gatling.core.CoreDsl
 import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer.ResponseMessage
 import io.gatling.jms._
 import io.gatling.jms.check.JmsSimpleCheck
@@ -31,7 +30,7 @@ import akka.testkit.TestActorRef
 
 class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
-  val configuration = GatlingConfiguration.loadForTest()
+  override val configuration = GatlingConfiguration.loadForTest()
 
   private def ignoreDrift(actual: Session) = {
     actual.drift shouldBe >(0L)
@@ -50,7 +49,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = ResponseMessage("mockSession", 0, Nil, "success", ResponseTimings(15, 30), OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", 0, Nil, "success", 15, 30, OK, None, None, Nil)
     statsEngine.dataWriterMsg should contain(expected)
   }
 
@@ -65,7 +64,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
-    val expected = ResponseMessage("mockSession", 0, Nil, "failure", ResponseTimings(15, 30), KO, None, Some("Jms check failed"), Nil)
+    val expected = ResponseMessage("mockSession", 0, Nil, "failure", 15, 30, KO, None, Some("Jms check failed"), Nil)
     statsEngine.dataWriterMsg should contain(expected)
   }
 
@@ -80,7 +79,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
-    val expected = ResponseMessage("mockSession", 0, Nil, "updated", ResponseTimings(15, 30), OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", 0, Nil, "updated", 15, 30, OK, None, None, Nil)
     statsEngine.dataWriterMsg should contain(expected)
   }
 
@@ -92,7 +91,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     tracker ! MessageSent("1", 15, 0, Nil, groupSession, new ActorDelegatingAction("next", testActor), "logGroupResponse")
     tracker ! MessageReceived("1", 30, textMessage("group"))
 
-    val newSession = groupSession.logGroupRequest(15, OK)
+    val newSession = groupSession.logGroupRequest(15, 30, OK)
     val nextSession1 = expectMsgType[Session]
 
     val failedCheck = JmsSimpleCheck(_ => false)
@@ -102,6 +101,6 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession2 = expectMsgType[Session]
 
     ignoreDrift(nextSession1) shouldBe newSession
-    ignoreDrift(nextSession2) shouldBe newSession.logGroupRequest(25, KO).markAsFailed
+    ignoreDrift(nextSession2) shouldBe newSession.logGroupRequest(25, 50, KO).markAsFailed
   }
 }

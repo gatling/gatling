@@ -15,14 +15,17 @@
  */
 package io.gatling.core.stats.message
 
-import com.typesafe.scalalogging.LazyLogging
+object ResponseTimings {
 
-case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) extends LazyLogging {
-
-  val responseTime =
+  def responseTime(startTimestamp: Long, endTimestamp: Long) =
     // < 0 means incoming message without duration
     if (endTimestamp < 0)
       Int.MinValue
     else
       math.max(1, (endTimestamp - startTimestamp).toInt)
+}
+
+case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) {
+
+  val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
 }

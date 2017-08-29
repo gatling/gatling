@@ -29,7 +29,6 @@ import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.jms._
 
 import akka.actor.{ Timers, Props }
@@ -120,9 +119,8 @@ class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) 
     requestName: String,
     message:     Option[String]
   ) = {
-    val timings = ResponseTimings(sent, received)
-    statsEngine.logResponse(session, requestName, timings, status, None, message)
-    next ! session.logGroupRequest(timings.responseTime, status).increaseDrift(nowMillis - received)
+    statsEngine.logResponse(session, requestName, sent, received, status, None, message)
+    next ! session.logGroupRequest(sent, received, status).increaseDrift(nowMillis - received)
   }
 
   /**

@@ -23,7 +23,6 @@ import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.check.async.AsyncCheck
 
 abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
@@ -115,5 +114,5 @@ abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
 
   protected def logResponse(session: Session, requestName: String, status: Status,
                             startDate: Long, endDate: Long, errorMessage: Option[String] = None): Unit =
-    statsEngine.logResponse(session, requestName, ResponseTimings(startDate, endDate), status, None, errorMessage)
+    statsEngine.logResponse(session, requestName, startDate, endDate, status, None, errorMessage)
 }

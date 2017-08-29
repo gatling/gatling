@@ -27,7 +27,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer._
 
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
@@ -55,13 +54,14 @@ trait StatsEngine {
   // [fl]
 
   def logResponse(
-    session:      Session,
-    requestName:  String,
-    timings:      ResponseTimings,
-    status:       Status,
-    responseCode: Option[String],
-    message:      Option[String],
-    extraInfo:    List[Any]       = Nil
+    session:        Session,
+    requestName:    String,
+    startTimestamp: Long,
+    endTimestamp:   Long,
+    status:         Status,
+    responseCode:   Option[String],
+    message:        Option[String],
+    extraInfo:      List[Any]      = Nil
   ): Unit
 
   def logGroupEnd(
@@ -134,20 +134,22 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
   // [fl]
 
   override def logResponse(
-    session:      Session,
-    requestName:  String,
-    timings:      ResponseTimings,
-    status:       Status,
-    responseCode: Option[String],
-    message:      Option[String],
-    extraInfo:    List[Any]       = Nil
+    session:        Session,
+    requestName:    String,
+    startTimestamp: Long,
+    endTimestamp:   Long,
+    status:         Status,
+    responseCode:   Option[String],
+    message:        Option[String],
+    extraInfo:      List[Any]      = Nil
   ): Unit =
     dispatch(ResponseMessage(
       session.scenario,
       session.userId,
       session.groupHierarchy,
       requestName,
-      timings,
+      startTimestamp,
+      endTimestamp,
       status,
       responseCode,
       message,

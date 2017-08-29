@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentLinkedDeque
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer.UserMessage
 
 import akka.actor.ActorRef
@@ -30,7 +29,7 @@ sealed trait StatsEngineMessage
 
 case class LogUser(userMessage: UserMessage) extends StatsEngineMessage
 
-case class LogResponse(session: Session, requestName: String, timings: ResponseTimings, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]) extends StatsEngineMessage
+case class LogResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]) extends StatsEngineMessage
 
 case class LogGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
 
@@ -59,8 +58,8 @@ class LoggingStatsEngine extends StatsEngine {
   //
   // [fl]
 
-  override def logResponse(session: Session, requestName: String, timings: ResponseTimings, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]): Unit =
-    msgQueue.addLast(LogResponse(session, requestName, timings, status, responseCode, message, extraInfo))
+  override def logResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]): Unit =
+    msgQueue.addLast(LogResponse(session, requestName, startTimestamp, endTimestamp, status, responseCode, message, extraInfo))
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
     msgQueue.addLast(LogGroupEnd(session, group, exitTimestamp))

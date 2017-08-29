@@ -121,7 +121,8 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       statsEngine.logResponse(
         tx.session,
         fullRequestName,
-        response.timings,
+        response.startTimestamp,
+        response.endTimestamp,
         status,
         response.status.map(httpStatus => Integer.toString(httpStatus.getStatusCode)),
         errorMessage,
@@ -148,7 +149,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
         maybeResourceFetcherActor match {
           case Some(resourceFetcherActor) => actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
-          case None                       => tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endTimestamp)
+          case None                       => tx.next ! tx.session.increaseDrift(nowMillis - response.endTimestamp)
         }
 
       case Some(resourceFetcher) =>
@@ -168,7 +169,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       case KO if !tx.silent => Session.MarkAsFailedUpdate
       case _                => Session.Identity
     }
-    val groupUpdate = logGroupRequestUpdate(tx, status, response.timings.responseTime)
+    val groupUpdate = logGroupRequestUpdate(tx, status, response.startTimestamp, response.endTimestamp)
     val totalUpdate = update andThen statusUpdate andThen groupUpdate
 
     val newTx = tx.copy(session = totalUpdate(tx.session))
@@ -180,10 +181,10 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
   private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
     logAndExecuteNext(tx, update, KO, response, Some(message))
 
-  private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Int): Session => Session =
+  private def logGroupRequestUpdate(tx: HttpTx, status: Status, startTimestamp: Long, endTimestamp: Long): Session => Session =
     if (tx.resourceFetcher.isEmpty && !tx.silent)
       // resource logging is done in ResourceFetcher
-      _.logGroupRequest(responseTimeInMillis, status)
+      _.logGroupRequest(startTimestamp, endTimestamp, status)
     else
       Session.Identity
 
@@ -260,7 +261,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
                   else
                     Session.Identity
 
-                val groupUpdate = logGroupRequestUpdate(tx, OK, response.timings.responseTime)
+                val groupUpdate = logGroupRequestUpdate(tx, OK, response.startTimestamp, response.endTimestamp)
 
                 val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
                 val newSession = totalUpdate(tx.session)

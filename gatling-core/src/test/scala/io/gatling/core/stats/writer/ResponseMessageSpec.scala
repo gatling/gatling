@@ -17,12 +17,11 @@ package io.gatling.core.stats.writer
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.OK
-import io.gatling.core.stats.message.ResponseTimings
 
 class ResponseMessageSpec extends BaseSpec {
 
   "constructor" should "have sensible defaults for optional parameters" in {
-    val record: ResponseMessage = ResponseMessage("scenarioName", 0, Nil, "requestName", ResponseTimings(0L, 0L), OK, Some("200"), Some("requestMessage"), Nil)
+    val record: ResponseMessage = ResponseMessage("scenarioName", 0, Nil, "requestName", 0, 0, OK, Some("200"), Some("requestMessage"), Nil)
 
     record.extraInfo shouldBe empty
   }

@@ -27,7 +27,7 @@ trait CurrentLocationCheckType
 
 object CurrentLocationCheckBuilder {
 
-  val CurrentLocation = {
+  val CurrentLocation: DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String] = {
     val extractor = new Extractor[Response, String] with SingleArity {
       val name = "currentLocation"
       def apply(prepared: Response) = Some(prepared.request.getUrl).success

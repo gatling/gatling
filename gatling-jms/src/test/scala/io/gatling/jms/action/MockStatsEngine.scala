@@ -18,7 +18,6 @@ package io.gatling.jms.action
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer.{ DataWriterMessage, GroupMessage, ResponseMessage, UserMessage }
 
 import akka.actor.ActorRef
@@ -47,20 +46,22 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
   // [fl]
 
   override def logResponse(
-    session:      Session,
-    requestName:  String,
-    timings:      ResponseTimings,
-    status:       Status,
-    responseCode: Option[String],
-    message:      Option[String]  = None,
-    extraInfo:    List[Any]       = Nil
+    session:        Session,
+    requestName:    String,
+    startTimestamp: Long,
+    endTimestamp:   Long,
+    status:         Status,
+    responseCode:   Option[String],
+    message:        Option[String] = None,
+    extraInfo:      List[Any]      = Nil
   ): Unit =
     handle(ResponseMessage(
       session.scenario,
       session.userId,
       session.groupHierarchy,
       requestName,
-      timings,
+      startTimestamp,
+      endTimestamp,
       status,
       None,
       message,

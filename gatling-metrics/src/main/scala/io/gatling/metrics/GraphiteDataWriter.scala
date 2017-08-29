@@ -21,6 +21,7 @@ import scala.concurrent.duration.DurationInt
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.ClockSingleton.nowSeconds
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer._
 import io.gatling.core.util.NameGen
 import io.gatling.metrics.message.GraphiteMetrics
@@ -82,10 +83,11 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with 
   private def onResponseMessage(response: ResponseMessage, data: GraphiteData): Unit = {
     import data._
     import response._
+    val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
     if (!configuration.data.graphite.light) {
-      requestsByPath.getOrElseUpdate(format.responsePath(name, groupHierarchy), newResponseMetricsBuffer(configuration)).add(status, timings.responseTime)
+      requestsByPath.getOrElseUpdate(format.responsePath(name, groupHierarchy), newResponseMetricsBuffer(configuration)).add(status, responseTime)
     }
-    requestsByPath.getOrElseUpdate(format.allResponsesPath, newResponseMetricsBuffer(configuration)).add(status, timings.responseTime)
+    requestsByPath.getOrElseUpdate(format.allResponsesPath, newResponseMetricsBuffer(configuration)).add(status, responseTime)
   }
 
   override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {

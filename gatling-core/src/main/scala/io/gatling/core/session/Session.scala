@@ -26,6 +26,7 @@ import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.session.el.ElMessages
 import io.gatling.core.action.Action
+import io.gatling.core.stats.message.ResponseTimings
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -112,9 +113,10 @@ case class Session(
       this
   }
 
-  private[gatling] def logGroupRequest(responseTime: Int, status: Status) = blockStack match {
+  private[gatling] def logGroupRequest(startTimestamp: Long, endTimestamp: Long, status: Status) = blockStack match {
     case Nil => this
     case _ =>
+      val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
       copy(blockStack = blockStack.map {
         case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime, status = if (status == KO) KO else g.status)
         case b             => b

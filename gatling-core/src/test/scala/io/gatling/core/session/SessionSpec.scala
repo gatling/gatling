@@ -23,7 +23,7 @@ import io.gatling.core.action.Action
 
 class SessionSpec extends BaseSpec {
 
-  val nextAction = mock[Action]
+  private val nextAction = mock[Action]
 
   def newSession = Session("scenario", 0)
 
@@ -123,7 +123,7 @@ class SessionSpec extends BaseSpec {
 
   "logGroupAsyncRequests" should "update stats in all parent groups" in {
     val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", nextAction)
-    val sessionWithGroupStatsUpdated = session.logGroupRequest(5, KO)
+    val sessionWithGroupStatsUpdated = session.logGroupRequest(1, 6, KO)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
     for (group <- allGroupBlocks) {
@@ -134,14 +134,14 @@ class SessionSpec extends BaseSpec {
 
   it should "leave the session unmodified if there is no groups in the stack" in {
     val session = newSession
-    val unModifiedSession = session.logGroupRequest(1, KO)
+    val unModifiedSession = session.logGroupRequest(1, 2, KO)
 
     session should be theSameInstanceAs unModifiedSession
   }
 
   "logGroupRequest" should "add the response time to all parents groups" in {
     val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", nextAction)
-    val sessionWithGroupStatsUpdated = session.logGroupRequest(5, OK)
+    val sessionWithGroupStatsUpdated = session.logGroupRequest(1, 6, OK)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
     for (group <- allGroupBlocks) {
@@ -152,7 +152,7 @@ class SessionSpec extends BaseSpec {
 
   it should "add the response time to all parents groups and add KO all if status was KO" in {
     val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", nextAction)
-    val sessionWithGroupStatsUpdated = session.logGroupRequest(5, KO)
+    val sessionWithGroupStatsUpdated = session.logGroupRequest(1, 6, KO)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
     for (group <- allGroupBlocks) {
@@ -163,7 +163,7 @@ class SessionSpec extends BaseSpec {
 
   it should "leave the session unmodified if there is no groups in the stack" in {
     val session = newSession
-    val unModifiedSession = session.logGroupRequest(1, KO)
+    val unModifiedSession = session.logGroupRequest(1, 2, KO)
 
     session should be theSameInstanceAs unModifiedSession
   }

@@ -90,7 +90,6 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
   //
   //
   //
-  //
   // [fl]
 
   override def onRequestSend(request: NettyRequest): Unit = {

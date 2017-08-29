@@ -27,5 +27,5 @@ object HttpResponseTimeProvider extends CheckProtocolProvider[ResponseTimeCheckT
 
   override val specializer: Specializer[HttpCheck, Response] = TimeSpecializer
 
-  override val preparer: Preparer[Response, ResponseTimings] = _.timings.success
+  override val preparer: Preparer[Response, ResponseTimings] = response => ResponseTimings(response.startTimestamp, response.endTimestamp).success
 }

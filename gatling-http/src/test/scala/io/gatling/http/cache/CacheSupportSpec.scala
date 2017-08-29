@@ -22,7 +22,6 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.ahc.{ AhcRequestBuilder, HttpEngine, ResponseProcessor }
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
@@ -38,9 +37,9 @@ import org.mockito.Mockito.when
 class CacheSupportSpec extends BaseSpec {
 
   // Default config
-  val configuration = GatlingConfiguration.loadForTest()
-  val httpCaches = new HttpCaches(configuration)
-  val httpEngine = mock[HttpEngine]
+  private val configuration = GatlingConfiguration.loadForTest()
+  private val httpCaches = new HttpCaches(configuration)
+  private val httpEngine = mock[HttpEngine]
 
   class CacheContext {
 
@@ -51,7 +50,7 @@ class CacheSupportSpec extends BaseSpec {
       val body = mock[ResponseBody]
       val headersMap = new DefaultHttpHeaders
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, ResponseTimings(-1, -1))
+      val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, -1, -1)
 
       httpCaches.getResponseExpires(response)
     }

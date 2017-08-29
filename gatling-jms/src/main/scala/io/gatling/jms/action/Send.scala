@@ -23,7 +23,6 @@ import io.gatling.core.action._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.jms.client.JmsConnectionPool
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
@@ -36,7 +35,7 @@ import io.gatling.jms.request._
 class Send(attributes: JmsAttributes, protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
     extends JmsAction(attributes, protocol, jmsConnectionPool) {
 
-  override val name = genName("jmsSend")
+  override val name: String = genName("jmsSend")
 
   override protected def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
     val now = nowMillis
@@ -44,7 +43,6 @@ class Send(attributes: JmsAttributes, protocol: JmsProtocol, jmsConnectionPool: 
       logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
     }
 
-    val timings = ResponseTimings(now, now)
     configuration.resolve(
       // [fl]
       //
@@ -52,8 +50,8 @@ class Send(attributes: JmsAttributes, protocol: JmsProtocol, jmsConnectionPool: 
       //
       //
       // [fl]
-      statsEngine.logResponse(session, requestName, timings, OK, None, None)
+      statsEngine.logResponse(session, requestName, now, now, OK, None, None)
     )
-    next ! session.logGroupRequest(timings.responseTime, OK)
+    next ! session
   }
 }

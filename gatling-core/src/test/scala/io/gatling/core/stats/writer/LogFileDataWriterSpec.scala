@@ -19,24 +19,23 @@ import io.gatling.BaseSpec
 import io.gatling.commons.stats.OK
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats.message.ResponseTimings
 
 class LogFileDataWriterSpec extends BaseSpec {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  private implicit val configuration = GatlingConfiguration.loadForTest()
   import LogFileDataWriter._
 
   def logMessage(record: ResponseMessage)(implicit serializer: DataWriterMessageSerializer[ResponseMessage]): String = serializer.serialize(record).toString
 
   "file data writer" should "log a standard request record" in {
-    val record = new ResponseMessage("scenario", 0, Nil, "requestName", ResponseTimings(2L, 5L), OK, Some("200"), Some("message"), Nil)
+    val record = new ResponseMessage("scenario", 0, Nil, "requestName", 2, 5, OK, Some("200"), Some("message"), Nil)
 
     logMessage(record) shouldBe s"REQUEST${Separator}scenario${Separator}0${Separator}${Separator}requestName${Separator}2${Separator}5${Separator}OK${Separator}message" + Eol
   }
 
   it should "append extra info to request records" in {
     val extraInfo: List[String] = List("some", "extra info", "for the log")
-    val record = new ResponseMessage("scenario", 0, Nil, "requestName", ResponseTimings(2L, 5L), OK, Some("200"), Some("message"), extraInfo)
+    val record = new ResponseMessage("scenario", 0, Nil, "requestName", 2, 5, OK, Some("200"), Some("message"), extraInfo)
 
     logMessage(record) shouldBe s"REQUEST${Separator}scenario${Separator}0${Separator}${Separator}requestName${Separator}2${Separator}5${Separator}OK${Separator}message${Separator}some${Separator}extra info${Separator}for the log" + Eol
   }

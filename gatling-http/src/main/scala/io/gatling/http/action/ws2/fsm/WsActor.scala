@@ -23,7 +23,6 @@ import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.action.ws2._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
@@ -104,15 +103,14 @@ class WsActor(
   //[fl]
 
   protected def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
-    val timings = ResponseTimings(start, end)
-    val newSession = session.logGroupRequest(timings.responseTime, status)
+    val newSession = session.logGroupRequest(start, end, status)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
-    statsEngine.logResponse(newSessionWithMark, actionName, timings, status, code, reason, Nil)
+    statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason, Nil)
     newSessionWithMark
   }
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
-    statsEngine.logResponse(session, wsName, ResponseTimings(nowMillis, Long.MinValue), OK, None, None)
+    statsEngine.logResponse(session, wsName, nowMillis, Long.MinValue, OK, None, None)
 
   startWith(Init, InitData)
 
