@@ -1,0 +1,14 @@
+.. _2.2-to-2.3:
+
+#########################
+Migrating from 2.2 to 2.3
+#########################
+
+Global changes
+==============
+
+Scala 2.12
+----------
+
+Gatling is now built with Scala 2.12.
+If you're using `Scala IDE <http://scala-ide.org/index.html>`__, make sure you're using a version compatible with Scala 2.12.
