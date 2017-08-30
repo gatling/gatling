@@ -1,0 +1,8 @@
+#################
+What's New in 2.3
+#################
+
+Scala
+=====
+
+Gatling now requires Scala 2.12.
