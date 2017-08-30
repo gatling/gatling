@@ -42,7 +42,7 @@ Example: `ELSpec <https://github.com/gatling/gatling/blob/master/gatling-core/sr
 ``ActorSupport`` is meant to be used when Akka actors are to be involved in the test.
 
 
-``ActorSupport`` relies on Akka's TestKit (documentation `here <http://doc.akka.io/docs/akka/2.2.4/scala/testing.html>`__).
+``ActorSupport`` relies on Akka's TestKit (documentation `here <http://doc.akka.io/docs/akka/current/scala/testing.html>`__).
 
 Example: `PaceSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/action/PaceSpec.scala>`__
 
