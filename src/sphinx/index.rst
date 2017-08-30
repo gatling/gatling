@@ -19,7 +19,7 @@ Gatling's architecture is asynchronous as long as the underlying protocol, such 
 Migrating from a Previous Version of Gatling
 ============================================
 
-* If you're migrating from Gatling 2.1 to Gatling 2.2, please check the :ref:`dedicated migration guide <2.1-to-2.2>`.
+* If you're migrating from Gatling 2.2 to Gatling 2.3, please check the :ref:`dedicated migration guide <2.2-to-2.3>`.
 * Otherwise, please follow the :ref:`previous migration guides <migration-guides>`.
 
 User's guide
