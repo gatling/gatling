@@ -67,7 +67,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(system, simulationParams, runMessage, configuration)
 
-  protected def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
+  private def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
     logger.trace("Running")
     // important, initialize time reference
     loadClockSingleton()
@@ -105,7 +105,7 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     }
   }
 
-  protected def start(simulationParams: SimulationParams, scenarios: List[Scenario], coreComponents: CoreComponents): Try[_] = {
+  protected[gatling] def start(simulationParams: SimulationParams, scenarios: List[Scenario], coreComponents: CoreComponents): Try[_] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = nowMillis
     println(s"Simulation ${simulationParams.name} started...")

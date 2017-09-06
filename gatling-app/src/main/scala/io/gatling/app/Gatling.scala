@@ -67,6 +67,10 @@ object Gatling extends StrictLogging {
           val runner = Runner(system, configuration)
           logger.trace("Runner instantiated")
           runner.run(selectedSimulationClass)
+        } catch {
+          case e: Throwable =>
+            logger.error("Run crashed", e)
+            throw e
         } finally {
           terminateActorSystem(system, 5 seconds)
         }
