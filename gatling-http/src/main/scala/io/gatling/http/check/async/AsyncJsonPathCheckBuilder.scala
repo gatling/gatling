@@ -33,14 +33,14 @@ object AsyncJsonPathCheckBuilder {
 }
 
 class AsyncJsonPathCheckBuilder[X: JsonFilter](
-  private[async] val path:        Expression[String],
-  private[async] val specializer: Specializer[AsyncCheck, String],
-  private[async] val jsonParsers: JsonParsers
+    private[async] val path:        Expression[String],
+    private[async] val specializer: Specializer[AsyncCheck, String],
+    private[async] val jsonParsers: JsonParsers
 )(implicit extractorFactory: OldJsonPathExtractorFactory)
-    extends OldDefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](
-      specializer,
-      jsonParsers.safeParse
-    ) {
+  extends OldDefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](
+    specializer,
+    jsonParsers.safeParse
+  ) {
 
   import extractorFactory._
 

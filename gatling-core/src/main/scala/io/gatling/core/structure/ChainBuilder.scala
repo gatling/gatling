@@ -28,7 +28,7 @@ object ChainBuilder {
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
 case class ChainBuilder(actionBuilders: List[ActionBuilder])
-    extends StructureBuilder[ChainBuilder] {
+  extends StructureBuilder[ChainBuilder] {
 
   private[core] def newInstance(actionBuilders: List[ActionBuilder]) = ChainBuilder(actionBuilders)
 }

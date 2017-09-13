@@ -42,7 +42,7 @@ object RequestExpressionBuilder {
 }
 
 abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-    extends LazyLogging {
+  extends LazyLogging {
 
   import RequestExpressionBuilder._
   protected val protocol = httpComponents.httpProtocol

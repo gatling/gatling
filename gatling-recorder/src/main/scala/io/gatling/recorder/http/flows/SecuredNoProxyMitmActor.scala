@@ -43,12 +43,12 @@ import io.netty.handler.ssl.SslHandler
  * @param trafficLogger log the traffic
  */
 class SecuredNoProxyMitmActor(
-  serverChannel:    Channel,
-  clientBootstrap:  Bootstrap,
-  sslServerContext: SslServerContext,
-  trafficLogger:    TrafficLogger
+    serverChannel:    Channel,
+    clientBootstrap:  Bootstrap,
+    sslServerContext: SslServerContext,
+    trafficLogger:    TrafficLogger
 )
-    extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
+  extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   override protected def connectedRemote(requestRemote: Remote): Remote = requestRemote
 

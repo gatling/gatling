@@ -81,15 +81,15 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
     })
 
   private def longestCommonRoot(pathsStrs: List[String]): String = {
-      def longestCommonRoot2(sa1: Array[String], sa2: Array[String]) = {
-        val minLen = math.min(sa1.length, sa2.length)
-        var p = 0
-        while (p < minLen && sa1(p) == sa2(p)) {
-          p += 1
-        }
-
-        sa1.slice(0, p)
+    def longestCommonRoot2(sa1: Array[String], sa2: Array[String]) = {
+      val minLen = math.min(sa1.length, sa2.length)
+      var p = 0
+      while (p < minLen && sa1(p) == sa2(p)) {
+        p += 1
       }
+
+      sa1.slice(0, p)
+    }
 
     val paths = pathsStrs.map(_.split("/"))
     paths.reduce(longestCommonRoot2).toSeq.mkString("/")

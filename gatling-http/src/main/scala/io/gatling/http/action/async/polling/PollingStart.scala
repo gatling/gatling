@@ -50,15 +50,15 @@ class PollingStart(
 
   override def execute(session: Session): Unit = recover(session) {
 
-      def startPolling(period: FiniteDuration): Unit = {
-        logger.info(s"Starting poller $pollerName")
-        val pollingActor = system.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), name + "-actor-" + session.userId)
+    def startPolling(period: FiniteDuration): Unit = {
+      logger.info(s"Starting poller $pollerName")
+      val pollingActor = system.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), name + "-actor-" + session.userId)
 
-        val newSession = session.set(pollerName, pollingActor)
+      val newSession = session.set(pollerName, pollingActor)
 
-        pollingActor ! StartPolling(newSession)
-        next ! newSession
-      }
+      pollingActor ! StartPolling(newSession)
+      next ! newSession
+    }
 
     fetchActor(pollerName, session) match {
       case _: Success[_] =>

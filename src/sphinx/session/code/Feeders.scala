@@ -33,11 +33,11 @@ class Feeders {
 
     csv("foo")
       //#strategies
-      .queue    // default behavior: use an Iterator on the underlying sequence
-      .random   // randomly pick an entry in the sequence
-      .shuffle  // shuffle entries, then behave like queue
+      .queue // default behavior: use an Iterator on the underlying sequence
+      .random // randomly pick an entry in the sequence
+      .shuffle // shuffle entries, then behave like queue
       .circular // go back to the top of the sequence once the end is reached
-      //#strategies
+    //#strategies
   }
 
   {
@@ -45,7 +45,8 @@ class Feeders {
     val feeder = Array(
       Map("foo" -> "foo1", "bar" -> "bar1"),
       Map("foo" -> "foo2", "bar" -> "bar2"),
-      Map("foo" -> "foo3", "bar" -> "bar3")).random
+      Map("foo" -> "foo3", "bar" -> "bar3")
+    ).random
     //#feeder-from-array-with-random
   }
 
@@ -160,29 +161,29 @@ class Feeders {
 
     // index records by project
     val recordsByProject: Map[String, IndexedSeq[Record[String]]] =
-      csv("projectIssue.csv").records.groupBy{ record => record("project") }
+      csv("projectIssue.csv").records.groupBy { record => record("project") }
 
     // convert the Map values to get only the issues instead of the full records
     val issuesByProject: Map[String, IndexedSeq[String]] =
-      recordsByProject.mapValues{ records => records.map {record => record("issue")} }
+      recordsByProject.mapValues { records => records.map { record => record("issue") } }
 
     // inject project
     feed(csv("userProject.csv"))
 
       .exec { session =>
-      // fetch project from  session
-      session("project").validate[String].map { project =>
+        // fetch project from  session
+        session("project").validate[String].map { project =>
 
-        // fetch project's issues
-        val issues = issuesByProject(project)
+          // fetch project's issues
+          val issues = issuesByProject(project)
 
-        // randomly select an issue
-        val selectedIssue = issues(ThreadLocalRandom.current.nextInt(issues.length))
+          // randomly select an issue
+          val selectedIssue = issues(ThreadLocalRandom.current.nextInt(issues.length))
 
-        // inject the issue in the session
-        session.set("issue", selectedIssue)
+          // inject the issue in the session
+          session.set("issue", selectedIssue)
+        }
       }
-    }
     //#user-dependent-data
   }
 }

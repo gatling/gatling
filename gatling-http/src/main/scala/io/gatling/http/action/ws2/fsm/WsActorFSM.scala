@@ -35,14 +35,14 @@ sealed trait WsActorData
 case object InitData extends WsActorData
 case class ConnectingData(session: Session, next: Either[Action, SendTextMessage], timestamp: Long, remainingTries: Int) extends WsActorData
 case class PerformingCheckData(
-  webSocket:               WebSocket,
-  currentCheck:            WsCheck,
-  remainingChecks:         List[WsCheck],
-  checkSequenceStart:      Long,
-  checkSequenceTimeoutId:  Long,
-  remainingCheckSequences: List[WsCheckSequence],
-  session:                 Session,
-  next:                    Either[Action, SendTextMessage]
+    webSocket:               WebSocket,
+    currentCheck:            WsCheck,
+    remainingChecks:         List[WsCheck],
+    checkSequenceStart:      Long,
+    checkSequenceTimeoutId:  Long,
+    remainingCheckSequences: List[WsCheckSequence],
+    session:                 Session,
+    next:                    Either[Action, SendTextMessage]
 ) extends WsActorData
 case class IdleData(session: Session, webSocket: WebSocket) extends WsActorData
 case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends WsActorData

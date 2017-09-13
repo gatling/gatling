@@ -20,8 +20,8 @@ import scopt.{ OptionDef, OptionParser, Read }
 import io.gatling.compiler.config.cli.CommandLineConstants._
 
 private[config] case class CommandLineOverrides(
-  simulationsDirectory: String = "",
-  binariesFolder:       String = ""
+    simulationsDirectory: String = "",
+    binariesFolder:       String = ""
 )
 
 private[config] class ArgsParser(args: Array[String]) {

@@ -43,11 +43,11 @@ class SseOpen(
 
   override def execute(session: Session): Unit = {
 
-      def open(tx: AsyncTx): Unit = {
-        logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
-        val sseActor = system.actorOf(SseActor.props(sseName, statsEngine), genName("sseActor"))
-        SseTx.start(tx, sseActor, httpComponents.httpEngine)
-      }
+    def open(tx: AsyncTx): Unit = {
+      logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
+      val sseActor = system.actorOf(SseActor.props(sseName, statsEngine), genName("sseActor"))
+      SseTx.start(tx, sseActor, httpComponents.httpEngine)
+    }
 
     fetchActor(sseName, session) match {
       case _: Success[_] =>

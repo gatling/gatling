@@ -36,11 +36,11 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   private val EventsGrouping = 100
 
   def simulationFilePath(implicit config: RecorderConfiguration) = {
-      def getSimulationFileName: String = s"${config.core.className}.scala"
-      def getOutputFolder = {
-        val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
-        getFolder(path)
-      }
+    def getSimulationFileName: String = s"${config.core.className}.scala"
+    def getOutputFolder = {
+      val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
+      getFolder(path)
+    }
 
     getOutputFolder / getSimulationFileName
   }
@@ -108,41 +108,41 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
     val headers: Map[Int, Seq[(String, String)]] = {
 
-        @tailrec
-        def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
-          case Seq() => headers
-          case element +: others =>
-            val acceptedHeaders = element.headers.toList
-              .filterNot {
-                case (headerName, headerValue) =>
-                  val isFiltered = filteredHeaders contains headerName
-                  val isAlreadyInBaseHeaders = baseHeaders.get(headerName).contains(headerValue)
-                  val isPostWithFormParams = element.method == "POST" && headerValue == HeaderValues.ApplicationFormUrlEncoded
-                  val isEmptyContentLength = headerName.equalsIgnoreCase(HeaderNames.ContentLength) && headerValue == "0"
-                  isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
-              }
-              .sortBy(_._1)
-
-            val newHeaders = if (acceptedHeaders.isEmpty) {
-              element.filteredHeadersId = None
-              headers
-
-            } else {
-              val headersSeq = headers.toSeq
-              headersSeq.indexWhere {
-                case (id, existingHeaders) => existingHeaders == acceptedHeaders
-              } match {
-                case -1 =>
-                  element.filteredHeadersId = Some(element.id)
-                  headers + (element.id -> acceptedHeaders)
-                case index =>
-                  element.filteredHeadersId = Some(headersSeq(index)._1)
-                  headers
-              }
+      @tailrec
+      def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
+        case Seq() => headers
+        case element +: others =>
+          val acceptedHeaders = element.headers.toList
+            .filterNot {
+              case (headerName, headerValue) =>
+                val isFiltered = filteredHeaders contains headerName
+                val isAlreadyInBaseHeaders = baseHeaders.get(headerName).contains(headerValue)
+                val isPostWithFormParams = element.method == "POST" && headerValue == HeaderValues.ApplicationFormUrlEncoded
+                val isEmptyContentLength = headerName.equalsIgnoreCase(HeaderNames.ContentLength) && headerValue == "0"
+                isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
             }
+            .sortBy(_._1)
 
-            generateHeaders(others, newHeaders)
-        }
+          val newHeaders = if (acceptedHeaders.isEmpty) {
+            element.filteredHeadersId = None
+            headers
+
+          } else {
+            val headersSeq = headers.toSeq
+            headersSeq.indexWhere {
+              case (id, existingHeaders) => existingHeaders == acceptedHeaders
+            } match {
+              case -1 =>
+                element.filteredHeadersId = Some(element.id)
+                headers + (element.id -> acceptedHeaders)
+              case index =>
+                element.filteredHeadersId = Some(headersSeq(index)._1)
+                headers
+            }
+          }
+
+          generateHeaders(others, newHeaders)
+      }
 
       SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
     }
@@ -154,31 +154,31 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
   private def getBaseHeaders(requestElements: Seq[RequestElement]): Map[String, String] = {
 
-      def getMostFrequentHeaderValue(headerName: String): Option[String] = {
-        val headers = requestElements.flatMap {
-          _.headers.collect { case (`headerName`, value) => value }
-        }
-
-        if (headers.isEmpty || headers.length != requestElements.length)
-          // a header has to be defined on all requestElements to be turned into a common one
-          None
-        else {
-          val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
-          val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
-          Some(mostFrequentValue)
-        }
+    def getMostFrequentHeaderValue(headerName: String): Option[String] = {
+      val headers = requestElements.flatMap {
+        _.headers.collect { case (`headerName`, value) => value }
       }
 
-      def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
-        getMostFrequentHeaderValue(headerName)
-          .map(headerValue => appendTo + (headerName -> headerValue))
-          .getOrElse(appendTo)
-
-      @tailrec
-      def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
-        case Nil                  => headers
-        case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+      if (headers.isEmpty || headers.length != requestElements.length)
+        // a header has to be defined on all requestElements to be turned into a common one
+        None
+      else {
+        val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+        val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
+        Some(mostFrequentValue)
       }
+    }
+
+    def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
+      getMostFrequentHeaderValue(headerName)
+        .map(headerValue => appendTo + (headerName -> headerValue))
+        .getOrElse(appendTo)
+
+    @tailrec
+    def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
+      case Nil                  => headers
+      case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+    }
 
     resolveBaseHeaders(Map.empty, ProtocolDefinition.BaseHeaders.keySet.toList)
   }

@@ -26,12 +26,12 @@ class SafelySpec extends BaseSpec {
   }
 
   it should "return a failure if the provided Validation threw exceptions" in {
-      def exceptionThrower = {
-          def thrower = throw new Exception("Woops") with NoStackTrace
+    def exceptionThrower = {
+      def thrower = throw new Exception("Woops") with NoStackTrace
 
-        thrower
-        Success(1)
-      }
+      thrower
+      Success(1)
+    }
 
     safely()(exceptionThrower) shouldBe "j.l.Exception: Woops".failure
     safely(_ + "y")(exceptionThrower) shouldBe "j.l.Exception: Woopsy".failure

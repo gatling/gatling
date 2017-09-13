@@ -31,7 +31,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
 
   val html = {
 
-      def pctTitle(pct: Double) = pct.toRank + " pct"
+    def pctTitle(pct: Double) = pct.toRank + " pct"
 
     val pct1 = pctTitle(configuration.charting.indicators.percentile1)
     val pct2 = pctTitle(configuration.charting.indicators.percentile2)

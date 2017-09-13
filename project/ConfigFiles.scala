@@ -34,7 +34,7 @@ object ConfigFiles {
     val outputPath = sourceDirectory / "conf"
     val configFiles = resources.filter(_.getName.endsWith("conf"))
     configFiles.map(generateFile(outputPath, _))
-   }
+  }
 
   private def copyGatlingDefaultConfigFile(destDirectory: File, resourceDirectory: File): Seq[File] = {
     val configFile = (resourceDirectory ** new ExactFilter("gatling-defaults.conf")).get.head

@@ -35,7 +35,8 @@ class ComputerWorld extends Simulation {
       .check(
         status.is(200),
         regex("""\d+ computers found"""),
-        css("#add", "href").saveAs("addComputer")))
+        css("#add", "href").saveAs("addComputer")
+      ))
 
     //#print-all-session-values
     .exec { session =>
@@ -52,8 +53,8 @@ class ComputerWorld extends Simulation {
     //#print-session-value
 
     .exec(http("addNewComputer")
-    .get("${addComputer}")
-    .check(substring("Add a computer")))
+      .get("${addComputer}")
+      .check(substring("Add a computer")))
 
     .exec(_.set("homeComputer", s"homeComputer_${java.util.concurrent.ThreadLocalRandom.current.nextInt(Int.MaxValue)}"))
     .exec(http("postComputers")
@@ -65,6 +66,6 @@ class ComputerWorld extends Simulation {
       .check(substring("${homeComputer}")))
 
   setUp(computerDbScn.inject(
-    constantUsersPerSec(2) during(1 minutes)
+    constantUsersPerSec(2) during (1 minutes)
   ).protocols(httpProtocol))
 }

@@ -40,12 +40,12 @@ import org.asynchttpclient.util.Base64
  * @param trafficLogger log the traffic
  */
 class PlainWithProxyMitmActor(
-  serverChannel:   Channel,
-  clientBootstrap: Bootstrap,
-  proxy:           OutgoingProxy,
-  trafficLogger:   TrafficLogger
+    serverChannel:   Channel,
+    clientBootstrap: Bootstrap,
+    proxy:           OutgoingProxy,
+    trafficLogger:   TrafficLogger
 )
-    extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger) {
+  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
   private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))

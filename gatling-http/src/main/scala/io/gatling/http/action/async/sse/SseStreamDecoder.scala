@@ -56,29 +56,29 @@ class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
 
     val lineLength = lineEnd - lineStart
 
-      def onFieldHeaderMatch(fieldHeader: Array[Char]): Option[String] = {
+    def onFieldHeaderMatch(fieldHeader: Array[Char]): Option[String] = {
 
-        val fieldHeaderLength = fieldHeader.length
+      val fieldHeaderLength = fieldHeader.length
 
-        if (lineLength < fieldHeaderLength) {
-          None
+      if (lineLength < fieldHeaderLength) {
+        None
 
-        } else if ((0 until fieldHeaderLength).forall { i => charArray(lineStart + i) == fieldHeader(i) }) {
-          val nextPos = lineStart + fieldHeaderLength
-          val valueStart =
-            if (charArray(nextPos) == ' ') {
-              // white space after colon, trim it
-              nextPos + 1
-            } else {
-              nextPos
-            }
+      } else if ((0 until fieldHeaderLength).forall { i => charArray(lineStart + i) == fieldHeader(i) }) {
+        val nextPos = lineStart + fieldHeaderLength
+        val valueStart =
+          if (charArray(nextPos) == ' ') {
+            // white space after colon, trim it
+            nextPos + 1
+          } else {
+            nextPos
+          }
 
-          Some(new String(charArray, valueStart, lineEnd - valueStart))
+        Some(new String(charArray, valueStart, lineEnd - valueStart))
 
-        } else {
-          None
-        }
+      } else {
+        None
       }
+    }
 
     if (lineLength == 0) {
       // empty line, flushing event

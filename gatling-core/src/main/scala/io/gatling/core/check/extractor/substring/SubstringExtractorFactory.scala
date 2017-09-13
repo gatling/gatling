@@ -24,15 +24,15 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
 
   private def extractAll(prepared: String, criterion: String): List[Int] = {
 
-      @tailrec
-      def loop(fromIndex: Int, is: List[Int]): List[Int] =
-        if (fromIndex >= prepared.length)
-          is
-        else
-          prepared.indexOf(criterion, fromIndex) match {
-            case -1 => is
-            case i  => loop(i + criterion.length, i :: is)
-          }
+    @tailrec
+    def loop(fromIndex: Int, is: List[Int]): List[Int] =
+      if (fromIndex >= prepared.length)
+        is
+      else
+        prepared.indexOf(criterion, fromIndex) match {
+          case -1 => is
+          case i  => loop(i + criterion.length, i :: is)
+        }
 
     loop(0, Nil)
   }
@@ -43,19 +43,19 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
       occurrence,
       text => {
 
-          @tailrec
-          def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
-            if (fromIndex >= substring.length)
-              NoneSuccess
-            else
-              text.indexOf(substring, fromIndex) match {
-                case -1 => NoneSuccess
-                case i =>
-                  if (occ == occurrence)
-                    Some(i).success
-                  else
-                    loop(i + substring.length, occ + 1)
-              }
+        @tailrec
+        def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
+          if (fromIndex >= substring.length)
+            NoneSuccess
+          else
+            text.indexOf(substring, fromIndex) match {
+              case -1 => NoneSuccess
+              case i =>
+                if (occ == occurrence)
+                  Some(i).success
+                else
+                  loop(i + substring.length, occ + 1)
+            }
 
         loop(0, 0)
       }

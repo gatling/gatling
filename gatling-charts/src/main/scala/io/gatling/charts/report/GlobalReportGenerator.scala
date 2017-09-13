@@ -25,67 +25,67 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
 private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-    extends ReportGenerator {
+  extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._
 
-      def activeSessionsChartComponent = {
+    def activeSessionsChartComponent = {
 
-        val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
-        val seriesColors = Iterators.infinitely(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
+      val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
+      val seriesColors = Iterators.infinitely(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
 
-        val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader
-          .scenarioNames
-          .map { scenarioName => scenarioName -> logFileReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
-          .reverse
-          .zip(seriesColors)
-          .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
+      val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader
+        .scenarioNames
+        .map { scenarioName => scenarioName -> logFileReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
+        .reverse
+        .zip(seriesColors)
+        .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
 
-        componentLibrary.getActiveSessionsChartComponent(logFileReader.runStart, activeSessionsSeries)
-      }
+      componentLibrary.getActiveSessionsChartComponent(logFileReader.runStart, activeSessionsSeries)
+    }
 
-      def responseTimeDistributionChartComponent: Component = {
-        val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, None, None)
-        val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
-        val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
+    def responseTimeDistributionChartComponent: Component = {
+      val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, None, None)
+      val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
+      val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
 
-        componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
-      }
+      componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
+    }
 
-      def responseTimeChartComponent: Component =
-        percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
+    def responseTimeChartComponent: Component =
+      percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-      def percentilesChartComponent(
-        dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
-        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
-        title:            String
-      ): Component = {
-        val successData = dataSource(OK, None, None)
-        val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
+    def percentilesChartComponent(
+      dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+      componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+      title:            String
+    ): Component = {
+      val successData = dataSource(OK, None, None)
+      val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
 
-        componentFactory(logFileReader.runStart, successSeries)
-      }
+      componentFactory(logFileReader.runStart, successSeries)
+    }
 
-      def requestsChartComponent: Component =
-        countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+    def requestsChartComponent: Component =
+      countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
 
-      def responsesChartComponent: Component =
-        countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+    def responsesChartComponent: Component =
+      countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
-      def countsChartComponent(
-        dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-        componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
-      ): Component = {
-        val counts = dataSource(None, None).sortBy(_.time)
+    def countsChartComponent(
+      dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+      componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
+    ): Component = {
+      val counts = dataSource(None, None).sortBy(_.time)
 
-        val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
-        val okPieSlice = PieSlice(Series.OK, count(counts, OK))
-        val koPieSlice = PieSlice(Series.KO, count(counts, KO))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
+      val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
+      val okPieSlice = PieSlice(Series.OK, count(counts, OK))
+      val koPieSlice = PieSlice(Series.KO, count(counts, KO))
+      val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
 
-        componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
-      }
+      componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
+    }
 
     val template = new GlobalPageTemplate(
       componentLibrary.getNumberOfRequestsChartComponent(logFileReader.requestNames.size),

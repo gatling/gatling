@@ -39,10 +39,10 @@ object CurrentLocationRegexCheckBuilder {
 }
 
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
-  private[url] val pattern:  Expression[String],
-  private[url] val patterns: Patterns
+    private[url] val pattern:  Expression[String],
+    private[url] val patterns: Patterns
 )
-    extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X] {
+  extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X] {
 
   import CurrentLocationRegexCheckBuilder.ExtractorFactory._
 

@@ -41,11 +41,11 @@ object HttpEngine {
 }
 
 class HttpEngine(
-  system:                       ActorSystem,
-  protected val coreComponents: CoreComponents,
-  ahcFactory:                   AhcFactory
+    system:                       ActorSystem,
+    protected val coreComponents: CoreComponents,
+    ahcFactory:                   AhcFactory
 )
-    extends ResourceFetcher with NameGen with StrictLogging {
+  extends ResourceFetcher with NameGen with StrictLogging {
 
   def defaultDnsNameResolver: ExtendedDnsNameResolver = ahcFactory.defaultDnsNameResolver
 

@@ -63,27 +63,27 @@ object GatlingConfiguration extends StrictLogging {
     case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
     case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
 
-      def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
-        val bundle = ResourceBundle.getBundle(bundleName)
-        bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
-      }
+    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
+      val bundle = ResourceBundle.getBundle(bundleName)
+      bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
+    }
 
-      def warnAboutRemovedProperties(config: Config): Unit = {
-        val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
-        val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
+    def warnAboutRemovedProperties(config: Config): Unit = {
+      val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
+      val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
 
-        val obsoleteUsages =
-          (removedProperties ++ renamedProperties).collect { case obs if config.hasPath(obs.path) => obs.message }
+      val obsoleteUsages =
+        (removedProperties ++ renamedProperties).collect { case obs if config.hasPath(obs.path) => obs.message }
 
-        if (obsoleteUsages.nonEmpty) {
-          logger.error(
-            s"""|Your gatling.conf file is outdated, some properties have been renamed or removed.
+      if (obsoleteUsages.nonEmpty) {
+        logger.error(
+          s"""|Your gatling.conf file is outdated, some properties have been renamed or removed.
                 |Please update (check gatling.conf in Gatling bundle, or gatling-defaults.conf in gatling-core jar).
                 |Enabled obsolete properties:
                 |${obsoleteUsages.mkString("\n")}""".stripMargin
-          )
-        }
+        )
       }
+    }
 
     val classLoader = getClass.getClassLoader
 
@@ -154,19 +154,20 @@ object GatlingConfiguration extends StrictLogging {
         warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
         enableGA = config.getBoolean(http.EnableGA),
         ssl = {
-            def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
+          def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
-              val storeType = config.getString(typeKey).trimToOption
-              val storeFile = config.getString(fileKey).trimToOption
-              val storePassword = config.getString(passwordKey)
-              val storeAlgorithm = config.getString(algorithmKey).trimToOption
+            val storeType = config.getString(typeKey).trimToOption
+            val storeFile = config.getString(fileKey).trimToOption
+            val storePassword = config.getString(passwordKey)
+            val storeAlgorithm = config.getString(algorithmKey).trimToOption
 
-              storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
-            }
+            storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
+          }
 
           SslConfiguration(
             keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm),
-            trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm))
+            trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
+          )
         },
         ahc = AhcConfiguration(
           keepAlive = config.getBoolean(http.ahc.KeepAlive),
@@ -258,24 +259,23 @@ object GatlingConfiguration extends StrictLogging {
       //
       //
       //
-      //
       // [fl]
       config = config
     )
 }
 
 case class CoreConfiguration(
-    version:                       String,
-    outputDirectoryBaseName:       Option[String],
-    runDescription:                Option[String],
-    encoding:                      String,
-    simulationClass:               Option[String],
-    extract:                       ExtractConfiguration,
-    directory:                     DirectoryConfiguration,
-    elFileBodiesCacheMaxCapacity:  Long,
-    rawFileBodiesCacheMaxCapacity: Long,
-    rawFileBodiesInMemoryMaxSize:  Long,
-    pebbleFileBodiesCacheMaxCapacity:  Long
+    version:                          String,
+    outputDirectoryBaseName:          Option[String],
+    runDescription:                   Option[String],
+    encoding:                         String,
+    simulationClass:                  Option[String],
+    extract:                          ExtractConfiguration,
+    directory:                        DirectoryConfiguration,
+    elFileBodiesCacheMaxCapacity:     Long,
+    rawFileBodiesCacheMaxCapacity:    Long,
+    rawFileBodiesInMemoryMaxSize:     Long,
+    pebbleFileBodiesCacheMaxCapacity: Long
 ) {
 
   val charset: Charset = Charset.forName(encoding)
@@ -283,111 +283,111 @@ case class CoreConfiguration(
 }
 
 case class ExtractConfiguration(
-  regex:    RegexConfiguration,
-  xpath:    XPathConfiguration,
-  jsonPath: JsonPathConfiguration,
-  css:      CssConfiguration
+    regex:    RegexConfiguration,
+    xpath:    XPathConfiguration,
+    jsonPath: JsonPathConfiguration,
+    css:      CssConfiguration
 )
 
 case class RegexConfiguration(
-  cacheMaxCapacity: Long
+    cacheMaxCapacity: Long
 )
 
 case class XPathConfiguration(
-  cacheMaxCapacity: Long
+    cacheMaxCapacity: Long
 )
 
 case class JsonPathConfiguration(
-  cacheMaxCapacity: Long,
-  preferJackson:    Boolean
+    cacheMaxCapacity: Long,
+    preferJackson:    Boolean
 )
 
 case class CssConfiguration(
-  cacheMaxCapacity: Long
+    cacheMaxCapacity: Long
 )
 
 case class DirectoryConfiguration(
-  data:        String,
-  bodies:      String,
-  sources:     String,
-  binaries:    Option[String],
-  reportsOnly: Option[String],
-  results:     String
+    data:        String,
+    bodies:      String,
+    sources:     String,
+    binaries:    Option[String],
+    reportsOnly: Option[String],
+    results:     String
 )
 
 case class ChartingConfiguration(
-  noReports:              Boolean,
-  maxPlotsPerSeries:      Int,
-  useGroupDurationMetric: Boolean,
-  indicators:             IndicatorsConfiguration
+    noReports:              Boolean,
+    maxPlotsPerSeries:      Int,
+    useGroupDurationMetric: Boolean,
+    indicators:             IndicatorsConfiguration
 )
 
 case class IndicatorsConfiguration(
-  lowerBound:  Int,
-  higherBound: Int,
-  percentile1: Double,
-  percentile2: Double,
-  percentile3: Double,
-  percentile4: Double
+    lowerBound:  Int,
+    higherBound: Int,
+    percentile1: Double,
+    percentile2: Double,
+    percentile3: Double,
+    percentile4: Double
 )
 
 case class HttpConfiguration(
-  fetchedCssCacheMaxCapacity:  Long,
-  fetchedHtmlCacheMaxCapacity: Long,
-  perUserCacheMaxCapacity:     Int,
-  warmUpUrl:                   Option[String],
-  enableGA:                    Boolean,
-  ssl:                         SslConfiguration,
-  ahc:                         AhcConfiguration,
-  dns:                         DnsConfiguration
+    fetchedCssCacheMaxCapacity:  Long,
+    fetchedHtmlCacheMaxCapacity: Long,
+    perUserCacheMaxCapacity:     Int,
+    warmUpUrl:                   Option[String],
+    enableGA:                    Boolean,
+    ssl:                         SslConfiguration,
+    ahc:                         AhcConfiguration,
+    dns:                         DnsConfiguration
 )
 
 case class JmsConfiguration(
-  replyTimeoutScanPeriod: Long
+    replyTimeoutScanPeriod: Long
 )
 
 case class AhcConfiguration(
-  keepAlive:                                   Boolean,
-  connectTimeout:                              Int,
-  handshakeTimeout:                            Int,
-  pooledConnectionIdleTimeout:                 Int,
-  readTimeout:                                 Int,
-  maxRetry:                                    Int,
-  requestTimeOut:                              Int,
-  disableHttpsEndpointIdentificationAlgorithm: Boolean,
-  useInsecureTrustManager:                     Boolean,
-  httpClientCodecMaxChunkSize:                 Int,
-  httpClientCodecInitialBufferSize:            Int,
-  sslEnabledProtocols:                         List[String],
-  sslEnabledCipherSuites:                      List[String],
-  sslSessionCacheSize:                         Int,
-  sslSessionTimeout:                           Int,
-  useOpenSsl:                                  Boolean,
-  useNativeTransport:                          Boolean,
-  tcpNoDelay:                                  Boolean,
-  soReuseAddress:                              Boolean,
-  soLinger:                                    Int,
-  soSndBuf:                                    Int,
-  soRcvBuf:                                    Int,
-  allocator:                                   String,
-  maxThreadLocalCharBufferSize:                Int
+    keepAlive:                                   Boolean,
+    connectTimeout:                              Int,
+    handshakeTimeout:                            Int,
+    pooledConnectionIdleTimeout:                 Int,
+    readTimeout:                                 Int,
+    maxRetry:                                    Int,
+    requestTimeOut:                              Int,
+    disableHttpsEndpointIdentificationAlgorithm: Boolean,
+    useInsecureTrustManager:                     Boolean,
+    httpClientCodecMaxChunkSize:                 Int,
+    httpClientCodecInitialBufferSize:            Int,
+    sslEnabledProtocols:                         List[String],
+    sslEnabledCipherSuites:                      List[String],
+    sslSessionCacheSize:                         Int,
+    sslSessionTimeout:                           Int,
+    useOpenSsl:                                  Boolean,
+    useNativeTransport:                          Boolean,
+    tcpNoDelay:                                  Boolean,
+    soReuseAddress:                              Boolean,
+    soLinger:                                    Int,
+    soSndBuf:                                    Int,
+    soRcvBuf:                                    Int,
+    allocator:                                   String,
+    maxThreadLocalCharBufferSize:                Int
 )
 
 case class DnsConfiguration(
-  queryTimeout: Int,
-  maxQueriesPerResolve: Int
+    queryTimeout:         Int,
+    maxQueriesPerResolve: Int
 )
 
 case class SslConfiguration(
-  keyStore:   Option[StoreConfiguration],
-  trustStore: Option[StoreConfiguration]
+    keyStore:   Option[StoreConfiguration],
+    trustStore: Option[StoreConfiguration]
 )
 
 case class StoreConfiguration(
-  storeType: Option[String],
-  file:      String,
-  password:  String,
-  algorithm: Option[String]
+    storeType: Option[String],
+    file:      String,
+    password:  String,
+    algorithm: Option[String]
 )
 
 case class DataConfiguration(
@@ -402,25 +402,25 @@ case class DataConfiguration(
 }
 
 case class FileDataWriterConfiguration(
-  bufferSize: Int
+    bufferSize: Int
 )
 
 case class LeakDataWriterConfiguration(
-  noActivityTimeout: Int
+    noActivityTimeout: Int
 )
 
 case class ConsoleDataWriterConfiguration(
-  light: Boolean
+    light: Boolean
 )
 
 case class GraphiteDataWriterConfiguration(
-  light:          Boolean,
-  host:           String,
-  port:           Int,
-  protocol:       TransportProtocol,
-  rootPathPrefix: String,
-  bufferSize:     Int,
-  writeInterval:  Int
+    light:          Boolean,
+    host:           String,
+    port:           Int,
+    protocol:       TransportProtocol,
+    rootPathPrefix: String,
+    bufferSize:     Int,
+    writeInterval:  Int
 )
 
 // [fl]
@@ -435,15 +435,15 @@ case class GraphiteDataWriterConfiguration(
 // [fl]
 
 case class GatlingConfiguration(
-  core:      CoreConfiguration,
-  charting:  ChartingConfiguration,
-  http:      HttpConfiguration,
-  jms:       JmsConfiguration,
-  data:      DataConfiguration,
-  // [fl]
-  //
-  // [fl]
-  config:    Config
+    core:      CoreConfiguration,
+    charting:  ChartingConfiguration,
+    http:      HttpConfiguration,
+    jms:       JmsConfiguration,
+    data:      DataConfiguration,
+    // [fl]
+    //
+    // [fl]
+    config:    Config
 ) {
   def resolve[T](value: T): T = value
 

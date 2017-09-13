@@ -55,8 +55,8 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
   private def parseInputFiles[T](f: Iterator[String] => T): T = {
 
-      def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
-        streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
+    def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
+      streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
 
     val streams = inputFiles.map(_.inputStream)
     try f(multipleFileIterator(streams))
@@ -74,10 +74,10 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     var runStart = Long.MaxValue
     var runEnd = Long.MinValue
 
-      def updateRunLimits(eventStart: Long, eventEnd: Long): Unit = {
-        runStart = math.min(runStart, eventStart)
-        runEnd = math.max(runEnd, eventEnd)
-      }
+    def updateRunLimits(eventStart: Long, eventEnd: Long): Unit = {
+      runStart = math.min(runStart, eventStart)
+      runEnd = math.max(runEnd, eventEnd)
+    }
 
     val runMessages = mutable.ListBuffer.empty[RunMessage]
     val assertions = mutable.LinkedHashSet.empty[Assertion]
@@ -207,11 +207,11 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     val min = allBuffer.stats.min
     val max = allBuffer.stats.max
 
-      def percent(s: Int) = s * 100.0 / size
+    def percent(s: Int) = s * 100.0 / size
 
     if (max - min <= maxPlots) {
-        // use exact values
-        def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
+      // use exact values
+      def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
       (plotsToPercents(ok), plotsToPercents(ko))
 
     } else {
@@ -225,25 +225,25 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
         (value - (value - min) % step + halfStep).round.toInt
       }
 
-        def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
+      def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
 
-          val bucketsWithValues: Map[Int, Double] = buffer
-            .map(record => (bucketFunction(record.time), record))
-            .groupBy(_._1)
-            .map {
-              case (responseTimeBucket, recordList) =>
+        val bucketsWithValues: Map[Int, Double] = buffer
+          .map(record => (bucketFunction(record.time), record))
+          .groupBy(_._1)
+          .map {
+            case (responseTimeBucket, recordList) =>
 
-                val bucketSize = recordList.foldLeft(0) {
-                  (partialSize, record) => partialSize + record._2.value
-                }
+              val bucketSize = recordList.foldLeft(0) {
+                (partialSize, record) => partialSize + record._2.value
+              }
 
-                (responseTimeBucket, percent(bucketSize))
-            }(breakOut)
+              (responseTimeBucket, percent(bucketSize))
+          }(breakOut)
 
-          buckets.map {
-            bucket => PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
-          }
+        buckets.map {
+          bucket => PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
         }
+      }
 
       (process(ok), process(ko))
     }

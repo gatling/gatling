@@ -30,7 +30,7 @@ object CacheOverrideNameResolver {
 }
 
 case class CacheOverrideNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
-    extends NameResolver[InetAddress] {
+  extends NameResolver[InetAddress] {
 
   import CacheOverrideNameResolver._
 

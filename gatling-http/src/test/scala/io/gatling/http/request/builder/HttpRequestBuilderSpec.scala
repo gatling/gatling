@@ -56,7 +56,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   }
 
   it should "work when passed as a function" in {
-      def sigCalc(request: Request, rb: RequestBuilderBase[_]): Unit = rb.addHeader("X-Token", "foo")
+    def sigCalc(request: Request, rb: RequestBuilderBase[_]): Unit = rb.addHeader("X-Token", "foo")
 
     httpRequestDef(_.signatureCalculator(sigCalc _))
       .build("requestName", Session("scenarioName", 0))

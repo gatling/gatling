@@ -107,17 +107,17 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   private def buildConfig(config: Config): RecorderConfiguration = {
     import ConfigKeys._
 
-      def getOutputFolder(folder: String) = {
-        folder.trimToOption match {
-          case Some(f)                               => f
-          case _ if sys.env.contains("GATLING_HOME") => sourcesDirectory.toFile.toString
-          case _                                     => userHome
-        }
+    def getOutputFolder(folder: String) = {
+      folder.trimToOption match {
+        case Some(f)                               => f
+        case _ if sys.env.contains("GATLING_HOME") => sourcesDirectory.toFile.toString
+        case _                                     => userHome
       }
+    }
 
-      def getBodiesFolder =
-        if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
-        else bodiesDirectory.toFile.toString
+    def getBodiesFolder =
+      if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
+      else bodiesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(
@@ -191,69 +191,69 @@ private[recorder] case class FiltersConfiguration(
 }
 
 private[recorder] case class CoreConfiguration(
-  mode:                      RecorderMode,
-  encoding:                  String,
-  outputFolder:              String,
-  bodiesFolder:              String,
-  pkg:                       String,
-  className:                 String,
-  thresholdForPauseCreation: Duration,
-  saveConfig:                Boolean,
-  headless:                  Boolean,
-  harFilePath:               Option[String]
+    mode:                      RecorderMode,
+    encoding:                  String,
+    outputFolder:              String,
+    bodiesFolder:              String,
+    pkg:                       String,
+    className:                 String,
+    thresholdForPauseCreation: Duration,
+    saveConfig:                Boolean,
+    headless:                  Boolean,
+    harFilePath:               Option[String]
 )
 
 private[recorder] case class HttpConfiguration(
-  automaticReferer:    Boolean,
-  followRedirect:      Boolean,
-  inferHtmlResources:  Boolean,
-  removeCacheHeaders:  Boolean,
-  checkResponseBodies: Boolean
+    automaticReferer:    Boolean,
+    followRedirect:      Boolean,
+    inferHtmlResources:  Boolean,
+    removeCacheHeaders:  Boolean,
+    checkResponseBodies: Boolean
 )
 
 private[recorder] case class KeyStoreConfiguration(
-  path:         String,
-  password:     String,
-  keyStoreType: KeyStoreType
+    path:         String,
+    password:     String,
+    keyStoreType: KeyStoreType
 )
 
 private[recorder] case class CertificateAuthorityConfiguration(
-  certificatePath: String,
-  privateKeyPath:  String
+    certificatePath: String,
+    privateKeyPath:  String
 )
 
 private[recorder] case class HttpsModeConfiguration(
-  mode:                 HttpsMode,
-  keyStore:             KeyStoreConfiguration,
-  certificateAuthority: CertificateAuthorityConfiguration
+    mode:                 HttpsMode,
+    keyStore:             KeyStoreConfiguration,
+    certificateAuthority: CertificateAuthorityConfiguration
 )
 
 private[recorder] case class OutgoingProxyConfiguration(
-  host:     Option[String],
-  username: Option[String],
-  password: Option[String],
-  port:     Option[Int],
-  sslPort:  Option[Int]
+    host:     Option[String],
+    username: Option[String],
+    password: Option[String],
+    port:     Option[Int],
+    sslPort:  Option[Int]
 )
 
 private[recorder] case class ProxyConfiguration(
-  port:     Int,
-  https:    HttpsModeConfiguration,
-  outgoing: OutgoingProxyConfiguration
+    port:     Int,
+    https:    HttpsModeConfiguration,
+    outgoing: OutgoingProxyConfiguration
 )
 
 private[recorder] case class NettyConfiguration(
-  maxInitialLineLength: Int,
-  maxHeaderSize:        Int,
-  maxChunkSize:         Int,
-  maxContentLength:     Int
+    maxInitialLineLength: Int,
+    maxHeaderSize:        Int,
+    maxChunkSize:         Int,
+    maxContentLength:     Int
 )
 
 private[recorder] case class RecorderConfiguration(
-  core:    CoreConfiguration,
-  filters: FiltersConfiguration,
-  http:    HttpConfiguration,
-  proxy:   ProxyConfiguration,
-  netty:   NettyConfiguration,
-  config:  Config
+    core:    CoreConfiguration,
+    filters: FiltersConfiguration,
+    http:    HttpConfiguration,
+    proxy:   ProxyConfiguration,
+    netty:   NettyConfiguration,
+    config:  Config
 )

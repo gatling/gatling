@@ -33,7 +33,7 @@ import akka.actor.ActorSystem
  * @param next the next action that will be executed after the request
  */
 class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val next: Action)
-    extends RequestAction with NameGen {
+  extends RequestAction with NameGen {
 
   import httpRequestDef._
 

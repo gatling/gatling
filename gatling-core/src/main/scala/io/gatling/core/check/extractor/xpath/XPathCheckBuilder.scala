@@ -29,11 +29,11 @@ case class SaxonDom(document: XdmNode) extends Dom
 case class JdkDom(document: Document) extends Dom
 
 class XPathCheckBuilder(
-  path:       Expression[String],
-  namespaces: List[(String, String)],
-  xmlParsers: XmlParsers
+    path:       Expression[String],
+    namespaces: List[(String, String)],
+    xmlParsers: XmlParsers
 )
-    extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] {
+  extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] {
 
   override def findExtractor(occurrence: Int) = path.map(newXpathSingleExtractor(_, namespaces, occurrence, xmlParsers))
   override def findAllExtractor = path.map(newXpathMultipleExtractor(_, namespaces, xmlParsers))

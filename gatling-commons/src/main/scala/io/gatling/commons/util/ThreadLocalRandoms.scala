@@ -23,10 +23,11 @@ import scala.language.higherKinds
 
 object ThreadLocalRandoms {
 
-  /** Returns a new collection of the same type in a randomly chosen order.
-    *
-    *  @return         the shuffled collection
-    */
+  /**
+   * Returns a new collection of the same type in a randomly chosen order.
+   *
+   *  @return         the shuffled collection
+   */
   def shuffle[T, CC[X] <: TraversableOnce[X]](xs: CC[T])(implicit bf: CanBuildFrom[CC[T], T, CC[T]]): CC[T] = {
 
     val random = ThreadLocalRandom.current

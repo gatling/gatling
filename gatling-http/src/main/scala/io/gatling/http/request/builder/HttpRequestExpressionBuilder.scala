@@ -34,7 +34,7 @@ import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
 
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-    extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   import RequestExpressionBuilder._
 
@@ -59,33 +59,33 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
   private val configureParts0: RequestBuilderConfigure =
     session => requestBuilder => {
 
-        def setBody(body: Body): Validation[AhcRequestBuilder] =
-          body match {
-            case StringBody(string) => string(session).map(requestBuilder.setBody)
-            case RawFileBody(resourceWithCachedBytes) => resourceWithCachedBytes(session).map {
-              case ResourceAndCachedBytes(resource, cachedBytes) =>
-                cachedBytes match {
-                  case Some(bytes) => requestBuilder.setBody(bytes)
-                  case None =>
-                    resource match {
-                      case FileResource(_, file) => requestBuilder.setBody(file)
-                      case _                     => requestBuilder.setBody(resource.bytes)
-                    }
-                }
-            }
-            case ByteArrayBody(bytes)             => bytes(session).map(requestBuilder.setBody)
-            case CompositeByteArrayBody(bytes, _) => bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
-            case InputStreamBody(is)              => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
-            case body: PebbleBody                 => body.apply(session).map(requestBuilder.setBody)
+      def setBody(body: Body): Validation[AhcRequestBuilder] =
+        body match {
+          case StringBody(string) => string(session).map(requestBuilder.setBody)
+          case RawFileBody(resourceWithCachedBytes) => resourceWithCachedBytes(session).map {
+            case ResourceAndCachedBytes(resource, cachedBytes) =>
+              cachedBytes match {
+                case Some(bytes) => requestBuilder.setBody(bytes)
+                case None =>
+                  resource match {
+                    case FileResource(_, file) => requestBuilder.setBody(file)
+                    case _                     => requestBuilder.setBody(resource.bytes)
+                  }
+              }
           }
+          case ByteArrayBody(bytes)             => bytes(session).map(requestBuilder.setBody)
+          case CompositeByteArrayBody(bytes, _) => bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
+          case InputStreamBody(is)              => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
+          case body: PebbleBody                 => body.apply(session).map(requestBuilder.setBody)
+        }
 
-        def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
-          bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
-            for {
-              requestBuilder <- requestBuilder
-              part <- part.toMultiPart(session)
-            } yield requestBuilder.addBodyPart(part)
-          }
+      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
+        bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
+          for {
+            requestBuilder <- requestBuilder
+            part <- part.toMultiPart(session)
+          } yield requestBuilder.addBodyPart(part)
+        }
 
       httpAttributes.body match {
         case None       => setBodyParts(httpAttributes.bodyParts)

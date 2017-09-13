@@ -43,11 +43,11 @@ private[charts] case class GroupContainer(
 
   private def findGroup(path: List[String]) = {
 
-      @tailrec
-      def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
-        case head :: tail => getGroupRec(g.groups(head), tail)
-        case _            => g
-      }
+    @tailrec
+    def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
+      case head :: tail => getGroupRec(g.groups(head), tail)
+      case _            => g
+    }
 
     getGroupRec(this, path)
   }

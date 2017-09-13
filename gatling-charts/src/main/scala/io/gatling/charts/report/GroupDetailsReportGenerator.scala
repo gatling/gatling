@@ -25,59 +25,59 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.{ PercentilesVsTimePlot, Series }
 
 private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-    extends ReportGenerator {
+  extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._
 
-      def generateDetailPage(path: String, group: Group): Unit = {
-          def cumulatedResponseTimeChartComponent: Component = {
-            val dataSuccess = logFileReader.groupCumulatedResponseTimePercentilesOverTime(OK, group)
-            val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)
+    def generateDetailPage(path: String, group: Group): Unit = {
+      def cumulatedResponseTimeChartComponent: Component = {
+        val dataSuccess = logFileReader.groupCumulatedResponseTimePercentilesOverTime(OK, group)
+        val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)
 
-            componentLibrary.getGroupDetailsDurationChartComponent("cumulatedResponseTimeChartContainer", "Cumulated Response Time (ms)", logFileReader.runStart, seriesSuccess)
-          }
-
-          def cumulatedResponseTimeDistributionChartComponent: Component = {
-            val (distributionSuccess, distributionFailure) = logFileReader.groupCumulatedResponseTimeDistribution(100, group)
-            val distributionSeriesSuccess = new Series("Group cumulated response time (success)", distributionSuccess, List(Blue))
-            val distributionSeriesFailure = new Series("Group cumulated response time (failure)", distributionFailure, List(Red))
-
-            componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Cumulated Response Time Distribution", "cumulatedResponseTimeDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
-          }
-
-          def durationChartComponent: Component = {
-            val dataSuccess = logFileReader.groupDurationPercentilesOverTime(OK, group)
-            val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Duration Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)
-
-            componentLibrary.getGroupDetailsDurationChartComponent("durationContainer", "Duration (ms)", logFileReader.runStart, seriesSuccess)
-          }
-
-          def durationDistributionChartComponent: Component = {
-            val (distributionSuccess, distributionFailure) = logFileReader.groupDurationDistribution(100, group)
-            val distributionSeriesSuccess = new Series("Group duration (success)", distributionSuccess, List(Blue))
-            val distributionSeriesFailure = new Series("Group duration (failure)", distributionFailure, List(Red))
-
-            componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Duration Distribution", "durationDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
-          }
-
-          def statisticsComponent: Component = new StatisticsTextComponent
-
-          def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
-
-        val template = new GroupDetailsPageTemplate(
-          group,
-          statisticsComponent,
-          indicatorChartComponent,
-          new ErrorsTableComponent(logFileReader.errors(None, Some(group))),
-          cumulatedResponseTimeChartComponent,
-          cumulatedResponseTimeDistributionChartComponent,
-          durationChartComponent,
-          durationDistributionChartComponent
-        )
-
-        new TemplateWriter(groupFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
+        componentLibrary.getGroupDetailsDurationChartComponent("cumulatedResponseTimeChartContainer", "Cumulated Response Time (ms)", logFileReader.runStart, seriesSuccess)
       }
+
+      def cumulatedResponseTimeDistributionChartComponent: Component = {
+        val (distributionSuccess, distributionFailure) = logFileReader.groupCumulatedResponseTimeDistribution(100, group)
+        val distributionSeriesSuccess = new Series("Group cumulated response time (success)", distributionSuccess, List(Blue))
+        val distributionSeriesFailure = new Series("Group cumulated response time (failure)", distributionFailure, List(Red))
+
+        componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Cumulated Response Time Distribution", "cumulatedResponseTimeDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
+      }
+
+      def durationChartComponent: Component = {
+        val dataSuccess = logFileReader.groupDurationPercentilesOverTime(OK, group)
+        val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Duration Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)
+
+        componentLibrary.getGroupDetailsDurationChartComponent("durationContainer", "Duration (ms)", logFileReader.runStart, seriesSuccess)
+      }
+
+      def durationDistributionChartComponent: Component = {
+        val (distributionSuccess, distributionFailure) = logFileReader.groupDurationDistribution(100, group)
+        val distributionSeriesSuccess = new Series("Group duration (success)", distributionSuccess, List(Blue))
+        val distributionSeriesFailure = new Series("Group duration (failure)", distributionFailure, List(Red))
+
+        componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Duration Distribution", "durationDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
+      }
+
+      def statisticsComponent: Component = new StatisticsTextComponent
+
+      def indicatorChartComponent: Component = componentLibrary.getRequestDetailsIndicatorChartComponent
+
+      val template = new GroupDetailsPageTemplate(
+        group,
+        statisticsComponent,
+        indicatorChartComponent,
+        new ErrorsTableComponent(logFileReader.errors(None, Some(group))),
+        cumulatedResponseTimeChartComponent,
+        cumulatedResponseTimeDistributionChartComponent,
+        durationChartComponent,
+        durationDistributionChartComponent
+      )
+
+      new TemplateWriter(groupFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
+    }
 
     logFileReader.statsPaths.foreach {
       case GroupStatsPath(group) => generateDetailPage(RequestPath.path(group), group)

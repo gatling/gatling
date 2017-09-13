@@ -54,19 +54,19 @@ private[css] object FormExtractor {
 
   private def extractSelect(node: Node): Option[SelectInput] = {
 
-      def extractOptions(currentNode: Node, values: List[SelectOption]): List[SelectOption] =
-        (for {
-          i <- 0 until currentNode.getChildNodesCount
-          child = currentNode.getChild(i)
-        } yield child.getNodeName match {
-          case "option" =>
-            Option(child.getAttribute("value")) match {
-              case Some(value) if value.nonEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
-              case _                             => values
-            }
-          case _ =>
-            extractOptions(child, values)
-        }).toList.flatten
+    def extractOptions(currentNode: Node, values: List[SelectOption]): List[SelectOption] =
+      (for {
+        i <- 0 until currentNode.getChildNodesCount
+        child = currentNode.getChild(i)
+      } yield child.getNodeName match {
+        case "option" =>
+          Option(child.getAttribute("value")) match {
+            case Some(value) if value.nonEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
+            case _                             => values
+          }
+        case _ =>
+          extractOptions(child, values)
+      }).toList.flatten
 
     for {
       name <- Option(node.getAttribute("name"))
@@ -96,25 +96,25 @@ private[css] object FormExtractor {
 
   private def processForm(formNode: Node): Seq[Input] = {
 
-      def processFormRec(currentNode: Node, inputs: Seq[Input]): Seq[Input] = {
-        val childInputs =
-          for {
-            i <- 0 until currentNode.getChildNodesCount
-          } yield {
-            val childNode = currentNode.getChild(i)
-            childNode.getNodeName match {
-              case "input" => extractInput(childNode).map(Seq(_)).getOrElse(Nil)
-              case "select" => extractSelect(childNode) match {
-                case Some(input) => Seq(input)
-                case None        => Nil
-              }
-              case "textarea" => extractTextArea(childNode).map(Seq(_)).getOrElse(Nil)
-              case _          => processFormRec(childNode, inputs)
+    def processFormRec(currentNode: Node, inputs: Seq[Input]): Seq[Input] = {
+      val childInputs =
+        for {
+          i <- 0 until currentNode.getChildNodesCount
+        } yield {
+          val childNode = currentNode.getChild(i)
+          childNode.getNodeName match {
+            case "input" => extractInput(childNode).map(Seq(_)).getOrElse(Nil)
+            case "select" => extractSelect(childNode) match {
+              case Some(input) => Seq(input)
+              case None        => Nil
             }
+            case "textarea" => extractTextArea(childNode).map(Seq(_)).getOrElse(Nil)
+            case _          => processFormRec(childNode, inputs)
           }
+        }
 
-        inputs ++ childInputs.flatten
-      }
+      inputs ++ childInputs.flatten
+    }
 
     processFormRec(formNode, Nil)
   }

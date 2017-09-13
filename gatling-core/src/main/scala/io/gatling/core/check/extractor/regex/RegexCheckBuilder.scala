@@ -33,10 +33,10 @@ object RegexCheckBuilder {
 }
 
 class RegexCheckBuilder[X: GroupExtractor](
-  private[regex] val pattern:  Expression[String],
-  private[regex] val patterns: Patterns
+    private[regex] val pattern:  Expression[String],
+    private[regex] val patterns: Patterns
 )
-    extends DefaultMultipleFindCheckBuilder[RegexCheckType, CharSequence, X] {
+  extends DefaultMultipleFindCheckBuilder[RegexCheckType, CharSequence, X] {
 
   import RegexExtractorFactory._
 

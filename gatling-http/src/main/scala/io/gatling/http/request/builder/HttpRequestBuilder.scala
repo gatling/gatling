@@ -29,18 +29,18 @@ import io.gatling.http.response.Response
 import com.softwaremill.quicklens._
 
 case class HttpAttributes(
-  checks:                List[HttpCheck]                             = Nil,
-  ignoreDefaultChecks:   Boolean                                     = false,
-  silent:                Option[Boolean]                             = None,
-  followRedirect:        Boolean                                     = true,
-  discardResponseChunks: Boolean                                     = true,
-  responseTransformer:   Option[PartialFunction[Response, Response]] = None,
-  explicitResources:     List[HttpRequestBuilder]                    = Nil,
-  body:                  Option[Body]                                = None,
-  bodyParts:             List[BodyPart]                              = Nil,
-  formParams:            List[HttpParam]                             = Nil,
-  form:                  Option[Expression[Map[String, Any]]]        = None,
-  extraInfoExtractor:    Option[ExtraInfoExtractor]                  = None
+    checks:                List[HttpCheck]                             = Nil,
+    ignoreDefaultChecks:   Boolean                                     = false,
+    silent:                Option[Boolean]                             = None,
+    followRedirect:        Boolean                                     = true,
+    discardResponseChunks: Boolean                                     = true,
+    responseTransformer:   Option[PartialFunction[Response, Response]] = None,
+    explicitResources:     List[HttpRequestBuilder]                    = Nil,
+    body:                  Option[Body]                                = None,
+    bodyParts:             List[BodyPart]                              = Nil,
+    formParams:            List[HttpParam]                             = Nil,
+    form:                  Option[Expression[Map[String, Any]]]        = None,
+    extraInfoExtractor:    Option[ExtraInfoExtractor]                  = None
 )
 
 object HttpRequestBuilder {

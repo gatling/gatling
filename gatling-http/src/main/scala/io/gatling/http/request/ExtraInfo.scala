@@ -22,9 +22,9 @@ import io.gatling.http.response.Response
 import org.asynchttpclient.Request
 
 case class ExtraInfo(
-  requestName: String,
-  status:      Status,
-  session:     Session,
-  request:     Request,
-  response:    Response
+    requestName: String,
+    status:      Status,
+    session:     Session,
+    request:     Request,
+    response:    Response
 )

@@ -28,7 +28,7 @@ trait FindCheckBuilder[A, P, X] {
 }
 
 class DefaultFindCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]])
-    extends FindCheckBuilder[A, P, X] {
+  extends FindCheckBuilder[A, P, X] {
 
   def find: ValidatorCheckBuilder[A, P, X] = ValidatorCheckBuilder(extractor)
 }
@@ -47,7 +47,7 @@ trait MultipleFindCheckBuilder[A, P, X] extends FindCheckBuilder[A, P, X] {
 }
 
 abstract class DefaultMultipleFindCheckBuilder[A, P, X]
-    extends MultipleFindCheckBuilder[A, P, X] {
+  extends MultipleFindCheckBuilder[A, P, X] {
 
   def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
 
@@ -73,28 +73,28 @@ abstract class DefaultMultipleFindCheckBuilder[A, P, X]
 
       override def apply(prepared: P): Validation[Option[Seq[X]]] =
         fae(prepared)
-            .flatMap {
-              case Some(seq) =>
-                if (failIfLess && seq.size < num) {
-                  s"Failed to collect $num matches".failure
+          .flatMap {
+            case Some(seq) =>
+              if (failIfLess && seq.size < num) {
+                s"Failed to collect $num matches".failure
 
-                } else if (seq.isEmpty) {
-                  NoneSuccess
+              } else if (seq.isEmpty) {
+                NoneSuccess
 
-                } else {
-                  val randomSeq =
-                    if (num >= seq.size) {
-                      seq
-                    } else {
-                      val sortedRandomIndexes = ThreadLocalRandoms.shuffle(seq.indices.toVector).take(num).sorted
-                      sortedRandomIndexes.map(seq)
-                    }
+              } else {
+                val randomSeq =
+                  if (num >= seq.size) {
+                    seq
+                  } else {
+                    val sortedRandomIndexes = ThreadLocalRandoms.shuffle(seq.indices.toVector).take(num).sorted
+                    sortedRandomIndexes.map(seq)
+                  }
 
-                  Some(randomSeq).success
-                }
+                Some(randomSeq).success
+              }
 
-              case None => NoneSuccess
-            }
+            case None => NoneSuccess
+          }
     }
   }
 
@@ -183,7 +183,8 @@ case class ValidatorCheckBuilder[A, P, X](extractor: Expression[Extractor[P, X]]
 case class CheckBuilder[A, P, X](
     validatorCheckBuilder: ValidatorCheckBuilder[A, P, X],
     validator:             Expression[Validator[X]],
-    saveAs:                Option[String] = None) {
+    saveAs:                Option[String]                 = None
+) {
 
   def build[C <: Check[R], R](protocolProvider: CheckProtocolProvider[A, C, R, P]): C = {
     import protocolProvider._

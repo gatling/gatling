@@ -32,8 +32,8 @@ package object regex {
 
     def findMatchN[X: GroupExtractor](n: Int): Option[X] = {
 
-        @tailrec
-        def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
+      @tailrec
+      def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
 
       if (findRec(n))
         Some(value[X])

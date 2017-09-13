@@ -30,7 +30,7 @@ object HtmlHelper {
   implicit class HtmlRichString(val string: String) extends AnyVal {
 
     def htmlEscape: String = {
-        def charToHtmlEntity(char: Char): String = charToHtmlEntities.getOrElse(char, char.toString)
+      def charToHtmlEntity(char: Char): String = charToHtmlEntities.getOrElse(char, char.toString)
 
       string.map(charToHtmlEntity).mkString
     }

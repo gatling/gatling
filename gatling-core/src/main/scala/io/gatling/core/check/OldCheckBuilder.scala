@@ -27,10 +27,10 @@ trait OldFindCheckBuilder[C <: Check[R], R, P, X] {
 
 @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 class OldDefaultFindCheckBuilder[C <: Check[R], R, P, X](
-                                                          specializer:  Specializer[C, R],
-                                                          preparer:  Preparer[R, P],
-                                                          extractor: Expression[Extractor[P, X]]
-                                                     )
+    specializer: Specializer[C, R],
+    preparer:    Preparer[R, P],
+    extractor:   Expression[Extractor[P, X]]
+)
   extends OldFindCheckBuilder[C, R, P, X] {
 
   def find: OldValidatorCheckBuilder[C, R, P, X] = OldValidatorCheckBuilder(specializer, preparer, extractor)
@@ -48,9 +48,9 @@ trait OldMultipleFindCheckBuilder[C <: Check[R], R, P, X] extends OldFindCheckBu
 
 @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 abstract class OldDefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](
-                                                                           specializer: Specializer[C, R],
-                                                                           preparer: Preparer[R, P]
-                                                                      )
+    specializer: Specializer[C, R],
+    preparer:    Preparer[R, P]
+)
   extends OldMultipleFindCheckBuilder[C, R, P, X] {
 
   def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
@@ -76,10 +76,10 @@ object OldValidatorCheckBuilder {
 
 @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 case class OldValidatorCheckBuilder[C <: Check[R], R, P, X](
-                                                             specializer:  Specializer[C, R],
-                                                             preparer:  Preparer[R, P],
-                                                             extractor: Expression[Extractor[P, X]]
-                                                        ) {
+    specializer: Specializer[C, R],
+    preparer:    Preparer[R, P],
+    extractor:   Expression[Extractor[P, X]]
+) {
 
   import OldValidatorCheckBuilder._
 
@@ -141,10 +141,10 @@ case class OldValidatorCheckBuilder[C <: Check[R], R, P, X](
 
 @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
 case class OldCheckBuilder[C <: Check[R], R, P, X](
-                                                 validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X],
-                                                 validator:             Expression[Validator[X]],
-                                                 saveAs:                Option[String]                    = None
-                                               ) {
+    validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X],
+    validator:             Expression[Validator[X]],
+    saveAs:                Option[String]                       = None
+) {
 
   def build: C = {
     val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, saveAs)

@@ -65,15 +65,15 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
     val nextAction: Expression[Action] = _ => {
 
-        @tailrec
-        def determineNextAction(index: Int, possibilities: List[(Int, Action)]): Action = possibilities match {
-          case Nil => elseNextAction
-          case (percentage, possibleAction) :: others =>
-            if (percentage >= index)
-              possibleAction
-            else
-              determineNextAction(index - percentage, others)
-        }
+      @tailrec
+      def determineNextAction(index: Int, possibilities: List[(Int, Action)]): Action = possibilities match {
+        case Nil => elseNextAction
+        case (percentage, possibleAction) :: others =>
+          if (percentage >= index)
+            possibleAction
+          else
+            determineNextAction(index - percentage, others)
+      }
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }

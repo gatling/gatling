@@ -39,7 +39,7 @@ object SseOpenRequestBuilder {
 }
 
 case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: String)
-    extends RequestBuilder[SseOpenRequestBuilder] {
+  extends RequestBuilder[SseOpenRequestBuilder] {
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 

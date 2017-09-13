@@ -125,14 +125,14 @@ case class Session(
 
   def groupHierarchy: List[String] = {
 
-      @tailrec
-      def gh(blocks: List[Block]): List[String] = blocks match {
-        case Nil => Nil
-        case head :: tail => head match {
-          case g: GroupBlock => g.hierarchy
-          case _             => gh(tail)
-        }
+    @tailrec
+    def gh(blocks: List[Block]): List[String] = blocks match {
+      case Nil => Nil
+      case head :: tail => head match {
+        case g: GroupBlock => g.hierarchy
+        case _             => gh(tail)
       }
+    }
 
     gh(blockStack)
   }

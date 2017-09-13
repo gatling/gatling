@@ -47,58 +47,58 @@ object CssParser extends StrictLogging {
       var protectChar: Option[Char] = None
       var broken = false
 
-        @tailrec
-        def trimLeft(cur: Int): Int =
-          if (cur == end)
-            cur
-          else
-            (string.charAt(cur): @switch) match {
-              case ' ' | '\r' | '\n' => trimLeft(cur + 1)
-              case '\'' =>
-                protectChar match {
-                  case None =>
-                    protectChar = SingleQuoteEscapeChar
-                    trimLeft(cur + 1)
-                  case _ =>
-                    broken = true
-                    cur
+      @tailrec
+      def trimLeft(cur: Int): Int =
+        if (cur == end)
+          cur
+        else
+          (string.charAt(cur): @switch) match {
+            case ' ' | '\r' | '\n' => trimLeft(cur + 1)
+            case '\'' =>
+              protectChar match {
+                case None =>
+                  protectChar = SingleQuoteEscapeChar
+                  trimLeft(cur + 1)
+                case _ =>
+                  broken = true
+                  cur
 
-                }
-              case '"' =>
-                protectChar match {
-                  case None =>
-                    protectChar = DoubleQuoteEscapeChar
-                    trimLeft(cur + 1)
-                  case _ =>
-                    broken = true
-                    cur
-                }
-              case _ => cur
-            }
-
-        @tailrec
-        def trimRight(cur: Int, leftLimit: Int): Int =
-          if (cur == leftLimit)
-            cur
-          else
-            (string.charAt(cur - 1): @switch) match {
-              case ' ' | '\r' | '\n' => trimRight(cur - 1, leftLimit)
-              case '\'' => protectChar match {
-                case `SingleQuoteEscapeChar` =>
-                  trimRight(cur - 1, leftLimit)
+              }
+            case '"' =>
+              protectChar match {
+                case None =>
+                  protectChar = DoubleQuoteEscapeChar
+                  trimLeft(cur + 1)
                 case _ =>
                   broken = true
                   cur
               }
-              case '"' => protectChar match {
-                case `DoubleQuoteEscapeChar` =>
-                  trimRight(cur - 1, leftLimit)
-                case _ =>
-                  broken = true
-                  cur
-              }
-              case _ => cur
+            case _ => cur
+          }
+
+      @tailrec
+      def trimRight(cur: Int, leftLimit: Int): Int =
+        if (cur == leftLimit)
+          cur
+        else
+          (string.charAt(cur - 1): @switch) match {
+            case ' ' | '\r' | '\n' => trimRight(cur - 1, leftLimit)
+            case '\'' => protectChar match {
+              case `SingleQuoteEscapeChar` =>
+                trimRight(cur - 1, leftLimit)
+              case _ =>
+                broken = true
+                cur
             }
+            case '"' => protectChar match {
+              case `DoubleQuoteEscapeChar` =>
+                trimRight(cur - 1, leftLimit)
+              case _ =>
+                broken = true
+                cur
+            }
+            case _ => cur
+          }
 
       val trimmedStart = trimLeft(start)
       val trimmedEnd = trimRight(end, trimmedStart)
@@ -124,21 +124,21 @@ object CssParser extends StrictLogging {
     var withinUrl = false
     var urlStart = 0
 
-      def charsMatch(i: Int, chars: Array[Char]): Boolean = {
+    def charsMatch(i: Int, chars: Array[Char]): Boolean = {
 
-          @tailrec
-          def charsMatchRec(j: Int): Boolean = {
-            if (j == chars.length)
-              true
-            else if (cssContent.charAt(i + j) != chars(j))
-              false
-            else
-              charsMatchRec(j + 1)
+      @tailrec
+      def charsMatchRec(j: Int): Boolean = {
+        if (j == chars.length)
+          true
+        else if (cssContent.charAt(i + j) != chars(j))
+          false
+        else
+          charsMatchRec(j + 1)
 
-          }
-
-        i < cssContent.length - chars.length && charsMatchRec(1)
       }
+
+      i < cssContent.length - chars.length && charsMatchRec(1)
+    }
 
     var i = 0
     while (i < cssContent.length) {

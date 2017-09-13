@@ -89,14 +89,14 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
   "tryMax" should "exit wrapped loop" in {
     scenarioTest { implicit ctx =>
-        def message(action: Int, i: Int, j: Int) =
-          s"action$action|$i|$j"
+      def message(action: Int, i: Int, j: Int) =
+        s"action$action|$i|$j"
 
-        def i(session: Session) =
-          session("i").as[Int]
+      def i(session: Session) =
+        session("i").as[Int]
 
-        def j(session: Session) =
-          session("j").as[Int]
+      def j(session: Session) =
+        session("j").as[Int]
 
       val outerGroup = "outerGroup"
       val innerGroup = "innerGroup"

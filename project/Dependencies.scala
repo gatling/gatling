@@ -2,10 +2,9 @@ import sbt._
 
 object Dependencies { 
 
-  /**************************/
-  /** Compile dependencies **/
-  /**************************/
+  // Compile dependencies
 
+  // format: OFF
   private def scalaReflect(version: String) = "org.scala-lang"                         % "scala-reflect"                 % version
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                   % "2.0.0"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.6"
@@ -56,9 +55,7 @@ object Dependencies {
   private val guava                         = "com.google.guava"                       % "guava"                         % "23.0"
   private val findbugs                      = "com.google.code.findbugs"               % "jsr305"                        % "3.0.2"
 
-  /***********************/
-  /** Test dependencies **/
-  /***********************/
+  // Test dependencies
 
   private val scalaTest                      = "org.scalatest"                         %% "scalatest"                    % "3.0.4"             % "test"
   private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                   % "1.13.5"            % "test"
@@ -68,14 +65,13 @@ object Dependencies {
   private val h2                             = "com.h2database"                         % "h2"                           % "1.4.196"           % "test"
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                   % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
   private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.19"
+  // format: ON
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
   private val parserDeps = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-  /****************************/
-  /** Dependencies by module **/
-  /****************************/
+  // Dependencies by module
 
   def commonsDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat, ahcNettyUtils, pebble, guava, findbugs) ++ loggingDeps ++ testDeps
