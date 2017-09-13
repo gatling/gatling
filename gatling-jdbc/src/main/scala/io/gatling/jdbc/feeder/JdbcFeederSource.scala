@@ -34,13 +34,13 @@ object JdbcFeederSource {
 
       val columnLabels = for (i <- 1 to columnCount) yield metadata.getColumnLabel(i)
 
-        def computeRecord: Record[Any] =
-          (for (i <- 1 to columnCount) yield columnLabels(i - 1) -> resultSet.getObject(i))(breakOut)
+      def computeRecord: Record[Any] =
+        (for (i <- 1 to columnCount) yield columnLabels(i - 1) -> resultSet.getObject(i))(breakOut)
 
-        @tailrec
-        def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =
-          if (!resultSet.next) records
-          else loadRec(records :+ computeRecord)
+      @tailrec
+      def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =
+        if (!resultSet.next) records
+        else loadRec(records :+ computeRecord)
 
       loadRec(Vector.empty)
     }

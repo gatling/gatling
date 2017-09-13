@@ -7,7 +7,7 @@ import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import sbt.Keys._
 import sbt._
 import sbtunidoc.Plugin.UnidocKeys._
-import sbtunidoc.Plugin.{ScalaUnidoc, unidocSettings}
+import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
 
 object BuildSettings {
 
@@ -15,11 +15,11 @@ object BuildSettings {
     license := ApacheV2,
     githubPath := "gatling/gatling",
     projectDevelopers := developers
-    // [fl]
-    //
-    //
-    //
-    // [fl]
+  // [fl]
+  //
+  //
+  //
+  // [fl]
   )
 
   lazy val gatlingModuleSettings =
@@ -44,9 +44,9 @@ object BuildSettings {
     GatlingDeveloper("achaouat@gatling.io", "Alexandre Chaouat", isGatlingCorp = true)
   )
 
-  /****************************/
+/****************************/
   /** Documentation settings **/
-  /****************************/
+/****************************/
 
   lazy val scaladocSettings = Seq(
     autoAPIMappings := true
@@ -57,9 +57,9 @@ object BuildSettings {
     unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(excludedProjects: _*)
   ) ++ scaladocSettings
 
-  /**************************************/
+/**************************************/
   /** gatling-charts specific settings **/
-  /**************************************/
+/**************************************/
 
   lazy val chartTestsSettings = Seq(
     fork := true,

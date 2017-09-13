@@ -25,9 +25,9 @@ import io.gatling.compiler.config.cli.{ ArgsParser, CommandLineOverrides }
 import com.typesafe.config.ConfigFactory
 
 private[compiler] case class CompilerConfiguration(
-  encoding:             String,
-  simulationsDirectory: Path,
-  binariesDirectory:    Path
+    encoding:             String,
+    simulationsDirectory: Path,
+    binariesDirectory:    Path
 )
 
 private[compiler] object CompilerConfiguration {
@@ -37,19 +37,19 @@ private[compiler] object CompilerConfiguration {
   private val binariesDirectoryKey = "gatling.core.directory.binaries"
 
   def configuration(args: Array[String]) = {
-      def buildConfigurationMap(overrides: CommandLineOverrides): Map[String, _ <: Any] = {
-        val mapForSimulationFolder =
-          string2option(overrides.simulationsDirectory)
-            .map(v => Map(simulationsDirectoryKey -> v))
-            .getOrElse(Map.empty)
+    def buildConfigurationMap(overrides: CommandLineOverrides): Map[String, _ <: Any] = {
+      val mapForSimulationFolder =
+        string2option(overrides.simulationsDirectory)
+          .map(v => Map(simulationsDirectoryKey -> v))
+          .getOrElse(Map.empty)
 
-        val mapForBinariesFolder =
-          string2option(overrides.binariesFolder)
-            .map(v => Map(binariesDirectoryKey -> v))
-            .getOrElse(Map.empty)
+      val mapForBinariesFolder =
+        string2option(overrides.binariesFolder)
+          .map(v => Map(binariesDirectoryKey -> v))
+          .getOrElse(Map.empty)
 
-        mapForSimulationFolder ++ mapForBinariesFolder
-      }
+      mapForSimulationFolder ++ mapForBinariesFolder
+    }
 
     val argsParser = new ArgsParser(args)
     val commandLineOverrides = argsParser.parseArguments
@@ -62,7 +62,7 @@ private[compiler] object CompilerConfiguration {
     val encoding = config.getString(encodingKey)
     val simulationsDirectory = resolvePath(Paths.get(config.getString(simulationsDirectoryKey)))
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
-        .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
+      .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
 
     CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory)
   }

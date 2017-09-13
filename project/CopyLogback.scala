@@ -11,7 +11,7 @@ object CopyLogback {
   )
 
   private def copyDummyLogbackXml(resources: Seq[File], sourceDirectory: File): Seq[File] = {
-    val configFile = resources.filter(_.getName ==  "logback.dummy").head
+    val configFile = resources.filter(_.getName == "logback.dummy").head
     val outputPath = sourceDirectory / "conf"
     val targetFile = outputPath / (configFile.base + ".xml")
     IO.copyFile(configFile, targetFile)

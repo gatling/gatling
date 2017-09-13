@@ -37,22 +37,22 @@ import akka.actor.{ Timers, Props }
  * Advise actor a message was sent to JMS provider
  */
 case class MessageSent(
-  matchId:      String,
-  sent:         Long,
-  replyTimeout: Long,
-  checks:       List[JmsCheck],
-  session:      Session,
-  next:         Action,
-  requestName:  String
+    matchId:      String,
+    sent:         Long,
+    replyTimeout: Long,
+    checks:       List[JmsCheck],
+    session:      Session,
+    next:         Action,
+    requestName:  String
 )
 
 /**
  * Advise actor a response message was received from JMS provider
  */
 case class MessageReceived(
-  matchId:  String,
-  received: Long,
-  message:  Message
+    matchId:  String,
+    received: Long,
+    message:  Message
 )
 
 case object TimeoutScan

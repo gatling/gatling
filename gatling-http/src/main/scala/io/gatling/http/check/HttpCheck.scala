@@ -30,7 +30,7 @@ import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
  * @param responseBodyUsageStrategy how this check uses the response body
  */
 case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
-    extends Check[Response] {
+  extends Check[Response] {
   override def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
     wrapped.check(response, session)
 }

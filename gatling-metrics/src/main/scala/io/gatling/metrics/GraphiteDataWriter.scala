@@ -31,11 +31,11 @@ import io.gatling.metrics.types._
 import akka.actor.ActorRef
 
 case class GraphiteData(
-  configuration:   GatlingConfiguration,
-  metricsSender:   ActorRef,
-  requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
-  usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
-  format:          GraphitePathPattern
+    configuration:   GatlingConfiguration,
+    metricsSender:   ActorRef,
+    requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
+    usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
+    format:          GraphitePathPattern
 ) extends DataWriterData
 
 private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with NameGen {

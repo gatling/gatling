@@ -38,11 +38,11 @@ object HttpHeaderRegexCheckBuilder {
 }
 
 class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
-  private[header] val headerName: Expression[String],
-  private[header] val pattern:    Expression[String],
-  private[header] val patterns:   Patterns
+    private[header] val headerName: Expression[String],
+    private[header] val pattern:    Expression[String],
+    private[header] val patterns:   Patterns
 )
-    extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X] {
+  extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X] {
 
   import HttpHeaderRegexExtractorFactory._
 

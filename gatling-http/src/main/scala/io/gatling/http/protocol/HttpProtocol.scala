@@ -139,37 +139,37 @@ case class HttpProtocol(
 }
 
 case class HttpProtocolEnginePart(
-  shareClient:           Boolean,
-  shareConnections:      Boolean,
-  maxConnectionsPerHost: Int,
-  perUserNameResolution: Boolean,
-  hostNameAliases:       Map[String, InetAddress],
-  virtualHost:           Option[Expression[String]],
-  localAddresses:        List[InetAddress]
+    shareClient:           Boolean,
+    shareConnections:      Boolean,
+    maxConnectionsPerHost: Int,
+    perUserNameResolution: Boolean,
+    hostNameAliases:       Map[String, InetAddress],
+    virtualHost:           Option[Expression[String]],
+    localAddresses:        List[InetAddress]
 )
 
 case class HttpProtocolRequestPart(
-  headers:             Map[String, Expression[String]],
-  realm:               Option[Expression[Realm]],
-  autoReferer:         Boolean,
-  cache:               Boolean,
-  disableUrlEncoding:  Boolean,
-  silentURI:           Option[Pattern],
-  silentResources:     Boolean,
-  signatureCalculator: Option[Expression[SignatureCalculator]]
+    headers:             Map[String, Expression[String]],
+    realm:               Option[Expression[Realm]],
+    autoReferer:         Boolean,
+    cache:               Boolean,
+    disableUrlEncoding:  Boolean,
+    silentURI:           Option[Pattern],
+    silentResources:     Boolean,
+    signatureCalculator: Option[Expression[SignatureCalculator]]
 )
 
 case class HttpProtocolResponsePart(
-  followRedirect:                Boolean,
-  maxRedirects:                  Option[Int],
-  strict302Handling:             Boolean,
-  discardResponseChunks:         Boolean,
-  responseTransformer:           Option[PartialFunction[Response, Response]],
-  checks:                        List[HttpCheck],
-  extraInfoExtractor:            Option[ExtraInfoExtractor],
-  inferHtmlResources:            Boolean,
-  inferredHtmlResourcesNaming:   Uri => String,
-  htmlResourcesInferringFilters: Option[Filters]
+    followRedirect:                Boolean,
+    maxRedirects:                  Option[Int],
+    strict302Handling:             Boolean,
+    discardResponseChunks:         Boolean,
+    responseTransformer:           Option[PartialFunction[Response, Response]],
+    checks:                        List[HttpCheck],
+    extraInfoExtractor:            Option[ExtraInfoExtractor],
+    inferHtmlResources:            Boolean,
+    inferredHtmlResourcesNaming:   Uri => String,
+    htmlResourcesInferringFilters: Option[Filters]
 )
 
 case class HttpProtocolWsPart(
@@ -200,6 +200,6 @@ case class HttpProtocolWsPart(
 }
 
 case class HttpProtocolProxyPart(
-  proxy:           Option[ProxyServer],
-  proxyExceptions: Seq[String]
+    proxy:           Option[ProxyServer],
+    proxyExceptions: Seq[String]
 )

@@ -34,17 +34,17 @@ private[stats] trait ErrorsBuffers {
 
   def updateErrorBuffers(record: RequestRecord): Unit = {
 
-      def updateGroupError(errorMessage: String): Unit = {
-        record.group.foreach { group =>
-          val buffer = getErrorsBuffers(None, Some(group))
-          buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
-        }
-      }
-
-      def updateRequestError(errorMessage: String): Unit = {
-        val buffer = getErrorsBuffers(Some(record.name), record.group)
+    def updateGroupError(errorMessage: String): Unit = {
+      record.group.foreach { group =>
+        val buffer = getErrorsBuffers(None, Some(group))
         buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
       }
+    }
+
+    def updateRequestError(errorMessage: String): Unit = {
+      val buffer = getErrorsBuffers(Some(record.name), record.group)
+      buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
+    }
 
     record.errorMessage.foreach { errorMessage =>
       updateGlobalError(errorMessage)

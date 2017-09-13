@@ -40,19 +40,19 @@ private[charts] case class GroupedCount(name: String, count: Long, total: Long) 
 }
 
 private[charts] case class RequestStatistics(
-  name:                                    String,
-  path:                                    String,
-  numberOfRequestsStatistics:              Statistics[Long],
-  minResponseTimeStatistics:               Statistics[Int],
-  maxResponseTimeStatistics:               Statistics[Int],
-  meanStatistics:                          Statistics[Int],
-  stdDeviationStatistics:                  Statistics[Int],
-  percentiles1:                            Statistics[Int],
-  percentiles2:                            Statistics[Int],
-  percentiles3:                            Statistics[Int],
-  percentiles4:                            Statistics[Int],
-  groupedCounts:                           Seq[GroupedCount],
-  meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
+    name:                                    String,
+    path:                                    String,
+    numberOfRequestsStatistics:              Statistics[Long],
+    minResponseTimeStatistics:               Statistics[Int],
+    maxResponseTimeStatistics:               Statistics[Int],
+    meanStatistics:                          Statistics[Int],
+    stdDeviationStatistics:                  Statistics[Int],
+    percentiles1:                            Statistics[Int],
+    percentiles2:                            Statistics[Int],
+    percentiles3:                            Statistics[Int],
+    percentiles4:                            Statistics[Int],
+    groupedCounts:                           Seq[GroupedCount],
+    meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
 )
 
 private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {

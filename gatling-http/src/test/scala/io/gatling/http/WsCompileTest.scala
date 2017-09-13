@@ -66,12 +66,12 @@ class WsCompileTest extends Simulation {
                 .check(wsListen.within(30 seconds).expect(1).message)
             ).exec(
                 ws("Cancel").wsName("foo")
-                .cancelCheck
+                  .cancelCheck
               ).exec(
-                ws("Message4")
-                  .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-                  .check(wsAwait.within(30 seconds).until(1))
-              )
+                  ws("Message4")
+                    .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+                    .check(wsAwait.within(30 seconds).until(1))
+                )
     .exec(ws("Close WS").close)
     .exec(ws("Open Named", "foo").open("/bar"))
 

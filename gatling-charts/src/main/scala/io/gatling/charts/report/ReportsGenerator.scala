@@ -30,19 +30,19 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._
 
-      def hasAtLeastOneRequestReported: Boolean =
-        logFileReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
+    def hasAtLeastOneRequestReported: Boolean =
+      logFileReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-      def generateMenu(): Unit = new TemplateWriter(menuFile(reportFolderName)).writeToFile(new MenuTemplate().getOutput)
+    def generateMenu(): Unit = new TemplateWriter(menuFile(reportFolderName)).writeToFile(new MenuTemplate().getOutput)
 
-      def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
+    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
 
-      def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
+    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
 
-      def copyAssets(): Unit = {
-        deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(reportFolderName))
-        deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(reportFolderName))
-      }
+    def copyAssets(): Unit = {
+      deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(reportFolderName))
+      deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(reportFolderName))
+    }
 
     if (!hasAtLeastOneRequestReported)
       throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")

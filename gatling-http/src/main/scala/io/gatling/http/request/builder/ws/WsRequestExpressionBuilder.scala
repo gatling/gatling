@@ -21,7 +21,7 @@ import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 
 class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-    extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   override protected def baseUrl: Session => Option[String] = httpCaches.wsBaseUrl
 }

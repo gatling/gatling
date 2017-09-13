@@ -34,10 +34,10 @@ import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactor
 
 @Sharable
 private[http] class ServerHandler(
-  requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit],
-  requests:       ConcurrentLinkedQueue[FullHttpRequest]
+    requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit],
+    requests:       ConcurrentLinkedQueue[FullHttpRequest]
 )
-    extends ChannelInboundHandlerAdapter with LazyLogging {
+  extends ChannelInboundHandlerAdapter with LazyLogging {
 
   override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
     msg match {
@@ -58,7 +58,7 @@ private[http] class ServerHandler(
 }
 
 private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int)
-    extends LazyLogging {
+  extends LazyLogging {
 
   val requests = new ConcurrentLinkedQueue[FullHttpRequest]
 

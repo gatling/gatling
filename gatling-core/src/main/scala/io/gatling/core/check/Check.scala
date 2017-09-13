@@ -26,34 +26,34 @@ object Check {
 
   def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: mutable.Map[Any, Any] = mutable.Map.empty[Any, Any]): (Session => Session, Option[Failure]) = {
 
-      @tailrec
-      def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
-        checks match {
+    @tailrec
+    def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
+      checks match {
 
-          case Nil => (update, failure)
+        case Nil => (update, failure)
 
-          case head :: tail => head.check(response, session) match {
-            case Success(checkResult) =>
-              checkResult.update match {
-                case Some(checkUpdate) =>
-                  checkRec(
-                    session = checkUpdate(session),
-                    tail,
-                    update = update andThen checkUpdate,
-                    failure
-                  )
-                case _ =>
-                  checkRec(session, tail, update, failure)
-              }
+        case head :: tail => head.check(response, session) match {
+          case Success(checkResult) =>
+            checkResult.update match {
+              case Some(checkUpdate) =>
+                checkRec(
+                  session = checkUpdate(session),
+                  tail,
+                  update = update andThen checkUpdate,
+                  failure
+                )
+              case _ =>
+                checkRec(session, tail, update, failure)
+            }
 
-            case f: Failure =>
-              failure match {
-                case None =>
-                  checkRec(session, tail, update, Some(f))
-                case _ => checkRec(session, tail, update, failure)
-              }
-          }
+          case f: Failure =>
+            failure match {
+              case None =>
+                checkRec(session, tail, update, Some(f))
+              case _ => checkRec(session, tail, update, failure)
+            }
         }
+      }
 
     checkRec(session, checks, Session.Identity, None)
   }
@@ -73,9 +73,9 @@ case class CheckBase[R, P, X](
 
   def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult] = {
 
-      def memoizedPrepared: Validation[P] = preparedCache
-        .getOrElseUpdate(preparer, preparer(response))
-        .asInstanceOf[Validation[P]]
+    def memoizedPrepared: Validation[P] = preparedCache
+      .getOrElseUpdate(preparer, preparer(response))
+      .asInstanceOf[Validation[P]]
 
     for {
       extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")

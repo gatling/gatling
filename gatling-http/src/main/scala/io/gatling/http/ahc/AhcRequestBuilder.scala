@@ -19,7 +19,7 @@ import org.asynchttpclient.RequestBuilderBase
 import org.asynchttpclient.uri.Uri
 
 class AhcRequestBuilder(method: String, disableUrlEncoding: Boolean)
-    extends RequestBuilderBase[AhcRequestBuilder](method, disableUrlEncoding, false) {
+  extends RequestBuilderBase[AhcRequestBuilder](method, disableUrlEncoding, false) {
 
   def getUri: Uri = uri
 }

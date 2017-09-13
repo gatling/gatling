@@ -38,12 +38,12 @@ object HttpTx extends NameGen with StrictLogging {
 
     val requestPart = request.config.httpComponents.httpProtocol.requestPart
 
-      def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
-        case Some(silentUri) => silentUri.matcher(request.ahcRequest.getUrl).matches
-        case None            => false
-      }
+    def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
+      case Some(silentUri) => silentUri.matcher(request.ahcRequest.getUrl).matches
+      case None            => false
+    }
 
-      def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
+    def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
 
     request.config.silent match {
       case None         => silentBecauseProtocolSilentURI || silentBecauseProtocolSilentResources

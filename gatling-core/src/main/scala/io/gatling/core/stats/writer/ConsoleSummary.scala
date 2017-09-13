@@ -47,44 +47,44 @@ object ConsoleSummary {
     time:                  Date                                 = new Date
   ) = {
 
-      def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
+    def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
-        import userCounters._
+      import userCounters._
 
-        val width = OutputLength - 6 // []3d%
+      val width = OutputLength - 6 // []3d%
 
-        val donePercent = floor(100 * doneCount.toDouble / userCount).toInt
-        val done = floor(width * doneCount.toDouble / userCount).toInt
-        val active = ceil(width * activeCount.toDouble / userCount).toInt
-        val waiting = width - done - active
+      val donePercent = floor(100 * doneCount.toDouble / userCount).toInt
+      val done = floor(width * doneCount.toDouble / userCount).toInt
+      val active = ceil(width * activeCount.toDouble / userCount).toInt
+      val waiting = width - done - active
 
-        fast"""${writeSubTitle(scenarioName)}
+      fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * active}${" " * waiting}]${donePercent.toString.leftPad(3)}%
           waiting: ${waitingCount.toString.rightPad(6)} / active: ${activeCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
-      }
+    }
 
-      def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
+    def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
 
-        import requestCounters._
-        val maxActionNameLength = OutputLength - 24
+      import requestCounters._
+      val maxActionNameLength = OutputLength - 24
 
-        fast"> ${actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
-      }
+      fast"> ${actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
+    }
 
-      def writeDetailedRequestsCounter: Fastring =
-        if (configuration.data.console.light)
-          EmptyFastring
-        else
-          requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
+    def writeDetailedRequestsCounter: Fastring =
+      if (configuration.data.console.light)
+        EmptyFastring
+      else
+        requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
 
-      def writeErrors: Fastring =
-        if (errorsCounters.nonEmpty) {
-          val errorsTotal = errorsCounters.values.sum
-          fast"""${writeSubTitle("Errors")}
+    def writeErrors: Fastring =
+      if (errorsCounters.nonEmpty) {
+        val errorsTotal = errorsCounters.values.sum
+        fast"""${writeSubTitle("Errors")}
 ${errorsCounters.toVector.sortBy(-_._2).map { case (message, count) => ConsoleErrorsWriter.writeError(ErrorStats(message, count, errorsTotal)) }.mkFastring(Eol)}
 """
-        } else
-          EmptyFastring
+      } else
+        EmptyFastring
 
     val text = fast"""
 $NewBlock

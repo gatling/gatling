@@ -35,10 +35,12 @@ class HttpProtocol extends Simulation {
     val scn = scenario("My Scenario")
       .exec(
         http("My Request")
-          .get("/my_path")) // Will actually make a request on "http://my.website.tld/my_path"
+          .get("/my_path")
+      ) // Will actually make a request on "http://my.website.tld/my_path"
       .exec(
         http("My Other Request")
-          .get("http://other.website.tld")) // Will make a request on "http://other.website.tld"
+          .get("http://other.website.tld")
+      ) // Will make a request on "http://other.website.tld"
 
     setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
     //#baseUrl
@@ -76,7 +78,7 @@ class HttpProtocol extends Simulation {
       //#headers
       .header("foo", "bar")
       .headers(Map("foo" -> "bar", "baz" -> "qix"))
-      //#headers
+    //#headers
   }
 
   {

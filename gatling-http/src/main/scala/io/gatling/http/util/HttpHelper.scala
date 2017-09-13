@@ -40,7 +40,7 @@ object HttpHelper extends StrictLogging {
   val RedirectStatusCodes = Vector(301, 302, 303, 307, 308)
 
   def parseFormBody(body: String): List[(String, String)] = {
-      def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
+    def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
 
     body
       .split("&")

@@ -43,9 +43,9 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 
 private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
-  /************************************/
+/************************************/
   /**           COMPONENTS           **/
-  /************************************/
+/************************************/
 
   /* Top panel components */
   private val modeSelector = new LabelledComboBox[RecorderMode](RecorderMode.AllModes)
@@ -109,9 +109,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
   private val start = Button("Start !")(reloadConfigurationAndStart())
 
-  /**********************************/
+/**********************************/
   /**           UI SETUP           **/
-  /**********************************/
+/**********************************/
 
   /* Frame setup */
   title = "Gatling Recorder - Configuration"
@@ -310,9 +310,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   registerValidators()
   populateItemsFromConfiguration()
 
-  /*****************************************/
+/*****************************************/
   /**           EVENTS HANDLING           **/
-  /*****************************************/
+/*****************************************/
 
   def toggleModeSelector(mode: RecorderMode): Unit = mode match {
     case Proxy =>
@@ -466,14 +466,14 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     Dialog.showMessage(
       title = "Download successful",
       message =
-      s"""|Gatling's CA certificate and key were successfully saved to
+        s"""|Gatling's CA certificate and key were successfully saved to
            |$directory .""".stripMargin
     )
   }
 
-  /****************************************/
+/****************************************/
   /**           CONFIGURATION            **/
-  /****************************************/
+/****************************************/
 
   /**
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
@@ -508,7 +508,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       outgoingProxyUsername.enabled = true
       outgoingProxyPassword.enabled = true
     }
-    configuration.core.pkg.trimToOption.map(simulationPackage.text = _)
+    configuration.core.pkg.trimToOption.map(simulationPackage.text= _)
     simulationClassName.text = configuration.core.className
     filterStrategies.selection.item = configuration.filters.filterStrategy
     followRedirects.selected = configuration.http.followRedirect

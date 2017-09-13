@@ -69,22 +69,22 @@ object WsActor {
 }
 
 class WsActor(
-  val wsName:               String,
-  val connectRequest:       Request,
-  val connectActionName:    String,
-  val connectCheckSequence: List[WsCheckSequence],
-  val onConnected:          Option[Action],
-  val statsEngine:          StatsEngine,
-  val httpEngine:           HttpEngine,
-  val httpProtocol:         HttpProtocol,
-  val configuration:        GatlingConfiguration
+    val wsName:               String,
+    val connectRequest:       Request,
+    val connectActionName:    String,
+    val connectCheckSequence: List[WsCheckSequence],
+    val onConnected:          Option[Action],
+    val statsEngine:          StatsEngine,
+    val httpEngine:           HttpEngine,
+    val httpProtocol:         HttpProtocol,
+    val configuration:        GatlingConfiguration
 ) extends WsActorFSM
-    with WhenInit
-    with WhenConnecting
-    with WhenPerformingCheck
-    with WhenIdle
-    with WhenClosing
-    with WhenCrashed {
+  with WhenInit
+  with WhenConnecting
+  with WhenPerformingCheck
+  with WhenIdle
+  with WhenClosing
+  with WhenCrashed {
 
   private var _timeoutId = 0L
   protected def scheduleTimeout(dur: FiniteDuration): Long = {

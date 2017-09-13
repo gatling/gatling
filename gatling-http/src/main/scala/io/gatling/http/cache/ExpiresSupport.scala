@@ -42,20 +42,20 @@ trait ExpiresSupport {
 
   def extractExpiresValue(timestring: String): Option[Long] = {
 
-      def removeQuote(s: String) =
-        if (!s.isEmpty) {
-          var start = 0
-          var end = s.length
+    def removeQuote(s: String) =
+      if (!s.isEmpty) {
+        var start = 0
+        var end = s.length
 
-          if (s.charAt(0) == '"')
-            start += 1
+        if (s.charAt(0) == '"')
+          start += 1
 
-          if (s.charAt(s.length() - 1) == '"')
-            end -= 1
+        if (s.charAt(s.length() - 1) == '"')
+          end -= 1
 
-          s.substring(start, end)
-        } else
-          s
+        s.substring(start, end)
+      } else
+        s
 
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
@@ -64,16 +64,16 @@ trait ExpiresSupport {
   }
 
   def getResponseExpires(response: Response): Option[Long] = {
-      def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
-      def cacheControlNoCache = response.header(HeaderNames.CacheControl)
-        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
-      def maxAgeAsExpiresValue = response.header(HeaderNames.CacheControl).flatMap(extractMaxAgeValue).map { maxAge =>
-        if (maxAge < 0)
-          maxAge
-        else
-          maxAge * 1000 + unpreciseNowMillis
-      }
-      def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > unpreciseNowMillis)
+    def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
+    def cacheControlNoCache = response.header(HeaderNames.CacheControl)
+      .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
+    def maxAgeAsExpiresValue = response.header(HeaderNames.CacheControl).flatMap(extractMaxAgeValue).map { maxAge =>
+      if (maxAge < 0)
+        maxAge
+      else
+        maxAge * 1000 + unpreciseNowMillis
+    }
+    def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > unpreciseNowMillis)
 
     if (pragmaNoCache || cacheControlNoCache) {
       None

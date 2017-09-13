@@ -45,11 +45,11 @@ object CookieJar {
   // rfc6265#section-5.2.4
   private def cookiePath(rawCookiePath: Option[String], requestPath: String) = {
 
-      // rfc6265#section-5.1.4
-      def defaultCookiePath() = requestPath match {
-        case p if !p.isEmpty && p.charAt(0) == '/' && p.count(_ == '/') > 1 => p.substring(0, p.lastIndexOf('/'))
-        case _ => "/"
-      }
+    // rfc6265#section-5.1.4
+    def defaultCookiePath() = requestPath match {
+      case p if !p.isEmpty && p.charAt(0) == '/' && p.count(_ == '/') > 1 => p.substring(0, p.lastIndexOf('/'))
+      case _ => "/"
+    }
 
     rawCookiePath match {
       case Some(path) if !path.isEmpty && path.charAt(0) == '/' => path
@@ -117,10 +117,10 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     if (store.isEmpty) {
       Nil
     } else {
-        def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
-          domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
-            pathsMatch(key.path, path) &&
-            !isSecuredUri.exists(secured => !secured && storedCookie.cookie.isSecure)
+      def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
+        domainsMatch(key.domain, domain, storedCookie.hostOnly) &&
+          pathsMatch(key.path, path) &&
+          !isSecuredUri.exists(secured => !secured && storedCookie.cookie.isSecure)
 
       val matchingCookies = store.filter {
         case (key, storedCookie) => isCookieMatching(key, storedCookie)

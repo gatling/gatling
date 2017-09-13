@@ -62,21 +62,21 @@ object Selection {
 
     private def singleSimulationFromConfig(simulationClasses: SimulationClasses, userDefinedSimulationClass: Option[String]): SelectedSimulationClass = {
 
-        def findUserDefinedSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
-          simulationClasses.find(_.getCanonicalName == className)
+      def findUserDefinedSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
+        simulationClasses.find(_.getCanonicalName == className)
 
-        def findUserDefinedSimulationInClassloader(className: String): SelectedSimulationClass =
-          Try(Class.forName(className)) match {
-            case Success(clazz) =>
-              if (classOf[Simulation].isAssignableFrom(clazz)) {
-                Some(clazz.asInstanceOf[Class[Simulation]])
-              } else {
-                throw new IllegalArgumentException(s"User defined Simulation class $className does not extend of Simulation")
-              }
+      def findUserDefinedSimulationInClassloader(className: String): SelectedSimulationClass =
+        Try(Class.forName(className)) match {
+          case Success(clazz) =>
+            if (classOf[Simulation].isAssignableFrom(clazz)) {
+              Some(clazz.asInstanceOf[Class[Simulation]])
+            } else {
+              throw new IllegalArgumentException(s"User defined Simulation class $className does not extend of Simulation")
+            }
 
-            case Failure(t) =>
-              throw new IllegalArgumentException(s"User defined Simulation class $className could not be loaded", t)
-          }
+          case Failure(t) =>
+            throw new IllegalArgumentException(s"User defined Simulation class $className could not be loaded", t)
+        }
 
       userDefinedSimulationClass.flatMap { userDefinedSimulationClassName =>
         findUserDefinedSimulationAmongstCompiledOnes(userDefinedSimulationClassName)
@@ -95,30 +95,30 @@ object Selection {
     private def interactiveSelect(simulationClasses: SimulationClasses): Class[Simulation] = {
       val validRange = simulationClasses.indices
 
-        @tailrec
-        def readSimulationNumber(attempts: Int = 0): Int = {
-          if (attempts > MaxReadSimulationNumberAttempts) {
-            println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
-            sys.exit()
-          } else {
-            println("Choose a simulation number:")
-            for ((simulation, index) <- simulationClasses.zipWithIndex) {
-              println(s"     [$index] ${simulation.getName}")
-            }
+      @tailrec
+      def readSimulationNumber(attempts: Int = 0): Int = {
+        if (attempts > MaxReadSimulationNumberAttempts) {
+          println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
+          sys.exit()
+        } else {
+          println("Choose a simulation number:")
+          for ((simulation, index) <- simulationClasses.zipWithIndex) {
+            println(s"     [$index] ${simulation.getName}")
+          }
 
-            Try(StdIn.readInt()) match {
-              case Success(number) =>
-                if (validRange contains number) number
-                else {
-                  println(s"Invalid selection, must be in $validRange")
-                  readSimulationNumber(attempts + 1)
-                }
-              case _ =>
-                println("Invalid characters, please provide a correct simulation number:")
+          Try(StdIn.readInt()) match {
+            case Success(number) =>
+              if (validRange contains number) number
+              else {
+                println(s"Invalid selection, must be in $validRange")
                 readSimulationNumber(attempts + 1)
-            }
+              }
+            case _ =>
+              println("Invalid characters, please provide a correct simulation number:")
+              readSimulationNumber(attempts + 1)
           }
         }
+      }
 
       if (simulationClasses.isEmpty) {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")

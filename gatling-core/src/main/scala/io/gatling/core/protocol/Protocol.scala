@@ -62,9 +62,9 @@ class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreCompon
 
   def components(key: ProtocolKey): key.Components = {
 
-      def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
-      def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
-      def comps = componentsFactory(protocol)
+    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
+    def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
+    def comps = componentsFactory(protocol)
 
     componentsCache.getOrElseUpdate(key, comps).asInstanceOf[key.Components]
   }

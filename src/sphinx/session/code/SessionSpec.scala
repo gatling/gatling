@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import io.gatling.core.session.{SessionAttribute, Session}
+import io.gatling.core.session.{ SessionAttribute, Session }
 
 class SessionSpec {
 

@@ -45,25 +45,25 @@ object ExtendedDnsNameResolver extends StrictLogging {
  * @param configuration the config
  */
 class ExtendedDnsNameResolver(val eventLoop: EventLoop, configuration: GatlingConfiguration)
-    extends DnsNameResolver(
-      eventLoop, // eventLoop
-      ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
-      NoopDnsCache.INSTANCE, // resolveCache
-      NoopDnsCache.INSTANCE, // authoritativeDnsServerCache
-      NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
-      configuration.http.dns.queryTimeout, // queryTimeoutMillis
-      null, // resolvedAddressTypes, defaults to DEFAULT_RESOLVE_ADDRESS_TYPES
-      true, // recursionDesired
-      configuration.http.dns.maxQueriesPerResolve, // maxQueriesPerResolve
-      ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
-      4096, // maxPayloadSize
-      true, // optResourceEnabled
-      HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
-      DnsServerAddressStreamProviders.platformDefault, // dnsServerAddressStreamProvider
-      null, // searchDomains
-      1, // ndots
-      true // decodeIdn
-    ) {
+  extends DnsNameResolver(
+    eventLoop, // eventLoop
+    ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
+    NoopDnsCache.INSTANCE, // resolveCache
+    NoopDnsCache.INSTANCE, // authoritativeDnsServerCache
+    NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
+    configuration.http.dns.queryTimeout, // queryTimeoutMillis
+    null, // resolvedAddressTypes, defaults to DEFAULT_RESOLVE_ADDRESS_TYPES
+    true, // recursionDesired
+    configuration.http.dns.maxQueriesPerResolve, // maxQueriesPerResolve
+    ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
+    4096, // maxPayloadSize
+    true, // optResourceEnabled
+    HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
+    DnsServerAddressStreamProviders.platformDefault, // dnsServerAddressStreamProvider
+    null, // searchDomains
+    1, // ndots
+    true // decodeIdn
+  ) {
   override def doResolveAll(inetHost: String, additionals: Array[DnsRecord], promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
     super.doResolveAll(inetHost, additionals, promise, resolveCache)
 }

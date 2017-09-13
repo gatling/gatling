@@ -26,7 +26,7 @@ import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 
 private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader)
-    extends ClassLoader(parent) {
+  extends ClassLoader(parent) {
 
   def classNameToPath(name: String): Path =
     if (name endsWith ".class") name

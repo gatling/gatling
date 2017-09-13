@@ -131,7 +131,7 @@ class HttpRequest {
     //#outgoing-proxy
     http("Getting issues")
       .get("https://github.com/gatling/gatling/issues")
-      .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername","myPassword"))
+      .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername", "myPassword"))
     //#outgoing-proxy
 
     //#virtual-host
@@ -174,7 +174,7 @@ class HttpRequest {
           .get("http://gatling.io/assets/images/img1.png")
           .notSilent
       )
-      //#notSilent
+    //#notSilent
 
     //#formParam
     http("My Form Data")
@@ -241,7 +241,7 @@ class HttpRequest {
       // myFileBody.json is a file that contains
       // { "myContent": "{myDynamicValue}" }
       .body(PebbleFileBody("myFileBody.json")).asJSON
-      //#PebbleBody
+    //#PebbleBody
 
     //#templates
     object Templates {
@@ -262,14 +262,15 @@ class HttpRequest {
     //#resp-processors-imports
 
     http("foo").get("bar")
-    //#response-processors
+      //#response-processors
 
-    // ignore when response isn't received (e.g. when connection refused)
-    .transformResponse { case response if response.isReceived =>
-      new ResponseWrapper(response) {
-        override val body = new ByteArrayResponseBody(Base64.decode(response.body.string), UTF_8)
+      // ignore when response isn't received (e.g. when connection refused)
+      .transformResponse {
+        case response if response.isReceived =>
+          new ResponseWrapper(response) {
+            override val body = new ByteArrayResponseBody(Base64.decode(response.body.string), UTF_8)
+          }
       }
-    }
     //#response-processors
   }
 

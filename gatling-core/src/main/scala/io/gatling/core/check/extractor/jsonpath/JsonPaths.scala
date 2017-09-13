@@ -23,10 +23,10 @@ import io.gatling.jsonpath.JsonPath
 class JsonPaths(implicit configuration: GatlingConfiguration) {
 
   private val jsonPathCache = {
-      def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
-        case Left(error) => error.reason.failure
-        case Right(path) => path.success
-      }
+    def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
+      case Left(error) => error.reason.failure
+      case Right(path) => path.success
+    }
 
     Cache.newConcurrentLoadingCache(configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
   }

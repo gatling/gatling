@@ -71,20 +71,20 @@ object BlockExit {
    */
   private def exitAsapLoop(session: Session): Option[BlockExit] = {
 
-      @tailrec
-      def exitAsapLoopRec(leftToRightBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
-        case Nil => None
+    @tailrec
+    def exitAsapLoopRec(leftToRightBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
+      case Nil => None
 
-        case head :: tail => head match {
+      case head :: tail => head match {
 
-          case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
-            val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
-            // block stack head is now the loop itself, we must exit it
-            Some(exit.copy(session = exit.session.exitLoop))
+        case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
+          val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
+          // block stack head is now the loop itself, we must exit it
+          Some(exit.copy(session = exit.session.exitLoop))
 
-          case _ => exitAsapLoopRec(tail)
-        }
+        case _ => exitAsapLoopRec(tail)
       }
+    }
 
     exitAsapLoopRec(session.blockStack.reverse)
   }
@@ -98,20 +98,20 @@ object BlockExit {
    */
   private def exitTryMax(session: Session): Option[BlockExit] = {
 
-      @tailrec
-      def exitTryMaxRec(stack: List[Block]): Option[BlockExit] = stack match {
-        case Nil => None
+    @tailrec
+    def exitTryMaxRec(stack: List[Block]): Option[BlockExit] = stack match {
+      case Nil => None
 
-        case head :: tail => head match {
+      case head :: tail => head match {
 
-          case TryMaxBlock(_, tryMaxActor, KO) =>
-            // block stack head is now the tryMax itself, leave as is
-            val exit = blockExit(session.blockStack, head, tryMaxActor, session, Nil)
-            Some(exit)
+        case TryMaxBlock(_, tryMaxActor, KO) =>
+          // block stack head is now the tryMax itself, leave as is
+          val exit = blockExit(session.blockStack, head, tryMaxActor, session, Nil)
+          Some(exit)
 
-          case _ => exitTryMaxRec(tail)
-        }
+        case _ => exitTryMaxRec(tail)
       }
+    }
 
     exitTryMaxRec(session.blockStack)
   }

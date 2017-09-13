@@ -55,7 +55,7 @@ class Pace(intervalExpr: Expression[Duration], counter: String, system: ActorSys
       val nextStartTime = startTime + interval.toMillis
       val waitTime = startTime - nowMillis
 
-        def doNext() = next ! session.set(counter, nextStartTime)
+      def doNext() = next ! session.set(counter, nextStartTime)
 
       if (waitTime > 0) {
         scheduler.scheduleOnce(waitTime milliseconds)(doNext())

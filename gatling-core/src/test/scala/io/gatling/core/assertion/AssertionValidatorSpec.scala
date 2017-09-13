@@ -49,23 +49,23 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     conditions: Conditions[T],
     stats:      Stats*
   ) = {
-      def mockAssertion(source: GeneralStatsSource) = when(source.assertions) thenReturn conditions.map(_(metric))
+    def mockAssertion(source: GeneralStatsSource) = when(source.assertions) thenReturn conditions.map(_(metric))
 
-      def mockStats(stat: Stats, source: GeneralStatsSource) = {
-        when(source.requestGeneralStats(stat.request, stat.group, stat.status)) thenReturn stat.generalStats
-        stat.group.foreach { group =>
-          when(source.groupCumulatedResponseTimeGeneralStats(group, stat.status)) thenReturn stat.generalStats
-        }
+    def mockStats(stat: Stats, source: GeneralStatsSource) = {
+      when(source.requestGeneralStats(stat.request, stat.group, stat.status)) thenReturn stat.generalStats
+      stat.group.foreach { group =>
+        when(source.groupCumulatedResponseTimeGeneralStats(group, stat.status)) thenReturn stat.generalStats
       }
+    }
 
-      def statsPaths = stats.map(stat => (stat.request, stat.group)).map {
-        case (Some(request), group) => RequestStatsPath(request, group)
-        case (None, Some(group))    => GroupStatsPath(group)
-        case _                      => throw new AssertionError("Can't have neither a request or group stats path")
-      }.toList
+    def statsPaths = stats.map(stat => (stat.request, stat.group)).map {
+      case (Some(request), group) => RequestStatsPath(request, group)
+      case (None, Some(group))    => GroupStatsPath(group)
+      case _                      => throw new AssertionError("Can't have neither a request or group stats path")
+    }.toList
 
-      def mockStatsPath(source: GeneralStatsSource) =
-        when(source.statsPaths) thenReturn statsPaths
+    def mockStatsPath(source: GeneralStatsSource) =
+      when(source.statsPaths) thenReturn statsPaths
 
     val mockedGeneralStatsSource = mock[GeneralStatsSource]
 

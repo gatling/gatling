@@ -52,14 +52,14 @@ import org.asynchttpclient.util.Base64
  * @param httpClientCodecFactory create new HttpClientCodecs
  */
 class SecuredWithProxyMitmActor(
-  serverChannel:          Channel,
-  clientBootstrap:        Bootstrap,
-  sslServerContext:       SslServerContext,
-  proxy:                  OutgoingProxy,
-  trafficLogger:          TrafficLogger,
-  httpClientCodecFactory: () => HttpClientCodec
+    serverChannel:          Channel,
+    clientBootstrap:        Bootstrap,
+    sslServerContext:       SslServerContext,
+    proxy:                  OutgoingProxy,
+    trafficLogger:          TrafficLogger,
+    httpClientCodecFactory: () => HttpClientCodec
 )
-    extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
+  extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
   private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))

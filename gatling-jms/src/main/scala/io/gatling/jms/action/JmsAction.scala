@@ -26,7 +26,7 @@ import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
 abstract class JmsAction(attributes: JmsAttributes, protocol: JmsProtocol, pool: JmsConnectionPool)
-    extends RequestAction with JmsLogging with NameGen {
+  extends RequestAction with JmsLogging with NameGen {
 
   override val requestName = attributes.requestName
 

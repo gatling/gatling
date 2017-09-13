@@ -34,11 +34,11 @@ object CssCheckBuilder {
 }
 
 class CssCheckBuilder[X: NodeConverter](
-  private[css] val expression:    Expression[String],
-  private[css] val nodeAttribute: Option[String],
-  private[css] val selectors:     CssSelectors
+    private[css] val expression:    Expression[String],
+    private[css] val nodeAttribute: Option[String],
+    private[css] val selectors:     CssSelectors
 )
-    extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X] {
+  extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X] {
 
   import CssExtractorFactory._
 

@@ -70,25 +70,25 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
 
   def openState(webSocket: WebSocket, tx: AsyncTx): Receive = {
 
-      def handleClose(status: Int, reason: String, time: Long): Unit = {
-        if (tx.protocol.wsPart.reconnect)
-          if (tx.protocol.wsPart.maxReconnects.exists(_ <= tx.reconnectCount))
-            handleCrash(s"Websocket '$wsName' was unexpectedly closed with status $status and message $reason and max reconnect was reached", time)
-          else
-            disconnectedState(status, reason, tx)
-
+    def handleClose(status: Int, reason: String, time: Long): Unit = {
+      if (tx.protocol.wsPart.reconnect)
+        if (tx.protocol.wsPart.maxReconnects.exists(_ <= tx.reconnectCount))
+          handleCrash(s"Websocket '$wsName' was unexpectedly closed with status $status and message $reason and max reconnect was reached", time)
         else
-          handleCrash(s"Websocket '$wsName' was unexpectedly closed with status $status and message $reason", time)
+          disconnectedState(status, reason, tx)
+
+      else
+        handleCrash(s"Websocket '$wsName' was unexpectedly closed with status $status and message $reason", time)
+    }
+
+    def handleCrash(message: String, time: Long): Unit = {
+
+      tx.check.foreach { check =>
+        logResponse(tx.session, tx.requestName, KO, tx.start, time, Some(message))
       }
 
-      def handleCrash(message: String, time: Long): Unit = {
-
-        tx.check.foreach { check =>
-          logResponse(tx.session, tx.requestName, KO, tx.start, time, Some(message))
-        }
-
-        context.become(crashedState(tx, message))
-      }
+      context.become(crashedState(tx, message))
+    }
 
     {
       case Send(requestName, message, check, next, session) =>
