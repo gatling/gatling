@@ -68,7 +68,6 @@ lazy val metrics = gatlingModule("gatling-metrics")
   .settings(libraryDependencies ++= metricsDependencies)
 
 lazy val compiler = gatlingModule("gatling-compiler")
-  .settings(scalaVersion := "2.10.6")
   .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
 
 lazy val benchmarks = gatlingModule("gatling-benchmarks")

@@ -50,9 +50,8 @@ set JAVA_OPTS=-server -XX:+OptimizeStringConcat %JAVA_OPTS%
 :skipServer
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
-set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\zinc\*;%GATLING_CONF%;
+set COMPILER_CLASSPATH="%GATLING_HOME%"\li\*;%GATLING_CONF%;
 set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%GATLING_CONF%;
-set COMPILATION_CLASSPATH="%GATLING_HOME%"\lib
 
 set JAVA=java
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
@@ -64,7 +63,7 @@ set JAVA="%JAVA_HOME%\bin\java.exe"
 :run
 echo JAVA = "%JAVA%"
 rem Run the compiler
-%JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
+%JAVA% %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %USER_ARGS%  2>NUL
 rem Run Gatling
 %JAVA% %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
 if %errorlevel% neq 0 exit /b %errorlevel%

@@ -40,11 +40,10 @@ DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Djava.n
 COMPILER_OPTS="-Xss100M $DEFAULT_JAVA_OPTS $JAVA_OPTS"
 
 # Setup classpaths
-COMPILER_CLASSPATH="$GATLING_HOME/lib/zinc/*:$GATLING_CONF:"
+COMPILER_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:"
 GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$GATLING_CONF:"
-COMPILATION_CLASSPATH="$GATLING_HOME/lib"
 
 # Run the compiler
-"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" "$@" 2> /dev/null
+"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler "$@" 2> /dev/null
 # Run Gatling
 "$JAVA" $DEFAULT_JAVA_OPTS $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling "$@"

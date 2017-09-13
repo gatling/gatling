@@ -18,151 +18,206 @@ package io.gatling.compiler
 import java.io.{ File => JFile }
 import java.net.{ URL, URLClassLoader }
 import java.nio.file.Files
+import java.util.Optional
 import java.util.jar.{ Attributes, Manifest => JManifest }
 
 import scala.collection.JavaConverters._
 import scala.reflect.io.Directory
-import scala.util.{ Failure, Try }
-
-import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
-import org.slf4j.LoggerFactory
-import xsbti.{ F0, Logger }
-import xsbti.api.Compilation
-import xsbti.compile.CompileOrder
 
 import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
-object ZincCompiler extends App {
+import org.slf4j.LoggerFactory
+import sbt.internal.inc.{ classpath, AnalysisStore => _, _ }
+import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
+import sbt.util.ShowLines._
+import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 
-  private val MisleadingWarningMessage = "Pruning sources from previous analysis, due to incompatible CompileSetup."
+import xsbti.Problem
 
-  private val configuration = CompilerConfiguration.configuration(args)
+object ZincCompiler extends App with ProblemStringFormats {
 
   private val logger = LoggerFactory.getLogger(getClass)
-  private val FoldersToCache = List("bin", "conf", "user-files")
-  private val compilerOptions = Seq(
-    "-encoding",
-    configuration.encoding,
-    "-target:jvm-1.8",
-    "-deprecation",
-    "-feature",
-    "-unchecked",
-    "-language:implicitConversions",
-    "-language:postfixOps"
-  )
 
-  Files.createDirectories(configuration.binariesDirectory)
+  private def manifestClasspath(): Array[JFile] = {
 
-  private val compilerClasspath = {
-    val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
-    val files = classLoader.getURLs.map(url => new JFile(url.toURI))
-
-    if (files.exists(_.getName.startsWith("gatlingbooter"))) {
-      // yippee, we've been started by the manifest-only jar,
-      // we have to add the manifest Class-Path entries
-
-      val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF").asScala
-        .map { url =>
-          val is = url.openStream()
-          try {
-            new JManifest(is)
-          } finally {
-            is.close()
-          }
+    val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF").asScala
+      .map { url =>
+        val is = url.openStream()
+        try {
+          new JManifest(is)
+        } finally {
+          is.close()
         }
-
-      val classPathEntries = manifests.collect {
-        case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)) == Some("io.gatling.mojo.MainWithArgsInFile") =>
-          manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(url => new JFile(new URL(url).toURI))
       }
 
-      files ++ classPathEntries.flatten
-
-    } else {
-      files
+    val classPathEntries = manifests.collect {
+      case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)) == Some("io.gatling.mojo.MainWithArgsInFile") =>
+        manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(url => new JFile(new URL(url).toURI))
     }
+
+    classPathEntries.flatten.toArray
   }
 
-  private def simulationInputs: Inputs = {
+  private def jarMatching(classpath: Seq[JFile], regex: String): JFile =
+    classpath
+      .find(file => !file.getName.startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined)
+      .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
-    val sources = Directory(configuration.simulationsDirectory.toString)
+  private def doCompile(): Unit = {
+    // FIXME will not work with Java 9, see https://blog.codefx.org/java/java-9-migration-guide/#Casting-To-URL-Class-Loader
+    val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
+    val configuration = CompilerConfiguration.configuration(args)
+    Files.createDirectories(configuration.binariesDirectory)
+
+    val classpath: Array[JFile] = {
+      val files = classLoader.getURLs.map(url => new JFile(url.toURI))
+
+      if (files.exists(_.getName.startsWith("gatlingbooter"))) {
+        // we've been started by the manifest-only jar,
+        // we have to switch the manifest Class-Path entries
+        manifestClasspath()
+      } else {
+        files
+      }
+    }
+
+    val scalaLibraryJar = jarMatching(classpath, """scala-library-.*\.jar$""")
+    val scalaReflectJar = jarMatching(classpath, """scala-reflect-.*\.jar$""")
+    val scalaCompilerJar = jarMatching(classpath, """scala-compiler-.*\.jar$""")
+    val allScalaJars = Array(scalaCompilerJar, scalaLibraryJar, scalaReflectJar)
+
+    val compilerBridgeJar = jarMatching(classpath, """compiler-bridge_.*\.jar$""")
+    val cacheFile = (GatlingHome / "target" / "inc_compile.zip").toFile
+
+    val scalaVersionExtractor = """scala-library-(.*)\.jar$""".r
+
+    val scalaVersion = scalaLibraryJar.getName match {
+      case scalaVersionExtractor(version) => version
+    }
+
+    val scalaInstance =
+      new ScalaInstance(
+        version = scalaVersion,
+        loader = new URLClassLoader(allScalaJars.map(_.toURI.toURL)),
+        libraryJar = scalaLibraryJar,
+        compilerJar = scalaCompilerJar,
+        allJars = allScalaJars,
+        explicitActual = Some(scalaVersion)
+      )
+
+    val sbtLogger = new SbtLogger {
+      override def trace(t: => Throwable): Unit = logger.debug(Option(t.getMessage).getOrElse("error"), t)
+
+      override def success(message: => String): Unit = logger.info(s"Success: $message")
+
+      override def log(level: Level.Value, message: => String): Unit =
+        level match {
+          case Level.Error => logger.error(message)
+          case Level.Warn  => logger.warn(message)
+          case Level.Info  => logger.info(message)
+          case Level.Debug => logger.debug(message)
+        }
+    }
+
+    val compiler = new IncrementalCompilerImpl
+
+    val scalaCompiler = new AnalyzingCompiler(
+      scalaInstance = scalaInstance,
+      provider = ZincCompilerUtil.constantBridgeProvider(scalaInstance, compilerBridgeJar),
+      classpathOptions = ClasspathOptionsUtil.auto,
+      onArgsHandler = _ => (),
+      classLoaderCache = None
+    )
+
+    val compilers = compiler.compilers(scalaInstance, ClasspathOptionsUtil.boot, None, scalaCompiler)
+
+    val lookup = new PerClasspathEntryLookup {
+      override def analysis(classpathEntry: JFile): Optional[CompileAnalysis] = Optional.empty[CompileAnalysis]
+
+      override def definesClass(classpathEntry: JFile): DefinesClass = Locate.definesClass(classpathEntry)
+    }
+
+    val maxErrors = 100
+
+    val reporter = new LoggedReporter(maxErrors, sbtLogger) {
+      override protected def logError(problem: Problem): Unit = logger.error(problem.lines.mkString("\n"))
+      override protected def logWarning(problem: Problem): Unit = logger.warn(problem.lines.mkString("\n"))
+      override protected def logInfo(problem: Problem): Unit = logger.info(problem.lines.mkString("\n"))
+    }
+
+    val progress = new CompileProgress {
+      override def advance(current: Int, total: Int): Boolean = true
+
+      override def startUnit(phase: String, unitPath: String): Unit = ()
+    }
+
+    val setup =
+      compiler.setup(
+        lookup = lookup,
+        skip = false,
+        cacheFile = cacheFile,
+        cache = CompilerCache.fresh,
+        incOptions = IncOptions.of(),
+        reporter = reporter,
+        optionProgress = Some(progress),
+        extra = Array.empty
+      )
+
+    // FIXME do we need Directory from scala-reflect??? Java should suffice!
+    val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString)
       .deepFiles
       .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
-      .toSeq
+      .toArray
 
-      def analysisCacheMapEntry(directoryName: String) =
-        (GatlingHome / directoryName).toFile -> (configuration.binariesDirectory / "cache" / directoryName).toFile
-
-    Inputs.inputs(
-      classpath = configuration.classpathElements,
+    val inputs = compiler.inputs(
+      classpath = classpath,
       sources = sources,
       classesDirectory = configuration.binariesDirectory.toFile,
-      scalacOptions = compilerOptions,
-      javacOptions = Nil,
-      analysisCache = Some((configuration.binariesDirectory / "zincCache").toFile),
-      analysisCacheMap = FoldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
-      forceClean = false,
-      javaOnly = false,
-      compileOrder = CompileOrder.Mixed,
-      incOptions = IncOptions(),
-      outputRelations = None,
-      outputProducts = None,
-      mirrorAnalysis = false
+      scalacOptions = Array(
+        "-encoding",
+        configuration.encoding,
+        "-target:jvm-1.8",
+        "-deprecation",
+        "-feature",
+        "-unchecked",
+        "-language:implicitConversions",
+        "-language:postfixOps"
+      ),
+      javacOptions = Array.empty,
+      maxErrors,
+      sourcePositionMappers = Array.empty,
+      order = CompileOrder.Mixed,
+      compilers,
+      setup,
+      compiler.emptyPreviousResult
     )
-  }
 
-  private def setupZincCompiler: Setup = {
-      def jarMatching(classpath: Seq[JFile], regex: String): JFile =
-        classpath
-          .find(file => !file.getName.startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined)
-          .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
+    val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
 
-    val scalaCompiler = jarMatching(configuration.classpathElements, """scala-compiler.*\.jar$""")
-    val scalaLibrary = jarMatching(configuration.classpathElements, """scala-library.*\.jar$""")
-    val scalaReflect = jarMatching(configuration.classpathElements, """scala-reflect.*\.jar$""")
-    val sbtInterfaceSrc = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
-    val compilerInterfaceSrc = jarMatching(compilerClasspath, """compiler-interface-.*-sources.jar$""")
+    val newInputs = {
+      InterfaceUtil.toOption(analysisStore.get()) match {
+        case Some(analysisContents) =>
+          val previousAnalysis = analysisContents.getAnalysis
+          val previousSetup = analysisContents.getMiniSetup
+          val previousResult = PreviousResult.of(Optional.of[CompileAnalysis](previousAnalysis), Optional.of[MiniSetup](previousSetup))
+          inputs.withPreviousResult(previousResult)
 
-    Setup.setup(
-      scalaCompiler = scalaCompiler,
-      scalaLibrary = scalaLibrary,
-      scalaExtra = List(scalaReflect),
-      sbtInterface = sbtInterfaceSrc,
-      compilerInterfaceSrc = compilerInterfaceSrc,
-      javaHomeDir = None,
-      forkJava = false
-    )
-  }
-
-  // Setup the compiler
-  private val setup = setupZincCompiler
-
-  private val zincLogger = new Logger {
-    def error(arg: F0[String]): Unit = logger.error(arg.apply)
-    def warn(arg: F0[String]): Unit = {
-      val message = arg.apply
-      if (message != MisleadingWarningMessage) {
-        logger.warn(arg.apply)
+        case _ =>
+          inputs
       }
     }
-    def info(arg: F0[String]): Unit = logger.info(arg.apply)
-    def debug(arg: F0[String]): Unit = logger.debug(arg.apply)
-    def trace(arg: F0[Throwable]): Unit = logger.trace("", arg.apply)
+
+    val newResult = compiler.compile(newInputs, sbtLogger)
+    analysisStore.set(AnalysisContents.create(newResult.analysis(), newResult.setup()))
   }
 
-  private val zincCompiler = Compiler.create(setup, zincLogger)
-
-  // Define the inputs
-  private val inputs = simulationInputs
-  Inputs.debug(inputs, zincLogger)
-
-  Try(zincCompiler.compile(inputs)(zincLogger)) match {
-    case Failure(t) =>
+  try {
+    doCompile()
+    logger.debug("Compilation successful")
+  } catch {
+    case t: Throwable =>
       logger.error("Compilation crashed", t)
       System.exit(1)
-    case _ =>
-      logger.debug("Compilation successful")
-    // Zinc is already logging all the issues, no need to deal with the exception.
   }
 }

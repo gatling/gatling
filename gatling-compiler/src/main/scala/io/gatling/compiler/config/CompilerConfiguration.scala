@@ -15,7 +15,6 @@
  */
 package io.gatling.compiler.config
 
-import java.io.File
 import java.nio.file._
 
 import scala.collection.JavaConverters._
@@ -28,8 +27,7 @@ import com.typesafe.config.ConfigFactory
 private[compiler] case class CompilerConfiguration(
   encoding:             String,
   simulationsDirectory: Path,
-  binariesDirectory:    Path,
-  classpathElements:    Seq[File]
+  binariesDirectory:    Path
 )
 
 private[compiler] object CompilerConfiguration {
@@ -66,14 +64,6 @@ private[compiler] object CompilerConfiguration {
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
         .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
 
-    val classpathElements = commandLineOverrides.classpathElements.split(File.pathSeparator).flatMap { fileName =>
-      new File(fileName) match {
-        case directory if directory.isDirectory => directory.listFiles
-        case file if file.exists => List(file)
-        case _ => Nil
-      }
-    }
-
-    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, classpathElements)
+    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory)
   }
 }

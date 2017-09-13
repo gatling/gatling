@@ -21,8 +21,7 @@ import io.gatling.compiler.config.cli.CommandLineConstants._
 
 private[config] case class CommandLineOverrides(
   simulationsDirectory: String = "",
-  binariesFolder:       String = "",
-  classpathElements:    String = ""
+  binariesFolder:       String = ""
 )
 
 private[config] class ArgsParser(args: Array[String]) {
@@ -42,9 +41,6 @@ private[config] class ArgsParser(args: Array[String]) {
 
     opt[String](BinariesFolder)
       .action { (binFolder, c) => c.copy(binariesFolder = binFolder) }
-
-    opt[String](CompilerClasspath)
-      .action { (classpath, c) => c.copy(classpathElements = classpath) }
   }
 
   def parseArguments =
