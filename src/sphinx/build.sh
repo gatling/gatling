@@ -3,7 +3,7 @@
 set -e
 set -x
 
-version=2.2
+version=2.3
 
 sphinx-build . ${version}
 rm -rf ../../../../site/wordpress/wp-includes/gatling/docs/${version}
