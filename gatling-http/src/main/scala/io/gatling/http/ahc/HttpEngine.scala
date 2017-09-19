@@ -25,12 +25,11 @@ import io.gatling.http.HeaderValues._
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.builder.Http
-import io.gatling.http.resolver.{ CacheOverrideNameResolver, ExtendedDnsNameResolver }
+import io.gatling.http.resolver.ExtendedDnsNameResolver
 import io.gatling.http.util.HttpTypeCaster
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.resolver.dns.DefaultDnsCache
 import org.asynchttpclient.{ AsyncHttpClient, RequestBuilder }
 
 object HttpEngine {
