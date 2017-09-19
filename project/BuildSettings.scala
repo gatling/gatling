@@ -14,7 +14,8 @@ object BuildSettings {
   lazy val basicSettings = Seq(
     license := ApacheV2,
     githubPath := "gatling/gatling",
-    projectDevelopers := developers
+    projectDevelopers := developers,
+    parallelExecution in Test := false
   // [fl]
   //
   //
