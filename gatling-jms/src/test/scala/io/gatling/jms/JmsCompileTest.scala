@@ -31,23 +31,23 @@ object IdentificationMatcher extends JmsMessageMatcher {
 
 class JmsCompileTest extends Simulation {
 
-  val jndiCf = jmsJndiConnectionFactory
-    .connectionFactoryName("FFMQConstants.JNDI_CONNECTION_FACTORY_NAME")
-    .url("tcp://localhost:10002")
-    .credentials("user", "secret")
-    .property("FFMQConstants.JNDI_ENV_CLIENT_ID", "testclient")
-    .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
+  // create JmsProtocol from standard ConnectionFactory
+  val jmsProtocolWithNativeConnectionFactory = jms
+    .connectionFactory(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"))
 
   // create JmsProtocol from JNDI based ConnectionFactory
-  val jmsProtocol = jms
-    .connectionFactory(jndiCf)
+  val jmsProtocolWithJndiConnectionFactory = jms
+    .connectionFactory(
+      jmsJndiConnectionFactory
+        .connectionFactoryName("ConnectionFactory")
+        .url("tcp://localhost:10002")
+        .credentials("user", "secret")
+        .property("FOO", "BAR")
+        .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
+    )
     .usePersistentDeliveryMode
     .replyTimeout(1000)
     .messageMatcher(IdentificationMatcher)
-
-  // create JmsProtocol from standard ConnectionFactory
-  val jmsProtocol2 = jms
-    .connectionFactory(null: ConnectionFactory)
 
   val scn = scenario("JMS DSL test")
     .repeat(1) {
@@ -138,7 +138,7 @@ class JmsCompileTest extends Simulation {
   }
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
-    .protocols(jmsProtocol)
+    .protocols(jmsProtocolWithNativeConnectionFactory)
 
   def checkBodyTextCorrect = simpleCheck {
     case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"

@@ -19,7 +19,6 @@ import javax.jms._
 //#imports
 
 //#example-simulation
-import net.timewalker.ffmq3.FFMQConstants
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import javax.jms._
@@ -27,11 +26,17 @@ import scala.concurrent.duration._
 
 class TestJmsDsl extends Simulation {
 
-  val connectionFactory = jmsJndiConnectionFactory
-    .connectionFactoryName(FFMQConstants.JNDI_CONNECTION_FACTORY_NAME)
-    .url("tcp://localhost:10002")
+  // create a ConnectionFactory for ActiveMQ
+  // search the documentation of your JMS broker
+  val connectionFactory =
+    new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616")
+
+  // alternatively, you can create a ConnectionFactory from a JNDI lookup
+  val jndiBasedConnectionFactory = jmsJndiConnectionFactory
+    .connectionFactoryName("ConnectionFactory")
+    .url("tcp://localhost:61616")
     .credentials("user", "secret")
-    .contextFactory(FFMQConstants.JNDI_CONTEXT_FACTORY)
+    .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
 
   val jmsConfig = jms
     .connectionFactory(connectionFactory)
