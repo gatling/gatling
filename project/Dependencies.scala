@@ -29,7 +29,7 @@ object Dependencies {
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.9.1"
   private val boopickle                     = "io.suzaku"                             %% "boopickle"                     % "1.2.6"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                   % "3.4"
-  private val zinc                          = ("org.scala-sbt"                         % "zinc_2.12"                     % "1.0.0")
+  private val zinc                          = ("org.scala-sbt"                         % "zinc_2.12"                     % "1.0.1")
     .exclude("org.scala-lang.modules", "scala-parser-combinators_2.12")
     .exclude("org.scala-lang.modules", "scala-xml_2.12")
     .exclude("org.scala-sbt", "launcher-interface")
