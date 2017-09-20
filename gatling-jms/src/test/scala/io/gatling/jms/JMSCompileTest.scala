@@ -32,44 +32,39 @@ object IdentificationMatcher extends JmsMessageMatcher {
 class JMSCompileTest extends Simulation {
 
   val jmsConfig = jms
-    .connectionFactoryName("FFMQConstants.JNDI_CONNECTION_FACTORY_NAME")
+    .connectionFactoryName("ConnectionFactory")
     .url("tcp://localhost:10002")
     .credentials("user", "secret")
-    .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
+    .contextFactory("org.apache.activemq.jndi.ActiveMQInitialContextFactory")
     .listenerCount(1)
     .usePersistentDeliveryMode
     .receiveTimeout(1000)
     .messageMatcher(IdentificationMatcher)
 
-  val scn = scenario("JMS DSL test").repeat(1) {
-    exec(jms("req reply testing").reqreply
-      .queue("jmstestq")
-      // -- four message types are supported; only StreamMessage is not currently supported
-      .textMessage("hello from gatling jms dsl")
-      .property("test_header", "test_value")
-      .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
+  val scn = scenario("JMS DSL test")
+    .repeat(1) {
+      exec(jms("req reply testing").reqreply
         .queue("jmstestq")
         .bytesMessage(new Array[Byte](1))
         .property("test_header", "test_value")
         .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
-        .queue("jmstestq")
-        .mapMessage(Map("foo" -> "bar"))
-        .property("test_header", "test_value")
-        .check(checkBodyTextCorrect))
-      .exec(jms("req reply testing").reqreply
-        .queue("jmstestq")
-        .objectMessage("hello!")
-        .property("test_header", "test_value")
-        .check(checkBodyTextCorrect))
-      .exec(jms("req reply - custom").reqreply
-        .queue("requestQueue")
-        .replyQueue("responseQueue")
-        .textMessage("hello from gatling jms dsl")
-        .property("identification", "${ID}")
-        .check(checkBodyTextCorrect))
-  }
+        .exec(jms("req reply testing").reqreply
+          .queue("jmstestq")
+          .mapMessage(Map("foo" -> "bar"))
+          .property("test_header", "test_value")
+          .check(checkBodyTextCorrect))
+        .exec(jms("req reply testing").reqreply
+          .queue("jmstestq")
+          .objectMessage("hello!")
+          .property("test_header", "test_value")
+          .check(checkBodyTextCorrect))
+        .exec(jms("req reply - custom").reqreply
+          .queue("requestQueue")
+          .replyQueue("responseQueue")
+          .textMessage("hello from gatling jms dsl")
+          .property("identification", "${ID}")
+          .check(checkBodyTextCorrect))
+    }
 
   val scnExtra = scenario("JMS DSL using destinations").repeat(1) {
     exec(jms("req reply testing").reqreply
