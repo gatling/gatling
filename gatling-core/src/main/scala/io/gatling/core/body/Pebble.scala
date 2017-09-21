@@ -32,7 +32,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 object Pebble extends StrictLogging {
 
-  private val Engine = new PebbleEngine.Builder().loader(new StringLoader).build
+  private val Engine = new PebbleEngine.Builder().autoEscaping(false).loader(new StringLoader).build
 
   private def matchMap(map: Map[String, Any]): JMap[String, AnyRef] = {
     val jMap: JMap[String, AnyRef] = new JHashMap(map.size)
