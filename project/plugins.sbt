@@ -2,7 +2,7 @@ resolvers += Resolver.url("gatling", url("http://dl.bintray.com/content/gatling/
 
 addSbtPlugin("io.gatling" % "gatling-build-plugin" % "2.0.6")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.6.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.8.0")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "0.8.2")
 
