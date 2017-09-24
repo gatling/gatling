@@ -17,6 +17,7 @@ package io.gatling.http.ahc
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
@@ -84,24 +85,24 @@ class HttpEngine(
 
       httpProtocol.warmUpUrl match {
         case Some(url) =>
-          val connectionTimeout: Int = 1000
           val requestBuilder = new RequestBuilder().setUrl(url)
             .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
             .setHeader(AcceptLanguage, "en-US,en;q=0.5")
             .setHeader(AcceptEncoding, "gzip")
             .setHeader(Connection, KeepAlive)
             .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-            .setRequestTimeout(connectionTimeout)
+            .setRequestTimeout(1000)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 
           try {
             ahcFactory.defaultAhc.executeRequest(requestBuilder.build).get
           } catch {
-            case NonFatal(e) => if (debugEnabled)
-              logger.debug(s"Couldn't execute warm up request $url", e)
-            else
-              logger.info(s"Couldn't execute warm up request $url after {} ms", connectionTimeout)
+            case NonFatal(e) =>
+              if (logger.underlying.isDebugEnabled)
+                logger.debug(s"Couldn't execute warm up request $url", e)
+              else
+                logger.info(s"Couldn't execute warm up request $url: ${e.rootMessage}")
           }
 
         case _ =>
