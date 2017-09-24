@@ -17,6 +17,7 @@ package io.gatling.http.ahc
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
@@ -92,7 +93,11 @@ class HttpEngine(
           try {
             ahcFactory.defaultAhc.executeRequest(requestBuilder.build).get
           } catch {
-            case NonFatal(e) => logger.info(s"Couldn't execute warm up request $url", e)
+            case NonFatal(e) =>
+              if (logger.underlying.isDebugEnabled)
+                logger.debug(s"Couldn't execute warm up request $url", e)
+              else
+                logger.info(s"Couldn't execute warm up request $url: ${e.detailedMessage}")
           }
 
         case _ =>
