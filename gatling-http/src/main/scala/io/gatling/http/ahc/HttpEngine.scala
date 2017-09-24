@@ -98,11 +98,10 @@ class HttpEngine(
           try {
             ahcFactory.defaultAhc.executeRequest(requestBuilder.build).get
           } catch {
-            case NonFatal(e) => if (debugEnabled) {
+            case NonFatal(e) => if (debugEnabled)
               logger.debug(s"Couldn't execute warm up request $url", e)
-            } else {
+            else
               logger.info(s"Couldn't execute warm up request $url after {} ms", connectionTimeout)
-            }
           }
 
         case _ =>
