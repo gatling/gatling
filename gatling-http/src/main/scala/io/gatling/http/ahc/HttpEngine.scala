@@ -27,6 +27,7 @@ import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.{ CacheOverrideNameResolver, ExtendedDnsNameResolver }
 import io.gatling.http.util.HttpTypeCaster
+import io.gatling.commons.util.Throwables._
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -82,14 +83,13 @@ class HttpEngine(
 
       httpProtocol.warmUpUrl match {
         case Some(url) =>
-          val connectionTimeout: Int = 1000
           val requestBuilder = new RequestBuilder().setUrl(url)
             .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
             .setHeader(AcceptLanguage, "en-US,en;q=0.5")
             .setHeader(AcceptEncoding, "gzip")
             .setHeader(Connection, KeepAlive)
             .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-            .setRequestTimeout(connectionTimeout)
+            .setRequestTimeout(1000)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 
@@ -99,7 +99,7 @@ class HttpEngine(
             case NonFatal(e) => if (debugEnabled)
               logger.debug(s"Couldn't execute warm up request $url", e)
             else
-              logger.info(s"Couldn't execute warm up request $url after {} ms", connectionTimeout)
+              logger.info(s"Couldn't execute warm up request $url: ${e.detailedMessage}")
           }
 
         case _ =>
