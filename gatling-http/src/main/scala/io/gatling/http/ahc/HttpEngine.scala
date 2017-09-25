@@ -74,8 +74,6 @@ class HttpEngine(
 
       import httpComponents._
 
-      val debugEnabled = logger.underlying.isDebugEnabled
-
       if (httpProtocol.enginePart.perUserNameResolution) {
         // eager load
         val _ = defaultDnsNameResolver
@@ -96,7 +94,7 @@ class HttpEngine(
           try {
             ahcFactory.defaultAhc.executeRequest(requestBuilder.build).get
           } catch {
-            case NonFatal(e) => if (debugEnabled)
+            case NonFatal(e) => if (logger.underlying.isDebugEnabled)
               logger.debug(s"Couldn't execute warm up request $url", e)
             else
               logger.info(s"Couldn't execute warm up request $url: ${e.detailedMessage}")
