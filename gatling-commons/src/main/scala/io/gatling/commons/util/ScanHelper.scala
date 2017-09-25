@@ -71,10 +71,10 @@ object ScanHelper {
 
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
 
-      def isResourceInRootDir(resource: Path, rootDir: Path): Boolean =
-        if (resource.extension.isEmpty) false
-        else if (deep) resource.startsWith(rootDir)
-        else resource.getParent == rootDir
+    def isResourceInRootDir(resource: Path, rootDir: Path): Boolean =
+      if (resource.extension.isEmpty) false
+      else if (deep) resource.startsWith(rootDir)
+      else resource.getParent == rootDir
 
     getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).asScala.flatMap { pkgURL =>
       pkgURL.getProtocol match {
@@ -99,11 +99,11 @@ object ScanHelper {
 
   def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path): Unit = {
 
-      def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
-        val pathString = path.segments.mkString(Separator)
-        val pkgString = pkg.segments.mkString(Separator)
-        segments2path(pathString.split(pkgString).last.split(Separator))
-      }
+    def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
+      val pathString = path.segments.mkString(Separator)
+      val pkgString = pkg.segments.mkString(Separator)
+      segments2path(pathString.split(pkgString).last.split(Separator))
+    }
 
     getPackageResources(pkg, deep = true).foreach { resource =>
       val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)

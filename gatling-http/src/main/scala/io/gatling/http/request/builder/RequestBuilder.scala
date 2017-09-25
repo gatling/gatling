@@ -30,16 +30,16 @@ import org.asynchttpclient.proxy._
 import org.asynchttpclient.uri.Uri
 
 case class CommonAttributes(
-  requestName:         Expression[String],
-  method:              String,
-  urlOrURI:            Either[Expression[String], Uri],
-  disableUrlEncoding:  Option[Boolean]                         = None,
-  queryParams:         List[HttpParam]                         = Nil,
-  headers:             Map[String, Expression[String]]         = Map.empty,
-  realm:               Option[Expression[Realm]]               = None,
-  virtualHost:         Option[Expression[String]]              = None,
-  proxy:               Option[ProxyServer]                     = None,
-  signatureCalculator: Option[Expression[SignatureCalculator]] = None
+    requestName:         Expression[String],
+    method:              String,
+    urlOrURI:            Either[Expression[String], Uri],
+    disableUrlEncoding:  Option[Boolean]                         = None,
+    queryParams:         List[HttpParam]                         = Nil,
+    headers:             Map[String, Expression[String]]         = Map.empty,
+    realm:               Option[Expression[Realm]]               = None,
+    virtualHost:         Option[Expression[String]]              = None,
+    proxy:               Option[ProxyServer]                     = None,
+    signatureCalculator: Option[Expression[SignatureCalculator]] = None
 )
 
 object RequestBuilder {

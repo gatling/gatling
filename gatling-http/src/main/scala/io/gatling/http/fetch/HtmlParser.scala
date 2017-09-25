@@ -121,81 +121,81 @@ class HtmlParser extends StrictLogging {
 
       override def tag(tag: Tag): Unit = {
 
-          def codeBase() = Option(tag.getAttributeValue(CodeBaseAttribute))
+        def codeBase() = Option(tag.getAttributeValue(CodeBaseAttribute))
 
-          def prependCodeBase(codeBase: CharSequence, url: String) =
-            if (url.startsWith("http"))
-              url
-            else if (codeBase.charAt(codeBase.length()) != '/')
-              codeBase + "/" + url
-            else
-              codeBase + url
+        def prependCodeBase(codeBase: CharSequence, url: String) =
+          if (url.startsWith("http"))
+            url
+          else if (codeBase.charAt(codeBase.length()) != '/')
+            codeBase + "/" + url
+          else
+            codeBase + url
 
-          def processTag(): Unit =
-            tag.getType match {
+        def processTag(): Unit =
+          tag.getType match {
 
-              case TagType.START | TagType.SELF_CLOSING =>
+            case TagType.START | TagType.SELF_CLOSING =>
 
-                if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
-                  inStyle = true
+              if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
+                inStyle = true
 
-                } else if (tag.nameEquals(BaseTagName)) {
-                  base = Option(tag.getAttributeValue(HrefAttribute)).map(_.toString)
+              } else if (tag.nameEquals(BaseTagName)) {
+                base = Option(tag.getAttributeValue(HrefAttribute)).map(_.toString)
 
-                } else if (tag.nameEquals(LinkTagName)) {
-                  Option(tag.getAttributeValue(RelAttribute)) match {
-                    case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) =>
-                      addResource(tag, HrefAttribute, CssRawResource)
-                    case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) || TagUtil.equalsToLowercase(rel, ShortcutIconAttributeName) =>
-                      addResource(tag, HrefAttribute, RegularRawResource)
-                    case None =>
-                      logger.error("Malformed HTML: <link> tag without rel attribute")
-                    case _ =>
-                  }
-
-                } else if (tag.nameEquals(ImgTagName) ||
-                  tag.nameEquals(BgsoundTagName) ||
-                  tag.nameEquals(EmbedTagName) ||
-                  tag.nameEquals(InputTagName)) {
-
-                  addResource(tag, SrcAttribute, RegularRawResource)
-
-                } else if (tag.nameEquals(BodyTagName)) {
-                  addResource(tag, BackgroundAttribute, RegularRawResource)
-
-                } else if (tag.nameEquals(AppletTagName)) {
-                  val code = tag.getAttributeValue(CodeAttribute).toString
-                  val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
-
-                  val appletResources = archives.getOrElse(List(code)).iterator
-                  val appletResourcesUrls = codeBase() match {
-                    case Some(cb) => appletResources.map(prependCodeBase(cb, _))
-                    case _        => appletResources
-                  }
-                  rawResources ++= appletResourcesUrls.map(RegularRawResource)
-
-                } else if (tag.nameEquals(ObjectTagName)) {
-                  Option(tag.getAttributeValue(DataAttribute)).foreach { data =>
-                    val objectResourceUrl = codeBase() match {
-                      case Some(cb) => prependCodeBase(cb, data.toString)
-                      case _        => data.toString
-                    }
-                    rawResources += RegularRawResource(objectResourceUrl)
-                  }
-
-                } else {
-                  Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
-                    val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
-                    rawResources ++= styleUrls
-                  }
+              } else if (tag.nameEquals(LinkTagName)) {
+                Option(tag.getAttributeValue(RelAttribute)) match {
+                  case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) =>
+                    addResource(tag, HrefAttribute, CssRawResource)
+                  case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) || TagUtil.equalsToLowercase(rel, ShortcutIconAttributeName) =>
+                    addResource(tag, HrefAttribute, RegularRawResource)
+                  case None =>
+                    logger.error("Malformed HTML: <link> tag without rel attribute")
+                  case _ =>
                 }
 
-              case TagType.END =>
-                if (inStyle && tag.nameEquals(StyleTagName))
-                  inStyle = false
+              } else if (tag.nameEquals(ImgTagName) ||
+                tag.nameEquals(BgsoundTagName) ||
+                tag.nameEquals(EmbedTagName) ||
+                tag.nameEquals(InputTagName)) {
 
-              case _ =>
-            }
+                addResource(tag, SrcAttribute, RegularRawResource)
+
+              } else if (tag.nameEquals(BodyTagName)) {
+                addResource(tag, BackgroundAttribute, RegularRawResource)
+
+              } else if (tag.nameEquals(AppletTagName)) {
+                val code = tag.getAttributeValue(CodeAttribute).toString
+                val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
+
+                val appletResources = archives.getOrElse(List(code)).iterator
+                val appletResourcesUrls = codeBase() match {
+                  case Some(cb) => appletResources.map(prependCodeBase(cb, _))
+                  case _        => appletResources
+                }
+                rawResources ++= appletResourcesUrls.map(RegularRawResource)
+
+              } else if (tag.nameEquals(ObjectTagName)) {
+                Option(tag.getAttributeValue(DataAttribute)).foreach { data =>
+                  val objectResourceUrl = codeBase() match {
+                    case Some(cb) => prependCodeBase(cb, data.toString)
+                    case _        => data.toString
+                  }
+                  rawResources += RegularRawResource(objectResourceUrl)
+                }
+
+              } else {
+                Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
+                  val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
+                  rawResources ++= styleUrls
+                }
+              }
+
+            case TagType.END =>
+              if (inStyle && tag.nameEquals(StyleTagName))
+                inStyle = false
+
+            case _ =>
+          }
 
         if (!isInHiddenComment)
           processTag()

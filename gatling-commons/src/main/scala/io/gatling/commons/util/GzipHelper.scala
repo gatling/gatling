@@ -73,7 +73,7 @@ object ReusableGzipOutputStream {
 }
 
 class ReusableGzipOutputStream(val os: SettableOutputStream)
-    extends DeflaterOutputStream(os, new Deflater(Deflater.DEFAULT_COMPRESSION, true)) {
+  extends DeflaterOutputStream(os, new Deflater(Deflater.DEFAULT_COMPRESSION, true)) {
 
   import ReusableGzipOutputStream._
 

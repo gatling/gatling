@@ -123,14 +123,14 @@ case class Session(
 
   def groupHierarchy: List[String] = {
 
-      @tailrec
-      def gh(blocks: List[Block]): List[String] = blocks match {
-        case Nil => Nil
-        case head :: tail => head match {
-          case g: GroupBlock => g.hierarchy
-          case _             => gh(tail)
-        }
+    @tailrec
+    def gh(blocks: List[Block]): List[String] = blocks match {
+      case Nil => Nil
+      case head :: tail => head match {
+        case g: GroupBlock => g.hierarchy
+        case _             => gh(tail)
       }
+    }
 
     gh(blockStack)
   }
@@ -156,18 +156,18 @@ case class Session(
 
   private def updateStatus(newStatus: Status): Session = {
 
-      def isInTryMax = blockStack.exists(_.isInstanceOf[TryMaxBlock])
+    def isInTryMax = blockStack.exists(_.isInstanceOf[TryMaxBlock])
 
-      def changeFirstTryMaxStatus(oldStatus: Status, newStatus: Status): List[Block] = {
-        var first = true
-        blockStack.map {
-          case tryMax: TryMaxBlock if first =>
-            first = false
-            if (tryMax.status == oldStatus) tryMax.copy(status = newStatus)
-            else tryMax
-          case b => b
-        }
+    def changeFirstTryMaxStatus(oldStatus: Status, newStatus: Status): List[Block] = {
+      var first = true
+      blockStack.map {
+        case tryMax: TryMaxBlock if first =>
+          first = false
+          if (tryMax.status == oldStatus) tryMax.copy(status = newStatus)
+          else tryMax
+        case b => b
       }
+    }
 
     val oldStatus = if (newStatus == OK) KO else OK
 

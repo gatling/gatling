@@ -89,8 +89,8 @@ object ZincCompiler extends App {
       .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
       .toSeq
 
-      def analysisCacheMapEntry(directoryName: String) =
-        (GatlingHome / directoryName).toFile -> (configuration.binariesDirectory / "cache" / directoryName).toFile
+    def analysisCacheMapEntry(directoryName: String) =
+      (GatlingHome / directoryName).toFile -> (configuration.binariesDirectory / "cache" / directoryName).toFile
 
     Inputs.inputs(
       classpath = configuration.classpathElements,
@@ -111,10 +111,10 @@ object ZincCompiler extends App {
   }
 
   private def setupZincCompiler: Setup = {
-      def jarMatching(classpath: Seq[JFile], regex: String): JFile =
-        classpath
-          .find(file => !file.getName.startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined)
-          .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
+    def jarMatching(classpath: Seq[JFile], regex: String): JFile =
+      classpath
+        .find(file => !file.getName.startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined)
+        .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
     val scalaCompiler = jarMatching(configuration.classpathElements, """scala-compiler.*\.jar$""")
     val scalaLibrary = jarMatching(configuration.classpathElements, """scala-library.*\.jar$""")

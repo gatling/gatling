@@ -29,14 +29,14 @@ import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 
 trait CoreDsl extends StructureSupport
-    with PauseSupport
-    with CheckSupport
-    with FeederSupport
-    with InjectionSupport
-    with ThrottlingSupport
-    with AssertionSupport
-    with CoreDefaultImplicits
-    with ValidationImplicits {
+  with PauseSupport
+  with CheckSupport
+  with FeederSupport
+  with InjectionSupport
+  with ThrottlingSupport
+  with AssertionSupport
+  with CoreDefaultImplicits
+  with ValidationImplicits {
 
   def gzipBody(implicit configuration: GatlingConfiguration) = BodyProcessors.gzip
   def streamBody(implicit configuration: GatlingConfiguration) = BodyProcessors.stream
@@ -62,9 +62,9 @@ trait CoreDsl extends StructureSupport
 
   def InputStreamBody = io.gatling.core.body.InputStreamBody
 
-  /***********************************/
+/***********************************/
   /** Duration implicit conversions **/
-  /***********************************/
+/***********************************/
 
   implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
 

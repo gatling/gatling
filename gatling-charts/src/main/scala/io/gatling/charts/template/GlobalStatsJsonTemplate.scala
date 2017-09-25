@@ -25,13 +25,13 @@ private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boo
 
   def getOutput: Fastring = {
 
-      def style[T: Numeric](value: T) =
-        if (raw) {
-          // raw mode is used for JSON extract, non-raw for displaying in the reports
-          if (value == GeneralStats.NoPlotMagicValue) "0"
-          else value.toString
-        } else
-          s""""${printable(value)}""""
+    def style[T: Numeric](value: T) =
+      if (raw) {
+        // raw mode is used for JSON extract, non-raw for displaying in the reports
+        if (value == GeneralStats.NoPlotMagicValue) "0"
+        else value.toString
+      } else
+        s""""${printable(value)}""""
 
     fast"""{
     "name": "${stats.name}",

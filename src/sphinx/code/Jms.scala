@@ -41,8 +41,7 @@ class TestJmsDsl extends Simulation {
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
       .jmsType("test_jms_type")
-      .check(simpleCheck(checkBodyTextCorrect))
-    )
+      .check(simpleCheck(checkBodyTextCorrect)))
   }
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
@@ -52,7 +51,7 @@ class TestJmsDsl extends Simulation {
     // this assumes that the service just does an "uppercase" transform on the text
     m match {
       case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"
-      case _ => false
+      case _               => false
     }
   }
 }

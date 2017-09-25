@@ -141,8 +141,8 @@ object AssertionValidator {
 
     val printableCondition = assertion.condition.printable
 
-      def assertionResult(result: Boolean, expectedValueMessage: Any) =
-        AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", Some(actualValue))
+    def assertionResult(result: Boolean, expectedValueMessage: Any) =
+      AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", Some(actualValue))
 
     assertion.condition match {
       case Lt(upper)                    => assertionResult(actualValue < upper, upper)

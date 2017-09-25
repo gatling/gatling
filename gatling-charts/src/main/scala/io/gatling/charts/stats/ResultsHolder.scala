@@ -19,17 +19,17 @@ import io.gatling.charts.stats.buffers._
 import io.gatling.core.config.GatlingConfiguration
 
 private[stats] class ResultsHolder(val minTimestamp: Long, val maxTimestamp: Long, val buckets: Array[Int])(implicit configuration: GatlingConfiguration)
-    extends GeneralStatsBuffers(math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt)
-    with Buckets
-    with RunTimes
-    with NamesBuffers
-    with RequestsPerSecBuffers
-    with ResponseTimeRangeBuffers
-    with SessionDeltaPerSecBuffers
-    with ResponsesPerSecBuffers
-    with ErrorsBuffers
-    with RequestPercentilesBuffers
-    with GroupPercentilesBuffers {
+  extends GeneralStatsBuffers(math.ceil((maxTimestamp - minTimestamp) / 1000.0).toInt)
+  with Buckets
+  with RunTimes
+  with NamesBuffers
+  with RequestsPerSecBuffers
+  with ResponseTimeRangeBuffers
+  with SessionDeltaPerSecBuffers
+  with ResponsesPerSecBuffers
+  with ErrorsBuffers
+  with RequestPercentilesBuffers
+  with GroupPercentilesBuffers {
 
   def addUserRecord(record: UserRecord): Unit = {
     addSessionBuffers(record)

@@ -58,9 +58,9 @@ private[recorder] object HarReader {
   }
 
   private def createRequestWithArrivalTime(entry: Entry): TimedScenarioElement[RequestElement] = {
-      def buildContent(postParams: Seq[PostParam]): RequestBody =
-        RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
-      def decode(s: String): String = URLDecoder.decode(s, UTF8.name)
+    def buildContent(postParams: Seq[PostParam]): RequestBody =
+      RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
+    def decode(s: String): String = URLDecoder.decode(s, UTF8.name)
 
     val uri = entry.request.url
     val method = entry.request.method

@@ -30,20 +30,20 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) {
   val charset = configuration.core.charset
 
   private val elFileBodyStringCache: LoadingCache[String, Validation[Expression[String]]] = {
-      def compileFile(path: String): Validation[Expression[String]] =
-        Resource.body(path).map { resource =>
-          withCloseable(resource.inputStream) {
-            _.toString(charset)
-          }
-        }.map(_.el[String])
+    def compileFile(path: String): Validation[Expression[String]] =
+      Resource.body(path).map { resource =>
+        withCloseable(resource.inputStream) {
+          _.toString(charset)
+        }
+      }.map(_.el[String])
 
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
   }
   private val elFileBodyBytesCache: LoadingCache[String, Validation[Expression[Seq[Array[Byte]]]]] = {
-      def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
-        Resource.body(path).map { resource =>
-          ElCompiler.compile2BytesSeq(resource.string(charset), charset)
-        }
+    def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
+      Resource.body(path).map { resource =>
+        ElCompiler.compile2BytesSeq(resource.string(charset), charset)
+      }
 
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
   }

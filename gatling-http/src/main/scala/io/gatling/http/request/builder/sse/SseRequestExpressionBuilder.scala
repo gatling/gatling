@@ -25,7 +25,7 @@ import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuil
 import org.asynchttpclient.uri.Uri
 
 class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-    extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
     // disable request timeout for SSE

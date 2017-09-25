@@ -23,11 +23,11 @@ import com.typesafe.scalalogging.LazyLogging
 import org.asynchttpclient.ws._
 
 class WsListener(tx: AsyncTx, wsActor: ActorRef)
-    extends WebSocketTextListener
-    with WebSocketByteListener
-    with WebSocketCloseCodeReasonListener
-    with WebSocketPingListener
-    with LazyLogging {
+  extends WebSocketTextListener
+  with WebSocketByteListener
+  with WebSocketCloseCodeReasonListener
+  with WebSocketPingListener
+  with LazyLogging {
 
   private var state: WsListenerState = Opening
   private var webSocket: WebSocket = _

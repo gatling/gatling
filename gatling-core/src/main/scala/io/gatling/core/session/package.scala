@@ -60,18 +60,18 @@ package object session {
 
   def resolveIterable[X](iterable: Iterable[(String, Expression[X])]): Expression[Seq[(String, X)]] = {
 
-      @tailrec
-      def resolveRec(session: Session, entries: Iterator[(String, Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] = {
-        if (entries.isEmpty)
-          acc.reverse.success
-        else {
-          val (key, elValue) = entries.next()
-          elValue(session) match {
-            case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
-            case failure: Failure => failure
-          }
+    @tailrec
+    def resolveRec(session: Session, entries: Iterator[(String, Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] = {
+      if (entries.isEmpty)
+        acc.reverse.success
+      else {
+        val (key, elValue) = entries.next()
+        elValue(session) match {
+          case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
+          case failure: Failure => failure
         }
       }
+    }
 
     (session: Session) => resolveRec(session, iterable.iterator, Nil)
   }

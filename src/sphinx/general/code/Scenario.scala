@@ -90,9 +90,9 @@ class Scenario {
   //#repeat-example
 
   //#repeat-variants
-  repeat(20) {myChain}     // will loop on myChain 20 times
-  repeat("${myKey}") {myChain}    // will loop on myChain (Int value of the Session attribute myKey) times
-  repeat(session => session("foo").as[Int] /* or anything that returns an Int*/) {myChain}
+  repeat(20) { myChain } // will loop on myChain 20 times
+  repeat("${myKey}") { myChain } // will loop on myChain (Int value of the Session attribute myKey) times
+  repeat(session => session("foo").as[Int] /* or anything that returns an Int*/ ) { myChain }
   //#repeat-variants
 
   //#foreach
@@ -165,19 +165,19 @@ class Scenario {
   val percentage1, percentage2 = .50
 
   //#doSwitch
-  doSwitch("${myKey}") ( // beware: use parentheses, not curly braces!
+  doSwitch("${myKey}")( // beware: use parentheses, not curly braces!
     key1 -> chain1,
-    key1-> chain2
+    key1 -> chain2
   )
   //#doSwitch
 
   //#doSwitchOrElse
-  doSwitchOrElse("${myKey}") ( // beware: use parentheses, not curly braces!
+  doSwitchOrElse("${myKey}")( // beware: use parentheses, not curly braces!
     key1 -> chain1,
-    key1-> chain2
-  ) (
-    myFallbackChain
-  )
+    key1 -> chain2
+  )(
+      myFallbackChain
+    )
   //#doSwitchOrElse
 
   //#randomSwitch
@@ -192,8 +192,8 @@ class Scenario {
     percentage1 -> chain1,
     percentage2 -> chain2
   ) {
-    myFallbackChain
-  }
+      myFallbackChain
+    }
   //#randomSwitchOrElse
 
   //#uniformRandomSwitch

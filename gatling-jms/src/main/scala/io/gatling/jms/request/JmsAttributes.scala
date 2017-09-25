@@ -28,11 +28,11 @@ import io.gatling.jms.JmsCheck
  * @author jasonk@bluedevel.com
  */
 case class JmsAttributes(
-  requestName:       String,
-  destination:       JmsDestination,
-  selector:          Option[String],
-  message:           JmsMessage,
-  messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
-  jmsType:           Option[Expression[String]]               = None,
-  checks:            List[JmsCheck]                           = Nil
+    requestName:       String,
+    destination:       JmsDestination,
+    selector:          Option[String],
+    message:           JmsMessage,
+    messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
+    jmsType:           Option[Expression[String]]               = None,
+    checks:            List[JmsCheck]                           = Nil
 )

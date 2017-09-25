@@ -25,11 +25,11 @@ trait FindCheckBuilder[C <: Check[R], R, P, X] {
 }
 
 class DefaultFindCheckBuilder[C <: Check[R], R, P, X](
-  extender:  Extender[C, R],
-  preparer:  Preparer[R, P],
-  extractor: Expression[Extractor[P, X]]
+    extender:  Extender[C, R],
+    preparer:  Preparer[R, P],
+    extractor: Expression[Extractor[P, X]]
 )
-    extends FindCheckBuilder[C, R, P, X] {
+  extends FindCheckBuilder[C, R, P, X] {
 
   def find: ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(extender, preparer, extractor)
 }
@@ -44,10 +44,10 @@ trait MultipleFindCheckBuilder[C <: Check[R], R, P, X] extends FindCheckBuilder[
 }
 
 abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](
-  extender: Extender[C, R],
-  preparer: Preparer[R, P]
+    extender: Extender[C, R],
+    preparer: Preparer[R, P]
 )
-    extends MultipleFindCheckBuilder[C, R, P, X] {
+  extends MultipleFindCheckBuilder[C, R, P, X] {
 
   def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
 

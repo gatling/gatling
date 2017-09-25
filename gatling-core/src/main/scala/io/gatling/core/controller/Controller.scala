@@ -39,7 +39,7 @@ object Controller {
 }
 
 class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
-    extends ControllerFSM {
+  extends ControllerFSM {
 
   import ControllerState._
   import ControllerData._

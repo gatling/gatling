@@ -38,13 +38,13 @@ class Saxon(implicit configuration: GatlingConfiguration) {
 
   private val expressionToExecutableByNamespacesCache: LoadingCache[List[(String, String)], JFunction[String, XPathExecutable]] = {
 
-      def computer(namespaces: List[(String, String)]): JFunction[String, XPathExecutable] = {
-        val compiler = processor.newXPathCompiler
-        for {
-          (prefix, uri) <- namespaces
-        } compiler.declareNamespace(prefix, uri)
-        (compiler.compile _).asJava
-      }
+    def computer(namespaces: List[(String, String)]): JFunction[String, XPathExecutable] = {
+      val compiler = processor.newXPathCompiler
+      for {
+        (prefix, uri) <- namespaces
+      } compiler.declareNamespace(prefix, uri)
+      (compiler.compile _).asJava
+    }
 
     Cache.newConcurrentLoadingCache(configuration.core.extract.xpath.cacheMaxCapacity, computer)
   }

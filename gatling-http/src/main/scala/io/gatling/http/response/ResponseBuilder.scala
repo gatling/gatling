@@ -165,7 +165,7 @@ class ResponseBuilder(
   def build: Response = {
 
     // time measurement is imprecise due to multi-core nature
-    // moreover, ProgressListener might be called AFTER ChannelHandler methods 
+    // moreover, ProgressListener might be called AFTER ChannelHandler methods
     // ensure response doesn't end before starting
     endTimestamp = max(endTimestamp, startTimestamp)
 

@@ -56,7 +56,7 @@ object Json {
   private def writeArray(iterable: Traversable[_]) = fast"[${iterable.map(elem => fastringify(elem, false)).mkFastring(",")}]"
 
   private def writeMap(map: collection.Map[_, _]) = {
-      def serializeEntry(key: String, value: Any) = fast""""$key":${fastringify(value, false)}"""
+    def serializeEntry(key: String, value: Any) = fast""""$key":${fastringify(value, false)}"""
     fast"{${map.map { case (key, value) => serializeEntry(key.toString, value) }.mkFastring(",")}}"
   }
 }

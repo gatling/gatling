@@ -23,10 +23,10 @@ import akka.testkit.{ TestKit, ImplicitSender }
 import org.scalatest.BeforeAndAfterAll
 
 abstract class AkkaSpec
-    extends TestKit(ActorSystem())
-    with BaseSpec
-    with ImplicitSender
-    with BeforeAndAfterAll {
+  extends TestKit(ActorSystem())
+  with BaseSpec
+  with ImplicitSender
+  with BeforeAndAfterAll {
 
   override def afterAll() = {
     val whenTerminated = system.terminate()

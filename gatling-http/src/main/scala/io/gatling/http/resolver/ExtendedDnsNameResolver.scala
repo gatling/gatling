@@ -45,24 +45,24 @@ object ExtendedDnsNameResolver extends StrictLogging {
  * @param configuration the config
  */
 class ExtendedDnsNameResolver(eventLoop: EventLoop, configuration: GatlingConfiguration)
-    extends DnsNameResolver(
-      eventLoop,
-      ExtendedDnsNameResolver.NioDatagramChannelFactory,
-      DnsServerAddresses.defaultAddresses(),
-      NoopDnsCache.INSTANCE,
-      NoopDnsCache.INSTANCE,
-      configuration.http.dns.queryTimeout,
-      NettyDnsConstants.DefaultResolveAddressTypes,
-      false, // recursionDesired
-      configuration.http.dns.maxQueriesPerResolve,
-      ExtendedDnsNameResolver.DebugEnabled,
-      4096,
-      true,
-      HostsFileEntriesResolver.DEFAULT,
-      NettyDnsConstants.DefaultSearchDomain,
-      1, // ndots
-      true // decodeIdn
-    ) {
+  extends DnsNameResolver(
+    eventLoop,
+    ExtendedDnsNameResolver.NioDatagramChannelFactory,
+    DnsServerAddresses.defaultAddresses(),
+    NoopDnsCache.INSTANCE,
+    NoopDnsCache.INSTANCE,
+    configuration.http.dns.queryTimeout,
+    NettyDnsConstants.DefaultResolveAddressTypes,
+    false, // recursionDesired
+    configuration.http.dns.maxQueriesPerResolve,
+    ExtendedDnsNameResolver.DebugEnabled,
+    4096,
+    true,
+    HostsFileEntriesResolver.DEFAULT,
+    NettyDnsConstants.DefaultSearchDomain,
+    1, // ndots
+    true // decodeIdn
+  ) {
 
   override def doResolve(inetHost: String, additionals: Array[DnsRecord], promise: Promise[InetAddress], resolveCache: DnsCache): Unit =
     super.doResolve(inetHost, additionals, promise, resolveCache)

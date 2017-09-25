@@ -82,21 +82,21 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
   ): Unit =
     if (!tx.silent) {
       val fullRequestName = tx.fullRequestName
-        def dump = {
-          // hack: pre-cache url because it would reset the StringBuilder
-          tx.request.ahcRequest.getUrl
-          val buff = stringBuilder
-          buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
-          buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
-          buff.append("=========================").append(Eol)
-          buff.append("Session:").append(Eol).append(tx.session).append(Eol)
-          buff.append("=========================").append(Eol)
-          buff.append("HTTP request:").append(Eol).appendRequest(tx.request.ahcRequest, response.nettyRequest, configuration.core.charset)
-          buff.append("=========================").append(Eol)
-          buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
-          buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
-          buff.toString
-        }
+      def dump = {
+        // hack: pre-cache url because it would reset the StringBuilder
+        tx.request.ahcRequest.getUrl
+        val buff = stringBuilder
+        buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
+        buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
+        buff.append("=========================").append(Eol)
+        buff.append("Session:").append(Eol).append(tx.session).append(Eol)
+        buff.append("=========================").append(Eol)
+        buff.append("HTTP request:").append(Eol).appendRequest(tx.request.ahcRequest, response.nettyRequest, configuration.core.charset)
+        buff.append("=========================").append(Eol)
+        buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
+        buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
+        buff.toString
+      }
 
       if (status == KO) {
         logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
@@ -194,111 +194,111 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
     import tx.request.config.httpComponents._
 
-      def redirectRequest(statusCode: Int, redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
-        val originalRequest = tx.request.ahcRequest
-        val originalMethod = originalRequest.getMethod
+    def redirectRequest(statusCode: Int, redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
+      val originalRequest = tx.request.ahcRequest
+      val originalMethod = originalRequest.getMethod
 
-        val switchToGet = originalMethod != GET && (statusCode == MOVED_PERMANENTLY_301 || statusCode == SEE_OTHER_303 || (statusCode == FOUND_302 && !httpProtocol.responsePart.strict302Handling))
-        val keepBody = statusCode == TEMPORARY_REDIRECT_307 || (statusCode == FOUND_302 && httpProtocol.responsePart.strict302Handling)
+      val switchToGet = originalMethod != GET && (statusCode == MOVED_PERMANENTLY_301 || statusCode == SEE_OTHER_303 || (statusCode == FOUND_302 && !httpProtocol.responsePart.strict302Handling))
+      val keepBody = statusCode == TEMPORARY_REDIRECT_307 || (statusCode == FOUND_302 && httpProtocol.responsePart.strict302Handling)
 
-        val newHeaders = originalRequest.getHeaders
-          .remove(HeaderNames.Host)
-          .remove(HeaderNames.ContentLength)
-          .remove(HeaderNames.Cookie)
+      val newHeaders = originalRequest.getHeaders
+        .remove(HeaderNames.Host)
+        .remove(HeaderNames.ContentLength)
+        .remove(HeaderNames.Cookie)
 
-        if (!keepBody)
-          newHeaders.remove(HeaderNames.ContentType)
+      if (!keepBody)
+        newHeaders.remove(HeaderNames.ContentType)
 
-        val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET else originalMethod, false)
-          .setUri(redirectUri)
-          .setCharset(configuration.core.charset)
-          .setChannelPoolPartitioning(originalRequest.getChannelPoolPartitioning)
-          .setAddress(originalRequest.getAddress)
-          .setNameResolver(originalRequest.getNameResolver)
-          .setVirtualHost(originalRequest.getVirtualHost)
-          .setLocalAddress(originalRequest.getLocalAddress)
-          .setProxyServer(originalRequest.getProxyServer)
-          .setRealm(originalRequest.getRealm)
-          .setHeaders(newHeaders)
+      val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET else originalMethod, false)
+        .setUri(redirectUri)
+        .setCharset(configuration.core.charset)
+        .setChannelPoolPartitioning(originalRequest.getChannelPoolPartitioning)
+        .setAddress(originalRequest.getAddress)
+        .setNameResolver(originalRequest.getNameResolver)
+        .setVirtualHost(originalRequest.getVirtualHost)
+        .setLocalAddress(originalRequest.getLocalAddress)
+        .setProxyServer(originalRequest.getProxyServer)
+        .setRealm(originalRequest.getRealm)
+        .setHeaders(newHeaders)
 
-        if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
-          val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
-          val protocolProxy = httpProtocol.proxyPart.proxy
-          originalRequestProxy.orElse(protocolProxy).foreach(requestBuilder.setProxyServer)
-        }
-
-        if (keepBody) {
-          requestBuilder.setCharset(originalRequest.getCharset)
-          if (!originalRequest.getFormParams.isEmpty)
-            requestBuilder.setFormParams(originalRequest.getFormParams)
-          Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getCompositeByteData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
-        }
-
-        for (cookie <- CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
-          requestBuilder.addCookie(cookie)
-
-        requestBuilder.build
+      if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
+        val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
+        val protocolProxy = httpProtocol.proxyPart.proxy
+        originalRequestProxy.orElse(protocolProxy).foreach(requestBuilder.setProxyServer)
       }
 
-      def redirect(statusCode: Int, update: Session => Session): Unit =
-        tx.request.config.maxRedirects match {
-          case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
-            ko(tx, update, response, s"Too many redirects, max is $maxRedirects")
-
-          case _ =>
-            response.header(HeaderNames.Location) match {
-              case Some(location) =>
-                val redirectURI = resolveFromUri(tx.request.ahcRequest.getUri, location)
-
-                val cacheRedirectUpdate =
-                  if (httpProtocol.requestPart.cache)
-                    cacheRedirect(tx.request.ahcRequest, redirectURI)
-                  else
-                    Session.Identity
-
-                val groupUpdate = logGroupRequestUpdate(tx, OK, response.timings.responseTime)
-
-                val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
-                val newSession = totalUpdate(tx.session)
-
-                val loggedTx = tx.copy(session = newSession, update = totalUpdate)
-                logRequest(loggedTx, OK, response)
-
-                val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
-                val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
-                HttpTx.start(redirectTx)
-
-              case None =>
-                ko(tx, update, response, "Redirect status, yet no Location header")
-            }
-        }
-
-      def cacheRedirect(originalRequest: Request, redirectUri: Uri): Session => Session =
-        response.statusCode match {
-          case Some(code) if HttpHelper.isPermanentRedirect(code) =>
-            httpCaches.addRedirect(_, originalRequest, redirectUri)
-          case _ => Session.Identity
-        }
-
-      def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
-
-        val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
-
-        val status = checkError match {
-          case None => OK
-          case _    => KO
-        }
-
-        val cacheContentUpdate = httpCaches.cacheContent(httpProtocol, tx.request.ahcRequest, response)
-
-        val totalUpdate = sessionUpdate andThen cacheContentUpdate andThen checkSaveUpdate
-
-        logAndExecuteNext(tx, totalUpdate, status, response, checkError.map(_.message))
+      if (keepBody) {
+        requestBuilder.setCharset(originalRequest.getCharset)
+        if (!originalRequest.getFormParams.isEmpty)
+          requestBuilder.setFormParams(originalRequest.getFormParams)
+        Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
+        Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
+        Option(originalRequest.getCompositeByteData).foreach(requestBuilder.setBody)
+        Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+        Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
       }
+
+      for (cookie <- CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
+        requestBuilder.addCookie(cookie)
+
+      requestBuilder.build
+    }
+
+    def redirect(statusCode: Int, update: Session => Session): Unit =
+      tx.request.config.maxRedirects match {
+        case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
+          ko(tx, update, response, s"Too many redirects, max is $maxRedirects")
+
+        case _ =>
+          response.header(HeaderNames.Location) match {
+            case Some(location) =>
+              val redirectURI = resolveFromUri(tx.request.ahcRequest.getUri, location)
+
+              val cacheRedirectUpdate =
+                if (httpProtocol.requestPart.cache)
+                  cacheRedirect(tx.request.ahcRequest, redirectURI)
+                else
+                  Session.Identity
+
+              val groupUpdate = logGroupRequestUpdate(tx, OK, response.timings.responseTime)
+
+              val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
+              val newSession = totalUpdate(tx.session)
+
+              val loggedTx = tx.copy(session = newSession, update = totalUpdate)
+              logRequest(loggedTx, OK, response)
+
+              val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
+              val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
+              HttpTx.start(redirectTx)
+
+            case None =>
+              ko(tx, update, response, "Redirect status, yet no Location header")
+          }
+      }
+
+    def cacheRedirect(originalRequest: Request, redirectUri: Uri): Session => Session =
+      response.statusCode match {
+        case Some(code) if HttpHelper.isPermanentRedirect(code) =>
+          httpCaches.addRedirect(_, originalRequest, redirectUri)
+        case _ => Session.Identity
+      }
+
+    def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
+
+      val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
+
+      val status = checkError match {
+        case None => OK
+        case _    => KO
+      }
+
+      val cacheContentUpdate = httpCaches.cacheContent(httpProtocol, tx.request.ahcRequest, response)
+
+      val totalUpdate = sessionUpdate andThen cacheContentUpdate andThen checkSaveUpdate
+
+      logAndExecuteNext(tx, totalUpdate, status, response, checkError.map(_.message))
+    }
 
     response.status match {
 

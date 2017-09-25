@@ -24,8 +24,8 @@ import io.gatling.jms.request.JmsDestination
  * Trivial JMS client, allows sending messages
  */
 class JmsSendClient(
-  protocol:    JmsProtocol,
-  destination: JmsDestination
+    protocol:    JmsProtocol,
+    destination: JmsDestination
 ) extends JmsClient(
   protocol.connectionFactoryName,
   destination,

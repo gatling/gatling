@@ -29,67 +29,67 @@ private[scenario] object ProtocolTemplate {
 
   def render(protocol: ProtocolDefinition)(implicit config: RecorderConfiguration) = {
 
-      def renderProxy = {
+    def renderProxy = {
 
-          def renderSslPort = config.proxy.outgoing.sslPort match {
-            case Some(proxySslPort) => s".httpsPort($proxySslPort)"
-            case _                  => ""
-          }
-
-          def renderCredentials = {
-            val credentials = for {
-              proxyUsername <- config.proxy.outgoing.username
-              proxyPassword <- config.proxy.outgoing.password
-            } yield s"""$Eol$Indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
-            credentials.getOrElse("")
-          }
-
-        val protocol = for {
-          proxyHost <- config.proxy.outgoing.host
-          proxyPort <- config.proxy.outgoing.port
-        } yield fast"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
-
-        protocol.getOrElse(EmptyFastring)
+      def renderSslPort = config.proxy.outgoing.sslPort match {
+        case Some(proxySslPort) => s".httpsPort($proxySslPort)"
+        case _                  => ""
       }
 
-      def renderFollowRedirect = if (!config.http.followRedirect) fast"$Eol$Indent.disableFollowRedirect" else fast""
-
-      def renderInferHtmlResources =
-        if (config.http.inferHtmlResources) {
-          val filtersConfig = config.filters
-
-            def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-            def blackListPatterns = fast"BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
-            def whiteListPatterns = fast"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
-
-          val patterns = filtersConfig.filterStrategy match {
-            case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $blackListPatterns"
-            case FilterStrategy.BlacklistFirst => fast"$blackListPatterns, $whiteListPatterns"
-            case FilterStrategy.Disabled       => EmptyFastring
-          }
-
-          fast"$Eol$Indent.inferHtmlResources($patterns)"
-        } else fast""
-
-      def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$Eol$Indent.disableAutoReferer" else fast""
-
-      def renderHeaders = {
-          def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
-        protocol.headers.toList.sorted
-          .filter {
-            case (HeaderNames.Connection, value) => value == "close"
-            case _                               => true
-          }.flatMap {
-            case (headerName, headerValue) =>
-              val properHeaderValue =
-                if (headerName == HeaderNames.AcceptEncoding)
-                  headerValue.stripSuffix(", br")
-                else
-                  headerValue
-
-              BaseHeaders.get(headerName).map(renderHeader(_, properHeaderValue))
-          }.mkFastring
+      def renderCredentials = {
+        val credentials = for {
+          proxyUsername <- config.proxy.outgoing.username
+          proxyPassword <- config.proxy.outgoing.password
+        } yield s"""$Eol$Indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
+        credentials.getOrElse("")
       }
+
+      val protocol = for {
+        proxyHost <- config.proxy.outgoing.host
+        proxyPort <- config.proxy.outgoing.port
+      } yield fast"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+
+      protocol.getOrElse(EmptyFastring)
+    }
+
+    def renderFollowRedirect = if (!config.http.followRedirect) fast"$Eol$Indent.disableFollowRedirect" else fast""
+
+    def renderInferHtmlResources =
+      if (config.http.inferHtmlResources) {
+        val filtersConfig = config.filters
+
+        def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
+        def blackListPatterns = fast"BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
+        def whiteListPatterns = fast"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+
+        val patterns = filtersConfig.filterStrategy match {
+          case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $blackListPatterns"
+          case FilterStrategy.BlacklistFirst => fast"$blackListPatterns, $whiteListPatterns"
+          case FilterStrategy.Disabled       => EmptyFastring
+        }
+
+        fast"$Eol$Indent.inferHtmlResources($patterns)"
+      } else fast""
+
+    def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$Eol$Indent.disableAutoReferer" else fast""
+
+    def renderHeaders = {
+      def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
+      protocol.headers.toList.sorted
+        .filter {
+          case (HeaderNames.Connection, value) => value == "close"
+          case _                               => true
+        }.flatMap {
+          case (headerName, headerValue) =>
+            val properHeaderValue =
+              if (headerName == HeaderNames.AcceptEncoding)
+                headerValue.stripSuffix(", br")
+              else
+                headerValue
+
+            BaseHeaders.get(headerName).map(renderHeader(_, properHeaderValue))
+        }.mkFastring
+    }
 
     fast"""
 		.baseURL("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderInferHtmlResources$renderAutomaticReferer$renderHeaders""".toString

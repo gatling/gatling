@@ -25,19 +25,19 @@ import io.gatling.jms.request.JmsDestination
  * @author jasonk@bluedevel.com
  */
 class JmsReqReplyClient(
-  protocol:         JmsProtocol,
-  destination:      JmsDestination,
-  replyDestination: JmsDestination
+    protocol:         JmsProtocol,
+    destination:      JmsDestination,
+    replyDestination: JmsDestination
 )
-    extends JmsClient(
-      protocol.connectionFactoryName,
-      destination,
-      protocol.url,
-      protocol.credentials,
-      protocol.anonymousConnect,
-      protocol.contextFactory,
-      protocol.deliveryMode
-    ) {
+  extends JmsClient(
+    protocol.connectionFactoryName,
+    destination,
+    protocol.url,
+    protocol.credentials,
+    protocol.anonymousConnect,
+    protocol.contextFactory,
+    protocol.deliveryMode
+  ) {
 
   // reply queue and target destination/producer
   val replyJmsDestination = createDestination(replyDestination)

@@ -64,13 +64,13 @@ object Io {
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
 
     def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
-          val writer = new FastStringWriter(bufferSize)
-          val reader = new InputStreamReader(is, charset)
+      val writer = new FastStringWriter(bufferSize)
+      val reader = new InputStreamReader(is, charset)
 
-          reader.copyTo(writer, bufferSize)
+      reader.copyTo(writer, bufferSize)
 
-          writer.toString
-      }
+      writer.toString
+    }
 
     def toByteArray(): Array[Byte] = {
       val os = FastByteArrayOutputStream.pooled()
@@ -80,23 +80,23 @@ object Io {
 
     def copyTo(os: OutputStream, bufferSize: Int = DefaultBufferSize): Int = {
 
-        def copyLarge(buffer: Array[Byte]): Long = {
+      def copyLarge(buffer: Array[Byte]): Long = {
 
-          var lastReadCount: Int = 0
-            def read(): Int = {
-              lastReadCount = is.read(buffer)
-              lastReadCount
-            }
-
-          var count: Long = 0
-
-          while (read() != -1) {
-            os.write(buffer, 0, lastReadCount)
-            count += lastReadCount
-          }
-
-          count
+        var lastReadCount: Int = 0
+        def read(): Int = {
+          lastReadCount = is.read(buffer)
+          lastReadCount
         }
+
+        var count: Long = 0
+
+        while (read() != -1) {
+          os.write(buffer, 0, lastReadCount)
+          count += lastReadCount
+        }
+
+        count
+      }
 
       copyLarge(new Array[Byte](bufferSize)) match {
         case l if l > Integer.MAX_VALUE => -1
@@ -109,23 +109,23 @@ object Io {
 
     def copyTo(writer: Writer, bufferSize: Int = DefaultBufferSize): Int = {
 
-        def copyLarge(buffer: Array[Char]) = {
+      def copyLarge(buffer: Array[Char]) = {
 
-          var lastReadCount: Int = 0
-            def read(): Int = {
-              lastReadCount = reader.read(buffer)
-              lastReadCount
-            }
-
-          var count: Long = 0
-
-          while (read() != -1) {
-            writer.write(buffer, 0, lastReadCount)
-            count += lastReadCount
-          }
-
-          count
+        var lastReadCount: Int = 0
+        def read(): Int = {
+          lastReadCount = reader.read(buffer)
+          lastReadCount
         }
+
+        var count: Long = 0
+
+        while (read() != -1) {
+          writer.write(buffer, 0, lastReadCount)
+          count += lastReadCount
+        }
+
+        count
+      }
 
       copyLarge(new Array[Char](bufferSize)) match {
         case l if l > Integer.MAX_VALUE => -1
@@ -162,11 +162,11 @@ object Io {
     }
 
   /**
-    * Delete a possibly non empty directory
-    *
-    * @param directory the directory to delete
-    * @return if directory could be deleted
-    */
+   * Delete a possibly non empty directory
+   *
+   * @param directory the directory to delete
+   * @return if directory could be deleted
+   */
   def deleteDirectory(directory: Path): Boolean = try {
     Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
       @throws[IOException]
@@ -188,22 +188,22 @@ object Io {
   }
 
   /**
-    * Make a possibly non empty directory to be deleted on exit
-    *
-    * @param directory the directory to delete
-    */
+   * Make a possibly non empty directory to be deleted on exit
+   *
+   * @param directory the directory to delete
+   */
   def deleteDirectoryOnExit(directory: Path): Unit =
-  Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
-    @throws[IOException]
-    override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-      file.toFile.deleteOnExit()
-      FileVisitResult.CONTINUE
-    }
+    Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
+      @throws[IOException]
+      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+        file.toFile.deleteOnExit()
+        FileVisitResult.CONTINUE
+      }
 
-    @throws[IOException]
-    override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-      dir.toFile.deleteOnExit()
-      FileVisitResult.CONTINUE
-    }
-  })
+      @throws[IOException]
+      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+        dir.toFile.deleteOnExit()
+        FileVisitResult.CONTINUE
+      }
+    })
 }

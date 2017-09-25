@@ -69,7 +69,7 @@ case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
 
 case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
-      def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
+    def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
     seq(session).flatMap {
       case seq: Seq[_]      => seq(random(seq.size)).success
@@ -109,21 +109,21 @@ case class JsonStringify(part: Part[Any], name: String) extends Part[String] {
 case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
 
-      def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
-        case seq: Seq[_] =>
-          if (seq.isDefinedAt(index)) seq(index).success
-          else ElMessages.undefinedSeqIndex(seqName, index)
+    def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
+      case seq: Seq[_] =>
+        if (seq.isDefinedAt(index)) seq(index).success
+        else ElMessages.undefinedSeqIndex(seqName, index)
 
-        case arr: Array[_] =>
-          if (index < arr.length) arr(index).success
-          else ElMessages.undefinedSeqIndex(seqName, index)
+      case arr: Array[_] =>
+        if (index < arr.length) arr(index).success
+        else ElMessages.undefinedSeqIndex(seqName, index)
 
-        case list: JList[_] =>
-          if (index < list.size) list.get(index).success
-          else ElMessages.undefinedSeqIndex(seqName, index)
+      case list: JList[_] =>
+        if (index < list.size) list.get(index).success
+        else ElMessages.undefinedSeqIndex(seqName, index)
 
-        case other => ElMessages.indexAccessNotSupported(other, seqName)
-      }
+      case other => ElMessages.indexAccessNotSupported(other, seqName)
+    }
 
     index match {
       case IntString(i) => seqElementPart(i)
@@ -204,14 +204,14 @@ object ElCompiler {
       val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(charset))
     }
 
-      @tailrec
-      def loop(session: Session, bytes: List[Bytes], resolved: List[Array[Byte]]): Validation[Seq[Array[Byte]]] = bytes match {
-        case Nil => resolved.reverse.success
-        case head :: tail => head.bytes(session) match {
-          case Success(bs)      => loop(session, tail, bs :: resolved)
-          case failure: Failure => failure
-        }
+    @tailrec
+    def loop(session: Session, bytes: List[Bytes], resolved: List[Array[Byte]]): Validation[Seq[Array[Byte]]] = bytes match {
+      case Nil => resolved.reverse.success
+      case head :: tail => head.bytes(session) match {
+        case Success(bs)      => loop(session, tail, bs :: resolved)
+        case failure: Failure => failure
       }
+    }
 
     val parts = ElCompiler.parse(string)
     val bytes = parts.map {
@@ -264,8 +264,8 @@ class ElCompiler extends RegexParsers {
       val offset = in.offset
       val end = source.length
 
-        def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
-        def failure = Failure("Not a static part", in)
+      def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
+      def failure = Failure("Not a static part", in)
 
       source.indexOf("${", offset) match {
         case -1 if offset == end => failure

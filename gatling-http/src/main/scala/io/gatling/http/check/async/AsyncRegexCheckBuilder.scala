@@ -33,10 +33,10 @@ object AsyncRegexCheckBuilder {
 }
 
 class AsyncRegexCheckBuilder[X: GroupExtractor](
-  private[async] val expression: Expression[String],
-  private[async] val extender:   Extender[AsyncCheck, String]
+    private[async] val expression: Expression[String],
+    private[async] val extender:   Extender[AsyncCheck, String]
 )(implicit extractorFactory: RegexExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, CharSequence, X](extender, PassThroughMessagePreparer) {
+  extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, CharSequence, X](extender, PassThroughMessagePreparer) {
 
   import extractorFactory._
 

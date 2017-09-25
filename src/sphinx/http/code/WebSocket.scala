@@ -81,12 +81,11 @@ class WebSocket {
     .exec(ws("Connect WS").open("/room/chat?username=${id}"))
     .pause(1)
     .repeat(2, "i") {
-    exec(ws("Say Hello WS")
-      .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-      .check(wsAwait.within(30).until(1).regex(".*I'm still alive.*"))
-    )
-      .pause(1)
-  }
+      exec(ws("Say Hello WS")
+        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+        .check(wsAwait.within(30).until(1).regex(".*I'm still alive.*")))
+        .pause(1)
+    }
     .exec(ws("Close WS").close)
   //#chatroom-example
 }

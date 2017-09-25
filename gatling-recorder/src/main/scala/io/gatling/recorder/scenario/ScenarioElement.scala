@@ -27,7 +27,7 @@ import io.gatling.http.HeaderValues._
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.http.model.{SafeHttpRequest, SafeHttpResponse}
+import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse }
 
 import org.asynchttpclient.util.Base64
 import org.asynchttpclient.uri.Uri
@@ -145,13 +145,13 @@ private[recorder] case class RequestElement(
   }
 
   val basicAuthCredentials: Option[(String, String)] = {
-      def parseCredentials(header: String) =
-        new String(Base64.decode(header.split(" ")(1))).split(":") match {
-          case Array(username, password) =>
-            val credentials = (username, password)
-            Some(credentials)
-          case _ => None
-        }
+    def parseCredentials(header: String) =
+      new String(Base64.decode(header.split(" ")(1))).split(":") match {
+        case Array(username, password) =>
+          val credentials = (username, password)
+          Some(credentials)
+        case _ => None
+      }
 
     headers.get(Authorization).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
   }

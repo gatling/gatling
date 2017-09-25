@@ -60,7 +60,8 @@ class Sse {
   val scn = scenario("Server Sent Event")
     .exec(
       sse("Stocks").open("/stocks/prices")
-      .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")))
+        .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)""""))
+    )
     .pause(15)
     .exec(sse("Close SSE").close())
   //#stock-market-sample

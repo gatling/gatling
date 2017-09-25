@@ -33,9 +33,9 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 
 private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
 
-  /************************************/
+/************************************/
   /**           COMPONENTS           **/
-  /************************************/
+/************************************/
 
   /* Top panel components */
   private val tagField = new TextField(15)
@@ -57,9 +57,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
   /* Bottom panel components */
   private val hostsRequiringCertificates = new ListView[String] { foreground = Color.red }
 
-  /**********************************/
+/**********************************/
   /**           UI SETUP           **/
-  /**********************************/
+/**********************************/
 
   /* Frame setup */
   title = "Gatling Recorder - Running..."
@@ -134,9 +134,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
 
   centerOnScreen()
 
-  /*****************************************/
+/*****************************************/
   /**           EVENTS HANDLING           **/
-  /*****************************************/
+/*****************************************/
 
   /* Reactions */
   listenTo(events.selection)

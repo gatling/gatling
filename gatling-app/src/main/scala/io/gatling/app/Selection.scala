@@ -63,36 +63,36 @@ object Selection {
 
     private def trySelectingSingleSimulation(simulationClasses: SimulationClasses): SelectedSimulationClass = {
 
-        def findSelectedSingleSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
-          simulationClasses.find(_.getCanonicalName == className)
+      def findSelectedSingleSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
+        simulationClasses.find(_.getCanonicalName == className)
 
-        def findSelectedSingleSimulationInClassloader(className: String): SelectedSimulationClass =
-          Try(Class.forName(className)).toOption.collect { case clazz if classOf[Simulation].isAssignableFrom(clazz) => clazz.asInstanceOf[Class[Simulation]] }
+      def findSelectedSingleSimulationInClassloader(className: String): SelectedSimulationClass =
+        Try(Class.forName(className)).toOption.collect { case clazz if classOf[Simulation].isAssignableFrom(clazz) => clazz.asInstanceOf[Class[Simulation]] }
 
-        def singleSimulationFromConfig =
-          configuration.core.simulationClass.flatMap { className =>
-            val found: Option[Class[Simulation]] = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
+      def singleSimulationFromConfig =
+        configuration.core.simulationClass.flatMap { className =>
+          val found: Option[Class[Simulation]] = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
 
-            if (found.isEmpty) {
-              val message = s"The requested class '$className' can not be found in the classpath or does not extends Simulation."
+          if (found.isEmpty) {
+            val message = s"The requested class '$className' can not be found in the classpath or does not extends Simulation."
 
-              if (configuration.core.muteMode) {
-                throw new IllegalArgumentException(message)
-              } else {
-                err.println(message)
-              }
+            if (configuration.core.muteMode) {
+              throw new IllegalArgumentException(message)
+            } else {
+              err.println(message)
             }
-
-            found
           }
 
-        def singleSimulationFromList = simulationClasses match {
-          case simulation :: Nil =>
-            println(s"${simulation.getName} is the only simulation, executing it.")
-            Some(simulation)
-
-          case _ => None
+          found
         }
+
+      def singleSimulationFromList = simulationClasses match {
+        case simulation :: Nil =>
+          println(s"${simulation.getName} is the only simulation, executing it.")
+          Some(simulation)
+
+        case _ => None
+      }
 
       selectedSimulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
     }
@@ -100,25 +100,25 @@ object Selection {
     private def interactiveSelect(simulationClasses: SimulationClasses): Class[Simulation] = {
       val validRange = simulationClasses.indices
 
-        @tailrec
-        def readSimulationNumber: Int = {
-          println("Choose a simulation number:")
-          for ((simulation, index) <- simulationClasses.zipWithIndex) {
-            println(s"     [$index] ${simulation.getName}")
-          }
-
-          Try(StdIn.readInt()) match {
-            case Success(number) =>
-              if (validRange contains number) number
-              else {
-                println(s"Invalid selection, must be in $validRange")
-                readSimulationNumber
-              }
-            case _ =>
-              println("Invalid characters, please provide a correct simulation number:")
-              readSimulationNumber
-          }
+      @tailrec
+      def readSimulationNumber: Int = {
+        println("Choose a simulation number:")
+        for ((simulation, index) <- simulationClasses.zipWithIndex) {
+          println(s"     [$index] ${simulation.getName}")
         }
+
+        Try(StdIn.readInt()) match {
+          case Success(number) =>
+            if (validRange contains number) number
+            else {
+              println(s"Invalid selection, must be in $validRange")
+              readSimulationNumber
+            }
+          case _ =>
+            println("Invalid characters, please provide a correct simulation number:")
+            readSimulationNumber
+        }
+      }
 
       if (simulationClasses.isEmpty) {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")
@@ -128,16 +128,16 @@ object Selection {
     }
 
     private def askSimulationId(clazz: Class[Simulation], defaultSimulationId: String): Option[String] = {
-        @tailrec
-        def loop(): String = {
-          println(s"Select simulation id (default is '$defaultSimulationId'). Accepted characters are a-z, A-Z, 0-9, - and _")
-          val input = StdIn.readLine().trim
-          if (input.matches("[\\w-_]*")) input
-          else {
-            println(s"$input contains illegal characters")
-            loop()
-          }
+      @tailrec
+      def loop(): String = {
+        println(s"Select simulation id (default is '$defaultSimulationId'). Accepted characters are a-z, A-Z, 0-9, - and _")
+        val input = StdIn.readLine().trim
+        if (input.matches("[\\w-_]*")) input
+        else {
+          println(s"$input contains illegal characters")
+          loop()
         }
+      }
 
       val input = loop()
       if (input.nonEmpty) Some(input) else None

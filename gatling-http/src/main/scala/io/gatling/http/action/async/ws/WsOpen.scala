@@ -43,11 +43,11 @@ class WsOpen(
 
   def execute(session: Session): Unit = {
 
-      def open(tx: AsyncTx): Unit = {
-        logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-        val wsActor = system.actorOf(WsActor.props(wsName, statsEngine, httpComponents.httpEngine), genName("wsActor"))
-        WsTx.start(tx, wsActor, httpComponents.httpEngine, statsEngine)
-      }
+    def open(tx: AsyncTx): Unit = {
+      logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      val wsActor = system.actorOf(WsActor.props(wsName, statsEngine, httpComponents.httpEngine), genName("wsActor"))
+      WsTx.start(tx, wsActor, httpComponents.httpEngine, statsEngine)
+    }
 
     fetchActor(wsName, session) match {
       case _: Success[_] =>

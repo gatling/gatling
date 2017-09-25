@@ -23,7 +23,7 @@ import io.gatling.http.request.builder.{ RequestExpressionBuilder, CommonAttribu
 import org.asynchttpclient.uri.Uri
 
 class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-    extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   override def makeAbsolute(url: String): Validation[Uri] =
     protocol.wsPart.makeAbsoluteWsUri(url)

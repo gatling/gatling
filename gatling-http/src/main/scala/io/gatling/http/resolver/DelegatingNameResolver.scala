@@ -23,7 +23,7 @@ import io.netty.resolver.dns.DnsCache
 import io.netty.util.concurrent.{ Future, Promise }
 
 case class DelegatingNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
-    extends NameResolver[InetAddress] {
+  extends NameResolver[InetAddress] {
 
   override def resolve(inetHost: String): Future[InetAddress] =
     resolve(inetHost, resolver.executor.newPromise[InetAddress])

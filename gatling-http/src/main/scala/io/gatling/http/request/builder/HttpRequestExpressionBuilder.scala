@@ -34,7 +34,7 @@ import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
 
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-    extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   import RequestExpressionBuilder._
 
@@ -59,27 +59,27 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
   private val configureParts0: RequestBuilderConfigure =
     session => requestBuilder => {
 
-        def setBody(body: Body): Validation[AhcRequestBuilder] =
-          body match {
-            case StringBody(string) => string(session).map(requestBuilder.setBody)
-            case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes(session).map { f =>
-              f.cachedBytes match {
-                case Some(bytes) => requestBuilder.setBody(bytes)
-                case None        => requestBuilder.setBody(f.file)
-              }
+      def setBody(body: Body): Validation[AhcRequestBuilder] =
+        body match {
+          case StringBody(string) => string(session).map(requestBuilder.setBody)
+          case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes(session).map { f =>
+            f.cachedBytes match {
+              case Some(bytes) => requestBuilder.setBody(bytes)
+              case None        => requestBuilder.setBody(f.file)
             }
-            case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
-            case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
-            case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
           }
+          case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
+          case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
+          case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
+        }
 
-        def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
-          bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
-            for {
-              requestBuilder <- requestBuilder
-              part <- part.toMultiPart(session)
-            } yield requestBuilder.addBodyPart(part)
-          }
+      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
+        bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
+          for {
+            requestBuilder <- requestBuilder
+            part <- part.toMultiPart(session)
+          } yield requestBuilder.addBodyPart(part)
+        }
 
       httpAttributes.body match {
         case None       => setBodyParts(httpAttributes.bodyParts)

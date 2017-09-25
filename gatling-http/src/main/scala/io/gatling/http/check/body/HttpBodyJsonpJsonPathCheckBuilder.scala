@@ -47,13 +47,13 @@ object HttpBodyJsonpJsonPathCheckBuilder {
 }
 
 class HttpBodyJsonpJsonPathCheckBuilder[X: JsonFilter](
-  private[body] val path:        Expression[String],
-  private[body] val jsonParsers: JsonParsers
+    private[body] val path:        Expression[String],
+    private[body] val jsonParsers: JsonParsers
 )(implicit extractorFactory: JsonPathExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
-      StringBodyExtender,
-      HttpBodyJsonpJsonPathCheckBuilder.jsonpPreparer(jsonParsers)
-    ) {
+  extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
+    StringBodyExtender,
+    HttpBodyJsonpJsonPathCheckBuilder.jsonpPreparer(jsonParsers)
+  ) {
 
   import extractorFactory._
 

@@ -46,10 +46,10 @@ object RedisFeeder {
       def build(ctx: ScenarioContext): Feeder[String] = {
         ctx.system.registerOnTermination(clientPool.close)
 
-          def next = clientPool.withClient { client =>
-            val value = redisCommand(client, key)
-            value.map(value => Map(key -> value))
-          }
+        def next = clientPool.withClient { client =>
+          val value = redisCommand(client, key)
+          value.map(value => Map(key -> value))
+        }
 
         Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
       }

@@ -30,71 +30,71 @@ private[scenario] object RequestTemplate {
   def headersBlockName(id: Int) = fast"headers_$id"
 
   def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): Fastring = {
-      def renderMethod: Fastring =
-        if (BuiltInHttpMethods.contains(request.method)) {
-          fast"${request.method.toLowerCase}($renderUrl)"
-        } else {
-          fast"""httpRequest("${request.method}", $renderUrl)"""
-        }
+    def renderMethod: Fastring =
+      if (BuiltInHttpMethods.contains(request.method)) {
+        fast"${request.method.toLowerCase}($renderUrl)"
+      } else {
+        fast"""httpRequest("${request.method}", $renderUrl)"""
+      }
 
-      def usesBaseUrl: Boolean =
-        request.printedUrl != request.uri
+    def usesBaseUrl: Boolean =
+      request.printedUrl != request.uri
 
-      def renderUrl =
-        if (usesBaseUrl) protectWithTripleQuotes(request.printedUrl)
-        else extractedUri.renderUri(request.uri)
+    def renderUrl =
+      if (usesBaseUrl) protectWithTripleQuotes(request.printedUrl)
+      else extractedUri.renderUri(request.uri)
 
-      def renderHeaders: String = request.filteredHeadersId
-        .map { id =>
-          s"""
+    def renderHeaders: String = request.filteredHeadersId
+      .map { id =>
+        s"""
 			.headers(${headersBlockName(id)})"""
-        }.getOrElse("")
-
-      def renderLongString(value: String) =
-        if (value.nonEmpty)
-          value.grouped(65535).map(protectWithTripleQuotes).mkFastring(" + ")
-        else
-          protectWithTripleQuotes("")
-
-      def renderBodyOrParams: Fastring = request.body.map {
-        case RequestBodyBytes(_) => fast"""
-			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
-        case RequestBodyParams(params) => params.map {
-          case (key, value) => fast"""
-			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
-        }.mkFastring
-      }.getOrElse(EmptyFastring)
-
-      def renderCredentials: String = request.basicAuthCredentials.map {
-        case (username, password) => s"""
-			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
       }.getOrElse("")
 
-      def renderStatusCheck: Fastring =
-        if (!OkCodes.contains(request.statusCode))
-          fast"""
+    def renderLongString(value: String) =
+      if (value.nonEmpty)
+        value.grouped(65535).map(protectWithTripleQuotes).mkFastring(" + ")
+      else
+        protectWithTripleQuotes("")
+
+    def renderBodyOrParams: Fastring = request.body.map {
+      case RequestBodyBytes(_) => fast"""
+			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
+      case RequestBodyParams(params) => params.map {
+        case (key, value) => fast"""
+			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
+      }.mkFastring
+    }.getOrElse(EmptyFastring)
+
+    def renderCredentials: String = request.basicAuthCredentials.map {
+      case (username, password) => s"""
+			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
+    }.getOrElse("")
+
+    def renderStatusCheck: Fastring =
+      if (!OkCodes.contains(request.statusCode))
+        fast"""
 			.check(status.is(${request.statusCode}))"""
-        else
-          EmptyFastring
+      else
+        EmptyFastring
 
-      def renderResponseBodyCheck: Fastring =
-        if (request.responseBody.isDefined && config.http.checkResponseBodies)
-          fast"""
+    def renderResponseBodyCheck: Fastring =
+      if (request.responseBody.isDefined && config.http.checkResponseBodies)
+        fast"""
 			.check(bodyBytes.is(RawFileBody("${ScenarioExporter.responseBodyFileName(request)}")))"""
-        else
-          EmptyFastring
+      else
+        EmptyFastring
 
-      def renderResources: Fastring =
-        if (request.nonEmbeddedResources.nonEmpty)
-          fast"""
+    def renderResources: Fastring =
+      if (request.nonEmbeddedResources.nonEmpty)
+        fast"""
 			.resources(${
-            request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
-              """,
+          request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
+            """,
             """.stripMargin
-            )
-          })"""
-        else
-          EmptyFastring
+          )
+        })"""
+      else
+        EmptyFastring
 
     fast"""http("request_${request.id}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""

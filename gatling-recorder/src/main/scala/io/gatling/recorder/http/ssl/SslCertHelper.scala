@@ -67,23 +67,23 @@ private[recorder] object SslCertUtil extends StrictLogging {
   def generateGatlingCAPEMFiles(dir: Path, privKeyFileName: String, certFileName: String): Unit = {
     assert(dir.isDirectory, s"$dir isn't a directory")
 
-      def generateCACertificate(pair: KeyPair): X509CertificateHolder = {
-        val dn = s"C=FR, ST=Val de marne, O=GatlingCA, CN=Gatling"
-        val now = nowMillis
+    def generateCACertificate(pair: KeyPair): X509CertificateHolder = {
+      val dn = s"C=FR, ST=Val de marne, O=GatlingCA, CN=Gatling"
+      val now = nowMillis
 
-        // has to be v1 for CA
-        val certGen = new JcaX509v1CertificateBuilder(
-          new X500Principal(dn), // issuer
-          BigInteger.valueOf(now), // serial
-          new Date(now), // notBefore
-          new Date(now + 365.days.toMillis), // notAfter
-          new X500Principal(dn), //subject
-          pair.getPublic
-        ) // publicKey
+      // has to be v1 for CA
+      val certGen = new JcaX509v1CertificateBuilder(
+        new X500Principal(dn), // issuer
+        BigInteger.valueOf(now), // serial
+        new Date(now), // notBefore
+        new Date(now + 365.days.toMillis), // notAfter
+        new X500Principal(dn), //subject
+        pair.getPublic
+      ) // publicKey
 
-        val signer = newSigner(pair.getPrivate)
-        certGen.build(signer)
-      }
+      val signer = newSigner(pair.getPrivate)
+      certGen.build(signer)
+    }
 
     val pair = newRSAKeyPair
     val crtHolder = generateCACertificate(pair)

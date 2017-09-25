@@ -18,8 +18,8 @@ package io.gatling.http.protocol
 import io.gatling.core.config.Credentials
 
 case class Proxy(
-  host:        String,
-  port:        Int,
-  securePort:  Int,
-  credentials: Option[Credentials] = None
+    host:        String,
+    port:        Int,
+    securePort:  Int,
+    credentials: Option[Credentials] = None
 )

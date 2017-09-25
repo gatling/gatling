@@ -55,52 +55,52 @@ package object builder {
 
     def resolveParamJList(session: Session): Validation[JList[Param]] = {
 
-        def update(ahcParams: JList[Param], param: HttpParam): Validation[JList[Param]] = param match {
-          case SimpleParam(key, value) =>
-            for {
-              key <- key(session)
-              value <- value(session)
-            } yield {
-              ahcParams.add(new Param(key, value.toString))
-              ahcParams
-            }
+      def update(ahcParams: JList[Param], param: HttpParam): Validation[JList[Param]] = param match {
+        case SimpleParam(key, value) =>
+          for {
+            key <- key(session)
+            value <- value(session)
+          } yield {
+            ahcParams.add(new Param(key, value.toString))
+            ahcParams
+          }
 
-          case MultivaluedParam(key, values) =>
-            for {
-              key <- key(session)
-              values <- values(session)
-            } yield {
-              values.foreach(value => ahcParams.add(new Param(key, value.toString)))
-              ahcParams
-            }
+        case MultivaluedParam(key, values) =>
+          for {
+            key <- key(session)
+            values <- values(session)
+          } yield {
+            values.foreach(value => ahcParams.add(new Param(key, value.toString)))
+            ahcParams
+          }
 
-          case ParamSeq(seq) =>
-            for {
-              seq <- seq(session)
-            } yield {
-              seq.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
-              ahcParams
-            }
+        case ParamSeq(seq) =>
+          for {
+            seq <- seq(session)
+          } yield {
+            seq.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
+            ahcParams
+          }
 
-          case ParamMap(map) =>
-            for {
-              map <- map(session)
-            } yield {
-              map.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
-              ahcParams
+        case ParamMap(map) =>
+          for {
+            map <- map(session)
+          } yield {
+            map.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
+            ahcParams
+          }
+      }
+
+      @tailrec
+      def resolveParamJListRec(ahcParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
+        currentParams match {
+          case Nil => ahcParams.success
+          case head :: tail =>
+            update(ahcParams, head) match {
+              case Success(newAhcParams) => resolveParamJListRec(newAhcParams, tail)
+              case f                     => f
             }
         }
-
-        @tailrec
-        def resolveParamJListRec(ahcParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
-          currentParams match {
-            case Nil => ahcParams.success
-            case head :: tail =>
-              update(ahcParams, head) match {
-                case Success(newAhcParams) => resolveParamJListRec(newAhcParams, tail)
-                case f                     => f
-              }
-          }
 
       if (params.isEmpty)
         EmptyParamJListSuccess

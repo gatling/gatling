@@ -55,7 +55,7 @@ object JmsReqReplyActor {
 }
 
 class JmsReqReplyActor(override val attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: Action)
-    extends ValidatedActionActor with JmsAction[JmsReqReplyClient] {
+  extends ValidatedActionActor with JmsAction[JmsReqReplyClient] {
 
   // Create a client to refer to
   override val client = JmsClient(protocol, attributes.destination, replyDestination)

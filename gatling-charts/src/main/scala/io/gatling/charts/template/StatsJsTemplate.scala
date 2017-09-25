@@ -33,32 +33,32 @@ private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean
 
   def getOutput(charset: Charset): Fastring = {
 
-      def renderStats(request: RequestStatistics, path: String): Fastring = {
-        val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
+    def renderStats(request: RequestStatistics, path: String): Fastring = {
+      val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
 
-        fast"""${fieldName("name")}: "${request.name.escapeJsIllegalChars}",
+      fast"""${fieldName("name")}: "${request.name.escapeJsIllegalChars}",
 ${fieldName("path")}: "${request.path.escapeJsIllegalChars}",
 ${fieldName("pathFormatted")}: "$path",
 ${fieldName("stats")}: $jsonStats"""
-      }
+    }
 
-      def renderSubGroups(group: GroupContainer): Iterable[Fastring] =
-        group.groups.values.map { subGroup =>
-          fast""""${subGroup.name.toGroupFileName(charset)}": {
+    def renderSubGroups(group: GroupContainer): Iterable[Fastring] =
+      group.groups.values.map { subGroup =>
+        fast""""${subGroup.name.toGroupFileName(charset)}": {
           ${renderGroup(subGroup)}
      }"""
-        }
+      }
 
-      def renderSubRequests(group: GroupContainer): Iterable[Fastring] =
-        group.requests.values.map { request =>
-          fast""""${request.name.toRequestFileName(charset)}": {
+    def renderSubRequests(group: GroupContainer): Iterable[Fastring] =
+      group.requests.values.map { request =>
+        fast""""${request.name.toRequestFileName(charset)}": {
         ${fieldName("type")}: "$Request",
         ${renderStats(request.stats, request.stats.path.toRequestFileName(charset))}
     }"""
-        }
+      }
 
-      def renderGroup(group: GroupContainer): Fastring =
-        fast"""${fieldName("type")}: "$Group",
+    def renderGroup(group: GroupContainer): Fastring =
+      fast"""${fieldName("type")}: "$Group",
 ${renderStats(group.stats, group.stats.path.toGroupFileName(charset))},
 ${fieldName("contents")}: {
 ${(renderSubGroups(group) ++ renderSubRequests(group)).mkFastring(",")}

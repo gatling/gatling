@@ -44,21 +44,21 @@ case object Stop extends DataWriterMessage
 sealed trait LoadEventMessage extends DataWriterMessage
 
 case class UserMessage(
-  session:   Session,
-  event:     MessageEvent,
-  timestamp: Long
+    session:   Session,
+    event:     MessageEvent,
+    timestamp: Long
 ) extends LoadEventMessage
 
 case class ResponseMessage(
-  scenario:       String,
-  userId:         Long,
-  groupHierarchy: List[String],
-  name:           String,
-  timings:        ResponseTimings,
-  status:         Status,
-  responseCode:   Option[String],
-  message:        Option[String],
-  extraInfo:      List[Any]
+    scenario:       String,
+    userId:         Long,
+    groupHierarchy: List[String],
+    name:           String,
+    timings:        ResponseTimings,
+    status:         Status,
+    responseCode:   Option[String],
+    message:        Option[String],
+    extraInfo:      List[Any]
 ) extends LoadEventMessage
 
 case class GroupMessage(

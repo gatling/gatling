@@ -25,17 +25,17 @@ import io.gatling.http.response.Response
 import org.asynchttpclient.Request
 
 case class HttpRequestConfig(
-  checks:                List[HttpCheck],
-  responseTransformer:   Option[PartialFunction[Response, Response]],
-  extraInfoExtractor:    Option[ExtraInfoExtractor],
-  maxRedirects:          Option[Int],
-  throttled:             Boolean,
-  silent:                Option[Boolean],
-  followRedirect:        Boolean,
-  discardResponseChunks: Boolean,
-  coreComponents:        CoreComponents,
-  httpComponents:        HttpComponents,
-  explicitResources:     List[HttpRequestDef]
+    checks:                List[HttpCheck],
+    responseTransformer:   Option[PartialFunction[Response, Response]],
+    extraInfoExtractor:    Option[ExtraInfoExtractor],
+    maxRedirects:          Option[Int],
+    throttled:             Boolean,
+    silent:                Option[Boolean],
+    followRedirect:        Boolean,
+    discardResponseChunks: Boolean,
+    coreComponents:        CoreComponents,
+    httpComponents:        HttpComponents,
+    explicitResources:     List[HttpRequestDef]
 )
 
 case class HttpRequestDef(

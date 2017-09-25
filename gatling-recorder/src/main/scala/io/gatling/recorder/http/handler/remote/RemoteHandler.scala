@@ -43,48 +43,48 @@ private[handler] class RemoteHandler(
 
   override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
 
-      def handleConnect(response: SafeHttpResponse): Unit = {
+    def handleConnect(response: SafeHttpResponse): Unit = {
 
-          def upgradeRemotePipeline(remotePipeline: ChannelPipeline, clientSslHandler: SslHandler): Unit = {
-            // the HttpClientCodec has to be regenerated, don't ask me why...
-            remotePipeline.replace(CodecHandlerName, CodecHandlerName, new HttpClientCodec)
-            remotePipeline.addFirst(SslHandlerName, clientSslHandler)
-          }
-
-        if (response.status == HttpResponseStatus.OK) {
-          performConnect = false
-          val remoteSslHandler = new SslHandler(SslClientContext.createSSLEngine)
-          upgradeRemotePipeline(ctx.channel.pipeline, remoteSslHandler)
-
-          // if we're reconnecting, server channel is already set up
-          if (!reconnect)
-            remoteSslHandler.handshakeFuture.addListener { handshakeFuture: Future[Channel] =>
-              if (handshakeFuture.isSuccess) {
-                val inetSocketAddress = handshakeFuture.get.remoteAddress.asInstanceOf[InetSocketAddress]
-                userChannel.pipeline.addFirst(SslHandlerSetterName, new SslHandlerSetter(inetSocketAddress.getHostString, sslServerContext))
-                userChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-              } else {
-                logger.error(s"Handshake failure", handshakeFuture.cause)
-              }
-            }
-        } else
-          throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.status}")
+      def upgradeRemotePipeline(remotePipeline: ChannelPipeline, clientSslHandler: SslHandler): Unit = {
+        // the HttpClientCodec has to be regenerated, don't ask me why...
+        remotePipeline.replace(CodecHandlerName, CodecHandlerName, new HttpClientCodec)
+        remotePipeline.addFirst(SslHandlerName, clientSslHandler)
       }
 
-      def handleResponse(response: SafeHttpResponse): Unit =
-        ctx.attr(TimedHttpRequestAttribute).getAndSet(null) match {
-          case request: TimedHttpRequest =>
-            controller.receiveResponse(request, response)
+      if (response.status == HttpResponseStatus.OK) {
+        performConnect = false
+        val remoteSslHandler = new SslHandler(SslClientContext.createSSLEngine)
+        upgradeRemotePipeline(ctx.channel.pipeline, remoteSslHandler)
 
-            if (userChannel.isActive) {
-              logger.debug(s"Write response $response to user channel $userChannel")
-              userChannel.writeAndFlush(response.toNettyResponse)
+        // if we're reconnecting, server channel is already set up
+        if (!reconnect)
+          remoteSslHandler.handshakeFuture.addListener { handshakeFuture: Future[Channel] =>
+            if (handshakeFuture.isSuccess) {
+              val inetSocketAddress = handshakeFuture.get.remoteAddress.asInstanceOf[InetSocketAddress]
+              userChannel.pipeline.addFirst(SslHandlerSetterName, new SslHandlerSetter(inetSocketAddress.getHostString, sslServerContext))
+              userChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+            } else {
+              logger.error(s"Handshake failure", handshakeFuture.cause)
+            }
+          }
+      } else
+        throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.status}")
+    }
 
-            } else
-              logger.error(s"Can't write response to disconnected user channel $userChannel, aborting request:${request.httpRequest.uri}")
+    def handleResponse(response: SafeHttpResponse): Unit =
+      ctx.attr(TimedHttpRequestAttribute).getAndSet(null) match {
+        case request: TimedHttpRequest =>
+          controller.receiveResponse(request, response)
 
-          case _ => throw new IllegalStateException("Couldn't find request attribute")
-        }
+          if (userChannel.isActive) {
+            logger.debug(s"Write response $response to user channel $userChannel")
+            userChannel.writeAndFlush(response.toNettyResponse)
+
+          } else
+            logger.error(s"Can't write response to disconnected user channel $userChannel, aborting request:${request.httpRequest.uri}")
+
+        case _ => throw new IllegalStateException("Couldn't find request attribute")
+      }
 
     msg match {
       case response: FullHttpResponse =>

@@ -19,7 +19,7 @@ import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.AssertionResult
 
 private[gatling] case class ReportsGenerationInputs(
-  reportFolderName: String,
-  logFileReader:    LogFileReader,
-  assertionResults: List[AssertionResult]
+    reportFolderName: String,
+    logFileReader:    LogFileReader,
+    assertionResults: List[AssertionResult]
 )

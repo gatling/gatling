@@ -34,10 +34,10 @@ import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 
 class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[Unit]
-    with AsyncHandlerExtensions
-    with SseStream
-    with EventStreamDispatcher
-    with StrictLogging {
+  with AsyncHandlerExtensions
+  with SseStream
+  with EventStreamDispatcher
+  with StrictLogging {
 
   private val done = new AtomicBoolean
   private var state: SseState = Opening

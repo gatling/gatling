@@ -25,7 +25,7 @@ class PassingParameters extends Simulation {
 
   //#injection-from-props
   val nbUsers = Integer.getInteger("users", 1)
-  val myRamp  = java.lang.Long.getLong("ramp", 0L)
+  val myRamp = java.lang.Long.getLong("ramp", 0L)
   setUp(scn.inject(rampUsers(nbUsers) over (myRamp seconds)))
   //#injection-from-props
 }

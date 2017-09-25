@@ -119,8 +119,8 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
       case e: MouseButtonEvent => maybeShowPopup(e)
     }
 
-      def maybeShowPopup(e: MouseEvent): Unit =
-        if (e.peer.isPopupTrigger)
-          popup.show(e.peer.getComponent, e.peer.getX, e.peer.getY)
+    def maybeShowPopup(e: MouseEvent): Unit =
+      if (e.peer.isPopupTrigger)
+        popup.show(e.peer.getComponent, e.peer.getX, e.peer.getY)
   }
 }

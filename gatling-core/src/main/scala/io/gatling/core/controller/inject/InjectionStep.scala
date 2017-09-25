@@ -265,10 +265,10 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
       AtOnceInjection(users).chain(chained)
 
     } else {
-        def heavisideInv(u: Int): Double = {
-          val x = u.toDouble / (users + 2)
-          Erf.erfinv(2 * x - 1)
-        }
+      def heavisideInv(u: Int): Double = {
+        val x = u.toDouble / (users + 2)
+        Erf.erfinv(2 * x - 1)
+      }
 
       val t0 = abs(heavisideInv(1))
       val d = t0 * 2
@@ -310,10 +310,10 @@ case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate
 
       // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
       val maxLambda = startRate max endRate
-        def shouldKeep(d: Double) = {
-          val actualLambda = startRate + (endRate - startRate) * d / durationSecs
-          rand.nextDouble() < actualLambda / maxLambda
-        }
+      def shouldKeep(d: Double) = {
+        val actualLambda = startRate + (endRate - startRate) * d / durationSecs
+        rand.nextDouble() < actualLambda / maxLambda
+      }
 
       val rawIntervals = Iterator.continually {
         val u = rand.nextDouble()

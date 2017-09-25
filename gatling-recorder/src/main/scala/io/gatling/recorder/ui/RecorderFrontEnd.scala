@@ -28,9 +28,9 @@ private[recorder] object RecorderFrontend {
 }
 private[recorder] abstract class RecorderFrontend(controller: RecorderController) {
 
-  /******************************/
+/******************************/
   /**  Controller => Frontend  **/
-  /******************************/
+/******************************/
 
   def selectedRecorderMode: RecorderMode
 
@@ -54,9 +54,9 @@ private[recorder] abstract class RecorderFrontend(controller: RecorderController
 
   def receiveEventInfo(eventInfo: EventInfo): Unit
 
-  /******************************/
+/******************************/
   /**  Frontend => Controller  **/
-  /******************************/
+/******************************/
 
   def addTag(tag: String): Unit = controller.addTag(tag)
 

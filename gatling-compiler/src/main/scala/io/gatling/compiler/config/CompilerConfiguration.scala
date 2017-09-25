@@ -26,10 +26,10 @@ import io.gatling.compiler.config.cli.{ CommandLineOverrides, ArgsParser }
 import com.typesafe.config.ConfigFactory
 
 private[compiler] case class CompilerConfiguration(
-  encoding:             String,
-  simulationsDirectory: Path,
-  binariesDirectory:    Path,
-  classpathElements:    Seq[File]
+    encoding:             String,
+    simulationsDirectory: Path,
+    binariesDirectory:    Path,
+    classpathElements:    Seq[File]
 )
 
 private[compiler] object CompilerConfiguration {
@@ -39,19 +39,19 @@ private[compiler] object CompilerConfiguration {
   private val binariesDirectoryKey = "gatling.core.directory.binaries"
 
   def configuration(args: Array[String]) = {
-      def buildConfigurationMap(overrides: CommandLineOverrides): Map[String, _ <: Any] = {
-        val mapForSimulationFolder =
-          string2option(overrides.simulationsDirectory)
-            .map(v => Map(simulationsDirectoryKey -> v))
-            .getOrElse(Map.empty)
+    def buildConfigurationMap(overrides: CommandLineOverrides): Map[String, _ <: Any] = {
+      val mapForSimulationFolder =
+        string2option(overrides.simulationsDirectory)
+          .map(v => Map(simulationsDirectoryKey -> v))
+          .getOrElse(Map.empty)
 
-        val mapForBinariesFolder =
-          string2option(overrides.binariesFolder)
-            .map(v => Map(binariesDirectoryKey -> v))
-            .getOrElse(Map.empty)
+      val mapForBinariesFolder =
+        string2option(overrides.binariesFolder)
+          .map(v => Map(binariesDirectoryKey -> v))
+          .getOrElse(Map.empty)
 
-        mapForSimulationFolder ++ mapForBinariesFolder
-      }
+      mapForSimulationFolder ++ mapForBinariesFolder
+    }
 
     val argsParser = new ArgsParser(args)
     val commandLineOverrides = argsParser.parseArguments

@@ -25,85 +25,85 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
 private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-    extends ReportGenerator {
+  extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._
 
-      def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
+    def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
 
-          def responseTimeDistributionChartComponent: Component = {
-            val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, Some(requestName), group)
-            val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
-            val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
+      def responseTimeDistributionChartComponent: Component = {
+        val (okDistribution, koDistribution) = logFileReader.responseTimeDistribution(100, Some(requestName), group)
+        val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
+        val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
 
-            componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
-          }
-
-          def responseTimeChartComponent: Component =
-            percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
-
-          def percentilesChartComponent(
-            dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
-            componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
-            title:            String
-          ): Component = {
-            val successData = dataSource(OK, Some(requestName), group)
-            val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
-
-            componentFactory(logFileReader.runStart, successSeries)
-          }
-
-          def requestsChartComponent: Component =
-            countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
-
-          def responsesChartComponent: Component =
-            countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
-
-          def countsChartComponent(
-            dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-            componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
-          ): Component = {
-
-            val counts = dataSource(Some(requestName), group).sortBy(_.time)
-
-            val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
-            val okPieSlice = PieSlice(Series.OK, count(counts, OK))
-            val koPieSlice = PieSlice(Series.KO, count(counts, KO))
-            val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
-
-            componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
-          }
-
-          def responseTimeScatterChartComponent: Component =
-            scatterChartComponent(logFileReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
-
-          def scatterChartComponent(
-            dataSource:       (Status, String, Option[Group]) => Seq[IntVsTimePlot],
-            componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
-          ): Component = {
-
-            val scatterPlotSuccessData = dataSource(OK, requestName, group)
-            val scatterPlotFailuresData = dataSource(KO, requestName, group)
-            val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(TranslucidBlue))
-            val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(TranslucidRed))
-
-            componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
-          }
-
-        val template =
-          new RequestDetailsPageTemplate(path, requestName, group,
-            new StatisticsTextComponent,
-            componentLibrary.getRequestDetailsIndicatorChartComponent,
-            new ErrorsTableComponent(logFileReader.errors(Some(requestName), group)),
-            responseTimeDistributionChartComponent,
-            responseTimeChartComponent,
-            requestsChartComponent,
-            responsesChartComponent,
-            responseTimeScatterChartComponent)
-
-        new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
+        componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
       }
+
+      def responseTimeChartComponent: Component =
+        percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
+
+      def percentilesChartComponent(
+        dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+        title:            String
+      ): Component = {
+        val successData = dataSource(OK, Some(requestName), group)
+        val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
+
+        componentFactory(logFileReader.runStart, successSeries)
+      }
+
+      def requestsChartComponent: Component =
+        countsChartComponent(logFileReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+
+      def responsesChartComponent: Component =
+        countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+
+      def countsChartComponent(
+        dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+        componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
+      ): Component = {
+
+        val counts = dataSource(Some(requestName), group).sortBy(_.time)
+
+        val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
+        val okPieSlice = PieSlice(Series.OK, count(counts, OK))
+        val koPieSlice = PieSlice(Series.KO, count(counts, KO))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
+
+        componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)
+      }
+
+      def responseTimeScatterChartComponent: Component =
+        scatterChartComponent(logFileReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
+
+      def scatterChartComponent(
+        dataSource:       (Status, String, Option[Group]) => Seq[IntVsTimePlot],
+        componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
+      ): Component = {
+
+        val scatterPlotSuccessData = dataSource(OK, requestName, group)
+        val scatterPlotFailuresData = dataSource(KO, requestName, group)
+        val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(TranslucidBlue))
+        val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(TranslucidRed))
+
+        componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
+      }
+
+      val template =
+        new RequestDetailsPageTemplate(path, requestName, group,
+          new StatisticsTextComponent,
+          componentLibrary.getRequestDetailsIndicatorChartComponent,
+          new ErrorsTableComponent(logFileReader.errors(Some(requestName), group)),
+          responseTimeDistributionChartComponent,
+          responseTimeChartComponent,
+          requestsChartComponent,
+          responsesChartComponent,
+          responseTimeScatterChartComponent)
+
+      new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
+    }
 
     logFileReader.statsPaths.foreach {
       case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)

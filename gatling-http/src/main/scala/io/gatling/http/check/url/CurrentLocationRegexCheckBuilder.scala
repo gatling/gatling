@@ -41,10 +41,10 @@ object CurrentLocationRegexCheckBuilder {
  * @tparam X
  */
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](private[url] val expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
-      StringBodyExtender,
-      UrlStringPreparer
-    ) {
+  extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
+    StringBodyExtender,
+    UrlStringPreparer
+  ) {
 
   import extractorFactory._
 

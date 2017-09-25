@@ -45,9 +45,9 @@ trait JmsAction[T <: JmsClient] {
       messageProperties.flatMap { props =>
         attributes.message match {
           case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, props, jmsType))
-          case MapJmsMessage(map) => map(session).map(map => client.sendMapMessage(map, props, jmsType))
-          case ObjectJmsMessage(o) => o(session).map(o => client.sendObjectMessage(o, props, jmsType))
-          case TextJmsMessage(txt) => txt(session).map(txt => client.sendTextMessage(txt, props, jmsType))
+          case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, props, jmsType))
+          case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, props, jmsType))
+          case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, props, jmsType))
         }
       })
 
@@ -57,9 +57,9 @@ trait JmsAction[T <: JmsClient] {
   }
 
   private def resolveProperties(
-                                 properties: Map[Expression[String], Expression[Any]],
-                                 session: Session
-                               ): Validation[Map[String, Any]] =
+    properties: Map[Expression[String], Expression[Any]],
+    session:    Session
+  ): Validation[Map[String, Any]] =
     properties.foldLeft(Map.empty[String, Any].success) {
       case (resolvedProperties, (key, value)) =>
         for {

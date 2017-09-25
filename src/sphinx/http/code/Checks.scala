@@ -49,9 +49,9 @@ class Checks {
     //#headerRegex-example
 
     //#substring
-    substring("foo")                           // same as substring("foo").find.exists
+    substring("foo") // same as substring("foo").find.exists
     substring("foo").findAll.saveAs("indices") // saves a Seq[Int]
-    substring("foo").count.saveAs("counts")    // saves the number of occurrences of foo
+    substring("foo").count.saveAs("counts") // saves the number of occurrences of foo
     //#substring
 
     //#regex
@@ -106,14 +106,14 @@ class Checks {
     //#css-ofType
 
     jsonPath("$..foo.bar[2].baz").
-    //#transform
-    transform(string => string + "foo")
+      //#transform
+      transform(string => string + "foo")
 
     //#transform
 
     jsonPath("$..foo.bar[2].baz").
-    //#transformOption
-    transformOption(extract => extract.orElse(Some("default")).success)
+      //#transformOption
+      transformOption(extract => extract.orElse(Some("default")).success)
     //#transformOption
 
     //#is

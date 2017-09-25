@@ -39,23 +39,23 @@ import akka.actor.Props
  * Advise actor a message was sent to JMS provider
  */
 case class MessageSent(
-  replyDestinationName: String,
-  matchId:              String,
-  sent:                 Long,
-  checks:               List[JmsCheck],
-  session:              Session,
-  next:                 Action,
-  title:                String
+    replyDestinationName: String,
+    matchId:              String,
+    sent:                 Long,
+    checks:               List[JmsCheck],
+    session:              Session,
+    next:                 Action,
+    title:                String
 )
 
 /**
  * Advise actor a response message was received from JMS provider
  */
 case class MessageReceived(
-  replyDestinationName: String,
-  matchId:              String,
-  received:             Long,
-  message:              Message
+    replyDestinationName: String,
+    matchId:              String,
+    received:             Long,
+    message:              Message
 )
 
 /**
