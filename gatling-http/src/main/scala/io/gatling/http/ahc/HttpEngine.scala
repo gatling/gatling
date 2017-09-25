@@ -27,6 +27,7 @@ import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.{ CacheOverrideNameResolver, ExtendedDnsNameResolver }
 import io.gatling.http.util.HttpTypeCaster
+import io.gatling.commons.util.Throwables._
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -93,7 +94,10 @@ class HttpEngine(
           try {
             ahcFactory.defaultAhc.executeRequest(requestBuilder.build).get
           } catch {
-            case NonFatal(e) => logger.info(s"Couldn't execute warm up request $url", e)
+            case NonFatal(e) => if (logger.underlying.isDebugEnabled)
+              logger.debug(s"Couldn't execute warm up request $url", e)
+            else
+              logger.info(s"Couldn't execute warm up request $url: ${e.detailedMessage}")
           }
 
         case _ =>
