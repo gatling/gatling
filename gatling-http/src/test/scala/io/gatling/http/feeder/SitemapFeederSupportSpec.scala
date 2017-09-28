@@ -19,13 +19,16 @@ import java.nio.file.Paths
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation.Failure
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
 class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
 
+  private implicit val configuration = GatlingConfiguration.loadForTest()
+
   "create sitemap feeder" should "get file resource" in {
     val feederBuilder = sitemap(Resource.resolveResource(Paths.get(""), "", "sitemap.xml"))
-    feederBuilder.records should have size 5
+    feederBuilder.apply.toArray.length shouldBe 5
   }
 
   it should "get non existing resource" in {

@@ -16,20 +16,15 @@
 package io.gatling.redis.feeder
 
 import io.gatling.AkkaSpec
-import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.feeder.Record
 
 import com.redis._
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
-import org.mockito.invocation.InvocationOnMock
-import org.mockito.stubbing.Answer
 
 class RedisFeederSpec extends AkkaSpec {
 
   val KEY = "key"
-  val ctx = mock[ScenarioContext]
-  when(ctx.system) thenReturn system
 
   // Generate list of maps Map(<redis-key> -> <expected-value>)
   def valsLst(key: String, s: String*): List[Record[String]] = {
@@ -41,20 +36,18 @@ class RedisFeederSpec extends AkkaSpec {
     var client: RedisClient = mock[RedisClient]
 
     // Call user specified function on withClient() call
-    when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
-      def answer(invocation: InvocationOnMock) = {
-        val arguments = invocation.getArguments
-        val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
-        func(client)
-      }
-    })
+    when(clientPool.withClient(any())).thenAnswer { invocation =>
+      val arguments = invocation.getArguments
+      val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
+      func(client)
+    }
   }
 
   "redis feeder" should "use lpop as default command" in {
     new MockContext {
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder(clientPool, KEY).build(ctx)
+      val feeder = RedisFeeder(clientPool, KEY).apply
       val actual = feeder.toList
 
       actual shouldBe valsLst(KEY, "v1", "v2", "v3")
@@ -65,7 +58,7 @@ class RedisFeederSpec extends AkkaSpec {
     new MockContext {
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP).build(ctx)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP).apply
       val actual = feeder.toList
 
       actual shouldBe valsLst(KEY, "v1", "v2", "v3")
@@ -76,7 +69,7 @@ class RedisFeederSpec extends AkkaSpec {
     new MockContext {
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER).build(ctx)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER).apply
 
       feeder.next() shouldBe Map(KEY -> "v1")
       feeder.next() shouldBe Map(KEY -> "v2")

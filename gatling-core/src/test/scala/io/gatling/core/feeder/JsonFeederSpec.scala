@@ -16,36 +16,24 @@
 package io.gatling.core.feeder
 
 import io.gatling.BaseSpec
-import io.gatling.core.CoreComponents
-import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
-import org.mockito.Mockito._
-
 class JsonFeederSpec extends BaseSpec with FeederSupport {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val jsonParsers = JsonParsers()
-
-  def scenarioContext = {
-    val ctx = mock[ScenarioContext]
-    val coreComponents = mock[CoreComponents]
-    when(coreComponents.configuration) thenReturn configuration
-    when(ctx.coreComponents) thenReturn coreComponents
-    ctx
-  }
+  private implicit val configuration = GatlingConfiguration.loadForTest()
+  private implicit val jsonParsers = JsonParsers()
 
   "jsonFile" should "handle proper JSON file" in {
-    val data = jsonFile("test.json").build(scenarioContext).toArray
+    val data = jsonFile("test.json").apply.toArray
 
-    data.size shouldBe 2
+    data.length shouldBe 2
     data(0)("id") shouldBe 19434
   }
 
   "jsonUrl" should "retrieve and handle proper JSON file" in {
-    val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).build(scenarioContext).toArray
-    data.size shouldBe 2
+    val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).apply.toArray
+    data.length shouldBe 2
     data(0)("id") shouldBe 19434
   }
 

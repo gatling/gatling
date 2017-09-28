@@ -43,7 +43,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     exitHereIfFailed ! session
 
     expectMsg(session)
-    exitProbe.expectNoMsg()
+    exitProbe.expectNoMessage(remainingOrDefault)
   }
 
   it should "end the scenario by sending the session to the user end if the session failed" in {
@@ -55,7 +55,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
 
     exitHereIfFailed ! session
 
-    expectNoMsg()
+    expectNoMessage(remainingOrDefault)
     exitProbe.expectMsg(session)
   }
 
@@ -68,7 +68,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
 
     exitHereIfFailed ! session
 
-    expectNoMsg()
+    expectNoMessage(remainingOrDefault)
     exitProbe.expectMsg(session)
     dataWriterProbe.expectMsgType[GroupMessage]
   }

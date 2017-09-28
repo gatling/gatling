@@ -21,10 +21,9 @@ import java.util.{ Map => JMap }
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Io._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
-import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader }
+import com.fasterxml.jackson.databind.MapperFeature
 import com.fasterxml.jackson.dataformat.csv.{ CsvSchema, CsvMapper }
 
 object SeparatedValuesParser {
@@ -33,23 +32,19 @@ object SeparatedValuesParser {
   val SemicolonSeparator = ';'
   val TabulationSeparator = '\t'
 
-  def parse(resource: Resource, columnSeparator: Char, quoteChar: Char, escapeChar: Char)(implicit configuration: GatlingConfiguration): IndexedSeq[Record[String]] =
-    withCloseable(resource.inputStream) { source =>
-      stream(source, columnSeparator, quoteChar, escapeChar).toVector
+  def parse(resource: Resource, columnSeparator: Char, quoteChar: Char, escapeChar: Char): IndexedSeq[Record[String]] =
+    withCloseable(resource.inputStream) { is =>
+      stream(columnSeparator, quoteChar, escapeChar)(is).toVector
     }
 
-  def stream(is: InputStream, columnSeparator: Char, quoteChar: Char, escapeChar: Char): Iterator[Record[String]] = {
-
+  def stream(columnSeparator: Char, quoteChar: Char, escapeChar: Char): InputStream => Feeder[String] = {
     val mapper = new CsvMapper().disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     val schema = CsvSchema.emptySchema.withHeader.withColumnSeparator(columnSeparator).withQuoteChar(quoteChar).withEscapeChar(escapeChar)
+    val reader = mapper.readerFor(classOf[JMap[_, _]]).`with`(schema)
 
-    val reader: ObjectReader = mapper.readerFor(classOf[JMap[_, _]])
-
-    val it: Iterator[JMap[String, String]] = reader
-      .`with`(schema)
-      .readValues(is)
-      .asScala
-
-    it.map(_.asScala.toMap)
+    is => {
+      val it: Iterator[JMap[String, String]] = reader.readValues(is).asScala
+      it.map(_.asScala.toMap)
+    }
   }
 }

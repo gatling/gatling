@@ -59,12 +59,11 @@ object BodyPart {
       case Some(bytes) => new ByteArrayPart(name, bytes, contentType.orNull, charset.orNull, fileName.getOrElse(resource.name), contentId.orNull, transferEncoding.orNull)
       case None =>
         resource match {
-          case FileResource(_, file) =>
+          case FileResource(file) =>
             new FilePart(name, file, contentType.orNull, charset.orNull, fileName.getOrElse(file.getName), contentId.orNull, transferEncoding.orNull)
           case _ =>
             new ByteArrayPart(name, resource.bytes, contentType.orNull, charset.orNull, fileName.getOrElse(resource.name), contentId.orNull, transferEncoding.orNull)
         }
-
     }
 }
 

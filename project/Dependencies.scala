@@ -20,6 +20,7 @@ object Dependencies {
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                      % "9.8.0-4"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                     % "1.7.25"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                      % "0.3.1"
+  private val spire                         = "io.gatling"                            %% "spire-cfor"                    % "0.14.1"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                         % "3.7.0"
   private val scalaLogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.7.2"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.1"
@@ -72,10 +73,10 @@ object Dependencies {
   // Dependencies by module
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, quicklens, java8Compat, ahcNettyUtils, pebble, findbugs) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, ahcNettyUtils, pebble, findbugs) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, akkaSlf4j, jacksonCsv, boopickle, java8Compat, caffeine, scalaParserCombinators, scopt) ++
+    Seq(akkaActor, akkaSlf4j, jacksonCsv, java8Compat, caffeine, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps

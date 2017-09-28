@@ -29,7 +29,7 @@ object SingletonFeed {
 
 class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 
-  def receive = {
+  def receive: Receive = {
     case FeedMessage(session, number, controller, next) =>
 
       def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
@@ -64,6 +64,12 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 
       next ! newSession
   }
+
+  override def postStop(): Unit =
+    feeder match {
+      case closeable: AutoCloseable => closeable.close()
+      case _                        =>
+    }
 }
 
 case class FeedMessage(session: Session, number: Expression[Int], controller: ActorRef, next: Action)

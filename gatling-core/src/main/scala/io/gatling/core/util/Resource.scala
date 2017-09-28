@@ -24,20 +24,15 @@ import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
-import io.gatling.core.util.Resource.Location
 
 object Resource {
 
   private object ClasspathResource {
-    private def extension(s: String) = {
-      val lastIndex = s.lastIndexOf('.')
-      if (lastIndex != -1) "" else s.substring(lastIndex + 1)
-    }
     def unapply(location: Location): Option[Validation[Resource]] =
       Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => FileResource(location, url.jfile).success
-          case "jar"  => ArchiveResource(location, url, extension(location.path)).success
+          case "file" => FileResource(url.jfile).success
+          case "jar"  => ArchiveResource(location.path.substring(location.path.lastIndexOf(File.separatorChar)), url).success
           case _      => s"$url is neither a file nor a jar".failure
         }
       }
@@ -47,7 +42,7 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] =
       (location.directory / location.path).ifFile { f =>
         if (f.canRead)
-          FileResource(location, f).success
+          FileResource(f).success
         else
           s"File $f can't be read".failure
       }
@@ -55,7 +50,7 @@ object Resource {
 
   private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      string2path(location.path).ifFile(f => FileResource(location, f).success)
+      string2path(location.path).ifFile(f => FileResource(f).success)
   }
 
   private[gatling] def resolveResource(directory: Path, possibleClasspathPackage: String, path: String): Validation[Resource] =
@@ -78,24 +73,28 @@ object Resource {
 }
 
 sealed trait Resource {
-  def name: String = location.path.substring(location.path.lastIndexOf(File.separatorChar))
-  def location: Location
+  def name: String
   def inputStream: InputStream
   def file: File
   def string(charset: Charset) = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte]
 }
 
-case class FileResource(location: Location, file: File) extends Resource {
-  def inputStream = new FileInputStream(file)
-  def bytes: Array[Byte] = file.toByteArray
+case class FileResource(file: File) extends Resource {
+  override def name: String = file.getName
+  override def inputStream = new FileInputStream(file)
+  override def bytes: Array[Byte] = file.toByteArray
 }
 
-case class ArchiveResource(location: Location, url: URL, extension: String) extends Resource {
+case class ArchiveResource(path: String, url: URL) extends Resource {
 
-  def inputStream = url.openStream
+  override val name: String = path.substring(path.lastIndexOf(File.separatorChar))
 
-  def file = {
+  override def inputStream = url.openStream
+
+  override def file = {
+    val lastDotIndex = name.lastIndexOf('.')
+    val extension = if (lastDotIndex != -1) "" else name.substring(lastDotIndex + 1)
     val tempFile = File.createTempFile("gatling", "." + extension)
 
     withCloseable(inputStream) { is =>
@@ -106,5 +105,5 @@ case class ArchiveResource(location: Location, url: URL, extension: String) exte
     tempFile
   }
 
-  def bytes: Array[Byte] = withCloseable(inputStream)(_.toByteArray())
+  override def bytes: Array[Byte] = withCloseable(inputStream)(_.toByteArray())
 }

@@ -29,6 +29,7 @@ object Shard {
     }
 
   def shard(total: Long, bucketNumber: Int, buckets: Int): Shard = {
+    require(bucketNumber < buckets, s"bucketNumber=$bucketNumber should be less than buckets=$buckets")
     val offset = sumFromZero(total, buckets, bucketNumber - 1)
     val value = sumFromZero(total, buckets, bucketNumber) - offset
     Shard(offset.toInt, value.toInt)

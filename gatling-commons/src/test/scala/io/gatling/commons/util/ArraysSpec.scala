@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jdbc
+package io.gatling.commons.util
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
-import io.gatling.jdbc.feeder.JdbcFeederSource
+import io.gatling.BaseSpec
 
-object Predef {
+class ArraysSpec extends BaseSpec {
+  "shuffle" should "not introduce duplicate entries" in {
+    val array = Iterator.from(0).take(100).toArray
+    val original = array.toVector.toString
+    Arrays.shuffle(array)
+    array.toSet.size shouldBe array.length
 
-  def jdbcFeeder(url: String, username: String, password: String, sql: String)(implicit configuration: GatlingConfiguration): SourceFeederBuilder[Any] =
-    SourceFeederBuilder(InMemoryFeederSource(JdbcFeederSource(url, username, password, sql)), configuration)
+    array.toVector.toString should not be original
+  }
+
+  it should "not crash on empty array" in {
+    Arrays.shuffle(Array.empty[String])
+  }
 }

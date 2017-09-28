@@ -66,6 +66,13 @@ class Feeders {
   }
 
   {
+    //#batched
+    val csvFeeder = csv("foo.csv").batched.random
+    val csvFeeder2 = csv("foo.csv").batched(200).random // tune internal buffer size
+    //#batched
+  }
+
+  {
     //#json-feeders
     val jsonFileFeeder = jsonFile("foo.json")
     val jsonUrlFeeder = jsonUrl("http://me.com/foo.json")
@@ -146,7 +153,7 @@ class Feeders {
 
   {
     //#non-shared
-    val records = csv("foo.csv").records
+    val records = csv("foo.csv").apply.toSeq
 
     foreach(records, "record") {
       exec(flattenMapIntoAttributes("${record}"))
@@ -160,11 +167,11 @@ class Feeders {
     import java.util.concurrent.ThreadLocalRandom
 
     // index records by project
-    val recordsByProject: Map[String, IndexedSeq[Record[String]]] =
-      csv("projectIssue.csv").records.groupBy { record => record("project") }
+    val recordsByProject: Map[String, IndexedSeq[Record[Any]]] =
+      csv("projectIssue.csv").apply.toIndexedSeq.groupBy { record => record("project").toString }
 
     // convert the Map values to get only the issues instead of the full records
-    val issuesByProject: Map[String, IndexedSeq[String]] =
+    val issuesByProject: Map[String, IndexedSeq[Any]] =
       recordsByProject.mapValues { records => records.map { record => record("issue") } }
 
     // inject project

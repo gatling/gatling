@@ -27,7 +27,7 @@ import scala.util.control.NonFatal
 
 object Io {
 
-  val DefaultBufferSize = 4 * 1024
+  val DefaultBufferSize = 8 * 1024
 
   implicit class RichURL(val url: URL) extends AnyVal {
 

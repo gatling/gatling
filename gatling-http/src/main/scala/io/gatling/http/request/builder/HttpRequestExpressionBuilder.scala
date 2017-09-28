@@ -68,8 +68,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
                 case Some(bytes) => requestBuilder.setBody(bytes)
                 case None =>
                   resource match {
-                    case FileResource(_, file) => requestBuilder.setBody(file)
-                    case _                     => requestBuilder.setBody(resource.bytes)
+                    case FileResource(file) => requestBuilder.setBody(file)
+                    case _                  => requestBuilder.setBody(resource.bytes)
                   }
               }
           }

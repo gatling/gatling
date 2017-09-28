@@ -13,14 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jdbc
+package io.gatling.commons.util
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
-import io.gatling.jdbc.feeder.JdbcFeederSource
+import java.util.concurrent.ThreadLocalRandom
 
-object Predef {
+import io.gatling.spire.syntax.cfor._
 
-  def jdbcFeeder(url: String, username: String, password: String, sql: String)(implicit configuration: GatlingConfiguration): SourceFeederBuilder[Any] =
-    SourceFeederBuilder(InMemoryFeederSource(JdbcFeederSource(url, username, password, sql)), configuration)
+object Arrays {
+
+  private def swap[T](array: Array[T], i: Int, j: Int): Unit = {
+    val tmp = array(i)
+    array(i) = array(j)
+    array(j) = tmp
+  }
+
+  def shuffle[T](array: Array[T]): Unit =
+    shuffle(array, array.length)
+
+  def shuffle[T](array: Array[T], length: Int): Unit = {
+    val rnd = ThreadLocalRandom.current()
+    cfor(length)(_ > 1, _ - 1) { i =>
+      swap(array, i - 1, rnd.nextInt(i))
+    }
+  }
 }

@@ -20,4 +20,8 @@ package object feeder {
   type Record[T] = Map[String, T]
 
   type Feeder[T] = Iterator[Record[T]]
+
+  trait CloseableFeeder[T] extends Feeder[T] with AutoCloseable
+
+  type FeederBuilder = () => Feeder[Any]
 }

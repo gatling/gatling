@@ -35,7 +35,7 @@ class PaceSpec extends AkkaSpec {
 
     // Send second session, expect nothing for 7 seconds, then a response
     instance ! session1
-    expectNoMsg(2.seconds)
+    expectNoMessage(2.seconds)
     val session2 = expectMsgClass(2.seconds, classOf[Session])
 
     // counter must have incremented by 3 seconds

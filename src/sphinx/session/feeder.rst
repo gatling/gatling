@@ -66,6 +66,18 @@ Besides quoting feature described in the RFC, one can specify an escape characte
 
 .. includecode:: code/Feeders.scala#escape-char
 
+Finally, if your files are very large, it might be difficult to have them sit in memory.
+You can then use the `batched` mode.
+
+.. warning::
+``batched`` must be the first option to be configured.
+
+.. warning::
+When in ``batched`` mode, ``random`` and ``shuffle`` can't of course operate on the full data, and only operate on an internal buffer of records.
+The default size of this buffer is 2,000 and can be changed.
+
+.. includecode:: code/Feeders.scala#batched
+
 .. _feeder-json:
 
 JSON feeders

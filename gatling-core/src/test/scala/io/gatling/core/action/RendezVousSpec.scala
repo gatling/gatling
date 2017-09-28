@@ -27,10 +27,10 @@ class RendezVousSpec extends AkkaSpec {
     val session = Session("scenario", 0)
 
     rendezVous ! session
-    expectNoMsg()
+    expectNoMessage(remainingOrDefault)
 
     rendezVous ! session
-    expectNoMsg()
+    expectNoMessage(remainingOrDefault)
 
     rendezVous ! session
     expectMsgAllOf(session, session, session)

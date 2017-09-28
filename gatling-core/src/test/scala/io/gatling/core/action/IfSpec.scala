@@ -38,11 +38,11 @@ class IfSpec extends AkkaSpec {
     val sessionWithTrueCondition = baseSession.set("condition", true)
     ifAction ! sessionWithTrueCondition
     thenActorProbe.expectMsg(sessionWithTrueCondition)
-    elseActorProbe.expectNoMsg()
+    elseActorProbe.expectNoMessage(remainingOrDefault)
 
     val sessionWithFalseCondition = baseSession.set("condition", false)
     ifAction ! sessionWithFalseCondition
-    thenActorProbe.expectNoMsg()
+    thenActorProbe.expectNoMessage(remainingOrDefault)
     elseActorProbe.expectMsg(sessionWithFalseCondition)
   }
 }

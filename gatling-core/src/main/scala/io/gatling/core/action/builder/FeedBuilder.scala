@@ -26,17 +26,14 @@ import io.gatling.core.util.NameGen
 import akka.actor.ActorRef
 
 object FeedBuilder {
-
-  // FIXME not very clean, but is there a better way?
-  val Instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
+  val Instances = mutable.Map.empty[FeederBuilder, ActorRef]
 }
 
-class FeedBuilder(feederBuilder: FeederBuilder[_], number: Expression[Int]) extends ActionBuilder with NameGen {
+class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
 
   private[this] def newSingletonFeed(ctx: ScenarioContext): ActorRef = {
-    import ctx._
-    val props = SingletonFeed.props(feederBuilder.build(ctx))
-    system.actorOf(props, genName("singletonFeed"))
+    val props = SingletonFeed.props(feederBuilder.apply)
+    ctx.system.actorOf(props, genName("singletonFeed"))
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
