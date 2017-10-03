@@ -240,7 +240,7 @@ Same as :ref:`jsonPath <http-check-jsonpath>` but for `JSONP <http://en.wikipedi
 
 * ``css(expression, attribute)``
 
-Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
+Gatling supports `CSS Selectors <https://jodd.org/csselly/>`_.
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
