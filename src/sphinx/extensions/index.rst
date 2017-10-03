@@ -26,6 +26,7 @@ Third Parties
 * `Thrift plugin <https://github.com/3tty0n/gatling-thrift>`_ by Yusuke Izawa
 * `JDBC plugin <https://github.com/tmcgrath/gatling-sql>`_ by Todd McGrath
 * `ZeroMQ plugin <https://github.com/softwaremill/gatling-zeromq>`_ by SoftwareMill
+* `UDP plugin <https://github.com/arenhage/gatling-udp>`_ by Daniel Arenhage
 
 .. warning::
   Those projects are third parties and are not maintained by the Gatling core committers.
