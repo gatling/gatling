@@ -9,11 +9,11 @@ Print Session Values
 
 Print all the values within a session with this function literal.
 
-.. includecode:: code/ComputerWorld.scala#print-all-session-values
+.. includecode:: code/ComputerDatabaseSample.scala#print-all-session-values
 
 Print a session value
 
-.. includecode:: code/ComputerWorld.scala#print-session-value
+.. includecode:: code/ComputerDatabaseSample.scala#print-session-value
 
 Logback
 =======

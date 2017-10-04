@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class Sse {
+class SseSample {
 
   //#sseName
   sse("SSE Operation").sseName("myCustomName")

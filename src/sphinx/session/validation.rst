@@ -33,22 +33,22 @@ Creating instances
 
 First, import the ``validation`` package:
 
-.. includecode:: code/ValidationSpec.scala#import
+.. includecode:: code/ValidationSample.scala#import
 
 Then, you can either directly create new instance of the case classes:
 
-.. includecode:: code/ValidationSpec.scala#with-classes
+.. includecode:: code/ValidationSample.scala#with-classes
 
 or use the helpers:
 
-.. includecode:: code/ValidationSpec.scala#with-helpers
+.. includecode:: code/ValidationSample.scala#with-helpers
 
 Manipulating
 ------------
 
 ``Validation`` can be used with pattern matching:
 
-.. includecode:: code/ValidationSpec.scala#pattern-matching
+.. includecode:: code/ValidationSample.scala#pattern-matching
 
 ``Validation`` has the standard Scala "monadic" methods such as:
 
@@ -57,15 +57,15 @@ Manipulating
 
 Basically, ``map`` is used to **chain with an operation that can't fail**, hence return a raw value:
 
-.. includecode:: code/ValidationSpec.scala#map
+.. includecode:: code/ValidationSample.scala#map
 
 ``flatMap`` is used to **chain with an operation that can fail**, hence return a ``Validation``:
 
-.. includecode:: code/ValidationSpec.scala#flatMap
+.. includecode:: code/ValidationSample.scala#flatMap
 
 In both case, the chained function is not called if the original ``Validation`` was a ``Failure``:
 
-.. includecode:: code/ValidationSpec.scala#map-failure
+.. includecode:: code/ValidationSample.scala#map-failure
 
 You can also use Scala *"for comprehension"* syntactic sugar.
 
@@ -73,4 +73,4 @@ For the impatient, just consider it's like a super loop that can iterate other m
 
 Here's what the above example would look like using a *"for comprehension"*:
 
-.. includecode:: code/ValidationSpec.scala#for-comp
+.. includecode:: code/ValidationSample.scala#for-comp

@@ -19,7 +19,7 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class Scenario {
+class ScenarioSample {
 
   //#bootstrapping
   scenario("My Scenario")

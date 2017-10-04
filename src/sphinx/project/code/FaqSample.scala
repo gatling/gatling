@@ -16,7 +16,7 @@
 import io.gatling.core.Predef._
 import io.gatling.core.structure.ChainBuilder
 
-class FAQ {
+class FaqSample {
 
   //#chains
   object ChainLibrary1 {

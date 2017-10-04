@@ -15,7 +15,7 @@
  */
 import io.gatling.core.Predef._
 
-class Assertions extends Simulation {
+class AssertionSample extends Simulation {
 
   val scn = scenario("foo").inject(atOnceUsers(1))
 

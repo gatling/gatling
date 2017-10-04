@@ -8,11 +8,11 @@ Feeder is a type alias for ``Iterator[Map[String, T]]``, meaning that the compon
 
 It's very simple to build a custom one. For example, here's how one could build a random email generator:
 
-.. includecode:: code/Feeders.scala#random-mail-generator
+.. includecode:: code/FeederSample.scala#random-mail-generator
 
 The structure DSL provides a ``feed`` method.
 
-.. includecode:: code/Feeders.scala#feed
+.. includecode:: code/FeederSample.scala#feed
 
 This defines a workflow step where **every virtual user** feed on the same Feeder.
 
@@ -24,7 +24,7 @@ If the Feeder can't produce enough records, Gatling will complain about it and y
   You can also feed multiple records all at once. If so, attribute names, will be suffixed.
   For example, if the columns are name "foo" and "bar" and you're feeding 2 records at once, you'll get "foo1", "bar1", "foo2" and "bar2" session attributes.
 
-.. includecode:: code/Feeders.scala#feed-multiple
+.. includecode:: code/FeederSample.scala#feed-multiple
 
 .. _feeder-builder:
 
@@ -34,11 +34,11 @@ RecordSeqFeederBuilder
 An ``Array[Map[String, T]]`` or a ``IndexedSeq[Map[String, T]]`` can be implicitly turned into a Feeder.
 Moreover, this implicit conversion also provides some additional methods for defining the way the Seq is iterated over:
 
-.. includecode:: code/Feeders.scala#strategies
+.. includecode:: code/FeederSample.scala#strategies
 
 For example:
 
-.. includecode:: code/Feeders.scala#feeder-from-array-with-random
+.. includecode:: code/FeederSample.scala#feeder-from-array-with-random
 
 .. _feeder-csv:
 
@@ -53,7 +53,7 @@ By default, our parser respects `RFC4180 <https://tools.ietf.org/html/rfc4180>`_
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
 
-.. includecode:: code/Feeders.scala#sep-values-feeders
+.. includecode:: code/FeederSample.scala#sep-values-feeders
 
 Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
 
@@ -64,7 +64,7 @@ Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the w
 
 Besides quoting feature described in the RFC, one can specify an escape character so some content characters don't get confused for separator or quoting ones.
 
-.. includecode:: code/Feeders.scala#escape-char
+.. includecode:: code/FeederSample.scala#escape-char
 
 Finally, if your files are very large, it might be difficult to have them sit in memory.
 You can then use the `batched` mode.
@@ -76,7 +76,7 @@ You can then use the `batched` mode.
 When in ``batched`` mode, ``random`` and ``shuffle`` can't of course operate on the full data, and only operate on an internal buffer of records.
 The default size of this buffer is 2,000 and can be changed.
 
-.. includecode:: code/Feeders.scala#batched
+.. includecode:: code/FeederSample.scala#batched
 
 .. _feeder-json:
 
@@ -85,7 +85,7 @@ JSON feeders
 
 Some might want to use data in JSON format instead of CSV:
 
-.. includecode:: code/Feeders.scala#json-feeders
+.. includecode:: code/FeederSample.scala#json-feeders
 
 For example, the following JSON::
 
@@ -115,7 +115,7 @@ JDBC feeder
 
 Gatling also provide a builtin that reads from a JDBC connection.
 
-.. includecode:: code/Feeders.scala#jdbc-feeder
+.. includecode:: code/FeederSample.scala#jdbc-feeder
 
 Just like File parser built-ins, this return a ``RecordSeqFeederBuilder`` instance.
 
@@ -135,7 +135,7 @@ Sitemap Feeder
 
 Gatling supports a feeder that reads data from a `Sitemap <http://www.sitemaps.org/protocol.html>`_ file.
 
-.. includecode:: code/Feeders.scala#sitemap-feeder
+.. includecode:: code/FeederSample.scala#sitemap-feeder
 
 The following Sitemap file::
 
@@ -190,18 +190,18 @@ Gatling can read data from Redis using one of the following Redis commands.
 
 By default RedisFeeder uses LPOP command:
 
-.. includecode:: code/Feeders.scala#redis-LPOP
+.. includecode:: code/FeederSample.scala#redis-LPOP
 
 An optional third parameter is used to specify desired Redis command:
 
-.. includecode:: code/Feeders.scala#redis-SPOP
+.. includecode:: code/FeederSample.scala#redis-SPOP
 
 Note that since v2.1.14, Redis supports mass insertion of data from a `file <http://redis.io/topics/mass-insert>`_.
 It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
 
 For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*:
 
-.. includecode:: code/Feeders.scala#redis-1million
+.. includecode:: code/FeederSample.scala#redis-1million
 
 The urls can then be loaded in Redis using the following command::
 
@@ -224,7 +224,7 @@ For example, a csv feeder would give you only Strings, but you might want to con
 
 For example:
 
-.. includecode:: code/Feeders.scala#convert
+.. includecode:: code/FeederSample.scala#convert
 
 .. _feeder-non-shared:
 
@@ -235,7 +235,7 @@ Sometimes, you could want all virtual users to play all the records in a file, a
 
 Still, it's quite easy to build, thanks to :ref:`flattenMapIntoAttributes <scenario-exec-function-flatten>`  e.g.:
 
-.. includecode:: code/Feeders.scala#non-shared
+.. includecode:: code/FeederSample.scala#non-shared
 
 .. _feeder-user-dependent:
 
@@ -274,4 +274,4 @@ In projectIssue.csv::
 
 Here's how you can randomly inject an issue, depending on the project:
 
-.. includecode:: code/Feeders.scala#user-dependent-data
+.. includecode:: code/FeederSample.scala#user-dependent-data

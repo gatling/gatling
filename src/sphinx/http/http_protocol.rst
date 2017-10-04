@@ -22,7 +22,7 @@ Use the ``http`` object in order to create an HTTP protocol.
 As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
 This is done thanks to the following statements:
 
-.. includecode:: code/HttpProtocol.scala#bootstrapping
+.. includecode:: code/HttpProtocolSample.scala#bootstrapping
 
 Core parameters
 ===============
@@ -35,14 +35,14 @@ Base URL
 As you may have seen in the previous example, you can set a base URL.
 This base URL will be prepended to all urls that does not start with ``http``, e.g.:
 
-.. includecode:: code/HttpProtocol.scala#baseUrl
+.. includecode:: code/HttpProtocolSample.scala#baseUrl
 
 Load testing several servers with client based load balancing
 -------------------------------------------------------------
 
 If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseURLs`` which accepts a ``String*`` or a ``List[String]``:
 
-.. includecode:: code/HttpProtocol.scala#baseUrls
+.. includecode:: code/HttpProtocolSample.scala#baseUrls
 
 The selection of the URL is made at each request, using the ``Random`` generator.
 
@@ -58,7 +58,7 @@ In order to compensate this effect, Gatling automatically performs a request to 
 To disable this feature, just add ``.disableWarmUp`` to an HTTP Protocol Configuration definition.
 To change the warm up url, just add ``.warmUp("newUrl")``.
 
-.. includecode:: code/HttpProtocol.scala#warmUp
+.. includecode:: code/HttpProtocolSample.scala#warmUp
 
 Engine parameters
 =================
@@ -84,7 +84,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 * ``maxConnectionsPerHostLikeIE10``
 * ``maxConnectionsPerHostLikeChrome``
 
-.. includecode:: code/HttpProtocol.scala#maxConnectionsPerHost
+.. includecode:: code/HttpProtocolSample.scala#maxConnectionsPerHost
 
 .. _http-protocol-connection-sharing:
 
@@ -219,7 +219,7 @@ Rules are:
 
 ``silentURI`` lets you pass a regular expression that would disable logging for ALL matching requests:
 
-.. includecode:: code/HttpProtocol.scala#silentURI
+.. includecode:: code/HttpProtocolSample.scala#silentURI
 
 .. _http-protocol-silentResources:
 
@@ -237,7 +237,7 @@ Gatling lets you set some generic headers at the http protocol definition level 
 
 e.g.:
 
-.. includecode:: code/HttpProtocol.scala#headers
+.. includecode:: code/HttpProtocolSample.scala#headers
 
 .. warning:: ``headers`` used to be named ``baseHeaders``. Old name was deprecated, then removed in 2.1.
 
@@ -400,8 +400,8 @@ Proxy parameters
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials:
 
-.. includecode:: code/HttpProtocol.scala#proxy
+.. includecode:: code/HttpProtocolSample.scala#proxy
 
 You can also disable the use of proxy for a given list of hosts with ``noProxyFor(hosts: String*)``:
 
-.. includecode:: code/HttpProtocol.scala#noProxyFor
+.. includecode:: code/HttpProtocolSample.scala#noProxyFor

@@ -17,7 +17,7 @@ If you want to deal with several SSE streams per virtual users, you have to give
 
 For example:
 
-.. includecode:: code/Sse.scala#sseName
+.. includecode:: code/SseSample.scala#sseName
 
 Of course, this step is not required if you deal with one single SSE stream per virtual user.
 
@@ -32,7 +32,7 @@ The first thing is to get a server sent event:
 
 For example:
 
-.. includecode:: code/Sse.scala#sseOpen
+.. includecode:: code/SseSample.scala#sseOpen
 
 
 .. note:: Gatling automatically sets ``Accept`` header to ``text/event-stream`` and ``Cache-Control`` to ``no-cache``.
@@ -48,7 +48,7 @@ When you're done with a SSE stream, you can close it:
 
 For example:
 
-.. includecode:: code/Sse.scala#sseClose
+.. includecode:: code/SseSample.scala#sseClose
 
 Server Messages: Checks
 =======================
@@ -66,11 +66,11 @@ Checks can be set in 2 ways.
 
 First, when sending a message:
 
-.. includecode:: code/Sse.scala#check-from-message
+.. includecode:: code/SseSample.scala#check-from-message
 
 Then, directly from the main HTTP flow:
 
-.. includecode:: code/Sse.scala#check-from-flow
+.. includecode:: code/SseSample.scala#check-from-flow
 
 If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
 
@@ -81,7 +81,7 @@ Cancel a Check
 
 One can decide to cancel a pending check:
 
-.. includecode:: code/Sse.scala#cancel-check
+.. includecode:: code/SseSample.scala#cancel-check
 
 .. _http-sse-check-build:
 
@@ -95,7 +95,7 @@ So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-bui
 
 Here are few examples:
 
-.. includecode:: code/Sse.scala#build-check
+.. includecode:: code/SseSample.scala#build-check
 
 .. _http-sse-check-reconciliate:
 
@@ -111,7 +111,7 @@ This can be done:
 * implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
 * explicitly with the ``reconciliate`` method.
 
-.. includecode:: code/Sse.scala#reconciliate
+.. includecode:: code/SseSample.scala#reconciliate
 
 .. _http-sse-check-conf:
 
@@ -129,4 +129,4 @@ Example
 
 Here's an example that runs against a stock market sample:
 
-.. includecode:: code/Sse.scala#stock-market-sample
+.. includecode:: code/SseSample.scala#stock-market-sample

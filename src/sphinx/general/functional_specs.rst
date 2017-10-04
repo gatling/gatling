@@ -13,7 +13,7 @@ when testing REST APIs but it's designed to work with anything you can retrieve 
 
 Functional tests written with Gatling look like this:
 
-.. includecode:: code/GatlingFunSpecExample.scala#example-test
+.. includecode:: code/GatlingFunSpecSample.scala#example-test
 
 1. Have your test class extend GatlingHttpFunSpec to start writing a Gatling functional spec.
 2. Set the base URL of the endpoint you want to test.

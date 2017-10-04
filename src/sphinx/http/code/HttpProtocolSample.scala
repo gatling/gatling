@@ -16,7 +16,7 @@
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class HttpProtocol extends Simulation {
+class HttpProtocolSample extends Simulation {
 
   {
     //#bootstrapping

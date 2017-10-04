@@ -15,7 +15,7 @@
  */
 import io.gatling.core.session.{ SessionAttribute, Session }
 
-class SessionSpec {
+class SessionSample {
 
   {
     //#sessions-are-immutable

@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class WebSocket {
+class WebSocketSample {
 
   //#wsName
   ws("WS Operation").wsName("myCustomName")

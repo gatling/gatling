@@ -16,7 +16,7 @@
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class SimulationStructure extends Simulation {
+class SimulationStructureSample extends Simulation {
 
   val httpConf = http
 

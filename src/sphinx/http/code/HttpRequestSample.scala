@@ -17,7 +17,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.session.Expression
 import io.gatling.http.Predef._
 
-class HttpRequest {
+class HttpRequestSample {
 
   {
     //#example-embedded-or-not

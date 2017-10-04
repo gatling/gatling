@@ -16,7 +16,7 @@
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class HttpHelpers {
+class HttpHelperSample {
 
   //#cookie
   exec(addCookie(Cookie("name", "value")))
