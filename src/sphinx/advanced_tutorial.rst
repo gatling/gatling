@@ -24,11 +24,11 @@ We are going to extract those chains and store them into *objects*.
 Objects are native Scala singletons.
 You can create those in dedicated files, or directly in the same file as the Simulation.
 
-.. includecode:: code/AdvancedTutorial.scala#isolate-processes
+.. includecode:: code/AdvancedTutorialSample.scala#isolate-processes
 
 We can now rewrite our scenario using these reusable business processes:
 
-.. includecode:: code/AdvancedTutorial.scala#processes
+.. includecode:: code/AdvancedTutorialSample.scala#processes
 
 Step 02: Configure virtual users
 ================================
@@ -47,7 +47,7 @@ Translating into a scenario this gives::
 
 To increase the number of simulated users, all you have to do is to change the configuration of the simulation as follows:
 
-.. includecode:: code/AdvancedTutorial.scala#setup-users
+.. includecode:: code/AdvancedTutorialSample.scala#setup-users
 
 Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our server ;-)
 
@@ -59,7 +59,7 @@ The value of the ramp indicates the duration over which the users will be linear
 
 In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer the server:
 
-.. includecode:: code/AdvancedTutorial.scala#setup-users-and-admins
+.. includecode:: code/AdvancedTutorialSample.scala#setup-users-and-admins
 
 Step 03: Use dynamic data with Feeders and Checks
 =================================================
@@ -85,7 +85,7 @@ This file contains the following lines:
 
 Let's then declare a feeder and use it to feed our users with the above data:
 
-.. includecode:: code/AdvancedTutorial.scala#feeder
+.. includecode:: code/AdvancedTutorialSample.scala#feeder
 
 Explanations:
   1. First we create a feeder from a csv file with the following columns: *searchCriterion*, *searchComputerName*.
@@ -110,12 +110,12 @@ We have four times the same request with a different query param value. Can we c
 First we will extract the repeated ``exec`` block to a function.
 Indeed, ``Simulation``'s are plain Scala classes so we can use all the power of the language if needed:
 
-.. includecode:: code/AdvancedTutorial.scala#loop-simple
+.. includecode:: code/AdvancedTutorialSample.scala#loop-simple
 
 We can now call this function and pass the desired page number.
 But we still have repetition, it's time to introduce another builtin structure:
 
-.. includecode:: code/AdvancedTutorial.scala#loop-for
+.. includecode:: code/AdvancedTutorialSample.scala#loop-for
 
 Explanations:
   1. The ``repeat`` builtin is a loop resolved at **runtime**.
@@ -134,7 +134,7 @@ By default Gatling checks if the http response status is *20x* or *304*.
 
 To demonstrate failure management we will introduce a ``check`` on a condition that fails randomly:
 
-.. includecode:: code/AdvancedTutorial.scala#check
+.. includecode:: code/AdvancedTutorialSample.scala#check
 
 Explanations:
   1. First we import ``ThreadLocalRandom``, to generate random values.
@@ -144,7 +144,7 @@ Explanations:
 
 To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` constructs as follow:
 
-.. includecode:: code/AdvancedTutorial.scala#tryMax-exitHereIfFailed
+.. includecode:: code/AdvancedTutorialSample.scala#tryMax-exitHereIfFailed
 
 Explanations:
   1. ``tryMax`` tries a given block up to n times.

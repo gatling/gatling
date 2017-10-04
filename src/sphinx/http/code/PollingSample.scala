@@ -13,19 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import scala.concurrent.duration._
 import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 
-class PassingParameters extends Simulation {
+class PollingSample {
 
-  //#string-property
-  val foo = System.getProperty("foo")
-  //#string-property
+  //#pollerName
+  polling.pollerName("myCustomName")
+  //#pollerName
 
-  val scn = scenario("foo")
+  //#pollerStart
+  exec(
+    polling
+      .every(10 seconds)
+      .exec(http("name").get("url"))
+  )
+  //#pollerStart
 
-  //#injection-from-props
-  val nbUsers = Integer.getInteger("users", 1)
-  val myRamp = java.lang.Long.getLong("ramp", 0L)
-  setUp(scn.inject(rampUsers(nbUsers) over (myRamp seconds)))
-  //#injection-from-props
+  //#pollerStop
+  exec(polling.stop)
+  //#pollerStop
 }

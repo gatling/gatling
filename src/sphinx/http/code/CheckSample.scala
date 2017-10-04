@@ -18,7 +18,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class Checks {
+class CheckSample {
 
   //#status-is-200
   http("My Request").get("myUrl").check(status.is(200))
@@ -177,5 +177,4 @@ class Checks {
     bodyString.is(ElFileBody("expected_template.json"))
     //#bodyString-isElFileBody
   }
-
 }

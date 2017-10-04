@@ -14,33 +14,18 @@
  * limitations under the License.
  */
 import io.gatling.core.Predef._
-import io.gatling.core.structure.ChainBuilder
 
-class FAQ {
+class PassingParametersSample extends Simulation {
 
-  //#chains
-  object ChainLibrary1 {
-    val chain1: ChainBuilder = ???
-    val chain2: ChainBuilder = ???
-    // etc...
-    val chain100: ChainBuilder = ???
-  }
+  //#string-property
+  val foo = System.getProperty("foo")
+  //#string-property
 
-  object ChainLibrary2 {
-    val chain101: ChainBuilder = ???
-    val chain102: ChainBuilder = ???
-    // etc...
-    val chain150: ChainBuilder = ???
-  }
+  val scn = scenario("foo")
 
-  class MyVeryBigSimulation {
-
-    import ChainLibrary1._
-    import ChainLibrary2._
-
-    val scn = scenario("Name")
-      .exec(chain1, chain2, /* etc... */ chain100)
-      .exec(chain101, chain102, /* etc... */ chain150)
-  }
-  //#chains
+  //#injection-from-props
+  val nbUsers = Integer.getInteger("users", 1)
+  val myRamp = java.lang.Long.getLong("ramp", 0L)
+  setUp(scn.inject(rampUsers(nbUsers) over (myRamp seconds)))
+  //#injection-from-props
 }

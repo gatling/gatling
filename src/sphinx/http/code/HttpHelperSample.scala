@@ -13,30 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import io.gatling.core.session.{ SessionAttribute, Session }
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 
-class SessionSpec {
+class HttpHelperSample {
 
-  {
-    //#sessions-are-immutable
-    val session: Session = ???
+  //#cookie
+  exec(addCookie(Cookie("name", "value")))
+  //#cookie
 
-    // wrong usage
-    session.set("foo", "FOO") // wrong: the result of this set call is just discarded
-    session.set("bar", "BAR")
+  //#flushSessionCookies
+  exec(flushSessionCookies)
+  //#flushSessionCookies
 
-    // proper usage
-    session.set("foo", "FOO").set("bar", "BAR")
-    //#sessions-are-immutable
+  //#flushCookieJar
+  exec(flushCookieJar)
+  //#flushCookieJar
 
-  }
-  {
-    //#session
-    val session: Session = ???
-    //#session
-
-    //#session-attribute
-    val attribute: SessionAttribute = session("foo")
-    //#session-attribute
-  }
+  //#flushHttpCache
+  exec(flushHttpCache)
+  //#flushHttpCache
 }

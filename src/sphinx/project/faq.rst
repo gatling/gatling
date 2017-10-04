@@ -109,7 +109,7 @@ In Java and Scala, there's a method size limit. Here, the method is your Simulat
 
 Typically, you have to move your chains out of your Simulation class, for example into objects:
 
-.. includecode:: code/FAQ.scala#chains
+.. includecode:: code/FaqSample.scala#chains
 
 .. _dandling-connections:
 

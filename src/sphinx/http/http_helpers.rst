@@ -22,7 +22,7 @@ Adding a Cookie
 
 One might want to manually add or compute a cookie:
 
-.. includecode:: code/HttpHelpers.scala#cookie
+.. includecode:: code/HttpHelperSample.scala#cookie
 
 Cookie can also take more optional parameters::
 
@@ -31,6 +31,10 @@ Cookie can also take more optional parameters::
     .withPath(path: Expression[String])
     .withMaxAge(maxAge: Int)
 
+domain is optional, defaulting to base url domain
+path is optional, defaulting to "/"
+maxAge is optional, defaulting to ``Long.MinValue``
+
 .. _http-helpers-cookie-flush-session:
 
 Flushing Session Cookies
@@ -38,7 +42,7 @@ Flushing Session Cookies
 
 One might want to simulate closing a browser, so Session cookies are dropped but permanent cookies are still there:
 
-.. includecode:: code/HttpHelpers.scala#flushSessionCookies
+.. includecode:: code/HttpHelperSample.scala#flushSessionCookies
 
 .. _http-helpers-cookie-flush-all:
 
@@ -47,7 +51,7 @@ Flushing All Cookies
 
 One might want to flush the whole CookieJar:
 
-.. includecode:: code/HttpHelpers.scala#flushCookieJar
+.. includecode:: code/HttpHelperSample.scala#flushCookieJar
 
 .. _http-helpers-cache:
 
@@ -61,5 +65,5 @@ Flushing the Cache
 
 One might want to flush the whole HTTP cache (for the virtual user) :
 
-.. includecode:: code/HttpHelpers.scala#flushHttpCache
+.. includecode:: code/HttpHelperSample.scala#flushHttpCache
 

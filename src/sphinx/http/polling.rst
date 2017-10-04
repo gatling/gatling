@@ -18,7 +18,7 @@ you have to give them a name and pass this name on each polling operation:
 
 For example:
 
-.. includecode:: code/Polling.scala#pollerName
+.. includecode:: code/PollingSample.scala#pollerName
 
 Of course, this step is not required if you deal with one single poller per virtual user.
 
@@ -33,7 +33,7 @@ The ``period`` parameter is from response received to next request sent.
 
 For example:
 
-.. includecode:: code/Polling.scala#pollerStart
+.. includecode:: code/PollingSample.scala#pollerStart
 
 Stop polling
 ------------
@@ -44,7 +44,7 @@ When you don't need to poll a request anymore, you can stop the poller:
 
 For example:
 
-.. includecode:: code/Polling.scala#pollerStop
+.. includecode:: code/PollingSample.scala#pollerStop
 
 .. note::
   Stopping a poller works works in the same fashion as SSE or WebSockets ``reconciliate``:

@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import scala.concurrent.duration._
-import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import io.gatling.core.session.{ SessionAttribute, Session }
 
-class Polling {
+class SessionSample {
 
-  //#pollerName
-  polling.pollerName("myCustomName")
-  //#pollerName
+  {
+    //#sessions-are-immutable
+    val session: Session = ???
 
-  //#pollerStart
-  exec(
-    polling
-      .every(10 seconds)
-      .exec(http("name").get("url"))
-  )
-  //#pollerStart
+    // wrong usage
+    session.set("foo", "FOO") // wrong: the result of this set call is just discarded
+    session.set("bar", "BAR")
 
-  //#pollerStop
-  exec(polling.stop)
-  //#pollerStop
+    // proper usage
+    session.set("foo", "FOO").set("bar", "BAR")
+    //#sessions-are-immutable
+
+  }
+  {
+    //#session
+    val session: Session = ???
+    //#session
+
+    //#session-attribute
+    val attribute: SessionAttribute = session("foo")
+    //#session-attribute
+  }
 }

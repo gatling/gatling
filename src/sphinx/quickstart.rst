@@ -143,7 +143,7 @@ Gatling scenario explained
 
 Here is the produced output:
 
-.. includecode:: code/QuickStart.scala#quickstart-recorder-output
+.. includecode:: code/QuickStartSample.scala#quickstart-recorder-output
 
 What does it mean?
 

@@ -13,7 +13,7 @@ Gatling JMS DSL is not available by default.
 
 One has to manually add the following imports:
 
-.. includecode:: code/Jms.scala#imports
+.. includecode:: code/JmsSample.scala#imports
 
 JMS Protocol
 ============
@@ -97,5 +97,4 @@ Example
 
 Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named "jmstestq":
 
-.. includecode:: code/Jms.scala#example-simulation
-
+.. includecode:: code/JmsSample.scala#example-simulation

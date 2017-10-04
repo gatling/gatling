@@ -15,7 +15,7 @@
  */
 import io.gatling.core.Predef._
 
-class Feeders {
+class FeederSample {
 
   {
     //#random-mail-generator

@@ -88,18 +88,18 @@ Session has the following methods:
 
   A very common pitfall is to forget that ``set`` and ``setAll`` actually return new instances.
 
-.. includecode:: code/SessionSpec.scala#sessions-are-immutable
+.. includecode:: code/SessionSample.scala#sessions-are-immutable
 
 Getting Attributes
 ------------------
 
 Let's say a Session instance variable named session contains a String attribute named "foo".
 
-.. includecode:: code/SessionSpec.scala#session
+.. includecode:: code/SessionSample.scala#session
 
 Then:
 
-.. includecode:: code/SessionSpec.scala#session-attribute
+.. includecode:: code/SessionSample.scala#session-attribute
 
 .. warning::
   ``session("foo")`` doesn't return the value, but a wrapper.

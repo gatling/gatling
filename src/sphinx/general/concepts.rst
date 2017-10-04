@@ -40,7 +40,7 @@ This allows fast writing of scenarios and easy maintenance of existing scenarios
 
 Here is a simple example of a scenario:
 
-.. includecode:: code/Concepts.scala#simple-scenario
+.. includecode:: code/ConceptSample.scala#simple-scenario
 
 As we can easily guess, this scenario:
 
@@ -66,7 +66,7 @@ A simulation is a description of the load test. It describes how, possibly sever
 
 Here is an example of simulation definition:
 
-.. includecode:: code/Concepts.scala#example-definition
+.. includecode:: code/ConceptSample.scala#example-definition
 
 For more information, check the :ref:`Simulation Setup reference section <simulation-setup>`.
 

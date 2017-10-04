@@ -11,7 +11,7 @@ If the same name appears in multiple places in a Simulation, Gatling will consid
 
 HTTP requests have to be passed to the ``exec()`` method in order to be attached to the scenario and be executed.
 
-.. includecode:: code/HttpRequest.scala#example-embedded-or-not
+.. includecode:: code/HttpRequestSample.scala#example-embedded-or-not
 
 .. _http-request-methods:
 
@@ -39,7 +39,7 @@ Gatling also supports custom methods (e.g. you can use the method *PURGE* to pur
 
 This is how an HTTP request is declared:
 
-.. includecode:: code/HttpRequest.scala
+.. includecode:: code/HttpRequestSample.scala
   :include: general-structure,builtins-or-custom
 
 .. _http-request-query-parameters:
@@ -61,33 +61,33 @@ In order to set the query parameters of an HTTP request, you can:
 
 * either pass the full query in the url, e.g.:
 
-  .. includecode:: code/HttpRequest.scala#getting-issues
+  .. includecode:: code/HttpRequestSample.scala#getting-issues
 
 * or pass query parameters one by one to the method named ``queryParam(key: Expression[String], value: Expression[Any])``, e.g.:
 
-  .. includecode:: code/HttpRequest.scala#query-params-no-el
+  .. includecode:: code/HttpRequestSample.scala#query-params-no-el
 
 Of course, you can use :ref:`Gatling Expression Language (EL) <el>` to make those values dynamic based on data in the virtual user's session:
 
-.. includecode:: code/HttpRequest.scala#query-params-with-el
+.. includecode:: code/HttpRequestSample.scala#query-params-with-el
 
 If you'd like to specify a query parameter without value, you have to use ``queryParam("key", "")``:
 
-.. includecode:: code/HttpRequest.scala#query-param-no-value
+.. includecode:: code/HttpRequestSample.scala#query-param-no-value
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]])``:
 
-.. includecode:: code/HttpRequest.scala#multivaluedQueryParam
+.. includecode:: code/HttpRequestSample.scala#multivaluedQueryParam
 
 If you want to add multiple query parameters at once, there are two suitable methods:
 
 * ``queryParamSeq(seq: Expression[Seq[(String, Any)]])``
 
-  .. includecode:: code/HttpRequest.scala#queryParamSeq
+  .. includecode:: code/HttpRequestSample.scala#queryParamSeq
 
 * ``queryParamMap(map: Expression[Map[String, Any]])``
 
-  .. includecode:: code/HttpRequest.scala#queryParamMap
+  .. includecode:: code/HttpRequestSample.scala#queryParamMap
 
 .. note:: As all method parameters are ``Expression[T]``, i.e. 'key' parameter is an ``Expression[String]`` and so on, if you have more specific needs you can also provide an arbitrary ``Expression[T]``, i.e. a ``Session => Validation[T]`` function.
           This function will be evaluated against the user session every time this one pass through it.
@@ -104,7 +104,7 @@ Gatling HTTP allows you to specify any header you want to with the ``header(name
 
 Here are some examples:
 
-.. includecode:: code/HttpRequest.scala#headers
+.. includecode:: code/HttpRequestSample.scala#headers
 
 .. note:: Headers keys are defined as constants usable in the scenario, for example: ``HttpHeaderNames.ContentType``.
           You can find a list of the predefined constants `here <https://github.com/gatling/gatling/blob/master/gatling-http/src/main/scala/io/gatling/http/Headers.scala>`_.
@@ -114,11 +114,11 @@ Here are some examples:
 
   * ``http("foo").get("bar").asJSON`` is equivalent to:
 
-    .. includecode:: code/HttpRequest.scala#asJSON
+    .. includecode:: code/HttpRequestSample.scala#asJSON
 
   * ``http("foo").get("bar").asXML`` is equivalent to:
 
-    .. includecode:: code/HttpRequest.scala#asXML
+    .. includecode:: code/HttpRequestSample.scala#asXML
 
 .. note:: Headers can also be defined on the ``HttpProtocol``.
 
@@ -166,7 +166,7 @@ You can set the authentication methods at request level with these methods:
 * ``ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String])``
 * ``authRealm(realm: Expression[com.ning.http.client.Realm])``
 
-.. includecode:: code/HttpRequest.scala#authentication
+.. includecode:: code/HttpRequestSample.scala#authentication
 
 .. note:: Authentication can also be defined on the ``HttpProtocol``.
 
@@ -178,7 +178,7 @@ Outgoing Proxy
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials:
 
-.. includecode:: code/HttpRequest.scala#outgoing-proxy
+.. includecode:: code/HttpRequestSample.scala#outgoing-proxy
 
 .. note:: Proxy can also be defined on the ``HttpProtocol``.
 
@@ -191,7 +191,7 @@ Virtual Host
 
 You can tell Gatling to override the default computed virtual host with the method ``virtualHost(virtualHost: Expression[String])``:
 
-.. includecode:: code/HttpRequest.scala#virtual-host
+.. includecode:: code/HttpRequestSample.scala#virtual-host
 
 .. note:: Virtual Host can also be defined on the ``HttpProtocol``.
 
@@ -202,7 +202,7 @@ HTTP Checks
 
 You can add checks on a request:
 
-.. includecode:: code/HttpRequest.scala#check
+.. includecode:: code/HttpRequestSample.scala#check
 
 For more information, see the :ref:`HTTP Checks reference section <http-check>`.
 
@@ -210,7 +210,7 @@ For more information, see the :ref:`HTTP Checks reference section <http-check>`.
 
 For a given request, you can also disable common checks that were defined on the ``HttpProtocol`` with ``ignoreDefaultChecks``:
 
-.. includecode:: code/HttpRequest.scala#ignoreDefaultChecks
+.. includecode:: code/HttpRequestSample.scala#ignoreDefaultChecks
 
 FollowRedirect
 ==============
@@ -219,7 +219,7 @@ FollowRedirect
 
 For a given request, you can use ``disableFollowRedirect``, just like it can be done globally on the ``HttpProtocol``:
 
-.. includecode:: code/HttpRequest.scala#disableFollowRedirect
+.. includecode:: code/HttpRequestSample.scala#disableFollowRedirect
 
 .. _http-request-urlencoding:
 
@@ -242,13 +242,13 @@ See :ref:`silencing protocol section <http-protocol-silencing>` for more details
 
 You can then make the request *silent*:
 
-.. includecode:: code/HttpRequest.scala#silent
+.. includecode:: code/HttpRequestSample.scala#silent
 
 .. _http-request-notsilent:
 
 You might also want to do the exact opposite, typically on a given resource while resources have been globally turned silent at protocol level:
 
-.. includecode:: code/HttpRequest.scala#notSilent
+.. includecode:: code/HttpRequestSample.scala#notSilent
 
 .. _http-parameters:
 
@@ -260,27 +260,27 @@ This is typically used for form submission, where all the values are stored as P
 
 To add such parameters to a POST request, you must use the method ``formParam(key: Expression[String], value: Expression[Any])`` which is actually the same as ``queryParam`` in **terms of usage** (it has the same signatures).
 
-.. includecode:: code/HttpRequest.scala#formParam
+.. includecode:: code/HttpRequestSample.scala#formParam
 
 As for ``queryParam`` you have two methods to add multiple parameters at once:
 
 * ``formParamSeq(seq: Expression[Seq[(String, Any)]])``:
 
-  .. includecode:: code/HttpRequest.scala#formParamSeq
+  .. includecode:: code/HttpRequestSample.scala#formParamSeq
 
 * ``formParamMap(map: Expression[Map[String, Any]])``:
 
-  .. includecode:: code/HttpRequest.scala#formParamMap
+  .. includecode:: code/HttpRequestSample.scala#formParamMap
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]])``:
 
-.. includecode:: code/HttpRequest.scala#multivaluedFormParam
+.. includecode:: code/HttpRequestSample.scala#multivaluedFormParam
 
 The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
 
 * ``form(seq: Expression[Map[String, Seq[String]])``:
 
-.. includecode:: code/HttpRequest.scala#form
+.. includecode:: code/HttpRequestSample.scala#form
 
 Typically used after capturing a whole form with a ``form`` check.
 
@@ -302,7 +302,7 @@ The uploaded file must be located in ``user-files/bodies``. The ``Content-Type``
 
 One can call ``formUpload()`` multiple times in order to upload multiple files.
 
-.. includecode:: code/HttpRequest.scala#formUpload
+.. includecode:: code/HttpRequestSample.scala#formUpload
 
 .. note:: Gatling will automatically set the `Content-Type` header to `multipart/form-data` if you didn't specify one.
 
@@ -330,7 +330,7 @@ You can add a full body to an HTTP request with the dedicated method ``body(body
 Over regular HTTP, Gatling can optimise sending such a body and directly stream from the file to the socket, without copying in memory.
 Of course, this optimisation is disabled over HTTPS, as bytes have to be encoded, i.e. loaded in memory.:
 
-.. includecode:: code/HttpRequest.scala#RawFileBody
+.. includecode:: code/HttpRequestSample.scala#RawFileBody
 
 .. _http-request-body-elfile:
 
@@ -349,7 +349,7 @@ Of course, it can't be binary.::
 
 Here, you can pass a raw String, a Gatling EL String, or an Expression function.:
 
-.. includecode:: code/HttpRequest.scala#StringBody
+.. includecode:: code/HttpRequestSample.scala#StringBody
 
 .. _http-request-body-bytes:
 
@@ -370,7 +370,7 @@ See `Scala 2.10 string interpolation <http://docs.scala-lang.org/overviews/core/
 
 For example:
 
-.. includecode:: code/HttpRequest.scala#templates
+.. includecode:: code/HttpRequestSample.scala#templates
 
 .. note:: For simple use cases, prefer EL strings or based files, for more complex ones where programming capability is required, prefer String interpolation or Fastring.
 
@@ -440,7 +440,7 @@ Similarly, one might want to process the response before it's passed to the chec
 
 The example below shows how to decode some Base64 encoded response body:
 
-.. includecode:: code/HttpRequest.scala
+.. includecode:: code/HttpRequestSample.scala
   :include: resp-processors-imports,response-processors
 
 .. _http-resources:
@@ -454,7 +454,7 @@ At the request level you can use the ``resources(res: AbstractHttpRequestBuilder
 
 For example:
 
-.. includecode:: code/HttpRequest.scala#resources
+.. includecode:: code/HttpRequestSample.scala#resources
 
 .. _http-chunksdiscard:
 

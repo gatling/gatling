@@ -24,7 +24,7 @@ If you want to deal with several WebSockets per virtual users, you have to give 
 
 For example:
 
-.. includecode:: code/WebSocket.scala#wsName
+.. includecode:: code/WebSocketSample.scala#wsName
 
 Of course, this step is not required if you deal with one single WebSocket per virtual user.
 
@@ -39,7 +39,7 @@ The first thing is to open a WebSocket:
 
 For example:
 
-.. includecode:: code/WebSocket.scala#wsOpen
+.. includecode:: code/WebSocketSample.scala#wsOpen
 
 .. _http-ws-close:
 
@@ -52,7 +52,7 @@ When you're done with a WebSocket, you can close it:
 
 For example:
 
-.. includecode:: code/WebSocket.scala#wsClose
+.. includecode:: code/WebSocketSample.scala#wsClose
 
 .. _http-ws-send:
 
@@ -66,7 +66,7 @@ One can send 2 forms of messages: binary and text:
 
 For example:
 
-.. includecode:: code/WebSocket.scala#sendText
+.. includecode:: code/WebSocketSample.scala#sendText
 
 Server Messages: Checks
 =======================
@@ -84,11 +84,11 @@ Checks can be set in 2 ways.
 
 First, when sending a message:
 
-.. includecode:: code/WebSocket.scala#check-from-message
+.. includecode:: code/WebSocketSample.scala#check-from-message
 
 Then, directly from the main HTTP flow:
 
-.. includecode:: code/WebSocket.scala#check-from-flow
+.. includecode:: code/WebSocketSample.scala#check-from-flow
 
 If a check was already registered on the WebSocket at this time, it's considered as failed and replaced with the new one.
 
@@ -99,7 +99,7 @@ Cancel a Check
 
 One can decide to cancel a pending check:
 
-.. includecode:: code/WebSocket.scala#cancel-check
+.. includecode:: code/WebSocketSample.scala#cancel-check
 
 .. _http-ws-check-build:
 
@@ -146,7 +146,7 @@ Just like regular HTTP checks, one can use checks for saving data into the virtu
 
 Here are an example:
 
-.. includecode:: code/WebSocket.scala#check-example
+.. includecode:: code/WebSocketSample.scala#check-example
 
 .. _http-ws-check-reconciliate:
 
@@ -162,7 +162,7 @@ This can be done:
 * implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
 * explicitly with the ``reconciliate`` method.
 
-.. includecode:: code/WebSocket.scala#reconciliate
+.. includecode:: code/WebSocketSample.scala#reconciliate
 
 .. _http-ws-check-conf:
 
@@ -184,5 +184,5 @@ Example
 
 Here's an example that runs against `Play 2.2 <https://www.playframework.com/download#older-versions>`_'s chatroom sample (beware that this sample is missing from Play 2.3 and above):
 
-.. includecode:: code/WebSocket.scala#chatroom-example
+.. includecode:: code/WebSocketSample.scala#chatroom-example
 

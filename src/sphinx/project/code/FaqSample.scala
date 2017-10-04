@@ -14,23 +14,33 @@
  * limitations under the License.
  */
 import io.gatling.core.Predef._
-import io.gatling.http.Predef._
+import io.gatling.core.structure.ChainBuilder
 
-class HttpHelpers {
+class FaqSample {
 
-  //#cookie
-  exec(addCookie(Cookie("name", "value")))
-  //#cookie
+  //#chains
+  object ChainLibrary1 {
+    val chain1: ChainBuilder = ???
+    val chain2: ChainBuilder = ???
+    // etc...
+    val chain100: ChainBuilder = ???
+  }
 
-  //#flushSessionCookies
-  exec(flushSessionCookies)
-  //#flushSessionCookies
+  object ChainLibrary2 {
+    val chain101: ChainBuilder = ???
+    val chain102: ChainBuilder = ???
+    // etc...
+    val chain150: ChainBuilder = ???
+  }
 
-  //#flushCookieJar
-  exec(flushCookieJar)
-  //#flushCookieJar
+  class MyVeryBigSimulation {
 
-  //#flushHttpCache
-  exec(flushHttpCache)
-  //#flushHttpCache
+    import ChainLibrary1._
+    import ChainLibrary2._
+
+    val scn = scenario("Name")
+      .exec(chain1, chain2, /* etc... */ chain100)
+      .exec(chain101, chain102, /* etc... */ chain150)
+  }
+  //#chains
 }

@@ -19,7 +19,7 @@ import io.gatling.http.Predef._
 
 import scala.concurrent.duration._
 
-class ComputerWorld extends Simulation {
+class ComputerDatabaseSample extends Simulation {
 
   val httpProtocol = http
     .baseURL("http://computer-database.gatling.io")

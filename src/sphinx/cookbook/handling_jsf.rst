@@ -12,11 +12,11 @@ Hopefully, we can factor out these operations.
 
 Define factory methods for building JSF requests that would automatically perform those operations:
 
-.. includecode:: code/HandlingJsf.scala#factory-methods
+.. includecode:: code/HandlingJsfSample.scala#factory-methods
 
 You can then build your requests just like you're used to:
 
-.. includecode:: code/HandlingJsf.scala#example-scenario
+.. includecode:: code/HandlingJsfSample.scala#example-scenario
 
 .. note:: The sample above is taken from the `Primefaces demo <http://www.primefaces.org/showcase-labs>`_.
 
@@ -27,4 +27,4 @@ Trinidad
 
 Trinidad's ``_afPfm`` query parameter can be handled in a similar fashion:
 
-.. includecode:: code/HandlingJsf.scala#trinidad
+.. includecode:: code/HandlingJsfSample.scala#trinidad

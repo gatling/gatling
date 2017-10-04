@@ -18,7 +18,7 @@
 import io.gatling.commons.validation._
 //#import
 
-class ValidationSpec {
+class ValidationSample {
 
   object Classes {
     //#with-classes

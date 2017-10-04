@@ -11,7 +11,7 @@ The Assertions API is used to verify that global statistics like response time o
 
 Assertions are registered for a simulation using the method ``assertions`` on the ``setUp``. For example:
 
-.. includecode:: code/Assertions.scala#setUp
+.. includecode:: code/AssertionSample.scala#setUp
 
 This method takes as many assertions as you like.
 
@@ -37,7 +37,7 @@ An assertion can test a statistic calculated from all requests or only a part.
 
 For example, to perform an assertion on the request ``Index`` in the group ``Search``, use:
 
-.. includecode:: code/Assertions.scala#details
+.. includecode:: code/AssertionSample.scala#details
 
 .. note::
 
@@ -114,7 +114,7 @@ Putting it all together
 
 To help you understand how to use assertions, here is a list of examples :
 
-.. includecode:: code/Assertions.scala#examples
+.. includecode:: code/AssertionSample.scala#examples
 
 Reports
 =======
