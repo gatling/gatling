@@ -16,7 +16,7 @@ object Dependencies {
   private val nettyNativeTransport          = "io.netty"                               % "netty-transport-native-epoll"  % netty.revision classifier "linux-x86_64"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.6"
   private val akkaSlf4j                     = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
-  private val config                        = "com.typesafe"                           % "config"                        % "1.3.1"
+  private val config                        = "com.typesafe"                           % "config"                        % "1.3.2"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                      % "9.8.0-4"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                     % "1.7.25"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                      % "0.3.1"
