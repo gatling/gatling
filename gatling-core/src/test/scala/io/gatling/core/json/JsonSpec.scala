@@ -27,6 +27,10 @@ class JsonSpec extends BaseSpec {
   "JSON.stringify" should "be able to stringify strings" in {
     stringify("Foo") shouldBe "Foo"
   }
+  
+  it should "be able to stringify double-quoted strings" in {
+    stringify("""Double quoted "Foo"""") shouldBe """Double quoted \"Foo\""""
+  }
 
   it should "be able to stringify numbers" in {
     stringify(3.toByte) shouldBe "3"
@@ -71,6 +75,10 @@ class JsonSpec extends BaseSpec {
 
   it should "be able to stringify Scala maps" in {
     stringify(Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2))) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
+  }
+
+  it should "be able to stringify Scala maps with double quoted string values" in {
+    stringify(Map(1 -> """Double quoted "Foo"""", "bar" -> 4.5, "toto" -> Seq(1, 2))) shouldBe """{"1":"Double quoted \"Foo\"","bar":4.5,"toto":[1,2]}"""
   }
 
   it should "be able to stringify Java maps" in {
