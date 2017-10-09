@@ -84,6 +84,8 @@ private[inject] case class Injection(count: Long, continue: Boolean) {
 object Injector {
 
   val InjectorActorName = "gatling-injector"
+  val TickPeriod = 1 second
+  val InitialBatchWindow = TickPeriod * 2
 
   def apply(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, scenarios: List[Scenario]): ActorRef = {
     val userStreams: Map[String, UserStream] = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers)))(breakOut)
@@ -93,12 +95,10 @@ object Injector {
 
 private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, defaultStreams: Map[String, UserStream]) extends InjectorFSM {
 
+  import Injector._
   import InjectorState._
   import InjectorData._
   import InjectorCommand._
-
-  private val tickPeriod = 1 second
-  private val initialBatchWindow = tickPeriod * 2
 
   val userIdGen = new LongCounter
 
@@ -147,12 +147,12 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
 
   when(WaitingToStart) {
     case Event(Start, NoData) =>
-      val timer = system.scheduler.schedule(initialBatchWindow, tickPeriod, self, Tick)
-      inject(defaultStreams, initialBatchWindow, nowMillis, 0, timer)
+      val timer = system.scheduler.schedule(InitialBatchWindow, TickPeriod, self, Tick)
+      inject(defaultStreams, InitialBatchWindow, nowMillis, 0, timer)
   }
 
   when(Started) {
     case Event(Tick, StartedData(startMillis, count, timer)) =>
-      inject(defaultStreams, tickPeriod, startMillis, count, timer)
+      inject(defaultStreams, TickPeriod, startMillis, count, timer)
   }
 }
