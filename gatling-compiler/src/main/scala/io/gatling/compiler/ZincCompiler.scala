@@ -32,7 +32,6 @@ import sbt.internal.inc.{ classpath, AnalysisStore => _, _ }
 import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
 import sbt.util.ShowLines._
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
-
 import xsbti.Problem
 
 object ZincCompiler extends App with ProblemStringFormats {
@@ -65,13 +64,11 @@ object ZincCompiler extends App with ProblemStringFormats {
       .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
   private def doCompile(): Unit = {
-    // FIXME will not work with Java 9, see https://blog.codefx.org/java/java-9-migration-guide/#Casting-To-URL-Class-Loader
-    val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
     val configuration = CompilerConfiguration.configuration(args)
     Files.createDirectories(configuration.binariesDirectory)
 
     val classpath: Array[JFile] = {
-      val files = classLoader.getURLs.map(url => new JFile(url.toURI))
+      val files = System.getProperty("java.class.path").split(JFile.pathSeparator).map(new JFile(_))
 
       if (files.exists(_.getName.startsWith("gatlingbooter"))) {
         // we've been started by the manifest-only jar,

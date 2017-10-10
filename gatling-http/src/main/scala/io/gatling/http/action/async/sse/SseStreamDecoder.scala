@@ -132,7 +132,7 @@ class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
 
     // scanning actual content
     var i = position
-    val sbLength = charBuffer.position
+    val sbLength = charBuffer.position()
 
     while (i < sbLength) {
       charArray(i) match {
@@ -158,7 +158,7 @@ class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
   }
 
   private def translateCharBuffer(): Unit = {
-    val sbLength = charBuffer.position
+    val sbLength = charBuffer.position()
     previousBufferLastCharWasCr = charArray(sbLength - 1) == CR
     if (position >= sbLength) {
       // all read, clear

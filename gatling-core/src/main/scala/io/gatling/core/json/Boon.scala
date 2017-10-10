@@ -18,9 +18,16 @@ package io.gatling.core.json
 import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 
+import io.gatling.commons.util.JavaRuntime
+
 import io.advantageous.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSource }
 
 class Boon extends JsonParser {
+
+  if (!JavaRuntime.IsJava8) {
+    // disable io.advantageous.boon.core.reflection.FastStringUtils that doesn't work with Java 9+
+    System.setProperty("io.advantageous.boon.faststringutils.disable", java.lang.Boolean.toString(true))
+  }
 
   private def newFastParser = new JsonFastParser(false, false, true, false)
 

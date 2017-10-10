@@ -26,12 +26,12 @@ import jodd.lagarto.dom.NodeSelector
 
 class CssExtractorSpec extends BaseSpec with ValidationValues {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  val cssSelectors = new CssSelectors
+  private implicit val configuration = GatlingConfiguration.loadForTest()
+  private val cssSelectors = new CssSelectors
 
-  def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
+  private def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(UTF_8)
-    cssSelectors.parse(string)
+    cssSelectors.parse(string.toCharArray)
   }
 
   "CssExtractor" should "support browser conditional tests and behave as a non-IE browser" in {
@@ -117,7 +117,7 @@ class CssExtractorSpec extends BaseSpec with ValidationValues {
   it should "support filtered value with dots" in {
     val cssExtractor = newCssSingleExtractor[String]("input[name='javax.faces.ViewState']", Some("value"), 0, cssSelectors)
     cssExtractor(cssSelectors.parse(
-      """<input type="hidden" name="javax.faces.ViewState" value="foo">"""
+      """<input type="hidden" name="javax.faces.ViewState" value="foo">""".toCharArray
     )).succeeded shouldBe Some("foo")
   }
 }

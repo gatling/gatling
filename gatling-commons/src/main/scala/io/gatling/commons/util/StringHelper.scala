@@ -93,7 +93,12 @@ object StringHelper {
         string
     }
 
-    def unsafeChars: Array[Char] = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
+    def unsafeChars: Array[Char] =
+      if (JavaRuntime.IsJava8) {
+        TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
+      } else {
+        string.toCharArray
+      }
 
     def isConstantTimeEqual(other: String): Boolean =
       MessageDigest.isEqual(string.getBytes(UTF_8), other.getBytes(UTF_8))

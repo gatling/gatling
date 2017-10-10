@@ -178,10 +178,10 @@ class LogFileDataWriter extends DataWriter[FileData] {
     var overflow = false
 
     for (string <- fs) {
-      val coderResult = encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
+      val coderResult = encoder.encode(CharBuffer.wrap(string), buffer, false)
       overflow = coderResult.isOverflow
     }
-    if (buffer.position >= limit || overflow)
+    if (buffer.position() >= limit || overflow)
       flush(data, overflown = overflow)
   }
 

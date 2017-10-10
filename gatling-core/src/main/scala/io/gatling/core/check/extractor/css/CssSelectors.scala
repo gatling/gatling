@@ -39,8 +39,6 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
 
   def parse(chars: Array[Char]) = new NodeSelector(domBuilder.parse(chars))
 
-  def parse(string: String) = new NodeSelector(domBuilder.parse(string))
-
   def extractAll[X: NodeConverter](selector: NodeSelector, criterion: (String, Option[String])): Vector[X] = {
 
     val (query, nodeAttribute) = criterion

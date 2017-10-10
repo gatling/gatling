@@ -26,7 +26,7 @@ class FormExtractorSpec extends BaseSpec {
   private val cssSelectors = new CssSelectors
 
   private def formInputs(html: String): Map[String, Any] = {
-    val nodeSelector = cssSelectors.parse(html)
+    val nodeSelector = cssSelectors.parse(html.toCharArray)
     val node = cssSelectors.extractAll[Node](nodeSelector, ("form", None)).head
     FormExtractor.extractFormInputs(node)
   }
