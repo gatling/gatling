@@ -11,7 +11,7 @@ WebSocket support is an extension to the HTTP DSL, whose entry point is the ``ws
 WebSocket protocol is very different from the HTTP one as the communication is 2 ways: both client-to-server and server-to-client, so the model is different from the HTTP request/response pair.
 
 As a consequence, main HTTP branch and a WebSocket branch can exist in a Gatling scenario in a dissociated way, in parallel.
-When doing so, each flow branch has it's own state, so a user might have to reconciliate them, for example when capturing data from a websocket check and wanting this data to be available to the HTTP branch.
+When doing so, each flow branch has it's own state, so a user might have to reconcile them, for example when capturing data from a WebSocket check and wanting this data to be available to the HTTP branch.
 
 Common operations
 =================
