@@ -97,21 +97,21 @@ Here are few examples:
 
 .. includecode:: code/SseSample.scala#build-check
 
-.. _http-sse-check-reconciliate:
+.. _http-sse-check-reconcile:
 
-Reconciliate
-------------
+Reconcile
+---------
 
 One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
 
-So, one has to reconciliate the main flow state and the WebSocket flow one.
+So, one has to reconcile the main flow state and the WebSocket flow one.
 
 This can be done:
 
 * implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
-* explicitly with the ``reconciliate`` method.
+* explicitly with the ``reconcile`` method.
 
-.. includecode:: code/SseSample.scala#reconciliate
+.. includecode:: code/SseSample.scala#reconcile
 
 .. _http-sse-check-conf:
 

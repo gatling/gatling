@@ -148,21 +148,21 @@ Here are an example:
 
 .. includecode:: code/WebSocketSample.scala#check-example
 
-.. _http-ws-check-reconciliate:
+.. _http-ws-check-reconcile:
 
-Reconciliate
-------------
+Reconcile
+---------
 
 One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
 
-So, one has to reconciliate the main flow state and the WebSocket flow one.
+So, one has to reconcile the main flow state and the WebSocket flow one.
 
 This can be done:
 
 * implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
-* explicitly with the ``reconciliate`` method.
+* explicitly with the ``reconcile`` method.
 
-.. includecode:: code/WebSocketSample.scala#reconciliate
+.. includecode:: code/WebSocketSample.scala#reconcile
 
 .. _http-ws-check-conf:
 

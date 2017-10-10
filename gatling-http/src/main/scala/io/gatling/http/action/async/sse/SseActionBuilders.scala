@@ -51,10 +51,10 @@ class SseCancelCheckBuilder(requestName: Expression[String], sseName: String) ex
     new SseCancelCheck(requestName, sseName, ctx.coreComponents.statsEngine, next)
 }
 
-class SseReconciliateBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseReconcileBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new SseReconciliate(requestName, sseName, ctx.coreComponents.statsEngine, next)
+    new SseReconcile(requestName, sseName, ctx.coreComponents.statsEngine, next)
 }
 
 class SseCloseBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {

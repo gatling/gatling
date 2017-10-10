@@ -32,4 +32,4 @@ trait UserAction {
 case class SetCheck(requestName: String, check: AsyncCheck, next: Action, session: Session) extends UserAction
 case class CancelCheck(requestName: String, next: Action, session: Session) extends UserAction
 case class Close(requestName: String, next: Action, session: Session) extends UserAction
-case class Reconciliate(requestName: String, next: Action, session: Session) extends UserAction
+case class Reconcile(requestName: String, next: Action, session: Session) extends UserAction

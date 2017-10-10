@@ -29,6 +29,6 @@ class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)
   def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)
   def check(checkBuilder: AsyncCheckBuilder) = new SseSetCheckBuilder(requestName, checkBuilder, sseName)
   def cancelCheck = new SseCancelCheckBuilder(requestName, sseName)
-  def reconciliate() = new SseReconciliateBuilder(requestName, sseName)
+  def reconcile() = new SseReconcileBuilder(requestName, sseName)
   def close() = new SseCloseBuilder(requestName, sseName)
 }

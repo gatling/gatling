@@ -47,5 +47,5 @@ For example:
 .. includecode:: code/PollingSample.scala#pollerStop
 
 .. note::
-  Stopping a poller works in the same fashion as SSE or WebSockets ``reconciliate``:
+  Stopping a poller works in the same fashion as SSE or WebSockets ``reconcile``:
   When stopping a poller, the poller flow state (e.g. the session) is merged with the main flow state.

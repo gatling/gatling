@@ -106,7 +106,7 @@ abstract class AsyncProtocolActor(statsEngine: StatsEngine) extends BaseActor {
     }
   }
 
-  protected def reconciliate(tx: AsyncTx, next: Action, session: Session, nextState: NextTxBasedBehaviour): Unit = {
+  protected def reconcile(tx: AsyncTx, next: Action, session: Session, nextState: NextTxBasedBehaviour): Unit = {
     val newTx = tx.applyUpdates(session)
     context.become(nextState(newTx))
     next ! newTx.session

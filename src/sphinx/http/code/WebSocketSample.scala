@@ -58,9 +58,9 @@ class WebSocketSample {
   )
   //#check-example
 
-  //#reconciliate
-  exec(ws("Reconciliate states").reconciliate)
-  //#reconciliate
+  //#reconcile
+  exec(ws("Reconcile states").reconcile)
+  //#reconcile
 
   //#chatroom-example
   val httpConf = http

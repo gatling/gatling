@@ -69,9 +69,9 @@ class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketNa
   def cancelCheck = new WsCancelCheckBuilder(requestName, wsName)
 
   /**
-   * Reconciliate the main state with the one of the websocket flow.
+   * Reconcile the main state with the one of the websocket flow.
    */
-  def reconciliate = new WsReconciliateBuilder(requestName, wsName)
+  def reconcile = new WsReconcileBuilder(requestName, wsName)
 
   /**
    * Closes a websocket.

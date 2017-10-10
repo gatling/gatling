@@ -101,7 +101,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
             // do this immediately instead of self sending a Listen message
             // so that other messages don't get a chance to be handled before
             setCheck(tx, requestName + " Check", c, next, session, goToOpenState(webSocket))
-          case _ => reconciliate(tx, next, session, goToOpenState(webSocket))
+          case _ => reconcile(tx, next, session, goToOpenState(webSocket))
         }
 
         message match {
@@ -176,9 +176,9 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       case OnByteMessage(message, time) =>
         logger.debug(s"Received byte message on websocket '$wsName':$message. Beware, byte message checks are currently not supported")
 
-      case Reconciliate(requestName, next, session) =>
-        logger.debug(s"Reconciliating websocket '$wsName'")
-        reconciliate(tx, next, session, goToOpenState(webSocket))
+      case Reconcile(requestName, next, session) =>
+        logger.debug(s"Reconciling websocket '$wsName'")
+        reconcile(tx, next, session, goToOpenState(webSocket))
 
       case Close(requestName, next, session) =>
         logger.debug(s"Closing websocket '$wsName'")

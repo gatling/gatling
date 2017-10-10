@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.sse
+package io.gatling.http.action.async
 
-import io.gatling.core.action.Action
+import io.gatling.core.action.{ Action, ActorBasedAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.util.NameGen
-import io.gatling.http.action.async.ReconciliateAction
 
-class SseReconciliate(
-    requestName: Expression[String],
-    sseName:     String,
-    statsEngine: StatsEngine,
-    next:        Action
-) extends ReconciliateAction(requestName, sseName, statsEngine, next) with SseAction with NameGen {
-  override val name = genName("sseReconciliate")
+abstract class ReconcileAction(
+    val requestName: Expression[String],
+    wsName:          String,
+    val statsEngine: StatsEngine,
+    val next:        Action
+) extends RequestAction with ActorBasedAction {
+
+  override def sendRequest(requestName: String, session: Session) = {
+    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! Reconcile(requestName, next, session)
+  }
 }

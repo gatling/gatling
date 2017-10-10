@@ -31,9 +31,9 @@ class SseSample {
   exec(sse("Close SSE").close())
   //#sseClose
 
-  //#reconciliate
-  exec(sse("Reconciliate states").reconciliate)
-  //#reconciliate
+  //#reconcile
+  exec(sse("Reconcile states").reconcile)
+  //#reconcile
 
   val myCheck = wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")
 

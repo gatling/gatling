@@ -129,9 +129,9 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends AsyncProtocolA
         }
       }
 
-    case Reconciliate(requestName, next, session) =>
-      logger.debug(s"Reconciliating sse '$sseName'")
-      reconciliate(tx, next, session, goToOpenState(sseStream))
+    case Reconcile(_, next, session) =>
+      logger.debug(s"Reconciling sse '$sseName'")
+      reconcile(tx, next, session, goToOpenState(sseStream))
 
     case Close(requestName, next, session) =>
       logger.debug(s"Closing sse '$sseName' for user #${session.userId}")

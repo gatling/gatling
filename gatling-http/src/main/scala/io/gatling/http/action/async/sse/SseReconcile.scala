@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.ws
+package io.gatling.http.action.async.sse
 
 import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.async.ReconciliateAction
+import io.gatling.http.action.async.ReconcileAction
 
-class WsReconciliate(
+class SseReconcile(
     requestName: Expression[String],
-    wsName:      String,
+    sseName:     String,
     statsEngine: StatsEngine,
     next:        Action
-) extends ReconciliateAction(requestName, wsName, statsEngine, next) with WsAction with NameGen {
-  override val name = genName("wsReconciliate")
+) extends ReconcileAction(requestName, sseName, statsEngine, next) with SseAction with NameGen {
+  override val name = genName("sseReconcile")
 }

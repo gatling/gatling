@@ -62,10 +62,10 @@ class WsCancelCheckBuilder(requestName: Expression[String], wsName: String) exte
     new WsCancelCheck(requestName, wsName, ctx.coreComponents.statsEngine, next)
 }
 
-class WsReconciliateBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsReconcileBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new WsReconciliate(requestName, wsName, ctx.coreComponents.statsEngine, next)
+    new WsReconcile(requestName, wsName, ctx.coreComponents.statsEngine, next)
 }
 
 class WsCloseBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
