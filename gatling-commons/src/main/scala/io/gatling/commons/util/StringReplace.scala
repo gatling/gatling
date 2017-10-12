@@ -15,6 +15,10 @@
  */
 package io.gatling.commons.util
 
+import java.lang.{ StringBuilder => JStringBuilder }
+
+import io.gatling.spire.syntax.cfor._
+
 object StringReplace {
 
   private val SbPool = new StringBuilderPool
@@ -36,6 +40,35 @@ object StringReplace {
           end = text.indexOf(replaced, start)
         }
         buf.append(text, start, text.length).toString
+      }
+    }
+
+  def replace(text: String, replaced: Char => Boolean, replacement: Char): String =
+    if (text.isEmpty) {
+      text
+    } else {
+      var matchFound = false
+      var sb: JStringBuilder = null
+
+      cfor(0)(_ < text.length, _ + 1) { i =>
+        val c = text.charAt(i)
+        if (replaced(c)) {
+          if (!matchFound) {
+            // first match
+            sb = StringBuilderPool.Global.get()
+            sb.append(text, 0, i)
+            matchFound = true
+          }
+          sb.append(replacement)
+        } else if (matchFound) {
+          sb.append(c)
+        }
+      }
+
+      if (matchFound) {
+        sb.toString
+      } else {
+        text
       }
     }
 }

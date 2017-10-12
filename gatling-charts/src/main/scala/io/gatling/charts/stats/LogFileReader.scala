@@ -36,9 +36,9 @@ import jodd.util.Base64
 
 object LogFileReader {
 
-  val LogStep = 100000
-  val SecMillisecRatio = 1000.0
-  val SimulationFilesNamePattern = """.*\.log"""
+  private val LogStep = 100000
+  private val SecMillisecRatio = 1000.0
+  private val SimulationFilesNamePattern = """.*\.log"""
 }
 
 class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends GeneralStatsSource with StrictLogging {
@@ -86,7 +86,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
       count += 1
       if (count % LogStep == 0) logger.info(s"First pass, read $count lines")
 
-      line.split(LogFileDataWriter.Separator) match {
+      line.split(DataWriterMessageSerializer.Separator) match {
 
         case RawRequestRecord(array) =>
           updateRunLimits(array(5).toLong, array(6).toLong)
@@ -144,7 +144,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
         count += 1
         if (count % LogStep == 0) logger.info(s"Second pass, read $count lines")
 
-        line.split(LogFileDataWriter.Separator) match {
+        line.split(DataWriterMessageSerializer.Separator) match {
           case requestRecordParser(record) => resultsHolder.addRequestRecord(record)
           case groupRecordParser(record)   => resultsHolder.addGroupRecord(record)
           case UserRecordParser(record)    => resultsHolder.addUserRecord(record)

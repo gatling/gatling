@@ -77,7 +77,7 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
   when(Terminated)(NullFunction)
 
   whenUnhandled {
-    case Event(m, data) =>
+    case Event(m, _) =>
       logger.info(s"Can't handle $m in state $stateName")
       stay()
   }
