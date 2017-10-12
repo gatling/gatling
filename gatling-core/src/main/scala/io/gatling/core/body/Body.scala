@@ -18,8 +18,7 @@ package io.gatling.core.body
 import java.io.InputStream
 import java.nio.charset.Charset
 
-import io.gatling.commons.util.StringHelper._
-import io.gatling.commons.util.CompositeByteArrayInputStream
+import io.gatling.commons.util.{ CompositeByteArrayInputStream, StringBuilderPool }
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -68,8 +67,8 @@ object CompositeByteArrayBody {
 
 case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], charset: Charset) extends Body with Expression[String] {
 
-  def apply(session: Session): Validation[String] = bytes(session).map { bs =>
-    val sb = stringBuilder()
+  override def apply(session: Session): Validation[String] = bytes(session).map { bs =>
+    val sb = StringBuilderPool.Global.get()
     bs.foreach(b => sb.append(new String(b, charset)))
     sb.toString
   }

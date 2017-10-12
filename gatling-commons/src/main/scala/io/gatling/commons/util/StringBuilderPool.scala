@@ -15,9 +15,19 @@
  */
 package io.gatling.commons.util
 
-/**
- * This trait overrides the toString method
- */
-trait ClassSimpleNameToString {
-  override lazy val toString = StringReplace.replace(this.getClass.getSimpleName, "$", "") // Drop the $ from objects' name
+import java.lang.{ StringBuilder => JStringBuilder }
+
+object StringBuilderPool {
+  val Global = new StringBuilderPool
+}
+
+class StringBuilderPool extends ThreadLocal[JStringBuilder] {
+
+  override def initialValue() = new JStringBuilder(512)
+
+  override def get(): JStringBuilder = {
+    val sb = super.get()
+    sb.setLength(0)
+    sb
+  }
 }

@@ -15,9 +15,12 @@
  */
 package io.gatling.commons.util
 
-/**
- * This trait overrides the toString method
- */
-trait ClassSimpleNameToString {
-  override lazy val toString = StringReplace.replace(this.getClass.getSimpleName, "$", "") // Drop the $ from objects' name
+import io.gatling.BaseSpec
+
+class StringReplaceSpec extends BaseSpec {
+
+  "StringReplace.replace" should "replace all occurrences" in {
+
+    StringReplace.replace("1234foo5678foo9012foo", "foo", "bar") shouldBe "1234bar5678bar9012bar"
+  }
 }

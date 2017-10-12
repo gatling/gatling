@@ -19,6 +19,8 @@ import java.util.{ Collection => JCollection, Map => JMap }
 
 import scala.collection.JavaConverters._
 
+import io.gatling.commons.util.StringReplace
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 object Json {
@@ -45,7 +47,7 @@ object Json {
   }
 
   private def writeString(s: String, rootLevel: Boolean) = {
-    val escapedLineFeeds = s.replace("\n", "\\n")
+    val escapedLineFeeds = StringReplace.replace(s, "\n", "\\n")
     if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
   }
 

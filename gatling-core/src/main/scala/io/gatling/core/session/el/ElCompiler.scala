@@ -25,7 +25,7 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
-import io.gatling.commons.util.TypeCaster
+import io.gatling.commons.util.{ StringBuilderPool, TypeCaster }
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.NumberHelper._
@@ -184,7 +184,7 @@ object ElCompiler {
       case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
-        (session: Session) => parts.foldLeft(stringBuilder.success) { (sb, part) =>
+        (session: Session) => parts.foldLeft(StringBuilderPool.Global.get().success) { (sb, part) =>
           part match {
             case StaticPart(s) => sb.map(_.append(s))
             case _ =>

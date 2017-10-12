@@ -19,7 +19,7 @@ object ClassHelper {
 
   def toClassShortName(className: String): String = {
     val parts = className.split("\\.")
-    val sb = StringHelper.stringBuilder()
+    val sb = StringBuilderPool.Global.get()
     var i = 0
     while (i < parts.length - 1) {
       sb.append(parts(i).charAt(0)).append('.')

@@ -47,20 +47,6 @@ object StringHelper {
     buff.append(JLong.toString(shifted.toLong, 16))
   }.toString
 
-  private val StringBuilderPool = new ThreadLocal[StringBuilder] {
-    override def initialValue() = new StringBuilder(512)
-  }
-
-  /**
-   * BEWARE: MUSN'T APPEND TO ITSELF!
-   * @return a pooled StringBuilder
-   */
-  def stringBuilder(): StringBuilder = {
-    val sb = StringBuilderPool.get
-    sb.setLength(0)
-    sb
-  }
-
   implicit class RichString(val string: String) extends AnyVal {
 
     def clean = {
