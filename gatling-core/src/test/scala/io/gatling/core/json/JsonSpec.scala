@@ -27,7 +27,7 @@ class JsonSpec extends BaseSpec {
   "JSON.stringify" should "be able to stringify strings" in {
     stringify("Foo") shouldBe "Foo"
   }
-  
+
   it should "be able to stringify double-quoted strings" in {
     stringify("""Double quoted "Foo"""") shouldBe """Double quoted \"Foo\""""
   }

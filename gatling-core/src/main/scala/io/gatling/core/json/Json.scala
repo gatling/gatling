@@ -15,51 +15,80 @@
  */
 package io.gatling.core.json
 
+import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, Map => JMap }
 
 import scala.collection.JavaConverters._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.commons.util.StringBuilderPool
+
 import com.fasterxml.jackson.databind.ObjectMapper
 
 object Json {
 
   private val objectMapper = new ObjectMapper
+  private val stringBuilders = new StringBuilderPool
 
   def stringify(value: Any, isRootObject: Boolean = true): String =
-    fastringify(value, isRootObject).toString()
+    stringBuilders.get().appendStringified(value, isRootObject).toString
 
-  private def fastringify(value: Any, rootLevel: Boolean): Fastring = value match {
-    case b: Byte                   => writeValue(b)
-    case s: Short                  => writeValue(s)
-    case i: Int                    => writeValue(i)
-    case l: Long                   => writeValue(l)
-    case f: Float                  => writeValue(f)
-    case d: Double                 => writeValue(d)
-    case bool: Boolean             => writeValue(bool)
-    case s: String                 => writeString(s, rootLevel)
-    case null                      => writeNull
-    case map: collection.Map[_, _] => writeMap(map)
-    case jMap: JMap[_, _]          => writeMap(jMap.asScala)
-    case array: Array[_]           => writeArray(array)
-    case seq: Seq[_]               => writeArray(seq)
-    case coll: JCollection[_]      => writeArray(coll.asScala)
-    case any                       => writeString(any.toString, rootLevel)
-  }
+  implicit class JsonStringBuilder(val sb: JStringBuilder) extends AnyVal {
 
-  private def writeString(s: String, rootLevel: Boolean) = {
-    val escapedLineFeeds = objectMapper.writeValueAsString(s).replaceAll("^\"|\"$", "")
-    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
-  }
+    def appendStringified(value: Any, rootLevel: Boolean): JStringBuilder = value match {
+      case b: Byte                   => appendValue(b)
+      case s: Short                  => appendValue(s)
+      case i: Int                    => appendValue(i)
+      case l: Long                   => appendValue(l)
+      case f: Float                  => appendValue(f)
+      case d: Double                 => appendValue(d)
+      case bool: Boolean             => appendValue(bool)
+      case s: String                 => appendString(s, rootLevel)
+      case null                      => appendNull()
+      case map: collection.Map[_, _] => appendMap(map)
+      case jMap: JMap[_, _]          => appendMap(jMap.asScala)
+      case array: Array[_]           => appendArray(array)
+      case seq: Seq[_]               => appendArray(seq)
+      case coll: JCollection[_]      => appendArray(coll.asScala)
+      case any                       => appendString(any.toString, rootLevel)
+    }
 
-  private def writeValue(value: Any) = fast"${value.toString}"
+    private def appendString(s: String, rootLevel: Boolean): JStringBuilder = {
+      val escapedAndWrapped = objectMapper.writeValueAsString(s)
+      if (rootLevel) {
+        sb.append(escapedAndWrapped, 1, escapedAndWrapped.length - 1)
+      } else {
+        sb.append(escapedAndWrapped)
+      }
+    }
 
-  private def writeNull = fast"null"
+    private def appendValue(value: Any): JStringBuilder =
+      sb.append(value)
 
-  private def writeArray(iterable: Traversable[_]) = fast"[${iterable.map(elem => fastringify(elem, false)).mkFastring(",")}]"
+    private def appendNull(): JStringBuilder =
+      sb.append("null")
 
-  private def writeMap(map: collection.Map[_, _]) = {
-    def serializeEntry(key: String, value: Any) = fast""""$key":${fastringify(value, false)}"""
-    fast"{${map.map { case (key, value) => serializeEntry(key.toString, value) }.mkFastring(",")}}"
+    private def appendArray(iterable: Traversable[_]): JStringBuilder = {
+      sb.append('[')
+      iterable.foreach { elem =>
+        appendStringified(elem, rootLevel = false).append(',')
+      }
+      if (iterable.nonEmpty) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append(']')
+    }
+
+    private def appendMap(map: collection.Map[_, _]): JStringBuilder = {
+      sb.append('{')
+      map.foreach {
+        case (key, value) =>
+          sb.append('"').append(key).append("\":")
+          appendStringified(value, rootLevel = false).append(',')
+      }
+      if (map.nonEmpty) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append('}')
+    }
   }
 }
