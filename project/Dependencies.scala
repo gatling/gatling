@@ -23,7 +23,7 @@ object Dependencies {
   private val spire                         = "io.gatling"                            %% "spire-cfor"                    % "0.14.1"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                         % "3.7.0"
   private val scalaLogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.7.2"
-  private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.1"
+  private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.2"
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"        % jackson.revision
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                      % "0.6.9"
