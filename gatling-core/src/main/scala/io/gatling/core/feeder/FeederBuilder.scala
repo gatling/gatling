@@ -56,7 +56,7 @@ case class FeederOptions[T](
     batchBufferSize: Int                              = 2000
 )
 
-trait BatchedFeederBuilder[T] extends SourceFeederBuilder[T] {
+trait BatchableFeederBuilder[T] extends SourceFeederBuilder[T] {
   def batched: SourceFeederBuilder[T] = copy(options = options.copy(batched = true))
   def batched(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(batched = true, batchBufferSize = bufferSize))
 }

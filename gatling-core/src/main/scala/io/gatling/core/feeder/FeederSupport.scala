@@ -27,16 +27,16 @@ trait FeederSupport {
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): SourceFeederBuilder[T] = SourceFeederBuilder(InMemoryFeederSource(data), configuration)
   implicit def feeder2FeederBuilder(feeder: Feeder[Any]): FeederBuilder = () => feeder
 
-  def csv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): BatchedFeederBuilder[String] =
+  def csv(fileName: String, quoteChar: Char = DefaultQuoteChar, escapeChar: Char = DefaultEscapeChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, CommaSeparator, quoteChar, escapeChar)
-  def ssv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): BatchedFeederBuilder[String] =
+  def ssv(fileName: String, quoteChar: Char = DefaultQuoteChar, escapeChar: Char = DefaultEscapeChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, SemicolonSeparator, quoteChar, escapeChar)
-  def tsv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): BatchedFeederBuilder[String] =
+  def tsv(fileName: String, quoteChar: Char = DefaultQuoteChar, escapeChar: Char = DefaultEscapeChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, TabulationSeparator, quoteChar, escapeChar)
 
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): BatchedFeederBuilder[String] =
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar, escapeChar: Char = DefaultEscapeChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     Resource.feeder(fileName) match {
-      case Success(resource) => new SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar, escapeChar), configuration) with BatchedFeederBuilder[String]
+      case Success(resource) => new SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar, escapeChar), configuration) with BatchableFeederBuilder[String]
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 

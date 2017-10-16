@@ -28,6 +28,9 @@ import com.fasterxml.jackson.dataformat.csv.{ CsvSchema, CsvMapper }
 
 object SeparatedValuesParser {
 
+  val DefaultQuoteChar: Char = CsvSchema.DEFAULT_QUOTE_CHAR
+  val DefaultEscapeChar: Char = CsvSchema.DEFAULT_ESCAPE_CHAR.toChar
+
   val CommaSeparator = ','
   val SemicolonSeparator = ';'
   val TabulationSeparator = '\t'
