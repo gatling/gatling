@@ -18,7 +18,7 @@ package io.gatling.recorder.har
 import java.nio.charset.{ Charset, StandardCharsets }
 
 import io.gatling.commons.util.StringHelper.RichString
-import io.gatling.recorder.har.Json._
+import io.gatling.recorder.har.Har.{ RawEntry, RawHeader, RawHttpArchive, RawLog, RawPostData, RawPostParam, RawRequest, RawResponse }
 
 import org.asynchttpclient.util.Base64
 
@@ -29,7 +29,7 @@ private[har] object HarMapping {
   // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
   val HarCharset: Charset = StandardCharsets.UTF_8
 
-  def jsonToHttpArchive(json: Json): HttpArchive = HttpArchive(buildLog(json.log))
+  def jsonToHttpArchive(rawHttpArchive: RawHttpArchive): HttpArchive = HttpArchive(buildLog(rawHttpArchive.log))
 
   // Correctly parse the date when the millisecond field contains more than three digits
   // IOW, fix this error:
@@ -39,30 +39,30 @@ private[har] object HarMapping {
   //     ...
   private def parseMillisFromIso8601DateTime(time: String): Long = java.time.ZonedDateTime.parse(time).toInstant.toEpochMilli
 
-  private def buildLog(log: Json): Log = {
+  private def buildLog(log: RawLog): Log = {
     val entries = log.entries.iterator
       // Filter out all non-HTTP protocols (eg: ws://)
       .filter(_.request.url.toString.toLowerCase.startsWith("http"))
       // Filter out all HTTP request with status=0, http://www.w3.org/TR/XMLHttpRequest/#the-status-attribute
-      .filter(_.response.status.toInt != 0)
+      .filter(_.response.status != 0)
       .map(buildEntry)
       .toVector
 
     Log(entries)
   }
 
-  private def buildEntry(entry: Json): Entry = {
+  private def buildEntry(entry: RawEntry): Entry = {
     val startTime = parseMillisFromIso8601DateTime(entry.startedDateTime)
     Entry(
       startTime,
       startTime + entry.time.toLong,
-      buildRequest(entry.request), buildResponse(entry.response)
+      buildRequest(entry.request),
+      buildResponse(entry.response)
     )
   }
 
-  private def buildRequest(request: Json): Request = {
-    val postData = request.postData.toOption
-    Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
+  private def buildRequest(request: RawRequest): Request = {
+    Request(request.method, request.url, request.headers.map(buildHeader), request.postData.map(buildPostData))
   }
 
   def unprotected(string: String): String = string match {
@@ -70,28 +70,28 @@ private[har] object HarMapping {
     case _                           => string
   }
 
-  private def buildResponse(response: Json) = {
-    val mimeType = response.content.mimeType
-    assert(mimeType.toOption.isDefined, s"Response content ${response.content} does not contains a mimeType")
-
-    val rawText = response.content.text.toOption.map(_.toString.trim).filter(!_.isEmpty)
-    val encoding = response.content.encoding.toOption.map(_.toString.trim)
-    val text = rawText flatMap (_.trimToOption) map { trimmedText =>
-      encoding match {
-        case Some("base64") => new String(Base64.decode(trimmedText), HarMapping.HarCharset)
-        case _              => trimmedText
+  private def buildResponse(response: RawResponse): Response = {
+    val content: Option[Content] =
+      for {
+        mimeType <- response.content.mimeType
+        encoding = response.content.encoding.flatMap(_.trimToOption)
+        rawText = response.content.text.flatMap(_.trimToOption)
+        text <- rawText
+      } yield {
+        val decodedText = encoding match {
+          case Some("base64") => new String(Base64.decode(text), HarMapping.HarCharset)
+          case _              => text
+        }
+        Content(mimeType, decodedText)
       }
-    }
-
-    val content = Content(mimeType, text)
     Response(response.status, content)
   }
 
-  private def buildHeader(header: Json) = Header(header.name, unprotected(header.value))
+  private def buildHeader(header: RawHeader) = Header(header.name, unprotected(header.value))
 
-  private def buildPostData(postData: Json) = PostData(postData.mimeType, postData.text, postData.params.map(buildPostParam))
+  private def buildPostData(postData: RawPostData) = PostData(postData.mimeType, postData.text, postData.params.map(buildPostParam))
 
-  private def buildPostParam(postParam: Json) = PostParam(postParam.name, unprotected(postParam.value))
+  private def buildPostParam(postParam: RawPostParam) = PostParam(postParam.name, unprotected(postParam.value))
 }
 
 /*
@@ -105,10 +105,10 @@ private[har] case class Entry(sendTime: Long, arrivalTime: Long, request: Reques
 
 private[har] case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
 
-private[har] case class Response(status: Int, content: Content)
+private[har] case class Response(status: Int, content: Option[Content])
 
-private[har] case class Content(mimeType: String, text: Option[String]) {
-  def textAsBytes: Option[Array[Byte]] = text.map(_.getBytes(HarMapping.HarCharset))
+private[har] case class Content(mimeType: String, text: String) {
+  def textAsBytes: Array[Byte] = text.getBytes(HarMapping.HarCharset)
 }
 
 private[har] case class Header(name: String, value: String)

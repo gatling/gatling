@@ -27,6 +27,7 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.har.Har.RawHttpArchive
 import io.gatling.recorder.scenario._
 
 import org.asynchttpclient.uri.Uri
@@ -40,15 +41,15 @@ private[recorder] object HarReader {
   def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
     withCloseable(new FileInputStream(path))(apply(_))
 
-  def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
-    apply(Json.parseJson(jsonStream))
+  def apply(is: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
+    apply(Har.parseStream(is))
 
-  private def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
-    val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
+  private def apply(rawHttpArchive: RawHttpArchive)(implicit config: RecorderConfiguration): ScenarioDefinition = {
+    val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(rawHttpArchive)
 
     val elements = entries.iterator
-      .filter(e => e.request.method != HttpMethod.CONNECT.name)
-      .filter(e => isValidURL(e.request.url))
+      .filter(entry => entry.request.method != HttpMethod.CONNECT.name)
+      .filter(entry => isValidURL(entry.request.url))
       // TODO NICO : can't we move this in Scenario as well ?
       .filter(e => config.filters.filters.forall(_.accept(e.request.url)))
       .map(createRequestWithArrivalTime)
@@ -58,8 +59,7 @@ private[recorder] object HarReader {
   }
 
   private def createRequestWithArrivalTime(entry: Entry): TimedScenarioElement[RequestElement] = {
-    def buildContent(postParams: Seq[PostParam]): RequestBody =
-      RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
+
     def decode(s: String): String = URLDecoder.decode(s, UTF8.name)
 
     val uri = entry.request.url
@@ -72,20 +72,24 @@ private[recorder] object HarReader {
         val requestContentType = requestHeaders.get(ContentType)
         val isUrlEncoded = requestContentType.exists(_.contains(ApplicationFormUrlEncoded))
 
-        if (isUrlEncoded) {
-          Some(RequestBodyParams(postData.params.map(postParam => (decode(postParam.name), decode(postParam.value))).toList))
-        } else {
-          Some(RequestBodyParams(postData.params.map(postParam => (postParam.name, postParam.value)).toList))
-        }
+        val decodedParams =
+          if (isUrlEncoded) {
+            postData.params.map { case PostParam(name, value) => PostParam(decode(name), decode(value)) }
+          } else {
+            postData.params
+          }
+
+        Some(RequestBodyParams(decodedParams.map(postParam => (postParam.name, postParam.value)).toList))
+
       } else {
         postData.textAsBytes.map(RequestBodyBytes)
       }
     }
 
-    val responseBody = entry.response.content.textAsBytes map ResponseBodyBytes
+    val responseBody = entry.response.content.map(content => ResponseBodyBytes(content.textAsBytes))
 
     val embeddedResources = entry.response.content match {
-      case Content("text/html", Some(text)) =>
+      case Some(Content("text/html", text)) =>
         val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
         new HtmlParser().getEmbeddedResources(Uri.create(uri), text, userAgent)
       case _ => Nil

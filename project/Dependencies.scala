@@ -25,6 +25,7 @@ object Dependencies {
   private val scalaLogging                  = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.7.2"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.2"
   private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"        % jackson.revision
+  private val json4sJackson                 = "org.json4s"                            %% "json4s-jackson"                % "3.5.3"
   private val boon                          = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                      % "0.6.9"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                  % "3.9.1"
@@ -98,7 +99,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logback, zinc, compilerBridge, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle, netty, akkaActor) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, json4sJackson, bouncycastle, netty, akkaActor) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
