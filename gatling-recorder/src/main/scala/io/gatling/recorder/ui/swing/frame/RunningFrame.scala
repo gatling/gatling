@@ -24,8 +24,10 @@ import scala.swing.ListView.IntervalMode.Single
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.ListSelectionChanged
 
-import com.typesafe.scalalogging.StrictLogging
+import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.recorder.http.model.{ HttpRequestEvent, HttpResponseEvent }
 
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.ui._
 import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
@@ -160,13 +162,25 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
     }
   }
 
+  private def summary(request: HttpRequestEvent): String = {
+    import request._
+    s"""$httpVersion $method $uri
+         |${(headers.asScala ++ trailingHeaders.asScala).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
+  }
+
+  private def summary(response: HttpResponseEvent): String = {
+    import response._
+    s"""$httpVersion $status
+              |${(headers.asScala ++ trailingHeaders.asScala).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
+  }
+
   /**
    * Display request going through the Recorder
    * @param requestInfo The outgoing request info
    */
   private def showRequest(requestInfo: RequestInfo): Unit = {
-    requestHeaders.textArea.text = requestInfo.request.summary
-    responseHeaders.textArea.text = requestInfo.response.summary
+    requestHeaders.textArea.text = summary(requestInfo.request)
+    responseHeaders.textArea.text = summary(requestInfo.response)
     requestBodies.textArea.text = requestInfo.requestBody
     responseBodies.textArea.text = requestInfo.responseBody
     infoPanels.foreach(_.preferredSize = newSize)

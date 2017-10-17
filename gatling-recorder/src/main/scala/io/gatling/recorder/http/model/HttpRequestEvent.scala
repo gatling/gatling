@@ -15,9 +15,6 @@
  */
 package io.gatling.recorder.http.model
 
-import scala.collection.JavaConverters._
-
-import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.recorder.http.flows.Remote
 
 import io.netty.handler.codec.http._
@@ -45,9 +42,4 @@ case class HttpRequestEvent(
     trailingHeaders: HttpHeaders,
     body:            Array[Byte],
     sendTimestamp:   Long
-) {
-
-  def summary: String =
-    s"""$httpVersion $method $uri
-     |${(headers.asScala ++ trailingHeaders.asScala).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
-}
+)
