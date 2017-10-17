@@ -52,18 +52,7 @@ class ServerHandler(
             }
             Remote.fromAbsoluteUri(firstRequestUriWithScheme)
           }
-          mitmActor =
-            if (https) {
-              outgoingProxy match {
-                case Some(proxy) => system.actorOf(Props(new SecuredWithProxyMitmActor(ctx.channel, clientBootstrap, sslServerContext, proxy, trafficLogger, httpClientCodecFactory)))
-                case _           => system.actorOf(Props(new SecuredNoProxyMitmActor(ctx.channel, clientBootstrap, sslServerContext, trafficLogger)))
-              }
-            } else {
-              outgoingProxy match {
-                case Some(proxy) => system.actorOf(Props(new PlainWithProxyMitmActor(ctx.channel, clientBootstrap, proxy, trafficLogger)))
-                case _           => system.actorOf(Props(new PlainNoProxyMitmActor(ctx.channel, clientBootstrap, trafficLogger)))
-              }
-            }
+          mitmActor = system.actorOf(Props(MitmActor(outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, ctx.channel, https)))
         }
 
         trafficLogger.logRequest(ctx.channel.id, request, remote, https, sendTimestamp)
