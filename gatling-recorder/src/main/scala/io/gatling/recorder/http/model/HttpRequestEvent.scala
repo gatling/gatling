@@ -23,26 +23,28 @@ import io.gatling.recorder.http.flows.Remote
 import io.netty.handler.codec.http._
 import org.asynchttpclient.netty.util.ByteBufUtils
 
-object SafeHttpRequest {
+object HttpRequestEvent {
 
-  def fromNettyRequest(nettyRequest: FullHttpRequest, remote: Remote, https: Boolean): SafeHttpRequest =
-    SafeHttpRequest(
+  def fromNettyRequest(nettyRequest: FullHttpRequest, remote: Remote, https: Boolean, sendTimestamp: Long): HttpRequestEvent =
+    HttpRequestEvent(
       nettyRequest.protocolVersion,
       nettyRequest.method,
       remote.makeAbsoluteUri(nettyRequest.uri, https),
       nettyRequest.headers,
       nettyRequest.trailingHeaders,
-      ByteBufUtils.byteBuf2Bytes(nettyRequest.content)
+      ByteBufUtils.byteBuf2Bytes(nettyRequest.content),
+      sendTimestamp
     )
 }
 
-case class SafeHttpRequest(
+case class HttpRequestEvent(
     httpVersion:     HttpVersion,
     method:          HttpMethod,
     uri:             String,
     headers:         HttpHeaders,
     trailingHeaders: HttpHeaders,
-    body:            Array[Byte]
+    body:            Array[Byte],
+    sendTimestamp:   Long
 ) {
 
   def summary: String =

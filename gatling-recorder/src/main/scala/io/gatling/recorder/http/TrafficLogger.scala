@@ -18,10 +18,9 @@ package io.gatling.recorder.http
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.flows.Remote
-import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse, TimedHttpRequest }
+import io.gatling.recorder.http.model.{ HttpRequestEvent, HttpResponseEvent }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelId
@@ -30,7 +29,7 @@ import org.asynchttpclient.uri.Uri
 
 class TrafficLogger(controller: RecorderController) extends StrictLogging {
 
-  private val flyingRequests = new ConcurrentHashMap[ChannelId, TimedHttpRequest]
+  private val flyingRequests = new ConcurrentHashMap[ChannelId, HttpRequestEvent]
 
   private case class Key(channelId: ChannelId)
 
@@ -43,18 +42,17 @@ class TrafficLogger(controller: RecorderController) extends StrictLogging {
       case _ =>
     }
 
-  def logRequest(serverChannelId: ChannelId, request: FullHttpRequest, remote: Remote, https: Boolean): Unit =
+  def logRequest(serverChannelId: ChannelId, request: FullHttpRequest, remote: Remote, https: Boolean, sendTimestamp: Long): Unit =
     if (request.method != HttpMethod.CONNECT) {
-      val now = nowMillis
-      val safeRequest = SafeHttpRequest.fromNettyRequest(request, remote, https)
-      flyingRequests.put(serverChannelId, TimedHttpRequest(safeRequest, now))
+      val requestEvent = HttpRequestEvent.fromNettyRequest(request, remote, https, sendTimestamp)
+      flyingRequests.put(serverChannelId, requestEvent)
     }
 
-  def logResponse(serverChannelId: ChannelId, response: FullHttpResponse): Unit =
-    Option(flyingRequests.get(serverChannelId)).foreach { timedHttpRequest =>
+  def logResponse(serverChannelId: ChannelId, response: FullHttpResponse, receiveTimestamp: Long): Unit =
+    Option(flyingRequests.get(serverChannelId)).foreach { requestEvent =>
       flyingRequests.remove(serverChannelId)
-      val safeResponse = SafeHttpResponse.fromNettyResponse(response)
-      controller.receiveResponse(timedHttpRequest, safeResponse)
+      val responseEvent = HttpResponseEvent.fromNettyResponse(response, receiveTimestamp)
+      controller.receiveResponse(requestEvent, responseEvent)
     }
 
   def clear(serverChannelId: ChannelId): Unit =

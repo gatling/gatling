@@ -26,7 +26,7 @@ import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.Mitm
-import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse, TimedHttpRequest }
+import io.gatling.recorder.http.model.{ HttpRequestEvent, HttpResponseEvent }
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
@@ -86,20 +86,18 @@ private[recorder] class RecorderController extends StrictLogging {
     }
   }
 
-  def receiveResponse(request: TimedHttpRequest, response: SafeHttpResponse): Unit =
-    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.httpRequest.uri))) {
-      val arrivalTime = nowMillis
-
-      currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, RequestElement(request.httpRequest, response)))
+  def receiveResponse(request: HttpRequestEvent, response: HttpResponseEvent): Unit =
+    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.uri))) {
+      currentRequests.add(TimedScenarioElement(request.sendTimestamp, response.receiveTimestamp, RequestElement(request, response)))
 
       // Notify the frontend
       val previousSendTime = currentRequests.asScala.lastOption.map(_.sendTime)
       previousSendTime.foreach { t =>
-        val delta = (arrivalTime - t).milliseconds
+        val delta = (response.receiveTimestamp - t).milliseconds
         if (delta > RecorderConfiguration.configuration.core.thresholdForPauseCreation)
           frontEnd.receiveEventInfo(PauseInfo(delta))
       }
-      frontEnd.receiveEventInfo(RequestInfo(request.httpRequest, response))
+      frontEnd.receiveEventInfo(RequestInfo(request, response))
     }
 
   def addTag(text: String): Unit = {

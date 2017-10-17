@@ -27,7 +27,7 @@ import io.gatling.http.HeaderValues._
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse }
+import io.gatling.recorder.http.model.{ HttpRequestEvent, HttpResponseEvent }
 
 import org.asynchttpclient.util.Base64
 import org.asynchttpclient.uri.Uri
@@ -52,7 +52,7 @@ private[recorder] object RequestElement {
 
   val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
 
-  def apply(request: SafeHttpRequest, response: SafeHttpResponse)(implicit configuration: RecorderConfiguration): RequestElement = {
+  def apply(request: HttpRequestEvent, response: HttpResponseEvent)(implicit configuration: RecorderConfiguration): RequestElement = {
     val requestHeaders: Map[String, String] = request.headers.entries.asScala.map { entry => (entry.getKey, entry.getValue) }(breakOut)
     val requestContentType = requestHeaders.get(ContentType)
     val requestUserAgent = requestHeaders.get(UserAgent)

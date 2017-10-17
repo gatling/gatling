@@ -15,6 +15,7 @@
  */
 package io.gatling.recorder.http
 
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.recorder.http.flows.MitmMessage.{ RequestReceived, ServerChannelInactive }
 import io.gatling.recorder.http.flows._
 import io.gatling.recorder.http.ssl.SslServerContext
@@ -38,7 +39,8 @@ class ServerHandler(
   @volatile private var remote: Remote = _
   @volatile private var mitmActor: ActorRef = _
 
-  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit =
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
+    val sendTimestamp = nowMillis
     msg match {
       case request: FullHttpRequest =>
         if (mitmActor == null) {
@@ -64,11 +66,12 @@ class ServerHandler(
             }
         }
 
-        trafficLogger.logRequest(ctx.channel.id, request, remote, https)
+        trafficLogger.logRequest(ctx.channel.id, request, remote, https, sendTimestamp)
         mitmActor ! RequestReceived(request.retain())
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
+  }
 
   override def channelInactive(ctx: ChannelHandlerContext): Unit =
     if (mitmActor != null) {

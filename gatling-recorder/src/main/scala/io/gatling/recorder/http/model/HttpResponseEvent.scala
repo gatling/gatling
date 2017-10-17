@@ -22,24 +22,26 @@ import io.gatling.commons.util.StringHelper._
 import io.netty.handler.codec.http._
 import org.asynchttpclient.netty.util.ByteBufUtils
 
-object SafeHttpResponse {
+object HttpResponseEvent {
 
-  def fromNettyResponse(nettyResponse: FullHttpResponse): SafeHttpResponse =
-    SafeHttpResponse(
+  def fromNettyResponse(nettyResponse: FullHttpResponse, receiveTimestamp: Long): HttpResponseEvent =
+    HttpResponseEvent(
       nettyResponse.protocolVersion,
       nettyResponse.status,
       nettyResponse.headers,
       nettyResponse.trailingHeaders,
-      ByteBufUtils.byteBuf2Bytes(nettyResponse.content)
+      ByteBufUtils.byteBuf2Bytes(nettyResponse.content),
+      receiveTimestamp
     )
 }
 
-case class SafeHttpResponse(
-    httpVersion:     HttpVersion,
-    status:          HttpResponseStatus,
-    headers:         HttpHeaders,
-    trailingHeaders: HttpHeaders,
-    body:            Array[Byte]
+case class HttpResponseEvent(
+    httpVersion:      HttpVersion,
+    status:           HttpResponseStatus,
+    headers:          HttpHeaders,
+    trailingHeaders:  HttpHeaders,
+    body:             Array[Byte],
+    receiveTimestamp: Long
 ) {
 
   def summary: String =

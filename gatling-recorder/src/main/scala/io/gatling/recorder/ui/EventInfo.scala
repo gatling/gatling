@@ -18,7 +18,7 @@ package io.gatling.recorder.ui
 import scala.concurrent.duration._
 
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.http.model.{ SafeHttpResponse, SafeHttpRequest }
+import io.gatling.recorder.http.model.{ HttpResponseEvent, HttpRequestEvent }
 
 private[recorder] sealed trait EventInfo
 
@@ -27,7 +27,7 @@ private[recorder] case class PauseInfo(duration: FiniteDuration) extends EventIn
   override def toString = s"PAUSE $toPrint"
 }
 
-private[recorder] case class RequestInfo(request: SafeHttpRequest, response: SafeHttpResponse)(implicit configuration: RecorderConfiguration) extends EventInfo {
+private[recorder] case class RequestInfo(request: HttpRequestEvent, response: HttpResponseEvent)(implicit configuration: RecorderConfiguration) extends EventInfo {
 
   val requestBody = new String(request.body, configuration.core.encoding)
 

@@ -15,6 +15,7 @@
  */
 package io.gatling.recorder.http
 
+import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.recorder.http.flows.MitmMessage.{ ClientChannelException, ClientChannelInactive, ResponseReceived }
 
 import akka.actor.ActorRef
@@ -24,15 +25,17 @@ import io.netty.handler.codec.http.FullHttpResponse
 
 class ClientHandler(mitmActor: ActorRef, serverChannelId: ChannelId, trafficLogger: TrafficLogger) extends ChannelInboundHandlerAdapter with StrictLogging {
 
-  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit =
+  override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
+    val receiveTimestamp = nowMillis
     msg match {
       case response: FullHttpResponse =>
-        trafficLogger.logResponse(serverChannelId, response)
+        trafficLogger.logResponse(serverChannelId, response, receiveTimestamp)
         mitmActor ! ResponseReceived(response)
 
       case unknown =>
         logger.warn(s"Received unknown message: $unknown")
     }
+  }
 
   override def channelInactive(ctx: ChannelHandlerContext): Unit =
     mitmActor ! ClientChannelInactive(ctx.channel.id)
