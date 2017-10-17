@@ -48,9 +48,9 @@ private[recorder] case class TagElement(text: String) extends ScenarioElement
 
 private[recorder] object RequestElement {
 
-  val HtmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
-
   val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
+
+  private val HtmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
 
   def apply(request: HttpRequestEvent, response: HttpResponseEvent)(implicit configuration: RecorderConfiguration): RequestElement = {
     val requestHeaders: Map[String, String] = request.headers.entries.asScala.map { entry => (entry.getKey, entry.getValue) }(breakOut)
@@ -126,14 +126,14 @@ private[recorder] case class RequestElement(
 
     (base.toString, uriComponents.toRelativeUrl)
   }
-  var printedUrl = uri
+  var printedUrl: String = uri
 
   // TODO NICO mutable external fields are a very bad idea
   var filteredHeadersId: Option[Int] = None
 
   var id: Int = 0
 
-  def setId(id: Int) = {
+  def setId(id: Int): RequestElement = {
     this.id = id
     this
   }

@@ -20,5 +20,4 @@ import scala.collection.mutable
 package object recorder {
 
   type ConfigOverrides = mutable.Map[String, _]
-
 }

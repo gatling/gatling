@@ -16,6 +16,7 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ File, IOException }
+import java.nio.file.Path
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
@@ -35,7 +36,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
   private val EventsGrouping = 100
 
-  def simulationFilePath(implicit config: RecorderConfiguration) = {
+  def simulationFilePath(implicit config: RecorderConfiguration): Path = {
     def getSimulationFileName: String = s"${config.core.className}.scala"
     def getOutputFolder = {
       val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)

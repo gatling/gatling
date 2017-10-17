@@ -25,7 +25,7 @@ import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 
 private[recorder] case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
-  def isEmpty = elements.isEmpty
+  def isEmpty: Boolean = elements.isEmpty
 }
 
 private[recorder] object ScenarioDefinition extends StrictLogging {

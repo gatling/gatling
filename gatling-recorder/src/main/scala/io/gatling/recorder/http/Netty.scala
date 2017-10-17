@@ -28,16 +28,14 @@ object Netty {
   implicit class PimpedChannelFuture(val cf: ChannelFuture) extends AnyVal {
 
     def addScalaListener(f: Try[Channel] => Unit): ChannelFuture =
-      cf.addListener(new ChannelFutureListener {
-        override def operationComplete(future: ChannelFuture): Unit = {
-          val outcome =
-            if (future.isSuccess) {
-              Success(future.channel)
-            } else {
-              Failure(future.cause)
-            }
-          f(outcome)
-        }
+      cf.addListener((future: ChannelFuture) => {
+        val outcome =
+          if (future.isSuccess) {
+            Success(future.channel)
+          } else {
+            Failure(future.cause)
+          }
+        f(outcome)
       })
   }
 

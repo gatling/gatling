@@ -15,12 +15,12 @@
  */
 package io.gatling.recorder.ui.headless
 
-import java.io.{ PrintStream, File }
+import java.io.{ File, PrintStream }
 import java.lang.management.ManagementFactory
 
 import io.gatling.commons.util.Io._
 import io.gatling.recorder.config.RecorderMode.Proxy
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.{ EventInfo, RecorderFrontend }
 
@@ -33,7 +33,7 @@ private[ui] class HeadlessFrontend(controller: RecorderController)(implicit conf
 
   private var hasRun = false
 
-  override def selectedRecorderMode = configuration.core.mode
+  override def selectedRecorderMode: RecorderMode = configuration.core.mode
 
   override def receiveEventInfo(eventInfo: EventInfo): Unit = println(s"[Event] $eventInfo")
 
@@ -51,7 +51,7 @@ private[ui] class HeadlessFrontend(controller: RecorderController)(implicit conf
   override def handleHarExportFailure(message: String): Unit =
     printErr(s"Could not convert HAR file: $message")
 
-  override def harFilePath = configuration.core.harFilePath.getOrElse("")
+  override def harFilePath: String = configuration.core.harFilePath.getOrElse("")
 
   override def handleHarExportSuccess(): Unit =
     println("HAR file successfully converted.")

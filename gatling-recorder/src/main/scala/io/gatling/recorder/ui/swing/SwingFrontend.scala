@@ -19,9 +19,9 @@ import scala.swing.Dialog
 import scala.swing.Swing._
 
 import io.gatling.commons.util.PathHelper._
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.{ RecorderFrontend, EventInfo }
+import io.gatling.recorder.ui.{ EventInfo, RecorderFrontend }
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
@@ -30,9 +30,9 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this)
 
-  def selectedRecorderMode = configurationFrame.selectedRecorderMode
+  def selectedRecorderMode: RecorderMode = configurationFrame.selectedRecorderMode
 
-  def harFilePath = configurationFrame.harFilePath
+  def harFilePath: String = configurationFrame.harFilePath
 
   def handleMissingHarFile(harFilePath: String): Unit = {
     if (harFilePath.isEmpty) {
@@ -85,7 +85,7 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
     )
   }
 
-  def askSimulationOverwrite = {
+  def askSimulationOverwrite: Boolean = {
     Dialog.showConfirmation(
       title = "Warning",
       message = "You are about to overwrite an existing simulation.",

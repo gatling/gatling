@@ -19,8 +19,8 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 package object template {
 
-  val SimpleQuotes = "\""
-  val TripleQuotes = SimpleQuotes * 3
+  val SimpleQuotes: String = "\""
+  val TripleQuotes: String = SimpleQuotes * 3
 
   private def isUnsafeStringChar(char: Char) = char == '\\' || char == '"' || char == '\n'
 

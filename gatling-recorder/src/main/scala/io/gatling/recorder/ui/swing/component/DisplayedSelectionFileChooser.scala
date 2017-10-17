@@ -61,7 +61,7 @@ private[swing] class DisplayedSelectionFileChooser(
     case Save => fileChooser.saveSelection()
   }
 
-  private def setAndPublish(newValue: String) = {
+  private def setAndPublish(newValue: String): Unit = {
     selectionDisplay.text = newValue
     creator.publish(keyReleased(selectionDisplay))
   }

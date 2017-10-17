@@ -35,7 +35,7 @@ class TrafficLogger(controller: RecorderController) extends StrictLogging {
 
   def logException(remote: Remote, throwable: Throwable): Unit =
     throwable match {
-      case e: IOException =>
+      case _: IOException =>
         val targetHostUri = Uri.create(s"https://${remote.host}:${remote.port}")
         logger.error(s"SslException, did you accept the certificate for $targetHostUri?")
         controller.secureConnection(targetHostUri)

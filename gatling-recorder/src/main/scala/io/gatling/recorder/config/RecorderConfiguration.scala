@@ -30,28 +30,25 @@ import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
-import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
+import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType }
 
-import com.typesafe.config.{ ConfigFactory, Config, ConfigRenderOptions }
+import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.StrictLogging
-
 import scala.util.control.NonFatal
 
 private[recorder] object RecorderConfiguration extends StrictLogging {
 
   implicit class IntOption(val value: Int) extends AnyVal {
-    def toOption = if (value != 0) Some(value) else None
+    def toOption: Option[Int] = if (value != 0) Some(value) else None
   }
 
-  val Remove4SpacesRegex = """\s{4}""".r
-
-  val RenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
+  private val RenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
 
   var configFile: Option[Path] = None
 
   implicit var configuration: RecorderConfiguration = _
 
-  implicit val gatlingConfiguration = GatlingConfiguration.load()
+  implicit val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load()
 
   private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
   private[this] def getDefaultConfig(classLoader: ClassLoader) =

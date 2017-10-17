@@ -27,7 +27,7 @@ private[recorder] object KeyStoreType {
 
   val AllKeyStoreTypes = List(JKS, PKCS12)
 
-  def apply(s: String) = AllKeyStoreTypes.find(_.toString == s).getOrElse {
+  def apply(s: String): KeyStoreType = AllKeyStoreTypes.find(_.toString == s).getOrElse {
     throw new IllegalArgumentException(s"$s is not a valid keystore type")
   }
 }

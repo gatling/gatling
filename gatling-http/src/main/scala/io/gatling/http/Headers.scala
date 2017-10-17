@@ -101,6 +101,7 @@ object HeaderValues {
   val AudioOgg = "audio/ogg"
   val AudioVorbis = "audio/vorbis"
   val AudioWebm = "audio/webm"
+  val Close = "close"
   val ImagePng = "image/png"
   val ImageJpeg = "image/jpeg"
   val ImageGif = "image/gif"

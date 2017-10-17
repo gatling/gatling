@@ -50,11 +50,14 @@ private[recorder] object SslCertUtil extends StrictLogging {
 
   Security.addProvider(new BouncyCastleProvider)
 
-  def readPEM(file: InputStream): Any = withCloseable(new PEMParser(new InputStreamReader(file))) { _.readObject }
+  def readPEM(file: InputStream): Any =
+    withCloseable(new PEMParser(new InputStreamReader(file))) { _.readObject }
 
-  def writePEM(obj: Any, os: OutputStream): Unit = withCloseable(new JcaPEMWriter(new OutputStreamWriter(os))) { _.writeObject(obj) }
+  def writePEM(obj: Any, os: OutputStream): Unit =
+    withCloseable(new JcaPEMWriter(new OutputStreamWriter(os))) { _.writeObject(obj) }
 
-  def certificateFromHolder(certHolder: X509CertificateHolder) = new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME).getCertificate(certHolder)
+  def certificateFromHolder(certHolder: X509CertificateHolder): X509Certificate =
+    new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME).getCertificate(certHolder)
 
   def newRSAKeyPair: KeyPair = {
     val kpGen = KeyPairGenerator.getInstance("RSA")

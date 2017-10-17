@@ -19,7 +19,6 @@ import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.recorder.ConfigOverrides
 import io.gatling.recorder.cli.CommandLineConstants._
 import io.gatling.recorder.config.{ RecorderMode, RecorderPropertiesBuilder }
-import io.gatling.recorder.controller.RecorderController
 
 private[recorder] class ArgsParser(args: Array[String]) {
 

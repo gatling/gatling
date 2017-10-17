@@ -115,5 +115,5 @@ class RecorderPropertiesBuilder {
   def privateKeyPath(path: String): Unit =
     props += proxy.https.certificateAuthority.PrivateKeyPath -> path
 
-  def build = props
+  def build: mutable.Map[String, Any] = props
 }

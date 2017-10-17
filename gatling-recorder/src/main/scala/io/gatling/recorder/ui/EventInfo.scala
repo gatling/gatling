@@ -23,7 +23,7 @@ import io.gatling.recorder.http.model.{ HttpResponseEvent, HttpRequestEvent }
 private[recorder] sealed trait EventInfo
 
 private[recorder] case class PauseInfo(duration: FiniteDuration) extends EventInfo {
-  val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
+  private val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
   override def toString = s"PAUSE $toPrint"
 }
 

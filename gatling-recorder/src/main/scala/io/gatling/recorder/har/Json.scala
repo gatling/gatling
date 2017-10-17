@@ -28,33 +28,42 @@ private[har] object Json {
 
   def parseJson(is: InputStream) = new Json(objectMapper.readValue(is, classOf[Object]))
 
-  implicit def JsonToString(s: Json) = s.toString
-  implicit def JsonToInt(s: Json) = s.toInt
-  implicit def JsonToDouble(s: Json) = s.toDouble
+  implicit def JsonToString(s: Json): String = s.toString
+  implicit def JsonToInt(s: Json): Int = s.toInt
 }
 
 private[har] class JsonException(desc: String) extends Exception(desc)
 
 private[har] class JsonIterator(i: java.util.Iterator[Object]) extends Iterator[Json] {
-  def hasNext = i.hasNext
-  def next = new Json(i.next)
+  override def hasNext: Boolean = i.hasNext
+  override def next: Json = new Json(i.next)
 }
 
 private[har] class Json(val o: Object) extends Seq[Json] with Dynamic {
 
   override def toString: String = if (o == null) "null" else o.toString
 
-  def toOption = if (o == null) None else Some(this)
+  def toOption: Option[Json] = if (o == null) None else Some(this)
 
   def toInt: Int = o match {
-    case i: Integer => i
-    case _          => throw new JsonException(s"Object $o isn't a integer")
+    case i: java.lang.Integer => i
+    case _                    => throw new JsonException(s"Object $o isn't an integer")
+  }
+
+  def toLong: Long = o match {
+    case i: java.lang.Integer => Int.int2long(i)
+    case l: java.lang.Long    => l
+    case d: java.lang.Double  => d.longValue
+    case f: java.lang.Float   => Float.float2double(f).longValue()
+    case _                    => throw new JsonException(s"Object $o isn't a long")
   }
 
   def toDouble: Double = o match {
-    case d: java.lang.Double => d
-    case f: java.lang.Float  => f.toDouble
-    case _                   => throw new JsonException(s"Object $o isn't a floating point number")
+    case i: java.lang.Integer => Int.int2double(i)
+    case l: java.lang.Long    => Long.long2double(l)
+    case d: java.lang.Double  => d
+    case f: java.lang.Float   => Float.float2double(f)
+    case _                    => throw new JsonException(s"Object $o isn't a floating point number")
   }
 
   def apply(key: String): Json = o match {
@@ -80,7 +89,7 @@ private[har] class Json(val o: Object) extends Seq[Json] with Dynamic {
 
   def selectDynamic(name: String): Json = apply(name)
 
-  def applyDynamic(name: String)(arg: Any) = {
+  def applyDynamic(name: String)(arg: Any): Json = {
     arg match {
       case s: String => apply(name)(s)
       case n: Int    => apply(name)(n)

@@ -43,7 +43,7 @@ private[http] sealed trait SslServerContext {
 
 private[recorder] object SslServerContext {
 
-  val Algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
+  private val Algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
   val Protocol = "TLS"
 
   def apply(config: RecorderConfiguration): SslServerContext = {

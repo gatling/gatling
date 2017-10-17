@@ -16,7 +16,7 @@
 package io.gatling.recorder.scenario.template
 
 import io.gatling.commons.util.StringHelper.{ EmptyFastring, Eol }
-import io.gatling.http.HeaderNames
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
@@ -26,9 +26,9 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[scenario] object ProtocolTemplate {
 
-  val Indent = "\t" * 2
+  private val Indent = "\t" * 2
 
-  def render(protocol: ProtocolDefinition)(implicit config: RecorderConfiguration) = {
+  def render(protocol: ProtocolDefinition)(implicit config: RecorderConfiguration): String = {
 
     def renderProxy = {
 
@@ -76,11 +76,13 @@ private[scenario] object ProtocolTemplate {
 
     def renderHeaders = {
       def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
-      protocol.headers.toList.sorted
+      protocol.headers.toList
         .filter {
-          case (HeaderNames.Connection, value) => value == "close"
+          case (HeaderNames.Connection, value) => value == HeaderValues.Close
           case _                               => true
-        }.flatMap {
+        }
+        .sorted
+        .flatMap {
           case (headerName, headerValue) =>
             val properHeaderValue =
               if (headerName.equalsIgnoreCase(HeaderNames.AcceptEncoding)) {
