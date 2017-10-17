@@ -19,7 +19,6 @@ import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.StringHelper._
 
-import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
 import org.asynchttpclient.netty.util.ByteBufUtils
 
@@ -42,13 +41,6 @@ case class SafeHttpResponse(
     trailingHeaders: HttpHeaders,
     body:            Array[Byte]
 ) {
-
-  def toNettyResponse: FullHttpResponse = {
-    val response = new DefaultFullHttpResponse(httpVersion, status, Unpooled.wrappedBuffer(body))
-    response.headers.set(headers)
-    response.trailingHeaders.set(trailingHeaders)
-    response
-  }
 
   def summary: String =
     s"""$httpVersion $status

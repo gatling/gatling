@@ -20,7 +20,6 @@ import scala.collection.JavaConverters._
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.recorder.http.flows.Remote
 
-import io.netty.buffer.Unpooled
 import io.netty.handler.codec.http._
 import org.asynchttpclient.netty.util.ByteBufUtils
 
@@ -45,13 +44,6 @@ case class SafeHttpRequest(
     trailingHeaders: HttpHeaders,
     body:            Array[Byte]
 ) {
-
-  def toNettyRequest: FullHttpRequest = {
-    val request = new DefaultFullHttpRequest(httpVersion, method, uri, Unpooled.wrappedBuffer(body))
-    request.headers.set(headers)
-    request.trailingHeaders.set(trailingHeaders)
-    request
-  }
 
   def summary: String =
     s"""$httpVersion $method $uri
