@@ -28,8 +28,8 @@ private[har] object Json {
 
   def parseJson(is: InputStream) = new Json(objectMapper.readValue(is, classOf[Object]))
 
-  implicit def JsonToString(s: Json): String = s.toString
-  implicit def JsonToInt(s: Json): Int = s.toInt
+  implicit def jsonToString(s: Json): String = s.toString
+  implicit def jsonToInt(s: Json): Int = s.toInt
 }
 
 private[har] class JsonException(desc: String) extends Exception(desc)

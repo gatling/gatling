@@ -15,13 +15,10 @@
  */
 package io.gatling.recorder.har
 
-import java.nio.charset.StandardCharsets
-import java.text.SimpleDateFormat
-
-import scala.util.Try
+import java.nio.charset.{ Charset, StandardCharsets }
 
 import io.gatling.commons.util.StringHelper.RichString
-import io.gatling.recorder.har.Json.{ JsonToInt, JsonToString }
+import io.gatling.recorder.har.Json._
 
 import org.asynchttpclient.util.Base64
 
@@ -30,7 +27,7 @@ private[har] object HarMapping {
   private val ProtectedValue = """"(.*)\"""".r
 
   // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
-  val Charset = StandardCharsets.UTF_8
+  val HarCharset: Charset = StandardCharsets.UTF_8
 
   def jsonToHttpArchive(json: Json): HttpArchive = HttpArchive(buildLog(json.log))
 
@@ -40,7 +37,7 @@ private[har] object HarMapping {
   //     at java.text.DateFormat.parse(DateFormat.java:366)
   //     at io.gatling.recorder.har.HarMapping$.parseMillisFromIso8601DateTime(HarMapping.scala:38)
   //     ...
-  private def parseMillisFromIso8601DateTime(time: String): Long = java.time.ZonedDateTime.parse(time).toInstant().toEpochMilli
+  private def parseMillisFromIso8601DateTime(time: String): Long = java.time.ZonedDateTime.parse(time).toInstant.toEpochMilli
 
   private def buildLog(log: Json): Log = {
     val entries = log.entries.iterator
@@ -56,11 +53,9 @@ private[har] object HarMapping {
 
   private def buildEntry(entry: Json): Entry = {
     val startTime = parseMillisFromIso8601DateTime(entry.startedDateTime)
-    // what a thing of beauty!!!
-    val time = Try(entry.time.toLong).getOrElse(entry.time.toDouble.toLong)
     Entry(
       startTime,
-      startTime + time,
+      startTime + entry.time.toLong,
       buildRequest(entry.request), buildResponse(entry.response)
     )
   }
@@ -82,7 +77,7 @@ private[har] object HarMapping {
     val encoding = response.content.encoding.toOption.map(_.toString.trim)
     val text = rawText flatMap (_.trimToOption) map { trimmedText =>
       encoding match {
-        case Some("base64") => new String(Base64.decode(trimmedText), HarMapping.Charset)
+        case Some("base64") => new String(Base64.decode(trimmedText), HarMapping.HarCharset)
         case _              => trimmedText
       }
     }
@@ -112,13 +107,13 @@ private[har] case class Request(method: String, url: String, headers: Seq[Header
 private[har] case class Response(status: Int, content: Content)
 
 private[har] case class Content(mimeType: String, text: Option[String]) {
-  def textAsBytes = text.map(_.getBytes(HarMapping.Charset))
+  def textAsBytes: Option[Array[Byte]] = text.map(_.getBytes(HarMapping.HarCharset))
 }
 
 private[har] case class Header(name: String, value: String)
 
 private[har] case class PostData(mimeType: String, text: String, params: Seq[PostParam]) {
-  def textAsBytes = text.trimToOption.map(_.getBytes(HarMapping.Charset))
+  def textAsBytes: Option[Array[Byte]] = text.trimToOption.map(_.getBytes(HarMapping.HarCharset))
 }
 
 private[har] case class PostParam(name: String, value: String)
