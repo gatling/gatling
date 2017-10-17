@@ -47,7 +47,6 @@ class TrafficLogger(controller: RecorderController) extends StrictLogging {
     if (request.method != HttpMethod.CONNECT) {
       val now = nowMillis
       val safeRequest = SafeHttpRequest.fromNettyRequest(request, remote, https)
-      controller.receiveRequest(safeRequest)
       flyingRequests.put(serverChannelId, TimedHttpRequest(safeRequest, now))
     }
 

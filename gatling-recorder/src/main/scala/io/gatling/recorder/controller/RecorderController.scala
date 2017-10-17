@@ -23,7 +23,6 @@ import scala.concurrent.duration.DurationLong
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
-import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.Mitm
@@ -33,8 +32,6 @@ import io.gatling.recorder.ui._
 
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.util.Base64
-import io.netty.handler.codec.http.HttpHeaderNames.PROXY_AUTHORIZATION
 
 private[recorder] class RecorderController extends StrictLogging {
 
@@ -88,22 +85,6 @@ private[recorder] class RecorderController extends StrictLogging {
       frontEnd.init()
     }
   }
-
-  def receiveRequest(request: SafeHttpRequest): Unit =
-    // TODO NICO - that's not the appropriate place to synchronize !
-    synchronized {
-      // FIXME it's in the configuration!!!!
-      // If Outgoing Proxy set, we record the credentials to use them when sending the request
-      Option(request.headers.get(PROXY_AUTHORIZATION)).foreach {
-        header =>
-          // Split on " " and take 2nd group (Basic credentialsInBase64==)
-          val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-          val props = new RecorderPropertiesBuilder
-          props.proxyUsername(credentials(0))
-          props.proxyPassword(credentials(1))
-          RecorderConfiguration.reload(props.build)
-      }
-    }
 
   def receiveResponse(request: TimedHttpRequest, response: SafeHttpResponse): Unit =
     if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.httpRequest.uri))) {
