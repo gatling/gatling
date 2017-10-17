@@ -24,7 +24,7 @@ import org.asynchttpclient.util.Base64
 
 private[har] object HarMapping {
 
-  private val ProtectedValue = """"(.*)\"""".r
+  private val ProtectedValue = "\"(.*)\"".r
 
   // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
   val HarCharset: Charset = StandardCharsets.UTF_8
@@ -64,7 +64,8 @@ private[har] object HarMapping {
     val postData = request.postData.toOption
     Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
   }
-  private def unprotected(string: String) = string match {
+
+  def unprotected(string: String): String = string match {
     case ProtectedValue(unprotected) => unprotected
     case _                           => string
   }
