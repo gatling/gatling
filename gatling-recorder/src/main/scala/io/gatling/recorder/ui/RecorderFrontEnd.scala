@@ -17,16 +17,16 @@ package io.gatling.recorder.ui
 
 import io.gatling.recorder.config.{ RecorderMode, RecorderConfiguration }
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.headless.HeadlessFrontend
-import io.gatling.recorder.ui.swing.SwingFrontend
+import io.gatling.recorder.ui.headless.HeadlessFrontEnd
+import io.gatling.recorder.ui.swing.SwingFrontEnd
 
-private[recorder] object RecorderFrontend {
+private[recorder] object RecorderFrontEnd {
 
-  def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontend =
-    if (configuration.core.headless) new HeadlessFrontend(controller)
-    else new SwingFrontend(controller)
+  def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontEnd =
+    if (configuration.core.headless) new HeadlessFrontEnd(controller)
+    else new SwingFrontEnd(controller)
 }
-private[recorder] abstract class RecorderFrontend(controller: RecorderController) {
+private[recorder] abstract class RecorderFrontEnd(controller: RecorderController) {
 
 /******************************/
   /**  Controller => Frontend  **/
@@ -52,7 +52,7 @@ private[recorder] abstract class RecorderFrontend(controller: RecorderController
 
   def recordingStopped(): Unit
 
-  def receiveEventInfo(eventInfo: EventInfo): Unit
+  def receiveEvent(event: FrontEndEvent): Unit
 
 /******************************/
   /**  Frontend => Controller  **/

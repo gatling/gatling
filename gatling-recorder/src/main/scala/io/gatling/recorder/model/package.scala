@@ -13,17 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.har
+package io.gatling.recorder
 
-import io.gatling.BaseSpec
+package object model {
 
-class HarMappingSpec extends BaseSpec {
+  case class HttpRequest(
+      httpVersion: String,
+      method:      String,
+      uri:         String,
+      headers:     Map[String, String],
+      body:        Array[Byte],
+      timestamp:   Long
+  )
 
-  "unprotected" should "unwrap wrapped values" in {
-    HarMapping.unprotected("\"foo\"") shouldBe "foo"
-  }
-
-  it should "handle unwrapped values" in {
-    HarMapping.unprotected("foo") shouldBe "foo"
-  }
+  case class HttpResponse(
+      status:     Int,
+      statusText: String,
+      headers:    Map[String, String],
+      body:       Array[Byte],
+      timestamp:  Long
+  )
 }

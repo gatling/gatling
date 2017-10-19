@@ -21,11 +21,11 @@ import scala.swing.Swing._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.{ EventInfo, RecorderFrontend }
+import io.gatling.recorder.ui.{ FrontEndEvent, RecorderFrontEnd }
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
-private[ui] class SwingFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontend(controller) {
+private[ui] class SwingFrontEnd(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
 
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this)
@@ -106,7 +106,7 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
 
   def recordingStopped(): Unit = runningFrame.clearState()
 
-  def receiveEventInfo(eventInfo: EventInfo): Unit = onEDT(runningFrame.receiveEventInfo(eventInfo))
+  def receiveEvent(event: FrontEndEvent): Unit = onEDT(runningFrame.receiveEvent(event))
 
   private def lookupFiles(path: String): List[String] = {
     val parent = path.getParent

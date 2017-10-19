@@ -26,7 +26,7 @@ import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.har.HarReader
+import io.gatling.recorder.har._
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -54,11 +54,18 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
     safely(_ => "Error while processing HAR file") {
-      val har = HarReader(harFilePath)
-      if (har.elements.isEmpty) {
+      val transactions = HarReader.readFile(harFilePath, config.filters.filters)
+
+      if (transactions.isEmpty) {
         "the selected file doesn't contain any valid HTTP requests".failure
       } else {
-        ScenarioExporter.saveScenario(har).success
+        val scenarioElements = transactions.map {
+          case HttpTransaction(request, response) =>
+            val element = RequestElement(request, response)
+            TimedScenarioElement(request.timestamp, response.timestamp, element)
+        }
+
+        ScenarioExporter.saveScenario(ScenarioDefinition(scenarioElements, tags = Nil)).success
       }
     }
 

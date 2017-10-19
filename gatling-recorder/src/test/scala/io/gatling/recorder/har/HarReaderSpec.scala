@@ -15,136 +15,133 @@
  */
 package io.gatling.recorder.har
 
-import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
+import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io.withCloseable
-import io.gatling.recorder.config.ConfigKeys.http.InferHtmlResources
-import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
-import io.gatling.recorder.scenario.{ ResponseBodyBytes, PauseElement, RequestElement, RequestBodyParams }
+import io.gatling.commons.util.Io
+import io.gatling.core.filter.Filters
+import io.gatling.http.HeaderNames._
+import io.gatling.http.HeaderValues._
 
 class HarReaderSpec extends BaseSpec {
 
-  def resourceAsStream(p: String) = getClass.getClassLoader.getResourceAsStream(p)
+  private def readHar(file: String, filters: Option[Filters]): Seq[HttpTransaction] =
+    Io.withCloseable(Thread.currentThread.getContextClassLoader.getResourceAsStream("har/" + file)) { is =>
+      HarReader.readStream(is, filters)
+    }
 
-  val configWithResourcesFiltering = fakeConfig(mutable.Map(InferHtmlResources -> true))
+  private def testGet(file: String): Unit = {
+    val transactions = readHar(file, None)
+    transactions should have size 1
+    val getTransaction = transactions.head
 
-  // By default, we assume that we don't want to filter out the HTML resources
-  implicit val config = fakeConfig(mutable.Map(InferHtmlResources -> false))
+    getTransaction.request.httpVersion shouldBe "HTTP/1.1"
+    getTransaction.request.method shouldBe "GET"
+    getTransaction.request.uri shouldBe "http://computer-database.gatling.io/computers?p=1"
+    getTransaction.request.headers(Host) shouldBe "computer-database.gatling.io"
+    getTransaction.request.headers(UserAgent).nonEmpty shouldBe true
+    getTransaction.request.headers(AcceptEncoding) shouldBe "gzip, deflate"
+    getTransaction.request.headers(Connection) shouldBe "keep-alive"
+    getTransaction.request.body shouldBe empty
 
-  "HarReader" should "work with empty JSON" in {
-    withCloseable(resourceAsStream("har/empty.har"))(HarReader(_) shouldBe empty)
+    getTransaction.response.status shouldBe 200
+    getTransaction.response.statusText shouldBe "OK"
+    getTransaction.response.headers(ContentType) shouldBe "text/html; charset=utf-8"
+    getTransaction.response.headers(ContentLength).toInt shouldBe 7281
+    getTransaction.response.body should have length 7256
+
+    getTransaction.response.timestamp shouldBe >(getTransaction.request.timestamp)
   }
 
-  val scn = withCloseable(resourceAsStream("har/www.kernel.org.har"))(HarReader(_))
-
-  val elts = scn.elements
-  val pauseElts = elts.collect { case PauseElement(duration) => duration }
-
-  it should "return the correct number of Pause elements" in {
-    pauseElts.size shouldBe <(elts.size / 2)
+  "Parsing a GET" should "work with Chrome 61" in {
+    testGet("chrome61/get.har")
   }
 
-  it should "return an appropriate pause duration" in {
-    val pauseDuration = pauseElts.reduce(_ + _)
-
-    // The total duration of the HAR record is of 6454ms
-    pauseDuration shouldBe <=(88389 milliseconds)
-    pauseDuration shouldBe >(80000 milliseconds)
+  it should "work with FireFox 56" in {
+    testGet("firefox56/get.har")
   }
 
-  it should "return the appropriate request elements" in {
-    val (googleFontUris, uris) = elts
-      .collect { case req: RequestElement => req.uri }
-      .partition(_.contains("google"))
-
-    all(uris) should startWith("https://www.kernel.org")
-    uris.size shouldBe 41
-    googleFontUris.size shouldBe 16
+  it should "work with Charles 4.2" in {
+    testGet("charles42/get.har")
   }
 
-  it should "have the approriate first requests" in {
-    // The first element can't be a pause.
-    elts.head shouldBe a[RequestElement]
-    elts.head.asInstanceOf[RequestElement].uri shouldBe "https://www.kernel.org/"
-    elts.head.asInstanceOf[RequestElement].responseBody should not be empty
-    elts(1) shouldBe a[RequestElement]
-    elts(1).asInstanceOf[RequestElement].uri shouldBe "https://www.kernel.org/theme/css/main.css"
-    elts(1).asInstanceOf[RequestElement].responseBody should not be empty
+  private def testForm(file: String): Unit = {
+    val transactions = readHar(file, None)
+    transactions should have size 2
+
+    val getTransaction = transactions.head
+    getTransaction.request.method shouldBe "GET"
+
+    val postTransaction = transactions(1)
+    postTransaction.request.method shouldBe "POST"
+    postTransaction.request.headers(ContentType) shouldBe ApplicationFormUrlEncoded
+    new String(postTransaction.request.body, UTF_8) shouldBe "name=NAME&quest=QUEST&color=chartreuse&swallow=african&text=HI"
   }
 
-  it should "have the headers correctly set" in {
-    val el0 = elts.head.asInstanceOf[RequestElement]
-    val el1 = elts(1).asInstanceOf[RequestElement]
-
-    val a = el0.headers shouldBe empty
-    el1.headers should not be empty
-    for {
-      header <- List("User-Agent", "Host", "Accept-Encoding", "Accept-Language")
-    } el1.headers should contain key header
+  "Parsing a form post" should "work with Chrome 61" in {
+    testForm("chrome61/form.har")
   }
 
-  it should "have requests with valid headers" in {
-    // Extra headers can be added by Chrome
-    val headerNames = elts.iterator.collect { case req: RequestElement => req.headers.keys }.flatten.toSet
-    all(headerNames) should not include regex(":.*")
+  it should "work with FireFox 56" in {
+    testForm("firefox56/form.har")
   }
 
-  it should "have the embedded HTML resources filtered out" in {
-    val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))(configWithResourcesFiltering)
-    val elts2 = scn2.elements
-    elts2.size shouldBe <(elts.size)
-    elts2 should not contain "https://www.kernel.org/theme/css/main.css"
+  it should "work with Charles 4.2" in {
+    testForm("charles42/form.har")
   }
 
-  it should "deal correctly with file having a websockets record" in {
-    withCloseable(resourceAsStream("har/play-chat.har")) { is =>
-      val scn = HarReader(is)(configWithResourcesFiltering)
-      val requests = scn.elements.collect { case req: RequestElement => req.uri }
+  private def testMultipart(file: String): Unit = {
+    val transactions = readHar(file, None)
+    transactions should have size 2
 
-      scn.elements should have size 3
-      requests shouldBe List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")
+    val getTransaction = transactions.head
+    getTransaction.request.method shouldBe "GET"
+
+    val postTransaction = transactions(1)
+    postTransaction.request.method shouldBe "POST"
+    postTransaction.request.headers(ContentType) should startWith(MultipartFormData)
+    if (!file.contains("chrome") && !file.contains("charles")) {
+      // FIXME https://bugs.chromium.org/p/chromium/issues/detail?id=766715#c4
+      // FIXME Charles parses multipart into params and we don't support that yet
+      postTransaction.request.body.length shouldBe >(0)
     }
   }
 
-  it should "deal correctly with HTTP CONNECT requests" in {
-    withCloseable(resourceAsStream("har/charles_https.har")) { is =>
-      val scn = HarReader(is)
-      scn.elements shouldBe empty
-    }
+  "Parsing a multipart post" should "work with Chrome 61" in {
+    testMultipart("chrome61/multipart.har")
   }
 
-  it should "deal correctly with HTTP requests having a status=0" in {
-    withCloseable(resourceAsStream("har/null_status.har")) { is =>
-      val scn = HarReader(is)
-      val requests = scn.elements.collect { case req: RequestElement => req }
-      val statuses = requests.map(_.statusCode)
-
-      requests should have size 3
-      statuses should not contain 0
-    }
+  it should "work with FireFox 56" in {
+    testMultipart("firefox56/multipart.har")
   }
 
-  it should "decode base64-encoded bodies" in {
-    withCloseable(resourceAsStream("har/base64_encoded.har")) { is =>
-      val scn = HarReader(is)
-      scn.elements.head.asInstanceOf[RequestElement].responseBody should not be empty
-      scn.elements.head.asInstanceOf[RequestElement].responseBody.get shouldBe a[ResponseBodyBytes]
-      val responseBodyBytes = scn.elements.head.asInstanceOf[RequestElement].responseBody.get.asInstanceOf[ResponseBodyBytes]
-      new String(responseBodyBytes.bytes) should include("stats-semi-blind")
-    }
+  it should "work with Charles 4.2" in {
+    testMultipart("charles42/multipart.har")
   }
 
-  it should "decode url-encoded form parameters when encoding type is application/x-www-form-urlencoded" in {
-    withCloseable(resourceAsStream("har/form-encoding.har")) { is =>
-      val scn = HarReader(is)
-      val requests = scn.elements.collect { case req: RequestElement => req }
-      scn.elements.head.asInstanceOf[RequestElement].body should not be empty
-      scn.elements.head.asInstanceOf[RequestElement].body should not be a[RequestBodyParams]
-      scn.elements.head.asInstanceOf[RequestElement].headers("Content-Type") shouldBe "application/x-www-form-urlencoded"
-      val param = scn.elements.head.asInstanceOf[RequestElement].body.get.asInstanceOf[RequestBodyParams].params.toMap.get("param").get
-      param shouldBe "H@llo"
-    }
+  private def testRedirectAfterPost(file: String): Unit = {
+    val transactions = readHar(file, None)
+    transactions should have size 2
+    val postTransaction = transactions.head
+    postTransaction.request.method shouldBe "POST"
+    postTransaction.response.headers(Location) shouldBe "/computers"
+    postTransaction.response.body shouldBe empty
+
+    val redirectGetTransaction = transactions(1)
+    redirectGetTransaction.request.uri shouldBe "http://computer-database.gatling.io/computers"
+    redirectGetTransaction.request.method shouldBe "GET"
+    redirectGetTransaction.request.body shouldBe empty
+  }
+
+  "Parsing a redirect after post" should "work with Chrome 61" in {
+    testRedirectAfterPost("chrome61/redirect-post.har")
+  }
+
+  it should "work with FireFox 56" in {
+    testRedirectAfterPost("firefox56/redirect-post.har")
+  }
+
+  it should "work with Charles 4.2" in {
+    testRedirectAfterPost("charles42/redirect-post.har")
   }
 }

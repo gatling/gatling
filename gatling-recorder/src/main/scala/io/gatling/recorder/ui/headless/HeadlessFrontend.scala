@@ -22,20 +22,20 @@ import io.gatling.commons.util.Io._
 import io.gatling.recorder.config.RecorderMode.Proxy
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.{ EventInfo, RecorderFrontend }
+import io.gatling.recorder.ui.{ FrontEndEvent, RecorderFrontEnd }
 
-private[headless] object HeadlessFrontend {
+private[headless] object HeadlessFrontEnd {
   private val RecorderPidFile = new File(".gatling-recorder-pid")
 }
-private[ui] class HeadlessFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontend(controller) {
+private[ui] class HeadlessFrontEnd(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontEnd(controller) {
 
-  import HeadlessFrontend._
+  import HeadlessFrontEnd._
 
   private var hasRun = false
 
   override def selectedRecorderMode: RecorderMode = configuration.core.mode
 
-  override def receiveEventInfo(eventInfo: EventInfo): Unit = println(s"[Event] $eventInfo")
+  override def receiveEvent(event: FrontEndEvent): Unit = println(s"[Event] $event")
 
   override def init(): Unit =
     if (!hasRun) {

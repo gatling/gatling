@@ -25,7 +25,7 @@ import scala.swing.Swing.pair2Dimension
 import scala.swing.event.ListSelectionChanged
 
 import io.gatling.commons.util.StringHelper.Eol
-import io.gatling.recorder.http.model.{ HttpRequestEvent, HttpResponseEvent }
+import io.gatling.recorder.model._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.ui._
@@ -33,7 +33,7 @@ import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
+private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
 
 /************************************/
   /**           COMPONENTS           **/
@@ -49,7 +49,7 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
   /* Center panel components */
   private val initialSize = (472, 150)
   private val newSize = (472, 900)
-  private val events = new ListView[EventInfo] { selection.intervalMode = Single }
+  private val events = new ListView[FrontEndEvent] { selection.intervalMode = Single }
   private val requestHeaders = new TextAreaPanel("Summary", initialSize)
   private val responseHeaders = new TextAreaPanel("Summary", initialSize)
   private val requestBodies = new TextAreaPanel("Body", initialSize)
@@ -146,8 +146,8 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
     case ListSelectionChanged(_, _, _) if events.peer.getSelectedIndex >= 0 =>
       val selectedIndex = events.peer.getSelectedIndex
       events.listData(selectedIndex) match {
-        case requestInfo: RequestInfo => showRequest(requestInfo)
-        case _                        => infoPanels.foreach(_.textArea.clear())
+        case requestInfo: RequestFrontEndEvent => showRequest(requestInfo)
+        case _                                 => infoPanels.foreach(_.textArea.clear())
       }
     case _ => // Do nothing
   }
@@ -162,23 +162,23 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
     }
   }
 
-  private def summary(request: HttpRequestEvent): String = {
+  private def summary(request: HttpRequest): String = {
     import request._
     s"""$httpVersion $method $uri
-         |${(headers.asScala ++ trailingHeaders.asScala).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
+         |${headers.map { case (key, value) => s"$key: $value" }.mkString(Eol)}""".stripMargin
   }
 
-  private def summary(response: HttpResponseEvent): String = {
+  private def summary(response: HttpResponse): String = {
     import response._
-    s"""$httpVersion $status
-              |${(headers.asScala ++ trailingHeaders.asScala).map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)}""".stripMargin
+    s"""$status $statusText
+          |${headers.map { case (key, value) => s"$key: $value" }.mkString(Eol)}""".stripMargin
   }
 
   /**
    * Display request going through the Recorder
    * @param requestInfo The outgoing request info
    */
-  private def showRequest(requestInfo: RequestInfo): Unit = {
+  private def showRequest(requestInfo: RequestFrontEndEvent): Unit = {
     requestHeaders.textArea.text = summary(requestInfo.request)
     responseHeaders.textArea.text = summary(requestInfo.response)
     requestBodies.textArea.text = requestInfo.requestBody
@@ -201,14 +201,14 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
   /**
    * Handle Recorder Events sent by the controller,
    * and display them accordingly
-   * @param eventInfo the event sent by the controller
+   * @param event the event sent by the controller
    */
-  def receiveEventInfo(eventInfo: EventInfo): Unit = {
-    eventInfo match {
-      case pauseInfo: PauseInfo => events.add(pauseInfo)
-      case requestInfo: RequestInfo => events.add(requestInfo)
-      case tagInfo: TagInfo => events.add(tagInfo)
-      case SSLInfo(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
+  def receiveEvent(event: FrontEndEvent): Unit = {
+    event match {
+      case pauseInfo: PauseFrontEndEvent => events.add(pauseInfo)
+      case requestInfo: RequestFrontEndEvent => events.add(requestInfo)
+      case tagInfo: TagFrontEndEvent => events.add(tagInfo)
+      case SslFrontEndEvent(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
       case e => logger.debug(s"dropping event $e")
     }
   }

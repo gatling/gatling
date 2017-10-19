@@ -18,18 +18,21 @@ package io.gatling.recorder.http
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
+import scala.collection.JavaConverters._
+
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.flows.Remote
-import io.gatling.recorder.http.model.{ HttpRequestEvent, HttpResponseEvent }
+import io.gatling.recorder.model._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelId
 import io.netty.handler.codec.http.{ FullHttpRequest, FullHttpResponse, HttpMethod }
+import org.asynchttpclient.netty.util.ByteBufUtils
 import org.asynchttpclient.uri.Uri
 
 class TrafficLogger(controller: RecorderController) extends StrictLogging {
 
-  private val flyingRequests = new ConcurrentHashMap[ChannelId, HttpRequestEvent]
+  private val flyingRequests = new ConcurrentHashMap[ChannelId, HttpRequest]
 
   private case class Key(channelId: ChannelId)
 
@@ -44,14 +47,33 @@ class TrafficLogger(controller: RecorderController) extends StrictLogging {
 
   def logRequest(serverChannelId: ChannelId, request: FullHttpRequest, remote: Remote, https: Boolean, sendTimestamp: Long): Unit =
     if (request.method != HttpMethod.CONNECT) {
-      val requestEvent = HttpRequestEvent.fromNettyRequest(request, remote, https, sendTimestamp)
+      import request._
+
+      val requestEvent = HttpRequest(
+        httpVersion = protocolVersion.text,
+        method = method.name,
+        uri = remote.makeAbsoluteUri(uri, https),
+        headers = (headers.asScala ++ trailingHeaders.asScala).map(entry => entry.getKey -> entry.getValue).toMap,
+        body = ByteBufUtils.byteBuf2Bytes(content),
+        timestamp = sendTimestamp
+      )
+
       flyingRequests.put(serverChannelId, requestEvent)
     }
 
   def logResponse(serverChannelId: ChannelId, response: FullHttpResponse, receiveTimestamp: Long): Unit =
     Option(flyingRequests.get(serverChannelId)).foreach { requestEvent =>
       flyingRequests.remove(serverChannelId)
-      val responseEvent = HttpResponseEvent.fromNettyResponse(response, receiveTimestamp)
+      import response._
+
+      val responseEvent = HttpResponse(
+        status = status.code,
+        statusText = status.reasonPhrase,
+        headers = (headers.asScala ++ trailingHeaders.asScala).map(entry => entry.getKey -> entry.getValue).toMap,
+        body = ByteBufUtils.byteBuf2Bytes(content),
+        timestamp = receiveTimestamp
+      )
+
       controller.receiveResponse(requestEvent, responseEvent)
     }
 
