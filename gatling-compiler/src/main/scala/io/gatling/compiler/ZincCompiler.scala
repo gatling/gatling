@@ -110,7 +110,14 @@ object ZincCompiler extends App with ProblemStringFormats {
 
       override def log(level: Level.Value, message: => String): Unit =
         level match {
-          case Level.Error => logger.error(message)
+          case Level.Error =>
+            if (message.startsWith("## Exception when compiling")) {
+              // see IncrementalCompilerImpl.handleCompilationError
+              // Exception with stacktrace will be thrown and logged properly below in try/catch block
+              logger.error(message.substring(0, message.indexOf("\n")))
+            } else {
+              logger.error(message)
+            }
           case Level.Warn  => logger.warn(message)
           case Level.Info  => logger.info(message)
           case Level.Debug => logger.debug(message)
