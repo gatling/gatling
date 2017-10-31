@@ -33,5 +33,13 @@ private[recorder] object collection {
         case (Nil, x)          => List(x) :: Nil
         case (l @ (h :: t), x) => if (p(x)) List(x) :: l else (x :: h) :: t
       }).map(_.reverse).reverse
+
+    def groupByNeighborCondition(p: (T, T) => Boolean): List[List[T]] =
+      elts.foldLeft(List[List[T]]()) {
+        case (Nil, x) => List(x) :: Nil
+        case (l @ (h :: t), x) =>
+          if (h.exists(p(_, x))) (x :: h) :: t
+          else List(x) :: l
+      }.map(_.reverse).reverse
   }
 }

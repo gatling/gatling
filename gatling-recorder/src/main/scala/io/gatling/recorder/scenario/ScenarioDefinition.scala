@@ -48,22 +48,9 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
   }
 
   private def filterInferredResources(requests: Seq[TimedScenarioElement[RequestElement]]): Seq[TimedScenarioElement[RequestElement]] = {
-
-    val groupChainedRequests: List[List[TimedScenarioElement[RequestElement]]] = {
-      var globalAcc = List.empty[List[TimedScenarioElement[RequestElement]]]
-      var currentAcc = List.empty[TimedScenarioElement[RequestElement]]
-      var previousArrivalTime = requests.head.arrivalTime
-      for (request <- requests) {
-        if (request.sendTime - previousArrivalTime < ConsecutiveResourcesMaxIntervalInMillis) {
-          currentAcc = currentAcc ::: List(request)
-        } else {
-          if (currentAcc.nonEmpty)
-            globalAcc = globalAcc ::: List(currentAcc)
-          currentAcc = List(request)
-        }
-        previousArrivalTime = request.arrivalTime
-      }
-      globalAcc ::: List(currentAcc)
+    val groupChainedRequests = requests.groupByNeighborCondition { (a, b) =>
+      b.sendTime - a.arrivalTime < ConsecutiveResourcesMaxIntervalInMillis &&
+      !isRedirection(a)
     }
 
     groupChainedRequests.map {
