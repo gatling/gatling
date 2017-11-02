@@ -16,17 +16,21 @@
 package io.gatling.http.ahc
 
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
+import io.gatling.commons.util.Ssl._
 import io.gatling.commons.util.SystemProps._
+import io.gatling.core.config.AhcConfiguration
 import io.gatling.core.{ ConfigKeys, CoreComponents }
 import io.gatling.core.session.Session
 import io.gatling.http.resolver.ExtendedDnsNameResolver
-import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.handler.ssl.{ SslContextBuilder, SslProvider }
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 import io.netty.util.{ HashedWheelTimer, Timer }
@@ -34,6 +38,20 @@ import org.asynchttpclient.AsyncHttpClientConfig._
 import org.asynchttpclient._
 
 private[gatling] object AhcFactory {
+
+  implicit class RichAsyncHttpClientConfigBuilder(val ahcConfigBuilder: DefaultAsyncHttpClientConfig.Builder) extends AnyVal {
+
+    def setSslContext(ahcConfig: AhcConfiguration, keyManagerFactory: Option[KeyManagerFactory], trustManagerFactory: Option[TrustManagerFactory]): DefaultAsyncHttpClientConfig.Builder = {
+      val sslContext = SslContextBuilder.forClient
+        .sslProvider(if (ahcConfig.useOpenSsl) SslProvider.OPENSSL else SslProvider.JDK)
+        .keyManager(keyManagerFactory.orNull)
+        .trustManager(trustManagerFactory.orElse(if (ahcConfig.useInsecureTrustManager) Some(InsecureTrustManagerFactory.INSTANCE) else None).orNull)
+        .sessionCacheSize(ahcConfig.sslSessionCacheSize)
+        .sessionTimeout(ahcConfig.sslSessionTimeout)
+        .build
+      ahcConfigBuilder.setSslContext(sslContext)
+    }
+  }
 
   def apply(system: ActorSystem, coreComponents: CoreComponents): AhcFactory =
     coreComponents.configuration.resolve(
@@ -58,6 +76,8 @@ private[gatling] trait AhcFactory {
 }
 
 private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents) extends AhcFactory with StrictLogging {
+
+  import AhcFactory._
 
   private val configuration = coreComponents.configuration
   private val ahcConfig = configuration.http.ahc

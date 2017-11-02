@@ -13,52 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.util
+package io.gatling.commons.util
 
-import java.io.{ FileNotFoundException, File }
+import java.io.{ File, FileNotFoundException }
 
 import io.gatling.BaseSpec
 
-class SSLHelperSpec extends BaseSpec {
+class SslSpec extends BaseSpec {
 
-  val KEYSTORE = "testkeystore"
-  val PASSWORD = "123456"
+  private val keystore = "testkeystore"
+  private val password = "123456"
 
-  val classLoader = this.getClass.getClassLoader
+  private val classLoader = this.getClass.getClassLoader
 
-  def fileFromResource(classPathResource: String): String = {
+  private def fileFromResource(classPathResource: String) =
     new File(classLoader.getResource(classPathResource).getFile).getCanonicalPath
-  }
 
   "SSLHelperSpec" should "load keystore from file" in {
-    val keystoreFile = fileFromResource(KEYSTORE)
+    val keystoreFile = fileFromResource(keystore)
 
-    val keyManagers = SslHelper.newKeyManagerFactory(None, keystoreFile, PASSWORD, None).getKeyManagers
+    val keyManagers = Ssl.newKeyManagerFactory(None, keystoreFile, password, None).getKeyManagers
     keyManagers should have size 1
   }
 
   it should "load keystore from classpath" in {
-    val keyManagers = SslHelper.newKeyManagerFactory(None, KEYSTORE, PASSWORD, None).getKeyManagers
+    val keyManagers = Ssl.newKeyManagerFactory(None, keystore, password, None).getKeyManagers
     keyManagers should have size 1
   }
 
   it should "throw FileNotFoundException when load non-existing keystore from classpath" in {
-    a[FileNotFoundException] shouldBe thrownBy(SslHelper.newKeyManagerFactory(None, "some/non/existing", PASSWORD, None))
+    a[FileNotFoundException] shouldBe thrownBy(Ssl.newKeyManagerFactory(None, "some/non/existing", password, None))
   }
 
   it should "load truststore from file" in {
-    val truststoreFile = fileFromResource(KEYSTORE)
+    val truststoreFile = fileFromResource(keystore)
 
-    val trustManagers = SslHelper.newTrustManagerFactory(None, truststoreFile, PASSWORD, None).getTrustManagers
+    val trustManagers = Ssl.newTrustManagerFactory(None, truststoreFile, password, None).getTrustManagers
     trustManagers should have size 1
   }
 
   it should "load truststore from classpath" in {
-    val trustManagers = SslHelper.newTrustManagerFactory(None, KEYSTORE, PASSWORD, None).getTrustManagers
+    val trustManagers = Ssl.newTrustManagerFactory(None, keystore, password, None).getTrustManagers
     trustManagers should have size 1
   }
 
   it should "throw FileNotFoundException when load non-existing truststore from classpath" in {
-    a[FileNotFoundException] shouldBe thrownBy(SslHelper.newTrustManagerFactory(None, "some/non/existing", PASSWORD, None))
+    a[FileNotFoundException] shouldBe thrownBy(Ssl.newTrustManagerFactory(None, "some/non/existing", password, None))
   }
 }

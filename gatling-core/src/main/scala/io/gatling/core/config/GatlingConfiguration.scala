@@ -154,19 +154,9 @@ object GatlingConfiguration extends StrictLogging {
         warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
         enableGA = config.getBoolean(http.EnableGA),
         ssl = {
-          def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
-
-            val storeType = config.getString(typeKey).trimToOption
-            val storeFile = config.getString(fileKey).trimToOption
-            val storePassword = config.getString(passwordKey)
-            val storeAlgorithm = config.getString(algorithmKey).trimToOption
-
-            storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
-          }
-
           SslConfiguration(
-            keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm),
-            trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
+            keyStore = StoreConfiguration.newStoreConfiguration(config, http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm),
+            trustStore = StoreConfiguration.newStoreConfiguration(config, http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
           )
         },
         ahc = AhcConfiguration(
@@ -382,6 +372,18 @@ case class SslConfiguration(
     keyStore:   Option[StoreConfiguration],
     trustStore: Option[StoreConfiguration]
 )
+
+object StoreConfiguration {
+
+  def newStoreConfiguration(config: Config, typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
+
+    val storeType = config.getString(typeKey).trimToOption
+    val storeFile = config.getString(fileKey).trimToOption
+    val storePassword = config.getString(passwordKey)
+    val storeAlgorithm = config.getString(algorithmKey).trimToOption
+    storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
+  }
+}
 
 case class StoreConfiguration(
     storeType: Option[String],

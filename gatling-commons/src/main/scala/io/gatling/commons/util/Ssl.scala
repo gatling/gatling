@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.util
+package io.gatling.commons.util
 
 import java.io.{ File, FileInputStream, FileNotFoundException, InputStream }
 import java.security.KeyStore
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
-import io.gatling.commons.util.Io._
-import io.gatling.core.config.AhcConfiguration
+import io.gatling.commons.util.Io.withCloseable
 
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import io.netty.handler.ssl.{ SslContextBuilder, SslProvider }
-import org.asynchttpclient.DefaultAsyncHttpClientConfig
-
-object SslHelper {
+object Ssl {
 
   private def storeStream(filePath: String): InputStream = {
     val storeFile = new File(filePath)
@@ -36,8 +31,7 @@ object SslHelper {
       Option(getClass.getClassLoader.getResourceAsStream(filePath)).getOrElse(throw new FileNotFoundException(filePath))
   }
 
-  def newTrustManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): TrustManagerFactory = {
-
+  def newTrustManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): TrustManagerFactory =
     withCloseable(storeStream(file)) { is =>
       val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       trustStore.load(is, password.toCharArray)
@@ -46,10 +40,8 @@ object SslHelper {
       tmf.init(trustStore)
       tmf
     }
-  }
 
-  def newKeyManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): KeyManagerFactory = {
-
+  def newKeyManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): KeyManagerFactory =
     withCloseable(storeStream(file)) { is =>
       val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       val passwordCharArray = password.toCharArray
@@ -59,19 +51,4 @@ object SslHelper {
       kmf.init(keyStore, passwordCharArray)
       kmf
     }
-  }
-
-  implicit class RichAsyncHttpClientConfigBuilder(val ahcConfigBuilder: DefaultAsyncHttpClientConfig.Builder) extends AnyVal {
-
-    def setSslContext(ahcConfig: AhcConfiguration, keyManagerFactory: Option[KeyManagerFactory], trustManagerFactory: Option[TrustManagerFactory]): DefaultAsyncHttpClientConfig.Builder = {
-      val sslContext = SslContextBuilder.forClient
-        .sslProvider(if (ahcConfig.useOpenSsl) SslProvider.OPENSSL else SslProvider.JDK)
-        .keyManager(keyManagerFactory.orNull)
-        .trustManager(trustManagerFactory.orElse(if (ahcConfig.useInsecureTrustManager) Some(InsecureTrustManagerFactory.INSTANCE) else None).orNull)
-        .sessionCacheSize(ahcConfig.sslSessionCacheSize)
-        .sessionTimeout(ahcConfig.sslSessionTimeout)
-        .build
-      ahcConfigBuilder.setSslContext(sslContext)
-    }
-  }
 }
