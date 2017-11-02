@@ -22,9 +22,9 @@ import io.gatling.http.util.HttpTypeCaster
 
 object BaseUrlSupport {
 
-  val BaseUrlAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
+  val BaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
 
-  val WsBaseUrlAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
+  val WsBaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
 }
 
 trait BaseUrlSupport {
@@ -33,20 +33,20 @@ trait BaseUrlSupport {
 
   def setBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.baseUrls match {
-      case Nil            => identity
-      case baseUrl :: Nil => _.set(BaseUrlAttributeName, baseUrl)
-      case baseUrls =>
-        val it = RoundRobin(baseUrls.toVector)
+      case Nil        => identity
+      case url :: Nil => _.set(BaseUrlAttributeName, url)
+      case urls =>
+        val it = RoundRobin(urls.toVector)
         _.set(BaseUrlAttributeName, it.next())
     }
   }
 
   def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.wsPart.wsBaseUrls match {
-      case Nil            => identity
-      case baseUrl :: Nil => _.set(WsBaseUrlAttributeName, baseUrl)
-      case baseUrls =>
-        val it = RoundRobin(baseUrls.toVector)
+      case Nil        => identity
+      case url :: Nil => _.set(WsBaseUrlAttributeName, url)
+      case urls =>
+        val it = RoundRobin(urls.toVector)
         _.set(WsBaseUrlAttributeName, it.next())
     }
   }

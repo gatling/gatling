@@ -33,7 +33,7 @@ object PermanentRedirectCacheKey {
 case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
 
 object PermanentRedirectCacheSupport {
-  val HttpPermanentRedirectCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
+  val HttpPermanentRedirectCacheAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 }
 
 trait PermanentRedirectCacheSupport {

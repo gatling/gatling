@@ -59,8 +59,8 @@ private[gatling] trait AhcFactory {
 
 private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents) extends AhcFactory with StrictLogging {
 
-  val configuration = coreComponents.configuration
-  val ahcConfig = configuration.http.ahc
+  private val configuration = coreComponents.configuration
+  private val ahcConfig = configuration.http.ahc
   setSystemPropertyIfUndefined("io.netty.allocator.type", configuration.http.ahc.allocator)
   setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", configuration.http.ahc.maxThreadLocalCharBufferSize)
 
@@ -141,7 +141,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     ahcConfigBuilder.build
   }
 
-  override val defaultAhc = newAhc(None)
+  override val defaultAhc: AsyncHttpClient = newAhc(None)
 
   override def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
 

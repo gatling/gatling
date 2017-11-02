@@ -26,7 +26,7 @@ class Cookies(cookies: JCollection[Cookie]) {
 
   lazy val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
 
-  override def hashCode = cookieNameValuePairs.hashCode
+  override def hashCode: Int = cookieNameValuePairs.hashCode
 
   override def equals(other: Any): Boolean =
     other match {

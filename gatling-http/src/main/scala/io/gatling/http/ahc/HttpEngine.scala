@@ -103,8 +103,6 @@ class HttpEngine(
         case _ =>
           val expression = "foo".expressionSuccess
 
-          implicit val protocol = this
-
           Http(expression)
             .get(expression)
             .header("bar", expression)

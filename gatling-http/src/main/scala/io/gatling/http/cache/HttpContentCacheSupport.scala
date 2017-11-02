@@ -35,7 +35,7 @@ case class ContentCacheKey(uri: Uri, method: String, cookies: Cookies)
 case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
 
 object HttpContentCacheSupport {
-  val HttpContentCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.contentCache"
+  val HttpContentCacheAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.contentCache"
 }
 
 trait HttpContentCacheSupport extends ExpiresSupport {

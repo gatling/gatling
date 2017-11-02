@@ -18,14 +18,13 @@ package io.gatling.http.cache
 import java.net.InetAddress
 
 import io.gatling.commons.util.RoundRobin
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpTypeCaster
 
 object LocalAddressSupport {
 
-  val LocalAddressAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localAddress"
+  val LocalAddressAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localAddress"
 }
 
 trait LocalAddressSupport {
@@ -34,10 +33,10 @@ trait LocalAddressSupport {
 
   def setLocalAddress(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.enginePart.localAddresses match {
-      case Nil                 => identity
-      case localAddress :: Nil => _.set(LocalAddressAttributeName, localAddress)
-      case localAddresses =>
-        val it = RoundRobin(localAddresses.toVector)
+      case Nil            => identity
+      case address :: Nil => _.set(LocalAddressAttributeName, address)
+      case address =>
+        val it = RoundRobin(address.toVector)
         _.set(LocalAddressAttributeName, it.next())
     }
   }

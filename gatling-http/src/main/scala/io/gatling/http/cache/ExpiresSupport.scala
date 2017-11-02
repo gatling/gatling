@@ -24,8 +24,8 @@ import io.netty.handler.codec.DateFormatter
 
 trait ExpiresSupport {
 
-  val MaxAgePrefix = "max-age="
-  val MaxAgeZero = MaxAgePrefix + "0"
+  private val MaxAgePrefix = "max-age="
+  private val MaxAgeZero = MaxAgePrefix + "0"
 
   def extractMaxAgeValue(s: String): Option[Long] = {
     val index = s.indexOf(MaxAgePrefix)
