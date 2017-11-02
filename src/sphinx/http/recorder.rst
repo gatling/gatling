@@ -170,7 +170,7 @@ Headless mode
 
 Along the GUI mode, Gatling also offers a simple CLI interface, facilitating the automation of recording or converting simulations from HAR files.
 The Headless mode can be enabled either from the ``recorder.conf`` file or with the ``-cli``/``--headless`` command line option.
-Both 'Proxy' an 'HAR' modes are supported (you can set which mode to use using the ``-m``/``--mode`` command line option).
+Both 'Proxy' and 'HAR' modes are supported (you can set which mode to use using the ``-m``/``--mode`` command line option).
 
 Proxy
 -----
