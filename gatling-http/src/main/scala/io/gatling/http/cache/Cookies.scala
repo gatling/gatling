@@ -24,13 +24,15 @@ import io.netty.handler.codec.http.cookie.Cookie
 
 class Cookies(cookies: JCollection[Cookie]) {
 
-  lazy val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
+  val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
 
-  override def hashCode: Int = cookieNameValuePairs.hashCode
+  override val hashCode: Int = cookieNameValuePairs.hashCode
 
   override def equals(other: Any): Boolean =
     other match {
       case otherCookies: Cookies => cookieNameValuePairs == otherCookies.cookieNameValuePairs
       case _                     => false
     }
+
+  override def toString: String = s"Cookies($cookieNameValuePairs)"
 }
