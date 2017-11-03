@@ -21,7 +21,7 @@ class CacheSpec extends BaseSpec {
 
   "ImmutableCache.get" should "return the value wrapped in an Option if key present in cache" in {
     val cache = Cache.newImmutableCache[String, String](1)
-    val cacheWithValue = cache + ("key" -> "value")
+    val cacheWithValue = cache.put("key", "value")
 
     cacheWithValue.get("key") shouldBe Some("value")
   }
@@ -34,17 +34,17 @@ class CacheSpec extends BaseSpec {
 
   "ImmutableCache.+" should "return the same instance when adding a key already in cache" in {
     val cache = Cache.newImmutableCache[String, String](1)
-    val cacheWithValue = cache + ("key" -> "value")
-    val cacheWithSameValue = cacheWithValue + ("key" -> "value")
+    val cacheWithValue = cache.put("key", "value")
+    val cacheWithSameValue = cacheWithValue.put("key", "value")
 
     cacheWithSameValue should be theSameInstanceAs cacheWithValue
   }
 
   it should "overwrite the key first put in the cache when max capacity has been reached" in {
     val cache = Cache.newImmutableCache[String, String](2)
-    val cacheWithFirstValue = cache + ("key" -> "value")
-    val cacheWithSecondValue = cacheWithFirstValue + ("key2" -> "value2")
-    val cacheWithThirdValue = cacheWithSecondValue + ("key3" -> "value3")
+    val cacheWithFirstValue = cache.put("key", "value")
+    val cacheWithSecondValue = cacheWithFirstValue.put("key2", "value2")
+    val cacheWithThirdValue = cacheWithSecondValue.put("key3", "value3")
 
     cacheWithThirdValue.get("key") shouldBe None
     cacheWithThirdValue.get("key2") shouldBe Some("value2")
@@ -53,8 +53,8 @@ class CacheSpec extends BaseSpec {
 
   "ImmutableCache.-" should "remove a key from the cache " in {
     val cache = Cache.newImmutableCache[String, String](1)
-    val cacheWithValue = cache + ("key" -> "value")
-    val cacheWithValueRemoved = cacheWithValue - "key"
+    val cacheWithValue = cache.put("key", "value")
+    val cacheWithValueRemoved = cacheWithValue.remove("key")
 
     cacheWithValueRemoved.get("key") shouldBe None
   }
@@ -62,9 +62,9 @@ class CacheSpec extends BaseSpec {
   it should "return the same instance when removing a key absent from cache" in {
     val cache = Cache.newImmutableCache[String, String](1)
 
-    val cacheWithValue = cache + ("key" -> "value")
-    val cacheWithValueRemoved = cacheWithValue - "key"
-    val cacheWithSameValueRemoved = cacheWithValueRemoved - "key"
+    val cacheWithValue = cache.put("key", "value")
+    val cacheWithValueRemoved = cacheWithValue.remove("key")
+    val cacheWithSameValueRemoved = cacheWithValueRemoved.remove("key")
 
     cacheWithValueRemoved should be theSameInstanceAs cacheWithSameValueRemoved
   }
