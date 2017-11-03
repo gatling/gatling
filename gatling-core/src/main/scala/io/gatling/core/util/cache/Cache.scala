@@ -45,12 +45,8 @@ object Cache {
 
 class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
 
-  def +(kv: (K, V)): Cache[K, V] = {
-    val (key, value) = kv
-    add(key, value)
-  }
-  def add(key: K, value: V): Cache[K, V] = {
-    if (map.contains(key))
+  def put(key: K, value: V): Cache[K, V] = {
+    if (map.get(key).contains(value))
       this
 
     else if (map.size == maxCapacity) {
@@ -65,16 +61,15 @@ class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
     }
   }
 
-  def -(key: K): Cache[K, V] = remove(key)
-  def remove(key: K): Cache[K, V] = {
+  def remove(key: K): Cache[K, V] =
     if (map.contains(key)) {
       val newQueue = queue.filter(_ != key)
       val newMap = map - key
       new Cache(newQueue, newMap, maxCapacity)
 
-    } else
+    } else {
       this
-  }
+    }
 
   def get(key: K): Option[V] = map.get(key)
 }

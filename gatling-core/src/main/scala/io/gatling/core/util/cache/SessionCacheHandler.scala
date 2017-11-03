@@ -54,9 +54,11 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
   def addEntry(session: Session, key: K, value: V): Session = {
     val cache = getOrCreateCache(session)
-    cache.get(key) match {
-      case Some(`value`) => session
-      case _             => session.set(cacheName, cache + (key -> value))
+    val newCache = cache.put(key, value)
+    if (newCache eq cache) {
+      session
+    } else {
+      session.set(cacheName, newCache)
     }
   }
 
@@ -65,7 +67,14 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
   def removeEntry(session: Session, key: K): Session =
     getCache(session) match {
-      case Some(store) => session.set(cacheName, store - key)
-      case _           => session
+      case Some(cache) =>
+        val newCache = cache.remove(key)
+        if (newCache eq cache) {
+          session
+        } else {
+          session.set(cacheName, newCache)
+        }
+
+      case _ => session
     }
 }
