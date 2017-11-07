@@ -257,7 +257,7 @@ Gatling provides built-in support for the following types:
 * Node
 
 Specifying a ``Node`` let you perform complex deep DOM tree traversing, typically in a ``transform`` check step.
-Node is a `Jodd Lagardo <http://jodd.org/doc/lagarto/>`_ DOM `Node <http://jodd.org/api/jodd/lagarto/dom/Node.html>`_.
+Node is a `Jodd Lagardo <https://jodd.org/lagarto/>`_ DOM `Node <http://oblac.github.io/jodd-site/javadoc/jodd/lagarto/dom/Node.html>`_.
 
 * ``form(expression)``
 
