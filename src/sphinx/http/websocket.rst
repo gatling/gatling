@@ -59,7 +59,7 @@ For example:
 Send a Message
 --------------
 
-One can send 2 forms of messages: binary and text:
+You may send binary or text messages:
 
 * ``sendText(text: Expression[String])``
 * ``sendBytes(bytes: Expression[Array[Byte]])``
@@ -71,9 +71,9 @@ For example:
 Server Messages: Checks
 =======================
 
-Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
+You deal with incoming messages with the ``check()`` method.
 
-Gatling currently only support one check at a time per WebSocket.
+Gatling currently supports only one check at a time per WebSocket.
 
 .. _http-ws-check-set:
 
@@ -82,11 +82,11 @@ Set a Check
 
 Checks can be set in 2 ways.
 
-First, when sending a message:
+Either, when sending a message:
 
 .. includecode:: code/WebSocketSample.scala#check-from-message
 
-Then, directly from the main HTTP flow:
+Or, from the main HTTP flow:
 
 .. includecode:: code/WebSocketSample.scala#check-from-flow
 
@@ -142,9 +142,9 @@ See :ref:`HTTP counterparts <http-check>` for more details.
 
 **Step 5: Saving** (optional)
 
-Just like regular HTTP checks, one can use checks for saving data into the virtual user's session.
+Just like HTTP checks, you may save data into the virtual user's session.
 
-Here are an example:
+For example:
 
 .. includecode:: code/WebSocketSample.scala#check-example
 
@@ -153,9 +153,9 @@ Here are an example:
 Reconcile
 ---------
 
-One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
+When using non blocking checks that save data, state is stored in a different flow than the main one.
 
-So, one has to reconcile the main flow state and the WebSocket flow one.
+So, you may have to reconcile the main flow state and the WebSocket flow one.
 
 This can be done:
 
@@ -169,7 +169,7 @@ This can be done:
 Configuration
 =============
 
-Websocket support introduces new parameters on HttpProtocol:
+Websocket support introduces new HttpProtocol parameters:
 
 ``wsBaseURL(url: String)``: similar to standard ``baseURL`` for HTTP, serves as root that will be prepended to all relative WebSocket urls
 
@@ -185,4 +185,3 @@ Example
 Here's an example that runs against `Play 2.2 <https://www.playframework.com/download#older-versions>`_'s chatroom sample (beware that this sample is missing from Play 2.3 and above):
 
 .. includecode:: code/WebSocketSample.scala#chatroom-example
-
