@@ -128,6 +128,9 @@ For this purpose Gatling has the ``rendezVous(users: Int)`` method which takes t
 
 Loop statements
 ---------------
+.. warning::
+  When using the ``counterName`` parameter to force loop index attribute name, be careful to only use it in a read-only way.
+  Otherwise, you might break Gatling underlying component's internal logic.
 
 .. _scenario-repeat:
 
