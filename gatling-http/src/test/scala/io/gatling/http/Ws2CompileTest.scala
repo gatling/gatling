@@ -22,7 +22,7 @@ import io.gatling.http.Predef._
 
 class Ws2CompileTest extends Simulation {
 
-  val httpConf = http
+  private val httpConf = http
     .baseURL("http://localhost:9000")
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
@@ -33,7 +33,7 @@ class Ws2CompileTest extends Simulation {
     .wsReconnect
     .wsMaxReconnects(3)
 
-  val scn = scenario("WebSocket")
+  private val scn = scenario("WebSocket")
     .exec(http("Home").get("/"))
     .pause(1)
     .exec(session => session.set("id", "Steph" + session.userId))
@@ -64,7 +64,8 @@ class Ws2CompileTest extends Simulation {
     .exec(ws2("Message2")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
       .wait(30 seconds)(
-        ws2.checkTextMessage("checkName").check(regex("somePattern").findAll.saveAs("message1"))
+        ws2.checkTextMessage("checkName1").check(regex("somePattern1").saveAs("message1")),
+        ws2.checkTextMessage("checkName2").check(regex("somePattern2").saveAs("message2"))
       ))
     .exec(ws2("Message3")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
