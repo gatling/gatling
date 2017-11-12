@@ -128,6 +128,7 @@ For this purpose Gatling has the ``rendezVous(users: Int)`` method which takes t
 
 Loop statements
 ---------------
+.. warning:: when using "counterName" parameter be carefull to not initialize it in any way. Otherwise you will trigger exception like the one `#3242 <https://github.com/gatling/gatling/issues/3242>`_ pictures.
 
 .. _scenario-repeat:
 
