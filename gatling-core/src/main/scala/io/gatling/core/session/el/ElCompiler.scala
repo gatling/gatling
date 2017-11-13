@@ -34,15 +34,15 @@ import io.gatling.core.json.Json
 import io.gatling.core.session._
 
 object ElMessages {
-  def undefinedSeqIndex(name: String, index: Int) = s"Seq named '$name' is undefined for index $index".failure
-  def undefinedSessionAttribute(name: String) = s"No attribute named '$name' is defined".failure
-  def undefinedMapKey(map: String, key: String) = s"Map named '$map' does not contain key '$key'".failure
-  def sizeNotSupported(value: Any, name: String) = s"$value named '$name' does not support .size function".failure
-  def accessByKeyNotSupported(value: Any, name: String) = s"$value named '$name' does not support access by key".failure
-  def randomNotSupported(value: Any, name: String) = s"$value named '$name' does not support .random function".failure
-  def indexAccessNotSupported(value: Any, name: String) = s"$value named '$name' does not support index access".failure
-  def outOfRangeAccess(name: String, value: Any, index: Int) = s"Product $value named $name has no element with index $index".failure
-  def tupleAccessNotSupported(name: String, value: Any) = s"Product $value named $name do not support tuple access".failure
+  def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
+  def undefinedSessionAttribute(name: String): Failure = s"No attribute named '$name' is defined".failure
+  def undefinedMapKey(map: String, key: String): Failure = s"Map named '$map' does not contain key '$key'".failure
+  def sizeNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support .size function".failure
+  def accessByKeyNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support access by key".failure
+  def randomNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support .random function".failure
+  def indexAccessNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support index access".failure
+  def outOfRangeAccess(name: String, value: Any, index: Int): Failure = s"Product $value named $name has no element with index $index".failure
+  def tupleAccessNotSupported(name: String, value: Any): Failure = s"Product $value named $name do not support tuple access".failure
 }
 
 sealed trait Part[+T] extends (Session => Validation[T])
@@ -84,7 +84,7 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
 case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
     part(session) match {
-      case f: Failure => FalseSuccess
+      case _: Failure => FalseSuccess
       case _          => TrueSuccess
     }
 }
@@ -92,7 +92,7 @@ case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
 case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
     part(session) match {
-      case f: Failure => TrueSuccess
+      case _: Failure => TrueSuccess
       case _          => FalseSuccess
     }
 }
@@ -162,9 +162,9 @@ class ElParserException(string: String, msg: String) extends Exception(s"Failed 
 
 object ElCompiler {
 
-  val NameRegex = "[^.${}()]+".r
+  private val NameRegex = "[^.${}()]+".r
 
-  val TheELCompiler = new ThreadLocal[ElCompiler] {
+  private val TheELCompiler = new ThreadLocal[ElCompiler] {
     override def initialValue = new ElCompiler
   }
 
@@ -233,11 +233,11 @@ class ElCompiler extends RegexParsers {
   case class AccessIndex(pos: String, token: String) extends AccessToken
   case class AccessKey(key: String, token: String) extends AccessToken
   sealed trait AccessFunction extends AccessToken { protected def functionToken(functionName: String) = s".$functionName()" }
-  case object AccessRandom extends AccessFunction { val token = functionToken("random") }
-  case object AccessSize extends AccessFunction { val token = functionToken("size") }
-  case object AccessExists extends AccessFunction { val token = functionToken("exists") }
-  case object AccessIsUndefined extends AccessFunction { val token = functionToken("isUndefined") }
-  case object AccessJSONStringify extends AccessFunction { val token = functionToken("jsonStringify") }
+  case object AccessRandom extends AccessFunction { val token: String = functionToken("random") }
+  case object AccessSize extends AccessFunction { val token: String = functionToken("size") }
+  case object AccessExists extends AccessFunction { val token: String = functionToken("exists") }
+  case object AccessIsUndefined extends AccessFunction { val token: String = functionToken("isUndefined") }
+  case object AccessJSONStringify extends AccessFunction { val token: String = functionToken("jsonStringify") }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -254,12 +254,12 @@ class ElCompiler extends RegexParsers {
     }
   }
 
-  val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { part => List(part) })
+  private val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { part => List(part) })
 
-  def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
+  private def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
-  val staticPartPattern = new Parser[String] {
-    def apply(in: Input) = {
+  private val staticPartPattern = new Parser[String] {
+    override def apply(in: Input): ParseResult[String] = {
       val source = in.source
       val offset = in.offset
       val end = source.length
@@ -276,25 +276,25 @@ class ElCompiler extends RegexParsers {
     }
   }
 
-  def staticPart: Parser[StaticPart] = staticPartPattern ^^ { staticStr => StaticPart(staticStr) }
+  private def staticPart: Parser[StaticPart] = staticPartPattern ^^ { staticStr => StaticPart(staticStr) }
 
-  def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
+  private def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
-  def sessionObject: Parser[Part[Any]] = (objectName ~ (valueAccess *) ^^ {
+  private def sessionObject: Parser[Part[Any]] = (objectName ~ (valueAccess *) ^^ {
     case objectPart ~ accessTokens =>
 
       val (part, _) = accessTokens.foldLeft(objectPart.asInstanceOf[Part[Any]] -> objectPart.name)((partName, token) => {
         val (subPart, subPartName) = partName
 
         val part = token match {
-          case AccessIndex(pos, tokenName)   => SeqElementPart(subPart, subPartName, pos)
-          case AccessKey(key, tokenName)     => MapKeyPart(subPart, subPartName, key)
-          case AccessRandom                  => RandomPart(subPart, subPartName)
-          case AccessSize                    => SizePart(subPart, subPartName)
-          case AccessExists                  => ExistsPart(subPart, subPartName)
-          case AccessIsUndefined             => IsUndefinedPart(subPart, subPartName)
-          case AccessJSONStringify           => JsonStringify(subPart, subPartName)
-          case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
+          case AccessIndex(pos, _)   => SeqElementPart(subPart, subPartName, pos)
+          case AccessKey(key, _)     => MapKeyPart(subPart, subPartName, key)
+          case AccessRandom          => RandomPart(subPart, subPartName)
+          case AccessSize            => SizePart(subPart, subPartName)
+          case AccessExists          => ExistsPart(subPart, subPartName)
+          case AccessIsUndefined     => IsUndefinedPart(subPart, subPartName)
+          case AccessJSONStringify   => JsonStringify(subPart, subPartName)
+          case AccessTuple(index, _) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
         val newPartName = subPartName + token.token
@@ -304,11 +304,11 @@ class ElCompiler extends RegexParsers {
       part
   }) | emptyAttribute
 
-  def objectName: Parser[AttributePart] = NameRegex ^^ { name => AttributePart(name) }
+  private def objectName: Parser[AttributePart] = NameRegex ^^ { name => AttributePart(name) }
 
-  def functionAccess(access: AccessFunction) = access.token ^^ { _ => access }
+  private def functionAccess(access: AccessFunction) = access.token ^^ { _ => access }
 
-  def valueAccess =
+  private def valueAccess =
     tupleAccess |
       indexAccess |
       functionAccess(AccessRandom) |
@@ -319,13 +319,13 @@ class ElCompiler extends RegexParsers {
       keyAccess |
       (elExpr ^^ { _ => throw new Exception("nested attribute definition is not allowed") })
 
-  def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { posStr => AccessIndex(posStr, s"($posStr)") }
+  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { posStr => AccessIndex(posStr, s"($posStr)") }
 
-  def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { keyName => AccessKey(keyName, "." + keyName) }
+  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { keyName => AccessKey(keyName, "." + keyName) }
 
-  def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { indexPart => AccessTuple(indexPart, "._" + indexPart) }
+  private def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { indexPart => AccessTuple(indexPart, "._" + indexPart) }
 
-  def emptyAttribute: Parser[Part[Any]] = "" ^^ { _ => throw new Exception("attribute name is missing") }
+  private def emptyAttribute: Parser[Part[Any]] = "" ^^ { _ => throw new Exception("attribute name is missing") }
 }
 
 sealed trait Bytes { def bytes: Expression[Array[Byte]] }
