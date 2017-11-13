@@ -25,10 +25,10 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
-import io.gatling.commons.util.{ StringBuilderPool, TypeCaster }
-import io.gatling.commons.util.TypeHelper._
-import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.NumberHelper._
+import io.gatling.commons.util.StringHelper._
+import io.gatling.commons.util.TypeHelper._
+import io.gatling.commons.util.{ StringBuilderPool, TypeCaster }
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
@@ -168,6 +168,8 @@ object ElCompiler {
     override def initialValue = new ElCompiler
   }
 
+  private val EmptyBytesExpression: Expression[Seq[Array[Byte]]] = Seq(Array.empty[Byte]).expressionSuccess
+
   def parse(string: String): List[Part[Any]] = TheELCompiler.get.parseEl(string)
 
   def compile[T: TypeCaster: ClassTag: NotNothing](string: String): Expression[T] =
@@ -198,30 +200,28 @@ object ElCompiler {
 
   def compile2BytesSeq(string: String, charset: Charset): Expression[Seq[Array[Byte]]] = {
 
-    sealed trait Bytes { def bytes: Expression[Array[Byte]] }
-    case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
-    case class DynamicBytes(part: Part[Any]) extends Bytes {
-      val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(charset))
-    }
-
     @tailrec
-    def loop(session: Session, bytes: List[Bytes], resolved: List[Array[Byte]]): Validation[Seq[Array[Byte]]] = bytes match {
-      case Nil => resolved.reverse.success
-      case head :: tail => head.bytes(session) match {
-        case Success(bs)      => loop(session, tail, bs :: resolved)
-        case failure: Failure => failure
+    def compile2BytesSeqRec(session: Session, bytes: List[Bytes], resolved: List[Array[Byte]]): Validation[Seq[Array[Byte]]] =
+      bytes match {
+        case Nil => resolved.reverse.success
+        case head :: tail => head.bytes(session) match {
+          case Success(bs)      => compile2BytesSeqRec(session, tail, bs :: resolved)
+          case failure: Failure => failure
+        }
       }
-    }
 
     val parts = ElCompiler.parse(string)
-    val bytes = parts.map {
-      case StaticPart(s) =>
-        val bs = s.getBytes(charset).success
-        StaticBytes(session => bs)
-      case part => DynamicBytes(part)
-    }
 
-    session: Session => loop(session, bytes, Nil)
+    parts match {
+      case Nil                  => EmptyBytesExpression
+      case StaticPart(s) :: Nil => Seq(s.getBytes(charset)).expressionSuccess
+      case _ =>
+        val bytes = parts.map {
+          case StaticPart(s) => StaticBytes(s.getBytes(charset).expressionSuccess)
+          case part          => DynamicBytes(part, charset)
+        }
+        session: Session => compile2BytesSeqRec(session, bytes, Nil)
+    }
   }
 }
 
@@ -326,4 +326,10 @@ class ElCompiler extends RegexParsers {
   def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { case indexPart => AccessTuple(indexPart, "._" + indexPart) }
 
   def emptyAttribute: Parser[Part[Any]] = "" ^^ { case _ => throw new Exception("attribute name is missing") }
+}
+
+sealed trait Bytes { def bytes: Expression[Array[Byte]] }
+case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
+case class DynamicBytes(part: Part[Any], charset: Charset) extends Bytes {
+  val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(charset))
 }
