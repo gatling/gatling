@@ -254,7 +254,7 @@ class ElCompiler extends RegexParsers {
     }
   }
 
-  val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
+  val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { part => List(part) })
 
   def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
@@ -276,7 +276,7 @@ class ElCompiler extends RegexParsers {
     }
   }
 
-  def staticPart: Parser[StaticPart] = staticPartPattern ^^ { case staticStr => StaticPart(staticStr) }
+  def staticPart: Parser[StaticPart] = staticPartPattern ^^ { staticStr => StaticPart(staticStr) }
 
   def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
@@ -304,9 +304,9 @@ class ElCompiler extends RegexParsers {
       part
   }) | emptyAttribute
 
-  def objectName: Parser[AttributePart] = NameRegex ^^ { case name => AttributePart(name) }
+  def objectName: Parser[AttributePart] = NameRegex ^^ { name => AttributePart(name) }
 
-  def functionAccess(access: AccessFunction) = access.token ^^ { case _ => access }
+  def functionAccess(access: AccessFunction) = access.token ^^ { _ => access }
 
   def valueAccess =
     tupleAccess |
@@ -317,15 +317,15 @@ class ElCompiler extends RegexParsers {
       functionAccess(AccessIsUndefined) |
       functionAccess(AccessJSONStringify) |
       keyAccess |
-      (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
+      (elExpr ^^ { _ => throw new Exception("nested attribute definition is not allowed") })
 
-  def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
+  def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { posStr => AccessIndex(posStr, s"($posStr)") }
 
-  def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { case keyName => AccessKey(keyName, "." + keyName) }
+  def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { keyName => AccessKey(keyName, "." + keyName) }
 
-  def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { case indexPart => AccessTuple(indexPart, "._" + indexPart) }
+  def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { indexPart => AccessTuple(indexPart, "._" + indexPart) }
 
-  def emptyAttribute: Parser[Part[Any]] = "" ^^ { case _ => throw new Exception("attribute name is missing") }
+  def emptyAttribute: Parser[Part[Any]] = "" ^^ { _ => throw new Exception("attribute name is missing") }
 }
 
 sealed trait Bytes { def bytes: Expression[Array[Byte]] }
