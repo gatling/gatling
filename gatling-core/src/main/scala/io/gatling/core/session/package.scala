@@ -16,7 +16,6 @@
 package io.gatling.core
 
 import scala.annotation.tailrec
-import scala.annotation.unchecked.uncheckedVariance
 
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.validation._
@@ -24,7 +23,7 @@ import io.gatling.core.session.el._
 
 package object session {
 
-  type Expression[T] = Session => Validation[T @uncheckedVariance]
+  type Expression[T] = Session => Validation[T]
 
   val TrueExpressionSuccess = true.expressionSuccess
   val EmptyStringExpressionSuccess = "".expressionSuccess
