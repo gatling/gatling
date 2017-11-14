@@ -280,29 +280,32 @@ class ElCompiler extends RegexParsers {
 
   private def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
-  private def sessionObject: Parser[Part[Any]] = (objectName ~ (valueAccess *) ^^ {
-    case objectPart ~ accessTokens =>
+  private def sessionObject: Parser[Part[Any]] = {
 
-      val (part, _) = accessTokens.foldLeft(objectPart.asInstanceOf[Part[Any]] -> objectPart.name)((partName, token) => {
-        val (subPart, subPartName) = partName
+    @tailrec
+    def sessionObjectRec(accessTokens: List[AccessToken], currentPart: Part[Any], currentPartName: String): Part[Any] = {
+      accessTokens match {
+        case Nil => currentPart
+        case token :: otherTokens =>
+          val newPart =
+            token match {
+              case AccessIndex(pos, _)   => SeqElementPart(currentPart, currentPartName, pos)
+              case AccessKey(key, _)     => MapKeyPart(currentPart, currentPartName, key)
+              case AccessRandom          => RandomPart(currentPart, currentPartName)
+              case AccessSize            => SizePart(currentPart, currentPartName)
+              case AccessExists          => ExistsPart(currentPart, currentPartName)
+              case AccessIsUndefined     => IsUndefinedPart(currentPart, currentPartName)
+              case AccessJSONStringify   => JsonStringify(currentPart, currentPartName)
+              case AccessTuple(index, _) => TupleAccessPart(currentPart, currentPartName, index.toInt)
+            }
 
-        val part = token match {
-          case AccessIndex(pos, _)   => SeqElementPart(subPart, subPartName, pos)
-          case AccessKey(key, _)     => MapKeyPart(subPart, subPartName, key)
-          case AccessRandom          => RandomPart(subPart, subPartName)
-          case AccessSize            => SizePart(subPart, subPartName)
-          case AccessExists          => ExistsPart(subPart, subPartName)
-          case AccessIsUndefined     => IsUndefinedPart(subPart, subPartName)
-          case AccessJSONStringify   => JsonStringify(subPart, subPartName)
-          case AccessTuple(index, _) => TupleAccessPart(subPart, subPartName, index.toInt)
-        }
+          val newPartName = currentPartName + token.token
+          sessionObjectRec(otherTokens, newPart, newPartName)
+      }
+    }
 
-        val newPartName = subPartName + token.token
-        part -> newPartName
-      })
-
-      part
-  }) | emptyAttribute
+    (objectName ~ (valueAccess *) ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }) | emptyAttribute
+  }
 
   private def objectName: Parser[AttributePart] = NameRegex ^^ { name => AttributePart(name) }
 
