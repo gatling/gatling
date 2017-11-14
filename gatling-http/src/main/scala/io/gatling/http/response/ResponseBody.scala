@@ -94,13 +94,7 @@ class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends Re
 object InputStreamResponseBody {
 
   def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-
-    val bytes = chunks.map { chunk =>
-      val array = new Array[Byte](chunk.readableBytes)
-      chunk.readBytes(array)
-      array
-    }
-
+    val bytes = chunks.map(byteBufToByteArray)
     new InputStreamResponseBody(bytes, charset)
   }
 }

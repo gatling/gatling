@@ -21,6 +21,12 @@ import io.netty.buffer.ByteBuf
 
 object ByteBufs {
 
+  def byteBufToByteArray(buffer: ByteBuf): Array[Byte] = {
+    val byteArray = new Array[Byte](buffer.readableBytes)
+    buffer.getBytes(buffer.readerIndex, byteArray)
+    byteArray
+  }
+
   def byteBufsToByteArray(bufs: Seq[ByteBuf]): Array[Byte] = {
     // should be more efficient than creating a CompositeByteBuf
     val size = bufs.sumBy(_.readableBytes)
@@ -29,8 +35,9 @@ object ByteBufs {
     var offset = 0
 
     bufs.foreach { buf =>
-      buf.getBytes(0, bytes, offset, buf.readableBytes)
-      offset += buf.readableBytes
+      val bufSize = buf.readableBytes
+      buf.getBytes(0, bytes, offset, bufSize)
+      offset += bufSize
     }
 
     bytes
