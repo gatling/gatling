@@ -44,20 +44,22 @@ case class AddCookieDsl(
     value:  Expression[String],
     domain: Option[String]     = None,
     path:   Option[String]     = None,
-    maxAge: Option[Long]       = None
+    maxAge: Option[Long]       = None,
+    secure: Option[Boolean]    = None
 ) {
   def withDomain(domain: String) = copy(domain = Some(domain))
   def withPath(path: String) = copy(path = Some(path))
   def withMaxAge(maxAge: Int) = copy(maxAge = Some(maxAge))
+  def withSecure(secure: Boolean) = copy(secure = Some(secure))
 }
 
 object AddCookieBuilder {
 
   def apply(cookie: AddCookieDsl) =
-    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE))
+    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
 }
 
-class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long) extends HttpActionBuilder with NameGen {
+class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Option[Boolean]) extends HttpActionBuilder with NameGen {
 
   import CookieActionBuilder._
 
@@ -83,6 +85,7 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
       val cookie = new DefaultCookie(name, value)
       domain.foreach(cookie.setDomain)
       path.foreach(cookie.setPath)
+      secure.foreach(cookie.setSecure)
       storeCookie(session, resolvedRequestDomain, DefaultPath, cookie)
     }
 
@@ -92,22 +95,24 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
 
 case class GetCookieDsl(
     name:   String,
-    domain: Option[String] = None,
-    path:   Option[String] = None,
-    saveAs: Option[String] = None
+    domain: Option[String]  = None,
+    path:   Option[String]  = None,
+    secure: Option[Boolean] = None,
+    saveAs: Option[String]  = None
 ) {
   def withDomain(domain: String) = copy(domain = Some(domain))
   def withPath(path: String) = copy(path = Some(path))
+  def withSecure(secure: Boolean) = copy(secure = Some(secure))
   def saveAs(key: String) = copy(saveAs = Some(key))
 }
 
 object GetCookieValueBuilder {
 
   def apply(cookie: GetCookieDsl) =
-    new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.saveAs)
+    new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[String], saveAs: Option[String]) extends HttpActionBuilder with NameGen {
+class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[String], secure: Option[Boolean], saveAs: Option[String]) extends HttpActionBuilder with NameGen {
 
   import CookieActionBuilder._
 
@@ -123,7 +128,7 @@ class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[S
 
     val expression: Expression[Session] = session => for {
       domain <- resolvedDomain(session)
-      cookieValue <- getCookieValue(session, domain, resolvedPath, name)
+      cookieValue <- getCookieValue(session, domain, resolvedPath, name, secure)
     } yield session.set(resolvedSaveAs, cookieValue)
 
     new SessionHook(expression, genName("getCookie"), coreComponents.statsEngine, next) with ExitableAction

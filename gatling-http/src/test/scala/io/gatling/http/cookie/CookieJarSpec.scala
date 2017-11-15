@@ -259,4 +259,70 @@ class CookieJarSpec extends BaseSpec {
     cookies should have size 1
     cookies(0).value shouldBe "211D17F016132BCBD31D9ABB31D90960"
   }
+
+  it should "should serve cookies based on the uri scheme" in {
+    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    val cookie1 = decode("cookie1=VALUE1; Path=/")
+    val cookieStore = CookieJar(Uri.create("https://foo.org/moodle/"), List(cookie1))
+
+    val cookie2 = decode("cookie1=VALUE2; Path=/")
+    val cookieStore2 = cookieStore.add(Uri.create("https://foo.org:443/moodle/login"), List(cookie2))
+
+    val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
+    val cookieStore3 = cookieStore2.add(Uri.create("https://foo.org:443/moodle/login"), List(cookie3))
+
+    val cookies = cookieStore3.get(Uri.create("https://foo.org/moodle/login"))
+    cookies should have size 1
+    cookies.head.value shouldBe "VALUE3"
+    cookies.head.isSecure shouldBe true
+  }
+
+  it should "should also serve non secure cookies based on the uri scheme" in {
+    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    val cookie1 = decode("cookie1=VALUE1; Path=/")
+    val cookieStore = CookieJar(Uri.create("https://foo.org/moodle/"), List(cookie1))
+
+    val cookie2 = decode("cookie1=VALUE2; Path=/")
+    val cookieStore2 = cookieStore.add(Uri.create("https://foo.org:443/moodle/login"), List(cookie2))
+
+    val cookie3 = decode("cookie1=VALUE3; Path=/; HttpOnly")
+    val cookieStore3 = cookieStore2.add(Uri.create("https://foo.org:443/moodle/login"), List(cookie3))
+
+    val cookies = cookieStore3.get(Uri.create("https://foo.org/moodle/login"))
+    cookies should have size 1
+    cookies.head.value shouldBe "VALUE3"
+    cookies.head.isSecure shouldBe false
+  }
+
+  it should "should not serve secure cookies for a default retrieved http uri scheme" in {
+    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    val cookie1 = decode("cookie1=VALUE1; Path=/")
+    val cookieStore = CookieJar(Uri.create("http://foo.org/moodle/"), List(cookie1))
+
+    val cookie2 = decode("cookie1=VALUE2; Path=/")
+    val cookieStore2 = cookieStore.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie2))
+
+    val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
+    val cookieStore3 = cookieStore2.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie3))
+
+    val cookies = cookieStore3.get(Uri.create("http://foo.org/moodle/login"))
+    cookies should have size 0
+  }
+
+  it should "should serve secure cookies for a specifically retrieved http uri scheme" in {
+    // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+    val cookie1 = decode("cookie1=VALUE1; Path=/")
+    val cookieStore = CookieJar(Uri.create("http://foo.org/moodle/"), List(cookie1))
+
+    val cookie2 = decode("cookie1=VALUE2; Path=/")
+    val cookieStore2 = cookieStore.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie2))
+
+    val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
+    val cookieStore3 = cookieStore2.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie3))
+
+    val cookies = cookieStore3.get("foo.org", "/moodle/login", Some(true))
+    cookies should have size 1
+    cookies.head.value shouldBe "VALUE3"
+    cookies.head.isSecure shouldBe true
+  }
 }
