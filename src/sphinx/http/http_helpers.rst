@@ -30,10 +30,12 @@ Cookie can also take more optional parameters::
     .withDomain(domain: String)
     .withPath(path: String)
     .withMaxAge(maxAge: Int)
+    .withSecure(secure: Boolean)
 
 domain is optional, defaulting to base url domain
 path is optional, defaulting to "/"
 maxAge is optional, defaulting to ``Long.MinValue``
+secure is optional
 
 .. _http-helpers-cookie-get:
 
@@ -49,10 +51,12 @@ CookieKey can also take more optional parameters::
   CookieKey(name: String)
     .withDomain(domain: String)
     .withPath(path: String)
+    .withSecure(secure: Boolean)
     .saveAs(key: String)
 
 domain is optional, defaulting to base url domain
 path is optional, defaulting to "/"
+secure is optional
 saveAs is optional, defaulting to ``name`` param
 
 .. _http-helpers-cookie-flush-session:
