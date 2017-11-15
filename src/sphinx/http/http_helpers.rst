@@ -35,7 +35,7 @@ Cookie can also take more optional parameters::
 domain is optional, defaulting to base url domain
 path is optional, defaulting to "/"
 maxAge is optional, defaulting to ``Long.MinValue``
-secure is optional
+secure is optional, defaulting to false
 
 .. _http-helpers-cookie-get:
 
@@ -56,7 +56,7 @@ CookieKey can also take more optional parameters::
 
 domain is optional, defaulting to base url domain
 path is optional, defaulting to "/"
-secure is optional
+secure is optional, defaulting to false, means you only want secured cookies
 saveAs is optional, defaulting to ``name`` param
 
 .. _http-helpers-cookie-flush-session:

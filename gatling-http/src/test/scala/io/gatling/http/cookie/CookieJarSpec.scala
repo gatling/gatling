@@ -333,7 +333,7 @@ class CookieJarSpec extends BaseSpec {
     val cookie3 = decode("cookie1=VALUE3; Path=/; Secure")
     val cookieStore3 = cookieStore2.add(Uri.create("http://foo.org:443/moodle/login"), List(cookie3))
 
-    val cookies = cookieStore3.get("foo.org", "/moodle/login", Some(true))
+    val cookies = cookieStore3.get("foo.org", "/moodle/login", secure = true)
     cookies should have size 1
     cookies.head.value shouldBe "VALUE3"
     cookies.head.isSecure shouldBe true
