@@ -15,8 +15,6 @@
  */
 package io.gatling.core.feeder
 
-import java.io.{ File, FileOutputStream }
-
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
@@ -47,8 +45,9 @@ case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends Feede
   }
 }
 
-class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char, escapeChar: Char) extends FeederSource[String] {
+class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
+    val charset = configuration.core.charset
     configuration.resolve(
       // [fl]
       //
@@ -77,11 +76,12 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
       //
       //
       //
+      //
       // [fl]
       if (options.batched) {
-        BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, escapeChar, options.conversion, options.strategy, options.batchBufferSize)
+        BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, options.batchBufferSize, charset)
       } else {
-        val records = SeparatedValuesParser.parse(resource, separator, quoteChar, escapeChar)
+        val records = SeparatedValuesParser.parse(resource, separator, quoteChar, charset)
         InMemoryFeeder(records, options.conversion, options.strategy)
       }
     )

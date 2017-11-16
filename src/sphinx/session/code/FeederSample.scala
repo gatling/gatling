@@ -60,12 +60,6 @@ class FeederSample {
   }
 
   {
-    //#escape-char
-    val csvFeeder = csv("foo.csv", escapeChar = '\\')
-    //#escape-char
-  }
-
-  {
     //#batched
     val csvFeeder = csv("foo.csv").batched.random
     val csvFeeder2 = csv("foo.csv").batched(200).random // tune internal buffer size

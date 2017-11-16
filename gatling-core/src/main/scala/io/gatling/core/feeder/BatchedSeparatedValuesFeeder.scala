@@ -16,15 +16,15 @@
 package io.gatling.core.feeder
 
 import java.io.{ File, FileInputStream, InputStream }
+import java.nio.charset.Charset
 
 import io.gatling.commons.util.Arrays
-import io.gatling.spire.syntax.cfor._
 
 object BatchedSeparatedValuesFeeder {
 
-  def apply(file: File, separator: Char, quoteChar: Char, escapeChar: Char, conversion: Option[Record[String] => Record[Any]], strategy: FeederStrategy, bufferSize: Int): Feeder[Any] = {
+  def apply(file: File, separator: Char, quoteChar: Char, conversion: Option[Record[String] => Record[Any]], strategy: FeederStrategy, bufferSize: Int, charset: Charset): Feeder[Any] = {
 
-    val streamer: InputStream => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, escapeChar)
+    val streamer: InputStream => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
 
     val rawFeeder = strategy match {
       case Queue    => new QueueBatchedSeparatedValuesFeeder(new FileInputStream(file), streamer)

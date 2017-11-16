@@ -20,11 +20,9 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
 
-import com.fasterxml.jackson.dataformat.csv.CsvMappingException
-
 class BatchedSeparatedValuesFeederSpec extends BaseSpec {
 
-  private val streamer = SeparatedValuesParser.stream(',', '"', '\\')
+  private val streamer = SeparatedValuesParser.stream(',', '"', UTF_8)
 
   private val csvContent =
     s"""column1,column2
@@ -48,8 +46,8 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
     )
   }
 
-  it should "throw a CsvMappingException on empty content" in {
-    a[CsvMappingException] should be thrownBy (new QueueBatchedSeparatedValuesFeeder(newInputStream(""), streamer))
+  it should "throw a ArrayIndexOutOfBoundsException on empty content" in {
+    a[ArrayIndexOutOfBoundsException] should be thrownBy new QueueBatchedSeparatedValuesFeeder(newInputStream(""), streamer)
   }
 
   it should "return an empty feeder when there's no record" in {

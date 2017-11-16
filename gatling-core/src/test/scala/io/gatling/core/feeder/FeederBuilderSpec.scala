@@ -26,7 +26,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
   "FeederSupport.separatedValues" should "throw an exception when provided with bad resource" in {
     an[IllegalArgumentException] should be thrownBy
-      separatedValues("fileDoesNotExist", SeparatedValuesParser.CommaSeparator, quoteChar = '\'', escapeChar = 0)
+      separatedValues("fileDoesNotExist", SeparatedValuesParser.CommaSeparator, quoteChar = '\'')
   }
 
   "FeederSupport.seq2FeederBuilder" should "be able to use all the strategies" in {

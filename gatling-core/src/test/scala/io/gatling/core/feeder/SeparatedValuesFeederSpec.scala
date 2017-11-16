@@ -17,6 +17,7 @@ package io.gatling.core.feeder
 
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.feeder.SeparatedValuesParser._
 
 class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
 
@@ -32,14 +33,9 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
-  it should "allow an escape char" in {
-    val data = csv("sample3.csv", escapeChar = '\\').apply.toArray
-    data shouldBe Array(Map("id" -> "id", "payload" -> """{"k1": "v1", "k2": "v2"}"""))
-  }
-
-  it should "be compliant with the RFC4180 by default (no escape char by default)" in {
+  it should "be compliant with the RFC4180 by default and use \" as escape char" in {
     val data = csv("sample4.csv").apply.toArray
-    data shouldBe Array(Map("id" -> "id", "payload" -> """{"key": "\"value\""}"""))
+    data shouldBe Array(Map("id" -> "id", "payload" -> """{"key1": "value1", "key2": "value3"}"""))
   }
 
   "tsv" should "handle file without quote char" in {
@@ -63,8 +59,7 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
   }
 
   "SeparatedValuesParser.stream" should "throw an exception when provided with bad resource" in {
-    import io.gatling.core.feeder.SeparatedValuesParser._
     an[Exception] should be thrownBy
-      stream(CommaSeparator, quoteChar = '\'', escapeChar = 0)(this.getClass.getClassLoader.getResourceAsStream("empty.csv"))
+      stream(CommaSeparator, quoteChar = '\'', configuration.core.charset)(getClass.getClassLoader.getResourceAsStream("empty.csv"))
   }
 }

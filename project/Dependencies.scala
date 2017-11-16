@@ -25,7 +25,7 @@ object Dependencies {
   private val scopt                          = "com.github.scopt"                      %% "scopt"                         % "3.7.0"
   private val scalaLogging                   = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.7.2"
   private val jackson                        = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.2"
-  private val jacksonCsv                     = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"        % jackson.revision
+  private val sfm                            = "org.simpleflatmapper"                   % "sfm-csv"                       % "3.14.1"
   private val json4sJackson                  = "org.json4s"                            %% "json4s-jackson"                % "3.5.3"
   private val boon                           = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                      % "0.6.10"
@@ -78,7 +78,7 @@ object Dependencies {
     Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, ahcNettyUtils, pebble, findbugs) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, akkaSlf4j, jacksonCsv, java8Compat, caffeine, scalaParserCombinators, scopt) ++
+    Seq(akkaActor, akkaSlf4j, sfm, java8Compat, caffeine, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
