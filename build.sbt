@@ -1,30 +1,26 @@
-import io.gatling.build.SonatypeReleasePlugin
-
 import BuildSettings._
 import Bundle._
 import ConfigFiles._
 import CopyLogback._
 import Dependencies._
 import VersionFile._
-import pl.project13.scala.sbt.JmhPlugin
 import sbt.Keys._
 import sbt._
 
 // Root project
 
 lazy val root = Project("gatling-parent", file("."))
-  .enablePlugins(SonatypeReleasePlugin)
+  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
   .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
   .aggregate(commons, core, jdbc, redis, httpAhc, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
-  .settings(docSettings(benchmarks, bundle): _*)
   .settings(libraryDependencies ++= docDependencies)
 
 // Modules
 
 def gatlingModule(id: String) = Project(id, file(id))
-  .enablePlugins(SonatypeReleasePlugin)
+  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
   .settings(gatlingModuleSettings: _*)
 
 lazy val commons = gatlingModule("gatling-commons")
@@ -88,6 +84,7 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
 
 lazy val bundle = gatlingModule("gatling-bundle")
   .dependsOn(core, http)
+  .enablePlugins(UniversalPlugin)
   .settings(generateConfigFiles(core): _*)
   .settings(generateConfigFiles(recorder): _*)
   .settings(copyLogbackXml(core): _*)

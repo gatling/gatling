@@ -1,18 +1,14 @@
-import io.gatling.build.LicenseKeys._
 import io.gatling.build.MavenPublishKeys._
 import io.gatling.build.license._
 
-import com.typesafe.sbt.SbtSite.site
-import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import sbt.Keys._
 import sbt._
-import sbtunidoc.Plugin.UnidocKeys._
-import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
 object BuildSettings {
 
   lazy val basicSettings = Seq(
-    license := ApacheV2,
+    headerLicense := ApacheV2License,
     githubPath := "gatling/gatling",
     projectDevelopers := developers,
     parallelExecution in Test := false
@@ -52,11 +48,6 @@ object BuildSettings {
   lazy val scaladocSettings = Seq(
     autoAPIMappings := true
   )
-
-  def docSettings(excludedProjects: ProjectReference*) = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
-    unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get,
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(excludedProjects: _*)
-  ) ++ scaladocSettings
 
 /**************************************/
   /** gatling-charts specific settings **/
