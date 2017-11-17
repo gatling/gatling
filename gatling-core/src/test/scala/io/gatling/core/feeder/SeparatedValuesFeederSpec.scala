@@ -24,37 +24,37 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
   private implicit val configuration = GatlingConfiguration.loadForTest()
 
   "csv" should "not handle file without quote char" in {
-    val data = csv("sample1.tsv").apply.toArray
+    val data = csv("sample1.tsv").readRecords
     data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "handle file with quote char" in {
-    val data = csv("sample2.csv").apply.toArray
+    val data = csv("sample2.csv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "be compliant with the RFC4180 by default and use \" as escape char" in {
-    val data = csv("sample4.csv").apply.toArray
+    val data = csv("sample4.csv").readRecords
     data shouldBe Array(Map("id" -> "id", "payload" -> """{"key1": "value1", "key2": "value3"}"""))
   }
 
   "tsv" should "handle file without quote char" in {
-    val data = tsv("sample1.tsv").apply.toArray
+    val data = tsv("sample1.tsv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "handle file with quote char" in {
-    val data = tsv("sample2.tsv").apply.toArray
+    val data = tsv("sample2.tsv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   "ssv" should "not handle file without quote char" in {
-    val data = ssv("sample1.ssv").apply.toArray
+    val data = ssv("sample1.ssv").readRecords
     data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "handle file with quote char" in {
-    val data = ssv("sample2.ssv").apply.toArray
+    val data = ssv("sample2.ssv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 

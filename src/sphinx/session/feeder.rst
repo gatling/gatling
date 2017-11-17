@@ -222,6 +222,20 @@ For example:
 
 .. includecode:: code/FeederSample.scala#convert
 
+.. _feeder-records:
+
+Grabbing Records
+================
+
+Sometimes, you just might want to reuse or convenient built-in feeders for custom needs and get your hands on the actual records.
+
+``readRecords`` returns a ``Seq[Map[String, Any]]``.
+
+.. includecode:: code/FeederSample.scala#records
+
+.. warning::
+  Beware that each ``readRecords`` call will read the underlying source, eg parse the CSV file.
+
 .. _feeder-non-shared:
 
 Non Shared Data

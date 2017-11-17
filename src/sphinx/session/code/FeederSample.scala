@@ -146,8 +146,14 @@ class FeederSample {
   }
 
   {
+    //#records
+    val records: Seq[Map[String, Any]] = csv("myFile.csv").readRecords
+    //#records
+  }
+
+  {
     //#non-shared
-    val records = csv("foo.csv").apply.toSeq
+    val records = csv("foo.csv").readRecords
 
     foreach(records, "record") {
       exec(flattenMapIntoAttributes("${record}"))
@@ -161,11 +167,11 @@ class FeederSample {
     import java.util.concurrent.ThreadLocalRandom
 
     // index records by project
-    val recordsByProject: Map[String, IndexedSeq[Record[Any]]] =
-      csv("projectIssue.csv").apply.toIndexedSeq.groupBy { record => record("project").toString }
+    val recordsByProject: Map[String, Seq[Record[Any]]] =
+      csv("projectIssue.csv").readRecords.groupBy { record => record("project").toString }
 
     // convert the Map values to get only the issues instead of the full records
-    val issuesByProject: Map[String, IndexedSeq[Any]] =
+    val issuesByProject: Map[String, Seq[Any]] =
       recordsByProject.mapValues { records => records.map { record => record("issue") } }
 
     // inject project

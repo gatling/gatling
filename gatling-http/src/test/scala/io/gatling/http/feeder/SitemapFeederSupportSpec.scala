@@ -28,7 +28,7 @@ class SitemapFeederSupportSpec extends BaseSpec with SitemapFeederSupport {
 
   "create sitemap feeder" should "get file resource" in {
     val feederBuilder = sitemap(Resource.resolveResource(Paths.get(""), "", "sitemap.xml"))
-    feederBuilder.apply.toArray.length shouldBe 5
+    feederBuilder.readRecords.length shouldBe 5
   }
 
   it should "get non existing resource" in {

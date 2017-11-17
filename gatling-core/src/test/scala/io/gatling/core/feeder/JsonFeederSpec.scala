@@ -25,14 +25,14 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
   private implicit val jsonParsers = JsonParsers()
 
   "jsonFile" should "handle proper JSON file" in {
-    val data = jsonFile("test.json").apply.toArray
+    val data = jsonFile("test.json").readRecords
 
     data.length shouldBe 2
     data(0)("id") shouldBe 19434
   }
 
   "jsonUrl" should "retrieve and handle proper JSON file" in {
-    val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).apply.toArray
+    val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).readRecords
     data.length shouldBe 2
     data(0)("id") shouldBe 19434
   }

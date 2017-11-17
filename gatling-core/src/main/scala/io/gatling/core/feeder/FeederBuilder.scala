@@ -44,6 +44,8 @@ case class SourceFeederBuilder[T](
   def circular: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(Circular)
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
+
+  def readRecords: Seq[Record[Any]] = apply.toVector
 }
 
 case class FeederOptions[T](
