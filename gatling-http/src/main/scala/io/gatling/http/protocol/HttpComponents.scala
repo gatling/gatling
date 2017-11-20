@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.protocol
 
 import io.gatling.core.protocol.ProtocolComponents

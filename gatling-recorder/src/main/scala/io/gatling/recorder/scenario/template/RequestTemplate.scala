@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.scenario.template
 
 import io.gatling.commons.util.StringHelper.EmptyFastring

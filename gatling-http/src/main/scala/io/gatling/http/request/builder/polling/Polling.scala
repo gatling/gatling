@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder.polling
 
 import scala.concurrent.duration.FiniteDuration

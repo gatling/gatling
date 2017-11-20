@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
@@ -508,7 +509,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       outgoingProxyUsername.enabled = true
       outgoingProxyPassword.enabled = true
     }
-    configuration.core.pkg.trimToOption.map(simulationPackage.text= _)
+    configuration.core.pkg.trimToOption.map(simulationPackage.text = _)
     simulationClassName.text = configuration.core.className
     filterStrategies.selection.item = configuration.filters.filterStrategy
     followRedirects.selected = configuration.http.followRedirect

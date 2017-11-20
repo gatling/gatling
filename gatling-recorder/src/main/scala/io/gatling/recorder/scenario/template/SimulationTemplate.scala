@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.action.ws2.fsm
 
 import io.gatling.core.action.Action

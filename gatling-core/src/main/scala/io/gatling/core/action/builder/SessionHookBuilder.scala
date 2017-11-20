@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ Action, ExitableAction, SessionHook }

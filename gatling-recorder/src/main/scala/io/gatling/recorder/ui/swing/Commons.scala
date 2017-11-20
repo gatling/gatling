@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing
 
 import scala.swing.Swing.Icon
