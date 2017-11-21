@@ -206,6 +206,11 @@ This product depends on Coverity Security Library, distributed by Coverity, Inc.
   * License: license/LICENSE.coverity.bsd3.txt (BSD 3-Clause License)
   * Homepage: https://github.com/coverity/coverity-security-library
 
+This product depends on SimpleFlatMapper, distributed by Arnaud Roger:
+
+  * License: license/LICENSE.sfm.mit.txt (BSD 3-Clause License)
+  * Homepage: https://github.com/arnaudroger/SimpleFlatMapper
+
 Test and documentation dependencies
 ===================================
 
