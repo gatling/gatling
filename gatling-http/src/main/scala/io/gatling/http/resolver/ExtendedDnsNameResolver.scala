@@ -61,8 +61,8 @@ class ExtendedDnsNameResolver(val eventLoop: EventLoop, configuration: GatlingCo
     true, // optResourceEnabled
     HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
     DnsServerAddressStreamProviders.platformDefault, // dnsServerAddressStreamProvider
-    null, // searchDomains
-    1, // ndots
+    null, // searchDomains // FIXME should honor host's searchDomains
+    1, // ndots // FIXME should be using host's defaults
     true // decodeIdn
   ) {
   override def doResolveAll(inetHost: String, additionals: Array[DnsRecord], promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
