@@ -113,6 +113,11 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ext
     CONTINUE
   }
 
+  override def onTrailingHeadersReceived(headers: HttpHeaders): State = {
+    if (!done.get) responseBuilder.accumulate(headers)
+    CONTINUE
+  }
+
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): State = {
     if (!done.get) responseBuilder.accumulate(bodyPart)
     CONTINUE

@@ -134,10 +134,14 @@ class ResponseBuilder(
     updateEndTimestamp()
   }
 
-  def accumulate(headers: HttpHeaders): Unit = {
-    this.headers = headers
-    storeHtmlOrCss = inferHtmlResources && (isHtml(headers) || isCss(headers))
-  }
+  def accumulate(headers: HttpHeaders): Unit =
+    if (this.headers eq ResponseBuilder.EmptyHeaders) {
+      this.headers = headers
+      storeHtmlOrCss = inferHtmlResources && (isHtml(headers) || isCss(headers))
+    } else {
+      // trailing headers, wuldn't contain ContentType
+      this.headers.add(headers)
+    }
 
   def accumulate(bodyPart: HttpResponseBodyPart): Unit = {
 
