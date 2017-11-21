@@ -135,8 +135,14 @@ class ResponseBuilder(
   }
 
   def accumulate(headers: HttpResponseHeaders): Unit = {
-    this.headers = headers.getHeaders
-    storeHtmlOrCss = inferHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
+    val newHeaders = headers.getHeaders
+    if (this.headers eq ResponseBuilder.EmptyHeaders) {
+      this.headers = newHeaders
+      storeHtmlOrCss = inferHtmlResources && (isHtml(newHeaders) || isCss(newHeaders))
+    } else {
+      // trailing headers, wuldn't contain ContentType
+      this.headers.add(newHeaders)
+    }
   }
 
   def accumulate(bodyPart: HttpResponseBodyPart): Unit = {
