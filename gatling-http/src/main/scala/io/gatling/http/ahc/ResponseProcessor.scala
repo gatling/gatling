@@ -267,11 +267,15 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
               val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
               val newSession = totalUpdate(tx.session)
 
-              val loggedTx = tx.copy(session = newSession, update = totalUpdate)
+              val loggedTx = tx.copy(session = newSession)
               logRequest(loggedTx, OK, response)
 
               val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
-              val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
+              val redirectTx = loggedTx.copy(
+                request = loggedTx.request.copy(ahcRequest = newAhcRequest),
+                redirectCount = tx.redirectCount + 1,
+                update = if (tx.resourceFetcher.isEmpty) Session.Identity else totalUpdate
+              )
               HttpTx.start(redirectTx)
 
             case None =>
