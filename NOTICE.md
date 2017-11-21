@@ -234,11 +234,6 @@ This product depends on H2, distributed by H2 Group:
   * License: license/LICENSE.h2.epl10.txt (Eclipse Public License v1.0)
   * Homepage: http://h2database.com
 
-This product depends on FFMQ, distributed by Timewalker:
-
-  * License: license/LICENSE.ffmq.lgpl3.txt (Gnu Lesser General Public License Version 3)
-  * Homepage: http://timewalker74.github.io/ffmq/
-
 This product depends on JMH, distributed by OpenJDK:
 
   * License: license/LICENSE.jmh.gpl2.txt (Gnu General Public License Version 2)
