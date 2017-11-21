@@ -265,9 +265,10 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
               val groupUpdate = logGroupRequestUpdate(tx, OK, response.startTimestamp, response.endTimestamp)
 
               val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
+              val relayUpdate = update andThen cacheRedirectUpdate
               val newSession = totalUpdate(tx.session)
 
-              val loggedTx = tx.copy(session = newSession, update = totalUpdate)
+              val loggedTx = tx.copy(session = newSession, update = relayUpdate)
               logRequest(loggedTx, OK, response)
 
               val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
