@@ -42,13 +42,11 @@ object HttpEngine {
 }
 
 class HttpEngine(
-    system:                       ActorSystem,
-    protected val coreComponents: CoreComponents,
-    ahcFactory:                   AhcFactory
+    system:             ActorSystem,
+    val coreComponents: CoreComponents,
+    val ahcFactory:         AhcFactory
 )
   extends ResourceFetcher with NameGen with StrictLogging {
-
-  def defaultDnsNameResolver: ExtendedDnsNameResolver = ahcFactory.defaultDnsNameResolver
 
   def httpClient(session: Session, httpProtocol: HttpProtocol): (Session, AsyncHttpClient) =
     if (httpProtocol.enginePart.shareClient) {
@@ -76,7 +74,7 @@ class HttpEngine(
 
       if (httpProtocol.enginePart.perUserNameResolution) {
         // eager load
-        val _ = defaultDnsNameResolver
+        val _ = ahcFactory.defaultDnsNameResolver
       }
 
       httpProtocol.warmUpUrl match {

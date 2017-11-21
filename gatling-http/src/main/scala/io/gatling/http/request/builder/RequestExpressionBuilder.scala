@@ -90,20 +90,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   // note: DNS cache is supposed to be set early
   private def configureNameResolver(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
-    )
+    configuration.resolve(httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver))
 
   private def configureChannelPoolPartitioning(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     if (!protocol.enginePart.shareConnections)

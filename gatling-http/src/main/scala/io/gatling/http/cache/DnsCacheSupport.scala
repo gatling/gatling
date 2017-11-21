@@ -48,7 +48,6 @@ trait DnsCacheSupport {
     if (hostAliases.isEmpty) {
       if (httpProtocol.enginePart.perUserNameResolution) {
         // use per user resolver
-        val defaultDnsNameResolver = httpEngine.defaultDnsNameResolver
         configuration.resolve(
           // [fl]
           //
@@ -60,12 +59,8 @@ trait DnsCacheSupport {
           //
           //
           //
-          //
-          //
-          //
-          //
           // [fl]
-          _.set(DnsNameResolverAttributeName, new CacheOverrideNameResolver(defaultDnsNameResolver, new DefaultDnsCache))
+          _.set(DnsNameResolverAttributeName, new CacheOverrideNameResolver(httpEngine.ahcFactory.defaultDnsNameResolver, new DefaultDnsCache))
         )
 
       } else if (UseDefaultJavaEternalDnsCache) {
@@ -79,7 +74,6 @@ trait DnsCacheSupport {
     } else {
       if (httpProtocol.enginePart.perUserNameResolution) {
         // use per user resolver
-        val defaultDnsNameResolver = httpEngine.defaultDnsNameResolver
         configuration.resolve(
           // [fl]
           //
@@ -91,12 +85,8 @@ trait DnsCacheSupport {
           //
           //
           //
-          //
-          //
-          //
-          //
           // [fl]
-          _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, defaultDnsNameResolver))
+          _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, httpEngine.ahcFactory.defaultDnsNameResolver))
         )
 
       } else if (UseDefaultJavaEternalDnsCache) {
