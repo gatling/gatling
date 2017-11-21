@@ -33,7 +33,7 @@ import org.asynchttpclient.{ Realm, Request }
 import org.asynchttpclient.uri.Uri
 
 object RequestExpressionBuilder {
-  val BuildRequestErrorMapper = "Failed to build request: " + _
+  val BuildRequestErrorMapper: String => String = "Failed to build request: " + _
 
   type RequestBuilderConfigureRaw = Session => AhcRequestBuilder => AhcRequestBuilder
   type RequestBuilderConfigure = Session => AhcRequestBuilder => Validation[AhcRequestBuilder]
