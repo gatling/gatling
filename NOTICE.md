@@ -151,11 +151,6 @@ This product depends on HdrHistogram, distributed by Gil Tene:
   * License: license/LICENSE.hdrhistogram.bsd2.txt (BSD 2-Clause License)
   * Homepage: https://github.com/HdrHistogram/HdrHistogram
 
-This product depends on ConcurrentLinkedHashmap, distributed by Ben Manes:
-
-  * License: license/LICENSE.concurrentlinkedhashmap.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/ben-manes/concurrentlinkedhashmap
-
 This product depends on BouncyCastle, distributed by the Legion of the Bouncy Castle:
 
   * License: license/LICENSE.bouncycastle.mit.txt (MIT License)
@@ -203,8 +198,8 @@ This product depends on Highcharts, distributed by Highsoft:
 
 This product depends on Pebble, distributed by Mitchell Bösecke:
 
-    * License: license/LICENSE.pebble.bsd3.txt (BSD 3-Clause License)
-    * Homepage: http://www.mitchellbosecke.com/pebble/home
+  * License: license/LICENSE.pebble.bsd3.txt (BSD 3-Clause License)
+  * Homepage: http://www.mitchellbosecke.com/pebble/home
 
 This product depends on Coverity Security Library, distributed by Coverity, Inc.:
 
