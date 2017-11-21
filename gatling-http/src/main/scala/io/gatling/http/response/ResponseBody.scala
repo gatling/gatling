@@ -120,7 +120,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
     }
 }
 
-object NoResponseBody extends ResponseBody {
+case object NoResponseBody extends ResponseBody {
   val charset = UTF_8
   val bytes = EmptyBytes
   def stream = new FastByteArrayInputStream(bytes)

@@ -56,10 +56,10 @@ object BlockExit {
     case Nil => BlockExit(exitAction, session, groupsToClose)
 
     case head :: tail => head match {
-      case `until`               => BlockExit(exitAction, session, groupsToClose)
-      case group: GroupBlock     => blockExit(tail, until, exitAction, session.exitGroup, group :: groupsToClose)
-      case tryMap: TryMaxBlock   => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
-      case counter: CounterBlock => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
+      case `until`           => BlockExit(exitAction, session, groupsToClose)
+      case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup, group :: groupsToClose)
+      case _: TryMaxBlock    => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
+      case _: CounterBlock   => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
     }
   }
 

@@ -318,10 +318,10 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         val newUpdate = tx.update andThen storeCookiesUpdate
         val statusCode = status.getStatusCode
 
-        if (HttpHelper.isRedirect(statusCode) && tx.request.config.followRedirect)
+        if (HttpHelper.isRedirect(statusCode) && tx.request.config.followRedirect) {
           redirect(statusCode, newUpdate)
 
-        else {
+        } else {
           val checks =
             if (HttpHelper.isNotModified(statusCode))
               tx.request.config.checks.filter(c => c.scope != HttpCheckScope.Body && c.scope != HttpCheckScope.Checksum)
