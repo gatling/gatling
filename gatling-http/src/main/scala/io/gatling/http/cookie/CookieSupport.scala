@@ -45,7 +45,7 @@ object CookieSupport {
   private def getOrCreateCookieJar(session: Session) =
     cookieJar(session) match {
       case Some(cookieJar) => cookieJar
-      case _               => CookieJar(Map.empty)
+      case _               => CookieJar.Empty
     }
 
   def storeCookies(session: Session, uri: Uri, cookies: List[Cookie]): Session = {

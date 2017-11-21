@@ -27,6 +27,8 @@ case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, 
 
 object CookieJar {
 
+  val Empty = CookieJar(Map.empty)
+
   private def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
 
   private def requestPath(requestUri: Uri) = requestUri.getPath match {

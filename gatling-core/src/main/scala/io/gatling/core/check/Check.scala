@@ -25,7 +25,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: mutable.Map[Any, Any] = mutable.Map.empty[Any, Any]): (Session => Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: mutable.Map[Any, Any] = mutable.Map.empty): (Session => Session, Option[Failure]) = {
 
     @tailrec
     def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
@@ -90,12 +90,12 @@ case class CheckBase[R, P, X](
 
 object CheckResult {
 
-  val NoopCheckResultSuccess = CheckResult(None, None).success
+  val NoopCheckResultSuccess: Validation[CheckResult] = CheckResult(None, None).success
 }
 
 case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
 
-  def hasUpdate = saveAs.isDefined && extractedValue.isDefined
+  def hasUpdate: Boolean = saveAs.isDefined && extractedValue.isDefined
 
   def update: Option[(Session => Session)] =
     for {
