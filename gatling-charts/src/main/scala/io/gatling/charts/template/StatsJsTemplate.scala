@@ -44,14 +44,16 @@ ${fieldName("stats")}: $jsonStats"""
     }
 
     def renderSubGroups(group: GroupContainer): Iterable[Fastring] =
-      group.groups.values.map { subGroup =>
+      group.groups.toSeq.sortBy(_._1).map { grpTmp =>
+        val subGroup = grpTmp._2
         fast""""${subGroup.name.toGroupFileName(charset)}": {
           ${renderGroup(subGroup)}
      }"""
       }
 
     def renderSubRequests(group: GroupContainer): Iterable[Fastring] =
-      group.requests.values.map { request =>
+      group.requests.toSeq.sortBy(_._1).map { reqTmp =>
+        val request = reqTmp._2
         fast""""${request.name.toRequestFileName(charset)}": {
         ${fieldName("type")}: "$Request",
         ${renderStats(request.stats, request.stats.path.toRequestFileName(charset))}
