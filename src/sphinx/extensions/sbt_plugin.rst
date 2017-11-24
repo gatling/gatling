@@ -18,12 +18,12 @@ Snapshots are available on Sonatype.
 
 In ``project/plugins.sbt``, add::
 
-  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.2.0")
+  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.2.2")
 
 You'll also need those two dependencies::
 
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.2" % "test"
-  "io.gatling"            % "gatling-test-framework"    % "2.2.2" % "test"
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.3.0" % "test"
+  "io.gatling"            % "gatling-test-framework"    % "2.3.0" % "test"
 
 And then, in your ``.scala`` build::
 
@@ -34,14 +34,7 @@ And then, in your ``.scala`` build::
                      .settings(libraryDependencies ++= /* Gatling dependencies */)
 
 
-or in your ``.sbt`` file, for SBT up to 0.13.5::
-
-  val test = project.in(file("."))
-    .enablePlugins(GatlingPlugin)
-    .settings(libraryDependencies ++= /* Gatling dependencies */)
-
-
-or for 0.13.6 and later::
+or in your ``.sbt`` file, for SBT 0.13.6 and later::
 
   enablePlugins(GatlingPlugin)
 
