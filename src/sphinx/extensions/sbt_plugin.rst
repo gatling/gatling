@@ -84,6 +84,13 @@ For the ``GatlingIt`` configuration :
 * By default, Gatling simulations must be in ``src/it/scala``, configurable using the ``scalaSource in GatlingIt`` setting.
 * By default, Gatling reports are written to ``target/gatling-it``, configurable using the ``target in GatlingIt`` setting.
 
+If you override the default settings, you need to reset them on the project, eg:
+
+::
+
+  scalaSource in Gatling := sourceDirectory.value / "gatling" / "scala"
+  lazy val root = (project in file(".")).settings(inConfig(Gatling)(Defaults.testSettings): _*)
+
 Additional tasks
 ================
 
