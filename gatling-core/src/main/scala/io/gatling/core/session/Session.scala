@@ -41,11 +41,14 @@ object SessionPrivateAttributes {
 
 case class SessionAttribute(session: Session, key: String) {
 
-  def as[T: NotNothing]: T = session.attributes(key).asInstanceOf[T]
+  def as[T: TypeCaster: ClassTag: NotNothing]: T = session.attributes.get(key) match {
+    case Some(value) => value.as[T]
+    case _           => throw new NoSuchElementException(ElMessages.undefinedSessionAttribute(key).message)
+  }
   def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).flatMap(_.asOption[T])
   def validate[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = session.attributes.get(key) match {
     case Some(value) => value.asValidation[T]
-    case None        => ElMessages.undefinedSessionAttribute(key)
+    case _           => ElMessages.undefinedSessionAttribute(key)
   }
 }
 

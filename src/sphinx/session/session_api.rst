@@ -106,25 +106,27 @@ Then:
 
 You can then access methods to retrieve the actual value in several ways:
 
-``session("foo").as[String]``:
+``session("foo").as[Int]``:
 
-* returns a ``String``,
-* throws a ``NoSuchElementException`` if the "foo" attribute is undefined,
-* throws a ``ClassCastException`` if the value is not a String
+* returns a ``Int``,
+* throws a ``NoSuchElementException`` if the *foo* attribute is undefined,
+* throws a ``ClassCastException`` if the value is not an Int
 
-``session("foo").asOption[String]``:
+``session("foo").asOption[Int]``:
 
-* returns an ``Option[String]``
-* which is ``None`` if the "foo" attribute is undefined,
-* which is ``Some(value)`` otherwise and *value* is indeed a String
+* returns an ``Option[Int]``
+* which is ``None`` if the *foo* attribute is undefined,
+* which is ``Some(value)`` otherwise and *value* is an Int
 * throws a ``ClassCastException`` otherwise
 
-``session("foo").validate[String]``:
+``session("foo").validate[Int]``:
 
-* returns an ``Validation[String]``
-* which is ``Failure(errorMessage)`` if the *"foo"* attribute is undefined
-* which is ``Failure(errorMessage)`` if the value is not a String
-* which is ``Success(value)`` otherwise
+* returns an ``Validation[Int]``
+* which is ``Success(value)`` if the *foo* attribute is defined and *value* is an Int
+* which is ``Failure(errorMessage)`` otherwise
+
+.. note::
+  Trying to get a ``[String]`` actually performs a ``toString`` conversion and thus, always works as long as the entry is defined.
 
 .. note::
 
