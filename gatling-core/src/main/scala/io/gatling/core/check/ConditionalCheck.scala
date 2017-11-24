@@ -33,7 +33,7 @@ case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validat
     nestedCheck.check(response, session)
   }
 
-  def check(response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] =
     condition(response, session).flatMap { c =>
       if (c) {
         performNestedCheck(thenCheck, response, session)
@@ -41,5 +41,4 @@ case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validat
         CheckResult.NoopCheckResultSuccess
       }
     }
-  }
 }
