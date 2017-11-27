@@ -65,7 +65,7 @@ object Dependencies {
   private val scalaTest                      = "org.scalatest"                         %% "scalatest"                    % "3.0.4"             % "test"
   private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                   % "1.13.5"            % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                 % akkaActor.revision  % "test"
-  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                 % "2.11.0"            % "test"
+  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                 % "2.12.0"            % "test"
   private val activemqBroker                 = "org.apache.activemq"                    % "activemq-broker"              % "5.15.2"            % "test"
   private val h2                             = "com.h2database"                         % "h2"                           % "1.4.196"           % "test"
   private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.19"
