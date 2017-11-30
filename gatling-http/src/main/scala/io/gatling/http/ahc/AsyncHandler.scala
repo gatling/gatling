@@ -24,10 +24,9 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.{ Response => _, _ }
+import org.asynchttpclient.{ Response => _, AsyncHandler => AhcAsyncHandler, _ }
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State._
-import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.request.NettyRequest
 import com.typesafe.scalalogging._
 import io.netty.handler.codec.http.HttpHeaders
@@ -46,7 +45,7 @@ object AsyncHandler extends StrictLogging {
  * @param tx the data about the request to be sent and processed
  * @param responseProcessor the responseProcessor
  */
-class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends ExtendedAsyncHandler[Unit] with LazyLogging {
+class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends AhcAsyncHandler[Unit] with LazyLogging {
 
   private val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean

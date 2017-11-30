@@ -30,13 +30,11 @@ import io.netty.handler.codec.http.HttpHeaders
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
 import org.asynchttpclient._
-import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.LazyResponseBodyPart
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
 
-class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends ExtendedAsyncHandler[Unit]
-  with AsyncHandlerExtensions
+class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   with SseStream
   with EventStreamDispatcher
   with StrictLogging {
