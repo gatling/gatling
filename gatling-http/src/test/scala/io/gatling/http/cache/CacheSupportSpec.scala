@@ -178,7 +178,7 @@ class CacheSupportSpec extends BaseSpec {
           checks = Nil,
           responseTransformer = None,
           extraInfoExtractor = None,
-          maxRedirects = Some(10),
+          maxRedirects = 10,
           throttled = false,
           silent = None,
           followRedirect = true,

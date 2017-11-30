@@ -29,7 +29,7 @@ case class HttpRequestConfig(
     checks:                List[HttpCheck],
     responseTransformer:   Option[PartialFunction[Response, Response]],
     extraInfoExtractor:    Option[ExtraInfoExtractor],
-    maxRedirects:          Option[Int],
+    maxRedirects:          Int,
     throttled:             Boolean,
     silent:                Option[Boolean],
     followRedirect:        Boolean,

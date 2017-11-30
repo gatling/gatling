@@ -45,7 +45,7 @@ class HttpTxSpec extends BaseSpec {
       checks = Nil,
       responseTransformer = None,
       extraInfoExtractor = None,
-      maxRedirects = None,
+      maxRedirects = 20,
       throttled = false,
       silent = None,
       followRedirect = false,

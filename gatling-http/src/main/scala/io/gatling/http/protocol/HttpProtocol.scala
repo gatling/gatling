@@ -93,7 +93,7 @@ object HttpProtocol extends StrictLogging {
       ),
       responsePart = HttpProtocolResponsePart(
         followRedirect = true,
-        maxRedirects = None,
+        maxRedirects = 20,
         strict302Handling = false,
         discardResponseChunks = true,
         responseTransformer = None,
@@ -162,7 +162,7 @@ case class HttpProtocolRequestPart(
 
 case class HttpProtocolResponsePart(
     followRedirect:                Boolean,
-    maxRedirects:                  Option[Int],
+    maxRedirects:                  Int,
     strict302Handling:             Boolean,
     discardResponseChunks:         Boolean,
     responseTransformer:           Option[PartialFunction[Response, Response]],

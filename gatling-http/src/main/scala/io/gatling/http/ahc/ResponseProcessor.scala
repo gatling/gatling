@@ -240,47 +240,45 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
       }
 
-      for (cookie <- CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
-        requestBuilder.addCookie(cookie)
+      CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri).foreach(requestBuilder.addCookie)
 
       requestBuilder.build
     }
 
     def redirect(statusCode: Int, update: Session => Session): Unit =
-      tx.request.config.maxRedirects match {
-        case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
-          ko(tx, update, response, s"Too many redirects, max is $maxRedirects")
+      if (tx.request.config.maxRedirects == tx.redirectCount) {
+        ko(tx, update, response, s"Too many redirects, max is ${tx.request.config.maxRedirects}")
 
-        case _ =>
-          response.header(HeaderNames.Location) match {
-            case Some(location) =>
-              val redirectURI = resolveFromUri(tx.request.ahcRequest.getUri, location)
+      } else {
+        response.header(HeaderNames.Location) match {
+          case Some(location) =>
+            val redirectURI = resolveFromUri(tx.request.ahcRequest.getUri, location)
 
-              val cacheRedirectUpdate =
-                if (httpProtocol.requestPart.cache)
-                  cacheRedirect(tx.request.ahcRequest, redirectURI)
-                else
-                  Session.Identity
+            val cacheRedirectUpdate =
+              if (httpProtocol.requestPart.cache)
+                cacheRedirect(tx.request.ahcRequest, redirectURI)
+              else
+                Session.Identity
 
-              val groupUpdate = logGroupRequestUpdate(tx, OK, response.startTimestamp, response.endTimestamp)
+            val groupUpdate = logGroupRequestUpdate(tx, OK, response.startTimestamp, response.endTimestamp)
 
-              val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
-              val newSession = totalUpdate(tx.session)
+            val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
+            val newSession = totalUpdate(tx.session)
 
-              val loggedTx = tx.copy(session = newSession)
-              logRequest(loggedTx, OK, response)
+            val loggedTx = tx.copy(session = newSession)
+            logRequest(loggedTx, OK, response)
 
-              val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
-              val redirectTx = loggedTx.copy(
-                request = loggedTx.request.copy(ahcRequest = newAhcRequest),
-                redirectCount = tx.redirectCount + 1,
-                update = if (tx.resourceFetcher.isEmpty) Session.Identity else totalUpdate
-              )
-              HttpTx.start(redirectTx)
+            val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
+            val redirectTx = loggedTx.copy(
+              request = loggedTx.request.copy(ahcRequest = newAhcRequest),
+              redirectCount = tx.redirectCount + 1,
+              update = if (tx.resourceFetcher.isEmpty) Session.Identity else totalUpdate
+            )
+            HttpTx.start(redirectTx)
 
-            case None =>
-              ko(tx, update, response, "Redirect status, yet no Location header")
-          }
+          case _ =>
+            ko(tx, update, response, "Redirect status, yet no Location header")
+        }
       }
 
     def cacheRedirect(originalRequest: Request, redirectUri: Uri): Session => Session =
