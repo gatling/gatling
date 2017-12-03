@@ -9,7 +9,7 @@ Versions
 
 Check out available versions on `Bintray <https://bintray.com/gatling/sbt-plugins/gatling-sbt/view>`_.
 
-Beware that milestones (M versions) are undocumented and releases for Gatling customers.
+Beware that milestones (M versions) are undocumented and released for GatlingCorp customers.
 
 Setup
 =====
