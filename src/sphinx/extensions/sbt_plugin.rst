@@ -14,8 +14,6 @@ Beware that milestones (M versions) are undocumented and releases for Gatling cu
 Setup
 =====
 
-Snapshots are available on Sonatype.
-
 In ``project/plugins.sbt``, add::
 
   addSbtPlugin("io.gatling" % "gatling-sbt" % "2.2.2")
