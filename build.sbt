@@ -16,6 +16,7 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
   .settings(libraryDependencies ++= docDependencies)
+  .settings(updateOptions := updateOptions.value.withGigahorse(false))
 
 // Modules
 
