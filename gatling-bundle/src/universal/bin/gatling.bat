@@ -50,7 +50,7 @@ set JAVA_OPTS=-server -XX:+OptimizeStringConcat %JAVA_OPTS%
 :skipServer
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
-set COMPILER_CLASSPATH="%GATLING_HOME%"\li\*;%GATLING_CONF%;
+set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\*;%GATLING_CONF%;
 set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%GATLING_CONF%;
 
 set JAVA=java
