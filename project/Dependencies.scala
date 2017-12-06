@@ -48,7 +48,7 @@ object Dependencies {
     .exclude("jline", "jline")
     .exclude("org.apache.logging.log4j", "log4j-api")
     .exclude("org.apache.logging.log4j", "log4j-core")
-  private val compilerBridge                 = "org.scala-sbt"                         %% "compiler-bridge"               % "1.0.3"
+  private val compilerBridge                 = "org.scala-sbt"                         %% "compiler-bridge"               % zinc.revision
   private val jmsApi                         = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"         % "1.1.1"
   private val logback                        = "ch.qos.logback"                         % "logback-classic"               % "1.2.3"
   private val tdigest                        = "com.tdunning"                           % "t-digest"                      % "3.1"
