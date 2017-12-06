@@ -297,6 +297,17 @@ You can override the form field values with the ``formParam`` and the likes.
 .. note:: Gatling will automatically set the `Content-Type` header for you if you didn't specify one.
           It will use `application/x-www-form-urlencoded` except if there's also some body parts, in which case it will set `multipart/form-data`.
 
+.. http-files:
+
+File Based Request Bodies
+=========================
+
+Gatling provides various ways of sending files.
+
+When using the bundle distribution, files must be in the ``user-files/resources`` directory. This location can be overridden, see :ref:`configuration`.
+
+When using a build tool such as maven, files must be in ``src/main/resources`` or ``src/test/resources``.
+
 .. _http-multipart-form:
 
 Multipart Form
@@ -306,7 +317,7 @@ This applies only for POST requests. When you find forms asking for text values 
 
 To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method: ``formUpload(name: Expression[String], filePath: Expression[String])``.
 
-The uploaded file must be located in ``user-files/bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
+The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
 
 One can call ``formUpload()`` multiple times in order to upload multiple files.
 

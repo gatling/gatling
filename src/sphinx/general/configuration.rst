@@ -59,11 +59,9 @@ Gatling can be started with several options listed below:
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -ro <folderName>  | --reports-only <folderName>            | Generates the reports for the simulation log file located in <gatling_home>/results/<folderName> |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -df <path>        | --data-folder <path>                   | Uses <path> as the folder where feeders are stored                                               |
+| -rsf <path>        | --resources-folder <path>             | Uses <path> as the folder where resources are stored                                             |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -rf <path>        | --results-folder <path>                | Uses <path> as the folder where results are stored                                               |
-+-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -bdf <path>       | --bodies-folder <path>                 | Uses <path> as the folder where bodies are stored                                                |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -sf <path>        | --simulations-folder <path>            | Uses <path> as the folder where simulations are stored                                           |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+

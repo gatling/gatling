@@ -41,7 +41,7 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
   }
 
   it should "parse valid sitemap file" in {
-    val resource = Resource.resolveResource(Paths.get(""), "", "sitemap.xml")
+    val resource = Resource.resolveResource(Paths.get(""), "sitemap.xml")
     val records = resource.map(SitemapParser.parse(_).toArray)
     verifySitemapRecords(records.succeeded)
   }

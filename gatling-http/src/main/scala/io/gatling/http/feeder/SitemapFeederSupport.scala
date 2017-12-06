@@ -27,7 +27,7 @@ import io.gatling.core.util.Resource
 trait SitemapFeederSupport {
 
   def sitemap(fileName: String)(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
-    sitemap(Resource.feeder(fileName))
+    sitemap(Resource.resource(fileName))
 
   def sitemap(resource: Validation[Resource])(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
     resource match {

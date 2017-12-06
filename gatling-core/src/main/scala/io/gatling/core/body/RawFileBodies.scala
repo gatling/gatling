@@ -29,7 +29,7 @@ case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[
 class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
   private val resourceCache: LoadingCache[String, Validation[Resource]] = {
-    val pathToResource: String => Validation[Resource] = path => Resource.body(path)
+    val pathToResource: String => Validation[Resource] = path => Resource.resource(path)
     Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, pathToResource)
   }
 

@@ -36,13 +36,13 @@ trait FeederSupport {
     separatedValues(fileName, TabulationSeparator, quoteChar)
 
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
-    Resource.feeder(fileName) match {
+    Resource.resource(fileName) match {
       case Success(resource) => new SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration) with BatchableFeederBuilder[String]
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
   def jsonFile(fileName: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): SourceFeederBuilder[Any] =
-    Resource.feeder(fileName) match {
+    Resource.resource(fileName) match {
       case Success(resource) =>
         val data = new JsonFeederFileParser().parse(resource)
         SourceFeederBuilder(InMemoryFeederSource(data), configuration)

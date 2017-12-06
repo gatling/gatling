@@ -28,7 +28,7 @@ import com.mitchellbosecke.pebble.template.PebbleTemplate
 class PebbleFileBodies(implicit configuration: GatlingConfiguration) {
 
   private val resourceCache: LoadingCache[String, Validation[Resource]] = {
-    val pathToResource: String => Validation[Resource] = path => Resource.body(path)
+    val pathToResource: String => Validation[Resource] = path => Resource.resource(path)
     Cache.newConcurrentLoadingCache(configuration.core.pebbleFileBodiesCacheMaxCapacity, pathToResource)
   }
 

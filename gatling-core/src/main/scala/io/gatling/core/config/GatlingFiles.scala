@@ -34,9 +34,8 @@ object GatlingFiles {
   private def resolvePath(path: Path): Path =
     (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize().toAbsolutePath
 
-  def dataDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.data)
-  def bodiesDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.bodies)
-  def sourcesDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.sources)
+  def simulationsDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.simulations)
+  def resourcesDirectory(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.resources)
   def reportsOnlyDirectory(implicit configuration: GatlingConfiguration): Option[String] = configuration.core.directory.reportsOnly
   def binariesDirectory(configuration: GatlingConfiguration): Path = configuration.core.directory.binaries.map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")
   def resultDirectory(runUuid: String)(implicit configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.results) / runUuid

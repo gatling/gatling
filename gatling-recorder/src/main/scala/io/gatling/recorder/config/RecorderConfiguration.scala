@@ -108,14 +108,14 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
     def getOutputFolder(folder: String) = {
       folder.trimToOption match {
         case Some(f)                               => f
-        case _ if sys.env.contains("GATLING_HOME") => sourcesDirectory.toFile.toString
+        case _ if sys.env.contains("GATLING_HOME") => resourcesDirectory.toFile.toString
         case _                                     => userHome
       }
     }
 
     def getBodiesFolder =
       if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
-      else bodiesDirectory.toFile.toString
+      else resourcesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(

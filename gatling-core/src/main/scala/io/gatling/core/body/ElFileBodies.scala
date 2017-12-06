@@ -28,10 +28,10 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 
 class ElFileBodies(implicit configuration: GatlingConfiguration) {
 
-  val charset = configuration.core.charset
+  private val charset = configuration.core.charset
 
   private def compileFile(path: String): Validation[Expression[String]] =
-    Resource.body(path).map { resource =>
+    Resource.resource(path).map { resource =>
       withCloseable(resource.inputStream) {
         _.toString(charset)
       }
@@ -41,7 +41,7 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) {
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
 
   private def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
-    Resource.body(path).map { resource =>
+    Resource.resource(path).map { resource =>
       ElCompiler.compile2BytesSeq(resource.string(charset), charset)
     }
 

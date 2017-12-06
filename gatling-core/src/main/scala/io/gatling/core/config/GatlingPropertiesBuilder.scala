@@ -34,8 +34,8 @@ class GatlingPropertiesBuilder {
     this
   }
 
-  def dataDirectory(v: String): GatlingPropertiesBuilder = {
-    props += core.directory.Data -> v
+  def resourcesDirectory(v: String): GatlingPropertiesBuilder = {
+    props += core.directory.Resources -> v
     this
   }
 
@@ -44,12 +44,7 @@ class GatlingPropertiesBuilder {
     this
   }
 
-  def bodiesDirectory(v: String): GatlingPropertiesBuilder = {
-    props += core.directory.Bodies -> v
-    this
-  }
-
-  def sourcesDirectory(v: String): GatlingPropertiesBuilder = {
+  def simulationsDirectory(v: String): GatlingPropertiesBuilder = {
     props += core.directory.Simulations -> v
     this
   }

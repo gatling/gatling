@@ -40,6 +40,17 @@ For example:
 
 .. includecode:: code/FeederSample.scala#feeder-from-array-with-random
 
+.. _feeder-files:
+
+File Based Feeders
+==================
+
+Gatling provides various file based feeders.
+
+When using the bundle distribution, files must be in the ``user-files/resources`` directory. This location can be overridden, see :ref:`configuration`.
+
+When using a build tool such as maven, files must be placed in ``src/main/resources`` or ``src/test/resources``.
+
 .. _feeder-csv:
 
 CSV feeders
@@ -47,9 +58,7 @@ CSV feeders
 
 Gatling provides several builtins for reading character-separated values files.
 
-Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see :ref:`configuration`.
-
-By default, our parser respects `RFC4180 <https://tools.ietf.org/html/rfc4180>`_, so don't expect behaviors that don't honor this specification.
+Our parser honors the `RFC4180 <https://tools.ietf.org/html/rfc4180>`_ specification.
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
 

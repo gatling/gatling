@@ -33,7 +33,7 @@ object Resource {
       Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
         url.getProtocol match {
           case "file" => FileResource(url.jfile).success
-          case "jar"  => ArchiveResource(location.path.substring(location.path.lastIndexOf(File.separatorChar)), url).success
+          case "jar"  => ArchiveResource(url).success
           case _      => s"$url is neither a file nor a jar".failure
         }
       }
@@ -54,30 +54,25 @@ object Resource {
       string2path(location.path).ifFile(f => FileResource(f).success)
   }
 
-  private[gatling] def resolveResource(directory: Path, possibleClasspathPackage: String, path: String): Validation[Resource] =
+  private[gatling] def resolveResource(directory: Path, path: String): Validation[Resource] =
     Location(directory, path) match {
       case ClasspathResource(res)      => res
       case DirectoryChildResource(res) => res
       case AbsoluteFileResource(res)   => res
-      case _ => Location(directory, possibleClasspathPackage + "/" + path) match {
-        case ClasspathResource(res) => res
-        case _                      => s"file $path doesn't exist".failure
-      }
+      case _                           => path.failure
     }
 
   case class Location(directory: Path, path: String)
 
-  def feeder(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    resolveResource(GatlingFiles.dataDirectory, "data", fileName)
-  def body(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    resolveResource(GatlingFiles.bodiesDirectory, "bodies", fileName)
+  def resource(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
+    resolveResource(GatlingFiles.resourcesDirectory, fileName)
 }
 
 sealed trait Resource {
   def name: String
   def inputStream: InputStream
   def file: File
-  def string(charset: Charset) = withCloseable(inputStream) { _.toString(charset) }
+  def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte]
 }
 
@@ -87,13 +82,19 @@ case class FileResource(file: File) extends Resource {
   override def bytes: Array[Byte] = file.toByteArray
 }
 
-case class ArchiveResource(path: String, url: URL) extends Resource {
+case class ArchiveResource(url: URL) extends Resource {
 
-  override val name: String = path.substring(path.lastIndexOf(File.separatorChar))
+  override val name: String = {
+    val urlString = url.toString
+    urlString.lastIndexOf(File.separatorChar) match {
+      case -1 => urlString
+      case i  => urlString.substring(i)
+    }
+  }
 
-  override def inputStream = url.openStream
+  override def inputStream: InputStream = url.openStream
 
-  override def file = {
+  override def file: File = {
     val lastDotIndex = name.lastIndexOf('.')
     val extension = if (lastDotIndex != -1) "" else name.substring(lastDotIndex + 1)
     val tempFile = File.createTempFile("gatling", "." + extension)

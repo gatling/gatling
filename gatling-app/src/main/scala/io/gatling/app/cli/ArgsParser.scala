@@ -38,23 +38,18 @@ private[app] class ArgsParser(args: Array[String]) {
       .valueName("<directoryName>")
       .text("Generates the reports for the simulation in <directoryName>")
 
-    opt[String](DataFolder)
-      .foreach(props.dataDirectory)
+    opt[String](ResourcesFolder)
+      .foreach(props.resourcesDirectory)
       .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
+      .text("Uses <directoryPath> as the absolute path of the directory where resources are stored")
 
     opt[String](ResultsFolder)
       .foreach(props.resultsDirectory)
       .valueName("<directoryPath>")
       .text("Uses <directoryPath> as the absolute path of the directory where results are stored")
 
-    opt[String](BodiesFolder)
-      .foreach(props.bodiesDirectory)
-      .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where bodies are stored")
-
     opt[String](SimulationsFolder)
-      .foreach(props.sourcesDirectory)
+      .foreach(props.simulationsDirectory)
       .valueName("<directoryPath>")
       .text("Uses <directoryPath> to discover simulations that could be run")
 

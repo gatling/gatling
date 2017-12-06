@@ -127,9 +127,8 @@ object GatlingConfiguration extends StrictLogging {
           )
         ),
         directory = DirectoryConfiguration(
-          data = config.getString(core.directory.Data),
-          bodies = config.getString(core.directory.Bodies),
-          sources = config.getString(core.directory.Simulations),
+          simulations = config.getString(core.directory.Simulations),
+          resources = config.getString(core.directory.Resources),
           binaries = config.getString(core.directory.Binaries).trimToOption,
           reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
           results = config.getString(core.directory.Results)
@@ -298,9 +297,8 @@ case class CssConfiguration(
 )
 
 case class DirectoryConfiguration(
-    data:        String,
-    bodies:      String,
-    sources:     String,
+    simulations: String,
+    resources:   String,
     binaries:    Option[String],
     reportsOnly: Option[String],
     results:     String
@@ -376,7 +374,7 @@ case class SslConfiguration(
 
 object StoreConfiguration {
 
-  def newStoreConfiguration(config: Config, typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
+  def newStoreConfiguration(config: Config, typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String): Option[StoreConfiguration] = {
 
     val storeType = config.getString(typeKey).trimToOption
     val storeFile = config.getString(fileKey).trimToOption
