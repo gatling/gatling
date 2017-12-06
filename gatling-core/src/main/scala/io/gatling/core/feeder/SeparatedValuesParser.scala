@@ -48,7 +48,7 @@ object SeparatedValuesParser {
       val reader = new InputStreamReader(is, charset)
       val it: Iterator[Array[String]] = parser.iterator(reader).asScala
       if (it.hasNext) {
-        val headers = it.next
+        val headers = it.next.map(_.trim)
         require(headers.nonEmpty, "CSV sources must have a non empty first line containing the headers")
         headers.foreach { header =>
           require(header.nonEmpty, "CSV headers can't be empty")
