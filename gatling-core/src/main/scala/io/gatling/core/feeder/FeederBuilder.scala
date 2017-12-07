@@ -48,21 +48,20 @@ case class SourceFeederBuilder[T](
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
 
-  def readRecords: Seq[Record[Any]] = apply.toVector
+  def readRecords: Seq[Record[Any]] = apply().toVector
 }
 
 case class FeederOptions[T](
     // [fl]
-    shardingEnabled: Boolean = false,
+    shard:           Boolean = false,
     // [fl]
     unzip:           Boolean                          = false,
     conversion:      Option[Record[T] => Record[Any]] = None,
     strategy:        FeederStrategy                   = Queue,
-    batched:         Boolean                          = false,
-    batchBufferSize: Int                              = 2000
+    batch:           Option[Int]                      = None,
 )
 
 trait BatchableFeederBuilder[T] extends SourceFeederBuilder[T] {
-  def batched: SourceFeederBuilder[T] = copy(options = options.copy(batched = true))
-  def batched(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(batched = true, batchBufferSize = bufferSize))
+  def batch: SourceFeederBuilder[T] = batch(2000)
+  def batch(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(batch = Some(bufferSize)))
 }

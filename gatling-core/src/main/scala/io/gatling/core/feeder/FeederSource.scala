@@ -110,12 +110,14 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
       //
       //
       //
+      //
       // [fl]
-      if (options.batched) {
-        BatchedSeparatedValuesFeeder(uncompressedResource.file, separator, quoteChar, options.conversion, options.strategy, options.batchBufferSize, charset)
-      } else {
-        val records = SeparatedValuesParser.parse(uncompressedResource, separator, quoteChar, charset)
-        InMemoryFeeder(records, options.conversion, options.strategy)
+      options.batch match {
+        case Some(batchBufferSize) =>
+          BatchedSeparatedValuesFeeder(uncompressedResource.file, separator, quoteChar, options.conversion, options.strategy, batchBufferSize, charset)
+        case _ =>
+          val records = SeparatedValuesParser.parse(uncompressedResource, separator, quoteChar, charset)
+          InMemoryFeeder(records, options.conversion, options.strategy)
       }
     )
   }

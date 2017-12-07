@@ -66,10 +66,10 @@ class FeederSample {
   }
 
   {
-    //#batched
-    val csvFeeder = csv("foo.csv").batched.random
-    val csvFeeder2 = csv("foo.csv").batched(200).random // tune internal buffer size
-    //#batched
+    //#batch
+    val csvFeeder = csv("foo.csv").batch.random
+    val csvFeeder2 = csv("foo.csv").batch(200).random // tune internal buffer size
+    //#batch
   }
 
   {

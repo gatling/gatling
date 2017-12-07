@@ -46,10 +46,10 @@ class CoreCompileTest extends Simulation {
   val testData = tsv("test-data.tsv")
 
   feed(csv("foo.csv.zip").unzip)
-  feed(csv("foo.csv").batched)
-  feed(csv("foo.csv").batched.random)
-  feed(csv("foo.csv").batched(500))
-  feed(csv("foo.csv").batched(500).random)
+  feed(csv("foo.csv").batch)
+  feed(csv("foo.csv").batch.random)
+  feed(csv("foo.csv").batch(500))
+  feed(csv("foo.csv").batch(500).random)
 
   val richTestData = testData.convert { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
 

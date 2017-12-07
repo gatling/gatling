@@ -85,16 +85,16 @@ Then, if your files are very large, you can provide them zipped and ask gatling 
 .. includecode:: code/FeederSample.scala#unzip
 
 Finally, if your files are very large, it might be difficult to have them sit in memory.
-You can then use the `batched` mode.
+You can then use the `batch` mode.
 
 .. warning::
-``batched`` must be the first option to be configured.
+``batch`` must be the first option to be configured.
 
 .. warning::
-When in ``batched`` mode, ``random`` and ``shuffle`` can't of course operate on the full data, and only operate on an internal buffer of records.
+When in ``batch`` mode, ``random`` and ``shuffle`` can't of course operate on the full data, and only operate on an internal buffer of records.
 The default size of this buffer is 2,000 and can be changed.
 
-.. includecode:: code/FeederSample.scala#batched
+.. includecode:: code/FeederSample.scala#batch
 
 .. _feeder-json:
 
