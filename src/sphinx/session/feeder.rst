@@ -26,16 +26,25 @@ If the Feeder can't produce enough records, Gatling will complain about it and y
 
 .. includecode:: code/FeederSample.scala#feed-multiple
 
-.. _feeder-builder:
+.. _feeder-strategy:
 
-RecordSeqFeederBuilder
-======================
+Strategies
+==========
 
-An ``Array[Map[String, T]]`` or a ``IndexedSeq[Map[String, T]]`` can be implicitly turned into a Feeder.
-Moreover, this implicit conversion also provides some additional methods for defining the way the Seq is iterated over:
+Gatling provides multiple strategies for the built-in feeders:
 
 .. includecode:: code/FeederSample.scala#strategies
 
+.. warning::
+  When using the default ``queue`` strategy, make sure that your dataset contains enough records.
+  If your feeder runs out of record, behavior is undefined and Gatling will forcefully shut down.
+
+.. _feeder-implicits:
+
+Implicits
+=========
+
+An ``Array[Map[String, T]]`` or a ``IndexedSeq[Map[String, T]]`` can be implicitly turned into a Feeder.
 For example:
 
 .. includecode:: code/FeederSample.scala#feeder-from-array-with-random
