@@ -29,6 +29,8 @@ case class SourceFeederBuilder[T](
   //
   // [fl]
 
+  def unzip: SourceFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
+
   def convert(f: PartialFunction[(String, T), Any]): SourceFeederBuilder[T] = {
     val conversion: Record[T] => Record[Any] =
       _.map {
@@ -53,6 +55,7 @@ case class FeederOptions[T](
     // [fl]
     shardingEnabled: Boolean = false,
     // [fl]
+    unzip:           Boolean                          = false,
     conversion:      Option[Record[T] => Record[Any]] = None,
     strategy:        FeederStrategy                   = Queue,
     batched:         Boolean                          = false,

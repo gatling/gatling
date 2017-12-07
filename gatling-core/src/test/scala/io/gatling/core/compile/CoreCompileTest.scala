@@ -45,6 +45,7 @@ class CoreCompileTest extends Simulation {
 
   val testData = tsv("test-data.tsv")
 
+  feed(csv("foo.csv.zip").unzip)
   feed(csv("foo.csv").batched)
   feed(csv("foo.csv").batched.random)
   feed(csv("foo.csv").batched(500))

@@ -16,6 +16,11 @@
 
 package io.gatling.core.feeder
 
+import java.io.{ File, FileOutputStream }
+import java.util.zip.GZIPInputStream
+
+import io.gatling.core.util._
+import io.gatling.commons.util.Io.withCloseable
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
@@ -46,9 +51,39 @@ case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends Feede
   }
 }
 
+object SeparatedValuesFeederSource {
+  private val BufferSize = 1024
+
+  def unzip(resource: Resource): Resource = {
+    val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
+    withCloseable(new GZIPInputStream(resource.inputStream, BufferSize)) { is =>
+      withCloseable(new FileOutputStream(tempFile)) { os =>
+        val buffer = new Array[Byte](BufferSize)
+        var read = 0
+        while (read != -1) {
+          read = is.read(buffer, 0, buffer.length)
+          if (read > 0) {
+            os.write(buffer, 0, read)
+          }
+        }
+      }
+    }
+    FileResource(tempFile)
+  }
+}
+
 class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
+
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
     val charset = configuration.core.charset
+
+    val uncompressedResource =
+      if (options.unzip) {
+        SeparatedValuesFeederSource.unzip(resource)
+      } else {
+        resource
+      }
+
     configuration.resolve(
       // [fl]
       //
@@ -75,14 +110,11 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
       //
       //
       //
-      //
-      //
-      //
       // [fl]
       if (options.batched) {
-        BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, options.batchBufferSize, charset)
+        BatchedSeparatedValuesFeeder(uncompressedResource.file, separator, quoteChar, options.conversion, options.strategy, options.batchBufferSize, charset)
       } else {
-        val records = SeparatedValuesParser.parse(resource, separator, quoteChar, charset)
+        val records = SeparatedValuesParser.parse(uncompressedResource, separator, quoteChar, charset)
         InMemoryFeeder(records, options.conversion, options.strategy)
       }
     )

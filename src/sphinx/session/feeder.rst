@@ -80,6 +80,10 @@ Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the w
   This is due to JVM's internal UTF-16 char encoding and object headers overhead.
   If memory is an issue for you, you might want to read from the filesystem on the fly and build your own Feeder.
 
+Then, if your files are very large, you can provide them zipped and ask gatling to ``unzip`` them on the fly:
+
+.. includecode:: code/FeederSample.scala#unzip
+
 Finally, if your files are very large, it might be difficult to have them sit in memory.
 You can then use the `batched` mode.
 
