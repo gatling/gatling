@@ -13,7 +13,7 @@ object Dependencies {
   private val java8Compat                    = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0"
   private val ahc                            = "org.asynchttpclient"                    % "async-http-client"             % "2.1.0-RC1"
   private val ahcNettyUtils                  = "org.asynchttpclient"                    % "async-http-client-netty-utils" % ahc.revision
-  private val netty                          = "io.netty"                               % "netty-codec-http"              % "4.1.17.Final"
+  private val netty                          = "io.netty"                               % "netty-codec-http"              % "4.1.18.Final"
   private val nettyNativeTransport           = "io.netty"                               % "netty-transport-native-epoll"  % netty.revision classifier "linux-x86_64"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.8"
   private val akkaSlf4j                      = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
