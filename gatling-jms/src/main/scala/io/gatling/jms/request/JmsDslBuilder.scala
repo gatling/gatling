@@ -54,7 +54,7 @@ case class RequestReplyDslBuilderQueue(
   def queue(name: String) = destination(JmsQueue(name))
 
   def destination(destination: JmsDestination) = {
-    RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, Some(destination), None, configuration)
+    RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, Some(JmsTemporaryQueue), None, configuration)
   }
 }
 

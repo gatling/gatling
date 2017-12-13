@@ -38,10 +38,10 @@ class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, 
   override val name = genName("jmsRequestReply")
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
-  private val jmsTrackerDestination = trackerDestination.map(dest => jmsConnection.destination(dest))
+  private val jmsTrackerDestination = trackerDestination.map(dest => jmsConnection.destination(dest)).getOrElse(jmsReplyDestination)
 
   private val messageMatcher = protocol.messageMatcher
-  private val tracker = jmsConnection.tracker(jmsTrackerDestination.getOrElse(jmsReplyDestination), attributes.selector, messageMatcher)
+  private val tracker = jmsConnection.tracker(jmsTrackerDestination, attributes.selector, messageMatcher)
   private val replyTimeout = protocol.replyTimeout.getOrElse(0L)
 
   override protected def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
