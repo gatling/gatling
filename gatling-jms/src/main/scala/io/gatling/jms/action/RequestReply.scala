@@ -33,7 +33,7 @@ import io.gatling.jms.request._
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, val next: Action)
+class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, trackerDestination: Option[JmsDestination], protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, val next: Action)
   extends JmsAction(attributes, protocol, jmsConnectionPool) {
 
   override val name = genName("jmsRequestReply")
@@ -41,10 +41,12 @@ class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
   private val messageMatcher = protocol.messageMatcher
   private val replyTimeout = protocol.replyTimeout.getOrElse(0L)
+  private val jmsTrackerDestination = trackerDestination.map(dest => jmsConnection.destination(dest)).getOrElse(jmsReplyDestination)
 
   override protected def beforeSend(requestName: String, session: Session): Validation[Message => Unit] =
     for {
       resolvedReplyDestination <- jmsReplyDestination(session)
+      resolvedTrackerDestination <- jmsTrackerDestination(session)
     } yield (message: Message) => {
       message.setJMSReplyTo(resolvedReplyDestination)
       protocol.messageMatcher.prepareRequest(message)
@@ -58,7 +60,7 @@ class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, 
       // [fl]
       //
       // [/fl]
-      val tracker = jmsConnection.tracker(resolvedReplyDestination, attributes.selector, messageMatcher)
+      val tracker = jmsConnection.tracker(resolvedTrackerDestination, attributes.selector, messageMatcher)
       tracker.track(matchId, nowMillis, replyTimeout, attributes.checks, session, next, requestName)
     }
 }
