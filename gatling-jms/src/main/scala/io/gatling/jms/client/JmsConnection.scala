@@ -42,7 +42,7 @@ class JmsConnection(
   def destination(jmsDestination: JmsDestination): Destination = {
     val jmsSession = sessionPool.jmsSession()
     jmsDestination match {
-      case JmsTemporaryQueue | JmsTemporaryTopic => jmsDestination.create(jmsSession)
+      case JmsTemporaryTopic => jmsDestination.create(jmsSession)
       case _                                     => staticDestinations.computeIfAbsent(jmsDestination, _ => jmsDestination.create(jmsSession))
     }
   }
