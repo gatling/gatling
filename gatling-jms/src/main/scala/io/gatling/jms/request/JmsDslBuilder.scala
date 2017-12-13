@@ -86,7 +86,7 @@ case class RequestReplyDslBuilderMessage(
   def replyQueue(name: String) = replyDestination(JmsQueue(name))
   def replyDestination(destination: JmsDestination) = this.copy(replyDest = destination)
   def trackerQueue(name : String) = trackerDestination(JmsQueue(name))
-  def trackerDestination(queue: JmsDestination) = this.copy(trackerDest = Some(destination))
+  def trackerDestination(queue: JmsDestination) = this.copy(trackerDest = Some(queue))
 
   /**
    * defines selector for reply destination that is used for responses
