@@ -42,6 +42,19 @@ object NonValidable {
   }
 }
 
+class NoUnexpectedValidationLifting[T](value: T) {
+  def map[A](f: T => A): Validation[A] = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def flatMap[A](f: T => Validation[A]): Validation[A] = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def mapError(f: String => String): Validation[T] = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def foreach(f: T => Any): Unit = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def withFilter(p: T => Boolean): Validation[T] = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def filter(p: T => Boolean): Validation[T] = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def onSuccess(f: T => Any): Unit = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def onFailure(f: String => Any): Unit = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def recover[A >: T](v: => A): Validation[A] = throw new UnsupportedOperationException("Not supposed to be ever called")
+  def toOption: Option[T] = throw new UnsupportedOperationException("Not supposed to be ever called")
+}
+
 trait ValidationImplicits {
 
   import NonValidable._
@@ -49,4 +62,5 @@ trait ValidationImplicits {
   implicit def stringToExpression[T: TypeCaster: Types[NonValidable]#DoesNotContain: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T: Types[NonValidable]#DoesNotContain](value: T): Validation[T] = value.success
   implicit def value2Expression[T: Types[NonValidable]#DoesNotContain](value: T): Expression[T] = value.expressionSuccess
+  implicit def value2NoUnexpectedValidationLifting[T](value: T): NoUnexpectedValidationLifting[T] = new NoUnexpectedValidationLifting(value)
 }
