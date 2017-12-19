@@ -198,25 +198,6 @@ class HttpCompileTest extends Simulation {
     })
 
   setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
-    .assertions(
-      global.allRequests.count.is(0),
-      global.allRequests.count.lt(10),
-      global.allRequests.count.lte(10),
-      global.allRequests.count.gt(10),
-      global.allRequests.count.gte(10),
-      global.allRequests.count.in(10, 20),
-      global.successfulRequests.percent.gte(90.0),
-      global.failedRequests.percent.lte(10.0),
-      details("foo" / "bar").allRequests.count.is(0),
-      forAll.responseTime.min.lt(10),
-      forAll.responseTime.max.lt(1000),
-      forAll.responseTime.stdDev.lt(10),
-      forAll.responseTime.percentile(99.99).lt(1000),
-      forAll.responseTime.percentile1.lt(1000),
-      forAll.responseTime.percentile2.lt(1000),
-      forAll.responseTime.percentile3.lt(1000),
-      forAll.responseTime.percentile4.lt(1000)
-    )
 
   // Conditional check compile test
   val requestWithUntypedCheckIf =
