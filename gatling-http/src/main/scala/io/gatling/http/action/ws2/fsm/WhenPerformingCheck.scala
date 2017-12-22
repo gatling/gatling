@@ -36,11 +36,10 @@ trait WhenPerformingCheck { this: WsActor =>
         val newSession = logResponse(session, currentCheck.name, checkSequenceStart, nowMillis, KO, None, Some(errorMessage))
         val nextAction = next match {
           case Left(n) =>
-            // failed to connect
             logger.debug("Check timeout, failing it and performing next action")
             n
           case Right(sendTextMessage) =>
-            // failed to reconnect, logging crash
+            // logging crash
             logger.debug("Check timeout while trying to reconnect, failing pending send message and performing next action")
             statsEngine.logCrash(newSession, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
             sendTextMessage.next
