@@ -33,16 +33,18 @@ import org.slf4j.LoggerFactory
  */
 object Gatling extends StrictLogging {
 
+  def runForResults(overrides: ConfigOverrides): GatlingRunResult = start(overrides, None)
+
   // used by bundle
   def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
 
   // used by maven archetype
-  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
+  def fromMap(overrides: ConfigOverrides): Int = start(overrides, None).statusCode.code
 
   // used by sbt-test-framework
   private[gatling] def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int =
     new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, selectedSimulationClass)
+      case Left(overrides)   => start(overrides, selectedSimulationClass).statusCode.code
       case Right(statusCode) => statusCode.code
     }
 
@@ -75,7 +77,8 @@ object Gatling extends StrictLogging {
         } finally {
           terminateActorSystem(system, 5 seconds)
         }
-      RunResultProcessor(configuration).processRunResult(runResult).code
+      val statusCode = RunResultProcessor(configuration).processRunResult(runResult)
+      GatlingRunResult(statusCode, runResult)
     } finally {
       LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext].stop()
     }
