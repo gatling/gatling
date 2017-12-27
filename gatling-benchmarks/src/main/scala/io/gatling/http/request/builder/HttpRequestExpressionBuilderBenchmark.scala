@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2016 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2017 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 import io.gatling.core.{ ValidationImplicits, CoreComponents }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -24,6 +25,7 @@ import io.gatling.http.protocol._
 
 import com.softwaremill.quicklens._
 import org.asynchttpclient.Request
+import org.asynchttpclient.Dsl._
 import org.openjdk.jmh.annotations.Benchmark
 
 object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
@@ -51,6 +53,10 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
     responseProcessor = null
   )
 
+  val Reference: Expression[Request] = _ =>
+    request("GET", "http://localhost:8000/ping")
+      .build.success
+
   val SimpleRequest: Expression[Request] =
     new Http("requestName").get("/ping")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
@@ -59,6 +65,10 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
     new Http("requestName").get("/ping")
       .queryParam("hello", "world")
       .queryParam("foo", "bar")
+      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+
+  val RequestWithDynamicUrl: Expression[Request] =
+    new Http("requestName").get("/ping?foo=${key}")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
 
   val RequestWithStaticHeaders: Expression[Request] = {
@@ -80,11 +90,17 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
   }
 
   val EmptySession: Session = Session("scenario", 0)
+
+  val NonEmptySession: Session = Session("scenario", 0, attributes = Map("key" -> "value"))
 }
 
 class HttpRequestExpressionBuilderBenchmark {
 
   import HttpRequestExpressionBuilderBenchmark._
+
+  @Benchmark
+  def testReference(): Validation[Request] =
+    Reference(EmptySession)
 
   @Benchmark
   def testSimpleRequest(): Validation[Request] =
@@ -97,4 +113,8 @@ class HttpRequestExpressionBuilderBenchmark {
   @Benchmark
   def testRequestWithStaticHeaders(): Validation[Request] =
     RequestWithStaticHeaders(EmptySession)
+
+  @Benchmark
+  def testRequestWithDynamicUrl(): Validation[Request] =
+    RequestWithDynamicUrl(NonEmptySession)
 }

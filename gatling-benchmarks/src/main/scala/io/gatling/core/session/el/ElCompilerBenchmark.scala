@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2016 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2017 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.session.el
 
-import java.nio.charset.StandardCharsets
-
-import scala.io.Source
-
+import io.gatling.Utils._
 import io.gatling.commons.validation.Validation
 import io.gatling.core.ValidationImplicits
 import io.gatling.core.config.GatlingConfiguration
@@ -27,13 +25,12 @@ import io.gatling.core.session.Session
 import org.openjdk.jmh.annotations.Benchmark
 
 object ElCompilerBenchmark extends ValidationImplicits {
+
   private implicit val config = GatlingConfiguration.loadForTest()
+  private val charset = config.core.charset
 
-  private val Json: String = Source.fromFile("src/main/resources/sample-el.json").mkString
-
-  private implicit val session: Session = new Session("Scenario", 0).set("id", 3)
-
-  private val Template = ElCompiler.compile2BytesSeq(Json, StandardCharsets.UTF_8)
+  private val Session1 = new Session("Scenario", 0).set("id", 3)
+  private val Template = ElCompiler.compile2BytesSeq(resourceAsString("sample-el.json", charset), charset)
 }
 
 class ElCompilerBenchmark {
@@ -41,5 +38,5 @@ class ElCompilerBenchmark {
 
   @Benchmark
   def testBasic(): Validation[Seq[Array[Byte]]] =
-    Template(session)
+    Template(Session1)
 }
