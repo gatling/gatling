@@ -28,7 +28,7 @@ import scala.util.control.NonFatal
 
 object Io {
 
-  val DefaultBufferSize = 8 * 1024
+  val DefaultBufferSize: Int = 8 * 1024
 
   implicit class RichURL(val url: URL) extends AnyVal {
 
@@ -38,7 +38,7 @@ object Io {
 
     def toByteArray: Array[Byte] =
       withCloseable(url.openConnection.getInputStream) {
-        _.toByteArray
+        _.toByteArray()
       }
   }
 
@@ -122,30 +122,20 @@ object Io {
         case l if l > Integer.MAX_VALUE => -1
         case l                          => l.toInt
       }
-
-      copyLarge(new Array[Char](bufferSize)) match {
-        case l if l > Integer.MAX_VALUE => -1
-        case l                          => l.toInt
-      }
     }
   }
 
-  def withCloseable[T, C <: AutoCloseable](closeable: C)(block: C => T) =
+  def withCloseable[T, C <: AutoCloseable](closeable: C)(block: C => T): T =
     try
       block(closeable)
     finally
       closeable.close()
 
-  def withSource[T, C <: Source](closeable: C)(block: C => T) =
+  def withSource[T, C <: Source](closeable: C)(block: C => T): T =
     try
       block(closeable)
     finally
       closeable.close()
-
-  def classpathResourceAsStream(path: String): InputStream =
-    Option(ClassLoader.getSystemResourceAsStream(path))
-      .orElse(Option(getClass.getResourceAsStream(path)))
-      .getOrElse(throw new IllegalStateException(s"Couldn't load $path neither from System ClassLoader nor from current one"))
 
   def deleteDirectoryAsap(directory: Path): Unit =
     if (!deleteDirectory(directory)) {
@@ -158,25 +148,25 @@ object Io {
    * @param directory the directory to delete
    * @return if directory could be deleted
    */
-  def deleteDirectory(directory: Path): Boolean = try {
-    Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
-      @throws[IOException]
-      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        Files.delete(file)
-        FileVisitResult.CONTINUE
-      }
+  def deleteDirectory(directory: Path): Boolean =
+    try {
+      Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
+        @throws[IOException]
+        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          Files.delete(file)
+          FileVisitResult.CONTINUE
+        }
 
-      @throws[IOException]
-      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-        Files.delete(dir)
-        FileVisitResult.CONTINUE
-      }
-    })
-    true
-
-  } catch {
-    case NonFatal(e) => false
-  }
+        @throws[IOException]
+        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+          Files.delete(dir)
+          FileVisitResult.CONTINUE
+        }
+      })
+      true
+    } catch {
+      case NonFatal(_) => false
+    }
 
   /**
    * Make a possibly non empty directory to be deleted on exit
