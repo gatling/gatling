@@ -81,7 +81,7 @@ object StringBuilderWriter {
 
 class StringBuilderWriter extends Writer {
 
-  val stringBuilder = new JStringBuilder
+  private val stringBuilder = new JStringBuilder
 
   override def flush(): Unit = {}
 
