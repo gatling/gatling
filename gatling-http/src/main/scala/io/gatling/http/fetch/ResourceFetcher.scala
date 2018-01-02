@@ -16,6 +16,8 @@
 
 package io.gatling.http.fetch
 
+import java.util.concurrent.ConcurrentMap
+
 import scala.collection.mutable
 import scala.compat.java8.FunctionConverters._
 
@@ -53,8 +55,8 @@ trait ResourceFetcher {
   self: HttpEngine =>
 
   // FIXME should CssContentCache use the same key?
-  val CssContentCache = Cache.newConcurrentCache[Uri, List[EmbeddedResource]](coreComponents.configuration.http.fetchedCssCacheMaxCapacity)
-  val InferredResourcesCache = Cache.newConcurrentCache[InferredResourcesCacheKey, InferredPageResources](coreComponents.configuration.http.fetchedHtmlCacheMaxCapacity)
+  val CssContentCache: ConcurrentMap[Uri, List[EmbeddedResource]] = Cache.newConcurrentCache[Uri, List[EmbeddedResource]](coreComponents.configuration.http.fetchedCssCacheMaxCapacity)
+  val InferredResourcesCache: ConcurrentMap[InferredResourcesCacheKey, InferredPageResources] = Cache.newConcurrentCache[InferredResourcesCacheKey, InferredPageResources](coreComponents.configuration.http.fetchedHtmlCacheMaxCapacity)
 
   def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
     filters match {
@@ -143,7 +145,6 @@ trait ResourceFetcher {
     inferredResources ::: explicitResources match {
       case Nil => None
       case resources =>
-        implicit val resourceFetcher = this
         Some(() => new ResourceFetcherActor(tx, resources))
     }
 
@@ -184,20 +185,20 @@ trait ResourceFetcher {
 class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) extends BaseActor {
 
   // immutable state
-  val coreComponents = rootTx.request.config.coreComponents
-  val httpComponents = rootTx.request.config.httpComponents
+  private val coreComponents = rootTx.request.config.coreComponents
+  private val httpComponents = rootTx.request.config.httpComponents
   import httpComponents._
-  val throttled = rootTx.request.config.throttled
-  val filters = httpProtocol.responsePart.htmlResourcesInferringFilters
+  private val throttled = rootTx.request.config.throttled
+  private val filters = httpProtocol.responsePart.htmlResourcesInferringFilters
 
   // mutable state
-  var session = rootTx.session
-  val alreadySeen = mutable.Set.empty[Uri]
-  val bufferedResourcesByHost = mutable.HashMap.empty[String, List[HttpRequest]].withDefaultValue(Nil)
-  val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(httpProtocol.enginePart.maxConnectionsPerHost)
-  var pendingResourcesCount = 0
-  var globalStatus: Status = OK
-  val start = nowMillis
+  private var session = rootTx.session
+  private val alreadySeen = mutable.Set.empty[Uri]
+  private val bufferedResourcesByHost = mutable.HashMap.empty[String, List[HttpRequest]].withDefaultValue(Nil)
+  private val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(httpProtocol.enginePart.maxConnectionsPerHost)
+  private var pendingResourcesCount = 0
+  private var globalStatus: Status = OK
+  private val start = nowMillis
 
   // start fetching
   fetchOrBufferResources(initialResources)

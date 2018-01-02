@@ -158,7 +158,7 @@ package object util extends LazyLogging {
       buff
     }
 
-    def appendResponse(response: Response) = {
+    def appendResponse(response: Response): JStringBuilder = {
 
       response.status.foreach { status =>
         buff.append("status=").append(Eol).append(status.getStatusCode).append(" ").append(status.getStatusText).append(Eol)
@@ -182,7 +182,6 @@ package object util extends LazyLogging {
           } else {
             buff.append("<<<BINARY CONTENT>>>")
           }
-
         }
       }
 

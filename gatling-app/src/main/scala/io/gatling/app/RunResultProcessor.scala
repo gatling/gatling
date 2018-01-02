@@ -42,7 +42,7 @@ private[app] object RunResultProcessor {
 
 class RunResultProcessor(configuration: GatlingConfiguration) {
 
-  implicit val config = configuration
+  private implicit val config: GatlingConfiguration = configuration
 
   def processRunResult(runResult: RunResult): StatusCode = {
     val start = nowMillis

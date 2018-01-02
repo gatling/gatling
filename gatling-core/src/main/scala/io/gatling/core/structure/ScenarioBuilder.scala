@@ -57,15 +57,15 @@ case class PopulationBuilder(
 )
   extends LazyLogging {
 
-  def protocols(protocols: Protocol*) = copy(scenarioProtocols = this.scenarioProtocols ++ protocols)
+  def protocols(protocols: Protocol*): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ protocols)
 
-  def disablePauses = pauses(Disabled)
-  def constantPauses = pauses(Constant)
-  def exponentialPauses = pauses(Exponential)
-  def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
-  def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
-  def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
-  def pauses(pauseType: PauseType) = copy(pauseType = Some(pauseType))
+  def disablePauses: PopulationBuilder = pauses(Disabled)
+  def constantPauses: PopulationBuilder = pauses(Constant)
+  def exponentialPauses: PopulationBuilder = pauses(Exponential)
+  def customPauses(custom: Expression[Long]): PopulationBuilder = pauses(Custom(custom))
+  def uniformPauses(plusOrMinus: Double): PopulationBuilder = pauses(UniformPercentage(plusOrMinus))
+  def uniformPauses(plusOrMinus: Duration): PopulationBuilder = pauses(UniformDuration(plusOrMinus))
+  def pauses(pauseType: PauseType): PopulationBuilder = copy(pauseType = Some(pauseType))
 
   def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toIterable)
 

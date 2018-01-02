@@ -18,7 +18,6 @@ package io.gatling.http.response
 
 import java.io.{ ByteArrayInputStream, InputStream }
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
 import scala.util.control.NonFatal
@@ -41,15 +40,15 @@ trait ResponseBodyUsageStrategy {
 }
 
 object StringResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int) = StringResponseBodyUsage
+  override def bodyUsage(bodyLength: Int): ResponseBodyUsage = StringResponseBodyUsage
 }
 
 object ByteArrayResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int) = ByteArrayResponseBodyUsage
+  override def bodyUsage(bodyLength: Int): ResponseBodyUsage = ByteArrayResponseBodyUsage
 }
 
 object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int) = InputStreamResponseBodyUsage
+  override def bodyUsage(bodyLength: Int): ResponseBodyUsage = InputStreamResponseBodyUsage
 }
 
 sealed trait ResponseBody {
@@ -60,7 +59,7 @@ sealed trait ResponseBody {
 
 object StringResponseBody extends StrictLogging {
 
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
+  def apply(chunks: Seq[ByteBuf], charset: Charset): StringResponseBody = {
     val string =
       (chunks.length: @switch) match {
         case 0 => ""
@@ -75,26 +74,25 @@ object StringResponseBody extends StrictLogging {
 
 class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
 
-  lazy val bytes = string.getBytes(charset)
-  def stream = new ByteArrayInputStream(bytes)
+  override lazy val bytes: Array[Byte] = string.getBytes(charset)
+  override def stream: ByteArrayInputStream = new ByteArrayInputStream(bytes)
 }
 
 object ByteArrayResponseBody {
 
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
+  def apply(chunks: Seq[ByteBuf], charset: Charset): ByteArrayResponseBody =
     new ByteArrayResponseBody(byteBufsToByteArray(chunks), charset)
-  }
 }
 
 class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
-  def stream = new FastByteArrayInputStream(bytes)
-  lazy val string = byteArrayToString(bytes, charset)
+  override def stream: InputStream = new FastByteArrayInputStream(bytes)
+  override lazy val string: String = byteArrayToString(bytes, charset)
 }
 
 object InputStreamResponseBody {
 
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
+  def apply(chunks: Seq[ByteBuf], charset: Charset): InputStreamResponseBody = {
     val bytes = chunks.map(byteBufToByteArray)
     new InputStreamResponseBody(bytes, charset)
   }
@@ -102,15 +100,16 @@ object InputStreamResponseBody {
 
 class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
 
-  def stream = (chunks.size: @switch) match {
-    case 0 => new FastByteArrayInputStream(EmptyBytes)
-    case 1 => new ByteArrayInputStream(chunks.head)
-    case _ => new CompositeByteArrayInputStream(chunks)
-  }
+  override def stream: InputStream =
+    (chunks.size: @switch) match {
+      case 0 => new FastByteArrayInputStream(EmptyBytes)
+      case 1 => new ByteArrayInputStream(chunks.head)
+      case _ => new CompositeByteArrayInputStream(chunks)
+    }
 
-  lazy val bytes = byteArraysToByteArray(chunks)
+  override lazy val bytes: Array[Byte] = byteArraysToByteArray(chunks)
 
-  lazy val string =
+  override lazy val string: String =
     try {
       byteArraysToString(chunks, charset)
     } catch {
@@ -121,8 +120,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
 }
 
 case object NoResponseBody extends ResponseBody {
-  val charset = UTF_8
-  val bytes = EmptyBytes
-  def stream = new FastByteArrayInputStream(bytes)
-  val string = ""
+  override val bytes: Array[Byte] = EmptyBytes
+  override def stream: FastByteArrayInputStream = new FastByteArrayInputStream(bytes)
+  override val string: String = ""
 }

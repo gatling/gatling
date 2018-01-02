@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 
 import io.gatling.commons.util.{ LongCounter, PushbackIterator }
 import io.gatling.commons.util.Collections._
-import io.gatling.commons.util.Clock._
 import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.Scenario
@@ -84,9 +83,9 @@ private[inject] case class Injection(count: Long, continue: Boolean) {
 
 object Injector {
 
-  val InjectorActorName = "gatling-injector"
-  val TickPeriod = 1 second
-  val InitialBatchWindow = TickPeriod * 2
+  private val InjectorActorName = "gatling-injector"
+  val TickPeriod: FiniteDuration = 1 second
+  val InitialBatchWindow: FiniteDuration = TickPeriod * 2
 
   def apply(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, scenarios: List[Scenario]): ActorRef = {
     val userStreams: Map[String, UserStream] = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers)))(breakOut)
@@ -137,7 +136,7 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
   private def injectUser(scenario: Scenario, delay: FiniteDuration): Unit = {
     val userId = userIdGen.incrementAndGet()
 
-    if (delay <= ZeroMs) {
+    if (delay <= Duration.Zero) {
       startUser(scenario, userId)
     } else {
       system.scheduler.scheduleOnce(delay)(startUser(scenario, userId))

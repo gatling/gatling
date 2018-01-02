@@ -40,7 +40,7 @@ case object ForAll extends AssertionPath {
   val printable = "For all requests"
 }
 case class Details(parts: List[String]) extends AssertionPath {
-  def printable =
+  def printable: String =
     if (parts.isEmpty)
       Global.printable
     else

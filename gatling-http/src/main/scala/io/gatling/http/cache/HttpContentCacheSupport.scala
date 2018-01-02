@@ -28,10 +28,10 @@ import org.asynchttpclient.uri.Uri
 
 object ContentCacheKey {
   def apply(request: Request): ContentCacheKey =
-    new ContentCacheKey(request.getUri, request.getMethod, new Cookies(request.getCookies))
+    new ContentCacheKey(request.getUri, request.getMethod, Cookies(request.getCookies))
 }
 
-case class ContentCacheKey(uri: Uri, method: String, cookies: Cookies)
+case class ContentCacheKey(uri: Uri, method: String, cookies: Map[String, String])
 
 case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
 
@@ -55,7 +55,7 @@ trait HttpContentCacheSupport extends ExpiresSupport {
       val lastModified = response.header(HeaderNames.LastModified)
 
       if (expires.isDefined || etag.isDefined || lastModified.isDefined) {
-        val key = ContentCacheKey(request.getUri, request.getMethod, new Cookies(request.getCookies))
+        val key = ContentCacheKey(request.getUri, request.getMethod, Cookies(request.getCookies))
         val value = ContentCacheEntry(expires, etag, lastModified)
         httpContentCacheHandler.addEntry(_, key, value)
       } else

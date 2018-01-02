@@ -23,8 +23,9 @@ import io.gatling.http.action.async.polling.{ PollingStartBuilder, PollingStopBu
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 object Polling {
-  val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
+  private val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
 }
+
 class Polling(pollerName: String = Polling.DefaultPollerName) {
 
   def pollerName(pollerName: String) = new Polling(pollerName)

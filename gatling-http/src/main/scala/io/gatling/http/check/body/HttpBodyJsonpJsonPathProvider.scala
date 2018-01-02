@@ -26,8 +26,8 @@ import io.gatling.http.response.Response
 
 object HttpBodyJsonpJsonPathProvider {
 
-  val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
-  val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
+  private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
+  private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
 
   def parseJsonpString(string: String, jsonParsers: JsonParsers): Validation[Any] = string match {
     case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)

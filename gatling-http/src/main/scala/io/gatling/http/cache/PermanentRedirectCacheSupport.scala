@@ -28,7 +28,7 @@ import org.asynchttpclient.uri.Uri
 
 object PermanentRedirectCacheKey {
   def apply(request: Request): PermanentRedirectCacheKey =
-    new PermanentRedirectCacheKey(request.getUri, new Cookies(request.getCookies))
+    new PermanentRedirectCacheKey(request.getUri, Cookies(request.getCookies))
 }
 
 case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
@@ -51,7 +51,8 @@ trait PermanentRedirectCacheSupport {
 
   private[this] def permanentRedirect(session: Session, request: Request): Option[(Uri, Int)] = {
 
-    @tailrec def permanentRedirectRec(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
+    @tailrec
+    def permanentRedirectRec(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
 
       httpPermanentRedirectCacheHandler.getEntry(session, from) match {
         case Some(toUri) => permanentRedirectRec(new PermanentRedirectCacheKey(toUri, from.cookies), redirectCount + 1)
@@ -72,7 +73,7 @@ trait PermanentRedirectCacheSupport {
   }
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
-    if (origTx.request.config.httpComponents.httpProtocol.requestPart.cache)
+    if (origTx.request.config.httpComponents.httpProtocol.requestPart.cache) {
       permanentRedirect(origTx.session, origTx.request.ahcRequest) match {
         case Some((targetUri, redirectCount)) =>
 
@@ -83,8 +84,9 @@ trait PermanentRedirectCacheSupport {
             redirectCount = origTx.redirectCount + redirectCount
           )
 
-        case None => origTx
+        case _ => origTx
       }
-    else
+    } else {
       origTx
+    }
 }

@@ -28,8 +28,8 @@ object ResponseTimeCheckBuilder {
 
   val ResponseTimeInMillis = {
     val extractor = new Extractor[ResponseTimings, Int] with SingleArity {
-      val name = "responseTimeInMillis"
-      def apply(prepared: ResponseTimings) = Some(prepared.responseTime).success
+      override val name = "responseTimeInMillis"
+      override def apply(prepared: ResponseTimings): Validation[Some[Int]] = Some(prepared.responseTime).success
     }.expressionSuccess
 
     new DefaultFindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int](extractor)

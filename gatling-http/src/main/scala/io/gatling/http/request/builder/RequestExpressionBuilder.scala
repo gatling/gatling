@@ -16,20 +16,24 @@
 
 package io.gatling.http.request.builder
 
+import java.nio.charset.Charset
+
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.{ AhcChannelPoolPartitioning, AhcRequestBuilder }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieSupport
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.LazyLogging
-import org.asynchttpclient.{ Realm, Request }
+import org.asynchttpclient.{ Realm, Request, SignatureCalculator }
 import org.asynchttpclient.uri.Uri
 
 object RequestExpressionBuilder {
@@ -46,15 +50,15 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   extends LazyLogging {
 
   import RequestExpressionBuilder._
-  protected val protocol = httpComponents.httpProtocol
-  protected val httpCaches = httpComponents.httpCaches
-  protected val configuration = coreComponents.configuration
-  protected val charset = configuration.core.charset
-  protected val headers = protocol.requestPart.headers ++ commonAttributes.headers
-  private val refererHeaderIsUndefined = !headers.contains(HeaderNames.Referer)
-  protected val contentTypeHeaderIsUndefined = !headers.contains(HeaderNames.ContentType)
-  private val disableUrlEncoding = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
-  private val signatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
+  protected val protocol: HttpProtocol = httpComponents.httpProtocol
+  protected val httpCaches: HttpCaches = httpComponents.httpCaches
+  protected val configuration: GatlingConfiguration = coreComponents.configuration
+  protected val charset: Charset = configuration.core.charset
+  protected val headers: Map[String, Expression[String]] = protocol.requestPart.headers ++ commonAttributes.headers
+  private val refererHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.Referer)
+  protected val contentTypeHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.ContentType)
+  private val disableUrlEncoding: Boolean = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
+  private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
   protected def baseUrl: Session => Option[String] = httpCaches.baseUrl
 

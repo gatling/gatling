@@ -20,14 +20,14 @@ import io.gatling.core.check.{ CheckProtocolProvider, Preparer, Specializer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
-import io.gatling.http.response.{ InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
+import io.gatling.http.response._
 
 object HttpBodyJsonPathProvider {
 
-  val CharsParsingThreshold = 200 * 1000
+  private val CharsParsingThreshold = 200 * 1000
 
   private[body] val BoonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-    def bodyUsage(bodyLength: Int) =
+    override def bodyUsage(bodyLength: Int): ResponseBodyUsage =
       if (bodyLength <= CharsParsingThreshold)
         StringResponseBodyUsage
       else
@@ -35,7 +35,7 @@ object HttpBodyJsonPathProvider {
   }
 
   private[body] val JacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-    def bodyUsage(bodyLength: Int) =
+    override def bodyUsage(bodyLength: Int): ResponseBodyUsage =
       InputStreamResponseBodyUsage
   }
 

@@ -22,8 +22,7 @@ import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.CommonAttributes
 
 object Ws {
-
-  val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
+  private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 }
 
 /**

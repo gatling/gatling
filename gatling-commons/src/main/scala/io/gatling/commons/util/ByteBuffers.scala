@@ -22,7 +22,7 @@ import io.gatling.commons.util.Collections._
 
 object ByteBuffers {
 
-  val Empty = ByteBuffer.wrap(Array.empty)
+  val Empty: ByteBuffer = ByteBuffer.wrap(Array.empty)
 
   def byteBuffer2ByteArray(byteBuffer: ByteBuffer): Array[Byte] = {
     val bytes = new Array[Byte](byteBuffer.remaining)

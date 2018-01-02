@@ -16,16 +16,17 @@
 
 package io.gatling.core.filter
 
+import scala.util.matching.Regex
 import scala.util.{ Failure, Success, Try }
 
 import com.typesafe.scalalogging.StrictLogging
 
 case class Filters(first: Filter, second: Filter) {
-  def accept(url: String) = first.accept(url) && second.accept(url)
+  def accept(url: String): Boolean = first.accept(url) && second.accept(url)
 }
 
 sealed abstract class Filter(patterns: Seq[String]) extends StrictLogging {
-  val regexes = patterns.flatMap { p =>
+  val regexes: Vector[Regex] = patterns.flatMap { p =>
     Try(p.r) match {
       case Success(regex) => Some(regex)
       case Failure(t) =>

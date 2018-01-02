@@ -28,21 +28,21 @@ trait CoreDefaultImplicits {
 
   implicit def configuration: GatlingConfiguration
 
-  implicit lazy val defaultPatterns = new Patterns
+  implicit lazy val defaultPatterns: Patterns = new Patterns
 
   implicit lazy val defaultJsonParsers: JsonParsers = JsonParsers()
-  implicit lazy val defaultJsonPaths = new JsonPaths
+  implicit lazy val defaultJsonPaths: JsonPaths = new JsonPaths
 
-  implicit lazy val defaultXmlParsers = new XmlParsers
+  implicit lazy val defaultXmlParsers: XmlParsers = new XmlParsers
 
-  implicit lazy val defaultCssSelectors = new CssSelectors
+  implicit lazy val defaultCssSelectors: CssSelectors = new CssSelectors
 
-  implicit lazy val elFileBodies = new ElFileBodies
-  implicit lazy val rawFileBodies = new RawFileBodies
-  implicit lazy val pebbleFileBodies = new PebbleFileBodies
+  implicit lazy val elFileBodies: ElFileBodies = new ElFileBodies
+  implicit lazy val rawFileBodies: RawFileBodies = new RawFileBodies
+  implicit lazy val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies
 
   @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultRegexExtractorFactory = new OldRegexExtractorFactory(defaultPatterns)
+  implicit lazy val defaultRegexExtractorFactory: OldRegexExtractorFactory = new OldRegexExtractorFactory(defaultPatterns)
   @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultJsonPathExtractorFactory = new OldJsonPathExtractorFactory(defaultJsonPaths)
+  implicit lazy val defaultJsonPathExtractorFactory: OldJsonPathExtractorFactory = new OldJsonPathExtractorFactory(defaultJsonPaths)
 }

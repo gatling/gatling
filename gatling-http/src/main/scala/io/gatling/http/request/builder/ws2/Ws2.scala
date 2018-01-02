@@ -22,7 +22,7 @@ import io.gatling.http.request.builder.CommonAttributes
 
 object Ws2 {
 
-  val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
+  private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 
   def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws2 = new Ws2(requestName, wsName)
 

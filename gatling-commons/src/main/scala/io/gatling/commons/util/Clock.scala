@@ -20,10 +20,6 @@ import java.lang.System.{ currentTimeMillis, nanoTime }
 
 import scala.concurrent.duration._
 
-object Clock {
-  val ZeroMs = 0 millisecond
-}
-
 trait Clock {
   def computeTimeMillisFromNanos(nanos: Long): Long
   def nowMillis: Long

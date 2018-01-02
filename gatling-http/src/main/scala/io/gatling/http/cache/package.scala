@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.cache
+package io.gatling.http
 
 import java.util.{ Collection => JCollection }
 
@@ -23,17 +23,12 @@ import scala.collection.JavaConverters._
 
 import io.netty.handler.codec.http.cookie.Cookie
 
-class Cookies(cookies: JCollection[Cookie]) {
+package object cache {
 
-  val cookieNameValuePairs: Map[String, String] = cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
+  type Cookies = Map[String, String]
 
-  override val hashCode: Int = cookieNameValuePairs.hashCode
-
-  override def equals(other: Any): Boolean =
-    other match {
-      case otherCookies: Cookies => cookieNameValuePairs == otherCookies.cookieNameValuePairs
-      case _                     => false
-    }
-
-  override def toString: String = s"Cookies($cookieNameValuePairs)"
+  object Cookies {
+    def apply(cookies: JCollection[Cookie]): Cookies =
+      cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
+  }
 }

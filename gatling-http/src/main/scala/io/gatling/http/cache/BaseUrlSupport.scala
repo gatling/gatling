@@ -19,7 +19,6 @@ package io.gatling.http.cache
 import io.gatling.commons.util.RoundRobin
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.HttpTypeCaster
 
 object BaseUrlSupport {
 
@@ -52,15 +51,9 @@ trait BaseUrlSupport {
     }
   }
 
-  val baseUrl: Session => Option[String] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
+  val baseUrl: Session => Option[String] =
     _(BaseUrlAttributeName).asOption[String]
-  }
 
-  val wsBaseUrl: Session => Option[String] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
+  val wsBaseUrl: Session => Option[String] =
     _(WsBaseUrlAttributeName).asOption[String]
-  }
 }

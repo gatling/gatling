@@ -25,7 +25,7 @@ object ErrorRecordHeader extends RecordHeader("ERROR")
 object AssertionRecordHeader extends RecordHeader("ASSERTION")
 
 sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
-  def unapply(array: Array[String]) =
+  def unapply(array: Array[String]): Option[Array[String]] =
     if (array.length >= recordLength && array(0) == header.value) Some(array) else None
 }
 

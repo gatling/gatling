@@ -31,10 +31,10 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 object ConsoleSummary {
 
-  val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
-  val Iso8601DateTimeFormat = new SimpleDateFormat(Iso8601Format)
-  val OutputLength = 80
-  val NewBlock = "=" * OutputLength
+  private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
+  private val Iso8601DateTimeFormat = new SimpleDateFormat(Iso8601Format)
+  val OutputLength: Int = 80
+  val NewBlock: String = "=" * OutputLength
 
   def writeSubTitle(title: String): Fastring = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
 
@@ -46,7 +46,7 @@ object ConsoleSummary {
     errorsCounters:        mutable.Map[String, Int],
     configuration:         GatlingConfiguration,
     time:                  Date                                 = new Date
-  ) = {
+  ): ConsoleSummary = {
 
     def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 

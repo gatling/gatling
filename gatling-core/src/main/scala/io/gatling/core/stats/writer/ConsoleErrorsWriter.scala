@@ -25,9 +25,9 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  * Object for writing errors statistics to the console.
  */
 object ConsoleErrorsWriter {
-  val ErrorCountLen = 14
-  val ErrorMsgLen = ConsoleSummary.OutputLength - ErrorCountLen
-  val TextLen = ErrorMsgLen - 4
+  private val ErrorCountLen = 14
+  private val ErrorMsgLen = ConsoleSummary.OutputLength - ErrorCountLen
+  private val TextLen = ErrorMsgLen - 4
 
   def formatPercent(percent: Double): String = f"$percent%3.2f"
 

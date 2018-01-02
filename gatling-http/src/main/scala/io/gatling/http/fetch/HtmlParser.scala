@@ -42,29 +42,29 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
 case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
 object HtmlParser extends StrictLogging {
-  val AppletTagName = "applet".toCharArray
-  val BaseTagName = "base".toCharArray
-  val BgsoundTagName = "bgsound".toCharArray
-  val BodyTagName = "body".toCharArray
-  val EmbedTagName = "embed".toCharArray
-  val ImgTagName = "img".toCharArray
-  val InputTagName = "input".toCharArray
-  val LinkTagName = "link".toCharArray
-  val ObjectTagName = "object".toCharArray
-  val StyleTagName = "style".toCharArray
+  private val AppletTagName = "applet".toCharArray
+  private val BaseTagName = "base".toCharArray
+  private val BgsoundTagName = "bgsound".toCharArray
+  private val BodyTagName = "body".toCharArray
+  private val EmbedTagName = "embed".toCharArray
+  private val ImgTagName = "img".toCharArray
+  private val InputTagName = "input".toCharArray
+  private val LinkTagName = "link".toCharArray
+  private val ObjectTagName = "object".toCharArray
+  private val StyleTagName = "style".toCharArray
 
-  val ArchiveAttribute = "archive".toCharArray
-  val BackgroundAttribute = "background".toCharArray
-  val CodeAttribute = "code".toCharArray
-  val CodeBaseAttribute = "codebase".toCharArray
-  val DataAttribute = "data".toCharArray
-  val HrefAttribute = "href".toCharArray
-  val IconAttributeName = "icon".toCharArray
-  val ShortcutIconAttributeName = "shortcut icon".toCharArray
-  val RelAttribute = "rel".toCharArray
-  val SrcAttribute = "src".toCharArray
-  val StyleAttribute = StyleTagName
-  val StylesheetAttributeName = "stylesheet".toCharArray
+  private val ArchiveAttribute = "archive".toCharArray
+  private val BackgroundAttribute = "background".toCharArray
+  private val CodeAttribute = "code".toCharArray
+  private val CodeBaseAttribute = "codebase".toCharArray
+  private val DataAttribute = "data".toCharArray
+  private val HrefAttribute = "href".toCharArray
+  private val IconAttributeName = "icon".toCharArray
+  private val ShortcutIconAttributeName = "shortcut icon".toCharArray
+  private val RelAttribute = "rel".toCharArray
+  private val SrcAttribute = "src".toCharArray
+  private val StyleAttribute = StyleTagName
+  private val StylesheetAttributeName = "stylesheet".toCharArray
 
   def logException(htmlContent: String, e: Throwable): Unit =
     if (logger.underlying.isDebugEnabled)
@@ -103,7 +103,7 @@ class HtmlParser extends StrictLogging {
 
       override def text(text: CharSequence): Unit =
         if (inStyle && !isInHiddenComment)
-          rawResources ++= CssParser.extractUrls(text, CssParser.StyleImportsUrls).map(CssRawResource)
+          rawResources ++= CssParser.extractStyleImportsUrls(text).map(CssRawResource)
 
       private def isInHiddenComment = inHiddenCommentStack.head
 
@@ -186,7 +186,7 @@ class HtmlParser extends StrictLogging {
 
               } else {
                 Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
-                  val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
+                  val styleUrls = CssParser.extractInlineStyleImageUrls(style).map(RegularRawResource)
                   rawResources ++= styleUrls
                 }
               }

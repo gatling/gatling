@@ -17,7 +17,7 @@
 package io.gatling.core.stats.message
 
 object MessageEvent {
-  def apply(name: String) = name match {
+  def apply(name: String): MessageEvent = name match {
     case Start.name => Start
     case End.name   => End
     case _          => throw new IllegalArgumentException(s"Illegal MessageEvent value $name")

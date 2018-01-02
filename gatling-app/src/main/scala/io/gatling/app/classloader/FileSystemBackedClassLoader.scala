@@ -16,6 +16,7 @@
 
 package io.gatling.app.classloader
 
+import java.io.InputStream
 import java.net.{ URL, URLConnection }
 import java.nio.file.Path
 import java.security.cert.Certificate
@@ -41,19 +42,19 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
     if (fullPath.exists) Some(fullPath) else None
   }
 
-  override def findResource(name: String) = findPath(name).map { path =>
-    new URL(null, "repldir:" + path, url => new URLConnection(url) {
+  override def findResource(name: String): URL = findPath(name).map { path =>
+    new URL(null, "repldir:" + path, (url: URL) => new URLConnection(url) {
       override def connect(): Unit = ()
-      override def getInputStream = path.inputStream
+      override def getInputStream: InputStream = path.inputStream
     })
   }.orNull
 
-  override def getResourceAsStream(name: String) = findPath(name) match {
+  override def getResourceAsStream(name: String): InputStream = findPath(name) match {
     case Some(path) => path.inputStream
     case None       => super.getResourceAsStream(name)
   }
 
-  def classAsStream(className: String) =
+  private def classAsStream(className: String): Option[InputStream] =
     Option(getResourceAsStream(className.replaceAll("""\.""", "/") + ".class"))
 
   def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
@@ -72,7 +73,7 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
 
   private val pckgs = mutable.Map[String, Package]()
 
-  lazy val protectionDomain = {
+  private lazy val protectionDomain = {
     val cl = Thread.currentThread.getContextClassLoader
     val resource = cl.getResource("scala/runtime/package.class")
     if (resource == null || resource.getProtocol != "jar") null else {
@@ -88,11 +89,11 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
   override def definePackage(name: String, specTitle: String,
                              specVersion: String, specVendor: String,
                              implTitle: String, implVersion: String,
-                             implVendor: String, sealBase: URL) = {
+                             implVendor: String, sealBase: URL): Package = {
     throw new UnsupportedOperationException()
   }
 
-  override def getPackage(name: String) = findPath(dirNameToPath(name)) match {
+  override def getPackage(name: String): Package = findPath(dirNameToPath(name)) match {
     case None => super.getPackage(name)
     case _ => pckgs.getOrElseUpdate(name, {
       val constructor = classOf[Package].getDeclaredConstructor(
@@ -105,7 +106,6 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
     })
   }
 
-  override def getPackages =
+  override def getPackages: Array[Package] =
     root.deepDirs().map(path => getPackage(path.toString)).toArray
-
 }

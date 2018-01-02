@@ -26,12 +26,12 @@ package object session {
 
   type Expression[T] = Session => Validation[T]
 
-  val TrueExpressionSuccess = true.expressionSuccess
-  val EmptyStringExpressionSuccess = "".expressionSuccess
+  val TrueExpressionSuccess: Expression[Boolean] = true.expressionSuccess
+  val EmptyStringExpressionSuccess: Expression[String] = "".expressionSuccess
 
   case class StaticStringExpression(value: String) extends Expression[String] {
-    val valueV = value.success
-    def apply(session: Session) = valueV
+    private val valueV = value.success
+    override def apply(session: Session): Validation[String] = valueV
   }
 
   implicit class ExpressionSuccessWrapper[T](val value: T) extends AnyVal {

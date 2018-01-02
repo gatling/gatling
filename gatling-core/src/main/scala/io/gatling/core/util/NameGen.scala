@@ -25,5 +25,5 @@ object NameGen {
 trait NameGen {
   import NameGen._
 
-  def genName(base: String) = base + "-" + IdGen.incrementAndGet
+  def genName(base: String): String = base + "-" + IdGen.incrementAndGet
 }

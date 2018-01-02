@@ -23,7 +23,7 @@ import akka.actor.ActorRef
 
 object CoreTypeCaster {
 
-  implicit val ActorRefTypeCaster = new TypeCaster[ActorRef] {
+  implicit val ActorRefTypeCaster: TypeCaster[ActorRef] = new TypeCaster[ActorRef] {
     @throws[ClassCastException]
     override def cast(value: Any): ActorRef =
       value match {

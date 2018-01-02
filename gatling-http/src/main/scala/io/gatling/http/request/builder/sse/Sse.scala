@@ -21,7 +21,7 @@ import io.gatling.http.action.async.sse._
 import io.gatling.http.check.async.AsyncCheckBuilder
 
 object Sse {
-  val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
+  private val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
 }
 
 class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName) {

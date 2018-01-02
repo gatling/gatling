@@ -24,7 +24,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.{ Response => _, AsyncHandler => AhcAsyncHandler, _ }
+import org.asynchttpclient.{ AsyncHandler => AhcAsyncHandler, _ }
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State._
 import org.asynchttpclient.netty.request.NettyRequest

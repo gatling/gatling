@@ -53,13 +53,13 @@ object HttpHelper extends StrictLogging {
       }(breakOut)
   }
 
-  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) =
+  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
     buildRealm(username, password, AuthScheme.BASIC, preemptive = true, None, None)
 
-  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) =
+  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
     buildRealm(username, password, AuthScheme.DIGEST, preemptive = false, None, None)
 
-  def buildNTLMAuthRealm(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) =
+  def buildNTLMAuthRealm(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]): Expression[Realm] =
     buildRealm(username, password, AuthScheme.NTLM, preemptive = false, Some(ntlmDomain), Some(ntlmHost))
 
   def buildRealm(
@@ -104,12 +104,12 @@ object HttpHelper extends StrictLogging {
         None
     }
 
-  def isRedirect(statusCode: Int) = RedirectStatusCodes.contains(statusCode)
+  def isRedirect(statusCode: Int): Boolean = RedirectStatusCodes.contains(statusCode)
   def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301 || statusCode == 308
-  def isNotModified(statusCode: Int) = statusCode == 304
+  def isNotModified(statusCode: Int): Boolean = statusCode == 304
 
-  def isAbsoluteHttpUrl(url: String) = url.startsWith(HttpScheme)
-  def isAbsoluteWsUrl(url: String) = url.startsWith(WsScheme)
+  def isAbsoluteHttpUrl(url: String): Boolean = url.startsWith(HttpScheme)
+  def isAbsoluteWsUrl(url: String): Boolean = url.startsWith(WsScheme)
 
   def extractCharsetFromContentType(contentType: String): Option[Charset] =
     contentType.indexOf("charset=") match {

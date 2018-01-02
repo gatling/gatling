@@ -32,15 +32,15 @@ class Boon extends JsonParser {
 
   private def newFastParser = new JsonFastParser(false, false, true, false)
 
-  def parse(bytes: Array[Byte], charset: Charset) = {
+  override def parse(bytes: Array[Byte], charset: Charset): AnyRef = {
     val parser = newFastParser
     parser.setCharset(charset)
     parser.parse(bytes)
   }
 
-  def parse(string: String) =
+  override def parse(string: String): AnyRef =
     newFastParser.parse(string)
 
-  def parse(stream: InputStream, charset: Charset) =
+  override def parse(stream: InputStream, charset: Charset): AnyRef =
     new JsonParserUsingCharacterSource().parse(new InputStreamReader(stream, charset))
 }

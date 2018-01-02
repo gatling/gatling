@@ -22,6 +22,7 @@ import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusProvider
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
@@ -50,14 +51,14 @@ object RequestBuilder {
   /**
    * This is the default HTTP check used to verify that the response status is 2XX
    */
-  val OkCodesExpression = OkCodes.expressionSuccess
+  private val OkCodesExpression = OkCodes.expressionSuccess
 
-  val DefaultHttpCheck = Status.find.in(OkCodesExpression).build(HttpStatusProvider)
+  val DefaultHttpCheck: HttpCheck = Status.find.in(OkCodesExpression).build(HttpStatusProvider)
 
-  val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
-  val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
-  val AllHeaderHeaderValueExpression = "*/*".expressionSuccess
-  val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expressionSuccess
+  private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
+  private val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
+  val AllHeaderHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
+  val CssHeaderHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
   def oauth1SignatureCalculator(
     consumerKey:        Expression[String],
@@ -139,7 +140,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
   def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expressionSuccess)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
-    def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
+    override def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =
     signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))

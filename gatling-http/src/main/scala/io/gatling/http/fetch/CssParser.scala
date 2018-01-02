@@ -17,7 +17,6 @@
 package io.gatling.http.fetch
 
 import scala.annotation.{ switch, tailrec }
-import scala.collection.TraversableOnce.flattenTraversableOnce
 import scala.util.matching.Regex
 
 import io.gatling.http.util.HttpHelper
@@ -27,19 +26,25 @@ import com.typesafe.scalalogging.StrictLogging
 
 object CssParser extends StrictLogging {
 
-  val InlineStyleImageUrls = """url\((.*)\)""".r
-  val StyleImportsUrls = """@import url\((.*)\)""".r
+  private val InlineStyleImageUrls = """url\((.*)\)""".r
+  private val StyleImportsUrls = """@import url\((.*)\)""".r
 
-  def extractUrls(string: CharSequence, regex: Regex): Iterator[String] =
-    regex.findAllIn(string).matchData.map { m =>
+  def extractInlineStyleImageUrls(string: CharSequence): Iterator[String] =
+    extractUrls(string, InlineStyleImageUrls)
+
+  def extractStyleImportsUrls(string: CharSequence): Iterator[String] =
+    extractUrls(string, StyleImportsUrls)
+
+  private def extractUrls(string: CharSequence, regex: Regex): Iterator[String] =
+    regex.findAllIn(string).matchData.flatMap { m =>
       val raw = m.group(1)
       extractUrl(raw, 0, raw.length)
-    }.flatten
+    }
 
-  val SingleQuoteEscapeChar = Some('\'')
-  val DoubleQuoteEscapeChar = Some('"')
-  val AtImportChars = "@import".toCharArray
-  val UrlStartChars = "url(".toCharArray
+  private val SingleQuoteEscapeChar = Some('\'')
+  private val DoubleQuoteEscapeChar = Some('"')
+  private val AtImportChars = "@import".toCharArray
+  private val UrlStartChars = "url(".toCharArray
 
   def extractUrl(string: String, start: Int, end: Int): Option[String] =
     if (string.isEmpty) {

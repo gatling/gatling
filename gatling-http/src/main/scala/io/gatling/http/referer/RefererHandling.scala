@@ -25,7 +25,7 @@ import org.asynchttpclient.Request
 
 object RefererHandling {
 
-  val RefererAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.referer"
+  private val RefererAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.referer"
 
   def getStoredReferer(session: Session): Option[String] = session(RefererAttributeName).asOption[String]
 

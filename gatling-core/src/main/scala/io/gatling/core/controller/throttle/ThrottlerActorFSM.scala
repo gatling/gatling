@@ -39,7 +39,7 @@ private[throttle] object ThrottlerActorData {
 
     def incrementCount(): Unit = count += 1
 
-    val requestStep = {
+    val requestStep: Double = {
 
       val globalLimit = throttles.global.map(_.limit).getOrElse(Int.MaxValue)
       val perScenarioLimit =
