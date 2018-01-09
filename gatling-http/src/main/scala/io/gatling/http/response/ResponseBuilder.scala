@@ -139,7 +139,7 @@ class ResponseBuilder(
       this.headers = headers
       storeHtmlOrCss = inferHtmlResources && (isHtml(headers) || isCss(headers))
     } else {
-      // trailing headers, wuldn't contain ContentType
+      // trailing headers, wouldn't contain ContentType
       this.headers.add(headers)
     }
 
