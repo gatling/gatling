@@ -17,15 +17,18 @@
 package io.gatling.core.json
 
 import java.util.{ Collection => JCollection, Map => JMap }
+
 import scala.collection.mutable
 import scala.collection.JavaConverters._
 
 import io.gatling.BaseSpec
-import io.gatling.core.json.Json.stringify
+import io.gatling.commons.util.Io
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.Json._
 
 class JsonSpec extends BaseSpec {
 
-  "JSON.stringify" should "be able to stringify strings" in {
+  "stringify" should "be able to stringify strings" in {
     stringify("Foo") shouldBe "Foo"
   }
 
@@ -85,5 +88,29 @@ class JsonSpec extends BaseSpec {
   it should "be able to stringify Java maps" in {
     val map: JMap[Any, Any] = Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2)).asJava
     stringify(map) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
+  }
+
+  "asScala" should "deep convert into Scala structures" in {
+    implicit val config = GatlingConfiguration.loadForTest()
+    val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
+      Jackson().parse(is)
+    }
+
+    asScala(input) shouldBe Seq(
+      Map(
+        "id" -> 19434,
+        "foo" -> 1,
+        "company" -> Map("id" -> 18971),
+        "owner" -> Map("id" -> 18957),
+        "process" -> Map("id" -> 18972)
+      ),
+      Map(
+        "id" -> 19435,
+        "foo" -> 2,
+        "company" -> Map("id" -> 18972),
+        "owner" -> Map("id" -> 18957),
+        "process" -> Map("id" -> 18974)
+      )
+    )
   }
 }

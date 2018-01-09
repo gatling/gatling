@@ -19,8 +19,10 @@ package io.gatling.core.json
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, Map => JMap }
 
+import scala.annotation.switch
 import scala.collection.JavaConverters._
 
+import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringBuilderPool
 
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -32,6 +34,52 @@ object Json {
 
   def stringify(value: Any, isRootObject: Boolean = true): String =
     stringBuilders.get().appendStringified(value, isRootObject).toString
+
+  def asScala(value: Any): Any =
+    value match {
+      case list: JCollection[_] => list.asScala.map(asScala)
+      case map: JMap[_, _] =>
+        (map.size: @switch) match {
+          case 0 => Map.empty
+          case 1 =>
+            val entry0 = map.entrySet.iterator.next()
+            new Map.Map1(entry0.getKey, asScala(entry0.getValue))
+          case 2 =>
+            val it = map.entrySet.iterator
+            val entry0 = it.next()
+            val entry1 = it.next()
+            new Map.Map2(
+              entry0.getKey, asScala(entry0.getValue),
+              entry1.getKey, asScala(entry1.getValue)
+            )
+          case 3 =>
+            val it = map.entrySet.iterator
+            val entry0 = it.next()
+            val entry1 = it.next()
+            val entry2 = it.next()
+            new Map.Map3(
+              entry0.getKey, asScala(entry0.getValue),
+              entry1.getKey, asScala(entry1.getValue),
+              entry2.getKey, asScala(entry2.getValue)
+            )
+          case 4 =>
+            val it = map.entrySet.iterator
+            val entry0 = it.next()
+            val entry1 = it.next()
+            val entry2 = it.next()
+            val entry3 = it.next()
+            new Map.Map4(
+              entry0.getKey, asScala(entry0.getValue),
+              entry1.getKey, asScala(entry1.getValue),
+              entry2.getKey, asScala(entry2.getValue),
+              entry3.getKey, asScala(entry3.getValue)
+            )
+          case _ =>
+            map.asScala.toMap.forceMapValues(asScala)
+        }
+
+      case _ => value
+    }
 
   implicit class JsonStringBuilder(val sb: JStringBuilder) extends AnyVal {
 
