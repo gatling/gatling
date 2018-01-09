@@ -29,17 +29,17 @@ import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
-import sbt.internal.inc.{ classpath, AnalysisStore => _, _ }
+import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
 import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
 import sbt.util.ShowLines._
-import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 import xsbti.Problem
+import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 
 object ZincCompiler extends App with ProblemStringFormats {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private def manifestClasspath(): Array[JFile] = {
+  private def manifestClasspath: Array[JFile] = {
 
     val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF").asScala
       .map { url =>
@@ -52,7 +52,7 @@ object ZincCompiler extends App with ProblemStringFormats {
       }
 
     val classPathEntries = manifests.collect {
-      case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)) == Some("io.gatling.mojo.MainWithArgsInFile") =>
+      case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)).contains("io.gatling.mojo.MainWithArgsInFile") =>
         manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(url => new JFile(new URL(url).toURI))
     }
 
@@ -74,7 +74,7 @@ object ZincCompiler extends App with ProblemStringFormats {
       if (files.exists(_.getName.startsWith("gatlingbooter"))) {
         // we've been started by the manifest-only jar,
         // we have to switch the manifest Class-Path entries
-        manifestClasspath()
+        manifestClasspath
       } else {
         files
       }
