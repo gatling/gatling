@@ -21,6 +21,7 @@ import javax.jms.{ Connection, Destination }
 
 import io.gatling.commons.model.Credentials
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.protocol.JmsMessageMatcher
 import io.gatling.jms.request._
@@ -37,19 +38,22 @@ class JmsConnection(
 
   private val sessionPool = new JmsSessionPool(connection)
 
-  private val staticDestinations = new ConcurrentHashMap[JmsDestination, Destination]
+  private val staticQueues = new ConcurrentHashMap[String, Destination]
+  private val staticTopics = new ConcurrentHashMap[String, Destination]
 
-  def destination(jmsDestination: JmsDestination): Destination = {
+  def destination(jmsDestination: JmsDestination): Expression[Destination] = {
     val jmsSession = sessionPool.jmsSession()
     jmsDestination match {
-      case JmsTemporaryQueue | JmsTemporaryTopic => jmsDestination.create(jmsSession)
-      case _                                     => staticDestinations.computeIfAbsent(jmsDestination, _ => jmsDestination.create(jmsSession))
+      case JmsTemporaryQueue => jmsSession.createTemporaryQueue().expressionSuccess
+      case JmsTemporaryTopic => jmsSession.createTemporaryTopic().expressionSuccess
+      case JmsQueue(name)    => name.map(n => staticQueues.computeIfAbsent(n, _ => jmsSession.createQueue(n)))
+      case JmsTopic(name)    => name.map(n => staticTopics.computeIfAbsent(n, _ => jmsSession.createTopic(n)))
     }
   }
 
   private val producerPool = new JmsProducerPool(sessionPool)
 
-  def producer(destination: Destination, deliveryMode: Int): ThreadLocal[JmsProducer] =
+  def producer(destination: Destination, deliveryMode: Int): JmsProducer =
     producerPool.producer(destination, deliveryMode)
 
   private val trackerPool = new JmsTrackerPool(sessionPool, system, statsEngine, configuration)

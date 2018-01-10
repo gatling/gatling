@@ -27,12 +27,12 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols }
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Session, StaticStringExpression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
 import io.gatling.jms.client.ListenerThread
-import io.gatling.jms.request.JmsDestination
+import io.gatling.jms.request._
 
 import akka.actor.ActorRef
 import org.apache.activemq.ActiveMQConnectionFactory
@@ -41,19 +41,27 @@ import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 object Replier {
 
   val Echo: PartialFunction[(Message, JmsSession), Message] = {
-    case (m, session) => m
+    case (m, _) => m
   }
 }
 
 class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination, response: PartialFunction[(Message, JmsSession), Message]) {
   val t = new ListenerThread(() => {
     val connection = connectionFactory.createConnection()
-    val session = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
-    val consumedDestination = destination.create(session)
-    val consumer = session.createConsumer(consumedDestination)
-    val producer = session.createProducer(null)
+    val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
+    val consumedDestination: Destination =
+      destination match {
+        case JmsTemporaryQueue                      => jmsSession.createTemporaryQueue()
+        case JmsTemporaryTopic                      => jmsSession.createTemporaryTopic()
+        case JmsQueue(StaticStringExpression(name)) => jmsSession.createQueue(name)
+        case JmsTopic(StaticStringExpression(name)) => jmsSession.createTopic(name)
+        case _                                      => throw new UnsupportedOperationException("Support not implemented in this test yet")
+      }
+
+    val consumer = jmsSession.createConsumer(consumedDestination)
+    val producer = jmsSession.createProducer(null)
     consumer.setMessageListener(request => {
-      response.lift(request, session).foreach { response =>
+      response.lift(request, jmsSession).foreach { response =>
         response.setJMSCorrelationID(request.getJMSCorrelationID)
         producer.send(request.getJMSReplyTo, response)
       }

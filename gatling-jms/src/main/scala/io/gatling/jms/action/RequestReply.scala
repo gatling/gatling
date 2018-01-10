@@ -19,6 +19,7 @@ package io.gatling.jms.action
 import javax.jms.Message
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.validation.Validation
 import io.gatling.core.action._
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
@@ -39,22 +40,25 @@ class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, 
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
   private val messageMatcher = protocol.messageMatcher
-  private val tracker = jmsConnection.tracker(jmsReplyDestination, attributes.selector, messageMatcher)
   private val replyTimeout = protocol.replyTimeout.getOrElse(0L)
 
-  override protected def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
-    message.setJMSReplyTo(jmsReplyDestination)
-    protocol.messageMatcher.prepareRequest(message)
+  override protected def beforeSend(requestName: String, session: Session): Validation[Message => Unit] =
+    for {
+      resolvedReplyDestination <- jmsReplyDestination(session)
+    } yield (message: Message) => {
+      message.setJMSReplyTo(resolvedReplyDestination)
+      protocol.messageMatcher.prepareRequest(message)
 
-    // notify the tracker that a message was sent
-    val matchId = messageMatcher.requestMatchId(message)
+      // notify the tracker that a message was sent
+      val matchId = messageMatcher.requestMatchId(message)
 
-    if (logger.underlying.isDebugEnabled) {
-      logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
+      if (logger.underlying.isDebugEnabled) {
+        logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
+      }
+      // [fl]
+      //
+      // [/fl]
+      val tracker = jmsConnection.tracker(resolvedReplyDestination, attributes.selector, messageMatcher)
+      tracker.track(matchId, nowMillis, replyTimeout, attributes.checks, session, next, requestName)
     }
-    // [fl]
-    //
-    // [/fl]
-    tracker.track(matchId, nowMillis, replyTimeout, attributes.checks, session, next, requestName)
-  }
 }

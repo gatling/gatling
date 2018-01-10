@@ -25,16 +25,17 @@ import scala.collection.JavaConverters._
 class JmsProducerPool(sessionPool: JmsSessionPool) {
 
   private val registeredProducers = Collections.newSetFromMap(new ConcurrentHashMap[MessageProducer, java.lang.Boolean])
-  private val producers = new ConcurrentHashMap[(Destination, Int), ThreadLocal[JmsProducer]]
+  private case class CachedProducerKey(destination: Destination, deliveryMode: Int)
+  private val producers = new ConcurrentHashMap[CachedProducerKey, ThreadLocal[JmsProducer]]
 
-  def producer(destination: Destination, deliveryMode: Int): ThreadLocal[JmsProducer] =
-    producers.computeIfAbsent((destination, deliveryMode), _ => ThreadLocal.withInitial[JmsProducer](() => {
+  def producer(destination: Destination, deliveryMode: Int): JmsProducer =
+    producers.computeIfAbsent(CachedProducerKey(destination, deliveryMode), key => ThreadLocal.withInitial[JmsProducer](() => {
       val jmsSession = sessionPool.jmsSession()
-      val producer = jmsSession.createProducer(destination)
-      producer.setDeliveryMode(deliveryMode)
+      val producer = jmsSession.createProducer(key.destination)
+      producer.setDeliveryMode(key.deliveryMode)
       registeredProducers.add(producer)
       new JmsProducer(jmsSession, producer)
-    }))
+    })).get()
 
   def close(): Unit = registeredProducers.asScala.foreach(_.close())
 }

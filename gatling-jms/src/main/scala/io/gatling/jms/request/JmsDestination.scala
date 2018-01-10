@@ -16,24 +16,14 @@
 
 package io.gatling.jms.request
 
-import javax.jms.{ Destination, Session }
+import io.gatling.core.session.Expression
 
-sealed trait JmsDestination {
-  def create(session: Session): Destination
-}
+sealed trait JmsDestination
 
-case class JmsQueue(name: String) extends JmsDestination {
-  override def create(session: Session): Destination = session.createQueue(name)
-}
+case class JmsQueue(name: Expression[String]) extends JmsDestination
 
-case class JmsTopic(name: String) extends JmsDestination {
-  override def create(session: Session): Destination = session.createTopic(name)
-}
+case class JmsTopic(name: Expression[String]) extends JmsDestination
 
-case object JmsTemporaryQueue extends JmsDestination {
-  override def create(session: Session): Destination = session.createTemporaryQueue()
-}
+case object JmsTemporaryQueue extends JmsDestination
 
-case object JmsTemporaryTopic extends JmsDestination {
-  override def create(session: Session): Destination = session.createTemporaryTopic()
-}
+case object JmsTemporaryTopic extends JmsDestination

@@ -53,6 +53,6 @@ trait JmsDsl extends JmsCheckSupport {
 
   implicit def jmsJndiConnectionFactory2ActionBuilder(builder: JmsJndiConnectionFactoryBuilder): ConnectionFactory = builder.build()
 
-  def topic(name: String) = JmsTopic(name)
-  def queue(name: String) = JmsQueue(name)
+  def topic(name: Expression[String]) = JmsTopic(name)
+  def queue(name: Expression[String]) = JmsQueue(name)
 }

@@ -20,6 +20,7 @@ import javax.jms.Message
 
 import io.gatling.commons.stats.OK
 import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.validation._
 import io.gatling.core.action._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -38,21 +39,22 @@ class Send(attributes: JmsAttributes, protocol: JmsProtocol, jmsConnectionPool: 
 
   override val name: String = genName("jmsSend")
 
-  override protected def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
-    val now = nowMillis
-    if (logger.underlying.isDebugEnabled) {
-      logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
-    }
+  override protected def beforeSend(requestName: String, session: Session): Validation[Message => Unit] =
+    ((message: Message) => {
+      val now = nowMillis
+      if (logger.underlying.isDebugEnabled) {
+        logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
+      }
 
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      // [fl]
-      statsEngine.logResponse(session, requestName, now, now, OK, None, None)
-    )
-    next ! session
-  }
+      configuration.resolve(
+        // [fl]
+        //
+        //
+        //
+        //
+        // [fl]
+        statsEngine.logResponse(session, requestName, now, now, OK, None, None)
+      )
+      next ! session
+    }).success
 }
