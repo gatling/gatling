@@ -32,14 +32,16 @@ import io.gatling.jms.request._
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, val next: Action)
+class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, trackerDestination : Option[JmsDestination], protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, val next: Action)
   extends JmsAction(attributes, protocol, jmsConnectionPool) {
 
   override val name = genName("jmsRequestReply")
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
+  private val jmsTrackerDestination = trackerDestination.map(dest => jmsConnection.destination(dest)).getOrElse(jmsReplyDestination)
+
   private val messageMatcher = protocol.messageMatcher
-  private val tracker = jmsConnection.tracker(jmsReplyDestination, attributes.selector, messageMatcher)
+  private val tracker = jmsConnection.tracker(jmsTrackerDestination, attributes.selector, messageMatcher)
   private val replyTimeout = protocol.replyTimeout.getOrElse(0L)
 
   override protected def beforeSend(requestName: String, session: Session)(message: Message): Unit = {
