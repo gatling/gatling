@@ -21,22 +21,24 @@ import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 import io.gatling.http.fetch.{ CssResource, RegularResource }
-import io.gatling.recorder.config.ConfigKeys.http.{ InferHtmlResources, FollowRedirect }
+import io.gatling.recorder.config.ConfigKeys.http.{ FollowRedirect, InferHtmlResources }
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders }
 import org.asynchttpclient.uri.Uri
 import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
 
 class ScenarioSpec extends BaseSpec {
 
-  implicit val config = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
+  private implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
 
   "Scenario" should "remove HTTP redirection " in {
 
-    val r1 = RequestElement("http://gatling.io/", "GET", Map.empty, None, None, 200, List.empty)
-    val r2 = RequestElement("http://gatling.io/rn1.html", "GET", Map.empty, None, None, 302, List.empty)
-    val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", Map.empty, None, None, 200, List.empty)
-    val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, None, 200, List.empty)
+    val r1 = RequestElement("http://gatling.io/", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
+    val r2 = RequestElement("http://gatling.io/rn1.html", "GET", EmptyHttpHeaders.INSTANCE, None, None, 302, List.empty)
+    val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
+    val r4 = RequestElement("http://gatling.io/details.html", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
 
     val scn = ScenarioDefinition(
       List(
@@ -51,13 +53,13 @@ class ScenarioSpec extends BaseSpec {
   }
 
   it should "filter out embedded resources of HTML documents" in {
-    val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, None, 200,
+    val r1 = RequestElement("http://gatling.io", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200,
       List(CssResource(Uri.create("http://gatling.io/main.css")), RegularResource(Uri.create("http://gatling.io/img.jpg"))))
-    val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, None, 200, List.empty)
-    val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE.toString -> "text/html;charset=UTF-8"), None, None, 200, List.empty)
-    val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, None, 200, List.empty)
-    val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, None, 200, List(CssResource(Uri.create("http://gatling.io/main.css"))))
-    val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, None, 200, List.empty)
+    val r2 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
+    val r3 = RequestElement("http://gatling.io/details.html", "GET", new DefaultHttpHeaders().add(CONTENT_TYPE, "text/html;charset=UTF-8"), None, None, 200, List.empty)
+    val r4 = RequestElement("http://gatling.io/img.jpg", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
+    val r5 = RequestElement("http://gatling.io", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List(CssResource(Uri.create("http://gatling.io/main.css"))))
+    val r6 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
 
     val scn = ScenarioDefinition(
       List(

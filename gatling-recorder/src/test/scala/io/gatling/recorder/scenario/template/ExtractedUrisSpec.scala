@@ -19,9 +19,11 @@ package io.gatling.recorder.scenario.template
 import io.gatling.BaseSpec
 import io.gatling.recorder.scenario.RequestElement
 
+import io.netty.handler.codec.http.EmptyHttpHeaders
+
 class ExtractedUrisSpec extends BaseSpec {
 
-  def mockRequestElement(uri: String) = RequestElement(uri, "get", Map(), None, None, 200, Nil)
+  def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, None, 200, Nil)
 
   def extractUris(uris: Seq[String]): ExtractedUris = {
     val requestElements = uris.map(mockRequestElement)

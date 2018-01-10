@@ -16,13 +16,15 @@
 
 package io.gatling.recorder
 
+import io.netty.handler.codec.http.HttpHeaders
+
 package object model {
 
   case class HttpRequest(
       httpVersion: String,
       method:      String,
       uri:         String,
-      headers:     Map[String, String],
+      headers:     HttpHeaders,
       body:        Array[Byte],
       timestamp:   Long
   )
@@ -30,7 +32,7 @@ package object model {
   case class HttpResponse(
       status:     Int,
       statusText: String,
-      headers:    Map[String, String],
+      headers:    HttpHeaders,
       body:       Array[Byte],
       timestamp:  Long
   )

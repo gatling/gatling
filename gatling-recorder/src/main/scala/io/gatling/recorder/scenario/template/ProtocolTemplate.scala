@@ -16,6 +16,8 @@
 
 package io.gatling.recorder.scenario.template
 
+import java.util.Locale
+
 import io.gatling.commons.util.StringHelper.{ EmptyFastring, Eol }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
@@ -78,10 +80,7 @@ private[scenario] object ProtocolTemplate {
     def renderHeaders = {
       def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
       protocol.headers.toList
-        .filter {
-          case (HeaderNames.Connection, value) => value == HeaderValues.Close
-          case _                               => true
-        }
+        .filter { case (name, value) => !name.equalsIgnoreCase(HeaderNames.Connection) || value.equalsIgnoreCase(HeaderValues.Close) }
         .sorted
         .flatMap {
           case (headerName, headerValue) =>
@@ -92,7 +91,7 @@ private[scenario] object ProtocolTemplate {
                 headerValue
               }
 
-            BaseHeaders.get(headerName).map(renderHeader(_, properHeaderValue))
+            BaseHeaders.get(headerName.toLowerCase(Locale.ROOT)).map(renderHeader(_, properHeaderValue))
         }.mkFastring
     }
 

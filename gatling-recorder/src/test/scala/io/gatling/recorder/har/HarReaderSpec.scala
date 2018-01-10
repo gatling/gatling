@@ -39,16 +39,16 @@ class HarReaderSpec extends BaseSpec {
     getTransaction.request.httpVersion shouldBe "HTTP/1.1"
     getTransaction.request.method shouldBe "GET"
     getTransaction.request.uri shouldBe "http://computer-database.gatling.io/computers?p=1"
-    getTransaction.request.headers(Host) shouldBe "computer-database.gatling.io"
-    getTransaction.request.headers(UserAgent).nonEmpty shouldBe true
-    getTransaction.request.headers(AcceptEncoding) shouldBe "gzip, deflate"
-    getTransaction.request.headers(Connection) shouldBe "keep-alive"
+    getTransaction.request.headers.get(Host) shouldBe "computer-database.gatling.io"
+    getTransaction.request.headers.get(UserAgent).nonEmpty shouldBe true
+    getTransaction.request.headers.get(AcceptEncoding) shouldBe "gzip, deflate"
+    getTransaction.request.headers.get(Connection) shouldBe "keep-alive"
     getTransaction.request.body shouldBe empty
 
     getTransaction.response.status shouldBe 200
     getTransaction.response.statusText shouldBe "OK"
-    getTransaction.response.headers(ContentType) shouldBe "text/html; charset=utf-8"
-    getTransaction.response.headers(ContentLength).toInt shouldBe 7281
+    getTransaction.response.headers.get(ContentType) shouldBe "text/html; charset=utf-8"
+    getTransaction.response.headers.get(ContentLength).toInt shouldBe 7281
     getTransaction.response.body should have length 7256
 
     getTransaction.response.timestamp shouldBe >(getTransaction.request.timestamp)
@@ -75,7 +75,7 @@ class HarReaderSpec extends BaseSpec {
 
     val postTransaction = transactions(1)
     postTransaction.request.method shouldBe "POST"
-    postTransaction.request.headers(ContentType) shouldBe ApplicationFormUrlEncoded
+    postTransaction.request.headers.get(ContentType) shouldBe ApplicationFormUrlEncoded
     new String(postTransaction.request.body, UTF_8) shouldBe "name=NAME&quest=QUEST&color=chartreuse&swallow=african&text=HI"
   }
 
@@ -100,7 +100,7 @@ class HarReaderSpec extends BaseSpec {
 
     val postTransaction = transactions(1)
     postTransaction.request.method shouldBe "POST"
-    postTransaction.request.headers(ContentType) should startWith(MultipartFormData)
+    postTransaction.request.headers.get(ContentType) should startWith(MultipartFormData)
     if (!file.contains("chrome") && !file.contains("charles")) {
       // FIXME https://bugs.chromium.org/p/chromium/issues/detail?id=766715#c4
       // FIXME Charles parses multipart into params and we don't support that yet
@@ -125,7 +125,7 @@ class HarReaderSpec extends BaseSpec {
     transactions should have size 2
     val postTransaction = transactions.head
     postTransaction.request.method shouldBe "POST"
-    postTransaction.response.headers(Location) shouldBe "/computers"
+    postTransaction.response.headers.get(Location) shouldBe "/computers"
     postTransaction.response.body shouldBe empty
 
     val redirectGetTransaction = transactions(1)

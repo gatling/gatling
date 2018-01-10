@@ -19,6 +19,8 @@ package io.gatling.recorder.scenario.template
 import io.gatling.BaseSpec
 import io.gatling.recorder.scenario.{ RequestBodyParams, RequestElement }
 
+import io.netty.handler.codec.http.EmptyHttpHeaders
+
 class RequestTemplateSpec extends BaseSpec {
 
   val url = "http://gatling.io/path1/file1"
@@ -26,7 +28,7 @@ class RequestTemplateSpec extends BaseSpec {
 
   def mockRequestBody(paramName: String, paramValue: String) = RequestBodyParams(List((paramName, paramValue)))
   def mockRequestElement(paramName: String, paramValue: String) =
-    RequestElement(url, "post", Map(), Some(mockRequestBody(paramName, paramValue)), None, 200, Nil)
+    new RequestElement(url, "post", EmptyHttpHeaders.INSTANCE, Some(mockRequestBody(paramName, paramValue)), None, 200, Nil)
 
   "request template" should "not wrap with joinStrings strings shorter than 65535 characters" in {
     val mockedRequest1 = mockRequestElement("name", "short")

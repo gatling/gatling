@@ -20,6 +20,7 @@ import java.io.{ FileInputStream, InputStream }
 import java.net.{ URL, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
+import java.util.Locale
 
 import scala.util.Try
 
@@ -28,10 +29,10 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.filter.Filters
 import io.gatling.http.HeaderNames.ContentType
 import io.gatling.http.HeaderValues.ApplicationFormUrlEncoded
-import io.gatling.recorder.har.HarParser.{ HarEntry, HarHeader, HarRequest, HarRequestPostData, HarResponse, HarResponseContent }
+import io.gatling.recorder.har.HarParser._
 import io.gatling.recorder.model._
 
-import io.netty.handler.codec.http.HttpMethod
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod }
 import org.asynchttpclient.util.Base64
 
 case class HttpTransaction(request: HttpRequest, response: HttpResponse)
@@ -84,8 +85,13 @@ private[recorder] object HarReader {
     case _                       => raw
   }
 
-  private def buildHeaders(headers: Seq[HarHeader]): Map[String, String] =
-    headers.map { header => header.name -> unwrap(header.value) }.toMap
+  private def buildHeaders(harHeaders: Seq[HarHeader]): HttpHeaders = {
+    val headers = new DefaultHttpHeaders(false)
+    harHeaders.foreach { harHeader =>
+      headers.add(harHeader.name, unwrap(harHeader.value))
+    }
+    headers
+  }
 
   private def buildRequest(request: HarRequest, timestamp: Long): HttpRequest = {
 
@@ -104,14 +110,14 @@ private[recorder] object HarReader {
 
   private def encode(s: String): String = URLEncoder.encode(s, UTF_8.name)
 
-  private def buildRequestBody(postData: HarRequestPostData, requestHeaders: Map[String, String]): Option[Array[Byte]] =
+  private def buildRequestBody(postData: HarRequestPostData, requestHeaders: HttpHeaders): Option[Array[Byte]] =
     postData.text.flatMap(_.trimToOption) match {
       case Some(string) =>
         Some(string.getBytes(UTF_8))
 
       case _ =>
         // FIXME only honor params for ApplicationFormUrlEncoded for now. Charles seems utterly broken for MultipartFormData
-        if (postData.params.nonEmpty && requestHeaders.get(ContentType).exists(_.contains(ApplicationFormUrlEncoded))) {
+        if (postData.params.nonEmpty && Option(requestHeaders.get(ContentType)).exists(_.toLowerCase(Locale.ROOT).contains(ApplicationFormUrlEncoded))) {
           Some(postData.params.map(postParam => encode(postParam.name) + "=" + encode(unwrap(postParam.value))).mkString("&").getBytes(UTF_8))
 
         } else {

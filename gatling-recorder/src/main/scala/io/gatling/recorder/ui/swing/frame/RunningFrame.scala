@@ -34,6 +34,8 @@ import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
+import io.netty.handler.codec.http.HttpHeaders
+
 private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
 
 /************************************/
@@ -163,16 +165,19 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
     }
   }
 
+  private def headersToString(headers: HttpHeaders): String =
+    headers.entries.asScala.map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)
+
   private def summary(request: HttpRequest): String = {
     import request._
     s"""$httpVersion $method $uri
-         |${headers.map { case (key, value) => s"$key: $value" }.mkString(Eol)}""".stripMargin
+         |${headersToString(headers)}""".stripMargin
   }
 
   private def summary(response: HttpResponse): String = {
     import response._
     s"""$status $statusText
-          |${headers.map { case (key, value) => s"$key: $value" }.mkString(Eol)}""".stripMargin
+          |${headersToString(headers)}""".stripMargin
   }
 
   /**
