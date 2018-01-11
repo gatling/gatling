@@ -46,8 +46,8 @@ class JmsConnection(
     jmsDestination match {
       case JmsTemporaryQueue => jmsSession.createTemporaryQueue().expressionSuccess
       case JmsTemporaryTopic => jmsSession.createTemporaryTopic().expressionSuccess
-      case JmsQueue(name)    => name.map(n => staticQueues.computeIfAbsent(n, _ => jmsSession.createQueue(n)))
-      case JmsTopic(name)    => name.map(n => staticTopics.computeIfAbsent(n, _ => jmsSession.createTopic(n)))
+      case JmsQueue(name)    => name.map(n => staticQueues.computeIfAbsent(n, jmsSession.createQueue _))
+      case JmsTopic(name)    => name.map(n => staticTopics.computeIfAbsent(n, jmsSession.createTopic _))
     }
   }
 

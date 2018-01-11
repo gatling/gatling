@@ -16,12 +16,25 @@
 
 package io.gatling.http.resolver
 
-import java.net.{ UnknownHostException, InetAddress }
+import java.util.function.{ Function => JFunction }
+import java.net.{ InetAddress, UnknownHostException }
 import java.util.{ Arrays => JArrays, Collections => JCollections, List => JList }
-import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.{ ConcurrentHashMap, ThreadLocalRandom }
 
 import io.netty.resolver.InetNameResolver
-import io.netty.util.concurrent.{ Promise, ImmediateEventExecutor }
+import io.netty.util.concurrent.{ ImmediateEventExecutor, Promise }
+
+object ShuffleJdkNameResolver {
+
+  private val computer: JFunction[String, JList[InetAddress]] =
+    inetHost => InetAddress.getAllByName(inetHost) match {
+      case Array(single) => JCollections.singletonList(single)
+      case array =>
+        val list = JArrays.asList(array: _*)
+        JCollections.shuffle(list, ThreadLocalRandom.current)
+        list
+    }
+}
 
 class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEventExecutor.INSTANCE) {
 
@@ -32,15 +45,7 @@ class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEventExecutor.INS
 
   override def doResolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Unit =
     try {
-      val addresses = cache.computeIfAbsent(inetHost, _ => {
-        InetAddress.getAllByName(inetHost) match {
-          case Array(single) => JCollections.singletonList(single)
-          case array =>
-            val list = JArrays.asList(array: _*)
-            JCollections.shuffle(list)
-            list
-        }
-      })
+      val addresses = cache.computeIfAbsent(inetHost, ShuffleJdkNameResolver.computer)
       promise.setSuccess(addresses)
     } catch {
       case e: UnknownHostException => promise.setFailure(e)
