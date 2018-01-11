@@ -138,6 +138,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setSoLinger(ahcConfig.soLinger)
       .setSoSndBuf(ahcConfig.soSndBuf)
       .setSoRcvBuf(ahcConfig.soRcvBuf)
+      .setCookieStore(null)
 
     if (ahcConfig.sslEnabledCipherSuites.nonEmpty) {
       ahcConfigBuilder.setEnabledCipherSuites(ahcConfig.sslEnabledCipherSuites.toArray)
