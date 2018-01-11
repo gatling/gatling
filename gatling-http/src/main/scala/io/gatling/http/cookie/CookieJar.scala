@@ -50,7 +50,13 @@ object CookieJar {
 
     // rfc6265#section-5.1.4
     def defaultCookiePath() = requestPath match {
-      case p if !p.isEmpty && p.charAt(0) == '/' && p.count(_ == '/') > 1 => p.substring(0, p.lastIndexOf('/'))
+      case p if p.length > 1 && p.charAt(0) == '/' =>
+        val lastSlash = p.lastIndexOf('/')
+        if (lastSlash > 0) { // more than one slash
+          p.substring(0, lastSlash)
+        } else {
+          "/"
+        }
       case _ => "/"
     }
 
