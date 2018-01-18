@@ -102,7 +102,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
 
   override def stream: InputStream =
     (chunks.size: @switch) match {
-      case 0 => new FastByteArrayInputStream(EmptyBytes)
+      case 0 => new FastByteArrayInputStream(Array.emptyByteArray)
       case 1 => new ByteArrayInputStream(chunks.head)
       case _ => new CompositeByteArrayInputStream(chunks)
     }
@@ -120,7 +120,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
 }
 
 case object NoResponseBody extends ResponseBody {
-  override val bytes: Array[Byte] = EmptyBytes
+  override val bytes: Array[Byte] = Array.emptyByteArray
   override def stream: FastByteArrayInputStream = new FastByteArrayInputStream(bytes)
   override val string: String = ""
 }

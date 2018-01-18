@@ -26,11 +26,9 @@ import org.asynchttpclient.netty.util.ByteBufUtils
 
 object Bytes {
 
-  val EmptyBytes = Array.empty[Byte]
-
   def byteArraysToByteArray(arrays: Seq[Array[Byte]]): Array[Byte] =
     (arrays.length: @switch) match {
-      case 0 => EmptyBytes
+      case 0 => Array.emptyByteArray
       case 1 => arrays.head
       case _ =>
         val target = new Array[Byte](arrays.sumBy(_.length))
