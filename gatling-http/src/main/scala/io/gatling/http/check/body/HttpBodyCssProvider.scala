@@ -16,7 +16,6 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
@@ -28,12 +27,12 @@ import jodd.lagarto.dom.NodeSelector
 
 class HttpBodyCssProvider(selectors: CssSelectors) extends CheckProtocolProvider[CssCheckType, HttpCheck, Response, NodeSelector] {
 
-  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
+  override val specializer: Specializer[HttpCheck, Response] = CharArrayBodySpecializer
 
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 
   override val preparer: Preparer[Response, NodeSelector] = response =>
     safely(ErrorMapper) {
-      selectors.parse(response.body.string.unsafeChars).success
+      selectors.parse(response.body.chars).success
     }
 }

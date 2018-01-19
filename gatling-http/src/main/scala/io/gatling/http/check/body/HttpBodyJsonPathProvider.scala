@@ -27,15 +27,16 @@ object HttpBodyJsonPathProvider {
   private val CharsParsingThreshold = 200 * 1000
 
   private[body] val BoonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-    override def bodyUsage(bodyLength: Int): ResponseBodyUsage =
-      if (bodyLength <= CharsParsingThreshold)
-        StringResponseBodyUsage
-      else
+    override def bodyUsage(contentLength: Int): ResponseBodyUsage =
+      if (contentLength <= CharsParsingThreshold) {
+        CharArrayResponseBodyUsage
+      } else {
         InputStreamResponseBodyUsage
+      }
   }
 
   private[body] val JacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-    override def bodyUsage(bodyLength: Int): ResponseBodyUsage =
+    override def bodyUsage(contentLength: Int): ResponseBodyUsage =
       InputStreamResponseBodyUsage
   }
 

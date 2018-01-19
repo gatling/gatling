@@ -11,9 +11,9 @@ object Dependencies {
   private val scalaXml                       = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.6"
   private val scalaParserCombinators         = "org.scala-lang.modules"                %% "scala-parser-combinators"      % "1.0.6"
   private val java8Compat                    = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0"
-  private val ahc                            = "org.asynchttpclient"                    % "async-http-client"             % "2.1.0"
+  private val ahc                            = "org.asynchttpclient"                    % "async-http-client"             % "2.2.0"
   private val ahcNettyUtils                  = "org.asynchttpclient"                    % "async-http-client-netty-utils" % ahc.revision
-  private val netty                          = "io.netty"                               % "netty-codec-http"              % "4.1.19.Final"
+  private val netty                          = "io.netty"                               % "netty-codec-http"              % "4.1.20.Final"
   private val nettyNativeTransport           = "io.netty"                               % "netty-transport-native-epoll"  % netty.revision classifier "linux-x86_64"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.9"
   private val akkaSlf4j                      = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
@@ -32,7 +32,7 @@ object Dependencies {
   private val json4sJackson                  = "org.json4s"                            %% "json4s-jackson"                % "3.5.3"
   private val boon                           = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                      % "0.6.10"
-  private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                  % "3.9.1"
+  private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                  % "4.1.0"
   private val boopickle                      = "io.suzaku"                             %% "boopickle"                     % "1.2.6"
   private val redisClient                    = "net.debasishg"                         %% "redisclient"                   % "3.4"
   private val zinc                           = ("org.scala-sbt"                        %% "zinc"                          % "1.1.0")

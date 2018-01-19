@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
-import io.gatling.http.response.{ Response, StringResponseBody }
+import io.gatling.http.response.{ Response, CharArrayResponseBody }
 
 import org.mockito.Mockito._
 import org.scalatest.matchers.{ MatchResult, Matcher }
@@ -42,7 +42,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   private def mockResponse(body: String) = {
     val response = mock[Response]
-    when(response.body) thenReturn new StringResponseBody(body, UTF_8)
+    when(response.body) thenReturn new CharArrayResponseBody(body.toCharArray, UTF_8)
     response
   }
 
@@ -114,7 +114,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     jsonPath("$..book").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("In store", "On the street")), None)
   }
 
-  def beIn[T](seq: Seq[T]) =
+  private def beIn[T](seq: Seq[T]) =
     new Matcher[T] {
       def apply(left: T) =
         MatchResult(

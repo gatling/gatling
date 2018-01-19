@@ -26,25 +26,25 @@ import org.asynchttpclient.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
 
-  val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
-    Source.fromInputStream(is)(UTF8).getLines().mkString
+  private val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
+    Source.fromInputStream(is)(UTF8).getLines().mkString.toCharArray
   }
 
-  def mockHtml(body: String): String =
+  private def mockHtml(body: String): Array[Char] =
     s"""<!DOCTYPE html>
       <html>
         <body>
           $body
         </body>
       </html>
-      """
+      """.toCharArray
 
-  def embeddedResources(documentUri: String, htmlContent: String, userAgent: Option[UserAgent]) =
+  private def embeddedResources(documentUri: String, htmlContent: Array[Char], userAgent: Option[UserAgent]) =
     new HtmlParser().getEmbeddedResources(Uri.create(documentUri), htmlContent, userAgent)
 
-  implicit def string2URI(string: String) = Uri.create(string)
+  private implicit def string2Uri(string: String): Uri = Uri.create(string)
 
-  "parsing Akka.io page" should "extract all urls" in {
+  "parsing akka.io page" should "extract all urls" in {
     embeddedResources("http://akka.io", htmlContent, None) shouldBe List(
       RegularResource("http://akka.io/resources/favicon.ico"),
       CssResource("http://akka.io/resources/stylesheets/style.css"),

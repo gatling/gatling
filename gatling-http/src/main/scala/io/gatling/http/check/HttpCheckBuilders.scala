@@ -31,6 +31,7 @@ object HttpCheckBuilders {
   val HeaderSpecializer = specializer(Header, None)
   def bodySpecializer(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = specializer(Body, Some(responseBodyUsageStrategy))
   val StringBodySpecializer = bodySpecializer(StringResponseBodyUsageStrategy)
+  val CharArrayBodySpecializer = bodySpecializer(CharArrayResponseBodyUsageStrategy)
   val StreamBodySpecializer = bodySpecializer(InputStreamResponseBodyUsageStrategy)
   val BytesBodySpecializer = bodySpecializer(ByteArrayResponseBodyUsageStrategy)
   val TimeSpecializer = specializer(Body, None)

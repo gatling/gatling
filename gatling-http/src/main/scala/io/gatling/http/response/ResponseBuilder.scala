@@ -178,9 +178,9 @@ class ResponseBuilder(
       map + (algo -> bytes2Hex(md.digest))
     }
 
-    val bodyLength = chunks.sumBy(_.readableBytes)
+    val contentLength = chunks.sumBy(_.readableBytes)
 
-    val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
+    val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(contentLength))
 
     val resolvedCharset = Option(headers.get(HeaderNames.ContentType))
       .flatMap(extractCharsetFromContentType)
@@ -194,8 +194,14 @@ class ResponseBuilder(
       else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
         ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-      else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
+      else if (bodyUsages.contains(InputStreamResponseBodyUsage))
         InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
+
+      else if (bodyUsages.contains(StringResponseBodyUsage))
+        StringResponseBody(properlyOrderedChunks, resolvedCharset)
+
+      else if (bodyUsages.contains(CharArrayResponseBodyUsage))
+        CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
       else if (isTxt(headers))
         StringResponseBody(properlyOrderedChunks, resolvedCharset)
@@ -204,7 +210,7 @@ class ResponseBuilder(
         ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
     resetChunks()
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, startTimestamp, endTimestamp)
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
 
     responseTransformer match {
       case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)

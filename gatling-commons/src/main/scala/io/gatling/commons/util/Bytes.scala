@@ -16,7 +16,9 @@
 
 package io.gatling.commons.util
 
+import java.nio.CharBuffer
 import java.nio.charset.Charset
+
 import scala.annotation.switch
 
 import io.gatling.commons.util.Collections._
@@ -48,6 +50,13 @@ object Bytes {
     } finally {
       buf.release()
     }
+  }
+
+  def charArrayToByteArray(chars: Array[Char], cs: Charset): Array[Byte] = {
+    val bb = cs.encode(CharBuffer.wrap(chars))
+    val bytes = new Array[Byte](bb.remaining)
+    bb.get(bytes)
+    bytes
   }
 
   def byteArraysToString(bytes: Seq[Array[Byte]], cs: Charset): String =

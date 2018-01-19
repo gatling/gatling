@@ -83,7 +83,7 @@ trait ResourceFetcher {
     val httpProtocol = httpComponents.httpProtocol
 
     def inferredResourcesRequests(): List[HttpRequest] = {
-      val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.string, UserAgent.getAgent(request))
+      val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.chars, UserAgent.getAgent(request))
       val filtered = applyResourceFilters(inferred, httpProtocol.responsePart.htmlResourcesInferringFilters)
       resourcesToRequests(filtered, session, coreComponents, httpComponents, config.throttled)
     }

@@ -82,9 +82,9 @@ private[recorder] object RequestElement {
     val embeddedResources = Option(response.headers.get(ContentType)).collect {
       case HtmlContentType(_, headerCharset) if response.body.nonEmpty =>
         val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
-        val htmlBuff = new String(response.body, charset)
+        val htmlChars = new String(response.body, charset).toCharArray
         val userAgent = Option(requestHeaders.get(UserAgent)).flatMap(UserAgentHelper.parseFromHeader)
-        new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlBuff, userAgent)
+        new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars, userAgent)
     }.getOrElse(Nil)
 
     val filteredRequestHeaders: HttpHeaders =

@@ -51,8 +51,8 @@ object Jodd {
     domBuilder
   }
 
-  def newLagartoParser(string: String, ieVersion: Option[Float]): LagartoParser = {
-    val lagartoParser = new LagartoParser(string, false)
+  def newLagartoParser(chars: Array[Char], ieVersion: Option[Float]): LagartoParser = {
+    val lagartoParser = new LagartoParser(chars)
     lagartoParser.setConfig(getJoddConfig(ieVersion))
     lagartoParser
   }

@@ -23,8 +23,9 @@ import io.gatling.core.check.extractor.css.Jodd
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
-import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
+import jodd.lagarto.{ EmptyTagVisitor, Tag, TagType }
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
+import jodd.util.CharSequenceUtil
 import org.asynchttpclient.uri.Uri
 
 sealed abstract class RawResource {
@@ -42,35 +43,35 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
 case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
 object HtmlParser extends StrictLogging {
-  private val AppletTagName = "applet".toCharArray
-  private val BaseTagName = "base".toCharArray
-  private val BgsoundTagName = "bgsound".toCharArray
-  private val BodyTagName = "body".toCharArray
-  private val EmbedTagName = "embed".toCharArray
-  private val ImgTagName = "img".toCharArray
-  private val InputTagName = "input".toCharArray
-  private val LinkTagName = "link".toCharArray
-  private val ObjectTagName = "object".toCharArray
-  private val StyleTagName = "style".toCharArray
+  private val AppletTagName = "applet"
+  private val BaseTagName = "base"
+  private val BgsoundTagName = "bgsound"
+  private val BodyTagName = "body"
+  private val EmbedTagName = "embed"
+  private val ImgTagName = "img"
+  private val InputTagName = "input"
+  private val LinkTagName = "link"
+  private val ObjectTagName = "object"
+  private val StyleTagName = "style"
 
-  private val ArchiveAttribute = "archive".toCharArray
-  private val BackgroundAttribute = "background".toCharArray
-  private val CodeAttribute = "code".toCharArray
-  private val CodeBaseAttribute = "codebase".toCharArray
-  private val DataAttribute = "data".toCharArray
-  private val HrefAttribute = "href".toCharArray
-  private val IconAttributeName = "icon".toCharArray
-  private val ShortcutIconAttributeName = "shortcut icon".toCharArray
-  private val RelAttribute = "rel".toCharArray
-  private val SrcAttribute = "src".toCharArray
+  private val ArchiveAttribute = "archive"
+  private val BackgroundAttribute = "background"
+  private val CodeAttribute = "code"
+  private val CodeBaseAttribute = "codebase"
+  private val DataAttribute = "data"
+  private val HrefAttribute = "href"
+  private val IconAttributeName = "icon"
+  private val ShortcutIconAttributeName = "shortcut icon"
+  private val RelAttribute = "rel"
+  private val SrcAttribute = "src"
   private val StyleAttribute = StyleTagName
-  private val StylesheetAttributeName = "stylesheet".toCharArray
+  private val StylesheetAttributeName = "stylesheet"
 
-  def logException(htmlContent: String, e: Throwable): Unit =
+  def logException(htmlContent: Array[Char], e: Throwable): Unit =
     if (logger.underlying.isDebugEnabled)
       logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
 >>>>>>>>>>>>>>>>>>>>>>>
-$htmlContent
+${new String(htmlContent)}
 <<<<<<<<<<<<<<<<<<<<<<<""", e)
     else
       logger.error(s"HTML parser crashed: ${e.getMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
@@ -82,7 +83,7 @@ class HtmlParser extends StrictLogging {
 
   var inStyle = false
 
-  private def parseHtml(htmlContent: String, userAgent: Option[UserAgent]): HtmlResources = {
+  private def parseHtml(htmlContent: Array[Char], userAgent: Option[UserAgent]): HtmlResources = {
 
     var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
@@ -92,7 +93,7 @@ class HtmlParser extends StrictLogging {
     val visitor = new EmptyTagVisitor {
       var inHiddenCommentStack = List(false)
 
-      def addResource(tag: Tag, attributeName: Array[Char], factory: String => RawResource): Unit =
+      def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit =
         Option(tag.getAttributeValue(attributeName)).foreach { url =>
           rawResources += factory(url.toString)
         }
@@ -145,9 +146,9 @@ class HtmlParser extends StrictLogging {
 
               } else if (tag.nameEquals(LinkTagName)) {
                 Option(tag.getAttributeValue(RelAttribute)) match {
-                  case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) =>
+                  case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, StylesheetAttributeName) =>
                     addResource(tag, HrefAttribute, CssRawResource)
-                  case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) || TagUtil.equalsToLowercase(rel, ShortcutIconAttributeName) =>
+                  case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
                     addResource(tag, HrefAttribute, RegularRawResource)
                   case None =>
                     logger.error("Malformed HTML: <link> tag without rel attribute")
@@ -208,7 +209,7 @@ class HtmlParser extends StrictLogging {
     HtmlResources(rawResources, base)
   }
 
-  def getEmbeddedResources(documentURI: Uri, htmlContent: String, userAgent: Option[UserAgent]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 
