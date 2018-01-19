@@ -164,6 +164,7 @@ class ElParserException(string: String, msg: String) extends Exception(s"Failed 
 object ElCompiler {
 
   private val NameRegex = "[^.${}()]+".r
+  private val DynamicPartStart = "${".toCharArray
 
   private val TheELCompiler = new ThreadLocal[ElCompiler] {
     override def initialValue = new ElCompiler
@@ -268,7 +269,7 @@ class ElCompiler extends RegexParsers {
       def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
       def failure = Failure("Not a static part", in)
 
-      source.indexOf("${", offset) match {
+      source.indexOf(DynamicPartStart, offset) match {
         case -1 if offset == end => failure
         case -1                  => success(end)
         case n if n == offset    => failure

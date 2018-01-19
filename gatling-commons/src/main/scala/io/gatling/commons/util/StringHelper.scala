@@ -93,10 +93,9 @@ object StringHelper {
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {
 
-    def indexOf(s: String, fromIndex: Int): Int = {
+    def indexOf(target: Array[Char], fromIndex: Int): Int = {
 
       val sourceCount = source.length
-      val target = s.unsafeChars
       val targetCount = target.length
 
       if (fromIndex >= sourceCount) {
