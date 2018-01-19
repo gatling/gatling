@@ -8,7 +8,7 @@ Java Version
 ============
 
 Gatling is mostly tested against JDK8 packages provided by Oracle.
-Gatling requires **JDK8**. We recommend that you use an up-to-date JDK.
+Gatling requires **JDK8** (hence doesn't support JDK9 atm). Gatling should work with any JDK8 update, yet we recommend that you use up-to-date one.
 
 If some launch scripts options are not available on your JVM, e.g. because you run a 32 bit version, please edit the scripts and remove the unsupported options.
 
