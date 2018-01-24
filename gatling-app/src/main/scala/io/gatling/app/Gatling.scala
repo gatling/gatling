@@ -16,6 +16,8 @@
 
 package io.gatling.app
 
+import java.nio.file.FileSystems
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
@@ -58,6 +60,8 @@ object Gatling extends StrictLogging {
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) =
     try {
       logger.trace("Starting")
+      // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
+      FileSystems.getDefault
       val configuration = GatlingConfiguration.load(overrides)
       logger.trace("Configuration loaded")
       // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
