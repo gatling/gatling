@@ -24,7 +24,7 @@ object Dependencies {
   private val spire                          = "io.gatling"                            %% "spire-cfor"                    % "0.14.1"
   private val scopt                          = "com.github.scopt"                      %% "scopt"                         % "3.7.0"
   private val scalaLogging                   = "com.typesafe.scala-logging"            %% "scala-logging"                 % "3.7.2"
-  private val jackson                        = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.3"
+  private val jackson                        = "com.fasterxml.jackson.core"             % "jackson-databind"              % "2.9.4"
   private val sfm                            = ("org.simpleflatmapper"                  % "sfm-csv"                       % "3.15.3")
     .exclude("org.simpleflatmapper", "sfm-reflect")
     .exclude("org.simpleflatmapper", "sfm-tuples")
