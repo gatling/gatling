@@ -24,8 +24,8 @@ import io.gatling.commons.util.PathHelper._
 
 object GatlingFiles {
 
-  val GatlingHome: Path = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
-  val GatlingAssetsPackage: Path = "assets"
+  private val GatlingHome: Path = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
+  private val GatlingAssetsPackage: Path = "assets"
   val GatlingJsFolder: Path = "js"
   val GatlingStyleFolder: Path = "style"
   val GatlingAssetsJsPackage: Path = GatlingAssetsPackage / GatlingJsFolder
