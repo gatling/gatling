@@ -105,22 +105,29 @@ HTTP Client Sharing
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
 Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
 
-.. _http-protocol-hostname-resolution:
+.. _http-protocol-dns-name-resolution:
 
-Hostname Resolution
+DNS Name Resolution
 -------------------
 
-By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
-By default, this cache is eternal.
-This cache can be disabled with ``-Dsun.net.inetaddr.ttl=0``.
+By default, Gatling uses Java's DNS name resolution, meaning that it uses a cache shared amongst all virtual users.
+More over, Java's cache doesn't honor DNS records TTL.
+You can control the TTL with ``-Dsun.net.inetaddr.ttl=N`` where `N` is a number of seconds.
 
-If you're using the JDK eternal cache and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically round-robin on them.
+If you're using the JDK resolution and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically shuffle them
+to emulate DNS round-robin.
 
-If you want to make it so that all virtual users perform their own name resolution, generate UPD traffic against your DNS server,
-and have their own DNS cache, you can set ``.perUserNameResolution`` .
+You can use a Netty based DNS resolution instead, with ``.asyncDnsNameResolution()``.
+This method can take a sequence of DNS server adresses, eg ``.asyncDnsNameResolution("8.8.8.8")``.
+If you don't pass DNS servers, Gatling will use the one from your OS configuration on Linux and MacOS only,
+and to Google's ones on Windows(don't run with heavy load as Google will block you).
+
+You can also make it so that every virtual user performs its own DNS name resolution with ``.perUserDnsNameResolution``.
+This parameter is only effective when using ``asyncDnsNameResolution``.
+
 Note this feature is experimental.
 This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,
-for example with AWS Application Load Balancer (ALB).
+for example with AWS ALB and Route53.
 
 .. _http-protocol-hostname-aliasing:
 

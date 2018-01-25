@@ -16,6 +16,8 @@
 
 package io.gatling.http
 
+import java.net.InetSocketAddress
+
 import scala.concurrent.duration._
 
 import io.gatling.commons.validation.Success
@@ -53,7 +55,11 @@ class HttpCompileTest extends Simulation {
     .nameInferredHtmlResourcesAfterPath
     .nameInferredHtmlResourcesAfterLastPathElement
     .nameInferredHtmlResources(_.getPath)
+    .asyncDnsNameResolution()
+    .asyncDnsNameResolution("8.8.8.8", "8.8.4.4")
+    .asyncDnsNameResolution(Array(new InetSocketAddress("8.8.8.8", 53), new InetSocketAddress("8.8.4.4", 53)))
     .hostNameAliases(Map("foo" -> "127.0.0.1"))
+    .perUserDnsNameResolution
 
   val httpConfToVerifyDumpSessionOnFailureBuiltIn = http.extraInfoExtractor(dumpSessionOnFailure)
 

@@ -37,13 +37,14 @@ object HttpEngine {
   private val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 
   def apply(system: ActorSystem, coreComponents: CoreComponents): HttpEngine =
-    new HttpEngine(system, coreComponents, AhcFactory(system, coreComponents))
+    new HttpEngine(system, coreComponents, AhcFactory(system, coreComponents), new DefaultDnsNameResolverFactory(system: ActorSystem, coreComponents.configuration))
 }
 
 class HttpEngine(
-    system:             ActorSystem,
-    val coreComponents: CoreComponents,
-    val ahcFactory:     AhcFactory
+    val system:                 ActorSystem,
+    val coreComponents:         CoreComponents,
+    val ahcFactory:             AhcFactory,
+    val dnsNameResolverFactory: DnsNameResolverFactory
 )
   extends ResourceFetcher with NameGen with StrictLogging {
 
@@ -70,11 +71,6 @@ class HttpEngine(
       warmedUp = true
 
       import httpComponents._
-
-      if (httpProtocol.enginePart.perUserNameResolution) {
-        // eager load
-        val _ = ahcFactory.defaultDnsNameResolver
-      }
 
       httpProtocol.warmUpUrl match {
         case Some(url) =>

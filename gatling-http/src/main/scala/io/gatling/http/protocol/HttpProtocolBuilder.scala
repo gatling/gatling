@@ -16,7 +16,7 @@
 
 package io.gatling.http.protocol
 
-import java.net.InetAddress
+import java.net.{ InetAddress, InetSocketAddress }
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
@@ -62,11 +62,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   // enginePart
   def disableClientSharing = this.modify(_.protocol.enginePart.shareClient).setTo(false)
   def shareConnections = this.modify(_.protocol.enginePart.shareConnections).setTo(true)
-  def perUserNameResolution = this.modify(_.protocol.enginePart.perUserNameResolution).setTo(true)
-  def hostNameAliases(aliases: Map[String, String]) = {
-    val aliasesToInetAddresses = aliases.map { case (hostname, ip) => hostname -> InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress) }
-    this.modify(_.protocol.enginePart.hostNameAliases).setTo(aliasesToInetAddresses)
-  }
   def virtualHost(virtualHost: Expression[String]) = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
   def localAddress(address: String) = localAddresses(List(address))
   def localAddresses(addresses: String*): HttpProtocolBuilder = localAddresses(addresses.toList)
@@ -146,6 +141,24 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)
   def proxy(httpProxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxy).setTo(Some(httpProxy.proxyServer))
+
+  // dnsPart
+  def asyncDnsNameResolution(dnsServers: String*): HttpProtocolBuilder =
+    asyncDnsNameResolution(dnsServers.map { dnsServer =>
+      dnsServer.split(':') match {
+        case Array(hostname, port) => new InetSocketAddress(hostname, port.toInt)
+        case Array(hostname)       => new InetSocketAddress(hostname, 53)
+        case _                     => throw new IllegalArgumentException("Invalid dnsServer:" + dnsServer)
+      }
+    }.toArray)
+  def asyncDnsNameResolution(dnsServers: Array[InetSocketAddress]): HttpProtocolBuilder =
+    this.modify(_.protocol.dnsPart.dnsNameResolution).setTo(AsyncDnsNameResolution(dnsServers))
+  def hostNameAliases(aliases: Map[String, String]): HttpProtocolBuilder = {
+    val aliasesToInetAddresses = aliases.map { case (hostname, ip) => hostname -> InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress) }
+    this.modify(_.protocol.dnsPart.hostNameAliases).setTo(aliasesToInetAddresses)
+  }
+  def perUserDnsNameResolution: HttpProtocolBuilder =
+    this.modify(_.protocol.dnsPart.perUserNameResolution).setTo(true)
 
   def build = {
     require(protocol.enginePart.shareClient || !protocol.enginePart.shareConnections, "Invalid protocol configuration: if you stop sharing the HTTP client, you can't share connections!")

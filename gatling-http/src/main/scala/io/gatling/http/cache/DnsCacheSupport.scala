@@ -17,23 +17,77 @@
 package io.gatling.http.cache
 
 import java.net.InetAddress
+import java.util.{ List => JList }
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.resolver._
+import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
+import io.gatling.http.resolver.{ AliasesAwareNameResolver, CacheOverrideNameResolver, ShuffleJdkNameResolver }
 import io.gatling.http.util.HttpTypeCaster
 
-import io.netty.resolver.dns.DefaultDnsCache
 import io.netty.resolver.NameResolver
-import org.asynchttpclient.RequestBuilderBase
+import io.netty.resolver.dns.DefaultDnsCache
+import io.netty.util.concurrent.{ Future, Promise }
 
 object DnsCacheSupport {
 
-  private val UseDefaultJavaEternalDnsCache = sys.props.get("sun.net.inetaddr.ttl").getOrElse(-1) == -1
-
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
+
+  private def newNameResolver(
+    dnsNameResolution: DnsNameResolution,
+    hostNameAliases:   Map[String, InetAddress],
+    httpEngine:        HttpEngine,
+    configuration:     GatlingConfiguration
+  ) =
+    configuration.resolve(
+      // [fl]
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      // [fl]
+      dnsNameResolution match {
+        case JavaDnsNameResolution =>
+          val shuffleJdkNameResolver = new ShuffleJdkNameResolver
+          if (hostNameAliases.isEmpty) {
+            shuffleJdkNameResolver
+          } else {
+            new AliasesAwareNameResolver(hostNameAliases, shuffleJdkNameResolver)
+          }
+
+        case AsyncDnsNameResolution(dnsServers) =>
+          if (hostNameAliases.isEmpty) {
+            new CacheOverrideNameResolver(httpEngine.dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers), new DefaultDnsCache)
+          } else {
+            new AliasesAwareNameResolver(hostNameAliases, httpEngine.dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers))
+          }
+      }
+    )
 }
 
 trait DnsCacheSupport {
@@ -44,59 +98,34 @@ trait DnsCacheSupport {
 
   def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
 
-    val hostAliases = httpProtocol.enginePart.hostNameAliases
-    if (hostAliases.isEmpty) {
-      if (httpProtocol.enginePart.perUserNameResolution) {
-        // use per user resolver
-        configuration.resolve(
-          // [fl]
-          //
-          //
-          //
-          //
-          //
-          //
-          //
-          //
-          //
-          // [fl]
-          _.set(DnsNameResolverAttributeName, new CacheOverrideNameResolver(httpEngine.ahcFactory.defaultDnsNameResolver, new DefaultDnsCache))
-        )
+    import httpProtocol.dnsPart._
 
-      } else if (UseDefaultJavaEternalDnsCache) {
-        // mitigate missing round robin
-        _.set(DnsNameResolverAttributeName, new ShuffleJdkNameResolver)
+    if (perUserNameResolution) {
+      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, configuration))
 
-      } else {
-        // use AHC's default name resolution
-        identity
-      }
     } else {
-      if (httpProtocol.enginePart.perUserNameResolution) {
-        // use per user resolver
-        configuration.resolve(
-          // [fl]
-          //
-          //
-          //
-          //
-          //
-          //
-          //
-          //
-          //
-          // [fl]
-          _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, httpEngine.ahcFactory.defaultDnsNameResolver))
-        )
+      // create shared name resolver for all the users with this protocol
+      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, configuration)
+      httpEngine.system.registerOnTermination(() => nameResolver.close())
 
-      } else if (UseDefaultJavaEternalDnsCache) {
-        // mitigate missing round robin
-        _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, new ShuffleJdkNameResolver))
+      // perform close on system shutdown instead of virtual user termination as its shared
+      val noopCloseNameResolver = new NameResolver[InetAddress] {
+        override def resolve(inetHost: String): Future[InetAddress] =
+          nameResolver.resolve(inetHost)
 
-      } else {
-        // user tuned Java behavior, let him have the standard behavior
-        _.set(DnsNameResolverAttributeName, new AliasesAwareNameResolver(hostAliases, RequestBuilderBase.DEFAULT_NAME_RESOLVER))
+        override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] =
+          nameResolver.resolve(inetHost, promise)
+
+        override def resolveAll(inetHost: String): Future[JList[InetAddress]] =
+          nameResolver.resolveAll(inetHost)
+
+        override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] =
+          nameResolver.resolveAll(inetHost, promise)
+
+        override def close(): Unit = {}
       }
+
+      _.set(DnsNameResolverAttributeName, noopCloseNameResolver)
     }
   }
 

@@ -25,7 +25,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, ActorSystem }
 import com.softwaremill.quicklens._
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
@@ -39,7 +39,9 @@ class HttpTxSpec extends BaseSpec {
     val coreComponents = mock[CoreComponents]
     when(coreComponents.configuration).thenReturn(configuration)
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = HttpComponents(httpProtocol, mock[HttpEngine], new HttpCaches(configuration), mock[ResponseProcessor])
+    val httpEngine = mock[HttpEngine]
+    when(httpEngine.system).thenReturn(mock[ActorSystem])
+    val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(configuration), mock[ResponseProcessor])
 
     val configBase = HttpRequestConfig(
       checks = Nil,

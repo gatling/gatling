@@ -72,11 +72,12 @@ private[gatling] trait AhcFactory {
   def defaultAhc: AsyncHttpClient
 
   def newAhc(session: Session): AsyncHttpClient
-
-  def defaultDnsNameResolver: ExtendedDnsNameResolver
 }
 
-private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents) extends AhcFactory with StrictLogging {
+private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents)
+  extends NettyFactory(system)
+  with AhcFactory
+  with StrictLogging {
 
   import AhcFactory._
 
@@ -87,12 +88,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE)
-
-  private[this] def newEventLoopGroup(poolName: String): EventLoopGroup = {
-    val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory(poolName))
-    system.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
-    eventLoopGroup
-  }
 
   private[this] def newTimer: Timer = {
     val timer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS)
@@ -198,12 +193,5 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     val client = new DefaultAsyncHttpClient(config)
     system.registerOnTermination(client.close())
     client
-  }
-
-  override lazy val defaultDnsNameResolver: ExtendedDnsNameResolver = {
-    val executor = newEventLoopGroup("gatling-dns-thread")
-    val resolver = new ExtendedDnsNameResolver(executor.next(), configuration)
-    system.registerOnTermination(resolver.close())
-    resolver
   }
 }

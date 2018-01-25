@@ -75,8 +75,6 @@ object HttpProtocol extends StrictLogging {
       enginePart = HttpProtocolEnginePart(
         shareClient = true,
         shareConnections = false,
-        perUserNameResolution = false,
-        hostNameAliases = Map.empty,
         maxConnectionsPerHost = 6,
         virtualHost = None,
         localAddresses = Nil
@@ -111,6 +109,11 @@ object HttpProtocol extends StrictLogging {
       proxyPart = HttpProtocolProxyPart(
         proxy = None,
         proxyExceptions = Nil
+      ),
+      dnsPart = DnsPart(
+        dnsNameResolution = JavaDnsNameResolution,
+        hostNameAliases = Map.empty,
+        perUserNameResolution = false
       )
     )
 }
@@ -125,6 +128,7 @@ object HttpProtocol extends StrictLogging {
  * @param responsePart the response related configuration
  * @param wsPart the WebSocket related configuration
  * @param proxyPart the Proxy related configuration
+ * @param dnsPart the DNS related configuration
  */
 case class HttpProtocol(
     baseUrls:     List[String],
@@ -133,7 +137,8 @@ case class HttpProtocol(
     requestPart:  HttpProtocolRequestPart,
     responsePart: HttpProtocolResponsePart,
     wsPart:       HttpProtocolWsPart,
-    proxyPart:    HttpProtocolProxyPart
+    proxyPart:    HttpProtocolProxyPart,
+    dnsPart:      DnsPart
 ) extends Protocol {
 
   type Components = HttpComponents
@@ -143,8 +148,6 @@ case class HttpProtocolEnginePart(
     shareClient:           Boolean,
     shareConnections:      Boolean,
     maxConnectionsPerHost: Int,
-    perUserNameResolution: Boolean,
-    hostNameAliases:       Map[String, InetAddress],
     virtualHost:           Option[Expression[String]],
     localAddresses:        List[InetAddress]
 )
@@ -203,4 +206,10 @@ case class HttpProtocolWsPart(
 case class HttpProtocolProxyPart(
     proxy:           Option[ProxyServer],
     proxyExceptions: Seq[String]
+)
+
+case class DnsPart(
+    dnsNameResolution:     DnsNameResolution,
+    hostNameAliases:       Map[String, InetAddress],
+    perUserNameResolution: Boolean
 )

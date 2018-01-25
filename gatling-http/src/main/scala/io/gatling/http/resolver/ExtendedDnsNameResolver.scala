@@ -16,10 +16,8 @@
 
 package io.gatling.http.resolver
 
-import java.net.InetAddress
+import java.net.{ InetAddress, InetSocketAddress }
 import java.util.{ List => JList }
-
-import io.gatling.core.config.GatlingConfiguration
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelFactory
@@ -42,25 +40,28 @@ object ExtendedDnsNameResolver extends StrictLogging {
 
 /**
  * DnsNameResolver whose sole purpose is to publicly expose the doResolve and executor methods that are protected
- * @param eventLoop the event loop
- * @param configuration the config
  */
-class ExtendedDnsNameResolver(val eventLoop: EventLoop, configuration: GatlingConfiguration)
+class ExtendedDnsNameResolver(
+    val eventLoop:        EventLoop,
+    queryTimeout:         Int,
+    maxQueriesPerResolve: Int,
+    dnsServers:           Array[InetSocketAddress]
+)
   extends DnsNameResolver(
     eventLoop, // eventLoop
     ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
     NoopDnsCache.INSTANCE, // resolveCache
     NoopDnsCache.INSTANCE, // authoritativeDnsServerCache
     NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
-    configuration.http.dns.queryTimeout, // queryTimeoutMillis
+    queryTimeout, // queryTimeoutMillis
     null, // resolvedAddressTypes, defaults to DEFAULT_RESOLVE_ADDRESS_TYPES
     true, // recursionDesired
-    configuration.http.dns.maxQueriesPerResolve, // maxQueriesPerResolve
+    maxQueriesPerResolve, // maxQueriesPerResolve
     ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
     4096, // maxPayloadSize
     true, // optResourceEnabled
     HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
-    DnsServerAddressStreamProviders.platformDefault, // dnsServerAddressStreamProvider
+    if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault else new SequentialDnsServerAddressStreamProvider(dnsServers: _*), // dnsServerAddressStreamProvider
     null, // searchDomains // FIXME should honor host's searchDomains
     1, // ndots // FIXME should be using host's defaults
     true // decodeIdn
