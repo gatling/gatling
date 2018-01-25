@@ -29,7 +29,6 @@ import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.util.HttpTypeCaster
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.{ AsyncHttpClient, RequestBuilder }
 
@@ -37,7 +36,7 @@ object HttpEngine {
   private val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 
   def apply(coreComponents: CoreComponents): HttpEngine =
-    new HttpEngine(coreComponents, AhcFactory(coreComponents), new DefaultDnsNameResolverFactory(coreComponents.system, coreComponents.configuration))
+    new HttpEngine(coreComponents, AhcFactory(coreComponents), DnsNameResolverFactory(coreComponents))
 }
 
 class HttpEngine(

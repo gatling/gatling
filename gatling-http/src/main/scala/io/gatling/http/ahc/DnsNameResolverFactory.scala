@@ -18,20 +18,22 @@ package io.gatling.http.ahc
 
 import java.net.InetSocketAddress
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.resolver.ExtendedDnsNameResolver
 
 import akka.actor.ActorSystem
 
-trait DnsNameResolverFactory {
-  def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver
+object DnsNameResolverFactory {
+  def apply(coreComponents: CoreComponents): DnsNameResolverFactory =
+    new DnsNameResolverFactory(coreComponents.system, coreComponents.configuration)
 }
 
-class DefaultDnsNameResolverFactory(system: ActorSystem, configuration: GatlingConfiguration) extends NettyFactory(system) with DnsNameResolverFactory {
+class DnsNameResolverFactory(system: ActorSystem, configuration: GatlingConfiguration) extends NettyFactory(system) {
 
   private val executor = newEventLoopGroup("gatling-dns-thread")
 
-  override def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
+  def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     new ExtendedDnsNameResolver(
       executor.next(),
       configuration.http.dns.queryTimeout,
