@@ -34,7 +34,7 @@ class WsOpenBuilder(
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
-    new WsOpen(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, request, checkBuilder, httpComponents, system, coreComponents.statsEngine, next)
+    new WsOpen(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, request, checkBuilder, httpComponents, coreComponents.system, coreComponents.statsEngine, next)
   }
 }
 

@@ -34,7 +34,7 @@ class PollingStartBuilder(
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val requestDef = requestBuilder.build(coreComponents, httpComponents, throttled)
-    new PollingStart(pollerName, period, requestDef, system, coreComponents.statsEngine, next)
+    new PollingStart(pollerName, period, requestDef, coreComponents.system, coreComponents.statsEngine, next)
   }
 }
 

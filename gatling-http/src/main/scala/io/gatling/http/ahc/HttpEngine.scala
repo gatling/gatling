@@ -36,12 +36,11 @@ import org.asynchttpclient.{ AsyncHttpClient, RequestBuilder }
 object HttpEngine {
   private val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 
-  def apply(system: ActorSystem, coreComponents: CoreComponents): HttpEngine =
-    new HttpEngine(system, coreComponents, AhcFactory(system, coreComponents), new DefaultDnsNameResolverFactory(system: ActorSystem, coreComponents.configuration))
+  def apply(coreComponents: CoreComponents): HttpEngine =
+    new HttpEngine(coreComponents, AhcFactory(coreComponents), new DefaultDnsNameResolverFactory(coreComponents.system, coreComponents.configuration))
 }
 
 class HttpEngine(
-    val system:                 ActorSystem,
     val coreComponents:         CoreComponents,
     val ahcFactory:             AhcFactory,
     val dnsNameResolverFactory: DnsNameResolverFactory

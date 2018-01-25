@@ -22,8 +22,6 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 
-import akka.actor.ActorSystem
-
 /**
  * This trait is a model to all protocol specific configuration
  */
@@ -35,7 +33,7 @@ trait ProtocolKey {
   def protocolClass: Class[io.gatling.core.protocol.Protocol]
 
   def defaultProtocolValue(configuration: GatlingConfiguration): Protocol
-  def newComponents(system: ActorSystem, coreComponents: CoreComponents): Protocol => Components
+  def newComponents(coreComponents: CoreComponents): Protocol => Components
 }
 
 trait ProtocolComponents {
@@ -43,27 +41,26 @@ trait ProtocolComponents {
   def onExit: Option[Session => Unit]
 }
 
-class ProtocolComponentsRegistries(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols) {
+class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
 
   val componentsFactoryCache = mutable.Map.empty[ProtocolKey, Any]
 
   def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
     new ProtocolComponentsRegistry(
-      system,
       coreComponents,
       globalProtocols ++ scenarioProtocols,
       componentsFactoryCache
     )
 }
 
-class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey, Any]) {
+class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey, Any]) {
 
   val protocolCache = mutable.Map.empty[ProtocolKey, Protocol]
   val componentsCache = mutable.Map.empty[ProtocolKey, Any]
 
   def components(key: ProtocolKey): key.Components = {
 
-    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
+    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[key.Protocol => key.Components]
     def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
     def comps = componentsFactory(protocol)
 

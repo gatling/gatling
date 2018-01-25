@@ -33,6 +33,6 @@ class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpA
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val httpRequest = requestBuilder.build(coreComponents, httpComponents, throttled)
-    new HttpRequestAction(httpRequest, system, next)
+    new HttpRequestAction(httpRequest, coreComponents.system, next)
   }
 }

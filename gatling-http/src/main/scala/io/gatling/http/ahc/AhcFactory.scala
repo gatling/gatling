@@ -24,15 +24,11 @@ import io.gatling.commons.util.SystemProps._
 import io.gatling.core.config.AhcConfiguration
 import io.gatling.core.{ ConfigKeys, CoreComponents }
 import io.gatling.core.session.Session
-import io.gatling.http.resolver.ExtendedDnsNameResolver
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.EventLoopGroup
-import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.handler.ssl.{ SslContextBuilder, SslProvider }
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import io.netty.util.concurrent.DefaultThreadFactory
 import io.netty.util.internal.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 import io.netty.util.{ HashedWheelTimer, Timer }
 import org.asynchttpclient.AsyncHttpClientConfig._
@@ -54,7 +50,7 @@ private[gatling] object AhcFactory {
     }
   }
 
-  def apply(system: ActorSystem, coreComponents: CoreComponents): AhcFactory =
+  def apply(coreComponents: CoreComponents): AhcFactory =
     coreComponents.configuration.resolve(
       // [fl]
       //
@@ -63,7 +59,7 @@ private[gatling] object AhcFactory {
       //
       //
       // [fl]
-      new DefaultAhcFactory(system, coreComponents)
+      new DefaultAhcFactory(coreComponents)
     )
 }
 
@@ -74,8 +70,8 @@ private[gatling] trait AhcFactory {
   def newAhc(session: Session): AsyncHttpClient
 }
 
-private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: CoreComponents)
-  extends NettyFactory(system)
+private[gatling] class DefaultAhcFactory(coreComponents: CoreComponents)
+  extends NettyFactory(coreComponents.system)
   with AhcFactory
   with StrictLogging {
 
@@ -92,7 +88,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   private[this] def newTimer: Timer = {
     val timer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS)
     timer.start()
-    system.registerOnTermination(timer.stop())
+    coreComponents.system.registerOnTermination(timer.stop())
     timer
   }
 
@@ -191,7 +187,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     }.getOrElse(defaultAhcConfig)
 
     val client = new DefaultAsyncHttpClient(config)
-    system.registerOnTermination(client.close())
+    coreComponents.system.registerOnTermination(client.close())
     client
   }
 }

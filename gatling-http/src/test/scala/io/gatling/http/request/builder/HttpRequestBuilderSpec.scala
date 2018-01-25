@@ -38,8 +38,9 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   val configuration = GatlingConfiguration.loadForTest()
   val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
+  when(coreComponents.system).thenReturn(mock[ActorSystem])
   val httpEngine = mock[HttpEngine]
-  when(httpEngine.system).thenReturn(mock[ActorSystem])
+  when(httpEngine.coreComponents).thenReturn(coreComponents)
   val httpCaches = new HttpCaches(configuration)
   val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor])
 

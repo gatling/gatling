@@ -106,7 +106,7 @@ trait DnsCacheSupport {
     } else {
       // create shared name resolver for all the users with this protocol
       val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, configuration)
-      httpEngine.system.registerOnTermination(() => nameResolver.close())
+      httpEngine.coreComponents.system.registerOnTermination(() => nameResolver.close())
 
       // perform close on system shutdown instead of virtual user termination as its shared
       val noopCloseNameResolver = new NameResolver[InetAddress] {

@@ -34,7 +34,7 @@ class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends
 
   private[this] def newSingletonFeed(ctx: ScenarioContext): ActorRef = {
     val props = SingletonFeed.props(feederBuilder.apply)
-    ctx.system.actorOf(props, genName("singletonFeed"))
+    ctx.coreComponents.system.actorOf(props, genName("singletonFeed"))
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {

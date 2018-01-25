@@ -27,7 +27,6 @@ import io.gatling.core.protocol.{ ProtocolComponentsRegistries, ProtocolComponen
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.LazyLogging
 
 /**
@@ -75,14 +74,13 @@ case class PopulationBuilder(
   }
 
   /**
-   * @param system the actor system
    * @param coreComponents the CoreComponents
    * @param protocolComponentsRegistries the ProtocolComponents registries
    * @param globalPauseType the pause type
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(system: ActorSystem, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries, globalPauseType: PauseType, globalThrottling: Option[Throttling]): Scenario = {
+  private[core] def build(coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries, globalPauseType: PauseType, globalThrottling: Option[Throttling]): Scenario = {
 
     val resolvedPauseType =
       if (scenarioThrottleSteps.nonEmpty || globalThrottling.isDefined) {
@@ -94,7 +92,7 @@ case class PopulationBuilder(
 
     val protocolComponentsRegistry = protocolComponentsRegistries.scenarioRegistry(scenarioProtocols)
 
-    val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
+    val ctx = ScenarioContext(coreComponents, protocolComponentsRegistry, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
@@ -103,7 +101,6 @@ case class PopulationBuilder(
 }
 
 case class ScenarioContext(
-    system:                     ActorSystem,
     coreComponents:             CoreComponents,
     protocolComponentsRegistry: ProtocolComponentsRegistry,
     pauseType:                  PauseType,

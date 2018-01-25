@@ -21,9 +21,10 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.stats.StatsEngine
 
-import _root_.akka.actor.ActorRef
+import _root_.akka.actor.{ ActorRef, ActorSystem }
 
 case class CoreComponents(
+    system:        ActorSystem,
     controller:    ActorRef,
     throttler:     Throttler,
     statsEngine:   StatsEngine,

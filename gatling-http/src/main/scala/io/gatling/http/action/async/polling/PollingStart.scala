@@ -41,7 +41,7 @@ class PollingStart(
 
   import httpRequestDef._
 
-  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
+  private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     config.checks,
     config.responseTransformer,
     config.discardResponseChunks,

@@ -209,8 +209,8 @@ case class SimulationParams(
     assertions:         Seq[Assertion]
 ) {
 
-  def scenarios(system: ActorSystem, coreComponents: CoreComponents): List[Scenario] = {
-    val protocolComponentsRegistries = new ProtocolComponentsRegistries(system, coreComponents, globalProtocols)
-    populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global))
+  def scenarios(coreComponents: CoreComponents): List[Scenario] = {
+    val protocolComponentsRegistries = new ProtocolComponentsRegistries(coreComponents, globalProtocols)
+    populationBuilders.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global))
   }
 }

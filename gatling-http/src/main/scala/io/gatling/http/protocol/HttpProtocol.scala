@@ -50,16 +50,16 @@ object HttpProtocol extends StrictLogging {
 
     def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
+    def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
 
-      val httpEngine = HttpEngine(system, coreComponents)
+      val httpEngine = HttpEngine(coreComponents)
 
       httpProtocol => {
         val httpComponents = HttpComponents(
           httpProtocol,
           httpEngine,
           new HttpCaches(coreComponents.configuration),
-          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(system)
+          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(coreComponents.system)
         )
 
         httpEngine.warmpUp(httpComponents)

@@ -38,9 +38,10 @@ class HttpTxSpec extends BaseSpec {
   trait Context {
     val coreComponents = mock[CoreComponents]
     when(coreComponents.configuration).thenReturn(configuration)
-    val httpProtocol = HttpProtocol(configuration)
+    when(coreComponents.system).thenReturn(mock[ActorSystem])
     val httpEngine = mock[HttpEngine]
-    when(httpEngine.system).thenReturn(mock[ActorSystem])
+    when(httpEngine.coreComponents).thenReturn(coreComponents)
+    val httpProtocol = HttpProtocol(configuration)
     val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(configuration), mock[ResponseProcessor])
 
     val configBase = HttpRequestConfig(

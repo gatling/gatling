@@ -36,7 +36,7 @@ class SseOpenBuilder(
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(coreComponents, httpComponents)
-    new SseOpen(requestName, sseName, request, checkBuilder, httpComponents, system, coreComponents.statsEngine, next)
+    new SseOpen(requestName, sseName, request, checkBuilder, httpComponents, coreComponents.system, coreComponents.statsEngine, next)
   }
 }
 
