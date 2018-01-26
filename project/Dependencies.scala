@@ -32,7 +32,7 @@ object Dependencies {
   private val json4sJackson                  = "org.json4s"                            %% "json4s-jackson"                % "3.5.3"
   private val boon                           = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                      % "0.6.10"
-  private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                  % "4.1.0"
+  private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                  % "4.1.1"
   private val boopickle                      = "io.suzaku"                             %% "boopickle"                     % "1.2.6"
   private val redisClient                    = "net.debasishg"                         %% "redisclient"                   % "3.4"
   private val zinc                           = ("org.scala-sbt"                        %% "zinc"                          % "1.1.0")
