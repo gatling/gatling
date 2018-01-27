@@ -28,6 +28,8 @@ import scala.util.Success
 
 import io.gatling.commons.util.Io._
 
+import com.eatthepath.uuid.FastUUID
+
 object Ga {
 
   private[this] def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
@@ -43,7 +45,7 @@ object Ga {
     val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
 
     val body =
-      s"""tid=$trackingId&dl=${encode("http://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(UUID.randomUUID.toString)}"""
+      s"""tid=$trackingId&dl=${encode("http://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(FastUUID.toString(UUID.randomUUID))}"""
 
     val bytes = body.getBytes(UTF_8)
 

@@ -21,10 +21,12 @@ import java.util.UUID
 import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
 import io.gatling.core.session._
 
+import com.eatthepath.uuid.FastUUID
+
 trait Errors[B] extends Execs[B] {
 
   def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
-  def tryMax(times: Expression[Int], counter: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  def tryMax(times: Expression[Int], counter: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
     exec(new TryMaxBuilder(times, counter, chain))
   }

@@ -25,16 +25,18 @@ import io.gatling.core.action.builder._
 import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder.chainOf
 
+import com.eatthepath.uuid.FastUUID
+
 trait Loops[B] extends Execs[B] {
 
-  def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  def repeat(times: Expression[Int], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
     val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
 
     loop(continueCondition, chain, counterName, exitASAP = false, RepeatLoopType)
   }
 
-  def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
     val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
     val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
@@ -42,7 +44,7 @@ trait Loops[B] extends Execs[B] {
     loop(continueCondition, chainOf(new SessionHookBuilder(exposeCurrentValue, exitable = false)).exec(chain), counterName, exitASAP = false, ForeachLoopType)
   }
 
-  def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+  def during(duration: Duration, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = true)(chain: ChainBuilder): B =
     during(duration.expressionSuccess, counterName, exitASAP)(chain)
 
   def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B = {
@@ -52,18 +54,18 @@ trait Loops[B] extends Execs[B] {
     loop(continueCondition, chain, counterName, exitASAP, DuringLoopType)
   }
 
-  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = false)(chain)
+  def forever(chain: ChainBuilder): B = forever(FastUUID.toString(UUID.randomUUID), exitASAP = false)(chain)
 
-  def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
+  def forever(counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = false)(chain: ChainBuilder): B =
     loop(TrueExpressionSuccess, chain, counterName, exitASAP, ForeachLoopType)
 
-  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
+  def asLongAs(condition: Expression[Boolean], counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = false)(chain: ChainBuilder): B =
     loop(condition, chain, counterName, exitASAP, AsLongAsLoopType)
 
-  def doWhile(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
+  def doWhile(condition: Expression[Boolean], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B =
     loop(condition, chain, counterName, exitASAP = false, DoWhileType)
 
-  private def loop(condition: Expression[Boolean], chain: ChainBuilder, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean, loopType: LoopType): B =
+  private def loop(condition: Expression[Boolean], chain: ChainBuilder, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean, loopType: LoopType): B =
     exec(new LoopBuilder(condition, chain, counterName, exitASAP, loopType))
 
   private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String) =
@@ -75,7 +77,7 @@ trait Loops[B] extends Execs[B] {
   def asLongAsDuring(
     condition:   Expression[Boolean],
     duration:    Expression[Duration],
-    counterName: String               = UUID.randomUUID.toString,
+    counterName: String               = FastUUID.toString(UUID.randomUUID),
     exitASAP:    Boolean              = true
   )(chain: ChainBuilder): B =
     loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
@@ -83,7 +85,7 @@ trait Loops[B] extends Execs[B] {
   def doWhileDuring(
     condition:   Expression[Boolean],
     duration:    Expression[Duration],
-    counterName: String               = UUID.randomUUID.toString,
+    counterName: String               = FastUUID.toString(UUID.randomUUID),
     exitASAP:    Boolean              = true
   )(chain: ChainBuilder): B =
     loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, DoWhileDuringType)

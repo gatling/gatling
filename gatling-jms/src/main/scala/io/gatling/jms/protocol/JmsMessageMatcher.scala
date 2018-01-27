@@ -19,6 +19,8 @@ package io.gatling.jms.protocol
 import java.util.UUID
 import javax.jms.Message
 
+import com.eatthepath.uuid.FastUUID
+
 /**
  * define trait for message matching logic with separate request/response
  * to see how it can be used check JmsDefaultMessageMatcher
@@ -36,7 +38,7 @@ object MessageIDMessageMatcher extends JmsMessageMatcher {
 }
 
 object CorrelationIDMessageMatcher extends JmsMessageMatcher {
-  override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(UUID.randomUUID.toString)
+  override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(FastUUID.toString(UUID.randomUUID))
   override def requestMatchId(msg: Message): String = msg.getJMSCorrelationID
   override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }

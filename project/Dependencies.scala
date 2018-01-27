@@ -56,6 +56,7 @@ object Dependencies {
   private val caffeine                       = "com.github.ben-manes.caffeine"          % "caffeine"                      % "2.6.1"
   private val bouncycastle                   = "org.bouncycastle"                       % "bcpkix-jdk15on"                % "1.59"
   private val quicklens                      = "com.softwaremill.quicklens"            %% "quicklens"                     % "1.4.11"
+  private val fastUuid                       = "com.eatthepath"                         % "fast-uuid"                     % "0.1"
   private val testInterface                  = "org.scala-sbt"                          % "test-interface"                % "1.0"
   private val pebble                         = "io.gatling"                             % "pebble"                        % "2.4.0.2"
   private val findbugs                       = "com.google.code.findbugs"               % "jsr305"                        % "3.0.2"
@@ -78,7 +79,7 @@ object Dependencies {
   // Dependencies by module
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, ahcNettyUtils, pebble, findbugs) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, ahcNettyUtils, pebble, findbugs, fastUuid) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
     Seq(akkaActor, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, scalaParserCombinators, scopt) ++
