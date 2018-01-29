@@ -18,16 +18,30 @@ package io.gatling.http.protocol
 
 import io.gatling.commons.model.Credentials
 
+import com.softwaremill.quicklens._
+import org.asynchttpclient.proxy.ProxyType._
+
 object HttpProxyBuilder {
 
-  def apply(host: String, port: Int) = new HttpProxyBuilder(Proxy(host, port, port))
+  def apply(host: String, port: Int): HttpProxyBuilder = new HttpProxyBuilder(Proxy(host, port, port, HTTP))
 
   implicit def toProxy(proxyBuilder: HttpProxyBuilder): Proxy = proxyBuilder.proxy
 }
 
-class HttpProxyBuilder(val proxy: Proxy) {
+case class HttpProxyBuilder(proxy: Proxy) {
 
-  def httpsPort(port: Int) = new HttpProxyBuilder(proxy.copy(securePort = port))
+  def http: HttpProxyBuilder =
+    this.modify(_.proxy.proxyType).setTo(HTTP)
 
-  def credentials(username: String, password: String) = new HttpProxyBuilder(proxy.copy(credentials = Some(Credentials(username, password))))
+  def socks4: HttpProxyBuilder =
+    this.modify(_.proxy.proxyType).setTo(SOCKS_V4)
+
+  def socks5: HttpProxyBuilder =
+    this.modify(_.proxy.proxyType).setTo(SOCKS_V5)
+
+  def httpsPort(port: Int): HttpProxyBuilder =
+    this.modify(_.proxy.securePort).setTo(port)
+
+  def credentials(username: String, password: String): HttpProxyBuilder =
+    this.modify(_.proxy.credentials).setTo(Some(Credentials(username, password)))
 }

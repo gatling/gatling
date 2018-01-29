@@ -131,7 +131,9 @@ class HttpRequestSample {
     //#outgoing-proxy
     http("Getting issues")
       .get("https://github.com/gatling/gatling/issues")
-      .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername", "myPassword"))
+      .proxy(Proxy("myHttpProxyHost", 8080).httpsPort(8143).credentials("myUsername", "myPassword")) // HTTP proxy
+      .proxy(Proxy("mySocks4proxyHost", 8080).socks4) // SOCKS 4 proxy
+      .proxy(Proxy("mySocks5proxyHost", 8080).socks5) // SOCKS 5 proxy
     //#outgoing-proxy
 
     //#virtual-host

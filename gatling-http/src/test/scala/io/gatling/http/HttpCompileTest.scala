@@ -30,6 +30,9 @@ class HttpCompileTest extends Simulation {
   val httpProtocol = http
     .baseURL("http://172.30.5.143:8080")
     .proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
+    .proxy(Proxy("172.31.76.106", 8080).http)
+    .proxy(Proxy("172.31.76.106", 8080).socks4)
+    .proxy(Proxy("172.31.76.106", 8080).socks5)
     .noProxyFor("localhost")
     .acceptHeader("*/*")
     .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
@@ -175,6 +178,8 @@ class HttpCompileTest extends Simulation {
       .bodyPart(ElFileBodyPart("name", "path")))
     // proxy
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
+    .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4))
+    .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks5))
     // polling
     .exec(polling.every(10.seconds).exec(http("poll").get("/foo")))
     .exec(polling.pollerName("poll").every(10.seconds).exec(http("poll").get("/foo")))

@@ -18,9 +18,12 @@ package io.gatling.http.protocol
 
 import io.gatling.commons.model.Credentials
 
+import org.asynchttpclient.proxy.ProxyType
+
 case class Proxy(
     host:        String,
     port:        Int,
     securePort:  Int,
+    proxyType:   ProxyType,
     credentials: Option[Credentials] = None
 )

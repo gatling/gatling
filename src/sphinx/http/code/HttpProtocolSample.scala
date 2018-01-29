@@ -85,9 +85,16 @@ class HttpProtocolSample extends Simulation {
     //#proxy
     val httpConf = http
       .proxy(
-        Proxy("myProxyHost", 8080)
+        Proxy("myHttpProxyHost", 8080)
           .httpsPort(8143)
           .credentials("myUsername", "myPassword")
+      ).proxy(
+        Proxy("mySocks4ProxyHost", 8080)
+          .socks4
+      ).proxy(
+        Proxy("mySocks5ProxyHost", 8080)
+          .httpsPort(8143)
+          .socks5
       )
     //#proxy
 

@@ -38,7 +38,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSuppor
 
   def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
 
-  val Proxy = HttpProxyBuilder.apply _
+  def Proxy(host: String, port: Int) = HttpProxyBuilder(host, port)
 
   def http(requestName: Expression[String]) = new Http(requestName)
   def addCookie(cookie: AddCookieDsl) = AddCookieBuilder(cookie)
