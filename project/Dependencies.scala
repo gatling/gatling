@@ -63,7 +63,7 @@ object Dependencies {
 
   // Test dependencies
 
-  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                    % "3.0.4"             % "test"
+  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                    % "3.0.5"             % "test"
   private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                   % "1.13.5"            % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                 % akkaActor.revision  % "test"
   private val mockitoCore                    = "org.mockito"                            % "mockito-core"                 % "2.13.0"            % "test"
