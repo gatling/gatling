@@ -74,10 +74,10 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
         if (configuration.charting.useGroupDurationMetric) {
           logger.debug("Use group duration stats.")
-          logFileReader.groupDurationGeneralStats _
+          logFileReader.groupDurationGeneralStats
         } else {
           logger.debug("Use group cumulated response time stats.")
-          logFileReader.groupCumulatedResponseTimeGeneralStats _
+          logFileReader.groupCumulatedResponseTimeGeneralStats
         }
 
       val total = groupStatsFunction(group, None)
@@ -124,8 +124,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         seenGroups += hierarchy
 
         hierarchy match {
-          case head :: tail if tail.nonEmpty => addGroupsRec(tail)
-          case _                             =>
+          case _ :: tail if tail.nonEmpty => addGroupsRec(tail)
+          case _                          =>
         }
 
         val group = groupsByHierarchy(hierarchy)
