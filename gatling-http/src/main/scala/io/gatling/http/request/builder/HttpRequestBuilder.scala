@@ -48,8 +48,8 @@ object HttpRequestBuilder {
   implicit def toActionBuilder(requestBuilder: HttpRequestBuilder): HttpRequestActionBuilder =
     new HttpRequestActionBuilder(requestBuilder)
 
-  val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expressionSuccess
-  val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expressionSuccess
+  private val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expressionSuccess
+  private val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expressionSuccess
 }
 
 /**
@@ -92,16 +92,16 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = this.modify(_.httpAttributes.explicitResources).setTo(res.toList)
 
-  def disableResponseChunksDiscarding = this.modify(_.httpAttributes.discardResponseChunks).setTo(false)
+  def disableResponseChunksDiscarding: HttpRequestBuilder = this.modify(_.httpAttributes.discardResponseChunks).setTo(false)
 
   /**
    * Adds Content-Type header to the request set with "multipart/form-data" value
    */
-  def asMultipartForm = header(HeaderNames.ContentType, HttpRequestBuilder.MultipartFormDataValueExpression)
-  def asFormUrlEncoded = header(HeaderNames.ContentType, HttpRequestBuilder.ApplicationFormUrlEncodedValueExpression)
+  def asMultipartForm: HttpRequestBuilder = header(HeaderNames.ContentType, HttpRequestBuilder.MultipartFormDataValueExpression)
+  def asFormUrlEncoded: HttpRequestBuilder = header(HeaderNames.ContentType, HttpRequestBuilder.ApplicationFormUrlEncodedValueExpression)
 
   def formParam(key: Expression[String], value: Expression[Any]): HttpRequestBuilder = formParam(SimpleParam(key, value))
-  def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]) = formParam(MultivaluedParam(key, values))
+  def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestBuilder = formParam(MultivaluedParam(key, values))
 
   def formParamSeq(seq: Seq[(String, Any)]): HttpRequestBuilder = formParamSeq(seq2SeqExpression(seq))
   def formParamSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestBuilder = formParam(ParamSeq(seq))
@@ -115,7 +115,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   def form(form: Expression[Map[String, Any]]): HttpRequestBuilder =
     this.modify(_.httpAttributes.form).setTo(Some(form))
 
-  def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) =
+  def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): HttpRequestBuilder =
     bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath))
 
   /**
