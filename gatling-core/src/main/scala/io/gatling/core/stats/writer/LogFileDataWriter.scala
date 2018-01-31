@@ -18,7 +18,8 @@ package io.gatling.core.stats.writer
 
 import java.io.RandomAccessFile
 import java.nio.channels.FileChannel
-import java.nio.charset.{ CharsetEncoder, StandardCharsets }
+import java.nio.charset.CharsetEncoder
+import java.nio.charset.StandardCharsets.US_ASCII
 import java.nio.{ ByteBuffer, CharBuffer }
 
 import io.gatling.commons.stats.assertion.Assertion
@@ -98,9 +99,11 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
 object DataWriterMessageSerializer {
 
   val Separator: String = "\t"
-  val SeparatorBytes: Array[Byte] = Array('\t')
+  val GroupSeparatorChar = ','
+  val SeparatorBytes: Array[Byte] = Separator.getBytes(US_ASCII)
 
   val SpaceBytes: Array[Byte] = Array(' ')
+  val GroupSeparatorBytes: Array[Byte] = GroupSeparatorChar.toString.getBytes(US_ASCII)
 
   /**
    * Converts whitespace characters that would break the simulation log format into spaces.
@@ -111,11 +114,16 @@ object DataWriterMessageSerializer {
 
 abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter, header: String) {
 
+  import DataWriterMessageSerializer._
+
   def writeSeparator(): Unit =
-    writer.writeBytes(DataWriterMessageSerializer.SeparatorBytes)
+    writer.writeBytes(SeparatorBytes)
+
+  def writeGroupSeparator(): Unit =
+    writer.writeBytes(GroupSeparatorBytes)
 
   def writeSpace(): Unit =
-    writer.writeBytes(DataWriterMessageSerializer.SpaceBytes)
+    writer.writeBytes(SpaceBytes)
 
   def writeEol(): Unit =
     writer.writeBytes(EolBytes)
@@ -123,15 +131,15 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
   def writeGroups(groupHierarchy: List[String]): Unit = {
     var i = groupHierarchy.length
     groupHierarchy.foreach { group =>
-      writer.writeString(StringReplace.replace(group, _ == ',', ' '))
+      writer.writeString(StringReplace.replace(group, _ == GroupSeparatorChar, ' '))
       i -= 1
       if (i > 0) {
-        writeSeparator()
+        writeGroupSeparator()
       }
     }
   }
 
-  private val headerBytes = header.getBytes(StandardCharsets.US_ASCII)
+  private val headerBytes = header.getBytes(US_ASCII)
 
   def writeHeader(): Unit =
     writer.writeBytes(headerBytes)
