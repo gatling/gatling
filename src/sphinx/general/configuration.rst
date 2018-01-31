@@ -32,7 +32,12 @@ Gatling uses a fallback strategy, where:
 
 **System properties > gatling.conf > gatling-defaults.conf**
 
-``gatling.conf`` is placed in the ``conf`` directory. It serves as an easy-to-edit base: all properties are commented and all values are the defaults.
+In the bundle packaging, ``gatling.conf`` is placed in the ``conf`` directory. It serves as an easy-to-edit base: all properties are commented and all values are the defaults.
+
+In maven/sbt/gradle projects, it must be placed in the ``resources``.
+
+The name of this file can be overriding from a System property named ``gatling.conf.file``, eg ``-Dgatling.conf.file=gatling-special.conf``.
+
 
 ``gatling-defaults.conf`` is shipped in the gatling-core jar and should not be edited.
 

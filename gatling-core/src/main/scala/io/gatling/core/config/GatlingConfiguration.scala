@@ -38,7 +38,8 @@ import com.typesafe.scalalogging.StrictLogging
 object GatlingConfiguration extends StrictLogging {
 
   private val GatlingDefaultsConfigFile = "gatling-defaults.conf"
-  private val GatlingConfigFile = "gatling.conf"
+  private val GatlingCustomConfigFile = "gatling.conf"
+  private val GatlingCustomConfigFileOverrideSystemProperty = "gatling.conf.file"
   private val ActorSystemDefaultsConfigFile = "gatling-akka-defaults.conf"
   private val ActorSystemConfigFile = "gatling-akka.conf"
 
@@ -88,8 +89,11 @@ object GatlingConfiguration extends StrictLogging {
 
     val classLoader = getClass.getClassLoader
 
+    val customConfigFile = sys.props.getOrElse(GatlingCustomConfigFileOverrideSystemProperty, GatlingCustomConfigFile)
+    logger.info(s"Gatling will try to use '$customConfigFile' as custom config file.")
+
     val defaultsConfig = ConfigFactory.parseResources(classLoader, GatlingDefaultsConfigFile)
-    val customConfig = ConfigFactory.parseResources(classLoader, GatlingConfigFile)
+    val customConfig = ConfigFactory.parseResources(classLoader, customConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
 
     val config = configChain(ConfigFactory.systemProperties, customConfig, propertiesConfig, defaultsConfig)
