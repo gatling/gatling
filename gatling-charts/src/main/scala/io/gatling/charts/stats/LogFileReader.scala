@@ -90,13 +90,13 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
       line.split(DataWriterMessageSerializer.Separator) match {
 
         case RawRequestRecord(array) =>
-          updateRunLimits(array(5).toLong, array(6).toLong)
+          updateRunLimits(array(4).toLong, array(5).toLong)
 
         case RawUserRecord(array) =>
           updateRunLimits(array(4).toLong, array(5).toLong)
 
         case RawGroupRecord(array) =>
-          updateRunLimits(array(4).toLong, array(5).toLong)
+          updateRunLimits(array(3).toLong, array(4).toLong)
 
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(1), array(2), array(3).toLong, array(5).trim)
@@ -110,7 +110,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
           assertions += assertion
 
-        case RawErrorRecord(array) =>
+        case RawErrorRecord(_) =>
 
         case _ =>
           logger.debug(s"Record broken on line $count: $line")

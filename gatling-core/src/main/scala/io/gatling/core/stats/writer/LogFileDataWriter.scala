@@ -196,8 +196,6 @@ class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataW
 
   override protected def serialize0(response: ResponseMessage): Unit = {
     import response._
-    writer.writeString(scenario)
-    writeSeparator()
     writer.writePositiveLong(userId)
     writeSeparator()
     writeGroups(groupHierarchy)
@@ -225,8 +223,6 @@ class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
 
   override protected def serialize0(group: GroupMessage): Unit = {
     import group._
-    writer.writeString(scenario)
-    writeSeparator()
     writer.writePositiveLong(userId)
     writeSeparator()
     writeGroups(groupHierarchy)

@@ -45,16 +45,16 @@ private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
   private def parseRequestRecord(strings: Array[String]): RequestRecord = {
 
     val group = {
-      val groupString = strings(3)
+      val groupString = strings(2)
       if (groupString.isEmpty) None else Some(GroupRecordParser.parseGroup(groupString))
     }
-    val request = strings(4)
+    val request = strings(3)
 
-    val start = strings(5).toLong
-    val end = strings(6).toLong
+    val start = strings(4).toLong
+    val end = strings(5).toLong
 
-    val status = Status.apply(strings(7))
-    val errorMessage = if (status == KO) Some(strings(8)) else None
+    val status = Status.apply(strings(6))
+    val errorMessage = if (status == KO) Some(strings(7)) else None
 
     if (end != Long.MinValue) {
       // regular request
@@ -79,11 +79,11 @@ private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
 
   private def parseGroupRecord(strings: Array[String]): GroupRecord = {
 
-    val group = GroupRecordParser.parseGroup(strings(3))
-    val start = strings(4).toLong
-    val end = strings(5).toLong
-    val cumulatedResponseTime = strings(6).toInt
-    val status = Status.apply(strings(7))
+    val group = GroupRecordParser.parseGroup(strings(2))
+    val start = strings(3).toLong
+    val end = strings(4).toLong
+    val cumulatedResponseTime = strings(5).toInt
+    val status = Status.apply(strings(6))
     val duration = (end - start).toInt
     GroupRecord(group, duration, cumulatedResponseTime, status, start, bucketFunction(start))
   }
