@@ -212,10 +212,6 @@ class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataW
       case Some(m) => writer.writeString(sanitize(m))
       case _       => writeSpace()
     }
-    extraInfo.foreach { info =>
-      writeSeparator()
-      writer.writeString(sanitize(info.toString))
-    }
   }
 }
 

@@ -32,7 +32,6 @@ import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched }
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.request.ExtraInfo
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
@@ -108,17 +107,6 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
       logger.trace(dump)
 
-      val extraInfo: List[Any] = try {
-        tx.request.config.extraInfoExtractor match {
-          case None            => Nil
-          case Some(extractor) => extractor(ExtraInfo(tx.request.requestName, status, tx.session, tx.request.ahcRequest, response))
-        }
-      } catch {
-        case NonFatal(e) =>
-          logger.warn("Encountered error while extracting extra request info", e)
-          Nil
-      }
-
       statsEngine.logResponse(
         tx.session,
         fullRequestName,
@@ -126,8 +114,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         response.endTimestamp,
         status,
         response.status.map(httpStatus => Integer.toString(httpStatus.getStatusCode)),
-        errorMessage,
-        extraInfo
+        errorMessage
       )
     }
 

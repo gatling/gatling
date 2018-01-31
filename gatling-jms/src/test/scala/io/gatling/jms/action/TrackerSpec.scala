@@ -50,7 +50,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = ResponseMessage("mockSession", 0, Nil, "success", 15, 30, OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", 0, Nil, "success", 15, 30, OK, None, None)
     statsEngine.dataWriterMsg should contain(expected)
   }
 
@@ -65,7 +65,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
-    val expected = ResponseMessage("mockSession", 0, Nil, "failure", 15, 30, KO, None, Some("Jms check failed"), Nil)
+    val expected = ResponseMessage("mockSession", 0, Nil, "failure", 15, 30, KO, None, Some("Jms check failed"))
     statsEngine.dataWriterMsg should contain(expected)
   }
 
@@ -80,7 +80,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
-    val expected = ResponseMessage("mockSession", 0, Nil, "updated", 15, 30, OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", 0, Nil, "updated", 15, 30, OK, None, None)
     statsEngine.dataWriterMsg should contain(expected)
   }
 

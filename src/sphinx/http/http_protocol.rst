@@ -310,33 +310,6 @@ Response chunks discarding
 Beware that, as an optimization, Gatling doesn't keep response chunks unless a check is defined on the response body or that debug logging is enabled.
 However some people might want to always keep the response chunks, thus you can disable the default behavior with ``disableResponseChunksDiscarding``.
 
-.. _http-protocol-extractor:
-
-Dumping custom data
--------------------
-
-Some people might want more data than what Gatling normally dumps in the ``simulation.log`` file.
-
-Http protocol provide a hook for dumping extra data with ``extraInfoExtractor(f: ExtraInfoExtractor)``.
-``ExtraInfoExtractor`` is a shortcut for the function type: ``(ExtraInfo) => List[Any]``.
-Thus your extractor need to return a ``List[Any]``, ``Any`` is the equivalent of ``Object`` in Scala.
-``ExtraInfo`` gives you access to :
-
-* ``requestName``: The name of the request.
-* ``status``: The status of the request, i.e. OK/KO.
-* ``session``: The user's Session.
-* ``request``: The http request.
-* ``response``: The http response.
-
-The extra data will be appended to the relative records in the ``simulation.log`` file and reports generation will ignore them.
-It's up to the user to build his own analysis system for them.
-
-For example, it you'd like the dump the response body's length to ``simulation.log``, you would do::
-
-  val httpProtocol = http.extraInfoExtractor(extraInfo => List(extraInfo.response.bodyLength))
-
-Gatling provides a built-in ``ExtraInfoExtractor``, ``dumpSessionOnFailure``, which dumps the user's session to ``simulation.log`` if the request failed.
-
 .. _http-protocol-response-transformer:
 
 Response Transformers

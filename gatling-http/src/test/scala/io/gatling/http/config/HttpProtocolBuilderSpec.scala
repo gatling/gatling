@@ -21,7 +21,6 @@ import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProtocol }
-import io.gatling.http.request.ExtraInfo
 
 class HttpProtocolBuilderSpec extends BaseSpec {
 
@@ -30,19 +29,7 @@ class HttpProtocolBuilderSpec extends BaseSpec {
   val httpEngine = mock[HttpEngine]
   val httpProtocolBuilder = HttpProtocolBuilder(configuration)
 
-  "http protocol configuration builder" should "support an optional extra info extractor" in {
-
-    val expectedExtractor = (extraInfo: ExtraInfo) => Nil
-
-    val builder = httpProtocolBuilder
-      .disableWarmUp
-      .extraInfoExtractor(expectedExtractor)
-    val config: HttpProtocol = builder.build
-
-    config.responsePart.extraInfoExtractor.get shouldBe expectedExtractor
-  }
-
-  it should "set a silent URI regex" in {
+  "http protocol configuration builder" should "set a silent URI regex" in {
     val builder = httpProtocolBuilder
       .silentURI(".*")
 

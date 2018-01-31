@@ -57,8 +57,7 @@ case class ResponseMessage(
     endTimestamp:   Long,
     status:         Status,
     responseCode:   Option[String],
-    message:        Option[String],
-    extraInfo:      List[Any]
+    message:        Option[String]
 ) extends LoadEventMessage
 
 case class GroupMessage(

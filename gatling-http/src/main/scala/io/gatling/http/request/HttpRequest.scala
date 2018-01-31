@@ -28,7 +28,6 @@ import org.asynchttpclient.Request
 case class HttpRequestConfig(
     checks:                List[HttpCheck],
     responseTransformer:   Option[PartialFunction[Response, Response]],
-    extraInfoExtractor:    Option[ExtraInfoExtractor],
     maxRedirects:          Int,
     throttled:             Boolean,
     silent:                Option[Boolean],

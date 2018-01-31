@@ -26,7 +26,6 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.fetch.InferredResourceNaming
-import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
@@ -113,7 +112,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def maxRedirects(max: Int) = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
   def strict302Handling = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
   def disableResponseChunksDiscarding = this.modify(_.protocol.responsePart.discardResponseChunks).setTo(false)
-  def extraInfoExtractor(f: ExtraInfoExtractor) = this.modify(_.protocol.responsePart.extraInfoExtractor).setTo(Some(f))
   def transformResponse(responseTransformer: PartialFunction[Response, Response]) = this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*) = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)

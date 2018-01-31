@@ -30,11 +30,9 @@ import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.fetch.InferredResourceNaming
-import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient._
 import org.asynchttpclient.proxy._
@@ -96,7 +94,6 @@ object HttpProtocol extends StrictLogging {
         discardResponseChunks = true,
         responseTransformer = None,
         checks = Nil,
-        extraInfoExtractor = None,
         inferHtmlResources = false,
         inferredHtmlResourcesNaming = InferredResourceNaming.UrlTrailInferredResourceNaming,
         htmlResourcesInferringFilters = None
@@ -170,7 +167,6 @@ case class HttpProtocolResponsePart(
     discardResponseChunks:         Boolean,
     responseTransformer:           Option[PartialFunction[Response, Response]],
     checks:                        List[HttpCheck],
-    extraInfoExtractor:            Option[ExtraInfoExtractor],
     inferHtmlResources:            Boolean,
     inferredHtmlResourcesNaming:   Uri => String,
     htmlResourcesInferringFilters: Option[Filters]

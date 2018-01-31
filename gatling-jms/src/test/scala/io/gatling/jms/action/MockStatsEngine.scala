@@ -53,8 +53,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
     endTimestamp:   Long,
     status:         Status,
     responseCode:   Option[String],
-    message:        Option[String] = None,
-    extraInfo:      List[Any]      = Nil
+    message:        Option[String] = None
   ): Unit =
     handle(ResponseMessage(
       session.scenario,
@@ -65,8 +64,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
       endTimestamp,
       status,
       None,
-      message,
-      extraInfo
+      message
     ))
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
@@ -76,7 +74,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit = {}
 
-  private def handle(msg: DataWriterMessage) = {
+  private def handle(msg: DataWriterMessage): Unit = {
     dataWriterMsg = msg :: dataWriterMsg
     logger.info(msg.toString)
   }

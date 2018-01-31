@@ -64,11 +64,6 @@ class HttpCompileTest extends Simulation {
     .hostNameAliases(Map("foo" -> "127.0.0.1"))
     .perUserDnsNameResolution
 
-  val httpConfToVerifyDumpSessionOnFailureBuiltIn = http.extraInfoExtractor(dumpSessionOnFailure)
-
-  val httpConfToVerifyUserProvidedInfoExtractors = http
-    .extraInfoExtractor(extraInfo => List(extraInfo.requestName, extraInfo.response.body.string))
-
   val testData3 = Array(Map("foo" -> "bar")).circular
 
   val scn = scenario("Scn")

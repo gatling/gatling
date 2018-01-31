@@ -40,8 +40,7 @@ case class HttpAttributes(
     body:                  Option[Body]                                = None,
     bodyParts:             List[BodyPart]                              = Nil,
     formParams:            List[HttpParam]                             = Nil,
-    form:                  Option[Expression[Map[String, Any]]]        = None,
-    extraInfoExtractor:    Option[ExtraInfoExtractor]                  = None
+    form:                  Option[Expression[Map[String, Any]]]        = None
 )
 
 object HttpRequestBuilder {
@@ -79,8 +78,6 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   def notSilent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(false))
 
   def disableFollowRedirect: HttpRequestBuilder = this.modify(_.httpAttributes.followRedirect).setTo(false)
-
-  def extraInfoExtractor(f: ExtraInfoExtractor): HttpRequestBuilder = this.modify(_.httpAttributes.extraInfoExtractor).setTo(Some(f))
 
   /**
    * @param responseTransformer transforms the response before it's handled to the checks pipeline
@@ -150,8 +147,6 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
     val resolvedResources = httpAttributes.explicitResources.map(_.build(coreComponents, httpComponents, throttled))
 
-    val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(httpProtocol.responsePart.extraInfoExtractor)
-
     val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, coreComponents, httpComponents).build
 
     val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && httpProtocol.responsePart.discardResponseChunks
@@ -162,7 +157,6 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
       HttpRequestConfig(
         checks = resolvedChecks,
         responseTransformer = resolvedResponseTransformer,
-        extraInfoExtractor = resolvedExtraInfoExtractor,
         maxRedirects = httpProtocol.responsePart.maxRedirects,
         throttled = throttled,
         silent = httpAttributes.silent,

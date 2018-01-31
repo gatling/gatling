@@ -177,7 +177,6 @@ class CacheSupportSpec extends BaseSpec {
         config = HttpRequestConfig(
           checks = Nil,
           responseTransformer = None,
-          extraInfoExtractor = None,
           maxRedirects = 10,
           throttled = false,
           silent = None,

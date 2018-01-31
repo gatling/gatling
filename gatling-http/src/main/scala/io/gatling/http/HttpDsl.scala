@@ -16,7 +16,6 @@
 
 package io.gatling.http
 
-import io.gatling.commons.stats.KO
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -27,7 +26,7 @@ import io.gatling.http.check.w2.WsCheckSupport
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
-import io.gatling.http.request.{ BodyPart, ExtraInfo }
+import io.gatling.http.request.BodyPart
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.polling.Polling
 import io.gatling.http.request.builder.sse.Sse
@@ -56,11 +55,6 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSuppor
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues
-
-  val dumpSessionOnFailure: ExtraInfo => List[Any] = extraInfo => extraInfo.status match {
-    case KO => List(extraInfo.session)
-    case _  => Nil
-  }
 
   def Cookie = AddCookieDsl
   def CookieKey = GetCookieDsl

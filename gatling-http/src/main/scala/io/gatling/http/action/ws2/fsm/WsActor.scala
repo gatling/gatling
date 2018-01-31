@@ -106,7 +106,7 @@ class WsActor(
   protected def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
     val newSession = session.logGroupRequest(start, end, status)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
-    statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason, Nil)
+    statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason)
     newSessionWithMark
   }
 

@@ -61,8 +61,7 @@ trait StatsEngine {
     endTimestamp:   Long,
     status:         Status,
     responseCode:   Option[String],
-    message:        Option[String],
-    extraInfo:      List[Any]      = Nil
+    message:        Option[String]
   ): Unit
 
   def logGroupEnd(
@@ -141,8 +140,7 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
     endTimestamp:   Long,
     status:         Status,
     responseCode:   Option[String],
-    message:        Option[String],
-    extraInfo:      List[Any]      = Nil
+    message:        Option[String]
   ): Unit =
     if (endTimestamp >= 0) {
       dispatch(ResponseMessage(
@@ -154,8 +152,7 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
         endTimestamp,
         status,
         responseCode,
-        message,
-        extraInfo
+        message
       ))
     }
 
