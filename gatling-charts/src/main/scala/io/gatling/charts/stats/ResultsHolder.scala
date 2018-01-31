@@ -15,7 +15,10 @@
  */
 package io.gatling.charts.stats
 
+import scala.annotation.tailrec
+
 import io.gatling.charts.stats.buffers._
+import io.gatling.commons.stats.{ Group, OK }
 import io.gatling.core.config.GatlingConfiguration
 
 private[stats] class ResultsHolder(val minTimestamp: Long, val maxTimestamp: Long, val buckets: Array[Int])(implicit configuration: GatlingConfiguration)
@@ -43,7 +46,17 @@ private[stats] class ResultsHolder(val minTimestamp: Long, val maxTimestamp: Lon
     updateGroupResponseTimeRangeBuffer(record)
   }
 
+  @tailrec
+  private def addAllParentGroups(group: Group): Unit = {
+    addGroupName(GroupRecord(group, 0, 0, OK, 0, 0))
+    group.hierarchy.reverse match {
+      case _ :: tail if tail.nonEmpty => addAllParentGroups(Group(tail.reverse))
+      case _                          =>
+    }
+  }
+
   def addRequestRecord(record: RequestRecord): Unit = {
+    record.group.foreach(addAllParentGroups)
     updateRequestsPerSecBuffers(record)
     updateResponsesPerSecBuffers(record)
     addRequestName(record)
