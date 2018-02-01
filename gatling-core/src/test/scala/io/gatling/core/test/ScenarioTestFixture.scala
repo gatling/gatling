@@ -69,7 +69,7 @@ trait ScenarioTestFixture extends BaseSpec {
 
     try {
       val statsEngine = new LoggingStatsEngine
-      val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], statsEngine, mock[Action], configuration)
+      val coreComponents = CoreComponents(system, mock[ActorRef], mock[ActorRef], mock[Throttler], statsEngine, mock[Action], configuration)
       val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, Protocols(Nil)).scenarioRegistry(Protocols(Nil))
       val scenarioContext = ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false)
       val exitAction = new BlockingExitAction()

@@ -117,7 +117,7 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
     .matchByCorrelationID
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
-    val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
+    val coreComponents = CoreComponents(system, mock[ActorRef], mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
     val next = new ActorDelegatingAction("next", self)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Protocols(Nil))
     val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)

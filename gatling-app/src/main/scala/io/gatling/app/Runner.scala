@@ -25,6 +25,7 @@ import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.{ Controller, ControllerCommand }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.{ Scenario, SimulationParams }
@@ -88,9 +89,10 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     val runMessage = RunMessage(simulationParams.name, selection.simulationId, nowMillis, selection.description)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler(system, simulationParams)
-    val controller = system.actorOf(Controller.props(statsEngine, throttler, simulationParams, configuration), Controller.ControllerActorName)
-    val exit = new Exit(controller, statsEngine)
-    val coreComponents = CoreComponents(system, controller, throttler, statsEngine, exit, configuration)
+    val injector = Injector(system, statsEngine)
+    val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
+    val exit = new Exit(injector, statsEngine)
+    val coreComponents = CoreComponents(system, controller, injector, throttler, statsEngine, exit, configuration)
     logger.trace("CoreComponents instantiated")
 
     val scenarios = simulationParams.scenarios(coreComponents)

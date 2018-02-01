@@ -22,17 +22,18 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.{ LongCounter, PushbackIterator }
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.ClockSingleton._
-import io.gatling.core.controller.ControllerCommand
+import io.gatling.core.controller.ControllerCommand.InjectorStopped
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
 
-import akka.actor.{ Cancellable, Props, ActorSystem, ActorRef }
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
 sealed trait InjectorCommand
 object InjectorCommand {
-  case object Start extends InjectorCommand
+  case class Start(controller: ActorRef, scenarios: List[Scenario]) extends InjectorCommand
   case object Tick extends InjectorCommand
 }
 
@@ -87,13 +88,11 @@ object Injector {
   val TickPeriod: FiniteDuration = 1 second
   val InitialBatchWindow: FiniteDuration = TickPeriod * 2
 
-  def apply(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, scenarios: List[Scenario]): ActorRef = {
-    val userStreams: Map[String, UserStream] = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers)))(breakOut)
-    system.actorOf(Props(new Injector(controller, statsEngine, userStreams)), InjectorActorName)
-  }
+  def apply(system: ActorSystem, statsEngine: StatsEngine): ActorRef =
+    system.actorOf(Props(new Injector(statsEngine)), InjectorActorName)
 }
 
-private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, defaultStreams: Map[String, UserStream]) extends InjectorFSM {
+private[inject] class Injector(statsEngine: StatsEngine) extends InjectorFSM {
 
   import Injector._
   import InjectorState._
@@ -102,17 +101,17 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
 
   val userIdGen = new LongCounter
 
-  private def inject(streams: Map[String, UserStream], batchWindow: FiniteDuration, startMillis: Long, count: Long, timer: Cancellable): State = {
-    val injection = injectStreams(streams, batchWindow, startMillis)
-    val newCount = injection.count + count
-    if (injection.continue) {
-      goto(Started) using StartedData(startMillis, newCount, timer)
+  private def inject(data: StartedData, batchWindow: FiniteDuration): State = {
+    import data._
+    val injection = injectStreams(userStreams, batchWindow, startMillis)
+    userCounts.incrementStarted(injection.count)
 
+    if (injection.continue) {
+      goto(Started) using data
     } else {
-      controller ! ControllerCommand.InjectionStopped(newCount)
+      logger.info(s"InjectionStopped expectedCount=${userCounts.started}")
       timer.cancel()
-      // FIXME do we really need to stop? Or go to a noop state?
-      stop()
+      goto(StoppedInjecting) using StoppedInjectingData(controller, userCounts)
     }
   }
 
@@ -146,13 +145,31 @@ private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, d
   startWith(WaitingToStart, NoData)
 
   when(WaitingToStart) {
-    case Event(Start, NoData) =>
+    case Event(Start(controller, scenarios), NoData) =>
+      val defaultStreams: Map[String, UserStream] = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers)))(breakOut)
       val timer = system.scheduler.schedule(InitialBatchWindow, TickPeriod, self, Tick)
-      inject(defaultStreams, InitialBatchWindow, nowMillis, 0, timer)
+      inject(StartedData(controller, defaultStreams, nowMillis, timer, new UserCounts), InitialBatchWindow)
   }
 
   when(Started) {
-    case Event(Tick, StartedData(startMillis, count, timer)) =>
-      inject(defaultStreams, TickPeriod, startMillis, count, timer)
+    case Event(UserMessage(session, End, _), data: StartedData) =>
+      import data._
+      logger.debug(s"End user #${session.userId}")
+      userCounts.incrementStopped()
+      stay()
+
+    case Event(Tick, data: StartedData) =>
+      inject(data, TickPeriod)
+  }
+
+  when(StoppedInjecting) {
+    case Event(UserMessage(_, End, _), StoppedInjectingData(controller, userCounts)) =>
+      if (userCounts.allStopped) {
+        logger.info("All users are stopped")
+        controller ! InjectorStopped
+        stop()
+      } else {
+        stay()
+      }
   }
 }

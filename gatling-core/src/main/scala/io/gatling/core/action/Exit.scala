@@ -24,7 +24,7 @@ import io.gatling.core.stats.writer.UserMessage
 
 import akka.actor.ActorRef
 
-class Exit(controller: ActorRef, statsEngine: StatsEngine) extends Action {
+class Exit(injector: ActorRef, statsEngine: StatsEngine) extends Action {
 
   override val name = "gatling-exit"
 
@@ -33,6 +33,6 @@ class Exit(controller: ActorRef, statsEngine: StatsEngine) extends Action {
     session.exit()
     val userEnd = UserMessage(session, End, nowMillis)
     statsEngine.logUser(userEnd)
-    controller ! userEnd
+    injector ! userEnd
   }
 }

@@ -19,27 +19,25 @@ package io.gatling.core.controller
 import scala.util.{ Failure, Success, Try }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.{ Injector, InjectorCommand }
+import io.gatling.core.controller.inject.InjectorCommand
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.End
-import io.gatling.core.stats.writer.UserMessage
 
-import akka.actor.{ ActorSelection, ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSelection, ActorSystem, Props }
 
 object Controller {
 
   val ControllerActorName = "gatling-controller"
 
-  def props(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration) =
-    Props(new Controller(statsEngine, throttler, simulationParams, configuration))
+  def props(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration) =
+    Props(new Controller(statsEngine, injector, throttler, simulationParams, configuration))
 
   def controllerSelection(system: ActorSystem): ActorSelection =
     system.actorSelection("/user/" + ControllerActorName)
 }
 
-class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
+class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
   extends ControllerFSM {
 
   import ControllerState._
@@ -54,8 +52,6 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     case Event(Start(scenarios), NoData) =>
       val initData = InitData(sender(), scenarios)
 
-      val injector = Injector(system, self, statsEngine, initData.scenarios)
-
       simulationParams.maxDuration.foreach { maxDuration =>
         logger.debug("Setting up max duration")
         setTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
@@ -63,43 +59,29 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
       throttler.start()
       statsEngine.start()
-      injector ! InjectorCommand.Start
+      injector ! InjectorCommand.Start(self, initData.scenarios)
 
-      goto(Started) using StartedData(initData, new UserCounts)
+      goto(Started) using StartedData(initData)
   }
 
   when(Started) {
-    case Event(UserMessage(session, End, _), startedData: StartedData) =>
-      logger.debug(s"End user #${session.userId}")
-      startedData.userCounts.incrementCompleted()
-      evaluateUserCounts(startedData)
+    case Event(InjectorStopped, data: StartedData) =>
+      logger.info(s"Injector has stopped, initiating graceful stop")
+      stopGracefully(data, None)
 
-    case Event(InjectionStopped(expectedCount), startedData: StartedData) =>
-      logger.info(s"InjectionStopped expectedCount=$expectedCount")
-      startedData.userCounts.setExpected(expectedCount)
-      evaluateUserCounts(startedData)
-
-    case Event(MaxDurationReached(maxDuration), startedData: StartedData) =>
+    case Event(MaxDurationReached(maxDuration), data: StartedData) =>
       logger.info(s"Max duration of $maxDuration reached")
-      stopGracefully(startedData, None)
+      stopGracefully(data, None)
 
-    case Event(Crash(exception), startedData: StartedData) =>
+    case Event(Crash(exception), data: StartedData) =>
       logger.error(s"Simulation crashed", exception)
       cancelTimer(maxDurationTimer)
-      stopGracefully(startedData, Some(exception))
+      stopGracefully(data, Some(exception))
 
-    case Event(Kill, StartedData(initData, _)) =>
+    case Event(Kill, StartedData(initData)) =>
       logger.error("Simulation was killed")
       stop(EndData(initData, None))
   }
-
-  private def evaluateUserCounts(startedData: StartedData): State =
-    if (startedData.userCounts.allStopped) {
-      logger.info("All users are stopped")
-      stopGracefully(startedData, None)
-    } else {
-      stay()
-    }
 
   private def stopGracefully(startedData: StartedData, exception: Option[Exception]): State = {
     statsEngine.stop(self, exception)
@@ -112,16 +94,16 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
   }
 
   when(WaitingForResourcesToStop) {
-    case Event(StatsEngineStopped, endData: EndData) =>
+    case Event(StatsEngineStopped, data: EndData) =>
       logger.info("StatsEngineStopped")
-      stop(endData)
+      stop(data)
 
-    case Event(Kill, endData: EndData) =>
+    case Event(Kill, data: EndData) =>
       logger.error("Kill")
-      stop(endData)
+      stop(data)
 
     case Event(message, _) =>
-      logger.debug(s"Ignore message $message while waiting for StatsEngine to stop")
+      logger.debug(s"Ignore message $message while waiting for resources to stop")
       stay()
   }
 

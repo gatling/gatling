@@ -26,6 +26,7 @@ import _root_.akka.actor.{ ActorRef, ActorSystem }
 case class CoreComponents(
     system:        ActorSystem,
     controller:    ActorRef,
+    injector:      ActorRef,
     throttler:     Throttler,
     statsEngine:   StatsEngine,
     exit:          Action,

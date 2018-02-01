@@ -18,18 +18,33 @@ package io.gatling.core.controller.inject
 
 import io.gatling.core.akka.BaseActor
 
-import akka.actor.{ Cancellable, FSM }
+import akka.actor.{ ActorRef, Cancellable, FSM }
 
 private[inject] trait InjectorState
 private[inject] object InjectorState {
   case object WaitingToStart extends InjectorState
   case object Started extends InjectorState
+  case object StoppedInjecting extends InjectorState
 }
 
 private[inject] trait InjectorData
 private[inject] object InjectorData {
   case object NoData extends InjectorData
-  case class StartedData(startMillis: Long, count: Long, timer: Cancellable) extends InjectorData
+  case class StartedData(controller: ActorRef, userStreams: Map[String, UserStream], startMillis: Long, timer: Cancellable, userCounts: UserCounts) extends InjectorData
+  case class StoppedInjectingData(controller: ActorRef, userCounts: UserCounts) extends InjectorData
 }
 
 private[inject] class InjectorFSM extends BaseActor with FSM[InjectorState, InjectorData]
+
+private[inject] class UserCounts {
+
+  private[this] var _started: Long = 0
+  private[this] var _stopped: Long = 0
+
+  def started: Long = _started
+
+  def incrementStarted(more: Long): Unit = _started += more
+  def incrementStopped(): Unit = _stopped += 1
+
+  def allStopped: Boolean = started == _stopped
+}
