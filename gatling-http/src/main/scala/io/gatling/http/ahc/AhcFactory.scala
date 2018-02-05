@@ -108,6 +108,7 @@ private[gatling] class DefaultAhcFactory(coreComponents: CoreComponents)
       .setResponseBodyPartFactory(ResponseBodyPartFactory.LAZY)
       .setDisableHttpsEndpointIdentificationAlgorithm(ahcConfig.disableHttpsEndpointIdentificationAlgorithm)
       .setUseInsecureTrustManager(ahcConfig.useInsecureTrustManager)
+      .setFilterInsecureCipherSuites(ahcConfig.filterInsecureCipherSuites)
       .setUseLaxCookieEncoder(true)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
         case Nil => null
