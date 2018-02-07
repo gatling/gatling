@@ -23,6 +23,7 @@ lazy val root = Project("gatling-parent", file("."))
 def gatlingModule(id: String) = Project(id, file(id))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
   .settings(gatlingModuleSettings: _*)
+  .settings(updateOptions := updateOptions.value.withGigahorse(false))
 
 lazy val commons = gatlingModule("gatling-commons")
   .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
