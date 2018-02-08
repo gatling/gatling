@@ -14,27 +14,41 @@
  * limitations under the License.
  */
 
-package io.gatling.core.controller.inject
+package io.gatling.core.controller.inject.closed
 
 import java.util.concurrent.atomic.AtomicLong
 
+import io.gatling.core.controller.inject.{ InjectionProfile, Workload }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-trait InjectionProfileFactory[-InjectionStep] {
+case class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
 
-  def profile(steps: Iterable[InjectionStep]): InjectionProfile
-}
+  // doesn't make sense for ClosedInjectionProfile
+  override def totalUserCount: Option[Long] = None
 
-trait InjectionProfile {
-
-  def totalUserCount: Option[Long]
-
-  def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine): Workload
+  override def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine): Workload =
+    new ClosedWorkload(scenario, steps, userIdGen, startTime, system, statsEngine)
 
   //[fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   //
   //[fl]
 }

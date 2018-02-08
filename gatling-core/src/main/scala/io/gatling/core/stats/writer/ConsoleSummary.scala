@@ -51,17 +51,21 @@ object ConsoleSummary {
     def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
       import userCounters._
+      totalUserCount match {
+        case Some(tot) =>
+          val width = OutputLength - 6 // []3d%
 
-      val width = OutputLength - 6 // []3d%
-
-      val donePercent = floor(100 * doneCount.toDouble / userCount).toInt
-      val done = floor(width * doneCount.toDouble / userCount).toInt
-      val active = ceil(width * activeCount.toDouble / userCount).toInt
-      val waiting = width - done - active
-
-      fast"""${writeSubTitle(scenarioName)}
+          val donePercent = floor(100 * doneCount.toDouble / tot).toInt
+          val done = floor(width * doneCount.toDouble / tot).toInt
+          val active = ceil(width * activeCount.toDouble / tot).toInt
+          val waiting = width - done - active
+          fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * active}${" " * waiting}]${donePercent.toString.leftPad(3)}%
           waiting: ${waitingCount.toString.rightPad(6)} / active: ${activeCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
+        case _ =>
+          // Don't display for closed workload model, it doesn't make sense
+          EmptyFastring
+      }
     }
 
     def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {

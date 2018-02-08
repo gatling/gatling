@@ -14,42 +14,53 @@
  * limitations under the License.
  */
 
-package io.gatling.core.controller.inject
+package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration.FiniteDuration
 
-trait InjectionSupport {
+import io.gatling.core.controller.inject.InjectionProfileFactory
+
+object OpenInjectionSupport {
+
+  val OpenInjectionProfileFactory: InjectionProfileFactory[OpenInjectionStep] =
+    (steps: Iterable[OpenInjectionStep]) => OpenInjectionProfile(steps)
+}
+
+trait OpenInjectionSupport {
+
+  implicit def openInjectionProfileFactory: InjectionProfileFactory[OpenInjectionStep] =
+    OpenInjectionSupport.OpenInjectionProfileFactory
 
   case class RampBuilder(users: Int) {
-    def over(d: FiniteDuration) = RampInjection(users, d)
+    def over(d: FiniteDuration) = RampOpenInjection(users, d)
   }
   case class HeavisideBuilder(users: Int) {
-    def over(d: FiniteDuration) = HeavisideInjection(users, d)
+    def over(d: FiniteDuration) = HeavisideOpenInjection(users, d)
   }
   case class ConstantRateBuilder(rate: Double) {
-    def during(d: FiniteDuration) = ConstantRateInjection(rate, d)
+    def during(d: FiniteDuration) = ConstantRateOpenInjection(rate, d)
   }
   case class PartialRampRateBuilder(rate1: Double) {
     def to(rate2: Double) = RampRateBuilder(rate1, rate2)
   }
   case class RampRateBuilder(rate1: Double, rate2: Double) {
-    def during(d: FiniteDuration) = RampRateInjection(rate1, rate2, d)
+    def during(d: FiniteDuration) = RampRateOpenInjection(rate1, rate2, d)
   }
   case class PartialSplitBuilder(users: Int) {
-    def into(step: InjectionStep) = SplitBuilder(users, step)
+    def into(step: OpenInjectionStep) = SplitBuilder(users, step)
   }
-  case class SplitBuilder(users: Int, step: InjectionStep) {
-    def separatedBy(separator: InjectionStep) = SplitInjection(users, step, separator)
-    def separatedBy(duration: FiniteDuration) = SplitInjection(users, step, NothingForInjection(duration))
+  case class SplitBuilder(users: Int, step: OpenInjectionStep) {
+    def separatedBy(separator: OpenInjectionStep) = SplitOpenInjection(users, step, separator)
+    def separatedBy(duration: FiniteDuration) = SplitOpenInjection(users, step, NothingForOpenInjection(duration))
   }
 
   def rampUsers(users: Int) = RampBuilder(users)
   def heavisideUsers(users: Int) = HeavisideBuilder(users)
-  def atOnceUsers(users: Int) = AtOnceInjection(users)
+  def atOnceUsers(users: Int) = AtOnceOpenInjection(users)
   def splitUsers(users: Int) = PartialSplitBuilder(users)
 
   def constantUsersPerSec(rate: Double) = ConstantRateBuilder(rate)
   def rampUsersPerSec(rate1: Double) = PartialRampRateBuilder(rate1)
 
-  def nothingFor(d: FiniteDuration) = NothingForInjection(d)
+  def nothingFor(d: FiniteDuration) = NothingForOpenInjection(d)
 }

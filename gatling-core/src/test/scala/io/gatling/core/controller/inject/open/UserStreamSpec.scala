@@ -14,29 +14,26 @@
  * limitations under the License.
  */
 
-package io.gatling.core.controller.inject
+package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
-import io.gatling.core.controller.inject.Injector._
-import io.gatling.commons.util.PushbackIterator
 import io.gatling.commons.util.ClockSingleton._
+import io.gatling.core.controller.inject.Injector._
 import io.gatling.core.scenario.Scenario
 
 class UserStreamSpec extends BaseSpec {
 
   "UserStream" should "stream users properly over a long period" in {
 
-    val scenario = Scenario("scenario", null, null, null, null, null)
     val expectedTotalUsers = 9000
     val expectedDuration = 9 hours
-    val ramp = RampInjection(expectedTotalUsers, expectedDuration)
-    val injectionProfile = InjectionProfile(List(ramp))
+    val ramp = RampOpenInjection(expectedTotalUsers, expectedDuration)
 
     val startTime = nowMillis
 
-    val userStream = UserStream(scenario, new PushbackIterator(injectionProfile.allUsers))
+    val userStream = UserStream(List(ramp))
 
     var injectedUsers = 0
     var count = 0
@@ -49,8 +46,8 @@ class UserStreamSpec extends BaseSpec {
       // batches are scheduled every 1 second
       lastBatchTimeSinceStart = count * (TickPeriod.toMillis.toInt + 5) // 5 ms scheduler drift on each iteration
 
-      val injection = userStream.withStream(InitialBatchWindow, lastBatchTimeSinceStart + startTime, startTime) {
-        case (_, duration) =>
+      val injection = userStream.withStream(TickPeriod * 2, lastBatchTimeSinceStart + startTime, startTime) {
+        duration =>
           injectedUsers += 1
           // calls are sorted
           lastBatchMaxOffset = duration
@@ -68,17 +65,15 @@ class UserStreamSpec extends BaseSpec {
 
   it should "continue injecting after first batch" in {
 
-    val scenario = Scenario("scenario", null, null, null, null, null)
-    val ramp = RampInjection(144000000 / 30, 18000 seconds)
-    val injectionProfile = InjectionProfile(List(ramp))
+    val ramp = RampOpenInjection(144000000 / 30, 18000 seconds)
 
     val startTime = nowMillis
 
     for (timeSinceStart <- -1001 until 2000) {
-      val userStream = UserStream(scenario, new PushbackIterator(injectionProfile.allUsers))
+      val userStream = UserStream(List(ramp))
 
-      val injection = userStream.withStream(InitialBatchWindow, timeSinceStart + startTime, startTime) {
-        case _ => // nothing
+      val injection = userStream.withStream(TickPeriod * 2, timeSinceStart + startTime, startTime) {
+        _ => // nothing
       }
 
       injection.continue shouldBe true

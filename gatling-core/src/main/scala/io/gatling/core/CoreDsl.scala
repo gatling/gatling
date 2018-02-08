@@ -22,7 +22,8 @@ import io.gatling.core.assertion.AssertionSupport
 import io.gatling.core.body.BodyProcessors
 import io.gatling.core.check.CheckSupport
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.InjectionSupport
+import io.gatling.core.controller.inject.closed.ClosedInjectionSupport
+import io.gatling.core.controller.inject.open.OpenInjectionSupport
 import io.gatling.core.controller.throttle.ThrottlingSupport
 import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
@@ -33,7 +34,8 @@ trait CoreDsl extends StructureSupport
   with PauseSupport
   with CheckSupport
   with FeederSupport
-  with InjectionSupport
+  with OpenInjectionSupport
+  with ClosedInjectionSupport
   with ThrottlingSupport
   with AssertionSupport
   with CoreDefaultImplicits

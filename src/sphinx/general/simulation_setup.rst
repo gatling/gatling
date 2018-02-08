@@ -17,9 +17,41 @@ Injection
 =========
 
 The definition of the injection profile of users is done with the ``inject`` method. This method takes as argument a sequence of injection steps that will be processed sequentially.
-E.g.:
 
-.. includecode:: code/SimulationSetupSample.scala#injection
+Open vs Closed Workload Models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When it comes to load model, systems behave in 2 different ways:
+
+* Closed systems, where you control the concurrent number of users
+* Open systems, where you control the arrival rate of users
+
+Make sure to use the proper load model that matches the load your live system experiences.
+
+Closed system are system where the number of concurrent users is capped.
+At full capacity, a new user can effectively enter the system only once another exits.
+
+Typical systems that behave this way are:
+
+* call center when all operators are busy
+* ticketing websites where users get placed into a queue when system is at full capacity
+
+On the contrary, open system have no control over the number concurrent users: users keep on arriving even though applications has some trouble serving them.
+Most websites behave this way.
+
+If you're using a closed workload model in your load tests while your system actually is a open one, your test is broken and you're testing some different imaginary behavior.
+In such case, when system under test starts to has some trouble, response time will increase, journey time will become longer, so number of concurrent users will increase
+and injector will slow down to match the imaginary cap you've set.
+
+You can read more about open and closed models `here <http://repository.cmu.edu/cgi/viewcontent.cgi?article=1872&context=compsci>`_.
+
+
+.. _simulation-inject-open:
+
+Open Model
+^^^^^^^^^^
+
+.. includecode:: code/SimulationSetupSample.scala#open-injection
 
 The building blocks for profile injection the way you want are:
 
@@ -34,28 +66,24 @@ The building blocks for profile injection the way you want are:
 #. ``splitUsers(nbUsers) into(injectionStep1) separatedBy(injectionStep2)``: Repeatedly execute the first defined injection step (*injectionStep1*) separated by the execution of the second injection step (*injectionStep2*) until reaching *nbUsers*, the total number of users to inject.
 #. ``heavisideUsers(nbUsers) over(duration)``: Injects a given number of users following a smooth approximation of the `heaviside step function <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ stretched to a given duration.
 
+
+Closed Model
+^^^^^^^^^^^^
+
+.. includecode:: code/SimulationSetupSample.scala#closed-injection
+
+#. ``constantConcurrentUsers(nbUsers) during(duration)``: Inject so that number of concurrent users in the system is constant
+#. ``rampConcurrentUsers(fromNbUsers) to(toNbUsers) during(duration)``: Inject so that number of concurrent users in the system ramps linearly from a number to another
+
+
 .. warning::
-
-  Use the proper injection model that match your use case!
-
-  Your load model is not only about getting the expected throughput (number of requests per second), but also open and close the proper number of connections per second.
-
-  Basic load testing tools such as `wrk <https://github.com/wg/wrk>`_ and `ab <http://httpd.apache.org/docs/2.2/programs/ab.html>`_ only support **closed models**:
-  users loop over the scenario so, assuming keep alive is used, you get as many open connections as you have users and you never close them.
-  This kind of model is mostly suited for call centers, where new users are queued until an operator hangs up.
-
-  With Gatling's ``constantUsersPerSec`` and ``rampUsersPerSec``, you can build **open models**:
-  new users keep on arriving no matter how many users are already there, even if the system over test starts slowing down or crashing.
-  This kind of model is the best one for most use cases.
 
   Then, you have to understand that Gatling's default behavior is mimic human users with browsers, so each virtual user has its own connections.
   If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every seconds.
   As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
-  If that's the case, you might:
+  This behavior makes perfect sense when the load you're modeling is internet traffic. Then, you might consider scala out, for example with FrontLine, our Enterprise product.
 
-   * consider scaling out
-   * reconsider your injection model: maybe you're testing a webservice that's used by just a few clients, so you should be using a closed model and just few connections
-   * tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
+  If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
 
 .. _simulation-setup-pause:
 

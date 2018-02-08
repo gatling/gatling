@@ -24,17 +24,17 @@ import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ End, Start }
 
-class UserCounters(val userCount: Int) {
+class UserCounters(val totalUserCount: Option[Long]) {
 
-  private var _activeCount: Int = 0
-  private var _doneCount: Int = 0
+  private var _activeCount: Long = 0
+  private var _doneCount: Long = 0
 
-  def activeCount: Int = _activeCount
-  def doneCount: Int = _doneCount
+  def activeCount: Long = _activeCount
+  def doneCount: Long = _doneCount
 
-  def userStart(): Unit = { _activeCount += 1 }
+  def userStart(): Unit = _activeCount += 1
   def userDone(): Unit = { _activeCount -= 1; _doneCount += 1 }
-  def waitingCount: Int = math.max(userCount - _activeCount - _doneCount, 0)
+  def waitingCount: Long = totalUserCount.map(c => math.max(c - _activeCount - _doneCount, 0)).getOrElse(0L)
 }
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
@@ -60,7 +60,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
     val data = new ConsoleData(configuration, nowMillis)
 
-    scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.userCount)))
+    scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
 
     setTimer(flushTimerName, Flush, 5 seconds, repeat = true)
 
@@ -91,14 +91,14 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
     event match {
       case Start =>
         usersCounters.get(session.scenario) match {
-          case Some(name) => name.userStart()
-          case _          => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
+          case Some(userCounters) => userCounters.userStart()
+          case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
         }
 
       case End =>
         usersCounters.get(session.scenario) match {
-          case Some(name) => name.userDone()
-          case _          => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
+          case Some(userCounters) => userCounters.userDone()
+          case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
         }
     }
   }

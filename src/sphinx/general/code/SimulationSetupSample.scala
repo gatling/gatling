@@ -22,7 +22,7 @@ class SimulationSetupSample extends Simulation {
   val httpConf = http
   val scn = scenario("scenario")
 
-  //#injection
+  //#open-injection
   setUp(
     scn.inject(
       nothingFor(4 seconds), // 1
@@ -37,7 +37,16 @@ class SimulationSetupSample extends Simulation {
       heavisideUsers(1000) over (20 seconds) // 10
     ).protocols(httpConf)
   )
-  //#injection
+  //#open-injection
+
+  //#closed-injection
+  setUp(
+    scn.inject(
+      constantConcurrentUsers(10) during(10 seconds), // 1
+      rampConcurrentUsers(10) to(20) during(10 seconds) // 2
+    )
+  )
+  //#closed-injection
 
   //#throttling
   setUp(scn.inject(constantUsersPerSec(100) during (30 minutes))).throttle(

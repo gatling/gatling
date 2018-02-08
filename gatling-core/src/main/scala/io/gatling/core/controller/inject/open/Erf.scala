@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.core.controller.inject
+package io.gatling.core.controller.inject.open
 
 import scala.math.{ abs, log, sqrt }
 

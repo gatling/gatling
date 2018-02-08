@@ -31,21 +31,21 @@ case class ReachIntermediate(target: Int) {
 }
 
 case class Reach(target: Int, duration: FiniteDuration) extends ThrottleStep {
-  val durationInSec = duration.toSeconds
-  def target(previousLastValue: Int) = target
-  def rps(time: Long, previousLastValue: Int): Int = (previousLastValue + (target - previousLastValue) * (time + 1) / durationInSec).toInt
+  override val durationInSec: Long = duration.toSeconds
+  override def target(previousLastValue: Int): Int = target
+  override def rps(time: Long, previousLastValue: Int): Int = (previousLastValue + (target - previousLastValue) * (time + 1) / durationInSec).toInt
 }
 
 case class Hold(duration: FiniteDuration) extends ThrottleStep {
-  val durationInSec = duration.toSeconds
-  def target(previousLastValue: Int) = previousLastValue
-  def rps(time: Long, previousLastValue: Int) = previousLastValue
+  override val durationInSec: Long = duration.toSeconds
+  override def target(previousLastValue: Int): Int = previousLastValue
+  override def rps(time: Long, previousLastValue: Int): Int = previousLastValue
 }
 
 case class Jump(target: Int) extends ThrottleStep {
-  val durationInSec = 0L
-  def target(previousLastValue: Int) = target
-  def rps(time: Long, previousLastValue: Int) = 0
+  override val durationInSec: Long = 0L
+  override def target(previousLastValue: Int): Int = target
+  override def rps(time: Long, previousLastValue: Int) = 0
 }
 
 trait ThrottlingSupport {

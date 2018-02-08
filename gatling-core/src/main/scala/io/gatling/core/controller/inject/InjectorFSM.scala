@@ -30,8 +30,8 @@ private[inject] object InjectorState {
 private[inject] trait InjectorData
 private[inject] object InjectorData {
   case object NoData extends InjectorData
-  case class StartedData(controller: ActorRef, userStreams: Map[String, UserStream], startMillis: Long, timer: Cancellable, userCounts: UserCounts) extends InjectorData
-  case class StoppedInjectingData(controller: ActorRef, userCounts: UserCounts) extends InjectorData
+  case class StartedData(controller: ActorRef, workloads: Map[String, Workload], timer: Cancellable) extends InjectorData
+  case class StoppedInjectingData(controller: ActorRef, workloads: Map[String, Workload]) extends InjectorData
 }
 
 private[inject] class InjectorFSM extends BaseActor with FSM[InjectorState, InjectorData]

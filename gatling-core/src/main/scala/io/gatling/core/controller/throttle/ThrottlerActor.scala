@@ -65,7 +65,7 @@ class ThrottlerActor extends ThrottlerActorFSM {
 
   when(Started) {
     case Event(throttles: Throttles, data: StartedData) =>
-      val newData = new StartedData(throttles, new mutable.ArrayBuffer[ThrottledRequest](data.buffer.size), nanoTime)
+      val newData = StartedData(throttles, new mutable.ArrayBuffer[ThrottledRequest](data.buffer.size), nanoTime)
       data.buffer.foreach(sendOrEnqueueRequest(newData, _))
       stay() using newData
 

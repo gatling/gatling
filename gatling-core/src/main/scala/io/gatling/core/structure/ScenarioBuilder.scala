@@ -20,10 +20,10 @@ import scala.concurrent.duration.Duration
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
+import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory }
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._
-import io.gatling.core.protocol.{ ProtocolComponentsRegistries, ProtocolComponentsRegistry, Protocols, Protocol }
+import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, ProtocolComponentsRegistry, Protocols }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
 
@@ -39,11 +39,11 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
   private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
-  def inject(iss: InjectionStep*): PopulationBuilder = inject(iss.toIterable)
+  def inject[T: InjectionProfileFactory](iss: T*): PopulationBuilder = inject[T](iss.toIterable)
 
-  def inject(iss: Iterable[InjectionStep]): PopulationBuilder = {
+  def inject[T: InjectionProfileFactory](iss: Iterable[T]): PopulationBuilder = {
     require(iss.nonEmpty, "Calling inject with empty injection steps")
-    PopulationBuilder(this, InjectionProfile(iss))
+    PopulationBuilder(this, implicitly[InjectionProfileFactory[T]].profile(iss))
   }
 }
 

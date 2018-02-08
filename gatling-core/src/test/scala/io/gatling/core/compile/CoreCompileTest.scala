@@ -192,10 +192,15 @@ class CoreCompileTest extends Simulation {
   val inject8 = heavisideUsers(1000) over (20 seconds)
 
   val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100) over (5 seconds))
+
+  val closedInject1 = constantConcurrentUsers(100).during(10 seconds)
+  val closedInject2 = rampConcurrentUsers(100).to(200).during(10 seconds)
+
   setUp(
     lambdaUser.inject(inject1),
     lambdaUser.inject(injectionSeq: _*),
-    lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds))
+    lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)),
+    lambdaUser.inject(closedInject1, closedInject2)
   )
     .protocols(protocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))

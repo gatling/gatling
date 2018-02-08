@@ -21,6 +21,7 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.inject.open._
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling, Throttlings }
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
@@ -98,24 +99,6 @@ abstract class Simulation {
   private def resolvePopulationBuilders(populationBuilders: List[PopulationBuilder], configuration: GatlingConfiguration): List[PopulationBuilder] =
     configuration.resolve(
       // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
       //
       //
       //

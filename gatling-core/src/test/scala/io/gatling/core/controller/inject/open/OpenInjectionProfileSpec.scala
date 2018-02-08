@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package io.gatling.core.controller.inject
+package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 
-class InjectionProfileSpec extends BaseSpec {
+class OpenInjectionProfileSpec extends BaseSpec {
 
-  "Inserting a pause between steps" should "produce the sum of the other steps" in {
+  "Inserting a pause between steps" should "produce the right number of users" in {
 
-    val steps = Seq(AtOnceInjection(1), NothingForInjection(2 seconds), AtOnceInjection(1))
-    val profile = InjectionProfile(steps)
-    profile.userCount shouldBe 2
-    profile.allUsers.toSeq shouldBe Seq(0 seconds, 2 seconds)
+    val steps = Seq(AtOnceOpenInjection(1), NothingForOpenInjection(2 seconds), AtOnceOpenInjection(1))
+    val profile = OpenInjectionProfile(steps)
+    profile.totalUserCount shouldBe Some(2)
   }
 }

@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-package io.gatling.core.controller.inject
+package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Collections._
 
-class InjectionStepSpec extends BaseSpec {
+class OpenInjectionStepSpec extends BaseSpec {
 
-  private def scheduling(steps: InjectionStep*): List[FiniteDuration] =
+  private def scheduling(steps: OpenInjectionStep*): List[FiniteDuration] =
     steps.reverse.foldLeft[Iterator[FiniteDuration]](Iterator.empty) { (it, step) =>
       step.chain(it)
     }.toList
 
   "RampInjection" should "return the correct number of users" in {
-    RampInjection(5, 1 second).users shouldBe 5
+    RampOpenInjection(5, 1 second).users shouldBe 5
   }
 
   it should "return the correct injection duration" in {
-    RampInjection(5, 1 second).duration shouldBe (1 second)
+    RampOpenInjection(5, 1 second).duration shouldBe (1 second)
   }
 
   it should "schedule with a correct interval" in {
 
-    val ramp = RampInjection(5, 1 second)
+    val ramp = RampOpenInjection(5, 1 second)
     val rampScheduling = scheduling(ramp)
     val interval0 = rampScheduling(1) - rampScheduling.head
     val interval1 = rampScheduling(2) - rampScheduling(1)
@@ -49,13 +49,13 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   it should "schedule the correct number of users" in {
-    val step = RampInjection(3, 8 seconds)
+    val step = RampOpenInjection(3, 8 seconds)
     step.users shouldBe 3
     scheduling(step).size shouldBe 3
   }
 
   it should "the first and the last users should be correctly scheduled" in {
-    val rampScheduling = scheduling(RampInjection(5, 1 second))
+    val rampScheduling = scheduling(RampOpenInjection(5, 1 second))
     val first = rampScheduling.head
     val last = rampScheduling.last
 
@@ -65,32 +65,32 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   "ConstantRateInjection" should "return the correct number of users" in {
-    ConstantRateInjection(1.0, 5 seconds).users shouldBe 5
-    ConstantRateInjection(0.4978, 100 seconds).users shouldBe 50
+    ConstantRateOpenInjection(1.0, 5 seconds).users shouldBe 5
+    ConstantRateOpenInjection(0.4978, 100 seconds).users shouldBe 50
   }
 
   "NothingForInjection" should "return the correct number of users" in {
-    NothingForInjection(1 second).users shouldBe 0
+    NothingForOpenInjection(1 second).users shouldBe 0
   }
 
   it should "return the correct injection duration" in {
-    NothingForInjection(1 second).duration shouldBe (1 second)
+    NothingForOpenInjection(1 second).duration shouldBe (1 second)
   }
 
   it should "return the correct injection scheduling" in {
-    NothingForInjection(1 second).chain(Iterator.empty) shouldBe empty
+    NothingForOpenInjection(1 second).chain(Iterator.empty) shouldBe empty
   }
 
   "AtOnceInjection" should "return the correct number of users" in {
-    AtOnceInjection(4).users shouldBe 4
+    AtOnceOpenInjection(4).users shouldBe 4
   }
 
   it should "return the correct injection duration" in {
-    scheduling(AtOnceInjection(4)).max shouldBe Duration.Zero
+    scheduling(AtOnceOpenInjection(4)).max shouldBe Duration.Zero
   }
 
   it should "return the correct injection scheduling" in {
-    val peak = AtOnceInjection(4)
+    val peak = AtOnceOpenInjection(4)
     val atOnceScheduling = scheduling(peak)
     val uniqueScheduling = atOnceScheduling.toSet
     uniqueScheduling should contain(Duration.Zero)
@@ -98,36 +98,36 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   "RampRateInjection" should "return the correct injection duration" in {
-    RampRateInjection(2, 4, 10 seconds).duration shouldBe (10 seconds)
+    RampRateOpenInjection(2, 4, 10 seconds).duration shouldBe (10 seconds)
   }
 
   it should "return the correct number of users" in {
-    RampRateInjection(2, 4, 10 seconds).users shouldBe 30
+    RampRateOpenInjection(2, 4, 10 seconds).users shouldBe 30
   }
 
   it should "provides an injection scheduling with the correct number of elements" in {
-    val rampRate = RampRateInjection(2, 4, 10 seconds)
+    val rampRate = RampRateOpenInjection(2, 4, 10 seconds)
     val rampRateScheduling = scheduling(rampRate)
     rampRateScheduling.length shouldBe rampRate.users
   }
 
   it should "provides an injection scheduling with the correct values" in {
-    val rampRateScheduling = scheduling(RampRateInjection(2, 4, 10 seconds))
+    val rampRateScheduling = scheduling(RampRateOpenInjection(2, 4, 10 seconds))
     rampRateScheduling.head shouldBe Duration.Zero
     rampRateScheduling(1) shouldBe (500 milliseconds)
   }
 
   it should "return the correct injection duration when the acceleration is null" in {
-    RampRateInjection(1.0, 1.0, 10 seconds).duration shouldBe (10 seconds)
+    RampRateOpenInjection(1.0, 1.0, 10 seconds).duration shouldBe (10 seconds)
   }
 
   it should "return the correct number of users when the acceleration is null" in {
-    RampRateInjection(1.0, 1.0, 10 seconds).users shouldBe 10
+    RampRateOpenInjection(1.0, 1.0, 10 seconds).users shouldBe 10
   }
 
   it should "return a scheduling of constant step when the acceleration is null" in {
 
-    val constantRampScheduling = scheduling(RampRateInjection(1.0, 1.0, 10 seconds))
+    val constantRampScheduling = scheduling(RampRateOpenInjection(1.0, 1.0, 10 seconds))
 
     val steps = constantRampScheduling.zip(constantRampScheduling.drop(1)).map {
       case (i1, i2) => i2 - i1
@@ -139,7 +139,7 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   "SplitInjection" should "provide an appropriate injection scheduling and ignore extra users" in {
-    val scheduling = SplitInjection(6, RampInjection(2, 2 seconds), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
+    val scheduling = SplitOpenInjection(6, RampOpenInjection(2, 2 seconds), NothingForOpenInjection(5 seconds)).chain(Iterator.empty).toList
     scheduling shouldBe List(
       Duration.Zero, 1 second, // 1st ramp
       7 seconds, 8 seconds, // 2nd ramp after a pause
@@ -148,15 +148,15 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   it should "provide an appropriate injection scheduling when there is only one split" in {
-    val scheduling = SplitInjection(1, AtOnceInjection(1), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
+    val scheduling = SplitOpenInjection(1, AtOnceOpenInjection(1), NothingForOpenInjection(5 seconds)).chain(Iterator.empty).toList
     scheduling.length shouldBe 1
 
-    val schedulingWithInjectionInSeparator = SplitInjection(1, AtOnceInjection(1), AtOnceInjection(1)).chain(Iterator.empty).toList
+    val schedulingWithInjectionInSeparator = SplitOpenInjection(1, AtOnceOpenInjection(1), AtOnceOpenInjection(1)).chain(Iterator.empty).toList
     schedulingWithInjectionInSeparator.length shouldBe 1
   }
 
   it should "should schedule the first and last user through the 'into' injection step" in {
-    val scheduling = SplitInjection(5, RampInjection(2, 2 seconds), AtOnceInjection(1)).chain(AtOnceInjection(1).chain(Iterator.empty)).toList
+    val scheduling = SplitOpenInjection(5, RampOpenInjection(2, 2 seconds), AtOnceOpenInjection(1)).chain(AtOnceOpenInjection(1).chain(Iterator.empty)).toList
     scheduling shouldBe List(
       Duration.Zero, 1 second, // 1st ramp
       2 seconds, // at once in between
@@ -165,7 +165,7 @@ class InjectionStepSpec extends BaseSpec {
     ) // at once from the chained injection
   }
 
-  val heavisideScheduling = HeavisideInjection(100, 5 seconds).chain(Iterator.empty).toList
+  val heavisideScheduling = HeavisideOpenInjection(100, 5 seconds).chain(Iterator.empty).toList
   "HeavisideInjection" should "provide an appropriate number of users" in {
     heavisideScheduling.length shouldBe 100
   }
@@ -182,13 +182,13 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   "Injection chaining" should "provide a monotonically increasing series of durations" in {
-    val scheduling = RampInjection(3, 2 seconds).chain(RampInjection(3, 2 seconds).chain(Iterator.empty)).toVector
+    val scheduling = RampOpenInjection(3, 2 seconds).chain(RampOpenInjection(3, 2 seconds).chain(Iterator.empty)).toVector
     scheduling shouldBe sorted
   }
 
   "Poisson injection" should "inject constant users at approximately the right rate" in {
     // Inject 1000 users per second for 60 seconds
-    val inject = PoissonInjection(60 seconds, 1000.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
+    val inject = PoissonOpenInjection(60 seconds, 1000.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
     val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
     scheduling.size shouldBe (inject.users + 1)
     scheduling.size shouldBe 60001 +- 200 // 60000 for the users injected by PoissonInjection, plus the 0 second one
@@ -200,7 +200,7 @@ class InjectionStepSpec extends BaseSpec {
 
   it should "inject ramped users at approximately the right rate" in {
     // ramp from 0 to 1000 users per second over 60 seconds
-    val inject = PoissonInjection(60.seconds, 0.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
+    val inject = PoissonOpenInjection(60.seconds, 0.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
     val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
     scheduling.size shouldBe (inject.users + 1)
     scheduling.size shouldBe 30001 +- 500 // 30000 for the users injected by PoissonInjection, plus the 0 second one
@@ -212,16 +212,16 @@ class InjectionStepSpec extends BaseSpec {
 
   "Chain steps" should "inject the expected number of users" in {
     val steps = Vector(
-      RampInjection(50, 9 minutes),
-      NothingForInjection(1 minute),
-      RampInjection(50, 1 minute),
-      NothingForInjection(9 minutes),
-      RampInjection(50, 1 minute),
-      NothingForInjection(9 minutes),
-      RampInjection(50, 1 minute),
-      NothingForInjection(9 minutes),
-      RampInjection(50, 1 minute),
-      NothingForInjection(9 minutes)
+      RampOpenInjection(50, 9 minutes),
+      NothingForOpenInjection(1 minute),
+      RampOpenInjection(50, 1 minute),
+      NothingForOpenInjection(9 minutes),
+      RampOpenInjection(50, 1 minute),
+      NothingForOpenInjection(9 minutes),
+      RampOpenInjection(50, 1 minute),
+      NothingForOpenInjection(9 minutes),
+      RampOpenInjection(50, 1 minute),
+      NothingForOpenInjection(9 minutes)
     )
 
     scheduling(steps: _*).size shouldBe steps.sumBy(_.users)

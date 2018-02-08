@@ -86,7 +86,7 @@ object DataWritersStatsEngine {
       system.actorOf(Props(clazz), clazz.getName)
     }
 
-    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.userCount))
+    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
 
     val dataWriterInitResponses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
 

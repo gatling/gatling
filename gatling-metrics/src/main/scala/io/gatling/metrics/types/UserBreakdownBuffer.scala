@@ -19,12 +19,12 @@ package io.gatling.metrics.types
 import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.stats.writer.UserMessage
 
-private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Int) {
+private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Long) {
 
-  private var previousActive = 0
-  private var previousEnd = 0
-  private var thisStart = 0
-  private var thisEnd = 0
+  private var previousActive = 0L
+  private var previousEnd = 0L
+  private var thisStart = 0L
+  private var thisEnd = 0L
 
   private var start = 0
   private var end = 0
@@ -52,4 +52,4 @@ private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Int) {
   }
 }
 
-private[metrics] case class UserBreakdown(active: Int, waiting: Int, done: Int)
+private[metrics] case class UserBreakdown(active: Long, waiting: Long, done: Long)
