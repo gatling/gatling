@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 import io.gatling.BaseSpec
 import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.controller.inject.Injector._
-import io.gatling.core.scenario.Scenario
 
 class UserStreamSpec extends BaseSpec {
 
@@ -81,7 +80,6 @@ class UserStreamSpec extends BaseSpec {
   }
 
   // [fl]
-  //
   //
   //
   //

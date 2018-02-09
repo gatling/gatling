@@ -21,14 +21,11 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.open._
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling, Throttlings }
 import io.gatling.core.pause._
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
-
-import akka.actor.ActorSystem
 
 abstract class Simulation {
 
