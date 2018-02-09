@@ -20,7 +20,7 @@ import scala.math.{ abs, log, sqrt }
 
 private[inject] object Erf {
 
-  val invP1 = Vector(
+  private val invP1 = Vector(
     0.160304955844066229311e2,
     -0.90784959262960326650e2,
     0.18644914861620987391e3,
@@ -30,7 +30,7 @@ private[inject] object Erf {
     0.1760587821390590
   )
 
-  val invQ1 = Vector(
+  private val invQ1 = Vector(
     0.147806470715138316110e2,
     -0.91374167024260313396e2,
     0.21015790486205317714e3,
@@ -40,7 +40,7 @@ private[inject] object Erf {
     0.1e1
   )
 
-  val invP2 = Vector(
+  private val invP2 = Vector(
     -0.152389263440726128e-1,
     0.3444556924136125216,
     -0.29344398672542478687e1,
@@ -51,7 +51,7 @@ private[inject] object Erf {
     0.237516689024448000
   )
 
-  val invQ2 = Vector(
+  private val invQ2 = Vector(
     -0.108465169602059954e-1,
     0.2610628885843078511,
     -0.24068318104393757995e1,
@@ -62,7 +62,7 @@ private[inject] object Erf {
     0.1e1
   )
 
-  val invP3 = Vector(
+  private val invP3 = Vector(
     0.56451977709864482298e-4,
     0.53504147487893013765e-2,
     0.12969550099727352403,
@@ -76,7 +76,7 @@ private[inject] object Erf {
     0.22419563223346345828e-2
   )
 
-  val invQ3 = Vector(
+  private val invQ3 = Vector(
     0.56451699862760651514e-4,
     0.53505587067930653953e-2,
     0.12986615416911646934,
@@ -88,7 +88,7 @@ private[inject] object Erf {
     0.1e1
   )
 
-  def erfinv(n: Double) = {
+  def erfinv(n: Double): Double = {
 
     def evalPolynom(p: Seq[Double], x: Double) = p.reduceRight((c, v) => v * x + c)
 
