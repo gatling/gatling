@@ -69,7 +69,7 @@ object Dependencies {
   private val mockitoCore                    = "org.mockito"                            % "mockito-core"                 % "2.13.0"            % "test"
   private val activemqBroker                 = "org.apache.activemq"                    % "activemq-broker"              % "5.15.3"            % "test"
   private val h2                             = "com.h2database"                         % "h2"                           % "1.4.196"           % "test"
-  private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.19"
+  private val jmh                            = "org.openjdk.jmh"                        % "jmh-core"                     % "1.20"
   // format: ON
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
