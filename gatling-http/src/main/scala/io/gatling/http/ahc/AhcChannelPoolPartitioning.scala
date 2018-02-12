@@ -21,10 +21,11 @@ import java.util.function.Predicate
 import io.gatling.core.session.Session
 
 import org.asynchttpclient.channel.ChannelPoolPartitioning
+import org.asynchttpclient.channel.ChannelPoolPartitioning.PerHostChannelPoolPartitioning
 import org.asynchttpclient.proxy.ProxyServer
 import org.asynchttpclient.uri.Uri
 
-case class ChannelPoolKey(userId: Long, remoteKey: RemoteKey)
+case class ChannelPoolKey(userId: Long, remoteKey: Any)
 
 object AhcChannelPoolPartitioning {
   def flushPredicate(session: Session): Predicate[Object] = {
@@ -35,5 +36,5 @@ object AhcChannelPoolPartitioning {
 
 class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioning {
   override def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): ChannelPoolKey =
-    ChannelPoolKey(session.userId, RemoteKey(uri, virtualHost, proxyServer))
+    ChannelPoolKey(session.userId, PerHostChannelPoolPartitioning.INSTANCE.getPartitionKey(uri, virtualHost, proxyServer))
 }
