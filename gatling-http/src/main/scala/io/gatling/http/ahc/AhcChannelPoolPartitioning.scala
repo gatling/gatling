@@ -21,11 +21,20 @@ import java.util.function.Predicate
 import io.gatling.core.session.Session
 
 import org.asynchttpclient.channel.ChannelPoolPartitioning
-import org.asynchttpclient.channel.ChannelPoolPartitioning.PerHostChannelPoolPartitioning
-import org.asynchttpclient.proxy.ProxyServer
+import org.asynchttpclient.proxy.{ ProxyServer, ProxyType }
 import org.asynchttpclient.uri.Uri
 
-case class ChannelPoolKey(userId: Long, remoteKey: Any)
+case class ChannelPoolKey(userId: Long, remoteKey: RemoteKey)
+
+sealed trait RemoteKey
+
+private[ahc] case class NoVirtualHostNoProxyKey(scheme: String, host: String, port: Int) extends RemoteKey
+
+private[ahc] case class NoVirtualHostKey(scheme: String, host: String, port: Int, proxyHost: String, proxyPort: Int, proxyType: ProxyType) extends RemoteKey
+
+private[ahc] case class NoProxyHostKey(scheme: String, host: String, port: Int, virtualHost: String) extends RemoteKey
+
+private[ahc] case class FullKey(scheme: String, host: String, port: Int, virtualHost: String, proxyHost: String, proxyPort: Int, proxyType: ProxyType) extends RemoteKey
 
 object AhcChannelPoolPartitioning {
   def flushPredicate(session: Session): Predicate[Object] = {
@@ -35,6 +44,23 @@ object AhcChannelPoolPartitioning {
 }
 
 class AhcChannelPoolPartitioning(session: Session) extends ChannelPoolPartitioning {
-  override def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): ChannelPoolKey =
-    ChannelPoolKey(session.userId, PerHostChannelPoolPartitioning.INSTANCE.getPartitionKey(uri, virtualHost, proxyServer))
+  override def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): ChannelPoolKey = {
+    val key =
+      if (proxyServer == null) {
+        if (virtualHost == null) {
+          NoVirtualHostNoProxyKey(uri.getScheme, uri.getHost, uri.getExplicitPort)
+        } else {
+          NoProxyHostKey(uri.getScheme, uri.getHost, uri.getExplicitPort, virtualHost)
+        }
+      } else {
+        val proxyPort = if (uri.isSecured && proxyServer.getProxyType == ProxyType.HTTP) proxyServer.getSecuredPort else proxyServer.getPort
+
+        if (virtualHost == null) {
+          NoVirtualHostKey(uri.getScheme, uri.getHost, uri.getExplicitPort, proxyServer.getHost, proxyPort, proxyServer.getProxyType)
+        } else {
+          FullKey(uri.getScheme, uri.getHost, uri.getExplicitPort, virtualHost, proxyServer.getHost, proxyPort, proxyServer.getProxyType)
+        }
+      }
+    ChannelPoolKey(session.userId, key)
+  }
 }
