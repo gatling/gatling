@@ -18,7 +18,7 @@ package io.gatling.recorder.scenario
 
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.Locale
+import java.util.{ Base64, Locale }
 
 import scala.concurrent.duration.FiniteDuration
 import scala.collection.JavaConverters._
@@ -32,7 +32,6 @@ import io.gatling.recorder.model._
 import io.gatling.http.fetch.{ UserAgent => UserAgentHelper }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders }
-import org.asynchttpclient.util.Base64
 import org.asynchttpclient.uri.Uri
 
 private[recorder] case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
@@ -147,7 +146,7 @@ private[recorder] case class RequestElement(
 
   val basicAuthCredentials: Option[(String, String)] = {
     def parseCredentials(header: String) =
-      new String(Base64.decode(header.split(" ")(1))).split(":") match {
+      new String(Base64.getDecoder.decode(header.split(" ")(1))).split(":") match {
         case Array(username, password) =>
           val credentials = (username, password)
           Some(credentials)

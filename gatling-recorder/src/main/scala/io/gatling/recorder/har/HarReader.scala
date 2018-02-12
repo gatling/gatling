@@ -20,7 +20,7 @@ import java.io.{ FileInputStream, InputStream }
 import java.net.{ URL, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
-import java.util.Locale
+import java.util.{ Base64, Locale }
 
 import scala.util.Try
 
@@ -33,7 +33,6 @@ import io.gatling.recorder.har.HarParser._
 import io.gatling.recorder.model._
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod }
-import org.asynchttpclient.util.Base64
 
 case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 
@@ -135,7 +134,7 @@ private[recorder] object HarReader {
       if content.comment.isEmpty // FireFox adds a localized "response body is not included" when there's no body, eg redirect.
     } yield {
       content.encoding.flatMap(_.trimToOption) match {
-        case Some("base64") => Base64.decode(text)
+        case Some("base64") => Base64.getDecoder.decode(text)
         case _              => text.getBytes(UTF_8) // FIXME we should try using charset from Content-Type
       }
     }
