@@ -17,6 +17,7 @@
 package io.gatling.recorder.scenario.template
 
 import io.gatling.commons.util.StringHelper.EmptyFastring
+import io.gatling.http.HeaderNames
 import io.gatling.http.util.HttpHelper.OkCodes
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
@@ -28,6 +29,7 @@ private[scenario] object RequestTemplate {
 
   val BuiltInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
   val MaxLiteralSize = 65534
+  val ContainingBodyMethods = Set("POST", "PUT")
 
   def headersBlockName(id: Int) = fast"headers_$id"
 
@@ -65,7 +67,20 @@ private[scenario] object RequestTemplate {
         case (key, value) => fast"""
 			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
       }.mkFastring
-    }.getOrElse(EmptyFastring)
+    }.getOrElse {
+      if (isContentLengthNeeded(request))
+        emptyBody
+      else
+        EmptyFastring
+    }
+
+    def emptyBody =
+      fast"""
+			.body(ByteArrayBody(Array[Byte]()))""".mkFastring
+
+    def isContentLengthNeeded(request: RequestElement) =
+      ContainingBodyMethods.contains(request.method) &&
+        !request.headers.contains(HeaderNames.TransferEncoding)
 
     def renderCredentials: String = request.basicAuthCredentials.map {
       case (username, password) => s"""
