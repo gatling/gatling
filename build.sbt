@@ -26,11 +26,11 @@ def gatlingModule(id: String) = Project(id, file(id))
 
 lazy val commons = gatlingModule("gatling-commons")
   .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
+  .settings(generateVersionFileSettings: _*)
 
 lazy val core = gatlingModule("gatling-core")
   .dependsOn(commons % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)
-  .settings(generateVersionFileSettings: _*)
   .settings(copyGatlingDefaults(compiler): _*)
 
 lazy val jdbc = gatlingModule("gatling-jdbc")
