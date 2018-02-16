@@ -7,7 +7,7 @@ object Dependencies {
   // format: OFF
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"                 % version
   private def scalaCompiler(version: String) = "org.scala-lang"                         % "scala-compiler"                % version
-  private val scalaSwing                     = "org.scala-lang.modules"                %% "scala-swing"                   % "2.0.1"
+  private val scalaSwing                     = "org.scala-lang.modules"                %% "scala-swing"                   % "2.0.2"
   private val scalaXml                       = "org.scala-lang.modules"                %% "scala-xml"                     % "1.0.6"
   private val scalaParserCombinators         = "org.scala-lang.modules"                %% "scala-parser-combinators"      % "1.1.0"
   private val java8Compat                    = "org.scala-lang.modules"                %% "scala-java8-compat"            % "0.8.0"
