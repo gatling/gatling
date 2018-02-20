@@ -18,14 +18,6 @@ package io.gatling.core.controller.inject.closed
 
 import scala.concurrent.duration._
 
-import io.gatling.core.controller.inject.InjectionProfileFactory
-
-object ClosedInjectionStep {
-
-  implicit val ClosedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
-    (steps: Iterable[ClosedInjectionStep]) => ClosedInjectionProfile(steps)
-}
-
 trait ClosedInjectionStep {
 
   def valueAt(t: FiniteDuration): Int
