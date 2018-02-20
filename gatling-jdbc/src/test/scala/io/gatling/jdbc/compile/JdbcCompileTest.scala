@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.jdbc
+package io.gatling.jdbc.compile
 
 import io.gatling.core.Predef._
 import io.gatling.jdbc.Predef._

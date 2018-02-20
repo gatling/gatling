@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.jms
+package io.gatling.jms.compile
 
 import javax.jms._
 

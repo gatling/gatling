@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http
+package io.gatling.http.compile
 
 import java.net.InetSocketAddress
 
