@@ -196,11 +196,16 @@ class CoreCompileTest extends Simulation {
   val closedInject1 = constantConcurrentUsers(100).during(10 seconds)
   val closedInject2 = rampConcurrentUsers(100).to(200).during(10 seconds)
 
+  val openSeq = Seq(inject1, inject2, inject3)
+  val closedSeq = Seq(closedInject1, closedInject2)
+
   setUp(
     lambdaUser.inject(inject1),
-    lambdaUser.inject(injectionSeq: _*),
+    lambdaUser.inject(injectionSeq),
     lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)),
-    lambdaUser.inject(closedInject1, closedInject2)
+    lambdaUser.inject(closedInject1, closedInject2),
+    lambdaUser.inject(openSeq),
+    lambdaUser.inject(closedSeq)
   )
     .protocols(protocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))

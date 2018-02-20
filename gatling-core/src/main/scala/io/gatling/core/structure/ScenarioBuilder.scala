@@ -39,7 +39,7 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
   private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
-  def inject[T: InjectionProfileFactory](iss: T*): PopulationBuilder = inject[T](iss.toIterable)
+  def inject[T: InjectionProfileFactory](is: T, moreIss: T*): PopulationBuilder = inject[T](Seq(is) ++ moreIss)
 
   def inject[T: InjectionProfileFactory](iss: Iterable[T]): PopulationBuilder = {
     require(iss.nonEmpty, "Calling inject with empty injection steps")
