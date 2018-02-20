@@ -228,6 +228,7 @@ class CoreCompileTest extends Simulation {
       details("request_9").requestsPerSec.gte(10)
     )
     .throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds))
+    .throttle(Seq(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)))
     // Applies on the setup
     .constantPauses
     .disablePauses
