@@ -61,7 +61,7 @@ object BuildSettings {
   lazy val excludeDummyComponentLibrary = Seq(
     mappings in (Compile, packageBin) := {
       val compiledClassesMappings = (mappings in (Compile, packageBin)).value
-      compiledClassesMappings.filter { case (file, path) => !path.contains("io/gatling/charts/component/impl") }
+      compiledClassesMappings.filter { case (_, path) => !path.contains("io/gatling/charts/component/impl") }
     }
   )
 }
