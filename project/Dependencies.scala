@@ -79,10 +79,10 @@ object Dependencies {
   // Dependencies by module
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, ahcNettyUtils, pebble, findbugs, fastUuid) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, ahcNettyUtils, findbugs, fastUuid) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akkaActor, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, scalaParserCombinators, scopt) ++
+    Seq(akkaActor, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, pebble, scalaParserCombinators, scopt) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
