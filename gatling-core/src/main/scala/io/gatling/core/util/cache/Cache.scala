@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentMap
 
 import scala.collection.immutable.Queue
 
-import com.github.benmanes.caffeine.cache.{ CacheLoader, Caffeine, LoadingCache }
+import com.github.benmanes.caffeine.cache.{ Caffeine, LoadingCache }
 
 object Cache {
 
@@ -37,9 +37,7 @@ object Cache {
       .newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
-      .build(new CacheLoader[K, V] {
-        override def load(key: K): V = f(key)
-      })
+      .build((key: K) => f(key))
 
   def newImmutableCache[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
 }
