@@ -18,7 +18,7 @@ package io.gatling.commons.util
 
 import java.lang.{ StringBuilder => JStringBuilder }
 
-import io.gatling.spire.syntax.cfor._
+import io.gatling.commons.util.Spire._
 
 object StringReplace {
 

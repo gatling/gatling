@@ -16,25 +16,9 @@
 
 package io.gatling.commons.util
 
-import java.util.concurrent.ThreadLocalRandom
+import scala.language.experimental.macros
 
-import io.gatling.commons.util.Spire._
+object Spire {
 
-object Arrays {
-
-  private def swap[T](array: Array[T], i: Int, j: Int): Unit = {
-    val tmp = array(i)
-    array(i) = array(j)
-    array(j) = tmp
-  }
-
-  def shuffle[T](array: Array[T]): Unit =
-    shuffle(array, array.length)
-
-  def shuffle[T](array: Array[T], length: Int): Unit = {
-    val rnd = ThreadLocalRandom.current()
-    cfor(length)(_ > 1, _ - 1) { i =>
-      swap(array, i - 1, rnd.nextInt(i))
-    }
-  }
+  def cfor[A](init: A)(test: A => Boolean, next: A => A)(body: A => Unit): Unit = macro spire.macros.Syntax.cforMacro[A]
 }
