@@ -181,6 +181,7 @@ class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
     if (buf.readableBytes == 0) {
       Nil
     } else {
+      ensureCapacity(buf.readableBytes)
       if (buf.nioBufferCount() == 1) {
         decodePartial(buf.internalNioBuffer(buf.readerIndex, buf.readableBytes), false)
       } else {

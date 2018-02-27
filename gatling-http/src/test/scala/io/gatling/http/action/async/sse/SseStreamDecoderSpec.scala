@@ -23,8 +23,10 @@ import io.netty.buffer.Unpooled
 
 class SseStreamDecoderSpec extends BaseSpec {
 
+  val longString = "x" * 920
+
   val data =
-    """: test stream
+    s""": test stream
       |
       |data: first event
       |id: 1
@@ -32,7 +34,7 @@ class SseStreamDecoderSpec extends BaseSpec {
       |data:second event 加特林岩石
       |id
       |
-      |data:  third event
+      |data:  third event $longString
       |foo: bar
       |
     """.stripMargin
@@ -48,7 +50,7 @@ class SseStreamDecoderSpec extends BaseSpec {
       data = Some("second event 加特林岩石")
     ),
     ServerSentEvent(
-      data = Some(" third event")
+      data = Some(s" third event $longString")
     )
   )
 
