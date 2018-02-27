@@ -95,7 +95,7 @@ class AsyncHandler(tx: HttpTx, responseProcessor: ResponseProcessor) extends Ahc
   override def onRequestSend(request: NettyRequest): Unit = {
     responseBuilder.doReset()
     if (AsyncHandler.DebugEnabled) {
-      responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
+      responseBuilder.setNettyRequest(request)
     }
   }
 
