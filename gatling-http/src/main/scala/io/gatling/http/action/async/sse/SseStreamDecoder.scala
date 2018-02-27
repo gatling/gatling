@@ -180,6 +180,7 @@ class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
 
   def decodeStream(buf: ByteBuf): Seq[ServerSentEvent] = {
     if (buf.isReadable) {
+      ensureCapacity(buf.readableBytes)
       if (buf.nioBufferCount == 1) {
         decodePartial(buf.internalNioBuffer(buf.readerIndex, buf.readableBytes), false)
       } else {
