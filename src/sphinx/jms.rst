@@ -62,6 +62,9 @@ Optionally define reply destination with ``replyQueue("responseQueue")`` or ``re
 
 Additionally for reply destination JMS selector can be defined with ``selector("selector")``
 
+If you have the need, to measure the time when a message arrive at a different message queue then the ``replyDestination(JmsDestination)``
+you can additional define a ``trackerDestination(JmsDestination)``.
+
 
 Message Matching
 ----------------
