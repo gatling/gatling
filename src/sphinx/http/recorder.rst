@@ -49,8 +49,8 @@ Browsers will prompt a security alert, and ask you if you want to add a security
 If it doesn't do so, it means that you've already registered a validated (by a standard Certificate Authority) certificate and it refuses to replace it by a less secured one.
 You then have to remove it from your certificate registry.
 
-.. warning:: Browsers will only prompt a security alert for the page domain, not for resource ones (typically, CNDs).
-             The Recorder will list all such domains, you'll then have to directly visit every one the them and add a security exception for each.
+.. warning:: Browsers will only prompt a security alert for the page domain, not for resource ones (typically, CDNs).
+             The Recorder will list all such domains, you'll then have to directly visit every one of them and add a security exception for each.
 
 * Provided KeyStore
 
