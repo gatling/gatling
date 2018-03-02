@@ -84,10 +84,8 @@ Gatling can be started with several options listed below:
 $JAVA_OPTS
 ==========
 
-Default JAVA_OPTS are set in Gatling's launch scripts.
-If you want to override them, you'll have to edit these files and replace whatever value you'd like to change in JAVA_OPTS.
-
-If you want to set additional JAVA_OPTS for Gatling, you can do so by defining the JAVA_OPTS before the gatling command::
+Default command line options for JAVA are set in the launch scripts.
+You can use the JAVA_OPTS var to override those defaults, eg::
 
   ~$ JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 
