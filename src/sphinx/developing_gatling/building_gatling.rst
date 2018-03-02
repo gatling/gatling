@@ -40,7 +40,7 @@ After SBT has been installed and you're in either one of the project's directori
 
 * compile the project : ``sbt compile``
 * run the tests : ``sbt test``
-* deploy the artifacts in your local Ivy and Maven repositories : ``sbt publishLocal publishM2``
+* deploy the artifacts in your local Ivy and Maven repositories : ``sbt package publishLocal publishM2``
 
 Running Gatling
 ===============
