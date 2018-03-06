@@ -64,7 +64,14 @@ private[inject] class Injector(statsEngine: StatsEngine) extends InjectorFSM {
     if (workloads.values.forall(_.isAllUsersScheduled)) {
       logger.info(s"StoppedInjecting")
       timer.cancel()
-      goto(StoppedInjecting) using StoppedInjectingData(controller, workloads)
+      val pendingWorkloads = workloads.filterNot { case (_, workload) => workload.isAllUsersStopped }
+
+      if (pendingWorkloads.isEmpty) {
+        // all users are already stopped
+        stopInjector(controller)
+      } else {
+        goto(StoppedInjecting) using StoppedInjectingData(controller, pendingWorkloads)
+      }
     } else {
       goto(Started) using data
     }
@@ -106,14 +113,18 @@ private[inject] class Injector(statsEngine: StatsEngine) extends InjectorFSM {
       if (workload.isAllUsersStopped) {
         logger.info(s"All users of scenario $scenario are stopped")
         if (workloads.size == 1) {
-          logger.info("Stopping")
-          controller ! InjectorStopped
-          stop()
+          stopInjector(controller)
         } else {
           stay() using StoppedInjectingData(controller, workloads - scenario)
         }
       } else {
         stay()
       }
+  }
+
+  private def stopInjector(controller: ActorRef): State = {
+    logger.info("Stopping")
+    controller ! InjectorStopped
+    stop()
   }
 }
