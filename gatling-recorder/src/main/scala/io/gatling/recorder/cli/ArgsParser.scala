@@ -49,8 +49,8 @@ private[recorder] class ArgsParser(args: Array[String]) {
       .valueName("<port>")
       .text("Outgoing proxy port for HTTPS")
 
-    opt[String](OutputFolder)
-      .foreach(props.simulationOutputFolder)
+    opt[String](SimulationsFolder)
+      .foreach(props.simulationsFolder)
       .valueName("<folderName>")
       .text("Uses <folderName> as the folder where generated simulations will be stored")
 

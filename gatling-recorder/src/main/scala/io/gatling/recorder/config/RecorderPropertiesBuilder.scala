@@ -32,8 +32,8 @@ class RecorderPropertiesBuilder {
   def encoding(encoding: String): Unit =
     props += core.Encoding -> encoding
 
-  def simulationOutputFolder(folder: String): Unit =
-    props += core.SimulationOutputFolder -> folder
+  def simulationsFolder(folder: String): Unit =
+    props += core.SimulationsFolder -> folder
 
   def resourcesFolder(folder: String): Unit =
     props += core.ResourcesFolder -> folder

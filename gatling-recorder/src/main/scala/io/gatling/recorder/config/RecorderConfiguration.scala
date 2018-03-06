@@ -105,7 +105,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   private def buildConfig(config: Config): RecorderConfiguration = {
     import ConfigKeys._
 
-    def getOutputFolder(folder: String) = {
+    def getSimulationsFolder(folder: String) = {
       folder.trimToOption match {
         case Some(f)                               => f
         case _ if sys.env.contains("GATLING_HOME") => resourcesDirectory.toFile.toString
@@ -121,7 +121,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       core = CoreConfiguration(
         mode = RecorderMode(config.getString(core.Mode)),
         encoding = config.getString(core.Encoding),
-        outputFolder = getOutputFolder(config.getString(core.SimulationOutputFolder)),
+        simulationsFolder = getSimulationsFolder(config.getString(core.SimulationsFolder)),
         resourcesFolder = getResourcesFolder,
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
@@ -191,7 +191,7 @@ private[recorder] case class FiltersConfiguration(
 private[recorder] case class CoreConfiguration(
     mode:                      RecorderMode,
     encoding:                  String,
-    outputFolder:              String,
+    simulationsFolder:         String,
     resourcesFolder:           String,
     pkg:                       String,
     className:                 String,

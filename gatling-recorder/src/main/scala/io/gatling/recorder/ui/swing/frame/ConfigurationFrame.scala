@@ -90,7 +90,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
-  private val outputFolderChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = DirectoriesOnly)
+  private val simulationsFolderChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = DirectoriesOnly)
 
   /* Filters panel components */
   private val whiteListTable = new FilterTable("Whitelist")
@@ -234,8 +234,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
         border = titledBorder("Output")
 
         val folderSelection = new LeftAlignedFlowPanel {
-          contents += new Label("Output folder*: ")
-          contents += outputFolderChooser
+          contents += new Label("Simulations folder*: ")
+          contents += simulationsFolderChooser
         }
         val encoding = new LeftAlignedFlowPanel {
           contents += new Label("Encoding: ")
@@ -374,7 +374,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     outgoingProxyHost.keys,
     outgoingProxyHttpPort.keys,
     outgoingProxyHttpsPort.keys,
-    outputFolderChooser.chooserKeys,
+    simulationsFolderChooser.chooserKeys,
     simulationPackage.keys,
     simulationClassName.keys
   )
@@ -399,7 +399,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableOutgoingProxyConfig, disableOutgoingProxyConfig, alwaysValid = true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(outgoingProxyPortValidator))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(outgoingProxyPortValidator))
-    ValidationHelper.registerValidator(outputFolderChooser.textField, Validator(isNonEmpty))
+    ValidationHelper.registerValidator(simulationsFolderChooser.textField, Validator(isNonEmpty))
     ValidationHelper.registerValidator(simulationPackage, Validator(isValidPackageName))
     ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
   }
@@ -519,7 +519,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
-    outputFolderChooser.setPath(configuration.core.outputFolder)
+    simulationsFolderChooser.setPath(configuration.core.simulationsFolder)
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
     savePreferences.selected = configuration.core.saveConfig
 
@@ -592,7 +592,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       props.removeCacheHeaders(removeCacheHeaders.selected)
       props.checkResponseBodies(checkResponseBodies.selected)
       props.automaticReferer(automaticReferers.selected)
-      props.simulationOutputFolder(outputFolderChooser.selection.trim)
+      props.simulationsFolder(simulationsFolderChooser.selection.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
       props.saveConfig(savePreferences.selected)
 

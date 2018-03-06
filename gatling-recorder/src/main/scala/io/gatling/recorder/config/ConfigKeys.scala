@@ -23,7 +23,7 @@ private[recorder] object ConfigKeys {
   object core {
     val Mode = "recorder.core.mode"
     val Encoding = "recorder.core.encoding"
-    val SimulationOutputFolder = "recorder.core.outputFolder"
+    val SimulationsFolder = "recorder.core.simulationsFolder"
     val ResourcesFolder = "recorder.core.resourcesFolder"
     val Package = "recorder.core.package"
     val ClassName = "recorder.core.className"

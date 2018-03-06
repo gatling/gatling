@@ -204,7 +204,7 @@ For those who prefer the command line, command line options can be passed to the
 +--------------------+-------------------------------------+------------------------------------------+
 | -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port                  |
 +--------------------+-------------------------------------+------------------------------------------+
-| -of <path>         | --output-folder <path>              | Output folder for generated simulations  |
+| -sf <path>         | --simulations-folder <path>         | Output folder for generated simulations  |
 +--------------------+-------------------------------------+------------------------------------------+
 | -rf <path>         | --resources-folder <path>           | Output folder for generated resources    |
 +--------------------+-------------------------------------+------------------------------------------+

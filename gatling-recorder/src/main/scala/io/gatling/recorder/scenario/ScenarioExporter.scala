@@ -41,12 +41,12 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
   def simulationFilePath(implicit config: RecorderConfiguration): Path = {
     def getSimulationFileName: String = s"${config.core.className}.scala"
-    def getOutputFolder = {
-      val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
+    def getSimulationsFolder = {
+      val path = config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)
       getFolder(path)
     }
 
-    getOutputFolder / getSimulationFileName
+    getSimulationsFolder / getSimulationFileName
   }
 
   def requestBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
