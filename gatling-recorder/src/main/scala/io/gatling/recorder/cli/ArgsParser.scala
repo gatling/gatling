@@ -54,10 +54,10 @@ private[recorder] class ArgsParser(args: Array[String]) {
       .valueName("<folderName>")
       .text("Uses <folderName> as the folder where generated simulations will be stored")
 
-    opt[String](BodiesFolder)
-      .foreach(props.bodiesFolder)
+    opt[String](ResourcesFolder)
+      .foreach(props.resourcesFolder)
       .valueName("<folderName>")
-      .text("Uses <folderName> as the folder where bodies are stored")
+      .text("Uses <folderName> as the folder where generated resources will be stored")
 
     opt[String](ClassName)
       .foreach(props.simulationClassName)

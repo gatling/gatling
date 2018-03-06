@@ -35,8 +35,8 @@ class RecorderPropertiesBuilder {
   def simulationOutputFolder(folder: String): Unit =
     props += core.SimulationOutputFolder -> folder
 
-  def bodiesFolder(folder: String): Unit =
-    props += core.BodiesFolder -> folder
+  def resourcesFolder(folder: String): Unit =
+    props += core.ResourcesFolder -> folder
 
   def simulationPackage(pkg: String): Unit =
     props += core.Package -> pkg

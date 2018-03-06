@@ -205,7 +205,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       Left(scenarioElements)
 
   private def dumpBody(fileName: String, content: Array[Byte])(implicit config: RecorderConfiguration): Unit = {
-    withCloseable((getFolder(config.core.bodiesFolder) / fileName).outputStream) { fw =>
+    withCloseable((getFolder(config.core.resourcesFolder) / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {

@@ -206,7 +206,7 @@ For those who prefer the command line, command line options can be passed to the
 +--------------------+-------------------------------------+------------------------------------------+
 | -of <path>         | --output-folder <path>              | Output folder for generated simulations  |
 +--------------------+-------------------------------------+------------------------------------------+
-| -bdf <path>        | --bodies-folder <path>              | Folder for bodies                        |
+| -rf <path>         | --resources-folder <path>           | Output folder for generated resources    |
 +--------------------+-------------------------------------+------------------------------------------+
 | -cn <className>    | --class-name <className>            | Name of the generated simulation         |
 +--------------------+-------------------------------------+------------------------------------------+

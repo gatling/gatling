@@ -26,7 +26,7 @@ private[cli] object CommandLineConstants {
   val ProxyPort = CommandLineConstant("proxy-port", "pp")
   val ProxyPortSsl = CommandLineConstant("proxy-port-ssl", "pps")
   val OutputFolder = CommandLineConstant("output-folder", "of")
-  val BodiesFolder = CommandLineConstant("bodies-folder", "bdf")
+  val ResourcesFolder = CommandLineConstant("resources-folder", "rf")
   val ClassName = CommandLineConstant("class-name", "cn")
   val Package = CommandLineConstant("package", "pkg")
   val Encoding = CommandLineConstant("encoding", "enc")

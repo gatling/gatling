@@ -91,7 +91,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
-    val configToSave = configuration.config.withoutPath(ConfigKeys.core.BodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
+    val configToSave = configuration.config.withoutPath(ConfigKeys.core.ResourcesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
     configFile.foreach(file => withCloseable(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
   }
 
@@ -113,8 +113,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       }
     }
 
-    def getBodiesFolder =
-      if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
+    def getResourcesFolder =
+      if (config.hasPath(core.ResourcesFolder)) config.getString(core.ResourcesFolder)
       else resourcesDirectory.toFile.toString
 
     RecorderConfiguration(
@@ -122,7 +122,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         mode = RecorderMode(config.getString(core.Mode)),
         encoding = config.getString(core.Encoding),
         outputFolder = getOutputFolder(config.getString(core.SimulationOutputFolder)),
-        bodiesFolder = getBodiesFolder,
+        resourcesFolder = getResourcesFolder,
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
@@ -192,7 +192,7 @@ private[recorder] case class CoreConfiguration(
     mode:                      RecorderMode,
     encoding:                  String,
     outputFolder:              String,
-    bodiesFolder:              String,
+    resourcesFolder:           String,
     pkg:                       String,
     className:                 String,
     thresholdForPauseCreation: Duration,
