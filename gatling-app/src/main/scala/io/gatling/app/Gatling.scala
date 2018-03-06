@@ -54,7 +54,7 @@ object Gatling extends StrictLogging {
       Await.result(whenTerminated, timeout)
     } catch {
       case NonFatal(e) =>
-        logger.error("Could not terminate ActorSystem", e)
+        logger.debug("Could not terminate ActorSystem", e)
     }
 
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) =
