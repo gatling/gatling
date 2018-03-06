@@ -35,7 +35,7 @@ object HarParser {
 
   case class HarHeader(name: String, value: String)
 
-  case class HarRequestPostData(mimeType: String, text: Option[String], params: Seq[HarRequestPostParam])
+  case class HarRequestPostData(text: Option[String], params: Seq[HarRequestPostParam])
 
   case class HarRequestPostParam(name: String, value: String)
 
