@@ -26,95 +26,155 @@ class RecorderPropertiesBuilder {
 
   private val props = mutable.Map.empty[String, Any]
 
-  def mode(mode: RecorderMode): Unit =
+  def mode(mode: RecorderMode): RecorderPropertiesBuilder = {
     props += core.Mode -> mode.toString
+    this
+  }
 
-  def encoding(encoding: String): Unit =
+  def encoding(encoding: String): RecorderPropertiesBuilder = {
     props += core.Encoding -> encoding
+    this
+  }
 
-  def simulationsFolder(folder: String): Unit =
+  def simulationsFolder(folder: String): RecorderPropertiesBuilder = {
     props += core.SimulationsFolder -> folder
+    this
+  }
 
-  def resourcesFolder(folder: String): Unit =
+  def resourcesFolder(folder: String): RecorderPropertiesBuilder = {
     props += core.ResourcesFolder -> folder
+    this
+  }
 
-  def simulationPackage(pkg: String): Unit =
+  def simulationPackage(pkg: String): RecorderPropertiesBuilder = {
     props += core.Package -> pkg
+    this
+  }
 
-  def simulationClassName(className: String): Unit =
+  def simulationClassName(className: String): RecorderPropertiesBuilder = {
     props += core.ClassName -> className
+    this
+  }
 
-  def thresholdForPauseCreation(threshold: String): Unit =
+  def thresholdForPauseCreation(threshold: String): RecorderPropertiesBuilder = {
     props += core.ThresholdForPauseCreation -> threshold
+    this
+  }
 
-  def saveConfig(status: Boolean): Unit =
+  def saveConfig(status: Boolean): RecorderPropertiesBuilder = {
     props += core.SaveConfig -> status
+    this
+  }
 
-  def headless(status: Boolean): Unit =
+  def headless(status: Boolean): RecorderPropertiesBuilder = {
     props += core.Headless -> status
+    this
+  }
 
-  def harFilePath(path: String): Unit =
+  def harFilePath(path: String): RecorderPropertiesBuilder = {
     props += core.HarFilePath -> path
+    this
+  }
 
-  def filterStrategy(strategy: String): Unit =
+  def filterStrategy(strategy: String): RecorderPropertiesBuilder = {
     props += filters.FilterStrategy -> strategy
+    this
+  }
 
-  def whitelist(patterns: JList[String]): Unit =
+  def whitelist(patterns: JList[String]): RecorderPropertiesBuilder = {
     props += filters.WhitelistPatterns -> patterns
+    this
+  }
 
-  def blacklist(patterns: JList[String]): Unit =
+  def blacklist(patterns: JList[String]): RecorderPropertiesBuilder = {
     props += filters.BlacklistPatterns -> patterns
+    this
+  }
 
-  def automaticReferer(status: Boolean): Unit =
+  def automaticReferer(status: Boolean): RecorderPropertiesBuilder = {
     props += http.AutomaticReferer -> status
+    this
+  }
 
-  def followRedirect(status: Boolean): Unit =
+  def followRedirect(status: Boolean): RecorderPropertiesBuilder = {
     props += http.FollowRedirect -> status
+    this
+  }
 
-  def inferHtmlResources(status: Boolean): Unit =
+  def inferHtmlResources(status: Boolean): RecorderPropertiesBuilder = {
     props += http.InferHtmlResources -> status
+    this
+  }
 
-  def removeCacheHeaders(status: Boolean): Unit =
+  def removeCacheHeaders(status: Boolean): RecorderPropertiesBuilder = {
     props += http.RemoveCacheHeaders -> status
+    this
+  }
 
-  def checkResponseBodies(status: Boolean): Unit =
+  def checkResponseBodies(status: Boolean): RecorderPropertiesBuilder = {
     props += http.CheckResponseBodies -> status
+    this
+  }
 
-  def localPort(port: Int): Unit =
+  def localPort(port: Int): RecorderPropertiesBuilder = {
     props += proxy.Port -> port
+    this
+  }
 
-  def proxyHost(host: String): Unit =
+  def proxyHost(host: String): RecorderPropertiesBuilder = {
     props += proxy.outgoing.Host -> host
+    this
+  }
 
-  def proxyUsername(username: String): Unit =
+  def proxyUsername(username: String): RecorderPropertiesBuilder = {
     props += proxy.outgoing.Username -> username
+    this
+  }
 
-  def proxyPassword(password: String): Unit =
+  def proxyPassword(password: String): RecorderPropertiesBuilder = {
     props += proxy.outgoing.Password -> password
+    this
+  }
 
-  def proxyPort(port: Int): Unit =
+  def proxyPort(port: Int): RecorderPropertiesBuilder = {
     props += proxy.outgoing.Port -> port
+    this
+  }
 
-  def proxySslPort(port: Int): Unit =
+  def proxySslPort(port: Int): RecorderPropertiesBuilder = {
     props += proxy.outgoing.SslPort -> port
+    this
+  }
 
-  def httpsMode(mode: String): Unit =
+  def httpsMode(mode: String): RecorderPropertiesBuilder = {
     props += proxy.https.Mode -> mode
+    this
+  }
 
-  def keystorePath(path: String): Unit =
+  def keystorePath(path: String): RecorderPropertiesBuilder = {
     props += proxy.https.keyStore.Path -> path
+    this
+  }
 
-  def keyStorePassword(password: String): Unit =
+  def keyStorePassword(password: String): RecorderPropertiesBuilder = {
     props += proxy.https.keyStore.Password -> password
+    this
+  }
 
-  def keyStoreType(keyStoreType: String): Unit =
+  def keyStoreType(keyStoreType: String): RecorderPropertiesBuilder = {
     props += proxy.https.keyStore.Type -> keyStoreType
+    this
+  }
 
-  def certificatePath(path: String): Unit =
+  def certificatePath(path: String): RecorderPropertiesBuilder = {
     props += proxy.https.certificateAuthority.CertificatePath -> path
+    this
+  }
 
-  def privateKeyPath(path: String): Unit =
+  def privateKeyPath(path: String): RecorderPropertiesBuilder = {
     props += proxy.https.certificateAuthority.PrivateKeyPath -> path
+    this
+  }
 
   def build: mutable.Map[String, Any] = props
 }
