@@ -51,6 +51,8 @@ class CoreCompileTest extends Simulation {
   feed(csv("foo.csv").batch(500))
   feed(csv("foo.csv").batch(500).random)
 
+  val records: Seq[Map[String, Any]] = csv("foo.csv").readRecords
+
   val richTestData = testData.convert { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
 
   val testData3 = Array(Map("foo" -> "bar")).circular
