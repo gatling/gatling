@@ -25,5 +25,5 @@ class WsJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider
 
   override val specializer: Specializer[WsTextCheck, String] = WsTextCheck(_)
 
-  override val preparer: Preparer[String, Any] = jsonParsers.safeParseBoon
+  override val preparer: Preparer[String, Any] = jsonParsers.safeParse
 }

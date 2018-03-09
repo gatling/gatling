@@ -21,7 +21,7 @@ object Dependencies {
   private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                      % "9.8.0-8"
   private val slf4jApi                       = "org.slf4j"                              % "slf4j-api"                     % "1.7.25"
   private val fastring                       = "com.dongxiguo"                         %% "fastring"                      % "0.3.1"
-  private val spire                          = ("org.typelevel"                         %% "spire-macros"                  % "0.15.0")
+  private val spire                          = ("org.typelevel"                        %% "spire-macros"                  % "0.15.0")
     .exclude("org.typelevel", "machinist_2.12")
     .exclude("org.typelevel", "algebra_2.12")
   private val scopt                          = "com.github.scopt"                      %% "scopt"                         % "3.7.0"
@@ -32,9 +32,9 @@ object Dependencies {
     .exclude("org.simpleflatmapper", "sfm-tuples")
   private val sfmUtil                        = "org.simpleflatmapper"                   % "sfm-util"                      % sfm.revision
   private val json4sJackson                  = "org.json4s"                            %% "json4s-jackson"                % "3.5.3"
-  private val boon                           = "io.advantageous.boon"                   % "boon-json"                     % "0.6.6" exclude("org.slf4j", "slf4j-api")
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                      % "0.6.11"
-  private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                  % "4.1.4"
+  private val joddJson                       = "org.jodd"                               % "jodd-json"                     % "4.2.0"
+  private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                  % joddJson.revision
   private val boopickle                      = "io.suzaku"                             %% "boopickle"                     % "1.2.6"
   private val redisClient                    = "net.debasishg"                         %% "redisclient"                   % "3.4"
   private val zinc                           = ("org.scala-sbt"                        %% "zinc"                          % "1.1.1")
@@ -76,7 +76,7 @@ object Dependencies {
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
-  private val parserDeps = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
+  private val parserDeps = Seq(jsonpath, jackson, joddJson, saxon, joddLagarto)
 
   // Dependencies by module
 

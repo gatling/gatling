@@ -22,7 +22,7 @@ trait JsonSample {
 
   def value: String
 
-  def boonAST(jsonParsers: JsonParsers) = jsonParsers.boon.parse(value)
+  def joddAST(jsonParsers: JsonParsers) = jsonParsers.jodd.parse(value)
 
   def jacksonAST(jsonParsers: JsonParsers) = jsonParsers.jackson.parse(value)
 }

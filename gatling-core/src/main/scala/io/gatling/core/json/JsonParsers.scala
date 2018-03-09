@@ -25,38 +25,26 @@ import io.gatling.core.config.GatlingConfiguration
 object JsonParsers {
 
   def apply()(implicit configuration: GatlingConfiguration) =
-    new JsonParsers(Jackson(), new Boon, configuration.core.extract.jsonPath.preferJackson)
+    new JsonParsers(Jackson(), new JoddJson, configuration.core.extract.jsonPath.preferJackson)
 }
 
-case class JsonParsers(jackson: Jackson, boon: Boon, preferJackson: Boolean) {
+case class JsonParsers(jackson: Jackson, jodd: JoddJson, preferJackson: Boolean) {
 
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
-  private val BoonErrorMapper: String => String = "Boon failed to parse into a valid AST: " + _
+  private val JoddErrorMapper: String => String = "Jodd failed to parse into a valid AST: " + _
 
-  def safeParseJackson(string: String): Validation[Object] =
+  private def safeParseJackson(string: String): Validation[Object] =
     safely(JacksonErrorMapper)(jackson.parse(string).success)
 
   def safeParseJackson(is: InputStream, charset: Charset): Validation[Object] =
     safely(JacksonErrorMapper)(jackson.parse(is, charset).success)
 
-  def safeParseJackson(bytes: Array[Byte], offset: Int, length: Int, charset: Charset): Validation[Object] =
-    safely(JacksonErrorMapper)(jackson.parse(bytes, offset, length, charset).success)
-
-  def safeParseBoon(string: String): Validation[Object] =
-    safely(BoonErrorMapper)(boon.parse(string).success)
-
-  def safeParseBoon(bytes: Array[Byte], charset: Charset): Validation[Object] =
-    safely(BoonErrorMapper)(boon.parse(bytes, charset).success)
+  def safeParseJodd(string: String): Validation[Object] =
+    safely(JoddErrorMapper)(jodd.parse(string).success)
 
   def safeParse(string: String): Validation[Object] =
     if (preferJackson)
       safeParseJackson(string)
     else
-      safeParseBoon(string)
-
-  def safeParse(bytes: Array[Byte], offset: Int, length: Int, charset: Charset): Validation[Object] =
-    if (preferJackson || (offset == 0 && length == bytes.length))
-      safeParseJackson(bytes, offset, length, charset)
-    else
-      safeParseBoon(bytes, charset)
+      safeParseJodd(string)
 }

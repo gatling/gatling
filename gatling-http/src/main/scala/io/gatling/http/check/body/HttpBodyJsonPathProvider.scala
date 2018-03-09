@@ -45,7 +45,7 @@ object HttpBodyJsonPathProvider {
       if (response.bodyLength > CharsParsingThreshold || jsonParsers.preferJackson)
         jsonParsers.safeParseJackson(response.body.stream, response.charset)
       else
-        jsonParsers.safeParseBoon(response.body.string)
+        jsonParsers.safeParse(response.body.string)
 }
 
 class HttpBodyJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider[JsonPathCheckType, HttpCheck, Response, Any] {
