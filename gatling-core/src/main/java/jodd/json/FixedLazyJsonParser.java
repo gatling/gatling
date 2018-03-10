@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.core.json
+package jodd.json;
 
-import jodd.json.{ FixedLazyJsonParser, JsonParser => JoddJsonParser }
+import java.util.Map;
+import java.util.function.Supplier;
 
-class JoddJson {
+public class FixedLazyJsonParser extends JsonParser {
 
-  private val parsers: ThreadLocal[JoddJsonParser] = ThreadLocal.withInitial(() => new FixedLazyJsonParser)
+  private static final Supplier<Map> FIXEDLAZYMAP_SUPPLIER = FixedLazyMap::new;
 
-  def parse(string: String): AnyRef = parsers.get().parse(string)
+  public FixedLazyJsonParser() {
+    mapSupplier = FIXEDLAZYMAP_SUPPLIER;
+  }
 }
