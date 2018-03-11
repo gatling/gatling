@@ -16,12 +16,14 @@
 
 package jodd.json;
 
+import io.advantageous.boon.core.SimpleLazyMap;
+
 import java.util.Map;
 import java.util.function.Supplier;
 
 public class FixedLazyJsonParser extends JsonParser {
 
-  private static final Supplier<Map> FIXEDLAZYMAP_SUPPLIER = FixedLazyMap::new;
+  private static final Supplier<Map> FIXEDLAZYMAP_SUPPLIER = SimpleLazyMap::new;
 
   public FixedLazyJsonParser() {
     mapSupplier = FIXEDLAZYMAP_SUPPLIER;
