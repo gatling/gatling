@@ -46,7 +46,6 @@ package io.advantageous.boon.core;
 
 import java.lang.reflect.Array;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 /**
@@ -83,40 +82,41 @@ public class SimpleLazyMap extends AbstractMap {
   }
 
   @Override
-  public Set<Entry<Object, Object>> entrySet() {
-    if (map != null) map.entrySet();
+  public Set keySet() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Collection values() {
+    buildIfNeeded();
+    return map.values();
+  }
+
+  @Override
+  public Set<Map.Entry<Object, Object>> entrySet() {
     buildIfNeeded();
     return map.entrySet();
   }
 
   @Override
   public int size() {
-    if (map == null) {
-      return size;
-    }
-    return map.size();
+    return map == null ? size : map.size();
   }
 
   @Override
   public boolean isEmpty() {
-    if (map == null) {
-      return size == 0;
-    }
-    return map.isEmpty();
-  }
-
-  @Override
-  public boolean containsValue(final Object value) {
-    if (map == null) {
-      throw new RuntimeException("wrong type of map");
-    }
-    return map.containsValue(value);
+    return map == null ? size == 0 : map.isEmpty();
   }
 
   @Override
   public boolean containsKey(final Object key) {
     buildIfNeeded();
     return map.containsKey(key);
+  }
+
+  @Override
+  public boolean containsValue(final Object value) {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -127,7 +127,7 @@ public class SimpleLazyMap extends AbstractMap {
 
   private void buildIfNeeded() {
     if (map == null) {
-      map = new LinkedHashMap<>(size, 0.01f);
+      map = new LinkedHashMap<>();
 
       for (int index = 0; index < size; index++) {
         Object value = values[index];
@@ -145,92 +145,20 @@ public class SimpleLazyMap extends AbstractMap {
 
   @Override
   public Object remove(final Object key) {
-    buildIfNeeded();
-    return map.remove(key);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void putAll(final Map m) {
-    buildIfNeeded();
-    map.putAll(m);
+    throw new UnsupportedOperationException();
   }
 
   @Override
   public void clear() {
-    if (map == null) {
-      size = 0;
-    } else {
-      map.clear();
-    }
-  }
-
-  @Override
-  public Set keySet() {
-    if (map == null) {
-      return set(size, keys);
-    }
-    return map.keySet();
-  }
-
-  @Override
-  public Collection values() {
-    return map == null ? Arrays.asList(values) : map.values();
-  }
-
-  @Override
-  public boolean equals(final Object o) {
-    buildIfNeeded();
-    return map.equals(o);
-  }
-
-  @Override
-  public int hashCode() {
-    buildIfNeeded();
-    return map.hashCode();
-  }
-
-  @Override
-  public String toString() {
-    buildIfNeeded();
-    return map.toString();
-  }
-
-  @Override
-  protected Object clone() {
-    if (map == null) {
-      return null;
-    }
-    if (map instanceof LinkedHashMap) {
-      return ((LinkedHashMap) map).clone();
-    }
-    return copy(this);
-  }
-
-  public static <K, V> Map<K, V> copy(final Map<K, V> map) {
-    if (map instanceof LinkedHashMap) {
-      return new LinkedHashMap<>(map);
-    }
-    if (map instanceof ConcurrentHashMap) {
-      return new ConcurrentHashMap<>(map);
-    }
-    return new HashMap<>(map);
+    throw new UnsupportedOperationException();
   }
 
   // ---------------------------------------------------------------- utils
-
-  private static <V> Set<V> set(final int size, final V... array) {
-    int index = 0;
-    final Set<V> set = new HashSet<>();
-
-    for (final V v : array) {
-      set.add(v);
-      index++;
-      if (index == size) {
-        break;
-      }
-    }
-    return set;
-  }
 
   private static <V> V[] grow(final V[] array) {
     final Object newArray = Array.newInstance(array.getClass().getComponentType(), array.length * 2);

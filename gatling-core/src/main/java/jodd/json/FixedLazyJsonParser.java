@@ -23,9 +23,10 @@ import java.util.function.Supplier;
 
 public class FixedLazyJsonParser extends JsonParser {
 
-  private static final Supplier<Map> FIXEDLAZYMAP_SUPPLIER = SimpleLazyMap::new;
+  private static final Supplier<Map> LAZYMAP_SUPPLIER = SimpleLazyMap::new;
 
-  public FixedLazyJsonParser() {
-    mapSupplier = FIXEDLAZYMAP_SUPPLIER;
+  public void forceSuppliers() {
+    mapSupplier = LAZYMAP_SUPPLIER;
+    listSupplier = LAZYLIST_SUPPLIER;
   }
 }

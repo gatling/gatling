@@ -20,7 +20,11 @@ import jodd.json.{ FixedLazyJsonParser, JsonParser => JoddJsonParser }
 
 class JoddJson {
 
-  private val parsers: ThreadLocal[JoddJsonParser] = ThreadLocal.withInitial(() => new FixedLazyJsonParser)
+  private val parsers: ThreadLocal[JoddJsonParser] = ThreadLocal.withInitial(() => {
+    val parser = new FixedLazyJsonParser().`lazy`(true).asInstanceOf[FixedLazyJsonParser]
+    parser.forceSuppliers()
+    parser
+  })
 
   def parse(string: String): AnyRef = parsers.get().parse(string)
 }
