@@ -133,7 +133,7 @@ public class SimpleLazyMap extends AbstractMap {
         Object value = values[index];
 
         if (value instanceof Supplier) {
-          value = ((Supplier)value).get();
+          value = ((Supplier) value).get();
         }
 
         map.put(keys[index], value);
@@ -145,10 +145,8 @@ public class SimpleLazyMap extends AbstractMap {
 
   @Override
   public Object remove(final Object key) {
-
     buildIfNeeded();
     return map.remove(key);
-
   }
 
   @Override
@@ -172,16 +170,11 @@ public class SimpleLazyMap extends AbstractMap {
       return set(size, keys);
     }
     return map.keySet();
-
   }
 
   @Override
   public Collection values() {
-    if (map == null) {
-      return Arrays.asList(values);
-    }
-    return map.values();
-
+    return map == null ? Arrays.asList(values) : map.values();
   }
 
   @Override
@@ -222,7 +215,6 @@ public class SimpleLazyMap extends AbstractMap {
     }
     return new HashMap<>(map);
   }
-
 
   // ---------------------------------------------------------------- utils
 
