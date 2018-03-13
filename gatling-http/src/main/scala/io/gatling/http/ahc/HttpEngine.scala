@@ -76,7 +76,7 @@ class HttpEngine(
             .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
             .setHeader(AcceptLanguage, "en-US,en;q=0.5")
             .setHeader(AcceptEncoding, "gzip")
-            .setHeader(Connection, KeepAlive)
+            .setHeader(Connection, Close)
             .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
             .setRequestTimeout(1000)
 
