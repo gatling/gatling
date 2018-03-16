@@ -119,7 +119,7 @@ To help you understand how to use assertions, here is a list of examples :
 Reports
 =======
 
-If a simulation defines assertions, Gatling will generate 2 reports in the js result directory:
+If a simulation defines assertions, Gatling will generate 2 reports in the ``js`` result directory:
 
 * a JSON file
 * a JUnit file
