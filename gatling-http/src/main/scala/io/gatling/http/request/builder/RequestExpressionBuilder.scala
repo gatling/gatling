@@ -172,19 +172,19 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(protocol.requestPart.realm) match {
-      case None        => ConfigureIdentity
       case Some(realm) => configureRealm0(realm)
+      case _           => ConfigureIdentity
     }
 
   private def configureRealm0(realm: Expression[Realm]): RequestBuilderConfigure =
     session => requestBuilder => realm(session).map(requestBuilder.setRealm)
 
   private def configureLocalAddress(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    if (protocol.enginePart.localAddresses.nonEmpty)
+    if (protocol.enginePart.localAddresses.nonEmpty) {
       httpCaches.localAddress(session).foreach(requestBuilder.setLocalAddress)
+    }
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
-
     requestBuilder.setUri(uri)
     configureChannelPoolPartitioning(session, requestBuilder)
     configureProxy(requestBuilder)
