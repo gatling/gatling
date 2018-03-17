@@ -18,7 +18,7 @@ object Dependencies {
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                    % "2.5.10"
   private val akkaSlf4j                      = "com.typesafe.akka"                     %% "akka-slf4j"                    % akkaActor.revision
   private val config                         = "com.typesafe"                           % "config"                        % "1.3.3"
-  private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                      % "9.8.0-8"
+  private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                      % "9.8.0-10"
   private val slf4jApi                       = "org.slf4j"                              % "slf4j-api"                     % "1.7.25"
   private val fastring                       = "com.dongxiguo"                         %% "fastring"                      % "0.3.1"
   private val spire                          = ("org.typelevel"                        %% "spire-macros"                  % "0.15.0")
