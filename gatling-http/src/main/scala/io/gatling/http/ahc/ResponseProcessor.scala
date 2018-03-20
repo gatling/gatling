@@ -43,6 +43,7 @@ import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.HttpConstants.Methods._
 import org.asynchttpclient.util.HttpConstants.ResponseStatusCodes._
+import org.asynchttpclient.util.HttpUtils._
 import org.asynchttpclient.util.StringBuilderPool.DEFAULT.stringBuilder
 
 object ResponseProcessor extends StrictLogging {
@@ -204,11 +205,15 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         .setChannelPoolPartitioning(originalRequest.getChannelPoolPartitioning)
         .setAddress(originalRequest.getAddress)
         .setNameResolver(originalRequest.getNameResolver)
-        .setVirtualHost(originalRequest.getVirtualHost)
         .setLocalAddress(originalRequest.getLocalAddress)
         .setProxyServer(originalRequest.getProxyServer)
         .setRealm(originalRequest.getRealm)
         .setHeaders(newHeaders)
+
+      if (isSameBase(tx.request.ahcRequest.getUri, redirectUri)) {
+        // we can only assume the virtual host is still valid if the baseUrl is the same
+        requestBuilder.setVirtualHost(originalRequest.getVirtualHost)
+      }
 
       if (!httpProtocol.proxyPart.proxyExceptions.contains(redirectUri.getHost)) {
         val originalRequestProxy = if (originalRequest.getUri.getHost == redirectUri.getHost) Option(originalRequest.getProxyServer) else None
