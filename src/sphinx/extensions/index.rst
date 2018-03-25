@@ -19,7 +19,7 @@ Third Parties
 
 * `Gradle plugin <https://github.com/lkishalmi/gradle-gatling-plugin>`_ by Laszlo Kishalmi
 * `Gradle plugin <https://github.com/commercehub-oss/gatling-gradle-plugin>`_ by CommerceHub
-* `Cassandra plugin <https://github.com/Mishail/GatlingCql>`_ by Mikhail Stepura
+* `Cassandra plugin <https://github.com/gatling-cql/GatlingCql>`_ by Mikhail Stepura
 * `MQTT plugin <https://github.com/jeanadrien/gatling-mqtt-protocol>`_ by Jean-Adrien Vaucher
 * `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_ by Muneyuki Noguchi
 * `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_ by Muneyuki Noguchi
