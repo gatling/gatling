@@ -30,6 +30,7 @@ import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
 import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
+import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
 import sbt.util.ShowLines._
 import xsbti.Problem
@@ -98,6 +99,7 @@ object ZincCompiler extends App with ProblemStringFormats {
       new ScalaInstance(
         version = scalaVersion,
         loader = new URLClassLoader(allScalaJars.map(_.toURI.toURL)),
+        loaderLibraryOnly = ClasspathUtilities.rootLoader,
         libraryJar = scalaLibraryJar,
         compilerJar = scalaCompilerJar,
         allJars = allScalaJars,
