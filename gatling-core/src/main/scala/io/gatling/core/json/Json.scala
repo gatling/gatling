@@ -23,7 +23,7 @@ import scala.annotation.switch
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Maps._
-import io.gatling.commons.util.StringBuilderPool
+import io.gatling.netty.util.ahc.StringBuilderPool
 
 import com.fasterxml.jackson.databind.ObjectMapper
 

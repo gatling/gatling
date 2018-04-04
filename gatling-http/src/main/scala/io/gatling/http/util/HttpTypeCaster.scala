@@ -23,24 +23,8 @@ import io.gatling.commons.validation._
 import io.gatling.http.cookie.CookieJar
 
 import io.netty.resolver.NameResolver
-import org.asynchttpclient.AsyncHttpClient
 
 object HttpTypeCaster {
-
-  implicit val AhcTypeCaster: TypeCaster[AsyncHttpClient] = new TypeCaster[AsyncHttpClient] {
-    @throws[ClassCastException]
-    override def cast(value: Any): AsyncHttpClient =
-      value match {
-        case v: AsyncHttpClient => v
-        case _                  => throw new ClassCastException(cceMessage(value, classOf[AsyncHttpClient]))
-      }
-
-    override def validate(value: Any): Validation[AsyncHttpClient] =
-      value match {
-        case v: AsyncHttpClient => v.success
-        case _                  => cceMessage(value, classOf[AsyncHttpClient]).failure
-      }
-  }
 
   implicit val NameResolverTypeCaster: TypeCaster[NameResolver[InetAddress]] = new TypeCaster[NameResolver[InetAddress]] {
     @throws[ClassCastException]

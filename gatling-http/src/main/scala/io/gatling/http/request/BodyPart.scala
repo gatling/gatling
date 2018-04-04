@@ -17,15 +17,17 @@
 package io.gatling.http.request
 
 import java.nio.charset.Charset
+import java.util.{ Collections, ArrayList => JArrayList, List => JList }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.FileResource
+import io.gatling.http.client.Param
+import io.gatling.http.client.body.part.{ ByteArrayPart, FilePart, Part, StringPart }
 
 import com.softwaremill.quicklens._
-import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 
 object BodyPart {
 
@@ -40,30 +42,57 @@ object BodyPart {
 
   def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
 
-  private def stringBodyPartBuilder(string: Expression[String])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def stringBodyPartBuilder(string: Expression[String])(
+    name:             String,
+    charset:          Option[Charset],
+    transferEncoding: Option[String],
+    contentId:        Option[String],
+    dispositionType:  Option[String],
+    customHeaders:    JList[Param],
+    fileName:         Option[String],
+    contentType:      Option[String]
+  ): Expression[Part[_]] =
     fileName match {
       case None => string.map { resolvedString =>
-        new StringPart(name, resolvedString, contentType.orNull, charset.orNull, contentId.orNull, transferEncoding.orNull)
+        new StringPart(name, resolvedString, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders)
       }
-      case _ => byteArrayBodyPartBuilder(string.map(_.getBytes(charset.orNull)))(name, contentType, charset, fileName, contentId, transferEncoding)
+      case _ => byteArrayBodyPartBuilder(string.map(_.getBytes(charset.orNull)))(name, charset, transferEncoding, contentId, dispositionType, customHeaders, fileName, contentType)
     }
 
-  private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(
+    name:             String,
+    charset:          Option[Charset],
+    transferEncoding: Option[String],
+    contentId:        Option[String],
+    dispositionType:  Option[String],
+    customHeaders:    JList[Param],
+    fileName:         Option[String],
+    contentType:      Option[String]
+  ): Expression[Part[_]] =
     bytes.map { resolvedBytes =>
-      new ByteArrayPart(name, resolvedBytes, contentType.orNull, charset.orNull, fileName.orNull, contentId.orNull, transferEncoding.orNull)
+      new ByteArrayPart(name, resolvedBytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.orNull, contentType.orNull)
     }
 
-  private def fileBodyPartBuilder(resource: Expression[ResourceAndCachedBytes])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def fileBodyPartBuilder(resource: Expression[ResourceAndCachedBytes])(
+    name:             String,
+    charset:          Option[Charset],
+    transferEncoding: Option[String],
+    contentId:        Option[String],
+    dispositionType:  Option[String],
+    customHeaders:    JList[Param],
+    fileName:         Option[String],
+    contentType:      Option[String]
+  ): Expression[Part[_]] =
     session => for {
       ResourceAndCachedBytes(resource, cachedBytes) <- resource(session)
     } yield cachedBytes match {
-      case Some(bytes) => new ByteArrayPart(name, bytes, contentType.orNull, charset.orNull, fileName.getOrElse(resource.name), contentId.orNull, transferEncoding.orNull)
+      case Some(bytes) => new ByteArrayPart(name, bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentType.orNull)
       case None =>
         resource match {
           case FileResource(file) =>
-            new FilePart(name, file, contentType.orNull, charset.orNull, fileName.getOrElse(file.getName), contentId.orNull, transferEncoding.orNull)
+            new FilePart(name, file, charset.orNull, transferEncoding.orNull, contentType.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(file.getName), contentId.orNull)
           case _ =>
-            new ByteArrayPart(name, resource.bytes, contentType.orNull, charset.orNull, fileName.getOrElse(resource.name), contentId.orNull, transferEncoding.orNull)
+            new ByteArrayPart(name, resource.bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentType.orNull)
         }
     }
 }
@@ -82,32 +111,49 @@ case class BodyPartAttributes(
 }
 
 case class BodyPart(
-    name:        Option[Expression[String]],
-    partBuilder: (String, Option[String], Option[Charset], Option[String], Option[String], Option[String]) => Expression[PartBase], // name, fileName
-    attributes:  BodyPartAttributes
+    name: Option[Expression[String]],
+    partBuilder: (String, // name
+    Option[Charset], // charset
+    Option[String], // transferEncoding
+    Option[String], // contentId
+    Option[String], // dispositionType
+    JList[Param], // customHeaders
+    Option[String], // fileName
+    Option[String] // contentType
+    ) => Expression[Part[_]],
+    attributes: BodyPartAttributes
 ) {
 
   def contentType(contentType: Expression[String]) = this.modify(_.attributes.contentType).setTo(Some(contentType))
+
   def charset(charset: String) = this.modify(_.attributes.charset).setTo(Some(Charset.forName(charset)))
+
   def dispositionType(dispositionType: Expression[String]) = this.modify(_.attributes.dispositionType).setTo(Some(dispositionType))
+
   def fileName(fileName: Expression[String]) = this.modify(_.attributes.fileName).setTo(Some(fileName))
+
   def contentId(contentId: Expression[String]) = this.modify(_.attributes.contentId).setTo(Some(contentId))
+
   def transferEncoding(transferEncoding: String) = this.modify(_.attributes.transferEncoding).setTo(Some(transferEncoding))
+
   def header(name: String, value: Expression[String]) = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
 
-  def toMultiPart(session: Session): Validation[Part] =
+  def toMultiPart(session: Session): Validation[Part[_]] =
     for {
       name <- resolveOptionalExpression(name, session)
       contentType <- resolveOptionalExpression(attributes.contentType, session)
       dispositionType <- resolveOptionalExpression(attributes.dispositionType, session)
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
-      part <- partBuilder(name.orNull, contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
       customHeaders <- attributes.customHeadersExpression(session)
+      customHeadersAsParams = if (customHeaders.nonEmpty) {
+        val params = new JArrayList[Param](customHeaders.size)
+        customHeaders.foreach { case (name, value) => params.add(new Param(name, value)) }
+        params
+      } else {
+        Collections.emptyList[Param]
+      }
+      part <- partBuilder(name.orNull, attributes.charset, attributes.transferEncoding, contentId, dispositionType, customHeadersAsParams, fileName, contentType)(session)
 
-    } yield {
-      dispositionType.foreach(part.setDispositionType)
-      customHeaders.foreach { case (headerName, headerValue) => part.addCustomHeader(headerName, headerValue) }
-      part
-    }
+    } yield part
 }

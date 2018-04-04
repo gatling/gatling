@@ -26,17 +26,18 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.core.session._
-import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.proxy.ProxyServer
+import io.gatling.http.client.realm.Realm
+import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
-import org.asynchttpclient._
-import org.asynchttpclient.proxy._
-import org.asynchttpclient.uri.Uri
 
 object HttpProtocol extends StrictLogging {
 
@@ -71,7 +72,6 @@ object HttpProtocol extends StrictLogging {
       baseUrls = Nil,
       warmUpUrl = configuration.http.warmUpUrl,
       enginePart = HttpProtocolEnginePart(
-        shareClient = true,
         shareConnections = false,
         maxConnectionsPerHost = 6,
         virtualHost = None,
@@ -142,7 +142,6 @@ case class HttpProtocol(
 }
 
 case class HttpProtocolEnginePart(
-    shareClient:           Boolean,
     shareConnections:      Boolean,
     maxConnectionsPerHost: Int,
     virtualHost:           Option[Expression[String]],

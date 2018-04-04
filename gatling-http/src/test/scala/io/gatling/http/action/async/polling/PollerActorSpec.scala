@@ -25,14 +25,12 @@ import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.ErrorMessage
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.engine.HttpEngine
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequestDef }
 import io.gatling.http.response.ResponseBuilderFactory
 
 import akka.testkit._
 import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
 
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {
@@ -74,7 +72,7 @@ class PollerActorSpec extends AkkaSpec {
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
 
-    verify(mockHttpEngine, never).httpClient(any[Session], any[HttpProtocol])
+    verify(mockHttpEngine, never).httpClient
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
     val pollingData = poller.stateData.asInstanceOf[PollingData]
@@ -90,7 +88,7 @@ class PollerActorSpec extends AkkaSpec {
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
 
-    verify(mockHttpEngine, never).httpClient(any[Session], any[HttpProtocol])
+    verify(mockHttpEngine, never).httpClient
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
     val pollingData = poller.stateData.asInstanceOf[PollingData]

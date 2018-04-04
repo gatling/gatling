@@ -23,8 +23,7 @@ import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-
-import org.asynchttpclient.Param
+import io.gatling.http.client.Param
 
 package object builder {
 

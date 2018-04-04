@@ -17,22 +17,23 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
+import io.gatling.http.client.ahc.uri.Uri
 
-import org.asynchttpclient.uri.Uri
+import io.netty.handler.codec.http.HttpMethod
 
 /**
  * @param requestName the name of the request
  */
 case class Http(requestName: Expression[String]) {
 
-  def get(url: Expression[String]): HttpRequestBuilder = httpRequest("GET", url)
-  def get(uri: Uri): HttpRequestBuilder = httpRequest("GET", Right(uri))
-  def put(url: Expression[String]): HttpRequestBuilder = httpRequest("PUT", url)
-  def post(url: Expression[String]): HttpRequestBuilder = httpRequest("POST", url)
-  def patch(url: Expression[String]): HttpRequestBuilder = httpRequest("PATCH", url)
-  def head(url: Expression[String]): HttpRequestBuilder = httpRequest("HEAD", url)
-  def delete(url: Expression[String]): HttpRequestBuilder = httpRequest("DELETE", url)
-  def options(url: Expression[String]): HttpRequestBuilder = httpRequest("OPTIONS", url)
-  def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(method, Left(url))
-  def httpRequest(method: String, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder = new HttpRequestBuilder(CommonAttributes(requestName, method, urlOrURI), HttpAttributes())
+  def get(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.GET, url)
+  def get(uri: Uri): HttpRequestBuilder = httpRequest(HttpMethod.GET, Right(uri))
+  def put(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PUT, url)
+  def post(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.POST, url)
+  def patch(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PATCH, url)
+  def head(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.HEAD, url)
+  def delete(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.DELETE, url)
+  def options(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.OPTIONS, url)
+  def httpRequest(method: HttpMethod, url: Expression[String]): HttpRequestBuilder = httpRequest(method, Left(url))
+  def httpRequest(method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder = new HttpRequestBuilder(CommonAttributes(requestName, method, urlOrURI), HttpAttributes())
 }

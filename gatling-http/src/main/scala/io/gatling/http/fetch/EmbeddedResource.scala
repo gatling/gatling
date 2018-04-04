@@ -20,12 +20,11 @@ import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._
 import io.gatling.http.request.HttpRequest
-
-import org.asynchttpclient.uri.Uri
 
 object EmbeddedResource {
 

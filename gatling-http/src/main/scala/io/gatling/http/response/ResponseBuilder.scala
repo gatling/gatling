@@ -28,14 +28,12 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
+import io.gatling.http.client.Request
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
-import io.netty.handler.codec.http.{ HttpHeaders, DefaultHttpHeaders }
-import org.asynchttpclient._
-import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.netty.LazyResponseBodyPart
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpResponseStatus }
 
 object ResponseBuilder extends StrictLogging {
 
@@ -84,15 +82,15 @@ class ResponseBuilder(
 ) {
 
   private val computeChecksums = checksumChecks.nonEmpty
-  @volatile var storeHtmlOrCss: Boolean = _
-  @volatile var startTimestamp: Long = _
-  @volatile var endTimestamp: Long = _
-  @volatile private var _reset: Boolean = _
-  @volatile private var status: Option[HttpResponseStatus] = None
-  @volatile private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
-  @volatile private var chunks: List[ByteBuf] = Nil
-  @volatile private var digests: Map[String, MessageDigest] = initDigests()
-  @volatile private var nettyRequest: Option[NettyRequest] = None
+  var storeHtmlOrCss: Boolean = _
+  var startTimestamp: Long = _
+  var endTimestamp: Long = _
+  private var status: Option[HttpResponseStatus] = None
+  private var wireRequestHeaders: Option[HttpHeaders] = None
+
+  private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
+  private var chunks: List[ByteBuf] = Nil
+  private var digests: Map[String, MessageDigest] = initDigests()
 
   def initDigests(): Map[String, MessageDigest] =
     if (computeChecksums)
@@ -108,33 +106,14 @@ class ResponseBuilder(
   def updateEndTimestamp(): Unit =
     endTimestamp = nowMillis
 
-  def setNettyRequest(nettyRequest: NettyRequest): Unit =
-    this.nettyRequest = Some(nettyRequest)
-
-  def markReset(): Unit =
-    _reset = true
-
-  def doReset(): Unit =
-    if (_reset) {
-      _reset = false
-      endTimestamp = 0L
-      status = None
-      headers = ResponseBuilder.EmptyHeaders
-      resetChunks()
-      digests = initDigests()
-    }
-
-  private def resetChunks(): Unit = {
-    chunks.foreach(_.release())
-    chunks = Nil
+  def accumulate(wireRequestHeaders: HttpHeaders): Unit = {
+    this.wireRequestHeaders = Some(wireRequestHeaders)
   }
 
-  def accumulate(status: HttpResponseStatus): Unit = {
-    this.status = Some(status)
+  def accumulate(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
     updateEndTimestamp()
-  }
 
-  def accumulate(headers: HttpHeaders): Unit =
+    this.status = Some(status)
     if (this.headers eq ResponseBuilder.EmptyHeaders) {
       this.headers = headers
       storeHtmlOrCss = inferHtmlResources && (isHtml(headers) || isCss(headers))
@@ -142,12 +121,10 @@ class ResponseBuilder(
       // trailing headers, wouldn't contain ContentType
       this.headers.add(headers)
     }
+  }
 
-  def accumulate(bodyPart: HttpResponseBodyPart): Unit = {
-
+  def accumulate(byteBuf: ByteBuf): Unit = {
     updateEndTimestamp()
-
-    val byteBuf = bodyPart.asInstanceOf[LazyResponseBodyPart].getBuf
 
     if (byteBuf.isReadable) {
       if (storeBodyParts || storeHtmlOrCss) {
@@ -209,8 +186,9 @@ class ResponseBuilder(
       else
         ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-    resetChunks()
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
+    chunks.foreach(_.release())
+    chunks = Nil
+    val rawResponse = HttpResponse(request, wireRequestHeaders, status, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
 
     responseTransformer match {
       case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
@@ -219,5 +197,5 @@ class ResponseBuilder(
   }
 
   def buildSafeResponse: Response =
-    HttpResponse(request, nettyRequest, status, headers, NoResponseBody, Map.empty, 0, resolvedCharset, startTimestamp, endTimestamp)
+    HttpResponse(request, wireRequestHeaders, status, headers, NoResponseBody, Map.empty, 0, resolvedCharset, startTimestamp, endTimestamp)
 }

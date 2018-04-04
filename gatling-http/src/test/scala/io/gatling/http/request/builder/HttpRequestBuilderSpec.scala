@@ -23,13 +23,16 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
-import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.client.{ HttpClientConfig, SignatureCalculator }
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.body.{ FormUrlEncodedRequestBody, RequestBody }
+import io.gatling.http.client.impl.request.WritableRequestBuilder
+import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 
 import akka.actor.ActorSystem
-import org.asynchttpclient.{ Request, RequestBuilderBase, SignatureCalculator }
-import org.asynchttpclient.uri.Uri
+import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod }
 import org.mockito.Mockito.when
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
@@ -45,27 +48,33 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor])
 
   def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
-    val commonAttributes = CommonAttributes("requestName".expressionSuccess, "GET", Right(Uri.create("http://gatling.io")))
+    val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, Right(Uri.create("http://gatling.io")))
     val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
     builder.build(coreComponents, httpComponents, throttled = false)
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
     val sigCalc = new SignatureCalculator {
-      def calculateAndAddSignature(request: Request, rb: RequestBuilderBase[_]): Unit = rb.addHeader("X-Token", "foo")
+      override def sign(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = headers.add("X-Token", "foo")
     }
 
     httpRequestDef(_.signatureCalculator(sigCalc))
       .build("requestName", Session("scenarioName", 0))
-      .map(_.ahcRequest.getHeaders.get("X-Token")).succeeded shouldBe "foo"
+      .map { httpRequest =>
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.ahcRequest, null, new HttpClientConfig)
+        writableRequest.getRequest.headers.get("X-Token")
+      }.succeeded shouldBe "foo"
   }
 
   it should "work when passed as a function" in {
-    def sigCalc(request: Request, rb: RequestBuilderBase[_]): Unit = rb.addHeader("X-Token", "foo")
+    def sigCalc(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = headers.add("X-Token", "foo")
 
     httpRequestDef(_.signatureCalculator(sigCalc _))
       .build("requestName", Session("scenarioName", 0))
-      .map(_.ahcRequest.getHeaders.get("X-Token")).succeeded shouldBe "foo"
+      .map { httpRequest =>
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.ahcRequest, null, new HttpClientConfig)
+        writableRequest.getRequest.headers.get("X-Token")
+      }.succeeded shouldBe "foo"
   }
 
   "form" should "work when overriding a value" in {
@@ -75,7 +84,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
+      .map(_.ahcRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
   }
 
   it should "work when passing only formParams" in {
@@ -84,7 +93,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(_.ahcRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 
   it should "work when passing only a form" in {
@@ -94,6 +103,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getFormParams.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(_.ahcRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 }

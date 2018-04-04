@@ -16,22 +16,20 @@
 
 package io.gatling.http.action.sync
 
-import scala.concurrent.duration._
-
 import io.gatling.commons.stats.OK
 import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
-import io.gatling.http.ahc.{ AsyncHandler, HttpEngine }
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
+import io.gatling.http.client.{ HttpClient, Request }
+import io.gatling.http.engine.{ GatlingHttpListener, HttpEngine }
 import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
 
 import akka.actor.{ ActorRef, ActorRefFactory, Props }
 import com.typesafe.scalalogging.StrictLogging
-import org.asynchttpclient.{ AsyncHttpClient, Request }
 
 object HttpTx extends NameGen with StrictLogging {
 
@@ -40,7 +38,7 @@ object HttpTx extends NameGen with StrictLogging {
     val requestPart = request.config.httpComponents.httpProtocol.requestPart
 
     def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
-      case Some(silentUri) => silentUri.matcher(request.ahcRequest.getUrl).matches
+      case Some(silentUri) => silentUri.matcher(request.ahcRequest.getUri.toUrl).matches
       case None            => false
     }
 
@@ -82,10 +80,10 @@ object HttpTx extends NameGen with StrictLogging {
     }
   }
 
-  private def executeRequest(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
+  private def executeRequest(client: HttpClient, ahcRequest: Request, clientId: Long, shared: Boolean, listener: GatlingHttpListener): Unit =
     if (!client.isClosed) {
-      handler.start()
-      client.executeRequest(ahcRequest, handler)
+      listener.start()
+      client.sendRequest(ahcRequest, clientId, shared, listener)
     }
 
   def start(origTx: HttpTx)(implicit actorRefFactory: ActorRefFactory): Unit = {
@@ -96,19 +94,16 @@ object HttpTx extends NameGen with StrictLogging {
 
       logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
-      httpEngine.httpClient(tx.session, httpProtocol) match {
-        case (newSession, client) =>
-          val newTx = tx.copy(session = newSession)
-          val ahcRequest = newTx.request.ahcRequest
-          val handler = new AsyncHandler(newTx, responseProcessor)
+      val client = httpEngine.httpClient
+      val ahcRequest = tx.request.ahcRequest
+      val clientId = tx.session.userId
+      val shared = httpProtocol.enginePart.shareConnections
+      val handler = new GatlingHttpListener(tx, responseProcessor)
 
-          if (tx.request.config.throttled)
-            origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => executeRequest(client, ahcRequest, handler))
-          else
-            executeRequest(client, ahcRequest, handler)
-
-        case _ => // client has been shutdown, ignore
-      }
+      if (tx.request.config.throttled)
+        origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => executeRequest(client, ahcRequest, clientId, shared, handler))
+      else
+        executeRequest(client, ahcRequest, clientId, shared, handler)
     }
   }
 }
@@ -124,9 +119,9 @@ case class HttpTx(
 ) {
   lazy val silent: Boolean = HttpTx.silent(request, resourceFetcher.isEmpty)
 
-  lazy val fullRequestName =
+  lazy val fullRequestName: String =
     if (redirectCount > 0)
-      s"${request.requestName} Redirect ${redirectCount}"
+      s"${request.requestName} Redirect $redirectCount"
     else
       request.requestName
 }

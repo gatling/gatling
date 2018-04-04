@@ -21,7 +21,7 @@ import java.util.{ List => JList }
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, CacheOverrideNameResolver, ShuffleJdkNameResolver }
 import io.gatling.http.util.HttpTypeCaster

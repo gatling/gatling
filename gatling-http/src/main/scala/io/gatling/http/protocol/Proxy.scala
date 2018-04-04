@@ -17,8 +17,8 @@
 package io.gatling.http.protocol
 
 import io.gatling.commons.model.Credentials
-
-import org.asynchttpclient.proxy.ProxyType
+import io.gatling.http.client.proxy.{ HttpProxyServer, ProxyServer }
+import io.gatling.http.client.realm.BasicRealm
 
 case class Proxy(
     host:        String,
@@ -26,4 +26,15 @@ case class Proxy(
     securePort:  Int,
     proxyType:   ProxyType,
     credentials: Option[Credentials] = None
-)
+) {
+
+  def proxyServer: ProxyServer = {
+    val realm = credentials.map(c => new BasicRealm(c.username, c.password))
+    new HttpProxyServer(host, port, securePort, realm.orNull)
+  }
+}
+
+sealed trait ProxyType
+case object HttpProxy extends ProxyType
+case object Socks4Proxy extends ProxyType
+case object Socks5Proxy extends ProxyType

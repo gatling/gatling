@@ -25,6 +25,8 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.check.HttpCheck
 
+import io.netty.handler.codec.http.HttpMethod
+
 class HttpCompileTest extends Simulation {
 
   val httpProtocol = http
@@ -63,6 +65,8 @@ class HttpCompileTest extends Simulation {
     .asyncDnsNameResolution(Array(new InetSocketAddress("8.8.8.8", 53), new InetSocketAddress("8.8.4.4", 53)))
     .hostNameAliases(Map("foo" -> "127.0.0.1"))
     .perUserDnsNameResolution
+    .localAddress("192.168.1.100")
+    .localAddresses(List("192.168.1.100", "192.168.1.101"))
 
   val testData3 = Array(Map("foo" -> "bar")).circular
 
@@ -75,7 +79,7 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").head("/"))
     .exec(http("Request").delete("/"))
     .exec(http("Request").options("/"))
-    .exec(http("Request").httpRequest("JSON", "/support/get-plot-data?chartID=66"))
+    .exec(http("Request").httpRequest(HttpMethod.valueOf("JSON"), "/support/get-plot-data?chartID=66"))
     // url function
     .exec(http("Request").get(_ => "/"))
     // headers

@@ -17,9 +17,8 @@
 package io.gatling.http.fetch
 
 import io.gatling.BaseSpec
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming._
-
-import org.asynchttpclient.uri.Uri
 
 class InferredResourceNamingSpec extends BaseSpec {
 

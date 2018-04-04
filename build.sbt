@@ -11,7 +11,7 @@ import sbt._
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
   .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-  .aggregate(commons, core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
+  .aggregate(nettyUtil, commons, core, jdbc, redis, httpClient, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
   .settings(libraryDependencies ++= docDependencies)
@@ -24,7 +24,11 @@ def gatlingModule(id: String) = Project(id, file(id))
   .settings(gatlingModuleSettings: _*)
   .settings(updateOptions := updateOptions.value.withGigahorse(false))
 
+lazy val nettyUtil = gatlingModule("gatling-netty-util")
+  .settings(libraryDependencies ++= nettyUtilDependencies)
+
 lazy val commons = gatlingModule("gatling-commons")
+  .dependsOn(nettyUtil % "compile->compile;test->test")
   .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
   .settings(generateVersionFileSettings: _*)
 
@@ -41,8 +45,14 @@ lazy val redis = gatlingModule("gatling-redis")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= redisDependencies)
 
+lazy val httpClient = gatlingModule("gatling-http-client")
+  .dependsOn(nettyUtil % "compile->compile;test->test")
+  .settings(libraryDependencies ++= httpClientDependencies)
+
 lazy val http = gatlingModule("gatling-http")
-  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(
+    core % "compile->compile;test->test",
+    httpClient % "compile->compile;test->test")
   .settings(libraryDependencies ++= httpDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")

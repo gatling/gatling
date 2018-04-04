@@ -23,16 +23,18 @@ import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.body.RequestBody
+import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.realm.Realm
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.{ Realm, Request, RequestBuilderBase, SignatureCalculator }
+import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod }
 
 /**
  * HttpProtocolBuilder class companion
@@ -59,7 +61,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def disableWarmUp: HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(None)
 
   // enginePart
-  def disableClientSharing = this.modify(_.protocol.enginePart.shareClient).setTo(false)
   def shareConnections = this.modify(_.protocol.enginePart.shareConnections).setTo(true)
   def virtualHost(virtualHost: Expression[String]) = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
   def localAddress(address: String) = localAddresses(List(address))
@@ -101,8 +102,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def disableUrlEncoding = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
   def signatureCalculator(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = signatureCalculator(calculator.expressionSuccess)
-  def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
-    def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
+  def signatureCalculator(calculator: (HttpMethod, Uri, HttpHeaders, RequestBody[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
+    override def sign(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = calculator(method, uri, headers, body)
   })
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
     signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
@@ -158,8 +159,5 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def perUserDnsNameResolution: HttpProtocolBuilder =
     this.modify(_.protocol.dnsPart.perUserNameResolution).setTo(true)
 
-  def build = {
-    require(protocol.enginePart.shareClient || !protocol.enginePart.shareConnections, "Invalid protocol configuration: if you stop sharing the HTTP client, you can't share connections!")
-    protocol
-  }
+  def build = protocol
 }

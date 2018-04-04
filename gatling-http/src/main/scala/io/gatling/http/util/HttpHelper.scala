@@ -17,7 +17,7 @@
 package io.gatling.http.util
 
 import java.net.URLDecoder
-import java.nio.charset.{ StandardCharsets, Charset }
+import java.nio.charset.{ Charset, StandardCharsets }
 
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
@@ -25,20 +25,20 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 
-import io.netty.handler.codec.http.HttpHeaders
-import org.asynchttpclient.Realm
-import org.asynchttpclient.Realm.AuthScheme
-import org.asynchttpclient.uri.Uri
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.HttpResponseStatus._
 import com.typesafe.scalalogging.StrictLogging
 
 object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
   val WsScheme = "ws"
-  val OkCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209)
-  val RedirectStatusCodes = Vector(301, 302, 303, 307, 308)
+  val OkCodes = Vector(OK.code, SEE_OTHER.code, CREATED.code, ACCEPTED.code, NON_AUTHORITATIVE_INFORMATION.code, NO_CONTENT.code, RESET_CONTENT.code, PARTIAL_CONTENT.code, MULTI_STATUS.code, 208, 209)
+  val RedirectStatusCodes = Vector(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
 
   def parseFormBody(body: String): List[(String, String)] = {
     def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
@@ -54,34 +54,21 @@ object HttpHelper extends StrictLogging {
   }
 
   def buildBasicAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
-    buildRealm(username, password, AuthScheme.BASIC, preemptive = true, None, None)
-
-  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
-    buildRealm(username, password, AuthScheme.DIGEST, preemptive = false, None, None)
-
-  def buildNTLMAuthRealm(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]): Expression[Realm] =
-    buildRealm(username, password, AuthScheme.NTLM, preemptive = false, Some(ntlmDomain), Some(ntlmHost))
-
-  def buildRealm(
-    username:   Expression[String],
-    password:   Expression[String],
-    authScheme: AuthScheme,
-    preemptive: Boolean,
-    ntlmDomain: Option[Expression[String]],
-    ntlmHost:   Option[Expression[String]]
-  ): Expression[Realm] =
     (session: Session) =>
       for {
         usernameValue <- username(session)
         passwordValue <- password(session)
-        ntlmDomainValue <- resolveOptionalExpression(ntlmDomain, session)
-        ntlmHostValue <- resolveOptionalExpression(ntlmHost, session)
-      } yield new Realm.Builder(usernameValue, passwordValue)
-        .setScheme(authScheme)
-        .setUsePreemptiveAuth(preemptive)
-        .setNtlmDomain(ntlmDomainValue.orNull)
-        .setNtlmHost(ntlmHostValue.orNull)
-        .build
+      } yield new BasicRealm(usernameValue, passwordValue)
+
+  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
+    (session: Session) =>
+      for {
+        usernameValue <- username(session)
+        passwordValue <- password(session)
+      } yield new DigestRealm(usernameValue, passwordValue)
+
+  def buildNTLMAuthRealm(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]): Expression[Realm] =
+    ??? // TODO implement NTLM
 
   private def headerExists(headers: HttpHeaders, headerName: String, f: String => Boolean): Boolean = Option(headers.get(headerName)).exists(f)
   def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
@@ -104,9 +91,9 @@ object HttpHelper extends StrictLogging {
         None
     }
 
-  def isRedirect(statusCode: Int): Boolean = RedirectStatusCodes.contains(statusCode)
-  def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301 || statusCode == 308
-  def isNotModified(statusCode: Int): Boolean = statusCode == 304
+  def isRedirect(status: HttpResponseStatus): Boolean = RedirectStatusCodes.contains(status.code)
+  def isPermanentRedirect(status: HttpResponseStatus): Boolean = status == MOVED_PERMANENTLY || status == PERMANENT_REDIRECT
+  def isNotModified(status: HttpResponseStatus): Boolean = status == NOT_MODIFIED
 
   def isAbsoluteHttpUrl(url: String): Boolean = url.startsWith(HttpScheme)
   def isAbsoluteWsUrl(url: String): Boolean = url.startsWith(WsScheme)

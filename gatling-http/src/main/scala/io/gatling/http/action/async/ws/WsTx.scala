@@ -16,33 +16,21 @@
 
 package io.gatling.http.action.async.ws
 
-import java.util.{ ArrayList => JArrayList }
-
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async.AsyncTx
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.engine.HttpEngine
 
 import akka.actor.ActorRef
-import org.asynchttpclient.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 
 object WsTx {
 
   def start(tx: AsyncTx, wsActor: ActorRef, httpEngine: HttpEngine, statsEngine: StatsEngine): Unit = {
-    val (newTx, client) = {
-      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
-      (tx.copy(session = newSession), client)
-    }
 
-    val handler = {
-      // can't use a singletonList as list will be cleared on close
-      val listeners = new JArrayList[WebSocketListener](1)
-      listeners.add(new WsListener(newTx, wsActor))
-      new WebSocketUpgradeHandler(listeners)
-    }
+    val listener = new WsListener(tx, wsActor)
 
     // [fl]
     //
     // [fl]
-    client.executeRequest(tx.request, handler)
+    httpEngine.httpClient.sendRequest(tx.request, tx.session.userId, tx.protocol.enginePart.shareConnections, listener)
   }
 }

@@ -23,10 +23,10 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.cookie.CookieSupport._
 
 import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
-import org.asynchttpclient.uri.Uri
 
 object CookieActionBuilder {
   private val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure

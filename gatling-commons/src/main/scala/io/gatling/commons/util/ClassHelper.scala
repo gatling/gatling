@@ -16,11 +16,13 @@
 
 package io.gatling.commons.util
 
+import io.gatling.netty.util.ahc.StringBuilderPool
+
 object ClassHelper {
 
   def toClassShortName(className: String): String = {
     val parts = className.split("\\.")
-    val sb = StringBuilderPool.Global.get()
+    val sb = StringBuilderPool.DEFAULT.get()
     var i = 0
     while (i < parts.length - 1) {
       sb.append(parts(i).charAt(0)).append('.')

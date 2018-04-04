@@ -164,13 +164,11 @@ object GatlingConfiguration extends StrictLogging {
           )
         },
         ahc = AhcConfiguration(
-          keepAlive = config.getBoolean(http.ahc.KeepAlive),
           connectTimeout = config.getInt(http.ahc.ConnectTimeout),
           handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
-          readTimeout = config.getInt(http.ahc.ReadTimeout),
           maxRetry = config.getInt(http.ahc.MaxRetry),
-          requestTimeOut = config.getInt(http.ahc.RequestTimeout),
+          requestTimeout = config.getInt(http.ahc.RequestTimeout),
           disableHttpsEndpointIdentificationAlgorithm = {
             val disable = config.getBoolean(http.ahc.DisableHttpsEndpointIdentificationAlgorithm)
             if (disable) {
@@ -181,19 +179,15 @@ object GatlingConfiguration extends StrictLogging {
           },
           useInsecureTrustManager = config.getBoolean(http.ahc.UseInsecureTrustManager),
           filterInsecureCipherSuites = config.getBoolean(http.ahc.FilterInsecureCipherSuites),
-          httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
-          httpClientCodecInitialBufferSize = config.getInt(http.ahc.HttpClientCodecInitialBufferSize),
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
+          disableSslSessionResumption = config.getBoolean(http.ahc.DisableSslSessionResumption),
           useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
           useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport),
           tcpNoDelay = config.getBoolean(http.ahc.TcpNoDelay),
           soReuseAddress = config.getBoolean(http.ahc.SoReuseAddress),
-          soLinger = config.getInt(http.ahc.SoLinger),
-          soSndBuf = config.getInt(http.ahc.SoSndBuf),
-          soRcvBuf = config.getInt(http.ahc.SoRcvBuf),
           allocator = config.getString(http.ahc.Allocator),
           maxThreadLocalCharBufferSize = config.getInt(http.ahc.MaxThreadLocalCharBufferSize)
         ),
@@ -341,29 +335,23 @@ case class JmsConfiguration(
 )
 
 case class AhcConfiguration(
-    keepAlive:                                   Boolean,
     connectTimeout:                              Int,
     handshakeTimeout:                            Int,
     pooledConnectionIdleTimeout:                 Int,
-    readTimeout:                                 Int,
     maxRetry:                                    Int,
-    requestTimeOut:                              Int,
+    requestTimeout:                              Int,
     disableHttpsEndpointIdentificationAlgorithm: Boolean,
     useInsecureTrustManager:                     Boolean,
     filterInsecureCipherSuites:                  Boolean,
-    httpClientCodecMaxChunkSize:                 Int,
-    httpClientCodecInitialBufferSize:            Int,
     sslEnabledProtocols:                         List[String],
     sslEnabledCipherSuites:                      List[String],
     sslSessionCacheSize:                         Int,
     sslSessionTimeout:                           Int,
+    disableSslSessionResumption:                 Boolean,
     useOpenSsl:                                  Boolean,
     useNativeTransport:                          Boolean,
     tcpNoDelay:                                  Boolean,
     soReuseAddress:                              Boolean,
-    soLinger:                                    Int,
-    soSndBuf:                                    Int,
-    soRcvBuf:                                    Int,
     allocator:                                   String,
     maxThreadLocalCharBufferSize:                Int
 )

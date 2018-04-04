@@ -16,10 +16,11 @@
 
 package io.gatling.recorder.http.flows
 
+import io.gatling.http.client.ahc.uri.Uri
+
 import akka.actor.{ Actor, FSM }
 import io.netty.channel.Channel
 import io.netty.handler.codec.http.FullHttpRequest
-import org.asynchttpclient.uri.Uri
 
 object Remote {
 

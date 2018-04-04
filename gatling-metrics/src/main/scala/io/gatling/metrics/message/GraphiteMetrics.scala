@@ -18,7 +18,7 @@ package io.gatling.metrics.message
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.commons.util.StringBuilderPool
+import io.gatling.netty.util.ahc.StringBuilderPool
 
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
@@ -29,7 +29,7 @@ private[metrics] object GraphiteMetrics extends StrictLogging {
 
   def apply(pathValuePairs: Iterator[(String, Long)], epoch: Long): GraphiteMetrics = {
 
-    val sb = StringBuilderPool.Global.get()
+    val sb = StringBuilderPool.DEFAULT.get()
     pathValuePairs.foreach {
       case (path, value) =>
         sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')

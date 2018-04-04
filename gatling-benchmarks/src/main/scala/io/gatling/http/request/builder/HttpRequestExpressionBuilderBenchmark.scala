@@ -17,15 +17,16 @@
 package io.gatling.http.request.builder
 
 import io.gatling.commons.validation._
-import io.gatling.core.{ ValidationImplicits, CoreComponents }
+import io.gatling.core.{ CoreComponents, ValidationImplicits }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol._
+import io.gatling.http.client.{ Request => AhcRequest, RequestBuilder => AhcRequesBuilder }
+import io.gatling.http.client.ahc.uri.Uri
 
 import com.softwaremill.quicklens._
-import org.asynchttpclient.Request
-import org.asynchttpclient.Dsl._
+import io.netty.handler.codec.http.HttpMethod
 import org.openjdk.jmh.annotations.Benchmark
 
 object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
@@ -54,25 +55,29 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
     responseProcessor = null
   )
 
-  val Reference: Expression[Request] = _ =>
-    request("GET", "http://localhost:8000/ping")
-      .build.success
+  val Reference: Expression[AhcRequest] = _ =>
+    new AhcRequesBuilder(HttpMethod.GET, Uri.create("http://localhost:8000/ping"))
+      .build(true).success
 
-  val SimpleRequest: Expression[Request] =
+  val RequestWithStaticAbsoluteUrl: Expression[AhcRequest] =
+    new Http("requestName").get("http://localhost:8000/ping")
+      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+
+  val RequestWithStaticRelativeUrl: Expression[AhcRequest] =
     new Http("requestName").get("/ping")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
 
-  val RequestWithStaticQueryParams: Expression[Request] =
+  val RequestWithStaticQueryParams: Expression[AhcRequest] =
     new Http("requestName").get("/ping")
       .queryParam("hello", "world")
       .queryParam("foo", "bar")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
 
-  val RequestWithDynamicUrl: Expression[Request] =
+  val RequestWithDynamicQuery: Expression[AhcRequest] =
     new Http("requestName").get("/ping?foo=${key}")
       .build(coreComponents, httpComponents, throttled = false).ahcRequest
 
-  val RequestWithStaticHeaders: Expression[Request] = {
+  val RequestWithStaticHeaders: Expression[AhcRequest] = {
 
     val httpProtocol = HttpProtocolBuilder(config)
       .baseURL("http://localhost:8000")
@@ -87,7 +92,6 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
         httpComponents.modify(_.httpProtocol).setTo(httpProtocol),
         throttled = false
       ).ahcRequest
-
   }
 
   val EmptySession: Session = Session("scenario", 0)
@@ -100,22 +104,39 @@ class HttpRequestExpressionBuilderBenchmark {
   import HttpRequestExpressionBuilderBenchmark._
 
   @Benchmark
-  def testReference(): Validation[Request] =
+  def testReference(): Validation[AhcRequest] =
     Reference(EmptySession)
 
   @Benchmark
-  def testSimpleRequest(): Validation[Request] =
-    SimpleRequest(EmptySession)
+  def testRequestWithStaticRelativeUrl(): Validation[AhcRequest] =
+    RequestWithStaticRelativeUrl(EmptySession)
 
   @Benchmark
-  def testRequestWithStaticQueryParams(): Validation[Request] =
+  def testRequestWithStaticAbsoluteUrl(): Validation[AhcRequest] =
+    RequestWithStaticAbsoluteUrl(EmptySession)
+
+  @Benchmark
+  def testRequestWithStaticQueryParams(): Validation[AhcRequest] =
     RequestWithStaticQueryParams(EmptySession)
 
   @Benchmark
-  def testRequestWithStaticHeaders(): Validation[Request] =
+  def testRequestWithStaticHeaders(): Validation[AhcRequest] =
     RequestWithStaticHeaders(EmptySession)
 
   @Benchmark
-  def testRequestWithDynamicUrl(): Validation[Request] =
-    RequestWithDynamicUrl(NonEmptySession)
+  def testRequestWithDynamicQuery(): Validation[AhcRequest] =
+    RequestWithDynamicQuery(NonEmptySession)
+}
+
+object Test {
+  def main(args: Array[String]): Unit = {
+    val test = new HttpRequestExpressionBuilderBenchmark
+
+    System.out.println("testReference=" + test.testReference())
+    System.out.println("testRequestWithStaticRelativeUrl=" + test.testRequestWithStaticRelativeUrl())
+    System.out.println("testRequestWithStaticAbsoluteUrl" + test.testRequestWithStaticAbsoluteUrl())
+    System.out.println("testRequestWithStaticQueryParams=" + test.testRequestWithStaticQueryParams())
+    System.out.println("testRequestWithStaticHeaders=" + test.testRequestWithStaticHeaders())
+    System.out.println("testRequestWithDynamicQuery=" + test.testRequestWithDynamicQuery())
+  }
 }

@@ -31,7 +31,7 @@ object HttpStatusCheckBuilder {
   val Status: DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int] = {
     val statusExtractor = new Extractor[Response, Int] with SingleArity {
       val name = "status"
-      def apply(prepared: Response): Validation[Option[Int]] = prepared.statusCode match {
+      def apply(prepared: Response): Validation[Option[Int]] = prepared.status.map(_.code) match {
         case None => "Response wasn't received".failure
         case code => code.success
       }

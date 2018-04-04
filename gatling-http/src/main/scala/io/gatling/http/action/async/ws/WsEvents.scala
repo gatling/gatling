@@ -19,9 +19,8 @@ package io.gatling.http.action.async.ws
 import io.gatling.http.action.async.{ AsyncEvent, AsyncTx, UserAction }
 import io.gatling.http.check.async.AsyncCheck
 import io.gatling.core.session.Session
-import akka.actor.ActorRef
 import io.gatling.core.action.Action
-import org.asynchttpclient.ws.WebSocket
+import io.gatling.http.client.WebSocket
 
 sealed trait WsEvent extends AsyncEvent
 case class OnOpen(tx: AsyncTx, webSocket: WebSocket, time: Long) extends WsEvent

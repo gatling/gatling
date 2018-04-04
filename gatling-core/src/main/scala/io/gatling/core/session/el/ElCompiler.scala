@@ -29,10 +29,11 @@ import io.gatling.commons.NotNothing
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.TypeHelper._
-import io.gatling.commons.util.{ StringBuilderPool, TypeCaster }
+import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
+import io.gatling.netty.util.ahc.StringBuilderPool
 
 object ElMessages {
   def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure
@@ -188,7 +189,7 @@ object ElCompiler {
       case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
-        (session: Session) => parts.foldLeft(StringBuilderPool.Global.get().success) { (sb, part) =>
+        (session: Session) => parts.foldLeft(StringBuilderPool.DEFAULT.get().success) { (sb, part) =>
           part match {
             case StaticPart(s) => sb.map(_.append(s))
             case _ =>

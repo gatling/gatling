@@ -19,6 +19,8 @@ package io.gatling.http.action.ws2.fsm
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.http.action.ws2.WsCheckSequence
 
+import io.netty.handler.codec.http.websocketx.{ CloseWebSocketFrame, TextWebSocketFrame }
+
 trait WhenIdle { this: WsActor =>
 
   when(Idle) {
@@ -26,7 +28,7 @@ trait WhenIdle { this: WsActor =>
       logger.debug(s"Send message $actionName $message")
       // actually send message!
       val timestamp = nowMillis
-      webSocket.sendTextFrame(message)
+      webSocket.sendFrame(new TextWebSocketFrame(message))
 
       //[fl]
       //
@@ -72,7 +74,7 @@ trait WhenIdle { this: WsActor =>
 
     case Event(ClientCloseRequest(name, session, next), IdleData(_, webSocket)) =>
       logger.info("Client requested WebSocket close")
-      webSocket.sendCloseFrame()
+      webSocket.sendFrame(new CloseWebSocketFrame())
       //[fl]
       //
       //[fl]

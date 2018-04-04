@@ -18,20 +18,17 @@ package io.gatling.http.protocol
 
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.{ AhcChannelPoolPartitioning, HttpEngine, ResponseProcessor }
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
 
 case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor) extends ProtocolComponents {
 
-  override val onStart: Option[Session => Session] =
+  override lazy val onStart: Option[Session => Session] =
     Some(httpCaches.setNameResolver(httpProtocol, httpEngine)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
       andThen httpCaches.setWsBaseUrl(httpProtocol))
 
-  override val onExit: Option[Session => Unit] =
-    Some(session => {
-      val (_, ahc) = httpEngine.httpClient(session, httpProtocol)
-      ahc.flushChannelPoolPartitions(AhcChannelPoolPartitioning.flushPredicate(session))
-    })
+  override lazy val onExit: Option[Session => Unit] =
+    Some(session => httpEngine.httpClient.flushChannelPoolPartitions(_.clientId == session.userId, session.userId))
 }

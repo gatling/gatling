@@ -21,8 +21,7 @@ import io.gatling.core.session.Session
 import io.gatling.http.check.async.AsyncCheck
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.core.action.Action
-
-import org.asynchttpclient.Request
+import io.gatling.http.client.Request
 
 case class AsyncTx(
     session:               Session,

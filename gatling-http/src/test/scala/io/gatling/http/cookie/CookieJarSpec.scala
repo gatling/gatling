@@ -17,10 +17,10 @@
 package io.gatling.http.cookie
 
 import io.gatling.BaseSpec
+import io.gatling.http.client.ahc.uri.Uri
 
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder.LAX.encode
-import org.asynchttpclient.uri.Uri
 
 class CookieJarSpec extends BaseSpec {
 

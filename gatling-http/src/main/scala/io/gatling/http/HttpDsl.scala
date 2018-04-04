@@ -25,7 +25,7 @@ import io.gatling.http.check.async.AsyncCheckSupport
 import io.gatling.http.check.w2.WsCheckSupport
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
-import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
+import io.gatling.http.protocol.{ HttpProtocolBuilder, ProxyBuilder }
 import io.gatling.http.request.BodyPart
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.polling.Polling
@@ -37,7 +37,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSuppor
 
   def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
 
-  def Proxy(host: String, port: Int) = HttpProxyBuilder(host, port)
+  def Proxy(host: String, port: Int) = ProxyBuilder(host, port)
 
   def http(requestName: Expression[String]) = new Http(requestName)
   def addCookie(cookie: AddCookieDsl) = AddCookieBuilder(cookie)

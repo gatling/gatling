@@ -16,7 +16,7 @@
 
 package io.gatling.http.fetch
 
-import org.asynchttpclient.uri.Uri
+import io.gatling.http.client.ahc.uri.Uri
 
 object InferredResourceNaming {
 

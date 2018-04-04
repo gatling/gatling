@@ -24,10 +24,10 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.check.async.AsyncCheckBuilder
+import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
 import akka.actor.ActorSystem
-import org.asynchttpclient.Request
 
 class WsOpen(
     requestName:     Expression[String],
@@ -40,7 +40,7 @@ class WsOpen(
     val next:        Action
 ) extends ChainableAction with ExitableAction with WsAction with NameGen {
 
-  override val name = genName("wsOpen")
+  override val name: String = genName("wsOpen")
 
   def execute(session: Session): Unit = {
 

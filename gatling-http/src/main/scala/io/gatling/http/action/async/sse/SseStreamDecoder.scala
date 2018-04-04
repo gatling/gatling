@@ -18,8 +18,9 @@ package io.gatling.http.action.async.sse
 
 import java.nio.CharBuffer
 
+import io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder
+
 import io.netty.buffer.ByteBuf
-import org.asynchttpclient.netty.util.Utf8ByteBufCharsetDecoder
 
 object SseStreamDecoder {
   private val BOM = '\uFEFF'

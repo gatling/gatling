@@ -19,6 +19,8 @@ package io.gatling.recorder.http
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.netty.util.ahc.ByteBufUtils
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.flows.Remote
 import io.gatling.recorder.model._
@@ -26,8 +28,6 @@ import io.gatling.recorder.model._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelId
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, FullHttpRequest, FullHttpResponse, HttpMethod }
-import org.asynchttpclient.netty.util.ByteBufUtils
-import org.asynchttpclient.uri.Uri
 
 class TrafficLogger(controller: RecorderController) extends StrictLogging {
 

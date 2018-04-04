@@ -17,14 +17,13 @@
 package io.gatling.http.fetch
 
 import io.gatling.BaseSpec
-
-import org.asynchttpclient.uri.Uri
+import io.gatling.http.client.ahc.uri.Uri
 
 class CssParserSpec extends BaseSpec {
 
-  val rootURI = Uri.create("http://akka.io/")
+  private val rootURI = Uri.create("http://akka.io/")
 
-  def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
+  private def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
 
   "parsing CSS" should "handle an empty CSS" in {
     rulesUri("") shouldBe empty

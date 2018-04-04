@@ -19,14 +19,15 @@ package io.gatling.http.fetch
 import scala.collection.{ breakOut, mutable }
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.check.extractor.css.Jodd
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
 import jodd.lagarto.{ EmptyTagVisitor, Tag, TagType }
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 import jodd.util.CharSequenceUtil
-import org.asynchttpclient.uri.Uri
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -74,7 +75,7 @@ object HtmlParser extends StrictLogging {
 ${new String(htmlContent)}
 <<<<<<<<<<<<<<<<<<<<<<<""", e)
     else
-      logger.error(s"HTML parser crashed: ${e.getMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
+      logger.error(s"HTML parser crashed: ${e.rootMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
 }
 
 class HtmlParser extends StrictLogging {

@@ -24,10 +24,10 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.ws.WsAction
 import io.gatling.http.action.ws2.fsm.{ PerformInitialConnect, WsActor }
+import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
 import akka.actor.ActorSystem
-import org.asynchttpclient.Request
 
 class WsConnect(
     override val requestName: Expression[String],
@@ -42,7 +42,7 @@ class WsConnect(
     val next:                 Action
 ) extends RequestAction with WsAction with ExitableAction with NameGen {
 
-  override val name = genName("wsOpen")
+  override val name: String = genName("wsOpen")
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     fetchActor(wsName, session) match {

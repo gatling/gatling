@@ -24,39 +24,41 @@ import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.commons.util.Throwables._
+import io.gatling.http.client.body._
+import io.gatling.http.client.body.part.{ ByteArrayPart, FilePart, StringPart }
+import io.gatling.http.client.{ Param, Request }
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper.isTxt
 
 import com.typesafe.scalalogging.LazyLogging
-import io.netty.buffer.ByteBufAllocator
 import io.netty.handler.codec.http.HttpHeaders
-import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.netty.request.body.NettyMultipartBody
-import org.asynchttpclient.{ Param, Request }
-import org.asynchttpclient.request.body.multipart._
 
 package object util extends LazyLogging {
 
   implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
-    def appendHttpHeaders(headers: HttpHeaders): JStringBuilder =
-      headers.asScala.foldLeft(buff) { (buf, entry) =>
+    def appendHttpHeaders(headers: HttpHeaders): JStringBuilder = {
+      headers.asScala.foreach { entry =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
+      buff
+    }
 
-    def appendParamJList(list: JList[Param]): JStringBuilder =
-      list.asScala.foldLeft(buff) { (buf, param) =>
+    def appendParamJList(list: JList[Param]): JStringBuilder = {
+      list.asScala.foreach { param =>
         buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
       }
+      buff
+    }
 
-    def appendRequest(request: Request, nettyRequest: Option[NettyRequest], charset: Charset): JStringBuilder = {
+    def appendRequest(request: Request, wireRequestHeaders: Option[HttpHeaders], charset: Charset): JStringBuilder = {
 
-      buff.append(request.getMethod).append(" ").append(request.getUrl).append(Eol)
+      buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
 
-      nettyRequest match {
-        case Some(nr) =>
+      wireRequestHeaders match {
+        case Some(headers) =>
 
-          val headers = nr.getHttpRequest.headers
           if (!headers.isEmpty) {
             buff.append("headers=").append(Eol)
             for (header <- headers.asScala) {
@@ -78,77 +80,65 @@ package object util extends LazyLogging {
           }
       }
 
-      if (!request.getFormParams.isEmpty) {
-        buff.append("params=").append(Eol)
-        buff.appendParamJList(request.getFormParams)
-      }
+      request.getBody match {
+        case stringBody: StringRequestBody =>
+          buff.append("stringBody=").append(stringBody.getContent).append(Eol)
 
-      if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(Eol)
+        case byteArrayBody: ByteArrayRequestBody =>
+          buff.append("byteBody=").append(new String(byteArrayBody.getContent, charset)).append(Eol)
 
-      if (request.getByteData != null) buff.append("byteData=").append(new String(request.getByteData, charset)).append(Eol)
+        case byteArraysBody: ByteArraysRequestBody =>
+          buff.append("byteArraysBody=")
+          byteArraysBody.getContent.foreach(b => buff.append(new String(b, charset)))
+          buff.append(Eol)
 
-      if (request.getCompositeByteData != null) {
-        buff.append("compositeByteData=")
-        request.getCompositeByteData.asScala.foreach(b => buff.append(new String(b, charset)))
-        buff.append(Eol)
-      }
+        case fileBody: FileRequestBody =>
+          buff.append("fileBody=").append(fileBody.getContent.getCanonicalPath).append(Eol)
 
-      if (request.getFile != null) buff.append("file=").append(request.getFile.getCanonicalPath).append(Eol)
+        case formBody: FormUrlEncodedRequestBody =>
+          buff.append("formBody=").append(Eol).appendParamJList(formBody.getContent)
 
-      if (!request.getBodyParts.isEmpty) {
-        buff.append("parts=").append(Eol)
-        request.getBodyParts.asScala.foreach {
-          case part: StringPart =>
-            buff
-              .append("StringPart:")
-              .append(" name=").append(part.getName)
-              .append(" contentType=").append(part.getContentType)
-              .append(" dispositionType=").append(part.getDispositionType)
-              .append(" charset=").append(part.getCharset)
-              .append(" transferEncoding=").append(part.getTransferEncoding)
-              .append(" contentId=").append(part.getContentId)
-              .append(Eol)
+        case streamBody: InputStreamRequestBody =>
+          buff.append("streamBody=")
 
-          case part: FilePart =>
-            buff.append("FilePart:")
-              .append(" name=").append(part.getName)
-              .append(" contentType=").append(part.getContentType)
-              .append(" dispositionType=").append(part.getDispositionType)
-              .append(" charset=").append(part.getCharset)
-              .append(" transferEncoding=").append(part.getTransferEncoding)
-              .append(" contentId=").append(part.getContentId)
-              .append(" filename=").append(part.getFileName)
-              .append(" file=").append(part.getFile.getCanonicalPath)
-              .append(Eol)
+        case multipartBody: MultipartFormDataRequestBody =>
+          buff.append("multipartBody=").append(Eol)
+          multipartBody.getContent.asScala.foreach {
+            case part: StringPart =>
+              buff
+                .append("StringPart:")
+                .append(" name=").append(part.getName)
+                .append(" contentType=").append(part.getContentType)
+                .append(" dispositionType=").append(part.getDispositionType)
+                .append(" charset=").append(part.getCharset)
+                .append(" transferEncoding=").append(part.getTransferEncoding)
+                .append(" contentId=").append(part.getContentId)
+                .append(Eol)
 
-          case part: ByteArrayPart =>
-            buff.append("ByteArrayPart:")
-              .append(" name=").append(part.getName)
-              .append(" contentType=").append(part.getContentType)
-              .append(" dispositionType=").append(part.getDispositionType)
-              .append(" charset=").append(part.getCharset)
-              .append(" transferEncoding=").append(part.getTransferEncoding)
-              .append(" contentId=").append(part.getContentId)
-              .append(" filename=").append(part.getFileName)
-              .append(Eol)
-        }
+            case part: FilePart =>
+              buff.append("FilePart:")
+                .append(" name=").append(part.getName)
+                .append(" contentType=").append(part.getContentType)
+                .append(" dispositionType=").append(part.getDispositionType)
+                .append(" charset=").append(part.getCharset)
+                .append(" transferEncoding=").append(part.getTransferEncoding)
+                .append(" contentId=").append(part.getContentId)
+                .append(" filename=").append(part.getFileName)
+                .append(" file=").append(part.getContent.getCanonicalPath)
+                .append(Eol)
 
-        buff.append("multipart=").append(Eol)
+            case part: ByteArrayPart =>
+              buff.append("ByteArrayPart:")
+                .append(" name=").append(part.getName)
+                .append(" contentType=").append(part.getContentType)
+                .append(" dispositionType=").append(part.getDispositionType)
+                .append(" charset=").append(part.getCharset)
+                .append(" transferEncoding=").append(part.getTransferEncoding)
+                .append(" contentId=").append(part.getContentId)
+                .append(" filename=").append(part.getFileName)
+                .append(Eol)
+          }
 
-        val multipartBody = nettyRequest match {
-          case Some(req) =>
-            val originalMultipartBody = req.getBody.asInstanceOf[NettyMultipartBody].getBody.asInstanceOf[MultipartBody]
-            val multipartParts = MultipartUtils.generateMultipartParts(request.getBodyParts, originalMultipartBody.getBoundary)
-            new MultipartBody(multipartParts, originalMultipartBody.getContentType, originalMultipartBody.getBoundary)
-
-          case None => MultipartUtils.newMultipartBody(request.getBodyParts, request.getHeaders)
-        }
-
-        val byteBuf = ByteBufAllocator.DEFAULT.buffer(8 * 1024)
-        multipartBody.transferTo(byteBuf)
-        buff.append(byteBuf.toString(charset))
-        multipartBody.close()
-        byteBuf.release()
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
@@ -161,7 +151,7 @@ package object util extends LazyLogging {
     def appendResponse(response: Response): JStringBuilder = {
 
       response.status.foreach { status =>
-        buff.append("status=").append(Eol).append(status.getStatusCode).append(" ").append(status.getStatusText).append(Eol)
+        buff.append("status=").append(Eol).append(status).append(Eol)
 
         if (!response.headers.isEmpty) {
           buff.append("headers= ").append(Eol)
@@ -177,7 +167,7 @@ package object util extends LazyLogging {
               case NonFatal(t) =>
                 val message = "Could not decode response body"
                 logger.trace(message, t)
-                buff.append(s"$message: ${t.getMessage}")
+                buff.append(s"$message: ${t.rootMessage}")
             }
           } else {
             buff.append("<<<BINARY CONTENT>>>")

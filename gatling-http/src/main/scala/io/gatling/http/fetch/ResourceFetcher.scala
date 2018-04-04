@@ -30,15 +30,16 @@ import io.gatling.core.filter.Filters
 import io.gatling.core.session._
 import io.gatling.core.util.cache._
 import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.ContentCacheEntry
+import io.gatling.http.client.Request
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request._
 import io.gatling.http.response._
 import io.gatling.http.util.HttpHelper._
 
-import org.asynchttpclient.Request
-import org.asynchttpclient.uri.Uri
+import io.netty.handler.codec.http.HttpResponseStatus
 
 sealed trait ResourceFetched {
   def uri: Uri
@@ -46,7 +47,7 @@ sealed trait ResourceFetched {
   def sessionUpdates: Session => Session
 }
 case class RegularResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, silent: Boolean) extends ResourceFetched
-case class CssResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, silent: Boolean, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
+case class CssResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, silent: Boolean, responseStatus: Option[HttpResponseStatus], lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
 
 case class InferredPageResources(expire: String, requests: List[HttpRequest])
 case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
@@ -88,8 +89,8 @@ trait ResourceFetcher {
       resourcesToRequests(filtered, session, coreComponents, httpComponents, config.throttled)
     }
 
-    response.statusCode match {
-      case Some(200) =>
+    response.status match {
+      case Some(HttpResponseStatus.OK) =>
         response.lastModifiedOrEtag(httpProtocol) match {
           case Some(newLastModifiedOrEtag) =>
             val cacheKey = InferredResourcesCacheKey(httpProtocol, htmlDocumentUri)
@@ -110,7 +111,7 @@ trait ResourceFetcher {
             inferredResourcesRequests()
         }
 
-      case Some(304) =>
+      case Some(HttpResponseStatus.NOT_MODIFIED) =>
         // no content, retrieve from cache if exist
         InferredResourcesCache.get(InferredResourcesCacheKey(httpProtocol, htmlDocumentUri)) match {
           case null =>
@@ -327,7 +328,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       releaseToken(uri.getHost)
   }
 
-  private def cssFetched(uri: Uri, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String): Unit = {
+  private def cssFetched(uri: Uri, status: Status, responseStatus: Option[HttpResponseStatus], lastModifiedOrEtag: Option[String], content: String): Unit = {
 
     def parseCssResources(): List[HttpRequest] = {
       val computer = CssParser.extractResources(_: Uri, content)
@@ -340,8 +341,8 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       // this css might contain some resources
 
       val cssResources: List[HttpRequest] =
-        statusCode match {
-          case Some(200) =>
+        responseStatus match {
+          case Some(HttpResponseStatus.OK) =>
             lastModifiedOrEtag match {
               case Some(newLastModifiedOrEtag) =>
                 // resource can be cached, try to get from cache instead of parsing again
@@ -366,7 +367,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
                 parseCssResources()
             }
 
-          case Some(304) =>
+          case Some(HttpResponseStatus.NOT_MODIFIED) =>
             // resource was already cached
             httpEngine.InferredResourcesCache.get(InferredResourcesCacheKey(httpProtocol, uri)) match {
               case null =>
@@ -387,9 +388,9 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       session = sessionUpdates(session)
       resourceFetched(uri, status, silent)
 
-    case CssResourceFetched(uri, status, sessionUpdates, silent, statusCode, lastModifiedOrEtag, content) =>
+    case CssResourceFetched(uri, status, sessionUpdates, silent, responseStatus, lastModifiedOrEtag, content) =>
       session = sessionUpdates(session)
-      cssFetched(uri, status, statusCode, lastModifiedOrEtag, content)
+      cssFetched(uri, status, responseStatus, lastModifiedOrEtag, content)
       resourceFetched(uri, status, silent)
   }
 }

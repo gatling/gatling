@@ -17,10 +17,10 @@
 package io.gatling.http.config
 
 import io.gatling.BaseSpec
-import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProtocol }
+import io.gatling.http.engine.HttpEngine
+import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 
 class HttpProtocolBuilderSpec extends BaseSpec {
 

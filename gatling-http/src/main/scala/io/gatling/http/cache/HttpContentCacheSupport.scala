@@ -20,15 +20,14 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.http.HeaderNames
+import io.gatling.http.client.Request
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.Request
-import org.asynchttpclient.uri.Uri
-
 object ContentCacheKey {
   def apply(request: Request): ContentCacheKey =
-    new ContentCacheKey(request.getUri, request.getMethod, Cookies(request.getCookies))
+    new ContentCacheKey(request.getUri, request.getMethod.name, Cookies(request.getCookies))
 }
 
 case class ContentCacheKey(uri: Uri, method: String, cookies: Map[String, String])
@@ -55,7 +54,7 @@ trait HttpContentCacheSupport extends ExpiresSupport {
       val lastModified = response.header(HeaderNames.LastModified)
 
       if (expires.isDefined || etag.isDefined || lastModified.isDefined) {
-        val key = ContentCacheKey(request.getUri, request.getMethod, Cookies(request.getCookies))
+        val key = ContentCacheKey(request)
         val value = ContentCacheEntry(expires, etag, lastModified)
         httpContentCacheHandler.addEntry(_, key, value)
       } else

@@ -24,6 +24,7 @@ import io.gatling.recorder.util.collection.RichSeq
 
 import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.codec.http.HttpResponseStatus
 
 private[recorder] case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
   def isEmpty: Boolean = elements.isEmpty
@@ -33,7 +34,7 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
 
   private val ConsecutiveResourcesMaxIntervalInMillis = 1000
 
-  private def isRedirection(t: TimedScenarioElement[RequestElement]) = HttpHelper.isRedirect(t.element.statusCode)
+  private def isRedirection(t: TimedScenarioElement[RequestElement]) = HttpHelper.isRedirect(HttpResponseStatus.valueOf(t.element.statusCode))
 
   private def filterRedirection(requests: Seq[TimedScenarioElement[RequestElement]]): List[TimedScenarioElement[RequestElement]] = {
     val groupedRequests = requests.groupAsLongAs(isRedirection)

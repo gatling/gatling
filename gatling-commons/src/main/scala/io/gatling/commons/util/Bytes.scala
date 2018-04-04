@@ -22,9 +22,9 @@ import java.nio.charset.Charset
 import scala.annotation.switch
 
 import io.gatling.commons.util.Collections._
+import io.gatling.netty.util.ahc.ByteBufUtils
 
 import io.netty.buffer.Unpooled
-import org.asynchttpclient.netty.util.ByteBufUtils
 
 object Bytes {
 

@@ -16,16 +16,14 @@
 
 package io.gatling.http.action.ws2.fsm
 
-import java.util.{ Collections => JCollections }
-
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.action.ws2.{ OnConnectedChainEndAction, WsListener }
 
 import io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS
-import org.asynchttpclient.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 
 object WhenConnecting {
 
@@ -35,27 +33,15 @@ object WhenConnecting {
 trait WhenConnecting { this: WsActor =>
 
   def gotoConnecting(session: Session, next: Either[Action, SendTextMessage], remainingTries: Int = httpProtocol.wsPart.maxReconnects.getOrElse(0)): State = {
-    val (newSession, client) = httpEngine.httpClient(session, httpProtocol)
 
-    val handler = {
-      // can't use a singletonList as list will be cleared on close
-      val listeners = JCollections.singletonList[WebSocketListener](new WsListener(self))
-      configuration.resolve(
-        // [fl]
-        //
-        //
-        //
-        // [fl]
-        new WebSocketUpgradeHandler(listeners)
-      )
-    }
+    val listener = new WsListener(self, statsEngine)
 
     // [fl]
     //
     // [fl]
-    client.executeRequest(connectRequest, handler)
+    httpEngine.httpClient.sendRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener)
 
-    goto(Connecting) using ConnectingData(newSession, next, nowMillis, remainingTries)
+    goto(Connecting) using ConnectingData(session, next, nowMillis, remainingTries)
   }
 
   private def handleConnectFailure(session: Session, next: Either[Action, SendTextMessage], connectStart: Long, connectEnd: Long, code: Option[String], reason: String, remainingTries: Int): State = {
@@ -171,6 +157,6 @@ trait WhenConnecting { this: WsActor =>
 
     case Event(WebSocketCrashed(t, timestamp), ConnectingData(session, next, connectStart, remainingTries)) =>
       // crash
-      handleConnectFailure(session, next, connectStart, timestamp, None, t.getMessage, remainingTries)
+      handleConnectFailure(session, next, connectStart, timestamp, None, t.rootMessage, remainingTries)
   }
 }

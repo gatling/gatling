@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
 
+import io.netty.handler.codec.http.HttpResponseStatus
+
 class HttpHelperSpec extends BaseSpec {
 
   "parseFormBody" should "support unique param" in {
@@ -35,11 +37,11 @@ class HttpHelperSpec extends BaseSpec {
   }
 
   it should "recognize 301 status code as permanent redirect" in {
-    HttpHelper.isPermanentRedirect(301) shouldBe true
+    HttpHelper.isPermanentRedirect(HttpResponseStatus.MOVED_PERMANENTLY) shouldBe true
   }
 
   it should "non 301 status code should be recognized as permanent redirect" in {
-    HttpHelper.isPermanentRedirect(303) shouldBe false
+    HttpHelper.isPermanentRedirect(HttpResponseStatus.SEE_OTHER) shouldBe false
   }
 
   "extractCharsetFromContentType" should "extract charset when it exists in latest position" in {

@@ -17,11 +17,10 @@
 package io.gatling.http.referer
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.client.Request
 import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
-
-import org.asynchttpclient.Request
 
 object RefererHandling {
 
@@ -31,7 +30,7 @@ object RefererHandling {
 
   def storeReferer(request: Request, response: Response, protocol: HttpProtocol): Session => Session =
     if (protocol.requestPart.autoReferer && !isAjax(request.getHeaders) && isHtml(response.headers))
-      _.set(RefererAttributeName, request.getUrl)
+      _.set(RefererAttributeName, request.getUri.toUrl)
     else
       Session.Identity
 }

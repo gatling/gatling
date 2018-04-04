@@ -18,12 +18,13 @@ package io.gatling.http.request.builder.sse
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.session._
-import io.gatling.http.{ HeaderValues, HeaderNames }
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.action.async.sse._
+import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
-import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
+import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
 
-import org.asynchttpclient.Request
+import io.netty.handler.codec.http.HttpMethod
 
 object SseOpenRequestBuilder {
 
@@ -31,7 +32,7 @@ object SseOpenRequestBuilder {
   val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expressionSuccess
 
   def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
-    new SseOpenRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)
+    new SseOpenRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), sseName)
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 

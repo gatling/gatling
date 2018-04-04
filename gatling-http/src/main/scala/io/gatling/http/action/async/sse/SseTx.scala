@@ -17,19 +17,14 @@
 package io.gatling.http.action.async.sse
 
 import io.gatling.http.action.async.AsyncTx
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.engine.HttpEngine
 
 import akka.actor.ActorRef
 
 object SseTx {
 
   def start(tx: AsyncTx, sseActor: ActorRef, httpEngine: HttpEngine): Unit = {
-    val (newTx, client) = {
-      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
-      (tx.copy(session = newSession), client)
-    }
-
-    val handler = new SseHandler(newTx, sseActor)
-    client.executeRequest(newTx.request, handler)
+    val handler = new SseListener(tx, sseActor)
+    httpEngine.httpClient.sendRequest(tx.request, tx.session.userId, tx.protocol.enginePart.shareConnections, handler)
   }
 }

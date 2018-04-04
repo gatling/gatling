@@ -21,8 +21,7 @@ import scala.io.Source
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Io._
-
-import org.asynchttpclient.uri.Uri
+import io.gatling.http.client.ahc.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
 

@@ -25,12 +25,11 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.ws2._
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.client.{ Request, WebSocket }
+import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.Props
-import org.asynchttpclient.Request
-import org.asynchttpclient.ws.WebSocket
 
 case class PerformInitialConnect(session: Session, initialConnectNext: Action)
 case class WebSocketOpened(webSocket: WebSocket, timestamp: Long)

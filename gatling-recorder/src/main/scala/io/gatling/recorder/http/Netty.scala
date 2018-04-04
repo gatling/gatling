@@ -18,11 +18,11 @@ package io.gatling.recorder.http
 
 import scala.util.{ Failure, Success, Try }
 
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.recorder.util.HttpUtils
 
 import io.netty.channel.{ Channel, ChannelFuture, ChannelFutureListener }
 import io.netty.handler.codec.http._
-import org.asynchttpclient.uri.Uri
 
 object Netty {
 

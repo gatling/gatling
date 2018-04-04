@@ -20,10 +20,9 @@ import io.gatling.commons.validation.Validation
 import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.response.Response
-
-import org.asynchttpclient.Request
 
 case class HttpRequestConfig(
     checks:                List[HttpCheck],

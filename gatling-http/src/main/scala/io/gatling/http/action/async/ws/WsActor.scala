@@ -23,11 +23,13 @@ import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.Success
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.async._
-import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.async._
+import io.gatling.http.client.WebSocket
+import io.gatling.http.engine.HttpEngine
 
 import akka.actor.Props
-import org.asynchttpclient.ws.WebSocket
+import io.netty.buffer.Unpooled
+import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, TextWebSocketFrame }
 
 object WsActor {
   def props(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) =
@@ -106,8 +108,8 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
         }
 
         message match {
-          case TextMessage(text)    => webSocket.sendTextFrame(text)
-          case BinaryMessage(bytes) => webSocket.sendBinaryFrame(bytes)
+          case TextMessage(text)    => webSocket.sendFrame(new TextWebSocketFrame(text))
+          case BinaryMessage(bytes) => webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(bytes)))
         }
 
         logResponse(session, requestName, OK, now, now)
@@ -184,7 +186,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       case Close(requestName, next, session) =>
         logger.debug(s"Closing websocket '$wsName'")
 
-        webSocket.sendCloseFrame()
+        webSocket.sendFrame(new CloseWebSocketFrame())
 
         val newTx = failPendingCheck(tx, "Check didn't succeed by the time the websocket was asked to closed")
           .applyUpdates(session)

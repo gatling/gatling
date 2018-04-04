@@ -19,9 +19,9 @@ package io.gatling.http.fetch
 import scala.annotation.{ switch, tailrec }
 import scala.util.matching.Regex
 
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.util.HttpHelper
 
-import org.asynchttpclient.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 
 object CssParser extends StrictLogging {

@@ -19,11 +19,10 @@ package io.gatling.http.request.builder.ws2
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Expression
 import io.gatling.http.action.ws2.WsConnectBuilder
+import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.ws.WsRequestExpressionBuilder
 import io.gatling.http.request.builder.{ CommonAttributes, RequestBuilder }
-
-import org.asynchttpclient.Request
 
 object WsConnectRequestBuilder {
 

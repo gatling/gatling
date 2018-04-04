@@ -22,16 +22,16 @@ import io.gatling.BaseSpec
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.ahc.{ AhcRequestBuilder, HttpEngine, ResponseProcessor }
 import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.client.{ Request, RequestBuilder }
+import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
-import io.netty.handler.codec.http.DefaultHttpHeaders
-import org.asynchttpclient._
-import org.asynchttpclient.uri.Uri
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpMethod, HttpResponseStatus }
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 
@@ -44,7 +44,7 @@ class CacheSupportSpec extends BaseSpec {
 
   class CacheContext {
 
-    val request = new RequestBuilder().setUrl("http://localhost").build
+    val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost")).build(false)
 
     def getResponseExpire(headers: Seq[(String, String)]) = {
       val status = mock[HttpResponseStatus]
@@ -110,7 +110,7 @@ class CacheSupportSpec extends BaseSpec {
     var session = Session("mockSession", 0)
 
     def addRedirect(from: String, to: String): Unit = {
-      val request = new AhcRequestBuilder("GET", true).setUrl(from).build
+      val request = new RequestBuilder(HttpMethod.GET, Uri.create(from)).build(true)
       session = httpCaches.addRedirect(session, request, Uri.create(to))
     }
   }

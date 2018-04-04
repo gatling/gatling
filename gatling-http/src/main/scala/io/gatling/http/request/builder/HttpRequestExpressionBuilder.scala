@@ -23,101 +23,69 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.body._
 import io.gatling.core.session._
 import io.gatling.core.util.FileResource
-import io.gatling.http.ahc.AhcRequestBuilder
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.ContentCacheEntry
+import io.gatling.http.client.body._
+import io.gatling.http.client.body.part.StringPart
+import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.BodyPart
-
-import org.asynchttpclient.Request
-import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
-import org.asynchttpclient.request.body.multipart.StringPart
 
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
   extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
 
   import RequestExpressionBuilder._
 
-  private val configureFormParams0: RequestBuilderConfigure =
+  private val ConfigureFormParams: RequestBuilderConfigure =
     session => requestBuilder => httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
-      if (httpAttributes.bodyParts.isEmpty) {
-        // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
-        requestBuilder.setFormParams(resolvedFormParams)
-
-      } else {
-        resolvedFormParams.asScala.foreach(param => requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset)))
-        requestBuilder
-      }
+      requestBuilder.setBody(new FormUrlEncodedRequestBody(resolvedFormParams))
     }
 
-  private val configureFormParams: RequestBuilderConfigure =
-    if (httpAttributes.formParams.isEmpty && httpAttributes.form.isEmpty)
-      ConfigureIdentity
-    else
-      configureFormParams0
+  private def configureBodyParts(session: Session, requestBuilder: AhcRequestBuilder, bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
+    for {
+      params <- httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session)
+      stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null))
+      parts <- Validation.sequence(bodyParts.map(_.toMultiPart(session)))
+    } yield requestBuilder.setBody(new MultipartFormDataRequestBody((parts ++ stringParts).asJava))
 
-  private val configureParts0: RequestBuilderConfigure =
-    session => requestBuilder => {
-
-      def setBody(body: Body): Validation[AhcRequestBuilder] =
-        body match {
-          case StringBody(string) => string(session).map(requestBuilder.setBody)
-          case RawFileBody(resourceWithCachedBytes) => resourceWithCachedBytes(session).map {
-            case ResourceAndCachedBytes(resource, cachedBytes) =>
-              cachedBytes match {
-                case Some(bytes) => requestBuilder.setBody(bytes)
-                case None =>
-                  resource match {
-                    case FileResource(file) => requestBuilder.setBody(file)
-                    case _                  => requestBuilder.setBody(resource.bytes)
-                  }
+  private def setBody(session: Session, requestBuilder: AhcRequestBuilder, body: Body): Validation[AhcRequestBuilder] =
+    body match {
+      case StringBody(string) => string(session).map(s => requestBuilder.setBody(new StringRequestBody(s)))
+      case RawFileBody(resourceWithCachedBytes) => resourceWithCachedBytes(session).map {
+        case ResourceAndCachedBytes(resource, cachedBytes) =>
+          cachedBytes match {
+            case Some(bytes) => requestBuilder.setBody(new ByteArrayRequestBody(bytes))
+            case None =>
+              resource match {
+                case FileResource(file) => requestBuilder.setBody(new FileRequestBody(file))
+                case _                  => requestBuilder.setBody(new ByteArrayRequestBody(resource.bytes))
               }
           }
-          case ByteArrayBody(bytes)                  => bytes(session).map(requestBuilder.setBody)
-          case CompositeByteArrayBody(byteArrays, _) => byteArrays(session).map(bs => requestBuilder.setBody(bs.asJava))
-          case InputStreamBody(is)                   => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
-          case body: PebbleBody                      => body.apply(session).map(requestBuilder.setBody)
-        }
-
-      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
-        bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
-          for {
-            requestBuilder <- requestBuilder
-            part <- part.toMultiPart(session)
-          } yield requestBuilder.addBodyPart(part)
-        }
-
-      httpAttributes.body match {
-        case None       => setBodyParts(httpAttributes.bodyParts)
-        case Some(body) => setBody(body)
       }
+      case ByteArrayBody(bytes)                  => bytes(session).map(b => requestBuilder.setBody(new ByteArrayRequestBody(b)))
+      case CompositeByteArrayBody(byteArrays, _) => byteArrays(session).map(bs => requestBuilder.setBody(new ByteArraysRequestBody(bs.toArray)))
+      case InputStreamBody(is)                   => is(session).map(is => requestBuilder.setBody(new InputStreamRequestBody(is)))
+      case body: PebbleBody                      => body.apply(session).map(s => requestBuilder.setBody(new StringRequestBody(s)))
     }
 
-  private val configureParts: RequestBuilderConfigure = {
+  private val configureBody: RequestBuilderConfigure = {
     require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
-    if (httpAttributes.body.isEmpty && httpAttributes.bodyParts.isEmpty)
-      ConfigureIdentity
-    else
-      configureParts0
-  }
-
-  override protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    super.addDefaultHeaders(session)(requestBuilder)
-    if (contentTypeHeaderIsUndefined) {
-      if (httpAttributes.bodyParts.nonEmpty)
-        requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
-      else if (httpAttributes.formParams.nonEmpty)
-        requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.ApplicationFormUrlEncoded)
+    httpAttributes.body match {
+      case Some(body) => session => requestBuilder => setBody(session, requestBuilder, body)
+      case _ =>
+        if (httpAttributes.bodyParts.nonEmpty) { session => requestBuilder => configureBodyParts(session, requestBuilder, httpAttributes.bodyParts)
+        } else if (httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty) {
+          ConfigureFormParams
+        } else {
+          ConfigureIdentity
+        }
     }
-    requestBuilder
   }
 
-  override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
-    super.configureRequestBuilder(session, uri, requestBuilder)
-      .flatMap(configureFormParams(session))
-      .flatMap(configureParts(session))
+  override protected def configureRequestBuilder(session: Session, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
+    super.configureRequestBuilder(session, requestBuilder)
+      .flatMap(configureBody(session))
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
 

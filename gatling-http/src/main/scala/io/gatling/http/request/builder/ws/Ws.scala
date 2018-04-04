@@ -21,6 +21,8 @@ import io.gatling.http.action.async.ws._
 import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.CommonAttributes
 
+import io.netty.handler.codec.http.HttpMethod
+
 object Ws {
   private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 }
@@ -39,7 +41,7 @@ class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketNa
    * @param url The socket URL
    *
    */
-  def open(url: Expression[String]) = new WsOpenRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
+  def open(url: Expression[String]) = new WsOpenRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName)
 
   /**
    * Sends a binary message on the given websocket.

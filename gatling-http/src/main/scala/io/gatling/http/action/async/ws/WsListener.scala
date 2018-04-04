@@ -18,23 +18,45 @@ package io.gatling.http.action.async.ws
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
+import io.gatling.http.client.WebSocketListener
+import io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder._
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging
-import org.asynchttpclient.ws._
+import io.netty.buffer.ByteBufUtil
+import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
 class WsListener(tx: AsyncTx, wsActor: ActorRef) extends WebSocketListener with LazyLogging {
 
   private var state: WsListenerState = Opening
-  private var webSocket: WebSocket = _
 
-  override def onOpen(webSocket: WebSocket): Unit = {
+  override def onBinaryFrame(frame: BinaryWebSocketFrame): Unit =
+    wsActor ! OnByteMessage(ByteBufUtil.getBytes(frame.content), nowMillis)
+
+  override def onPongFrame(frame: PongWebSocketFrame): Unit =
+    logger.debug("Received PONG frame")
+
+  override def onCloseFrame(frame: CloseWebSocketFrame): Unit =
+    state match {
+      case Open =>
+        state = Closed
+        wsActor ! OnClose(frame.statusCode, frame.reasonText, nowMillis)
+      case _ => // discard
+    }
+
+  override def onTextFrame(textWebSocketFrame: TextWebSocketFrame): Unit =
+    wsActor ! OnTextMessage(decodeUtf8(textWebSocketFrame.content()), nowMillis)
+
+  override def onWebSocketOpen(): Unit = {
     state = Open
-    this.webSocket = webSocket
-    wsActor ! OnOpen(tx, webSocket, nowMillis)
+    wsActor ! OnOpen(tx, this, nowMillis)
   }
 
-  override def onError(t: Throwable): Unit =
+  override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit =
+    logger.debug(s"Received response to WebSocket CONNECT: $httpResponseStatus $httpHeaders")
+
+  override def onThrowable(t: Throwable): Unit =
     state match {
       case Opening =>
         wsActor ! OnFailedOpen(tx, t.getMessage, nowMillis)
@@ -42,25 +64,6 @@ class WsListener(tx: AsyncTx, wsActor: ActorRef) extends WebSocketListener with 
       case _ =>
         logger.warn(s"WebSocket unexpected error '${t.getMessage}'", t)
     }
-
-  override def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
-    state match {
-      case Open =>
-        state = Closed
-        wsActor ! OnClose(statusCode, reason, nowMillis)
-
-      case _ => // discard
-    }
-  }
-
-  override def onTextFrame(message: String, finalFragment: Boolean, rsv: Int): Unit =
-    wsActor ! OnTextMessage(message, nowMillis)
-
-  override def onBinaryFrame(message: Array[Byte], finalFragment: Boolean, rsv: Int): Unit =
-    wsActor ! OnByteMessage(message, nowMillis)
-
-  override def onPingFrame(message: Array[Byte]): Unit =
-    webSocket.sendPongFrame(message)
 }
 
 private sealed trait WsListenerState

@@ -28,6 +28,7 @@ import io.gatling.commons.util.ConfigHelper.configChain
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper.RichString
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
@@ -78,7 +79,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
     } catch {
       case NonFatal(e) =>
-        logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
+        logger.warn(s"Loading configuration crashed: ${e.rootMessage}. Probable cause is a format change, resetting.")
         configFile.foreach(_.delete())
         configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig))
     }

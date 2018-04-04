@@ -17,22 +17,63 @@
 package io.gatling.http.action.ws2
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.ws2.fsm.{ TextMessageReceived, WebSocketClosed, WebSocketCrashed, WebSocketOpened }
+import io.gatling.http.client.WebSocketListener
+import io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder
 
 import akka.actor.ActorRef
-import org.asynchttpclient.ws.{ WebSocket, WebSocketListener }
+import com.typesafe.scalalogging.LazyLogging
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
 
-class WsListener(wsActor: ActorRef) extends WebSocketListener {
+class WsListener(wsActor: ActorRef, statsEngine: StatsEngine) extends WebSocketListener with LazyLogging {
 
-  override def onOpen(webSocket: WebSocket): Unit =
-    wsActor ! WebSocketOpened(webSocket, nowMillis)
+  //[fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //[fl]
 
-  override def onClose(webSocket: WebSocket, code: Int, reason: String): Unit =
-    wsActor ! WebSocketClosed(code, reason, nowMillis)
+  override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit =
+    logger.debug(s"Received response to WebSocket CONNECT: $httpResponseStatus $httpHeaders")
 
-  override def onTextFrame(message: String, finalFragment: Boolean, rsv: Int): Unit =
-    wsActor ! TextMessageReceived(message, nowMillis)
+  override def onWebSocketOpen(): Unit =
+    wsActor ! WebSocketOpened(this, nowMillis)
 
-  override def onError(t: Throwable): Unit =
+  override def onCloseFrame(frame: CloseWebSocketFrame): Unit =
+    wsActor ! WebSocketClosed(frame.statusCode, frame.reasonText, nowMillis)
+
+  override def onTextFrame(textWebSocketFrame: TextWebSocketFrame): Unit =
+    wsActor ! TextMessageReceived(Utf8ByteBufCharsetDecoder.decodeUtf8(textWebSocketFrame.content()), nowMillis)
+
+  override def onBinaryFrame(frame: BinaryWebSocketFrame): Unit = // TODO
+    ???
+
+  override def onPongFrame(pongWebSocketFrame: PongWebSocketFrame): Unit =
+    logger.debug("Received PONG frame")
+
+  override def onThrowable(t: Throwable): Unit =
     wsActor ! WebSocketCrashed(t, nowMillis)
 }

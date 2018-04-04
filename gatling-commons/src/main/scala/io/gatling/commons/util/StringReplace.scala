@@ -19,6 +19,7 @@ package io.gatling.commons.util
 import java.lang.{ StringBuilder => JStringBuilder }
 
 import io.gatling.commons.util.Spire._
+import io.gatling.netty.util.ahc.StringBuilderPool
 
 object StringReplace {
 
@@ -56,7 +57,7 @@ object StringReplace {
         if (replaced(c)) {
           if (!matchFound) {
             // first match
-            sb = StringBuilderPool.Global.get()
+            sb = SbPool.get()
             sb.append(text, 0, i)
             matchFound = true
           }

@@ -18,23 +18,24 @@ package io.gatling.http.request.builder
 
 import java.nio.charset.Charset
 
+import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
-import io.gatling.http.ahc.{ AhcChannelPoolPartitioning, AhcRequestBuilder }
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.client.{ Request, SignatureCalculator, RequestBuilder => AhcRequestBuilder }
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.LazyLogging
-import org.asynchttpclient.{ Realm, Request, SignatureCalculator }
-import org.asynchttpclient.uri.Uri
 
 object RequestExpressionBuilder {
   val BuildRequestErrorMapper: String => String = "Failed to build request: " + _
@@ -60,28 +61,42 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private val disableUrlEncoding: Boolean = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
   private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
-  protected def baseUrl: Session => Option[String] = httpCaches.baseUrl
+  protected def baseUrl: Session => Option[String] =
+    if (protocol.baseUrls.size <= 1) {
+      val baseUrl = protocol.baseUrls.headOption
+      _ => baseUrl
+    } else {
+      httpCaches.baseUrl
+    }
+
+  private def resolveRelativeAgainstBaseUrl(relativeUrl: String, baseUrl: Option[String]): Validation[Uri] =
+    baseUrl match {
+      case Some(base) =>
+        val fullUrl = base + relativeUrl
+        try {
+          Uri.create(fullUrl).success
+        } catch {
+          // don't use safe in order to save lambda instances
+          case NonFatal(e) => s"url $fullUrl can't be parsed into an Uri: ${e.rootMessage}".failure
+        }
+      case _ => s"No baseUrl defined but provided url is relative : $relativeUrl".failure
+    }
 
   private def makeAbsolute(session: Session, url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
       Uri.create(url).success
     else
-      baseUrl(session) match {
-        case Some(base) =>
-          val fullUrl = base + url
-          try {
-            Uri.create(fullUrl).success
-          } catch {
-            // don't use safe in order to save lambda instances
-            case NonFatal(e) => s"url $fullUrl can't be parsed into an Uri: ${e.getMessage}".failure
-          }
-        case None => s"No baseUrl defined but provided url is relative : $url".failure
-      }
+      resolveRelativeAgainstBaseUrl(url, baseUrl(session))
 
   private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
       case Left(StaticStringExpression(staticUrl)) if protocol.baseUrls.size <= 1 =>
-        makeAbsolute(_, staticUrl)
+        if (HttpHelper.isAbsoluteHttpUrl(staticUrl)) {
+          Uri.create(staticUrl).expressionSuccess
+        } else {
+          val uriV = resolveRelativeAgainstBaseUrl(staticUrl, protocol.baseUrls.headOption)
+          _ => uriV
+        }
 
       case Left(url) =>
         session =>
@@ -96,10 +111,6 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
   private def configureNameResolver(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     configuration.resolve(httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver))
 
-  private def configureChannelPoolPartitioning(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    if (!protocol.enginePart.shareConnections)
-      requestBuilder.setChannelPoolPartitioning(new AhcChannelPoolPartitioning(session))
-
   private val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
 
   private def configureProxy(requestBuilder: AhcRequestBuilder): Unit =
@@ -109,8 +120,12 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
       }
     }
 
-  private def configureCookies(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    CookieSupport.getStoredCookies(session, requestBuilder.getUri).foreach(requestBuilder.addCookie)
+  private def configureCookies(session: Session, requestBuilder: AhcRequestBuilder): Unit = {
+    val cookies = CookieSupport.getStoredCookies(session, requestBuilder.getUri)
+    if (cookies.nonEmpty) {
+      requestBuilder.setCookies(cookies.asJava)
+    }
+  }
 
   private val configureQueryParams: RequestBuilderConfigure =
     commonAttributes.queryParams match {
@@ -119,7 +134,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     }
 
   private def configureQueryParams0(queryParams: List[HttpParam]): RequestBuilderConfigure =
-    session => requestBuilder => queryParams.resolveParamJList(session).map(requestBuilder.addQueryParams)
+    session => requestBuilder => queryParams.resolveParamJList(session).map(requestBuilder.setQueryParams)
 
   private val configureVirtualHost: RequestBuilderConfigure =
     commonAttributes.virtualHost.orElse(protocol.enginePart.virtualHost) match {
@@ -172,21 +187,23 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(protocol.requestPart.realm) match {
-      case Some(realm) => configureRealm0(realm)
-      case _           => ConfigureIdentity
+      case Some(realm) => session => requestBuilder => realm(session).map(requestBuilder.setRealm)
+      case _ => ConfigureIdentity
     }
-
-  private def configureRealm0(realm: Expression[Realm]): RequestBuilderConfigure =
-    session => requestBuilder => realm(session).map(requestBuilder.setRealm)
 
   private def configureLocalAddress(session: Session, requestBuilder: AhcRequestBuilder): Unit =
     if (protocol.enginePart.localAddresses.nonEmpty) {
       httpCaches.localAddress(session).foreach(requestBuilder.setLocalAddress)
     }
 
-  protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
-    requestBuilder.setUri(uri)
-    configureChannelPoolPartitioning(session, requestBuilder)
+  private val configureSignatureCalculator: RequestBuilderConfigure =
+    signatureCalculatorExpression match {
+      case Some(signatureCalculator) =>
+        session => requestBuilder => signatureCalculator(session).map(requestBuilder.setSignatureCalculator)
+      case _ => ConfigureIdentity
+    }
+
+  protected def configureRequestBuilder(session: Session, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
     configureProxy(requestBuilder)
     configureCookies(session, requestBuilder)
     configureNameResolver(session, requestBuilder)
@@ -196,32 +213,19 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))
-  }
-
-  private def applySignatureCalculator(session: Session, requestBuilder: AhcRequestBuilder): Validation[Request] = {
-
-    val request = requestBuilder.build
-
-    signatureCalculatorExpression match {
-      case None => request.success
-      case Some(signatureCalculator) => signatureCalculator(session).map { sc =>
-        sc.calculateAndAddSignature(request, requestBuilder)
-        requestBuilder.build
-      }
-    }
+      .flatMap(configureSignatureCalculator(session))
   }
 
   def build: Expression[Request] =
     (session: Session) => {
-      val requestBuilder = new AhcRequestBuilder(commonAttributes.method, disableUrlEncoding)
-      requestBuilder.setCharset(charset)
+      //      requestBuilder.setCharset(charset)
 
       safely(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
-          rb <- configureRequestBuilder(session, uri, requestBuilder)
-          request <- applySignatureCalculator(session, rb)
-        } yield request
+          requestBuilder = new AhcRequestBuilder(commonAttributes.method, uri).setRequestTimeout(configuration.http.ahc.requestTimeout)
+          rb <- configureRequestBuilder(session, requestBuilder)
+        } yield rb.build(!disableUrlEncoding)
       }
     }
 }

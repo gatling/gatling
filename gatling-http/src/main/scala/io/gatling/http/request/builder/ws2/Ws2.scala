@@ -20,6 +20,8 @@ import io.gatling.core.session._
 import io.gatling.http.action.ws2._
 import io.gatling.http.request.builder.CommonAttributes
 
+import io.netty.handler.codec.http.HttpMethod
+
 object Ws2 {
 
   private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
@@ -43,7 +45,7 @@ class Ws2(requestName: Expression[String], wsName: String) {
    * @param url The socket URL
    *
    */
-  def connect(url: Expression[String]) = WsConnectRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
+  def connect(url: Expression[String]) = WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName)
 
   /**
    * Sends a text message on the given websocket.

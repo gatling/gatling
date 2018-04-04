@@ -20,13 +20,13 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.fetch.{ CssResource, RegularResource }
 import io.gatling.recorder.config.ConfigKeys.http.{ FollowRedirect, InferHtmlResources }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders }
-import org.asynchttpclient.uri.Uri
 import io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE
 
 class ScenarioSpec extends BaseSpec {

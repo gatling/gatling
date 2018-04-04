@@ -25,6 +25,7 @@ import scala.collection.JavaConverters._
 
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration
@@ -32,7 +33,6 @@ import io.gatling.recorder.model._
 import io.gatling.http.fetch.{ UserAgent => UserAgentHelper }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders }
-import org.asynchttpclient.uri.Uri
 
 private[recorder] case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
 

@@ -24,6 +24,7 @@ import scala.concurrent.duration.DurationLong
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.Mitm
@@ -32,7 +33,6 @@ import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
 import com.typesafe.scalalogging.StrictLogging
-import org.asynchttpclient.uri.Uri
 
 private[recorder] class RecorderController extends StrictLogging {
 

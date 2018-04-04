@@ -20,30 +20,26 @@ import java.nio.charset.Charset
 
 import scala.collection.JavaConverters._
 
-import io.netty.handler.codec.http.HttpHeaders
-import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.{ HttpResponseStatus, Request => AHCRequest }
-import org.asynchttpclient.uri.Uri
 import io.gatling.http.HeaderNames
+import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
 abstract class Response {
 
-  def request: AHCRequest
-  def nettyRequest: Option[NettyRequest]
+  def request: Request
+  def wireRequestHeaders: Option[HttpHeaders]
   def isReceived: Boolean
 
   def status: Option[HttpResponseStatus]
-  def statusCode: Option[Int]
-  def uri: Option[Uri]
   def isRedirect: Boolean
 
-  def header(name: String): Option[String]
+  def header(name: CharSequence): Option[String]
   def headers: HttpHeaders
-  def headers(name: String): Seq[String]
+  def headers(name: CharSequence): Seq[String]
   def cookies: List[Cookie]
 
   def checksums: Map[String, String]
@@ -62,30 +58,27 @@ abstract class Response {
 }
 
 case class HttpResponse(
-    request:        AHCRequest,
-    nettyRequest:   Option[NettyRequest],
-    status:         Option[HttpResponseStatus],
-    headers:        HttpHeaders,
-    body:           ResponseBody,
-    checksums:      Map[String, String],
-    bodyLength:     Int,
-    charset:        Charset,
-    startTimestamp: Long,
-    endTimestamp:   Long
+    request:            Request,
+    wireRequestHeaders: Option[HttpHeaders],
+    status:             Option[HttpResponseStatus],
+    headers:            HttpHeaders,
+    body:               ResponseBody,
+    checksums:          Map[String, String],
+    bodyLength:         Int,
+    charset:            Charset,
+    startTimestamp:     Long,
+    endTimestamp:       Long
 ) extends Response {
 
   override def isReceived: Boolean = status.isDefined
-  override val statusCode: Option[Int] = status.map(_.getStatusCode)
 
   override val isRedirect: Boolean = status match {
-    case Some(s) => HttpHelper.isRedirect(s.getStatusCode)
+    case Some(s) => HttpHelper.isRedirect(s)
     case _       => false
   }
-  override def uri: Option[Uri] = status.map(_.getUri)
 
-  override def header(name: String): Option[String] = Option(headers.get(name))
-  override def headers(name: String): Seq[String] = headers.getAll(name).asScala
-
+  override def header(name: CharSequence): Option[String] = Option(headers.get(name))
+  override def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
   override lazy val cookies: List[Cookie] = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie))).toList
 
   override def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
@@ -94,18 +87,16 @@ case class HttpResponse(
 
 class ResponseWrapper(delegate: Response) extends Response {
 
-  override def request: AHCRequest = delegate.request
-  override def nettyRequest: Option[NettyRequest] = delegate.nettyRequest
+  override def request: Request = delegate.request
+  override def wireRequestHeaders: Option[HttpHeaders] = delegate.wireRequestHeaders
   override def isReceived: Boolean = delegate.isReceived
 
   override def status: Option[HttpResponseStatus] = delegate.status
-  override def statusCode: Option[Int] = delegate.statusCode
   override def isRedirect: Boolean = delegate.isRedirect
-  override def uri: Option[Uri] = delegate.uri
 
-  override def header(name: String): Option[String] = delegate.header(name)
   override def headers: HttpHeaders = delegate.headers
-  override def headers(name: String): Seq[String] = delegate.headers(name)
+  override def header(name: CharSequence): Option[String] = delegate.header(name)
+  override def headers(name: CharSequence): Seq[String] = delegate.headers(name)
   override def cookies: List[Cookie] = delegate.cookies
 
   override def checksums: Map[String, String] = delegate.checksums

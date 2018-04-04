@@ -17,9 +17,9 @@
 package io.gatling.http.cookie
 
 import io.gatling.commons.util.ClockSingleton._
+import io.gatling.http.client.ahc.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
-import org.asynchttpclient.uri.Uri
 
 case class CookieKey(name: String, domain: String, path: String)
 

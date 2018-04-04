@@ -1,0 +1,75 @@
+/*
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package io.gatling.http.client.body;
+
+import io.gatling.http.client.Param;
+import io.gatling.netty.util.ahc.StringBuilderPool;
+import io.gatling.netty.util.ahc.Utf8UrlEncoder;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.handler.codec.http.HttpHeaderValues;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
+
+  public FormUrlEncodedRequestBody(List<Param> content) {
+    super(content);
+  }
+
+  @Override
+  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) {
+
+    StringBuilder sb = StringBuilderPool.DEFAULT.get();
+
+    for (Param param : content) {
+      encodeAndAppendFormParam(sb, param.getName(), param.getValue(), charset);
+    }
+    sb.setLength(sb.length() - 1);
+
+    ByteBuf bb = ByteBufUtil.writeAscii(alloc, sb);
+    return new WritableContent(bb, bb.readableBytes(), contentTypeHeader == null ? HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED : null);
+  }
+
+  private static void encodeAndAppendFormParam(StringBuilder sb, String name, String value, Charset charset) {
+    encodeAndAppendFormField(sb, name, charset);
+    if (value != null) {
+      sb.append('=');
+      encodeAndAppendFormField(sb, value, charset);
+    }
+    sb.append('&');
+  }
+
+  private static void encodeAndAppendFormField(StringBuilder sb, String field, Charset charset) {
+    if (charset.equals(UTF_8)) {
+      Utf8UrlEncoder.encodeAndAppendFormElement(sb, field);
+    } else {
+      try {
+        // TODO there's probably room for perf improvements
+        sb.append(URLEncoder.encode(field, charset.name()));
+      } catch (UnsupportedEncodingException e) {
+        // can't happen, as Charset was already resolved
+      }
+    }
+  }
+}

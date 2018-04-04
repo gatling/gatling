@@ -20,9 +20,9 @@ import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
 import io.gatling.http.action.ws2.{ WsCheck, WsCheckSequence }
+import io.gatling.http.client.WebSocket
 
 import akka.actor.FSM
-import org.asynchttpclient.ws.WebSocket
 
 sealed trait WsActorState
 case object Init extends WsActorState

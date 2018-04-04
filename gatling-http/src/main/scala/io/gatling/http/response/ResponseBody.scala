@@ -26,10 +26,10 @@ import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInp
 import io.gatling.commons.util.ByteBufs._
 import io.gatling.commons.util.Bytes._
 import io.gatling.commons.util.StringHelper._
+import io.gatling.netty.util.ahc.ByteBufUtils._
 
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.buffer.ByteBuf
-import org.asynchttpclient.netty.util.ByteBufUtils._
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
