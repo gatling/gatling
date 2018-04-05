@@ -62,7 +62,7 @@ trait ResourceFetcher {
   def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
     filters match {
       case Some(f) => f.filter(resources)
-      case none    => resources
+      case _       => resources
     }
 
   def resourcesToRequests(resources: List[EmbeddedResource], session: Session, coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): List[HttpRequest] =
