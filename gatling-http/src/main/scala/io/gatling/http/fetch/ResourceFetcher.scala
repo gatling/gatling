@@ -78,7 +78,7 @@ trait ResourceFetcher {
 
   private def inferPageResources(request: Request, response: Response, session: Session, config: HttpRequestConfig): List[HttpRequest] = {
 
-    val htmlDocumentUri = response.request.getUri
+    val htmlDocumentUri = request.getUri
     val coreComponents = config.coreComponents
     val httpComponents = config.httpComponents
     val httpProtocol = httpComponents.httpProtocol
@@ -162,7 +162,7 @@ trait ResourceFetcher {
     resourceFetcherActor(tx, inferredResources, explicitResources)
   }
 
-  def resourceFetcherActorForFetchedPage(request: Request, response: Response, tx: HttpTx): Option[() => ResourceFetcherActor] = {
+  def resourceFetcherActorForFetchedPage(response: Response, tx: HttpTx): Option[() => ResourceFetcherActor] = {
 
     val httpProtocol = tx.request.config.httpComponents.httpProtocol
 
@@ -174,7 +174,7 @@ trait ResourceFetcher {
 
     val inferredResources =
       if (httpProtocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers))
-        inferPageResources(request, response, tx.session, tx.request.config)
+        inferPageResources(tx.request.clientRequest, response, tx.session, tx.request.config)
       else
         Nil
 
@@ -205,7 +205,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
   fetchOrBufferResources(initialResources)
 
   private def fetchResource(resource: HttpRequest): Unit = {
-    logger.debug(s"Fetching resource ${resource.ahcRequest.getUri}")
+    logger.debug(s"Fetching resource ${resource.clientRequest.getUri}")
 
     val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
       resource.config.checks,
@@ -228,7 +228,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
 
   private def handleCachedResource(resource: HttpRequest): Unit = {
 
-    val uri = resource.ahcRequest.getUri
+    val uri = resource.clientRequest.getUri
 
     logger.info(s"Fetching resource $uri from cache")
     // FIXME check if it's a css this way or use the Content-Type?
@@ -255,16 +255,16 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
     def bufferResources(host: String, resources: Iterable[HttpRequest]): Unit =
       bufferedResourcesByHost += host -> (bufferedResourcesByHost(host) ::: resources.toList)
 
-    alreadySeen ++= resources.map(_.ahcRequest.getUri)
+    alreadySeen ++= resources.map(_.clientRequest.getUri)
     pendingResourcesCount += resources.size
 
     val (cached, nonCached) = resources.partition { resource =>
-      val ahcRequest = resource.ahcRequest
-      httpCaches.contentCacheEntry(session, ahcRequest) match {
+      val request = resource.clientRequest
+      httpCaches.contentCacheEntry(session, request) match {
         case None => false
         case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
           // beware, side effecting
-          session = httpCaches.clearContentCache(session, ahcRequest)
+          session = httpCaches.clearContentCache(session, request)
           false
         case _ => true
       }
@@ -273,7 +273,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
     cached.foreach(handleCachedResource)
 
     nonCached
-      .groupBy(_.ahcRequest.getUri.getHost)
+      .groupBy(_.clientRequest.getUri.getHost)
       .foreach {
         case (host, res) =>
           val availableTokens = availableTokensByHost(host)
@@ -293,22 +293,22 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
   private def resourceFetched(uri: Uri, status: Status, silent: Boolean): Unit = {
 
     def releaseToken(host: String): Unit =
-      bufferedResourcesByHost.get(uri.getHost) match {
+      bufferedResourcesByHost.get(host) match {
         case Some(Nil) | None =>
           // nothing to send for this host for now
           availableTokensByHost += host -> (availableTokensByHost(host) + 1)
 
         case Some(request :: tail) =>
           bufferedResourcesByHost += host -> tail
-          val ahcRequest = request.ahcRequest
-          httpCaches.contentCacheEntry(session, ahcRequest) match {
+          val clientRequest = request.clientRequest
+          httpCaches.contentCacheEntry(session, clientRequest) match {
             case None =>
               // recycle token, fetch a buffered resource
               fetchResource(request)
 
             case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
               // expire reached
-              session = httpCaches.clearContentCache(session, ahcRequest)
+              session = httpCaches.clearContentCache(session, clientRequest)
               fetchResource(request)
 
             case _ =>
@@ -378,7 +378,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
           case _ => Nil
         }
 
-      val filtered = cssResources.filterNot(resource => alreadySeen.contains(resource.ahcRequest.getUri))
+      val filtered = cssResources.filterNot(resource => alreadySeen.contains(resource.clientRequest.getUri))
       fetchOrBufferResources(filtered)
     }
   }

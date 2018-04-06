@@ -128,7 +128,7 @@ class CacheSupportSpec extends BaseSpec {
     val origTx = txTo("http://example.com/", session, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling.io/")
+    tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling.io/")
     tx.redirectCount shouldBe 1
 
   }
@@ -141,7 +141,7 @@ class CacheSupportSpec extends BaseSpec {
     val origTx = txTo("http://example.com/", session, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling3.io/")
+    tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling3.io/")
     tx.redirectCount shouldBe 3
 
   }
@@ -155,7 +155,7 @@ class CacheSupportSpec extends BaseSpec {
     val origTx = txTo("http://example.com/", session, 2, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling3.io/")
+    tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling3.io/")
     // After 3 more redirects it is now equal to 5
     tx.redirectCount shouldBe 5
   }
@@ -173,7 +173,7 @@ class CacheSupportSpec extends BaseSpec {
       session,
       request = HttpRequest(
         requestName = "mockHttpTx",
-        ahcRequest = request,
+        clientRequest = request,
         config = HttpRequestConfig(
           checks = Nil,
           responseTransformer = None,

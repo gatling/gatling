@@ -70,13 +70,13 @@ trait PermanentRedirectCacheSupport {
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.config.httpComponents.httpProtocol.requestPart.cache) {
-      permanentRedirect(origTx.session, origTx.request.ahcRequest) match {
+      permanentRedirect(origTx.session, origTx.request.clientRequest) match {
         case Some((targetUri, redirectCount)) =>
 
-          val newAhcRequest = redirectRequest(origTx.request.ahcRequest, targetUri)
+          val newClientRequest = redirectRequest(origTx.request.clientRequest, targetUri)
 
           origTx.copy(
-            request = origTx.request.copy(ahcRequest = newAhcRequest),
+            request = origTx.request.copy(clientRequest = newClientRequest),
             redirectCount = origTx.redirectCount + redirectCount
           )
 

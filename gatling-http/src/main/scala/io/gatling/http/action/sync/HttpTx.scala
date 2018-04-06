@@ -38,7 +38,7 @@ object HttpTx extends NameGen with StrictLogging {
     val requestPart = request.config.httpComponents.httpProtocol.requestPart
 
     def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
-      case Some(silentUri) => silentUri.matcher(request.ahcRequest.getUri.toUrl).matches
+      case Some(silentUri) => silentUri.matcher(request.clientRequest.getUri.toUrl).matches
       case None            => false
     }
 
@@ -52,16 +52,16 @@ object HttpTx extends NameGen with StrictLogging {
 
   private def startWithCache(origTx: HttpTx, actorRefFactory: ActorRefFactory, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
-    val ahcRequest = tx.request.ahcRequest
-    val uri = ahcRequest.getUri
+    val clientRequest = tx.request.clientRequest
+    val uri = clientRequest.getUri
 
-    httpCaches.contentCacheEntry(tx.session, ahcRequest) match {
+    httpCaches.contentCacheEntry(tx.session, clientRequest) match {
 
       case None | Some(ContentCacheEntry(None, _, _)) =>
         f(tx)
 
       case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
-        val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, ahcRequest))
+        val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, clientRequest))
         f(newTx)
 
       case _ =>
@@ -92,10 +92,10 @@ object HttpTx extends NameGen with StrictLogging {
 
     startWithCache(origTx, actorRefFactory, httpEngine, httpCaches) { tx =>
 
-      logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+      logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
       val client = httpEngine.httpClient
-      val ahcRequest = tx.request.ahcRequest
+      val ahcRequest = tx.request.clientRequest
       val clientId = tx.session.userId
       val shared = httpProtocol.enginePart.shareConnections
       val handler = new GatlingHttpListener(tx, responseProcessor)

@@ -54,10 +54,10 @@ object ResponseProcessor extends StrictLogging {
 class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
 
   private def abort(tx: HttpTx, t: Throwable): Unit = {
-    logger.error(s"ResponseProcessor crashed on session=${tx.session} request=${tx.request.requestName}: ${tx.request.ahcRequest} resourceFetcher=${tx.resourceFetcher} redirectCount=${tx.redirectCount}, forwarding user to the next action", t)
+    logger.error(s"ResponseProcessor crashed on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest} resourceFetcher=${tx.resourceFetcher} redirectCount=${tx.redirectCount}, forwarding user to the next action", t)
     tx.resourceFetcher match {
       case None                  => tx.next ! tx.session.markAsFailed
-      case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.ahcRequest.getUri, KO, Session.Identity, tx.silent)
+      case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.clientRequest.getUri, KO, Session.Identity, tx.silent)
     }
   }
 
@@ -85,14 +85,14 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       val fullRequestName = tx.fullRequestName
       def dump = {
         // hack: pre-cache url because it would reset the StringBuilder
-        tx.request.ahcRequest.getUri.toUrl
+        tx.request.clientRequest.getUri.toUrl
         val buff = StringBuilderPool.DEFAULT.get()
         buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
         buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
         buff.append("=========================").append(Eol)
         buff.append("Session:").append(Eol).append(tx.session).append(Eol)
         buff.append("=========================").append(Eol)
-        buff.append("HTTP request:").append(Eol).appendRequest(tx.request.ahcRequest, response.wireRequestHeaders, configuration.core.charset)
+        buff.append("HTTP request:").append(Eol).appendRequest(tx.request.clientRequest, response.wireRequestHeaders, configuration.core.charset)
         buff.append("=========================").append(Eol)
         buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
         buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -134,7 +134,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
           if (status == KO)
             None
           else
-            httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx)
+            httpEngine.resourceFetcherActorForFetchedPage(response, tx)
 
         maybeResourceFetcherActor match {
           case Some(resourceFetcherActor) => actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
@@ -142,7 +142,8 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         }
 
       case Some(resourceFetcher) =>
-        val uri = response.request.getUri
+        // FIXME we need original url because we might get a redirect and domain might be different
+        val uri = tx.request.clientRequest.getUri
 
         if (isCss(response.headers)) {
           val httpProtocol = tx.request.config.httpComponents.httpProtocol
@@ -185,7 +186,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
     import tx.request.config.httpComponents._
 
     def redirectRequest(status: HttpResponseStatus, redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
-      val originalRequest = tx.request.ahcRequest
+      val originalRequest = tx.request.clientRequest
       val originalMethod = originalRequest.getMethod
 
       val switchToGet = originalMethod != GET && (status == HttpResponseStatus.MOVED_PERMANENTLY || status == SEE_OTHER || (status == FOUND && !httpProtocol.responsePart.strict302Handling))
@@ -206,7 +207,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         .setRealm(originalRequest.getRealm)
         .setHeaders(newHeaders)
 
-      if (tx.request.ahcRequest.getUri.isSameBase(redirectUri)) {
+      if (originalRequest.getUri.isSameBase(redirectUri)) {
         // we can only assume the virtual host is still valid if the baseUrl is the same
         requestBuilder.setVirtualHost(originalRequest.getVirtualHost)
       }
@@ -236,11 +237,11 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       } else {
         response.header(HeaderNames.Location) match {
           case Some(location) =>
-            val redirectURI = resolveFromUri(tx.request.ahcRequest.getUri, location)
+            val redirectURI = resolveFromUri(tx.request.clientRequest.getUri, location)
 
             val cacheRedirectUpdate =
               if (httpProtocol.requestPart.cache)
-                cacheRedirect(tx.request.ahcRequest, redirectURI)
+                cacheRedirect(tx.request.clientRequest, redirectURI)
               else
                 Session.Identity
 
@@ -252,9 +253,9 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
             val loggedTx = tx.copy(session = newSession)
             logRequest(loggedTx, OK, response)
 
-            val newAhcRequest = redirectRequest(status, redirectURI, newSession)
+            val newClientRequest = redirectRequest(status, redirectURI, newSession)
             val redirectTx = loggedTx.copy(
-              request = loggedTx.request.copy(ahcRequest = newAhcRequest),
+              request = loggedTx.request.copy(clientRequest = newClientRequest),
               redirectCount = tx.redirectCount + 1,
               update = if (tx.resourceFetcher.isEmpty) Session.Identity else totalUpdate
             )
@@ -281,7 +282,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         case _    => KO
       }
 
-      val cacheContentUpdate = httpCaches.cacheContent(httpProtocol, tx.request.ahcRequest, response)
+      val cacheContentUpdate = httpCaches.cacheContent(httpProtocol, tx.request.clientRequest, response)
 
       val totalUpdate = sessionUpdate andThen cacheContentUpdate andThen checkSaveUpdate
 
@@ -291,7 +292,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
     response.status match {
 
       case Some(status) =>
-        val uri = tx.request.ahcRequest.getUri
+        val uri = tx.request.clientRequest.getUri
         val storeCookiesUpdate: Session => Session =
           response.cookies match {
             case Nil     => Session.Identity
@@ -311,7 +312,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
           val storeRefererUpdate =
             if (tx.resourceFetcher.isEmpty)
-              RefererHandling.storeReferer(tx.request.ahcRequest, response, httpProtocol)
+              RefererHandling.storeReferer(tx.request.clientRequest, response, httpProtocol)
             else Session.Identity
 
           checkAndProceed(newUpdate andThen storeRefererUpdate, checks)

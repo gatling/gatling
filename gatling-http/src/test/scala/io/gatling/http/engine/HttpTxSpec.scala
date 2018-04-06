@@ -58,12 +58,12 @@ class HttpTxSpec extends BaseSpec {
     )
   }
 
-  def tx(ahcRequest: Request, config: HttpRequestConfig, root: Boolean) =
+  def tx(clientRequest: Request, config: HttpRequestConfig, root: Boolean) =
     HttpTx(
       null,
       request = HttpRequest(
         requestName = "mockHttpTx",
-        ahcRequest = ahcRequest,
+        clientRequest = clientRequest,
         config = config
       ),
       responseBuilderFactory = null,

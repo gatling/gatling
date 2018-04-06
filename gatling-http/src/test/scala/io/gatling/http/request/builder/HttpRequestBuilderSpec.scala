@@ -61,7 +61,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     httpRequestDef(_.signatureCalculator(sigCalc))
       .build("requestName", Session("scenarioName", 0))
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.ahcRequest, null, new HttpClientConfig)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)
         writableRequest.getRequest.headers.get("X-Token")
       }.succeeded shouldBe "foo"
   }
@@ -72,7 +72,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     httpRequestDef(_.signatureCalculator(sigCalc _))
       .build("requestName", Session("scenarioName", 0))
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.ahcRequest, null, new HttpClientConfig)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)
         writableRequest.getRequest.headers.get("X-Token")
       }.succeeded shouldBe "foo"
   }
@@ -84,7 +84,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
   }
 
   it should "work when passing only formParams" in {
@@ -93,7 +93,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 
   it should "work when passing only a form" in {
@@ -103,6 +103,6 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)
-      .map(_.ahcRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 }

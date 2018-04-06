@@ -44,7 +44,7 @@ object GatlingHttpListener extends StrictLogging {
  */
 class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
 
-  private val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
+  private val responseBuilder = tx.responseBuilderFactory(tx.request.clientRequest)
   private var init = false
   private var done = false
   // [fl]

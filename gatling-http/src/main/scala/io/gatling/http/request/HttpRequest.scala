@@ -38,13 +38,13 @@ case class HttpRequestConfig(
 )
 
 case class HttpRequestDef(
-    requestName: Expression[String],
-    ahcRequest:  Expression[Request],
-    config:      HttpRequestConfig
+    requestName:   Expression[String],
+    clientRequest: Expression[Request],
+    config:        HttpRequestConfig
 ) {
 
   def build(requestName: String, session: Session): Validation[HttpRequest] =
-    ahcRequest(session).map(HttpRequest(requestName, _, config))
+    clientRequest(session).map(HttpRequest(requestName, _, config))
 }
 
-case class HttpRequest(requestName: String, ahcRequest: Request, config: HttpRequestConfig)
+case class HttpRequest(requestName: String, clientRequest: Request, config: HttpRequestConfig)
