@@ -29,7 +29,7 @@ import io.gatling.core.akka.BaseActor
 import io.gatling.core.filter.Filters
 import io.gatling.core.session._
 import io.gatling.core.util.cache._
-import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.client.Request
 import io.gatling.http.client.ahc.uri.Uri
@@ -219,7 +219,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       session = this.session,
       request = resource,
       responseBuilderFactory = responseBuilderFactory,
-      resourceFetcher = Some(self),
+      resourceTx = Some(ResourceTx(self, resource.clientRequest.getUri)),
       redirectCount = 0
     )
 

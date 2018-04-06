@@ -22,6 +22,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.{ HttpClient, Request }
 import io.gatling.http.engine.{ GatlingHttpListener, HttpEngine }
 import io.gatling.http.fetch.RegularResourceFetched
@@ -70,11 +71,11 @@ object HttpTx extends NameGen with StrictLogging {
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
 
-          case None =>
+          case _ =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
-            tx.resourceFetcher match {
-              case None                  => tx.next ! tx.session
-              case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
+            tx.resourceTx match {
+              case Some(ResourceTx(fetcher, _)) => fetcher ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
+              case _                            => tx.next ! tx.session
             }
         }
     }
@@ -108,16 +109,18 @@ object HttpTx extends NameGen with StrictLogging {
   }
 }
 
+case class ResourceTx(fetcher: ActorRef, uri: Uri)
+
 case class HttpTx(
     session:                Session,
     request:                HttpRequest,
     responseBuilderFactory: ResponseBuilderFactory,
     next:                   Action,
-    resourceFetcher:        Option[ActorRef]       = None,
+    resourceTx:             Option[ResourceTx]     = None,
     redirectCount:          Int                    = 0,
     update:                 Session => Session     = Session.Identity
 ) {
-  lazy val silent: Boolean = HttpTx.silent(request, resourceFetcher.isEmpty)
+  lazy val silent: Boolean = HttpTx.silent(request, resourceTx.isEmpty)
 
   lazy val fullRequestName: String =
     if (redirectCount > 0)

@@ -21,7 +21,7 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
 import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilderFactory
@@ -73,7 +73,7 @@ class PollerActor(
         }
       } yield {
         // FIXME: we REALLY shouldn't be passing a null ref
-        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, null, Some(self))
+        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, null, Some(ResourceTx(self, httpRequest.clientRequest.getUri)))
         HttpTx.start(nonBlockingTx)
       }
 

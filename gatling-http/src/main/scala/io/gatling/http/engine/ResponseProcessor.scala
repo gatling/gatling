@@ -28,7 +28,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames
-import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
@@ -54,10 +54,10 @@ object ResponseProcessor extends StrictLogging {
 class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, configuration: GatlingConfiguration)(implicit actorRefFactory: ActorRefFactory) extends StrictLogging with NameGen {
 
   private def abort(tx: HttpTx, t: Throwable): Unit = {
-    logger.error(s"ResponseProcessor crashed on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest} resourceFetcher=${tx.resourceFetcher} redirectCount=${tx.redirectCount}, forwarding user to the next action", t)
-    tx.resourceFetcher match {
-      case None                  => tx.next ! tx.session.markAsFailed
-      case Some(resourceFetcher) => resourceFetcher ! RegularResourceFetched(tx.request.clientRequest.getUri, KO, Session.Identity, tx.silent)
+    logger.error(s"ResponseProcessor crashed on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest} resourceTx=${tx.resourceTx} redirectCount=${tx.redirectCount}, forwarding user to the next action", t)
+    tx.resourceTx match {
+      case Some(ResourceTx(fetcher, uri)) => fetcher ! RegularResourceFetched(uri, KO, Session.Identity, tx.silent)
+      case _                              => tx.next ! tx.session.markAsFailed
     }
   }
 
@@ -128,8 +128,16 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
    * @param response the response
    */
   private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response): Unit =
-    tx.resourceFetcher match {
-      case None =>
+    tx.resourceTx match {
+      case Some(ResourceTx(resourceFetcher, uri)) =>
+        if (isCss(response.headers)) {
+          val httpProtocol = tx.request.config.httpComponents.httpProtocol
+          resourceFetcher ! CssResourceFetched(uri, status, update, tx.silent, response.status, response.lastModifiedOrEtag(httpProtocol), response.body.string)
+        } else {
+          resourceFetcher ! RegularResourceFetched(uri, status, update, tx.silent)
+        }
+
+      case _ =>
         val maybeResourceFetcherActor =
           if (status == KO)
             None
@@ -139,17 +147,6 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         maybeResourceFetcherActor match {
           case Some(resourceFetcherActor) => actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
           case None                       => tx.next ! tx.session.increaseDrift(nowMillis - response.endTimestamp)
-        }
-
-      case Some(resourceFetcher) =>
-        // FIXME we need original url because we might get a redirect and domain might be different
-        val uri = tx.request.clientRequest.getUri
-
-        if (isCss(response.headers)) {
-          val httpProtocol = tx.request.config.httpComponents.httpProtocol
-          resourceFetcher ! CssResourceFetched(uri, status, update, tx.silent, response.status, response.lastModifiedOrEtag(httpProtocol), response.body.string)
-        } else {
-          resourceFetcher ! RegularResourceFetched(uri, status, update, tx.silent)
         }
     }
 
@@ -172,7 +169,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
     logAndExecuteNext(tx, update, KO, response, Some(message))
 
   private def logGroupRequestUpdate(tx: HttpTx, status: Status, startTimestamp: Long, endTimestamp: Long): Session => Session =
-    if (tx.resourceFetcher.isEmpty && !tx.silent)
+    if (tx.resourceTx.isEmpty && !tx.silent)
       // resource logging is done in ResourceFetcher
       _.logGroupRequest(startTimestamp, endTimestamp, status)
     else
@@ -257,7 +254,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
             val redirectTx = loggedTx.copy(
               request = loggedTx.request.copy(clientRequest = newClientRequest),
               redirectCount = tx.redirectCount + 1,
-              update = if (tx.resourceFetcher.isEmpty) Session.Identity else totalUpdate
+              update = if (tx.resourceTx.isEmpty) Session.Identity else totalUpdate
             )
             HttpTx.start(redirectTx)
 
@@ -311,7 +308,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
               tx.request.config.checks
 
           val storeRefererUpdate =
-            if (tx.resourceFetcher.isEmpty)
+            if (tx.resourceTx.isEmpty)
               RefererHandling.storeReferer(tx.request.clientRequest, response, httpProtocol)
             else Session.Identity
 

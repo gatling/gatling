@@ -20,14 +20,14 @@ import io.gatling.BaseSpec
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.Request
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.ActorSystem
 import com.softwaremill.quicklens._
 import org.mockito.Mockito._
 
@@ -68,7 +68,7 @@ class HttpTxSpec extends BaseSpec {
       ),
       responseBuilderFactory = null,
       next = mock[Action],
-      resourceFetcher = if (root) None else Some(mock[ActorRef])
+      resourceTx = if (root) None else Some(mock[ResourceTx])
     )
 
   "HttpTx" should "be silent when using default protocol and containing a request forced to silent" in new Context {
