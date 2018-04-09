@@ -35,11 +35,11 @@ class JmsTrackerPool(sessionPool: JmsSessionPool, system: ActorSystem, statsEngi
 
   private val trackers = new ConcurrentHashMap[(Destination, Option[String]), JmsTracker]
 
-  def tracker(destination: Destination, selector: Option[String], messageMatcher: JmsMessageMatcher): JmsTracker =
+  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Option[Int], messageMatcher: JmsMessageMatcher): JmsTracker =
     trackers.computeIfAbsent((destination, selector), _ => {
       val actor = system.actorOf(Tracker.props(statsEngine, configuration), genName("jmsTrackerActor"))
 
-      for (elem <- 1 to configuration.jms.listenerThreadCount.getOrElse(1)) {
+      for (elem <- 1 to listenerThreadCount.getOrElse(1)) {
         // jms session pool logic creates a session per thread and stores it in thread local.
         // After that the thread can be throughen away. The jms provider takes care of receiving and dispatching
         val thread = new Thread(() => {

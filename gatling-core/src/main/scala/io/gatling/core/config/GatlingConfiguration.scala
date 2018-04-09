@@ -203,8 +203,7 @@ object GatlingConfiguration extends StrictLogging {
         )
       ),
       jms = JmsConfiguration(
-        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod),
-        listenerThreadCount = if (config.hasPath(jms.ListenerThreadCount)) Some(config.getInt(jms.ListenerThreadCount)) else None
+        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod)
       ),
       data = DataConfiguration(
         dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
@@ -338,8 +337,7 @@ case class HttpConfiguration(
 )
 
 case class JmsConfiguration(
-    replyTimeoutScanPeriod: Long,
-    listenerThreadCount:    Option[Int]
+    replyTimeoutScanPeriod: Long
 )
 
 case class AhcConfiguration(

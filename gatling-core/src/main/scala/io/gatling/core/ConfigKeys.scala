@@ -125,7 +125,6 @@ object ConfigKeys {
 
   object jms {
     val ReplyTimeoutScanPeriod = "gatling.jms.replyTimeoutScanPeriod"
-    val ListenerThreadCount = "gatling.jms.listenerThreadCount"
   }
 
   object data {

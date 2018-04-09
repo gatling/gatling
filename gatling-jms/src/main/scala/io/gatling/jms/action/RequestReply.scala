@@ -60,7 +60,7 @@ class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, 
       // [fl]
       //
       // [/fl]
-      val tracker = jmsConnection.tracker(resolvedTrackerDestination, attributes.selector, messageMatcher)
+      val tracker = jmsConnection.tracker(resolvedTrackerDestination, attributes.selector, protocol.listenerThreadCount, messageMatcher)
       tracker.track(matchId, nowMillis, replyTimeout, attributes.checks, session, next, requestName)
     }
 }
