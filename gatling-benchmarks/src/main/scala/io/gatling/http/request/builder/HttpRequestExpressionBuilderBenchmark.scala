@@ -61,21 +61,21 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
 
   val RequestWithStaticAbsoluteUrl: Expression[AhcRequest] =
     new Http("requestName").get("http://localhost:8000/ping")
-      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+      .build(coreComponents, httpComponents, throttled = false).clientRequest
 
   val RequestWithStaticRelativeUrl: Expression[AhcRequest] =
     new Http("requestName").get("/ping")
-      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+      .build(coreComponents, httpComponents, throttled = false).clientRequest
 
   val RequestWithStaticQueryParams: Expression[AhcRequest] =
     new Http("requestName").get("/ping")
       .queryParam("hello", "world")
       .queryParam("foo", "bar")
-      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+      .build(coreComponents, httpComponents, throttled = false).clientRequest
 
   val RequestWithDynamicQuery: Expression[AhcRequest] =
     new Http("requestName").get("/ping?foo=${key}")
-      .build(coreComponents, httpComponents, throttled = false).ahcRequest
+      .build(coreComponents, httpComponents, throttled = false).clientRequest
 
   val RequestWithStaticHeaders: Expression[AhcRequest] = {
 
@@ -91,7 +91,7 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
         coreComponents,
         httpComponents.modify(_.httpProtocol).setTo(httpProtocol),
         throttled = false
-      ).ahcRequest
+      ).clientRequest
   }
 
   val EmptySession: Session = Session("scenario", 0)
