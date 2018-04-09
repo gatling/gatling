@@ -63,7 +63,6 @@ class JmsConnection(
 
   def close(): Unit = {
     producerPool.close()
-    trackerPool.close()
     sessionPool.close()
     connection.close()
   }

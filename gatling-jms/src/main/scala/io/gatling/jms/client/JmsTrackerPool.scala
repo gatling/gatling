@@ -39,22 +39,21 @@ class JmsTrackerPool(sessionPool: JmsSessionPool, system: ActorSystem, statsEngi
     trackers.computeIfAbsent((destination, selector), _ => {
       val actor = system.actorOf(Tracker.props(statsEngine, configuration), genName("jmsTrackerActor"))
 
-      val listenerThread = new ListenerThread(() => {
-        val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
-        consumer.setMessageListener(message => {
-          val matchId = messageMatcher.responseMatchId(message)
-          logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-          actor ! MessageReceived(matchId, nowMillis, message)
+      for (elem <- 1 to configuration.jms.listenerThreadCount.getOrElse(1)) {
+        // jms session pool logic creates a session per thread and stores it in thread local.
+        // After that the thread can be throughen away. The jms provider takes care of receiving and dispatching
+        val thread = new Thread(() => {
+          val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
+          consumer.setMessageListener(message => {
+            val matchId = messageMatcher.responseMatchId(message)
+            logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
+            actor ! MessageReceived(matchId, nowMillis, message)
+          })
         })
-      })
-      listenerThread.start()
 
-      system.registerOnTermination {
-        Try(listenerThread.close())
+        thread.start()
       }
 
-      new JmsTracker(listenerThread, actor)
+      new JmsTracker(actor)
     })
-
-  def close(): Unit = trackers.values().asScala.foreach(_.close())
 }

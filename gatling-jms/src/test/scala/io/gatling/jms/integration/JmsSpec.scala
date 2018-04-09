@@ -16,27 +16,26 @@
 
 package io.gatling.jms.integration
 
-import javax.jms.{ Session => JmsSession, _ }
+import javax.jms.{Session => JmsSession, _}
 
 import scala.concurrent.duration._
 
 import io.gatling.AkkaSpec
 import io.gatling.core.CoreComponents
-import io.gatling.core.action.{ Action, ActorDelegatingAction }
+import io.gatling.core.action.{Action, ActorDelegatingAction}
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
-import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols }
-import io.gatling.core.session.{ Session, StaticStringExpression }
+import io.gatling.core.protocol.{ProtocolComponentsRegistries, Protocols}
+import io.gatling.core.session.{Session, StaticStringExpression}
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
+import io.gatling.core.structure.{ScenarioBuilder, ScenarioContext}
 import io.gatling.jms._
-import io.gatling.jms.client.ListenerThread
 import io.gatling.jms.request._
 
 import akka.actor.ActorRef
 import org.apache.activemq.ActiveMQConnectionFactory
-import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
+import org.apache.activemq.broker.{BrokerFactory, BrokerService}
 
 object Replier {
 
@@ -46,16 +45,16 @@ object Replier {
 }
 
 class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination, response: PartialFunction[(Message, JmsSession), Message]) {
-  val t = new ListenerThread(() => {
+  val t = new Thread(() => {
     val connection = connectionFactory.createConnection()
     val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
     val consumedDestination: Destination =
       destination match {
-        case JmsTemporaryQueue                      => jmsSession.createTemporaryQueue()
-        case JmsTemporaryTopic                      => jmsSession.createTemporaryTopic()
+        case JmsTemporaryQueue => jmsSession.createTemporaryQueue()
+        case JmsTemporaryTopic => jmsSession.createTemporaryTopic()
         case JmsQueue(StaticStringExpression(name)) => jmsSession.createQueue(name)
         case JmsTopic(StaticStringExpression(name)) => jmsSession.createTopic(name)
-        case _                                      => throw new UnsupportedOperationException("Support not implemented in this test yet")
+        case _ => throw new UnsupportedOperationException("Support not implemented in this test yet")
       }
 
     val consumer = jmsSession.createConsumer(consumedDestination)
@@ -70,8 +69,6 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
   })
 
   t.start()
-
-  def close(): Unit = t.close()
 }
 
 trait JmsSpec extends AkkaSpec with JmsDsl {
@@ -129,6 +126,5 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
 
   def replier(queue: JmsDestination, f: PartialFunction[(Message, JmsSession), Message]): Unit = {
     val replier = new Replier(cf, queue, f)
-    registerCleanUpAction(() => replier.close())
   }
 }

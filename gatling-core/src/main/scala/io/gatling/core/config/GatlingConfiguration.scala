@@ -61,7 +61,9 @@ object GatlingConfiguration extends StrictLogging {
   }
 
   def load(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
-    sealed abstract class ObsoleteUsage(val message: String) { def path: String }
+    sealed abstract class ObsoleteUsage(val message: String) {
+      def path: String
+    }
     case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
     case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
 
@@ -80,9 +82,9 @@ object GatlingConfiguration extends StrictLogging {
       if (obsoleteUsages.nonEmpty) {
         logger.error(
           s"""|Your gatling.conf file is outdated, some properties have been renamed or removed.
-                |Please update (check gatling.conf in Gatling bundle, or gatling-defaults.conf in gatling-core jar).
-                |Enabled obsolete properties:
-                |${obsoleteUsages.mkString("\n")}""".stripMargin
+              |Please update (check gatling.conf in Gatling bundle, or gatling-defaults.conf in gatling-core jar).
+              |Enabled obsolete properties:
+              |${obsoleteUsages.mkString("\n")}""".stripMargin
         )
       }
     }
@@ -203,7 +205,8 @@ object GatlingConfiguration extends StrictLogging {
         )
       ),
       jms = JmsConfiguration(
-        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod)
+        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod),
+        listenerThreadCount = if (config.hasPath(jms.ListenerThreadCount)) Some(config.getInt(jms.ListenerThreadCount)) else None
       ),
       data = DataConfiguration(
         dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
@@ -337,7 +340,8 @@ case class HttpConfiguration(
 )
 
 case class JmsConfiguration(
-    replyTimeoutScanPeriod: Long
+    replyTimeoutScanPeriod: Long,
+    listenerThreadCount:    Option[Int]
 )
 
 case class AhcConfiguration(

@@ -22,7 +22,7 @@ import io.gatling.jms._
 
 import akka.actor.ActorRef
 
-class JmsTracker(listenerThread: ListenerThread, actor: ActorRef) {
+class JmsTracker(actor: ActorRef) {
 
   def track(
     matchId:      String,
@@ -42,13 +42,4 @@ class JmsTracker(listenerThread: ListenerThread, actor: ActorRef) {
       next,
       requestName
     )
-
-  def close(): Unit = listenerThread.close()
-}
-
-class ListenerThread(runnable: Runnable) extends Thread(runnable) {
-  def close(): Unit = {
-    interrupt()
-    join(1000)
-  }
 }
