@@ -233,9 +233,9 @@ public class DefaultHttpClient implements HttpClient {
     EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
 
     if (eventLoop.inEventLoop()) {
-      sendRequest0(request, clientId, shared, listener, eventLoop);
+      sendRequestInEventLoop(request, clientId, shared, listener, eventLoop);
     } else {
-      eventLoop.execute(() -> sendRequest0(request, clientId, shared, listener, eventLoop));
+      eventLoop.execute(() -> sendRequestInEventLoop(request, clientId, shared, listener, eventLoop));
     }
   }
 
@@ -250,12 +250,12 @@ public class DefaultHttpClient implements HttpClient {
     return resources;
   }
 
-  private void sendRequest0(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
+  private void sendRequestInEventLoop(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
 
     RequestTimeout requestTimeout = RequestTimeout.newRequestTimeout(request.getRequestTimeout(), listener, eventLoop);
     ChannelPoolKey key = ChannelPoolKey.newKey(shared ? clientId : -1, request.getUri(), request.getVirtualHost(), request.getProxyServer());
     HttpTx tx = new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry());
-    sendRequest1(tx, eventLoop);
+    sendTx(tx, eventLoop);
   }
 
   boolean retry(HttpTx tx, EventLoop eventLoop) {
@@ -266,13 +266,13 @@ public class DefaultHttpClient implements HttpClient {
 
     if (tx.remainingTries > 0 && ! (tx.request.getBody() instanceof InputStreamRequestBody)) {
       tx.remainingTries = tx.remainingTries - 1;
-      sendRequest1(tx, eventLoop);
+      sendTx(tx, eventLoop);
       return true;
     }
     return false;
   }
 
-  private void sendRequest1(HttpTx tx, EventLoop eventLoop) {
+  private void sendTx(HttpTx tx, EventLoop eventLoop) {
 
     EventLoopResources resources = eventLoopResources(eventLoop);
     Request request = tx.request;
@@ -284,7 +284,7 @@ public class DefaultHttpClient implements HttpClient {
     tx.usingPooledChannel = pooledChannel != null;
 
     if (tx.usingPooledChannel) {
-      sendRequest(tx, pooledChannel);
+      sendTxWithChannel(tx, pooledChannel);
 
     } else {
       resolveRemoteAddresses(request, eventLoop, listener, requestTimeout)
@@ -312,16 +312,34 @@ public class DefaultHttpClient implements HttpClient {
                         channel.close();
                         return;
                       }
-                      sendRequest(tx, channel);
+                      sendTxWithChannel(tx, channel);
                     });
                   } else {
-                    sendRequest(tx, channel);
+                    sendTxWithChannel(tx, channel);
                   }
                 }
               });
           }
         });
     }
+  }
+
+
+  private void sendTxWithChannel(HttpTx tx, Channel channel) {
+
+    if (isClosed()) {
+      return;
+    }
+
+    tx.requestTimeout.setChannel(channel);
+
+    Realm realm = tx.request.getRealm();
+    if (realm instanceof DigestRealm) {
+      // FIXME is it the right place?
+      // FIXME wouldn't work for WebSocket
+      channel.pipeline().addBefore(APP_HTTP_HANDLER, DIGEST_AUTH_HANDLER, new DigestAuthHandler(tx, (DigestRealm) realm, config));
+    }
+    channel.write(tx);
   }
 
   private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, HttpListener listener, RequestTimeout requestTimeout) {
@@ -463,23 +481,6 @@ public class DefaultHttpClient implements HttpClient {
         tx.listener.onThrowable(f.cause());
       }
     });
-  }
-
-  private void sendRequest(HttpTx tx, Channel channel) {
-
-    if (isClosed()) {
-      return;
-    }
-
-    tx.requestTimeout.setChannel(channel);
-
-    Realm realm = tx.request.getRealm();
-    if (realm instanceof DigestRealm) {
-      // FIXME is it the right place?
-      // FIXME wouldn't work for WebSocket
-      channel.pipeline().addBefore(APP_HTTP_HANDLER, DIGEST_AUTH_HANDLER, new DigestAuthHandler(tx, (DigestRealm) realm, config));
-    }
-    channel.write(tx);
   }
 
   @Override
