@@ -137,8 +137,10 @@ package object util extends LazyLogging {
                 .append(" contentId=").append(part.getContentId)
                 .append(" filename=").append(part.getFileName)
                 .append(Eol)
-          }
 
+            case _ =>
+          }
+        case _ =>
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
