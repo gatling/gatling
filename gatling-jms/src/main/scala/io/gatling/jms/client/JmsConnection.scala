@@ -58,12 +58,11 @@ class JmsConnection(
 
   private val trackerPool = new JmsTrackerPool(sessionPool, system, statsEngine, configuration)
 
-  def tracker(destination: Destination, selector: Option[String], messageMatcher: JmsMessageMatcher): JmsTracker =
-    trackerPool.tracker(destination, selector, messageMatcher)
+  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
+    trackerPool.tracker(destination, selector, listenerThreadCount, messageMatcher)
 
   def close(): Unit = {
     producerPool.close()
-    trackerPool.close()
     sessionPool.close()
     connection.close()
   }
