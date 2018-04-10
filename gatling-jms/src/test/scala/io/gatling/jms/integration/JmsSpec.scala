@@ -31,7 +31,6 @@ import io.gatling.core.session.{ Session, StaticStringExpression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
-import io.gatling.jms.client.ListenerThread
 import io.gatling.jms.request._
 
 import akka.actor.ActorRef
@@ -46,7 +45,7 @@ object Replier {
 }
 
 class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination, response: PartialFunction[(Message, JmsSession), Message]) {
-  val t = new ListenerThread(() => {
+  val t = new Thread(() => {
     val connection = connectionFactory.createConnection()
     val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
     val consumedDestination: Destination =
@@ -70,8 +69,6 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
   })
 
   t.start()
-
-  def close(): Unit = t.close()
 }
 
 trait JmsSpec extends AkkaSpec with JmsDsl {
@@ -129,6 +126,5 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
 
   def replier(queue: JmsDestination, f: PartialFunction[(Message, JmsSession), Message]): Unit = {
     val replier = new Replier(cf, queue, f)
-    registerCleanUpAction(() => replier.close())
   }
 }
