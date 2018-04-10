@@ -97,22 +97,14 @@ This behavior does not match real browsers, and doesn't support SSL session trac
 In Gatling 2, the default behavior is that every user has his own connection pool.
 This can be tuned with the ``.shareConnections`` param.
 
+.. _http-protocol-http2:
+
 HTTP/2 Support
 --------------
 
 HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
 
 Note that you'll either need your injectors to run with Java 9, or set `gatling.http.ahc.useOpenSsl` to `true` in Gatling configuration.
-
-.. _http-protocol-client-sharing:
-
-HTTP Client Sharing
--------------------
-
-If you need more isolation of your user, for instance if you need a dedicated key store per user,
-Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
-
-.. _http-protocol-dns-name-resolution:
 
 DNS Name Resolution
 -------------------
