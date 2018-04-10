@@ -16,7 +16,9 @@
 
 package io.gatling.http.client.pool;
 
+import io.gatling.http.client.impl.DefaultHttpClient;
 import io.netty.channel.Channel;
+import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
 import java.util.ArrayDeque;
@@ -30,6 +32,7 @@ public class ChannelPool {
 
   private static final AttributeKey<ChannelPoolKey> CHANNEL_POOL_KEY_ATTRIBUTE_KEY = AttributeKey.valueOf("poolKey");
   private static final AttributeKey<Long> CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY = AttributeKey.valueOf("poolTimestamp");
+  private static final AttributeKey<Integer> CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY = AttributeKey.valueOf("poolStreamCount");
 
   private final HashMap<ChannelPoolKey, ArrayDeque<Channel>> channels = new HashMap<>();
 
@@ -37,19 +40,66 @@ public class ChannelPool {
     return channels.computeIfAbsent(key, k -> new ArrayDeque<>());
   }
 
-  public Channel acquire(ChannelPoolKey key) {
-    return keyChannels(key).pollLast();
+  public boolean isHttp1(Channel channel) {
+    return channel.pipeline().get(DefaultHttpClient.APP_HTTP_HANDLER) != null;
+  }
+
+  public boolean isHttp2(Channel channel) {
+    return !isHttp1(channel);
+  }
+
+  public Channel poll(ChannelPoolKey key) {
+    ArrayDeque<Channel> channels = keyChannels(key);
+
+    while(true) {
+      Channel channel = channels.peekLast();
+
+      if (channel == null) {
+        return null;
+      }
+
+      if (!channel.isActive()) {
+        channels.removeLast();
+      } else if (isHttp1(channel)) {
+        channels.removeLast();
+        return channel;
+      } else {
+        Attribute<Integer> streamCountAttr = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY);
+        streamCountAttr.set(streamCountAttr.get() + 1);
+        return channel;
+      }
+    }
   }
 
   public void register(Channel channel, ChannelPoolKey key) {
     channel.attr(CHANNEL_POOL_KEY_ATTRIBUTE_KEY).set(key);
   }
 
-  public void release(Channel channel) {
+  private void touch(Channel channel) {
+    channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).set(System.currentTimeMillis());
+  }
+
+  public void offer(Channel channel) {
     ChannelPoolKey key = channel.attr(CHANNEL_POOL_KEY_ATTRIBUTE_KEY).get();
     assertNotNull(key, "Channel doesn't have a key");
-    channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).set(System.currentTimeMillis());
-    keyChannels(key).offerFirst(channel);
+
+    if (isHttp1(channel)) {
+      keyChannels(key).offerFirst(channel);
+      touch(channel);
+    } else {
+      Attribute<Integer> streamCountAttr = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY);
+      Integer currentStreamCount = streamCountAttr.get();
+      if (currentStreamCount == null) {
+        keyChannels(key).offerFirst(channel);
+        streamCountAttr.set(1);
+      } else {
+        streamCountAttr.set(currentStreamCount - 1);
+        if (currentStreamCount == 1) {
+          // so new value is 0
+          touch(channel);
+        }
+      }
+    }
   }
 
   public void closeIdleChannels(long idleTimeout) {
@@ -58,8 +108,12 @@ public class ChannelPool {
       ArrayDeque<Channel> deque = entry.getValue();
       for (Channel channel : deque) {
         if (now - channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).get() > idleTimeout) {
-          channel.close();
-          deque.remove(channel);
+          Integer currentStreamCount = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY).get();
+          if (currentStreamCount == null || currentStreamCount.equals(Integer.valueOf(0))) {
+            // HTTP/1.1 or unused
+            channel.close();
+            deque.remove(channel);
+          }
         }
       }
     }

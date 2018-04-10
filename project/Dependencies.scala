@@ -17,7 +17,8 @@ object Dependencies {
   private val nettyProxy                     = netty.organization                     % "netty-handler-proxy"             % netty.revision
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyNativeTransport           = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.8.Final" classifier "linux-x86_64"
+  private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
+  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.8.Final"
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.5.11"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.3.3"
@@ -101,7 +102,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpClientDependencies = Seq(netty, nettyBuffer, nettyHandler, nettyProxy, nettyDns, nettyNativeTransport, nettyBoringSsl, junit, jetty, jettyProxy, commonsIo) ++ loggingDeps
+  val httpClientDependencies = Seq(netty, nettyBuffer, nettyHandler, nettyProxy, nettyDns, nettyNativeTransport, nettyHttp2, nettyBoringSsl, junit, jetty, jettyProxy, commonsIo) ++ loggingDeps
 
   val httpDependencies = Seq(scalaXml) ++ testDeps
 

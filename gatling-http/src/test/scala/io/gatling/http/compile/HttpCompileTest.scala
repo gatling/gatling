@@ -67,6 +67,7 @@ class HttpCompileTest extends Simulation {
     .perUserDnsNameResolution
     .localAddress("192.168.1.100")
     .localAddresses(List("192.168.1.100", "192.168.1.101"))
+    .enableHttp2
 
   val testData3 = Array(Map("foo" -> "bar")).circular
 

@@ -50,6 +50,7 @@ public class RequestBuilder {
   private ProxyServer proxyServer;
   private SignatureCalculator signatureCalculator;
   private NameResolver<InetAddress> nameResolver = DEFAULT_NAME_RESOLVER;
+  private boolean http2Enabled;
 
   public RequestBuilder(HttpMethod method, Uri uri) {
     this.method = method;
@@ -69,6 +70,7 @@ public class RequestBuilder {
     proxyServer = request.getProxyServer();
     signatureCalculator = request.getSignatureCalculator();
     nameResolver = request.getNameResolver();
+    http2Enabled = request.isHttp2Enabled();
   }
 
   public Uri getUri() {
@@ -135,6 +137,15 @@ public class RequestBuilder {
     return this;
   }
 
+  public boolean isHttp2Enabled() {
+    return http2Enabled;
+  }
+
+  public RequestBuilder setHttp2Enabled(boolean http2Enabled) {
+    this.http2Enabled = http2Enabled;
+    return this;
+  }
+
   public Request build(boolean fixUrlEncoding) {
 
     Uri fullUri = UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, queryParams);
@@ -151,6 +162,7 @@ public class RequestBuilder {
       realm,
       proxyServer,
       signatureCalculator,
-      nameResolver);
+      nameResolver,
+      http2Enabled);
   }
 }

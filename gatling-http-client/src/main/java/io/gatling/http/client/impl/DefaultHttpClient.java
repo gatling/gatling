@@ -40,11 +40,14 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
+import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.*;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
@@ -63,20 +66,26 @@ import static java.util.Collections.singletonList;
 
 public class DefaultHttpClient implements HttpClient {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClient.class);
+
   static {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
   }
 
-  private static final String PROXY_HANDLER = "proxy";
-  private static final String SSL_HANDLER = "ssl";
-  private static final String HTTP_CLIENT_CODEC = "http";
-  private static final String INFLATER_HANDLER = "inflater";
-  private static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
-  private static final String DIGEST_AUTH_HANDLER = "digest";
-  private static final String APP_HTTP_HANDLER = "app-http";
-  private static final String WS_OBJECT_AGGREGATOR = "ws-aggregator";
-  private static final String WS_COMPRESSION = "ws-compression";
-  private static final String APP_WS_HANDLER = "app-ws";
+  public static final String PINNED_HANDLER = "pinned";
+  public static final String PROXY_HANDLER = "proxy";
+  public static final String SSL_HANDLER = "ssl";
+  public static final String HTTP_CLIENT_CODEC = "http";
+  public static final String HTTP2_HANDLER = "http2";
+  public static final String INFLATER_HANDLER = "inflater";
+  public static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
+  public static final String DIGEST_AUTH_HANDLER = "digest";
+  public static final String WS_OBJECT_AGGREGATOR = "ws-aggregator";
+  public static final String WS_COMPRESSION = "ws-compression";
+  public static final String APP_WS_HANDLER = "app-ws";
+  public static final String ALPN_HANDLER = "alpn";
+  public static final String APP_HTTP_HANDLER = "app-http";
+  public static final String APP_HTTP2_HANDLER = "app-http2";
 
   private HttpClientCodec newHttpClientCodec() {
     return new HttpClientCodec(
@@ -99,7 +108,8 @@ public class DefaultHttpClient implements HttpClient {
 
   private class EventLoopResources {
 
-    private final Bootstrap bootstrap;
+    private final Bootstrap http1Bootstrap;
+    private final Bootstrap http2Bootstrap;
     private final Bootstrap wsBoostrap;
     private final ChannelPool channelPool;
 
@@ -108,7 +118,7 @@ public class DefaultHttpClient implements HttpClient {
         .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
         .addLast(INFLATER_HANDLER, newHttpContentDecompressor())
         .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
-        .addLast(APP_HTTP_HANDLER, new HttpHandler(DefaultHttpClient.this, channelPool, config));
+        .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
     }
 
     private EventLoopResources(EventLoop eventLoop) {
@@ -119,7 +129,8 @@ public class DefaultHttpClient implements HttpClient {
         channelPoolIdleCleanerPeriod,
         channelPoolIdleCleanerPeriod,
         TimeUnit.MILLISECONDS);
-      bootstrap = new Bootstrap()
+
+      http1Bootstrap = new Bootstrap()
         .channelFactory(config.isUseNativeTransport() ? EpollSocketChannel::new : NioSocketChannel::new)
         .group(eventLoop)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
@@ -128,6 +139,7 @@ public class DefaultHttpClient implements HttpClient {
         .handler(new ChannelInitializer<Channel>() {
           @Override
           protected void initChannel(Channel ch) {
+            ch.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
             addDefaultHttpHandlers(ch.pipeline());
             if (config.getAdditionalChannelInitializer() != null) {
               config.getAdditionalChannelInitializer().accept(ch);
@@ -135,11 +147,26 @@ public class DefaultHttpClient implements HttpClient {
           }
         });
 
-      wsBoostrap = bootstrap.clone().handler(new ChannelInitializer<Channel>() {
+      http2Bootstrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
 
         @Override
         protected void initChannel(Channel ch) {
           ch.pipeline()
+            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
+            .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler());
+
+          if (config.getAdditionalChannelInitializer() != null) {
+            config.getAdditionalChannelInitializer().accept(ch);
+          }
+        }
+      });
+
+      wsBoostrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
+
+        @Override
+        protected void initChannel(Channel ch) {
+          ch.pipeline()
+            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
             .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(8192))
             .addLast(WS_COMPRESSION, WebSocketClientCompressionHandler.INSTANCE)
@@ -153,12 +180,12 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     private Bootstrap getBootstrapWithProxy(ProxyServer proxy) {
-
-      return bootstrap.clone().handler(new ChannelInitializer<Channel>() {
+      return http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
 
         @Override
         protected void initChannel(Channel ch) {
           ChannelPipeline pipeline = ch.pipeline()
+            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(PROXY_HANDLER, proxy.newHandler());
 
           addDefaultHttpHandlers(pipeline);
@@ -172,6 +199,7 @@ public class DefaultHttpClient implements HttpClient {
 
   private final AtomicBoolean closed = new AtomicBoolean();
   private final SslContext sslContext;
+  private final SslContext alpnSslContext;
   private final HttpClientConfig config;
   private final MultithreadEventExecutorGroup eventLoopGroup;
   private final AffinityEventLoopPicker eventLoopPicker;
@@ -201,11 +229,23 @@ public class DefaultHttpClient implements HttpClient {
         sslContextBuilder.ciphers(null, IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS);
       }
 
-      this.sslContext = sslContextBuilder
-        .sslProvider(config.isUseOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
+      sslContextBuilder.sslProvider(config.isUseOpenSsl() ? SslProvider.OPENSSL : SslProvider.JDK)
         .keyManager(config.getKeyManagerFactory())
-        .trustManager(config.getTrustManagerFactory())
+        .trustManager(config.getTrustManagerFactory());
+
+      this.sslContext = sslContextBuilder.build();
+
+      this.alpnSslContext = sslContextBuilder
+        .applicationProtocolConfig(new ApplicationProtocolConfig(
+          ApplicationProtocolConfig.Protocol.ALPN,
+          // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
+          ApplicationProtocolConfig.SelectorFailureBehavior.NO_ADVERTISE,
+          // ACCEPT is currently the only mode supported by both OpenSsl and JDK providers.
+          ApplicationProtocolConfig.SelectedListenerFailureBehavior.ACCEPT,
+          ApplicationProtocolNames.HTTP_2,
+          ApplicationProtocolNames.HTTP_1_1))
         .build();
+
     } catch (SSLException e) {
       throw new IllegalArgumentException("Impossible to create SslContext", e);
     }
@@ -280,13 +320,15 @@ public class DefaultHttpClient implements HttpClient {
     RequestTimeout requestTimeout = tx.requestTimeout;
 
     // use a fresh channel for WebSocket
-    Channel pooledChannel = request.getUri().isWebSocket() ? null : poolChannelRec(resources, tx.key);
+    Channel pooledChannel = request.getUri().isWebSocket() ? null : resources.channelPool.poll(tx.key);
+
     tx.usingPooledChannel = pooledChannel != null;
 
     if (tx.usingPooledChannel) {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
+      // FIXME if HTTP/2, try channel coalescing
       resolveRemoteAddresses(request, eventLoop, listener, requestTimeout)
         .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
           if (requestTimeout.isDone()) {
@@ -312,7 +354,19 @@ public class DefaultHttpClient implements HttpClient {
                         channel.close();
                         return;
                       }
-                      sendTxWithChannel(tx, channel);
+
+                      if (request.isHttp2Enabled()) {
+                        installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
+                          if (requestTimeout.isDone() || !f2.isSuccess()) {
+                            channel.close();
+                            return;
+                          }
+                          sendTxWithChannel(tx, channel);
+                        });
+
+                      } else {
+                        sendTxWithChannel(tx, channel);
+                      }
                     });
                   } else {
                     sendTxWithChannel(tx, channel);
@@ -323,7 +377,6 @@ public class DefaultHttpClient implements HttpClient {
         });
     }
   }
-
 
   private void sendTxWithChannel(HttpTx tx, Channel channel) {
 
@@ -337,8 +390,10 @@ public class DefaultHttpClient implements HttpClient {
     if (realm instanceof DigestRealm) {
       // FIXME is it the right place?
       // FIXME wouldn't work for WebSocket
+      // FIXME wouldn't work woth HTTP/2
       channel.pipeline().addBefore(APP_HTTP_HANDLER, DIGEST_AUTH_HANDLER, new DigestAuthHandler(tx, (DigestRealm) realm, config));
     }
+
     channel.write(tx);
   }
 
@@ -371,19 +426,7 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
-  private Channel poolChannelRec(EventLoopResources resources, ChannelPoolKey key) {
-    Channel pooledChannel = resources.channelPool.acquire(key);
-    if (pooledChannel == null) {
-      return null;
-
-    } else if (pooledChannel.isActive()) {
-      return pooledChannel;
-
-    } else {
-      return poolChannelRec(resources, key);
-    }
-  }
-
+  // FIXME if HTTP/2, piggy ride on inflight openings
   private Future<Channel> openNewChannel(Request request,
                                          EventLoop eventLoop,
                                          EventLoopResources resources,
@@ -400,7 +443,7 @@ public class DefaultHttpClient implements HttpClient {
         resources.wsBoostrap :
         uri.isSecured() && proxyServer != null ?
           resources.getBootstrapWithProxy(proxyServer) :
-          resources.bootstrap;
+          request.isHttp2Enabled() ? resources.http2Bootstrap : resources.http1Bootstrap;
 
     Promise<Channel> channelPromise = eventLoop.newPromise();
     openNewChannelRec(remoteAddresses, localAddress, 0, channelPromise, bootstrap, listener, requestTimeout);
@@ -429,7 +472,6 @@ public class DefaultHttpClient implements HttpClient {
     InetSocketAddress remoteAddress = remoteAddresses.get(i);
 
     listener.onTcpConnectAttempt(remoteAddress);
-    // FIXME For bootstrapping with a ProxyHandler, we must wait for the ProxyConnectEvent
     ChannelFuture whenChannel = bootstrap.connect(remoteAddress, localAddress);
 
     whenChannel.addListener(f -> {
@@ -459,28 +501,95 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {
-    SslHandler sslHandler = SslHandlers.newSslHandler(sslContext, channel, tx.request.getUri(), tx.request.getVirtualHost(), config);
-    tx.listener.onTlsHandshakeAttempt();
 
-    channel.pipeline().addBefore(HTTP_CLIENT_CODEC, SSL_HANDLER, sslHandler);
-    return sslHandler.handshakeFuture().addListener(f -> {
+    SslContext sslCtx = tx.request.isHttp2Enabled() ? alpnSslContext : sslContext;
 
-      SSLSession sslSession = sslHandler.engine().getHandshakeSession();
-      if (sslSession != null && sslSession.isValid() && config.isDisableSslSessionResumption()) {
-        sslSession.invalidate();
+    try {
+      SslHandler sslHandler = SslHandlers.newSslHandler(sslCtx, channel.alloc(), tx.request.getUri(), tx.request.getVirtualHost(), config);
+      tx.listener.onTlsHandshakeAttempt();
+
+      ChannelPipeline pipeline = channel.pipeline();
+      String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
+      pipeline.addAfter(after, SSL_HANDLER, sslHandler);
+
+      return sslHandler.handshakeFuture().addListener(f -> {
+
+        SSLSession sslSession = sslHandler.engine().getHandshakeSession();
+        if (sslSession != null && sslSession.isValid() && config.isDisableSslSessionResumption()) {
+          sslSession.invalidate();
+        }
+
+        if (tx.requestTimeout.isDone()) {
+          return;
+        }
+
+        if (f.isSuccess()) {
+          tx.listener.onTlsHandshakeSuccess();
+        } else {
+          tx.listener.onTlsHandshakeFailure(f.cause());
+          tx.listener.onThrowable(f.cause());
+        }
+      });
+    } catch (RuntimeException e) {
+      tx.listener.onThrowable(e);
+      return new DefaultPromise<Channel>(ImmediateEventExecutor.INSTANCE).setFailure(e);
+    }
+  }
+
+  private Future<Channel> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {
+
+    Promise<Channel> whenHttp2Handshake = channel.eventLoop().newPromise();
+
+    channel.pipeline().addAfter(SSL_HANDLER, ALPN_HANDLER, new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
+      @Override
+      protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
+
+        switch (protocol) {
+          case ApplicationProtocolNames.HTTP_2:
+            Http2Connection connection = new DefaultHttp2Connection(false);
+
+            HttpToHttp2ConnectionHandler http2Handler = new HttpToHttp2ConnectionHandlerBuilder()
+              .initialSettings(Http2Settings.defaultSettings()) // FIXME override?
+              .connection(connection)
+              .frameListener(
+                new DelegatingDecompressorFrameListener(
+                  connection,
+                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenHttp2Handshake))
+              ).build();
+
+            ctx.pipeline()
+              .addLast(HTTP2_HANDLER, http2Handler)
+              .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(connection, http2Handler, channelPool, config));
+
+            channelPool.offer(channel);
+            break;
+
+          case ApplicationProtocolNames.HTTP_1_1:
+
+            ctx.pipeline()
+              .addBefore(CHUNKED_WRITER_HANDLER, HTTP_CLIENT_CODEC, newHttpClientCodec())
+              .addBefore(CHUNKED_WRITER_HANDLER, INFLATER_HANDLER, newHttpContentDecompressor())
+              .addAfter(CHUNKED_WRITER_HANDLER, APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+            whenHttp2Handshake.setSuccess(ctx.channel());
+            break;
+
+          default:
+            IllegalStateException e = new IllegalStateException("Unknown protocol: " + protocol);
+            whenHttp2Handshake.setFailure(e);
+            ctx.close();
+            // FIXME do we really need to throw?
+            throw e;
+        }
       }
+    });
 
-      if (tx.requestTimeout.isDone()) {
-        return;
-      }
-
-      if (f.isSuccess()) {
-        tx.listener.onTlsHandshakeSuccess();
-      } else {
-        tx.listener.onTlsHandshakeFailure(f.cause());
+    whenHttp2Handshake.addListener(f -> {
+      if (!f.isSuccess()) {
         tx.listener.onThrowable(f.cause());
       }
     });
+
+    return whenHttp2Handshake;
   }
 
   @Override

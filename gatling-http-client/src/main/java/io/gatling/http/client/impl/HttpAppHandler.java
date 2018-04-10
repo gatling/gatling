@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-class HttpHandler extends ChannelDuplexHandler {
+class HttpAppHandler extends ChannelDuplexHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(HttpHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(HttpAppHandler.class);
 
   private static final IOException PREMATURE_CLOSE = new IOException("Premature close") {
     @Override
@@ -50,7 +50,7 @@ class HttpHandler extends ChannelDuplexHandler {
   private HttpTx tx;
   private boolean httpResponseReceived;
 
-  HttpHandler(DefaultHttpClient client, ChannelPool channelPool, HttpClientConfig config) {
+  HttpAppHandler(DefaultHttpClient client, ChannelPool channelPool, HttpClientConfig config) {
     this.client = client;
     this.channelPool = channelPool;
     this.config = config;
@@ -146,7 +146,7 @@ class HttpHandler extends ChannelDuplexHandler {
           if (tx.closeConnection) {
             ctx.channel().close();
           } else {
-            channelPool.release(ctx.channel());
+            channelPool.offer(ctx.channel());
           }
           setInactive();
         }

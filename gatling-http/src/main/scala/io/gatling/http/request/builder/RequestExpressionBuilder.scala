@@ -223,7 +223,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
       safely(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
-          requestBuilder = new AhcRequestBuilder(commonAttributes.method, uri).setRequestTimeout(configuration.http.ahc.requestTimeout)
+          requestBuilder = new AhcRequestBuilder(commonAttributes.method, uri)
+            .setRequestTimeout(configuration.http.ahc.requestTimeout)
+            .setHttp2Enabled(protocol.requestPart.enableHttp2)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build(!disableUrlEncoding)
       }

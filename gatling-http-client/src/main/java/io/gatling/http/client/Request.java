@@ -42,6 +42,7 @@ public class Request {
   private final ProxyServer proxyServer;
   private final SignatureCalculator signatureCalculator;
   private final NameResolver<InetAddress> nameResolver;
+  private final boolean http2Enabled;
 
   public Request(HttpMethod method,
                  Uri uri,
@@ -54,7 +55,8 @@ public class Request {
                  Realm realm,
                  ProxyServer proxyServer,
                  SignatureCalculator signatureCalculator,
-                 NameResolver<InetAddress> nameResolver) {
+                 NameResolver<InetAddress> nameResolver,
+                 boolean http2Enabled) {
     this.method = method;
     this.uri = uri;
     this.headers = headers;
@@ -67,6 +69,7 @@ public class Request {
     this.proxyServer = proxyServer;
     this.signatureCalculator = signatureCalculator;
     this.nameResolver = nameResolver;
+    this.http2Enabled = http2Enabled;
   }
 
   public HttpMethod getMethod() {
@@ -117,6 +120,10 @@ public class Request {
     return nameResolver;
   }
 
+  public boolean isHttp2Enabled() {
+    return http2Enabled;
+  }
+
   @Override
   public String toString() {
     return "Request{" +
@@ -132,6 +139,7 @@ public class Request {
       ", proxyServer=" + proxyServer +
       ", signatureCalculator=" + signatureCalculator +
       ", nameResolver=" + nameResolver +
+      ", http2Enabled=" + http2Enabled +
       '}';
   }
 }

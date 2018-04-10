@@ -19,7 +19,6 @@ package io.gatling.http.client.impl;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.ahc.uri.Uri;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.Channel;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 
@@ -28,7 +27,7 @@ import javax.net.ssl.SSLParameters;
 
 public class SslHandlers {
 
-  public static SslHandler newSslHandler(SslContext sslContext, Channel channel, Uri uri, String virtualHost, HttpClientConfig config) {
+  public static SslHandler newSslHandler(SslContext sslContext, ByteBufAllocator allocator, Uri uri, String virtualHost, HttpClientConfig config) {
     String peerHost;
     int peerPort;
 
@@ -47,7 +46,7 @@ public class SslHandlers {
       peerPort = uri.getExplicitPort();
     }
 
-    return createSslHandler(sslContext, peerHost, peerPort, channel.alloc(), config);
+    return createSslHandler(sslContext, peerHost, peerPort, allocator, config);
   }
 
   private static String domain(String hostname) {

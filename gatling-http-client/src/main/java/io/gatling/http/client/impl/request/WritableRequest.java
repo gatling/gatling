@@ -16,6 +16,7 @@
 
 package io.gatling.http.client.impl.request;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.LastHttpContent;
@@ -38,14 +39,13 @@ public class WritableRequest {
     return content;
   }
 
-  // FIXME what about write failures? would exceptionCaught be notified?
-  public void write(ChannelHandlerContext ctx) {
+  public ChannelFuture write(ChannelHandlerContext ctx) {
     if (content == null) {
-      ctx.writeAndFlush(request);
+      return ctx.writeAndFlush(request);
     } else {
       ctx.write(request);
       ctx.write(content);
-      ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+      return ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
     }
   }
 

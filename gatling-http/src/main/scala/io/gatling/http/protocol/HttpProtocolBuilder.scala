@@ -107,6 +107,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   })
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
     signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
+  def enableHttp2 = this.modify(_.protocol.requestPart.enableHttp2).setTo(true)
 
   // responsePart
   def disableFollowRedirect = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
