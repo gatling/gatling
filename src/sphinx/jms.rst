@@ -27,6 +27,7 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
 * ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
 * ``replyTimeout``: optional reply timeout, in milliseconds, default is none
+* ``listenerThreadCount``: optional listener thread count, some JMS implementation (like IBM MQ) need more than on MessageListener to achieve full readout performance
 
 JMS JNDI Connection Factory
 ===========================

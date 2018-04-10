@@ -50,7 +50,7 @@ case class JmsProtocol(
     credentials:          Option[Credentials],
     deliveryMode:         Int,
     replyTimeout:         Option[Long],
-    listenerThreadCount:  Option[Int],
+    listenerThreadCount:  Int,
     messageMatcher:       JmsMessageMatcher
 ) extends Protocol {
 
