@@ -18,21 +18,25 @@ package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
+import io.gatling.core.check.extractor.xpath._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-import jodd.lagarto.dom.NodeSelector
+import org.xml.sax.InputSource
 
-class HttpBodyCssProvider(selectors: CssSelectors) extends CheckProtocolProvider[CssCheckType, HttpCheck, Response, NodeSelector] {
+class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] {
 
-  override val specializer: Specializer[HttpCheck, Response] = CharArrayBodySpecializer
+  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
 
-  private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
+  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
-  override val preparer: Preparer[Response, NodeSelector] = response =>
+  private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
     safely(ErrorMapper) {
-      selectors.parse(response.body.chars).success
+      val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
+      root.success
     }
+
+  override val preparer: Preparer[Response, Option[Dom]] =
+    xpathPreparer(xmlParsers.parse)
 }

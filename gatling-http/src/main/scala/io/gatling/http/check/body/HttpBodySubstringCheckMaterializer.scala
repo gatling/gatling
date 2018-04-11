@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check.time
+package io.gatling.http.check.body
 
-import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.time.ResponseTimeCheckType
+import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpResponseTimeProvider extends CheckProtocolProvider[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] {
+object HttpBodySubstringCheckMaterializer extends CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] {
 
-  override val specializer: Specializer[HttpCheck, Response] = TimeSpecializer
+  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
-  override val preparer: Preparer[Response, ResponseTimings] = response => ResponseTimings(response.startTimestamp, response.endTimestamp).success
+  override val preparer: Preparer[Response, String] = ResponseBodyStringPreparer
 }

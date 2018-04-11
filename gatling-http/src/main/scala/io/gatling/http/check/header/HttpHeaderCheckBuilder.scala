@@ -30,7 +30,7 @@ class HttpHeaderCheckBuilder(headerName: Expression[String]) extends DefaultMult
   override def countExtractor: Expression[CountHttpHeaderExtractor] = headerName.map(new CountHttpHeaderExtractor(_))
 }
 
-object HttpHeaderProvider extends CheckProtocolProvider[HttpHeaderCheckType, HttpCheck, Response, Response] {
+object HttpHeaderCheckMaterializer extends CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] {
 
   override val specializer: Specializer[HttpCheck, Response] = HeaderSpecializer
 

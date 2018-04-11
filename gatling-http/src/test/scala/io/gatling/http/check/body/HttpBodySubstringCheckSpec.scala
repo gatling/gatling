@@ -33,7 +33,7 @@ import scala.collection.mutable
 class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val provider = HttpBodySubstringProvider
+  implicit val materializer = HttpBodySubstringCheckMaterializer
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", 0)

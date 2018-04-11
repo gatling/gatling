@@ -16,14 +16,14 @@
 
 package io.gatling.http.check.w2
 
-import io.gatling.commons.validation._
-import io.gatling.core.check._
-import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
+import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
+import io.gatling.core.json.JsonParsers
 import io.gatling.http.action.ws2.WsTextCheck
 
-object WsRegexProvider extends CheckProtocolProvider[RegexCheckType, WsTextCheck, String, CharSequence] {
+class WsJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, WsTextCheck, String, Any] {
 
   override val specializer: Specializer[WsTextCheck, String] = WsTextCheck(_)
 
-  override val preparer: Preparer[String, CharSequence] = _.success
+  override val preparer: Preparer[String, Any] = jsonParsers.safeParse
 }

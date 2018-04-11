@@ -35,7 +35,7 @@ import org.scalatest.matchers.{ MatchResult, Matcher }
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val provider = new HttpBodyJsonPathProvider(JsonParsers())
+  implicit val materializer = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", 0)

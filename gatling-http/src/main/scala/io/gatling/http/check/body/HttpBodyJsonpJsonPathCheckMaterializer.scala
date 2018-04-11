@@ -24,7 +24,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpBodyJsonpJsonPathProvider {
+object HttpBodyJsonpJsonPathCheckMaterializer {
 
   private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
@@ -37,9 +37,9 @@ object HttpBodyJsonpJsonPathProvider {
   def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] = response => parseJsonpString(response.body.string, jsonParsers)
 }
 
-class HttpBodyJsonpJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider[JsonpJsonPathCheckType, HttpCheck, Response, Any] {
+class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, Any] {
 
   override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
-  override val preparer: Preparer[Response, Any] = HttpBodyJsonpJsonPathProvider.jsonpPreparer(jsonParsers)
+  override val preparer: Preparer[Response, Any] = HttpBodyJsonpJsonPathCheckMaterializer.jsonpPreparer(jsonParsers)
 }

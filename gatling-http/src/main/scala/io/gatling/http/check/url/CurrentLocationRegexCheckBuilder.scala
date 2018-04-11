@@ -52,9 +52,10 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
   override def countExtractor = pattern.map(newRegexCountExtractor(_, patterns))
 }
 
-object CurrentLocationRegexProvider extends CheckProtocolProvider[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] {
+object CurrentLocationRegexCheckMaterializer
+  extends CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] {
 
-  override val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
+  override protected val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
 
-  override val preparer: Preparer[Response, String] = UrlStringPreparer
+  override protected val preparer: Preparer[Response, String] = UrlStringPreparer
 }

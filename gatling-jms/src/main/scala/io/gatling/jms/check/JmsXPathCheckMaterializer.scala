@@ -26,7 +26,7 @@ import io.gatling.jms.JmsCheck
 
 import org.xml.sax.InputSource
 
-class JmsXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPathCheckType, JmsCheck, Message, Option[Dom]] {
+class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] {
 
   override val specializer: Specializer[JmsCheck, Message] = identity
 

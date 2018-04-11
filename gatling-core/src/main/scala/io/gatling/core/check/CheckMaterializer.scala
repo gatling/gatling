@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check.body
+package io.gatling.core.check
 
-import io.gatling.core.check._
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
-import io.gatling.http.response.Response
+import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.session.Expression
 
-object HttpBodyBytesProvider extends CheckProtocolProvider[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] {
+trait CheckMaterializer[A, C <: Check[R], R, P] {
 
-  override val specializer: Specializer[HttpCheck, Response] = BytesBodySpecializer
+  protected def preparer: Preparer[R, P]
 
-  override val preparer: Preparer[Response, Array[Byte]] = ResponseBodyBytesPreparer
+  protected def specializer: Specializer[C, R]
+
+  def materialize[X](
+    extractor: Expression[Extractor[P, X]],
+    validator: Expression[Validator[X]],
+    saveAs:    Option[String]
+  ): C =
+    specializer(CheckBase(preparer, extractor, validator, saveAs))
 }

@@ -22,7 +22,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpBodyStringProvider extends CheckProtocolProvider[BodyStringCheckType, HttpCheck, Response, String] {
+object HttpBodyStringCheckMaterializer extends CheckMaterializer[BodyStringCheckType, HttpCheck, Response, String] {
 
   override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 

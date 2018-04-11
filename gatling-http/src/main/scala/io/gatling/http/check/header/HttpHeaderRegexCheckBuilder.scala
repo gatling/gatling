@@ -63,7 +63,7 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
     withHeaderAndPattern(newHeaderRegexCountExtractor(_, _, patterns))
 }
 
-object HttpHeaderRegexProvider extends CheckProtocolProvider[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {
+object HttpHeaderRegexCheckMaterializer extends CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {
 
   override val specializer: Specializer[HttpCheck, Response] = HeaderSpecializer
 

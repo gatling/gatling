@@ -16,15 +16,24 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.core.check.extractor.regex.RegexCheckType
-import io.gatling.core.check.{ CheckProtocolProvider, Preparer, Specializer }
+import io.gatling.commons.validation._
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpBodyRegexProvider extends CheckProtocolProvider[RegexCheckType, HttpCheck, Response, CharSequence] {
+import jodd.lagarto.dom.NodeSelector
 
-  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
+class HttpBodyCssCheckMaterializer(selectors: CssSelectors)
+  extends CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] {
 
-  override val preparer: Preparer[Response, CharSequence] = ResponseBodyStringPreparer
+  override val specializer: Specializer[HttpCheck, Response] = CharArrayBodySpecializer
+
+  private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
+
+  override val preparer: Preparer[Response, NodeSelector] = response =>
+    safely(ErrorMapper) {
+      selectors.parse(response.body.chars).success
+    }
 }

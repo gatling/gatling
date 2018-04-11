@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check.checksum
+package io.gatling.http.check.time
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.checksum.{ Md5CheckType, Sha1CheckType }
+import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.time.ResponseTimeCheckType
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpChecksumProvider {
+object HttpResponseTimeCheckMaterializer extends CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] {
 
-  val Md5 = new HttpChecksumProvider[Md5CheckType]("MD5")
-  val Sha1 = new HttpChecksumProvider[Sha1CheckType]("SHA1")
-}
+  override val specializer: Specializer[HttpCheck, Response] = TimeSpecializer
 
-class HttpChecksumProvider[T](algorithm: String) extends CheckProtocolProvider[T, HttpCheck, Response, String] {
-
-  override val specializer: Specializer[HttpCheck, Response] = new ChecksumCheck(algorithm, _)
-
-  override val preparer: Preparer[Response, String] = _.checksum(algorithm) match {
-    case Some(chk) => chk.success
-    case None      => s"$algorithm checksum wasn't computed".failure
-  }
+  override val preparer: Preparer[Response, ResponseTimings] = response => ResponseTimings(response.startTimestamp, response.endTimestamp).success
 }

@@ -35,7 +35,7 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   object RegexSupport extends HttpCheckSupport
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val provider = HttpBodyRegexProvider
+  implicit val materializer = HttpBodyRegexCheckMaterializer
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", 0)

@@ -22,16 +22,16 @@ import io.gatling.http.action.ws2.WsTextCheck
 
 trait WsCheckSupport {
 
-  implicit def checkBuilder2WsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, WsTextCheck, String, P]): WsTextCheck =
-    checkBuilder.build(provider)
+  implicit def checkBuilder2WsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, WsTextCheck, String, P]): WsTextCheck =
+    checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2WsCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, WsTextCheck, String, P]): WsTextCheck =
+  implicit def validatorCheckBuilder2WsCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, WsTextCheck, String, P]): WsTextCheck =
     validatorCheckBuilder.exists
 
-  implicit def findCheckBuilder2WsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, WsTextCheck, String, P]): WsTextCheck =
+  implicit def findCheckBuilder2WsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, WsTextCheck, String, P]): WsTextCheck =
     findCheckBuilder.find.exists
 
-  implicit def wsJsonPathProvider(implicit jsonParsers: JsonParsers) = new WsJsonPathProvider(jsonParsers)
+  implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers) = new WsJsonPathCheckMaterializer(jsonParsers)
 
-  implicit val wsRegexProvider = WsRegexProvider
+  implicit val wsRegexCheckMaterializer = WsRegexCheckMaterializer
 }

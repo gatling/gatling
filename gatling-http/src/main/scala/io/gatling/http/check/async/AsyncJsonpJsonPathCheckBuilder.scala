@@ -20,7 +20,7 @@ import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.{ OldDefaultMultipleFindCheckBuilder, Preparer, Specializer }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
-import io.gatling.http.check.body.HttpBodyJsonpJsonPathProvider
+import io.gatling.http.check.body.HttpBodyJsonpJsonPathCheckMaterializer
 
 trait AsyncJsonpJsonPathOfType {
   self: AsyncJsonpJsonPathCheckBuilder[String] =>
@@ -31,7 +31,7 @@ trait AsyncJsonpJsonPathOfType {
 
 object AsyncJsonpJsonPathCheckBuilder {
 
-  def asyncJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathProvider.parseJsonpString(_, jsonParsers)
+  def asyncJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathCheckMaterializer.parseJsonpString(_, jsonParsers)
 
   def jsonpJsonPath(path: Expression[String], specializer: Specializer[AsyncCheck, String])(implicit extractorFactory: OldJsonPathExtractorFactory, jsonParsers: JsonParsers) =
     new AsyncJsonpJsonPathCheckBuilder[String](path, specializer, jsonParsers) with AsyncJsonpJsonPathOfType

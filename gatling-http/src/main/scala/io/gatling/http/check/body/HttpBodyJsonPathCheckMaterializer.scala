@@ -16,13 +16,13 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.core.check.{ CheckProtocolProvider, Preparer, Specializer }
+import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response._
 
-object HttpBodyJsonPathProvider {
+object HttpBodyJsonPathCheckMaterializer {
 
   private val CharsParsingThreshold = 200 * 1000
 
@@ -48,9 +48,9 @@ object HttpBodyJsonPathProvider {
         jsonParsers.safeParse(response.body.string)
 }
 
-class HttpBodyJsonPathProvider(jsonParsers: JsonParsers) extends CheckProtocolProvider[JsonPathCheckType, HttpCheck, Response, Any] {
+class HttpBodyJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, HttpCheck, Response, Any] {
 
-  import HttpBodyJsonPathProvider._
+  import HttpBodyJsonPathCheckMaterializer._
 
   override val specializer: Specializer[HttpCheck, Response] = {
     val responseBodyUsageStrategy =

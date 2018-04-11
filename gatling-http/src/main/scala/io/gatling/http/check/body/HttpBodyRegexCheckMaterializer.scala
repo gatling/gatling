@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.core.check
+package io.gatling.http.check.body
 
-trait CheckProtocolProvider[A, C <: Check[R], R, P] {
+import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.response.Response
 
-  def specializer: Specializer[C, R]
+object HttpBodyRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence] {
 
-  def preparer: Preparer[R, P]
+  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
+
+  override val preparer: Preparer[Response, CharSequence] = ResponseBodyStringPreparer
 }

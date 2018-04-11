@@ -20,7 +20,7 @@ import javax.jms.Message
 
 import scala.annotation.implicitNotFound
 
-import io.gatling.core.check.{ CheckBuilder, CheckProtocolProvider, FindCheckBuilder, ValidatorCheckBuilder }
+import io.gatling.core.check.{ CheckBuilder, CheckMaterializer, FindCheckBuilder, ValidatorCheckBuilder }
 import io.gatling.core.check.extractor.xpath.XmlParsers
 import io.gatling.jms.JmsCheck
 
@@ -28,17 +28,17 @@ trait JmsCheckSupport {
 
   def simpleCheck = JmsSimpleCheck
 
-  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid JMS one.")
-  implicit def checkBuilder2JmsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
-    checkBuilder.build(provider)
+  @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
+  implicit def checkBuilder2JmsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
+    checkBuilder.build(materializer)
 
-  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid JMS one.")
-  implicit def validatorCheckBuilder2JmsCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
+  @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
+  implicit def validatorCheckBuilder2JmsCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
     validatorCheckBuilder.exists
 
-  @implicitNotFound("Could not find a CheckProtocolProvider. This check might not be a valid JMS one.")
-  implicit def findCheckBuilder2JmsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit provider: CheckProtocolProvider[A, JmsCheck, Message, P]): JmsCheck =
+  @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
+  implicit def findCheckBuilder2JmsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
     findCheckBuilder.find.exists
 
-  implicit def jmsXPathProvider(implicit xmlParsers: XmlParsers) = new JmsXPathProvider(xmlParsers)
+  implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers) = new JmsXPathCheckMaterializer(xmlParsers)
 }

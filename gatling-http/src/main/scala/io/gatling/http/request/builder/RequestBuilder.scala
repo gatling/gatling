@@ -22,7 +22,7 @@ import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.status.HttpStatusProvider
+import io.gatling.http.check.status.HttpStatusCheckMaterializer
 import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.ahc.oauth.{ ConsumerKey, RequestToken }
 import io.gatling.http.client.ahc.uri.Uri
@@ -56,7 +56,7 @@ object RequestBuilder {
    */
   private val OkCodesExpression = OkCodes.expressionSuccess
 
-  val DefaultHttpCheck: HttpCheck = Status.find.in(OkCodesExpression).build(HttpStatusProvider)
+  val DefaultHttpCheck: HttpCheck = Status.find.in(OkCodesExpression).build(HttpStatusCheckMaterializer)
 
   private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
   private val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess

@@ -16,27 +16,15 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath._
+import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-import org.xml.sax.InputSource
+object HttpBodyBytesCheckMaterializer extends CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] {
 
-class HttpBodyXPathProvider(xmlParsers: XmlParsers) extends CheckProtocolProvider[XPathCheckType, HttpCheck, Response, Option[Dom]] {
+  override protected val specializer: Specializer[HttpCheck, Response] = BytesBodySpecializer
 
-  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
-
-  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
-
-  private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
-    safely(ErrorMapper) {
-      val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
-      root.success
-    }
-
-  override val preparer: Preparer[Response, Option[Dom]] =
-    xpathPreparer(xmlParsers.parse)
+  override protected val preparer: Preparer[Response, Array[Byte]] = ResponseBodyBytesPreparer
 }
