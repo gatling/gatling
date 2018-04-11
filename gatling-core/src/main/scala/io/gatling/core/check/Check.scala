@@ -69,6 +69,7 @@ case class CheckBase[R, P, X](
     preparer:            Preparer[R, P],
     extractorExpression: Expression[Extractor[P, X]],
     validatorExpression: Expression[Validator[X]],
+    customName:          Option[String],
     saveAs:              Option[String]
 ) extends Check[R] {
 
@@ -78,12 +79,15 @@ case class CheckBase[R, P, X](
       .getOrElseUpdate(preparer, preparer(response))
       .asInstanceOf[Validation[P]]
 
+    def unbuiltName: String = customName.getOrElse("Check")
+    def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
+
     for {
-      extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
-      validator <- validatorExpression(session).mapError(message => s"Check validator resolution crashed: $message")
-      prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name} failed, could not prepare: $message")
-      actual <- extractor(prepared).mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name} failed, could not extract: $message")
-      matched <- validator(actual).mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name}, $message")
+      extractor <- extractorExpression(session).mapError(message => s"$unbuiltName extractor resolution crashed: $message")
+      validator <- validatorExpression(session).mapError(message => s"$unbuiltName validator resolution crashed: $message")
+      prepared <- memoizedPrepared.mapError(message => s"${builtName(extractor, validator)} preparation crashed: $message")
+      actual <- extractor(prepared).mapError(message => s"${builtName(extractor, validator)} extraction crashed: $message")
+      matched <- validator(actual).mapError(message => s"${builtName(extractor, validator)}, $message")
     } yield CheckResult(matched, saveAs)
   }
 }

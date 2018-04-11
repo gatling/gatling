@@ -185,13 +185,15 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
 }
 
 case class CheckBuilder[T, P, X](
-    extractor: Expression[Extractor[P, X]],
-    validator: Expression[Validator[X]],
-    saveAs:    Option[String]              = None
+    extractor:  Expression[Extractor[P, X]],
+    validator:  Expression[Validator[X]],
+    customName: Option[String]              = None,
+    saveAs:     Option[String]              = None
 ) {
+  def name(n: String): CheckBuilder[T, P, X] = copy(customName = Some(n))
 
   def build[C <: Check[R], R](materializer: CheckMaterializer[T, C, R, P]): C =
-    materializer.materialize(extractor, validator, saveAs)
+    materializer.materialize(this)
 }
 
 trait SaveAs[C, P, X] { this: CheckBuilder[C, P, X] =>

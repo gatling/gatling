@@ -148,7 +148,7 @@ case class OldCheckBuilder[C <: Check[R], R, P, X](
 ) {
 
   def build: C = {
-    val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, saveAs)
+    val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, None, saveAs)
     validatorCheckBuilder.specializer(base)
   }
 }

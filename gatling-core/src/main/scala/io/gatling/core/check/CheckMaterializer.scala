@@ -16,19 +16,12 @@
 
 package io.gatling.core.check
 
-import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.Expression
-
-trait CheckMaterializer[A, C <: Check[R], R, P] {
+trait CheckMaterializer[T, C <: Check[R], R, P] {
 
   protected def preparer: Preparer[R, P]
 
   protected def specializer: Specializer[C, R]
 
-  def materialize[X](
-    extractor: Expression[Extractor[P, X]],
-    validator: Expression[Validator[X]],
-    saveAs:    Option[String]
-  ): C =
-    specializer(CheckBase(preparer, extractor, validator, saveAs))
+  def materialize[X](builder: CheckBuilder[T, P, X]): C =
+    specializer(CheckBase(preparer, builder.extractor, builder.validator, builder.customName, builder.saveAs))
 }

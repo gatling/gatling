@@ -438,6 +438,15 @@ a Success containing the value to be passed to the next step, a Failure with the
 
 .. note:: In the case where no verifying step is defined, a ``exists`` is added implicitly.
 
+.. _http-check-naming:
+
+Naming
+======
+
+``name(customName)``
+
+Naming is an **optional** step for customizing the name of the check in the error message in case of a check failure.
+
 .. _http-check-saving:
 
 Saving
