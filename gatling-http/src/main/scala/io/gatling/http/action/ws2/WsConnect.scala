@@ -33,7 +33,7 @@ class WsConnect(
     override val requestName: Expression[String],
     wsName:                   String,
     request:                  Expression[Request],
-    connectCheckSequences:    List[WsCheckSequence],
+    connectCheckSequences:    List[WsFrameCheckSequence[WsFrameCheck]],
     onConnected:              Option[Action],
     httpComponents:           HttpComponents,
     system:                   ActorSystem,

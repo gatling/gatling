@@ -18,9 +18,9 @@ package io.gatling.http.action.ws2
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.ws2.fsm.{ TextMessageReceived, WebSocketClosed, WebSocketCrashed, WebSocketOpened }
+import io.gatling.http.action.ws2.fsm._
 import io.gatling.http.client.WebSocketListener
-import io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder
+import io.gatling.netty.util.ahc.{ ByteBufUtils, Utf8ByteBufCharsetDecoder }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging
@@ -65,11 +65,11 @@ class WsListener(wsActor: ActorRef, statsEngine: StatsEngine) extends WebSocketL
   override def onCloseFrame(frame: CloseWebSocketFrame): Unit =
     wsActor ! WebSocketClosed(frame.statusCode, frame.reasonText, nowMillis)
 
-  override def onTextFrame(textWebSocketFrame: TextWebSocketFrame): Unit =
-    wsActor ! TextMessageReceived(Utf8ByteBufCharsetDecoder.decodeUtf8(textWebSocketFrame.content()), nowMillis)
+  override def onTextFrame(frame: TextWebSocketFrame): Unit =
+    wsActor ! TextFrameReceived(Utf8ByteBufCharsetDecoder.decodeUtf8(frame.content()), nowMillis)
 
-  override def onBinaryFrame(frame: BinaryWebSocketFrame): Unit = // TODO
-    ???
+  override def onBinaryFrame(frame: BinaryWebSocketFrame): Unit =
+    wsActor ! BinaryFrameReceived(ByteBufUtils.byteBuf2Bytes(frame.content()), nowMillis)
 
   override def onPongFrame(pongWebSocketFrame: PongWebSocketFrame): Unit =
     logger.debug("Received PONG frame")

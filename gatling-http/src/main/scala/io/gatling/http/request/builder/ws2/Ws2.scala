@@ -28,19 +28,21 @@ object Ws2 {
 
   def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws2 = new Ws2(requestName, wsName)
 
-  def checkTextMessage(name: String) = WsCheck(name, Nil, Nil)
+  def checkTextMessage(name: String) = WsTextFrameCheck(name, Nil, Nil)
+
+  def checkBinaryMessage(name: String) = WsBinaryFrameCheck(name, Nil, Nil)
 }
 
 /**
  * @param requestName The name of this request
- * @param wsName The name of the session attribute used to store the websocket
+ * @param wsName The name of the session attribute used to store the WebSocket
  */
 class Ws2(requestName: Expression[String], wsName: String) {
 
   def wsName(wsName: String) = new Ws2(requestName, wsName)
 
   /**
-   * Opens a web socket and stores it in the session.
+   * Opens a WebSocket and stores it in the session.
    *
    * @param url The socket URL
    *
@@ -48,14 +50,21 @@ class Ws2(requestName: Expression[String], wsName: String) {
   def connect(url: Expression[String]) = WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName)
 
   /**
-   * Sends a text message on the given websocket.
+   * Sends a text frame on the given WebSocket.
    *
    * @param text The message
    */
-  def sendText(text: Expression[String]) = WsSendBuilder(requestName, wsName, text, Nil)
+  def sendText(text: Expression[String]) = WsSendTextFrameBuilder(requestName, wsName, text, Nil)
 
   /**
-   * Closes a websocket.
+   * Sends a binary frame on the given WebSocket.
+   *
+   * @param bytes The message
+   */
+  def sendBytes(bytes: Expression[Array[Byte]]) = WsSendBinaryFrameBuilder(requestName, wsName, bytes, Nil)
+
+  /**
+   * Closes a WebSocket.
    */
   def close = new WsCloseBuilder(requestName, wsName)
 }

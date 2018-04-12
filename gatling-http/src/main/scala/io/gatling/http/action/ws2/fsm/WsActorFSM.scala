@@ -19,7 +19,7 @@ package io.gatling.http.action.ws2.fsm
 import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
-import io.gatling.http.action.ws2.{ WsCheck, WsCheckSequence }
+import io.gatling.http.action.ws2.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.WebSocket
 
 import akka.actor.FSM
@@ -34,16 +34,16 @@ case object Crashed extends WsActorState
 
 sealed trait WsActorData
 case object InitData extends WsActorData
-case class ConnectingData(session: Session, next: Either[Action, SendTextMessage], timestamp: Long, remainingTries: Int) extends WsActorData
+case class ConnectingData(session: Session, next: Either[Action, SendFrame], timestamp: Long, remainingTries: Int) extends WsActorData
 case class PerformingCheckData(
     webSocket:               WebSocket,
-    currentCheck:            WsCheck,
-    remainingChecks:         List[WsCheck],
+    currentCheck:            WsFrameCheck,
+    remainingChecks:         List[WsFrameCheck],
     checkSequenceStart:      Long,
     checkSequenceTimeoutId:  Long,
-    remainingCheckSequences: List[WsCheckSequence],
+    remainingCheckSequences: List[WsFrameCheckSequence[WsFrameCheck]],
     session:                 Session,
-    next:                    Either[Action, SendTextMessage]
+    next:                    Either[Action, SendFrame]
 ) extends WsActorData
 case class IdleData(session: Session, webSocket: WebSocket) extends WsActorData
 case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends WsActorData

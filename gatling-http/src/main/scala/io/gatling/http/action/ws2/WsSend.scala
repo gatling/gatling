@@ -22,25 +22,46 @@ import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.async.ws.WsAction
-import io.gatling.http.action.ws2.fsm.SendTextMessage
+import io.gatling.http.action.ws2.fsm.{ SendBinaryFrame, SendTextFrame }
 
-class WsSend(
+class WsSendTextFrame(
     override val requestName: Expression[String],
     wsName:                   String,
     message:                  Expression[String],
-    checkSequences:           List[WsCheckSequence],
+    checkSequences:           List[WsFrameCheckSequence[WsTextFrameCheck]],
     val statsEngine:          StatsEngine,
     val next:                 Action
 ) extends RequestAction with WsAction with ExitableAction with NameGen {
 
-  override val name = genName("wsSend")
+  override val name: String = genName("wsSendTextFrame")
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
       wsActor <- fetchActor(wsName, session)
       message <- message(session)
     } yield {
-      logger.info(s"Sending message $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      wsActor ! SendTextMessage(requestName, message, checkSequences, session, next)
+      logger.info(s"Sending text frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      wsActor ! SendTextFrame(requestName, message, checkSequences, session, next)
+    }
+}
+
+class WsSendBinaryFrame(
+    override val requestName: Expression[String],
+    wsName:                   String,
+    message:                  Expression[Array[Byte]],
+    checkSequences:           List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+    val statsEngine:          StatsEngine,
+    val next:                 Action
+) extends RequestAction with WsAction with ExitableAction with NameGen {
+
+  override val name: String = genName("wsSendBinaryFrame")
+
+  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
+    for {
+      wsActor <- fetchActor(wsName, session)
+      message <- message(session)
+    } yield {
+      logger.info(s"Sending binary frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      wsActor ! SendBinaryFrame(requestName, message, checkSequences, session, next)
     }
 }

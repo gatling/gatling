@@ -16,17 +16,18 @@
 
 package io.gatling.http.action.ws2
 
-import scala.concurrent.duration.FiniteDuration
+import scala.collection.mutable
 
-case class WsCheckSequence(timeout: FiniteDuration, checks: List[WsCheck]) {
-  require(checks.nonEmpty, "Can't pass empty check sequence")
-  val head = checks.head
-  val tail = checks.tail
+import io.gatling.commons.validation.Validation
+import io.gatling.core.check.{ Check, CheckResult }
+import io.gatling.core.session.Session
+
+sealed trait WsCheck
+case class WsTextCheck(wrapped: Check[String]) extends WsCheck with Check[String] {
+  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+    wrapped.check(message, session)
 }
-
-case class WsCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck]) {
-
-  def matching(newMatchConditions: WsTextCheck*): WsCheck = copy(matchConditions = matchConditions ::: newMatchConditions.toList)
-
-  def check(newChecks: WsTextCheck*): WsCheck = copy(checks = checks ::: newChecks.toList)
+case class WsBinaryCheck(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
+  override def check(message: Array[Byte], session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+    wrapped.check(message, session)
 }

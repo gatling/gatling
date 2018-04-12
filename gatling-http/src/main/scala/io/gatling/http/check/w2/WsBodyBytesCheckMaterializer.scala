@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.http.action.ws2
+package io.gatling.http.check.w2
 
-import scala.collection.mutable
+import io.gatling.commons.validation._
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
+import io.gatling.http.action.ws2.WsBinaryCheck
 
-import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ Check, CheckResult }
-import io.gatling.core.session.Session
+object WsBodyBytesCheckMaterializer extends CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] {
 
-sealed trait WsMessageCheck
-case class WsTextCheck(wrapped: Check[String]) extends WsMessageCheck with Check[String] {
-  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
-    wrapped.check(message, session)
+  override val specializer: Specializer[WsBinaryCheck, Array[Byte]] = WsBinaryCheck(_)
+
+  override val preparer: Preparer[Array[Byte], Array[Byte]] = _.success
 }

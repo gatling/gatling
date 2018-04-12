@@ -21,11 +21,11 @@ import io.gatling.commons.stats.{ KO, OK }
 trait WhenClosing { this: WsActor =>
 
   when(Closing) {
-    case Event(TextMessageReceived(message, timestamp), ClosingData(_, session, _, _)) =>
+    case Event(_: FrameReceived, ClosingData(_, session, _, _)) =>
       logUnmatchedServerMessage(session)
       stay()
 
-    case Event(WebSocketClosed(code, reason, timestamp), ClosingData(actionName, session, next, closeStart)) =>
+    case Event(WebSocketClosed(_, _, timestamp), ClosingData(actionName, session, next, closeStart)) =>
       // server has acked closing
       logger.info("Server has acked closing")
       val newSession = logResponse(session, actionName, closeStart, timestamp, OK, None, None)

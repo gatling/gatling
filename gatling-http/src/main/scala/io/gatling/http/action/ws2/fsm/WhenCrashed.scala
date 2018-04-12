@@ -33,7 +33,7 @@ trait WhenCrashed { this: WsActor =>
       next ! newSession.remove(wsName)
       stop()
 
-    case Event(message: SendTextMessage, CrashedData(errorMessage)) =>
+    case Event(message: SendFrame, CrashedData(errorMessage)) =>
       // FIXME sent message so be stashed until reconnect, instead of failed
       val loggedMessage = errorMessage match {
         case Some(mess) => s"Client issued message but WebSocket was already crashed: $mess"

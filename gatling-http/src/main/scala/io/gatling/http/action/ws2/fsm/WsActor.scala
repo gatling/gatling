@@ -33,8 +33,23 @@ import akka.actor.Props
 
 case class PerformInitialConnect(session: Session, initialConnectNext: Action)
 case class WebSocketOpened(webSocket: WebSocket, timestamp: Long)
-case class SendTextMessage(actionName: String, message: String, checkSequences: List[WsCheckSequence], session: Session, next: Action)
-case class TextMessageReceived(message: String, timestamp: Long)
+sealed trait SendFrame {
+  def actionName: String
+  def session: Session
+  def next: Action
+  def copyWithSession(newSession: Session): SendFrame
+}
+case class SendTextFrame(actionName: String, message: String, checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]], session: Session, next: Action) extends SendFrame {
+  override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
+}
+case class SendBinaryFrame(actionName: String, message: Array[Byte], checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]], session: Session, next: Action) extends SendFrame {
+  override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
+}
+
+sealed trait FrameReceived
+
+case class TextFrameReceived(message: String, timestamp: Long) extends FrameReceived
+case class BinaryFrameReceived(message: Array[Byte], timestamp: Long) extends FrameReceived
 case class WebSocketClosed(code: Int, reason: String, timestamp: Long)
 case class WebSocketCrashed(t: Throwable, timestamp: Long)
 case class ClientCloseRequest(actionName: String, session: Session, next: Action)
@@ -48,7 +63,7 @@ object WsActor {
     wsName:               String,
     connectRequest:       Request,
     connectActionName:    String,
-    connectCheckSequence: List[WsCheckSequence],
+    connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     onConnected:          Option[Action],
     statsEngine:          StatsEngine,
     httpEngine:           HttpEngine,
@@ -72,7 +87,7 @@ class WsActor(
     val wsName:               String,
     val connectRequest:       Request,
     val connectActionName:    String,
-    val connectCheckSequence: List[WsCheckSequence],
+    val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     val onConnected:          Option[Action],
     val statsEngine:          StatsEngine,
     val httpEngine:           HttpEngine,

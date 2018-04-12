@@ -74,6 +74,12 @@ class Ws2CompileTest extends Simulation {
         // match first message
         ws2.checkTextMessage("checkName")
       ))
+    .exec(ws2("BinaryMessage")
+      .sendBytes("hello".getBytes())
+      .wait(30 seconds)(
+        // match first message
+        ws2.checkBinaryMessage("checkName").check(bodyBytes.transform(_.length).saveAs("bytesLength"))
+      ))
     .exec(ws2("Close WS").close)
     .exec(ws2("Open Named", "foo").connect("/bar"))
 

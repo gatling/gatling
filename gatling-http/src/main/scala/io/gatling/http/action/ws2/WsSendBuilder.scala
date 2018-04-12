@@ -23,18 +23,41 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 
-case class WsSendBuilder(
+import com.softwaremill.quicklens._
+
+case class WsSendTextFrameBuilder(
     requestName:    Expression[String],
     wsName:         String,
     message:        Expression[String],
-    checkSequences: List[WsCheckSequence]
+    checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: WsCheck*): WsSendBuilder =
-    copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
+  def wait(timeout: FiniteDuration)(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
+    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new WsSend(
+    new WsSendTextFrame(
+      requestName,
+      wsName,
+      message,
+      checkSequences,
+      ctx.coreComponents.statsEngine,
+      next = next
+    )
+}
+
+case class WsSendBinaryFrameBuilder(
+    requestName:    Expression[String],
+    wsName:         String,
+    message:        Expression[Array[Byte]],
+    checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]]
+) extends HttpActionBuilder {
+
+  def wait(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
+    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
+
+  override def build(ctx: ScenarioContext, next: Action): Action =
+    new WsSendBinaryFrame(
       requestName,
       wsName,
       message,

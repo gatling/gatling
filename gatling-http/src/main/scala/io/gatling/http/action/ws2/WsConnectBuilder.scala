@@ -23,14 +23,16 @@ import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.request.builder.ws2.WsConnectRequestBuilder
 
+import com.softwaremill.quicklens._
+
 case class WsConnectBuilder(
     requestBuilder:   WsConnectRequestBuilder,
-    checkSequences:   List[WsCheckSequence],
+    checkSequences:   List[WsFrameCheckSequence[WsFrameCheck]],
     onConnectedChain: Option[ChainBuilder]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: WsCheck*): WsConnectBuilder =
-    copy(checkSequences = checkSequences ::: List(WsCheckSequence(timeout, checks.toList)))
+  def wait(timeout: FiniteDuration)(checks: WsFrameCheck*): WsConnectBuilder =
+    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
 
   def onConnected(chain: ChainBuilder): WsConnectBuilder = copy(onConnectedChain = Some(chain))
 

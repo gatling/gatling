@@ -22,6 +22,7 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws2.{ WsBinaryFrameCheck, WsTextFrameCheck }
 
 trait WhenPerformingCheck { this: WsActor =>
 
@@ -38,11 +39,11 @@ trait WhenPerformingCheck { this: WsActor =>
           case Left(n) =>
             logger.debug("Check timeout, failing it and performing next action")
             n
-          case Right(sendTextMessage) =>
+          case Right(sendFrame) =>
             // logging crash
             logger.debug("Check timeout while trying to reconnect, failing pending send message and performing next action")
-            statsEngine.logCrash(newSession, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
-            sendTextMessage.next
+            statsEngine.logCrash(newSession, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
+            sendFrame.next
         }
         nextAction ! newSession
         goto(Idle) using IdleData(newSession, webSocket)
@@ -52,88 +53,28 @@ trait WhenPerformingCheck { this: WsActor =>
         stay()
       }
 
-    case Event(TextMessageReceived(message, timestamp), data @ PerformingCheckData(webSocket, currentCheck, remainingChecks, checkSequenceStart, _, remainingCheckSequences, session, next)) =>
+    case Event(TextFrameReceived(message, timestamp), data: PerformingCheckData) =>
 
-      // cache is used for both matching and checking
-      implicit val cache = collection.mutable.HashMap.empty[Any, Any]
+      data.currentCheck match {
+        case WsTextFrameCheck(_, matchConditions, checks) => tryApplyingChecks(message, timestamp, matchConditions, checks, data)
 
-      // if matchConditions isEmpty, all messages are considered to be matching
-      val messageMatches = currentCheck.matchConditions.forall(_.check(message, session).isInstanceOf[Success[_]])
+        case _ =>
+          logger.debug(s"Received non-matching text frame $message")
+          // server unmatched message, just log
+          logUnmatchedServerMessage(data.session)
+          stay()
+      }
 
-      if (messageMatches) {
-        logger.debug(s"Received matching message $message")
-        cancelTimeout() // note, we might already have a Timeout in the mailbox, hence the currentTimeoutId check
-        // matching message, apply checks
-        val (checkSaveUpdate, checkError) = Check.check(message, session, currentCheck.checks)
+    case Event(BinaryFrameReceived(message, timestamp), data: PerformingCheckData) =>
 
-        val sessionWithCheckUpdate = checkSaveUpdate(session)
+      data.currentCheck match {
+        case WsBinaryFrameCheck(_, matchConditions, checks) => tryApplyingChecks(message, timestamp, matchConditions, checks, data)
 
-        checkError match {
-          case Some(Failure(errorMessage)) =>
-            logger.debug("Check failure")
-            val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, KO, None, Some(errorMessage))
-
-            val nextAction = next match {
-              case Left(n) =>
-                logger.debug("Check failed, performing next action")
-                n
-              case Right(sendTextMessage) =>
-                // failed to reconnect, logging crash
-                logger.debug("Check failed while trying to reconnect, failing pending send message and performing next action")
-                statsEngine.logCrash(newSession, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
-                sendTextMessage.next
-            }
-
-            nextAction ! newSession
-            goto(Idle) using IdleData(newSession, webSocket)
-
-          case _ =>
-            logger.debug("Current check success")
-            // check success
-            val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, OK, None, None)
-            remainingChecks match {
-              case Nil =>
-                remainingCheckSequences match {
-                  case firstCheckSequence :: nextRemainingCheckSequences =>
-                    logger.debug("Perform next check sequence")
-                    // perform next CheckSequence
-                    val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
-                    //[fl]
-                    //
-                    //[fl]
-                    stay() using data.copy(
-                      currentCheck = firstCheckSequence.head,
-                      remainingChecks = firstCheckSequence.tail,
-                      checkSequenceStart = timestamp,
-                      checkSequenceTimeoutId = timeoutId,
-                      remainingCheckSequences = nextRemainingCheckSequences,
-                      session = newSession
-                    )
-
-                  case _ =>
-                    // all check sequences complete
-                    logger.debug("Check sequences completed successfully")
-                    next match {
-                      case Left(nextAction)       => nextAction ! newSession
-                      case Right(sendTextMessage) => self ! sendTextMessage.copy(session = newSession)
-                    }
-                    goto(Idle) using IdleData(newSession, webSocket)
-                }
-
-              case nextCheck :: nextRemainingChecks =>
-                // perform next check
-                logger.debug("Perform next check of current check sequence")
-                //[fl]
-                //
-                //[fl]
-                stay() using data.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession)
-            }
-        }
-      } else {
-        logger.debug(s"Received non-matching message $message")
-        // server unmatched message, just log
-        logUnmatchedServerMessage(session)
-        stay()
+        case _ =>
+          logger.debug(s"Received non-matching text frame $message")
+          // server unmatched message, just log
+          logUnmatchedServerMessage(data.session)
+          stay()
       }
 
     case Event(WebSocketClosed(code, reason, _), PerformingCheckData(_, currentCheck, _, checkSequenceStart, _, _, session, next)) =>
@@ -149,7 +90,7 @@ trait WhenPerformingCheck { this: WsActor =>
       handleWebSocketCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, t.getMessage)
   }
 
-  private def handleWebSocketCheckCrash(checkName: String, session: Session, next: Either[Action, SendTextMessage], checkSequenceStart: Long, code: Option[String], errorMessage: String): State = {
+  private def handleWebSocketCheckCrash(checkName: String, session: Session, next: Either[Action, SendFrame], checkSequenceStart: Long, code: Option[String], errorMessage: String): State = {
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
     val newSession = logResponse(session, checkName, checkSequenceStart, nowMillis, KO, code, Some(fullMessage))
@@ -167,5 +108,91 @@ trait WhenPerformingCheck { this: WsActor =>
     }
     nextAction ! newSession
     goto(Crashed) using CrashedData(Some(errorMessage))
+  }
+
+  private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]], data: PerformingCheckData): State = {
+
+    import data._
+
+    // cache is used for both matching and checking
+    implicit val cache = collection.mutable.HashMap.empty[Any, Any]
+
+    // if matchConditions isEmpty, all messages are considered to be matching
+    val messageMatches = matchConditions.forall(_.check(message, session).isInstanceOf[Success[_]])
+    if (messageMatches) {
+      logger.debug(s"Received matching message $message")
+      cancelTimeout() // note, we might already have a Timeout in the mailbox, hence the currentTimeoutId check
+      // matching message, apply checks
+      val (checkSaveUpdate, checkError) = Check.check(message, session, checks)
+
+      val sessionWithCheckUpdate = checkSaveUpdate(session)
+
+      checkError match {
+        case Some(Failure(errorMessage)) =>
+          logger.debug("Check failure")
+          val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, KO, None, Some(errorMessage))
+
+          val nextAction = next match {
+            case Left(n) =>
+              logger.debug("Check failed, performing next action")
+              n
+            case Right(sendMessage) =>
+              // failed to reconnect, logging crash
+              logger.debug("Check failed while trying to reconnect, failing pending send message and performing next action")
+              statsEngine.logCrash(newSession, sendMessage.actionName, s"Couldn't reconnect: $errorMessage")
+              sendMessage.next
+          }
+
+          nextAction ! newSession
+          goto(Idle) using IdleData(newSession, webSocket)
+
+        case _ =>
+          logger.debug("Current check success")
+          // check success
+          val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, OK, None, None)
+          remainingChecks match {
+            case Nil =>
+              remainingCheckSequences match {
+                case firstCheckSequence :: nextRemainingCheckSequences =>
+                  logger.debug("Perform next check sequence")
+                  // perform next CheckSequence
+                  val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
+                  //[fl]
+                  //
+                  //[fl]
+                  stay() using data.copy(
+                    currentCheck = firstCheckSequence.head,
+                    remainingChecks = firstCheckSequence.tail,
+                    checkSequenceStart = timestamp,
+                    checkSequenceTimeoutId = timeoutId,
+                    remainingCheckSequences = nextRemainingCheckSequences,
+                    session = newSession
+                  )
+
+                case _ =>
+                  // all check sequences complete
+                  logger.debug("Check sequences completed successfully")
+                  next match {
+                    case Left(nextAction)   => nextAction ! newSession
+                    case Right(sendMessage) => self ! sendMessage.copyWithSession(newSession)
+                  }
+                  goto(Idle) using IdleData(newSession, webSocket)
+              }
+
+            case nextCheck :: nextRemainingChecks =>
+              // perform next check
+              logger.debug("Perform next check of current check sequence")
+              //[fl]
+              //
+              //[fl]
+              stay() using data.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession)
+          }
+      }
+    } else {
+      logger.debug(s"Received non-matching message $message")
+      // server unmatched message, just log
+      logUnmatchedServerMessage(session)
+      stay()
+    }
   }
 }

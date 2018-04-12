@@ -17,14 +17,13 @@
 package io.gatling.http.action.ws2.fsm
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
-import io.gatling.http.action.ws2.WsCheckSequence
 
 import io.netty.handler.codec.http.websocketx.{ CloseWebSocketFrame, TextWebSocketFrame }
 
 trait WhenIdle { this: WsActor =>
 
   when(Idle) {
-    case Event(SendTextMessage(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
+    case Event(SendTextFrame(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
       logger.debug(s"Send message $actionName $message")
       // actually send message!
       val timestamp = nowMillis
@@ -50,15 +49,14 @@ trait WhenIdle { this: WsActor =>
             remainingChecks = firstCheckSequence.tail,
             checkSequenceStart = timestamp,
             checkSequenceTimeoutId = timeoutId,
-            remainingCheckSequences: List[WsCheckSequence],
+            remainingCheckSequences,
             session = session,
             next = Left(nextAction)
           )
       }
 
-    case Event(TextMessageReceived(message, _), IdleData(session, _)) =>
+    case Event(_: FrameReceived, IdleData(session, _)) =>
       // server push message, just log
-      logger.debug(s"Received push message $message")
       logUnmatchedServerMessage(session)
       stay()
 

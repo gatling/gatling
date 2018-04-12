@@ -32,7 +32,7 @@ object WhenConnecting {
 
 trait WhenConnecting { this: WsActor =>
 
-  def gotoConnecting(session: Session, next: Either[Action, SendTextMessage], remainingTries: Int = httpProtocol.wsPart.maxReconnects.getOrElse(0)): State = {
+  def gotoConnecting(session: Session, next: Either[Action, SendFrame], remainingTries: Int = httpProtocol.wsPart.maxReconnects.getOrElse(0)): State = {
 
     val listener = new WsListener(self, statsEngine)
 
@@ -44,7 +44,7 @@ trait WhenConnecting { this: WsActor =>
     goto(Connecting) using ConnectingData(session, next, nowMillis, remainingTries)
   }
 
-  private def handleConnectFailure(session: Session, next: Either[Action, SendTextMessage], connectStart: Long, connectEnd: Long, code: Option[String], reason: String, remainingTries: Int): State = {
+  private def handleConnectFailure(session: Session, next: Either[Action, SendFrame], connectStart: Long, connectEnd: Long, code: Option[String], reason: String, remainingTries: Int): State = {
     // log connect failure
     val newSession = logResponse(session, connectActionName, connectStart, connectEnd, KO, code, Some(reason))
     val newRemainingTries = remainingTries - 1
@@ -59,11 +59,11 @@ trait WhenConnecting { this: WsActor =>
           // failed to connect
           logger.debug(s"Connect failed: $code:$reason, no remaining tries, going to Crashed state and performing next action")
           n
-        case Right(SendTextMessage(actionName, _, _, _, n)) =>
+        case Right(sendFrame) =>
           // failed to reconnect, logging failure to send message
           logger.debug(s"Connect failed: $code:$reason, no remaining tries, going to Crashed state, failing pending Send and performing next action")
-          statsEngine.logCrash(newSession, actionName, "Failed to reconnect")
-          n
+          statsEngine.logCrash(newSession, sendFrame.actionName, "Failed to reconnect")
+          sendFrame.next
       }
       nextAction ! newSession.markAsFailed
       goto(Crashed) using CrashedData(Some(reason))
@@ -84,9 +84,9 @@ trait WhenConnecting { this: WsActor =>
                   logger.debug("Connected, no checks, performing onConnected action before performing next action")
                   nextAction ! _
 
-                case Right(sendTextMessage) =>
+                case Right(sendFrame) =>
                   logger.debug("Reconnected, no checks, performing onConnected action before sending pending message")
-                  s => self ! sendTextMessage.copy(session = s)
+                  s => self ! sendFrame.copyWithSession(s)
               }
               val newSession = OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback)
               onConnectedAction ! newSession
@@ -99,9 +99,9 @@ trait WhenConnecting { this: WsActor =>
                   logger.debug("Connected, no checks, performing next action")
                   nextAction ! sessionWithGroupTimings
 
-                case Right(sendTextMessage) =>
+                case Right(sendFrame) =>
                   logger.debug("Reconnected, no checks, sending pending message")
-                  self ! sendTextMessage.copy(session = sessionWithGroupTimings)
+                  self ! sendFrame.copyWithSession(sessionWithGroupTimings)
               }
               goto(Idle) using IdleData(sessionWithGroupTimings, webSocket)
           }
@@ -124,7 +124,7 @@ trait WhenConnecting { this: WsActor =>
 
                   case Right(sendTextMessage) =>
                     logger.debug("Connected, performing checks, setting callback to send pending message after performing onConnected action")
-                    s => self ! sendTextMessage.copy(session = s)
+                    s => self ! sendTextMessage.copyWithSession(s)
                 }
 
                 (OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback), Left(onConnectedAction))
