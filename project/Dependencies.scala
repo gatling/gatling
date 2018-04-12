@@ -31,7 +31,7 @@ object Dependencies {
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.0"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.0"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.5"
-  private val sfm                            = ("org.simpleflatmapper"                % "sfm-csv"                         % "3.16.3")
+  private val sfm                            = ("org.simpleflatmapper"                % "sfm-csv"                         % "3.17.3")
     .exclude("org.simpleflatmapper", "sfm-reflect")
     .exclude("org.simpleflatmapper", "sfm-tuples")
   private val sfmUtil                        = "org.simpleflatmapper"                 % "sfm-util"                        % sfm.revision
