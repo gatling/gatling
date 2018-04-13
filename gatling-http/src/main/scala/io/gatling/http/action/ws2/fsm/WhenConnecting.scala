@@ -21,7 +21,7 @@ import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.action.ws2.{ OnConnectedChainEndAction, WsListener }
+import io.gatling.http.action.ws2.{ OnConnectedChainEndAction, WsFrameCheckSequence, WsListener }
 
 import io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS
 
@@ -106,7 +106,7 @@ trait WhenConnecting { this: WsActor =>
               goto(Idle) using IdleData(sessionWithGroupTimings, webSocket)
           }
 
-        case firstCheckSequence :: remainingCheckSequences =>
+        case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
           // wait for some checks before proceeding
 
           // select nextAction
@@ -135,14 +135,14 @@ trait WhenConnecting { this: WsActor =>
                 (sessionWithGroupTimings, next)
             }
 
-          val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
+          val timeoutId = scheduleTimeout(timeout)
           //[fl]
           //
           //[fl]
           goto(PerformingCheck) using PerformingCheckData(
             webSocket = webSocket,
-            currentCheck = firstCheckSequence.head,
-            remainingChecks = firstCheckSequence.tail,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
             checkSequenceStart = connectEnd,
             checkSequenceTimeoutId = timeoutId,
             remainingCheckSequences = remainingCheckSequences,

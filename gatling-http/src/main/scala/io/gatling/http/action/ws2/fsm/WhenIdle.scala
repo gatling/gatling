@@ -17,6 +17,7 @@
 package io.gatling.http.action.ws2.fsm
 
 import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.http.action.ws2.WsFrameCheckSequence
 
 import io.netty.handler.codec.http.websocketx.{ CloseWebSocketFrame, TextWebSocketFrame }
 
@@ -37,16 +38,16 @@ trait WhenIdle { this: WsActor =>
           nextAction ! session
           stay()
 
-        case firstCheckSequence :: remainingCheckSequences =>
+        case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
           logger.debug("Trigger check after send message")
-          val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
+          val timeoutId = scheduleTimeout(timeout)
           //[fl]
           //
           //[fl]
           goto(PerformingCheck) using PerformingCheckData(
             webSocket = webSocket,
-            currentCheck = firstCheckSequence.head,
-            remainingChecks = firstCheckSequence.tail,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
             checkSequenceStart = timestamp,
             checkSequenceTimeoutId = timeoutId,
             remainingCheckSequences,

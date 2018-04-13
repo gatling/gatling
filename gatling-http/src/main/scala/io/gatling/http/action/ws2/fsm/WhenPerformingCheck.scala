@@ -22,7 +22,7 @@ import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
-import io.gatling.http.action.ws2.{ WsBinaryFrameCheck, WsTextFrameCheck }
+import io.gatling.http.action.ws2.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
 
 trait WhenPerformingCheck { this: WsActor =>
 
@@ -151,18 +151,26 @@ trait WhenPerformingCheck { this: WsActor =>
           // check success
           val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, OK, None, None)
           remainingChecks match {
-            case Nil =>
+            case nextCheck :: nextRemainingChecks =>
+              // perform next check
+              logger.debug("Perform next check of current check sequence")
+              //[fl]
+              //
+              //[fl]
+              stay() using data.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession)
+
+            case _ =>
               remainingCheckSequences match {
-                case firstCheckSequence :: nextRemainingCheckSequences =>
+                case WsFrameCheckSequence(timeout, newCurrentCheck :: newRemainingChecks) :: nextRemainingCheckSequences =>
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
-                  val timeoutId = scheduleTimeout(firstCheckSequence.timeout)
+                  val timeoutId = scheduleTimeout(timeout)
                   //[fl]
                   //
                   //[fl]
                   stay() using data.copy(
-                    currentCheck = firstCheckSequence.head,
-                    remainingChecks = firstCheckSequence.tail,
+                    currentCheck = newCurrentCheck,
+                    remainingChecks = newRemainingChecks,
                     checkSequenceStart = timestamp,
                     checkSequenceTimeoutId = timeoutId,
                     remainingCheckSequences = nextRemainingCheckSequences,
@@ -178,14 +186,6 @@ trait WhenPerformingCheck { this: WsActor =>
                   }
                   goto(Idle) using IdleData(newSession, webSocket)
               }
-
-            case nextCheck :: nextRemainingChecks =>
-              // perform next check
-              logger.debug("Perform next check of current check sequence")
-              //[fl]
-              //
-              //[fl]
-              stay() using data.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession)
           }
       }
     } else {

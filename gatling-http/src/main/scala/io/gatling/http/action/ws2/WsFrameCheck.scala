@@ -22,8 +22,6 @@ import com.softwaremill.quicklens._
 
 case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
   require(checks.nonEmpty, "Can't pass empty check sequence")
-  val head: T = checks.head
-  val tail: List[T] = checks.tail
 }
 
 sealed trait WsFrameCheck {
