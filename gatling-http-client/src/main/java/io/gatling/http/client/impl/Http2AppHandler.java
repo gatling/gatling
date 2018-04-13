@@ -113,7 +113,6 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
       HttpContent httpContent = content.getHttpContent();
       boolean last = httpContent instanceof LastHttpContent;
-      LOGGER.error(">>>>>>>>>RECEIVED CONTENT " + last);
       tx.listener.onHttpResponseBodyChunk(httpContent.content(), last);
       if (last) {
         channelPool.offer(ctx.channel());
