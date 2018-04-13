@@ -60,12 +60,17 @@ class Ws2CompileTest extends Simulation {
     .exec(ws2("Message1")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
       .wait(30 seconds)(
-        ws2.checkTextMessage("checkName").check(jsonPath("$.message").findAll.saveAs("message1"))
+        ws2.checkTextMessage("checkName1").check(jsonPath("$.message").findAll.saveAs("message1"))
+      )
+      .wait(30 seconds)(
+        ws2.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
       ))
     .exec(ws2("Message2")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
       .wait(30 seconds)(
-        ws2.checkTextMessage("checkName1").check(regex("somePattern1").saveAs("message1")),
+        ws2.checkTextMessage("checkName1").check(
+          regex("somePattern1").saveAs("message1"),
+          regex("somePattern2").saveAs("message2")),
         ws2.checkTextMessage("checkName2").check(regex("somePattern2").saveAs("message2"))
       ))
     .exec(ws2("Message3")
