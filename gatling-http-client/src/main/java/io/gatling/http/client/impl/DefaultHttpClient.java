@@ -314,6 +314,11 @@ public class DefaultHttpClient implements HttpClient {
 
   private void sendTx(HttpTx tx, EventLoop eventLoop) {
 
+    if (tx.request.getUri().isSecured() && tx.request.isHttp2Enabled() && config.isDisableHttpsEndpointIdentificationAlgorithm()) {
+      tx.listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work with HttpsEndpointIdentificationAlgorithm disabled."));
+      return;
+    }
+
     EventLoopResources resources = eventLoopResources(eventLoop);
     Request request = tx.request;
     HttpListener listener = tx.listener;
