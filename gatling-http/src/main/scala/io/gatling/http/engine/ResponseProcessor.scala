@@ -198,11 +198,13 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         newHeaders.remove(HeaderNames.ContentType)
 
       val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET else originalMethod, redirectUri)
-        .setNameResolver(originalRequest.getNameResolver)
+        .setHeaders(newHeaders)
+        .setHttp2Enabled(originalRequest.isHttp2Enabled)
         .setLocalAddress(originalRequest.getLocalAddress)
+        .setNameResolver(originalRequest.getNameResolver)
         .setProxyServer(originalRequest.getProxyServer)
         .setRealm(originalRequest.getRealm)
-        .setHeaders(newHeaders)
+        .setRequestTimeout(originalRequest.getRequestTimeout)
 
       if (originalRequest.getUri.isSameBase(redirectUri)) {
         // we can only assume the virtual host is still valid if the baseUrl is the same
