@@ -17,6 +17,7 @@
 package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpClientConfig;
+import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.ahc.util.HttpUtils;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
@@ -75,11 +76,11 @@ public class Http2AppHandler extends ChannelDuplexHandler {
           Http2Stream stream = connection.stream(nextStreamId);
           stream.setProperty(propertyKey, tx);
         } else {
-          throw new IOException("Failed to write request", f.cause());
+          crash(ctx, f.cause(), tx.listener, true);
         }
       });
     } catch (Exception e) {
-      crash(ctx, e, true);
+      crash(ctx, e, tx.listener, true);
     }
   }
 
@@ -120,8 +121,11 @@ public class Http2AppHandler extends ChannelDuplexHandler {
     }
   }
 
-  private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close) {
+  private void crash(ChannelHandlerContext ctx, Throwable cause, HttpListener nonActiveStreamListener, boolean close) {
       try {
+        if (nonActiveStreamListener != null) {
+          nonActiveStreamListener.onThrowable(cause);
+        }
         connection.forEachActiveStream(stream -> {
           HttpTx tx = stream.getProperty(propertyKey);
           tx.listener.onThrowable(cause);
@@ -138,12 +142,12 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    crash(ctx, cause, true);
+    crash(ctx, cause, null,true);
   }
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
     // FIXME retry?
-    crash(ctx, REMOTELY_CLOSED_EXCEPTION, false);
+    crash(ctx, REMOTELY_CLOSED_EXCEPTION, null, false);
   }
 }
