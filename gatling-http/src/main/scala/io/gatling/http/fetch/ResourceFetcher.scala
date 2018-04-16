@@ -29,7 +29,7 @@ import io.gatling.core.akka.BaseActor
 import io.gatling.core.filter.Filters
 import io.gatling.core.session._
 import io.gatling.core.util.cache._
-import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
+import io.gatling.http.action.{ HttpTx, ResourceTx }
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.client.Request
 import io.gatling.http.client.ahc.uri.Uri

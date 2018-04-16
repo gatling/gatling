@@ -19,21 +19,21 @@ package io.gatling.http
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.action.sync._
+import io.gatling.http.action.cache.FlushCacheBuilder
+import io.gatling.http.action.cookie.{ AddCookieBuilder, AddCookieDsl, GetCookieDsl, GetCookieValueBuilder }
+import io.gatling.http.action.sse.Sse
+import io.gatling.http.action.ws.Ws
 import io.gatling.http.check.HttpCheckSupport
-import io.gatling.http.check.async.AsyncCheckSupport
-import io.gatling.http.check.w2.WsCheckSupport
+import io.gatling.http.check.sse.SseCheckSupport
+import io.gatling.http.check.ws.WsCheckSupport
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, ProxyBuilder }
 import io.gatling.http.request.BodyPart
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.polling.Polling
-import io.gatling.http.request.builder.sse.Sse
-import io.gatling.http.request.builder.ws.Ws
-import io.gatling.http.request.builder.ws2.Ws2
 
-trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSupport with SitemapFeederSupport {
+trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport with SitemapFeederSupport {
 
   def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
 
@@ -46,11 +46,8 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with AsyncCheckSuppor
   def flushCookieJar = CookieSupport.FlushCookieJar
   def flushHttpCache = new FlushCacheBuilder
 
-  def sse(requestName: Expression[String]) = new Sse(requestName)
-  def sse(requestName: Expression[String], sseName: String) = new Sse(requestName, sseName)
-  def ws(requestName: Expression[String]) = new Ws(requestName)
-  def ws(requestName: Expression[String], wsName: String) = new Ws(requestName, wsName)
-  val ws2 = Ws2
+  val sse = Sse
+  val ws = Ws
   def polling = new Polling()
 
   val HttpHeaderNames = HeaderNames

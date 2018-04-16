@@ -16,10 +16,10 @@
 
 package io.gatling.http.action
 
-import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
+import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 
 abstract class UnnamedRequestAction(val statsEngine: StatsEngine) extends RequestAction {
-  override def requestName = session => "".success
+  override val requestName: Expression[String] = "".expressionSuccess
 }

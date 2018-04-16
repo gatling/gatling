@@ -23,38 +23,31 @@ class SseSample {
   sse("SSE Operation").sseName("myCustomName")
   //#sseName
 
-  //#sseOpen
-  exec(sse("Get SSE").open("/stocks/prices"))
-  //#sseOpen
+  //#sseConnect
+  exec(sse("Get SSE").connect("/stocks/prices"))
+  //#sseConnect
 
   //#sseClose
   exec(sse("Close SSE").close())
   //#sseClose
 
-  //#reconcile
-  exec(sse("Reconcile states").reconcile)
-  //#reconcile
-
-  val myCheck = wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")
+  val myCheck = sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
 
   //#check-from-message
   exec(sse("Get SSE").open("/stocks/prices").check(myCheck))
   //#check-from-message
 
   //#check-from-flow
-  exec(sse("Set Check").check(myCheck))
+  exec(sse("Set Check").wait(30 seconds)(
+    myCheck
+  ))
   //#check-from-flow
-
-  //#cancel-check
-  exec(sse("Cancel Check").cancelCheck)
-  //#cancel-check
 
   //#build-check
   exec(sse("sse").open("/stocks/prices")
-    .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")))
-
-  exec(sse("sse").open("/stocks/prices")
-    .check(wsListen.within(30 seconds).expect(1)))
+    .wait(30 seconds)(
+      sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
+    ))
   //#build-check
 
   //#stock-market-sample
@@ -64,8 +57,9 @@ class SseSample {
   val scn = scenario("Server Sent Event")
     .exec(
       sse("Stocks").open("/stocks/prices")
-        .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)""""))
-    )
+        .wait(10)(
+          sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
+        ))
     .pause(15)
     .exec(sse("Close SSE").close())
   //#stock-market-sample

@@ -28,7 +28,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames
-import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
+import io.gatling.http.action.{ HttpTx, ResourceTx }
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri

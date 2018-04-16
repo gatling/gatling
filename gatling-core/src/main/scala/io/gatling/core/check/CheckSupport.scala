@@ -34,19 +34,6 @@ trait CheckSupport {
   implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find
   implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find.exists
 
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldCheckBuilder2Check[C <: Check[R], R, P, X](checkBuilder: OldCheckBuilder[C, R, P, X]) = checkBuilder.build
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldValidatorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldValidatorCheckBuilder2Check[C <: Check[R], R, P, X](validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists.build
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldFindCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldFindCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldFindCheckBuilder2Check[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists.build
-
   def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =
     cw.wrap(condition, thenCheck)
 

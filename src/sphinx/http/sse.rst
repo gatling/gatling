@@ -21,18 +21,18 @@ For example:
 
 Of course, this step is not required if you deal with one single SSE stream per virtual user.
 
-.. _http-sse-open:
+.. _http-sse-connect:
 
-Open
-----
+Connect
+-------
 
 The first thing is to get a server sent event:
 
-``open(url: Expression[String])``
+``connect(url: Expression[String])``
 
 For example:
 
-.. includecode:: code/SseSample.scala#sseOpen
+.. includecode:: code/SseSample.scala#sseConnect
 
 
 .. note:: Gatling automatically sets ``Accept`` header to ``text/event-stream`` and ``Cache-Control`` to ``no-cache``.
@@ -74,17 +74,6 @@ Then, directly from the main HTTP flow:
 
 If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
 
-.. _http-sse-check-cancel:
-
-Cancel a Check
---------------
-
-One can decide to cancel a pending check:
-
-.. includecode:: code/SseSample.scala#cancel-check
-
-.. _http-sse-check-build:
-
 Build a Check
 -------------
 
@@ -96,22 +85,6 @@ So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-bui
 Here are few examples:
 
 .. includecode:: code/SseSample.scala#build-check
-
-.. _http-sse-check-reconcile:
-
-Reconcile
----------
-
-One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
-
-So, one has to reconcile the main flow state and the WebSocket flow one.
-
-This can be done:
-
-* implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
-* explicitly with the ``reconcile`` method.
-
-.. includecode:: code/SseSample.scala#reconcile
 
 .. _http-sse-check-conf:
 

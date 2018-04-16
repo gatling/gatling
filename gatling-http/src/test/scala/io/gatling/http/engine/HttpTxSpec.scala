@@ -20,7 +20,7 @@ import io.gatling.BaseSpec
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.action.sync.{ HttpTx, ResourceTx }
+import io.gatling.http.action.{ HttpTx, ResourceTx }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.Request
 import io.gatling.http.client.ahc.uri.Uri

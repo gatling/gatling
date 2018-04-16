@@ -19,7 +19,7 @@ package io.gatling.http.engine
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
-import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.action.HttpTx
 import io.gatling.http.client.HttpListener
 import io.gatling.http.response
 import io.gatling.http.response.Response
