@@ -70,6 +70,8 @@ class DigestAuthHandler extends ChannelInboundHandlerAdapter {
         // FIXME check what happens if buildRequest throws
         WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config);
         request.getRequest().headers().add(AUTHORIZATION, digestHeader);
+
+        // FIXME write can throw Exception!!!
         request.write(ctx);
         ctx.pipeline().remove(this);
     }
