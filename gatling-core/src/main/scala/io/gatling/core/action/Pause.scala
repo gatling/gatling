@@ -60,7 +60,7 @@ class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngin
             next ! session.setDrift(newDrift)
           }
         } catch {
-          case ise: IllegalStateException => // engine was shutdown
+          case _: IllegalStateException => // engine was shutdown
         }
 
       } else {
