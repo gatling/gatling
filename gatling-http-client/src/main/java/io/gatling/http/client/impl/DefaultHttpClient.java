@@ -48,11 +48,14 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.List;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -261,7 +264,6 @@ public class DefaultHttpClient implements HttpClient {
 
   @Override
   public void sendRequest(Request request, long clientId, boolean shared, HttpListener listener) {
-
     if (isClosed()) {
       return;
     }
@@ -300,7 +302,7 @@ public class DefaultHttpClient implements HttpClient {
       return false;
     }
 
-    if (tx.remainingTries > 0 && ! (tx.request.getBody() instanceof InputStreamRequestBody)) {
+    if (tx.remainingTries > 0 && !(tx.request.getBody() instanceof InputStreamRequestBody)) {
       tx.remainingTries = tx.remainingTries - 1;
       sendTx(tx, eventLoop);
       return true;
@@ -329,7 +331,6 @@ public class DefaultHttpClient implements HttpClient {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
-      // FIXME if HTTP/2, try channel coalescing
       resolveRemoteAddresses(request, eventLoop, listener, requestTimeout)
         .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
           if (requestTimeout.isDone()) {
@@ -337,43 +338,17 @@ public class DefaultHttpClient implements HttpClient {
           }
 
           if (whenRemoteAddresses.isSuccess()) {
-            openNewChannel(request, eventLoop, resources, whenRemoteAddresses.getNow(), listener, requestTimeout)
-              .addListener((Future<Channel> whenNewChannel) -> {
-                if (whenNewChannel.isSuccess()) {
-                  Channel channel = whenNewChannel.getNow();
-                  if (requestTimeout.isDone()) {
-                    channel.close();
-                    return;
-                  }
+            List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-                  channelGroup.add(channel);
-                  resources.channelPool.register(channel, tx.key);
-
-                  if (request.getUri().isSecured()) {
-                    installSslHandler(tx, channel).addListener(f -> {
-                      if (requestTimeout.isDone() || !f.isSuccess()) {
-                        channel.close();
-                        return;
-                      }
-
-                      if (request.isHttp2Enabled()) {
-                        installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
-                          if (requestTimeout.isDone() || !f2.isSuccess()) {
-                            channel.close();
-                            return;
-                          }
-                          sendTxWithChannel(tx, channel);
-                        });
-
-                      } else {
-                        sendTxWithChannel(tx, channel);
-                      }
-                    });
-                  } else {
-                    sendTxWithChannel(tx, channel);
-                  }
-                }
-              });
+            if (request.isHttp2Enabled()) {
+              Channel coalescedChannel;
+              String domain = tx.request.getUri().getHost();
+              if ((coalescedChannel = resources.channelPool.pollCoalescedChannel(domain, addresses)) != null) {
+                sendTxWithChannel(tx, coalescedChannel);
+              } else {
+                sendTxWithNewChannel(tx, resources, eventLoop, addresses);
+              }
+            }
           }
         });
     }
@@ -427,7 +402,49 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
-  // FIXME if HTTP/2, piggy ride on inflight openings
+  private void sendTxWithNewChannel(HttpTx tx,
+                                    EventLoopResources resources,
+                                    EventLoop eventLoop,
+                                    List<InetSocketAddress> addresses) {
+    openNewChannel(tx.request, eventLoop, resources, addresses, tx.listener, tx.requestTimeout)
+      .addListener((Future<Channel> whenNewChannel) -> {
+        if (whenNewChannel.isSuccess()) {
+          Channel channel = whenNewChannel.getNow();
+          if (tx.requestTimeout.isDone()) {
+            channel.close();
+            return;
+          }
+
+          channelGroup.add(channel);
+          resources.channelPool.register(channel, tx.key);
+
+          if (tx.request.getUri().isSecured()) {
+            installSslHandler(tx, channel).addListener(f -> {
+              if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                channel.close();
+                return;
+              }
+
+              if (tx.request.isHttp2Enabled()) {
+                installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
+                  if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
+                    channel.close();
+                    return;
+                  }
+                  sendTxWithChannel(tx, channel);
+                });
+
+              } else {
+                sendTxWithChannel(tx, channel);
+              }
+            });
+          } else {
+            sendTxWithChannel(tx, channel);
+          }
+        }
+      });
+  }
+
   private Future<Channel> openNewChannel(Request request,
                                          EventLoop eventLoop,
                                          EventLoopResources resources,
@@ -543,7 +560,7 @@ public class DefaultHttpClient implements HttpClient {
 
     channel.pipeline().addAfter(SSL_HANDLER, ALPN_HANDLER, new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
       @Override
-      protected void configurePipeline(ChannelHandlerContext ctx, String protocol) {
+      protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws SSLPeerUnverifiedException, CertificateParsingException {
 
         switch (protocol) {
           case ApplicationProtocolNames.HTTP_2:
@@ -563,6 +580,28 @@ public class DefaultHttpClient implements HttpClient {
               .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(connection, http2Handler, channelPool, config));
 
             channelPool.offer(channel);
+
+            SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);
+            Certificate[] certificates = sslHandler.engine().getSession().getPeerCertificates();
+            Set<String> sansToAdd = new HashSet<>();
+            for (Certificate certificate : certificates) {
+              X509Certificate cert = (X509Certificate) certificate;
+              Collection<List<?>> subjectAlternativeNames = cert.getSubjectAlternativeNames();
+              if (subjectAlternativeNames != null) {
+                for (List<?> certificateSans : subjectAlternativeNames) {
+                  if (certificateSans != null) {
+                    for (Object san : certificateSans) {
+                      if (san instanceof String) {
+                        sansToAdd.add((String) san);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            if (!sansToAdd.isEmpty()) {
+              channelPool.addCoalescedChannel(sansToAdd, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
+            }
             break;
 
           case ApplicationProtocolNames.HTTP_1_1:

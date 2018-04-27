@@ -80,4 +80,15 @@ public class ChannelPoolKey {
     result = 31 * result + proxyPort;
     return result;
   }
+
+  @Override
+  public String toString() {
+    return "ChannelPoolKey{" +
+      "clientId=" + clientId +
+      ", targetHostBaseUrl='" + targetHostBaseUrl + '\'' +
+      ", virtualHost='" + virtualHost + '\'' +
+      ", proxyHost='" + proxyHost + '\'' +
+      ", proxyPort=" + proxyPort +
+      '}';
+  }
 }
