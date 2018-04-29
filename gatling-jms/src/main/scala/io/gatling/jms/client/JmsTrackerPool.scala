@@ -28,6 +28,12 @@ import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
 
 import akka.actor.ActorSystem
+import io.netty.util.concurrent.DefaultThreadFactory
+
+object JmsTrackerPool {
+
+  private val JmsConsumerThreadFactory = new DefaultThreadFactory("gatling-jms-consumer")
+}
 
 class JmsTrackerPool(
     sessionPool:   JmsSessionPool,
@@ -46,7 +52,7 @@ class JmsTrackerPool(
       for (_ <- 1 to listenerThreadCount) {
         // jms session pool logic creates a session per thread and stores it in thread local.
         // After that the thread can be throughen away. The jms provider takes care of receiving and dispatching
-        val thread = new Thread(() => {
+        val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread(() => {
           val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
           consumer.setMessageListener(message => {
             val matchId = messageMatcher.responseMatchId(message)

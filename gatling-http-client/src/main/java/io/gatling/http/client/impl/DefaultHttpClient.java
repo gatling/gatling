@@ -46,8 +46,6 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
@@ -66,11 +64,11 @@ import static java.util.Collections.singletonList;
 
 public class DefaultHttpClient implements HttpClient {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClient.class);
-
   static {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
   }
+
+  private static final DefaultThreadFactory HTTP_CLIENT_THREAD_FACTORY = new DefaultThreadFactory("gatling-http-client");
 
   public static final String PINNED_HANDLER = "pinned";
   public static final String PROXY_HANDLER = "proxy";
@@ -250,7 +248,7 @@ public class DefaultHttpClient implements HttpClient {
       throw new IllegalArgumentException("Impossible to create SslContext", e);
     }
 
-    eventLoopGroup = config.isUseNativeTransport() ? new EpollEventLoopGroup() : new NioEventLoopGroup();
+    eventLoopGroup = config.isUseNativeTransport() ? new EpollEventLoopGroup(0, HTTP_CLIENT_THREAD_FACTORY) : new NioEventLoopGroup(0, HTTP_CLIENT_THREAD_FACTORY);
     eventLoopPicker = new AffinityEventLoopPicker(eventLoopGroup);
     channelGroup = new DefaultChannelGroup(eventLoopGroup.next());
   }
