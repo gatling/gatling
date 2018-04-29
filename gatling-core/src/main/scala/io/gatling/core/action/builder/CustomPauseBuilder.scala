@@ -33,6 +33,6 @@ class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder
   override def build(ctx: ScenarioContext, next: Action): Action =
     ctx.pauseType match {
       case Disabled => next
-      case _        => new Pause(delayGenerator, ctx.coreComponents.system, ctx.coreComponents.statsEngine, genName("customPause"), next)
+      case _        => new Pause(delayGenerator, ctx.coreComponents.system, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("customPause"), next)
     }
 }

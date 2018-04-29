@@ -32,6 +32,6 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
     val safeCondition = condition.safe
     val thenNextAction = thenNext.build(ctx, next)
     val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
-    new If(safeCondition, thenNextAction, elseNextAction, ctx.coreComponents.statsEngine, next)
+    new If(safeCondition, thenNextAction, elseNextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
   }
 }

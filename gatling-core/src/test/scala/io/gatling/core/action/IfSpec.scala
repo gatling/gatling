@@ -17,24 +17,26 @@
 package io.gatling.core.action
 
 import akka.testkit._
-
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.Session
 import io.gatling.core.session.el.El
 import io.gatling.core.stats.DataWritersStatsEngine
 
 class IfSpec extends AkkaSpec {
 
+  private val clock = new DefaultClock
+
   "If" should "evaluate the condition using the session and send the session to one of the two actors only" in {
     val condition = "${condition}".el[Boolean]
-    val baseSession = Session("scenario", 0)
+    val baseSession = Session("scenario", 0, clock.nowMillis)
 
     val thenActorProbe = TestProbe()
     val elseActorProbe = TestProbe()
     val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
+    val statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock)
 
-    val ifAction = new If(condition, new ActorDelegatingAction("ifChain", thenActorProbe.ref), new ActorDelegatingAction("elseChain", elseActorProbe.ref), statsEngine, new ActorDelegatingAction("next", self))
+    val ifAction = new If(condition, new ActorDelegatingAction("ifChain", thenActorProbe.ref), new ActorDelegatingAction("elseChain", elseActorProbe.ref), statsEngine, clock, new ActorDelegatingAction("next", self))
 
     val sessionWithTrueCondition = baseSession.set("condition", true)
     ifAction ! sessionWithTrueCondition

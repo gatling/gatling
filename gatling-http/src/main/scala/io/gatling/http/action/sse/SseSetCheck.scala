@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.sse
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.{ Action, ActorBasedAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
@@ -28,6 +29,7 @@ class SseSetCheck(
     checkSequences:  List[SseMessageCheckSequence],
     sseName:         String,
     val statsEngine: StatsEngine,
+    val clock:       Clock,
     val next:        Action
 ) extends RequestAction with ActorBasedAction with SseAction with NameGen {
 

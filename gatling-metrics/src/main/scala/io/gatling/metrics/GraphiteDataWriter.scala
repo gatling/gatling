@@ -19,8 +19,8 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
-import io.gatling.commons.util.ClockSingleton.nowSeconds
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.stats.writer._
@@ -32,16 +32,15 @@ import io.gatling.metrics.types._
 import akka.actor.ActorRef
 
 case class GraphiteData(
-    configuration:   GatlingConfiguration,
     metricsSender:   ActorRef,
     requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
     usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
     format:          GraphitePathPattern
 ) extends DataWriterData
 
-private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with NameGen {
+private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[GraphiteData] with NameGen {
 
-  def newResponseMetricsBuffer(configuration: GatlingConfiguration): RequestMetricsBuffer =
+  def newResponseMetricsBuffer: RequestMetricsBuffer =
     new HistogramRequestMetricsBuffer(configuration)
 
   private val flushTimerName = "flushTimer"
@@ -49,7 +48,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with 
   def onInit(init: Init): GraphiteData = {
     import init._
 
-    val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), genName("metricsSender"))
+    val metricsSender: ActorRef = context.actorOf(MetricsSender.props(clock, configuration), genName("metricsSender"))
     val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
     val usersByScenario = mutable.Map.empty[GraphitePath, UserBreakdownBuffer]
 
@@ -60,7 +59,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with 
 
     setTimer(flushTimerName, Flush, configuration.data.graphite.writeInterval seconds, repeat = true)
 
-    GraphiteData(configuration, metricsSender, requestsByPath, usersByScenario, pattern)
+    GraphiteData(metricsSender, requestsByPath, usersByScenario, pattern)
   }
 
   def onFlush(data: GraphiteData): Unit = {
@@ -72,7 +71,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with 
     // Reset all metrics
     requestsByPath.foreach { case (_, buff) => buff.clear() }
 
-    sendMetricsToGraphite(data, nowSeconds, requestsMetrics, usersBreakdowns)
+    sendMetricsToGraphite(data, clock.nowSeconds, requestsMetrics, usersBreakdowns)
   }
 
   private def onUserMessage(userMessage: UserMessage, data: GraphiteData): Unit = {
@@ -86,9 +85,9 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] with 
     import response._
     val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
     if (!configuration.data.graphite.light) {
-      requestsByPath.getOrElseUpdate(format.responsePath(name, groupHierarchy), newResponseMetricsBuffer(configuration)).add(status, responseTime)
+      requestsByPath.getOrElseUpdate(format.responsePath(name, groupHierarchy), newResponseMetricsBuffer).add(status, responseTime)
     }
-    requestsByPath.getOrElseUpdate(format.allResponsesPath, newResponseMetricsBuffer(configuration)).add(status, responseTime)
+    requestsByPath.getOrElseUpdate(format.allResponsesPath, newResponseMetricsBuffer).add(status, responseTime)
   }
 
   override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {

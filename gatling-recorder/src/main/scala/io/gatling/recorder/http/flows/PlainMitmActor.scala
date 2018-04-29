@@ -16,6 +16,7 @@
 
 package io.gatling.recorder.http.flows
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, TrafficLogger }
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.Mitm._
@@ -29,7 +30,8 @@ import io.netty.handler.codec.http.FullHttpRequest
 abstract class PlainMitmActor(
     serverChannel:   Channel,
     clientBootstrap: Bootstrap,
-    trafficLogger:   TrafficLogger
+    trafficLogger:   TrafficLogger,
+    clock:           Clock
 ) extends MitmActor(clientBootstrap) {
 
   protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest
@@ -53,7 +55,7 @@ abstract class PlainMitmActor(
 
     case Event(ClientChannelActive(clientChannel), WaitingForClientChannelConnectData(remote, pendingRequest)) =>
       logger.debug(s"serverChannel=${serverChannel.id}, clientChannel=${clientChannel.id} active")
-      clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger))
+      clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
       clientChannel.writeAndFlush(propagatedRequest(pendingRequest))
       goto(Connected) using ConnectedData(remote, clientChannel)
 

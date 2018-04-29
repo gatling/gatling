@@ -16,7 +16,6 @@
 
 package io.gatling.http.action.ws.fsm
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.http.check.ws.WsFrameCheckSequence
 
 import io.netty.handler.codec.http.websocketx.{ CloseWebSocketFrame, TextWebSocketFrame }
@@ -27,7 +26,7 @@ trait WhenIdle { this: WsActor =>
     case Event(SendTextFrame(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
       logger.debug(s"Send message $actionName $message")
       // actually send message!
-      val timestamp = nowMillis
+      val timestamp = clock.nowMillis
       webSocket.sendFrame(new TextWebSocketFrame(message))
 
       //[fl]
@@ -77,6 +76,6 @@ trait WhenIdle { this: WsActor =>
       //[fl]
       //
       //[fl]
-      goto(Closing) using ClosingData(name, session, next, nowMillis) // TODO should we have a close timeout?
+      goto(Closing) using ClosingData(name, session, next, clock.nowMillis) // TODO should we have a close timeout?
   }
 }

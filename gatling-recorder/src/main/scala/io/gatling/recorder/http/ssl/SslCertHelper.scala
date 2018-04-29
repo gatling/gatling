@@ -29,7 +29,6 @@ import scala.concurrent.duration._
 
 import io.gatling.commons.util.Io.withCloseable
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.ClockSingleton._
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
@@ -73,7 +72,7 @@ private[recorder] object SslCertUtil extends StrictLogging {
 
     def generateCACertificate(pair: KeyPair): X509CertificateHolder = {
       val dn = s"C=FR, ST=Val de marne, O=GatlingCA, CN=Gatling"
-      val now = nowMillis
+      val now = System.currentTimeMillis()
 
       // has to be v1 for CA
       val certGen = new JcaX509v1CertificateBuilder(
@@ -127,7 +126,7 @@ private[recorder] object SslCertUtil extends StrictLogging {
 
   private def createServerCert(caCert: X509Certificate, caKey: PrivateKey, csr: PKCS10CertificationRequest): Try[X509Certificate] =
     Try {
-      val now = nowMillis
+      val now = System.currentTimeMillis()
       val certBuilder = new X509v3CertificateBuilder(
         new JcaX509CertificateHolder(caCert).getSubject, // issuer
         BigInteger.valueOf(now), // serial

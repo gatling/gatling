@@ -17,15 +17,18 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
 class RendezVousSpec extends AkkaSpec {
 
-  "RendezVous" should "block the specified number of sessions until they have all reached it" in {
-    val rendezVous = RendezVous(3, system, mock[StatsEngine], new ActorDelegatingAction("next", self))
+  private val clock = new DefaultClock
 
-    val session = Session("scenario", 0)
+  "RendezVous" should "block the specified number of sessions until they have all reached it" in {
+    val rendezVous = RendezVous(3, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+
+    val session = Session("scenario", 0, clock.nowMillis)
 
     rendezVous ! session
     expectNoMessage(remainingOrDefault)

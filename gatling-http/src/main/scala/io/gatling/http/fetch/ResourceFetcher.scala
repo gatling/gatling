@@ -22,7 +22,6 @@ import scala.collection.mutable
 import scala.compat.java8.FunctionConverters._
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.akka.BaseActor
@@ -187,6 +186,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
 
   // immutable state
   private val coreComponents = rootTx.request.config.coreComponents
+  private val clock = coreComponents.clock
   private val httpComponents = rootTx.request.config.httpComponents
   import httpComponents._
   private val throttled = rootTx.request.config.throttled
@@ -199,7 +199,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
   private val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(httpProtocol.enginePart.maxConnectionsPerHost)
   private var pendingResourcesCount = 0
   private var globalStatus: Status = OK
-  private val start = nowMillis
+  private val start = clock.nowMillis
 
   // start fetching
   fetchOrBufferResources(initialResources)
@@ -212,6 +212,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       resource.config.responseTransformer,
       httpProtocol.responsePart.discardResponseChunks,
       httpProtocol.responsePart.inferHtmlResources,
+      clock,
       coreComponents.configuration
     )
 
@@ -262,7 +263,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
       val request = resource.clientRequest
       httpCaches.contentCacheEntry(session, request) match {
         case None => false
-        case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
+        case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
           // beware, side effecting
           session = httpCaches.clearContentCache(session, request)
           false
@@ -286,7 +287,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
   private def done(): Unit = {
     logger.debug("All resources were fetched")
     // FIXME only do so if not silent
-    rootTx.next ! session.logGroupRequest(start, nowMillis, globalStatus)
+    rootTx.next ! session.logGroupRequest(start, clock.nowMillis, globalStatus)
     context.stop(self)
   }
 
@@ -306,7 +307,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
               // recycle token, fetch a buffered resource
               fetchResource(request)
 
-            case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
+            case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
               // expire reached
               session = httpCaches.clearContentCache(session, clientRequest)
               fetchResource(request)

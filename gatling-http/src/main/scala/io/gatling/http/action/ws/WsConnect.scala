@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.ws
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.config.GatlingConfiguration
@@ -38,6 +39,7 @@ class WsConnect(
     httpComponents:           HttpComponents,
     system:                   ActorSystem,
     val statsEngine:          StatsEngine,
+    val clock:                Clock,
     configuration:            GatlingConfiguration,
     val next:                 Action
 ) extends RequestAction with WsAction with NameGen {
@@ -61,6 +63,7 @@ class WsConnect(
             statsEngine,
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
+            clock,
             configuration
           ), genName("wsActor"))
 

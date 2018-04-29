@@ -34,6 +34,6 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
     val nextAction: Expression[Action] = _ => roundRobin.next.success
 
-    new Switch(nextAction, ctx.coreComponents.statsEngine, genName("roundRobinSwitch"), next)
+    new Switch(nextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("roundRobinSwitch"), next)
   }
 }

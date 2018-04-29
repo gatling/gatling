@@ -24,6 +24,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
@@ -69,7 +70,7 @@ trait ScenarioTestFixture extends BaseSpec {
 
     try {
       val statsEngine = new LoggingStatsEngine
-      val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], statsEngine, mock[Action], configuration)
+      val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], statsEngine, new DefaultClock, mock[Action], configuration)
       val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, Protocols(Nil)).scenarioRegistry(Protocols(Nil))
       val scenarioContext = ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false)
       val exitAction = new BlockingExitAction()

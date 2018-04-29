@@ -17,12 +17,11 @@
 package io.gatling.jms.client
 
 import javax.jms.Message
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Failure
 import io.gatling.core.action.Action
 import io.gatling.core.akka.BaseActor
@@ -32,7 +31,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms._
 
-import akka.actor.{ Timers, Props }
+import akka.actor.{ Props, Timers }
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -59,15 +58,15 @@ case class MessageReceived(
 case object TimeoutScan
 
 object Tracker {
-  def props(statsEngine: StatsEngine, configuration: GatlingConfiguration) =
-    Props(new Tracker(statsEngine, configuration.jms.replyTimeoutScanPeriod milliseconds))
+  def props(statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) =
+    Props(new Tracker(statsEngine, clock, configuration.jms.replyTimeoutScanPeriod milliseconds))
 }
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages
  * Once a message is correlated, it publishes to the Gatling core DataWriter
  */
-class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) extends BaseActor with Timers {
+class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: FiniteDuration) extends BaseActor with Timers {
 
   private val sentMessages = mutable.HashMap.empty[String, MessageSent]
   private val timedOutMessages = mutable.ArrayBuffer.empty[MessageSent]
@@ -96,7 +95,7 @@ class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) 
       }
 
     case TimeoutScan =>
-      val now = nowMillis
+      val now = clock.nowMillis
       sentMessages.valuesIterator.foreach { message =>
         val replyTimeout = message.replyTimeout
         if (replyTimeout > 0 && (now - message.sent) > replyTimeout) {
@@ -119,9 +118,9 @@ class Tracker(statsEngine: StatsEngine, replyTimeoutScanPeriod: FiniteDuration) 
     next:        Action,
     requestName: String,
     message:     Option[String]
-  ) = {
+  ): Unit = {
     statsEngine.logResponse(session, requestName, sent, received, status, None, message)
-    next ! session.logGroupRequest(sent, received, status).increaseDrift(nowMillis - received)
+    next ! session.logGroupRequest(sent, received, status).increaseDrift(clock.nowMillis - received)
   }
 
   /**

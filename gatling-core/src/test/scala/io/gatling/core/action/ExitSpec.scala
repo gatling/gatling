@@ -17,6 +17,7 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
@@ -24,12 +25,14 @@ import io.gatling.core.stats.writer.UserMessage
 
 class ExitSpec extends AkkaSpec {
 
+  private val clock = new DefaultClock
+
   "Exit" should "terminate the session and notify the Controller execution has ended" in {
-    val exit = new Exit(self, mock[StatsEngine])
+    val exit = new Exit(self, mock[StatsEngine], clock)
 
     var hasTerminated = false
 
-    val session = Session("scenario", 0, onExit = _ => hasTerminated = true)
+    val session = Session("scenario", 0, clock.nowMillis, onExit = _ => hasTerminated = true)
 
     exit ! session
 

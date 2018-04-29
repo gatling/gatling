@@ -24,12 +24,10 @@ import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.commons.validation.Success
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
-import io.gatling.core.check.ConditionalCheck._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ StringResponseBody, Response }
-import io.gatling.http.Predef._
 import io.gatling.http.check.HttpCheck
 
 import org.mockito.Mockito._
@@ -39,7 +37,7 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", 0)
+  val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String) = {
     val response = mock[Response]

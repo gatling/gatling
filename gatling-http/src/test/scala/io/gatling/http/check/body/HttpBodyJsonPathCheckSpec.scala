@@ -38,7 +38,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
   implicit val materializer = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", 0)
+  val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String) = {
     val response = mock[Response]

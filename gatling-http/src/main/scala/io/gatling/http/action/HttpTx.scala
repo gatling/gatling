@@ -17,7 +17,7 @@
 package io.gatling.http.action
 
 import io.gatling.commons.stats.OK
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
@@ -51,7 +51,7 @@ object HttpTx extends NameGen with StrictLogging {
     }
   }
 
-  private def startWithCache(origTx: HttpTx, actorRefFactory: ActorRefFactory, httpEngine: HttpEngine, httpCaches: HttpCaches)(f: HttpTx => Unit): Unit = {
+  private def startWithCache(origTx: HttpTx, actorRefFactory: ActorRefFactory, httpEngine: HttpEngine, httpCaches: HttpCaches, clock: Clock)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
     val clientRequest = tx.request.clientRequest
     val uri = clientRequest.getUri
@@ -61,7 +61,7 @@ object HttpTx extends NameGen with StrictLogging {
       case None | Some(ContentCacheEntry(None, _, _)) =>
         f(tx)
 
-      case Some(ContentCacheEntry(Some(expire), _, _)) if unpreciseNowMillis > expire =>
+      case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
         val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, clientRequest))
         f(newTx)
 
@@ -91,7 +91,7 @@ object HttpTx extends NameGen with StrictLogging {
 
     import origTx.request.config.httpComponents._
 
-    startWithCache(origTx, actorRefFactory, httpEngine, httpCaches) { tx =>
+    startWithCache(origTx, actorRefFactory, httpEngine, httpCaches, origTx.request.config.coreComponents.clock) { tx =>
 
       logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
@@ -99,7 +99,7 @@ object HttpTx extends NameGen with StrictLogging {
       val ahcRequest = tx.request.clientRequest
       val clientId = tx.session.userId
       val shared = httpProtocol.enginePart.shareConnections
-      val handler = new GatlingHttpListener(tx, responseProcessor)
+      val handler = new GatlingHttpListener(tx, responseProcessor, origTx.request.config.coreComponents.clock)
 
       if (tx.request.config.throttled)
         origTx.request.config.coreComponents.throttler.throttle(tx.session.scenario, () => executeRequest(client, ahcRequest, clientId, shared, handler))

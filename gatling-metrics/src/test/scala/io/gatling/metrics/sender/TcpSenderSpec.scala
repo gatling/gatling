@@ -23,15 +23,15 @@ import scala.concurrent.duration._
 import akka.testkit._
 import akka.io.Tcp._
 import akka.util.ByteString
-
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.metrics.message.GraphiteMetrics
 
 class TcpSenderSpec extends AkkaSpec {
 
   val dummySocketAddress = new InetSocketAddress(9999)
 
-  class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second) {
+  class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second, new DefaultClock) {
     override def askForConnection(): Unit = ()
   }
 

@@ -22,7 +22,7 @@ import io.gatling.core.action.Action
 
 class BlockSpec extends BaseSpec {
 
-  def newSession = Session("scenario", 0)
+  def newSession = Session("scenario", 0, System.currentTimeMillis())
 
   "LoopBlock.unapply" should "return the block's counter name if it is a instance of LoopBlock" in {
     LoopBlock.unapply(ExitAsapLoopBlock("counter", true.expressionSuccess, mock[Action])) shouldBe Some("counter")
@@ -30,7 +30,7 @@ class BlockSpec extends BaseSpec {
   }
 
   it should "return None if it isn't an instance of LoopBlock" in {
-    LoopBlock.unapply(GroupBlock(List("root group"))) shouldBe None
+    LoopBlock.unapply(GroupBlock(List("root group"), System.currentTimeMillis())) shouldBe None
   }
 
   "LoopBlock.continue" should "return true if the condition evaluation succeeds and evaluates to true" in {

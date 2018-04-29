@@ -43,6 +43,7 @@ case class WsSendTextFrameBuilder(
       message,
       checkSequences,
       ctx.coreComponents.statsEngine,
+      ctx.coreComponents.clock,
       next = next
     )
 }
@@ -64,6 +65,7 @@ case class WsSendBinaryFrameBuilder(
       message,
       checkSequences,
       ctx.coreComponents.statsEngine,
+      ctx.coreComponents.clock,
       next = next
     )
 }

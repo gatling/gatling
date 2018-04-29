@@ -17,17 +17,18 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms.ConnectionFactory
 
+import javax.jms.ConnectionFactory
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.model.Credentials
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, configuration: GatlingConfiguration) {
+class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) {
 
   private val connections = new ConcurrentHashMap[ConnectionFactory, JmsConnection]
 
@@ -38,7 +39,7 @@ class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, configura
         case _                                     => connectionFactory.createConnection()
       }
       connection.start()
-      new JmsConnection(connection, credentials, system, statsEngine, configuration)
+      new JmsConnection(connection, credentials, system, statsEngine, clock, configuration)
     })
 
     if (connection.credentials != credentials) {

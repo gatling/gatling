@@ -17,7 +17,6 @@
 package io.gatling.http.action.sse.fsm
 
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
@@ -34,7 +33,7 @@ trait WhenPerformingCheck { this: SseActor =>
         // check timeout
         // fail check, send next and goto Idle
         val errorMessage = s"Check ${currentCheck.name} timeout"
-        val newSession = logResponse(session, currentCheck.name, checkSequenceStart, nowMillis, KO, None, Some(errorMessage))
+        val newSession = logResponse(session, currentCheck.name, checkSequenceStart, clock.nowMillis, KO, None, Some(errorMessage))
         val nextAction = next match {
           case Left(n) =>
             logger.debug("Check timeout, failing it and performing next action")
@@ -72,7 +71,7 @@ trait WhenPerformingCheck { this: SseActor =>
   private def handleSseCheckCrash(checkName: String, session: Session, next: Either[Action, SetCheck], checkSequenceStart: Long, code: Option[String], errorMessage: String): State = {
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
-    val newSession = logResponse(session, checkName, checkSequenceStart, nowMillis, KO, code, Some(fullMessage))
+    val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))
     val nextAction = next match {
       case Left(n) =>
         // failed to connect

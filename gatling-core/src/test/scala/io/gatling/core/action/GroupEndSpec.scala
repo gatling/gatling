@@ -17,6 +17,7 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.Session
 import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.GroupMessage
@@ -25,14 +26,16 @@ import akka.testkit._
 
 class GroupEndSpec extends AkkaSpec {
 
+  private val clock = new DefaultClock
+
   "GroupEnd" should "exit the current group" in {
     val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
+    val statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock)
 
-    val groupEnd = new GroupEnd(statsEngine, new ActorDelegatingAction("next", self))
+    val groupEnd = new GroupEnd(statsEngine, clock, new ActorDelegatingAction("next", self))
 
-    val session = Session("scenario", 0)
-    val sessionInGroup = session.enterGroup("group")
+    val session = Session("scenario", 0, clock.nowMillis)
+    val sessionInGroup = session.enterGroup("group", clock.nowMillis)
 
     groupEnd ! sessionInGroup
     expectMsg(session)

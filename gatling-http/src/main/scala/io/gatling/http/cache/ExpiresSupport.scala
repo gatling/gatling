@@ -16,14 +16,16 @@
 
 package io.gatling.http.cache
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.NumberHelper._
-import io.gatling.commons.util.ClockSingleton.unpreciseNowMillis
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.Response
 
 import io.netty.handler.codec.DateFormatter
 
 trait ExpiresSupport {
+
+  def clock: Clock
 
   private val MaxAgePrefix = "max-age="
   private val MaxAgeZero = MaxAgePrefix + "0"
@@ -72,9 +74,9 @@ trait ExpiresSupport {
       if (maxAge < 0)
         maxAge
       else
-        maxAge * 1000 + unpreciseNowMillis
+        maxAge * 1000 + clock.nowMillis
     }
-    def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > unpreciseNowMillis)
+    def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > clock.nowMillis)
 
     if (pragmaNoCache || cacheControlNoCache) {
       None

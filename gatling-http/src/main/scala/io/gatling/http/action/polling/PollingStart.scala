@@ -37,15 +37,18 @@ class PollingStart(
     val next:        Action
 ) extends ExitableAction with PollingAction with NameGen {
 
+  import httpRequestDef._
+
   override val name = genName(pollerName)
 
-  import httpRequestDef._
+  override val clock = config.coreComponents.clock
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     config.checks,
     config.responseTransformer,
     config.discardResponseChunks,
     config.httpComponents.httpProtocol.responsePart.inferHtmlResources,
+    clock,
     config.coreComponents.configuration
   )
 

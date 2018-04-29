@@ -24,13 +24,13 @@ import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 
 class CookieHandlingSpec extends BaseSpec {
 
-  val emptySession = Session("scenarioName", 0)
+  val emptySession = Session("scenarioName", 0, System.currentTimeMillis())
 
   "getStoredCookies" should "be able to get a cookie from session" in {
     val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE1")
   }
 
@@ -40,7 +40,7 @@ class CookieHandlingSpec extends BaseSpec {
 
   "storeCookies" should "be able to store a cookie in an empty session" in {
     val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-    CookieSupport.storeCookies(emptySession, Uri.create("https://docs.foo.com/accounts"), List(newCookie))
+    CookieSupport.storeCookies(emptySession, Uri.create("https://docs.foo.com/accounts"), List(newCookie), System.currentTimeMillis())
 
     CookieSupport.getStoredCookies(emptySession, "https://docs.foo.com/accounts") shouldBe empty
   }
@@ -49,7 +49,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE1")
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.isSecure) shouldBe List(true)
   }
@@ -58,7 +58,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE6; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE6")
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.isSecure) shouldBe List(false)
   }
@@ -67,7 +67,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE6; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "http://docs.foo.com/accounts").size shouldBe 0
   }
 

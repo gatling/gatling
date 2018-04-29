@@ -17,6 +17,7 @@
 package io.gatling.http.config
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.http.cache.HttpCaches
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.engine.HttpEngine
@@ -25,7 +26,7 @@ import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 class HttpProtocolBuilderSpec extends BaseSpec {
 
   val configuration = GatlingConfiguration.loadForTest()
-  val httpCaches = new HttpCaches(configuration)
+  val httpCaches = new HttpCaches(new DefaultClock, configuration)
   val httpEngine = mock[HttpEngine]
   val httpProtocolBuilder = HttpProtocolBuilder(configuration)
 

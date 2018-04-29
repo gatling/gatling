@@ -20,6 +20,7 @@ import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.validation.Failure
 import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
@@ -53,7 +54,7 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val poller = createPollerActor(1.second, newHttpRequestDef, mock[HttpEngine], dataWriterProbe)
 
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
 
     poller ! StartPolling(session)
 
@@ -67,7 +68,7 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, newHttpRequestDef, mockHttpEngine, dataWriterProbe)
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
 
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
@@ -83,7 +84,7 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, newHttpRequestDef, mockHttpEngine, dataWriterProbe)
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
 
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
@@ -109,7 +110,7 @@ class PollerActorSpec extends AkkaSpec {
         period = period,
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
-        statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
+        statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, new DefaultClock)
       )
     )
 

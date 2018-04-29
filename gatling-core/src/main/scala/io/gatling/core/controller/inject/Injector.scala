@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong
 import scala.collection.breakOut
 import scala.concurrent.duration._
 
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
 import io.gatling.core.controller.ControllerCommand.InjectorStopped
 import io.gatling.core.controller.inject.open.OpenWorkload
 import io.gatling.core.scenario.Scenario
@@ -42,11 +42,11 @@ object Injector {
   private val InjectorActorName = "gatling-injector"
   val TickPeriod: FiniteDuration = 1 second
 
-  def apply(system: ActorSystem, statsEngine: StatsEngine): ActorRef =
-    system.actorOf(Props(new Injector(statsEngine)), InjectorActorName)
+  def apply(system: ActorSystem, statsEngine: StatsEngine, clock: Clock): ActorRef =
+    system.actorOf(Props(new Injector(statsEngine, clock)), InjectorActorName)
 }
 
-private[inject] class Injector(statsEngine: StatsEngine) extends InjectorFSM {
+private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
 
   import Injector._
   import InjectorState._
@@ -82,10 +82,10 @@ private[inject] class Injector(statsEngine: StatsEngine) extends InjectorFSM {
   when(WaitingToStart) {
     case Event(Start(controller, scenarios), NoData) =>
       val userIdGen = new AtomicLong
-      val startTime = nowMillis
+      val startTime = clock.nowMillis
 
       val workloads: Map[String, Workload] = scenarios.map { scenario =>
-        scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, system, statsEngine)
+        scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, system, statsEngine, clock)
       }(breakOut)
 
       val timer = system.scheduler.schedule(TickPeriod, TickPeriod, self, Tick)

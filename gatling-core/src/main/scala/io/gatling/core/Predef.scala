@@ -17,11 +17,13 @@
 package io.gatling.core
 
 import io.gatling.core.config.GatlingConfiguration
-
 import scala.concurrent.duration._
+
+import io.gatling.commons.util.Clock
 
 object Predef extends CoreDsl {
 
+  implicit var clock: Clock = _
   implicit var configuration: GatlingConfiguration = _
 
   type Session = io.gatling.core.session.Session

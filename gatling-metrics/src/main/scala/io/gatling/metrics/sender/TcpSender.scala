@@ -19,7 +19,8 @@ package io.gatling.metrics.sender
 import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
-import io.gatling.commons.util.Retry
+
+import io.gatling.commons.util.{ Clock, Retry }
 import io.gatling.metrics.message.GraphiteMetrics
 
 import akka.io.{ IO, Tcp }
@@ -27,7 +28,8 @@ import akka.io.{ IO, Tcp }
 private[metrics] class TcpSender(
     remote:      InetSocketAddress,
     maxRetries:  Int,
-    retryWindow: FiniteDuration
+    retryWindow: FiniteDuration,
+    clock:       Clock
 ) extends MetricsSender with TcpSenderFSM {
 
   import Tcp._
@@ -36,7 +38,7 @@ private[metrics] class TcpSender(
   askForConnection()
 
   // Wait for answer from IO manager
-  startWith(WaitingForConnection, DisconnectedData(new Retry(maxRetries, retryWindow)))
+  startWith(WaitingForConnection, DisconnectedData(new Retry(maxRetries, retryWindow, clock)))
 
   when(WaitingForConnection) {
     // Connection succeeded: proceed to running state

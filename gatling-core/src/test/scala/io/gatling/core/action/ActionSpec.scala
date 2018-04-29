@@ -32,7 +32,7 @@ class ActionSpec extends BaseSpec {
     val testAction = new TestAction
 
     testAction.hasRun shouldBe false
-    testAction ! Session("scenario", 0)
+    testAction ! Session("scenario", 0, System.currentTimeMillis())
     testAction.hasRun shouldBe true
   }
 }

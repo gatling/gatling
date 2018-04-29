@@ -18,21 +18,13 @@ package io.gatling.core.action
 
 import scala.concurrent.duration.DurationLong
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-/**
- * PauseAction provides a convenient means to implement pause actions based on random distributions.
- *
- * @param pauseDuration a function that can be used to generate a delay for the pause action
- * @param system the ActorSystem
- * @param statsEngine the StatsEngine
- * @param next the next action to execute, which will be notified after the pause is complete
- */
-class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngine: StatsEngine, val name: String, val next: Action) extends ExitableAction {
+class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action) extends ExitableAction {
 
   import system._
 
@@ -52,11 +44,11 @@ class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngin
         val durationMinusDrift = durationInMillis - drift
         logger.debug(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
-        val pauseStart = nowMillis
+        val pauseStart = clock.nowMillis
 
         try {
           scheduler.scheduleOnce(durationMinusDrift milliseconds) {
-            val newDrift = nowMillis - pauseStart - durationMinusDrift
+            val newDrift = clock.nowMillis - pauseStart - durationMinusDrift
             next ! session.setDrift(newDrift)
           }
         } catch {

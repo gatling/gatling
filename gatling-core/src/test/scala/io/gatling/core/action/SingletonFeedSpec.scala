@@ -30,7 +30,7 @@ class SingletonFeedSpec extends AkkaSpec {
   "SingletonFeed" should "force the simulation termination if the nb of records to pop can't be fetched from the session" in {
     val controller = TestProbe()
     val failingExpr: Expression[Int] = session => session("failed").validate[Int]
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
     val singletonFeed = createdSingletonFeed(Iterator.continually(Map("foo" -> "bar")))
 
     singletonFeed ! FeedMessage(session, failingExpr, controller.ref, new ActorDelegatingAction("next", self))
@@ -41,7 +41,7 @@ class SingletonFeedSpec extends AkkaSpec {
 
   it should "force the simulation termination if the nb of records to pop is not strictly positive" in {
     val controller = TestProbe()
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
     val singletonFeed = createdSingletonFeed(Iterator.continually(Map("foo" -> "bar")))
 
     singletonFeed ! FeedMessage(session, 0.expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))
@@ -55,7 +55,7 @@ class SingletonFeedSpec extends AkkaSpec {
 
   it should "force the simulation termination if the feeder is empty" in {
     val controller = TestProbe()
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
     val singletonFeed = createdSingletonFeed(Iterator.empty)
 
     singletonFeed ! FeedMessage(session, 1.expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))
@@ -65,7 +65,7 @@ class SingletonFeedSpec extends AkkaSpec {
 
   it should "simply put an entry from the feeder in the session when polling 1 record at a time" in {
     val controller = TestProbe()
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
     val singletonFeed = createdSingletonFeed(Iterator.continually(Map("foo" -> "bar")))
 
     singletonFeed ! FeedMessage(session, 1.expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))
@@ -77,7 +77,7 @@ class SingletonFeedSpec extends AkkaSpec {
 
   it should "put entries from the feeder suffixed with an index in the session when polling multiple record at a time" in {
     val controller = TestProbe()
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
     val singletonFeed = createdSingletonFeed(Iterator.continually(Map("foo" -> "bar")))
 
     singletonFeed ! FeedMessage(session, 2.expressionSuccess, controller.ref, new ActorDelegatingAction("next", self))

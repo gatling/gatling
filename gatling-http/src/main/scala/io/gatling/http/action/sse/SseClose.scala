@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.sse
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.{ Action, ActorBasedAction, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
@@ -26,6 +27,7 @@ class SseClose(
     val requestName: Expression[String],
     sseName:         String,
     val statsEngine: StatsEngine,
+    val clock:       Clock,
     val next:        Action
 ) extends RequestAction with ActorBasedAction with SseAction with NameGen {
 

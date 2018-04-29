@@ -16,10 +16,11 @@
 
 package io.gatling.core.action
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 
-class Switch(nextAction: Expression[Action], val statsEngine: StatsEngine, val name: String, val next: Action) extends ExitableAction {
+class Switch(nextAction: Expression[Action], val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action) extends ExitableAction {
 
   override def execute(session: Session): Unit = recover(session) {
     nextAction(session).map(_ ! session)

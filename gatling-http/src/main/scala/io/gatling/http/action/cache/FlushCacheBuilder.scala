@@ -26,6 +26,6 @@ class FlushCacheBuilder extends HttpActionBuilder with NameGen {
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val expression = lookUpHttpComponents(protocolComponentsRegistry).httpCaches.FlushCache
-    new SessionHook(expression, genName("flushCache"), coreComponents.statsEngine, next) with ExitableAction
+    new SessionHook(expression, genName("flushCache"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
   }
 }

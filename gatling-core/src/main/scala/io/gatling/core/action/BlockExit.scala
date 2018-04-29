@@ -19,7 +19,7 @@ package io.gatling.core.action
 import scala.annotation.tailrec
 
 import io.gatling.commons.stats.KO
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 
@@ -32,9 +32,8 @@ import io.gatling.core.stats.StatsEngine
  */
 case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[GroupBlock]) {
 
-  def exitBlock(statsEngine: StatsEngine): Unit = {
-    val now = nowMillis
-    groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session, _, now))
+  def exitBlock(statsEngine: StatsEngine, nowMillis: Long): Unit = {
+    groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session, _, nowMillis))
     exitAction ! session
   }
 }
@@ -117,11 +116,11 @@ object BlockExit {
     exitTryMaxRec(session.blockStack)
   }
 
-  def noBlockExitTriggered(session: Session, statsEngine: StatsEngine): Boolean =
+  def noBlockExitTriggered(session: Session, statsEngine: StatsEngine, nowMillis: Long): Boolean =
     exitAsapLoop(session).orElse(exitTryMax(session)) match {
       case None => true
       case Some(blockExit) =>
-        blockExit.exitBlock(statsEngine)
+        blockExit.exitBlock(statsEngine, nowMillis)
         false
     }
 }
@@ -132,9 +131,10 @@ object BlockExit {
 trait ExitableAction extends ChainableAction {
 
   def statsEngine: StatsEngine
+  def clock: Clock
 
   abstract override def !(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
+    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
       super.!(session)
     }
 }

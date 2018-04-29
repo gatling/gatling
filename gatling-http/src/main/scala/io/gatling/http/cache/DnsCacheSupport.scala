@@ -19,6 +19,7 @@ package io.gatling.http.cache
 import java.net.InetAddress
 import java.util.{ List => JList }
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.engine.HttpEngine
@@ -38,10 +39,12 @@ object DnsCacheSupport {
     dnsNameResolution: DnsNameResolution,
     hostNameAliases:   Map[String, InetAddress],
     httpEngine:        HttpEngine,
+    clock:             Clock,
     configuration:     GatlingConfiguration
   ) =
     configuration.resolve(
       // [fl]
+      //
       //
       //
       //
@@ -96,16 +99,16 @@ trait DnsCacheSupport {
 
   def configuration: GatlingConfiguration
 
-  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
+  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine, clock: Clock): Session => Session = {
 
     import httpProtocol.dnsPart._
 
     if (perUserNameResolution) {
-      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, configuration))
+      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, clock, configuration))
 
     } else {
       // create shared name resolver for all the users with this protocol
-      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, configuration)
+      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, clock, configuration)
       httpEngine.coreComponents.system.registerOnTermination(() => nameResolver.close())
 
       // perform close on system shutdown instead of virtual user termination as its shared

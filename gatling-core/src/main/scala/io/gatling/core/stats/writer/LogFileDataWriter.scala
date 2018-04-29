@@ -26,7 +26,7 @@ import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.StringHelper.EolBytes
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.StringReplace
+import io.gatling.commons.util.{ Clock, StringReplace }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.{ Integers, Longs }
 
@@ -265,7 +265,7 @@ case class FileData(
     writer:                    BufferedFileChannelWriter
 ) extends DataWriterData
 
-class LogFileDataWriter extends DataWriter[FileData] {
+class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
 
   def onInit(init: Init): FileData = {
 

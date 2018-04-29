@@ -16,24 +16,23 @@
 
 package io.gatling.core.action
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-/**
- * Action in charge of controlling a while loop execution.
- *
- * @constructor creates a Loop in the scenario
- * @param continueCondition the condition that decides when to exit the loop
- * @param counterName the name of the counter for this loop
- * @param exitASAP if loop condition should be evaluated between chain elements to exit ASAP
- * @param timeBased if loop is based on time and should compute entry timestamp
- * @param evaluateConditionAfterLoop if the loop condition is evaluated after the loop execution
- * @param statsEngine the StatsEngine
- * @param next the chain executed if testFunction evaluates to false
- */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, evaluateConditionAfterLoop: Boolean, statsEngine: StatsEngine, override val name: String, next: Action) extends Action {
+class Loop(
+    continueCondition:          Expression[Boolean],
+    counterName:                String,
+    exitASAP:                   Boolean,
+    timeBased:                  Boolean,
+    evaluateConditionAfterLoop: Boolean,
+    statsEngine:                StatsEngine,
+    clock:                      Clock,
+    override val name:          String,
+    next:                       Action
+) extends Action {
 
   private[this] var innerLoop: Action = _
 
@@ -43,13 +42,13 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
       if (session.contains(counterName))
         session.incrementCounter(counterName)
       else
-        session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased)
+        session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased, clock.nowMillis)
 
     innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, system, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
+    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
       innerLoop ! session
     }
 }

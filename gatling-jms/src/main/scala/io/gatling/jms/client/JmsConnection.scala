@@ -17,9 +17,10 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-import javax.jms.{ Connection, Destination }
 
+import javax.jms.{ Connection, Destination }
 import io.gatling.commons.model.Credentials
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
@@ -33,6 +34,7 @@ class JmsConnection(
     val credentials: Option[Credentials],
     system:          ActorSystem,
     statsEngine:     StatsEngine,
+    clock:           Clock,
     configuration:   GatlingConfiguration
 ) {
 
@@ -56,7 +58,7 @@ class JmsConnection(
   def producer(destination: Destination, deliveryMode: Int): JmsProducer =
     producerPool.producer(destination, deliveryMode)
 
-  private val trackerPool = new JmsTrackerPool(sessionPool, system, statsEngine, configuration)
+  private val trackerPool = new JmsTrackerPool(sessionPool, system, statsEngine, clock, configuration)
 
   def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
     trackerPool.tracker(destination, selector, listenerThreadCount, messageMatcher)

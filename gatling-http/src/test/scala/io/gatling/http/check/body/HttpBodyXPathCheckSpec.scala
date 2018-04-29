@@ -25,7 +25,6 @@ import org.mockito.Mockito._
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
-import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
@@ -37,7 +36,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val materializer = new HttpBodyXPathCheckMaterializer(defaultXmlParsers)
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", 0)
+  val session = Session("mockSession", 0, System.currentTimeMillis())
 
   def mockResponse(xml: Elem): Response = {
     val response = mock[Response]

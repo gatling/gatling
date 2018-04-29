@@ -18,6 +18,7 @@ package io.gatling.http.engine
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.http.action.HttpTx
 import io.gatling.http.client.HttpListener
@@ -42,7 +43,7 @@ object GatlingHttpListener extends StrictLogging {
  * @param tx the data about the request to be sent and processed
  * @param responseProcessor the responseProcessor
  */
-class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
+class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor, clock: Clock) extends HttpListener with LazyLogging {
 
   private val responseBuilder = tx.responseBuilderFactory(tx.request.clientRequest)
   private var init = false
@@ -64,7 +65,6 @@ class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor) exte
     }
 
   // [fl]
-  //
   //
   //
   //

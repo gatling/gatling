@@ -61,6 +61,6 @@ class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[S
       cookieValue <- getCookieValue(session, domain, resolvedPath, name, secure)
     } yield session.set(resolvedSaveAs, cookieValue)
 
-    new SessionHook(expression, genName("getCookie"), coreComponents.statsEngine, next) with ExitableAction
+    new SessionHook(expression, genName("getCookie"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
   }
 }

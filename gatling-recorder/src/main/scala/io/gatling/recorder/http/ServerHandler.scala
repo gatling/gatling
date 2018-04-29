@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.http
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.flows.MitmMessage.{ RequestReceived, ServerChannelInactive }
 import io.gatling.recorder.http.flows._
 import io.gatling.recorder.http.ssl.SslServerContext
@@ -33,7 +33,8 @@ class ServerHandler(
     clientBootstrap:        Bootstrap,
     sslServerContext:       SslServerContext,
     trafficLogger:          TrafficLogger,
-    httpClientCodecFactory: () => HttpClientCodec
+    httpClientCodecFactory: () => HttpClientCodec,
+    clock:                  Clock
 ) extends ChannelInboundHandlerAdapter with StrictLogging {
 
   @volatile private var https = false
@@ -41,7 +42,7 @@ class ServerHandler(
   @volatile private var mitmActor: ActorRef = _
 
   override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
-    val sendTimestamp = nowMillis
+    val sendTimestamp = clock.nowMillis
     msg match {
       case request: FullHttpRequest =>
         if (mitmActor == null) {
@@ -53,7 +54,7 @@ class ServerHandler(
             }
             Remote.fromAbsoluteUri(firstRequestUriWithScheme)
           }
-          mitmActor = system.actorOf(Props(MitmActor(outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, ctx.channel, https)))
+          mitmActor = system.actorOf(Props(MitmActor(outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, ctx.channel, https, clock)))
         }
 
         trafficLogger.logRequest(ctx.channel.id, request, remote, https, sendTimestamp)

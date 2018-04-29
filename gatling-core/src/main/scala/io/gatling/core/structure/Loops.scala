@@ -20,7 +20,7 @@ import java.util.UUID
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder.chainOf
@@ -44,12 +44,13 @@ trait Loops[B] extends Execs[B] {
     loop(continueCondition, chainOf(new SessionHookBuilder(exposeCurrentValue, exitable = false)).exec(chain), counterName, exitASAP = false, ForeachLoopType)
   }
 
-  def during(duration: Duration, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = true)(chain: ChainBuilder): B =
+  def during(duration: Duration, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = true)(chain: ChainBuilder)(implicit clock: Clock): B =
     during(duration.expressionSuccess, counterName, exitASAP)(chain)
 
-  def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B = {
+  // FIXME provide an implicit to lift Int into Duration in seconds
+  def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder)(implicit clock: Clock): B = {
 
-    val continueCondition = (session: Session) => duration(session).map(d => nowMillis - session.loopTimestampValue(counterName) <= d.toMillis)
+    val continueCondition = (session: Session) => duration(session).map(d => clock.nowMillis - session.loopTimestampValue(counterName) <= d.toMillis)
 
     loop(continueCondition, chain, counterName, exitASAP, DuringLoopType)
   }
@@ -68,26 +69,25 @@ trait Loops[B] extends Execs[B] {
   private def loop(condition: Expression[Boolean], chain: ChainBuilder, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean, loopType: LoopType): B =
     exec(new LoopBuilder(condition, chain, counterName, exitASAP, loopType))
 
-  private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String) =
+  private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String, clock: Clock) =
     (session: Session) => for {
       durationValue <- duration(session)
       conditionValue <- condition(session)
-    } yield nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis && conditionValue
+    } yield clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis && conditionValue
 
   def asLongAsDuring(
     condition:   Expression[Boolean],
     duration:    Expression[Duration],
     counterName: String               = FastUUID.toString(UUID.randomUUID),
     exitASAP:    Boolean              = true
-  )(chain: ChainBuilder): B =
-    loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
+  )(chain: ChainBuilder)(implicit clock: Clock): B =
+    loop(continueCondition(condition, duration, counterName, clock), chain, counterName, exitASAP, AsLongAsDuringLoopType)
 
   def doWhileDuring(
     condition:   Expression[Boolean],
     duration:    Expression[Duration],
     counterName: String               = FastUUID.toString(UUID.randomUUID),
     exitASAP:    Boolean              = true
-  )(chain: ChainBuilder): B =
-    loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, DoWhileDuringType)
-
+  )(chain: ChainBuilder)(implicit clock: Clock): B =
+    loop(continueCondition(condition, duration, counterName, clock), chain, counterName, exitASAP, DoWhileDuringType)
 }

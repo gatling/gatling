@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
@@ -34,7 +35,8 @@ abstract class Workload(
     userIdGen:   AtomicLong,
     startTime:   Long,
     system:      ActorSystem,
-    statsEngine: StatsEngine
+    statsEngine: StatsEngine,
+    clock:       Clock
 ) extends StrictLogging {
 
   private var scheduled = 0
@@ -48,7 +50,7 @@ abstract class Workload(
   protected def incrementStoppedUsers(): Unit = stopped += 1
 
   private def startUser(userId: Long): Unit = {
-    val rawSession = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
+    val rawSession = Session(scenario = scenario.name, userId, clock.nowMillis, onExit = scenario.onExit)
     val session = scenario.onStart(rawSession)
     scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")

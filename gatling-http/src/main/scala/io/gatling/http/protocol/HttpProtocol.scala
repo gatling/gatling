@@ -52,13 +52,15 @@ object HttpProtocol extends StrictLogging {
     def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
 
       val httpEngine = HttpEngine(coreComponents)
+      val clock = coreComponents.clock
 
       httpProtocol => {
         val httpComponents = HttpComponents(
           httpProtocol,
           httpEngine,
-          new HttpCaches(coreComponents.configuration),
-          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(coreComponents.system)
+          new HttpCaches(coreComponents.clock, coreComponents.configuration),
+          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(coreComponents.system),
+          clock
         )
 
         httpEngine.warmpUp(httpComponents)

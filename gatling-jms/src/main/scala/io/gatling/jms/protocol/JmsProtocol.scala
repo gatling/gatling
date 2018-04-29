@@ -36,7 +36,7 @@ object JmsProtocol {
     def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
     def newComponents(coreComponents: CoreComponents): JmsProtocol => JmsComponents = {
-      val jmsConnectionPool = new JmsConnectionPool(coreComponents.system, coreComponents.statsEngine, coreComponents.configuration)
+      val jmsConnectionPool = new JmsConnectionPool(coreComponents.system, coreComponents.statsEngine, coreComponents.clock, coreComponents.configuration)
       coreComponents.system.registerOnTermination {
         jmsConnectionPool.close()
       }

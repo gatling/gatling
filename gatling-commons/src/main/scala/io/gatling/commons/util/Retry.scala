@@ -18,22 +18,20 @@ package io.gatling.commons.util
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+private[gatling] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDuration, retries: List[Long], clock: Clock) {
 
-private[gatling] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDuration, retries: List[Long]) {
-
-  def this(maxRetryLimit: Int, retryWindow: FiniteDuration) =
-    this(maxRetryLimit, retryWindow, Nil)
+  def this(maxRetryLimit: Int, retryWindow: FiniteDuration, clock: Clock) =
+    this(maxRetryLimit, retryWindow, Nil, clock)
 
   private def copyWithNewRetries(retries: List[Long]) =
-    new Retry(maxRetryLimit, retryWindow, retries)
+    new Retry(maxRetryLimit, retryWindow, retries, clock)
 
-  def newRetry: Retry = copyWithNewRetries(nowMillis :: cleanupOldRetries)
+  def newRetry: Retry = copyWithNewRetries(clock.nowMillis :: cleanupOldRetries)
 
   def isLimitReached = cleanupOldRetries.length >= maxRetryLimit
 
   private def cleanupOldRetries: List[Long] = {
-    val now = nowMillis
+    val now = clock.nowMillis
     retries.filterNot(_ < (now - retryWindow.toMillis))
   }
 }

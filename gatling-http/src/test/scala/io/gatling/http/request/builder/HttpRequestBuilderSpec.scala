@@ -18,6 +18,7 @@ package io.gatling.http.request.builder
 
 import scala.collection.JavaConverters._
 
+import io.gatling.commons.util.DefaultClock
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -39,13 +40,14 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
   val configuration = GatlingConfiguration.loadForTest()
+  val clock = new DefaultClock
   val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
   when(coreComponents.system).thenReturn(mock[ActorSystem])
   val httpEngine = mock[HttpEngine]
   when(httpEngine.coreComponents).thenReturn(coreComponents)
-  val httpCaches = new HttpCaches(configuration)
-  val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor])
+  val httpCaches = new HttpCaches(clock, configuration)
+  val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor], clock)
 
   def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, Right(Uri.create("http://gatling.io")))
@@ -59,7 +61,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     }
 
     httpRequestDef(_.signatureCalculator(sigCalc))
-      .build("requestName", Session("scenarioName", 0))
+      .build("requestName", Session("scenarioName", 0, clock.nowMillis))
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)
         writableRequest.getRequest.headers.get("X-Token")
@@ -70,7 +72,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     def sigCalc(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = headers.add("X-Token", "foo")
 
     httpRequestDef(_.signatureCalculator(sigCalc _))
-      .build("requestName", Session("scenarioName", 0))
+      .build("requestName", Session("scenarioName", 0, clock.nowMillis))
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)
         writableRequest.getRequest.headers.get("X-Token")
@@ -80,7 +82,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   "form" should "work when overriding a value" in {
 
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
-    val session = Session("scenarioName", 0).set("form", form).set("formParamToOverride", "bar")
+    val session = Session("scenarioName", 0, clock.nowMillis).set("form", form).set("formParamToOverride", "bar")
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
@@ -89,7 +91,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   it should "work when passing only formParams" in {
 
-    val session = Session("scenarioName", 0).set("formParam", "bar")
+    val session = Session("scenarioName", 0, clock.nowMillis).set("formParam", "bar")
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
@@ -99,7 +101,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   it should "work when passing only a form" in {
 
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
-    val session = Session("scenarioName", 0).set("form", form)
+    val session = Session("scenarioName", 0, clock.nowMillis).set("form", form)
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)

@@ -19,7 +19,7 @@ package io.gatling.core.controller.inject.open
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.controller.inject.Injector._
 
 class UserStreamSpec extends BaseSpec {
@@ -30,7 +30,7 @@ class UserStreamSpec extends BaseSpec {
     val expectedDuration = 9 hours
     val ramp = RampOpenInjection(expectedTotalUsers, expectedDuration)
 
-    val startTime = nowMillis
+    val startTime = new DefaultClock().nowMillis
 
     val userStream = UserStream(List(ramp))
 
@@ -66,7 +66,7 @@ class UserStreamSpec extends BaseSpec {
 
     val ramp = RampOpenInjection(144000000 / 30, 18000 seconds)
 
-    val startTime = nowMillis
+    val startTime = new DefaultClock().nowMillis
 
     for (timeSinceStart <- -1001 until 2000) {
       val userStream = UserStream(List(ramp))

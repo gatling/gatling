@@ -18,6 +18,7 @@ package io.gatling.recorder.http.flows
 
 import scala.util.{ Failure, Success }
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.flows.MitmActorFSM.{ WaitingForClientChannelConnect, WaitingForClientChannelConnectData }
@@ -37,17 +38,18 @@ object MitmActor {
     trafficLogger:          TrafficLogger,
     httpClientCodecFactory: () => HttpClientCodec,
     channel:                Channel,
-    https:                  Boolean
+    https:                  Boolean,
+    clock:                  Clock
   ): MitmActor =
     if (https) {
       outgoingProxy match {
-        case Some(proxy) => new SecuredWithProxyMitmActor(channel, clientBootstrap, sslServerContext, proxy, trafficLogger, httpClientCodecFactory)
-        case _           => new SecuredNoProxyMitmActor(channel, clientBootstrap, sslServerContext, trafficLogger)
+        case Some(proxy) => new SecuredWithProxyMitmActor(channel, clientBootstrap, sslServerContext, proxy, trafficLogger, httpClientCodecFactory, clock)
+        case _           => new SecuredNoProxyMitmActor(channel, clientBootstrap, sslServerContext, trafficLogger, clock)
       }
     } else {
       outgoingProxy match {
-        case Some(proxy) => new PlainWithProxyMitmActor(channel, clientBootstrap, proxy, trafficLogger)
-        case _           => new PlainNoProxyMitmActor(channel, clientBootstrap, trafficLogger)
+        case Some(proxy) => new PlainWithProxyMitmActor(channel, clientBootstrap, proxy, trafficLogger, clock)
+        case _           => new PlainNoProxyMitmActor(channel, clientBootstrap, trafficLogger, clock)
       }
     }
 }

@@ -21,9 +21,9 @@ import java.security.MessageDigest
 
 import scala.math.max
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper.bytes2Hex
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
@@ -48,6 +48,7 @@ object ResponseBuilder extends StrictLogging {
     responseTransformer:   Option[PartialFunction[Response, Response]],
     discardResponseChunks: Boolean,
     inferHtmlResources:    Boolean,
+    clock:                 Clock,
     configuration:         GatlingConfiguration
   ): ResponseBuilderFactory = {
 
@@ -66,7 +67,8 @@ object ResponseBuilder extends StrictLogging {
       responseTransformer,
       storeBodyParts,
       inferHtmlResources,
-      configuration.core.charset
+      configuration.core.charset,
+      clock
     )
   }
 }
@@ -78,7 +80,8 @@ class ResponseBuilder(
     responseTransformer: Option[PartialFunction[Response, Response]],
     storeBodyParts:      Boolean,
     inferHtmlResources:  Boolean,
-    defaultCharset:      Charset
+    defaultCharset:      Charset,
+    clock:               Clock
 ) {
 
   private val computeChecksums = checksumChecks.nonEmpty
@@ -101,10 +104,10 @@ class ResponseBuilder(
       Map.empty[String, MessageDigest]
 
   def updateStartTimestamp(): Unit =
-    startTimestamp = nowMillis
+    startTimestamp = clock.nowMillis
 
   def updateEndTimestamp(): Unit =
-    endTimestamp = nowMillis
+    endTimestamp = clock.nowMillis
 
   def accumulate(wireRequestHeaders: HttpHeaders): Unit = {
     this.wireRequestHeaders = Some(wireRequestHeaders)

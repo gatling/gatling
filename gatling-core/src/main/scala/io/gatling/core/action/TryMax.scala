@@ -19,6 +19,7 @@ package io.gatling.core.action
 import scala.concurrent.duration._
 
 import io.gatling.commons.stats.KO
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session, TryMaxBlock }
 import io.gatling.core.stats.StatsEngine
@@ -26,16 +27,22 @@ import io.gatling.core.util.NameGen
 
 import akka.actor.ActorSystem
 
-class TryMax(times: Expression[Int], counterName: String, statsEngine: StatsEngine, next: Action) extends Action with NameGen {
+class TryMax(
+    times:       Expression[Int],
+    counterName: String,
+    statsEngine: StatsEngine,
+    clock:       Clock,
+    next:        Action
+) extends Action with NameGen {
 
   override val name = genName("tryMax")
 
   private[this] var innerTryMax: Action = _
   private[core] def initialize(loopNext: Action, system: ActorSystem): Unit =
-    innerTryMax = new InnerTryMax(times, loopNext, counterName, system, name + "-inner", next)
+    innerTryMax = new InnerTryMax(times, loopNext, counterName, system, clock, name + "-inner", next)
 
   override def execute(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
+    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
       innerTryMax ! session
     }
 }
@@ -45,6 +52,7 @@ class InnerTryMax(
     loopNext:    Action,
     counterName: String,
     system:      ActorSystem,
+    clock:       Clock,
     val name:    String,
     val next:    Action
 ) extends ChainableAction {
@@ -89,7 +97,7 @@ class InnerTryMax(
     val lastUserId = getAndSetLastUserId(session)
 
     if (!session.contains(counterName)) {
-      loopNext ! session.enterTryMax(counterName, this)
+      loopNext ! session.enterTryMax(counterName, this, clock.nowMillis)
     } else {
       val incrementedSession = session.incrementCounter(counterName)
 

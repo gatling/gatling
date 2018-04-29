@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.ws
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.session._
@@ -29,8 +30,9 @@ class WsSendTextFrame(
     wsName:                   String,
     message:                  Expression[String],
     checkSequences:           List[WsFrameCheckSequence[WsTextFrameCheck]],
-    val statsEngine:          StatsEngine,
-    val next:                 Action
+    override val statsEngine: StatsEngine,
+    override val clock:       Clock,
+    override val next:        Action
 ) extends RequestAction with WsAction with ExitableAction with NameGen {
 
   override val name: String = genName("wsSendTextFrame")
@@ -50,8 +52,9 @@ class WsSendBinaryFrame(
     wsName:                   String,
     message:                  Expression[Array[Byte]],
     checkSequences:           List[WsFrameCheckSequence[WsBinaryFrameCheck]],
-    val statsEngine:          StatsEngine,
-    val next:                 Action
+    override val statsEngine: StatsEngine,
+    override val clock:       Clock,
+    override val next:        Action
 ) extends RequestAction with WsAction with ExitableAction with NameGen {
 
   override val name: String = genName("wsSendBinaryFrame")

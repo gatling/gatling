@@ -33,6 +33,6 @@ case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsD
     import ctx._
     val statsEngine = coreComponents.statsEngine
     val jmsComponents = components(protocolComponentsRegistry)
-    new RequestReply(attributes, replyDestination, trackerDestination, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, statsEngine, next)
+    new RequestReply(attributes, replyDestination, trackerDestination, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, statsEngine, coreComponents.clock, next)
   }
 }

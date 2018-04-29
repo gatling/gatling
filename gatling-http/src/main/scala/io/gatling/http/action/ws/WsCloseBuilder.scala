@@ -31,6 +31,7 @@ class WsCloseBuilder(
       requestName,
       wsName,
       ctx.coreComponents.statsEngine,
+      ctx.coreComponents.clock,
       next = next
     )
 }

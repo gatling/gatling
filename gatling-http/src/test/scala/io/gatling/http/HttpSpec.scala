@@ -18,13 +18,14 @@ package io.gatling.http
 
 import java.io.RandomAccessFile
 import java.net.ServerSocket
-import javax.activation.FileTypeMap
 
+import javax.activation.FileTypeMap
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 import scala.util.Try
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.util.Io._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
@@ -48,6 +49,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 
+  val clock = new DefaultClock
   val mockHttpPort = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
 
   def httpProtocol(implicit configuration: GatlingConfiguration) =
@@ -68,11 +70,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
   )(implicit configuration: GatlingConfiguration) = {
     val protocols = Protocols(protocolCustomizer(httpProtocol))
-    val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
+    val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Protocols(Nil))
     val next = new ActorDelegatingAction("next", self)
     val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    actor ! Session("TestSession", 0)
+    actor ! Session("TestSession", 0, clock.nowMillis)
     expectMsgClass(timeout, classOf[Session])
   }
 

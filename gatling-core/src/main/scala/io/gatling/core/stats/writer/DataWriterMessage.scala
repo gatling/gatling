@@ -18,7 +18,6 @@ package io.gatling.core.stats.writer
 
 import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.message.MessageEvent
 
@@ -35,7 +34,7 @@ case class RunMessage(
 }
 
 sealed trait DataWriterMessage
-case class Init(configuration: GatlingConfiguration, assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 case object Flush extends DataWriterMessage
 case class Crash(cause: String) extends DataWriterMessage
 case object Stop extends DataWriterMessage

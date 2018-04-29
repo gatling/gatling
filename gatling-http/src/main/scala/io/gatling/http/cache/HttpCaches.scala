@@ -16,13 +16,14 @@
 
 package io.gatling.http.cache
 
-import com.typesafe.scalalogging.StrictLogging
+import io.gatling.commons.util.Clock
 
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.SuccessWrapper
 
-class HttpCaches(val configuration: GatlingConfiguration)
+class HttpCaches(val clock: Clock, val configuration: GatlingConfiguration)
   extends HttpContentCacheSupport
   with PermanentRedirectCacheSupport
   with DnsCacheSupport

@@ -20,7 +20,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ End, Start }
 
@@ -40,7 +40,6 @@ class UserCounters(val totalUserCount: Option[Long]) {
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
 class ConsoleData(
-    val configuration:         GatlingConfiguration,
     val startUpTime:           Long,
     var complete:              Boolean                              = false,
     val usersCounters:         mutable.Map[String, UserCounters]    = mutable.Map.empty[String, UserCounters],
@@ -50,7 +49,7 @@ class ConsoleData(
 )
   extends DataWriterData
 
-class ConsoleDataWriter extends DataWriter[ConsoleData] {
+class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
 
   private val flushTimerName = "flushTimer"
 
@@ -58,7 +57,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
     import init._
 
-    val data = new ConsoleData(configuration, nowMillis)
+    val data = new ConsoleData(clock.nowMillis)
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
 
@@ -70,7 +69,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
   override def onFlush(data: ConsoleData): Unit = {
     import data._
 
-    val runDuration = (nowMillis - startUpTime) / 1000
+    val runDuration = (clock.nowMillis - startUpTime) / 1000
 
     val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration)
     complete = summary.complete

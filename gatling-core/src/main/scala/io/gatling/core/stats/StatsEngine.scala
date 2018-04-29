@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.SimulationParams
@@ -78,24 +78,24 @@ trait StatsEngine {
 
 object DataWritersStatsEngine {
 
-  def apply(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage, configuration: GatlingConfiguration): DataWritersStatsEngine = {
+  def apply(simulationParams: SimulationParams, runMessage: RunMessage, system: ActorSystem, clock: Clock, configuration: GatlingConfiguration): DataWritersStatsEngine = {
     implicit val dataWriterTimeOut = Timeout(5 seconds)
 
     val dataWriters = configuration.data.dataWriters.map { dw =>
       val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz), clazz.getName)
+      system.actorOf(Props(clazz, clock, configuration), clazz.getName)
     }
 
     val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
 
-    val dataWriterInitResponses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
+    val dataWriterInitResponses = dataWriters.map(_ ? Init(simulationParams.assertions, runMessage, shortScenarioDescriptions))
 
     implicit val dispatcher = system.dispatcher
 
     val statsEngineFuture = Future.sequence(dataWriterInitResponses)
       .map(_.forall(_ == true))
       .map {
-        case true => Success(new DataWritersStatsEngine(system, dataWriters))
+        case true => Success(new DataWritersStatsEngine(dataWriters, system, clock))
         case _    => Failure(new Exception("DataWriters didn't initialize properly"))
       }
 
@@ -103,7 +103,7 @@ object DataWritersStatsEngine {
   }
 }
 
-class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extends StatsEngine {
+class DataWritersStatsEngine(dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
 
   private val active = new AtomicBoolean(true)
 
@@ -172,5 +172,5 @@ class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) ex
     ))
 
   override def logCrash(session: Session, requestName: String, error: String): Unit =
-    dispatch(ErrorMessage(s"$requestName: $error ", nowMillis))
+    dispatch(ErrorMessage(s"$requestName: $error ", clock.nowMillis))
 }

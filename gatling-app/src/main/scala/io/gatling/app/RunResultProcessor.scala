@@ -20,7 +20,6 @@ import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.{ AssertionResult, AssertionValidator }
-import io.gatling.commons.util.ClockSingleton._
 import io.gatling.core.config.GatlingConfiguration
 
 private[app] object RunResultProcessor {
@@ -45,7 +44,7 @@ class RunResultProcessor(configuration: GatlingConfiguration) {
   private implicit val config: GatlingConfiguration = configuration
 
   def processRunResult(runResult: RunResult): StatusCode = {
-    val start = nowMillis
+    val start = System.currentTimeMillis()
 
     initLogFileReader(runResult) match {
       case Some(reader) =>
@@ -75,7 +74,7 @@ class RunResultProcessor(configuration: GatlingConfiguration) {
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")
     val indexFile = new ReportsGenerator().generateFor(reportsGenerationInputs)
-    println(s"Reports generated in ${(nowMillis - start) / 1000}s.")
+    println(s"Reports generated in ${(System.currentTimeMillis() - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }
 

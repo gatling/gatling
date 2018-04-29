@@ -19,7 +19,7 @@ package io.gatling.http.action.ws.fsm
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
@@ -68,6 +68,7 @@ object WsActor {
     statsEngine:          StatsEngine,
     httpEngine:           HttpEngine,
     httpProtocol:         HttpProtocol,
+    clock:                Clock,
     configuration:        GatlingConfiguration
   ) =
     Props(new WsActor(
@@ -79,6 +80,7 @@ object WsActor {
       statsEngine,
       httpEngine,
       httpProtocol,
+      clock,
       configuration
     ))
 }
@@ -92,6 +94,7 @@ class WsActor(
     val statsEngine:          StatsEngine,
     val httpEngine:           HttpEngine,
     val httpProtocol:         HttpProtocol,
+    val clock:                Clock,
     val configuration:        GatlingConfiguration
 ) extends WsActorFSM
   with WhenInit
@@ -125,7 +128,7 @@ class WsActor(
   }
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
-    statsEngine.logResponse(session, wsName, nowMillis, Long.MinValue, OK, None, None)
+    statsEngine.logResponse(session, wsName, clock.nowMillis, Long.MinValue, OK, None, None)
 
   startWith(Init, InitData)
 

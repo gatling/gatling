@@ -57,14 +57,14 @@ class ChainableActionSpec extends BaseSpec {
     val testAction = new ChainableTestAction(next, fail = false)
 
     testAction.hasRun shouldBe false
-    testAction ! Session("scenario", 0)
+    testAction ! Session("scenario", 0, System.currentTimeMillis())
     testAction.hasRun shouldBe true
   }
 
   it should "send the session, failed, to the next actor when crashing" in {
     val next = new NextTestAction
     val testAction = new ChainableTestAction(next, fail = true)
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
 
     testAction ! session
     next.message shouldBe session.markAsFailed
@@ -76,14 +76,14 @@ class ChainableActionSpec extends BaseSpec {
 
     testAction.hasRun shouldBe false
 
-    testAction ! Session("scenario", 0)
+    testAction ! Session("scenario", 0, System.currentTimeMillis())
     testAction.hasRun shouldBe true
   }
 
   it should "send the session, failed, to the next actor when recovering a Failure" in {
     val next = new NextTestAction
     val testAction = new FailableTestAction(next, fail = true)
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, System.currentTimeMillis())
 
     testAction ! session
     next.message shouldBe session.markAsFailed

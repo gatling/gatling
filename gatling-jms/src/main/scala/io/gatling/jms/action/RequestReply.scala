@@ -16,9 +16,9 @@
 
 package io.gatling.jms.action
 
-import javax.jms.Message
+import io.gatling.commons.util.Clock
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import javax.jms.Message
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action._
 import io.gatling.core.session._
@@ -33,10 +33,19 @@ import io.gatling.jms.request._
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, trackerDestination: Option[JmsDestination], protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, val next: Action)
+class RequestReply(
+    attributes:         JmsAttributes,
+    replyDestination:   JmsDestination,
+    trackerDestination: Option[JmsDestination],
+    protocol:           JmsProtocol,
+    jmsConnectionPool:  JmsConnectionPool,
+    val statsEngine:    StatsEngine,
+    val clock:          Clock,
+    val next:           Action
+)
   extends JmsAction(attributes, protocol, jmsConnectionPool) {
 
-  override val name = genName("jmsRequestReply")
+  override val name: String = genName("jmsRequestReply")
 
   private val jmsReplyDestination = jmsConnection.destination(replyDestination)
   private val messageMatcher = protocol.messageMatcher
@@ -61,6 +70,6 @@ class RequestReply(attributes: JmsAttributes, replyDestination: JmsDestination, 
       //
       // [/fl]
       val tracker = jmsConnection.tracker(resolvedTrackerDestination, attributes.selector, protocol.listenerThreadCount, messageMatcher)
-      tracker.track(matchId, nowMillis, replyTimeout, attributes.checks, session, next, requestName)
+      tracker.track(matchId, clock.nowMillis, replyTimeout, attributes.checks, session, next, requestName)
     }
 }

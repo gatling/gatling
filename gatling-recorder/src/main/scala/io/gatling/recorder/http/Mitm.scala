@@ -23,6 +23,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import io.gatling.commons.model.Credentials
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.ssl.SslServerContext
@@ -43,28 +44,7 @@ object Mitm extends StrictLogging {
   val HttpCodecHandlerName = "http"
   val GatlingHandler = "gatling"
 
-  def main(args: Array[String]): Unit = {
-
-    val params = collection.mutable.Map.empty[String, String]
-    params.update("recorder.proxy.https.mode", "CertificateAuthority")
-    params.update("recorder.proxy.https.certificateAuthority.certificatePath", "/Users/slandelle/gatlingCA.cert.pem")
-    params.update("recorder.proxy.https.certificateAuthority.privateKeyPath", "/Users/slandelle/gatlingCA.key.pem")
-    //    params.update("recorder.proxy.outgoing.host", "localhost")
-    //    params.update("recorder.proxy.outgoing.port", "8888")
-    //    params.update("recorder.proxy.outgoing.sslPort", "8888")
-
-    RecorderConfiguration.initialSetup(params, None)
-    val config = RecorderConfiguration.configuration
-
-    val mitm = Mitm(null, config)
-    try {
-      Thread.sleep(20 * 1000)
-    } finally {
-      mitm.shutdown()
-    }
-  }
-
-  def apply(controller: RecorderController, config: RecorderConfiguration): Mitm = {
+  def apply(controller: RecorderController, clock: Clock, config: RecorderConfiguration): Mitm = {
 
     import config.netty._
 
@@ -117,7 +97,7 @@ object Mitm extends StrictLogging {
             .addLast("responseEncoder", new HttpResponseEncoder)
             .addLast("contentCompressor", new HttpContentCompressor)
             .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
-            .addLast(GatlingHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory))
+            .addLast(GatlingHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, clock))
         }
       })
 

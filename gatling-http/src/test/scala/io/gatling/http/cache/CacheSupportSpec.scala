@@ -19,6 +19,7 @@ package io.gatling.http.cache
 import java.nio.charset.StandardCharsets._
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.{ Clock, DefaultClock }
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
@@ -39,7 +40,8 @@ class CacheSupportSpec extends BaseSpec {
 
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
-  private val httpCaches = new HttpCaches(configuration)
+  private val clock = new DefaultClock
+  private val httpCaches = new HttpCaches(clock, configuration)
   private val httpEngine = mock[HttpEngine]
 
   class CacheContext {
@@ -107,7 +109,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   class RedirectContext {
-    var session = Session("mockSession", 0)
+    var session = Session("mockSession", 0, clock.nowMillis)
 
     def addRedirect(from: String, to: String): Unit = {
       val request = new RequestBuilder(HttpMethod.GET, Uri.create(from)).build(true)
@@ -167,7 +169,7 @@ class CacheSupportSpec extends BaseSpec {
 
     when(request.getUri) thenReturn Uri.create(uri)
     when(request.getHeaders) thenReturn new DefaultHttpHeaders
-    when(caches.setNameResolver(any[HttpProtocol], any[HttpEngine])) thenReturn (identity[Session] _)
+    when(caches.setNameResolver(any[HttpProtocol], any[HttpEngine], any[Clock])) thenReturn (identity[Session] _)
 
     HttpTx(
       session,
@@ -183,7 +185,7 @@ class CacheSupportSpec extends BaseSpec {
           followRedirect = true,
           discardResponseChunks = true,
           coreComponents = mock[CoreComponents],
-          httpComponents = HttpComponents(protocol, mock[HttpEngine], caches, mock[ResponseProcessor]),
+          httpComponents = HttpComponents(protocol, mock[HttpEngine], caches, mock[ResponseProcessor], clock),
           explicitResources = Nil
         )
       ),

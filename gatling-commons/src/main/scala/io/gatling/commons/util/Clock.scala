@@ -18,12 +18,9 @@ package io.gatling.commons.util
 
 import java.lang.System.{ currentTimeMillis, nanoTime }
 
-import scala.concurrent.duration._
-
 trait Clock {
   def computeTimeMillisFromNanos(nanos: Long): Long
   def nowMillis: Long
-  def unpreciseNowMillis: Long
   def nowSeconds: Long
 }
 
@@ -34,18 +31,5 @@ class DefaultClock extends Clock {
 
   override def computeTimeMillisFromNanos(nanos: Long): Long = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
   override def nowMillis: Long = computeTimeMillisFromNanos(nanoTime)
-  override def unpreciseNowMillis: Long = currentTimeMillis
   override def nowSeconds: Long = computeTimeMillisFromNanos(nanoTime) / 1000
-}
-
-object ClockSingleton extends Clock {
-
-  private val _clock = new DefaultClock
-
-  def loadClockSingleton(): Unit = {}
-
-  override def computeTimeMillisFromNanos(nanos: Long) = _clock.computeTimeMillisFromNanos(nanos)
-  override def nowMillis = _clock.nowMillis
-  override def unpreciseNowMillis = _clock.unpreciseNowMillis
-  override def nowSeconds = _clock.nowSeconds
 }

@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.sse
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.{ Failure, Validation }
 import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.config.GatlingConfiguration
@@ -37,6 +38,7 @@ class SseConnect(
     httpComponents:        HttpComponents,
     system:                ActorSystem,
     val statsEngine:       StatsEngine,
+    val clock:             Clock,
     configuration:         GatlingConfiguration,
     val next:              Action
 ) extends RequestAction with SseAction with NameGen {
@@ -59,6 +61,7 @@ class SseConnect(
             statsEngine,
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
+            clock,
             configuration
           ), genName("sseActor"))
 

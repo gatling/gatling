@@ -16,7 +16,6 @@
 
 package io.gatling.http.action.sse.fsm
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.http.check.sse.SseMessageCheckSequence
 
 trait WhenIdle { this: SseActor =>
@@ -25,7 +24,7 @@ trait WhenIdle { this: SseActor =>
     case Event(SetCheck(actionName, checkSequences, session, nextAction), IdleData(_, stream)) =>
       logger.debug(s"Sent check $actionName")
       // actually send message!
-      val timestamp = nowMillis
+      val timestamp = clock.nowMillis
 
       checkSequences match {
         case SseMessageCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
@@ -71,6 +70,6 @@ trait WhenIdle { this: SseActor =>
       //[fl]
       //
       //[fl]
-      goto(Closing) using ClosingData(name, session, next, nowMillis) // TODO should we have a close timeout?
+      goto(Closing) using ClosingData(name, session, next, clock.nowMillis) // TODO should we have a close timeout?
   }
 }

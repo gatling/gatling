@@ -36,11 +36,11 @@ case class SseSetCheckBuilder(
     this.modify(_.checkSequences).using(_ ::: List(SseMessageCheckSequence(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, next)
+    new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }
 
 class SseCloseBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, next)
+    new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

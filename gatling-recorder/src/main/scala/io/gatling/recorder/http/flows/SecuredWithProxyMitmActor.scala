@@ -19,6 +19,7 @@ package io.gatling.recorder.http.flows
 import java.nio.charset.StandardCharsets._
 import java.util.Base64
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, Mitm, OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.Mitm._
 import io.gatling.recorder.http.Netty._
@@ -58,7 +59,8 @@ class SecuredWithProxyMitmActor(
     sslServerContext:       SslServerContext,
     proxy:                  OutgoingProxy,
     trafficLogger:          TrafficLogger,
-    httpClientCodecFactory: () => HttpClientCodec
+    httpClientCodecFactory: () => HttpClientCodec,
+    clock:                  Clock
 )
   extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
@@ -68,7 +70,7 @@ class SecuredWithProxyMitmActor(
   override protected def connectedRemote(requestRemote: Remote): Remote = proxyRemote
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
-    clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger))
+    clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
 
     // send connect request
     val connectRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.CONNECT, s"${remote.host}:${remote.port}")

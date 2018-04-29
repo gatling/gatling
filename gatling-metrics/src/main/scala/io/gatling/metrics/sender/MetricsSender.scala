@@ -20,6 +20,7 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config._
 
@@ -27,10 +28,10 @@ import akka.actor.{ Props, Stash }
 
 private[metrics] object MetricsSender {
 
-  def props(configuration: GatlingConfiguration): Props = {
+  def props(clock: Clock, configuration: GatlingConfiguration): Props = {
     val remote = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
     configuration.data.graphite.protocol match {
-      case Tcp => Props(new TcpSender(remote, 5, 5 seconds))
+      case Tcp => Props(new TcpSender(remote, 5, 5 seconds, clock))
       case Udp => Props(new UdpSender(remote))
     }
   }

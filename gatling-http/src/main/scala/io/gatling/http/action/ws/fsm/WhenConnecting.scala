@@ -17,7 +17,6 @@
 package io.gatling.http.action.ws.fsm
 
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
@@ -35,14 +34,14 @@ trait WhenConnecting { this: WsActor =>
 
   def gotoConnecting(session: Session, next: Either[Action, SendFrame], remainingTries: Int = httpProtocol.wsPart.maxReconnects.getOrElse(0)): State = {
 
-    val listener = new WsListener(self, statsEngine)
+    val listener = new WsListener(self, statsEngine, clock)
 
     // [fl]
     //
     // [fl]
     httpEngine.httpClient.sendRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener)
 
-    goto(Connecting) using ConnectingData(session, next, nowMillis, remainingTries)
+    goto(Connecting) using ConnectingData(session, next, clock.nowMillis, remainingTries)
   }
 
   private def handleConnectFailure(session: Session, next: Either[Action, SendFrame], connectStart: Long, connectEnd: Long, code: Option[String], reason: String, remainingTries: Int): State = {

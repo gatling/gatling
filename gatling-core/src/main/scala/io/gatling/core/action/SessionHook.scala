@@ -16,19 +16,11 @@
 
 package io.gatling.core.action
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 
-/**
- * Hook for interacting with the Session
- *
- * @constructor Constructs a SimpleAction
- * @param sessionFunction a function for manipulating the Session
- * @param name the Action name
- * @param statsEngine the StatsEngine
- * @param next the action to be executed after this one
- */
-class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val next: Action) extends ChainableAction {
+class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ChainableAction {
 
   /**
    * Applies the function to the Session

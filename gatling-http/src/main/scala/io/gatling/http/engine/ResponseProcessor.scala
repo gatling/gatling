@@ -20,7 +20,6 @@ import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
@@ -146,7 +145,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
         maybeResourceFetcherActor match {
           case Some(resourceFetcherActor) => actorRefFactory.actorOf(Props(resourceFetcherActor()), genName("resourceFetcher"))
-          case None                       => tx.next ! tx.session.increaseDrift(nowMillis - response.endTimestamp)
+          case _                          => tx.next ! tx.session.increaseDrift(tx.request.config.coreComponents.clock.nowMillis - response.endTimestamp)
         }
     }
 
@@ -295,7 +294,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
         val storeCookiesUpdate: Session => Session =
           response.cookies match {
             case Nil     => Session.Identity
-            case cookies => CookieSupport.storeCookies(_, uri, cookies)
+            case cookies => s => CookieSupport.storeCookies(s, uri, cookies, clock.nowMillis)
           }
         val newUpdate = tx.update andThen storeCookiesUpdate
 

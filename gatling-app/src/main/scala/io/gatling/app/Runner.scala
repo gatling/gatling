@@ -20,8 +20,7 @@ import scala.concurrent.{ Await, Future }
 import scala.concurrent.duration._
 import scala.util.{ Failure, Try }
 
-import io.gatling.commons.util.Ga
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.{ Clock, DefaultClock, Ga }
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
@@ -38,7 +37,8 @@ import com.typesafe.scalalogging.StrictLogging
 
 private[app] object Runner {
 
-  def apply(system: ActorSystem, configuration: GatlingConfiguration): Runner =
+  def apply(system: ActorSystem, configuration: GatlingConfiguration): Runner = {
+    val clock = new DefaultClock
     configuration.resolve(
       // [fl]
       //
@@ -46,17 +46,13 @@ private[app] object Runner {
       //
       //
       //
-      //
-      //
-      //
-      //
-      //
       // [fl]
-      new Runner(system, configuration)
+      new Runner(system, clock, configuration)
     )
+  }
 }
 
-private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfiguration) extends StrictLogging {
+private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
 
   private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult =
     configuration.core.directory.reportsOnly match {
@@ -67,14 +63,13 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     }
 
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
-    DataWritersStatsEngine(system, simulationParams, runMessage, configuration)
+    DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)
 
   private def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
     logger.trace("Running")
-    // important, initialize time reference
-    loadClockSingleton()
 
-    // ugly way to pass the configuration to the DSL
+    // ugly way to pass the clock and the configuration to the DSL
+    io.gatling.core.Predef.clock = clock
     io.gatling.core.Predef.configuration = configuration
 
     val selection = Selection(selectedSimulationClass, configuration)
@@ -86,13 +81,13 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
     simulation.executeBefore()
     logger.trace("Before hooks executed")
 
-    val runMessage = RunMessage(simulationParams.name, selection.simulationId, nowMillis, selection.description)
+    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler(system, simulationParams)
-    val injector = Injector(system, statsEngine)
+    val injector = Injector(system, statsEngine, clock)
     val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
-    val exit = new Exit(injector, statsEngine)
-    val coreComponents = CoreComponents(system, controller, throttler, statsEngine, exit, configuration)
+    val exit = new Exit(injector, statsEngine, clock)
+    val coreComponents = CoreComponents(system, controller, throttler, statsEngine, clock, exit, configuration)
     logger.trace("CoreComponents instantiated")
 
     val scenarios = simulationParams.scenarios(coreComponents)
@@ -110,12 +105,12 @@ private[gatling] class Runner(system: ActorSystem, configuration: GatlingConfigu
 
   protected[gatling] def start(simulationParams: SimulationParams, scenarios: List[Scenario], coreComponents: CoreComponents): Try[_] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
-    val start = nowMillis
+    val start = coreComponents.clock.nowMillis
     println(s"Simulation ${simulationParams.name} started...")
     logger.trace("Asking Controller to start")
     val whenRunDone: Future[Try[String]] = coreComponents.controller.ask(ControllerCommand.Start(scenarios))(timeout).mapTo[Try[String]]
     val runDone = Await.result(whenRunDone, timeout)
-    println(s"Simulation ${simulationParams.name} completed in ${(nowMillis - start) / 1000} seconds")
+    println(s"Simulation ${simulationParams.name} completed in ${(coreComponents.clock.nowMillis - start) / 1000} seconds")
     runDone
   }
 }

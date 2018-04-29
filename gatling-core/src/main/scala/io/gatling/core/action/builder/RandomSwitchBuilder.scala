@@ -78,6 +78,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }
-    new Switch(nextAction, ctx.coreComponents.statsEngine, genName("randomSwitch"), next)
+    new Switch(nextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("randomSwitch"), next)
   }
 }

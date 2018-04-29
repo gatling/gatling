@@ -19,7 +19,7 @@ package io.gatling.http.action.sse
 import java.io.IOException
 import java.net.InetSocketAddress
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.sse.fsm._
@@ -35,7 +35,7 @@ class SseException(statusCode: Int) extends IOException("Server returned http re
   override def fillInStackTrace(): Throwable = this
 }
 
-class SseListener(sseActor: ActorRef, statsEngine: StatsEngine) extends HttpListener
+class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) extends HttpListener
   with SseStream
   with EventStreamDispatcher
   with StrictLogging {
@@ -55,7 +55,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine) extends HttpList
     logger.debug(s"Status ${status.code} received for SSE")
 
     if (status == HttpResponseStatus.OK) {
-      sseActor ! SseStreamConnected(this, nowMillis)
+      sseActor ! SseStreamConnected(this, clock.nowMillis)
 
     } else {
       val ex = new SseException(status.code)
@@ -90,7 +90,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine) extends HttpList
 
     state match {
       case Opening | Open =>
-        sseActor ! SseStreamCrashed(throwable, nowMillis)
+        sseActor ! SseStreamCrashed(throwable, clock.nowMillis)
 
       case Closed =>
         logger.error(s"unexpected state closed with error message: $errorMessage")
@@ -105,7 +105,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine) extends HttpList
     }
   }
 
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! SseReceived(sse.asJsonString, nowMillis)
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! SseReceived(sse.asJsonString, clock.nowMillis)
 }
 
 private sealed trait SseState

@@ -19,28 +19,28 @@ package io.gatling.core.stats.writer
 import scala.collection.mutable
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ End, Start }
 
 class LeakData(val noActivityTimeout: FiniteDuration, var lastTouch: Long, val events: mutable.Map[Long, DataWriterMessage]) extends DataWriterData
 
-class LeakReporterDataWriter extends DataWriter[LeakData] {
+class LeakReporterDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[LeakData] {
 
   private val flushTimerName = "flushTimer"
 
   def onInit(init: Init): LeakData = {
-    import init._
 
     val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
 
     setTimer(flushTimerName, Flush, noActivityTimeout, repeat = true)
 
-    new LeakData(noActivityTimeout, nowMillis, mutable.Map.empty[Long, DataWriterMessage])
+    new LeakData(noActivityTimeout, clock.nowMillis, mutable.Map.empty[Long, DataWriterMessage])
   }
 
   override def onFlush(data: LeakData): Unit = {
     import data._
-    val timeSinceLastTouch = (nowMillis - lastTouch) / 1000
+    val timeSinceLastTouch = (clock.nowMillis - lastTouch) / 1000
 
     if (timeSinceLastTouch > noActivityTimeout.toSeconds && events.nonEmpty) {
       System.err.println(s"Gatling had no activity during last $noActivityTimeout. It could be a virtual user leak, here's their last events:")
@@ -50,7 +50,7 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
 
   private def onUserMessage(user: UserMessage, data: LeakData): Unit = {
     import data._
-    lastTouch = nowMillis
+    lastTouch = clock.nowMillis
     user.event match {
       case Start => events += user.session.userId -> user
       case End   => events -= user.session.userId
@@ -59,13 +59,13 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
 
   private def onGroupMessage(group: GroupMessage, data: LeakData): Unit = {
     import data._
-    lastTouch = nowMillis
+    lastTouch = clock.nowMillis
     events += group.userId -> group
   }
 
   private def onResponseMessage(response: ResponseMessage, data: LeakData): Unit = {
     import data._
-    lastTouch = nowMillis
+    lastTouch = clock.nowMillis
     events += response.userId -> response
   }
 
@@ -73,7 +73,7 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     case user: UserMessage        => onUserMessage(user, data)
     case group: GroupMessage      => onGroupMessage(group, data)
     case request: ResponseMessage => onResponseMessage(request, data)
-    case error: ErrorMessage      =>
+    case _: ErrorMessage          =>
   }
 
   override def onCrash(cause: String, data: LeakData): Unit = {}

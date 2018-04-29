@@ -16,15 +16,16 @@
 
 package io.gatling.http.protocol
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
 
-case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor) extends ProtocolComponents {
+case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor, clock: Clock) extends ProtocolComponents {
 
   override lazy val onStart: Option[Session => Session] =
-    Some(httpCaches.setNameResolver(httpProtocol, httpEngine)
+    Some(httpCaches.setNameResolver(httpProtocol, httpEngine, clock)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
       andThen httpCaches.setWsBaseUrl(httpProtocol))

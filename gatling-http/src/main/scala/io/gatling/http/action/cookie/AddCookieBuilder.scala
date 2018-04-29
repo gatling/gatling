@@ -53,6 +53,7 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
 
     import ctx._
 
+    val clock = ctx.coreComponents.clock
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
 
     val requestDomain = domain match {
@@ -72,9 +73,9 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
       domain.foreach(cookie.setDomain)
       path.foreach(cookie.setPath)
       cookie.setSecure(secure)
-      storeCookie(session, resolvedRequestDomain, DefaultPath, cookie)
+      storeCookie(session, resolvedRequestDomain, DefaultPath, cookie, clock.nowMillis)
     }
 
-    new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, next) with ExitableAction
+    new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
   }
 }

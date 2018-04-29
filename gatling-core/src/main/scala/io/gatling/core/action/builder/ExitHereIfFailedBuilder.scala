@@ -22,5 +22,5 @@ import io.gatling.core.structure.ScenarioContext
 object ExitHereIfFailedBuilder extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new ExitHereIfFailed(ctx.coreComponents.exit, ctx.coreComponents.statsEngine, next)
+    new ExitHereIfFailed(ctx.coreComponents.exit, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

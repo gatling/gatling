@@ -16,6 +16,7 @@
 
 package io.gatling.core
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
@@ -28,6 +29,7 @@ case class CoreComponents(
     controller:    ActorRef,
     throttler:     Throttler,
     statsEngine:   StatsEngine,
+    clock:         Clock,
     exit:          Action,
     configuration: GatlingConfiguration
 )

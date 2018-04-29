@@ -19,6 +19,7 @@ package io.gatling.recorder.http.flows
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.Netty._
 
@@ -44,9 +45,10 @@ class PlainWithProxyMitmActor(
     serverChannel:   Channel,
     clientBootstrap: Bootstrap,
     proxy:           OutgoingProxy,
-    trafficLogger:   TrafficLogger
+    trafficLogger:   TrafficLogger,
+    clock:           Clock
 )
-  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger) {
+  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
   private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.getEncoder.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))

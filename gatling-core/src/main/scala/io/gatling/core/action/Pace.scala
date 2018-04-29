@@ -18,7 +18,7 @@ package io.gatling.core.action
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -36,11 +36,11 @@ import akka.actor.ActorSystem
  * @param statsEngine the StatsEngine
  * @param next the next actor in the chain
  */
-class Pace(intervalExpr: Expression[Duration], counter: String, system: ActorSystem, val statsEngine: StatsEngine, val next: Action) extends ExitableAction with NameGen {
+class Pace(intervalExpr: Expression[Duration], counter: String, system: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
 
   import system._
 
-  override val name = genName("pace")
+  override val name: String = genName("pace")
 
   /**
    * Pace keeps track of when it can next run using a counter in the session. If this counter does not exist, it will
@@ -52,11 +52,12 @@ class Pace(intervalExpr: Expression[Duration], counter: String, system: ActorSys
   override def execute(session: Session): Unit = recover(session) {
     intervalExpr(session) map { interval =>
       val startTimeOpt = session(counter).asOption[Long]
-      val startTime = startTimeOpt.getOrElse(nowMillis)
+      val now = clock.nowMillis
+      val startTime = startTimeOpt.getOrElse(now)
       val nextStartTime = startTime + interval.toMillis
-      val waitTime = startTime - nowMillis
+      val waitTime = startTime - now
 
-      def doNext() = next ! session.set(counter, nextStartTime)
+      def doNext(): Unit = next ! session.set(counter, nextStartTime)
 
       if (waitTime > 0) {
         scheduler.scheduleOnce(waitTime milliseconds)(doNext())

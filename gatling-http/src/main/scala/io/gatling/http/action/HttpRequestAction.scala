@@ -42,6 +42,8 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val
 
   override val statsEngine: StatsEngine = config.coreComponents.statsEngine
 
+  override val clock = config.coreComponents.clock
+
   override val requestName: Expression[String] = httpRequestDef.requestName
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
@@ -49,6 +51,7 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val
     config.responseTransformer,
     config.discardResponseChunks,
     config.httpComponents.httpProtocol.responsePart.inferHtmlResources,
+    clock,
     config.coreComponents.configuration
   )
 

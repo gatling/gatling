@@ -41,5 +41,5 @@ class PollingStartBuilder(
 class PollingStopBuilder(pollerName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new PollingStop(pollerName, ctx.coreComponents.statsEngine, next)
+    new PollingStop(pollerName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

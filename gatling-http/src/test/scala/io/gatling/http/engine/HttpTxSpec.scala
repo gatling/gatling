@@ -17,6 +17,7 @@
 package io.gatling.http.engine
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
@@ -37,12 +38,13 @@ class HttpTxSpec extends BaseSpec {
 
   trait Context {
     val coreComponents = mock[CoreComponents]
+    val clock = new DefaultClock
     when(coreComponents.configuration).thenReturn(configuration)
     when(coreComponents.system).thenReturn(mock[ActorSystem])
     val httpEngine = mock[HttpEngine]
     when(httpEngine.coreComponents).thenReturn(coreComponents)
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(configuration), mock[ResponseProcessor])
+    val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(clock, configuration), mock[ResponseProcessor], clock)
 
     val configBase = HttpRequestConfig(
       checks = Nil,

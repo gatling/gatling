@@ -16,7 +16,7 @@
 
 package io.gatling.http.action.ws
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.ws.fsm._
 import io.gatling.http.client.WebSocketListener
@@ -27,9 +27,10 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
-class WsListener(wsActor: ActorRef, statsEngine: StatsEngine) extends WebSocketListener with LazyLogging {
+class WsListener(wsActor: ActorRef, statsEngine: StatsEngine, clock: Clock) extends WebSocketListener with LazyLogging {
 
   //[fl]
+  //
   //
   //
   //
@@ -63,20 +64,20 @@ class WsListener(wsActor: ActorRef, statsEngine: StatsEngine) extends WebSocketL
     logger.debug(s"Received response to WebSocket CONNECT: $httpResponseStatus $httpHeaders")
 
   override def onWebSocketOpen(): Unit =
-    wsActor ! WebSocketConnected(this, nowMillis)
+    wsActor ! WebSocketConnected(this, clock.nowMillis)
 
   override def onCloseFrame(frame: CloseWebSocketFrame): Unit =
-    wsActor ! WebSocketClosed(frame.statusCode, frame.reasonText, nowMillis)
+    wsActor ! WebSocketClosed(frame.statusCode, frame.reasonText, clock.nowMillis)
 
   override def onTextFrame(frame: TextWebSocketFrame): Unit =
-    wsActor ! TextFrameReceived(Utf8ByteBufCharsetDecoder.decodeUtf8(frame.content()), nowMillis)
+    wsActor ! TextFrameReceived(Utf8ByteBufCharsetDecoder.decodeUtf8(frame.content()), clock.nowMillis)
 
   override def onBinaryFrame(frame: BinaryWebSocketFrame): Unit =
-    wsActor ! BinaryFrameReceived(ByteBufUtils.byteBuf2Bytes(frame.content()), nowMillis)
+    wsActor ! BinaryFrameReceived(ByteBufUtils.byteBuf2Bytes(frame.content()), clock.nowMillis)
 
   override def onPongFrame(pongWebSocketFrame: PongWebSocketFrame): Unit =
     logger.debug("Received PONG frame")
 
   override def onThrowable(t: Throwable): Unit =
-    wsActor ! WebSocketCrashed(t, nowMillis)
+    wsActor ! WebSocketCrashed(t, clock.nowMillis)
 }

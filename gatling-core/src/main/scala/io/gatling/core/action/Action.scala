@@ -18,6 +18,7 @@ package io.gatling.core.action
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
@@ -83,7 +84,7 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
   def execute(session: Session): Unit = actor ! session
 }
 
-class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val next: Action, actor: ActorRef) extends ActorDelegatingAction(name, actor) with ExitableAction
+class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action, actor: ActorRef) extends ActorDelegatingAction(name, actor) with ExitableAction
 
 trait RequestAction extends ExitableAction {
 

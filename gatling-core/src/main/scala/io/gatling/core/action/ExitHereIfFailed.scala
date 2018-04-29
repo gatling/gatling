@@ -17,12 +17,12 @@
 package io.gatling.core.action
 
 import io.gatling.commons.stats.KO
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class ExitHereIfFailed(exit: Action, statsEngine: StatsEngine, val next: Action) extends Action with ChainableAction with NameGen {
+class ExitHereIfFailed(exit: Action, statsEngine: StatsEngine, clock: Clock, val next: Action) extends Action with ChainableAction with NameGen {
 
   override val name: String = genName("exitHereIfFailed")
 
@@ -30,7 +30,7 @@ class ExitHereIfFailed(exit: Action, statsEngine: StatsEngine, val next: Action)
 
     val nextStep = session.status match {
       case KO =>
-        val now = nowMillis
+        val now = clock.nowMillis
 
         session.blockStack.foreach {
           case group: GroupBlock => statsEngine.logGroupEnd(session, group, now)

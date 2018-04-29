@@ -18,6 +18,7 @@ package io.gatling.recorder
 
 import java.nio.file.Path
 
+import io.gatling.commons.util.DefaultClock
 import io.gatling.recorder.cli.ArgsParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
@@ -36,6 +37,6 @@ object GatlingRecorder {
 
   private def initRecorder(props: ConfigOverrides, recorderConfigFile: Option[Path]) = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
-    new RecorderController
+    new RecorderController(new DefaultClock)
   }
 }

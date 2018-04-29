@@ -17,10 +17,10 @@
 package io.gatling.jms.integration
 
 import javax.jms.{ Session => JmsSession, _ }
-
 import scala.concurrent.duration._
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
 import io.gatling.core.config.GatlingConfiguration
@@ -114,11 +114,12 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
     .matchByCorrelationID
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
-    val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
+    val clock = new DefaultClock
+    val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val next = new ActorDelegatingAction("next", self)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Protocols(Nil))
     val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    actor ! Session("TestSession", 0)
+    actor ! Session("TestSession", 0, clock.nowMillis)
     val session = expectMsgClass(timeout, classOf[Session])
 
     session

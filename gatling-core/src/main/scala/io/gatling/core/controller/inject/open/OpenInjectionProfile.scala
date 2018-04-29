@@ -18,6 +18,7 @@ package io.gatling.core.controller.inject.open
 
 import java.util.concurrent.atomic.AtomicLong
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.core.controller.inject.{ InjectionProfile, Workload }
 import io.gatling.core.scenario.Scenario
@@ -34,8 +35,8 @@ case class OpenInjectionProfile(steps: Iterable[OpenInjectionStep]) extends Inje
 
   override def totalUserCount: Option[Long] = Some(steps.sumBy(_.users))
 
-  override def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine): Workload =
-    new OpenWorkload(scenario: Scenario, UserStream(steps), userIdGen, startTime, system, statsEngine)
+  override def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock): Workload =
+    new OpenWorkload(scenario: Scenario, UserStream(steps), userIdGen, startTime, system, statsEngine, clock)
 
   //[fl]
   //

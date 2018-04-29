@@ -22,10 +22,10 @@ import io.gatling.{ BaseSpec, ValidationValues }
 
 class PebbleSpec extends BaseSpec with ValidationValues {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  private implicit val configuration = GatlingConfiguration.loadForTest()
 
-  def newSession(contents: Map[String, Any]) =
-    Session("scenario", 0, contents)
+  private def newSession(contents: Map[String, Any]) =
+    Session("scenario", 0, System.currentTimeMillis(), contents)
 
   "Static String" should "return itself" in {
     val session = newSession(Map.empty)

@@ -16,19 +16,19 @@
 
 package io.gatling.core.action
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class GroupEnd(statsEngine: StatsEngine, val next: Action) extends ChainableAction with NameGen {
+class GroupEnd(statsEngine: StatsEngine, clock: Clock, val next: Action) extends ChainableAction with NameGen {
 
   val name: String = genName("groupEnd")
 
   def execute(session: Session): Unit =
     session.blockStack match {
       case (group: GroupBlock) :: _ =>
-        statsEngine.logGroupEnd(session, group, nowMillis)
+        statsEngine.logGroupEnd(session, group, clock.nowMillis)
         next ! session.exitGroup
 
       case _ =>

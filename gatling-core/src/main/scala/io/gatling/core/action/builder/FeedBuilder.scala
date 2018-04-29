@@ -39,6 +39,6 @@ class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val feederSingleton = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, newSingletonFeed(ctx))
-    new Feed(feederSingleton, number, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, next)
+    new Feed(feederSingleton, number, ctx.coreComponents.controller, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
   }
 }

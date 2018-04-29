@@ -38,7 +38,7 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val materializer = HttpBodyRegexCheckMaterializer
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", 0)
+  val session = Session("mockSession", 0, System.currentTimeMillis())
 
   val regexCheck = super[CoreDsl].regex(_)
 

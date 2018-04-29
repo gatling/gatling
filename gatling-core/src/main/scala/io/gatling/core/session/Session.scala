@@ -21,7 +21,6 @@ import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
@@ -76,8 +75,8 @@ object Session {
 case class Session(
     scenario:   String,
     userId:     Long,
+    startDate:  Long,
     attributes: Map[String, Any] = Map.empty,
-    startDate:  Long             = nowMillis,
     drift:      Long             = 0L,
     baseStatus: Status           = OK,
     blockStack: List[Block]      = Nil,
@@ -102,12 +101,12 @@ case class Session(
 
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
-  private[gatling] def enterGroup(groupName: String) = {
+  private[gatling] def enterGroup(groupName: String, nowMillis: Long) = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
       case None    => List(groupName)
       case Some(l) => l :+ groupName
     }
-    copy(blockStack = GroupBlock(groupHierarchy) :: blockStack)
+    copy(blockStack = GroupBlock(groupHierarchy, nowMillis) :: blockStack)
   }
 
   private[gatling] def exitGroup = blockStack match {
@@ -141,8 +140,8 @@ case class Session(
     gh(blockStack)
   }
 
-  private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
-    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName, withTimestamp = false)
+  private[gatling] def enterTryMax(counterName: String, loopAction: Action, nowMillis: Long) =
+    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName, withTimestamp = false, nowMillis)
 
   private[gatling] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
@@ -208,7 +207,7 @@ case class Session(
       copy(baseStatus = updatedStatus, blockStack = failStatusUntilFirstTryMaxBlock)
     }
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timeBased: Boolean): Session = {
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timeBased: Boolean, nowMillis: Long): Session = {
 
     val newBlock =
       if (exitASAP)
@@ -216,7 +215,7 @@ case class Session(
       else
         ExitOnCompleteLoopBlock(counterName)
 
-    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timeBased)
+    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timeBased, nowMillis)
   }
 
   private[gatling] def exitLoop: Session = blockStack match {
@@ -226,7 +225,7 @@ case class Session(
       this
   }
 
-  private[gatling] def initCounter(counterName: String, withTimestamp: Boolean): Session = {
+  private[gatling] def initCounter(counterName: String, withTimestamp: Boolean, nowMillis: Long): Session = {
     val withCounter = attributes.updated(counterName, 0)
     val newAttributes =
       if (withTimestamp)

@@ -17,6 +17,7 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.validation._
 import io.gatling.core.session._
 import io.gatling.core.stats.DataWritersStatsEngine
@@ -25,17 +26,19 @@ import akka.testkit._
 
 class FeedSpec extends AkkaSpec {
 
+  private val clock = new DefaultClock
+
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {
     val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
+    val statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock)
     val singleton = TestProbe()
     val controller = TestProbe()
     val number: Expression[Int] = session => 1.success
     val next = new ActorDelegatingAction("next", self)
 
-    val feed = new Feed(singleton.ref, number, controller.ref, statsEngine, next)
+    val feed = new Feed(singleton.ref, number, controller.ref, statsEngine, clock, next)
 
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, clock.nowMillis)
 
     feed ! session
 

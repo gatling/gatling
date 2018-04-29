@@ -29,7 +29,7 @@ class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
 
   implicit def cache = mutable.Map.empty[Any, Any]
 
-  val session = Session("mockSession", 0)
+  val session = Session("mockSession", 0, System.currentTimeMillis())
   val check = simpleCheck {
     case tm: TextMessage => tm.getText == "OK"
     case _               => false

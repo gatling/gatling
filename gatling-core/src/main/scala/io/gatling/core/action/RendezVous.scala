@@ -18,6 +18,7 @@ package io.gatling.core.action
 
 import scala.collection.mutable
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -26,9 +27,9 @@ import akka.actor.{ ActorSystem, Props }
 
 object RendezVous extends NameGen {
 
-  def apply(users: Int, system: ActorSystem, statsEngine: StatsEngine, next: Action): Action = {
+  def apply(users: Int, system: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): Action = {
     val actor = system.actorOf(RendezVousActor.props(users, next))
-    new ExitableActorDelegatingAction(genName("rendezVous"), statsEngine, next, actor)
+    new ExitableActorDelegatingAction(genName("rendezVous"), statsEngine, clock, next, actor)
   }
 }
 

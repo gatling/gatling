@@ -17,12 +17,10 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
+
 import javax.jms.Destination
 
-import scala.collection.JavaConverters._
-import scala.util.Try
-
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -31,15 +29,21 @@ import io.gatling.jms.protocol.JmsMessageMatcher
 
 import akka.actor.ActorSystem
 
-class JmsTrackerPool(sessionPool: JmsSessionPool, system: ActorSystem, statsEngine: StatsEngine, configuration: GatlingConfiguration) extends JmsLogging with NameGen {
+class JmsTrackerPool(
+    sessionPool:   JmsSessionPool,
+    system:        ActorSystem,
+    statsEngine:   StatsEngine,
+    clock:         Clock,
+    configuration: GatlingConfiguration
+) extends JmsLogging with NameGen {
 
   private val trackers = new ConcurrentHashMap[(Destination, Option[String]), JmsTracker]
 
   def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
     trackers.computeIfAbsent((destination, selector), _ => {
-      val actor = system.actorOf(Tracker.props(statsEngine, configuration), genName("jmsTrackerActor"))
+      val actor = system.actorOf(Tracker.props(statsEngine, clock, configuration), genName("jmsTrackerActor"))
 
-      for (elem <- 1 to listenerThreadCount) {
+      for (_ <- 1 to listenerThreadCount) {
         // jms session pool logic creates a session per thread and stores it in thread local.
         // After that the thread can be throughen away. The jms provider takes care of receiving and dispatching
         val thread = new Thread(() => {
@@ -47,7 +51,7 @@ class JmsTrackerPool(sessionPool: JmsSessionPool, system: ActorSystem, statsEngi
           consumer.setMessageListener(message => {
             val matchId = messageMatcher.responseMatchId(message)
             logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-            actor ! MessageReceived(matchId, nowMillis, message)
+            actor ! MessageReceived(matchId, clock.nowMillis, message)
           })
         })
 

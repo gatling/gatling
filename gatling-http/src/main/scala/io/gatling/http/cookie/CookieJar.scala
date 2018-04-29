@@ -16,7 +16,6 @@
 
 package io.gatling.http.cookie
 
-import io.gatling.commons.util.ClockSingleton._
 import io.gatling.http.client.ahc.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
@@ -82,7 +81,7 @@ object CookieJar {
     cookiePath == requestPath ||
       (requestPath.startsWith(cookiePath) && (cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/'))
 
-  def apply(uri: Uri, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(uri, cookies)
+  def apply(uri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = Empty.add(uri, cookies, nowMillis)
 }
 
 case class CookieJar(store: Map[CookieKey, StoredCookie]) {
@@ -93,15 +92,15 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
    * @param requestUri       the uri used to deduce defaults for  optional domains and paths
    * @param cookies    the cookies to store
    */
-  def add(requestUri: Uri, cookies: List[Cookie]): CookieJar = {
+  def add(requestUri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = {
 
     val thisRequestDomain = requestDomain(requestUri)
     val thisRequestPath = requestPath(requestUri)
 
-    add(thisRequestDomain, thisRequestPath, cookies)
+    add(thisRequestDomain, thisRequestPath, cookies, nowMillis)
   }
 
-  def add(requestDomain: String, requestPath: String, cookies: List[Cookie]): CookieJar = {
+  def add(requestDomain: String, requestPath: String, cookies: List[Cookie], nowMillis: Long): CookieJar = {
 
     val newStore = cookies.foldLeft(store) {
       (updatedStore, cookie) =>
@@ -115,7 +114,7 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
         } else {
           val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
-          updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, unpreciseNowMillis))
+          updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
         }
     }
 

@@ -30,5 +30,5 @@ import io.gatling.core.session.Expression
 class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new Pace(interval, counter, ctx.coreComponents.system, ctx.coreComponents.statsEngine, next)
+    new Pace(interval, counter, ctx.coreComponents.system, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

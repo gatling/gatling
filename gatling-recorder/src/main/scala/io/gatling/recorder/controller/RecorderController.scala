@@ -21,8 +21,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.DurationLong
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.ClockSingleton._
 import io.gatling.commons.validation._
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.recorder.config.RecorderMode._
@@ -34,7 +34,7 @@ import io.gatling.recorder.ui._
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[recorder] class RecorderController extends StrictLogging {
+private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
 
   private val frontEnd = RecorderFrontEnd.newFrontend(this)
 
@@ -61,7 +61,7 @@ private[recorder] class RecorderController extends StrictLogging {
               case _               => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
-            mitm = Mitm(this, RecorderConfiguration.configuration)
+            mitm = Mitm(this, clock, RecorderConfiguration.configuration)
             frontEnd.recordingStarted()
         }
       }
@@ -100,7 +100,7 @@ private[recorder] class RecorderController extends StrictLogging {
     }
 
   def addTag(text: String): Unit = {
-    val now = nowMillis
+    val now = clock.nowMillis
     tags.add(TimedScenarioElement(now, now, TagElement(text)))
     frontEnd.receiveEvent(TagFrontEndEvent(text))
   }

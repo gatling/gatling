@@ -17,7 +17,6 @@
 package io.gatling.core.session
 
 import io.gatling.commons.stats.{ OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 
@@ -51,4 +50,4 @@ case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean]
 
 case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status = OK) extends CounterBlock
 
-case class GroupBlock(hierarchy: List[String], startTimestamp: Long = nowMillis, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block
+case class GroupBlock(hierarchy: List[String], startTimestamp: Long, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block

@@ -20,6 +20,7 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration._
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
@@ -27,8 +28,8 @@ import io.gatling.core.util.Shard
 
 import akka.actor.ActorSystem
 
-class ClosedWorkload(scenario: Scenario, steps: Iterable[ClosedInjectionStep], userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine)
-  extends Workload(scenario, userIdGen, startTime, system, statsEngine) {
+class ClosedWorkload(scenario: Scenario, steps: Iterable[ClosedInjectionStep], userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock)
+  extends Workload(scenario, userIdGen, startTime, system, statsEngine, clock) {
 
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero

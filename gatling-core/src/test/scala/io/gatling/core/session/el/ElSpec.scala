@@ -28,7 +28,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   def newSession(contents: Map[String, Any]) =
-    Session("scenario", 0, contents)
+    Session("scenario", 0, System.currentTimeMillis(), contents)
 
   "Static String" should "return itself" in {
     val session = newSession(Map.empty)

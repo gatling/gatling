@@ -16,15 +16,16 @@
 
 package io.gatling.core.action
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NameGen
 
-class GroupStart(groupName: Expression[String], val statsEngine: StatsEngine, val next: Action) extends ExitableAction with NameGen {
+class GroupStart(groupName: Expression[String], val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
 
   override val name: String = genName("groupStart")
 
   override def execute(session: Session) = recover(session) {
-    groupName(session).map(next ! session.enterGroup(_))
+    groupName(session).map(s => next ! session.enterGroup(s, clock.nowMillis))
   }
 }

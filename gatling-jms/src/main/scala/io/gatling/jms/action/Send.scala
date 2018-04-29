@@ -17,9 +17,8 @@
 package io.gatling.jms.action
 
 import javax.jms.Message
-
 import io.gatling.commons.stats.OK
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action._
 import io.gatling.core.config.GatlingConfiguration
@@ -34,14 +33,22 @@ import io.gatling.jms.request._
  *
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
-class Send(attributes: JmsAttributes, protocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool, val statsEngine: StatsEngine, configuration: GatlingConfiguration, val next: Action)
+class Send(
+    attributes:        JmsAttributes,
+    protocol:          JmsProtocol,
+    jmsConnectionPool: JmsConnectionPool,
+    val statsEngine:   StatsEngine,
+    val clock:         Clock,
+    configuration:     GatlingConfiguration,
+    val next:          Action
+)
   extends JmsAction(attributes, protocol, jmsConnectionPool) {
 
   override val name: String = genName("jmsSend")
 
   override protected def beforeSend(requestName: String, session: Session): Validation[Message => Unit] =
     ((message: Message) => {
-      val now = nowMillis
+      val now = clock.nowMillis
       if (logger.underlying.isDebugEnabled) {
         logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
       }

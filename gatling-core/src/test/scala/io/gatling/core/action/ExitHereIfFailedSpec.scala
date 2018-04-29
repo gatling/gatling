@@ -17,6 +17,7 @@
 package io.gatling.core.action
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.Session
 import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.GroupMessage
@@ -25,13 +26,14 @@ import akka.testkit._
 
 class ExitHereIfFailedSpec extends AkkaSpec {
 
-  val nextAction = mock[Action]
+  private val clock = new DefaultClock
+  private val nextAction = mock[Action]
 
-  def newExitHereIfFailed(exitProbe: TestProbe, datawriterProbe: TestProbe) = {
-    val statsEngine = new DataWritersStatsEngine(system, List(datawriterProbe.ref))
+  def newExitHereIfFailed(exitProbe: TestProbe, datawriterProbe: TestProbe): ExitHereIfFailed = {
+    val statsEngine = new DataWritersStatsEngine(List(datawriterProbe.ref), system, clock)
     val exit = new ActorDelegatingAction("exit", exitProbe.ref)
 
-    new ExitHereIfFailed(exit, statsEngine, new ActorDelegatingAction("next", self))
+    new ExitHereIfFailed(exit, statsEngine, clock, new ActorDelegatingAction("next", self))
   }
 
   "ExitHereIfFailed" should "send the session to the next actor if the session was not failed" in {
@@ -39,7 +41,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", 0)
+    val session = Session("scenario", 0, clock.nowMillis)
 
     exitHereIfFailed ! session
 
@@ -52,7 +54,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", 0).enterTryMax("loop", nextAction).markAsFailed
+    val session = Session("scenario", 0, clock.nowMillis).enterTryMax("loop", nextAction, clock.nowMillis).markAsFailed
 
     exitHereIfFailed ! session
 
@@ -65,7 +67,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", 0).enterGroup("group").markAsFailed
+    val session = Session("scenario", 0, clock.nowMillis).enterGroup("group", clock.nowMillis).markAsFailed
 
     exitHereIfFailed ! session
 

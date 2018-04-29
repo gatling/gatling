@@ -20,18 +20,18 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-class OpenWorkload(scenario: Scenario, stream: UserStream, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine)
-  extends Workload(scenario, userIdGen, startTime, system, statsEngine) {
+class OpenWorkload(scenario: Scenario, stream: UserStream, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock)
+  extends Workload(scenario, userIdGen, startTime, system, statsEngine, clock) {
 
   override def injectBatch(batchWindow: FiniteDuration): Unit = {
-    val result = stream.withStream(batchWindow, nowMillis, startTime)(injectUser)
+    val result = stream.withStream(batchWindow, clock.nowMillis, startTime)(injectUser)
     logger.debug(s"Injecting ${result.count} users in scenario ${scenario.name}, continue=${result.continue}")
     if (!result.continue) {
       setAllScheduled()

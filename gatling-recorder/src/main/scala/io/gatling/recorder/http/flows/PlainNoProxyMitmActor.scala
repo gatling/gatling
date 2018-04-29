@@ -16,6 +16,7 @@
 
 package io.gatling.recorder.http.flows
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.TrafficLogger
 
@@ -41,9 +42,10 @@ import io.netty.handler.codec.http.FullHttpRequest
 class PlainNoProxyMitmActor(
     serverChannel:   Channel,
     clientBootstrap: Bootstrap,
-    trafficLogger:   TrafficLogger
+    trafficLogger:   TrafficLogger,
+    clock:           Clock
 )
-  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger) {
+  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
 
   override protected def connectedRemote(requestRemote: Remote): Remote =
     requestRemote
