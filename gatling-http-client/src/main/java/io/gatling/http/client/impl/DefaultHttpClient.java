@@ -68,8 +68,6 @@ public class DefaultHttpClient implements HttpClient {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
   }
 
-  private static final DefaultThreadFactory HTTP_CLIENT_THREAD_FACTORY = new DefaultThreadFactory("gatling-http-client");
-
   public static final String PINNED_HANDLER = "pinned";
   public static final String PROXY_HANDLER = "proxy";
   public static final String SSL_HANDLER = "ssl";
@@ -248,7 +246,8 @@ public class DefaultHttpClient implements HttpClient {
       throw new IllegalArgumentException("Impossible to create SslContext", e);
     }
 
-    eventLoopGroup = config.isUseNativeTransport() ? new EpollEventLoopGroup(0, HTTP_CLIENT_THREAD_FACTORY) : new NioEventLoopGroup(0, HTTP_CLIENT_THREAD_FACTORY);
+    DefaultThreadFactory threadFactory = new DefaultThreadFactory(config.getThreadPoolName());
+    eventLoopGroup = config.isUseNativeTransport() ? new EpollEventLoopGroup(0, threadFactory) : new NioEventLoopGroup(0, threadFactory);
     eventLoopPicker = new AffinityEventLoopPicker(eventLoopGroup);
     channelGroup = new DefaultChannelGroup(eventLoopGroup.next());
   }

@@ -71,6 +71,8 @@ public class HttpClientConfig {
 
   private int webSocketMaxFramePayloadLength;
 
+  private String threadPoolName = "gatling-http-client";
+
   public long getConnectTimeout() {
     return connectTimeout;
   }
@@ -266,6 +268,15 @@ public class HttpClientConfig {
 
   public HttpClientConfig setDisableSslSessionResumption(boolean disableSslSessionResumption) {
     this.disableSslSessionResumption = disableSslSessionResumption;
+    return this;
+  }
+
+  public String getThreadPoolName() {
+    return threadPoolName;
+  }
+
+  public HttpClientConfig setThreadPoolName(String threadPoolName) {
+    this.threadPoolName = threadPoolName;
     return this;
   }
 }
