@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
@@ -600,13 +599,12 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   @Override
-  public void flushChannelPoolPartitions(Predicate<ChannelPoolKey> predicate, long affinity) {
-    EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(affinity);
-
+  public void flushClientIdChannels(long clientId) {
+    EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
     if (eventLoop.inEventLoop()) {
-      eventLoopResources(eventLoop).channelPool.flushChannelPoolPartitions(predicate);
+      eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId);
     } else {
-      eventLoop.execute(() -> eventLoopResources(eventLoop).channelPool.flushChannelPoolPartitions(predicate));
+      eventLoop.execute(() -> eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId));
     }
   }
 }

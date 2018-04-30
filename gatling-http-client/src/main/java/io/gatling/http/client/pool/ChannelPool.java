@@ -24,7 +24,6 @@ import io.netty.util.AttributeKey;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import static io.gatling.http.client.ahc.util.Assertions.assertNotNull;
 
@@ -40,12 +39,8 @@ public class ChannelPool {
     return channels.computeIfAbsent(key, k -> new ArrayDeque<>());
   }
 
-  public boolean isHttp1(Channel channel) {
+  private boolean isHttp1(Channel channel) {
     return channel.pipeline().get(DefaultHttpClient.APP_HTTP_HANDLER) != null;
-  }
-
-  public boolean isHttp2(Channel channel) {
-    return !isHttp1(channel);
   }
 
   public Channel poll(ChannelPoolKey key) {
@@ -109,7 +104,7 @@ public class ChannelPool {
       for (Channel channel : deque) {
         if (now - channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).get() > idleTimeout) {
           Integer currentStreamCount = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY).get();
-          if (currentStreamCount == null || currentStreamCount.equals(Integer.valueOf(0))) {
+          if (currentStreamCount == null || currentStreamCount == 0) {
             // HTTP/1.1 or unused
             channel.close();
             deque.remove(channel);
@@ -119,10 +114,10 @@ public class ChannelPool {
     }
   }
 
-  public void flushChannelPoolPartitions(Predicate<ChannelPoolKey> predicate) {
+  public void flushClientIdChannelPoolPartitions(long clientId) {
     for (Map.Entry<ChannelPoolKey, ArrayDeque<Channel>> entry : channels.entrySet()) {
       ChannelPoolKey key = entry.getKey();
-      if (predicate.test(key)) {
+      if (key.clientId == clientId) {
         for (Channel channel: entry.getValue()) {
           channel.close();
         }

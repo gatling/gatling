@@ -16,15 +16,11 @@
 
 package io.gatling.http.client;
 
-import io.gatling.http.client.pool.ChannelPoolKey;
-
-import java.util.function.Predicate;
-
 public interface HttpClient extends AutoCloseable {
 
   void sendRequest(Request request, long clientId, boolean shared, HttpListener listener);
 
   boolean isClosed();
 
-  void flushChannelPoolPartitions(Predicate<ChannelPoolKey> predicate, long affinity);
+  void flushClientIdChannels(long clientId);
 }

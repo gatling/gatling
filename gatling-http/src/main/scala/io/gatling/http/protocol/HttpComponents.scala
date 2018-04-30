@@ -31,5 +31,5 @@ case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, ht
       andThen httpCaches.setWsBaseUrl(httpProtocol))
 
   override lazy val onExit: Option[Session => Unit] =
-    Some(session => httpEngine.httpClient.flushChannelPoolPartitions(_.clientId == session.userId, session.userId))
+    Some(session => httpEngine.httpClient.flushClientIdChannels(session.userId))
 }
