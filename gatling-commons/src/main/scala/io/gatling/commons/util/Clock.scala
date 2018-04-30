@@ -16,20 +16,39 @@
 
 package io.gatling.commons.util
 
-import java.lang.System.{ currentTimeMillis, nanoTime }
-
-trait Clock {
-  def computeTimeMillisFromNanos(nanos: Long): Long
+sealed trait Clock {
   def nowMillis: Long
-  def nowSeconds: Long
+  def nowSeconds: Long = nowMillis / 1000
 }
 
 class DefaultClock extends Clock {
 
-  private val currentTimeMillisReference = currentTimeMillis
-  private val nanoTimeReference = nanoTime
+  private val currentTimeMillisReference = System.currentTimeMillis
+  private val nanoTimeReference = System.nanoTime
 
-  override def computeTimeMillisFromNanos(nanos: Long): Long = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
-  override def nowMillis: Long = computeTimeMillisFromNanos(nanoTime)
-  override def nowSeconds: Long = computeTimeMillisFromNanos(nanoTime) / 1000
+  override def nowMillis: Long = (System.nanoTime - nanoTimeReference) / 1000000 + currentTimeMillisReference
 }
+
+//[fl]
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//[fl]
