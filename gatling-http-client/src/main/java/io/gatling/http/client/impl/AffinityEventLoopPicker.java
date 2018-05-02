@@ -36,6 +36,6 @@ public class AffinityEventLoopPicker {
   }
 
   public EventLoop eventLoopWithAffinity(long affinity) {
-    return eventLoops[(int) affinity % eventLoops.length];
+    return eventLoops[Math.abs((int) affinity % eventLoops.length)];
   }
 }
