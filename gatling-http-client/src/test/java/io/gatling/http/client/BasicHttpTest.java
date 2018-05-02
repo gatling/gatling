@@ -70,7 +70,7 @@ class BasicHttpTest extends HttpTest {
   }
 
   private File getTestFile() throws Throwable {
-    return new File(Objects.requireNonNull(ClassLoader.getSystemClassLoader().getResource("test.txt")).toURI());
+    return new File(Objects.requireNonNull(BasicHttpTest.class.getResource("/test.txt")).toURI());
   }
 
   @Test
