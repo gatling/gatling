@@ -20,8 +20,6 @@ import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.MultithreadEventExecutorGroup;
 
-import java.util.Iterator;
-
 public class AffinityEventLoopPicker {
 
   private final EventLoop[] eventLoops;
@@ -29,9 +27,8 @@ public class AffinityEventLoopPicker {
   AffinityEventLoopPicker(MultithreadEventExecutorGroup eventLoopGroup) {
     eventLoops = new EventLoop[eventLoopGroup.executorCount()];
     int i = 0;
-    Iterator<EventExecutor> it = eventLoopGroup.iterator();
-    while (it.hasNext()) {
-      eventLoops[i++] = (EventLoop) it.next();
+    for (EventExecutor loop : eventLoopGroup) {
+      eventLoops[i++] = (EventLoop) loop;
     }
   }
 
