@@ -348,6 +348,8 @@ public class DefaultHttpClient implements HttpClient {
               } else {
                 sendTxWithNewChannel(tx, resources, eventLoop, addresses);
               }
+            } else {
+              sendTxWithNewChannel(tx, resources, eventLoop, addresses);
             }
           }
         });
