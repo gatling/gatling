@@ -444,7 +444,7 @@ public class DefaultHttpClient implements HttpClient {
         resources.wsBoostrap :
         uri.isSecured() && proxyServer != null ?
           resources.getBootstrapWithProxy(proxyServer) :
-          request.isHttp2Enabled() ? resources.http2Bootstrap : resources.http1Bootstrap;
+          request.isHttp2Enabled() && request.getUri().isSecured() ? resources.http2Bootstrap : resources.http1Bootstrap;
 
     Promise<Channel> channelPromise = eventLoop.newPromise();
     openNewChannelRec(remoteAddresses, localAddress, 0, channelPromise, bootstrap, listener, requestTimeout);
