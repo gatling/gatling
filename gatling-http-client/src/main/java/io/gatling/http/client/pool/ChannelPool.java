@@ -49,7 +49,7 @@ public class ChannelPool {
     return channel.pipeline().get(DefaultHttpClient.APP_HTTP_HANDLER) != null;
   }
 
-  public boolean isHttp2(Channel channel) {
+  private boolean isHttp2(Channel channel) {
     return !isHttp1(channel);
   }
 
@@ -81,9 +81,9 @@ public class ChannelPool {
   }
 
   public Channel pollCoalescedChannel(String domain, List<InetSocketAddress> addresses) {
-    Channel channel;
-    if ((channel = coalescingChannelPool.getCoalescedChannel(domain, addresses)) != null) {
-      LOGGER.debug("Retrieving channel from coalescing pool for domain " + domain);
+    Channel channel = coalescingChannelPool.getCoalescedChannel(domain, addresses);
+    if (channel != null) {
+      LOGGER.debug("Retrieving channel from coalescing pool for domain {}", domain);
       incrementStreamCount(channel);
     }
     return channel;
@@ -100,7 +100,7 @@ public class ChannelPool {
   }
 
   private void touch(Channel channel) {
-    channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).set(System.currentTimeMillis());
+    channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).set(System.nanoTime());
   }
 
   public void offer(Channel channel) {
@@ -133,12 +133,12 @@ public class ChannelPool {
     }
   }
 
-  public void closeIdleChannels(long idleTimeout) {
-    long now = System.currentTimeMillis();
+  public void closeIdleChannels(long idleTimeoutNanos) {
+    long now = System.nanoTime();
     for (Map.Entry<ChannelPoolKey, Queue<Channel>> entry : channels.entrySet()) {
       Queue<Channel> deque = entry.getValue();
       for (Channel channel : deque) {
-        if (now - channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).get() > idleTimeout) {
+        if (now - channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).get() > idleTimeoutNanos) {
           Integer currentStreamCount = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY).get();
           if (currentStreamCount == null || currentStreamCount == 0) {
             // HTTP/1.1 or unused
@@ -161,6 +161,12 @@ public class ChannelPool {
           channel.close();
         }
         channels.remove(key);
+      }
+    }
+    for (Map.Entry<ChannelPoolKey, IpAndPort> entry :  keyToIp.entrySet()) {
+      ChannelPoolKey key = entry.getKey();
+      if (key.clientId == clientId) {
+        keyToIp.remove(key);
       }
     }
   }

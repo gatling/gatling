@@ -18,6 +18,7 @@ package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.ssl.Tls;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
@@ -49,18 +50,11 @@ public class SslHandlers {
     return createSslHandler(sslContext, peerHost, peerPort, allocator, config);
   }
 
-  private static String domain(String hostname) {
-    int fqdnLength = hostname.length() - 1;
-    return hostname.charAt(fqdnLength) == '.' ?
-            hostname.substring(0, fqdnLength) :
-            hostname;
-  }
-
   private static SslHandler createSslHandler(SslContext sslContext, String peerHost, int peerPort, ByteBufAllocator allocator, HttpClientConfig config) {
 
     SSLEngine sslEngine = config.isDisableHttpsEndpointIdentificationAlgorithm() ?
       sslContext.newEngine(allocator) :
-      sslContext.newEngine(allocator, domain(peerHost), peerPort);
+      sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort);
 
     sslEngine.setUseClientMode(true);
     if (!config.isDisableHttpsEndpointIdentificationAlgorithm()) {

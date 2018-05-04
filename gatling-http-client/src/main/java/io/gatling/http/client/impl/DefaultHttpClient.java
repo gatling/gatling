@@ -28,6 +28,7 @@ import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.DigestRealm;
 import io.gatling.http.client.realm.Realm;
+import io.gatling.http.client.ssl.Tls;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -48,13 +49,9 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
 
 import javax.net.ssl.SSLException;
-import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateParsingException;
-import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -122,8 +119,9 @@ public class DefaultHttpClient implements HttpClient {
     private EventLoopResources(EventLoop eventLoop) {
       channelPool = new ChannelPool();
       long channelPoolIdleCleanerPeriod = config.getChannelPoolIdleCleanerPeriod();
+      long idleTimeoutNanos = config.getChannelPoolIdleTimeout() * 1_000_000;
       eventLoop.scheduleWithFixedDelay(
-        () -> channelPool.closeIdleChannels(config.getChannelPoolIdleTimeout()),
+        () -> channelPool.closeIdleChannels(idleTimeoutNanos),
         channelPoolIdleCleanerPeriod,
         channelPoolIdleCleanerPeriod,
         TimeUnit.MILLISECONDS);
@@ -341,9 +339,9 @@ public class DefaultHttpClient implements HttpClient {
             List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
             if (request.isHttp2Enabled()) {
-              Channel coalescedChannel;
               String domain = tx.request.getUri().getHost();
-              if ((coalescedChannel = resources.channelPool.pollCoalescedChannel(domain, addresses)) != null) {
+              Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(domain, addresses);
+              if (coalescedChannel != null) {
                 sendTxWithChannel(tx, coalescedChannel);
               } else {
                 sendTxWithNewChannel(tx, resources, eventLoop, addresses);
@@ -562,7 +560,7 @@ public class DefaultHttpClient implements HttpClient {
 
     channel.pipeline().addAfter(SSL_HANDLER, ALPN_HANDLER, new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
       @Override
-      protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws SSLPeerUnverifiedException, CertificateParsingException {
+      protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
 
         switch (protocol) {
           case ApplicationProtocolNames.HTTP_2:
@@ -584,25 +582,9 @@ public class DefaultHttpClient implements HttpClient {
             channelPool.offer(channel);
 
             SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);
-            Certificate[] certificates = sslHandler.engine().getSession().getPeerCertificates();
-            Set<String> sansToAdd = new HashSet<>();
-            for (Certificate certificate : certificates) {
-              X509Certificate cert = (X509Certificate) certificate;
-              Collection<List<?>> subjectAlternativeNames = cert.getSubjectAlternativeNames();
-              if (subjectAlternativeNames != null) {
-                for (List<?> certificateSans : subjectAlternativeNames) {
-                  if (certificateSans != null) {
-                    for (Object san : certificateSans) {
-                      if (san instanceof String) {
-                        sansToAdd.add((String) san);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            if (!sansToAdd.isEmpty()) {
-              channelPool.addCoalescedChannel(sansToAdd, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
+            Set<String> subjectAlternativeNames = Tls.extractSubjectAlternativeNames(sslHandler.engine());
+            if (!subjectAlternativeNames.isEmpty()) {
+              channelPool.addCoalescedChannel(subjectAlternativeNames, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
             }
             break;
 
