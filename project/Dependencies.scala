@@ -64,7 +64,7 @@ object Dependencies {
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.4.11"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                  % "1.0"
-  private val pebble                         = "io.gatling"                           % "pebble"                          % "2.4.0.2"
+  private val pebble                         = "io.gatling"                           % "pebble"                          % "2.5.0.1"
   private val findbugs                       = "com.google.code.findbugs"             % "jsr305"                          % "3.0.2"
 
   // Test dependencies
