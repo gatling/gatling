@@ -27,12 +27,43 @@ import java.util.*;
 class CoalescingChannelPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(CoalescingChannelPool.class);
 
-  private final Map<IpAndPort, Map.Entry<Set<String>, Queue<Channel>>> pool = new HashMap<>();
+  // FIXME Queue or Set?
+  private final Map<Long, Map<IpAndPort, Map.Entry<Set<String>, Queue<Channel>>>> channels = new HashMap<>(ChannelPool.INITIAL_CLIENT_MAP_SIZE);
 
-  Channel getCoalescedChannel(String domain, List<InetSocketAddress> addresses) {
+  private final Map<Long, Map<Channel, Queue<Channel>>> cleanUpMap = new HashMap<>(ChannelPool.INITIAL_CLIENT_MAP_SIZE);
+
+  private Map<IpAndPort, Map.Entry<Set<String>, Queue<Channel>>> clientChannels(long clientId) {
+    return channels
+      .computeIfAbsent(clientId, k -> new HashMap<>(ChannelPool.INITIAL_KEY_PER_CLIENT_MAP_SIZE));
+  }
+
+  private Map<Channel, Queue<Channel>> clientCleanUpMap(long clientId) {
+    return cleanUpMap
+      .computeIfAbsent(clientId, k -> new HashMap<>(ChannelPool.INITIAL_KEY_PER_CLIENT_MAP_SIZE));
+  }
+
+
+  void addEntry(long clientId, IpAndPort ipAndPort, Set<String> subjectAlternativeNames, Channel channel) {
+    LOGGER.debug("Adding entry {} with subjectAlternativeNames {} to coalescing pool", ipAndPort, subjectAlternativeNames);
+    Map<IpAndPort, Map.Entry<Set<String>, Queue<Channel>>> clientChannels = clientChannels(clientId);
+    Map.Entry<Set<String>, Queue<Channel>> entry =  clientChannels.get(ipAndPort);
+    Queue<Channel> channels;
+    if (entry == null) {
+      channels = new ArrayDeque<>(ChannelPool.INITIAL_CHANNEL_QUEUE_SIZE);
+      channels.add(channel);
+      clientChannels.put(ipAndPort, new AbstractMap.SimpleEntry<>(subjectAlternativeNames, channels));
+    } else {
+      channels = entry.getValue();
+      entry.getValue().offer(channel);
+    }
+
+    clientCleanUpMap(clientId).put(channel, channels);
+  }
+
+  Channel getCoalescedChannel(long clientId, String domain, List<InetSocketAddress> addresses) {
     for (InetSocketAddress address : addresses) {
       IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
-      Map.Entry<Set<String>, Queue<Channel>> entry = pool.get(ipAndPort);
+      Map.Entry<Set<String>, Queue<Channel>> entry = clientChannels(clientId).get(ipAndPort);
       if (entry != null) {
         for (String subjectAlternativeName : entry.getKey()) {
           if (Tls.isCertificateAuthoritative(subjectAlternativeName, domain)) {
@@ -48,19 +79,19 @@ class CoalescingChannelPool {
     return null;
   }
 
-  void deleteEntry(IpAndPort ipAndPort) {
-    pool.remove(ipAndPort);
+  void deleteIdleEntry(long clientId, Channel channel) {
+    Map<Channel, Queue<Channel>> clientCleanUpMap = cleanUpMap.get(clientId);
+    if (clientCleanUpMap != null) {
+      Queue<Channel> channels = clientCleanUpMap.get(channel);
+      if (channels != null) {
+        channels.remove(channel);
+        cleanUpMap.remove(channel);
+      }
+    }
   }
 
-  void addEntry(IpAndPort ipAndPort, Set<String> subjectAlternativeNames, Channel channel) {
-    LOGGER.debug("Adding entry {} with subjectAlternativeNames {} to coalescing pool", ipAndPort, subjectAlternativeNames);
-    Map.Entry<Set<String>, Queue<Channel>> entry = pool.get(ipAndPort);
-    if (entry == null) {
-      Queue<Channel> channels = new ArrayDeque<>(ChannelPool.INITIAL_CHANNEL_QUEUE_SIZE);
-      channels.add(channel);
-      pool.put(ipAndPort, new AbstractMap.SimpleEntry<>(subjectAlternativeNames, channels));
-    } else {
-      entry.getValue().offer(channel);
-    }
+  void deleteClientEntries(long clientId) {
+    channels.remove(clientId);
+    cleanUpMap.remove(clientId);
   }
 }

@@ -24,6 +24,7 @@ import io.gatling.http.client.ahc.uri.Uri;
 import io.gatling.http.client.body.InputStreamRequestBody;
 import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
+import io.gatling.http.client.pool.RemoteKey;
 import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.DigestRealm;
@@ -289,7 +290,7 @@ public class DefaultHttpClient implements HttpClient {
   private void sendRequestInEventLoop(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
 
     RequestTimeout requestTimeout = RequestTimeout.newRequestTimeout(request.getRequestTimeout(), listener, eventLoop);
-    ChannelPoolKey key = ChannelPoolKey.newKey(shared ? clientId : -1, request.getUri(), request.getVirtualHost(), request.getProxyServer());
+    ChannelPoolKey key = new ChannelPoolKey(shared ? clientId : -1, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
     HttpTx tx = new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry());
     sendTx(tx, eventLoop);
   }
@@ -340,7 +341,7 @@ public class DefaultHttpClient implements HttpClient {
 
             if (request.isHttp2Enabled()) {
               String domain = tx.request.getUri().getHost();
-              Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(domain, addresses);
+              Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
               if (coalescedChannel != null) {
                 sendTxWithChannel(tx, coalescedChannel);
               } else {

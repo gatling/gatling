@@ -19,6 +19,7 @@ package io.gatling.http.client.impl;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.pool.ChannelPoolKey;
+import io.gatling.http.client.pool.RemoteKey;
 
 public class HttpTx {
 

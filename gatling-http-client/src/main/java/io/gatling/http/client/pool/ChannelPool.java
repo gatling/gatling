@@ -35,14 +35,17 @@ public class ChannelPool {
   private static final AttributeKey<ChannelPoolKey> CHANNEL_POOL_KEY_ATTRIBUTE_KEY = AttributeKey.valueOf("poolKey");
   private static final AttributeKey<Long> CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY = AttributeKey.valueOf("poolTimestamp");
   private static final AttributeKey<Integer> CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY = AttributeKey.valueOf("poolStreamCount");
+  static final int INITIAL_CLIENT_MAP_SIZE = 1000;
+  static final int INITIAL_KEY_PER_CLIENT_MAP_SIZE = 2;
   static final int INITIAL_CHANNEL_QUEUE_SIZE = 2;
 
-  private final Map<ChannelPoolKey, Queue<Channel>> channels = new HashMap<>();
+  private final Map<Long, Map<RemoteKey, Queue<Channel>>> channels = new HashMap<>(INITIAL_CLIENT_MAP_SIZE);
   private final CoalescingChannelPool coalescingChannelPool = new CoalescingChannelPool();
-  private final Map<ChannelPoolKey, IpAndPort> keyToIp = new HashMap<>();
 
-  private Queue<Channel> keyChannels(ChannelPoolKey key) {
-    return channels.computeIfAbsent(key, k -> new ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
+  private Queue<Channel> remoteChannels(ChannelPoolKey key) {
+    return channels
+      .computeIfAbsent(key.clientId, k -> new HashMap<>(INITIAL_KEY_PER_CLIENT_MAP_SIZE))
+      .computeIfAbsent(key.remoteKey, k -> new  ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
   }
 
   private boolean isHttp1(Channel channel) {
@@ -59,7 +62,7 @@ public class ChannelPool {
   }
 
   public Channel poll(ChannelPoolKey key) {
-    Queue<Channel> channels = keyChannels(key);
+    Queue<Channel> channels = remoteChannels(key);
 
     while (true) {
       Channel channel = channels.peek();
@@ -80,8 +83,8 @@ public class ChannelPool {
     }
   }
 
-  public Channel pollCoalescedChannel(String domain, List<InetSocketAddress> addresses) {
-    Channel channel = coalescingChannelPool.getCoalescedChannel(domain, addresses);
+  public Channel pollCoalescedChannel(long clientId, String domain, List<InetSocketAddress> addresses) {
+    Channel channel = coalescingChannelPool.getCoalescedChannel(clientId, domain, addresses);
     if (channel != null) {
       LOGGER.debug("Retrieving channel from coalescing pool for domain {}", domain);
       incrementStreamCount(channel);
@@ -91,8 +94,7 @@ public class ChannelPool {
 
   public void addCoalescedChannel(Set<String> subjectAlternativeNames, InetSocketAddress address, Channel channel, ChannelPoolKey key) {
     IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
-    coalescingChannelPool.addEntry(ipAndPort, subjectAlternativeNames, channel);
-    keyToIp.put(key, ipAndPort);
+    coalescingChannelPool.addEntry(key.clientId, ipAndPort, subjectAlternativeNames, channel);
   }
 
   public void register(Channel channel, ChannelPoolKey key) {
@@ -108,13 +110,13 @@ public class ChannelPool {
     assertNotNull(key, "Channel doesn't have a key");
 
     if (isHttp1(channel)) {
-      keyChannels(key).offer(channel);
+      remoteChannels(key).offer(channel);
       touch(channel);
     } else {
       Attribute<Integer> streamCountAttr = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY);
       Integer currentStreamCount = streamCountAttr.get();
       if (currentStreamCount == null) {
-        keyChannels(key).offer(channel);
+        remoteChannels(key).offer(channel);
         streamCountAttr.set(1);
       } else {
         streamCountAttr.set(currentStreamCount - 1);
@@ -126,26 +128,21 @@ public class ChannelPool {
     }
   }
 
-  private void cleanCoalescingPool(ChannelPoolKey key) {
-    IpAndPort ipAndPort = keyToIp.get(key);
-    if (ipAndPort != null) {
-      coalescingChannelPool.deleteEntry(ipAndPort);
-    }
-  }
-
   public void closeIdleChannels(long idleTimeoutNanos) {
     long now = System.nanoTime();
-    for (Map.Entry<ChannelPoolKey, Queue<Channel>> entry : channels.entrySet()) {
-      Queue<Channel> deque = entry.getValue();
-      for (Channel channel : deque) {
-        if (now - channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).get() > idleTimeoutNanos) {
-          Integer currentStreamCount = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY).get();
-          if (currentStreamCount == null || currentStreamCount == 0) {
-            // HTTP/1.1 or unused
-            channel.close();
-            deque.remove(channel);
-            if (isHttp2(channel)) {
-              cleanCoalescingPool(entry.getKey());
+    for (Map.Entry<Long, Map<RemoteKey, Queue<Channel>>> clientEntry : channels.entrySet()) {
+      for (Map.Entry<RemoteKey, Queue<Channel>> entry : clientEntry.getValue().entrySet()) {
+        Queue<Channel> deque = entry.getValue();
+        for (Channel channel : deque) {
+          if (now - channel.attr(CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY).get() > idleTimeoutNanos) {
+            Integer currentStreamCount = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY).get();
+            if (currentStreamCount == null || currentStreamCount == 0) {
+              // HTTP/1.1 or unused
+              channel.close();
+              deque.remove(channel);
+              if (isHttp2(channel)) {
+                coalescingChannelPool.deleteIdleEntry(clientEntry.getKey(), channel);
+              }
             }
           }
         }
@@ -154,21 +151,9 @@ public class ChannelPool {
   }
 
   public void flushClientIdChannelPoolPartitions(long clientId) {
-    for (Map.Entry<ChannelPoolKey, Queue<Channel>> entry : channels.entrySet()) {
-      ChannelPoolKey key = entry.getKey();
-      if (key.clientId == clientId) {
-        for (Channel channel: entry.getValue()) {
-          channel.close();
-        }
-        channels.remove(key);
-      }
-    }
-    for (Map.Entry<ChannelPoolKey, IpAndPort> entry :  keyToIp.entrySet()) {
-      ChannelPoolKey key = entry.getKey();
-      if (key.clientId == clientId) {
-        keyToIp.remove(key);
-      }
-    }
+    channels.get(clientId).entrySet().stream().flatMap(e -> e.getValue().stream()).forEach(Channel::close);
+    channels.remove(clientId);
+    coalescingChannelPool.deleteClientEntries(clientId);
   }
 
   @Override
@@ -176,7 +161,6 @@ public class ChannelPool {
     return "ChannelPool{" +
       "channels=" + channels +
       ", coalescingChannelPool=" + coalescingChannelPool +
-      ", keyToIp=" + keyToIp +
       '}';
   }
 }
