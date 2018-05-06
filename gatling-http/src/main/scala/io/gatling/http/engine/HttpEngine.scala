@@ -37,8 +37,6 @@ import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod, HttpResponseStatus }
 
 object HttpEngine {
-  private val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
-
   def apply(coreComponents: CoreComponents): HttpEngine =
     new HttpEngine(coreComponents, HttpClientFactory(coreComponents), DnsNameResolverFactory(coreComponents))
 }
@@ -86,13 +84,16 @@ class HttpEngine(
                   p.success(())
                 }
             })
-            Await.ready(p.future, 2 seconds)
+            Await.result(p.future, 2 seconds)
+            logger.debug(s"Warm up request $url successful")
           } catch {
             case NonFatal(e) =>
               if (logger.underlying.isDebugEnabled)
                 logger.debug(s"Couldn't execute warm up request $url", e)
               else
                 logger.info(s"Couldn't execute warm up request $url: ${e.detailedMessage}")
+          } finally {
+            httpClient.flushClientIdChannels(0)
           }
 
         case _ =>
