@@ -129,7 +129,6 @@ public class WebSocketHandler extends ChannelDuplexHandler {
         wsListener.openWebSocket(ch);
 
       } catch (WebSocketHandshakeException e) {
-        System.out.println("WebSocket Client failed to connect");
         crash(ctx, e, true);
       }
       return;
