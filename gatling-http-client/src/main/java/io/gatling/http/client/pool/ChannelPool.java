@@ -151,9 +151,12 @@ public class ChannelPool {
   }
 
   public void flushClientIdChannelPoolPartitions(long clientId) {
-    channels.get(clientId).entrySet().stream().flatMap(e -> e.getValue().stream()).forEach(Channel::close);
-    channels.remove(clientId);
-    coalescingChannelPool.deleteClientEntries(clientId);
+    Map<RemoteKey, Queue<Channel>> clientChannel = channels.get(clientId);
+    if (clientChannel != null) {
+      clientChannel.entrySet().stream().flatMap(e -> e.getValue().stream()).forEach(Channel::close);
+      channels.remove(clientId);
+      coalescingChannelPool.deleteClientEntries(clientId);
+    }
   }
 
   @Override
