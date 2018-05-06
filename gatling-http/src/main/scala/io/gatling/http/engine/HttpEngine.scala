@@ -91,7 +91,7 @@ class HttpEngine(
               if (logger.underlying.isDebugEnabled)
                 logger.debug(s"Couldn't execute warm up request $url", e)
               else
-                logger.info(s"Couldn't execute warm up request $url: ${e.detailedMessage}")
+                logger.info(s"Couldn't execute warm up request $url: ${e.rootMessage}")
           } finally {
             httpClient.flushClientIdChannels(0)
           }
