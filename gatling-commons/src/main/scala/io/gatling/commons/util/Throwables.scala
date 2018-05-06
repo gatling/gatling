@@ -31,7 +31,7 @@ object Throwables {
 
     def rootCause: Throwable = {
       var t: Throwable = e
-      while (t.getCause != null) {
+      while (t.getCause != null && t.getCause.ne(t)) {
         t = t.getCause
       }
       t
