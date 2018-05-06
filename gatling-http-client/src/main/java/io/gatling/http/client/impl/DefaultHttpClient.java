@@ -290,7 +290,7 @@ public class DefaultHttpClient implements HttpClient {
   private void sendRequestInEventLoop(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
 
     RequestTimeout requestTimeout = RequestTimeout.newRequestTimeout(request.getRequestTimeout(), listener, eventLoop);
-    ChannelPoolKey key = new ChannelPoolKey(shared ? clientId : -1, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
+    ChannelPoolKey key = new ChannelPoolKey(shared ? -1 : clientId, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
     HttpTx tx = new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry());
     sendTx(tx, eventLoop);
   }
