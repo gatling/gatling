@@ -58,7 +58,7 @@ object ResponseBuilder extends StrictLogging {
       case checksumCheck: ChecksumCheck => checksumCheck
     }
 
-    val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
+    val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy)
 
     val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
@@ -78,7 +78,7 @@ object ResponseBuilder extends StrictLogging {
 class ResponseBuilder(
     request:             Request,
     checksumChecks:      List[ChecksumCheck],
-    bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
+    bodyUsageStrategies: Seq[ResponseBodyUsageStrategy],
     responseTransformer: Option[PartialFunction[Response, Response]],
     storeBodyParts:      Boolean,
     inferHtmlResources:  Boolean,
@@ -154,7 +154,7 @@ class ResponseBuilder(
 
     val contentLength = chunks.sumBy(_.readableBytes)
 
-    val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(contentLength))
+    val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
 
     val resolvedCharset = resolveCharset
 
