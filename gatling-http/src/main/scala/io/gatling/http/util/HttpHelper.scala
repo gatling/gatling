@@ -19,7 +19,7 @@ package io.gatling.http.util
 import java.net.URLDecoder
 import java.nio.charset.{ Charset, StandardCharsets }
 
-import scala.collection.breakOut
+import scala.collection.{ BitSet, breakOut }
 import scala.io.Codec.UTF8
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -37,8 +37,8 @@ object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
   val WsScheme = "ws"
-  val OkCodes = Vector(OK.code, SEE_OTHER.code, CREATED.code, ACCEPTED.code, NON_AUTHORITATIVE_INFORMATION.code, NO_CONTENT.code, RESET_CONTENT.code, PARTIAL_CONTENT.code, MULTI_STATUS.code, 208, 209)
-  val RedirectStatusCodes = Vector(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
+  val OkCodes = Set(OK.code, SEE_OTHER.code, CREATED.code, ACCEPTED.code, NON_AUTHORITATIVE_INFORMATION.code, NO_CONTENT.code, RESET_CONTENT.code, PARTIAL_CONTENT.code, MULTI_STATUS.code, 208, 209)
+  private val RedirectStatusCodes = BitSet.empty + MOVED_PERMANENTLY.code + FOUND.code + SEE_OTHER.code + TEMPORARY_REDIRECT.code + PERMANENT_REDIRECT.code
 
   def parseFormBody(body: String): List[(String, String)] = {
     def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)

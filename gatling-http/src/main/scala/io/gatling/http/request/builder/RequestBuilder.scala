@@ -54,9 +54,7 @@ object RequestBuilder {
   /**
    * This is the default HTTP check used to verify that the response status is 2XX
    */
-  private val OkCodesExpression = OkCodes.expressionSuccess
-
-  val DefaultHttpCheck: HttpCheck = Status.find.in(OkCodesExpression).build(HttpStatusCheckMaterializer)
+  val DefaultHttpCheck: HttpCheck = Status.find.in(OkCodes.toSeq.expressionSuccess).build(HttpStatusCheckMaterializer)
 
   private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
   private val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
