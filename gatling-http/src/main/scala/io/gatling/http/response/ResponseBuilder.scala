@@ -19,6 +19,7 @@ package io.gatling.http.response
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
+import scala.collection.breakOut
 import scala.math.max
 
 import io.gatling.commons.util.Clock
@@ -93,15 +94,11 @@ class ResponseBuilder(
 
   private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
   private var chunks: List[ByteBuf] = Nil
-  private var digests: Map[String, MessageDigest] = initDigests()
-
-  def initDigests(): Map[String, MessageDigest] =
+  private val digests: Map[String, MessageDigest] =
     if (computeChecksums)
-      checksumChecks.foldLeft(Map.empty[String, MessageDigest]) { (map, check) =>
-        map + (check.algorithm -> MessageDigest.getInstance(check.algorithm))
-      }
+      checksumChecks.map(check => check.algorithm -> MessageDigest.getInstance(check.algorithm))(breakOut)
     else
-      Map.empty[String, MessageDigest]
+      Map.empty
 
   def updateStartTimestamp(): Unit =
     startTimestamp = clock.nowMillis
