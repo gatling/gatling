@@ -18,6 +18,7 @@ package io.gatling.http.response
 
 import java.nio.charset.Charset
 
+import scala.collection.breakOut
 import scala.collection.JavaConverters._
 
 import io.gatling.http.HeaderNames
@@ -79,7 +80,7 @@ case class HttpResponse(
 
   override def header(name: CharSequence): Option[String] = Option(headers.get(name))
   override def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
-  override lazy val cookies: List[Cookie] = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie))).toList
+  override val cookies: List[Cookie] = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)))(breakOut)
 
   override def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
   override def hasResponseBody: Boolean = bodyLength != 0
