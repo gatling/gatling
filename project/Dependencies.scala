@@ -65,7 +65,6 @@ object Dependencies {
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
   private val testInterface                  = "org.scala-sbt"                        % "test-interface"                  % "1.0"
   private val pebble                         = "io.gatling"                           % "pebble"                          % "2.5.0.1"
-  private val findbugs                       = "com.google.code.findbugs"             % "jsr305"                          % "3.0.2"
 
   // Test dependencies
 
@@ -94,7 +93,7 @@ object Dependencies {
     Seq(nettyBuffer, junit)
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, findbugs, fastUuid) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, fastUuid) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
     Seq(akka, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, pebble, scalaParserCombinators, scopt) ++
