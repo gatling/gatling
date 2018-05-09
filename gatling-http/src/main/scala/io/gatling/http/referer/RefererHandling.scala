@@ -29,7 +29,7 @@ object RefererHandling {
   def getStoredReferer(session: Session): Option[String] = session(RefererAttributeName).asOption[String]
 
   def storeReferer(request: Request, response: Response, protocol: HttpProtocol): Session => Session =
-    if (protocol.requestPart.autoReferer && !isAjax(request.getHeaders) && isHtml(response.headers))
+    if (protocol.requestPart.autoReferer && isHtml(response.headers) && !isAjax(request.getHeaders))
       _.set(RefererAttributeName, request.getUri.toUrl)
     else
       Session.Identity
