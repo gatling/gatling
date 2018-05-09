@@ -37,7 +37,7 @@ object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
   val WsScheme = "ws"
-  val OkCodes = Set(OK.code, SEE_OTHER.code, CREATED.code, ACCEPTED.code, NON_AUTHORITATIVE_INFORMATION.code, NO_CONTENT.code, RESET_CONTENT.code, PARTIAL_CONTENT.code, MULTI_STATUS.code, 208, 209)
+  val OkCodes: BitSet = BitSet.empty + OK.code + SEE_OTHER.code + CREATED.code + ACCEPTED.code + NON_AUTHORITATIVE_INFORMATION.code + NO_CONTENT.code + RESET_CONTENT.code + PARTIAL_CONTENT.code + MULTI_STATUS.code + 208 + 209
   private val RedirectStatusCodes = BitSet.empty + MOVED_PERMANENTLY.code + FOUND.code + SEE_OTHER.code + TEMPORARY_REDIRECT.code + PERMANENT_REDIRECT.code
 
   def parseFormBody(body: String): List[(String, String)] = {
@@ -91,6 +91,7 @@ object HttpHelper extends StrictLogging {
         None
     }
 
+  def isOk(statusCode: Int): Boolean = OkCodes.contains(statusCode)
   def isRedirect(status: HttpResponseStatus): Boolean = RedirectStatusCodes.contains(status.code)
   def isPermanentRedirect(status: HttpResponseStatus): Boolean = status == MOVED_PERMANENTLY || status == PERMANENT_REDIRECT
   def isNotModified(status: HttpResponseStatus): Boolean = status == NOT_MODIFIED

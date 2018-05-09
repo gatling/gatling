@@ -16,6 +16,8 @@
 
 package io.gatling.http.request.builder
 
+import io.gatling.commons.validation._
+import io.gatling.core.check.Validator
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
@@ -54,7 +56,21 @@ object RequestBuilder {
   /**
    * This is the default HTTP check used to verify that the response status is 2XX
    */
-  val DefaultHttpCheck: HttpCheck = Status.find.in(OkCodes.toSeq.expressionSuccess).build(HttpStatusCheckMaterializer)
+  val DefaultHttpCheck: HttpCheck = {
+    val okStatusValidator = new Validator[Int] {
+      val name: String = OkCodes.mkString("in(", ",", ")")
+      def apply(actual: Option[Int]): Validation[Option[Int]] = actual match {
+        case Some(actualValue) =>
+          if (HttpHelper.isOk(actualValue))
+            actual.success
+          else
+            s"found $actualValue".failure
+        case _ => Validator.FoundNothingFailure
+      }
+    }
+
+    Status.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer)
+  }
 
   private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
   private val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess

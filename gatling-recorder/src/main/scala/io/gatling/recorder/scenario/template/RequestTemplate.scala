@@ -17,7 +17,7 @@
 package io.gatling.recorder.scenario.template
 
 import io.gatling.commons.util.StringHelper.EmptyFastring
-import io.gatling.http.util.HttpHelper.OkCodes
+import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioExporter }
@@ -73,7 +73,7 @@ private[scenario] object RequestTemplate {
     }.getOrElse("")
 
     def renderStatusCheck: Fastring =
-      if (!OkCodes.contains(request.statusCode))
+      if (!HttpHelper.isOk(request.statusCode))
         fast"""
 			.check(status.is(${request.statusCode}))"""
       else
