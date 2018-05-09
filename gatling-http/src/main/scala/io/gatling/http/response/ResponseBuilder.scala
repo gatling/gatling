@@ -145,9 +145,8 @@ class ResponseBuilder(
     .getOrElse(defaultCharset)
 
   def build: Response = {
-
-    // time measurement is imprecise due to multi-core nature
-    // moreover, ProgressListener might be called AFTER ChannelHandler methods
+    // Clock source might not be monotonic.
+    // Moreover, ProgressListener might be called AFTER ChannelHandler methods
     // ensure response doesn't end before starting
     endTimestamp = max(endTimestamp, startTimestamp)
 
