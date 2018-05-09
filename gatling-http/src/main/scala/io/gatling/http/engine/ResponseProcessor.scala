@@ -16,6 +16,8 @@
 
 package io.gatling.http.engine
 
+import java.util.{ HashMap => JHashMap }
+
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
@@ -29,14 +31,14 @@ import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.{ HttpTx, ResourceTx }
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
-import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched }
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.Response
-import io.gatling.http.util._
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
+import io.gatling.http.util._
 import io.gatling.netty.util.ahc.StringBuilderPool
 
 import akka.actor.{ ActorRefFactory, Props }
@@ -273,6 +275,12 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
     def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
 
+      implicit val preparedCache: JHashMap[Any, Any] =
+        if (checks.size > 1) {
+          new JHashMap
+        } else {
+          null
+        }
       val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
 
       val status = checkError match {

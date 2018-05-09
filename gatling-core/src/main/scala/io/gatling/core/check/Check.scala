@@ -76,14 +76,19 @@ case class CheckBase[R, P, X](
 
   def check(response: R, session: Session)(implicit preparedCache: JHashMap[Any, Any]): Validation[CheckResult] = {
 
-    def memoizedPrepared: Validation[P] = {
-      var prepared = preparedCache.get(preparer)
-      if (prepared == null) {
-        prepared = preparer(response)
-        preparedCache.put(preparer, prepared)
+    def memoizedPrepared: Validation[P] =
+      if (preparedCache == null) {
+        preparer(response)
+      } else {
+        val cachedValue = preparedCache.get(preparer)
+        if (cachedValue == null) {
+          val prepared = preparer(response)
+          preparedCache.put(preparer, prepared)
+          prepared
+        } else {
+          cachedValue.asInstanceOf[Validation[P]]
+        }
       }
-      prepared.asInstanceOf[Validation[P]]
-    }
 
     def unbuiltName: String = customName.getOrElse("Check")
     def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
