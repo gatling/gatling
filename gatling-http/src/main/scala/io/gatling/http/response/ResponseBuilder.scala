@@ -24,6 +24,7 @@ import scala.math.max
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
+import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
@@ -150,10 +151,7 @@ class ResponseBuilder(
     // ensure response doesn't end before starting
     endTimestamp = max(endTimestamp, startTimestamp)
 
-    val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
-      val (algo, md) = entry
-      map + (algo -> bytes2Hex(md.digest))
-    }
+    val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
     val contentLength = chunks.sumBy(_.readableBytes)
 
