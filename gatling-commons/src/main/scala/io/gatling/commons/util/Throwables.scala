@@ -32,11 +32,11 @@ object Throwables {
     }
 
     def rootCause: Throwable = {
-      var cause: Throwable = e
-      while (e.getCause != null) {
-        cause = e.getCause
+      var t: Throwable = e
+      while (t.getCause != null && t.getCause.ne(t)) {
+        t = t.getCause
       }
-      cause
+      t
     }
 
     def rootMessage: String = {
