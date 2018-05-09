@@ -16,6 +16,7 @@
 
 package io.gatling.commons.util
 
+import scala.collection.breakOut
 import scala.collection.mutable
 
 object Maps {
@@ -39,17 +40,15 @@ object Maps {
     override def copy(value: Map[K, V]): Map[K, V] = value.forceMapValues(merger.copy)
     override def merge(left: Map[K, V], right: Map[K, V]): Map[K, V] =
       (left.keySet ++ right.keySet).map { key =>
-
         val value = left.get(key) match {
-          case None => merger.copy(right(key))
           case Some(leftValue) => right.get(key) match {
-            case None             => leftValue
             case Some(rightValue) => merger.merge(leftValue, rightValue)
+            case _                => leftValue
           }
+          case _ => merger.copy(right(key))
         }
-
         key -> value
-      }.toMap
+      }(breakOut)
   }
 
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
