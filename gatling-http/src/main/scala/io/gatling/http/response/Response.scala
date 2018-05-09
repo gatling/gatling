@@ -26,8 +26,8 @@ import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
-import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
 abstract class Response {
 
@@ -80,7 +80,14 @@ case class HttpResponse(
 
   override def header(name: CharSequence): Option[String] = Option(headers.get(name))
   override def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
-  override val cookies: List[Cookie] = headers.getAll(HeaderNames.SetCookie).asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)))(breakOut)
+  override val cookies: List[Cookie] = {
+    val setCookieValues = headers.getAll(HeaderNames.SetCookie)
+    if (setCookieValues.isEmpty) {
+      Nil
+    } else {
+      setCookieValues.asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)))(breakOut)
+    }
+  }
 
   override def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
   override def hasResponseBody: Boolean = bodyLength != 0
