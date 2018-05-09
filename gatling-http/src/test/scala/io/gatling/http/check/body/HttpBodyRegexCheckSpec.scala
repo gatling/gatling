@@ -17,8 +17,7 @@
 package io.gatling.http.check.body
 
 import java.nio.charset.StandardCharsets._
-
-import scala.collection.mutable
+import java.util.{ HashMap => JHashMap }
 
 import org.mockito.Mockito._
 import io.gatling.{ BaseSpec, ValidationValues }
@@ -37,7 +36,7 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = HttpBodyRegexCheckMaterializer
 
-  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
+  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   val regexCheck = super[CoreDsl].regex(_)

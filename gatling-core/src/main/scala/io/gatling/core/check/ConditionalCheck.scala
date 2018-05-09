@@ -16,6 +16,8 @@
 
 package io.gatling.core.check
 
+import java.util.{ HashMap => JHashMap }
+
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 
@@ -29,11 +31,11 @@ trait UntypedConditionalCheckWrapper[C <: Check[_]] {
 
 case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
 
-  def performNestedCheck(nestedCheck: Check[R], response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] = {
+  def performNestedCheck(nestedCheck: Check[R], response: R, session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] = {
     nestedCheck.check(response, session)
   }
 
-  def check(response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] =
+  def check(response: R, session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] =
     condition(response, session).flatMap { c =>
       if (c) {
         performNestedCheck(thenCheck, response, session)

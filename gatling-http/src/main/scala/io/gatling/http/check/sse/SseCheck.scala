@@ -16,13 +16,13 @@
 
 package io.gatling.http.check.sse
 
-import scala.collection.mutable
+import java.util.{ HashMap => JHashMap }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.Session
 
 case class SseCheck(wrapped: Check[String]) extends Check[String] {
-  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+  override def check(message: String, session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(message, session)
 }

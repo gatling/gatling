@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.ws
 
-import scala.collection.mutable
+import java.util.{ HashMap => JHashMap }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckResult }
@@ -24,10 +24,10 @@ import io.gatling.core.session.Session
 
 sealed trait WsCheck
 case class WsTextCheck(wrapped: Check[String]) extends WsCheck with Check[String] {
-  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+  override def check(message: String, session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(message, session)
 }
 case class WsBinaryCheck(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
-  override def check(message: Array[Byte], session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+  override def check(message: Array[Byte], session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(message, session)
 }

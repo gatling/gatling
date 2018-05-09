@@ -17,8 +17,8 @@
 package io.gatling.http.check.body
 
 import java.nio.charset.StandardCharsets._
+import java.util.{ HashMap => JHashMap }
 
-import scala.collection.mutable
 import scala.xml.Elem
 
 import org.mockito.Mockito._
@@ -35,7 +35,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = new HttpBodyXPathCheckMaterializer(defaultXmlParsers)
 
-  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
+  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   def mockResponse(xml: Elem): Response = {

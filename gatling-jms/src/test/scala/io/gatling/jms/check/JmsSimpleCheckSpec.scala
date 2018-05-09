@@ -16,9 +16,9 @@
 
 package io.gatling.jms.check
 
-import javax.jms._
+import java.util.{ HashMap => JHashMap }
 
-import scala.collection.mutable
+import javax.jms._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation._
@@ -27,7 +27,7 @@ import io.gatling.jms._
 
 class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
 
-  implicit def cache = mutable.Map.empty[Any, Any]
+  private implicit def cache = new JHashMap[Any, Any]
 
   val session = Session("mockSession", 0, System.currentTimeMillis())
   val check = simpleCheck {

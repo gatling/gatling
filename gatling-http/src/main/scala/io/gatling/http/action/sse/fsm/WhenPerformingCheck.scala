@@ -16,6 +16,8 @@
 
 package io.gatling.http.action.sse.fsm
 
+import java.util.{ HashMap => JHashMap }
+
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
@@ -93,7 +95,7 @@ trait WhenPerformingCheck { this: SseActor =>
     import data._
 
     // cache is used for both matching and checking
-    implicit val cache = collection.mutable.HashMap.empty[Any, Any]
+    implicit val cache = new JHashMap[Any, Any]
 
     // if matchConditions isEmpty, all messages are considered to be matching
     val messageMatches = matchConditions.forall(_.check(message, session).isInstanceOf[Success[_]])

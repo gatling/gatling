@@ -16,7 +16,7 @@
 
 package io.gatling.jms.check
 
-import scala.collection.mutable
+import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.commons.validation._
@@ -28,7 +28,7 @@ import io.gatling.jms.{ MockMessage, JmsCheck }
 class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport {
 
   val configuration = GatlingConfiguration.loadForTest()
-  implicit def cache = mutable.Map.empty[Any, Any]
+  implicit def cache: JHashMap[Any, Any] = new JHashMap
 
   val session = Session("mockSession", 0, System.currentTimeMillis())
   val check: JmsCheck = xpath("/ok").find

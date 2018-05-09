@@ -16,8 +16,9 @@
 
 package io.gatling.core.check
 
+import java.util.{ HashMap => JHashMap }
+
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
@@ -25,7 +26,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: mutable.Map[Any, Any] = mutable.Map.empty): (Session => Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: JHashMap[Any, Any] = new JHashMap): (Session => Session, Option[Failure]) = {
 
     @tailrec
     def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
@@ -62,7 +63,7 @@ object Check {
 
 trait Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult]
+  def check(response: R, session: Session)(implicit preparedCache: JHashMap[Any, Any]): Validation[CheckResult]
 }
 
 case class CheckBase[R, P, X](
@@ -73,11 +74,16 @@ case class CheckBase[R, P, X](
     saveAs:              Option[String]
 ) extends Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session)(implicit preparedCache: JHashMap[Any, Any]): Validation[CheckResult] = {
 
-    def memoizedPrepared: Validation[P] = preparedCache
-      .getOrElseUpdate(preparer, preparer(response))
-      .asInstanceOf[Validation[P]]
+    def memoizedPrepared: Validation[P] = {
+      var prepared = preparedCache.get(preparer)
+      if (prepared == null) {
+        prepared = preparer(response)
+        preparedCache.put(preparer, prepared)
+      }
+      prepared.asInstanceOf[Validation[P]]
+    }
 
     def unbuiltName: String = customName.getOrElse("Check")
     def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")

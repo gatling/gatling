@@ -17,8 +17,7 @@
 package io.gatling.http.check.body
 
 import java.nio.charset.StandardCharsets._
-
-import scala.collection.mutable
+import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
@@ -37,7 +36,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
 
-  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
+  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String) = {

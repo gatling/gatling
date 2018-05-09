@@ -17,6 +17,7 @@
 package io.gatling.http.check.body
 
 import java.nio.charset.StandardCharsets._
+import java.util.{ HashMap => JHashMap }
 
 import org.mockito.Mockito._
 
@@ -28,14 +29,12 @@ import io.gatling.core.session.Session
 import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ StringResponseBody, Response }
 
-import scala.collection.mutable
-
 class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = HttpBodySubstringCheckMaterializer
 
-  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
+  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String) = {
