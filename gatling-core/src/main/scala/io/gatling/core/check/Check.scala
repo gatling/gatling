@@ -101,7 +101,7 @@ case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
 
   def hasUpdate: Boolean = saveAs.isDefined && extractedValue.isDefined
 
-  def update: Option[(Session => Session)] =
+  def update: Option[Session => Session] =
     for {
       s <- saveAs
       v <- extractedValue

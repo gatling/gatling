@@ -99,7 +99,7 @@ class InMatcher[A](expected: Seq[A]) extends Matcher[A] {
         actual.success
       else
         s"found $actualValue".failure
-    case None => Validator.FoundNothingFailure
+    case _ => Validator.FoundNothingFailure
   }
 }
 
