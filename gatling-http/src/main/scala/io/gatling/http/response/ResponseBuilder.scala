@@ -140,7 +140,7 @@ class ResponseBuilder(
     }
   }
 
-  private def resolvedCharset: Charset = Option(headers.get(HeaderNames.ContentType))
+  private def resolveCharset: Charset = Option(headers.get(HeaderNames.ContentType))
     .flatMap(extractCharsetFromContentType)
     .getOrElse(defaultCharset)
 
@@ -156,9 +156,7 @@ class ResponseBuilder(
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(contentLength))
 
-    val resolvedCharset = Option(headers.get(HeaderNames.ContentType))
-      .flatMap(extractCharsetFromContentType)
-      .getOrElse(defaultCharset)
+    val resolvedCharset = resolveCharset
 
     val properlyOrderedChunks = chunks.reverse
     val body: ResponseBody =
@@ -194,5 +192,5 @@ class ResponseBuilder(
   }
 
   def buildSafeResponse: Response =
-    HttpResponse(request, wireRequestHeaders, status, headers, NoResponseBody, Map.empty, 0, resolvedCharset, startTimestamp, endTimestamp)
+    HttpResponse(request, wireRequestHeaders, status, headers, NoResponseBody, Map.empty, 0, resolveCharset, startTimestamp, endTimestamp)
 }
