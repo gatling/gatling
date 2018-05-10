@@ -277,7 +277,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
 
       implicit val preparedCache: JHashMap[Any, Any] =
         if (checks.size > 1) {
-          new JHashMap
+          new JHashMap(2)
         } else {
           null
         }

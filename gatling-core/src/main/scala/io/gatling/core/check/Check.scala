@@ -26,7 +26,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: JHashMap[Any, Any] = new JHashMap): (Session => Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: JHashMap[Any, Any] = new JHashMap(2)): (Session => Session, Option[Failure]) = {
 
     @tailrec
     def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
