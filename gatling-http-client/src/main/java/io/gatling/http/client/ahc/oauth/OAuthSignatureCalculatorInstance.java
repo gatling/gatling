@@ -112,12 +112,12 @@ public class OAuthSignatureCalculatorInstance {
   }
 
   String computeSignature(ConsumerKey consumerAuth,
-                            RequestToken userAuth,
-                            HttpMethod method,
-                            Uri uri,
-                            List<Param> formParams,
-                            long oauthTimestamp,
-                            String percentEncodedNonce) throws InvalidKeyException {
+                          RequestToken userAuth,
+                          HttpMethod method,
+                          Uri uri,
+                          List<Param> formParams,
+                          long oauthTimestamp,
+                          String percentEncodedNonce) throws InvalidKeyException {
 
     StringBuilder sb = signatureBaseString(
       consumerAuth,
