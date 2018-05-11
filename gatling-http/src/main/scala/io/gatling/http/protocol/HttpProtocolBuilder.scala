@@ -25,7 +25,6 @@ import io.gatling.core.session.el.El
 import io.gatling.http.HeaderNames._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.client.body.RequestBody
 import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.fetch.InferredResourceNaming
@@ -34,7 +33,6 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod }
 
 /**
  * HttpProtocolBuilder class companion
@@ -100,13 +98,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def silentResources = this.modify(_.protocol.requestPart.silentResources).setTo(true)
   def silentURI(regex: String) = this.modify(_.protocol.requestPart.silentURI).setTo(Some(regex.r.pattern))
   def disableUrlEncoding = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
-  def signatureCalculator(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
-  def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = signatureCalculator(calculator.expressionSuccess)
-  def signatureCalculator(calculator: (HttpMethod, Uri, HttpHeaders, RequestBody[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
-    override def sign(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = calculator(method, uri, headers, body)
-  })
+  def sign(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
-    signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
+    sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
   def enableHttp2 = this.modify(_.protocol.requestPart.enableHttp2).setTo(true)
 
   // responsePart

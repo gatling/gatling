@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.client.{ HttpClientConfig, SignatureCalculator }
+import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.body.{ FormUrlEncodedRequestBody, RequestBody }
 import io.gatling.http.client.impl.request.WritableRequestBuilder
@@ -39,15 +39,15 @@ import org.mockito.Mockito.when
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
-  val configuration = GatlingConfiguration.loadForTest()
-  val clock = new DefaultClock
-  val coreComponents = mock[CoreComponents]
+  private val configuration = GatlingConfiguration.loadForTest()
+  private val clock = new DefaultClock
+  private val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
   when(coreComponents.system).thenReturn(mock[ActorSystem])
-  val httpEngine = mock[HttpEngine]
+  private val httpEngine = mock[HttpEngine]
   when(httpEngine.coreComponents).thenReturn(coreComponents)
-  val httpCaches = new HttpCaches(clock, configuration)
-  val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor], clock)
+  private val httpCaches = new HttpCaches(clock, configuration)
+  private val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor], clock)
 
   def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, Right(Uri.create("http://gatling.io")))
@@ -56,22 +56,9 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
-    val sigCalc = new SignatureCalculator {
-      override def sign(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = headers.add("X-Token", "foo")
-    }
-
-    httpRequestDef(_.signatureCalculator(sigCalc))
-      .build("requestName", Session("scenarioName", 0, clock.nowMillis))
-      .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)
-        writableRequest.getRequest.headers.get("X-Token")
-      }.succeeded shouldBe "foo"
-  }
-
-  it should "work when passed as a function" in {
-    def sigCalc(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = headers.add("X-Token", "foo")
-
-    httpRequestDef(_.signatureCalculator(sigCalc _))
+    httpRequestDef(_.sign(new SignatureCalculator {
+      override def sign(request: Request): Unit = request.getHeaders.add("X-Token", "foo")
+    }.expressionSuccess))
       .build("requestName", Session("scenarioName", 0, clock.nowMillis))
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)

@@ -18,6 +18,7 @@ package io.gatling.http.client.impl.request;
 
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
+import io.gatling.http.client.RequestBuilder;
 import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.WritableContent;
@@ -172,7 +173,8 @@ public class WritableRequestBuilder {
 
     SignatureCalculator signatureCalculator = request.getSignatureCalculator();
     if (signatureCalculator != null) {
-      signatureCalculator.sign(request.getMethod(), request.getUri(), writableRequest.getRequest().headers(), requestBody);
+      Request requestWithCompletedHeaders = new RequestBuilder(request, request.getUri()).setHeaders(writableRequest.getRequest().headers()).build(false);
+      signatureCalculator.sign(requestWithCompletedHeaders);
     }
     return writableRequest;
   }

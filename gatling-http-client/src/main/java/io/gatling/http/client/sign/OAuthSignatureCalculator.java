@@ -17,15 +17,13 @@
 package io.gatling.http.client.sign;
 
 import io.gatling.http.client.Param;
+import io.gatling.http.client.Request;
 import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.ahc.oauth.ConsumerKey;
 import io.gatling.http.client.ahc.oauth.OAuthSignatureCalculatorInstance;
 import io.gatling.http.client.ahc.oauth.RequestToken;
-import io.gatling.http.client.ahc.uri.Uri;
 import io.gatling.http.client.body.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.RequestBody;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Collections;
@@ -52,8 +50,9 @@ public class OAuthSignatureCalculator implements SignatureCalculator {
   }
 
   @Override
-  public void sign(HttpMethod method, Uri uri, HttpHeaders headers, RequestBody<?> body) throws Exception {
+  public void sign(Request request) throws Exception {
 
+    RequestBody<?> body = request.getBody();
     List<Param> formParams =
       body instanceof FormUrlEncodedRequestBody ?
         ((FormUrlEncodedRequestBody) body).getContent() :
@@ -62,10 +61,10 @@ public class OAuthSignatureCalculator implements SignatureCalculator {
     String authorization = INSTANCES.get().computeAuthorizationHeader(
       consumerAuth,
       requestToken,
-      method,
-      uri,
+      request.getMethod(),
+      request.getUri(),
       formParams);
 
-    headers.set(AUTHORIZATION, authorization);
+    request.getHeaders().set(AUTHORIZATION, authorization);
   }
 }

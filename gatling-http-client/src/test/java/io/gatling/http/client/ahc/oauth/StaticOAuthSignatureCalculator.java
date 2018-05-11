@@ -17,13 +17,11 @@
 package io.gatling.http.client.ahc.oauth;
 
 import io.gatling.http.client.Param;
+import io.gatling.http.client.Request;
 import io.gatling.http.client.SignatureCalculator;
-import io.gatling.http.client.ahc.uri.Uri;
 import io.gatling.http.client.body.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.RequestBody;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
 
 import java.util.Collections;
 import java.util.List;
@@ -43,8 +41,9 @@ class StaticOAuthSignatureCalculator implements SignatureCalculator {
   }
 
   @Override
-  public void sign(HttpMethod method, Uri uri, HttpHeaders headers, RequestBody<?> body) throws Exception {
+  public void sign(Request request) throws Exception {
 
+    RequestBody<?> body = request.getBody();
     List<Param> formParams =
       body instanceof FormUrlEncodedRequestBody ?
         ((FormUrlEncodedRequestBody) body).getContent() :
@@ -53,12 +52,12 @@ class StaticOAuthSignatureCalculator implements SignatureCalculator {
     String authorization = new OAuthSignatureCalculatorInstance().computeAuthorizationHeader(
       consumerKey,
       requestToken,
-      method,
-      uri,
+      request.getMethod(),
+      request.getUri(),
       formParams,
       timestamp,
       nonce);
 
-    headers.set(HttpHeaderNames.AUTHORIZATION, authorization);
+    request.getHeaders().set(HttpHeaderNames.AUTHORIZATION, authorization);
   }
 }

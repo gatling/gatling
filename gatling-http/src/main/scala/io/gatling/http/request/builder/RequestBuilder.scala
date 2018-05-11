@@ -25,7 +25,7 @@ import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
-import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.{ Request, SignatureCalculator }
 import io.gatling.http.client.ahc.oauth.{ ConsumerKey, RequestToken }
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.body.RequestBody
@@ -154,12 +154,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def proxy(httpProxy: Proxy): B = newInstance(modify(commonAttributes)(_.proxy).setTo(Some(httpProxy.proxyServer)))
 
-  def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
-  def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expressionSuccess)
-  def signatureCalculator(calculator: (HttpMethod, Uri, HttpHeaders, RequestBody[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
-    override def sign(method: HttpMethod, uri: Uri, headers: HttpHeaders, body: RequestBody[_]): Unit = calculator(method, uri, headers, body)
-  })
+  def sign(calculator: Expression[SignatureCalculator]): B = newInstance(modify(commonAttributes)(_.signatureCalculator).setTo(Some(calculator)))
 
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): B =
-    signatureCalculator(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
+    sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
 }

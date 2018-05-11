@@ -16,12 +16,7 @@
 
 package io.gatling.http.client;
 
-import io.gatling.http.client.ahc.uri.Uri;
-import io.gatling.http.client.body.RequestBody;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpMethod;
-
 public interface SignatureCalculator {
 
-  void sign(HttpMethod method, Uri uri, HttpHeaders headers, RequestBody<?> body) throws Exception;
+  void sign(Request request) throws Exception;
 }

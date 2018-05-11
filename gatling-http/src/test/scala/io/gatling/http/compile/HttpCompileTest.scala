@@ -20,10 +20,9 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import io.gatling.commons.validation.Success
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.http.check.HttpCheck
+import io.gatling.http.client.{ Request, SignatureCalculator }
 
 import io.netty.handler.codec.http.HttpMethod
 
@@ -176,6 +175,24 @@ class HttpCompileTest extends Simulation {
       .formUpload("name", "path")
       .bodyPart(RawFileBodyPart("name", "path"))
       .bodyPart(ElFileBodyPart("name", "path")))
+    // sign
+    .exec(http("Request").get("/foo/bar?baz=qix")
+      .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret"))
+    .exec(http("Request").get("/foo/bar?baz=qix")
+      .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret"))
+    .exec(http("Request").get("/foo/bar?baz=qix")
+      .sign(new SignatureCalculator {
+        override def sign(request: Request): Unit = {
+          import javax.crypto.Mac
+          import javax.crypto.spec.SecretKeySpec
+          import java.util.Base64
+          val mac = Mac.getInstance("HmacSHA256")
+          mac.init(new SecretKeySpec("THE_SECRET_KEY".getBytes("UTF-8"), "HmacSHA256"))
+          val rawSignature = mac.doFinal(request.getUri.getQuery.getBytes("UTF-8"))
+          val authorization = Base64.getEncoder.encodeToString(rawSignature)
+          request.getHeaders.add("Authorization", authorization)
+        }
+      }))
     // proxy
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4))
