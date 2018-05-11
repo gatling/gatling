@@ -22,18 +22,100 @@ import java.util.{ Collection => JCollection, Map => JMap }
 import scala.annotation.switch
 import scala.collection.JavaConverters._
 
+import io.gatling.commons.util.HexUtils
 import io.gatling.commons.util.Maps._
 import io.gatling.netty.util.ahc.StringBuilderPool
-
-import com.fasterxml.jackson.databind.ObjectMapper
+import io.gatling.commons.util.Spire._
 
 object Json {
 
-  private val objectMapper = new ObjectMapper
   private val stringBuilders = new StringBuilderPool
 
-  def stringify(value: Any, isRootObject: Boolean = true): String =
-    stringBuilders.get().appendStringified(value, isRootObject).toString
+  def stringify(value: Any, isRootObject: Boolean = true): String = {
+
+    val sb = stringBuilders.get()
+
+    def appendStringified(value: Any, rootLevel: Boolean): JStringBuilder = value match {
+      case b: Byte                   => sb.append(b)
+      case s: Short                  => sb.append(s)
+      case i: Int                    => sb.append(i)
+      case l: Long                   => sb.append(l)
+      case f: Float                  => sb.append(f)
+      case d: Double                 => sb.append(d)
+      case bool: Boolean             => sb.append(bool)
+      case s: String                 => appendString(s, rootLevel)
+      case null                      => sb.append("null")
+      case map: collection.Map[_, _] => appendMap(map)
+      case jMap: JMap[_, _]          => appendMap(jMap.asScala)
+      case array: Array[_]           => appendArray(array)
+      case seq: Seq[_]               => appendArray(seq)
+      case coll: JCollection[_]      => appendArray(coll.asScala)
+      case _                         => appendString(value.toString, rootLevel)
+    }
+
+    def appendString(s: String, rootLevel: Boolean): JStringBuilder =
+      if (rootLevel) {
+        appendString0(s)
+      } else {
+        sb.append('"')
+        appendString0(s).append('"')
+      }
+
+    def appendString0(s: String): JStringBuilder = {
+      cfor(0)(_ < s.length, _ + 1) { i =>
+        val c = s.charAt(i)
+        c match {
+          case '"'  => sb.append("\\\"")
+          case '\\' => sb.append("\\\\")
+          case '/'  => sb.append("\\/")
+          case '\b' => sb.append("\\b")
+          case '\f' => sb.append("\\f")
+          case '\n' => sb.append("\\n")
+          case '\r' => sb.append("\\r")
+          case '\t' => sb.append("\\t")
+          case _ =>
+            if (Character.isISOControl(c)) {
+              sb.append("\\u")
+              var n: Int = c
+              cfor(0)(_ < 4, _ + 1) { _ =>
+                val digit = (n & 0xf000) >> 12
+                sb.append(HexUtils.toHexChar(digit))
+                n <<= 4
+              }
+            } else {
+              sb.append(c)
+            }
+        }
+      }
+      sb
+    }
+
+    def appendArray(iterable: Traversable[_]): JStringBuilder = {
+      sb.append('[')
+      iterable.foreach { elem =>
+        appendStringified(elem, rootLevel = false).append(',')
+      }
+      if (iterable.nonEmpty) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append(']')
+    }
+
+    def appendMap(map: collection.Map[_, _]): JStringBuilder = {
+      sb.append('{')
+      map.foreach {
+        case (k, v) =>
+          sb.append('"').append(k).append("\":")
+          appendStringified(v, rootLevel = false).append(',')
+      }
+      if (map.nonEmpty) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append('}')
+    }
+
+    appendStringified(value, isRootObject).toString
+  }
 
   def asScala(value: Any): Any =
     value match {
@@ -80,64 +162,4 @@ object Json {
 
       case _ => value
     }
-
-  implicit class JsonStringBuilder(val sb: JStringBuilder) extends AnyVal {
-
-    def appendStringified(value: Any, rootLevel: Boolean): JStringBuilder = value match {
-      case b: Byte                   => appendValue(b)
-      case s: Short                  => appendValue(s)
-      case i: Int                    => appendValue(i)
-      case l: Long                   => appendValue(l)
-      case f: Float                  => appendValue(f)
-      case d: Double                 => appendValue(d)
-      case bool: Boolean             => appendValue(bool)
-      case s: String                 => appendString(s, rootLevel)
-      case null                      => appendNull()
-      case map: collection.Map[_, _] => appendMap(map)
-      case jMap: JMap[_, _]          => appendMap(jMap.asScala)
-      case array: Array[_]           => appendArray(array)
-      case seq: Seq[_]               => appendArray(seq)
-      case coll: JCollection[_]      => appendArray(coll.asScala)
-      case any                       => appendString(any.toString, rootLevel)
-    }
-
-    private def appendString(s: String, rootLevel: Boolean): JStringBuilder = {
-      val escapedAndWrapped = objectMapper.writeValueAsString(s)
-      if (rootLevel) {
-        sb.append(escapedAndWrapped, 1, escapedAndWrapped.length - 1)
-      } else {
-        sb.append(escapedAndWrapped)
-      }
-    }
-
-    private def appendValue(value: Any): JStringBuilder =
-      sb.append(value)
-
-    private def appendNull(): JStringBuilder =
-      sb.append("null")
-
-    private def appendArray(iterable: Traversable[_]): JStringBuilder = {
-      sb.append('[')
-      iterable.foreach { elem =>
-        appendStringified(elem, rootLevel = false).append(',')
-      }
-      if (iterable.nonEmpty) {
-        sb.setLength(sb.length - 1)
-      }
-      sb.append(']')
-    }
-
-    private def appendMap(map: collection.Map[_, _]): JStringBuilder = {
-      sb.append('{')
-      map.foreach {
-        case (key, value) =>
-          sb.append('"').append(key).append("\":")
-          appendStringified(value, rootLevel = false).append(',')
-      }
-      if (map.nonEmpty) {
-        sb.setLength(sb.length - 1)
-      }
-      sb.append('}')
-    }
-  }
 }
