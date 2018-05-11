@@ -42,7 +42,7 @@ public class RequestBuilder {
   private List<Param> queryParams;
   private HttpHeaders headers = new DefaultHttpHeaders(false);
   private List<Cookie> cookies;
-  private RequestBody body;
+  private RequestBody<?> body;
   private long requestTimeout;
   private String virtualHost;
   private InetAddress localAddress;
@@ -97,7 +97,7 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setBody(RequestBody body) {
+  public RequestBuilder setBody(RequestBody<?> body) {
     this.body = body;
     return this;
   }
