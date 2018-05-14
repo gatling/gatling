@@ -53,7 +53,12 @@ object Maps {
 
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
 
-    def forceMapValues[V2](f: V => V2): Map[K, V2] = map.map { case (k, v) => k -> f(v) }
+    def forceMapValues[V2](f: V => V2): Map[K, V2] =
+      if (map.isEmpty) {
+        Map.empty
+      } else {
+        map.map { case (k, v) => k -> f(v) }
+      }
 
     /**
      * Merge with another map. Left is this map and right the other one.
