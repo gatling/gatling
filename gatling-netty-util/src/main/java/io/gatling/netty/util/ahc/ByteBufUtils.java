@@ -68,7 +68,7 @@ public final class ByteBufUtils {
   }
 
   public static String byteBuf2String(Charset charset, ByteBuf buf) {
-    return isUtf8OrUsAscii(charset) ? decodeUtf8(buf) : buf.toString(charset);
+    return isUtf8OrUsAscii(charset) ? decodeUtf8(buf) : decodeString(charset, buf);
   }
 
   public static String byteBuf2String(Charset charset, ByteBuf... bufs) {
@@ -76,7 +76,7 @@ public final class ByteBufUtils {
   }
 
   public static char[] byteBuf2Chars(Charset charset, ByteBuf buf) {
-    return isUtf8OrUsAscii(charset) ? decodeUtf8Chars(buf) : decodeChars(buf, charset);
+    return isUtf8OrUsAscii(charset) ? decodeUtf8Chars(buf) : decodeChars(charset, buf);
   }
 
   public static char[] byteBuf2Chars(Charset charset, ByteBuf... bufs) {
@@ -87,49 +87,27 @@ public final class ByteBufUtils {
     return charset.equals(UTF_8) || charset.equals(US_ASCII);
   }
 
-  private static char[] decodeChars(ByteBuf src, Charset charset) {
-    int readerIndex = src.readerIndex();
-    int len = src.readableBytes();
+  static String decodeString(Charset charset, ByteBuf src) {
+    if (!src.isReadable()) {
+      return "";
+    }
+    return decode(src, charset).toString();
+  }
 
-    if (len == 0) {
+  static char[] decodeChars(Charset charset, ByteBuf src) {
+    if (!src.isReadable()) {
       return EMPTY_CHARS;
     }
-    final CharsetDecoder decoder = CharsetUtil.decoder(charset);
-    final int maxLength = (int) ((double) len * decoder.maxCharsPerByte());
-    CharBuffer dst = CHAR_BUFFERS.get();
-    if (dst.length() < maxLength) {
-      dst = CharBuffer.allocate(maxLength);
-      CHAR_BUFFERS.set(dst);
-    } else {
-      dst.clear();
-    }
-    if (src.nioBufferCount() == 1) {
-      // Use internalNioBuffer(...) to reduce object creation.
-      decode(decoder, src.internalNioBuffer(readerIndex, len), dst);
-    } else {
-      // We use a heap buffer as CharsetDecoder is most likely able to use a fast-path if src and dst buffers
-      // are both backed by a byte array.
-      ByteBuf buffer = src.alloc().heapBuffer(len);
-      try {
-        buffer.writeBytes(src, readerIndex, len);
-        // Use internalNioBuffer(...) to reduce object creation.
-        decode(decoder, buffer.internalNioBuffer(buffer.readerIndex(), len), dst);
-      } finally {
-        // Release the temporary buffer again.
-        buffer.release();
-      }
-    }
-    dst.flip();
-    return toCharArray(dst);
+    return toCharArray(decode(src, charset));
   }
 
   static String byteBuf2String0(Charset charset, ByteBuf... bufs) {
     if (bufs.length == 1) {
-      return bufs[0].toString(charset);
+      return decodeString(charset, bufs[0]);
     }
     ByteBuf composite = composite(bufs);
     try {
-      return composite.toString(charset);
+      return decodeString(charset, composite);
     } finally {
       composite.release();
     }
@@ -137,11 +115,11 @@ public final class ByteBufUtils {
 
   static char[] byteBuf2Chars0(Charset charset, ByteBuf... bufs) {
     if (bufs.length == 1) {
-      return decodeChars(bufs[0], charset);
+      return decodeChars(charset, bufs[0]);
     }
     ByteBuf composite = composite(bufs);
     try {
-      return decodeChars(composite, charset);
+      return decodeChars(charset, composite);
     } finally {
       composite.release();
     }
@@ -173,5 +151,43 @@ public final class ByteBufUtils {
     char[] chars = new char[charBuffer.remaining()];
     charBuffer.get(chars);
     return chars;
+  }
+
+  private static CharBuffer pooledCharBuffer(int len, CharsetDecoder decoder) {
+    final int maxLength = (int) ((double) len * decoder.maxCharsPerByte());
+    CharBuffer dst = CHAR_BUFFERS.get();
+    if (dst.length() < maxLength) {
+      dst = CharBuffer.allocate(maxLength);
+      CHAR_BUFFERS.set(dst);
+    } else {
+      dst.clear();
+    }
+    return dst;
+  }
+
+  private static CharBuffer decode(ByteBuf src, Charset charset) {
+    int readerIndex = src.readerIndex();
+    int len = src.readableBytes();
+    final CharsetDecoder decoder = CharsetUtil.decoder(charset);
+    CharBuffer dst = pooledCharBuffer(len, decoder);
+    if (src.nioBufferCount() == 1) {
+      // Use internalNioBuffer(...) to reduce object creation.
+      // BEWARE: NOT THREAD-SAFE
+      decode(decoder, src.internalNioBuffer(readerIndex, len), dst);
+    } else {
+      // We use a heap buffer as CharsetDecoder is most likely able to use a fast-path if src and dst buffers
+      // are both backed by a byte array.
+      ByteBuf buffer = src.alloc().heapBuffer(len);
+      try {
+        buffer.writeBytes(src, readerIndex, len);
+        // Use internalNioBuffer(...) to reduce object creation.
+        decode(decoder, buffer.internalNioBuffer(buffer.readerIndex(), len), dst);
+      } finally {
+        // Release the temporary buffer again.
+        buffer.release();
+      }
+    }
+    dst.flip();
+    return dst;
   }
 }

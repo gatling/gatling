@@ -206,7 +206,7 @@ public class Utf8ByteBufCharsetDecoder {
 
   public String decode(ByteBuf buf) {
     if (buf.isDirect()) {
-      return buf.toString(UTF_8);
+      return ByteBufUtils.decodeString(UTF_8, buf);
     }
     decodeHeap0(buf);
     return charBuffer.toString();
@@ -214,7 +214,7 @@ public class Utf8ByteBufCharsetDecoder {
 
   public char[] decodeChars(ByteBuf buf) {
     if (buf.isDirect()) {
-      return buf.toString(UTF_8).toCharArray();
+      return ByteBufUtils.decodeChars(UTF_8, buf);
     }
     decodeHeap0(buf);
     return toCharArray(charBuffer);
