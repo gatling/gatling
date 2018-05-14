@@ -29,7 +29,6 @@ public class HttpTx {
   final ChannelPoolKey key;
 
   // mutable state
-  boolean usingPooledChannel;
   int remainingTries;
   boolean closeConnection;
 

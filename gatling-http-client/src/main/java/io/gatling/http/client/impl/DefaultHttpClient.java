@@ -324,9 +324,7 @@ public class DefaultHttpClient implements HttpClient {
     // use a fresh channel for WebSocket
     Channel pooledChannel = request.getUri().isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
-    tx.usingPooledChannel = pooledChannel != null;
-
-    if (tx.usingPooledChannel) {
+    if (pooledChannel != null) {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
