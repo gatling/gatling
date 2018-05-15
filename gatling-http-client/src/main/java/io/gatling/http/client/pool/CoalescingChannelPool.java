@@ -85,7 +85,7 @@ class CoalescingChannelPool {
       Queue<Channel> channels = clientCleanUpMap.get(channel);
       if (channels != null) {
         channels.remove(channel);
-        cleanUpMap.remove(channel);
+        clientCleanUpMap.remove(channel);
       }
     }
   }
