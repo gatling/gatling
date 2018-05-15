@@ -22,6 +22,6 @@ import io.gatling.jms.client.JmsConnectionPool
 
 case class JmsComponents(jmsProtocol: JmsProtocol, jmsConnectionPool: JmsConnectionPool) extends ProtocolComponents {
 
-  override def onStart: Option[Session => Session] = None
-  override def onExit: Option[Session => Unit] = None
+  override def onStart: Session => Session = ProtocolComponents.NoopOnStart
+  override def onExit: Session => Unit = ProtocolComponents.NoopOnExit
 }

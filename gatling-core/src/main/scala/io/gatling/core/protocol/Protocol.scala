@@ -36,9 +36,16 @@ trait ProtocolKey {
   def newComponents(coreComponents: CoreComponents): Protocol => Components
 }
 
+object ProtocolComponents {
+
+  val NoopOnStart: Session => Session = identity
+
+  val NoopOnExit: Session => Unit = _ => ()
+}
+
 trait ProtocolComponents {
-  def onStart: Option[Session => Session]
-  def onExit: Option[Session => Unit]
+  def onStart: Session => Session
+  def onExit: Session => Unit
 }
 
 class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
@@ -56,26 +63,20 @@ class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtoco
 class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey, Any]) {
 
   val protocolCache = mutable.Map.empty[ProtocolKey, Protocol]
-  val componentsCache = mutable.Map.empty[ProtocolKey, Any]
+  val componentsCache = mutable.Map.empty[ProtocolKey, ProtocolComponents]
 
   def components(key: ProtocolKey): key.Components = {
 
     def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[key.Protocol => key.Components]
     def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
-    def comps = componentsFactory(protocol)
+    def comps: key.Components = componentsFactory(protocol)
 
-    componentsCache.getOrElseUpdate(key, comps).asInstanceOf[key.Components]
+    componentsCache.getOrElseUpdate(key, comps.asInstanceOf[ProtocolComponents]).asInstanceOf[key.Components]
   }
 
   def onStart: Session => Session =
-    componentsCache.values.collect { case protocolComponents: ProtocolComponents => protocolComponents.onStart }.flatten.toList match {
-      case Nil          => Session.Identity
-      case head :: tail => tail.foldLeft(head)(_ andThen _)
-    }
+    componentsCache.values.map(_.onStart).reduce(_ andThen _)
 
   def onExit: Session => Unit =
-    componentsCache.values.collect { case any: ProtocolComponents => any.onExit }.flatten.toList match {
-      case Nil => _ => ()
-      case onExits => session => onExits.foreach(_(session))
-    }
+    session => componentsCache.values.foreach(_.onExit(session))
 }

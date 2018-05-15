@@ -24,12 +24,12 @@ import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
 
 case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor, clock: Clock) extends ProtocolComponents {
 
-  override lazy val onStart: Option[Session => Session] =
-    Some(httpCaches.setNameResolver(httpProtocol, httpEngine, clock)
+  override lazy val onStart: Session => Session =
+    (httpCaches.setNameResolver(httpProtocol, httpEngine, clock)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
       andThen httpCaches.setWsBaseUrl(httpProtocol))
 
-  override lazy val onExit: Option[Session => Unit] =
-    Some(session => httpEngine.httpClient.flushClientIdChannels(session.userId))
+  override lazy val onExit: Session => Unit =
+    session => httpEngine.httpClient.flushClientIdChannels(session.userId)
 }
