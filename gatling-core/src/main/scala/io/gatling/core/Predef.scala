@@ -30,7 +30,7 @@ object Predef extends CoreDsl {
   type Status = io.gatling.commons.stats.Status
   type Simulation = io.gatling.core.scenario.Simulation
   type Assertion = io.gatling.commons.stats.assertion.Assertion
-  type Node = jodd.lagarto.dom.Node
+  type Node = _root_.jodd.lagarto.dom.Node
 
   /**
    * Offers the same implicits conversions as scala.concurrent.duration.DurationInt for java.lang.Integer.
