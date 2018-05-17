@@ -84,8 +84,8 @@ abstract class JmsClient(
 
   def createDestination(destination: JmsDestination): Destination =
     destination match {
-      case JmsQueue(name)    => session.createQueue(name)
-      case JmsTopic(name)    => session.createTopic(name)
+      case JmsQueue(name)    => ctx.lookup(name).asInstanceOf[Queue]
+      case JmsTopic(name)    => ctx.lookup(name).asInstanceOf[Topic]
       case JmsTemporaryQueue => session.createTemporaryQueue()
       case JmsTemporaryTopic => session.createTemporaryTopic()
     }
