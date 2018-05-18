@@ -60,7 +60,7 @@ case class JmsJndiConnectionFactoryBuilder(
     jndiProperties:        Map[String, String]
 ) extends StrictLogging {
 
-  def build() = {
+  def build(): ConnectionFactory = {
     // create InitialContext
     val properties = new JHashtable[String, String]
     properties.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory)
