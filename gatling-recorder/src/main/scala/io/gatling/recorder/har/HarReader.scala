@@ -54,7 +54,7 @@ private[recorder] object HarReader {
     harEntries
       .iterator
       // Filter out all non-HTTP protocols (eg: ws://)
-      .filter(_.request.url.toString.toLowerCase.startsWith("http"))
+      .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))
       // filter out CONNECT requests if HAR was generated with a proxy such as Charles
       .filter(entry => entry.request.method != HttpMethod.CONNECT.name)
       .filter(entry => isValidURL(entry.request.url))

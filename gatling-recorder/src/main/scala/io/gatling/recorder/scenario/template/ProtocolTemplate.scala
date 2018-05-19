@@ -16,13 +16,13 @@
 
 package io.gatling.recorder.scenario.template
 
-import java.util.Locale
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.StringHelper.{ EmptyFastring, Eol }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
-import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
+import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeadersAndProtocolMethods
 import io.gatling.recorder.util.HttpUtils
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -79,8 +79,8 @@ private[scenario] object ProtocolTemplate {
 
     def renderHeaders = {
       def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
-      protocol.headers.toList
-        .filter { case (name, value) => !name.equalsIgnoreCase(HeaderNames.Connection) || value.equalsIgnoreCase(HeaderValues.Close) }
+      protocol.headers.entries().asScala
+        .collect { case entry if !entry.getKey.equalsIgnoreCase(HeaderNames.Connection) || entry.getValue.equalsIgnoreCase(HeaderValues.Close) => entry.getKey -> entry.getValue }
         .sorted
         .flatMap {
           case (headerName, headerValue) =>
@@ -91,7 +91,7 @@ private[scenario] object ProtocolTemplate {
                 headerValue
               }
 
-            BaseHeaders.get(headerName.toLowerCase(Locale.ROOT)).map(renderHeader(_, properHeaderValue))
+            Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue))
         }.mkFastring
     }
 

@@ -34,6 +34,7 @@ import io.gatling.recorder.scenario.template.SimulationTemplate
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod }
 
 private[recorder] object ScenarioExporter extends StrictLogging {
 
@@ -126,9 +127,9 @@ private[recorder] object ScenarioExporter extends StrictLogging {
           val acceptedHeaders = element.headers.entries.asScala.map(e => e.getKey -> e.getValue).toList
             .filterNot {
               case (headerName, headerValue) =>
-                val isFiltered = filteredHeaders contains headerName
-                val isAlreadyInBaseHeaders = baseHeaders.get(headerName).contains(headerValue)
-                val isPostWithFormParams = element.method == "POST" && headerValue.toLowerCase(Locale.ROOT).contains(HeaderValues.ApplicationFormUrlEncoded)
+                val isFiltered = filteredHeaders.contains(headerName)
+                val isAlreadyInBaseHeaders = Option(baseHeaders.get(headerName)).contains(headerValue)
+                val isPostWithFormParams = element.method == HttpMethod.POST.name() && headerValue.toLowerCase(Locale.ROOT).contains(HeaderValues.ApplicationFormUrlEncoded)
                 val isEmptyContentLength = headerName.equalsIgnoreCase(HeaderNames.ContentLength) && headerValue == "0"
                 isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
             }
@@ -163,7 +164,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, config.core.className, newScenarioElements)
   }
 
-  private def getBaseHeaders(requestElements: Seq[RequestElement]): Map[String, String] = {
+  private def getBaseHeaders(requestElements: Seq[RequestElement]): HttpHeaders = {
 
     def getMostFrequentHeaderValue(headerName: String): Option[String] = {
       val headers = requestElements.flatMap(_.headers.getAll(headerName).asScala)
@@ -178,18 +179,15 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       }
     }
 
-    def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
-      getMostFrequentHeaderValue(headerName)
-        .map(headerValue => appendTo + (headerName -> headerValue))
-        .getOrElse(appendTo)
-
-    @tailrec
-    def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
-      case Nil                  => headers
-      case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+    val baseHeaders = new DefaultHttpHeaders(false)
+    ProtocolDefinition.BaseHeadersAndProtocolMethods.names().asScala.foreach { headerName =>
+      getMostFrequentHeaderValue(headerName) match {
+        case Some(mostFrequentValue) => baseHeaders.add(headerName, mostFrequentValue)
+        case _                       =>
+      }
     }
 
-    resolveBaseHeaders(Map.empty, ProtocolDefinition.BaseHeaders.keySet.toList)
+    baseHeaders
   }
 
   private def getBaseUrl(requestElements: Seq[RequestElement]): String = {

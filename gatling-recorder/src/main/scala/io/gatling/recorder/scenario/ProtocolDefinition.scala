@@ -16,24 +16,24 @@
 
 package io.gatling.recorder.scenario
 
-import java.util.Locale
-
 import io.gatling.http.HeaderNames
+
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders }
 
 private[scenario] object ProtocolDefinition {
 
-  val BaseHeaders = Map(
-    HeaderNames.Accept.toLowerCase(Locale.ROOT) -> "acceptHeader",
-    HeaderNames.AcceptCharset.toLowerCase(Locale.ROOT) -> "acceptCharsetHeader",
-    HeaderNames.AcceptEncoding.toLowerCase(Locale.ROOT) -> "acceptEncodingHeader",
-    HeaderNames.AcceptLanguage.toLowerCase(Locale.ROOT) -> "acceptLanguageHeader",
-    HeaderNames.Authorization.toLowerCase(Locale.ROOT) -> "authorizationHeader",
-    HeaderNames.Connection.toLowerCase(Locale.ROOT) -> "connectionHeader",
-    HeaderNames.ContentType.toLowerCase(Locale.ROOT) -> "contentTypeHeader",
-    HeaderNames.DNT.toLowerCase(Locale.ROOT) -> "doNotTrackHeader",
-    HeaderNames.UserAgent.toLowerCase(Locale.ROOT) -> "userAgentHeader",
-    HeaderNames.UpgradeInsecureRequests.toLowerCase(Locale.ROOT) -> "upgradeInsecureRequestsHeader"
-  )
+  // use HttpHeaders because keys are case insensitive
+  val BaseHeadersAndProtocolMethods: HttpHeaders = new DefaultHttpHeaders(false)
+    .add(HeaderNames.Accept, "acceptHeader")
+    .add(HeaderNames.AcceptCharset, "acceptCharsetHeader")
+    .add(HeaderNames.AcceptEncoding, "acceptEncodingHeader")
+    .add(HeaderNames.AcceptLanguage, "acceptLanguageHeader")
+    .add(HeaderNames.Authorization, "authorizationHeader")
+    .add(HeaderNames.Connection, "connectionHeader")
+    .add(HeaderNames.ContentType, "contentTypeHeader")
+    .add(HeaderNames.DNT, "doNotTrackHeader")
+    .add(HeaderNames.UserAgent, "userAgentHeader")
+    .add(HeaderNames.UpgradeInsecureRequests, "upgradeInsecureRequestsHeader")
 }
 
-private[scenario] case class ProtocolDefinition(baseUrl: String, headers: Map[String, String])
+private[scenario] case class ProtocolDefinition(baseUrl: String, headers: HttpHeaders)
