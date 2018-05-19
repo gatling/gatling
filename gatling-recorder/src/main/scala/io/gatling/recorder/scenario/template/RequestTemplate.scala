@@ -16,6 +16,8 @@
 
 package io.gatling.recorder.scenario.template
 
+import java.util.Locale
+
 import io.gatling.commons.util.StringHelper.EmptyFastring
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
@@ -34,7 +36,7 @@ private[scenario] object RequestTemplate {
   def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): Fastring = {
     def renderMethod: Fastring =
       if (BuiltInHttpMethods.contains(request.method)) {
-        fast"${request.method.toLowerCase}($renderUrl)"
+        fast"${request.method.toLowerCase(Locale.ROOT)}($renderUrl)"
       } else {
         fast"""httpRequest("${request.method}", $renderUrl)"""
       }
