@@ -231,7 +231,7 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
     }
 
     def redirect(status: HttpResponseStatus, update: Session => Session): Unit =
-      if (tx.request.config.maxRedirects == tx.redirectCount) {
+      if (tx.redirectCount >= tx.request.config.maxRedirects) {
         ko(tx, update, response, s"Too many redirects, max is ${tx.request.config.maxRedirects}")
 
       } else {
