@@ -73,18 +73,9 @@ The only difference is that header fields get trimmed of wrapping whitespaces.
 
 .. includecode:: code/FeederSample.scala#sep-values-feeders
 
-Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
+Those built-ins load by default all the data in memory so Gatling doesn't perform disk access while simulation is running.
 
-.. warning::
-  Loading feeder files in memory uses a lot of heap, expect a 5-to-10-times ratio with the file size.
-  This is due to JVM's internal UTF-16 char encoding and object headers overhead.
-  If memory is an issue for you, you might want to read from the filesystem on the fly and build your own Feeder.
-
-Then, if your files are very large, you can provide them zipped and ask gatling to ``unzip`` them on the fly:
-
-.. includecode:: code/FeederSample.scala#unzip
-
-Finally, if your files are very large, it might be difficult to have them sit in memory.
+Then, if your files are very large, it might be difficult to have them sit in memory.
 You can then use the `batch` mode.
 
 .. warning::
@@ -95,6 +86,19 @@ When in ``batch`` mode, ``random`` and ``shuffle`` can't of course operate on th
 The default size of this buffer is 2,000 and can be changed.
 
 .. includecode:: code/FeederSample.scala#batch
+
+Also, if your files are very large, you can provide them zipped and ask gatling to ``unzip`` them on the fly:
+
+.. includecode:: code/FeederSample.scala#unzip
+
+Finally, if you want to run distributed with `FrontLine <https://gatling.io/gatling-frontline/>`_
+and you want to distribute data so that users don't use the same data when they run on different cluster nodes, you can use the ``shard`` option.
+For example, if you have a file with 30,000 records deployed on 3 nodes, each will use a 10,000 records slice.
+
+.. warning::
+``shard`` is only effective when running with FrontLine, otherwise it's just a noop.
+
+.. includecode:: code/FeederSample.scala#shard
 
 .. _feeder-json:
 

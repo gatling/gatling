@@ -24,11 +24,13 @@ import io.gatling.commons.util.Io.withCloseable
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Resource
 
+import com.typesafe.scalalogging.LazyLogging
+
 sealed trait FeederSource[T] {
   def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any]
 }
 
-case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] {
+case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
 
   require(records.nonEmpty, "Feeder must not be empty")
 
@@ -44,7 +46,12 @@ case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends Feede
         //
         //
         // [fl]
-        records
+        {
+          if (options.shard) {
+            logger.warn("shard is an option that's only supported in FrontLine")
+          }
+          records
+        }
       )
 
     InMemoryFeeder(rawRecords, options.conversion, options.strategy)

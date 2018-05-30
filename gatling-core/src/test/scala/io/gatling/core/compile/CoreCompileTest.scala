@@ -238,7 +238,5 @@ class CoreCompileTest extends Simulation {
     .uniformPauses(1.5)
     .uniformPauses(1337 seconds)
 
-  //[fl]
-  //
-  //[fl]
+  feed(csv("foo.csv").shard)
 }

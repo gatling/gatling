@@ -25,9 +25,8 @@ case class SourceFeederBuilder[T](
     configuration: GatlingConfiguration,
     options:       FeederOptions[T]     = FeederOptions[T]()
 ) extends FeederBuilder {
-  // [fl]
-  //
-  // [fl]
+
+  def shard: SourceFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
 
   def unzip: SourceFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
 
@@ -52,9 +51,7 @@ case class SourceFeederBuilder[T](
 }
 
 case class FeederOptions[T](
-    // [fl]
     shard:           Boolean = false,
-    // [fl]
     unzip:           Boolean                          = false,
     conversion:      Option[Record[T] => Record[Any]] = None,
     strategy:        FeederStrategy                   = Queue,
