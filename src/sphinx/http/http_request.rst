@@ -132,29 +132,26 @@ For example, you might want to generate some `HMAC <http://en.wikipedia.org/wiki
 
 This can only happen after Gatling has resolved the request, e.g. computed the body based on a template.
 
-Gatling exposes AsyncHttpClient's ``SignatureCalculator`` API::
+Gatling provides the ``SignatureCalculator`` API::
+
+  package io.gatling.http.client;
 
   public interface SignatureCalculator {
-    void calculateAndAddSignature(Request request,
-                                  RequestBuilderBase<?> requestBuilder);
+
+    void sign(Request request) throws Exception;
   }
 
-``request`` is the immutable object that's been computed so far, ``requestBuilder`` is the mutable object that will be used to generate the final request.
+``request`` is the mutable object that's been computed so far.
+You can typically use its attributes to compute a new header that you will add to the existing headers.
 
-So, basically, you have to read the proper information from the ``url`` and ``request`` parameters, compute the new information out of them, such as a HMAC header, and set it on the ``requestBuilder``.
+The proper method signature for setting a `SignatureCalculator` is::
 
-There's 3 ways to set a SignatureCalculator on a request::
+  .sign(calculator: Expression[SignatureCalculator])
 
-  .signatureCalculator(calculator: SignatureCalculator)
 
-  // use this signature if you want to directly pass a function instead of a SignatureCalculator
-  .signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit)
+but you can pass a static `SignatureCalculator` instead of an `Expression` and Gatling DSL will automatically lift it for you.
 
-  // use this signature if you need information from the session to compute the signature (e.g. user specific authentication keys)
-  // does not work with an anonymous function as in the second signature
-  .signatureCalculator(calculator: Expression[SignatureCalculator])
-
-Gatling provides a built-in for OAuth1 (on top of AHC's `org.asynchttpclient.oauth.OAuthSignatureCalculator`) ::
+Gatling also provides a built-in for OAuth1 ::
 
   .signWithOAuth1(consumerKey: Expression[String],
                   clientSharedSecret: Expression[String],

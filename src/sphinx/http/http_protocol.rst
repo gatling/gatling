@@ -264,10 +264,13 @@ You have also the following built-ins for the more commons headers:
 Signature Calculator
 --------------------
 
-You can set a SignatureCalculator at protocol level with these methods:
+You can set a function to sign a request once Gatling has built it, just before it's being sent over the wire:
 
-* ``signatureCalculator(calculator: SignatureCalculator)``
-* ``signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String])``
+``sign(calculator: Expression[SignatureCalculator])``
+
+We also provide a built-in for OAuth1:
+
+``signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String])``
 
 .. note:: For more details see the dedicated section :ref:`here <http-request-signature>`.
 
