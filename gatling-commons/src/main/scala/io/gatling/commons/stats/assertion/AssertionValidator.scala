@@ -112,15 +112,23 @@ object AssertionValidator {
 
   private def resolvePercentTargetActualValue(target: PercentTarget, stats: StatsByStatus): Double = {
 
-    val resolvedStats = target.metric match {
-      case AllRequests        => stats(None)
-      case FailedRequests     => stats(Some(KO))
-      case SuccessfulRequests => stats(Some(OK))
-    }
-
-    val metricCount = resolvedStats.count
     val allCount = stats(None).count
-    metricCount.toDouble / allCount * 100
+
+    target.metric match {
+      case SuccessfulRequests =>
+        if (allCount == 0) {
+          0.0
+        } else {
+          stats(Some(OK)).count.toDouble / allCount * 100
+        }
+      case FailedRequests =>
+        if (allCount == 0) {
+          100.0
+        } else {
+          stats(Some(KO)).count.toDouble / allCount * 100
+        }
+      case _ => 100
+    }
   }
 
   private def resolveTimeTargetActualValue(target: TimeTarget, stats: StatsByStatus): Int = {
