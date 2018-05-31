@@ -29,6 +29,7 @@ Third Parties
 * `UDP plugin <https://github.com/arenhage/gatling-udp>`_ by Daniel Arenhage
 * `gRPC plugin <https://github.com/macchiatow/gatling-grpc>`_ by Togrul Mageramov
 * `Neo4j Bolt plugin <https://github.com/sarmbruster/gatling-bolt>`_ by Stefan Armbruster
+* `JDBC plugin <https://github.com/codecentric/gatling-jdbc>`_ by Ronny Bräunlich
 
 .. warning::
   Those projects are third parties and are not maintained by the Gatling core committers.
