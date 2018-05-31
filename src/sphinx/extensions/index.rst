@@ -28,6 +28,7 @@ Third Parties
 * `ZeroMQ plugin <https://github.com/softwaremill/gatling-zeromq>`_ by SoftwareMill
 * `UDP plugin <https://github.com/arenhage/gatling-udp>`_ by Daniel Arenhage
 * `gRPC plugin <https://github.com/macchiatow/gatling-grpc>`_ by Togrul Mageramov
+* `JDBC plugin <https://github.com/codecentric/gatling-jdbc>`_ by Ronny Bräunlich
 
 .. warning::
   Those projects are third parties and are not maintained by the Gatling core committers.
