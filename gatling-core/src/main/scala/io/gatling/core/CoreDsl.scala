@@ -16,8 +16,6 @@
 
 package io.gatling.core
 
-import scala.concurrent.duration._
-
 import io.gatling.core.assertion.AssertionSupport
 import io.gatling.core.body.BodyProcessors
 import io.gatling.core.check.CheckSupport
@@ -68,14 +66,4 @@ trait CoreDsl extends StructureSupport
   def ByteArrayBody = io.gatling.core.body.ByteArrayBody
 
   def InputStreamBody = io.gatling.core.body.InputStreamBody
-
-/***********************************/
-  /** Duration implicit conversions **/
-/***********************************/
-
-  implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
-
-  implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
-
-  implicit def jlongToFiniteDuration(i: java.lang.Long): FiniteDuration = i.toLong.seconds
 }

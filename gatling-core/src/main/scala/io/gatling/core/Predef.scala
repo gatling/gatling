@@ -99,4 +99,10 @@ object Predef extends CoreDsl {
     def days = l.toLong.days
     def day = l.toLong.day
   }
+
+  implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
+
+  implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
+
+  implicit def jlongToFiniteDuration(i: java.lang.Long): FiniteDuration = i.toLong.seconds
 }
