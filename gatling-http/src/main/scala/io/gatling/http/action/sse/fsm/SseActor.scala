@@ -37,7 +37,7 @@ case class SetCheck(actionName: String, checkSequences: List[SseMessageCheckSequ
   def copyWithSession(newSession: Session): SetCheck = copy(session = newSession)
 }
 case class SseReceived(message: String, timestamp: Long)
-case class SseStreamClosed(code: Int, reason: String, timestamp: Long)
+case class SseStreamClosed(timestamp: Long)
 case class SseStreamCrashed(t: Throwable, timestamp: Long)
 case class ClientCloseRequest(actionName: String, session: Session, next: Action)
 case class Timeout(id: Long)

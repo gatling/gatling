@@ -25,15 +25,15 @@ trait WhenClosing { this: SseActor =>
       logUnmatchedServerMessage(session)
       stay()
 
-    case Event(SseStreamClosed(_, _, timestamp), ClosingData(actionName, session, next, closeStart)) =>
+    case Event(SseStreamClosed(timestamp), ClosingData(actionName, session, next, closeStart)) =>
       // server has acked closing
-      logger.info("Server has acked closing")
+      logger.info("Socket closed")
       val newSession = logResponse(session, actionName, closeStart, timestamp, OK, None, None)
       next ! newSession.remove(wsName)
       stop()
 
     case Event(SseStreamCrashed(t, timestamp), ClosingData(actionName, session, next, closeStart)) =>
-      logger.info("WebSocket crashed while waiting for close ack")
+      logger.info("SSE stream crashed while waiting for socket close")
       // crash, close anyway
       val newSession = logResponse(session, actionName, closeStart, timestamp, KO, None, Some(t.getMessage))
       next ! newSession.markAsFailed.remove(wsName)

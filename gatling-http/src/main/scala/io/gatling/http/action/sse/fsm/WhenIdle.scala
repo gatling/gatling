@@ -54,22 +54,22 @@ trait WhenIdle { this: SseActor =>
       logUnmatchedServerMessage(session)
       stay()
 
-    case Event(SseStreamClosed(code, reason, _), _) =>
+    case Event(SseStreamClosed(_), _) =>
       // server issued close
-      logger.info(s"WebSocket was forcefully closed ($code:$reason) by the server while in Idle state")
+      logger.info(s"SSE stream was forcefully closed by the server while in Idle state")
       goto(Crashed) using CrashedData(None)
 
     case Event(SseStreamCrashed(t, _), _) =>
       // crash
-      logger.info("WebSocket crashed by the server while in Idle state", t)
+      logger.info("SSE stream crashed by the server while in Idle state", t)
       goto(Crashed) using CrashedData(Some(t.getMessage))
 
     case Event(ClientCloseRequest(name, session, next), IdleData(_, stream)) =>
-      logger.info("Client requested WebSocket close")
+      logger.info("Client requested SSE stream close")
       stream.close()
       //[fl]
       //
       //[fl]
-      goto(Closing) using ClosingData(name, session, next, clock.nowMillis) // TODO should we have a close timeout?
+      goto(Closing) using ClosingData(name, session, next, clock.nowMillis)
   }
 }

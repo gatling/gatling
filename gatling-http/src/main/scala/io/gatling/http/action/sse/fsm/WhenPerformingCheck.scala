@@ -57,11 +57,11 @@ trait WhenPerformingCheck { this: SseActor =>
     case Event(SseReceived(message, timestamp), data: PerformingCheckData) =>
       tryApplyingChecks(message, timestamp, data.currentCheck.matchConditions, data.currentCheck.checks, data)
 
-    case Event(SseStreamClosed(code, reason, _), PerformingCheckData(_, currentCheck, _, checkSequenceStart, _, _, session, next)) =>
+    case Event(SseStreamClosed(_), PerformingCheckData(_, currentCheck, _, checkSequenceStart, _, _, session, next)) =>
       // unexpected close, fail check
       logger.debug("WebSocket remotely closed while waiting for checks")
       cancelTimeout()
-      handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, Some(Integer.toString(code)), reason)
+      handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, "Socket closed")
 
     case Event(SseStreamCrashed(t, _), PerformingCheckData(_, currentCheck, _, checkSequenceStart, _, _, session, next)) =>
       // crash, fail check

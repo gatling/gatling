@@ -102,6 +102,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
     if (channel != null) {
       channel.close()
       channel = null
+      sseActor ! SseStreamClosed(clock.nowMillis)
     }
   }
 

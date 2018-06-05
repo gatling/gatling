@@ -23,10 +23,10 @@ trait WhenCrashed { this: SseActor =>
       val newSession = errorMessage match {
         case Some(mess) =>
           val newSession = session.markAsFailed
-          statsEngine.logCrash(newSession, actionName, s"Client issued close order but WebSocket was already crashed: $mess")
+          statsEngine.logCrash(newSession, actionName, s"Client issued close order but SSE stream was already crashed: $mess")
           newSession
         case _ =>
-          logger.info("Client issued close order but WebSocket was already closed")
+          logger.info("Client issued close order but SSE stream was already closed")
           session
       }
 
@@ -36,8 +36,8 @@ trait WhenCrashed { this: SseActor =>
     case Event(message: SetCheck, CrashedData(errorMessage)) =>
       // FIXME sent message so be stashed until reconnect, instead of failed
       val loggedMessage = errorMessage match {
-        case Some(mess) => s"Client issued message but WebSocket was already crashed: $mess"
-        case _          => "Client issued message but WebSocket was already closed"
+        case Some(mess) => s"Client issued message but SSE stream was already crashed: $mess"
+        case _          => "Client issued message but SSE stream was already closed"
       }
 
       logger.info(loggedMessage)

@@ -108,9 +108,9 @@ trait WhenConnecting { this: SseActor =>
           goto(Idle) using IdleData(sessionWithGroupTimings, stream)
       }
 
-    case Event(SseStreamClosed(code, reason, timestamp), ConnectingData(session, next, connectStart, remainingTries)) =>
+    case Event(SseStreamClosed(timestamp), ConnectingData(session, next, connectStart, remainingTries)) =>
       // unexpected close
-      handleConnectFailure(session, next, connectStart, timestamp, Some(String.valueOf(code)), reason, remainingTries)
+      handleConnectFailure(session, next, connectStart, timestamp, None, "Socket closed", remainingTries)
 
     case Event(SseStreamCrashed(t, timestamp), ConnectingData(session, next, connectStart, remainingTries)) =>
       // crash
