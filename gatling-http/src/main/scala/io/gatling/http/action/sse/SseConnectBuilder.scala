@@ -34,7 +34,7 @@ case class SseConnectBuilder(
     checkSequences: List[SseMessageCheckSequence]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: SseMessageCheck*): SseConnectBuilder =
+  def await(timeout: FiniteDuration)(checks: SseMessageCheck*): SseConnectBuilder =
     this.modify(_.checkSequences).using(_ ::: List(SseMessageCheckSequence(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action = {

@@ -41,10 +41,13 @@ class WsCompileTest extends Simulation {
     .exec(http("Login").get("/room?username=${id}"))
     .pause(1)
     .exec(ws("Connect WS").connect("/room/chat?username=${id}")
-      .wait(1 second) {
+      .await(1 second) {
         ws.checkTextMessage("checkName")
           .matching(jsonPath("$.uuid").is("${correlation}"))
           .check(jsonPath("$.code").ofType[Int].is(1))
+      }
+      .await(1) { // simple int
+        ws.checkTextMessage("checkName")
       }
       .onConnected(
         exec(ws("Perform auth")

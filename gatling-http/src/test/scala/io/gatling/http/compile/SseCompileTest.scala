@@ -30,7 +30,7 @@ class SseCompileTest extends Simulation {
   val scn = scenario(this.getClass.getSimpleName)
     .exec(sse("connect")
       .connect("/stocks/prices")
-      .wait(30 seconds)(
+      .await(30 seconds)(
         sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
       ))
     .exec(sse("waitForSomeMEssage").setCheck.wait(30 seconds)(
