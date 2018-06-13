@@ -16,8 +16,6 @@
 
 package io.gatling.core.body
 
-import java.io.Writer
-import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ HashMap => JHashMap, Map => JMap }
 
 import scala.collection.JavaConverters._
@@ -27,6 +25,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 
 import com.mitchellbosecke.pebble.PebbleEngine
+import com.mitchellbosecke.pebble.extension.writer.PooledSpecializedStringWriter
 import com.mitchellbosecke.pebble.loader.StringLoader
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
@@ -57,7 +56,7 @@ object Pebble extends StrictLogging {
 
   def evaluateTemplate(template: PebbleTemplate, session: Session): Validation[String] = {
     val context = matchMap(session.attributes)
-    val writer = StringBuilderWriter.pooled
+    val writer = PooledSpecializedStringWriter.pooled
     try {
       template.evaluate(writer, context)
       writer.toString.success
@@ -67,38 +66,4 @@ object Pebble extends StrictLogging {
         e.getMessage.failure
     }
   }
-}
-
-object StringBuilderWriter {
-  private val Pool = ThreadLocal.withInitial[StringBuilderWriter](() => new StringBuilderWriter)
-
-  def pooled: StringBuilderWriter = {
-    val writer = Pool.get()
-    writer.reset()
-    writer
-  }
-}
-
-class StringBuilderWriter extends Writer {
-
-  private val stringBuilder = new JStringBuilder
-
-  override def flush(): Unit = {}
-
-  def reset(): Unit =
-    stringBuilder.setLength(0)
-
-  override def write(cbuf: Array[Char], off: Int, len: Int): Unit =
-    throw new UnsupportedOperationException
-
-  override def write(string: String): Unit =
-    stringBuilder.append(string)
-
-  override def write(cbuf: Array[Char]): Unit =
-    stringBuilder.append(cbuf)
-
-  override def toString: String =
-    stringBuilder.toString
-
-  override def close(): Unit = {}
 }
