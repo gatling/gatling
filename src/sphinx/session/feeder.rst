@@ -91,6 +91,8 @@ Also, if your files are very large, you can provide them zipped and ask gatling 
 
 .. includecode:: code/FeederSample.scala#unzip
 
+Supported formats are gzip and zip (but archive most contain only one single file).
+
 Finally, if you want to run distributed with `FrontLine <https://gatling.io/gatling-frontline/>`_
 and you want to distribute data so that users don't use the same data when they run on different cluster nodes, you can use the ``shard`` option.
 For example, if you have a file with 30,000 records deployed on 3 nodes, each will use a 10,000 records slice.

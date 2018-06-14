@@ -17,8 +17,9 @@
 package io.gatling.core.feeder
 
 import java.io.{ File, FileOutputStream }
-import java.util.zip.GZIPInputStream
+import java.util.zip.{ GZIPInputStream, ZipInputStream }
 
+import io.gatling.commons.util.Io._
 import io.gatling.core.util._
 import io.gatling.commons.util.Io.withCloseable
 import io.gatling.core.config.GatlingConfiguration
@@ -63,18 +64,43 @@ object SeparatedValuesFeederSource {
 
   def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
-    withCloseable(new GZIPInputStream(resource.inputStream, BufferSize)) { is =>
-      withCloseable(new FileOutputStream(tempFile)) { os =>
-        val buffer = new Array[Byte](BufferSize)
-        var read = 0
-        while (read != -1) {
-          read = is.read(buffer, 0, buffer.length)
-          if (read > 0) {
-            os.write(buffer, 0, read)
+
+    val magicNumber: (Byte, Byte) = withCloseable(resource.inputStream) { os =>
+      (os.read().toByte, os.read().toByte)
+    }
+
+    magicNumber match {
+      case (0x50, 0x4B) => // PK: zip
+        withCloseable(new ZipInputStream(resource.inputStream)) { zis =>
+          try {
+            val zipEntry = zis.getNextEntry()
+            if (zipEntry == null) {
+              throw new IllegalArgumentException("ZIP Archive is empty")
+            }
+
+            withCloseable(new FileOutputStream(tempFile)) { os =>
+              zis.copyTo(os, BufferSize)
+            }
+
+            if (zis.getNextEntry() != null) {
+              throw new IllegalArgumentException("ZIP Archive contains more than one file")
+            }
+
+          } finally {
+            zis.closeEntry()
           }
         }
-      }
+
+      case (0x1F, 0x8B) => // gzip
+        withCloseable(new GZIPInputStream(resource.inputStream, BufferSize)) { is =>
+          withCloseable(new FileOutputStream(tempFile)) { os =>
+            is.copyTo(os, BufferSize)
+          }
+        }
+
+      case _ => throw new IllegalArgumentException("Archive format not supported, couldn't find neither ZIP nor GZIP magic number")
     }
+
     FileResource(tempFile)
   }
 }
