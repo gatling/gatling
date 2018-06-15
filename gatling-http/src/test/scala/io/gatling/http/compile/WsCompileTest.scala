@@ -62,15 +62,15 @@ class WsCompileTest extends Simulation {
     }
     .exec(ws("Message1")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-      .wait(30 seconds)(
+      .await(30 seconds)(
         ws.checkTextMessage("checkName1").check(jsonPath("$.message").findAll.saveAs("message1"))
       )
-      .wait(30 seconds)(
+      .await(30 seconds)(
         ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
       ))
     .exec(ws("Message2")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-      .wait(30 seconds)(
+      .await(30 seconds)(
         ws.checkTextMessage("checkName1").check(
           regex("somePattern1").saveAs("message1"),
           regex("somePattern2").saveAs("message2")
@@ -79,13 +79,13 @@ class WsCompileTest extends Simulation {
       ))
     .exec(ws("Message3")
       .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-      .wait(30 seconds)(
+      .await(30 seconds)(
         // match first message
         ws.checkTextMessage("checkName")
       ))
     .exec(ws("BinaryMessage")
       .sendBytes("hello".getBytes())
-      .wait(30 seconds)(
+      .await(30 seconds)(
         // match first message
         ws.checkBinaryMessage("checkName").check(bodyBytes.transform(_.length).saveAs("bytesLength"))
       ))

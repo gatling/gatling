@@ -33,7 +33,7 @@ class SseCompileTest extends Simulation {
       .await(30 seconds)(
         sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
       ))
-    .exec(sse("waitForSomeMEssage").setCheck.wait(30 seconds)(
+    .exec(sse("waitForSomeMEssage").setCheck.await(30 seconds)(
       sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
     ))
     .pause(15)

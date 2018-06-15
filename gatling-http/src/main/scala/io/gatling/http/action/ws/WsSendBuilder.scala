@@ -33,7 +33,7 @@ case class WsSendTextFrameBuilder(
     checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
+  def await(timeout: FiniteDuration)(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
     this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
@@ -55,7 +55,7 @@ case class WsSendBinaryFrameBuilder(
     checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]]
 ) extends HttpActionBuilder {
 
-  def wait(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
+  def await(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
     this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
