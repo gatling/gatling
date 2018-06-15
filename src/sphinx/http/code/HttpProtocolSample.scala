@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
@@ -89,13 +90,13 @@ class HttpProtocolSample extends Simulation {
           .httpsPort(8143)
           .credentials("myUsername", "myPassword")
       ).proxy(
-        Proxy("mySocks4ProxyHost", 8080)
-          .socks4
-      ).proxy(
-        Proxy("mySocks5ProxyHost", 8080)
-          .httpsPort(8143)
-          .socks5
-      )
+          Proxy("mySocks4ProxyHost", 8080)
+            .socks4
+        ).proxy(
+            Proxy("mySocks5ProxyHost", 8080)
+              .httpsPort(8143)
+              .socks5
+          )
     //#proxy
 
   }

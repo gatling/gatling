@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -42,8 +43,8 @@ class SimulationSetupSample extends Simulation {
   //#closed-injection
   setUp(
     scn.inject(
-      constantConcurrentUsers(10) during(10 seconds), // 1
-      rampConcurrentUsers(10) to(20) during(10 seconds) // 2
+      constantConcurrentUsers(10) during (10 seconds), // 1
+      rampConcurrentUsers(10) to (20) during (10 seconds) // 2
     )
   )
   //#closed-injection

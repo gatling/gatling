@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import io.gatling.core.Predef._
 import io.gatling.core.session.Expression
 import io.gatling.http.Predef._
@@ -258,7 +259,7 @@ class HttpRequestSample {
 
   {
     //#resp-processors-imports
-    import org.asynchttpclient.util.Base64
+    import java.util.Base64
     import io.gatling.http.response._
     import java.nio.charset.StandardCharsets.UTF_8
     //#resp-processors-imports
@@ -270,7 +271,7 @@ class HttpRequestSample {
       .transformResponse {
         case response if response.isReceived =>
           new ResponseWrapper(response) {
-            override val body = new ByteArrayResponseBody(Base64.decode(response.body.string), UTF_8)
+            override val body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8)
           }
       }
     //#response-processors

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
@@ -34,18 +35,18 @@ class SseSample {
   val myCheck = sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
 
   //#check-from-message
-  exec(sse("Get SSE").open("/stocks/prices").check(myCheck))
+  exec(sse("Get SSE").connect("/stocks/prices").await(5 seconds)(myCheck))
   //#check-from-message
 
   //#check-from-flow
-  exec(sse("Set Check").wait(30 seconds)(
+  exec(sse("Set Check").setCheck.await(30 seconds)(
     myCheck
   ))
   //#check-from-flow
 
   //#build-check
-  exec(sse("sse").open("/stocks/prices")
-    .wait(30 seconds)(
+  exec(sse("sse").connect("/stocks/prices")
+    .await(30 seconds)(
       sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
     ))
   //#build-check
@@ -56,10 +57,11 @@ class SseSample {
 
   val scn = scenario("Server Sent Event")
     .exec(
-      sse("Stocks").open("/stocks/prices")
-        .wait(10)(
+      sse("Stocks").connect("/stocks/prices")
+        .await(10)(
           sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
-        ))
+        )
+    )
     .pause(15)
     .exec(sse("Close SSE").close())
   //#stock-market-sample

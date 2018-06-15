@@ -9,13 +9,14 @@ import sbt._
 // Root project
 
 lazy val root = Project("gatling-parent", file("."))
-  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
+  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
   .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
   .aggregate(nettyUtil, commons, core, jdbc, redis, httpClient, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
   .settings(libraryDependencies ++= docDependencies)
   .settings(updateOptions := updateOptions.value.withGigahorse(false))
+  .settings(unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get)
 
 // Modules
 

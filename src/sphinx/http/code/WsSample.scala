@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
-class WebSocketSample {
+class WsSample {
 
   //#wsName
   ws("WS Operation").wsName("myCustomName")
   //#wsName
 
   //#wsOpen
-  exec(ws("Connect WS").open("/room/chat?username=steph"))
+  exec(ws("Connect WS").connect("/room/chat?username=steph"))
   //#wsOpen
 
   //#wsClose
@@ -36,30 +37,35 @@ class WebSocketSample {
     .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
   //#sendText
 
-  val myCheck = wsListen.within(30 seconds).until(1).regex("hello (.*)").saveAs("name")
+  val myCheck = ws.checkTextMessage("checkName").check(regex("hello (.*)").saveAs("name"))
 
   //#check-from-message
-  exec(ws("Send").sendText("hello").check(myCheck))
+  exec(ws("Send").sendText("hello").await(30 seconds)(myCheck))
   //#check-from-message
 
   //#check-from-flow
-  exec(ws("Set Check").check(myCheck))
+  // FIXME setCheck is missing for WebSocket support
+  //  exec(ws("Set Check").setCheck.check(myCheck))
   //#check-from-flow
 
   //#cancel-check
-  exec(ws("Cancel Check").cancelCheck)
+  // FIXME remove cancelCheck
+  //  exec(ws("Cancel Check").cancelCheck)
   //#cancel-check
 
   //#check-example
   exec(
     ws("Send Message")
       .sendText("hello, I'm Stephane")
-      .check(wsListen.within(30 seconds).until(1).regex("hello (.*)").saveAs("name"))
+      .await(30 seconds)(
+        ws.checkTextMessage("checkName").check(regex("hello (.*)").saveAs("name"))
+      )
   )
   //#check-example
 
   //#reconcile
-  exec(ws("Reconcile states").reconcile)
+  // FIXME remove reconcile for now
+  //  exec(ws("Reconcile states").reconcile)
   //#reconcile
 
   //#chatroom-example
@@ -78,13 +84,14 @@ class WebSocketSample {
     .exec(session => session.set("id", "Steph" + session.userId))
     .exec(http("Login").get("/room?username=${id}"))
     .pause(1)
-    .exec(ws("Connect WS").open("/room/chat?username=${id}"))
+    .exec(ws("Connect WS").connect("/room/chat?username=${id}"))
     .pause(1)
     .repeat(2, "i") {
       exec(ws("Say Hello WS")
         .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-        .check(wsAwait.within(30).until(1).regex(".*I'm still alive.*")))
-        .pause(1)
+        .await(30 seconds)(
+          ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
+        )).pause(1)
     }
     .exec(ws("Close WS").close)
   //#chatroom-example

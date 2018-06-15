@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2018 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import io.gatling.core.Predef._
 
 class FeederSample {
@@ -33,9 +34,9 @@ class FeederSample {
 
     csv("foo")
       //#strategies
-      .queue    // default behavior: use an Iterator on the underlying sequence
-      .random   // randomly pick an entry in the sequence
-      .shuffle  // shuffle entries, then behave like queue
+      .queue // default behavior: use an Iterator on the underlying sequence
+      .random // randomly pick an entry in the sequence
+      .shuffle // shuffle entries, then behave like queue
       .circular // go back to the top of the sequence once the end is reached
     //#strategies
   }
