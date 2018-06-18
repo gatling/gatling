@@ -77,7 +77,7 @@ object Dependencies {
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.21"
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.2.0"             % "test"
-  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.9.v20180320"   % "test"
+  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.11.v20180605"   % "test"
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % "test"
   private val commonsIo                      = "commons-io"                           % "commons-io"                      % "2.6"               % "test"
 
