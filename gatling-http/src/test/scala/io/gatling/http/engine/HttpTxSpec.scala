@@ -70,7 +70,7 @@ class HttpTxSpec extends BaseSpec {
       ),
       responseBuilderFactory = null,
       next = mock[Action],
-      resourceTx = if (root) None else Some(mock[ResourceTx])
+      resourceTx = if (root) None else Some(ResourceTx(null, null))
     )
 
   "HttpTx" should "be silent when using default protocol and containing a request forced to silent" in new Context {
