@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.test;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.Locale;
 import java.util.UUID;
 
@@ -73,7 +73,7 @@ public class TestUtils {
             File tmpFile = File.createTempFile("tmpfile-", ".data", TMP_DIR);
             tmpFile.deleteOnExit();
             try (InputStream is = cl.getResourceAsStream(path)) {
-                FileUtils.copyInputStreamToFile(is, tmpFile);
+                Files.copy(is, tmpFile.toPath());
                 return tmpFile;
             }
         }
@@ -91,5 +91,4 @@ public class TestUtils {
     public static void assertContentTypesEquals(String actual, String expected) {
         assertEquals(expected.replace("; ", "").toLowerCase(Locale.ENGLISH), actual.replace("; ", "").toLowerCase(Locale.ENGLISH), "Unexpected content-type");
     }
-
 }

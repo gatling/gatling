@@ -79,7 +79,6 @@ object Dependencies {
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.2.0"             % "test"
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.11.v20180605"   % "test"
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % "test"
-  private val commonsIo                      = "commons-io"                           % "commons-io"                      % "2.6"               % "test"
 
   // format: ON
 
@@ -101,7 +100,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpClientDependencies = Seq(netty, nettyBuffer, nettyHandler, nettyProxy, nettyDns, nettyNativeTransport, nettyHttp2, nettyBoringSsl, junit, jetty, jettyProxy, commonsIo) ++ loggingDeps
+  val httpClientDependencies = Seq(netty, nettyBuffer, nettyHandler, nettyProxy, nettyDns, nettyNativeTransport, nettyHttp2, nettyBoringSsl, junit, jetty, jettyProxy) ++ loggingDeps
 
   val httpDependencies = Seq(scalaXml) ++ testDeps
 
