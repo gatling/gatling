@@ -34,7 +34,7 @@ object GzipHelper {
       val gzip = ReusableGzipOutputStream.forStream(out)
       try {
         gzip.writeHeader()
-        in.copyTo(gzip, 1024)
+        is.copyTo(gzip, 1024)
         gzip.finish()
       } finally {
         gzip.reset()
