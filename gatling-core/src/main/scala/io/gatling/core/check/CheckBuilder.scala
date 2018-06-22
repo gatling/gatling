@@ -165,8 +165,8 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
 
   def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
     validate((session: Session) => new Validator[X] {
-      def name = opName
-      def apply(actual: Option[X]): Validation[Option[X]] = validator(actual, session)
+      override val name = opName
+      override def apply(actual: Option[X]): Validation[Option[X]] = validator(actual, session)
     }.success)
 
   def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))

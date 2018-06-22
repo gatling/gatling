@@ -58,8 +58,8 @@ object RequestBuilder {
    */
   val DefaultHttpCheck: HttpCheck = {
     val okStatusValidator = new Validator[Int] {
-      val name: String = OkCodes.mkString("in(", ",", ")")
-      def apply(actual: Option[Int]): Validation[Option[Int]] = actual match {
+      override val name: String = OkCodes.mkString("in(", ",", ")")
+      override def apply(actual: Option[Int]): Validation[Option[Int]] = actual match {
         case Some(actualValue) =>
           if (HttpHelper.isOk(actualValue))
             actual.success
