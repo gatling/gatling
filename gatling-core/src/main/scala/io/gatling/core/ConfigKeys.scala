@@ -27,6 +27,7 @@ object ConfigKeys {
     val RawFileBodiesCacheMaxCapacity = "gatling.core.rawFileBodiesCacheMaxCapacity"
     val RawFileBodiesInMemoryMaxSize = "gatling.core.rawFileBodiesInMemoryMaxSize"
     val PebbleFileBodiesCacheMaxCapacity = "gatling.core.pebbleFileBodiesCacheMaxCapacity"
+    val ShutdownTimeout = "gatling.core.shutdownTimeout"
 
     object extract {
       object regex {
