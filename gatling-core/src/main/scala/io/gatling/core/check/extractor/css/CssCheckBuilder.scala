@@ -39,7 +39,7 @@ class CssCheckBuilder[X: NodeConverter](
     private[css] val nodeAttribute: Option[String],
     private[css] val selectors:     CssSelectors
 )
-  extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X] {
+  extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X](displayActualValue = true) {
 
   import CssExtractorFactory._
 

@@ -34,7 +34,7 @@ object CurrentLocationCheckBuilder {
       def apply(prepared: Response): Validation[Some[String]] = Some(prepared.request.getUri.toUrl).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String](extractor)
+    new DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String](extractor, displayActualValue = true)
   }
 }
 

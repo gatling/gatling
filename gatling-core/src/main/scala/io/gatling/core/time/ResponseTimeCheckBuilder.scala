@@ -32,6 +32,6 @@ object ResponseTimeCheckBuilder {
       override def apply(prepared: ResponseTimings): Validation[Some[Int]] = Some(prepared.responseTime).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int](extractor)
+    new DefaultFindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int](extractor, displayActualValue = false)
   }
 }

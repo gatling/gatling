@@ -32,6 +32,6 @@ object BodyBytesCheckBuilder {
       def apply(prepared: Array[Byte]) = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](extractor)
+    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](extractor, displayActualValue = false)
   }
 }

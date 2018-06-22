@@ -24,13 +24,17 @@ object Validator {
 
 trait Validator[A] {
   def name: String
-  def apply(actual: Option[A]): Validation[Option[A]]
+  def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]]
 }
 
 abstract class Matcher[A] extends Validator[A] {
   protected def doMatch(actual: Option[A]): Validation[Option[A]]
-  def apply(actual: Option[A]): Validation[Option[A]] =
-    doMatch(actual).mapError(message => s"but actually $message")
+  def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] =
+    if (displayActualValue) {
+      doMatch(actual).mapError(message => s"but actually $message")
+    } else {
+      doMatch(actual)
+    }
 }
 
 class IsMatcher[A](expected: A) extends Matcher[A] {
@@ -91,7 +95,7 @@ class NotNullMatcher[A] extends Matcher[A] {
 
 class InMatcher[A](expected: Seq[A]) extends Matcher[A] {
 
-  def name = expected.mkString("in(", ",", ")")
+  def name: String = expected.mkString("in(", ",", ")")
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
@@ -120,7 +124,7 @@ class CompareMatcher[A](val comparisonName: String, message: String, compare: (A
 
 class ExistsValidator[A] extends Validator[A] {
   val name = "exists"
-  def apply(actual: Option[A]): Validation[Option[A]] = actual match {
+  def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
     case None => Validator.FoundNothingFailure
     case _    => actual.success
   }
@@ -128,7 +132,7 @@ class ExistsValidator[A] extends Validator[A] {
 
 class NotExistsValidator[A] extends Validator[A] {
   val name = "notExists"
-  def apply(actual: Option[A]): Validation[Option[A]] = actual match {
+  def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual match {
     case Some(actualValue) => s"unexpectedly found $actualValue".failure
     case _                 => NoneSuccess
   }
@@ -136,5 +140,5 @@ class NotExistsValidator[A] extends Validator[A] {
 
 class NoopValidator[A] extends Validator[A] {
   val name = "noop"
-  def apply(actual: Option[A]): Validation[Option[A]] = actual.success
+  def apply(actual: Option[A], displayActualValue: Boolean): Validation[Option[A]] = actual.success
 }

@@ -32,7 +32,7 @@ object ChecksumCheckBuilder {
       def apply(prepared: String) = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[T, String, String](extractor)
+    new DefaultFindCheckBuilder[T, String, String](extractor, displayActualValue = false)
   }
 
   val Md5 = checksum[Md5CheckType]("MD5")

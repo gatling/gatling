@@ -36,7 +36,7 @@ class JsonPathCheckBuilder[X: JsonFilter](
     private[jsonpath] val path:      Expression[String],
     private[jsonpath] val jsonPaths: JsonPaths
 )
-  extends DefaultMultipleFindCheckBuilder[JsonPathCheckType, Any, X] {
+  extends DefaultMultipleFindCheckBuilder[JsonPathCheckType, Any, X](displayActualValue = true) {
 
   import JsonPathExtractorFactory._
 

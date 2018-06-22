@@ -32,6 +32,6 @@ object BodyStringCheckBuilder {
       def apply(prepared: String) = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[BodyStringCheckType, String, String](extractor)
+    new DefaultFindCheckBuilder[BodyStringCheckType, String, String](extractor, displayActualValue = false)
   }
 }

@@ -31,10 +31,10 @@ trait FindCheckBuilder[T, P, X] {
   def find: ValidatorCheckBuilder[T, P, X]
 }
 
-class DefaultFindCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]])
+class DefaultFindCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean)
   extends FindCheckBuilder[T, P, X] {
 
-  def find: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(extractor)
+  def find: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(extractor, displayActualValue)
 }
 
 trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
@@ -50,7 +50,7 @@ trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
   def count: ValidatorCheckBuilder[T, P, Int]
 }
 
-abstract class DefaultMultipleFindCheckBuilder[T, P, X]
+abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Boolean)
   extends MultipleFindCheckBuilder[T, P, X] {
 
   def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
@@ -106,15 +106,15 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X]
 
   def find = find(0)
 
-  def find(occurrence: Int): ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findExtractor(occurrence))
+  def find(occurrence: Int): ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findExtractor(occurrence), displayActualValue)
 
-  def findAll: ValidatorCheckBuilder[T, P, Seq[X]] = ValidatorCheckBuilder(findAllExtractor)
+  def findAll: ValidatorCheckBuilder[T, P, Seq[X]] = ValidatorCheckBuilder(findAllExtractor, displayActualValue)
 
-  def findRandom: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findRandomExtractor)
+  def findRandom: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findRandomExtractor, displayActualValue)
 
-  def findRandom(num: Int, failIfLess: Boolean): ValidatorCheckBuilder[T, P, Seq[X]] = ValidatorCheckBuilder(findManyRandomExtractor(num, failIfLess))
+  def findRandom(num: Int, failIfLess: Boolean): ValidatorCheckBuilder[T, P, Seq[X]] = ValidatorCheckBuilder(findManyRandomExtractor(num, failIfLess), displayActualValue)
 
-  def count: ValidatorCheckBuilder[T, P, Int] = ValidatorCheckBuilder(countExtractor)
+  def count: ValidatorCheckBuilder[T, P, Int] = ValidatorCheckBuilder(countExtractor, displayActualValue)
 }
 
 object ValidatorCheckBuilder {
@@ -122,7 +122,7 @@ object ValidatorCheckBuilder {
   val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
 }
 
-case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]) {
+case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) {
 
   import ValidatorCheckBuilder._
 
@@ -161,12 +161,12 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
   def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
-    new CheckBuilder[T, P, X](this.extractor, validator) with SaveAs[T, P, X]
+    new CheckBuilder[T, P, X](this.extractor, validator, displayActualValue) with SaveAs[T, P, X]
 
   def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
     validate((session: Session) => new Validator[X] {
       override val name = opName
-      override def apply(actual: Option[X]): Validation[Option[X]] = validator(actual, session)
+      override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] = validator(actual, session)
     }.success)
 
   def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))
@@ -185,10 +185,11 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
 }
 
 case class CheckBuilder[T, P, X](
-    extractor:  Expression[Extractor[P, X]],
-    validator:  Expression[Validator[X]],
-    customName: Option[String]              = None,
-    saveAs:     Option[String]              = None
+    extractor:          Expression[Extractor[P, X]],
+    validator:          Expression[Validator[X]],
+    displayActualValue: Boolean,
+    customName:         Option[String]              = None,
+    saveAs:             Option[String]              = None
 ) {
   def name(n: String): CheckBuilder[T, P, X] = copy(customName = Some(n))
 

@@ -37,7 +37,7 @@ object HttpStatusCheckBuilder {
       }
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](statusExtractor)
+    new DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](statusExtractor, displayActualValue = true)
   }
 }
 

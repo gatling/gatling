@@ -43,7 +43,7 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
     private[header] val pattern:    Expression[String],
     private[header] val patterns:   Patterns
 )
-  extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X] {
+  extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
 
   import HttpHeaderRegexExtractorFactory._
 

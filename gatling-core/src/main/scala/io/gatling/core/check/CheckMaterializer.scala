@@ -23,5 +23,5 @@ trait CheckMaterializer[T, C <: Check[R], R, P] {
   protected def specializer: Specializer[C, R]
 
   def materialize[X](builder: CheckBuilder[T, P, X]): C =
-    specializer(CheckBase(preparer, builder.extractor, builder.validator, builder.customName, builder.saveAs))
+    specializer(CheckBase(preparer, builder.extractor, builder.validator, builder.displayActualValue, builder.customName, builder.saveAs))
 }
