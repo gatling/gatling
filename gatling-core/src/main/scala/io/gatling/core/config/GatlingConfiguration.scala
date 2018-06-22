@@ -115,6 +115,7 @@ object GatlingConfiguration extends StrictLogging {
         rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
         rawFileBodiesInMemoryMaxSize = config.getLong(core.RawFileBodiesInMemoryMaxSize),
         pebbleFileBodiesCacheMaxCapacity = config.getLong(core.PebbleFileBodiesCacheMaxCapacity),
+        shutdownTimeout = config.getLong(core.ShutdownTimeout),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)
@@ -264,7 +265,8 @@ case class CoreConfiguration(
     elFileBodiesCacheMaxCapacity:     Long,
     rawFileBodiesCacheMaxCapacity:    Long,
     rawFileBodiesInMemoryMaxSize:     Long,
-    pebbleFileBodiesCacheMaxCapacity: Long
+    pebbleFileBodiesCacheMaxCapacity: Long,
+    shutdownTimeout: Long
 ) {
 
   val charset: Charset = Charset.forName(encoding)
