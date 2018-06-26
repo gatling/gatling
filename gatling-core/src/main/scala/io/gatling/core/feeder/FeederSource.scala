@@ -65,12 +65,12 @@ object SeparatedValuesFeederSource {
   def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
 
-    val magicNumber: (Byte, Byte) = withCloseable(resource.inputStream) { os =>
-      (os.read().toByte, os.read().toByte)
+    val magicNumber: (Int, Int) = withCloseable(resource.inputStream) { os =>
+      (os.read(), os.read())
     }
 
     magicNumber match {
-      case (0x50, 0x4B) => // PK: zip
+      case ('P', 'K') => // PK: zip
         withCloseable(new ZipInputStream(resource.inputStream)) { zis =>
           try {
             val zipEntry = zis.getNextEntry()
@@ -91,7 +91,7 @@ object SeparatedValuesFeederSource {
           }
         }
 
-      case (0x1F, 0x8B) => // gzip
+      case (31, 139) => // gzip
         withCloseable(new GZIPInputStream(resource.inputStream, BufferSize)) { is =>
           withCloseable(new FileOutputStream(tempFile)) { os =>
             is.copyTo(os, BufferSize)
