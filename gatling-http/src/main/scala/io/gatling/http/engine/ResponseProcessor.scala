@@ -250,16 +250,34 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
             val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
             val newSession = totalUpdate(tx.session)
 
-            val loggedTx = tx.copy(session = newSession)
-            logRequest(loggedTx, OK, response)
-
             val newClientRequest = redirectRequest(status, redirectURI, newSession)
-            val redirectTx = loggedTx.copy(
-              request = loggedTx.request.copy(clientRequest = newClientRequest),
-              redirectCount = tx.redirectCount + 1,
-              update = if (tx.resourceTx.isEmpty) Session.Identity else totalUpdate
-            )
-            HttpTx.start(redirectTx)
+
+            val originalRequest = tx.request.clientRequest
+
+            if (newClientRequest.getUri == originalRequest.getUri
+              && newClientRequest.getMethod == originalRequest.getMethod
+              && newClientRequest.getCookies.asScala.toSet == originalRequest.getCookies.asScala.toSet) {
+              // invalid redirect
+              val partialUpdate = update andThen groupUpdate
+              val partialSession = partialUpdate(tx.session)
+              val partialTx = tx.copy(
+                session = partialSession,
+                update = if (tx.resourceTx.isEmpty) Session.Identity else partialUpdate
+              )
+
+              ko(partialTx, partialUpdate, response, "Invalid redirect to the same request")
+
+            } else {
+              val loggedTx = tx.copy(session = newSession)
+              logRequest(loggedTx, OK, response)
+
+              val redirectTx = loggedTx.copy(
+                request = loggedTx.request.copy(clientRequest = newClientRequest),
+                redirectCount = tx.redirectCount + 1,
+                update = if (tx.resourceTx.isEmpty) Session.Identity else totalUpdate
+              )
+              HttpTx.start(redirectTx)
+            }
 
           case _ =>
             ko(tx, update, response, "Redirect status, yet no Location header")
