@@ -266,7 +266,7 @@ case class CoreConfiguration(
     rawFileBodiesCacheMaxCapacity:    Long,
     rawFileBodiesInMemoryMaxSize:     Long,
     pebbleFileBodiesCacheMaxCapacity: Long,
-    shutdownTimeout: Long
+    shutdownTimeout:                  Long
 ) {
 
   val charset: Charset = Charset.forName(encoding)
