@@ -29,7 +29,8 @@ private[compiler] case class CompilerConfiguration(
     encoding:             String,
     simulationsDirectory: Path,
     binariesDirectory:    Path,
-    classpathElements:    Seq[File]
+    classpathElements:    Seq[File],
+    extraCompilerOptions: Seq[String]
 )
 
 private[compiler] object CompilerConfiguration {
@@ -65,8 +66,9 @@ private[compiler] object CompilerConfiguration {
     val simulationsDirectory = resolvePath(Paths.get(config.getString(simulationsDirectoryKey)))
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey)).map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")
     val classpathElements = commandLineOverrides.classpathElements.split(File.pathSeparator).map(new File(_))
+    val compilerOptions = commandLineOverrides.compilerOptions.split(",").toSeq
 
-    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, classpathElements)
+    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, classpathElements, compilerOptions)
   }
 
 }

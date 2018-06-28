@@ -47,7 +47,12 @@ GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$COMMON_CLASSPAT
 # Build compilation classpath
 COMPILATION_CLASSPATH=`find "$GATLING_HOME/lib" -maxdepth 1 -name "*.jar" -type f -exec printf :{} ';'`
 
+# Use the extra compiler options flag only if zinc options are provided
+if [ -n "$ZINC_OPTIONS" ]; then
+    EXTRA_COMPILER_OPTIONS="-co $ZINC_OPTIONS"
+fi
+
 # Run the compiler
-"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" "$@"  2> /dev/null
+"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler $EXTRA_COMPILER_OPTIONS -ccp "$COMPILATION_CLASSPATH" "$@"  2> /dev/null
 # Run Gatling
 "$JAVA" $DEFAULT_JAVA_OPTS $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling "$@"
