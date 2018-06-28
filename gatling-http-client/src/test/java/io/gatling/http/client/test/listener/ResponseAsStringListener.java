@@ -20,6 +20,7 @@ import static java.nio.charset.StandardCharsets.*;
 import static io.gatling.http.client.ahc.util.HttpUtils.*;
 import static io.gatling.http.client.ahc.util.MiscUtils.*;
 
+import io.gatling.netty.util.ahc.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -33,7 +34,7 @@ public abstract class ResponseAsStringListener extends CompleteResponseListener 
     if (isNonEmpty(chunks)) {
       Charset charset = withDefault(extractContentTypeCharsetAttribute(headers.get(HttpHeaderNames.CONTENT_TYPE)), UTF_8);
 
-      ByteBuf composite = Unpooled.wrappedBuffer(chunks.toArray(new ByteBuf[chunks.size()]));
+      ByteBuf composite = Unpooled.wrappedBuffer(chunks.toArray(ByteBufUtils.EMPTY_BYTEBUF_ARRAY));
       try {
         return composite.toString(charset);
       } finally {

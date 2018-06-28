@@ -47,6 +47,7 @@ import static io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder.*;
 
 public final class ByteBufUtils {
 
+  public static final ByteBuf[] EMPTY_BYTEBUF_ARRAY = new ByteBuf[0];
   private static final char[] EMPTY_CHARS = new char[0];
   private static final ThreadLocal<CharBuffer> CHAR_BUFFERS = ThreadLocal.withInitial(() -> CharBuffer.allocate(1024));
 
