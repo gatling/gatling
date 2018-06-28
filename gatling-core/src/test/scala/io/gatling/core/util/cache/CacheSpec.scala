@@ -33,12 +33,19 @@ class CacheSpec extends BaseSpec {
     cache.get("key") shouldBe None
   }
 
-  "ImmutableCache.+" should "return the same instance when adding a key already in cache" in {
+  "ImmutableCache.put" should "return the same instance when adding a key already in cache" in {
     val cache = Cache.newImmutableCache[String, String](1)
     val cacheWithValue = cache.put("key", "value")
     val cacheWithSameValue = cacheWithValue.put("key", "value")
 
     cacheWithSameValue should be theSameInstanceAs cacheWithValue
+  }
+
+  it should "not crash when maxCapacity is 0" in {
+    val cache = Cache.newImmutableCache[String, String](0)
+    val cacheWithValue = cache.put("key", "value")
+
+    cacheWithValue.get("key") shouldBe None
   }
 
   it should "overwrite the key first put in the cache when max capacity has been reached" in {

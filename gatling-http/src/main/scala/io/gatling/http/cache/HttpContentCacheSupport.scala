@@ -44,11 +44,10 @@ trait HttpContentCacheSupport extends ExpiresSupport {
 
   def configuration: GatlingConfiguration
 
-  val httpContentCacheHandler = new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
+  private[this] val httpContentCacheHandler = new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def cacheContent(httpProtocol: HttpProtocol, request: Request, response: Response): Session => Session =
-    if (httpProtocol.requestPart.cache) {
-
+    if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {
       val expires = getResponseExpires(response)
       val etag = response.header(HeaderNames.ETag)
       val lastModified = response.header(HeaderNames.LastModified)
@@ -57,14 +56,24 @@ trait HttpContentCacheSupport extends ExpiresSupport {
         val key = ContentCacheKey(request)
         val value = ContentCacheEntry(expires, etag, lastModified)
         httpContentCacheHandler.addEntry(_, key, value)
-      } else
+      } else {
         Session.Identity
-    } else
+      }
+    } else {
       Session.Identity
+    }
 
   def contentCacheEntry(session: Session, request: Request): Option[ContentCacheEntry] =
-    httpContentCacheHandler.getEntry(session, ContentCacheKey(request))
+    if (httpContentCacheHandler.enabled) {
+      httpContentCacheHandler.getEntry(session, ContentCacheKey(request))
+    } else {
+      None
+    }
 
   def clearContentCache(session: Session, request: Request): Session =
-    httpContentCacheHandler.removeEntry(session, ContentCacheKey(request))
+    if (httpContentCacheHandler.enabled) {
+      httpContentCacheHandler.removeEntry(session, ContentCacheKey(request))
+    } else {
+      session
+    }
 }
