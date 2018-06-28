@@ -20,5 +20,6 @@ private[cli] case class CommandLineConstant(full: String, abbr: String)
 private[cli] object CommandLineConstants {
   val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
   val CompilerClasspath = CommandLineConstant("compilerClasspath", "ccp")
+  val CompilerOptions = CommandLineConstant("compilerOptions", "co")
   val BinariesFolder = CommandLineConstant("binaries-folder", "bf")
 }

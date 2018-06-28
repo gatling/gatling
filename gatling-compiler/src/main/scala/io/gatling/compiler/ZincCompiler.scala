@@ -48,7 +48,7 @@ object ZincCompiler extends App {
     "-unchecked",
     "-language:implicitConversions",
     "-language:postfixOps"
-  )
+  ) ++ configuration.extraCompilerOptions
 
   Files.createDirectories(configuration.binariesDirectory)
 
