@@ -55,7 +55,7 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
 
   private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult =
     configuration.core.directory.reportsOnly match {
-      case Some(reportsOnly) => RunResult(reportsOnly, hasAssertions = true)
+      case Some(runId) => RunResult(runId, hasAssertions = true)
       case _ =>
         if (configuration.http.enableGA) Ga.send(configuration.core.version)
         run0(selectedSimulationClass)

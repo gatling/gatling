@@ -16,6 +16,9 @@
 
 package io.gatling.core.stats.writer
 
+import java.time.format.DateTimeFormatter
+import java.time.{ Instant, ZoneOffset, ZonedDateTime }
+
 import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.session.Session
@@ -30,7 +33,10 @@ case class RunMessage(
     runDescription:      String
 ) {
 
-  val runId: String = simulationId + "-" + start
+  val runId: String = simulationId + "-" +
+    DateTimeFormatter
+    .ofPattern("yyyyMMddHHmmssSSS")
+    .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneOffset.UTC))
 }
 
 sealed trait DataWriterMessage
