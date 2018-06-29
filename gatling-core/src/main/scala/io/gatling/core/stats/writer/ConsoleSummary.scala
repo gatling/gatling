@@ -52,7 +52,7 @@ object ConsoleSummary {
 
       import userCounters._
       totalUserCount match {
-        case Some(tot) =>
+        case Some(tot) if tot >= doneCount + activeCount =>
           val width = OutputLength - 6 // []3d%
 
           val donePercent = floor(100 * doneCount.toDouble / tot).toInt
@@ -61,10 +61,11 @@ object ConsoleSummary {
           val waiting = width - done - active
           fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * active}${" " * waiting}]${donePercent.toString.leftPad(3)}%
-          waiting: ${waitingCount.toString.rightPad(6)} / active: ${activeCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
+          waiting: ${waitingCount.toString.rightPad(6)} / active: ${activeCount.toString.rightPad(6)} / done: ${doneCount.toString.rightPad(6)}"""
         case _ =>
-          // Don't display for closed workload model, it doesn't make sense
-          EmptyFastring
+          // Don't display progression for closed workload model, nor when tot is broken, it doesn't make sense
+          fast"""${writeSubTitle(scenarioName)}
+          active: ${activeCount.toString.rightPad(6)} / done: ${doneCount.toString.rightPad(6)}"""
       }
     }
 

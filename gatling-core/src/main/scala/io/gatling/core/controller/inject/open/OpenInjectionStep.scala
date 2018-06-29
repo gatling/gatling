@@ -39,19 +39,21 @@ sealed trait OpenInjectionStep {
 
 abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterator[FiniteDuration] {
 
-  private var finished = false
   private var thisSecond: Int = -1
   private var thisSecondIterator: Iterator[FiniteDuration] = Iterator.empty
+  private var finished = finishedAfterMovingToNextBatch()
 
-  protected def thisSecondUsers(thisSecond: Int): Int
+  protected def thisSecondUsers(thisSecondParam: Int): Int
 
-  private def moveToNextSecond(): Unit =
-    while (!finished) {
+  // only called if !finished
+  private def finishedAfterMovingToNextBatch(): Boolean = {
+    do {
       thisSecond += 1
 
       if (thisSecond == durationInSeconds) {
-        finished = true
         thisSecondIterator = Iterator.empty
+        return true
+
       } else {
         val users = thisSecondUsers(thisSecond)
 
@@ -65,29 +67,26 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
                 else
                   Iterator.empty
             }
-          return
+          return false
         }
       }
-    }
+    } while (!thisSecondIterator.hasNext)
+    true
+  }
 
   override def hasNext(): Boolean =
-    if (finished) {
-      false
-    } else if (thisSecondIterator.hasNext) {
+    if (thisSecondIterator.hasNext) {
       true
+    } else if (finished) {
+      false
     } else {
-      // update thisSecondIterator
-      do {
-        moveToNextSecond()
-      } while (!finished && !thisSecondIterator.hasNext)
-
+      finished = finishedAfterMovingToNextBatch()
       !finished
     }
 
   override def next(): FiniteDuration = thisSecondIterator.next()
 
-  // init
-  hasNext()
+  override def toString(): String = "non-printable iterator"
 }
 
 /**
@@ -109,7 +108,7 @@ case class RampOpenInjection(users: Long, duration: FiniteDuration) extends Open
       val durationInSeconds = duration.toSeconds.toInt
 
       new InjectionIterator(durationInSeconds) {
-        override protected def thisSecondUsers(thisSecond: Int): Int = Shard.shard(users, thisSecond, durationInSeconds).length
+        override protected def thisSecondUsers(thisSecondParam: Int): Int = Shard.shard(users, thisSecondParam, durationInSeconds).length
       } ++ chained.map(_ + duration)
     }
 }
@@ -199,21 +198,17 @@ case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: F
 
     } else {
       val durationInSeconds = duration.toSeconds.toInt
-      val a: Double = (endRate - startRate) / (2 * durationInSeconds)
+      val a: BigDecimal = (BigDecimal(endRate) - startRate) / (2 * durationInSeconds)
+        // BEWARE: don't initialize to 0d or Scalac will reset
+      var pendingFraction: BigDecimal = BigDecimal(0.0)
 
       new InjectionIterator(durationInSeconds) {
 
-        var pendingFraction: Double = 0d
-
-        override protected def thisSecondUsers(thisSecond: Int): Int = {
-          val thisSecondUsersDouble = a * (2 * thisSecond + 1) + startRate + pendingFraction
-          val thisSecondUsersIntValue = thisSecondUsersDouble.toInt
-          pendingFraction = thisSecondUsersDouble - thisSecondUsersIntValue
-
-          if (thisSecond + 1 == durationInSeconds)
-            thisSecondUsersIntValue + pendingFraction.round.toInt
-          else
-            thisSecondUsersIntValue
+        override protected def thisSecondUsers(thisSecondParam: Int): Int = {
+          val thisSecondUsersBigDecimal = a * (2 * thisSecondParam + 1) + startRate + pendingFraction
+          val thisSecondUsersIntValue = thisSecondUsersBigDecimal.setScale(10, BigDecimal.RoundingMode.HALF_UP).intValue
+          pendingFraction = thisSecondUsersBigDecimal -  thisSecondUsersIntValue
+          thisSecondUsersIntValue
         }
       } ++ chained.map(_ + duration)
     }

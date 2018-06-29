@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-sealed trait Clock {
+trait Clock {
   def nowMillis: Long
   def nowSeconds: Long = nowMillis / 1000
 }
