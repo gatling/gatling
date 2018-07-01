@@ -11,9 +11,11 @@ Most Gatling DSL methods can be passed *Expression Language* Strings.
 
 This is a very convenient feature to write dynamic values.
 
-Gatling automagically parses those Strings and turn them into functions that will compute a result based on the data stored into the Session.
+Gatling parses Strings parameter values and turn them into functions that will compute a result based on the data stored into the Session when they will be evaluated.
 
-Yet it's very limited, don't expect a full blown dynamic language!
+The Gatling EL is not a dynamic language, bug just placeholders with a few additional helpers.
+
+If you need a full blown templating engine, you can use our Pebble support.
 
 Gatling EL uses a ``${attributeName}`` syntax, where *attributeName* is the name of an attribute in the Session.
 
@@ -38,14 +40,16 @@ You can also combine different Gatling EL builtin functions. For example if ``fo
 Gatling EL supports the following indexed collections: java.util.List, Seq and Array. It also supports both Scala and Java maps. Function ``.size`` supports any Scala or Java collection.
 
 .. warning::
-  This Expression Language only works on the final value that is passed to the DSL method when the Simulation is instantiated.
+  This Expression Language only works on String values being passed to Gatling DSL methods.
+  Such Strings are parsed only once, when the Gatling simulation is being instanciated.
 
-  For example, ``queryParam("latitude", "${latitude}".toInt + 24)`` won't work,
-  the program will blow on ``"${latitude}".toInt`` as this String can't be parsed into an Int.
+  For example ``queryParam("latitude", session => "${latitude}")`` wouldn't work because the parameter is not a String, but a function that returns a String.
+
+  Also, ``queryParam("latitude", "${latitude}".toInt)`` wouldn't because the ``toInt`` would happen before passing the parameter to the ``queryParam`` method.
 
   The solution here would be to pass a function:
 
-  ``session => session("latitude").validate[Int].map(i => i + 24)``.
+  ``session => session("latitude").validate[Int]``.
 
 .. _expression:
 
