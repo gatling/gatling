@@ -51,6 +51,11 @@ Gatling EL supports the following indexed collections: java.util.List, Seq and A
 
   ``session => session("latitude").validate[Int]``.
 
+.. warning::
+  By default, IntelliJ will automatically prepend your String with an ``s`` as soon as you start typing ``${``
+  because it thinks you want to use `Scala's String interpolation <https://docs.scala-lang.org/overviews/core/string-interpolation.html>`_.
+  You need to remove this ``s`` to use Gatling EL.
+
 .. _expression:
 
 Expression
