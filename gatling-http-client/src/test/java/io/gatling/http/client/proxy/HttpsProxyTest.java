@@ -40,6 +40,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpsProxyTest extends HttpTest {
 
+  private static HttpsProxy proxy;
+  private static TestServer target;
+
   private static class HttpsProxy implements AutoCloseable {
 
     private final Server jetty;
@@ -65,10 +68,6 @@ class HttpsProxyTest extends HttpTest {
       jetty.stop();
     }
   }
-
-  private static HttpsProxy proxy;
-  private static TestServer target;
-  private static final int TIMEOUT = 2;
 
   @BeforeAll
   static void start() throws Throwable {
@@ -109,7 +108,7 @@ class HttpsProxyTest extends HttpTest {
           public void onComplete0() {
             assertEquals(HttpResponseStatus.OK, status);
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       })
     );
   }

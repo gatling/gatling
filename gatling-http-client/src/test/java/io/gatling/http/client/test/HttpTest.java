@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class HttpTest {
 
+    public static final int TIMEOUT_SECONDS = 5;
     protected static final String COMPLETED_EVENT = "Completed";
     protected static final String STATUS_RECEIVED_EVENT = "StatusReceived";
     protected static final String HEADERS_RECEIVED_EVENT = "HeadersReceived";

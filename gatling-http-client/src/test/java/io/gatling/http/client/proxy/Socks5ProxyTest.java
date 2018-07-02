@@ -28,6 +28,8 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
+import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
+
 public class Socks5ProxyTest {
 
   public static void main(String[] args) throws Exception {
@@ -38,7 +40,7 @@ public class Socks5ProxyTest {
       Request request = new RequestBuilder(HttpMethod.GET, Uri.create("https://gatling.io"))
         .setProxyServer(new Socks5ProxyServer("localhost", 8889, null))
         .setNameResolver(client.getNameResolver())
-        .setRequestTimeout(100_000)
+        .setRequestTimeout(TIMEOUT_SECONDS * 1000)
         .build(true);
 
       final CountDownLatch latch1 = new CountDownLatch(1);

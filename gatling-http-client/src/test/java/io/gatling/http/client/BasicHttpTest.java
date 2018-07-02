@@ -52,7 +52,6 @@ import static org.junit.jupiter.api.Assertions.*;
 class BasicHttpTest extends HttpTest {
 
   private static TestServer server;
-  private final int TIMEOUT = 2;
 
   @BeforeAll
   static void start() throws Throwable {
@@ -96,7 +95,7 @@ class BasicHttpTest extends HttpTest {
             assertContentTypesEquals(headers.get(CONTENT_TYPE), TEXT_HTML_CONTENT_TYPE_WITH_UTF_8_CHARSET);
             assertEquals(sentBody, responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -121,7 +120,7 @@ class BasicHttpTest extends HttpTest {
               assertEquals("Test" + i, headers.get("X-Test" + i));
             }
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -150,7 +149,7 @@ class BasicHttpTest extends HttpTest {
               assertEquals(headers.get("X-param_" + i), "value_" + i);
             }
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -166,7 +165,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertTrue(chunks == null);
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -182,7 +181,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals(HttpHeaderValues.CHUNKED.toString(), headers.get(TRANSFER_ENCODING));
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -199,7 +198,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals("foo", responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -217,7 +216,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals("foo", responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -234,7 +233,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals("foobar", responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -253,7 +252,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals("foo=bar", responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -270,7 +269,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals("foo", responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -287,7 +286,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertEquals("foo", responseBody());
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -311,7 +310,7 @@ class BasicHttpTest extends HttpTest {
             assertEquals(200, status.code());
             assertTrue(responseBody().length() > minimalLength);
           }
-        }).get(20, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       }));
   }
 
@@ -332,7 +331,7 @@ class BasicHttpTest extends HttpTest {
                 public void onComplete0() {
                   fail("Request should have failed");
                 }
-              }).get(20, SECONDS);
+              }).get(TIMEOUT_SECONDS, SECONDS);
             } catch (ExecutionException e) {
               throw e.getCause();
             }

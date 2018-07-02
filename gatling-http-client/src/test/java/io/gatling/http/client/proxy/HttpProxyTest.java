@@ -43,8 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HttpProxyTest extends HttpTest {
 
-  private static final int TIMEOUT = 2;
-
   public static class ProxyHandler extends AbstractHandler {
     public void handle(String s, org.eclipse.jetty.server.Request r, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
       if ("GET".equalsIgnoreCase(request.getMethod())) {
@@ -126,7 +124,7 @@ public class HttpProxyTest extends HttpTest {
           public void onComplete0() {
             assertEquals(HttpResponseStatus.OK, status);
           }
-        }).get(TIMEOUT, SECONDS);
+        }).get(TIMEOUT_SECONDS, SECONDS);
       })
     );
   }

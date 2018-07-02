@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
+
 public class FormMain {
 
   public static void main(String[] args) throws Exception {
@@ -38,7 +40,7 @@ public class FormMain {
       Request request = new RequestBuilder(HttpMethod.POST, Uri.create("https://www.w3schools.com/action_page.php"))
         .setBody(new FormUrlEncodedRequestBody(params))
         .setNameResolver(client.getNameResolver())
-        .setRequestTimeout(5_000)
+        .setRequestTimeout(TIMEOUT_SECONDS * 1000)
         .build(true);
 
       final CountDownLatch latch1 = new CountDownLatch(1);
