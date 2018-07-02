@@ -62,7 +62,7 @@ public class FixedLazyMap extends AbstractMap {
   }
 
   @Override
-  public Set<Entry<Object, Object>> entrySet() {
+  public Set<Map.Entry<Object, Object>> entrySet() {
     buildIfNeeded();
     return map.entrySet();
   }
