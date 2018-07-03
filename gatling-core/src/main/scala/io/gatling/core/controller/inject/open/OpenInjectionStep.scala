@@ -185,7 +185,7 @@ case class AtOnceOpenInjection(users: Long) extends OpenInjectionStep {
 case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends OpenInjectionStep {
 
   require(startRate >= 0.0 && endRate >= 0.0, s"injection rates ($startRate, $endRate) must be >= 0")
-  require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
+  require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
   require(!((startRate > 0 || endRate > 0) && duration == Duration.Zero), s"can't inject non 0 rates ($startRate, $endRate) for a 0 duration")
 
   override val users: Long = ((startRate + (endRate - startRate) / 2) * duration.toSeconds).toLong
@@ -198,16 +198,15 @@ case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: F
 
     } else {
       val durationInSeconds = duration.toSeconds.toInt
-      val a: BigDecimal = (BigDecimal(endRate) - startRate) / (2 * durationInSeconds)
-        // BEWARE: don't initialize to 0d or Scalac will reset
-      var pendingFraction: BigDecimal = BigDecimal(0.0)
+      val a = (BigDecimal(endRate) - startRate) / (2 * durationInSeconds)
+      var pendingFraction = BigDecimal(0.0)
 
       new InjectionIterator(durationInSeconds) {
 
         override protected def thisSecondUsers(thisSecondParam: Int): Int = {
           val thisSecondUsersBigDecimal = a * (2 * thisSecondParam + 1) + startRate + pendingFraction
           val thisSecondUsersIntValue = thisSecondUsersBigDecimal.setScale(10, BigDecimal.RoundingMode.HALF_UP).intValue
-          pendingFraction = thisSecondUsersBigDecimal -  thisSecondUsersIntValue
+          pendingFraction = thisSecondUsersBigDecimal - thisSecondUsersIntValue
           thisSecondUsersIntValue
         }
       } ++ chained.map(_ + duration)
