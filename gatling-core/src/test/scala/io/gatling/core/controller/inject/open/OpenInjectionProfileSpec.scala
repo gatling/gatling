@@ -106,7 +106,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
   "RampRateOpenInjection" should "produce the expected number of total users" in {
 
     val validStartRate = Gen.choose(0, 100).suchThat(_ > 0)
-    val validEndRate =  Gen.choose(0, 100).suchThat(_ > 0)
+    val validEndRate = Gen.choose(0, 100).suchThat(_ > 0)
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validStartRate, "startRate"), (validEndRate, "endRate"), (validDurationSeconds, "durationSeconds")) { (startRate, endRate, durationSeconds) =>
