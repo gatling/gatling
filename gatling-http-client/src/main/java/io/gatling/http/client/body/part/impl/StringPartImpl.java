@@ -38,8 +38,8 @@ public class StringPartImpl extends PartImpl {
   }
 
   @Override
-  protected long copyContentInto(ByteBuf target) {
-    return copyInto(contentBuffer, target, PartImplState.POST_CONTENT);
+  protected void copyContentInto(ByteBuf target) {
+    copyInto(contentBuffer, target, PartImplState.POST_CONTENT);
   }
 
   @Override

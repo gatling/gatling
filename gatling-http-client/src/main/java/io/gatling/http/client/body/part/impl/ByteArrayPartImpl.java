@@ -38,8 +38,8 @@ public class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
   }
 
   @Override
-  protected long copyContentInto(ByteBuf target) {
-    return copyInto(contentBuffer, target, PartImplState.POST_CONTENT);
+  protected void copyContentInto(ByteBuf target) {
+    copyInto(contentBuffer, target, PartImplState.POST_CONTENT);
   }
 
   @Override

@@ -34,8 +34,8 @@ public class MessageEndPartImpl extends PartImpl {
   }
 
   @Override
-  public long copyInto(ByteBuf target) {
-    return copyInto(lazyLoadContentBuffer(target.alloc()), target, PartImplState.DONE);
+  public void copyInto(ByteBuf target) {
+    copyInto(lazyLoadContentBuffer(target.alloc()), target, PartImplState.DONE);
   }
 
   @Override
@@ -78,7 +78,7 @@ public class MessageEndPartImpl extends PartImpl {
   }
 
   @Override
-  protected long copyContentInto(ByteBuf target) {
+  protected void copyContentInto(ByteBuf target) {
     throw new UnsupportedOperationException("Not supposed to be called");
   }
 

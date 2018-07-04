@@ -53,7 +53,7 @@ public class FilePartImpl extends FileLikePartImpl<FilePart> {
   }
 
   @Override
-  protected long copyContentInto(ByteBuf target) throws IOException {
+  protected void copyContentInto(ByteBuf target) throws IOException {
     // can return -1 if file is empty or FileChannel was closed
     int transferred = target.writeBytes(getChannel(), target.writableBytes());
     if (transferred > 0) {
@@ -65,7 +65,6 @@ public class FilePartImpl extends FileLikePartImpl<FilePart> {
         channel.close();
       }
     }
-    return transferred;
   }
 
   @Override

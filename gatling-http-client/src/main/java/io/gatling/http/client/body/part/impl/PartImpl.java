@@ -121,20 +121,20 @@ public abstract class PartImpl implements Closeable {
     return slowTarget;
   }
 
-  public long copyInto(ByteBuf target) throws IOException {
+  public void copyInto(ByteBuf target) throws IOException {
 
     switch (state) {
       case DONE:
-        return 0L;
+        return;
 
       case PRE_CONTENT:
-        return copyInto(lazyLoadPreContentBuffer(), target, PartImplState.CONTENT);
+        copyInto(lazyLoadPreContentBuffer(), target, PartImplState.CONTENT);
 
       case CONTENT:
-        return copyContentInto(target);
+        copyContentInto(target);
 
       case POST_CONTENT:
-        return copyInto(lazyLoadPostContentBuffer(), target, PartImplState.DONE);
+        copyInto(lazyLoadPostContentBuffer(), target, PartImplState.DONE);
 
       default:
         throw new IllegalStateException("Unknown state " + state);
@@ -186,11 +186,11 @@ public abstract class PartImpl implements Closeable {
 
   protected abstract long getContentLength();
 
-  protected abstract long copyContentInto(ByteBuf target) throws IOException;
+  protected abstract void copyContentInto(ByteBuf target) throws IOException;
 
   protected abstract long transferContentTo(WritableByteChannel target) throws IOException;
 
-  long copyInto(ByteBuf source, ByteBuf target, PartImplState sourceFullyWrittenState) {
+  void copyInto(ByteBuf source, ByteBuf target, PartImplState sourceFullyWrittenState) {
 
     int sourceRemaining = source.readableBytes();
     int targetRemaining = target.writableBytes();
@@ -198,10 +198,8 @@ public abstract class PartImpl implements Closeable {
     if (sourceRemaining <= targetRemaining) {
       target.writeBytes(source);
       state = sourceFullyWrittenState;
-      return sourceRemaining;
     } else {
       target.writeBytes(source, targetRemaining);
-      return targetRemaining;
     }
   }
 
