@@ -43,11 +43,11 @@ public abstract class PartImpl implements Closeable {
   /**
    * Carriage return/linefeed as a byte array
    */
-  protected static final byte[] CRLF_BYTES = "\r\n".getBytes(US_ASCII);
+  static final byte[] CRLF_BYTES = "\r\n".getBytes(US_ASCII);
   /**
    * Extra characters as a byte array
    */
-  protected static final byte[] EXTRA_BYTES = "--".getBytes(US_ASCII);
+  static final byte[] EXTRA_BYTES = "--".getBytes(US_ASCII);
 
   /**
    * Content disposition as a byte array
@@ -117,7 +117,7 @@ public abstract class PartImpl implements Closeable {
     return state;
   }
 
-  public boolean isTargetSlow() {
+  boolean isTargetSlow() {
     return slowTarget;
   }
 
@@ -190,7 +190,7 @@ public abstract class PartImpl implements Closeable {
 
   protected abstract long transferContentTo(WritableByteChannel target) throws IOException;
 
-  protected long copyInto(ByteBuf source, ByteBuf target, PartImplState sourceFullyWrittenState) {
+  long copyInto(ByteBuf source, ByteBuf target, PartImplState sourceFullyWrittenState) {
 
     int sourceRemaining = source.readableBytes();
     int targetRemaining = target.writableBytes();
@@ -205,7 +205,7 @@ public abstract class PartImpl implements Closeable {
     }
   }
 
-  protected long transferTo(ByteBuf source, WritableByteChannel target, PartImplState sourceFullyWrittenState) throws IOException {
+  long transferTo(ByteBuf source, WritableByteChannel target, PartImplState sourceFullyWrittenState) throws IOException {
 
     int transferred = 0;
     if (target instanceof GatheringByteChannel) {

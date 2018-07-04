@@ -47,7 +47,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
     STOP
   }
 
-  public static final int DEFAULT_CHUNK_SIZE = 8 * 1024;
+  static final int DEFAULT_CHUNK_SIZE = 8 * 1024;
 
   private final List<PartImpl> parts;
   private final long contentLength;
