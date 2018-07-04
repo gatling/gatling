@@ -21,23 +21,26 @@ import io.gatling.http.client.body.part.FileLikePart;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public abstract class FileLikePartImpl<T extends FileLikePart> extends PartImpl<T> {
+public abstract class FileLikePartImpl<T extends FileLikePart> extends PartImpl {
 
   /**
    * Attachment's file name as a byte array
    */
   private static final byte[] FILE_NAME_BYTES = "; filename=".getBytes(US_ASCII);
 
+  private final String fileName;
+
   FileLikePartImpl(T part, byte[] boundary) {
     super(part, boundary);
+    fileName = part.getFileName();
   }
 
   protected void visitDispositionHeader(PartVisitor visitor) {
     super.visitDispositionHeader(visitor);
-    if (part.getFileName() != null) {
+    if (fileName != null) {
       visitor.withBytes(FILE_NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);
-      visitor.withBytes(part.getFileName().getBytes(part.getCharset() != null ? part.getCharset() : UTF_8));
+      visitor.withBytes(fileName.getBytes(part.getCharset() != null ? part.getCharset() : UTF_8));
       visitor.withByte(QUOTE_BYTE);
     }
   }

@@ -21,6 +21,7 @@ import static io.gatling.http.client.ahc.util.MiscUtils.*;
 import io.gatling.http.client.body.part.FilePart;
 import io.netty.buffer.ByteBuf;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -28,25 +29,27 @@ import java.nio.channels.WritableByteChannel;
 
 public class FilePartImpl extends FileLikePartImpl<FilePart> {
 
+  private final File file;
   private final long length;
   private FileChannel channel;
   private long position = 0L;
 
   public FilePartImpl(FilePart part, byte[] boundary) {
     super(part, boundary);
-    length = part.getContent().length();
+    file = part.getContent();
+    length = file.length();
   }
 
   private FileChannel getChannel() throws IOException {
     if (channel == null) {
-      channel = new RandomAccessFile(part.getContent(), "r").getChannel();
+      channel = new RandomAccessFile(file, "r").getChannel();
     }
     return channel;
   }
 
   @Override
   protected long getContentLength() {
-    return length;
+    return file.length();
   }
 
   @Override
@@ -56,7 +59,7 @@ public class FilePartImpl extends FileLikePartImpl<FilePart> {
     if (transferred > 0) {
       position += transferred;
     }
-    if (position == length || transferred < 0) {
+    if (position == file.length() || transferred < 0) {
       state = PartImplState.POST_CONTENT;
       if (channel.isOpen()) {
         channel.close();

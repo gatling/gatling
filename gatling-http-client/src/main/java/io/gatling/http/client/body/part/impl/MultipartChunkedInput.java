@@ -49,7 +49,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
 
   public static final int DEFAULT_CHUNK_SIZE = 8 * 1024;
 
-  private final List<PartImpl<?>> parts;
+  private final List<PartImpl> parts;
   private final long contentLength;
   private final int chunkSize;
   private final AtomicBoolean closed = new AtomicBoolean();
@@ -58,7 +58,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
   private int currentPartIndex;
   private boolean done = false;
 
-  public MultipartChunkedInput(List<PartImpl<?>> parts, long contentLength) {
+  public MultipartChunkedInput(List<PartImpl> parts, long contentLength) {
     this.parts = parts;
     this.contentLength = contentLength;
     this.chunkSize = contentLength > 0 ? (int) Math.min(contentLength, (long) DEFAULT_CHUNK_SIZE) : DEFAULT_CHUNK_SIZE;
@@ -102,7 +102,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
     }
 
     while (target.isWritable() && !done) {
-      PartImpl<?> currentPart = parts.get(currentPartIndex);
+      PartImpl currentPart = parts.get(currentPartIndex);
       currentPart.copyInto(target);
 
       if (currentPart.getState() == PartImplState.DONE) {
@@ -124,7 +124,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
   @Override
   public void close() {
     if (closed.compareAndSet(false, true)) {
-      for (PartImpl<?> part : parts) {
+      for (PartImpl part : parts) {
         closeSilently(part);
       }
     }

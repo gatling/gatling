@@ -27,13 +27,13 @@ import static io.gatling.http.client.ahc.util.MiscUtils.closeSilently;
 
 public class MultipartFileRegion extends AbstractReferenceCounted implements FileRegion {
 
-  private final List<PartImpl<?>> parts;
+  private final List<PartImpl> parts;
   private final long contentLength;
   private boolean done = false;
   private int currentPartIndex;
   private long transferred;
 
-  public MultipartFileRegion(List<PartImpl<?>> parts, long contentLength) {
+  public MultipartFileRegion(List<PartImpl> parts, long contentLength) {
     this.parts = parts;
     this.contentLength = contentLength;
   }
@@ -98,7 +98,7 @@ public class MultipartFileRegion extends AbstractReferenceCounted implements Fil
     boolean slowTarget = false;
 
     while (transferred < MultipartChunkedInput.DEFAULT_CHUNK_SIZE && !done && !slowTarget) {
-      PartImpl<?> currentPart = parts.get(currentPartIndex);
+      PartImpl currentPart = parts.get(currentPartIndex);
       transferred += currentPart.transferTo(target);
       slowTarget = currentPart.isTargetSlow();
 
@@ -115,7 +115,7 @@ public class MultipartFileRegion extends AbstractReferenceCounted implements Fil
 
   @Override
   protected void deallocate() {
-    for (PartImpl<?> part : parts) {
+    for (PartImpl part : parts) {
       closeSilently(part);
     }
   }

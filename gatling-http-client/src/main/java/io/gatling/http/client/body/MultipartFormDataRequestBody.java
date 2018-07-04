@@ -57,7 +57,7 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
       contentTypeOverride = patchContentTypeWithBoundaryAttribute(withDefault(contentTypeHeader, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
     }
 
-    List<PartImpl<?>> partImpls = new ArrayList<>(content.size() + 1);
+    List<PartImpl> partImpls = new ArrayList<>(content.size() + 1);
     for (Part<?> part: content) {
       partImpls.add(part.toImpl(boundary));
     }
@@ -70,7 +70,7 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
     return new WritableContent(content, contentLength, contentTypeOverride);
   }
 
-  private long computeContentLength(List<PartImpl<?>> partImpls) {
+  private long computeContentLength(List<PartImpl> partImpls) {
     try {
       long total = 0;
       for (PartImpl part : partImpls) {

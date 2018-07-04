@@ -49,7 +49,7 @@ public class StringPart extends Part<String> {
   }
 
   @Override
-  public PartImpl<?> toImpl(byte[] boundary) {
+  public PartImpl toImpl(byte[] boundary) {
     return new StringPartImpl(this, boundary);
   }
 }

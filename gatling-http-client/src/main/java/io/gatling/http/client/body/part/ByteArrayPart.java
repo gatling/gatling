@@ -47,7 +47,7 @@ public class ByteArrayPart extends FileLikePart<byte[]> {
   }
 
   @Override
-  public PartImpl<?> toImpl(byte[] boundary) {
+  public PartImpl toImpl(byte[] boundary) {
     return new ByteArrayPartImpl(this, boundary);
   }
 }

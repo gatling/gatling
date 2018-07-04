@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.body.part.impl;
 
-import io.gatling.http.client.body.part.FileLikePart;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -24,7 +23,7 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
-public class MessageEndPartImpl extends PartImpl<FileLikePart> {
+public class MessageEndPartImpl extends PartImpl {
 
   // lazy
   private ByteBuf contentBuffer;

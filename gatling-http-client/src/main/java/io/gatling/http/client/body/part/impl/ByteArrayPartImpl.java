@@ -34,7 +34,7 @@ public class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
 
   @Override
   protected long getContentLength() {
-    return part.getContent().length;
+    return contentBuffer.maxCapacity();
   }
 
   @Override

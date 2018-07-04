@@ -23,7 +23,7 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
-public class StringPartImpl extends PartImpl<StringPart> {
+public class StringPartImpl extends PartImpl {
 
   private final ByteBuf contentBuffer;
 

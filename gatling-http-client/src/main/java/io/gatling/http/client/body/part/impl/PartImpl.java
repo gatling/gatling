@@ -34,7 +34,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
-public abstract class PartImpl<T extends Part> implements Closeable {
+public abstract class PartImpl implements Closeable {
 
   /**
    * Content disposition as a byte
@@ -89,7 +89,7 @@ public abstract class PartImpl<T extends Part> implements Closeable {
    */
   private static final byte[] CONTENT_ID_BYTES = "Content-ID: ".getBytes(US_ASCII);
 
-  protected final T part;
+  protected final Part<?> part;
   protected final byte[] boundary;
 
   private final int preContentLength;
@@ -101,7 +101,7 @@ public abstract class PartImpl<T extends Part> implements Closeable {
   private ByteBuf preContentBuffer;
   private ByteBuf postContentBuffer;
 
-  PartImpl(T part, byte[] boundary) {
+  PartImpl(Part<?> part, byte[] boundary) {
     this.part = part;
     this.boundary = boundary;
     preContentLength = computePreContentLength();

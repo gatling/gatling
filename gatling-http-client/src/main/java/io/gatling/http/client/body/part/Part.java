@@ -84,5 +84,5 @@ public abstract class Part<T> {
 
   public abstract String getContentType();
 
-  public abstract PartImpl<?> toImpl(byte[] boundary);
+  public abstract PartImpl toImpl(byte[] boundary);
 }
