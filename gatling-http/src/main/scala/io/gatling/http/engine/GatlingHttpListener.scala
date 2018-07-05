@@ -120,11 +120,12 @@ class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor, cloc
       }
     }
 
-  override def onThrowable(throwable: Throwable): Unit =
+  override def onThrowable(throwable: Throwable): Unit = {
+    responseBuilder.updateEndTimestamp()
     withResponse { response =>
-      responseBuilder.updateEndTimestamp()
       sendOnThrowable(response, throwable)
     }
+  }
 
   private def sendOnThrowable(response: Response, throwable: Throwable): Unit = {
     val errorMessage = throwable.detailedMessage
