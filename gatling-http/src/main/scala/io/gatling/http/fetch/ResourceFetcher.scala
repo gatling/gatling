@@ -262,7 +262,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest]) e
     val (cached, nonCached) = resources.partition { resource =>
       val request = resource.clientRequest
       httpCaches.contentCacheEntry(session, request) match {
-        case None => false
+        case None | Some(ContentCacheEntry(None, _, _)) => false
         case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
           // beware, side effecting
           session = httpCaches.clearContentCache(session, request)
