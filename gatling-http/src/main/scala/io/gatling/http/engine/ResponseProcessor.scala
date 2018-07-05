@@ -87,17 +87,17 @@ class ResponseProcessor(statsEngine: StatsEngine, httpEngine: HttpEngine, config
       def dump = {
         // hack: pre-cache url because it would reset the StringBuilder
         tx.request.clientRequest.getUri.toUrl
-        val buff = StringBuilderPool.DEFAULT.get()
-        buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
-        buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
-        buff.append("=========================").append(Eol)
-        buff.append("Session:").append(Eol).append(tx.session).append(Eol)
-        buff.append("=========================").append(Eol)
-        buff.append("HTTP request:").append(Eol).appendRequest(tx.request.clientRequest, response.wireRequestHeaders, configuration.core.charset)
-        buff.append("=========================").append(Eol)
-        buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
-        buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
-        buff.toString
+        StringBuilderPool.DEFAULT.get()
+          .append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
+          .append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
+          .append("=========================").append(Eol)
+          .append("Session:").append(Eol).append(tx.session).append(Eol)
+          .append("=========================").append(Eol)
+          .append("HTTP request:").append(Eol).appendRequest(tx.request.clientRequest, response.wireRequestHeaders, configuration.core.charset)
+          .append("=========================").append(Eol)
+          .append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
+          .append("<<<<<<<<<<<<<<<<<<<<<<<<<")
+          .toString
       }
 
       if (status == KO) {
