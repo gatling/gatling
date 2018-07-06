@@ -61,7 +61,7 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
 
-    setTimer(flushTimerName, Flush, 5 seconds, repeat = true)
+    setTimer(flushTimerName, Flush, configuration.data.console.writeInterval seconds, repeat = true)
 
     data
   }
