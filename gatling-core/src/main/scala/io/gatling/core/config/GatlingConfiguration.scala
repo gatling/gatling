@@ -203,7 +203,8 @@ object GatlingConfiguration extends StrictLogging {
       data = DataConfiguration(
         dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
         console = ConsoleDataWriterConfiguration(
-          light = config.getBoolean(data.console.Light)
+          light = config.getBoolean(data.console.Light),
+          writeInterval = config.getInt(data.console.WriteInterval)
         ),
         file = FileDataWriterConfiguration(
           bufferSize = config.getInt(data.file.BufferSize)
@@ -407,7 +408,8 @@ case class LeakDataWriterConfiguration(
 )
 
 case class ConsoleDataWriterConfiguration(
-    light: Boolean
+    light:         Boolean,
+    writeInterval: Int
 )
 
 case class GraphiteDataWriterConfiguration(

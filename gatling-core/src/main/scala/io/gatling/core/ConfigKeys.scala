@@ -133,6 +133,7 @@ object ConfigKeys {
     }
     object console {
       val Light = "gatling.data.console.light"
+      val WriteInterval = "gatling.data.console.writeInterval"
     }
     object graphite {
       val Light = "gatling.data.graphite.light"
