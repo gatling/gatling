@@ -68,4 +68,12 @@ public final class Param implements Comparable<Param> {
     int keyDiff = name.compareTo(other.name);
     return keyDiff == 0 ? value.compareTo(other.value) : keyDiff;
   }
+
+  @Override
+  public String toString() {
+    return "Param{" +
+      "name='" + name + '\'' +
+      ", value='" + value + '\'' +
+      '}';
+  }
 }
