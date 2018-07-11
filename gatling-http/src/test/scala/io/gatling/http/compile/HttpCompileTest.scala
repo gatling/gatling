@@ -108,6 +108,7 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").saveAs("key")))
     .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").findAll))
     .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").count))
+    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").name("This is a check")))
     .exec(
       http("Request").get("h/")
         .check(
