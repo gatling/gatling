@@ -56,6 +56,7 @@ public class Uri {
   private final int port;
   private final String query;
   private final String path;
+  private final String fragment;
   private String url;
   private boolean secured;
   private boolean webSocket;
@@ -65,7 +66,8 @@ public class Uri {
              String host,
              int port,
              String path,
-             String query) {
+             String query,
+             String fragment) {
 
     this.scheme = assertNotEmpty(scheme, "scheme");
     this.userInfo = userInfo;
@@ -73,6 +75,7 @@ public class Uri {
     this.port = port;
     this.path = path;
     this.query = query;
+    this.fragment = fragment;
     this.secured = HTTPS.equals(scheme) || WSS.equals(scheme);
     this.webSocket = WS.equals(scheme) || WSS.equalsIgnoreCase(scheme);
   }
@@ -97,7 +100,8 @@ public class Uri {
             parser.host,
             parser.port,
             parser.path,
-            parser.query);
+            parser.query,
+            parser.fragment);
   }
 
   public String getQuery() {
@@ -122,6 +126,10 @@ public class Uri {
 
   public String getHost() {
     return host;
+  }
+
+  public String getFragment() {
+    return fragment;
   }
 
   public boolean isSecured() {
@@ -160,6 +168,10 @@ public class Uri {
       url = sb.toString();
     }
     return url;
+  }
+
+  public String toFullUrl() {
+    return fragment == null ? toUrl() : toUrl() + "#" + fragment;
   }
 
   /**
@@ -229,7 +241,8 @@ public class Uri {
             host,
             port,
             path,
-            query);
+            query,
+            fragment);
   }
 
   public Uri withNewQuery(String newQuery) {
@@ -238,7 +251,8 @@ public class Uri {
             host,
             port,
             path,
-            newQuery);
+            newQuery,
+            fragment);
   }
 
   @Override

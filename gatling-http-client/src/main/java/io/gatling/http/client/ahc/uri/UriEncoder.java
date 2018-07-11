@@ -151,7 +151,8 @@ public enum UriEncoder {
             uri.getHost(),
             uri.getPort(),
             newPath,
-            newQuery);
+            newQuery,
+            uri.getFragment());
   }
 
   protected abstract String encodePath(String path);

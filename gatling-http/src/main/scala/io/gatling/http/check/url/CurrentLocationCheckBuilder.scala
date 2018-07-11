@@ -28,20 +28,20 @@ trait CurrentLocationCheckType
 
 object CurrentLocationCheckBuilder {
 
-  val CurrentLocation: DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String] = {
-    val extractor = new Extractor[Response, String] with SingleArity {
+  val CurrentLocation: DefaultFindCheckBuilder[CurrentLocationCheckType, String, String] = {
+    val extractor = new Extractor[String, String] with SingleArity {
       val name = "currentLocation"
-      def apply(prepared: Response): Validation[Some[String]] = Some(prepared.request.getUri.toUrl).success
+      def apply(prepared: String): Validation[Some[String]] = Some(prepared).success
     }.expressionSuccess
 
-    new DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String](extractor, displayActualValue = true)
+    new DefaultFindCheckBuilder[CurrentLocationCheckType, String, String](extractor, displayActualValue = true)
   }
 }
 
 object CurrentLocationCheckMaterializer
-  extends CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, Response] {
+  extends CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] {
 
   override protected val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
 
-  override protected val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  override protected val preparer: Preparer[Response, String] = UrlStringPreparer
 }

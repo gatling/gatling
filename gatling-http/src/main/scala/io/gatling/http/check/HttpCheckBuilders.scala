@@ -39,5 +39,5 @@ object HttpCheckBuilders {
   val PassThroughResponsePreparer: Preparer[Response, Response] = _.success
   val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success
   val ResponseBodyBytesPreparer: Preparer[Response, Array[Byte]] = _.body.bytes.success
-  val UrlStringPreparer: Preparer[Response, String] = _.request.getUri.toUrl.success
+  val UrlStringPreparer: Preparer[Response, String] = _.request.getUri.toFullUrl.success
 }

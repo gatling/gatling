@@ -136,7 +136,7 @@ class UriTest {
 
   @Test
   void testToUrlWithUserInfoPortPathAndQuery() {
-    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4");
+    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
     assertEquals("http://user@example.com:44/path/path2?query=4", uri.toUrl(), "toUrl returned incorrect url");
   }
 
@@ -170,7 +170,7 @@ class UriTest {
 
   @Test
   void testWithNewScheme() {
-    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4");
+    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
     Uri newUri = uri.withNewScheme("https");
     assertEquals("https", newUri.getScheme());
     assertEquals("https://user@example.com:44/path/path2?query=4", newUri.toUrl(), "toUrl returned incorrect url");
@@ -178,7 +178,7 @@ class UriTest {
 
   @Test
   void testWithNewQuery() {
-    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4");
+    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
     Uri newUri = uri.withNewQuery("query2=10&query3=20");
     assertEquals("query2=10&query3=20", newUri.getQuery());
     assertEquals("http://user@example.com:44/path/path2?query2=10&query3=20", newUri.toUrl(), "toUrl returned incorrect url");
@@ -186,14 +186,14 @@ class UriTest {
 
   @Test
   void testToRelativeUrl() {
-    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4");
+    Uri uri = new Uri("http", "user", "example.com", 44, "/path/path2", "query=4", null);
     String relativeUrl = uri.toRelativeUrl();
     assertEquals("/path/path2?query=4", relativeUrl, "toRelativeUrl returned incorrect url");
   }
 
   @Test
   void testToRelativeUrlWithEmptyPath() {
-    Uri uri = new Uri("http", "user", "example.com", 44, null, "query=4");
+    Uri uri = new Uri("http", "user", "example.com", 44, null, "query=4", null);
     String relativeUrl = uri.toRelativeUrl();
     assertEquals("/?query=4", relativeUrl, "toRelativeUrl returned incorrect url");
   }
@@ -235,8 +235,25 @@ class UriTest {
   void testEquals() {
     String url = "http://user@hello.com:8080/level1/level2/level3?q=1";
     Uri createdUri = Uri.create(url);
-    Uri constructedUri = new Uri("http", "user", "hello.com", 8080, "/level1/level2/level3", "q=1");
+    Uri constructedUri = new Uri("http", "user", "hello.com", 8080, "/level1/level2/level3", "q=1", null);
     assertTrue(createdUri.equals(constructedUri), "The equals method returned false for two equal urls");
+  }
+
+  @Test
+  void testFragment() {
+    String url = "http://user@hello.com:8080/level1/level2/level3?q=1";
+    String fragment = "foo";
+    String urlWithFragment = url + "#" + fragment;
+    Uri uri = Uri.create(urlWithFragment);
+    assertEquals(fragment, uri.getFragment(), "Fragment should be extracted");
+    assertEquals(url, uri.toUrl(), "toUrl should return without fragment");
+    assertEquals(urlWithFragment, uri.toFullUrl(), "toFullUrl should return with fragment");
+  }
+
+  @Test
+  void testRelativeFragment() {
+    Uri uri = Uri.create(Uri.create("http://user@hello.com:8080"), "/level1/level2/level3?q=1#foo");
+    assertEquals("foo", uri.getFragment(), "fragment should be kept when computing a relative url");
   }
 
   @Test
