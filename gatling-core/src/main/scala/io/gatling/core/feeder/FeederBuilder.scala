@@ -51,11 +51,11 @@ case class SourceFeederBuilder[T](
 }
 
 case class FeederOptions[T](
-    shard:           Boolean = false,
-    unzip:           Boolean                          = false,
-    conversion:      Option[Record[T] => Record[Any]] = None,
-    strategy:        FeederStrategy                   = Queue,
-    batch:           Option[Int]                      = None,
+    shard:      Boolean                          = false,
+    unzip:      Boolean                          = false,
+    conversion: Option[Record[T] => Record[Any]] = None,
+    strategy:   FeederStrategy                   = Queue,
+    batch:      Option[Int]                      = None
 )
 
 trait BatchableFeederBuilder[T] extends SourceFeederBuilder[T] {
