@@ -52,8 +52,7 @@ private[recorder] object RequestElement {
 
   val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
 
-  // FIXME why 2 capture groups?
-  private val HtmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
+  private val HtmlContentType = """(?i)text/html\s*;\s+charset=(.+)?""".r
 
   def apply(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration): RequestElement = {
     val requestHeaders = request.headers
@@ -79,7 +78,7 @@ private[recorder] object RequestElement {
       }
 
     val embeddedResources = Option(response.headers.get(ContentType)).collect {
-      case HtmlContentType(_, headerCharset) if response.body.nonEmpty =>
+      case HtmlContentType(headerCharset) if response.body.nonEmpty =>
         val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
         val htmlChars = new String(response.body, charset).toCharArray
         val userAgent = Option(requestHeaders.get(UserAgent)).flatMap(UserAgentHelper.parseFromHeader)
