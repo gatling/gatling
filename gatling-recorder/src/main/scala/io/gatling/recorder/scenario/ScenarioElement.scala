@@ -78,7 +78,7 @@ private[recorder] object RequestElement {
       }
 
     val embeddedResources = Option(response.headers.get(ContentType)).collect {
-      case HtmlContentType(headerCharset) if response.body.nonEmpty =>
+      case HtmlContentType(headerCharset) if responseBody.nonEmpty =>
         val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
         val htmlChars = new String(response.body, charset).toCharArray
         val userAgent = Option(requestHeaders.get(UserAgent)).flatMap(UserAgentHelper.parseFromHeader)
