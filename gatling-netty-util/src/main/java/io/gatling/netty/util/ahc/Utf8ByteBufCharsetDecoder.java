@@ -45,7 +45,7 @@ public class Utf8ByteBufCharsetDecoder {
 
   private static final int INITIAL_CHAR_BUFFER_SIZE = 1024;
   private static final int UTF_8_MAX_BYTES_PER_CHAR = 4;
-  private static final char INVALID_CHAR_REPLACEMENT = '�';
+  private static final char INVALID_CHAR_REPLACEMENT = '\uFFFD';
 
   private static final ThreadLocal<Utf8ByteBufCharsetDecoder> POOL = ThreadLocal.withInitial(Utf8ByteBufCharsetDecoder::new);
   private final CharsetDecoder decoder = configureReplaceCodingErrorActions(UTF_8.newDecoder());
