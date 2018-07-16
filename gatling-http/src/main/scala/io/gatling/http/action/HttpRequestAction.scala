@@ -16,6 +16,7 @@
 
 package io.gatling.http.action
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
@@ -42,7 +43,7 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val
 
   override val statsEngine: StatsEngine = config.coreComponents.statsEngine
 
-  override val clock = config.coreComponents.clock
+  override val clock: Clock = config.coreComponents.clock
 
   override val requestName: Expression[String] = httpRequestDef.requestName
 
