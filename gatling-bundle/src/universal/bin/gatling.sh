@@ -43,7 +43,13 @@ COMPILER_OPTS="-Xss100M $DEFAULT_JAVA_OPTS $JAVA_OPTS"
 COMPILER_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:"
 GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$GATLING_CONF:"
 
+
+# Use the extra compiler options flag only if they are provided
+if [ -n "$EXTRA_SCALAC_OPTIONS" ]; then
+    EXTRA_COMPILER_OPTIONS="-eso $EXTRA_SCALAC_OPTIONS"
+fi
+
 # Run the compiler
-"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler "$@" 2> /dev/null
+"$JAVA" $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler $EXTRA_COMPILER_OPTIONS "$@" 2> /dev/null
 # Run Gatling
 "$JAVA" $DEFAULT_JAVA_OPTS $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling "$@"

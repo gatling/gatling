@@ -190,7 +190,7 @@ object ZincCompiler extends App with ProblemStringFormats {
         "-unchecked",
         "-language:implicitConversions",
         "-language:postfixOps"
-      ),
+      ) ++ configuration.extraScalacOptions,
       javacOptions = Array.empty,
       maxErrors,
       sourcePositionMappers = Array.empty,

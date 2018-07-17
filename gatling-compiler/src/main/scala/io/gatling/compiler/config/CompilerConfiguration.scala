@@ -28,7 +28,8 @@ import com.typesafe.config.ConfigFactory
 private[compiler] case class CompilerConfiguration(
     encoding:             String,
     simulationsDirectory: Path,
-    binariesDirectory:    Path
+    binariesDirectory:    Path,
+    extraScalacOptions:   Seq[String]
 )
 
 private[compiler] object CompilerConfiguration {
@@ -64,7 +65,8 @@ private[compiler] object CompilerConfiguration {
     val simulationsDirectory = resolvePath(Paths.get(config.getString(simulationsDirectoryKey)))
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
       .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
+    val extraScalacOptions = commandLineOverrides.extraScalacOptions.split(",").toSeq
 
-    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory)
+    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, extraScalacOptions)
   }
 }
