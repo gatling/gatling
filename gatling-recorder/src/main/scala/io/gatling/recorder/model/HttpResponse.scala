@@ -14,26 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.recorder
+package io.gatling.recorder.model
 
 import io.netty.handler.codec.http.HttpHeaders
 
-package object model {
-
-  case class HttpRequest(
-      httpVersion: String,
-      method:      String,
-      uri:         String,
-      headers:     HttpHeaders,
-      body:        Array[Byte],
-      timestamp:   Long
-  )
-
-  case class HttpResponse(
-      status:     Int,
-      statusText: String,
-      headers:    HttpHeaders,
-      body:       Array[Byte],
-      timestamp:  Long
-  )
-}
+case class HttpResponse(
+    status:     Int,
+    statusText: String,
+    headers:    HttpHeaders,
+    body:       Array[Byte],
+    timestamp:  Long
+)
