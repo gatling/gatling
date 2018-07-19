@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.types
+package io.gatling.graphite.types
 
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.ConfigKeys._
+import io.gatling.core.config.GatlingConfiguration
 
 class RequestMetricsBufferSpec extends BaseSpec {
 

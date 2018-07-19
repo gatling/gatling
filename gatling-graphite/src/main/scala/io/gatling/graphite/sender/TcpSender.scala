@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.sender
+package io.gatling.graphite.sender
 
 import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.{ Clock, Retry }
-import io.gatling.metrics.message.GraphiteMetrics
+import io.gatling.graphite.message.GraphiteMetrics
 
 import akka.io.{ IO, Tcp }
 
-private[metrics] class TcpSender(
+private[graphite] class TcpSender(
     remote:      InetSocketAddress,
     maxRetries:  Int,
     retryWindow: FiniteDuration,

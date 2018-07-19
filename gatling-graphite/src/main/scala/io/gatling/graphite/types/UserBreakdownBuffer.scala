@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.types
+package io.gatling.graphite.types
 
 import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.stats.writer.UserMessage
 
-private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Long) {
+private[graphite] class UserBreakdownBuffer(val totalUserEstimate: Long) {
 
   private var previousActive = 0L
   private var previousEnd = 0L
@@ -52,4 +52,4 @@ private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Long) {
   }
 }
 
-private[metrics] case class UserBreakdown(active: Long, waiting: Long, done: Long)
+private[graphite] case class UserBreakdown(active: Long, waiting: Long, done: Long)

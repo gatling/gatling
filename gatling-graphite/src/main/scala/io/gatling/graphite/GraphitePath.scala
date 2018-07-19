@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics
+package io.gatling.graphite
 
 import scala.collection.mutable
 
-private[metrics] object GraphitePath {
+private[graphite] object GraphitePath {
   private val sanitizeStringMemo = mutable.Map.empty[String, String]
-  def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+  def sanitizeString(s: String): String = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
   def graphitePath(root: String) = new GraphitePath(List(root))
   def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
 }
 
-private[metrics] case class GraphitePath private (path: List[String]) {
+private[graphite] case class GraphitePath private (path: List[String]) {
   import GraphitePath.sanitizeString
   def /(subPath: String) = new GraphitePath(sanitizeString(subPath) :: path)
   def /(subPath: GraphitePath) = new GraphitePath(subPath.path.map(sanitizeString) ::: path)
-  def pathKey = path.reverse.mkString(".")
+  def pathKey: String = path.reverse.mkString(".")
 }

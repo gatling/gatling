@@ -27,5 +27,5 @@ object DataWriterType {
 sealed abstract class DataWriterType(val name: String, val className: String)
 object ConsoleDataWriterType extends DataWriterType("console", "io.gatling.core.stats.writer.ConsoleDataWriter")
 object FileDataWriterType extends DataWriterType("file", "io.gatling.core.stats.writer.LogFileDataWriter")
-object GraphiteDataWriterType extends DataWriterType("graphite", "io.gatling.metrics.GraphiteDataWriter")
+object GraphiteDataWriterType extends DataWriterType("graphite", "io.gatling.graphite.GraphiteDataWriter")
 object LeakReporterDataWriterType extends DataWriterType("leak", "io.gatling.core.stats.writer.LeakReporterDataWriter")

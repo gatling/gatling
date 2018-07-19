@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.sender
+package io.gatling.graphite.sender
 
 import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import akka.testkit._
-import akka.io.Tcp._
-import akka.util.ByteString
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.metrics.message.GraphiteMetrics
+import io.gatling.graphite.message.GraphiteMetrics
+
+import akka.io.Tcp._
+import akka.testkit._
+import akka.util.ByteString
 
 class TcpSenderSpec extends AkkaSpec {
 

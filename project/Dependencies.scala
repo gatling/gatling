@@ -111,7 +111,7 @@ object Dependencies {
 
   val chartsDependencies = tdigest +: testDeps
 
-  val metricsDependencies = hdrHistogram +: testDeps
+  val graphiteDependencies = hdrHistogram +: testDeps
 
   val benchmarkDependencies = Seq(jmh)
 

@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics
+package io.gatling.graphite
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.RunMessage
-import io.gatling.metrics.GraphitePath._
 
 class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) extends GraphitePathPattern(runMessage, configuration) {
 
@@ -28,7 +27,7 @@ class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfi
     else String.valueOf(d)
   }
 
-  private val usersRootKey = graphitePath("users")
+  private val usersRootKey = GraphitePath.graphitePath("users")
   private val percentiles1Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile1)
   private val percentiles2Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile2)
   private val percentiles3Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile3)
@@ -40,9 +39,9 @@ class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfi
 
   def usersPath(scenario: String): GraphitePath = usersRootKey / scenario
 
-  val allResponsesPath = graphitePath("allRequests")
+  val allResponsesPath = GraphitePath.graphitePath("allRequests")
 
-  def responsePath(requestName: String, groupHierarchy: List[String]) = graphitePath(groupHierarchy.reverse) / requestName
+  def responsePath(requestName: String, groupHierarchy: List[String]) = GraphitePath.graphitePath(groupHierarchy.reverse) / requestName
 
   protected def activeUsers(path: GraphitePath) = path / "active"
   protected def waitingUsers(path: GraphitePath) = path / "waiting"

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.types
+package io.gatling.graphite.types
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 
-import org.HdrHistogram.{ IntCountsHistogram, AbstractHistogram }
+import org.HdrHistogram.{ AbstractHistogram, IntCountsHistogram }
 
 class HistogramRequestMetricsBuffer(configuration: GatlingConfiguration) extends RequestMetricsBuffer {
 

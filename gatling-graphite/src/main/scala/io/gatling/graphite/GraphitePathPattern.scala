@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics
+package io.gatling.graphite
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.writer.RunMessage
-import io.gatling.metrics.types.{ Metrics, MetricByStatus, UserBreakdown }
+import io.gatling.graphite.types._
 
 abstract class GraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) {
 

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.sender
+package io.gatling.graphite.sender
 
 import java.net.InetSocketAddress
 
-import io.gatling.metrics.message.GraphiteMetrics
+import io.gatling.graphite.message.GraphiteMetrics
 
 import akka.actor.ActorRef
 import akka.io.{ IO, Udp }
 
-private[metrics] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
+private[graphite] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
 
   import Udp._
 
   IO(Udp) ! SimpleSender
 
-  def receive = uninitialized
+  def receive: Receive = uninitialized
 
   private def uninitialized: Receive = {
     case SimpleSenderReady =>

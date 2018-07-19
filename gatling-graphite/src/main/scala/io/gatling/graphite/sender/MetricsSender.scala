@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.sender
+package io.gatling.graphite.sender
 
 import java.net.InetSocketAddress
 
@@ -26,7 +26,7 @@ import io.gatling.core.config._
 
 import akka.actor.{ Props, Stash }
 
-private[metrics] object MetricsSender {
+private[graphite] object MetricsSender {
 
   def props(clock: Clock, configuration: GatlingConfiguration): Props = {
     val remote = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
@@ -37,4 +37,4 @@ private[metrics] object MetricsSender {
   }
 }
 
-private[metrics] abstract class MetricsSender extends BaseActor with Stash
+private[graphite] abstract class MetricsSender extends BaseActor with Stash

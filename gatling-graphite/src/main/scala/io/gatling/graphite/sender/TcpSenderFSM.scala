@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.sender
+package io.gatling.graphite.sender
 
 import io.gatling.commons.util.Retry
 

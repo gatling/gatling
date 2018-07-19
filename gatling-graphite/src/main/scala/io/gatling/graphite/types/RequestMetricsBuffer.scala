@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.metrics.types
+package io.gatling.graphite.types
 
 import io.gatling.commons.stats.Status
 
-private[metrics] trait RequestMetricsBuffer {
+private[graphite] trait RequestMetricsBuffer {
   def add(status: Status, time: Long): Unit
   def clear(): Unit
   def metricsByStatus: MetricByStatus
 }
 
-private[metrics] case class MetricByStatus(ok: Option[Metrics], ko: Option[Metrics], all: Option[Metrics])
-private[metrics] case class Metrics(count: Long, min: Int, max: Int, mean: Int, stdDev: Int, percentile1: Int, percentile2: Int, percentile3: Int, percentile4: Int)
+private[graphite] case class MetricByStatus(ok: Option[Metrics], ko: Option[Metrics], all: Option[Metrics])
+private[graphite] case class Metrics(count: Long, min: Int, max: Int, mean: Int, stdDev: Int, percentile1: Int, percentile2: Int, percentile3: Int, percentile4: Int)
