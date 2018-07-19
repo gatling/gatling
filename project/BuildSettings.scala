@@ -20,7 +20,7 @@ object BuildSettings {
   )
 
   lazy val gatlingModuleSettings =
-    basicSettings ++ scaladocSettings
+    basicSettings ++ scaladocSettings ++ utf8Encoding
 
   lazy val noArtifactToPublish =
     publishArtifact in Compile := false
@@ -41,17 +41,21 @@ object BuildSettings {
     GatlingDeveloper("achaouat@gatling.io", "Alexandre Chaouat", isGatlingCorp = true)
   )
 
-/****************************/
-  /** Documentation settings **/
-/****************************/
+  // UTF-8
+
+  lazy val utf8Encoding = Seq(
+    fork := true,
+    javacOptions in Compile ++= Seq("-encoding", "utf8"),
+    javacOptions in Test ++= Seq("-encoding", "utf8")
+  )
+
+  // Documentation settings
 
   lazy val scaladocSettings = Seq(
     autoAPIMappings := true
   )
 
-/**************************************/
-  /** gatling-charts specific settings **/
-/**************************************/
+  // gatling-charts specific settings
 
   lazy val chartTestsSettings = Seq(
     fork := true,

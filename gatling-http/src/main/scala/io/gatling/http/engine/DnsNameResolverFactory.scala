@@ -26,7 +26,7 @@ import akka.actor.ActorSystem
 
 object DnsNameResolverFactory {
   def apply(coreComponents: CoreComponents): DnsNameResolverFactory =
-    new DnsNameResolverFactory(coreComponents.system, coreComponents.configuration)
+    new DnsNameResolverFactory(coreComponents.actorSystem, coreComponents.configuration)
 }
 
 class DnsNameResolverFactory(system: ActorSystem, configuration: GatlingConfiguration) extends NettyFactory(system) {

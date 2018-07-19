@@ -26,7 +26,7 @@ import scala.collection.JavaConverters._
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
+import io.gatling.http.fetch.{ ConcurrentResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.model._
@@ -108,8 +108,8 @@ private[recorder] case class RequestElement(
     body:                 Option[RequestBody],
     responseBody:         Option[ResponseBody],
     statusCode:           Int,
-    embeddedResources:    List[EmbeddedResource],
-    nonEmbeddedResources: List[RequestElement]   = Nil
+    embeddedResources:    List[ConcurrentResource],
+    nonEmbeddedResources: List[RequestElement]     = Nil
 ) extends ScenarioElement {
 
   val (baseUrl, pathQuery) = {

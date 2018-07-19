@@ -48,10 +48,13 @@ object CookieSupport {
       case _               => CookieJar.Empty
     }
 
-  def storeCookies(session: Session, uri: Uri, cookies: List[Cookie], nowMillis: Long): Session = {
-    val cookieJar = getOrCreateCookieJar(session)
-    session.set(CookieJarAttributeName, cookieJar.add(uri, cookies, nowMillis))
-  }
+  def storeCookies(session: Session, uri: Uri, cookies: List[Cookie], nowMillis: Long): Session =
+    if (cookies.nonEmpty) {
+      val cookieJar = getOrCreateCookieJar(session)
+      session.set(CookieJarAttributeName, cookieJar.add(uri, cookies, nowMillis))
+    } else {
+      session
+    }
 
   def storeCookie(session: Session, domain: String, path: String, cookie: Cookie, nowMillis: Long): Session = {
     val cookieJar = getOrCreateCookieJar(session)

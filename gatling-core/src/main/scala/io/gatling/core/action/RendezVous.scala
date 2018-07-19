@@ -27,8 +27,8 @@ import akka.actor.{ ActorSystem, Props }
 
 object RendezVous extends NameGen {
 
-  def apply(users: Int, system: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): Action = {
-    val actor = system.actorOf(RendezVousActor.props(users, next))
+  def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): Action = {
+    val actor = actorSystem.actorOf(RendezVousActor.props(users, next))
     new ExitableActorDelegatingAction(genName("rendezVous"), statsEngine, clock, next, actor)
   }
 }

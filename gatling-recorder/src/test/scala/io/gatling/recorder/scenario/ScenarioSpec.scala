@@ -21,7 +21,7 @@ import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.fetch.{ CssResource, RegularResource }
+import io.gatling.http.fetch.{ CssResource, BasicResource }
 import io.gatling.recorder.config.ConfigKeys.http.{ FollowRedirect, InferHtmlResources }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
@@ -54,7 +54,7 @@ class ScenarioSpec extends BaseSpec {
 
   it should "filter out embedded resources of HTML documents" in {
     val r1 = RequestElement("http://gatling.io", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200,
-      List(CssResource(Uri.create("http://gatling.io/main.css")), RegularResource(Uri.create("http://gatling.io/img.jpg"))))
+      List(CssResource(Uri.create("http://gatling.io/main.css")), BasicResource(Uri.create("http://gatling.io/img.jpg"))))
     val r2 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)
     val r3 = RequestElement("http://gatling.io/details.html", "GET", new DefaultHttpHeaders().add(CONTENT_TYPE, "text/html;charset=UTF-8"), None, None, 200, List.empty)
     val r4 = RequestElement("http://gatling.io/img.jpg", "GET", EmptyHttpHeaders.INSTANCE, None, None, 200, List.empty)

@@ -19,21 +19,28 @@ package io.gatling.http.cache
 import io.gatling.commons.util.Clock
 
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.SuccessWrapper
+import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 
-class HttpCaches(val clock: Clock, val configuration: GatlingConfiguration)
+class HttpCaches(val coreComponents: CoreComponents)
   extends HttpContentCacheSupport
   with PermanentRedirectCacheSupport
   with DnsCacheSupport
   with LocalAddressSupport
   with BaseUrlSupport
+  with ResourceCacheSupport
   with StrictLogging {
+
+  override def clock: Clock = coreComponents.clock
+
+  override def configuration: GatlingConfiguration = coreComponents.configuration
 
   val FlushCache: Expression[Session] = _.removeAll(
     HttpContentCacheSupport.HttpContentCacheAttributeName,
     DnsCacheSupport.DnsNameResolverAttributeName,
     PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName
   ).success
+
 }

@@ -16,7 +16,7 @@
 
 package io.gatling.http.check
 
-import java.util.{ HashMap => JHashMap }
+import java.util.{ Map => JMap }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ CheckResult, Check }
@@ -32,6 +32,6 @@ import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
  */
 case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
   extends Check[Response] {
-  override def check(response: Response, session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] =
+  override def check(response: Response, session: Session)(implicit cache: JMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(response, session)
 }

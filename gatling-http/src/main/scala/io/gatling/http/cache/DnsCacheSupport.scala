@@ -19,8 +19,7 @@ package io.gatling.http.cache
 import java.net.InetAddress
 import java.util.{ List => JList }
 
-import io.gatling.commons.util.Clock
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
@@ -39,10 +38,9 @@ object DnsCacheSupport {
     dnsNameResolution: DnsNameResolution,
     hostNameAliases:   Map[String, InetAddress],
     httpEngine:        HttpEngine,
-    clock:             Clock,
-    configuration:     GatlingConfiguration
+    coreComponents:    CoreComponents
   ) =
-    configuration.resolve(
+    coreComponents.configuration.resolve(
       // [fl]
       //
       //
@@ -85,9 +83,9 @@ object DnsCacheSupport {
 
         case AsyncDnsNameResolution(dnsServers) =>
           if (hostNameAliases.isEmpty) {
-            new CacheOverrideNameResolver(httpEngine.dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers), new DefaultDnsCache)
+            new CacheOverrideNameResolver(httpEngine.newAsyncDnsNameResolver(dnsServers), new DefaultDnsCache)
           } else {
-            new AliasesAwareNameResolver(hostNameAliases, httpEngine.dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers))
+            new AliasesAwareNameResolver(hostNameAliases, httpEngine.newAsyncDnsNameResolver(dnsServers))
           }
       }
     )
@@ -97,19 +95,19 @@ trait DnsCacheSupport {
 
   import DnsCacheSupport._
 
-  def configuration: GatlingConfiguration
+  def coreComponents: CoreComponents
 
-  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine, clock: Clock): Session => Session = {
+  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
 
     import httpProtocol.dnsPart._
 
     if (perUserNameResolution) {
-      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, clock, configuration))
+      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, coreComponents))
 
     } else {
       // create shared name resolver for all the users with this protocol
-      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, clock, configuration)
-      httpEngine.coreComponents.system.registerOnTermination(() => nameResolver.close())
+      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, coreComponents)
+      coreComponents.actorSystem.registerOnTermination(() => nameResolver.close())
 
       // perform close on system shutdown instead of virtual user termination as its shared
       val noopCloseNameResolver = new NameResolver[InetAddress] {

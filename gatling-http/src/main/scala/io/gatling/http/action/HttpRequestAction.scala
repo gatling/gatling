@@ -18,42 +18,44 @@ package io.gatling.http.action
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
+import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
+import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor }
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
-
-import akka.actor.ActorSystem
 
 /**
  * This is an action that sends HTTP requests
  *
- * @constructor constructs an HttpRequestAction
- * @param httpRequestDef the request definition
- * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val next: Action)
+class HttpRequestAction(
+    httpRequestDef: HttpRequestDef,
+    httpTxExecutor: HttpTxExecutor,
+    coreComponents: CoreComponents,
+    val next:       Action
+)
   extends RequestAction with NameGen {
 
   import httpRequestDef._
 
+  override def clock: Clock = coreComponents.clock
+
   override val name: String = genName("httpRequest")
 
-  override val statsEngine: StatsEngine = config.coreComponents.statsEngine
+  override def requestName: Expression[String] = httpRequestDef.requestName
 
-  override val clock: Clock = config.coreComponents.clock
-
-  override val requestName: Expression[String] = httpRequestDef.requestName
+  override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-    config.checks,
-    config.responseTransformer,
-    config.discardResponseChunks,
-    config.httpComponents.httpProtocol.responsePart.inferHtmlResources,
+    requestConfig.checks,
+    requestConfig.responseTransformer,
+    requestConfig.discardResponseChunks,
+    requestConfig.httpProtocol.responsePart.inferHtmlResources,
     clock,
-    config.coreComponents.configuration
+    coreComponents.configuration
   )
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
@@ -66,6 +68,6 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, system: ActorSystem, val
         next
       )
 
-      HttpTx.start(tx)(system)
+      httpTxExecutor.execute(tx)
     }
 }

@@ -16,36 +16,25 @@
 
 package io.gatling.http.engine
 
-import scala.util.control.NonFatal
-
-import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
-import io.gatling.http.action.HttpTx
+import io.gatling.core.CoreComponents
 import io.gatling.http.client.HttpListener
-import io.gatling.http.response
-import io.gatling.http.response.Response
+import io.gatling.http.engine.response.ResponseProcessor
+import io.gatling.http.engine.tx.HttpTx
 
 import com.typesafe.scalalogging._
-import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.buffer.ByteBuf
-
-object GatlingHttpListener extends StrictLogging {
-  private val DebugEnabled = logger.underlying.isDebugEnabled
-  private val InfoEnabled = logger.underlying.isInfoEnabled
-}
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
  *
  * It is part of the HttpRequestAction
- *
- * @constructor constructs a Gatling AsyncHandler
- * @param tx the data about the request to be sent and processed
- * @param responseProcessor the responseProcessor
  */
-class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor, clock: Clock) extends HttpListener with LazyLogging {
+class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
 
   private val responseBuilder = tx.responseBuilderFactory(tx.request.clientRequest)
+  private val clock = coreComponents.clock
   private var init = false
   private var done = false
   // [fl]
@@ -88,6 +77,7 @@ class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor, cloc
   //
   //
   //
+  //
   // [fl]
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
@@ -99,42 +89,14 @@ class GatlingHttpListener(tx: HttpTx, responseProcessor: ResponseProcessor, cloc
     if (!done) {
       responseBuilder.accumulate(chunk)
       if (last) {
-        withResponse { response =>
-          try {
-            responseProcessor.onCompleted(tx, response)
-          } catch {
-            case NonFatal(t) => sendOnThrowable(response, t)
-          }
-        }
-      }
-    }
-
-  private def withResponse(f: response.Response => Unit): Unit =
-    if (!done) {
-      done = true
-      try {
-        val response = responseBuilder.build
-        f(response)
-      } catch {
-        case NonFatal(t) => sendOnThrowable(responseBuilder.buildSafeResponse, t)
+        done = true
+        responseProcessor.onComplete(responseBuilder.buildResponse)
       }
     }
 
   override def onThrowable(throwable: Throwable): Unit = {
     responseBuilder.updateEndTimestamp()
-    withResponse { response =>
-      sendOnThrowable(response, throwable)
-    }
-  }
-
-  private def sendOnThrowable(response: Response, throwable: Throwable): Unit = {
-    val errorMessage = throwable.detailedMessage
-
-    if (GatlingHttpListener.DebugEnabled)
-      logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
-    else if (GatlingHttpListener.InfoEnabled)
-      logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
-
-    responseProcessor.onThrowable(tx, response, errorMessage)
+    logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
+    responseProcessor.onComplete(responseBuilder.buildFailure(throwable))
   }
 }

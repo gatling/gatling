@@ -17,20 +17,23 @@
 package io.gatling.jms.check
 
 import javax.jms.Message
-
-import java.util.{ HashMap => JHashMap }
+import java.util.{ Map => JMap }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.jms._
 
+object JmsSimpleCheck {
+
+  private val JmsSimpleCheckFailure = "JMS check failed".failure
+}
+
 case class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
-  override def check(response: Message, session: Session)(implicit cache: JHashMap[Any, Any]): Validation[CheckResult] = {
+  override def check(response: Message, session: Session)(implicit cache: JMap[Any, Any]): Validation[CheckResult] =
     if (func(response)) {
       CheckResult.NoopCheckResultSuccess
     } else {
-      Failure("Jms check failed")
+      JmsSimpleCheck.JmsSimpleCheckFailure
     }
-  }
 }

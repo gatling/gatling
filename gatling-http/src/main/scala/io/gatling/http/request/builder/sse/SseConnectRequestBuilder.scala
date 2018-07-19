@@ -16,7 +16,6 @@
 
 package io.gatling.http.request.builder.sse
 
-import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.action.sse.SseConnectBuilder
@@ -48,6 +47,6 @@ case class SseConnectRequestBuilder(
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName)
 
-  def build(coreComponents: CoreComponents, httpComponents: HttpComponents): Expression[Request] =
-    new SseRequestExpressionBuilder(commonAttributes, coreComponents, httpComponents).build
+  def build(httpComponents: HttpComponents): Expression[Request] =
+    new SseRequestExpressionBuilder(commonAttributes, httpComponents.httpCaches, httpComponents.httpProtocol, httpComponents.coreComponents.configuration).build
 }

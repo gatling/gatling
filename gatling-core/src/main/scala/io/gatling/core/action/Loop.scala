@@ -36,7 +36,7 @@ class Loop(
 
   private[this] var innerLoop: Action = _
 
-  private[core] def initialize(loopNext: Action, system: ActorSystem): Unit = {
+  private[core] def initialize(loopNext: Action, actorSystem: ActorSystem): Unit = {
 
     val counterIncrement = (session: Session) =>
       if (session.contains(counterName))
@@ -44,7 +44,7 @@ class Loop(
       else
         session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased, clock.nowMillis)
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, system, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, actorSystem, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
@@ -59,7 +59,7 @@ class InnerLoop(
     counterIncrement:           Session => Session,
     counterName:                String,
     evaluateConditionAfterLoop: Boolean,
-    system:                     ActorSystem,
+    actorSystem:                ActorSystem,
     val name:                   String,
     val next:                   Action
 ) extends ChainableAction {
@@ -89,7 +89,7 @@ class InnerLoop(
       if (incrementedSession.userId == lastUserId) {
         // except if we're running only one user, it's very likely we're hitting an empty loop
         // let's dispatch so we don't spin
-        system.dispatcher.execute(() => loopNext ! incrementedSession)
+        actorSystem.dispatcher.execute(() => loopNext ! incrementedSession)
 
       } else {
         loopNext ! incrementedSession

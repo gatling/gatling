@@ -25,10 +25,9 @@ import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
-import io.gatling.http.client.{ Request, SignatureCalculator }
+import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.ahc.oauth.{ ConsumerKey, RequestToken }
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.client.body.RequestBody
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.sign.OAuthSignatureCalculator
@@ -36,7 +35,7 @@ import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod }
+import io.netty.handler.codec.http.HttpMethod
 
 case class CommonAttributes(
     requestName:         Expression[String],
@@ -57,7 +56,7 @@ object RequestBuilder {
    * This is the default HTTP check used to verify that the response status is 2XX
    */
   val DefaultHttpCheck: HttpCheck = {
-    val okStatusValidator = new Validator[Int] {
+    val okStatusValidator: Validator[Int] = new Validator[Int] {
       override val name: String = OkCodes.mkString("in(", ",", ")")
       override def apply(actual: Option[Int], displayActualValue: Boolean): Validation[Option[Int]] = actual match {
         case Some(actualValue) =>
@@ -74,8 +73,8 @@ object RequestBuilder {
 
   private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
   private val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
-  val AllHeaderHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
-  val CssHeaderHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
+  val AcceptAllHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
+  val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
   def oauth1SignatureCalculator(
     consumerKey:        Expression[String],

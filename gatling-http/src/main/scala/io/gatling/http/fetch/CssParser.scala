@@ -121,9 +121,9 @@ object CssParser extends StrictLogging {
       }
     }
 
-  def extractResources(cssURI: Uri, cssContent: String): List[EmbeddedResource] = {
+  def extractResources(cssURI: Uri, cssContent: String): List[ConcurrentResource] = {
 
-    val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
+    val resources = collection.mutable.ArrayBuffer.empty[ConcurrentResource]
 
     var withinComment = false
     var withinImport = false

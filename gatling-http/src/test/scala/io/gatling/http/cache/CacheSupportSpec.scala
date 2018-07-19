@@ -19,20 +19,20 @@ package io.gatling.http.cache
 import java.nio.charset.StandardCharsets._
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.{ Clock, DefaultClock }
+import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.action.HttpTx
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
+import io.gatling.http.engine.HttpEngine
+import io.gatling.http.engine.tx.HttpTx
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpMethod, HttpResponseStatus }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders, HttpMethod, HttpResponseStatus }
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 
@@ -41,19 +41,22 @@ class CacheSupportSpec extends BaseSpec {
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val httpCaches = new HttpCaches(clock, configuration)
+  private val coreComponents = mock[CoreComponents]
+  when(coreComponents.clock).thenReturn(clock)
+  when(coreComponents.configuration).thenReturn(configuration)
+  private val httpCaches = new HttpCaches(coreComponents)
   private val httpEngine = mock[HttpEngine]
 
   class CacheContext {
 
-    val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost")).build(false)
+    private val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost")).build(false)
 
     def getResponseExpire(headers: Seq[(String, String)]) = {
       val status = mock[HttpResponseStatus]
       val body = mock[ResponseBody]
       val headersMap = new DefaultHttpHeaders
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, -1, -1)
+      val response = HttpResponse(request, EmptyHttpHeaders.INSTANCE, status, headersMap, body, Map.empty, 0, UTF_8, -1, -1)
 
       httpCaches.getResponseExpires(response)
     }
@@ -169,14 +172,14 @@ class CacheSupportSpec extends BaseSpec {
 
     when(request.getUri) thenReturn Uri.create(uri)
     when(request.getHeaders) thenReturn new DefaultHttpHeaders
-    when(caches.setNameResolver(any[HttpProtocol], any[HttpEngine], any[Clock])) thenReturn (identity[Session] _)
+    when(caches.setNameResolver(any[HttpProtocol], any[HttpEngine])) thenReturn identity[Session] _
 
     HttpTx(
       session,
       request = HttpRequest(
         requestName = "mockHttpTx",
         clientRequest = request,
-        config = HttpRequestConfig(
+        requestConfig = HttpRequestConfig(
           checks = Nil,
           responseTransformer = None,
           maxRedirects = 10,
@@ -184,8 +187,7 @@ class CacheSupportSpec extends BaseSpec {
           silent = None,
           followRedirect = true,
           discardResponseChunks = true,
-          coreComponents = mock[CoreComponents],
-          httpComponents = HttpComponents(protocol, mock[HttpEngine], caches, mock[ResponseProcessor], clock),
+          httpProtocol = protocol,
           explicitResources = Nil
         )
       ),

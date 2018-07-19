@@ -16,7 +16,7 @@
 
 package io.gatling.core.check
 
-import java.util.{ HashMap => JHashMap }
+import java.util.{ HashMap => JHashMap, Map => JMap }
 
 import scala.annotation.tailrec
 
@@ -26,44 +26,42 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: JHashMap[Any, Any] = new JHashMap(2)): (Session => Session, Option[Failure]) = {
+  // FIXME do we need a default value?
+  def check[R](response: R, session: Session, checks: List[Check[R]], computeUpdates: Boolean)(implicit preparedCache: JMap[Any, Any] = new JHashMap(2)): (Session, Session => Session, Option[Failure]) = {
 
     @tailrec
-    def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
+    def checkRec(currentSession: Session, updates: Session => Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Session => Session, Option[Failure]) =
       checks match {
+        case Nil => (currentSession, updates, failure)
 
-        case Nil => (update, failure)
+        case check :: tail =>
+          check.check(response, currentSession) match {
+            case Success(checkResult) =>
+              val newSession = checkResult.update(currentSession)
+              val newUpdates =
+                if (computeUpdates) {
+                  if (updates == Session.Identity) {
+                    checkResult.update _
+                  } else {
+                    updates andThen checkResult.update
+                  }
+                } else {
+                  updates
+                }
+              checkRec(newSession, newUpdates, tail, failure)
 
-        case head :: tail => head.check(response, session) match {
-          case Success(checkResult) =>
-            checkResult.update match {
-              case Some(checkUpdate) =>
-                checkRec(
-                  session = checkUpdate(session),
-                  tail,
-                  update = update andThen checkUpdate,
-                  failure
-                )
-              case _ =>
-                checkRec(session, tail, update, failure)
-            }
-
-          case f: Failure =>
-            failure match {
-              case None =>
-                checkRec(session, tail, update, Some(f))
-              case _ => checkRec(session, tail, update, failure)
-            }
-        }
+            case f: Failure =>
+              checkRec(currentSession, updates, tail, if (failure.isDefined) failure else Some(f))
+          }
       }
 
-    checkRec(session, checks, Session.Identity, None)
+    checkRec(session, Session.Identity, checks, None)
   }
 }
 
 trait Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: JHashMap[Any, Any]): Validation[CheckResult]
+  def check(response: R, session: Session)(implicit preparedCache: JMap[Any, Any]): Validation[CheckResult]
 }
 
 case class CheckBase[R, P, X](
@@ -75,7 +73,7 @@ case class CheckBase[R, P, X](
     saveAs:              Option[String]
 ) extends Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: JHashMap[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session)(implicit preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
 
     def memoizedPrepared: Validation[P] =
       if (preparedCache == null) {
@@ -111,11 +109,12 @@ object CheckResult {
 
 case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
 
-  def hasUpdate: Boolean = saveAs.isDefined && extractedValue.isDefined
-
-  def update: Option[Session => Session] =
-    for {
-      s <- saveAs
-      v <- extractedValue
-    } yield (session: Session) => session.set(s, v)
+  def update(session: Session): Session = {
+    val maybeUpdatedSession =
+      for {
+        s <- saveAs
+        v <- extractedValue
+      } yield session.set(s, v)
+    maybeUpdatedSession.getOrElse(session)
+  }
 }

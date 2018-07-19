@@ -19,7 +19,6 @@ package io.gatling.http.action.ws
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, RequestAction }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -28,8 +27,6 @@ import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
-import akka.actor.ActorSystem
-
 class WsConnect(
     override val requestName: Expression[String],
     wsName:                   String,
@@ -37,14 +34,14 @@ class WsConnect(
     connectCheckSequences:    List[WsFrameCheckSequence[WsFrameCheck]],
     onConnected:              Option[Action],
     httpComponents:           HttpComponents,
-    system:                   ActorSystem,
-    val statsEngine:          StatsEngine,
-    val clock:                Clock,
-    configuration:            GatlingConfiguration,
     val next:                 Action
 ) extends RequestAction with WsAction with NameGen {
 
   override val name: String = genName("wsConnect")
+
+  override def clock: Clock = httpComponents.coreComponents.clock
+
+  override def statsEngine: StatsEngine = httpComponents.coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     fetchActor(wsName, session) match {
@@ -54,7 +51,7 @@ class WsConnect(
         } yield {
           logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsActor = system.actorOf(WsActor.props(
+          val wsActor = httpComponents.coreComponents.actorSystem.actorOf(WsActor.props(
             wsName,
             request,
             requestName,
@@ -64,7 +61,7 @@ class WsConnect(
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
             clock,
-            configuration
+            httpComponents.coreComponents.configuration
           ), genName("wsActor"))
 
           wsActor ! PerformInitialConnect(session, next)

@@ -19,20 +19,26 @@ package io.gatling.http.request.builder
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
-import io.gatling.core.CoreComponents
 import io.gatling.core.body._
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.FileResource
-import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.cache.ContentCacheEntry
+import io.gatling.http.HeaderNames
+import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.client.body._
 import io.gatling.http.client.body.part.StringPart
 import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.BodyPart
 
-class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+class HttpRequestExpressionBuilder(
+    commonAttributes: CommonAttributes,
+    httpAttributes:   HttpAttributes,
+    httpCaches:       HttpCaches,
+    httpProtocol:     HttpProtocol,
+    configuration:    GatlingConfiguration
+)
+  extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
   import RequestExpressionBuilder._
 
@@ -88,20 +94,18 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       .flatMap(configureBody(session))
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
-
     httpCaches.contentCacheEntry(session, request).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
         etag.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
         lastModified.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
     }
-
     request
   }
 
   // hack because we need the request with the final uri
   override def build: Expression[Request] = {
     val exp = super.build
-    if (httpComponents.httpProtocol.requestPart.cache) {
+    if (httpProtocol.requestPart.cache) {
       session => exp(session).map(configureCachingHeaders(session))
     } else {
       exp

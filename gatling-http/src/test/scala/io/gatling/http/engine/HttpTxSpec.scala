@@ -21,10 +21,10 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.action.{ HttpTx, ResourceTx }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.Request
 import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
@@ -40,11 +40,10 @@ class HttpTxSpec extends BaseSpec {
     val coreComponents = mock[CoreComponents]
     val clock = new DefaultClock
     when(coreComponents.configuration).thenReturn(configuration)
-    when(coreComponents.system).thenReturn(mock[ActorSystem])
+    when(coreComponents.actorSystem).thenReturn(mock[ActorSystem])
     val httpEngine = mock[HttpEngine]
-    when(httpEngine.coreComponents).thenReturn(coreComponents)
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = HttpComponents(httpProtocol, httpEngine, new HttpCaches(clock, configuration), mock[ResponseProcessor], clock)
+    val httpComponents = HttpComponents(coreComponents, httpProtocol, httpEngine, new HttpCaches(coreComponents), mock[HttpTxExecutor])
 
     val configBase = HttpRequestConfig(
       checks = Nil,
@@ -54,19 +53,18 @@ class HttpTxSpec extends BaseSpec {
       silent = None,
       followRedirect = false,
       discardResponseChunks = true,
-      coreComponents = coreComponents,
-      httpComponents = httpComponents,
+      httpProtocol = httpProtocol,
       explicitResources = Nil
     )
   }
 
-  def tx(clientRequest: Request, config: HttpRequestConfig, root: Boolean) =
+  def tx(clientRequest: Request, requestConfig: HttpRequestConfig, root: Boolean) =
     HttpTx(
       null,
       request = HttpRequest(
         requestName = "mockHttpTx",
         clientRequest = clientRequest,
-        config = config
+        requestConfig = requestConfig
       ),
       responseBuilderFactory = null,
       next = mock[Action],
@@ -96,7 +94,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
-      .modify(_.httpComponents.httpProtocol.requestPart)
+      .modify(_.httpProtocol.requestPart)
       .using(_.modify(_.silentURI).setTo(Some(""".*\.js""".r.pattern)).modify(_.silentResources).setTo(false))
 
     tx(ahcRequest, config, root = true).silent shouldBe true
@@ -108,7 +106,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
-      .modify(_.httpComponents.httpProtocol.requestPart)
+      .modify(_.httpProtocol.requestPart)
       .using(_.modify(_.silentURI).setTo(None).modify(_.silentResources).setTo(true))
 
     tx(ahcRequest, config, root = false).silent shouldBe true
@@ -120,7 +118,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
-      .modify(_.httpComponents.httpProtocol.requestPart)
+      .modify(_.httpProtocol.requestPart)
       .using(_.modify(_.silentURI).setTo(None).modify(_.silentResources).setTo(true))
 
     tx(ahcRequest, config, root = true).silent shouldBe false

@@ -32,7 +32,9 @@ import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
-import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
+import io.gatling.http.engine.HttpEngine
+import io.gatling.http.engine.response.DefaultStatsProcessor
+import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
@@ -52,15 +54,16 @@ object HttpProtocol extends StrictLogging {
     def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
 
       val httpEngine = HttpEngine(coreComponents)
-      val clock = coreComponents.clock
+      val httpCaches = new HttpCaches(coreComponents)
+      val defaultStatsProcessor = new DefaultStatsProcessor(coreComponents.configuration.core.charset, coreComponents.statsEngine)
 
       httpProtocol => {
         val httpComponents = HttpComponents(
+          coreComponents,
           httpProtocol,
           httpEngine,
-          new HttpCaches(coreComponents.clock, coreComponents.configuration),
-          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(coreComponents.system),
-          clock
+          httpCaches,
+          new HttpTxExecutor(coreComponents, httpEngine, httpCaches, defaultStatsProcessor, httpProtocol)
         )
 
         httpEngine.warmpUp(httpComponents)

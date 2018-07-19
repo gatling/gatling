@@ -26,19 +26,23 @@ import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.ErrorMessage
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.HttpEngine
+import io.gatling.http.engine.tx.HttpTxExecutor
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequestDef }
 import io.gatling.http.response.ResponseBuilderFactory
 
 import akka.testkit._
-import org.mockito.Mockito._
 
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  val requestName = "foo".expressionSuccess
+  private val requestName = "foo".expressionSuccess
+
+  private val clock = new DefaultClock
 
   def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, mock[HttpRequestConfig])
 
@@ -73,7 +77,6 @@ class PollerActorSpec extends AkkaSpec {
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
 
-    verify(mockHttpEngine, never).httpClient
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
     val pollingData = poller.stateData.asInstanceOf[PollingData]
@@ -89,7 +92,6 @@ class PollerActorSpec extends AkkaSpec {
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
 
-    verify(mockHttpEngine, never).httpClient
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
     val pollingData = poller.stateData.asInstanceOf[PollingData]
@@ -110,7 +112,12 @@ class PollerActorSpec extends AkkaSpec {
         period = period,
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
-        statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, new DefaultClock)
+        httpTxExecutor = mock[HttpTxExecutor],
+        statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock),
+        clock = clock,
+        httpCaches = mock[HttpCaches],
+        httpProtocol = HttpProtocol(configuration),
+        charset = configuration.core.charset
       )
     )
 

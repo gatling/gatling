@@ -26,7 +26,7 @@ class TryMaxBuilder(times: Expression[Int], counterName: String, loopNext: Chain
     import ctx._
     val tryMaxAction = new TryMax(times, counterName, coreComponents.statsEngine, coreComponents.clock, next)
     val loopNextAction = loopNext.build(ctx, tryMaxAction)
-    tryMaxAction.initialize(loopNextAction, ctx.coreComponents.system)
+    tryMaxAction.initialize(loopNextAction, ctx.coreComponents.actorSystem)
     tryMaxAction
   }
 }

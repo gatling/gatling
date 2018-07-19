@@ -168,8 +168,8 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   val statsPaths: List[StatsPath] =
     resultsHolder.groupAndRequestsNameBuffer.map.toList.map {
       case (path @ RequestStatsPath(_, group), time) => (path, (time, group.map(_.hierarchy.size + 1).getOrElse(0)))
-      case (path @ GroupStatsPath(group), time) => (path, (time, group.hierarchy.size))
-      case _ => throw new UnsupportedOperationException
+      case (path @ GroupStatsPath(group), time)      => (path, (time, group.hierarchy.size))
+      case _                                         => throw new UnsupportedOperationException
     }.sortBy(_._2).map(_._1)
 
   def requestNames: List[String] = statsPaths.collect { case RequestStatsPath(request, _) => request }

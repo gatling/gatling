@@ -46,7 +46,7 @@ trait HttpContentCacheSupport extends ExpiresSupport {
 
   private[this] val httpContentCacheHandler = new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
-  def cacheContent(httpProtocol: HttpProtocol, request: Request, response: Response): Session => Session =
+  def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, response: Response): Session =
     if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {
       val expires = getResponseExpires(response)
       val etag = response.header(HeaderNames.ETag)
@@ -55,12 +55,12 @@ trait HttpContentCacheSupport extends ExpiresSupport {
       if (expires.isDefined || etag.isDefined || lastModified.isDefined) {
         val key = ContentCacheKey(request)
         val value = ContentCacheEntry(expires, etag, lastModified)
-        httpContentCacheHandler.addEntry(_, key, value)
+        httpContentCacheHandler.addEntry(session, key, value)
       } else {
-        Session.Identity
+        session
       }
     } else {
-      Session.Identity
+      session
     }
 
   def contentCacheEntry(session: Session, request: Request): Option[ContentCacheEntry] =

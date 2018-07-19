@@ -16,6 +16,8 @@
 
 package io.gatling.http.engine
 
+import java.net.InetSocketAddress
+
 import scala.concurrent.{ Await, Promise }
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
@@ -26,11 +28,11 @@ import io.gatling.core.session._
 import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
-import io.gatling.http.client.{ HttpClient, HttpListener, RequestBuilder }
+import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
+import io.gatling.http.resolver.ExtendedDnsNameResolver
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
@@ -38,17 +40,16 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod
 
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine =
-    new HttpEngine(coreComponents, HttpClientFactory(coreComponents), DnsNameResolverFactory(coreComponents))
+    new HttpEngine(HttpClientFactory(coreComponents), DnsNameResolverFactory(coreComponents))
 }
 
 class HttpEngine(
-    val coreComponents:         CoreComponents,
-    val httpClientFactory:      HttpClientFactory,
-    val dnsNameResolverFactory: DnsNameResolverFactory
+    httpClientFactory:      HttpClientFactory,
+    dnsNameResolverFactory: DnsNameResolverFactory
 )
-  extends ResourceFetcher with NameGen with StrictLogging {
+  extends NameGen with StrictLogging {
 
-  def httpClient: HttpClient = httpClientFactory.client
+  private val httpClient: HttpClient = httpClientFactory.client
 
   private[this] var warmedUp = false
 
@@ -103,15 +104,34 @@ class HttpEngine(
             .get(expression)
             .header("bar", expression)
             .queryParam(expression, expression)
-            .build(coreComponents, httpComponents, throttled = false)
+            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, coreComponents.configuration)
 
           Http(expression)
             .post(expression)
             .header("bar", expression)
             .formParam(expression, expression)
-            .build(coreComponents, httpComponents, throttled = false)
+            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, coreComponents.configuration)
       }
 
       logger.info("Warm up done")
+    }
+
+  def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: GatlingHttpListener): Unit =
+    if (!httpClient.isClosed) {
+      listener.start()
+      httpClient.sendRequest(ahcRequest, clientId, shared, listener)
+    }
+
+  def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: HttpListener): Unit =
+    if (!httpClient.isClosed) {
+      httpClient.sendRequest(ahcRequest, clientId, shared, listener)
+    }
+
+  def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
+    dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers)
+
+  def flushClientIdChannels(clientId: Long): Unit =
+    if (!httpClient.isClosed) {
+      httpClient.flushClientIdChannels(clientId)
     }
 }

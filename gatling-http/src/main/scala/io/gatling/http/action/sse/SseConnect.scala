@@ -19,7 +19,6 @@ package io.gatling.http.action.sse
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.{ Failure, Validation }
 import io.gatling.core.action.{ Action, RequestAction }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -28,22 +27,20 @@ import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
-import akka.actor.ActorSystem
-
 class SseConnect(
     val requestName:       Expression[String],
     sseName:               String,
     request:               Expression[Request],
     connectCheckSequences: List[SseMessageCheckSequence],
     httpComponents:        HttpComponents,
-    system:                ActorSystem,
-    val statsEngine:       StatsEngine,
-    val clock:             Clock,
-    configuration:         GatlingConfiguration,
     val next:              Action
 ) extends RequestAction with SseAction with NameGen {
 
   override val name: String = genName("sseConnect")
+
+  override def clock: Clock = httpComponents.coreComponents.clock
+
+  override def statsEngine: StatsEngine = httpComponents.coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     fetchActor(sseName, session) match {
@@ -53,7 +50,7 @@ class SseConnect(
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsActor = system.actorOf(SseActor.props(
+          val wsActor = httpComponents.coreComponents.actorSystem.actorOf(SseActor.props(
             sseName,
             request,
             requestName,
@@ -62,7 +59,7 @@ class SseConnect(
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
             clock,
-            configuration
+            httpComponents.coreComponents.configuration
           ), genName("sseActor"))
 
           wsActor ! PerformInitialConnect(session, next)

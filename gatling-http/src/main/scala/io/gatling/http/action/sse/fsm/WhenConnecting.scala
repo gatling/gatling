@@ -39,7 +39,7 @@ trait WhenConnecting { this: SseActor =>
     // [fl]
     //
     // [fl]
-    httpEngine.httpClient.sendRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener)
+    httpEngine.executeRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener)
 
     goto(Connecting) using ConnectingData(session, next, clock.nowMillis, remainingTries)
   }

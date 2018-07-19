@@ -16,20 +16,27 @@
 
 package io.gatling.http.protocol
 
-import io.gatling.commons.util.Clock
+import io.gatling.core.CoreComponents
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
+import io.gatling.http.engine.HttpEngine
+import io.gatling.http.engine.tx.HttpTxExecutor
 
-case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor, clock: Clock) extends ProtocolComponents {
+case class HttpComponents(
+    coreComponents: CoreComponents,
+    httpProtocol:   HttpProtocol,
+    httpEngine:     HttpEngine,
+    httpCaches:     HttpCaches,
+    httpTxExecutor: HttpTxExecutor
+) extends ProtocolComponents {
 
   override lazy val onStart: Session => Session =
-    (httpCaches.setNameResolver(httpProtocol, httpEngine, clock)
+    (httpCaches.setNameResolver(httpProtocol, httpEngine)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
       andThen httpCaches.setWsBaseUrl(httpProtocol))
 
   override lazy val onExit: Session => Unit =
-    session => httpEngine.httpClient.flushClientIdChannels(session.userId)
+    session => httpEngine.flushClientIdChannels(session.userId)
 }

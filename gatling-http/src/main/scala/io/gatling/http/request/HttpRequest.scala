@@ -17,11 +17,10 @@
 package io.gatling.http.request
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.CoreComponents
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.Request
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
 
 case class HttpRequestConfig(
@@ -32,19 +31,36 @@ case class HttpRequestConfig(
     silent:                Option[Boolean],
     followRedirect:        Boolean,
     discardResponseChunks: Boolean,
-    coreComponents:        CoreComponents,
-    httpComponents:        HttpComponents,
-    explicitResources:     List[HttpRequestDef]
+    explicitResources:     List[HttpRequestDef],
+    httpProtocol:          HttpProtocol
 )
 
 case class HttpRequestDef(
     requestName:   Expression[String],
     clientRequest: Expression[Request],
-    config:        HttpRequestConfig
+    requestConfig: HttpRequestConfig
 ) {
 
   def build(requestName: String, session: Session): Validation[HttpRequest] =
-    clientRequest(session).map(HttpRequest(requestName, _, config))
+    clientRequest(session).map(HttpRequest(requestName, _, requestConfig))
 }
 
-case class HttpRequest(requestName: String, clientRequest: Request, config: HttpRequestConfig)
+case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {
+
+  def isSilent(root: Boolean): Boolean = {
+
+    val requestPart = requestConfig.httpProtocol.requestPart
+
+    def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
+      case Some(silentUri) => silentUri.matcher(clientRequest.getUri.toUrl).matches
+      case None            => false
+    }
+
+    def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
+
+    requestConfig.silent match {
+      case None         => silentBecauseProtocolSilentURI || silentBecauseProtocolSilentResources
+      case Some(silent) => silent
+    }
+  }
+}

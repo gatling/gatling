@@ -27,13 +27,12 @@ import io.gatling.core.session.el._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.client.body.{ FormUrlEncodedRequestBody, RequestBody }
+import io.gatling.http.client.body.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
-import io.gatling.http.engine.{ HttpEngine, ResponseProcessor }
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
+import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.ActorSystem
-import io.netty.handler.codec.http.{ HttpHeaders, HttpMethod }
+import io.netty.handler.codec.http.HttpMethod
 import org.mockito.Mockito.when
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
@@ -43,16 +42,13 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   private val clock = new DefaultClock
   private val coreComponents = mock[CoreComponents]
   when(coreComponents.configuration).thenReturn(configuration)
-  when(coreComponents.system).thenReturn(mock[ActorSystem])
-  private val httpEngine = mock[HttpEngine]
-  when(httpEngine.coreComponents).thenReturn(coreComponents)
-  private val httpCaches = new HttpCaches(clock, configuration)
-  private val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches, mock[ResponseProcessor], clock)
+  when(coreComponents.actorSystem).thenReturn(mock[ActorSystem])
+  private val httpCaches = new HttpCaches(coreComponents)
 
-  def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
+  private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, Right(Uri.create("http://gatling.io")))
     val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
-    builder.build(coreComponents, httpComponents, throttled = false)
+    builder.build(httpCaches, HttpProtocol(configuration), throttled = false, configuration)
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {

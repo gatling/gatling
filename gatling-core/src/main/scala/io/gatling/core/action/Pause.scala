@@ -24,9 +24,9 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action) extends ExitableAction {
+class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action) extends ExitableAction {
 
-  import system._
+  import actorSystem._
 
   /**
    * Generates a duration if required or use the one given and defer
@@ -59,7 +59,7 @@ class Pause(pauseDuration: Expression[Long], system: ActorSystem, val statsEngin
         // drift is too big
         val remainingDrift = drift - durationInMillis
         logger.debug(s"Can't pause (remaining drift=${remainingDrift}ms)")
-        system.dispatcher.execute(() => next ! session.setDrift(remainingDrift))
+        dispatcher.execute(() => next ! session.setDrift(remainingDrift))
       }
     }
 

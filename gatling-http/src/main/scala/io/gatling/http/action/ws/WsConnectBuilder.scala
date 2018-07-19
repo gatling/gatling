@@ -40,7 +40,7 @@ case class WsConnectBuilder(
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val request = requestBuilder.build(coreComponents, httpComponents)
+    val request = requestBuilder.build(httpComponents)
 
     val onConnected = onConnectedChain.map { chain =>
       chain.exec(OnConnectedChainEndActionBuilder).build(ctx, next)
@@ -53,10 +53,6 @@ case class WsConnectBuilder(
       checkSequences,
       onConnected,
       httpComponents = httpComponents,
-      coreComponents.system,
-      coreComponents.statsEngine,
-      coreComponents.clock,
-      coreComponents.configuration,
       next = next
     )
   }

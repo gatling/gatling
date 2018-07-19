@@ -36,9 +36,9 @@ import akka.actor.ActorSystem
  * @param statsEngine the StatsEngine
  * @param next the next actor in the chain
  */
-class Pace(intervalExpr: Expression[Duration], counter: String, system: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
+class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
 
-  import system._
+  import actorSystem._
 
   override val name: String = genName("pace")
 

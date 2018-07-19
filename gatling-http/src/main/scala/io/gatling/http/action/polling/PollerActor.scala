@@ -16,17 +16,27 @@
 
 package io.gatling.http.action.polling
 
+import java.nio.charset.Charset
+
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.{ HttpTx, ResourceTx }
-import io.gatling.http.fetch.RegularResourceFetched
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.engine.response._
+import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor }
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequestDef
-import io.gatling.http.response.ResponseBuilderFactory
+import io.gatling.http.response.{ HttpResult, ResponseBuilderFactory }
 
 import akka.actor.Props
+
+case class FetchedResource(
+    tx:     HttpTx,
+    result: HttpResult
+)
 
 object PollerActor {
   def props(
@@ -34,9 +44,14 @@ object PollerActor {
     period:                 FiniteDuration,
     requestDef:             HttpRequestDef,
     responseBuilderFactory: ResponseBuilderFactory,
-    statsEngine:            StatsEngine
+    httpTxExecutor:         HttpTxExecutor,
+    httpCaches:             HttpCaches,
+    httpProtocol:           HttpProtocol,
+    statsEngine:            StatsEngine,
+    clock:                  Clock,
+    charset:                Charset
   ): Props =
-    Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, statsEngine))
+    Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, httpTxExecutor, httpCaches, httpProtocol, statsEngine, clock, charset))
 
   private[polling] val PollTimerName = "pollTimer"
 }
@@ -46,7 +61,12 @@ class PollerActor(
     period:                 FiniteDuration,
     requestDef:             HttpRequestDef,
     responseBuilderFactory: ResponseBuilderFactory,
-    statsEngine:            StatsEngine
+    httpTxExecutor:         HttpTxExecutor,
+    httpCaches:             HttpCaches,
+    httpProtocol:           HttpProtocol,
+    statsEngine:            StatsEngine,
+    clock:                  Clock,
+    charset:                Charset
 ) extends PollerFSM {
 
   import PollerActor.PollTimerName
@@ -72,9 +92,12 @@ class PollerActor(
           errorMessage
         }
       } yield {
-        // FIXME: we REALLY shouldn't be passing a null ref
-        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, null, Some(ResourceTx(self, httpRequest.clientRequest.getUri)))
-        HttpTx.start(nonBlockingTx)
+        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, next = null, resourceTx = None)
+        httpTxExecutor.execute(nonBlockingTx, tx => new ResponseProcessor() {
+          override def onComplete(result: HttpResult): Unit = {
+            self ! FetchedResource(tx, result)
+          }
+        })
       }
 
       outcome match {
@@ -85,11 +108,25 @@ class PollerActor(
           stay() using PollingData(session.markAsFailed, update andThen Session.MarkAsFailedUpdate)
       }
 
-    case Event(msg: RegularResourceFetched, PollingData(session, update)) =>
+    case Event(FetchedResource(tx, result), PollingData(session, update)) =>
       resetTimer()
-      stay() using PollingData(msg.sessionUpdates(session), update andThen msg.sessionUpdates)
 
-    case Event(StopPolling(nextActor, session), PollingData(oldSession, update)) =>
+      val (newSession, newUpdates) = new PollerResponseProcessor(
+        tx.copy(session = session),
+        sessionProcessor = new RootSessionProcessor(
+          !tx.silent,
+          tx.request.clientRequest,
+          tx.request.requestConfig.checks,
+          httpCaches,
+          httpProtocol,
+          clock
+        ),
+        statsProcessor = httpTxExecutor.statsProcessor(tx)
+      ).onComplete(result)
+
+      stay() using PollingData(newSession, update andThen newUpdates)
+
+    case Event(StopPolling(nextActor, session), PollingData(_, update)) =>
       cancelTimer(PollTimerName)
       nextActor ! update(session).remove(pollerName)
       stop()

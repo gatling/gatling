@@ -31,7 +31,12 @@ class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpA
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val httpRequest = requestBuilder.build(coreComponents, httpComponents, throttled)
-    new HttpRequestAction(httpRequest, coreComponents.system, next)
+    val httpRequest = requestBuilder.build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled, coreComponents.configuration)
+    new HttpRequestAction(
+      httpRequest,
+      httpComponents.httpTxExecutor,
+      coreComponents,
+      next
+    )
   }
 }

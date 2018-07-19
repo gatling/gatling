@@ -19,44 +19,64 @@ package io.gatling.http.action.polling
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.validation.{ Failure, Success }
+import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ExitableAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.engine.tx.HttpTxExecutor
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilder
 
-import akka.actor.ActorSystem
-
 class PollingStart(
-    pollerName:      String,
-    period:          Expression[FiniteDuration],
-    httpRequestDef:  HttpRequestDef,
-    system:          ActorSystem,
-    val statsEngine: StatsEngine,
-    val next:        Action
+    pollerName:     String,
+    period:         Expression[FiniteDuration],
+    coreComponents: CoreComponents,
+    httpRequestDef: HttpRequestDef,
+    httpCaches:     HttpCaches,
+    httpProtocol:   HttpProtocol,
+    httpTxExecutor: HttpTxExecutor,
+    val next:       Action
 ) extends ExitableAction with PollingAction with NameGen {
 
   import httpRequestDef._
 
   override val name = genName(pollerName)
 
-  override val clock = config.coreComponents.clock
+  override def clock = coreComponents.clock
+
+  override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-    config.checks,
-    config.responseTransformer,
-    config.discardResponseChunks,
-    config.httpComponents.httpProtocol.responsePart.inferHtmlResources,
+    requestConfig.checks,
+    requestConfig.responseTransformer,
+    requestConfig.discardResponseChunks,
+    requestConfig.httpProtocol.responsePart.inferHtmlResources,
     clock,
-    config.coreComponents.configuration
+    coreComponents.configuration
   )
 
   override def execute(session: Session): Unit = recover(session) {
 
     def startPolling(period: FiniteDuration): Unit = {
       logger.info(s"Starting poller $pollerName")
-      val pollingActor = system.actorOf(PollerActor.props(pollerName, period, httpRequestDef, responseBuilderFactory, statsEngine), name + "-actor-" + session.userId)
+      val pollingActor = coreComponents.actorSystem.actorOf(
+        PollerActor.props(
+          pollerName,
+          period,
+          httpRequestDef,
+          responseBuilderFactory,
+          httpTxExecutor,
+          httpCaches,
+          httpProtocol,
+          statsEngine,
+          clock,
+          coreComponents.configuration.core.charset
+        ),
+        name + "-actor-" + session.userId
+      )
 
       val newSession = session.set(pollerName, pollingActor)
 
@@ -65,10 +85,8 @@ class PollingStart(
     }
 
     fetchActor(pollerName, session) match {
-      case _: Success[_] =>
-        Failure(s"Unable to create a new poller with name $pollerName: Already exists")
-      case _ =>
-        for (period <- period(session)) yield startPolling(period)
+      case _: Success[_] => Failure(s"Unable to create a new poller with name $pollerName: already exists")
+      case _             => period(session).map(startPolling)
     }
   }
 }

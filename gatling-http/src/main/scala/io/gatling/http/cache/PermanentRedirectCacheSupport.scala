@@ -21,9 +21,9 @@ import scala.annotation.tailrec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.action.HttpTx
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.engine.tx.HttpTx
 
 object PermanentRedirectCacheKey {
   def apply(request: Request): PermanentRedirectCacheKey =
@@ -73,7 +73,7 @@ trait PermanentRedirectCacheSupport {
     new RequestBuilder(request, toUri).build(false)
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
-    if (origTx.request.config.httpComponents.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
+    if (origTx.request.requestConfig.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
       permanentRedirect(origTx.session, origTx.request.clientRequest) match {
         case Some((targetUri, redirectCount)) =>
 

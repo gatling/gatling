@@ -267,9 +267,9 @@ class HttpRequestSample {
     http("foo").get("bar")
       //#response-processors
 
-      // ignore when response isn't received (e.g. when connection refused)
+      // ignore when response status code is 200
       .transformResponse {
-        case response if response.isReceived =>
+        case response if response.status.code == 200 =>
           new ResponseWrapper(response) {
             override val body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8)
           }

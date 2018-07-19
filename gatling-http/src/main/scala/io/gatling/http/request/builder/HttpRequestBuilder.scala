@@ -16,14 +16,15 @@
 
 package io.gatling.http.request.builder
 
-import io.gatling.core.CoreComponents
 import io.gatling.core.body.{ Body, RawFileBodies }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.HttpRequestActionBuilder
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Status
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
 import io.gatling.http.response.Response
 
@@ -118,16 +119,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): HttpRequestBuilder =
     bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath))
 
-  /**
-   * This method builds the request that will be sent
-   *
-   * @param coreComponents the CoreComponents
-   * @param httpComponents the HttpComponents
-   * @param throttled if throttling is enabled
-   */
-  def build(coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): HttpRequestDef = {
-
-    val httpProtocol = httpComponents.httpProtocol
+  def build(httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): HttpRequestDef = {
 
     val checks =
       if (httpAttributes.ignoreDefaultChecks)
@@ -145,9 +137,9 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
     val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(httpProtocol.responsePart.responseTransformer)
 
-    val resolvedResources = httpAttributes.explicitResources.map(_.build(coreComponents, httpComponents, throttled))
+    val resolvedResources = httpAttributes.explicitResources.map(_.build(httpCaches, httpProtocol, throttled, configuration))
 
-    val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, coreComponents, httpComponents).build
+    val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
 
     val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && httpProtocol.responsePart.discardResponseChunks
 
@@ -162,9 +154,8 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
         discardResponseChunks = resolvedDiscardResponseChunks,
-        coreComponents = coreComponents,
-        httpComponents = httpComponents,
-        explicitResources = resolvedResources
+        explicitResources = resolvedResources,
+        httpProtocol = httpProtocol
       )
     )
   }

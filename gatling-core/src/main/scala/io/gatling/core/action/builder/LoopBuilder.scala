@@ -46,7 +46,7 @@ class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counte
     val safeCondition = condition.safe
     val loopAction = new Loop(safeCondition, counterName, exitASAP, loopType.timeBased, loopType.evaluateConditionAfterLoop, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
     val loopNextAction = loopNext.build(ctx, loopAction)
-    loopAction.initialize(loopNextAction, ctx.coreComponents.system)
+    loopAction.initialize(loopNextAction, ctx.coreComponents.actorSystem)
     loopAction
   }
 }

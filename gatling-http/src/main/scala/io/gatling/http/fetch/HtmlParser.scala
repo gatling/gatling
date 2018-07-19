@@ -32,13 +32,13 @@ import jodd.util.CharSequenceUtil
 sealed abstract class RawResource {
   def rawUrl: String
   def uri(rootURI: Uri): Option[Uri] = HttpHelper.resolveFromUriSilently(rootURI, rawUrl)
-  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource]
+  def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource]
 }
 case class CssRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
+  def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(CssResource)
 }
 case class RegularRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
+  def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(BasicResource)
 }
 
 case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
@@ -91,7 +91,7 @@ class HtmlParser extends StrictLogging {
     val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
     val ieVersion = userAgent.map(_.version)
 
-    val visitor = new EmptyTagVisitor {
+    val visitor: EmptyTagVisitor = new EmptyTagVisitor {
       var inHiddenCommentStack = List(false)
 
       def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit =
@@ -210,7 +210,7 @@ class HtmlParser extends StrictLogging {
     HtmlResources(rawResources, base)
   }
 
-  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[ConcurrentResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 

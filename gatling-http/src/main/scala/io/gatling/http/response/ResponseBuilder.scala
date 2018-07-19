@@ -21,11 +21,13 @@ import java.security.MessageDigest
 
 import scala.collection.breakOut
 import scala.math.max
+import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringHelper.bytes2Hex
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
@@ -35,11 +37,9 @@ import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, i
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
 object ResponseBuilder extends StrictLogging {
-
-  val EmptyHeaders = new DefaultHttpHeaders
 
   val Identity: Response => Response = identity[Response]
 
@@ -73,6 +73,8 @@ object ResponseBuilder extends StrictLogging {
       clock
     )
   }
+
+  private val MissingStatusException = new IllegalArgumentException("How come we're trying to build a response with no status?!")
 }
 
 class ResponseBuilder(
@@ -91,9 +93,9 @@ class ResponseBuilder(
   var startTimestamp: Long = _
   var endTimestamp: Long = _
   private var status: Option[HttpResponseStatus] = None
-  private var wireRequestHeaders: Option[HttpHeaders] = None
+  private var wireRequestHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE
 
-  private var headers: HttpHeaders = ResponseBuilder.EmptyHeaders
+  private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var chunks: List[ByteBuf] = Nil
   private val digests: Map[String, MessageDigest] =
     if (computeChecksums)
@@ -107,15 +109,14 @@ class ResponseBuilder(
   def updateEndTimestamp(): Unit =
     endTimestamp = clock.nowMillis
 
-  def accumulate(wireRequestHeaders: HttpHeaders): Unit = {
-    this.wireRequestHeaders = Some(wireRequestHeaders)
-  }
+  def accumulate(wireRequestHeaders: HttpHeaders): Unit =
+    this.wireRequestHeaders = wireRequestHeaders
 
   def accumulate(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
     updateEndTimestamp()
 
     this.status = Some(status)
-    if (this.headers eq ResponseBuilder.EmptyHeaders) {
+    if (this.headers eq EmptyHttpHeaders.INSTANCE) {
       this.headers = headers
       storeHtmlOrCss = inferHtmlResources && (isHtml(headers) || isCss(headers))
     } else {
@@ -144,53 +145,60 @@ class ResponseBuilder(
     .flatMap(extractCharsetFromContentType)
     .getOrElse(defaultCharset)
 
-  def build: Response = {
-    // Clock source might not be monotonic.
-    // Moreover, ProgressListener might be called AFTER ChannelHandler methods
-    // ensure response doesn't end before starting
-    endTimestamp = max(endTimestamp, startTimestamp)
+  def buildResponse: HttpResult =
+    status match {
+      case Some(s) =>
+        try {
+          // Clock source might not be monotonic.
+          // Moreover, ProgressListener might be called AFTER ChannelHandler methods
+          // ensure response doesn't end before starting
+          endTimestamp = max(endTimestamp, startTimestamp)
 
-    val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+          val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
-    val contentLength = chunks.sumBy(_.readableBytes)
+          val contentLength = chunks.sumBy(_.readableBytes)
 
-    val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
+          val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
 
-    val resolvedCharset = resolveCharset
+          val resolvedCharset = resolveCharset
 
-    val properlyOrderedChunks = chunks.reverse
-    val body: ResponseBody =
-      if (properlyOrderedChunks.isEmpty)
-        NoResponseBody
+          val properlyOrderedChunks = chunks.reverse
+          val body: ResponseBody =
+            if (properlyOrderedChunks.isEmpty)
+              NoResponseBody
 
-      else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
-        ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+            else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
+              ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-      else if (bodyUsages.contains(InputStreamResponseBodyUsage))
-        InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
+            else if (bodyUsages.contains(InputStreamResponseBodyUsage))
+              InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
 
-      else if (bodyUsages.contains(StringResponseBodyUsage))
-        StringResponseBody(properlyOrderedChunks, resolvedCharset)
+            else if (bodyUsages.contains(StringResponseBodyUsage))
+              StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
-      else if (bodyUsages.contains(CharArrayResponseBodyUsage))
-        CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+            else if (bodyUsages.contains(CharArrayResponseBodyUsage))
+              CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-      else if (isTxt(headers))
-        StringResponseBody(properlyOrderedChunks, resolvedCharset)
+            else if (isTxt(headers))
+              StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
-      else
-        ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+            else
+              ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-    chunks.foreach(_.release())
-    chunks = Nil
-    val rawResponse = HttpResponse(request, wireRequestHeaders, status, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
+          chunks.foreach(_.release())
+          chunks = Nil
+          val rawResponse = HttpResponse(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
 
-    responseTransformer match {
-      case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
-      case _                 => rawResponse
+          responseTransformer match {
+            case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
+            case _                 => rawResponse
+          }
+        } catch {
+          case NonFatal(t) => buildFailure(t)
+        }
+      case _ => buildFailure(ResponseBuilder.MissingStatusException)
     }
-  }
 
-  def buildSafeResponse: Response =
-    HttpResponse(request, wireRequestHeaders, status, headers, NoResponseBody, Map.empty, 0, resolveCharset, startTimestamp, endTimestamp)
+  def buildFailure(t: Throwable): HttpFailure =
+    HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, t.detailedMessage)
 }

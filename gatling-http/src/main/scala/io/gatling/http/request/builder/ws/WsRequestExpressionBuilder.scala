@@ -16,13 +16,19 @@
 
 package io.gatling.http.request.builder.ws
 
-import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 
-class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+class WsRequestExpressionBuilder(
+    commonAttributes: CommonAttributes,
+    httpCaches:       HttpCaches,
+    httpProtocol:     HttpProtocol,
+    configuration:    GatlingConfiguration
+)
+  extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
   override protected def baseUrl: Session => Option[String] = httpCaches.wsBaseUrl
 }

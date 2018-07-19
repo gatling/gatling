@@ -23,7 +23,6 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
-import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
@@ -31,7 +30,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ Request, SignatureCalculator, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.cookie.CookieSupport
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
@@ -47,23 +46,26 @@ object RequestExpressionBuilder {
   val ConfigureIdentity: RequestBuilderConfigure = _ => _.success
 }
 
-abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
+abstract class RequestExpressionBuilder(
+    commonAttributes: CommonAttributes,
+    httpCaches:       HttpCaches,
+    httpProtocol:     HttpProtocol,
+    configuration:    GatlingConfiguration
+)
   extends LazyLogging {
 
   import RequestExpressionBuilder._
-  protected val protocol: HttpProtocol = httpComponents.httpProtocol
-  protected val httpCaches: HttpCaches = httpComponents.httpCaches
-  protected val configuration: GatlingConfiguration = coreComponents.configuration
+
   protected val charset: Charset = configuration.core.charset
-  protected val headers: Map[String, Expression[String]] = protocol.requestPart.headers ++ commonAttributes.headers
+  protected val headers: Map[String, Expression[String]] = httpProtocol.requestPart.headers ++ commonAttributes.headers
   private val refererHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.Referer)
   protected val contentTypeHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.ContentType)
-  private val disableUrlEncoding: Boolean = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
-  private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
+  private val disableUrlEncoding: Boolean = commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
+  private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] = commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
   protected def baseUrl: Session => Option[String] =
-    if (protocol.baseUrls.size <= 1) {
-      val baseUrl = protocol.baseUrls.headOption
+    if (httpProtocol.baseUrls.size <= 1) {
+      val baseUrl = httpProtocol.baseUrls.headOption
       _ => baseUrl
     } else {
       httpCaches.baseUrl
@@ -90,11 +92,11 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
-      case Left(StaticStringExpression(staticUrl)) if protocol.baseUrls.size <= 1 =>
+      case Left(StaticStringExpression(staticUrl)) if httpProtocol.baseUrls.size <= 1 =>
         if (HttpHelper.isAbsoluteHttpUrl(staticUrl)) {
           Uri.create(staticUrl).expressionSuccess
         } else {
-          val uriV = resolveRelativeAgainstBaseUrl(staticUrl, protocol.baseUrls.headOption)
+          val uriV = resolveRelativeAgainstBaseUrl(staticUrl, httpProtocol.baseUrls.headOption)
           _ => uriV
         }
 
@@ -109,13 +111,13 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
 
   // note: DNS cache is supposed to be set early
   private def configureNameResolver(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    configuration.resolve(httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver))
+    httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
 
-  private val proxy = commonAttributes.proxy.orElse(protocol.proxyPart.proxy)
+  private val proxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
 
   private def configureProxy(requestBuilder: AhcRequestBuilder): Unit =
     proxy.foreach { proxy =>
-      if (!protocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
+      if (!httpProtocol.proxyPart.proxyExceptions.contains(requestBuilder.getUri.getHost)) {
         requestBuilder.setProxyServer(proxy)
       }
     }
@@ -137,7 +139,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     session => requestBuilder => queryParams.resolveParamJList(session).map(requestBuilder.setQueryParams)
 
   private val configureVirtualHost: RequestBuilderConfigure =
-    commonAttributes.virtualHost.orElse(protocol.enginePart.virtualHost) match {
+    commonAttributes.virtualHost.orElse(httpProtocol.enginePart.virtualHost) match {
       case None              => ConfigureIdentity
       case Some(virtualHost) => configureVirtualHost0(virtualHost)
     }
@@ -146,7 +148,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     session => requestBuilder => virtualHost(session).map(requestBuilder.setVirtualHost)
 
   protected def addDefaultHeaders(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
-    if (protocol.requestPart.autoReferer && refererHeaderIsUndefined) {
+    if (httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined) {
       RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HeaderNames.Referer, _))
     }
     requestBuilder
@@ -186,13 +188,13 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
     }
 
   private val configureRealm: RequestBuilderConfigure =
-    commonAttributes.realm.orElse(protocol.requestPart.realm) match {
+    commonAttributes.realm.orElse(httpProtocol.requestPart.realm) match {
       case Some(realm) => session => requestBuilder => realm(session).map(requestBuilder.setRealm)
       case _ => ConfigureIdentity
     }
 
   private def configureLocalAddress(session: Session, requestBuilder: AhcRequestBuilder): Unit =
-    if (protocol.enginePart.localAddresses.nonEmpty) {
+    if (httpProtocol.enginePart.localAddresses.nonEmpty) {
       httpCaches.localAddress(session).foreach(requestBuilder.setLocalAddress)
     }
 
@@ -225,7 +227,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, core
           uri <- buildURI(session)
           requestBuilder = new AhcRequestBuilder(commonAttributes.method, uri)
             .setRequestTimeout(configuration.http.ahc.requestTimeout)
-            .setHttp2Enabled(protocol.requestPart.enableHttp2)
+            .setHttp2Enabled(httpProtocol.requestPart.enableHttp2)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build(!disableUrlEncoding)
       }

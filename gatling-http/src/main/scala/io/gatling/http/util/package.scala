@@ -28,7 +28,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.http.client.body._
 import io.gatling.http.client.body.part.{ ByteArrayPart, FilePart, StringPart }
 import io.gatling.http.client.{ Param, Request }
-import io.gatling.http.response.Response
+import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util.HttpHelper.isTxt
 
 import com.typesafe.scalalogging.LazyLogging
@@ -52,32 +52,27 @@ package object util extends LazyLogging {
       buff
     }
 
-    def appendRequest(request: Request, wireRequestHeaders: Option[HttpHeaders], charset: Charset): JStringBuilder = {
+    def appendRequest(request: Request, result: HttpResult, charset: Charset): JStringBuilder = {
 
       buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
 
-      wireRequestHeaders match {
-        case Some(headers) =>
+      if (!result.wireRequestHeaders.isEmpty) {
+        buff.append("headers=").append(Eol)
+        for (header <- result.wireRequestHeaders.asScala) {
+          buff.append(header.getKey).append(": ").append(header.getValue).append(Eol)
+        }
+      } else {
+        if (!request.getHeaders.isEmpty) {
+          buff.append("headers=").append(Eol)
+          buff.appendHttpHeaders(request.getHeaders)
+        }
 
-          if (!headers.isEmpty) {
-            buff.append("headers=").append(Eol)
-            for (header <- headers.asScala) {
-              buff.append(header.getKey).append(": ").append(header.getValue).append(Eol)
-            }
+        if (!request.getCookies.isEmpty) {
+          buff.append("cookies=").append(Eol)
+          for (cookie <- request.getCookies.asScala) {
+            buff.append(cookie).append(Eol)
           }
-
-        case _ =>
-          if (!request.getHeaders.isEmpty) {
-            buff.append("headers=").append(Eol)
-            buff.appendHttpHeaders(request.getHeaders)
-          }
-
-          if (!request.getCookies.isEmpty) {
-            buff.append("cookies=").append(Eol)
-            for (cookie <- request.getCookies.asScala) {
-              buff.append(cookie).append(Eol)
-            }
-          }
+        }
       }
 
       request.getBody match {
@@ -150,34 +145,42 @@ package object util extends LazyLogging {
       buff
     }
 
-    def appendResponse(response: Response): JStringBuilder = {
+    def appendWithEol(s: String): JStringBuilder =
+      buff.append(s).append(Eol)
 
-      response.status.foreach { status =>
-        buff.append("status=").append(Eol).append(status).append(Eol)
+    def appendWithEol(o: Object): JStringBuilder =
+      buff.append(o).append(Eol)
 
-        if (!response.headers.isEmpty) {
-          buff.append("headers= ").append(Eol)
-          buff.appendHttpHeaders(response.headers).append(Eol)
-        }
+    def appendResponse(result: HttpResult): JStringBuilder = {
 
-        if (response.hasResponseBody) {
-          buff.append("body=").append(Eol)
-          if (isTxt(response.headers)) {
-            try {
-              buff.append(response.body.string)
-            } catch {
-              case NonFatal(t) =>
-                val message = "Could not decode response body"
-                logger.trace(message, t)
-                buff.append(s"$message: ${t.rootMessage}")
-            }
-          } else {
-            buff.append("<<<BINARY CONTENT>>>")
+      result match {
+        case response: Response =>
+          buff.append("status=").append(Eol).append(response.status).append(Eol)
+
+          if (!response.headers.isEmpty) {
+            buff.append("headers= ").append(Eol)
+            buff.appendHttpHeaders(response.headers).append(Eol)
           }
-        }
+
+          if (response.hasResponseBody) {
+            buff.append("body=").append(Eol)
+            if (isTxt(response.headers)) {
+              try {
+                buff.append(response.body.string)
+              } catch {
+                case NonFatal(t) =>
+                  val message = "Could not decode response body"
+                  logger.trace(message, t)
+                  buff.append(s"$message: ${t.rootMessage}")
+              }
+            } else {
+              buff.append("<<<BINARY CONTENT>>>")
+            }
+          }
+        case _ =>
       }
 
-      buff
+      buff.append(Eol)
     }
   }
 }

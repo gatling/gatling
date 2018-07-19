@@ -17,33 +17,34 @@
 package io.gatling.http.fetch
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._
 import io.gatling.http.request.HttpRequest
 
-object EmbeddedResource {
+object ConcurrentResource {
 
   val DefaultResourceChecks = List(DefaultHttpCheck)
 }
 
-sealed abstract class EmbeddedResource {
+sealed abstract class ConcurrentResource {
 
   def uri: Uri
   def acceptHeader: Expression[String]
   val url: String = uri.toString
 
-  def toRequest(session: Session, coreComponents: CoreComponents, httpComponents: HttpComponents, throttled: Boolean): Validation[HttpRequest] = {
-    val requestName = httpComponents.httpProtocol.responsePart.inferredHtmlResourcesNaming(uri)
-    val httpRequestDef = Http(requestName.expressionSuccess).get(uri).header(HeaderNames.Accept, acceptHeader).build(coreComponents, httpComponents, throttled)
+  def toRequest(session: Session, httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): Validation[HttpRequest] = {
+    val requestName = httpProtocol.responsePart.inferredHtmlResourcesNaming(uri)
+    val httpRequestDef = Http(requestName.expressionSuccess).get(uri).header(HeaderNames.Accept, acceptHeader).build(httpCaches, httpProtocol, throttled, configuration)
     httpRequestDef.build(requestName, session)
   }
 }
 
-case class CssResource(uri: Uri) extends EmbeddedResource { val acceptHeader = CssHeaderHeaderValueExpression }
+case class CssResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression }
 
-case class RegularResource(uri: Uri) extends EmbeddedResource { val acceptHeader = AllHeaderHeaderValueExpression }
+case class BasicResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression }

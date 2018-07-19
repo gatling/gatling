@@ -29,13 +29,24 @@ import io.gatling.http.util.HttpHelper
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
-abstract class Response {
-
+sealed trait HttpResult {
   def request: Request
-  def wireRequestHeaders: Option[HttpHeaders]
-  def isReceived: Boolean
+  def wireRequestHeaders: HttpHeaders
+  def startTimestamp: Long
+  def endTimestamp: Long
+}
 
-  def status: Option[HttpResponseStatus]
+case class HttpFailure(
+    request:            Request,
+    wireRequestHeaders: HttpHeaders,
+    startTimestamp:     Long,
+    endTimestamp:       Long,
+    errorMessage:       String
+) extends HttpResult
+
+sealed abstract class Response extends HttpResult {
+
+  def status: HttpResponseStatus
   def isRedirect: Boolean
 
   def header(name: CharSequence): Option[String]
@@ -50,9 +61,6 @@ abstract class Response {
   def bodyLength: Int
   def charset: Charset
 
-  def startTimestamp: Long
-  def endTimestamp: Long
-
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
     if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
     else None
@@ -60,8 +68,8 @@ abstract class Response {
 
 case class HttpResponse(
     request:            Request,
-    wireRequestHeaders: Option[HttpHeaders],
-    status:             Option[HttpResponseStatus],
+    wireRequestHeaders: HttpHeaders,
+    status:             HttpResponseStatus,
     headers:            HttpHeaders,
     body:               ResponseBody,
     checksums:          Map[String, String],
@@ -71,12 +79,7 @@ case class HttpResponse(
     endTimestamp:       Long
 ) extends Response {
 
-  override def isReceived: Boolean = status.isDefined
-
-  override val isRedirect: Boolean = status match {
-    case Some(s) => HttpHelper.isRedirect(s)
-    case _       => false
-  }
+  override val isRedirect: Boolean = HttpHelper.isRedirect(status)
 
   override def header(name: CharSequence): Option[String] = Option(headers.get(name))
   override def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
@@ -96,10 +99,9 @@ case class HttpResponse(
 class ResponseWrapper(delegate: Response) extends Response {
 
   override def request: Request = delegate.request
-  override def wireRequestHeaders: Option[HttpHeaders] = delegate.wireRequestHeaders
-  override def isReceived: Boolean = delegate.isReceived
+  override def wireRequestHeaders: HttpHeaders = delegate.wireRequestHeaders
 
-  override def status: Option[HttpResponseStatus] = delegate.status
+  override def status: HttpResponseStatus = delegate.status
   override def isRedirect: Boolean = delegate.isRedirect
 
   override def headers: HttpHeaders = delegate.headers

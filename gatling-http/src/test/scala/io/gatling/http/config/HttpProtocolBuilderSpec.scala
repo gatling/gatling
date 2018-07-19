@@ -18,15 +18,21 @@ package io.gatling.http.config
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.CoreComponents
 import io.gatling.http.cache.HttpCaches
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
 
+import org.mockito.Mockito.when
+
 class HttpProtocolBuilderSpec extends BaseSpec {
 
   val configuration = GatlingConfiguration.loadForTest()
-  val httpCaches = new HttpCaches(new DefaultClock, configuration)
+  val coreComponents = mock[CoreComponents]
+  when(coreComponents.configuration).thenReturn(configuration)
+  when(coreComponents.clock).thenReturn(new DefaultClock)
+  val httpCaches = new HttpCaches(coreComponents)
   val httpEngine = mock[HttpEngine]
   val httpProtocolBuilder = HttpProtocolBuilder(configuration)
 
