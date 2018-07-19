@@ -31,6 +31,7 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har._
 import io.gatling.recorder.scenario.template.SimulationTemplate
+import io.gatling.recorder.util.HttpUtils._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.StrictLogging
@@ -127,8 +128,8 @@ private[recorder] object ScenarioExporter extends StrictLogging {
           val acceptedHeaders = element.headers.entries.asScala.map(e => e.getKey -> e.getValue).toList
             .filterNot {
               case (headerName, headerValue) =>
-                val isFiltered = filteredHeaders.contains(headerName)
-                val isAlreadyInBaseHeaders = Option(baseHeaders.get(headerName)).contains(headerValue)
+                val isFiltered = containsIgnoreCase(filteredHeaders, headerName) || isHttp2PseudoHeader(headerName)
+                val isAlreadyInBaseHeaders = getIgnoreCase(baseHeaders, headerName).contains(headerValue)
                 val isPostWithFormParams = element.method == HttpMethod.POST.name() && headerValue.toLowerCase(Locale.ROOT).contains(HeaderValues.ApplicationFormUrlEncoded)
                 val isEmptyContentLength = headerName.equalsIgnoreCase(HeaderNames.ContentLength) && headerValue == "0"
                 isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
