@@ -45,13 +45,13 @@ object HttpProtocol extends StrictLogging {
 
   val HttpProtocolKey = new ProtocolKey {
 
-    type Protocol = HttpProtocol
-    type Components = HttpComponents
-    def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[HttpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
+    override type Protocol = HttpProtocol
+    override type Components = HttpComponents
+    override def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[HttpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
-    def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
+    override def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
-    def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
+    override def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
 
       val httpEngine = HttpEngine(coreComponents)
       val httpCaches = new HttpCaches(coreComponents)
