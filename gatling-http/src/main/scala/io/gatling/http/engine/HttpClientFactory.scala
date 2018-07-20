@@ -23,7 +23,6 @@ import io.gatling.http.client.{ HttpClient, HttpClientConfig }
 import io.gatling.http.client.impl.DefaultHttpClient
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.channel.EventLoopGroup
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
 private[gatling] object HttpClientFactory {
@@ -56,7 +55,7 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
   setSystemPropertyIfUndefined("io.netty.allocator.type", configuration.http.ahc.allocator)
   setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", configuration.http.ahc.maxThreadLocalCharBufferSize)
 
-  private[gatling] def newClientConfig(eventLoopGroup: EventLoopGroup): HttpClientConfig = {
+  private[gatling] def newClientConfig(): HttpClientConfig = {
     val clientConfig = new HttpClientConfig()
       .setConnectTimeout(ahcConfig.connectTimeout)
       .setHandshakeTimeout(ahcConfig.handshakeTimeout)
@@ -69,6 +68,7 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
       })
       .setFilterInsecureCipherSuites(ahcConfig.filterInsecureCipherSuites)
       .setWebSocketMaxFramePayloadLength(Int.MaxValue)
+      .setDefaultCharset(configuration.core.charset)
       .setUseOpenSsl(ahcConfig.useOpenSsl)
       .setUseNativeTransport(ahcConfig.useNativeTransport)
       .setSslSessionCacheSize(ahcConfig.sslSessionCacheSize)
@@ -76,6 +76,8 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
       .setDisableSslSessionResumption(ahcConfig.disableSslSessionResumption)
       .setTcpNoDelay(ahcConfig.tcpNoDelay)
       .setSoReuseAddress(ahcConfig.soReuseAddress)
+      .setEnableZeroCopy(ahcConfig.enableZeroCopy)
+      .setThreadPoolName("gatling-http")
 
     if (ahcConfig.sslEnabledCipherSuites.nonEmpty) {
       clientConfig.setEnabledSslCipherSuites(ahcConfig.sslEnabledCipherSuites.toArray)
@@ -95,8 +97,7 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
   }
 
   override def newClient: HttpClient = {
-    val eventLoopGroup = newEventLoopGroup(coreComponents.actorSystem, "gatling-http-thread")
-    val client = new DefaultHttpClient(newClientConfig(eventLoopGroup))
+    val client = new DefaultHttpClient(newClientConfig())
     coreComponents.actorSystem.registerOnTermination(client.close())
     client
   }

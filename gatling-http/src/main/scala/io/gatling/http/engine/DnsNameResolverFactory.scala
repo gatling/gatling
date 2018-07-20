@@ -17,25 +17,29 @@
 package io.gatling.http.engine
 
 import java.net.InetSocketAddress
+import java.util.concurrent.TimeUnit
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.resolver.ExtendedDnsNameResolver
 
-import akka.actor.ActorSystem
+import io.netty.channel.EventLoopGroup
+import io.netty.channel.nio.NioEventLoopGroup
+import io.netty.util.concurrent.DefaultThreadFactory
 
 object DnsNameResolverFactory {
-  def apply(coreComponents: CoreComponents): DnsNameResolverFactory =
-    new DnsNameResolverFactory(coreComponents.actorSystem, coreComponents.configuration)
+  def apply(coreComponents: CoreComponents): DnsNameResolverFactory = {
+    val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory("gatling-dns"))
+    coreComponents.actorSystem.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
+    new DnsNameResolverFactory(eventLoopGroup, coreComponents.configuration)
+  }
 }
 
-class DnsNameResolverFactory(actorSystem: ActorSystem, configuration: GatlingConfiguration) extends EventLoopGroups {
-
-  private val executor = newEventLoopGroup(actorSystem, "gatling-dns-thread")
+class DnsNameResolverFactory(eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration) extends EventLoopGroups {
 
   def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     new ExtendedDnsNameResolver(
-      executor.next(),
+      eventLoopGroup.next(),
       configuration.http.dns.queryTimeout,
       configuration.http.dns.maxQueriesPerResolve,
       dnsServers
