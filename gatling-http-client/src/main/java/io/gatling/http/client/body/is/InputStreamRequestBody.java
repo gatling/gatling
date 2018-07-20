@@ -43,4 +43,13 @@ public class InputStreamRequestBody extends RequestBody<InputStream> {
   public RequestBodyBuilder<InputStream> newBuilder() {
     return new InputStreamRequestBodyBuilder(content);
   }
+
+  @Override
+  public String toString() {
+    return "InputStreamRequestBody{" +
+      "content=" + content +
+      ", contentType=" + contentType +
+      ", charset=" + charset +
+      '}';
+  }
 }

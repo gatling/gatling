@@ -79,4 +79,13 @@ public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
       }
     }
   }
+
+  @Override
+  public String toString() {
+    return "FormUrlEncodedRequestBody{" +
+      "content=" + content +
+      ", contentType=" + contentType +
+      ", charset=" + charset +
+      '}';
+  }
 }

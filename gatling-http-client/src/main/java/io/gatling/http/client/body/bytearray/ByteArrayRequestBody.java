@@ -39,4 +39,13 @@ public class ByteArrayRequestBody extends RequestBody<byte[]> {
   public RequestBodyBuilder<byte[]> newBuilder() {
     return new ByteArrayRequestBodyBuilder(content);
   }
+
+  @Override
+  public String toString() {
+    return "ByteArrayRequestBody{" +
+      "content=" + content +
+      ", contentType=" + contentType +
+      ", charset=" + charset +
+      '}';
+  }
 }

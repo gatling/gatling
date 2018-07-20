@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
@@ -78,5 +79,15 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
       LOGGER.error("An exception occurred while getting the length of the parts", e);
       return 0L;
     }
+  }
+
+  @Override
+  public String toString() {
+    return "MultipartFormDataRequestBody{" +
+      "boundary=" + Arrays.toString(boundary) +
+      ", content=" + content +
+      ", contentType=" + contentType +
+      ", charset=" + charset +
+      '}';
   }
 }

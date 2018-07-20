@@ -49,4 +49,13 @@ public class FileRequestBody extends RequestBody<File> {
   public RequestBodyBuilder<File> newBuilder() {
     return new FileRequestBodyBuilder(content);
   }
+
+  @Override
+  public String toString() {
+    return "FileRequestBody{" +
+      "content=" + content +
+      ", contentType=" + contentType +
+      ", charset=" + charset +
+      '}';
+  }
 }

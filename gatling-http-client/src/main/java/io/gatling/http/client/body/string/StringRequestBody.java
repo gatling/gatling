@@ -47,4 +47,13 @@ public class StringRequestBody extends RequestBody<String> {
   public RequestBodyBuilder<String> newBuilder() {
     return new StringRequestBodyBuilder(content);
   }
+
+  @Override
+  public String toString() {
+    return "StringRequestBody{" +
+      "content=" + content +
+      ", contentType=" + contentType +
+      ", charset=" + charset +
+      '}';
+  }
 }
