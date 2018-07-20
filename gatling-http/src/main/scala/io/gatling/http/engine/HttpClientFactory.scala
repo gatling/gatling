@@ -43,12 +43,12 @@ private[gatling] object HttpClientFactory {
 
 private[gatling] trait HttpClientFactory {
 
-  def client: HttpClient
+  def newClient: HttpClient
 }
 
 private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
-  extends NettyFactory(coreComponents.actorSystem)
-  with HttpClientFactory
+  extends HttpClientFactory
+  with EventLoopGroups
   with StrictLogging {
 
   private val configuration = coreComponents.configuration
@@ -94,8 +94,8 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
       .setTrustManagerFactory(trustManagerFactory)
   }
 
-  override val client: HttpClient = {
-    val eventLoopGroup = newEventLoopGroup("gatling-http-thread")
+  override def newClient: HttpClient = {
+    val eventLoopGroup = newEventLoopGroup(coreComponents.actorSystem, "gatling-http-thread")
     val client = new DefaultHttpClient(newClientConfig(eventLoopGroup))
     coreComponents.actorSystem.registerOnTermination(client.close())
     client

@@ -23,9 +23,9 @@ import io.netty.channel.EventLoopGroup
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.util.concurrent.DefaultThreadFactory
 
-private[gatling] abstract class NettyFactory(system: ActorSystem) {
+private[gatling] trait EventLoopGroups {
 
-  protected def newEventLoopGroup(poolName: String): EventLoopGroup = {
+  protected def newEventLoopGroup(system: ActorSystem, poolName: String): EventLoopGroup = {
     val eventLoopGroup = new NioEventLoopGroup(0, new DefaultThreadFactory(poolName))
     system.registerOnTermination(eventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS))
     eventLoopGroup

@@ -29,9 +29,9 @@ object DnsNameResolverFactory {
     new DnsNameResolverFactory(coreComponents.actorSystem, coreComponents.configuration)
 }
 
-class DnsNameResolverFactory(system: ActorSystem, configuration: GatlingConfiguration) extends NettyFactory(system) {
+class DnsNameResolverFactory(actorSystem: ActorSystem, configuration: GatlingConfiguration) extends EventLoopGroups {
 
-  private val executor = newEventLoopGroup("gatling-dns-thread")
+  private val executor = newEventLoopGroup(actorSystem, "gatling-dns-thread")
 
   def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     new ExtendedDnsNameResolver(

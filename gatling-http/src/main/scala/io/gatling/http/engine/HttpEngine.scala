@@ -40,16 +40,14 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod
 
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine =
-    new HttpEngine(HttpClientFactory(coreComponents), DnsNameResolverFactory(coreComponents))
+    new HttpEngine(HttpClientFactory(coreComponents).newClient, DnsNameResolverFactory(coreComponents))
 }
 
 class HttpEngine(
-    httpClientFactory:      HttpClientFactory,
+    httpClient:             HttpClient,
     dnsNameResolverFactory: DnsNameResolverFactory
 )
   extends NameGen with StrictLogging {
-
-  private val httpClient: HttpClient = httpClientFactory.client
 
   private[this] var warmedUp = false
 
