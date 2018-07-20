@@ -43,7 +43,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 object HttpProtocol extends StrictLogging {
 
-  val HttpProtocolKey = new ProtocolKey[HttpProtocol, HttpComponents] {
+  val HttpProtocolKey: ProtocolKey[HttpProtocol, HttpComponents] = new ProtocolKey[HttpProtocol, HttpComponents] {
 
     override def protocolClass: Class[Protocol] = classOf[HttpProtocol].asInstanceOf[Class[Protocol]]
 
