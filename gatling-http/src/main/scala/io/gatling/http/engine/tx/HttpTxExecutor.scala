@@ -19,8 +19,10 @@ package io.gatling.http.engine.tx
 import io.gatling.core.CoreComponents
 import io.gatling.core.util.NameGen
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
-import io.gatling.http.engine.{ GatlingHttpListener, HttpEngine }
+import io.gatling.http.client.HttpListener
+import io.gatling.http.client.util.Pair
 import io.gatling.http.engine.response._
+import io.gatling.http.engine.{ GatlingHttpListener, HttpEngine }
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.HttpProtocol
 
@@ -36,7 +38,7 @@ class HttpTxExecutor(
 
   import coreComponents._
 
-  private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, this)
+  private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
 
   private def executeWithCache(origTx: HttpTx)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
@@ -52,7 +54,7 @@ class HttpTxExecutor(
         f(newTx)
 
       case _ =>
-        resourceFetcher.newResourceAggregatorForCachedPage(uri, tx) match {
+        resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
           case Some(aggregator) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             aggregator.start(tx.session)
@@ -67,13 +69,52 @@ class HttpTxExecutor(
     }
   }
 
-  def execute(origTx: HttpTx): Unit =
-    execute(origTx, (tx: HttpTx) => {
-      tx.resourceTx match {
-        case Some(resourceTx) => newResourceResponseProcessor(tx, resourceTx)
-        case _                => newRootResponseProcessor(tx)
+  private def executeHttp2WithCache(origTxs: Iterable[HttpTx])(f: Iterable[HttpTx] => Unit): Unit = {
+    val cached = scala.collection.mutable.ListBuffer[HttpTx]()
+    val nonCached = scala.collection.mutable.ListBuffer[HttpTx]()
+    var session = origTxs.head.session
+
+    origTxs.foreach { tx =>
+      val updatedTx = httpCaches.applyPermanentRedirect(tx)
+      val txCacheEntry = httpCaches.contentCacheEntry(updatedTx.session, updatedTx.request.clientRequest)
+      txCacheEntry match {
+        case None | Some(ContentCacheEntry(None, _, _)) =>
+          nonCached += updatedTx
+
+        case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
+          val requestToClean = updatedTx.request.clientRequest
+          session = httpCaches.clearContentCache(session, requestToClean)
+          nonCached += updatedTx
+
+        case _ =>
+          cached += updatedTx
       }
-    })
+    }
+
+    f(nonCached.map(_.copy(session = session)))
+
+    cached.map(_.copy(session = session)).foreach { tx =>
+      val uri = tx.request.clientRequest.getUri
+      resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
+        case Some(aggregator) =>
+          logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+          aggregator.start(tx.session)
+
+        case _ =>
+          logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+          tx.resourceTx match {
+            case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
+            case _                               =>
+          }
+      }
+    }
+  }
+
+  def execute(origTx: HttpTx): Unit =
+    execute(origTx, responseProcessorFactory)
+
+  def execute(origTxs: Iterable[HttpTx]): Unit =
+    execute(origTxs, responseProcessorFactory)
 
   def execute(origTx: HttpTx, responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
     executeWithCache(origTx) { tx =>
@@ -88,6 +129,30 @@ class HttpTxExecutor(
         throttler.throttle(tx.session.scenario, () => httpEngine.executeRequest(ahcRequest, clientId, shared, listener))
       else
         httpEngine.executeRequest(ahcRequest, clientId, shared, listener)
+    }
+
+  def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit = {
+    executeHttp2WithCache(origTxs) { txs =>
+      val headTx = txs.head
+      txs.foreach(tx => logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"))
+      val requestsAndListeners = txs.map { tx =>
+        val listener: HttpListener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
+        new Pair(tx.request.clientRequest, listener)
+      }
+      val clientId = headTx.session.userId
+      val shared = headTx.request.requestConfig.httpProtocol.enginePart.shareConnections
+
+      if (txs.head.request.requestConfig.throttled)
+        throttler.throttle(headTx.session.scenario, () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared))
+      else
+        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared)
+    }
+  }
+
+  private val responseProcessorFactory: HttpTx => ResponseProcessor = tx =>
+    tx.resourceTx match {
+      case Some(resourceTx) => newResourceResponseProcessor(tx, resourceTx)
+      case _                => newRootResponseProcessor(tx)
     }
 
   private def newRootResponseProcessor(tx: HttpTx): ResponseProcessor =

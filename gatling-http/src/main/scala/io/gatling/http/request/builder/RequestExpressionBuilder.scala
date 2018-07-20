@@ -225,9 +225,7 @@ abstract class RequestExpressionBuilder(
   }
 
   def build: Expression[Request] =
-    (session: Session) => {
-      //      requestBuilder.setCharset(charset)
-
+    session =>
       safely(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
@@ -235,9 +233,7 @@ abstract class RequestExpressionBuilder(
             .setDefaultCharset(configuration.core.charset)
             .setFixUrlEncoding(!disableUrlEncoding)
             .setRequestTimeout(configuration.http.ahc.requestTimeout)
-            .setHttp2Enabled(httpProtocol.requestPart.enableHttp2)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build
       }
-    }
 }

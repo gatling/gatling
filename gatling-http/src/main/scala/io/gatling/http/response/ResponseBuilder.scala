@@ -85,6 +85,7 @@ class ResponseBuilder(
   var storeHtmlOrCss: Boolean = _
   var startTimestamp: Long = _
   var endTimestamp: Long = _
+  private var isHttp2: Boolean = _
   private var status: Option[HttpResponseStatus] = None
   private var wireRequestHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE
 
@@ -117,6 +118,8 @@ class ResponseBuilder(
       this.headers.add(headers)
     }
   }
+
+  def setHttp2(isHttp2: Boolean): Unit = this.isHttp2 = isHttp2
 
   def accumulate(byteBuf: ByteBuf): Unit = {
     updateEndTimestamp()
@@ -180,7 +183,7 @@ class ResponseBuilder(
 
           chunks.foreach(_.release())
           chunks = Nil
-          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
+          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
         } catch {
           case NonFatal(t) => buildFailure(t)
         }

@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client;
+package io.gatling.http.protocol
 
-import io.gatling.http.client.util.Pair;
+import io.gatling.http.client.ahc.uri.Uri
 
-public interface HttpClient extends AutoCloseable {
-
-  void sendRequest(Request request, long clientId, boolean shared, HttpListener listener);
-
-  void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, boolean shared);
-
-  boolean isClosed();
-
-  void flushClientIdChannels(long clientId);
+object Remote {
+  def apply(uri: Uri): Remote = Remote(uri.getHost, uri.getExplicitPort)
 }
+
+case class Remote(hostname: String, port: Int)

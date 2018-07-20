@@ -33,7 +33,7 @@ import io.gatling.http.client.body.is.InputStreamRequestBodyBuilder
 import io.gatling.http.client.body.multipart.{ MultipartFormDataRequestBodyBuilder, StringPart }
 import io.gatling.http.client.body.string.StringRequestBodyBuilder
 import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
-import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
 
 class HttpRequestExpressionBuilder(
@@ -94,9 +94,23 @@ class HttpRequestExpressionBuilder(
     }
   }
 
+  private val configurePriorKnowledge: RequestBuilderConfigure = {
+    if (httpProtocol.requestPart.enableHttp2) { session => requestBuilder =>
+      val http2PriorKnowledge = httpCaches.isHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
+      requestBuilder
+        .setHttp2Enabled(true)
+        .setAlpnRequired(http2PriorKnowledge.forall(_ == true)) // ALPN is necessary only if we know that this remote is using HTTP/2 or if we still don't know
+        .setHttp2PriorKnowledge(http2PriorKnowledge.contains(true))
+        .success
+    } else {
+      ConfigureIdentity
+    }
+  }
+
   override protected def configureRequestBuilder(session: Session, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
     super.configureRequestBuilder(session, requestBuilder)
       .flatMap(configureBody(session))
+      .flatMap(configurePriorKnowledge(session))
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
     httpCaches.contentCacheEntry(session, request).foreach {

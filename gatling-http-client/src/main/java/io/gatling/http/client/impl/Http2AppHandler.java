@@ -116,6 +116,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       boolean last = httpContent instanceof LastHttpContent;
       tx.listener.onHttpResponseBodyChunk(httpContent.content(), last);
       if (last) {
+        tx.requestTimeout.cancel();
         channelPool.offer(ctx.channel());
       }
     }

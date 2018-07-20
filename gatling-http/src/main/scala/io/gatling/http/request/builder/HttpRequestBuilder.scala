@@ -16,7 +16,6 @@
 
 package io.gatling.http.request.builder
 
-import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -27,7 +26,6 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Status
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
-import io.gatling.http.response.Response
 
 import com.softwaremill.quicklens._
 

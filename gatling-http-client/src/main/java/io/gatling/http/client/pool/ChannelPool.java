@@ -48,11 +48,11 @@ public class ChannelPool {
       .computeIfAbsent(key.remoteKey, k -> new  ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
   }
 
-  private boolean isHttp1(Channel channel) {
+  private static boolean isHttp1(Channel channel) {
     return channel.pipeline().get(DefaultHttpClient.APP_HTTP_HANDLER) != null;
   }
 
-  private boolean isHttp2(Channel channel) {
+  public static boolean isHttp2(Channel channel) {
     return !isHttp1(channel);
   }
 

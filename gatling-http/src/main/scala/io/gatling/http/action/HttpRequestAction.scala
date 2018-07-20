@@ -59,7 +59,6 @@ class HttpRequestAction(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     httpRequestDef.build(requestName, session).map { httpRequest =>
-
       val tx = HttpTx(
         session,
         httpRequest,

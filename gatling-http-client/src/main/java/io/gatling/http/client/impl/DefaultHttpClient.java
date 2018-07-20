@@ -30,6 +30,7 @@ import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.DigestRealm;
 import io.gatling.http.client.realm.Realm;
 import io.gatling.http.client.ssl.Tls;
+import io.gatling.http.client.util.Pair;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -48,6 +49,8 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
@@ -68,20 +71,23 @@ public class DefaultHttpClient implements HttpClient {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
   }
 
-  public static final String PINNED_HANDLER = "pinned";
-  public static final String PROXY_HANDLER = "proxy";
-  public static final String SSL_HANDLER = "ssl";
-  public static final String HTTP_CLIENT_CODEC = "http";
-  public static final String HTTP2_HANDLER = "http2";
-  public static final String INFLATER_HANDLER = "inflater";
-  public static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
-  public static final String DIGEST_AUTH_HANDLER = "digest";
-  public static final String WS_OBJECT_AGGREGATOR = "ws-aggregator";
-  public static final String WS_COMPRESSION = "ws-compression";
-  public static final String APP_WS_HANDLER = "app-ws";
-  public static final String ALPN_HANDLER = "alpn";
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultHttpClient.class);
+
+  private static final String PINNED_HANDLER = "pinned";
+  private static final String PROXY_HANDLER = "proxy";
+  private static final String SSL_HANDLER = "ssl";
+  private static final String HTTP_CLIENT_CODEC = "http";
+  private static final String HTTP2_HANDLER = "http2";
+  private static final String INFLATER_HANDLER = "inflater";
+  private static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
+  private static final String DIGEST_AUTH_HANDLER = "digest";
+  private static final String WS_OBJECT_AGGREGATOR = "ws-aggregator";
+  private static final String WS_COMPRESSION = "ws-compression";
+  private static final String APP_WS_HANDLER = "app-ws";
+  private static final String ALPN_HANDLER = "alpn";
+  private static final String APP_HTTP2_HANDLER = "app-http2";
+
   public static final String APP_HTTP_HANDLER = "app-http";
-  public static final String APP_HTTP2_HANDLER = "app-http2";
 
   private HttpClientCodec newHttpClientCodec() {
     return new HttpClientCodec(
@@ -267,12 +273,46 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
+    listener.onSend();
+    if (request.getUri().isSecured() && request.isHttp2Enabled() && config.isDisableHttpsEndpointIdentificationAlgorithm()) {
+      listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work with HttpsEndpointIdentificationAlgorithm disabled."));
+      return;
+    }
+
     EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
 
     if (eventLoop.inEventLoop()) {
       sendRequestInEventLoop(request, clientId, shared, listener, eventLoop);
     } else {
       eventLoop.execute(() -> sendRequestInEventLoop(request, clientId, shared, listener, eventLoop));
+    }
+  }
+
+  @Override
+  public void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, boolean shared) {
+    if (isClosed()) {
+      return;
+    }
+    for (Pair<Request, HttpListener> pair: requestsAndListeners) {
+      pair.getRight().onSend();
+    }
+
+    Request headRequest = requestsAndListeners[0].getLeft();
+
+    if (headRequest.getUri().isSecured() && headRequest.isHttp2Enabled() && config.isDisableHttpsEndpointIdentificationAlgorithm()) {
+      for (Pair<Request, HttpListener> requestAndListener: requestsAndListeners) {
+        HttpListener listener = requestAndListener.getRight();
+        listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work with HttpsEndpointIdentificationAlgorithm disabled."));
+      }
+      return;
+    }
+
+    EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
+
+    if (eventLoop.inEventLoop()) {
+      sendHttp2RequestsInEventLoop(requestsAndListeners, clientId, shared, eventLoop);
+    } else {
+      eventLoop.execute(() -> sendHttp2RequestsInEventLoop(requestsAndListeners, clientId, shared, eventLoop));
     }
   }
 
@@ -287,16 +327,31 @@ public class DefaultHttpClient implements HttpClient {
     return resources;
   }
 
-  private void sendRequestInEventLoop(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
-
+  private HttpTx buildTx(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
     RequestTimeout requestTimeout = RequestTimeout.scheduleRequestTimeout(request.getRequestTimeout(), listener, eventLoop);
     ChannelPoolKey key = new ChannelPoolKey(shared ? -1 : clientId, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
-    HttpTx tx = new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry());
+    return new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry());
+  }
+
+  private void sendRequestInEventLoop(Request request, long clientId, boolean shared, HttpListener listener, EventLoop eventLoop) {
+    HttpTx tx = buildTx(request, clientId, shared, listener, eventLoop);
     sendTx(tx, eventLoop);
   }
 
-  boolean retry(HttpTx tx, EventLoop eventLoop) {
+  private void sendHttp2RequestsInEventLoop(Pair<Request, HttpListener> requestsAndListeners[], long clientId, boolean shared, EventLoop eventLoop) {
+    List<HttpTx> txs = new ArrayList<>();
 
+    for (int i = 0 ; i < requestsAndListeners.length ; i++) {
+       Pair<Request, HttpListener> requestAndListener = requestsAndListeners[i];
+       Request request = requestAndListener.getLeft();
+       HttpListener listener = requestAndListener.getRight();
+       txs.add(buildTx(request, clientId, shared, listener, eventLoop));
+    }
+
+    sendHttp2Txs(txs, eventLoop);
+  }
+
+  boolean retry(HttpTx tx, EventLoop eventLoop) {
     if (isClosed()) {
       return false;
     }
@@ -310,11 +365,6 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private void sendTx(HttpTx tx, EventLoop eventLoop) {
-
-    if (tx.request.getUri().isSecured() && tx.request.isHttp2Enabled() && config.isDisableHttpsEndpointIdentificationAlgorithm()) {
-      tx.listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work with HttpsEndpointIdentificationAlgorithm disabled."));
-      return;
-    }
 
     EventLoopResources resources = eventLoopResources(eventLoop);
     Request request = tx.request;
@@ -341,6 +391,7 @@ public class DefaultHttpClient implements HttpClient {
               String domain = tx.request.getUri().getHost();
               Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
               if (coalescedChannel != null) {
+                tx.listener.onProtocolAwareness(true);
                 sendTxWithChannel(tx, coalescedChannel);
               } else {
                 sendTxWithNewChannel(tx, resources, eventLoop, addresses);
@@ -353,10 +404,42 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
+  private void sendHttp2Txs(List<HttpTx> txs, EventLoop eventLoop) {
+    HttpTx tx = txs.get(0);
+
+    EventLoopResources resources = eventLoopResources(eventLoop);
+    Request request = tx.request;
+    HttpListener listener = tx.listener;
+    RequestTimeout requestTimeout = tx.requestTimeout;
+
+    resolveRemoteAddresses(request, eventLoop, listener, requestTimeout)
+       .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
+         if (requestTimeout.isDone()) {
+           return;
+         }
+
+         if (whenRemoteAddresses.isSuccess()) {
+           List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
+
+           String domain = tx.request.getUri().getHost();
+           Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
+           if (coalescedChannel != null) {
+             sendHttp2TxsWithChannel(txs, coalescedChannel);
+           } else {
+             sendHttp2TxsWithNewChannel(txs, resources, eventLoop, addresses);
+           }
+         }
+       });
+  }
+
   private void sendTxWithChannel(HttpTx tx, Channel channel) {
 
     if (isClosed()) {
       return;
+    }
+
+    if (ChannelPool.isHttp2(channel)) {
+      tx.listener.onProtocolAwareness(true);
     }
 
     tx.requestTimeout.setChannel(channel);
@@ -365,11 +448,24 @@ public class DefaultHttpClient implements HttpClient {
     if (realm instanceof DigestRealm) {
       // FIXME is it the right place?
       // FIXME wouldn't work for WebSocket
-      // FIXME wouldn't work woth HTTP/2
+      // FIXME wouldn't work with HTTP/2
       channel.pipeline().addBefore(APP_HTTP_HANDLER, DIGEST_AUTH_HANDLER, new DigestAuthHandler(tx, (DigestRealm) realm, config));
     }
 
     channel.write(tx);
+  }
+
+  private void sendHttp2TxsWithChannel(List<HttpTx> txs, Channel channel) {
+
+    if (isClosed()) {
+      return;
+    }
+
+    for (HttpTx tx: txs) {
+      tx.requestTimeout.setChannel(channel);
+      tx.listener.onProtocolAwareness(true);
+      channel.write(tx);
+    }
   }
 
   private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, HttpListener listener, RequestTimeout requestTimeout) {
@@ -377,7 +473,6 @@ public class DefaultHttpClient implements HttpClient {
       // directly connect to proxy over clear HTTP
       InetSocketAddress remoteAddress = ((HttpProxyServer) request.getProxyServer()).getAddress();
       return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
-
     } else {
       Promise<List<InetSocketAddress>> p = eventLoop.newPromise();
 
@@ -418,13 +513,16 @@ public class DefaultHttpClient implements HttpClient {
           resources.channelPool.register(channel, tx.key);
 
           if (tx.request.getUri().isSecured()) {
+            LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
             installSslHandler(tx, channel).addListener(f -> {
               if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+                LOGGER.error("Failed to install SslHandler");
                 channel.close();
                 return;
               }
 
-              if (tx.request.isHttp2Enabled()) {
+              if (tx.request.isAlpnRequired()) {
+                LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
                 installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
                   if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
                     channel.close();
@@ -444,6 +542,42 @@ public class DefaultHttpClient implements HttpClient {
       });
   }
 
+  private void sendHttp2TxsWithNewChannel(List<HttpTx> txs,
+                                          EventLoopResources resources,
+                                          EventLoop eventLoop,
+                                          List<InetSocketAddress> addresses) {
+    HttpTx tx = txs.get(0);
+    openNewChannel(tx.request, eventLoop, resources, addresses, tx.listener, tx.requestTimeout)
+       .addListener((Future<Channel> whenNewChannel) -> {
+         if (whenNewChannel.isSuccess()) {
+           Channel channel = whenNewChannel.getNow();
+           if (tx.requestTimeout.isDone()) {
+             channel.close();
+             return;
+           }
+
+           channelGroup.add(channel);
+           resources.channelPool.register(channel, tx.key);
+
+           LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+           installSslHandler(tx, channel).addListener(f -> {
+             if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+               channel.close();
+               return;
+             }
+             LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+             installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
+               if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
+                 channel.close();
+                 return;
+               }
+               sendHttp2TxsWithChannel(txs, channel);
+             });
+           });
+         }
+       });
+  }
+
   private Future<Channel> openNewChannel(Request request,
                                          EventLoop eventLoop,
                                          EventLoopResources resources,
@@ -460,7 +594,7 @@ public class DefaultHttpClient implements HttpClient {
         resources.wsBoostrap :
         uri.isSecured() && proxyServer != null ?
           resources.getBootstrapWithProxy(proxyServer) :
-          request.isHttp2Enabled() && request.getUri().isSecured() ? resources.http2Bootstrap : resources.http1Bootstrap;
+          request.isAlpnRequired() && request.getUri().isSecured() ? resources.http2Bootstrap : resources.http1Bootstrap;
 
     Promise<Channel> channelPromise = eventLoop.newPromise();
     openNewChannelRec(remoteAddresses, localAddress, 0, channelPromise, bootstrap, listener, requestTimeout);
@@ -519,7 +653,7 @@ public class DefaultHttpClient implements HttpClient {
 
   private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {
 
-    SslContext sslCtx = tx.request.isHttp2Enabled() ? alpnSslContext : sslContext;
+    SslContext sslCtx = tx.request.isAlpnRequired() ? alpnSslContext : sslContext;
 
     try {
       SslHandler sslHandler = SslHandlers.newSslHandler(sslCtx, channel.alloc(), tx.request.getUri(), tx.request.getVirtualHost(), config);
@@ -555,7 +689,7 @@ public class DefaultHttpClient implements HttpClient {
 
   private Future<Channel> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {
 
-    Promise<Channel> whenHttp2Handshake = channel.eventLoop().newPromise();
+    Promise<Channel> whenAlpn = channel.eventLoop().newPromise();
 
     channel.pipeline().addAfter(SSL_HANDLER, ALPN_HANDLER, new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
       @Override
@@ -563,6 +697,8 @@ public class DefaultHttpClient implements HttpClient {
 
         switch (protocol) {
           case ApplicationProtocolNames.HTTP_2:
+            LOGGER.debug("ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
+            tx.listener.onProtocolAwareness(true);
             Http2Connection connection = new DefaultHttp2Connection(false);
 
             HttpToHttp2ConnectionHandler http2Handler = new HttpToHttp2ConnectionHandlerBuilder()
@@ -571,7 +707,7 @@ public class DefaultHttpClient implements HttpClient {
               .frameListener(
                 new DelegatingDecompressorFrameListener(
                   connection,
-                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenHttp2Handshake))
+                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenAlpn))
               ).build();
 
             ctx.pipeline()
@@ -588,17 +724,23 @@ public class DefaultHttpClient implements HttpClient {
             break;
 
           case ApplicationProtocolNames.HTTP_1_1:
-
+            LOGGER.debug("ALPN led to HTTP/1 with remote {}", tx.request.getUri().getHost());
+            if (tx.request.isHttp2PriorKnowledge()) {
+              IllegalStateException e =  new IllegalStateException("HTTP/2 Prior knowledge was set on host " + tx.request.getUri().getHost() + " but it only supports HTTP/1");
+              whenAlpn.setFailure(e);
+              throw e;
+            }
+            tx.listener.onProtocolAwareness(false);
             ctx.pipeline()
               .addBefore(CHUNKED_WRITER_HANDLER, HTTP_CLIENT_CODEC, newHttpClientCodec())
               .addBefore(CHUNKED_WRITER_HANDLER, INFLATER_HANDLER, newHttpContentDecompressor())
               .addAfter(CHUNKED_WRITER_HANDLER, APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
-            whenHttp2Handshake.setSuccess(ctx.channel());
+            whenAlpn.setSuccess(ctx.channel());
             break;
 
           default:
             IllegalStateException e = new IllegalStateException("Unknown protocol: " + protocol);
-            whenHttp2Handshake.setFailure(e);
+            whenAlpn.setFailure(e);
             ctx.close();
             // FIXME do we really need to throw?
             throw e;
@@ -606,13 +748,13 @@ public class DefaultHttpClient implements HttpClient {
       }
     });
 
-    whenHttp2Handshake.addListener(f -> {
+    whenAlpn.addListener(f -> {
       if (!f.isSuccess()) {
         tx.listener.onThrowable(f.cause());
       }
     });
 
-    return whenHttp2Handshake;
+    return whenAlpn;
   }
 
   @Override

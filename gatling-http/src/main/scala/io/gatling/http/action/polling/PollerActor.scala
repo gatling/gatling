@@ -93,7 +93,7 @@ class PollerActor(
         }
       } yield {
         val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, next = null, resourceTx = None)
-        httpTxExecutor.execute(nonBlockingTx, tx => new ResponseProcessor() {
+        httpTxExecutor.execute(nonBlockingTx, (tx: HttpTx) => new ResponseProcessor() {
           override def onComplete(result: HttpResult): Unit = {
             self ! FetchedResource(tx, result)
           }

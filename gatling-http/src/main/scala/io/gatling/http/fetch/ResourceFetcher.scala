@@ -159,15 +159,25 @@ class ResourceFetcher(
       }
 
     inferredResources ::: explicitResources match {
-      case Nil       => None
-      case resources => Some(new DefaultResourceAggregator(tx, resources, httpCaches, this, httpTxExecutor, coreComponents.clock, coreComponents.configuration))
+      case Nil => None
+      case resources =>
+        val (_, filteredResources) = resources.foldLeft((Set.empty[String], List.empty[HttpRequest])) {
+          case ((urls, requests), request) =>
+            val newUrl = request.clientRequest.getUri.toUrl
+            if (urls.contains(newUrl)) {
+              (urls, requests)
+            } else {
+              (urls + newUrl, request :: requests)
+            }
+        }
+
+        Some(new DefaultResourceAggregator(tx, filteredResources.reverse, httpCaches, this, httpTxExecutor, coreComponents.clock, coreComponents.configuration))
     }
   }
 
-  // TODO HttpTx
-  def newResourceAggregatorForCachedPage(htmlDocumentURI: Uri, tx: HttpTx): Option[ResourceAggregator] = {
+  def newResourceAggregatorForCachedPage(tx: HttpTx): Option[ResourceAggregator] = {
     val inferredResources =
-      httpCaches.getCachedInferredResources(tx.request.requestConfig.httpProtocol, htmlDocumentURI) match {
+      httpCaches.getCachedInferredResources(tx.request.requestConfig.httpProtocol, tx.request.clientRequest.getUri) match {
         case null      => Nil
         case resources => resources.requests
       }

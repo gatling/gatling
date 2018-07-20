@@ -35,7 +35,8 @@ case class HttpComponents(
     (httpCaches.setNameResolver(httpProtocol, httpEngine)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
-      andThen httpCaches.setWsBaseUrl(httpProtocol))
+      andThen httpCaches.setWsBaseUrl(httpProtocol)
+      andThen httpCaches.setHttp2PriorKnowledge(httpProtocol))
 
   override lazy val onExit: Session => Unit =
     session => httpEngine.flushClientIdChannels(session.userId)

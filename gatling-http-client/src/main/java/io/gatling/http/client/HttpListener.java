@@ -31,21 +31,20 @@ public interface HttpListener {
 
   void onThrowable(Throwable e);
 
-  default void onTcpConnectAttempt(InetSocketAddress remoteAddress) {
-  }
+  default void onSend() {}
 
-  default void onTcpConnectSuccess(InetSocketAddress remoteAddress, Channel channel) {
-  }
+  default void onTcpConnectAttempt(InetSocketAddress remoteAddress) {}
 
-  default void onTcpConnectFailure(InetSocketAddress remoteAddress, Throwable cause) {
-  }
+  default void onTcpConnectSuccess(InetSocketAddress remoteAddress, Channel channel) {}
 
-  default void onTlsHandshakeAttempt() {
-  }
+  default void onTcpConnectFailure(InetSocketAddress remoteAddress, Throwable cause) {}
 
-  default void onTlsHandshakeSuccess() {
-  }
+  default void onTlsHandshakeAttempt() {}
 
-  default void onTlsHandshakeFailure(Throwable cause) {
-  }
+  default void onTlsHandshakeSuccess() {}
+
+  default void onTlsHandshakeFailure(Throwable cause) {}
+
+  default void onProtocolAwareness(boolean isHttp2) {}
+
 }

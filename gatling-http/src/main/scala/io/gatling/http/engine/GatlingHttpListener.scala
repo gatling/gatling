@@ -21,6 +21,7 @@ import io.gatling.core.CoreComponents
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
 import io.gatling.http.engine.tx.HttpTx
+import io.gatling.http.response.ResponseBuilder
 
 import com.typesafe.scalalogging._
 import io.netty.buffer.ByteBuf
@@ -44,7 +45,7 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
   //
   // [fl]
 
-  private[http] def start(): Unit =
+  override def onSend(): Unit =
     if (!init) {
       init = true
       responseBuilder.updateStartTimestamp()
@@ -96,7 +97,10 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
 
   override def onThrowable(throwable: Throwable): Unit = {
     responseBuilder.updateEndTimestamp()
-    logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
+    logger.warn(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
     responseProcessor.onComplete(responseBuilder.buildFailure(throwable))
   }
+
+  override def onProtocolAwareness(isHttp2: Boolean): Unit =
+    responseBuilder.setHttp2(isHttp2)
 }

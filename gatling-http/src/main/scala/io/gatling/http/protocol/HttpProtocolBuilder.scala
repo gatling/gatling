@@ -43,6 +43,8 @@ object HttpProtocolBuilder {
 
   def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(HttpProtocol(configuration))
+
+  val MissingEnabledHttp2ForPriorKnowledgeException = new IllegalArgumentException("Cannot set HTTP/2 prior knowledge if HTTP/2 is not enabled")
 }
 
 /**
@@ -103,6 +105,17 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
   def enableHttp2 = this.modify(_.protocol.requestPart.enableHttp2).setTo(true)
 
+  def http2PriorKnowledge(remotes: Map[String, Boolean]) =
+    this.modify(_.protocol.requestPart.http2PriorKnowledge).setTo(remotes.map {
+      case (address, isHttp2) =>
+        val remote = address.split(':') match {
+          case Array(hostname, port) => Remote(hostname, port.toInt)
+          case Array(hostname)       => Remote(hostname, 443)
+          case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
+        }
+        remote -> isHttp2
+    })
+
   // responsePart
   def disableFollowRedirect = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
   def maxRedirects(max: Int) = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
@@ -142,7 +155,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
       dnsServer.split(':') match {
         case Array(hostname, port) => new InetSocketAddress(hostname, port.toInt)
         case Array(hostname)       => new InetSocketAddress(hostname, 53)
-        case _                     => throw new IllegalArgumentException("Invalid dnsServer:" + dnsServer)
+        case _                     => throw new IllegalArgumentException("Invalid dnsServer: " + dnsServer)
       }
     }.toArray)
   def asyncDnsNameResolution(dnsServers: Array[InetSocketAddress]): HttpProtocolBuilder =

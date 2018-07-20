@@ -33,6 +33,7 @@ import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.ExtendedDnsNameResolver
+import io.gatling.http.client.util.{ Pair => JavaPair }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
@@ -115,10 +116,9 @@ class HttpEngine(
       logger.info("Warm up done")
     }
 
-  def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: GatlingHttpListener): Unit =
+  def executeHttp2Requests(requestsAndListeners: Iterable[JavaPair[Request, HttpListener]], clientId: Long, shared: Boolean): Unit =
     if (!httpClient.isClosed) {
-      listener.start()
-      httpClient.sendRequest(ahcRequest, clientId, shared, listener)
+      httpClient.sendHttp2Requests(requestsAndListeners.toArray, clientId, shared)
     }
 
   def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: HttpListener): Unit =

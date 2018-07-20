@@ -89,7 +89,8 @@ object HttpProtocol extends StrictLogging {
         silentResources = false,
         silentURI = None,
         signatureCalculator = None,
-        enableHttp2 = false
+        enableHttp2 = false,
+        http2PriorKnowledge = Map.empty
       ),
       responsePart = HttpProtocolResponsePart(
         followRedirect = true,
@@ -161,7 +162,8 @@ case class HttpProtocolRequestPart(
     silentURI:           Option[Pattern],
     silentResources:     Boolean,
     signatureCalculator: Option[Expression[SignatureCalculator]],
-    enableHttp2:         Boolean
+    enableHttp2:         Boolean,
+    http2PriorKnowledge: Map[Remote, Boolean]
 )
 
 case class HttpProtocolResponsePart(

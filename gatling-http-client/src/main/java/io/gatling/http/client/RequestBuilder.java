@@ -65,6 +65,8 @@ public class RequestBuilder {
   private SignatureCalculator signatureCalculator;
   private NameResolver<InetAddress> nameResolver = DEFAULT_NAME_RESOLVER;
   private boolean http2Enabled;
+  private boolean alpnRequired;
+  private boolean http2PriorKnowledge;
   private boolean fixUrlEncoding = true;
   private Charset defaultCharset = UTF_8;
 
@@ -87,6 +89,8 @@ public class RequestBuilder {
     signatureCalculator = request.getSignatureCalculator();
     nameResolver = request.getNameResolver();
     http2Enabled = request.isHttp2Enabled();
+    alpnRequired = request.isAlpnRequired();
+    http2PriorKnowledge = request.isHttp2PriorKnowledge();
   }
 
   public Uri getUri() {
@@ -155,6 +159,16 @@ public class RequestBuilder {
 
   public RequestBuilder setHttp2Enabled(boolean http2Enabled) {
     this.http2Enabled = http2Enabled;
+    return this;
+  }
+
+  public RequestBuilder setAlpnRequired(boolean isAlpnRequired) {
+    this.alpnRequired = isAlpnRequired;
+    return this;
+  }
+
+  public RequestBuilder setHttp2PriorKnowledge(boolean http2PriorKnowledge) {
+    this.http2PriorKnowledge = http2PriorKnowledge;
     return this;
   }
 
@@ -231,6 +245,9 @@ public class RequestBuilder {
       proxyServer,
       signatureCalculator,
       nameResolver,
-      http2Enabled);
+      http2Enabled,
+      alpnRequired,
+      http2PriorKnowledge
+      );
   }
 }

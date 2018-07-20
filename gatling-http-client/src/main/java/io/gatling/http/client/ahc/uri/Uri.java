@@ -116,6 +116,7 @@ public class Uri {
     return userInfo;
   }
 
+  //TODO rename to getExplicitPort ?
   public int getPort() {
     return port;
   }
@@ -144,6 +145,7 @@ public class Uri {
     return new URI(toUrl());
   }
 
+  //TODO rename to getPort / getImplicitPort ?
   public int getExplicitPort() {
     return port == -1 ? getSchemeDefaultPort() : port;
   }

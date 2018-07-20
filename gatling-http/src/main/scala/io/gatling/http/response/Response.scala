@@ -53,7 +53,8 @@ case class Response(
     bodyLength:         Int,
     charset:            Charset,
     startTimestamp:     Long,
-    endTimestamp:       Long
+    endTimestamp:       Long,
+    isHttp2:            Boolean
 ) extends HttpResult {
 
   val isRedirect: Boolean = HttpHelper.isRedirect(status)

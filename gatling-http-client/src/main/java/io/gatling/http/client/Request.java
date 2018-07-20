@@ -43,6 +43,8 @@ public class Request {
   private final SignatureCalculator signatureCalculator;
   private final NameResolver<InetAddress> nameResolver;
   private final boolean http2Enabled;
+  private final boolean isAlpnRequired;
+  private final boolean isHttp2PriorKnowledge;
 
   public Request(HttpMethod method,
                  Uri uri,
@@ -56,7 +58,9 @@ public class Request {
                  ProxyServer proxyServer,
                  SignatureCalculator signatureCalculator,
                  NameResolver<InetAddress> nameResolver,
-                 boolean http2Enabled) {
+                 boolean http2Enabled,
+                 boolean isAlpnRequired,
+                 boolean isHttp2PriorKnowledge) {
     this.method = method;
     this.uri = uri;
     this.headers = headers;
@@ -70,6 +74,27 @@ public class Request {
     this.signatureCalculator = signatureCalculator;
     this.nameResolver = nameResolver;
     this.http2Enabled = http2Enabled;
+    this.isAlpnRequired = isAlpnRequired;
+    this.isHttp2PriorKnowledge = isHttp2PriorKnowledge;
+  }
+
+  public Request copyWithAlpnRequiredAndPriorKnowledge(boolean isAlpnRequired, boolean isHttp2PriorKnowledge) {
+    return new Request(
+      this.method,
+      this.uri,
+      this.headers,
+      this.cookies,
+      this.body,
+      this.requestTimeout,
+      this.virtualHost,
+      this.localAddress,
+      this.realm,
+      this.proxyServer,
+      this.signatureCalculator,
+      this.nameResolver,
+      this.http2Enabled,
+      isAlpnRequired,
+      isHttp2PriorKnowledge);
   }
 
   public HttpMethod getMethod() {
@@ -124,6 +149,14 @@ public class Request {
     return http2Enabled;
   }
 
+  public boolean isAlpnRequired() {
+    return isAlpnRequired;
+  }
+
+  public boolean isHttp2PriorKnowledge() {
+    return isHttp2PriorKnowledge;
+  }
+
   @Override
   public String toString() {
     return "Request{" +
@@ -133,13 +166,15 @@ public class Request {
       ", cookies=" + cookies +
       ", body=" + body +
       ", requestTimeout=" + requestTimeout +
-      ", virtualHost=" + virtualHost +
+      ", virtualHost='" + virtualHost + '\'' +
       ", localAddress=" + localAddress +
       ", realm=" + realm +
       ", proxyServer=" + proxyServer +
       ", signatureCalculator=" + signatureCalculator +
       ", nameResolver=" + nameResolver +
       ", http2Enabled=" + http2Enabled +
+      ", isAlpnRequired=" + isAlpnRequired +
+      ", isHttp2PriorKnowledge=" + isHttp2PriorKnowledge +
       '}';
   }
 }
