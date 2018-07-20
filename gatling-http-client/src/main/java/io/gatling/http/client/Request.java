@@ -133,7 +133,7 @@ public class Request {
       ", cookies=" + cookies +
       ", body=" + body +
       ", requestTimeout=" + requestTimeout +
-      ", virtualHost='" + virtualHost + '\'' +
+      ", virtualHost='" + virtualHost +
       ", localAddress=" + localAddress +
       ", realm=" + realm +
       ", proxyServer=" + proxyServer +
