@@ -27,7 +27,7 @@ import io.gatling.core.session.el._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.client.body.FormUrlEncodedRequestBody
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.protocol.HttpProtocol
 

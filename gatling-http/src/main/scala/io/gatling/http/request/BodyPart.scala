@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.FileResource
 import io.gatling.http.client.Param
-import io.gatling.http.client.body.part.{ ByteArrayPart, FilePart, Part, StringPart }
+import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, Part, StringPart }
 
 import com.softwaremill.quicklens._
 

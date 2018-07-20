@@ -70,7 +70,7 @@ trait PermanentRedirectCacheSupport {
   }
 
   private[this] def redirectRequest(request: Request, toUri: Uri): Request =
-    new RequestBuilder(request, toUri).build(false)
+    new RequestBuilder(request, toUri).build(configuration.core.charset, false)
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.requestConfig.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {

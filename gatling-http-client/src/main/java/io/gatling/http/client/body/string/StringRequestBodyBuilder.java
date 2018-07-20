@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.string;
 
-public class WritableContent {
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
 
-  private final Object content;
+import java.nio.charset.Charset;
 
-  private final long contentLength;
+public class StringRequestBodyBuilder extends RequestBodyBuilder<String> {
 
-  public WritableContent(Object content, long contentLength) {
-    this.content = content;
-    this.contentLength = contentLength;
+  public StringRequestBodyBuilder(String content) {
+    super(content);
   }
 
-  public Object getContent() {
-    return content;
-  }
-
-  public long getContentLength() {
-    return contentLength;
+  @Override
+  public RequestBody<String> build(String contentType, Charset charset) {
+    return new StringRequestBody(content, contentType, charset);
   }
 }

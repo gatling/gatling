@@ -25,8 +25,13 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.commons.util.Throwables._
-import io.gatling.http.client.body._
-import io.gatling.http.client.body.part.{ ByteArrayPart, FilePart, StringPart }
+import io.gatling.http.client.body.bytearray.ByteArrayRequestBody
+import io.gatling.http.client.body.bytearrays.ByteArraysRequestBody
+import io.gatling.http.client.body.file.FileRequestBody
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
+import io.gatling.http.client.body.is.InputStreamRequestBody
+import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, MultipartFormDataRequestBody, StringPart }
+import io.gatling.http.client.body.string.StringRequestBody
 import io.gatling.http.client.{ Param, Request }
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util.HttpHelper.isTxt

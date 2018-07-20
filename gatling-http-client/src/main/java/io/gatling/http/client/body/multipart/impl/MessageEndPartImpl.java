@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part.impl;
+package io.gatling.http.client.body.multipart.impl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;

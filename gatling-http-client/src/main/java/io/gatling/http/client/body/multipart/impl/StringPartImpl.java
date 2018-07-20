@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part.impl;
+package io.gatling.http.client.body.multipart.impl;
 
-import io.gatling.http.client.body.part.ByteArrayPart;
+import io.gatling.http.client.body.multipart.StringPart;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 
-public class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
+public class StringPartImpl extends PartImpl {
 
   private final ByteBuf contentBuffer;
 
-  public ByteArrayPartImpl(ByteArrayPart part, byte[] boundary) {
+  public StringPartImpl(StringPart part, byte[] boundary) {
     super(part, boundary);
-    contentBuffer = Unpooled.wrappedBuffer(part.getContent());
+    contentBuffer = Unpooled.wrappedBuffer(part.getContent().getBytes(part.getCharset()));
   }
 
   @Override
   protected long getContentLength() {
-    return contentBuffer.maxCapacity();
+    return contentBuffer.capacity();
   }
 
   @Override

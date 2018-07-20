@@ -121,7 +121,8 @@ class PollerActor(
           httpProtocol,
           clock
         ),
-        statsProcessor = httpTxExecutor.statsProcessor(tx)
+        statsProcessor = httpTxExecutor.statsProcessor(tx),
+        charset
       ).onComplete(result)
 
       stay() using PollingData(newSession, update andThen newUpdates)

@@ -16,6 +16,8 @@
 
 package io.gatling.http.action.polling
 
+import java.nio.charset.Charset
+
 import scala.util.control.NonFatal
 
 import io.gatling.commons.stats.{ KO, OK }
@@ -36,7 +38,8 @@ import com.typesafe.scalalogging.StrictLogging
 class PollerResponseProcessor(
     tx:               HttpTx,
     sessionProcessor: SessionProcessor,
-    statsProcessor:   StatsProcessor
+    statsProcessor:   StatsProcessor,
+    defaultCharset:   Charset
 ) extends StrictLogging with NameGen {
 
   def onComplete(result: HttpResult): (Session, Session => Session) =
@@ -90,7 +93,7 @@ class PollerResponseProcessor(
             case Some(location) =>
               val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
               val newSession = sessionProcessor.updatedRedirectSession(tx.session, response, redirectUri)
-              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri) match {
+              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
                 case Success(redirectRequest) =>
                   Redirect(tx
                     .modify(_.session).setTo(newSession)

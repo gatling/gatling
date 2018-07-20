@@ -22,7 +22,7 @@ import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.ahc.oauth.ConsumerKey;
 import io.gatling.http.client.ahc.oauth.OAuthSignatureCalculatorInstance;
 import io.gatling.http.client.ahc.oauth.RequestToken;
-import io.gatling.http.client.body.FormUrlEncodedRequestBody;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.RequestBody;
 
 import java.security.NoSuchAlgorithmException;

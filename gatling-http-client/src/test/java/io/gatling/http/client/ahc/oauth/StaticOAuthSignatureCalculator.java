@@ -19,7 +19,7 @@ package io.gatling.http.client.ahc.oauth;
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.SignatureCalculator;
-import io.gatling.http.client.body.FormUrlEncodedRequestBody;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.RequestBody;
 import io.netty.handler.codec.http.HttpHeaderNames;
 

@@ -16,24 +16,15 @@
 
 package io.gatling.http.client.body;
 
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
-
 import java.nio.charset.Charset;
 
-public class ByteArraysRequestBody extends RequestBody<byte[][]> {
+public abstract class RequestBodyBuilder<T> {
 
-  public ByteArraysRequestBody(byte[][] content) {
-    super(content);
+  protected final T content;
+
+  public RequestBodyBuilder(T content) {
+    this.content = content;
   }
 
-  @Override
-  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) {
-    long contentLength = 0;
-    for (byte[] bytes : content) {
-      contentLength += bytes.length;
-    }
-
-    return new WritableContent(Unpooled.wrappedBuffer(content), contentLength, null);
-  }
+  public abstract RequestBody<T> build(String contentType, Charset charset);
 }

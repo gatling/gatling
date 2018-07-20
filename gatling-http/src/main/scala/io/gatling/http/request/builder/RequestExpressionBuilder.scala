@@ -229,7 +229,7 @@ abstract class RequestExpressionBuilder(
             .setRequestTimeout(configuration.http.ahc.requestTimeout)
             .setHttp2Enabled(httpProtocol.requestPart.enableHttp2)
           rb <- configureRequestBuilder(session, requestBuilder)
-        } yield rb.build(!disableUrlEncoding)
+        } yield rb.build(configuration.core.charset, !disableUrlEncoding)
       }
     }
 }

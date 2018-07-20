@@ -19,21 +19,34 @@ package io.gatling.http.client;
 import io.gatling.http.client.ahc.uri.Uri;
 import io.gatling.http.client.ahc.uri.UriEncoder;
 import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.proxy.ProxyServer;
+import io.gatling.http.client.realm.BasicRealm;
 import io.gatling.http.client.realm.Realm;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.resolver.DefaultNameResolver;
 import io.netty.resolver.NameResolver;
+import io.netty.util.AsciiString;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 
 import java.net.InetAddress;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
+import static io.gatling.http.client.ahc.util.HttpUtils.*;
+import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
+import static io.netty.handler.codec.http.HttpHeaderNames.*;
+import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
+import static io.netty.handler.codec.http.HttpHeaderNames.ORIGIN;
+
 public class RequestBuilder {
+
+  private static final AsciiString ACCEPT_ALL_HEADER_VALUE = new AsciiString("*/*");
 
   private static NameResolver<InetAddress> DEFAULT_NAME_RESOLVER = new DefaultNameResolver(ImmediateEventExecutor.INSTANCE);
 
@@ -42,7 +55,7 @@ public class RequestBuilder {
   private List<Param> queryParams;
   private HttpHeaders headers = new DefaultHttpHeaders(false);
   private List<Cookie> cookies;
-  private RequestBody<?> body;
+  private RequestBodyBuilder<?> bodyBuilder;
   private long requestTimeout;
   private String virtualHost;
   private InetAddress localAddress;
@@ -62,7 +75,7 @@ public class RequestBuilder {
     this.uri = uri;
     headers = request.getHeaders();
     cookies = request.getCookies();
-    body = request.getBody();
+    bodyBuilder = request.getBody() != null ? request.getBody().newBuilder() : null;
     requestTimeout = request.getRequestTimeout();
     virtualHost = request.getVirtualHost();
     localAddress = request.getLocalAddress();
@@ -97,8 +110,8 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setBody(RequestBody<?> body) {
-    this.body = body;
+  public RequestBuilder setBodyBuilder(RequestBodyBuilder<?> bodyBuilder) {
+    this.bodyBuilder = bodyBuilder;
     return this;
   }
 
@@ -146,9 +159,55 @@ public class RequestBuilder {
     return this;
   }
 
-  public Request build(boolean fixUrlEncoding) {
+  public Request build(Charset defaultCharset, boolean fixUrlEncoding) {
 
     Uri fullUri = UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, queryParams);
+
+    if (!headers.contains(ACCEPT)) {
+      headers.set(ACCEPT, ACCEPT_ALL_HEADER_VALUE);
+    }
+
+    if (realm instanceof BasicRealm) {
+      headers.add(AUTHORIZATION, ((BasicRealm) realm).getAuthorizationHeader());
+    }
+
+    String originalAcceptEncoding = headers.get(ACCEPT_ENCODING);
+    if (originalAcceptEncoding != null) {
+      // we don't support Brotly ATM
+      headers.set(ACCEPT_ENCODING, filterOutBrotliFromAcceptEncoding(originalAcceptEncoding));
+    }
+
+    if (isNonEmpty(cookies)) {
+      headers.set(COOKIE, ClientCookieEncoder.LAX.encode(cookies));
+    }
+
+    if (!headers.contains(ORIGIN)) {
+      headers.set(ORIGIN, originHeader(uri));
+    }
+
+    if (!headers.contains(HOST)) {
+      headers.set(HOST, virtualHost != null ? virtualHost : hostHeader(uri));
+    }
+
+    RequestBody<?> body = null;
+    if (bodyBuilder != null) {
+      Charset charset = defaultCharset;
+      String contentType = headers.get(CONTENT_TYPE);
+      if (contentType != null) {
+        Charset contentTypeCharset = extractContentTypeCharsetAttribute(contentType);
+        if (contentTypeCharset != null) {
+          charset = contentTypeCharset;
+        } else {
+          // set Content-Type header missing charset attribute
+          contentType = contentType + "; charset=" + charset.name();
+        }
+      }
+      body = bodyBuilder.build(contentType, charset);
+      String bodyContentType = body.getContentType();
+      if (bodyContentType != null) {
+        headers.set(CONTENT_TYPE, bodyContentType);
+      }
+    }
 
     return new Request(
       method,

@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.is;
 
-import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
 
+import java.io.InputStream;
 import java.nio.charset.Charset;
 
-public class ByteArrayRequestBody extends RequestBody<byte[]> {
-  public ByteArrayRequestBody(byte[] content) {
+public class InputStreamRequestBodyBuilder extends RequestBodyBuilder<InputStream> {
+
+  public InputStreamRequestBodyBuilder(InputStream content) {
     super(content);
   }
 
   @Override
-  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) {
-    return new WritableContent(Unpooled.wrappedBuffer(content), content.length, null);
+  public RequestBody<InputStream> build(String contentType, Charset charset) {
+    return new InputStreamRequestBody(content, contentType, charset);
   }
 }

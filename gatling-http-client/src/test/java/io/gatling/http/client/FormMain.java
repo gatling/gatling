@@ -17,7 +17,8 @@
 package io.gatling.http.client;
 
 import io.gatling.http.client.ahc.uri.Uri;
-import io.gatling.http.client.body.FormUrlEncodedRequestBody;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
 import io.netty.handler.codec.http.HttpMethod;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FormMain {
 
@@ -38,10 +40,10 @@ public class FormMain {
       params.add(new Param("lastname", "Mouse"));
 
       Request request = new RequestBuilder(HttpMethod.POST, Uri.create("https://www.w3schools.com/action_page.php"))
-        .setBody(new FormUrlEncodedRequestBody(params))
+        .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
         .setNameResolver(client.getNameResolver())
         .setRequestTimeout(TIMEOUT_SECONDS * 1000)
-        .build(true);
+        .build(UTF_8, true);
 
       final CountDownLatch latch1 = new CountDownLatch(1);
       client.execute(request, 0, true, new ResponseAsStringListener() {

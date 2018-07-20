@@ -35,6 +35,7 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -101,7 +102,7 @@ class HttpsProxyTest extends HttpTest {
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(server.getHttpsUrl()))
           .setHeaders(h)
           .setProxyServer(new HttpProxyServer("localhost", 0, proxy.getPort(), null))
-          .build(true);
+          .build(UTF_8, true);
 
         client.test(request, 0, new TestListener() {
           @Override

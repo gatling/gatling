@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part.impl;
+package io.gatling.http.client.body.multipart.impl;
 
 import static io.gatling.http.client.ahc.util.MiscUtils.*;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.body.part.Part;
-import io.gatling.http.client.body.part.impl.PartVisitor.*;
+import io.gatling.http.client.body.multipart.Part;
+import io.gatling.http.client.body.multipart.impl.PartVisitor.*;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 

@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.form;
 
 import io.gatling.http.client.Param;
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.WritableContent;
 import io.gatling.netty.util.ahc.StringBuilderPool;
 import io.gatling.netty.util.ahc.Utf8UrlEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.handler.codec.http.HttpHeaderValues;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -33,12 +35,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
 
-  public FormUrlEncodedRequestBody(List<Param> content) {
-    super(content);
+  public FormUrlEncodedRequestBody(List<Param> content, String contentType, Charset charset) {
+    super(content, contentType, charset);
   }
 
   @Override
-  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
 
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
 
@@ -48,7 +50,12 @@ public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
     sb.setLength(sb.length() - 1);
 
     ByteBuf bb = ByteBufUtil.writeAscii(alloc, sb);
-    return new WritableContent(bb, bb.readableBytes(), contentTypeHeader == null ? HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED : null);
+    return new WritableContent(bb, bb.readableBytes());
+  }
+
+  @Override
+  public RequestBodyBuilder<List<Param>> newBuilder() {
+    return new FormUrlEncodedRequestBodyBuilder(content);
   }
 
   private static void encodeAndAppendFormParam(StringBuilder sb, String name, String value, Charset charset) {

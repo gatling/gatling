@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part;
+package io.gatling.http.client.body.multipart;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.body.part.impl.ByteArrayPartImpl;
-import io.gatling.http.client.body.part.impl.PartImpl;
+import io.gatling.http.client.body.multipart.impl.FilePartImpl;
+import io.gatling.http.client.body.multipart.impl.PartImpl;
 
+import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class ByteArrayPart extends FileLikePart<byte[]> {
+public class FilePart extends FileLikePart<File> {
 
-  public ByteArrayPart(String name,
-                       byte[] content,
-                       Charset charset,
-                       String transferEncoding,
-                       String contentId,
-                       String dispositionType,
-                       List<Param> customHeaders,
-                       String fileName,
-                       String contentType) {
+  public FilePart(String name,
+                  File content,
+                  Charset charset,
+                  String transferEncoding,
+                  String contentId,
+                  String dispositionType,
+                  List<Param> customHeaders,
+                  String fileName,
+                  String contentType) {
     super(name,
             content,
             charset,
@@ -44,10 +45,15 @@ public class ByteArrayPart extends FileLikePart<byte[]> {
             fileName,
             contentType
     );
+    if (!content.exists()) {
+      throw new IllegalArgumentException("File part doesn't exist: " + content.getAbsolutePath());
+    } else if (!content.canRead()) {
+      throw new IllegalArgumentException("File part can't be read: " + content.getAbsolutePath());
+    }
   }
 
   @Override
   public PartImpl toImpl(byte[] boundary) {
-    return new ByteArrayPartImpl(this, boundary);
+    return new FilePartImpl(this, boundary);
   }
 }

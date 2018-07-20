@@ -14,34 +14,29 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.bytearray;
 
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.Unpooled;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 
-public abstract class RequestBody<T> {
+public class ByteArrayRequestBody extends RequestBody<byte[]> {
 
-  protected final T content;
-  protected final String contentType;
-  protected final Charset charset;
-
-  public RequestBody(T content, String contentType, Charset charset) {
-    this.content = content;
-    this.contentType = contentType;
-    this.charset = charset;
+  public ByteArrayRequestBody(byte[] content, String contentType, Charset charset) {
+    super(content, contentType, charset);
   }
 
-  public T getContent() {
-    return content;
+  @Override
+  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
+    return new WritableContent(Unpooled.wrappedBuffer(content), content.length);
   }
 
-  public String getContentType() {
-    return contentType;
+  @Override
+  public RequestBodyBuilder<byte[]> newBuilder() {
+    return new ByteArrayRequestBodyBuilder(content);
   }
-
-  public abstract WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) throws IOException;
-
-  public abstract RequestBodyBuilder<T> newBuilder();
 }

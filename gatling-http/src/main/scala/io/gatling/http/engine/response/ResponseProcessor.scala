@@ -16,6 +16,8 @@
 
 package io.gatling.http.engine.response
 
+import java.nio.charset.Charset
+
 import scala.util.control.NonFatal
 
 import io.gatling.commons.stats.{ KO, OK }
@@ -45,7 +47,8 @@ class DefaultResponseProcessor(
     tx:               HttpTx,
     sessionProcessor: SessionProcessor,
     statsProcessor:   StatsProcessor,
-    nextExecutor:     NextExecutor
+    nextExecutor:     NextExecutor,
+    defaultCharset:   Charset
 ) extends ResponseProcessor with StrictLogging with NameGen {
 
   def onComplete(result: HttpResult): Unit =
@@ -97,7 +100,7 @@ class DefaultResponseProcessor(
             case Some(location) =>
               val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
               val newSession = sessionProcessor.updatedRedirectSession(tx.session, response, redirectUri)
-              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri) match {
+              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
                 case Success(redirectRequest) =>
                   Redirect(tx
                     .modify(_.session).setTo(newSession)

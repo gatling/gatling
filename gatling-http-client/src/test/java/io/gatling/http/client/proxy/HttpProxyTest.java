@@ -33,18 +33,18 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HttpProxyTest extends HttpTest {
 
   public static class ProxyHandler extends AbstractHandler {
-    public void handle(String s, org.eclipse.jetty.server.Request r, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void handle(String s, org.eclipse.jetty.server.Request r, HttpServletRequest request, HttpServletResponse response) throws IOException {
       if ("GET".equalsIgnoreCase(request.getMethod())) {
         response.addHeader("target", r.getHttpURI().getPath());
         response.setStatus(HttpServletResponse.SC_OK);
@@ -117,7 +117,7 @@ public class HttpProxyTest extends HttpTest {
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(target.getHttpUrl()))
           .setHeaders(h)
           .setProxyServer(new HttpProxyServer("localhost", proxy.getPort(), 0, null))
-          .build(true);
+          .build(UTF_8, true);
 
         client.test(request, 0, new TestListener() {
           @Override

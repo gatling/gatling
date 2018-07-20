@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.bytearrays;
 
-public class WritableContent {
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
 
-  private final Object content;
+import java.nio.charset.Charset;
 
-  private final long contentLength;
+public class ByteArraysRequestBodyBuilder extends RequestBodyBuilder<byte[][]> {
 
-  public WritableContent(Object content, long contentLength) {
-    this.content = content;
-    this.contentLength = contentLength;
+  public ByteArraysRequestBodyBuilder(byte[][] content) {
+    super(content);
   }
 
-  public Object getContent() {
-    return content;
-  }
-
-  public long getContentLength() {
-    return contentLength;
+  @Override
+  public RequestBody<byte[][]> build(String contentType, Charset charset) {
+    return new  ByteArraysRequestBody(content, contentType, charset);
   }
 }

@@ -21,7 +21,7 @@ import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.ahc.uri.Uri;
-import io.gatling.http.client.body.InputStreamRequestBody;
+import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;

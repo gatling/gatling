@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.string;
 
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
@@ -26,17 +29,22 @@ import java.nio.charset.StandardCharsets;
 
 public class StringRequestBody extends RequestBody<String> {
 
-  public StringRequestBody(String content) {
-    super(content);
+  public StringRequestBody(String content, String contentType, Charset charset) {
+    super(content, contentType, charset);
   }
 
   @Override
-  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
     ByteBuf bb =
             charset.equals(StandardCharsets.UTF_8) ?
                     ByteBufUtil.writeUtf8(alloc, content) :
                     ByteBufUtil.encodeString(alloc, CharBuffer.wrap(content), charset);
 
-    return new WritableContent(bb, bb.readableBytes(), null);
+    return new WritableContent(bb, bb.readableBytes());
+  }
+
+  @Override
+  public RequestBodyBuilder<String> newBuilder() {
+    return new StringRequestBodyBuilder(content);
   }
 }

@@ -29,6 +29,7 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import java.util.concurrent.CountDownLatch;
 
 import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Socks5ProxyTest {
 
@@ -41,7 +42,7 @@ public class Socks5ProxyTest {
         .setProxyServer(new Socks5ProxyServer("localhost", 8889, null))
         .setNameResolver(client.getNameResolver())
         .setRequestTimeout(TIMEOUT_SECONDS * 1000)
-        .build(true);
+        .build(UTF_8, true);
 
       final CountDownLatch latch1 = new CountDownLatch(1);
       client.execute(request, 0, true, new ResponseAsStringListener() {

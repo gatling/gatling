@@ -25,8 +25,13 @@ import io.gatling.core.session._
 import io.gatling.core.util.FileResource
 import io.gatling.http.HeaderNames
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
-import io.gatling.http.client.body._
-import io.gatling.http.client.body.part.StringPart
+import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
+import io.gatling.http.client.body.bytearrays.ByteArraysRequestBodyBuilder
+import io.gatling.http.client.body.file.FileRequestBodyBuilder
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder
+import io.gatling.http.client.body.is.InputStreamRequestBodyBuilder
+import io.gatling.http.client.body.multipart.{ MultipartFormDataRequestBodyBuilder, StringPart }
+import io.gatling.http.client.body.string.StringRequestBodyBuilder
 import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.BodyPart
@@ -44,7 +49,7 @@ class HttpRequestExpressionBuilder(
 
   private val ConfigureFormParams: RequestBuilderConfigure =
     session => requestBuilder => httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
-      requestBuilder.setBody(new FormUrlEncodedRequestBody(resolvedFormParams))
+      requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(resolvedFormParams))
     }
 
   private def configureBodyParts(session: Session, requestBuilder: AhcRequestBuilder, bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
@@ -52,26 +57,26 @@ class HttpRequestExpressionBuilder(
       params <- httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session)
       stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null))
       parts <- Validation.sequence(bodyParts.map(_.toMultiPart(session)))
-    } yield requestBuilder.setBody(new MultipartFormDataRequestBody((parts ++ stringParts).asJava))
+    } yield requestBuilder.setBodyBuilder(new MultipartFormDataRequestBodyBuilder((parts ++ stringParts).asJava))
 
   private def setBody(session: Session, requestBuilder: AhcRequestBuilder, body: Body): Validation[AhcRequestBuilder] =
     body match {
-      case StringBody(string) => string(session).map(s => requestBuilder.setBody(new StringRequestBody(s)))
+      case StringBody(string) => string(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
       case RawFileBody(resourceWithCachedBytes) => resourceWithCachedBytes(session).map {
         case ResourceAndCachedBytes(resource, cachedBytes) =>
           cachedBytes match {
-            case Some(bytes) => requestBuilder.setBody(new ByteArrayRequestBody(bytes))
+            case Some(bytes) => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(bytes))
             case None =>
               resource match {
-                case FileResource(file) => requestBuilder.setBody(new FileRequestBody(file))
-                case _                  => requestBuilder.setBody(new ByteArrayRequestBody(resource.bytes))
+                case FileResource(file) => requestBuilder.setBodyBuilder(new FileRequestBodyBuilder(file))
+                case _                  => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(resource.bytes))
               }
           }
       }
-      case ByteArrayBody(bytes)                  => bytes(session).map(b => requestBuilder.setBody(new ByteArrayRequestBody(b)))
-      case CompositeByteArrayBody(byteArrays, _) => byteArrays(session).map(bs => requestBuilder.setBody(new ByteArraysRequestBody(bs.toArray)))
-      case InputStreamBody(is)                   => is(session).map(is => requestBuilder.setBody(new InputStreamRequestBody(is)))
-      case body: PebbleBody                      => body.apply(session).map(s => requestBuilder.setBody(new StringRequestBody(s)))
+      case ByteArrayBody(bytes)                  => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b)))
+      case CompositeByteArrayBody(byteArrays, _) => byteArrays(session).map(bs => requestBuilder.setBodyBuilder(new ByteArraysRequestBodyBuilder(bs.toArray)))
+      case InputStreamBody(is)                   => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
+      case body: PebbleBody                      => body.apply(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
     }
 
   private val configureBody: RequestBuilderConfigure = {

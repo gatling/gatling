@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part;
+package io.gatling.http.client.body.multipart;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.ahc.util.MiscUtils;

@@ -49,7 +49,7 @@ class CacheSupportSpec extends BaseSpec {
 
   class CacheContext {
 
-    private val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost")).build(false)
+    private val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost")).build(UTF_8, false)
 
     def getResponseExpire(headers: Seq[(String, String)]) = {
       val status = mock[HttpResponseStatus]
@@ -115,7 +115,7 @@ class CacheSupportSpec extends BaseSpec {
     var session = Session("mockSession", 0, clock.nowMillis)
 
     def addRedirect(from: String, to: String): Unit = {
-      val request = new RequestBuilder(HttpMethod.GET, Uri.create(from)).build(true)
+      val request = new RequestBuilder(HttpMethod.GET, Uri.create(from)).build(UTF_8, true)
       session = httpCaches.addRedirect(session, request, Uri.create(to))
     }
   }

@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.multipart;
 
-import static io.gatling.http.client.ahc.util.HttpUtils.*;
-import static io.gatling.http.client.ahc.util.MiscUtils.*;
-
-import io.gatling.http.client.body.part.Part;
-import io.gatling.http.client.body.part.impl.MessageEndPartImpl;
-import io.gatling.http.client.body.part.impl.MultipartChunkedInput;
-import io.gatling.http.client.body.part.impl.MultipartFileRegion;
-import io.gatling.http.client.body.part.impl.PartImpl;
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.WritableContent;
+import io.gatling.http.client.body.multipart.impl.MessageEndPartImpl;
+import io.gatling.http.client.body.multipart.impl.MultipartChunkedInput;
+import io.gatling.http.client.body.multipart.impl.MultipartFileRegion;
+import io.gatling.http.client.body.multipart.impl.PartImpl;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.handler.codec.http.HttpHeaderValues;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,29 +31,19 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-
 public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MultipartFormDataRequestBody.class);
 
-  public MultipartFormDataRequestBody(List<Part<?>> content) {
-    super(content);
+  private final byte[] boundary;
+
+  MultipartFormDataRequestBody(List<Part<?>> content, String contentType, Charset charset, byte[] boundary) {
+    super(content, contentType, charset);
+    this.boundary = boundary;
   }
 
   @Override
-  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) {
-
-    byte[] boundary;
-    String contentTypeOverride;
-    String contentTypeBoundaryAttribute = extractContentTypeBoundaryAttribute(contentTypeHeader);
-    if (contentTypeBoundaryAttribute != null) {
-      boundary = contentTypeBoundaryAttribute.getBytes(US_ASCII);
-      contentTypeOverride = null;
-    } else {
-      boundary = computeMultipartBoundary();
-      contentTypeOverride = patchContentTypeWithBoundaryAttribute(withDefault(contentTypeHeader, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
-    }
+  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
 
     List<PartImpl> partImpls = new ArrayList<>(content.size() + 1);
     for (Part<?> part: content) {
@@ -67,10 +55,15 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
     Object content = zeroCopy ? new MultipartFileRegion(partImpls, contentLength): new MultipartChunkedInput(partImpls, contentLength);
 
-    return new WritableContent(content, contentLength, contentTypeOverride);
+    return new WritableContent(content, contentLength);
   }
 
-  private long computeContentLength(List<PartImpl> partImpls) {
+  @Override
+  public RequestBodyBuilder<List<Part<?>>> newBuilder() {
+    return new MultipartFormDataRequestBodyBuilder(content);
+  }
+
+  private static long computeContentLength(List<PartImpl> partImpls) {
     try {
       long total = 0;
       for (PartImpl part : partImpls) {

@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body;
+package io.gatling.http.client.body.file;
 
+import io.gatling.http.client.body.RequestBody;
+import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.stream.ChunkedFile;
@@ -26,12 +29,12 @@ import java.nio.charset.Charset;
 
 public class FileRequestBody extends RequestBody<File> {
 
-  public FileRequestBody(File content) {
-    super(content);
+  public FileRequestBody(File content, String contentType, Charset charset) {
+    super(content, contentType, charset);
   }
 
   @Override
-  public WritableContent build(String contentTypeHeader, Charset charset, boolean zeroCopy, ByteBufAllocator alloc) throws IOException {
+  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) throws IOException {
 
     long contentLength = content.length();
 
@@ -39,6 +42,11 @@ public class FileRequestBody extends RequestBody<File> {
             new DefaultFileRegion(content, 0, contentLength) :
             new ChunkedFile(content);
 
-    return new WritableContent(file, contentLength, null);
+    return new WritableContent(file, contentLength);
+  }
+
+  @Override
+  public RequestBodyBuilder<File> newBuilder() {
+    return new FileRequestBodyBuilder(content);
   }
 }

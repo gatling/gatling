@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part.impl;
+package io.gatling.http.client.body.multipart.impl;
 
-import io.gatling.http.client.body.part.FileLikePart;
+import io.gatling.http.client.body.multipart.FileLikePart;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;

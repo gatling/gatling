@@ -16,6 +16,8 @@
 
 package io.gatling.http.engine.response
 
+import java.nio.charset.Charset
+
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
@@ -32,7 +34,7 @@ import io.netty.handler.codec.http.HttpResponseStatus._
 
 object RedirectProcessor {
 
-  def redirectRequest(originalRequest: Request, session: Session, responseStatus: HttpResponseStatus, httpProtocol: HttpProtocol, redirectUri: Uri): Validation[Request] = {
+  def redirectRequest(originalRequest: Request, session: Session, responseStatus: HttpResponseStatus, httpProtocol: HttpProtocol, redirectUri: Uri, defaultCharset: Charset): Validation[Request] = {
 
     val originalMethod = originalRequest.getMethod
 
@@ -68,7 +70,7 @@ object RedirectProcessor {
     }
 
     if (keepBody) {
-      Option(originalRequest.getBody).foreach(requestBuilder.setBody)
+      Option(originalRequest.getBody).foreach(body => requestBuilder.setBodyBuilder(body.newBuilder))
     }
 
     val cookies = CookieSupport.getStoredCookies(session, redirectUri)
@@ -76,7 +78,7 @@ object RedirectProcessor {
       requestBuilder.setCookies(cookies.asJava)
     }
 
-    val newClientRequest = requestBuilder.build(false)
+    val newClientRequest = requestBuilder.build(defaultCharset, false)
 
     if (newClientRequest.getUri == originalRequest.getUri
       && newClientRequest.getMethod == originalRequest.getMethod

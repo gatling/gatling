@@ -22,6 +22,8 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.resolver.InetNameResolver;
 import io.netty.resolver.dns.DnsNameResolverBuilder;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 // FIXME remove
 public class GatlingHttpClient implements AutoCloseable {
 
@@ -43,7 +45,7 @@ public class GatlingHttpClient implements AutoCloseable {
       // hack: patch request with name resolver
       request = new RequestBuilder(request, request.getUri())
         .setNameResolver(nameResolver)
-        .build(false);
+        .build(UTF_8, false);
     }
 
 

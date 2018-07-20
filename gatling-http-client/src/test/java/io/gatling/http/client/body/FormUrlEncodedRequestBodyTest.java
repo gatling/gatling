@@ -17,6 +17,7 @@
 package io.gatling.http.client.body;
 
 import io.gatling.http.client.Param;
+import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.netty.util.ahc.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -38,7 +39,7 @@ class FormUrlEncodedRequestBodyTest {
     String value = "中文";
     List<Param> params = new ArrayList<>();
     params.add(new Param(key, value));
-    ByteBuf bb = (ByteBuf) new FormUrlEncodedRequestBody(params).build(TEXT_PLAIN.toString(), charset, false, ByteBufAllocator.DEFAULT).getContent();
+    ByteBuf bb = (ByteBuf) new FormUrlEncodedRequestBody(params, TEXT_PLAIN.toString(), charset).build( false, ByteBufAllocator.DEFAULT).getContent();
     try {
       String ahcString = ByteBufUtils.byteBuf2String(US_ASCII, bb);
       String jdkString = key + "=" + URLEncoder.encode(value, charset.name());

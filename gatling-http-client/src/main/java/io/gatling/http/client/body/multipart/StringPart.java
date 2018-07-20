@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.part;
+package io.gatling.http.client.body.multipart;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.body.part.impl.PartImpl;
-import io.gatling.http.client.body.part.impl.StringPartImpl;
+import io.gatling.http.client.body.multipart.impl.PartImpl;
+import io.gatling.http.client.body.multipart.impl.StringPartImpl;
 
 import java.nio.charset.Charset;
 import java.util.List;

@@ -104,7 +104,8 @@ class HttpTxExecutor(
           clock
         ),
       statsProcessor = statsProcessor(tx),
-      nextExecutor = new RootNextExecutor(tx, clock, resourceFetcher, this)
+      nextExecutor = new RootNextExecutor(tx, clock, resourceFetcher, this),
+      configuration.core.charset
     )
 
   private def newResourceResponseProcessor(tx: HttpTx, resourceTx: ResourceTx): ResponseProcessor =
@@ -119,7 +120,8 @@ class HttpTxExecutor(
         clock
       ),
       statsProcessor = statsProcessor(tx),
-      nextExecutor = new ResourceNextExecutor(tx, resourceTx)
+      nextExecutor = new ResourceNextExecutor(tx, resourceTx),
+      configuration.core.charset
     )
 
   def statsProcessor(tx: HttpTx): StatsProcessor =
