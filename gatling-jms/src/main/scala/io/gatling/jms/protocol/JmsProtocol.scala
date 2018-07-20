@@ -26,10 +26,7 @@ import io.gatling.jms.client.JmsConnectionPool
 
 object JmsProtocol {
 
-  val JmsProtocolKey = new ProtocolKey {
-
-    type Protocol = JmsProtocol
-    type Components = JmsComponents
+  val JmsProtocolKey = new ProtocolKey[JmsProtocol, JmsComponents] {
 
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[JmsProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 

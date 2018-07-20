@@ -27,13 +27,11 @@ import io.gatling.core.session.Session
  */
 trait Protocol
 
-trait ProtocolKey {
-  type Protocol
-  type Components
-  def protocolClass: Class[io.gatling.core.protocol.Protocol]
+trait ProtocolKey[P, C] {
+  def protocolClass: Class[Protocol]
 
-  def defaultProtocolValue(configuration: GatlingConfiguration): Protocol
-  def newComponents(coreComponents: CoreComponents): Protocol => Components
+  def defaultProtocolValue(configuration: GatlingConfiguration): P
+  def newComponents(coreComponents: CoreComponents): P => C
 }
 
 object ProtocolComponents {
@@ -50,7 +48,7 @@ trait ProtocolComponents {
 
 class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
 
-  val componentsFactoryCache = mutable.Map.empty[ProtocolKey, Any]
+  val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Any]
 
   def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
     new ProtocolComponentsRegistry(
@@ -60,18 +58,18 @@ class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtoco
     )
 }
 
-class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey, Any]) {
+class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey[_, _], Any]) {
 
-  val protocolCache = mutable.Map.empty[ProtocolKey, Protocol]
-  val componentsCache = mutable.Map.empty[ProtocolKey, ProtocolComponents]
+  val protocolCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
+  val componentsCache = mutable.Map.empty[ProtocolKey[_, _], ProtocolComponents]
 
-  def components(key: ProtocolKey): key.Components = {
+  def components[P, C](key: ProtocolKey[P, C]): C = {
 
-    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[key.Protocol => key.Components]
-    def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
-    def comps: key.Components = componentsFactory(protocol)
+    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
+    def protocol: P = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]
+    def comps: C = componentsFactory(protocol)
 
-    componentsCache.getOrElseUpdate(key, comps.asInstanceOf[ProtocolComponents]).asInstanceOf[key.Components]
+    componentsCache.getOrElseUpdate(key, comps.asInstanceOf[ProtocolComponents]).asInstanceOf[C]
   }
 
   def onStart: Session => Session =

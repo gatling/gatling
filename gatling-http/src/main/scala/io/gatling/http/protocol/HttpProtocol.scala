@@ -43,11 +43,9 @@ import com.typesafe.scalalogging.StrictLogging
 
 object HttpProtocol extends StrictLogging {
 
-  val HttpProtocolKey = new ProtocolKey {
+  val HttpProtocolKey = new ProtocolKey[HttpProtocol, HttpComponents] {
 
-    override type Protocol = HttpProtocol
-    override type Components = HttpComponents
-    override def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[HttpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
+    override def protocolClass: Class[Protocol] = classOf[HttpProtocol].asInstanceOf[Class[Protocol]]
 
     override def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
