@@ -150,10 +150,6 @@ public class RequestBuilder {
     return this;
   }
 
-  public boolean isHttp2Enabled() {
-    return http2Enabled;
-  }
-
   public RequestBuilder setHttp2Enabled(boolean http2Enabled) {
     this.http2Enabled = http2Enabled;
     return this;
