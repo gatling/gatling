@@ -41,9 +41,14 @@ public class ByteArrayRequestBody extends RequestBody<byte[]> {
   }
 
   @Override
+  public byte[] getBytes() {
+    return content;
+  }
+
+  @Override
   public String toString() {
     return "ByteArrayRequestBody{" +
-      "content=" + content +
+      "content=<" + content.length + " bytes>" +
       ", contentType=" + contentType +
       ", charset=" + charset +
       '}';

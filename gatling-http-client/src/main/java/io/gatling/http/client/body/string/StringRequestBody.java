@@ -49,6 +49,11 @@ public class StringRequestBody extends RequestBody<String> {
   }
 
   @Override
+  public byte[] getBytes() {
+    return content.getBytes(charset);
+  }
+
+  @Override
   public String toString() {
     return "StringRequestBody{" +
       "content=" + content +

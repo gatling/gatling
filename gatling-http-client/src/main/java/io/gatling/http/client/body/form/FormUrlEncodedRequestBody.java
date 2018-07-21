@@ -42,20 +42,20 @@ public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
   @Override
   public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
 
+    StringBuilder sb = encode();
+
+    ByteBuf bb = ByteBufUtil.writeAscii(alloc, sb);
+    return new WritableContent(bb, bb.readableBytes());
+  }
+
+  private StringBuilder encode() {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
 
     for (Param param : content) {
       encodeAndAppendFormParam(sb, param.getName(), param.getValue(), charset);
     }
     sb.setLength(sb.length() - 1);
-
-    ByteBuf bb = ByteBufUtil.writeAscii(alloc, sb);
-    return new WritableContent(bb, bb.readableBytes());
-  }
-
-  @Override
-  public RequestBodyBuilder<List<Param>> newBuilder() {
-    return new FormUrlEncodedRequestBodyBuilder(content);
+    return sb;
   }
 
   private static void encodeAndAppendFormParam(StringBuilder sb, String name, String value, Charset charset) {
@@ -78,6 +78,17 @@ public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
         // can't happen, as Charset was already resolved
       }
     }
+  }
+
+  @Override
+  public RequestBodyBuilder<List<Param>> newBuilder() {
+    return new FormUrlEncodedRequestBodyBuilder(content);
+  }
+
+
+  @Override
+  public byte[] getBytes() {
+    return encode().toString().getBytes();
   }
 
   @Override

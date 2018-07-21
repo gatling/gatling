@@ -48,9 +48,20 @@ public class ByteArraysRequestBody extends RequestBody<byte[][]> {
   }
 
   @Override
+  public byte[] getBytes() {
+    byte[] bytes = new byte[(int) contentLength];
+    int offset = 0;
+    for (byte[] chunk: content) {
+      System.arraycopy(chunk, 0, bytes, offset, chunk.length);
+      offset += chunk.length;
+    }
+    return bytes;
+  }
+
+  @Override
   public String toString() {
     return "ByteArraysRequestBody{" +
-      "content=" + content +
+      "content=<" + contentLength + " bytes>" +
       ", contentType=" + contentType +
       ", charset=" + charset +
       '}';

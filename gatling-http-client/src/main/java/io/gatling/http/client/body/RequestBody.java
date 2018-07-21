@@ -44,4 +44,6 @@ public abstract class RequestBody<T> {
   public abstract WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) throws IOException;
 
   public abstract RequestBodyBuilder<T> newBuilder();
+
+  public abstract byte[] getBytes();
 }

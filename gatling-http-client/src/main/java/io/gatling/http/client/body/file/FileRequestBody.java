@@ -23,8 +23,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.stream.ChunkedFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 
 public class FileRequestBody extends RequestBody<File> {
@@ -48,6 +47,19 @@ public class FileRequestBody extends RequestBody<File> {
   @Override
   public RequestBodyBuilder<File> newBuilder() {
     return new FileRequestBodyBuilder(content);
+  }
+
+  @Override
+  @SuppressWarnings("ResultOfMethodCallIgnored")
+  public byte[] getBytes() {
+    byte[] bytes = new byte[(int) content.length()];
+    try (InputStream is = new FileInputStream(content)) {
+      is.read(bytes);
+    } catch (IOException e) {
+      throw new IllegalArgumentException("Can't read file", e);
+    }
+
+    return bytes;
   }
 
   @Override

@@ -82,6 +82,11 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
   }
 
   @Override
+  public byte[] getBytes() {
+    throw new UnsupportedOperationException("MultipartFormDataRequestBody#getBytes isn't implemented yet. Contributions welcome.");
+  }
+
+  @Override
   public String toString() {
     return "MultipartFormDataRequestBody{" +
       "boundary=" + Arrays.toString(boundary) +

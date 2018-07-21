@@ -45,6 +45,11 @@ public class InputStreamRequestBody extends RequestBody<InputStream> {
   }
 
   @Override
+  public byte[] getBytes() {
+    throw new UnsupportedOperationException("Can't read InputStream bytes without consuming it");
+  }
+
+  @Override
   public String toString() {
     return "InputStreamRequestBody{" +
       "content=" + content +
