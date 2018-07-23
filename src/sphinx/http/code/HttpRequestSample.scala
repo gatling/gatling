@@ -269,9 +269,13 @@ class HttpRequestSample {
 
       // ignore when response status code is 200
       .transformResponse {
-        case response if response.status.code == 200 =>
-          new ResponseWrapper(response) {
-            override val body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8)
+        (session, response) =>
+          if (response.status.code == 200) {
+            new ResponseWrapper(response) {
+              override val body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8)
+            }
+          } else {
+            response
           }
       }
     //#response-processors

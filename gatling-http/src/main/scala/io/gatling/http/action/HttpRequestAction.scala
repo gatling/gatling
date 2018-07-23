@@ -51,7 +51,6 @@ class HttpRequestAction(
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     requestConfig.checks,
-    requestConfig.responseTransformer,
     requestConfig.discardResponseChunks,
     requestConfig.httpProtocol.responsePart.inferHtmlResources,
     clock,

@@ -81,7 +81,6 @@ class DefaultResourceAggregator(
 
     val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
       resource.requestConfig.checks,
-      resource.requestConfig.responseTransformer,
       httpProtocol.responsePart.discardResponseChunks,
       httpProtocol.responsePart.inferHtmlResources,
       clock,

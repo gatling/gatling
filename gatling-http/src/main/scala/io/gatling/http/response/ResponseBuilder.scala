@@ -41,13 +41,10 @@ import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponse
 
 object ResponseBuilder extends StrictLogging {
 
-  val Identity: Response => Response = identity[Response]
-
   private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
   def newResponseBuilderFactory(
     checks:                List[HttpCheck],
-    responseTransformer:   Option[PartialFunction[Response, Response]],
     discardResponseChunks: Boolean,
     inferHtmlResources:    Boolean,
     clock:                 Clock,
@@ -60,13 +57,12 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy)
 
-    val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
+    val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty
 
     request => new ResponseBuilder(
       request,
       checksumChecks,
       responseBodyUsageStrategies,
-      responseTransformer,
       storeBodyParts,
       inferHtmlResources,
       configuration.core.charset,
@@ -79,7 +75,6 @@ class ResponseBuilder(
     request:             Request,
     checksumChecks:      List[ChecksumCheck],
     bodyUsageStrategies: Seq[ResponseBodyUsageStrategy],
-    responseTransformer: Option[PartialFunction[Response, Response]],
     storeBodyParts:      Boolean,
     inferHtmlResources:  Boolean,
     defaultCharset:      Charset,
@@ -185,12 +180,7 @@ class ResponseBuilder(
 
           chunks.foreach(_.release())
           chunks = Nil
-          val rawResponse = HttpResponse(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
-
-          responseTransformer match {
-            case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
-            case _                 => rawResponse
-          }
+          HttpResponse(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
         } catch {
           case NonFatal(t) => buildFailure(t)
         }

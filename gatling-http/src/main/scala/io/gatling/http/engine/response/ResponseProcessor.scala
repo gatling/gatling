@@ -89,40 +89,56 @@ class DefaultResponseProcessor(
     }
   }
 
-  private def handleResponse0(response: Response): ProcessorResult =
-    try {
-      if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
-        if (tx.redirectCount >= tx.request.requestConfig.maxRedirects) {
-          Crash("Too many redirects, max is " + tx.request.requestConfig.maxRedirects)
-
-        } else {
-          response.header(HeaderNames.Location) match {
-            case Some(location) =>
-              val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
-              val newSession = sessionProcessor.updatedRedirectSession(tx.session, response, redirectUri)
-              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
-                case Success(redirectRequest) =>
-                  Redirect(tx
-                    .modify(_.session).setTo(newSession)
-                    .modify(_.request.clientRequest).setTo(redirectRequest)
-                    .modify(_.redirectCount).using(_ + 1))
-
-                case Failure(message) =>
-                  Crash(message)
-              }
-
-            case _ =>
-              Crash("Redirect status, yet no Location header")
-          }
+  private def handleResponseTransformer(rawResponse: Response): Validation[Response] =
+    tx.request.requestConfig.responseTransformer match {
+      case Some(transformer) =>
+        safely("Response transformer crashed: " + _) {
+          transformer(tx.session, rawResponse)
         }
+      case _ => rawResponse.success
+    }
 
-      } else {
-        val (newSession, updates, errorMessage) = sessionProcessor.updatedSession(tx.session, response, computeUpdates = false)
-        Proceed(newSession, updates, errorMessage)
+  private def handleResponse0(rawResponse: Response): ProcessorResult =
+    try {
+      handleResponseTransformer(rawResponse) match {
+        case Failure(errorMessage) =>
+          Crash(errorMessage)
+
+        case Success(response) =>
+          if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
+            if (tx.redirectCount >= tx.request.requestConfig.maxRedirects) {
+              Crash("Too many redirects, max is " + tx.request.requestConfig.maxRedirects)
+
+            } else {
+              response.header(HeaderNames.Location) match {
+                case Some(location) =>
+                  val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
+                  val newSession = sessionProcessor.updatedRedirectSession(tx.session, response, redirectUri)
+                  RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
+                    case Success(redirectRequest) =>
+                      Redirect(tx
+                        .modify(_.session).setTo(newSession)
+                        .modify(_.request.clientRequest).setTo(redirectRequest)
+                        .modify(_.redirectCount).using(_ + 1))
+
+                    case Failure(message) =>
+                      Crash(message)
+                  }
+
+                case _ =>
+                  Crash("Redirect status, yet no Location header")
+              }
+            }
+
+          } else {
+            val (newSession, updates, errorMessage) = sessionProcessor.updatedSession(tx.session, response, computeUpdates = false)
+            Proceed(newSession, updates, errorMessage)
+          }
       }
+
     } catch {
       case NonFatal(t) =>
-        logger.error(s"ResponseProcessor crashed while handling response ${response.status} on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
+        logger.error(s"ResponseProcessor crashed while handling response ${rawResponse.status} on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
         Crash(t.detailedMessage)
     }
 }

@@ -18,14 +18,14 @@ package io.gatling.http.request
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session._
+import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.response.Response
 
 case class HttpRequestConfig(
     checks:                List[HttpCheck],
-    responseTransformer:   Option[PartialFunction[Response, Response]],
+    responseTransformer:   Option[ResponseTransformer],
     maxRedirects:          Int,
     throttled:             Boolean,
     silent:                Option[Boolean],

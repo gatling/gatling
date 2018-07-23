@@ -217,7 +217,7 @@ class HttpCompileTest extends Simulation {
     .exec(flushHttpCache)
     // transformResponse
     .exec(http("Request").get("/").transformResponse {
-      case response =>
+      (_, response) =>
 
         import io.gatling.http.response._
 

@@ -26,6 +26,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.core.session._
+import io.gatling.http.ResponseTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.SignatureCalculator
@@ -36,7 +37,6 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.response.DefaultStatsProcessor
 import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.fetch.InferredResourceNaming
-import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
@@ -169,7 +169,7 @@ case class HttpProtocolResponsePart(
     maxRedirects:                  Int,
     strict302Handling:             Boolean,
     discardResponseChunks:         Boolean,
-    responseTransformer:           Option[PartialFunction[Response, Response]],
+    responseTransformer:           Option[ResponseTransformer],
     checks:                        List[HttpCheck],
     inferHtmlResources:            Boolean,
     inferredHtmlResourcesNaming:   Uri => String,

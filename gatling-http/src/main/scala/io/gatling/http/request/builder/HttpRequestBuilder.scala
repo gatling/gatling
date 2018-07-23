@@ -16,12 +16,13 @@
 
 package io.gatling.http.request.builder
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.{ HeaderNames, HeaderValues }
+import io.gatling.http.{ HeaderNames, HeaderValues, ResponseTransformer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Status
 import io.gatling.http.protocol.HttpProtocol
@@ -31,17 +32,17 @@ import io.gatling.http.response.Response
 import com.softwaremill.quicklens._
 
 case class HttpAttributes(
-    checks:                List[HttpCheck]                             = Nil,
-    ignoreDefaultChecks:   Boolean                                     = false,
-    silent:                Option[Boolean]                             = None,
-    followRedirect:        Boolean                                     = true,
-    discardResponseChunks: Boolean                                     = true,
-    responseTransformer:   Option[PartialFunction[Response, Response]] = None,
-    explicitResources:     List[HttpRequestBuilder]                    = Nil,
-    body:                  Option[Body]                                = None,
-    bodyParts:             List[BodyPart]                              = Nil,
-    formParams:            List[HttpParam]                             = Nil,
-    form:                  Option[Expression[Map[String, Any]]]        = None
+    checks:                List[HttpCheck]                      = Nil,
+    ignoreDefaultChecks:   Boolean                              = false,
+    silent:                Option[Boolean]                      = None,
+    followRedirect:        Boolean                              = true,
+    discardResponseChunks: Boolean                              = true,
+    responseTransformer:   Option[ResponseTransformer]          = None,
+    explicitResources:     List[HttpRequestBuilder]             = Nil,
+    body:                  Option[Body]                         = None,
+    bodyParts:             List[BodyPart]                       = Nil,
+    formParams:            List[HttpParam]                      = Nil,
+    form:                  Option[Expression[Map[String, Any]]] = None
 )
 
 object HttpRequestBuilder {
@@ -83,7 +84,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
   /**
    * @param responseTransformer transforms the response before it's handled to the checks pipeline
    */
-  def transformResponse(responseTransformer: PartialFunction[Response, Response]): HttpRequestBuilder = this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
+  def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder = this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
 
   def body(bd: Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).setTo(Some(bd))
 

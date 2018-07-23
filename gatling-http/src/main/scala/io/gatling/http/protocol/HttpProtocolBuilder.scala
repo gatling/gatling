@@ -23,13 +23,13 @@ import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.HeaderNames._
+import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.builder.RequestBuilder
-import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
@@ -108,7 +108,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def maxRedirects(max: Int) = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
   def strict302Handling = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
   def disableResponseChunksDiscarding = this.modify(_.protocol.responsePart.discardResponseChunks).setTo(false)
-  def transformResponse(responseTransformer: PartialFunction[Response, Response]) = this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
+  def transformResponse(responseTransformer: ResponseTransformer) = this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*) = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
   def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList())))

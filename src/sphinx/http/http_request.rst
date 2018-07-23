@@ -455,9 +455,9 @@ Gatling ships two built-ins:
 Response Transformers
 =====================
 
-Similarly, one might want to process the response before it's passed to the checks pipeline.
+Similarly, one might want to process the response before it's passed to the checks pipeline:
 
-``transformResponse(responseTransformer: PartialFunction[Response, Response])``: takes a ``Response => Response``
+``transformResponse(responseTransformer: (Session => Response) => Validation[Response])``
 
 The example below shows how to decode some Base64 encoded response body:
 
