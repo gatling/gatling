@@ -36,7 +36,7 @@ object Dependencies {
     .exclude("org.simpleflatmapper", "sfm-reflect")
     .exclude("org.simpleflatmapper", "sfm-tuples")
   private val sfmUtil                        = "org.simpleflatmapper"                 % "sfm-util"                        % sfm.revision
-  private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.5.3"
+  private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.5.4"
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.6.11"
   private val joddJson                       = "org.jodd"                             % "jodd-json"                       % "5.0.3"
   private val joddLagarto                    = joddJson.organization                  % "jodd-lagarto"                    % joddJson.revision
