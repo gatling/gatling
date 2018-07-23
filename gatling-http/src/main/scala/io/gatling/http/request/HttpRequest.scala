@@ -59,8 +59,8 @@ case class HttpRequest(requestName: String, clientRequest: Request, requestConfi
     def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
 
     requestConfig.silent match {
-      case None         => silentBecauseProtocolSilentURI || silentBecauseProtocolSilentResources
       case Some(silent) => silent
+      case _            => silentBecauseProtocolSilentURI || silentBecauseProtocolSilentResources
     }
   }
 }
