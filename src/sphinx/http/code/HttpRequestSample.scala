@@ -271,9 +271,7 @@ class HttpRequestSample {
       .transformResponse {
         (session, response) =>
           if (response.status.code == 200) {
-            new ResponseWrapper(response) {
-              override val body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8)
-            }
+            response.copy(body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8))
           } else {
             response
           }

@@ -30,7 +30,7 @@ import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.response.{ HttpResponse, ResponseBody }
+import io.gatling.http.response.{ Response, ResponseBody }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders, HttpMethod, HttpResponseStatus }
 import org.mockito.ArgumentMatchers.any
@@ -56,7 +56,7 @@ class CacheSupportSpec extends BaseSpec {
       val body = mock[ResponseBody]
       val headersMap = new DefaultHttpHeaders
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = HttpResponse(request, EmptyHttpHeaders.INSTANCE, status, headersMap, body, Map.empty, 0, UTF_8, -1, -1)
+      val response = Response(request, EmptyHttpHeaders.INSTANCE, status, headersMap, body, Map.empty, 0, UTF_8, -1, -1)
 
       httpCaches.getResponseExpires(response)
     }

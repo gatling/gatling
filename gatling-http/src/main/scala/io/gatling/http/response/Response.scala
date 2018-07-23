@@ -44,28 +44,7 @@ case class HttpFailure(
     errorMessage:       String
 ) extends HttpResult
 
-sealed abstract class Response extends HttpResult {
-
-  def status: HttpResponseStatus
-  def isRedirect: Boolean
-
-  def header(name: CharSequence): Option[String]
-  def headers: HttpHeaders
-  def headers(name: CharSequence): Seq[String]
-  def cookies: List[Cookie]
-
-  def checksum(algorithm: String): Option[String]
-  def hasResponseBody: Boolean
-  def body: ResponseBody
-  def bodyLength: Int
-  def charset: Charset
-
-  def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
-    if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
-    else None
-}
-
-case class HttpResponse(
+case class Response(
     request:            Request,
     wireRequestHeaders: HttpHeaders,
     status:             HttpResponseStatus,
@@ -76,13 +55,13 @@ case class HttpResponse(
     charset:            Charset,
     startTimestamp:     Long,
     endTimestamp:       Long
-) extends Response {
+) extends HttpResult {
 
-  override val isRedirect: Boolean = HttpHelper.isRedirect(status)
+  val isRedirect: Boolean = HttpHelper.isRedirect(status)
 
-  override def header(name: CharSequence): Option[String] = Option(headers.get(name))
-  override def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
-  override val cookies: List[Cookie] = {
+  def header(name: CharSequence): Option[String] = Option(headers.get(name))
+  def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
+  val cookies: List[Cookie] = {
     val setCookieValues = headers.getAll(HeaderNames.SetCookie)
     if (setCookieValues.isEmpty) {
       Nil
@@ -91,29 +70,10 @@ case class HttpResponse(
     }
   }
 
-  override def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
-  override def hasResponseBody: Boolean = bodyLength != 0
-}
+  def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
+  def hasResponseBody: Boolean = bodyLength != 0
 
-class ResponseWrapper(delegate: Response) extends Response {
-
-  override def request: Request = delegate.request
-  override def wireRequestHeaders: HttpHeaders = delegate.wireRequestHeaders
-
-  override def status: HttpResponseStatus = delegate.status
-  override def isRedirect: Boolean = delegate.isRedirect
-
-  override def headers: HttpHeaders = delegate.headers
-  override def header(name: CharSequence): Option[String] = delegate.header(name)
-  override def headers(name: CharSequence): Seq[String] = delegate.headers(name)
-  override def cookies: List[Cookie] = delegate.cookies
-
-  override def checksum(algorithm: String): Option[String] = delegate.checksum(algorithm)
-  override def hasResponseBody: Boolean = delegate.hasResponseBody
-  override def body: ResponseBody = delegate.body
-  override def bodyLength: Int = delegate.bodyLength
-  override def charset: Charset = delegate.charset
-
-  override def startTimestamp: Long = delegate.startTimestamp
-  override def endTimestamp: Long = delegate.endTimestamp
+  def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
+    if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
+    else None
 }

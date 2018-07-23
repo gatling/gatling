@@ -180,7 +180,7 @@ class ResponseBuilder(
 
           chunks.foreach(_.release())
           chunks = Nil
-          HttpResponse(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
+          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp)
         } catch {
           case NonFatal(t) => buildFailure(t)
         }
