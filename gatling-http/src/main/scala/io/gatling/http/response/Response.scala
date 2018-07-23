@@ -54,7 +54,6 @@ sealed abstract class Response extends HttpResult {
   def headers(name: CharSequence): Seq[String]
   def cookies: List[Cookie]
 
-  def checksums: Map[String, String]
   def checksum(algorithm: String): Option[String]
   def hasResponseBody: Boolean
   def body: ResponseBody
@@ -109,7 +108,6 @@ class ResponseWrapper(delegate: Response) extends Response {
   override def headers(name: CharSequence): Seq[String] = delegate.headers(name)
   override def cookies: List[Cookie] = delegate.cookies
 
-  override def checksums: Map[String, String] = delegate.checksums
   override def checksum(algorithm: String): Option[String] = delegate.checksum(algorithm)
   override def hasResponseBody: Boolean = delegate.hasResponseBody
   override def body: ResponseBody = delegate.body
