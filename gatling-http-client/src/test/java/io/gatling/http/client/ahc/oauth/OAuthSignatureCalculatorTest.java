@@ -36,7 +36,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.AUTHORIZATION;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -119,7 +118,7 @@ class OAuthSignatureCalculatorTest {
 
     Request request = new RequestBuilder(HttpMethod.POST, Uri.create("http://example.com/request?b5=%3D%253D&a3=a&c%40=&a2=r%20b"))
       .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(formParams))
-      .build(UTF_8);
+      .build();
 
     testSignatureBaseString(request);
     testSignatureBaseStringWithEncodableOAuthToken(request);
@@ -138,7 +137,7 @@ class OAuthSignatureCalculatorTest {
 
     Request request = new RequestBuilder(HttpMethod.POST, Uri.create("http://example.com/request?b5=%3D%253D&a3=a&c%40=&a2=r b"))
       .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(formParams))
-      .build(UTF_8);
+      .build();
 
     testSignatureBaseString(request);
     testSignatureBaseStringWithEncodableOAuthToken(request);
@@ -155,7 +154,7 @@ class OAuthSignatureCalculatorTest {
 
     Request request = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos"))
       .setQueryParams(queryParams)
-      .build(UTF_8);
+      .build();
 
     String signature = new OAuthSignatureCalculatorInstance()
       .computeSignature(new ConsumerKey(CONSUMER_KEY, CONSUMER_SECRET),
@@ -184,7 +183,7 @@ class OAuthSignatureCalculatorTest {
 
     final Request req = new RequestBuilder(HttpMethod.POST, Uri.create("http://photos.example.net/photos"))
       .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(postParams))
-      .build(UTF_8);
+      .build();
 
     // From the signature tester, POST should look like:
     // normalized parameters:
@@ -220,7 +219,7 @@ class OAuthSignatureCalculatorTest {
 
     final Request req = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos"))
       .setQueryParams(queryParams)
-      .build(UTF_8);
+      .build();
 
     final List<Param> params = req.getUri().getEncodedQueryParams();
     assertEquals(2, params.size());
@@ -256,7 +255,7 @@ class OAuthSignatureCalculatorTest {
         TIMESTAMP);
 
     final Request req = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos?file=vacation.jpg&size=original"))
-      .build(UTF_8);
+      .build();
 
     final List<Param> params = req.getUri().getEncodedQueryParams();
     assertEquals(2, params.size());
@@ -289,7 +288,7 @@ class OAuthSignatureCalculatorTest {
   void testWithNullRequestToken() throws NoSuchAlgorithmException {
 
     final Request request = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos?file=vacation.jpg&size=original"))
-      .build(UTF_8);
+      .build();
 
     String signatureBaseString = new OAuthSignatureCalculatorInstance()
       .signatureBaseString(//
@@ -314,7 +313,7 @@ class OAuthSignatureCalculatorTest {
   @Test
   void testWithStarQueryParameterValue() throws NoSuchAlgorithmException {
     final Request request = new RequestBuilder(HttpMethod.GET, Uri.create("http://term.ie/oauth/example/request_token.php?testvalue=*"))
-      .build(UTF_8);
+      .build();
 
     String signatureBaseString = new OAuthSignatureCalculatorInstance()
       .signatureBaseString(
@@ -345,7 +344,7 @@ class OAuthSignatureCalculatorTest {
     long timestamp = 1469019732;
 
     final Request request = new RequestBuilder(HttpMethod.GET, Uri.create("http://example.com/oauth/example/*path/wi*th/asterisks*"))
-      .build(UTF_8);
+      .build();
 
     String actualSignature = new OAuthSignatureCalculatorInstance().computeSignature(
       consumerKey,
@@ -373,7 +372,7 @@ class OAuthSignatureCalculatorTest {
     Request request = new RequestBuilder(
       HttpMethod.GET,
       Uri.create("https://api.dropbox.com/1/oauth/access_token?oauth_token=%EC%AD%AE%E3%AC%82%EC%BE%B8%E7%9C%9A%E8%BD%BD%E1%94%A5%E8%AD%AF%E8%98%93%E0%B9%99%E5%9E%96%EF%92%A2%EA%BC%97%EA%90%B0%E4%8A%91%E8%97%BF%EF%A8%BB%E5%B5%B1%DA%98%E2%90%87%E2%96%96%EE%B5%B5%E7%B9%AD%E9%AD%87%E3%BE%93%E5%AF%92%EE%BC%8F%E3%A0%B2%E8%A9%AB%E1%8B%97%EC%BF%80%EA%8F%AE%ED%87%B0%E5%97%B7%E9%97%BF%E8%BF%87%E6%81%A3%E5%BB%A1%EC%86%92%E8%92%81%E2%B9%94%EB%B6%86%E9%AE%8A%E6%94%B0%EE%AC%B5%E6%A0%99%EB%8B%AD%EB%BA%81%E7%89%9F%E5%B3%B7%EA%9D%B7%EC%A4%9C%E0%BC%BA%EB%BB%B9%ED%84%A9%E8%A5%B9%E8%AF%A0%E3%AC%85%0C%E3%9D%9B%E8%B9%8B%E6%BF%8C%EB%91%98%E7%8B%B3%E7%BB%A8%E2%A7%BB%E6%A3%84%E1%AB%B2%E8%8D%93%E4%BF%98%E9%B9%B9%EF%9A%8B%E8%A5%93"))
-      .build(UTF_8);
+      .build();
 
     calc.sign(request);
   }

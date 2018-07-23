@@ -68,12 +68,13 @@ class HttpEngine(
               .add(Connection, Close)
               .add(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0"))
             .setRequestTimeout(1000)
+            .setDefaultCharset(coreComponents.configuration.core.charset)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 
           try {
             val p = Promise[Unit]
-            httpClient.sendRequest(requestBuilder.build(coreComponents.configuration.core.charset), 0, true, new HttpListener {
+            httpClient.sendRequest(requestBuilder.build, 0, true, new HttpListener {
               override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
               override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)

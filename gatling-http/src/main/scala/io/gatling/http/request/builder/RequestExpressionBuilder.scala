@@ -226,11 +226,12 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           requestBuilder = new AhcRequestBuilder(commonAttributes.method, uri)
+            .setDefaultCharset(configuration.core.charset)
             .setFixUrlEncoding(!disableUrlEncoding)
             .setRequestTimeout(configuration.http.ahc.requestTimeout)
             .setHttp2Enabled(httpProtocol.requestPart.enableHttp2)
           rb <- configureRequestBuilder(session, requestBuilder)
-        } yield rb.build(configuration.core.charset)
+        } yield rb.build
       }
     }
 }

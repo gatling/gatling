@@ -87,7 +87,7 @@ class BasicHttpTest extends HttpTest {
           writeResponseBody(response, sentBody);
         });
 
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -114,7 +114,7 @@ class BasicHttpTest extends HttpTest {
           h.add("Test" + i, "Test" + i);
         }
 
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setHeaders(h).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setHeaders(h).build();
 
         client.test(request, 0, new TestListener() {
           @Override
@@ -139,7 +139,7 @@ class BasicHttpTest extends HttpTest {
           formParams.add(new Param("param_" + i, "value_" + i));
         }
 
-        Request request = new RequestBuilder(HttpMethod.POST, Uri.create(getTargetUrl())).setHeaders(h).setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(formParams)).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.POST, Uri.create(getTargetUrl())).setHeaders(h).setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(formParams)).build();
 
         server.enqueueEcho();
 
@@ -161,7 +161,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueOk();
-        Request request = new RequestBuilder(HttpMethod.HEAD, Uri.create(getTargetUrl())).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.HEAD, Uri.create(getTargetUrl())).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -177,7 +177,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -196,7 +196,7 @@ class BasicHttpTest extends HttpTest {
         RequestBodyBuilder byteArrayBody = new ByteArrayRequestBodyBuilder("foo".getBytes(UTF_8));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl()))
           .setFixUrlEncoding(false)
-          .setBodyBuilder(byteArrayBody).build(UTF_8);
+          .setBodyBuilder(byteArrayBody).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -214,7 +214,7 @@ class BasicHttpTest extends HttpTest {
       withServer(server).run(server -> {
         server.enqueueEcho();
         RequestBodyBuilder byteArraysBody = new ByteArraysRequestBodyBuilder(new byte[][]{"foo".getBytes(UTF_8)});
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(byteArraysBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(byteArraysBody).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -231,7 +231,7 @@ class BasicHttpTest extends HttpTest {
       withServer(server).run(server -> {
         server.enqueueEcho();
         RequestBodyBuilder fileBody = new FileRequestBodyBuilder(getTestFile());
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(fileBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(fileBody).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -250,7 +250,7 @@ class BasicHttpTest extends HttpTest {
         List<Param> formParams = new ArrayList<>();
         formParams.add(new Param("foo", "bar"));
         RequestBodyBuilder formUrlEncodedBody = new FormUrlEncodedRequestBodyBuilder(formParams);
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(formUrlEncodedBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(formUrlEncodedBody).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -267,7 +267,7 @@ class BasicHttpTest extends HttpTest {
       withServer(server).run(server -> {
         server.enqueueEcho();
         RequestBodyBuilder inputStreamBody = new InputStreamRequestBodyBuilder(new ByteArrayInputStream("foo".getBytes(UTF_8)));
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(inputStreamBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(inputStreamBody).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -284,7 +284,7 @@ class BasicHttpTest extends HttpTest {
       withServer(server).run(server -> {
         server.enqueueEcho();
         RequestBodyBuilder stringBody = new StringRequestBodyBuilder("foo");
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(stringBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(stringBody).build();
         client.test(request, 0, new TestListener() {
           @Override
           public void onComplete0() {
@@ -305,7 +305,7 @@ class BasicHttpTest extends HttpTest {
         multiparts.add(new FilePart("part2", getTestFile(), UTF_8, null, null, null, null, null, null));
         multiparts.add(new ByteArrayPart("part3", "foo".getBytes(), UTF_8, null, null, null, null, null, null));
         RequestBodyBuilder multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(multiparts);
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build();
 
         long minimalLength = getTestFile().length() + 2 * "foo".length() + 3 * 30; // file + 2 * foo + 3 * multipart boundary
 
@@ -327,7 +327,7 @@ class BasicHttpTest extends HttpTest {
         // Charset is mandatory and will trigger a NPE
         StringPart part = new StringPart("part1", "foo", null, null, null, null, null);
         RequestBodyBuilder multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(singletonList(part));
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build(UTF_8);
+        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build();
 
         assertThrows(NullPointerException.class, () -> {
             try {

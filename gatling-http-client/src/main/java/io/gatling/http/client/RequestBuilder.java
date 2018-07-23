@@ -43,6 +43,7 @@ import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 import static io.netty.handler.codec.http.HttpHeaderNames.ORIGIN;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RequestBuilder {
 
@@ -65,6 +66,7 @@ public class RequestBuilder {
   private NameResolver<InetAddress> nameResolver = DEFAULT_NAME_RESOLVER;
   private boolean http2Enabled;
   private boolean fixUrlEncoding = true;
+  private Charset defaultCharset = UTF_8;
 
   public RequestBuilder(HttpMethod method, Uri uri) {
     this.method = method;
@@ -161,7 +163,12 @@ public class RequestBuilder {
     return this;
   }
 
-  public Request build(Charset defaultCharset) {
+  public RequestBuilder setDefaultCharset(Charset defaultCharset) {
+    this.defaultCharset = defaultCharset;
+    return this;
+  }
+
+  public Request build() {
 
     Uri fullUri = UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, queryParams);
 

@@ -16,7 +16,7 @@
 
 package io.gatling.http.cache
 
-import java.nio.charset.StandardCharsets._
+import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
@@ -45,14 +45,13 @@ class CacheSupportSpec extends BaseSpec {
   when(coreComponents.clock).thenReturn(clock)
   when(coreComponents.configuration).thenReturn(configuration)
   private val httpCaches = new HttpCaches(coreComponents)
-  private val httpEngine = mock[HttpEngine]
 
   class CacheContext {
 
     private val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost"))
-      .build(UTF_8)
+      .build()
 
-    def getResponseExpire(headers: Seq[(String, String)]) = {
+    def getResponseExpire(headers: Seq[(String, String)]): Option[Long] = {
       val status = mock[HttpResponseStatus]
       val body = mock[ResponseBody]
       val headersMap = new DefaultHttpHeaders
@@ -117,7 +116,7 @@ class CacheSupportSpec extends BaseSpec {
 
     def addRedirect(from: String, to: String): Unit = {
       val request = new RequestBuilder(HttpMethod.GET, Uri.create(from))
-        .build(UTF_8)
+        .build()
       session = httpCaches.addRedirect(session, request, Uri.create(to))
     }
   }

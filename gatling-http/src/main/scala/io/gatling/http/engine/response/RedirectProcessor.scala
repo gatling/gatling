@@ -57,6 +57,7 @@ object RedirectProcessor {
       .setProxyServer(originalRequest.getProxyServer)
       .setRealm(originalRequest.getRealm)
       .setRequestTimeout(originalRequest.getRequestTimeout)
+      .setDefaultCharset(defaultCharset)
       .setFixUrlEncoding(false)
 
     if (originalRequest.getUri.isSameBase(redirectUri)) {
@@ -79,7 +80,7 @@ object RedirectProcessor {
       requestBuilder.setCookies(cookies.asJava)
     }
 
-    val newClientRequest = requestBuilder.build(defaultCharset)
+    val newClientRequest = requestBuilder.build
 
     if (newClientRequest.getUri == originalRequest.getUri
       && newClientRequest.getMethod == originalRequest.getMethod

@@ -23,8 +23,6 @@ import io.netty.handler.codec.http.HttpMethod;
 
 import java.util.concurrent.CountDownLatch;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 public class Http2Main {
 
   public static void main(String[] args) throws Exception {
@@ -35,7 +33,7 @@ public class Http2Main {
         .setHttp2Enabled(true)
         .setNameResolver(client.getNameResolver())
         .setRequestTimeout(10000)
-        .build(UTF_8);
+        .build();
 
       final CountDownLatch latch = new CountDownLatch(1);
       client.execute(request, 0, true, new ResponseAsStringListener() {
