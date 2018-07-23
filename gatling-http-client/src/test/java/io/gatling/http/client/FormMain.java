@@ -21,6 +21,8 @@ import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
 import io.netty.handler.codec.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,8 @@ import java.util.concurrent.CountDownLatch;
 import static io.gatling.http.client.test.HttpTest.TIMEOUT_SECONDS;
 
 public class FormMain {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(FormMain.class);
 
   public static void main(String[] args) throws Exception {
     try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig())) {
@@ -47,7 +51,7 @@ public class FormMain {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          System.out.println(new DefaultResponse<>(status, headers, responseBody()));
+          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch1.countDown();
         }
 

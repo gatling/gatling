@@ -25,10 +25,14 @@ import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
 public class WebSocketMain {
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketMain.class);
 
   public static void main(String[] args) throws Exception {
     try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig())) {
@@ -42,35 +46,35 @@ public class WebSocketMain {
       client.execute(request, 0, true, new WebSocketListener() {
           @Override
           public void onWebSocketOpen() {
-            System.out.println(">>>>>>onWebSocketOpen");
-            sendFrame(new TextWebSocketFrame("COUCOU!!!"));
+            LOGGER.debug(">>>>>>onWebSocketOpen");
+            sendFrame(new TextWebSocketFrame("HELLO!!!"));
           }
 
           @Override
           public void onTextFrame(TextWebSocketFrame frame) {
-            System.out.println(">>>>>>onTextFrame " + frame.text());
+            LOGGER.debug(">>>>>>onTextFrame " + frame.text());
             sendFrame(new CloseWebSocketFrame());
             latch.countDown();
           }
 
           @Override
           public void onBinaryFrame(BinaryWebSocketFrame frame) {
-            System.out.println(">>>>>>onBinaryFrame");
+            LOGGER.debug(">>>>>>onBinaryFrame");
           }
 
           @Override
           public void onPongFrame(PongWebSocketFrame frame) {
-            System.out.println(">>>>>>onPongFrame");
+            LOGGER.debug(">>>>>>onPongFrame");
           }
 
           @Override
           public void onCloseFrame(CloseWebSocketFrame frame) {
-            System.out.println(">>>>>>onCloseFrame");
+            LOGGER.debug(">>>>>>onCloseFrame");
           }
 
           @Override
           public void onHttpResponse(HttpResponseStatus status, HttpHeaders headers) {
-            System.out.println(">>>>>>onHttpResponse " + status);
+            LOGGER.debug(">>>>>>onHttpResponse " + status);
           }
 
           @Override
@@ -79,7 +83,7 @@ public class WebSocketMain {
 
           @Override
           public void onThrowable(Throwable e) {
-            System.out.println(">>>>>>onThrowable");
+            LOGGER.debug(">>>>>>onThrowable");
             e.printStackTrace();
             latch.countDown();
           }

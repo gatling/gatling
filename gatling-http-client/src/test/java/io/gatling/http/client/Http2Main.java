@@ -20,10 +20,14 @@ import io.gatling.http.client.ahc.uri.Uri;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
 import io.netty.handler.codec.http.HttpMethod;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 
 public class Http2Main {
+  
+  private static final Logger LOGGER = LoggerFactory.getLogger(Http2Main.class);
 
   public static void main(String[] args) throws Exception {
 
@@ -39,7 +43,7 @@ public class Http2Main {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          System.out.println(new DefaultResponse<>(status, headers, responseBody()));
+          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch.countDown();
         }
 
@@ -55,7 +59,7 @@ public class Http2Main {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          System.out.println(new DefaultResponse<>(status, headers, responseBody()));
+          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch2.countDown();
         }
 
