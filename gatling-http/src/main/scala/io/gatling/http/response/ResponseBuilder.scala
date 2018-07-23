@@ -73,8 +73,6 @@ object ResponseBuilder extends StrictLogging {
       clock
     )
   }
-
-  private val MissingStatusException = new IllegalArgumentException("How come we're trying to build a response with no status?!")
 }
 
 class ResponseBuilder(
@@ -196,9 +194,12 @@ class ResponseBuilder(
         } catch {
           case NonFatal(t) => buildFailure(t)
         }
-      case _ => buildFailure(ResponseBuilder.MissingStatusException)
+      case _ => buildFailure("How come we're trying to build a response with no status?!")
     }
 
   def buildFailure(t: Throwable): HttpFailure =
-    HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, t.detailedMessage)
+    buildFailure(t.detailedMessage)
+
+  private def buildFailure(errorMessage: String): HttpFailure =
+    HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
 }
