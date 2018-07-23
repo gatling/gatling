@@ -53,7 +53,7 @@ case class HttpRequest(requestName: String, clientRequest: Request, requestConfi
 
     def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
       case Some(silentUri) => silentUri.matcher(clientRequest.getUri.toUrl).matches
-      case None            => false
+      case _               => false
     }
 
     def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
