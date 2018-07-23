@@ -38,7 +38,7 @@ public class WebSocketMain {
       Request request = new RequestBuilder(HttpMethod.GET, Uri.create("wss://echo.websocket.org"))
         .setNameResolver(client.getNameResolver())
         .setRequestTimeout(10000)
-        .build(UTF_8, true);
+        .build(UTF_8);
 
       final CountDownLatch latch = new CountDownLatch(1);
       client.execute(request, 0, true, new WebSocketListener() {

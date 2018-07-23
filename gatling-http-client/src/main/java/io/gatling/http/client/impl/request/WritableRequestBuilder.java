@@ -121,7 +121,8 @@ public class WritableRequestBuilder {
     if (signatureCalculator != null) {
       Request requestWithCompletedHeaders = new RequestBuilder(request, request.getUri())
         .setHeaders(writableRequest.getRequest().headers())
-        .build(config.getDefaultCharset(), false);
+        .setFixUrlEncoding(false)
+        .build(config.getDefaultCharset());
       signatureCalculator.sign(requestWithCompletedHeaders);
     }
     return writableRequest;

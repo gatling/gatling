@@ -73,7 +73,7 @@ class HttpEngine(
 
           try {
             val p = Promise[Unit]
-            httpClient.sendRequest(requestBuilder.build(coreComponents.configuration.core.charset, true), 0, true, new HttpListener {
+            httpClient.sendRequest(requestBuilder.build(coreComponents.configuration.core.charset), 0, true, new HttpListener {
               override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
               override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)

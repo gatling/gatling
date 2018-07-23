@@ -43,7 +43,7 @@ public class FormMain {
         .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
         .setNameResolver(client.getNameResolver())
         .setRequestTimeout(TIMEOUT_SECONDS * 1000)
-        .build(UTF_8, true);
+        .build(UTF_8);
 
       final CountDownLatch latch1 = new CountDownLatch(1);
       client.execute(request, 0, true, new ResponseAsStringListener() {

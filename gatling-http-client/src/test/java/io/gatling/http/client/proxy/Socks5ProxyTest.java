@@ -42,7 +42,7 @@ public class Socks5ProxyTest {
         .setProxyServer(new Socks5ProxyServer("localhost", 8889, null))
         .setNameResolver(client.getNameResolver())
         .setRequestTimeout(TIMEOUT_SECONDS * 1000)
-        .build(UTF_8, true);
+        .build(UTF_8);
 
       final CountDownLatch latch1 = new CountDownLatch(1);
       client.execute(request, 0, true, new ResponseAsStringListener() {

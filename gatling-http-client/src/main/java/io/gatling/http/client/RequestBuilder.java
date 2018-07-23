@@ -64,6 +64,7 @@ public class RequestBuilder {
   private SignatureCalculator signatureCalculator;
   private NameResolver<InetAddress> nameResolver = DEFAULT_NAME_RESOLVER;
   private boolean http2Enabled;
+  private boolean fixUrlEncoding = true;
 
   public RequestBuilder(HttpMethod method, Uri uri) {
     this.method = method;
@@ -155,7 +156,12 @@ public class RequestBuilder {
     return this;
   }
 
-  public Request build(Charset defaultCharset, boolean fixUrlEncoding) {
+  public RequestBuilder setFixUrlEncoding(boolean fixUrlEncoding) {
+    this.fixUrlEncoding = fixUrlEncoding;
+    return this;
+  }
+
+  public Request build(Charset defaultCharset) {
 
     Uri fullUri = UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, queryParams);
 

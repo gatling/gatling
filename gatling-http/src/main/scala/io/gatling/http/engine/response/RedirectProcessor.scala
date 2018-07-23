@@ -57,6 +57,7 @@ object RedirectProcessor {
       .setProxyServer(originalRequest.getProxyServer)
       .setRealm(originalRequest.getRealm)
       .setRequestTimeout(originalRequest.getRequestTimeout)
+      .setFixUrlEncoding(false)
 
     if (originalRequest.getUri.isSameBase(redirectUri)) {
       // we can only assume the virtual host is still valid if the baseUrl is the same
@@ -78,7 +79,7 @@ object RedirectProcessor {
       requestBuilder.setCookies(cookies.asJava)
     }
 
-    val newClientRequest = requestBuilder.build(defaultCharset, false)
+    val newClientRequest = requestBuilder.build(defaultCharset)
 
     if (newClientRequest.getUri == originalRequest.getUri
       && newClientRequest.getMethod == originalRequest.getMethod

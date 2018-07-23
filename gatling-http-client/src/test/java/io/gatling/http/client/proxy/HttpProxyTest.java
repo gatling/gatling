@@ -117,7 +117,7 @@ public class HttpProxyTest extends HttpTest {
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(target.getHttpUrl()))
           .setHeaders(h)
           .setProxyServer(new HttpProxyServer("localhost", proxy.getPort(), 0, null))
-          .build(UTF_8, true);
+          .build(UTF_8);
 
         client.test(request, 0, new TestListener() {
           @Override
