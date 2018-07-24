@@ -30,12 +30,12 @@ class Polling(pollerName: String = Polling.DefaultPollerName) {
 
   def pollerName(pollerName: String) = new Polling(pollerName)
 
-  def every(period: Expression[FiniteDuration]) = new PollingEveryStep(pollerName, period)
+  def every(period: FiniteDuration): PollingEveryStep = new PollingEveryStep(pollerName, period)
 
   def stop = new PollingStopBuilder(pollerName)
 }
 
-class PollingEveryStep(pollerName: String, period: Expression[FiniteDuration]) {
+class PollingEveryStep(pollerName: String, period: FiniteDuration) {
 
   def exec(requestBuilder: HttpRequestBuilder) =
     new PollingStartBuilder(pollerName, period, requestBuilder)

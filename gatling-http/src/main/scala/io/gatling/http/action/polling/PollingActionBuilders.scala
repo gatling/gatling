@@ -19,14 +19,13 @@ package io.gatling.http.action.polling
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.action.Action
-import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 class PollingStartBuilder(
     pollerName:     String,
-    period:         Expression[FiniteDuration],
+    period:         FiniteDuration,
     requestBuilder: HttpRequestBuilder
 ) extends HttpActionBuilder {
 

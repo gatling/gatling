@@ -18,7 +18,8 @@ package io.gatling.http.action.polling
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.validation.{ Failure, Success }
+import io.gatling.commons.util.Clock
+import io.gatling.commons.validation.{ Failure, Success, Validation }
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ExitableAction }
 import io.gatling.core.session._
@@ -32,7 +33,7 @@ import io.gatling.http.response.ResponseBuilder
 
 class PollingStart(
     pollerName:     String,
-    period:         Expression[FiniteDuration],
+    period:         FiniteDuration,
     coreComponents: CoreComponents,
     httpRequestDef: HttpRequestDef,
     httpCaches:     HttpCaches,
@@ -43,9 +44,9 @@ class PollingStart(
 
   import httpRequestDef._
 
-  override val name = genName(pollerName)
+  override val name: String = genName(pollerName)
 
-  override def clock = coreComponents.clock
+  override def clock: Clock = coreComponents.clock
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
@@ -59,7 +60,7 @@ class PollingStart(
 
   override def execute(session: Session): Unit = recover(session) {
 
-    def startPolling(period: FiniteDuration): Unit = {
+    def startPolling(): Unit = {
       logger.info(s"Starting poller $pollerName")
       val pollingActor = coreComponents.actorSystem.actorOf(
         PollerActor.props(
@@ -84,8 +85,11 @@ class PollingStart(
     }
 
     fetchActor(pollerName, session) match {
-      case _: Success[_] => Failure(s"Unable to create a new poller with name $pollerName: already exists")
-      case _             => period(session).map(startPolling)
+      case _: Success[_] =>
+        Failure(s"Unable to create a new poller with name $pollerName: already exists")
+      case _ =>
+        startPolling()
+        Validation.unit
     }
   }
 }

@@ -199,8 +199,8 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks4))
     .exec(http("Request").head("/").proxy(Proxy("172.31.76.106", 8080).socks5))
     // polling
-    .exec(polling.every(10.seconds).exec(http("poll").get("/foo")))
-    .exec(polling.pollerName("poll").every(10.seconds).exec(http("poll").get("/foo")))
+    .exec(polling.every(10).exec(http("poll").get("/foo")))
+    .exec(polling.pollerName("poll").every(10).exec(http("poll").get("/foo")))
     .exec(polling.pollerName("poll").stop)
     .exec(polling.stop)
     // rendezVous
