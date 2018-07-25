@@ -75,7 +75,7 @@ class HttpTxExecutor(
       }
     })
 
-  def execute(origTx: HttpTx, responseProcessorFactory: HttpTx => ResponseProcessor): Unit = {
+  def execute(origTx: HttpTx, responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
     executeWithCache(origTx) { tx =>
       logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
@@ -89,7 +89,6 @@ class HttpTxExecutor(
       else
         httpEngine.executeRequest(ahcRequest, clientId, shared, listener)
     }
-  }
 
   private def newRootResponseProcessor(tx: HttpTx): ResponseProcessor =
     new DefaultResponseProcessor(
