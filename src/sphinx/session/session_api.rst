@@ -62,7 +62,7 @@ There's 2 ways of doing that:
 
   * you don't have a typo in a feeder file header
   * you don't have a typo in a Gatling EL expression
-  * your feed action is properly called (e.g. could be be properly chained with other action because a dot is missing)
+  * your feed action is properly called (e.g. could be properly chained with other action because a dot is missing)
   * the check that should have saved it actually failed
 
 .. _session-api:
@@ -135,7 +135,7 @@ if the value a ``[String]``, Gatling will try to parse it into a value of the ex
 
 .. note::
 
-  Using ``as`` will probably easier for most users.
+  Using ``as`` will probably be easier for most users.
   It will work fine, but the downside is that they might generate lots of expensive exceptions once things starts going wrong under load.
 
   We advise considering ``validate`` once accustomed to functional logic as it deals with unexpected results in a more efficient manner.
