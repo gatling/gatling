@@ -16,16 +16,20 @@
 package io.gatling.http.action.async.ws
 
 import scala.collection.mutable
+import scala.collection.JavaConverters._
 
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.validation.Success
 import io.gatling.core.stats.StatsEngine
+import io.gatling.http.HeaderNames
 import io.gatling.http.action.async._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.async._
+import io.gatling.http.cookie.CookieSupport
 
 import akka.actor.Props
+import org.asynchttpclient.cookie.CookieDecoder
 import org.asynchttpclient.ws.WebSocket
 
 object WsActor {
@@ -45,7 +49,9 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
     case OnOpen(tx, webSocket, time) =>
       import tx._
       logger.debug(s"Websocket '$wsName' open")
-      val newSession = session.set(wsName, self)
+      val cookies = webSocket.getUpgradeHeaders.getAll(HeaderNames.SetCookie).asScala.flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
+      val newSession = CookieSupport.storeCookies(session.set(wsName, self), request.getUri, cookies)
+
       val newTx = tx.copy(session = newSession)
 
       check match {
