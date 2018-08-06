@@ -71,6 +71,12 @@ abstract class RequestExpressionBuilder(
       httpCaches.baseUrl
     }
 
+  protected def protocolBaseUrls: List[String] =
+    httpProtocol.baseUrls
+
+  protected def isAbsoluteUrl(url: String): Boolean =
+    HttpHelper.isAbsoluteHttpUrl(url)
+
   private def resolveRelativeAgainstBaseUrl(relativeUrl: String, baseUrl: Option[String]): Validation[Uri] =
     baseUrl match {
       case Some(base) =>
@@ -85,18 +91,18 @@ abstract class RequestExpressionBuilder(
     }
 
   private def makeAbsolute(session: Session, url: String): Validation[Uri] =
-    if (HttpHelper.isAbsoluteHttpUrl(url))
+    if (isAbsoluteUrl(url))
       Uri.create(url).success
     else
       resolveRelativeAgainstBaseUrl(url, baseUrl(session))
 
   private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
-      case Left(StaticStringExpression(staticUrl)) if httpProtocol.baseUrls.size <= 1 =>
-        if (HttpHelper.isAbsoluteHttpUrl(staticUrl)) {
+      case Left(StaticStringExpression(staticUrl)) if protocolBaseUrls.size <= 1 =>
+        if (isAbsoluteUrl(staticUrl)) {
           Uri.create(staticUrl).expressionSuccess
         } else {
-          val uriV = resolveRelativeAgainstBaseUrl(staticUrl, httpProtocol.baseUrls.headOption)
+          val uriV = resolveRelativeAgainstBaseUrl(staticUrl, protocolBaseUrls.headOption)
           _ => uriV
         }
 

@@ -21,6 +21,7 @@ import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
+import io.gatling.http.util.HttpHelper
 
 class WsRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
@@ -31,4 +32,10 @@ class WsRequestExpressionBuilder(
   extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
   override protected def baseUrl: Session => Option[String] = httpCaches.wsBaseUrl
+
+  override protected def protocolBaseUrls: List[String] =
+    httpProtocol.wsPart.wsBaseUrls
+
+  override protected def isAbsoluteUrl(url: String): Boolean =
+    HttpHelper.isAbsoluteWsUrl(url)
 }
