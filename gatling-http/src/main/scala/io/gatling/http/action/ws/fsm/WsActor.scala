@@ -30,9 +30,10 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.Props
+import io.netty.handler.codec.http.cookie.Cookie
 
 case class PerformInitialConnect(session: Session, initialConnectNext: Action)
-case class WebSocketConnected(webSocket: WebSocket, timestamp: Long)
+case class WebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long)
 sealed trait SendFrame {
   def actionName: String
   def session: Session

@@ -20,15 +20,19 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.ws.fsm._
 import io.gatling.http.client.WebSocketListener
+import io.gatling.http.util.HttpHelper
 import io.gatling.netty.util.ahc.{ ByteBufUtils, Utf8ByteBufCharsetDecoder }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging
+import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
 class WsListener(wsActor: ActorRef, statsEngine: StatsEngine, clock: Clock) extends WebSocketListener with LazyLogging {
 
+  private var cookies: List[Cookie] = Nil
+
   //[fl]
   //
   //
@@ -60,11 +64,13 @@ class WsListener(wsActor: ActorRef, statsEngine: StatsEngine, clock: Clock) exte
   //
   //[fl]
 
-  override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit =
+  override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {
     logger.debug(s"Received response to WebSocket CONNECT: $httpResponseStatus $httpHeaders")
+    cookies = HttpHelper.responseCookies(httpHeaders)
+  }
 
   override def onWebSocketOpen(): Unit =
-    wsActor ! WebSocketConnected(this, clock.nowMillis)
+    wsActor ! WebSocketConnected(this, cookies, clock.nowMillis)
 
   override def onCloseFrame(frame: CloseWebSocketFrame): Unit =
     wsActor ! WebSocketClosed(frame.statusCode, frame.reasonText, clock.nowMillis)

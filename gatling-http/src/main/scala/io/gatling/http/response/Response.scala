@@ -18,7 +18,6 @@ package io.gatling.http.response
 
 import java.nio.charset.Charset
 
-import scala.collection.breakOut
 import scala.collection.JavaConverters._
 
 import io.gatling.http.HeaderNames
@@ -26,7 +25,7 @@ import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
-import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
+import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
 sealed trait HttpResult {
@@ -61,14 +60,7 @@ case class Response(
 
   def header(name: CharSequence): Option[String] = Option(headers.get(name))
   def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
-  val cookies: List[Cookie] = {
-    val setCookieValues = headers.getAll(HeaderNames.SetCookie)
-    if (setCookieValues.isEmpty) {
-      Nil
-    } else {
-      setCookieValues.asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)))(breakOut)
-    }
-  }
+  val cookies: List[Cookie] = HttpHelper.responseCookies(headers)
 
   def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
   def hasResponseBody: Boolean = bodyLength != 0

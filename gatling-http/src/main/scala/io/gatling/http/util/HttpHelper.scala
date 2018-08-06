@@ -20,6 +20,7 @@ import java.net.URLDecoder
 import java.nio.charset.{ Charset, StandardCharsets }
 
 import scala.collection.{ BitSet, breakOut }
+import scala.collection.JavaConverters._
 import scala.io.Codec.UTF8
 import scala.util.Try
 import scala.util.control.NonFatal
@@ -32,6 +33,7 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.HttpResponseStatus._
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
 object HttpHelper extends StrictLogging {
 
@@ -136,4 +138,13 @@ object HttpHelper extends StrictLogging {
           }.toOption
         }
     }
+
+  def responseCookies(headers: HttpHeaders): List[Cookie] = {
+    val setCookieValues = headers.getAll(HeaderNames.SetCookie)
+    if (setCookieValues.isEmpty) {
+      Nil
+    } else {
+      setCookieValues.asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)))(breakOut)
+    }
+  }
 }

@@ -22,6 +22,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.action.ws.{ OnConnectedChainEndAction, WsListener }
 import io.gatling.http.check.ws.WsFrameCheckSequence
+import io.gatling.http.cookie.CookieSupport
 
 import io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS
 
@@ -71,11 +72,11 @@ trait WhenConnecting { this: WsActor =>
   }
 
   when(Connecting) {
-    case Event(WebSocketConnected(webSocket, connectEnd), ConnectingData(session, next, connectStart, _)) =>
-      val sessionWithGroupTimings = logResponse(session, connectActionName, connectStart, connectEnd, OK, WhenConnecting.WsConnectSuccessStatusCode, None)
+    case Event(WebSocketConnected(webSocket, cookies, connectEnd), ConnectingData(session, next, connectStart, _)) =>
+      val sessionWithCookies = CookieSupport.storeCookies(session, connectRequest.getUri, cookies, connectEnd)
+      val sessionWithGroupTimings = logResponse(sessionWithCookies, connectActionName, connectStart, connectEnd, OK, WhenConnecting.WsConnectSuccessStatusCode, None)
 
       connectCheckSequence match {
-
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
           // wait for some checks before proceeding
 
