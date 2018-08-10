@@ -59,6 +59,20 @@ Gatling currently only support one check at a time per SSE stream.
 
 .. _http-sse-check-set:
 
+Build a Check
+-------------
+
+Now, to the matter at heart, how to build a server sent event check.
+
+SSE support uses the same checks as WebSockets.
+So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
+
+Here are few examples:
+
+.. includecode:: code/SseSample.scala#build-check
+
+.. _http-sse-check-conf:
+
 Set a Check
 -----------
 
@@ -73,20 +87,6 @@ Then, directly from the main HTTP flow:
 .. includecode:: code/SseSample.scala#check-from-flow
 
 If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
-
-Build a Check
--------------
-
-Now, to the matter at heart, how to build a server sent event check.
-
-SSE support uses the same checks as WebSockets.
-So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
-
-Here are few examples:
-
-.. includecode:: code/SseSample.scala#build-check
-
-.. _http-sse-check-conf:
 
 Configuration
 =============
