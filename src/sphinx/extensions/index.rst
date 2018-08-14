@@ -12,6 +12,8 @@ Official Extensions
     maven_plugin
     maven_archetype
     jenkins_plugin
+    bamboo_plugin
+    teamcity_plugin
 
 Third Parties
 =============

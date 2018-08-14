@@ -16,6 +16,14 @@ Having *scenarios* that are defined in code and are resource efficient are the t
 
 Gatling's architecture is asynchronous as long as the underlying protocol, such as HTTP, can be implemented in a non blocking way. This kind of architecture lets us implement virtual users as messages instead of dedicated threads, making them very resource cheap. Thus, running thousands of concurrent virtual users is not an issue.
 
+Gatling FrontLine
+=================
+
+`Gatling FrontLine <https://gatling.io/gatling-frontline/>`_ is Gatling's Enterprise version, developed by Gatling Corp. FrontLine is a web interface with more features: real-time monitoring, clustering, metrics persistence, new metrics & trends, advanced integration with CI tools, ...
+
+.. image:: img/frontline-logo.png
+   :alt: FrontLine
+
 Migrating from a previous version of Gatling
 ============================================
 
