@@ -24,7 +24,7 @@ import scala.collection.JavaConverters._
 import io.gatling.commons.util.Io._
 import io.gatling.core.util.Resource
 
-import org.simpleflatmapper.csv.CsvParser
+import org.simpleflatmapper.lightningcsv.CsvParser
 
 object SeparatedValuesParser {
 

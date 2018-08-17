@@ -32,9 +32,8 @@ object Dependencies {
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.0"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.0"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.6"
-  private val sfm                            = ("org.simpleflatmapper"                % "sfm-csv"                         % "3.19.0")
-    .exclude("org.simpleflatmapper", "sfm-reflect")
-    .exclude("org.simpleflatmapper", "sfm-tuples")
+  private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "4.0.1")
+    .exclude("org.simpleflatmapper", "ow2-asm")
   private val sfmUtil                        = "org.simpleflatmapper"                 % "sfm-util"                        % sfm.revision
   private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.5.4"
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.6.12"
