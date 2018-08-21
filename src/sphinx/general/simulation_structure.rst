@@ -13,6 +13,24 @@ A ``Simulation`` is a real Scala class containing 4 different parts:
 
 To illustrate this point we will take one of our sample simulations: `computerdatabase.BasicSimulation <https://github.com/gatling/gatling/blob/master/gatling-bundle/src/main/scala/computerdatabase/BasicSimulation.scala>`_
 
+DSL imports
+===========
+
+The Gatling DSL requires some imports::
+
+  import io.gatling.core.Predef._     // required for Gatling core structure DSL
+  import io.gatling.jdbc.Predef._     // can be omitted if you don't use jdbcFeeder
+  import io.gatling.http.Predef._     // required for Gatling HTTP DSL
+
+  import scala.concurrent.duration._  // used for specifying duration unit, eg "5 second"
+
+.. warning:: Do not try to "optimize imports" with your IDE, you'd break everything.
+Just copy paste those imports wherever you want to use Gatling DSL.
+
+.. warning:: Beware that the sole API in Gatling (hence stable documented components) is the DSL.
+If you chose to use Gatling internal types, beware those might change any time.
+
+
 HTTP protocol configuration
 ===========================
 

@@ -1,3 +1,5 @@
+.. _extensions:
+
 ##########
 Extensions
 ##########
@@ -14,6 +16,8 @@ Official Extensions
     jenkins_plugin
     bamboo_plugin
     teamcity_plugin
+
+.. _third-parties:
 
 Third Parties
 =============

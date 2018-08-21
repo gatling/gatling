@@ -5,10 +5,10 @@ Sponsors
 eBusiness Information
 =====================
 
-.. image:: img/ebi_logo.png
-    :alt: eBusiness Information
+.. image:: img/logo-takima-1-nom-bas.png
+    :alt: Takima
 
-Gatling is an open source project supported by `eBusiness Information <http://www.ebusinessinformation.fr>`_.
+Gatling was originally incubated at `Takima (formerly eBusiness Information) <https://www.takima.fr>`_.
 
 Highsoft AS
 ===========

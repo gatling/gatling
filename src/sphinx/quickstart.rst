@@ -9,30 +9,11 @@ Introduction
 
 In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL.
 
-Getting the bundle
-------------------
-
-You can get Gatling bundles as a .zip file `here </#/resources/download>`__.
-
 Installing
 ----------
 
-Just unzip the downloaded bundle to a folder of your choice.
-
-.. warning::
-  Windows users : we recommend that you do not place Gatling in the *Programs* folder as there may be permission issues.
-
-In order to run Gatling, you need to have a JDK installed.
-Gatling requires **JDK8** (hence doesn't support JDK9 atm). Gatling should work with any JDK8 update, yet we recommend that you use up-to-date one.
-
-For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations` section.
-
-.. warning::
-  Gatling launch scripts and Gatling maven plugin honor ``JAVA_HOME`` env var if it's set.
-  OS, like OSX, have their own tricky way of discovering which version of Java to run,
-  so you might end up running a different version than the one ``java -version`` tells you.
-  If you get strange errors such as ``Unsupported major.minor version 51.0`` and you were expecting to run a JDK8,
-  you might want to explicitly set ``JAVA_HOME``.
+Please check the :ref:`installation section <installation>` to pick a setup that matches your needs.
+Non developers are recommended to start with the bundle setup.
 
 A Word on Encoding
 ------------------

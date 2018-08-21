@@ -1,3 +1,5 @@
+.. _sbt-plugin:
+
 ##########
 SBT plugin
 ##########
@@ -16,12 +18,12 @@ Setup
 
 In ``project/plugins.sbt``, add::
 
-  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.2.2")
+  addSbtPlugin("io.gatling" % "gatling-sbt" % "MANUALLY_REPLACE_WITH_LATEST_VERSION")
 
 You'll also need those two dependencies::
 
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.3.0" % "test"
-  "io.gatling"            % "gatling-test-framework"    % "2.3.0" % "test"
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
+  "io.gatling"            % "gatling-test-framework"    % "MANUALLY_REPLACE_WITH_LATEST_VERSION" % "test"
 
 And then, in your ``.scala`` build::
 
@@ -38,6 +40,10 @@ or in your ``.sbt`` file, for SBT 0.13.6 and later::
 
   libraryDependencies ++= /* Gatling dependencies */
 
+Demo sample
+===========
+
+You can find a `sample project demoing the gatling-sbt-plugin <https://github.com/gatling/gatling-sbt-plugin-demo>`_ in Gatling's Github organization.
 
 Usage
 =====
@@ -109,3 +115,8 @@ However, should you need to tweak them, you can use ``overrideDefaultJavaOptions
 E.g., if you want to tweak Xms/Xmx to give more memory to Gatling::
 
   javaOptions in Gatling := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
+
+Sources
+=======
+
+If you're interested in contributing, you can find the `gatling-sbt plugin sources <https://github.com/gatling/gatling-sbt>`_ on Github.

@@ -38,6 +38,7 @@ User's guide
 
     whats_new/index
     migration_guides/index
+    installation
     quickstart
     advanced_tutorial
     general/index
@@ -47,5 +48,4 @@ User's guide
     realtime_monitoring/index
     extensions/index
     cookbook/index
-    developing_gatling/index
     project/index
