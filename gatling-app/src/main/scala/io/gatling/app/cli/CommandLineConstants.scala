@@ -27,6 +27,5 @@ private[cli] object CommandLineConstants {
   val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
   val BinariesFolder = CommandLineConstant("binaries-folder", "bf")
   val Simulation = CommandLineConstant("simulation", "s")
-  val OutputDirectoryBaseName = CommandLineConstant("output-name", "on")
   val SimulationDescription = CommandLineConstant("run-description", "rd")
 }

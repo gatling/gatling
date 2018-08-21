@@ -59,11 +59,6 @@ class GatlingPropertiesBuilder {
     this
   }
 
-  def outputDirectoryBaseName(v: String): GatlingPropertiesBuilder = {
-    props += core.OutputDirectoryBaseName -> v
-    this
-  }
-
   def runDescription(v: String): GatlingPropertiesBuilder = {
     props += core.RunDescription -> v
     this

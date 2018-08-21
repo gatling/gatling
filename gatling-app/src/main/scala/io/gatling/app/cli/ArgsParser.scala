@@ -63,11 +63,6 @@ private[app] class ArgsParser(args: Array[String]) {
       .valueName("<className>")
       .text("Runs <className> simulation")
 
-    opt[String](OutputDirectoryBaseName)
-      .foreach(props.outputDirectoryBaseName)
-      .valueName("<name>")
-      .text("Use <name> for the base name of the output directory")
-
     opt[String](SimulationDescription)
       .foreach(props.runDescription)
       .valueName("<description>")
