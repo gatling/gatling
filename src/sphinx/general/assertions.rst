@@ -27,7 +27,10 @@ All the assertions are evaluated after running the simulation. If at least one a
 Scope
 =====
 
-An assertion can test a statistic calculated from all requests or only a part.
+An assertion can test a statistic calculated from all requests or only a part. 
+To use a scope you need to add this import ``import io.gatling.core.Predef._``.
+
+Following scopes are available:
 
 * ``global``: use statistics calculated from all requests.
 
