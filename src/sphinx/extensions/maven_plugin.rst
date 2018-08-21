@@ -76,12 +76,12 @@ The example below shows the default values (so don't bother specifying options y
     <jvmArgs>
       <jvmArg>-DmyExtraParam=foo</jvmArg>                                    <!-- pass extra parameters to the Gatling JVM -->
     </jvmArgs>
-    <overrideJvmArgs>false</overrideJvmArgs>                                 <!-- if above option should override the full default list -->
+    <overrideJvmArgs>false</overrideJvmArgs>                                 <!-- if above option should override the defaults instead of replacing them -->
     <propagateSystemProperties>true</propagateSystemProperties>              <!-- if System properties from the maven JVM should be propagated to the Gatling forked one -->
     <compilerJvmArgs>
       <compilerJvmArg>-DmyExtraParam=foo</compilerJvmArg>                    <!-- pass extra parameters to the Compiler JVM -->
     </compilerJvmArgs>
-    <overrideCompilerJvmArgs>false</overrideCompilerJvmArgs>                 <!-- if above option should override the full default list -->
+    <overrideCompilerJvmArgs>false</overrideCompilerJvmArgs>                 <!-- if above option should override the defaults instead of replacing them -->
     <disableCompiler>false</disableCompiler>                                 <!-- if compiler should be disabled, typically because another plugin has already compiled sources -->
     <simulationsFolder>${project.basedir}/src/test/scala</simulationsFolder> <!-- where the simulations to be compiled are located -->
     <resourcesFolder>${project.basedir}/src/test/resources</resourcesFolder> <!-- where the test resources are located -->
