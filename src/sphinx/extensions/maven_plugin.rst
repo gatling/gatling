@@ -82,6 +82,9 @@ The example below shows the default values (so don't bother specifying options y
       <compilerJvmArg>-DmyExtraParam=foo</compilerJvmArg>                    <!-- pass extra parameters to the Compiler JVM -->
     </compilerJvmArgs>
     <overrideCompilerJvmArgs>false</overrideCompilerJvmArgs>                 <!-- if above option should override the defaults instead of replacing them -->
+    <extraScalacOptions>                                                     <!-- extra options to be passed to scalac -->
+      <extraScalacOption></extraScalacOption>
+    </extraScalacOptions>
     <disableCompiler>false</disableCompiler>                                 <!-- if compiler should be disabled, typically because another plugin has already compiled sources -->
     <simulationsFolder>${project.basedir}/src/test/scala</simulationsFolder> <!-- where the simulations to be compiled are located -->
     <resourcesFolder>${project.basedir}/src/test/resources</resourcesFolder> <!-- where the test resources are located -->
