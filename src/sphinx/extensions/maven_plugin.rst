@@ -45,10 +45,11 @@ You can also use the `gatling-highcharts-maven-archetype <https://search.maven.o
 Usage
 =====
 
-You can directly launch the gatling-maven-plugin with the ``test`` or ``integration-test`` task::
+You can directly launch the gatling-maven-plugin with the ``test`` goal::
 
-  mvn gatling:test             // bound to test phase
-  mvn gatling:integration-test // bound to integration-test phase
+  mvn gatling:test
+
+It's bound by default to the ``integration-test`` phase.
 
 .. _maven-advanced-configuration:
 
@@ -113,21 +114,21 @@ Also note that those filters are only applied against the classes that were comp
 
 .. note:: The order of filters has no impact on execution order, simulations will be sorted by class name alphabetically.
 
-Coexisting with scala-maven-plugin and scalor-maven-plugin
-==========================================================
+Disabling compiler
+==================
 
-If you've decided to turn your maven project into a full blown Scala and use the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_ or the `scalor-maven-plugin <https://github.com/random-maven/scalor-maven-plugin>`_,
-depending on how you run your maven tasks, you might end up compiling your simulations twice: once by the former, and once by the gatling-maven-plugin.
+By default, the gatling-maven-plugin takes care of compiling your Scala code, so you can directly run ``mvn gatling:execute``.
 
-If so, you should disable the gatling-maven-plugin compiling phase::
+Then, for some reason, you might want to have another plugin, such as the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_
+or the `scalor-maven-plugin <https://github.com/random-maven/scalor-maven-plugin>`_, take care of compiling.
+Then, you can disable the Gatling compiler so you don't compile twice::
 
   <configuration>
     <disableCompiler>true</disableCompiler>
   </configuration>
 
-
-Override the logback.xml file
-=============================
+Overriding the logback.xml file
+===============================
 
 You can either have a ``logback-test.xml`` that has precedence over the embedded ``logback.xml`` file, or add a JVM option ``-Dlogback.configurationFile=myFilePath``.
 
