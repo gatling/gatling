@@ -20,7 +20,7 @@ import scala.concurrent.duration._
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.Predef.value2Expression
+import io.gatling.core.Predef._
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 
@@ -30,37 +30,41 @@ class PaceSpec extends AkkaSpec {
 
   private val clock = new DefaultClock
 
+  private val interval = 3 seconds
+  private val counterName = "paceCounter"
+
   "pace" should "run actions with a minimum wait time" in {
-    val instance = new Pace(3.seconds, "paceCounter", system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val instance = new Pace(interval, counterName, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
     instance ! Session("TestScenario", 0, clock.nowMillis)
-    val session1 = expectMsgClass(1.second, classOf[Session])
+    val session1 = expectMsgClass(1 second, classOf[Session])
 
-    // Send second session, expect nothing for 7 seconds, then a response
+    // Send second session, expect nothing for ~3 seconds, then a response
     instance ! session1
-    expectNoMessage(2.seconds)
-    val session2 = expectMsgClass(2.seconds, classOf[Session])
+    expectNoMessage(2 seconds)
+    val session2 = expectMsgClass(2 seconds, classOf[Session])
 
     // counter must have incremented by 3 seconds
-    session2("paceCounter").as[Long] shouldBe session1("paceCounter").as[Long] + 3000L
+    session2(counterName).as[Long] shouldBe session1(counterName).as[Long] + interval.toMillis +- 50
   }
 
   it should "run actions immediately if the minimum time has expired" in {
-    val instance = new Pace(3.seconds, "paceCounter", system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val overrunTime = 1 second
+    val instance = new Pace(interval, counterName, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
     instance ! Session("TestScenario", 0, clock.nowMillis)
-    val session1 = expectMsgClass(1.second, classOf[Session])
+    val session1 = expectMsgClass(1 second, classOf[Session])
 
-    // Wait 3 seconds - simulate overrunning action
-    Thread.sleep(3.seconds.dilated.toMillis)
+    // Wait 4 seconds - simulate overrunning action
+    Thread.sleep((interval + overrunTime).dilated.toMillis)
 
     // Send second session, expect response near-instantly
     instance ! session1
-    val session2 = expectMsgClass(1.second, classOf[Session])
+    val session2 = expectMsgClass(1 second, classOf[Session])
 
     // counter must have incremented by 3 seconds
-    session2("paceCounter").as[Long] shouldBe session1("paceCounter").as[Long] + 3000L
+    session2(counterName).as[Long] shouldBe session1(counterName).as[Long] + overrunTime.toMillis + interval.toMillis +- 50
   }
 }

@@ -33,8 +33,6 @@ import akka.actor.ActorSystem
  * @param intervalExpr a function that decides how long to wait before the next iteration
  * @param counter the name of the counter used to keep track of the run state. Typically this would be random, but
  *                can be set explicitly if needed
- * @param statsEngine the StatsEngine
- * @param next the next actor in the chain
  */
 class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
 
@@ -43,27 +41,26 @@ class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: Act
   override val name: String = genName("pace")
 
   /**
-   * Pace keeps track of when it can next run using a counter in the session. If this counter does not exist, it will
-   * run immediately. On each run, it increments the counter by intervalExpr.
+   * Pace keeps track of when it can next run using a counter in the session.
+   * If this counter does not exist, it will run immediately.
+   * On each run, it increments the counter by intervalExpr.
    *
    * @param session the session of the virtual user
    * @return nothing
    */
   override def execute(session: Session): Unit = recover(session) {
     intervalExpr(session) map { interval =>
-      val startTimeOpt = session(counter).asOption[Long]
       val now = clock.nowMillis
-      val startTime = startTimeOpt.getOrElse(now)
-      val nextStartTime = startTime + interval.toMillis
-      val waitTime = startTime - now
+      val intervalMillis = interval.toMillis
+      session(counter).asOption[Long] match {
+        case Some(timeLimit) if timeLimit > now =>
+          scheduler.scheduleOnce((timeLimit - now) milliseconds) {
+            // by-name parameter, so clock.nowMillis will be evaluated when scheduled task will run
+            next ! session.set(counter, clock.nowMillis + intervalMillis)
+          }
 
-      def doNext(): Unit = next ! session.set(counter, nextStartTime)
-
-      if (waitTime > 0) {
-        scheduler.scheduleOnce(waitTime milliseconds)(doNext())
-      } else {
-        if (startTimeOpt.isDefined) logger.info(s"Previous run overran by ${-waitTime}ms. Running immediately")
-        doNext()
+        case _ =>
+          next ! session.set(counter, now + intervalMillis)
       }
     }
   }
