@@ -156,8 +156,14 @@ class DefaultResourceAggregator(
 
   private def done(): Unit = {
     logger.debug("All resources were fetched")
-    // FIXME only do so if not silent
-    rootTx.next ! session.logGroupRequest(startTimestamp, clock.nowMillis, globalStatus)
+    val newSession =
+      if (rootTx.silent) {
+        session
+      } else {
+        session.logGroupRequest(startTimestamp, clock.nowMillis, globalStatus)
+      }
+
+    rootTx.next ! newSession
   }
 
   private def resourceFetched(uri: Uri, status: Status, silent: Boolean): Unit = {
