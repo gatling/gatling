@@ -35,7 +35,7 @@ trait ResourceAggregator {
 
   def currentSession: Session
 
-  def start(): Unit
+  def start(session: Session): Unit
 
   def onRegularResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean): Unit
 
@@ -61,7 +61,7 @@ class DefaultResourceAggregator(
   private val httpProtocol = rootTx.request.requestConfig.httpProtocol
 
   // mutable state
-  private var session = rootTx.session
+  private var session: Session = _
   private val alreadySeen = mutable.Set.empty[Uri]
   private val bufferedResourcesByHost = mutable.HashMap.empty[String, List[HttpRequest]].withDefaultValue(Nil)
   private val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(httpProtocol.enginePart.maxConnectionsPerHost)
@@ -73,8 +73,10 @@ class DefaultResourceAggregator(
 
   override def currentSession: Session = session
 
-  override def start(): Unit =
+  override def start(session: Session): Unit = {
+    this.session = session
     fetchOrBufferResources(initialResources)
+  }
 
   private def fetchResource(resource: HttpRequest): Unit = {
     logger.debug(s"Fetching resource ${resource.clientRequest.getUri}")

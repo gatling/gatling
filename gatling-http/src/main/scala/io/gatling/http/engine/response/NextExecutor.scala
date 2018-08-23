@@ -41,7 +41,7 @@ class RootNextExecutor(
 
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     resourceFetcher.newResourceAggregatorForFetchedPage(response, tx, status) match {
-      case Some(resourceFetcherActor) => resourceFetcherActor.start()
+      case Some(resourceFetcherActor) => resourceFetcherActor.start(session)
       case _                          => tx.next ! session.increaseDrift(clock.nowMillis - response.endTimestamp)
     }
 

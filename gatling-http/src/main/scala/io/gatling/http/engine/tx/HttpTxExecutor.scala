@@ -55,7 +55,7 @@ class HttpTxExecutor(
         resourceFetcher.newResourceAggregatorForCachedPage(uri, tx) match {
           case Some(aggregator) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
-            aggregator.start()
+            aggregator.start(tx.session)
 
           case _ =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
