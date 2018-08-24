@@ -63,7 +63,7 @@ private[app] class ArgsParser(args: Array[String]) {
       .valueName("<className>")
       .text("Runs <className> simulation")
 
-    opt[String](SimulationDescription)
+    opt[String](RunDescription)
       .foreach(props.runDescription)
       .valueName("<description>")
       .text("A short <description> of the run to include in the report")
