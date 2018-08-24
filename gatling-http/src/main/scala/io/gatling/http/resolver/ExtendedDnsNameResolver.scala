@@ -51,7 +51,7 @@ class ExtendedDnsNameResolver(
     eventLoop, // eventLoop
     ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
     NoopDnsCache.INSTANCE, // resolveCache
-    NoopDnsCache.INSTANCE, // authoritativeDnsServerCache
+    NoopAuthoritativeDnsServerCache.INSTANCE, // authoritativeDnsServerCache
     NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
     queryTimeout, // queryTimeoutMillis
     null, // resolvedAddressTypes, defaults to DEFAULT_RESOLVE_ADDRESS_TYPES
