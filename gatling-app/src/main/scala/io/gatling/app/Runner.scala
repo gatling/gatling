@@ -80,7 +80,7 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
     simulation.executeBefore()
     logger.trace("Before hooks executed")
 
-    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description)
+    val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, configuration.core.version)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler(system, simulationParams)
     val injector = Injector(system, statsEngine, clock)

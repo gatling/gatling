@@ -170,7 +170,7 @@ class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriter
       writer.writeString(runDescription)
     }
     writeSeparator()
-    writer.writeString("3.0")
+    writer.writeString(gatlingVersion)
   }
 }
 

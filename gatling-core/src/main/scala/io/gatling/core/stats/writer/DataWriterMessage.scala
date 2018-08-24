@@ -30,7 +30,8 @@ case class RunMessage(
     simulationClassName: String,
     simulationId:        String,
     start:               Long,
-    runDescription:      String
+    runDescription:      String,
+    gatlingVersion:      String
 ) {
 
   val runId: String = simulationId + "-" +

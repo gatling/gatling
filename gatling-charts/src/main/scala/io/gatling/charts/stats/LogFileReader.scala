@@ -99,7 +99,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
           updateRunLimits(array(3).toLong, array(4).toLong)
 
         case RawRunRecord(array) =>
-          runMessages += RunMessage(array(1), array(2), array(3).toLong, array(5).trim)
+          runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim, array(5).trim)
 
         case RawAssertionRecord(array) =>
           val assertion: Assertion = {
