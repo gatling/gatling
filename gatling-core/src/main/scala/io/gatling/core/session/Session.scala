@@ -160,8 +160,11 @@ case class Session(
     gh(blockStack)
   }
 
-  private[gatling] def enterTryMax(counterName: String, loopAction: Action, nowMillis: Long) =
-    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName, withTimestamp = false, nowMillis)
+  private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
+    copy(
+      blockStack = TryMaxBlock(counterName, loopAction) :: blockStack,
+      attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
+    )
 
   private[gatling] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
@@ -227,16 +230,27 @@ case class Session(
       copy(baseStatus = updatedStatus, blockStack = failStatusUntilFirstTryMaxBlock)
     }
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timeBased: Boolean, nowMillis: Long): Session = {
-
+  private def newBlockStack(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): List[Block] = {
     val newBlock =
-      if (exitASAP)
+      if (exitASAP) {
         ExitAsapLoopBlock(counterName, condition, exitAction)
-      else
+      } else {
         ExitOnCompleteLoopBlock(counterName)
-
-    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timeBased, nowMillis)
+      }
+    newBlock :: blockStack
   }
+
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): Session =
+    copy(
+      blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
+      attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
+    )
+
+  private[gatling] def enterTimeBasedLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, nowMillis: Long): Session =
+    copy(
+      blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
+      attributes = newAttributesWithCounter(counterName, withTimestamp = true, nowMillis)
+    )
 
   private[gatling] def exitLoop: Session = blockStack match {
     case LoopBlock(counterName) :: tail => copy(blockStack = tail).removeCounter(counterName)
@@ -245,14 +259,13 @@ case class Session(
       this
   }
 
-  private[gatling] def initCounter(counterName: String, withTimestamp: Boolean, nowMillis: Long): Session = {
+  private def newAttributesWithCounter(counterName: String, withTimestamp: Boolean, nowMillis: Long): Map[String, Any] = {
     val withCounter = attributes.updated(counterName, 0)
-    val newAttributes =
-      if (withTimestamp)
-        withCounter.updated(timestampName(counterName), nowMillis)
-      else
-        withCounter
-    copy(attributes = newAttributes)
+    if (withTimestamp) {
+      withCounter.updated(timestampName(counterName), nowMillis)
+    } else {
+      withCounter
+    }
   }
 
   private[gatling] def incrementCounter(counterName: String): Session =

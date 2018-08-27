@@ -35,11 +35,11 @@ class TryMax(
     next:        Action
 ) extends Action with NameGen {
 
-  override val name = genName("tryMax")
+  override val name: String = genName("tryMax")
 
   private[this] var innerTryMax: Action = _
   private[core] def initialize(loopNext: Action, system: ActorSystem): Unit =
-    innerTryMax = new InnerTryMax(times, loopNext, counterName, system, clock, name + "-inner", next)
+    innerTryMax = new InnerTryMax(times, loopNext, counterName, system, name + "-inner", next)
 
   override def execute(session: Session): Unit =
     if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
@@ -52,7 +52,6 @@ class InnerTryMax(
     loopNext:    Action,
     counterName: String,
     actorSystem: ActorSystem,
-    clock:       Clock,
     val name:    String,
     val next:    Action
 ) extends ChainableAction {
@@ -97,7 +96,7 @@ class InnerTryMax(
     val lastUserId = getAndSetLastUserId(session)
 
     if (!session.contains(counterName)) {
-      loopNext ! session.enterTryMax(counterName, this, clock.nowMillis)
+      loopNext ! session.enterTryMax(counterName, this)
     } else {
       val incrementedSession = session.incrementCounter(counterName)
 

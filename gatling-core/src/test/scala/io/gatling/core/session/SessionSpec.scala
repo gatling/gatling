@@ -46,7 +46,7 @@ class SessionSpec extends BaseSpec {
   it should "preserve loop counter" in {
     val session = newSession
       .set("bar", 5)
-      .enterLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, timeBased = false, nowMillis = 0L)
+      .enterLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false)
       .reset
 
     session.attributes.get("foo") shouldBe Some(0)
@@ -56,7 +56,7 @@ class SessionSpec extends BaseSpec {
   it should "preserve loop timestamp" in {
     val session = newSession
       .set("bar", 5)
-      .enterLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, timeBased = true, nowMillis = 1000)
+      .enterTimeBasedLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, nowMillis = 1000)
       .reset
 
     session.attributes.get("foo") shouldBe Some(0)
@@ -148,7 +148,7 @@ class SessionSpec extends BaseSpec {
     val session = newSession
       .enterGroup("root group", System.currentTimeMillis())
       .enterGroup("child group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax", nextAction)
     val sessionWithGroupStatsUpdated = session.logGroupRequest(1, 6, KO)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
@@ -169,7 +169,7 @@ class SessionSpec extends BaseSpec {
     val session = newSession
       .enterGroup("root group", System.currentTimeMillis())
       .enterGroup("child group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax", nextAction)
     val sessionWithGroupStatsUpdated = session.logGroupRequest(1, 6, OK)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
@@ -183,7 +183,7 @@ class SessionSpec extends BaseSpec {
     val session = newSession
       .enterGroup("root group", System.currentTimeMillis())
       .enterGroup("child group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax", nextAction)
     val sessionWithGroupStatsUpdated = session.logGroupRequest(1, 6, KO)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
@@ -211,14 +211,14 @@ class SessionSpec extends BaseSpec {
   }
 
   "enterTryMax" should "add a TryMaxBlock on top of the stack and init a counter" in {
-    val session = newSession.enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+    val session = newSession.enterTryMax("tryMax", nextAction)
 
     session.blockStack.head shouldBe a[TryMaxBlock]
     session.contains("tryMax") shouldBe true
   }
 
   "exitTryMax" should "simply exit the closest TryMaxBlock and remove its associated counter if it has not failed" in {
-    val session = newSession.enterTryMax("tryMax", nextAction, System.currentTimeMillis()).exitTryMax
+    val session = newSession.enterTryMax("tryMax", nextAction).exitTryMax
 
     session.blockStack shouldBe empty
     session.contains("tryMax") shouldBe false
@@ -227,7 +227,7 @@ class SessionSpec extends BaseSpec {
   it should "simply exit the TryMaxBlock and remove its associated counter if it has failed but with no other TryMaxBlock in the stack" in {
     val session = newSession
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax", nextAction)
       .markAsFailed.exitTryMax
 
     session.blockStack.head shouldBe a[GroupBlock]
@@ -236,9 +236,9 @@ class SessionSpec extends BaseSpec {
 
   it should "exit the TryMaxBlock, remove its associated counter and set the closest TryMaxBlock in the stack's status to KO if it has failed" in {
     val session = newSession
-      .enterTryMax("tryMax1", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax1", nextAction)
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax2", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax2", nextAction)
       .markAsFailed
       .exitTryMax
 
@@ -257,7 +257,7 @@ class SessionSpec extends BaseSpec {
 
   it should "propagate the failure to the baseStatus" in {
     val session = newSession
-      .enterTryMax("tryMax1", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax1", nextAction)
       .markAsFailed
       .exitTryMax
 
@@ -312,7 +312,7 @@ class SessionSpec extends BaseSpec {
   it should "set the TryMaxBlock's status to OK if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
     val session = newSession.copy(baseStatus = KO)
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax", nextAction)
     val failedSession = session.markAsSucceeded
 
     failedSession.baseStatus shouldBe KO
@@ -337,7 +337,7 @@ class SessionSpec extends BaseSpec {
   it should "set the TryMaxBlock's status to KO if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
     val session = newSession
       .enterGroup("root group", System.currentTimeMillis())
-      .enterTryMax("tryMax", nextAction, System.currentTimeMillis())
+      .enterTryMax("tryMax", nextAction)
     val failedSession = session.markAsFailed
 
     failedSession.baseStatus shouldBe OK
@@ -346,7 +346,7 @@ class SessionSpec extends BaseSpec {
 
   "enterLoop" should "add an ExitASAPLoopBlock on top of the stack and init a counter when exitASAP = true" in {
     val session = newSession
-      .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = true, timeBased = false, System.currentTimeMillis())
+      .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = true)
 
     session.blockStack.head shouldBe a[ExitAsapLoopBlock]
     session.contains("loop") shouldBe true
@@ -355,7 +355,7 @@ class SessionSpec extends BaseSpec {
 
   it should "add an ExitOnCompleteLoopBlock on top of the stack and init a counter when exitASAP = false" in {
     val session = newSession
-      .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timeBased = false, System.currentTimeMillis())
+      .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false)
 
     session.blockStack.head shouldBe a[ExitOnCompleteLoopBlock]
     session.contains("loop") shouldBe true
@@ -364,7 +364,7 @@ class SessionSpec extends BaseSpec {
 
   "exitLoop" should "remove the LoopBlock from the top of the stack and its associated counter" in {
     val session = newSession
-      .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false, timeBased = false, System.currentTimeMillis())
+      .enterLoop("loop", true.expressionSuccess, nextAction, exitASAP = false)
     val sessionOutOfLoop = session.exitLoop
 
     sessionOutOfLoop.blockStack shouldBe empty
@@ -377,8 +377,8 @@ class SessionSpec extends BaseSpec {
     session should be theSameInstanceAs unModifiedSession
   }
 
-  "initCounter" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
-    val session = newSession.initCounter("counter", withTimestamp = true, System.currentTimeMillis())
+  "enterTimeBasedLoop" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
+    val session = newSession.enterTimeBasedLoop("counter", _ => Success(true), null, false, System.currentTimeMillis())
 
     session.contains("counter") shouldBe true
     session.attributes("counter") shouldBe 0
@@ -386,7 +386,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "incrementCounter" should "increment a counter in session" in {
-    val session = newSession.initCounter("counter", withTimestamp = false, System.currentTimeMillis())
+    val session = newSession.enterLoop("counter", _ => Success(true), null, false)
     val sessionWithUpdatedCounter = session.incrementCounter("counter")
 
     sessionWithUpdatedCounter.attributes("counter") shouldBe 1
@@ -399,7 +399,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "removeCounter" should "remove a counter and its associated timestamp from the session" in {
-    val session = newSession.initCounter("counter", withTimestamp = true, System.currentTimeMillis())
+    val session = newSession.enterTimeBasedLoop("counter", _ => Success(true), null, false, System.currentTimeMillis())
     val sessionWithRemovedCounter = session.removeCounter("counter")
 
     sessionWithRemovedCounter.contains("counter") shouldBe false

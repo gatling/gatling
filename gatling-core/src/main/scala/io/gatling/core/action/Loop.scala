@@ -39,10 +39,13 @@ class Loop(
   private[core] def initialize(loopNext: Action, actorSystem: ActorSystem): Unit = {
 
     val counterIncrement = (session: Session) =>
-      if (session.contains(counterName))
+      if (session.contains(counterName)) {
         session.incrementCounter(counterName)
-      else
-        session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased, clock.nowMillis)
+      } else if (timeBased) {
+        session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis)
+      } else {
+        session.enterLoop(counterName, continueCondition, next, exitASAP)
+      }
 
     innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, actorSystem, name + "-inner", next)
   }
