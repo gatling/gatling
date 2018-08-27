@@ -36,9 +36,32 @@ class SessionSpec extends BaseSpec {
   }
 
   "reset" should "remove all attributes from the session" in {
-    val session = newSession.setAll("key" -> 1, "otherKey" -> 2)
-    val resetSession = session.reset
-    resetSession.attributes shouldBe empty
+    val session = newSession
+      .setAll("key" -> 1, "otherKey" -> 2)
+      .reset
+
+    session.attributes shouldBe empty
+  }
+
+  it should "preserve loop counter" in {
+    val session = newSession
+      .set("bar", 5)
+      .enterLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, timeBased = false, nowMillis = 0L)
+      .reset
+
+    session.attributes.get("foo") shouldBe Some(0)
+    session.attributes.get("bar") shouldBe None
+  }
+
+  it should "preserve loop timestamp" in {
+    val session = newSession
+      .set("bar", 5)
+      .enterLoop(counterName = "foo", condition = _ => Success(true), exitAction = null, exitASAP = false, timeBased = true, nowMillis = 1000)
+      .reset
+
+    session.attributes.get("foo") shouldBe Some(0)
+    session.attributes.get(Session.timestampName("foo")) shouldBe Some(1000)
+    session.attributes.get("bar") shouldBe None
   }
 
   "remove" should "remove an attribute from the session if present" in {

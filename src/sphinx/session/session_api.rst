@@ -78,7 +78,7 @@ Session has the following methods:
 * ``set(key: String, value: Any): Session``: add or replace an attribute
 * ``setAll(newAttributes: (String, Any)*): Session``: bulk add or replace attributes
 * ``setAll(newAttributes: Iterable[(String, Any)]): Session``: same as above but takes an Iterable instead of a varags
-* ``reset``: reset all attributes
+* ``reset``: reset all attributes but loop counters, timestamps and Gatling internals (baseURL, caches, etc)
 
 .. warning::
   ``Session`` instances are immutable!

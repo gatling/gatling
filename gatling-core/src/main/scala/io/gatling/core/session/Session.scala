@@ -17,6 +17,7 @@
 package io.gatling.core.session
 
 import scala.annotation.tailrec
+import scala.collection.breakOut
 import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
@@ -24,8 +25,8 @@ import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
-import io.gatling.core.session.el.ElMessages
 import io.gatling.core.action.Action
+import io.gatling.core.session.el.ElMessages
 import io.gatling.core.stats.message.ResponseTimings
 
 import com.typesafe.scalalogging.LazyLogging
@@ -55,6 +56,8 @@ object Session {
   val MarkAsFailedUpdate: Session => Session = _.markAsFailed
   val Identity: Session => Session = identity[Session]
   val NothingOnExit: Session => Unit = _ => ()
+
+  private[session] def timestampName(counterName: String) = "timestamp." + counterName
 }
 
 /**
@@ -83,6 +86,8 @@ case class Session(
     onExit:     Session => Unit  = Session.NothingOnExit
 ) extends LazyLogging {
 
+  import Session._
+
   def apply(name: String): SessionAttribute = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
   def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
@@ -90,12 +95,27 @@ case class Session(
   def remove(key: String): Session = if (contains(key)) copy(attributes = attributes - key) else this
   def removeAll(keys: String*): Session = keys.foldLeft(this)(_ remove _)
   def contains(attributeKey: String): Boolean = attributes.contains(attributeKey)
-  def reset: Session = copy(attributes = Map.empty)
+
+  def reset: Session = {
+    val newAttributes =
+      if (blockStack.isEmpty) {
+        // not in a block
+        Map.empty[String, Any]
+      } else {
+        val counterNames: Set[String] = blockStack.collect { case counterBlock: CounterBlock => counterBlock.counterName }(breakOut)
+        if (counterNames.isEmpty) {
+          // no counter based blocks (only groups)
+          Map.empty[String, Any]
+        } else {
+          val timestampNames: Set[String] = counterNames.map(timestampName)
+          attributes.filter { case (key, _) => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix) }
+        }
+      }
+    copy(attributes = newAttributes)
+  }
 
   private[gatling] def setDrift(drift: Long) = copy(drift = drift)
   private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
-
-  private def timestampName(counterName: String) = "timestamp." + counterName
 
   def loopCounterValue(counterName: String): Int = attributes(counterName).asInstanceOf[Int]
 

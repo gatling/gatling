@@ -47,7 +47,6 @@ trait Loops[B] extends Execs[B] {
   def during(duration: Duration, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = true)(chain: ChainBuilder)(implicit clock: Clock): B =
     during(duration.expressionSuccess, counterName, exitASAP)(chain)
 
-  // FIXME provide an implicit to lift Int into Duration in seconds
   def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder)(implicit clock: Clock): B = {
 
     val continueCondition = (session: Session) => duration(session).map(d => clock.nowMillis - session.loopTimestampValue(counterName) <= d.toMillis)
