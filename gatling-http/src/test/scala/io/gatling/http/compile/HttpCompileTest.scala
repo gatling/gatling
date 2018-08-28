@@ -186,6 +186,8 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").post("/things").body(PebbleStringBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(PebbleFileBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(ByteArrayBody("${bytes}")))
+    // processRequestBody
+    .exec(http("Request").post("/things").body(StringBody("FOO${BAR}BAZ")).processRequestBody(identity))
     // bodyParts
     .exec(http("Request").post("url")
       .formUpload("name", "path")
