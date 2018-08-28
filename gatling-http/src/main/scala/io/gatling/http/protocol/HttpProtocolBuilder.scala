@@ -120,7 +120,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def disableFollowRedirect = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
   def maxRedirects(max: Int) = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
   def strict302Handling = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
-  def disableResponseChunksDiscarding = this.modify(_.protocol.responsePart.discardResponseChunks).setTo(false)
   def transformResponse(responseTransformer: ResponseTransformer) = this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*) = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)

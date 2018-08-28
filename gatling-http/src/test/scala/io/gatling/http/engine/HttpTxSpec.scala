@@ -52,7 +52,6 @@ class HttpTxSpec extends BaseSpec {
       throttled = false,
       silent = None,
       followRedirect = false,
-      discardResponseChunks = true,
       httpProtocol = httpProtocol,
       explicitResources = Nil
     )

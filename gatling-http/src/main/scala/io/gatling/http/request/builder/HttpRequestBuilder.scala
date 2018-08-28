@@ -30,17 +30,16 @@ import io.gatling.http.request._
 import com.softwaremill.quicklens._
 
 case class HttpAttributes(
-    checks:                List[HttpCheck]                      = Nil,
-    ignoreDefaultChecks:   Boolean                              = false,
-    silent:                Option[Boolean]                      = None,
-    followRedirect:        Boolean                              = true,
-    discardResponseChunks: Boolean                              = true,
-    responseTransformer:   Option[ResponseTransformer]          = None,
-    explicitResources:     List[HttpRequestBuilder]             = Nil,
-    body:                  Option[Body]                         = None,
-    bodyParts:             List[BodyPart]                       = Nil,
-    formParams:            List[HttpParam]                      = Nil,
-    form:                  Option[Expression[Map[String, Any]]] = None
+    checks:              List[HttpCheck]                      = Nil,
+    ignoreDefaultChecks: Boolean                              = false,
+    silent:              Option[Boolean]                      = None,
+    followRedirect:      Boolean                              = true,
+    responseTransformer: Option[ResponseTransformer]          = None,
+    explicitResources:   List[HttpRequestBuilder]             = Nil,
+    body:                Option[Body]                         = None,
+    bodyParts:           List[BodyPart]                       = Nil,
+    formParams:          List[HttpParam]                      = Nil,
+    form:                Option[Expression[Map[String, Any]]] = None
 )
 
 object HttpRequestBuilder {
@@ -92,8 +91,6 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = this.modify(_.httpAttributes.explicitResources).setTo(res.toList)
 
-  def disableResponseChunksDiscarding: HttpRequestBuilder = this.modify(_.httpAttributes.discardResponseChunks).setTo(false)
-
   /**
    * Adds Content-Type header to the request set with "multipart/form-data" value
    */
@@ -140,8 +137,6 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
     val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
 
-    val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && httpProtocol.responsePart.discardResponseChunks
-
     HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
@@ -152,7 +147,6 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
         throttled = throttled,
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
-        discardResponseChunks = resolvedDiscardResponseChunks,
         explicitResources = resolvedResources,
         httpProtocol = httpProtocol
       )

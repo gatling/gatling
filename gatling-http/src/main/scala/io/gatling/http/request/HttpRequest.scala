@@ -24,15 +24,14 @@ import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 
 case class HttpRequestConfig(
-    checks:                List[HttpCheck],
-    responseTransformer:   Option[ResponseTransformer],
-    maxRedirects:          Int,
-    throttled:             Boolean,
-    silent:                Option[Boolean],
-    followRedirect:        Boolean,
-    discardResponseChunks: Boolean,
-    explicitResources:     List[HttpRequestDef],
-    httpProtocol:          HttpProtocol
+    checks:              List[HttpCheck],
+    responseTransformer: Option[ResponseTransformer],
+    maxRedirects:        Int,
+    throttled:           Boolean,
+    silent:              Option[Boolean],
+    followRedirect:      Boolean,
+    explicitResources:   List[HttpRequestDef],
+    httpProtocol:        HttpProtocol
 )
 
 case class HttpRequestDef(

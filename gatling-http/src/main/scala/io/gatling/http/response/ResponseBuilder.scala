@@ -44,11 +44,10 @@ object ResponseBuilder extends StrictLogging {
   private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
   def newResponseBuilderFactory(
-    checks:                List[HttpCheck],
-    discardResponseChunks: Boolean,
-    inferHtmlResources:    Boolean,
-    clock:                 Clock,
-    configuration:         GatlingConfiguration
+    checks:             List[HttpCheck],
+    inferHtmlResources: Boolean,
+    clock:              Clock,
+    configuration:      GatlingConfiguration
   ): ResponseBuilderFactory = {
 
     val checksumChecks = checks.collect {
@@ -57,7 +56,7 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy)
 
-    val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty
+    val storeBodyParts = IsDebugEnabled || responseBodyUsageStrategies.nonEmpty
 
     request => new ResponseBuilder(
       request,

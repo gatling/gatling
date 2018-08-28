@@ -187,7 +187,6 @@ class CacheSupportSpec extends BaseSpec {
           throttled = false,
           silent = None,
           followRedirect = true,
-          discardResponseChunks = true,
           httpProtocol = protocol,
           explicitResources = Nil
         )
