@@ -23,7 +23,6 @@ object HttpCheckScope {
   case object Status extends HttpCheckScope
   case object Url extends HttpCheckScope
   case object Time extends HttpCheckScope
-  case object Checksum extends HttpCheckScope
   case object Header extends HttpCheckScope
   case object Body extends HttpCheckScope
 }

@@ -30,7 +30,7 @@ object CheckProcessor {
   private[response] def check(session: Session, response: Response, checks: List[HttpCheck], computeUpdates: Boolean): (Session, Session => Session, Option[Failure]) = {
     val filteredChecks =
       if (HttpHelper.isNotModified(response.status)) {
-        checks.filter(c => c.scope != HttpCheckScope.Body && c.scope != HttpCheckScope.Checksum)
+        checks.filter(c => c.scope != HttpCheckScope.Body)
       } else {
         checks
       }
