@@ -23,6 +23,6 @@ There's plenty of opportunities!
 
 * `Constantijn Visinescu <https://github.com/constantijn>`_ originally contributed the FunSpec and associated demo project.
 
-* `Arturas Smorgun <https://github.com/asarturas>`_ created the g8 template.
+* `Arturas Smorgun <https://github.com/asarturas>`_ created the Giter8 template.
 
 Also, let us know if we've missed your name.
