@@ -49,10 +49,6 @@ trait ResourceAggregator {
   def onCachedResource(uri: Uri, tx: HttpTx): Unit
 }
 
-object DefaultResourceAggregator {
-  val MissingPriorKnowledgeMapException = new IllegalStateException("HTTP/2 is enabled but there is no prior knowledge map in session.") with NoStackTrace
-}
-
 class DefaultResourceAggregator(
     rootTx:           HttpTx,
     initialResources: Seq[HttpRequest],

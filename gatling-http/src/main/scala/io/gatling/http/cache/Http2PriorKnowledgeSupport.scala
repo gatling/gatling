@@ -16,15 +16,18 @@
 
 package io.gatling.http.cache
 
-import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.fetch.DefaultResourceAggregator
-import io.gatling.http.protocol.{ HttpProtocol, Remote }
+import scala.util.control.NoStackTrace
+
+import io.gatling.core.session.{Session, SessionPrivateAttributes}
+import io.gatling.http.protocol.{HttpProtocol, Remote}
 import io.gatling.http.response.Response
 
 import com.typesafe.scalalogging.StrictLogging
 
 object Http2PriorKnowledgeSupport {
   val Http2PriorKnowledgeAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.priorKnowledgeHttp2"
+
+  val MissingPriorKnowledgeMapException = new UnsupportedOperationException("HTTP/2 is enabled but there is no prior knowledge map in session.") with NoStackTrace
 }
 
 trait Http2PriorKnowledgeSupport extends StrictLogging {
@@ -42,19 +45,19 @@ trait Http2PriorKnowledgeSupport extends StrictLogging {
       Session.Identity
     }
 
-  def updateSessionHttp2PriorKnowledge(s1: Session, response: Response): Session = {
+  def updateSessionHttp2PriorKnowledge(session: Session, response: Response): Session = {
     val remote = Remote(response.request.getUri)
-    val priorKnowledgeMap = s1(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]]
-      .getOrElse(throw DefaultResourceAggregator.MissingPriorKnowledgeMapException)
+    val priorKnowledgeMap = session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]]
+      .getOrElse(throw MissingPriorKnowledgeMapException)
     if (priorKnowledgeMap.contains(remote)) {
-      s1
+      session
     } else {
-      s1.set(Http2PriorKnowledgeAttributeName, priorKnowledgeMap + (remote -> response.isHttp2))
+      session.set(Http2PriorKnowledgeAttributeName, priorKnowledgeMap + (remote -> response.isHttp2))
     }
   }
 
   def isHttp2PriorKnowledge(session: Session, remote: Remote): Option[Boolean] = {
     session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]]
-      .getOrElse(throw DefaultResourceAggregator.MissingPriorKnowledgeMapException).get(remote)
+      .getOrElse(throw MissingPriorKnowledgeMapException).get(remote)
   }
 }
