@@ -162,8 +162,8 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setAlpnRequired(boolean isAlpnRequired) {
-    this.alpnRequired = isAlpnRequired;
+  public RequestBuilder setAlpnRequired(boolean alpnRequired) {
+    this.alpnRequired = alpnRequired;
     return this;
   }
 

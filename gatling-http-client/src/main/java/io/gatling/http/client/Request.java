@@ -43,8 +43,8 @@ public class Request {
   private final SignatureCalculator signatureCalculator;
   private final NameResolver<InetAddress> nameResolver;
   private final boolean http2Enabled;
-  private final boolean isAlpnRequired;
-  private final boolean isHttp2PriorKnowledge;
+  private final boolean alpnRequired;
+  private final boolean http2PriorKnowledge;
 
   public Request(HttpMethod method,
                  Uri uri,
@@ -59,8 +59,8 @@ public class Request {
                  SignatureCalculator signatureCalculator,
                  NameResolver<InetAddress> nameResolver,
                  boolean http2Enabled,
-                 boolean isAlpnRequired,
-                 boolean isHttp2PriorKnowledge) {
+                 boolean alpnRequired,
+                 boolean http2PriorKnowledge) {
     this.method = method;
     this.uri = uri;
     this.headers = headers;
@@ -74,8 +74,8 @@ public class Request {
     this.signatureCalculator = signatureCalculator;
     this.nameResolver = nameResolver;
     this.http2Enabled = http2Enabled;
-    this.isAlpnRequired = isAlpnRequired;
-    this.isHttp2PriorKnowledge = isHttp2PriorKnowledge;
+    this.alpnRequired = alpnRequired;
+    this.http2PriorKnowledge = http2PriorKnowledge;
   }
 
   public Request copyWithAlpnRequiredAndPriorKnowledge(boolean isAlpnRequired, boolean isHttp2PriorKnowledge) {
@@ -150,11 +150,11 @@ public class Request {
   }
 
   public boolean isAlpnRequired() {
-    return isAlpnRequired;
+    return alpnRequired;
   }
 
   public boolean isHttp2PriorKnowledge() {
-    return isHttp2PriorKnowledge;
+    return http2PriorKnowledge;
   }
 
   @Override
@@ -173,8 +173,8 @@ public class Request {
       ", signatureCalculator=" + signatureCalculator +
       ", nameResolver=" + nameResolver +
       ", http2Enabled=" + http2Enabled +
-      ", isAlpnRequired=" + isAlpnRequired +
-      ", isHttp2PriorKnowledge=" + isHttp2PriorKnowledge +
+      ", alpnRequired=" + alpnRequired +
+      ", http2PriorKnowledge=" + http2PriorKnowledge +
       '}';
   }
 }
