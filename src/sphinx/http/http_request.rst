@@ -35,7 +35,6 @@ Gatling provides built-ins for the most common methods. Those are simply the met
 Gatling also supports custom methods (e.g. you can use the method *PURGE* to purge Nginx cache):
 
 * ``httpRequest(method: String, url: Expression[String])``
-* ``httpRequestWithParams(method: String, url: Expression[String])`` for extending ``post``
 
 This is how an HTTP request is declared:
 
