@@ -47,7 +47,7 @@ You can find a `sample project demoing the gatling-sbt-plugin <https://github.co
 
 You can also use our `Giter8 <http://www.foundweekends.org/giter8/>`_ `template <https://github.com/gatling/gatling.g8>`__ to bootstrap a new sbt project::
 
-  sbt new spikerlabs/gatling.g8
+  sbt new gatling/gatling.g8
 
 Usage
 =====
