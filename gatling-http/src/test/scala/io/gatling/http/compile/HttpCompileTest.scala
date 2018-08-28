@@ -88,12 +88,16 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").queryParam("param", "one"))
     .exec(http("Request").get("/").queryParam("param1", "one").queryParam("param2", "two"))
     .exec(http("Request").get("/").queryParam("param", "${param}"))
-    .exec(http("Request").get("/").queryParam("param", session => "foo"))
-    .exec(http("Request").get("/").queryParam("foo", (session: Session) => io.gatling.commons.validation.Success(1)))
+    .exec(http("Request").get("/").queryParam("param", _ => "foo"))
+    .exec(http("Request").get("/").queryParam("foo", (_: Session) => io.gatling.commons.validation.Success(1)))
     // multivaluedQueryParam
     .exec(http("Request").get("/").multivaluedQueryParam("param", List("foo")))
     .exec(http("Request").get("/").multivaluedQueryParam("param", "${foo}"))
     .exec(http("Request").get("/").multivaluedQueryParam("param", List("foo")))
+    // queryParamSeq
+    .exec(http("Request").get("/").queryParamSeq(Seq("foo" -> "${bar}")))
+    // queryParamMap
+    .exec(http("Request").get("/").queryParamMap(Map("foo" -> "${bar}")))
     // basic auth
     .exec(http("Request").get("/").basicAuth("usr", "pwd"))
     // check
