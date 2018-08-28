@@ -53,7 +53,7 @@ case class RequestReplyDslBuilderQueue(
 
   def queue(name: Expression[String]) = destination(JmsQueue(name))
 
-  def destination(destination: JmsDestination) = RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, None, None, configuration)
+  def destination(destination: JmsDestination) = RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, setJMSReplyTo = true, None, None, configuration)
 }
 
 case class SendDslDslBuilderMessage(
@@ -74,6 +74,7 @@ case class RequestReplyDslBuilderMessage(
     requestName:     Expression[String],
     destination:     JmsDestination,
     replyDest:       JmsDestination,
+    setJMSReplyTo:   Boolean,
     trackerDest:     Option[JmsDestination],
     messageSelector: Option[String],
     configuration:   GatlingConfiguration
@@ -83,6 +84,7 @@ case class RequestReplyDslBuilderMessage(
    */
   def replyQueue(name: Expression[String]) = replyDestination(JmsQueue(name))
   def replyDestination(destination: JmsDestination) = this.copy(replyDest = destination)
+  def noJMSReplyTo = this.copy(setJMSReplyTo = false)
   def trackerQueue(name: Expression[String]) = trackerDestination(JmsQueue(name))
   def trackerDestination(destination: JmsDestination) = this.copy(trackerDest = Some(destination))
 
@@ -98,7 +100,7 @@ case class RequestReplyDslBuilderMessage(
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    RequestReplyDslBuilder(JmsAttributes(requestName, destination, messageSelector, mess), RequestReplyBuilder.apply(_, replyDest, trackerDest, configuration))
+    RequestReplyDslBuilder(JmsAttributes(requestName, destination, messageSelector, mess), RequestReplyBuilder.apply(_, replyDest, setJMSReplyTo, trackerDest, configuration))
 }
 
 case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {

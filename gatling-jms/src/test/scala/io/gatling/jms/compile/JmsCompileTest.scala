@@ -76,6 +76,7 @@ class JmsCompileTest extends Simulation {
         .exec(jms("req reply - custom").requestReply
           .queue("requestQueue")
           .replyQueue("responseQueue")
+          .noJMSReplyTo
           .textMessage("hello from gatling jms dsl")
           .property("identification", "${ID}")
           .check(checkBodyTextCorrect))

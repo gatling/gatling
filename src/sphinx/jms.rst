@@ -59,7 +59,8 @@ Destination
 
 Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``
 
-Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)`` if not defined dynamic queue will be used.
+Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)``, otherwise a dynamic queue will be used.
+If you do so, you have to possibility of not setting the `JMSReplyTo` header with ``noJMSReplyTo``.
 
 Additionally for reply destination JMS selector can be defined with ``selector("selector")``
 
