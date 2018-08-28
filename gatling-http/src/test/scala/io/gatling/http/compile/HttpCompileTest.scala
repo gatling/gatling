@@ -101,6 +101,16 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").queryParamMap(Map("foo" -> "${bar}")))
     // basic auth
     .exec(http("Request").get("/").basicAuth("usr", "pwd"))
+    .exec(http("Request").get("/").digestAuth("usr", "pwd"))
+    .exec(http("Request").get("/").ntlmAuth("usr", "pwd", "domain", "host"))
+    // misc
+    .exec(
+      http("Request").get("/")
+        .silent
+        .notSilent
+        .disableUrlEncoding
+        .disableFollowRedirect
+    )
     // check
     .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value")))
     .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value"), jsonPath("//foo/bar[2]/baz")))
@@ -187,9 +197,9 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/foo/bar?baz=qix")
       .sign(new SignatureCalculator {
         override def sign(request: Request): Unit = {
+          import java.util.Base64
           import javax.crypto.Mac
           import javax.crypto.spec.SecretKeySpec
-          import java.util.Base64
           val mac = Mac.getInstance("HmacSHA256")
           mac.init(new SecretKeySpec("THE_SECRET_KEY".getBytes("UTF-8"), "HmacSHA256"))
           val rawSignature = mac.doFinal(request.getUri.getQuery.getBytes("UTF-8"))
