@@ -18,8 +18,8 @@ package io.gatling.http.cache
 
 import scala.util.control.NoStackTrace
 
-import io.gatling.core.session.{Session, SessionPrivateAttributes}
-import io.gatling.http.protocol.{HttpProtocol, Remote}
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.response.Response
 
 import com.typesafe.scalalogging.StrictLogging

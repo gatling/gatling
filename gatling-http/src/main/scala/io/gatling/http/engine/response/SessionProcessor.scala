@@ -19,14 +19,12 @@ package io.gatling.http.engine.response
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
-import io.gatling.http.cache.Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName
-import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.Request
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.cookie.CookieSupport
-import io.gatling.http.fetch.DefaultResourceAggregator
-import io.gatling.http.protocol.{ HttpProtocol, Remote }
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
@@ -67,8 +65,14 @@ sealed abstract class SessionProcessor(
     }
 
     val (sessionWithCheckSavedValues, checkUpdates, checkError) = CheckProcessor.check(session, response, checks, computeUpdates)
+    val sessionWithHttp2PriorKnowledge =
+      if (httpProtocol.requestPart.enableHttp2) {
+        httpCaches.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, response)
+      } else {
+        sessionWithCheckSavedValues
+      }
+
     val newStatus = if (checkError.isDefined) KO else OK
-    val sessionWithHttp2PriorKnowledge = httpCaches.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, response)
     val newSession = updateSessionAfterChecks(sessionWithHttp2PriorKnowledge, newStatus)
 
     val updates: Session => Session =
