@@ -181,7 +181,12 @@ class CoreCompileTest extends Simulation {
     )(exec(noop))
     .exec(noop)
     .exec(session => session.set("tryMax", 3))
+    // tryMax and exit
     .tryMax("${tryMax}") {
+      exec(noop)
+    }
+    .exitHereIfFailed
+    .exitBlockOnFail {
       exec(noop)
     }
 
