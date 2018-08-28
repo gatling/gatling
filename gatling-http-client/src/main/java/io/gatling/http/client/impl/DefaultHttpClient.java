@@ -565,7 +565,7 @@ public class DefaultHttpClient implements HttpClient {
                channel.close();
                return;
              }
-             LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+             LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
              installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
                if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
                  channel.close();
