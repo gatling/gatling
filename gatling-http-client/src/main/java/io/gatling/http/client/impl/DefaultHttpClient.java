@@ -274,8 +274,8 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     listener.onSend();
-    if (request.getUri().isSecured() && request.isHttp2Enabled() && config.isDisableHttpsEndpointIdentificationAlgorithm()) {
-      listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work with HttpsEndpointIdentificationAlgorithm disabled."));
+    if (request.getUri().isSecured() && request.isHttp2Enabled() && !config.isEnableSni()) {
+      listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       return;
     }
 
@@ -299,10 +299,10 @@ public class DefaultHttpClient implements HttpClient {
 
     Request headRequest = requestsAndListeners[0].getLeft();
 
-    if (headRequest.getUri().isSecured() && headRequest.isHttp2Enabled() && config.isDisableHttpsEndpointIdentificationAlgorithm()) {
+    if (headRequest.getUri().isSecured() && headRequest.isHttp2Enabled() && !config.isEnableSni()) {
       for (Pair<Request, HttpListener> requestAndListener: requestsAndListeners) {
         HttpListener listener = requestAndListener.getRight();
-        listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work with HttpsEndpointIdentificationAlgorithm disabled."));
+        listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       }
       return;
     }

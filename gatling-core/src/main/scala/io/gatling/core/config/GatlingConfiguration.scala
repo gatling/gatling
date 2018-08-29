@@ -170,13 +170,14 @@ object GatlingConfiguration extends StrictLogging {
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeout = config.getInt(http.ahc.RequestTimeout),
-          disableHttpsEndpointIdentificationAlgorithm = {
-            val disable = config.getBoolean(http.ahc.DisableHttpsEndpointIdentificationAlgorithm)
-            if (disable) {
+          enableSni = config.getBoolean(http.ahc.EnableSni),
+          enableHostnameVerification = {
+            val enable = config.getBoolean(http.ahc.EnableHostnameVerification)
+            if (!enable) {
               System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
               System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
             }
-            disable
+            enable
           },
           useInsecureTrustManager = config.getBoolean(http.ahc.UseInsecureTrustManager),
           filterInsecureCipherSuites = config.getBoolean(http.ahc.FilterInsecureCipherSuites),
@@ -339,26 +340,28 @@ case class JmsConfiguration(
 )
 
 case class AhcConfiguration(
-    connectTimeout:                              Int,
-    handshakeTimeout:                            Int,
-    pooledConnectionIdleTimeout:                 Int,
-    maxRetry:                                    Int,
-    requestTimeout:                              Int,
-    disableHttpsEndpointIdentificationAlgorithm: Boolean,
-    useInsecureTrustManager:                     Boolean,
-    filterInsecureCipherSuites:                  Boolean,
-    sslEnabledProtocols:                         List[String],
-    sslEnabledCipherSuites:                      List[String],
-    sslSessionCacheSize:                         Int,
-    sslSessionTimeout:                           Int,
-    disableSslSessionResumption:                 Boolean,
-    useOpenSsl:                                  Boolean,
-    useNativeTransport:                          Boolean,
-    enableZeroCopy:                              Boolean,
-    tcpNoDelay:                                  Boolean,
-    soReuseAddress:                              Boolean,
-    allocator:                                   String,
-    maxThreadLocalCharBufferSize:                Int
+    connectTimeout:               Int,
+    handshakeTimeout:             Int,
+    pooledConnectionIdleTimeout:  Int,
+    maxRetry:                     Int,
+    requestTimeout:               Int,
+    enableSni:                    Boolean,
+    enableHostnameVerification:   Boolean,
+    useInsecureTrustManager:      Boolean,
+    filterInsecureCipherSuites:   Boolean,
+    sslEnabledProtocols:          List[String],
+    sslEnabledCipherSuites:       List[String],
+    sslSessionCacheSize:          Int,
+    sslSessionTimeout:            Int,
+    disableSslSessionResumption:  Boolean,
+    useOpenSsl:                   Boolean,
+    useNativeTransport:           Boolean,
+    enableZeroCopy:               Boolean,
+    tcpNoDelay:                   Boolean,
+    soReuseAddress:               Boolean,
+    allocator:                    String,
+    maxThreadLocalCharBufferSize: Int
+
 )
 
 case class DnsConfiguration(

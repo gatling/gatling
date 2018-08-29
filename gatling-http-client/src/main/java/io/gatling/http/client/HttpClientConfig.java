@@ -41,7 +41,9 @@ public class HttpClientConfig {
 
   private long handshakeTimeout = 10_000;
 
-  private boolean disableHttpsEndpointIdentificationAlgorithm;
+  private boolean enableSni;
+
+  private boolean enableHostnameVerification;
 
   private String[] enabledSslProtocols;
 
@@ -136,12 +138,21 @@ public class HttpClientConfig {
     return this;
   }
 
-  public boolean isDisableHttpsEndpointIdentificationAlgorithm() {
-    return disableHttpsEndpointIdentificationAlgorithm;
+  public boolean isEnableSni() {
+    return enableSni;
   }
 
-  public HttpClientConfig setDisableHttpsEndpointIdentificationAlgorithm(boolean disableHttpsEndpointIdentificationAlgorithm) {
-    this.disableHttpsEndpointIdentificationAlgorithm = disableHttpsEndpointIdentificationAlgorithm;
+  public HttpClientConfig setEnableSni(boolean enableSni) {
+    this.enableSni = enableSni;
+    return this;
+  }
+
+  public boolean isEnableHostnameVerification() {
+    return enableHostnameVerification;
+  }
+
+  public HttpClientConfig setEnableHostnameVerification(boolean enableHostnameVerification) {
+    this.enableHostnameVerification = enableHostnameVerification;
     return this;
   }
 

@@ -61,7 +61,8 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents)
       .setHandshakeTimeout(ahcConfig.handshakeTimeout)
       .setChannelPoolIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
       .setMaxRetry(ahcConfig.maxRetry)
-      .setDisableHttpsEndpointIdentificationAlgorithm(ahcConfig.disableHttpsEndpointIdentificationAlgorithm)
+      .setEnableSni(ahcConfig.enableSni)
+      .setEnableHostnameVerification(ahcConfig.enableHostnameVerification)
       .setEnabledSslProtocols(ahcConfig.sslEnabledProtocols match {
         case Nil => null
         case ps  => ps.toArray

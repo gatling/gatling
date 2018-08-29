@@ -52,12 +52,12 @@ public class SslHandlers {
 
   private static SslHandler createSslHandler(SslContext sslContext, String peerHost, int peerPort, ByteBufAllocator allocator, HttpClientConfig config) {
 
-    SSLEngine sslEngine = config.isDisableHttpsEndpointIdentificationAlgorithm() ?
-      sslContext.newEngine(allocator) :
-      sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort);
+    SSLEngine sslEngine = config.isEnableSni() ?
+      sslContext.newEngine(allocator, Tls.domain(peerHost), peerPort) :
+      sslContext.newEngine(allocator);
 
     sslEngine.setUseClientMode(true);
-    if (!config.isDisableHttpsEndpointIdentificationAlgorithm()) {
+    if (config.isEnableHostnameVerification()) {
       SSLParameters params = sslEngine.getSSLParameters();
       params.setEndpointIdentificationAlgorithm("HTTPS");
       sslEngine.setSSLParameters(params);
