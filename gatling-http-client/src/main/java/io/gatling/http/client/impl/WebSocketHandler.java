@@ -88,7 +88,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
       }
 
       try {
-        WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config);
+        WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
 
         handshaker =
           WebSocketClientHandshakerFactory.newHandshaker(

@@ -57,7 +57,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     }.expressionSuccess))
       .build("requestName", Session("scenarioName", 0, clock.nowMillis))
       .map { httpRequest =>
-        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig)
+        val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
         writableRequest.getRequest.headers.get("X-Token")
       }.succeeded shouldBe "foo"
   }

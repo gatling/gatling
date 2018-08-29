@@ -103,12 +103,12 @@ public class WritableRequestBuilder {
     }
   }
 
-  public static WritableRequest buildRequest(Request request, ByteBufAllocator alloc, HttpClientConfig config) throws Exception {
+  public static WritableRequest buildRequest(Request request, ByteBufAllocator alloc, HttpClientConfig config, boolean http2) throws Exception {
     Uri uri = request.getUri();
     HttpHeaders headers = request.getHeaders();
     RequestBody<?> requestBody = request.getBody();
 
-    String url = (uri.isSecured() && request.isHttp2Enabled()) || (!uri.isSecured() && request.getProxyServer() instanceof HttpProxyServer) ?
+    String url = http2 || (!uri.isSecured() && request.getProxyServer() instanceof HttpProxyServer) ?
             uri.toUrl() : // HTTP proxy with clear HTTP uses absolute url
             uri.toRelativeUrl();
 
