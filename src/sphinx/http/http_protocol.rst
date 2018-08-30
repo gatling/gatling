@@ -380,3 +380,39 @@ You can optionally set a different port for HTTPS and credentials:
 You can also disable the use of proxy for a given list of hosts with ``noProxyFor(hosts: String*)``:
 
 .. includecode:: code/HttpProtocolSample.scala#noProxyFor
+
+HTTP/2
+===============
+
+Gatling is now capable of using the HTTP/2 protocol.
+If you want to do so, you need to enable it in the protocol configuration of your simulation.
+
+.. includecode:: code/HttpProtocolSample.scala#enableHttp2
+
+.. warning::
+  In the Gatling HTTP/2 support of Gatling, the HTTP/2 Push is not implemented and handled so far !
+
+When HTTP/2 is enabled Gatling will try to connect to your remotes using HTTP/2 through the ALPN protocol.
+If your remote supports HTTP/2, Gatling will use the protocol, and fall back to HTTP/1 otherwise. There is no specific code to add in the middle of your requests.
+
+Next time you use that remote with the same user, if Gatling knows that your remote doesn't support HTTP/2, it won't try again and therefore won't use ALPN.
+
+One of the main purpose of HTTP/2 is to support multiplexing. This means that on a single connection, you are able to send multiple requests, without waiting for the responses,
+and receive these responses in whatever order.
+It means that, using HTTP/2, browsers and Gatling won't open additional connections to the same remote for a given virtual user (assuming you don't enable `shareConnections``) once they know that the remote is using HTTP/2.
+The first time Gatling encounters a remote, the connections will be opened like in HTTP/1 mode if there are multiple requests (for example in a ``resources`` statement).
+If the remote is using HTTP/1, these connections will be used if needed. If it is using HTTP/2, a single connection will be maintained, and the other ones will reach idle timeout and be closed.
+
+It is possible to populate the Gatling cache concerning protocol and remotes before the run, using the ``http2PriorKnowledgeMap(Map[String, Boolean])`` method on the protocol.
+
+.. includecode:: code/HttpProtocolSample.scala#http2PriorKnowledgeMap
+
+With this method, you are able to tell Gatling that remotes support HTTP/2 or not.
+It means that if you are setting a remote to true (it supports HTTP/2), additional connections won't be created the first time the remote is encountered in the simulation.
+If you are setting a remote to false (it doesn't support HTTP/2), ALPN won't be used, and additional connections will be created.
+
+This option is useful to simulate users that already went to your website, and whose browsers already cached the fact that your website is using HTTP/2 or HTTP/1.
+
+.. warning::
+  If you configure a remote in prior knowledge and set it to true, but that the ALPN ends in the remote only supporting HTTP/1, the request will crash.
+  Use the ``http2PriorKnowledge`` option only if you are sure about your remote configuration.

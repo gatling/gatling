@@ -108,4 +108,18 @@ class HttpProtocolSample extends Simulation {
       .noProxyFor("www.github.com", "www.akka.io")
     //#noProxyFor
   }
+
+  {
+    //#enableHttp2
+    val httpConf = http.enableHttp2
+    //#enableHttp2
+  }
+
+  {
+    //#http2PriorKnowledge
+    val httpConf = http
+      .enableHttp2
+      .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
+    //#http2PriorKnowledge
+  }
 }
