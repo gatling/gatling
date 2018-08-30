@@ -304,14 +304,6 @@ The default value is 20. You can tune this limit with: ``.maxRedirects(max: Int)
 By default, Gatling will change the method to "GET" on 302 to conform to most user agents' behavior.
 You can disable this behavior with ``.strict302Handling``.
 
-.. _http-protocol-chunksdiscard:
-
-Response chunks discarding
---------------------------
-
-Beware that, as an optimization, Gatling doesn't keep response chunks unless a check is defined on the response body or that debug logging is enabled.
-However some people might want to always keep the response chunks, thus you can disable the default behavior with ``disableResponseChunksDiscarding``.
-
 .. _http-protocol-response-transformer:
 
 Response Transformers

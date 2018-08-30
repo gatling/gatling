@@ -475,10 +475,3 @@ At the request level you can use the ``resources(res: AbstractHttpRequestBuilder
 For example:
 
 .. includecode:: code/HttpRequestSample.scala#resources
-
-.. _http-chunksdiscard:
-
-Response chunks discarding
-==========================
-
-``disableResponseChunksDiscarding`` works just like the :ref:`protocol level parameter <http-protocol-chunksdiscard>`, except that it targets this request only.
