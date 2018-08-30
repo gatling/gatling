@@ -38,10 +38,10 @@ class HttpCompileTest extends Simulation {
     .acceptLanguageHeader("fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4")
     .acceptEncodingHeader("gzip,deflate,sdch")
     .userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
-    .check(bodyString.transform(string => string.length).lessThan(100000))
-    .check(bodyString.transform((string, session) => string.length).lessThan(100000))
-    .check(bodyString.transformOption(stringO => stringO.map(_.length)).lessThan(100000))
-    .check(bodyString.transformOption((stringO, session) => stringO.map(_.length)).lessThan(100000))
+    .check(bodyString.transform(string => string.length).lt(100000))
+    .check(bodyString.transform((string, session) => string.length).lte(100000))
+    .check(bodyString.transformOption(stringO => stringO.map(_.length)).gt(100000))
+    .check(bodyString.transformOption((stringO, session) => stringO.map(_.length)).gte(100000))
     .check(bodyBytes.is("foo".getBytes()))
     .check(md5.is("XXXXX"))
     .check(sha1.is("XXXXX"))
@@ -157,7 +157,7 @@ class HttpCompileTest extends Simulation {
           status.in(200 to 210).saveAs("blablaParam"),
           status.in(200, 210).saveAs("blablaParam"),
           status.in(Seq(200, 304)).saveAs("blablaParam"),
-          responseTimeInMillis.lessThan(1000),
+          responseTimeInMillis.lt(1000),
           currentLocation.is("http://gatling.io"),
           currentLocationRegex("code=(.+)&")
         )
