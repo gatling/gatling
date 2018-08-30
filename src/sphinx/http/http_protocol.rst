@@ -368,7 +368,7 @@ You can also specify black/white list or custom filters to have a more fine grai
 
 Finally, you can specify the strategy for naming those requests in the reports:
 
-* ``nameInferredHtmlResourcesAfterUrlTrail``(default): name requests after the resource's url trail (after last ``/``)
+* ``nameInferredHtmlResourcesAfterUrlTail``(default): name requests after the resource's url tail (after last ``/``)
 * ``nameInferredHtmlResourcesAfterPath``: name requests after the resource's path
 * ``nameInferredHtmlResourcesAfterAbsoluteUrl``: name requests after the resource's absolute url
 * ``nameInferredHtmlResourcesAfterRelativeUrl``: name requests after the resource's relative url

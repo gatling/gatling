@@ -130,7 +130,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
     this
       .modify(_.protocol.responsePart.inferHtmlResources).setTo(true)
       .modify(_.protocol.responsePart.htmlResourcesInferringFilters).setTo(filters)
-  def nameInferredHtmlResourcesAfterUrlTrail = nameInferredHtmlResources(InferredResourceNaming.UrlTrailInferredResourceNaming)
+  def nameInferredHtmlResourcesAfterUrlTail = nameInferredHtmlResources(InferredResourceNaming.UrlTailInferredResourceNaming)
   def nameInferredHtmlResourcesAfterAbsoluteUrl = nameInferredHtmlResources(InferredResourceNaming.AbsoluteUrlInferredResourceNaming)
   def nameInferredHtmlResourcesAfterRelativeUrl = nameInferredHtmlResources(InferredResourceNaming.RelativeUrlInferredResourceNaming)
   def nameInferredHtmlResourcesAfterPath = nameInferredHtmlResources(InferredResourceNaming.PathInferredResourceNaming)

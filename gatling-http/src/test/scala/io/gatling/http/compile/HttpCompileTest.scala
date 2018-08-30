@@ -70,7 +70,7 @@ class HttpCompileTest extends Simulation {
     .silentResources
     .basicAuth("foo", "bar")
     .digestAuth("foo", "bar")
-    .nameInferredHtmlResourcesAfterUrlTrail
+    .nameInferredHtmlResourcesAfterUrlTail
     .nameInferredHtmlResourcesAfterAbsoluteUrl
     .nameInferredHtmlResourcesAfterRelativeUrl
     .nameInferredHtmlResourcesAfterPath

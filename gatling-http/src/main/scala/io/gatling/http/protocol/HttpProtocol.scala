@@ -99,7 +99,7 @@ object HttpProtocol extends StrictLogging {
         responseTransformer = None,
         checks = Nil,
         inferHtmlResources = false,
-        inferredHtmlResourcesNaming = InferredResourceNaming.UrlTrailInferredResourceNaming,
+        inferredHtmlResourcesNaming = InferredResourceNaming.UrlTailInferredResourceNaming,
         htmlResourcesInferringFilters = None
       ),
       wsPart = HttpProtocolWsPart(

@@ -23,7 +23,7 @@ import io.gatling.http.fetch.InferredResourceNaming._
 class InferredResourceNamingSpec extends BaseSpec {
 
   "UrlTrailInferredResourceNaming" should "return the url trail, query included" in {
-    UrlTrailInferredResourceNaming(Uri.create("http://foo.com/bar?baz=qic")) shouldBe "bar?baz=qic"
+    UrlTailInferredResourceNaming(Uri.create("http://foo.com/bar?baz=qic")) shouldBe "bar?baz=qic"
   }
 
   "AbsoluteUrlInferredResourceNaming" should "return the absolute url, query included" in {

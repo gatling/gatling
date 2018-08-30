@@ -39,7 +39,7 @@ object InferredResourceNaming {
     }
   }
 
-  val UrlTrailInferredResourceNaming: Uri => String = uri => {
+  val UrlTailInferredResourceNaming: Uri => String = uri => {
     val url = uri.toUrl
     val start = url.lastIndexOf('/') + 1
     if (start < url.length)
