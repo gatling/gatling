@@ -22,7 +22,7 @@ import io.gatling.http.funspec.GatlingHttpFunSpecCompileTest._
 
 class GatlingHttpFunSpecCompileTest extends GatlingHttpFunSpec {
 
-  val baseURL = "http://example.com"
+  val baseUrl = "http://example.com"
   override def httpConf = super.httpConf.header("MyHeader", "MyValue")
 
   spec {

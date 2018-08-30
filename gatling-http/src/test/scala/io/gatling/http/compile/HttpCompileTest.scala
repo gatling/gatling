@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpMethod
 class HttpCompileTest extends Simulation {
 
   val httpProtocol = http
-    .baseURL("http://172.30.5.143:8080")
+    .baseUrl("http://172.30.5.143:8080")
     .proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
     .proxy(Proxy("172.31.76.106", 8080).http)
     .proxy(Proxy("172.31.76.106", 8080).socks4)

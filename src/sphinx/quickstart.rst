@@ -137,7 +137,7 @@ What does it mean?
   ``val`` is the keyword for defining a constant value.
   Types are not defined and are inferred by the Scala compiler.
 
-5. The baseURL that will be prepended to all relative urls.
+5. The baseUrl that will be prepended to all relative urls.
 6. Common HTTP headers that will be sent with all the requests.
 7. The scenario definition.
 8. A HTTP request, named *request_1*. This name will be displayed in the final reports.

@@ -96,6 +96,6 @@ private[scenario] object ProtocolTemplate {
     }
 
     fast"""
-		.baseURL("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderInferHtmlResources$renderAutomaticReferer$renderHeaders""".toString
+		.baseUrl("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderInferHtmlResources$renderAutomaticReferer$renderHeaders""".toString
   }
 }

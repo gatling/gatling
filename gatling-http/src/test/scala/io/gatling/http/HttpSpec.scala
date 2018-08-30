@@ -53,7 +53,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   val mockHttpPort = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
 
   def httpProtocol(implicit configuration: GatlingConfiguration) =
-    HttpProtocolBuilder(configuration).baseURL(s"http://localhost:$mockHttpPort")
+    HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")
 
   def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit) = {
     val httpServer = new HttpServer(requestHandler, mockHttpPort)

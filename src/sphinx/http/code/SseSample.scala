@@ -53,7 +53,7 @@ class SseSample {
 
   //#stock-market-sample
   val httpConf = http
-    .baseURL("http://localhost:8080/app")
+    .baseUrl("http://localhost:8080/app")
 
   val scn = scenario("Server Sent Event")
     .exec(

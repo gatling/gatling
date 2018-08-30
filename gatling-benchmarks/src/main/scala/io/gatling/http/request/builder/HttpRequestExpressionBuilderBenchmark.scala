@@ -43,7 +43,7 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
   )
 
   private val httpProtocol = HttpProtocolBuilder(config)
-    .baseURL("http://localhost:8000")
+    .baseUrl("http://localhost:8000")
     .build
 
   private val httpCaches = new HttpCaches(config)
@@ -80,7 +80,7 @@ object HttpRequestExpressionBuilderBenchmark extends ValidationImplicits {
   val RequestWithStaticHeaders: Expression[AhcRequest] = {
 
     val httpProtocol = HttpProtocolBuilder(config)
-      .baseURL("http://localhost:8000")
+      .baseUrl("http://localhost:8000")
       .acceptEncodingHeader("gzip, deflate")
       .acceptLanguageHeader("en-GB,en;q=0.5")
       .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:35.0) Gecko/20100101 Firefox/35.0")

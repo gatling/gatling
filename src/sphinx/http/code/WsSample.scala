@@ -70,13 +70,13 @@ class WsSample {
 
   //#chatroom-example
   val httpConf = http
-    .baseURL("http://localhost:9000")
+    .baseUrl("http://localhost:9000")
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
     .acceptLanguageHeader("en-US,en;q=0.5")
     .acceptEncodingHeader("gzip, deflate")
     .userAgentHeader("Gatling2")
-    .wsBaseURL("ws://localhost:9000")
+    .wsBaseUrl("ws://localhost:9000")
 
   val scn = scenario("WebSocket")
     .exec(http("Home").get("/"))

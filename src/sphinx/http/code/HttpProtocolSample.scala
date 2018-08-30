@@ -21,7 +21,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#bootstrapping
-    val httpConf = http.baseURL("http://my.website.tld")
+    val httpConf = http.baseUrl("http://my.website.tld")
 
     val scn = scenario("myScenario") // etc...
 
@@ -31,7 +31,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#baseUrl
-    val httpConf = http.baseURL("http://my.website.tld")
+    val httpConf = http.baseUrl("http://my.website.tld")
 
     val scn = scenario("My Scenario")
       .exec(
@@ -49,7 +49,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#baseUrls
-    val httpConf = http.baseURLs("http://my1.website.tld", "http://my2.website.tld", "http://my3.website.tld")
+    val httpConf = http.baseUrls("http://my1.website.tld", "http://my2.website.tld", "http://my3.website.tld")
     //#baseUrls
   }
 

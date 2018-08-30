@@ -171,9 +171,9 @@ Configuration
 
 Websocket support introduces new HttpProtocol parameters:
 
-``wsBaseURL(url: String)``: similar to standard ``baseURL`` for HTTP, serves as root that will be prepended to all relative WebSocket urls
+``wsBaseUrl(url: String)``: similar to standard ``baseUrl`` for HTTP, serves as root that will be prepended to all relative WebSocket urls
 
-``wsBaseURLs(urls: String*)``: similar to standard ``baseURLs`` for HTTP, serves as round-robin roots that will be prepended to all relative WebSocket urls
+``wsBaseUrls(urls: String*)``: similar to standard ``baseUrls`` for HTTP, serves as round-robin roots that will be prepended to all relative WebSocket urls
 
 ``wsReconnect``: automatically reconnect a WebSocket that would have been closed by someone else than the client.
 

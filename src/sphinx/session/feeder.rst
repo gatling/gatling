@@ -143,7 +143,7 @@ Gatling also provide a builtin that reads from a JDBC connection.
 
 Just like File parser built-ins, this return a ``RecordSeqFeederBuilder`` instance.
 
-* The databaseURL must be a JDBC URL (e.g. ``jdbc:postgresql:gatling``),
+* The databaseUrl must be a JDBC URL (e.g. ``jdbc:postgresql:gatling``),
 * the username and password are the credentials to access the database,
 * sql is the query that will get the values needed.
 

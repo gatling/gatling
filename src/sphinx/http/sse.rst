@@ -93,9 +93,9 @@ Configuration
 
 Server sent event support uses the same parameter as the HttpProtocol:
 
-``baseURL(url: String)``: serves as root that will be prepended to all relative server sent event urls
+``baseUrl(url: String)``: serves as root that will be prepended to all relative server sent event urls
 
-``baseURLs(urls: String*)``: serves as round-robin roots that will be prepended to all relative server sent event urls
+``baseUrls(urls: String*)``: serves as round-robin roots that will be prepended to all relative server sent event urls
 
 Example
 =======

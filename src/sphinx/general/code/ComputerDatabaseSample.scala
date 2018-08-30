@@ -22,7 +22,7 @@ import scala.concurrent.duration._
 class ComputerDatabaseSample extends Simulation {
 
   val httpProtocol = http
-    .baseURL("http://computer-database.gatling.io")
+    .baseUrl("http://computer-database.gatling.io")
     .acceptHeader("""text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8""")
     .acceptEncodingHeader("""gzip, deflate""")
     .acceptLanguageHeader("""en-gb,en;q=0.5""")

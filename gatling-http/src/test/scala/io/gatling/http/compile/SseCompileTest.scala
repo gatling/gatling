@@ -24,7 +24,7 @@ import io.gatling.http.Predef._
 class SseCompileTest extends Simulation {
 
   val httpConf = http
-    .baseURL("http://localhost:8080/app")
+    .baseUrl("http://localhost:8080/app")
     .doNotTrackHeader("1")
 
   val scn = scenario(this.getClass.getSimpleName)

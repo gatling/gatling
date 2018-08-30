@@ -25,11 +25,11 @@ import io.gatling.http.protocol.HttpProtocolBuilder
 abstract class GatlingHttpFunSpec extends GatlingFunSpec {
 
   /** The base URL to make HTTP requests against */
-  def baseURL: String
+  def baseUrl: String
 
   /** HTTP protocol configuration. Use this to add headers and other http configuration. */
   def httpConf: HttpProtocolBuilder = http
-    .baseURL(baseURL)
+    .baseUrl(baseUrl)
     .acceptHeader("application/json, text/html, text/plain, */*")
     .acceptEncodingHeader("gzip, deflate")
 

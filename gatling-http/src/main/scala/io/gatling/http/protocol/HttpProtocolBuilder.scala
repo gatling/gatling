@@ -54,9 +54,9 @@ object HttpProtocolBuilder {
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol) {
 
-  def baseURL(url: String) = baseURLs(List(url))
-  def baseURLs(urls: String*): HttpProtocolBuilder = baseURLs(urls.toList)
-  def baseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseUrls).setTo(urls)
+  def baseUrl(url: String) = baseUrls(List(url))
+  def baseUrls(urls: String*): HttpProtocolBuilder = baseUrls(urls.toList)
+  def baseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.baseUrls).setTo(urls)
   def warmUp(url: String): HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(Some(url))
   def disableWarmUp: HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(None)
 
@@ -138,9 +138,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def nameInferredHtmlResources(f: Uri => String) = this.modify(_.protocol.responsePart.inferredHtmlResourcesNaming).setTo(f)
 
   // wsPart
-  def wsBaseURL(url: String) = wsBaseURLs(List(url))
-  def wsBaseURLs(urls: String*): HttpProtocolBuilder = wsBaseURLs(urls.toList)
-  def wsBaseURLs(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseUrls).setTo(urls)
+  def wsBaseUrl(url: String) = wsBaseUrls(List(url))
+  def wsBaseUrls(urls: String*): HttpProtocolBuilder = wsBaseUrls(urls.toList)
+  def wsBaseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseUrls).setTo(urls)
   def wsReconnect = this.modify(_.protocol.wsPart.reconnect).setTo(true)
   def wsMaxReconnects(max: Int) = this.modify(_.protocol.wsPart.maxReconnects).setTo(Some(max))
 

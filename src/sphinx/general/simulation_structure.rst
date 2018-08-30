@@ -37,7 +37,7 @@ HTTP protocol configuration
 The first element is the configuration of the HTTP protocol.
 In this example, this configuration is very basic and just defines:
 
-* the ``baseURL``, which will be prepended to all the relative paths in the scenario definition.
+* the ``baseUrl``, which will be prepended to all the relative paths in the scenario definition.
   Here, the base URL is http://computer-database.gatling.io.
 * common headers, which will be added on each request.
 
