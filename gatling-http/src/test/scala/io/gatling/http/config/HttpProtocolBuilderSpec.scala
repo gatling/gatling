@@ -38,11 +38,11 @@ class HttpProtocolBuilderSpec extends BaseSpec {
 
   "http protocol configuration builder" should "set a silent URI regex" in {
     val builder = httpProtocolBuilder
-      .silentURI(".*")
+      .silentUri(".*")
 
     val config: HttpProtocol = builder.build
 
-    val actualPattern: String = config.requestPart.silentURI.get.toString
+    val actualPattern: String = config.requestPart.silentUri.get.toString
     actualPattern.equals(".*") shouldBe true
   }
 }

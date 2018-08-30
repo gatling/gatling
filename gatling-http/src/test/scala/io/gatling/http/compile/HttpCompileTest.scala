@@ -66,7 +66,7 @@ class HttpCompileTest extends Simulation {
     .localAddresses(List("192.168.1.100", "192.168.1.101"))
     .disableCaching
     .disableUrlEncoding
-    .silentURI("https://foo\\.com/*")
+    .silentUri("https://foo\\.com/*")
     .silentResources
     .basicAuth("foo", "bar")
     .digestAuth("foo", "bar")

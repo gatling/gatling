@@ -98,7 +98,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, ntlmDomain, ntlmHost))
   def authRealm(realm: Expression[Realm]) = this.modify(_.protocol.requestPart.realm).setTo(Some(realm))
   def silentResources = this.modify(_.protocol.requestPart.silentResources).setTo(true)
-  def silentURI(regex: String) = this.modify(_.protocol.requestPart.silentURI).setTo(Some(regex.r.pattern))
+  def silentUri(regex: String) = this.modify(_.protocol.requestPart.silentUri).setTo(Some(regex.r.pattern))
   def disableUrlEncoding = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
   def sign(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =

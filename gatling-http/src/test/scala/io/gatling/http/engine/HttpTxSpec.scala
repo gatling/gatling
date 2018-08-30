@@ -87,14 +87,14 @@ class HttpTxSpec extends BaseSpec {
     tx(ahcRequest, configBase, root = true).silent shouldBe false
   }
 
-  it should "not be silent when using a protocol with a silentURI pattern match the request url" in new Context {
+  it should "not be silent when using a protocol with a silentUri pattern match the request url" in new Context {
 
     val ahcRequest = mock[Request]
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
 
     val config = configBase
       .modify(_.httpProtocol.requestPart)
-      .using(_.modify(_.silentURI).setTo(Some(""".*\.js""".r.pattern)).modify(_.silentResources).setTo(false))
+      .using(_.modify(_.silentUri).setTo(Some(""".*\.js""".r.pattern)).modify(_.silentResources).setTo(false))
 
     tx(ahcRequest, config, root = true).silent shouldBe true
   }
@@ -106,7 +106,7 @@ class HttpTxSpec extends BaseSpec {
 
     val config = configBase
       .modify(_.httpProtocol.requestPart)
-      .using(_.modify(_.silentURI).setTo(None).modify(_.silentResources).setTo(true))
+      .using(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
 
     tx(ahcRequest, config, root = false).silent shouldBe true
   }
@@ -118,7 +118,7 @@ class HttpTxSpec extends BaseSpec {
 
     val config = configBase
       .modify(_.httpProtocol.requestPart)
-      .using(_.modify(_.silentURI).setTo(None).modify(_.silentResources).setTo(true))
+      .using(_.modify(_.silentUri).setTo(None).modify(_.silentResources).setTo(true))
 
     tx(ahcRequest, config, root = true).silent shouldBe false
   }

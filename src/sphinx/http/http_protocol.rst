@@ -217,15 +217,15 @@ Some parameters are available here at protocol level, some others are available 
 Rules are:
 
 * explicitly turning a given request :ref:`silent <http-request-silent>` or :ref:`notSilent <http-request-notsilent>` has precedence over everything else
-* otherwise, a request is silent if it matches protocol's ``silentURI`` filter
+* otherwise, a request is silent if it matches protocol's ``silentUri`` filter
 * otherwise, a request is silent if it's a resource (not a top level request) and protocol's ``silentResources`` flag has been turned on
 * otherwise, a request is not silent
 
-.. _http-protocol-silentURI:
+.. _http-protocol-silentUri:
 
-``silentURI`` lets you pass a regular expression that would disable logging for ALL matching requests:
+``silentUri`` lets you pass a regular expression that would disable logging for ALL matching requests:
 
-.. includecode:: code/HttpProtocolSample.scala#silentURI
+.. includecode:: code/HttpProtocolSample.scala#silentUri
 
 .. _http-protocol-silentResources:
 

@@ -50,7 +50,7 @@ case class HttpRequest(requestName: String, clientRequest: Request, requestConfi
 
     val requestPart = requestConfig.httpProtocol.requestPart
 
-    def silentBecauseProtocolSilentURI: Boolean = requestPart.silentURI match {
+    def silentBecauseProtocolSilentURI: Boolean = requestPart.silentUri match {
       case Some(silentUri) => silentUri.matcher(clientRequest.getUri.toUrl).matches
       case _               => false
     }

@@ -73,9 +73,9 @@ class HttpProtocolSample extends Simulation {
 
   {
     val httpConf = http
-      //#silentURI
-      .silentURI("https://myCDN/.*")
-      //#silentURI
+      //#silentUri
+      .silentUri("https://myCDN/.*")
+      //#silentUri
       //#headers
       .header("foo", "bar")
       .headers(Map("foo" -> "bar", "baz" -> "qix"))
