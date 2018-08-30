@@ -28,6 +28,8 @@ class HttpCompileTest extends Simulation {
 
   val httpProtocol = http
     .baseUrl("http://172.30.5.143:8080")
+    .baseUrls("http://172.30.5.143:8080", "http://172.30.5.143:8081")
+    .virtualHost("172.30.5.143:8080")
     .proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
     .proxy(Proxy("172.31.76.106", 8080).http)
     .proxy(Proxy("172.31.76.106", 8080).socks4)
@@ -35,8 +37,12 @@ class HttpCompileTest extends Simulation {
     .noProxyFor("localhost")
     .acceptHeader("*/*")
     .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
-    .acceptLanguageHeader("fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4")
     .acceptEncodingHeader("gzip,deflate,sdch")
+    .acceptLanguageHeader("fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4")
+    .authorizationHeader("Basic XXXXX")
+    .connectionHeader("Close")
+    .contentTypeHeader("aplication/json")
+    .doNotTrackHeader("AAA")
     .userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
     .check(bodyString.transform(string => string.length).lt(100000))
     .check(bodyString.transform((string, session) => string.length).lte(100000))
@@ -47,10 +53,23 @@ class HttpCompileTest extends Simulation {
     .check(sha1.is("XXXXX"))
     .check(responseTimeInMillis.is(100))
     .check(form("#form").transform { foo: Map[String, Any] => foo }.saveAs("theForm"))
-    .disableCaching
+    .disableFollowRedirect
+    .maxRedirects(5)
+    .disableAutoReferer
     .disableWarmUp
     .warmUp("http://gatling.io")
     .inferHtmlResources(white = WhiteList(".*\\.html"))
+    .maxConnectionsPerHost(6)
+    .shareConnections
+    .perUserDnsNameResolution
+    .localAddress("192.168.1.100")
+    .localAddresses(List("192.168.1.100", "192.168.1.101"))
+    .disableCaching
+    .disableUrlEncoding
+    .silentURI("https://foo\\.com/*")
+    .silentResources
+    .basicAuth("foo", "bar")
+    .digestAuth("foo", "bar")
     .nameInferredHtmlResourcesAfterUrlTrail
     .nameInferredHtmlResourcesAfterAbsoluteUrl
     .nameInferredHtmlResourcesAfterRelativeUrl
@@ -61,9 +80,6 @@ class HttpCompileTest extends Simulation {
     .asyncDnsNameResolution("8.8.8.8", "8.8.4.4")
     .asyncDnsNameResolution(Array(new InetSocketAddress("8.8.8.8", 53), new InetSocketAddress("8.8.4.4", 53)))
     .hostNameAliases(Map("foo" -> "127.0.0.1"))
-    .perUserDnsNameResolution
-    .localAddress("192.168.1.100")
-    .localAddresses(List("192.168.1.100", "192.168.1.101"))
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
 
