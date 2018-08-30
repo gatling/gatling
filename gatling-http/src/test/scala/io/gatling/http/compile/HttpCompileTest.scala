@@ -61,7 +61,7 @@ class HttpCompileTest extends Simulation {
     .inferHtmlResources(white = WhiteList(".*\\.html"))
     .maxConnectionsPerHost(6)
     .shareConnections
-    .perUserDnsNameResolution
+    .perUserNameResolution
     .localAddress("192.168.1.100")
     .localAddresses(List("192.168.1.100", "192.168.1.101"))
     .disableCaching
@@ -76,9 +76,9 @@ class HttpCompileTest extends Simulation {
     .nameInferredHtmlResourcesAfterPath
     .nameInferredHtmlResourcesAfterLastPathElement
     .nameInferredHtmlResources(_.getPath)
-    .asyncDnsNameResolution()
-    .asyncDnsNameResolution("8.8.8.8", "8.8.4.4")
-    .asyncDnsNameResolution(Array(new InetSocketAddress("8.8.8.8", 53), new InetSocketAddress("8.8.4.4", 53)))
+    .asyncNameResolution()
+    .asyncNameResolution("8.8.8.8", "8.8.4.4")
+    .asyncNameResolution(Array(new InetSocketAddress("8.8.8.8", 53), new InetSocketAddress("8.8.4.4", 53)))
     .hostNameAliases(Map("foo" -> "127.0.0.1"))
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))

@@ -116,13 +116,13 @@ You can control the TTL with ``-Dsun.net.inetaddr.ttl=N`` where `N` is a number 
 If you're using the JDK resolution and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically shuffle them
 to emulate DNS round-robin.
 
-You can use a Netty based DNS resolution instead, with ``.asyncDnsNameResolution()``.
-This method can take a sequence of DNS server adresses, eg ``.asyncDnsNameResolution("8.8.8.8")``.
+You can use a Netty based DNS resolution instead, with ``.asyncNameResolution()``.
+This method can take a sequence of DNS server adresses, eg ``.asyncNameResolution("8.8.8.8")``.
 If you don't pass DNS servers, Gatling will use the one from your OS configuration on Linux and MacOS only,
 and to Google's ones on Windows(don't run with heavy load as Google will block you).
 
-You can also make it so that every virtual user performs its own DNS name resolution with ``.perUserDnsNameResolution``.
-This parameter is only effective when using ``asyncDnsNameResolution``.
+You can also make it so that every virtual user performs its own DNS name resolution with ``.perUserNameResolution``.
+This parameter is only effective when using ``asyncNameResolution``.
 
 Note this feature is experimental.
 This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,

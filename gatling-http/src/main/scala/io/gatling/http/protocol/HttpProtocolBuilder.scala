@@ -149,21 +149,21 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def proxy(httpProxy: Proxy): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxy).setTo(Some(httpProxy.proxyServer))
 
   // dnsPart
-  def asyncDnsNameResolution(dnsServers: String*): HttpProtocolBuilder =
-    asyncDnsNameResolution(dnsServers.map { dnsServer =>
+  def asyncNameResolution(dnsServers: String*): HttpProtocolBuilder =
+    asyncNameResolution(dnsServers.map { dnsServer =>
       dnsServer.split(':') match {
         case Array(hostname, port) => new InetSocketAddress(hostname, port.toInt)
         case Array(hostname)       => new InetSocketAddress(hostname, 53)
         case _                     => throw new IllegalArgumentException("Invalid dnsServer: " + dnsServer)
       }
     }.toArray)
-  def asyncDnsNameResolution(dnsServers: Array[InetSocketAddress]): HttpProtocolBuilder =
+  def asyncNameResolution(dnsServers: Array[InetSocketAddress]): HttpProtocolBuilder =
     this.modify(_.protocol.dnsPart.dnsNameResolution).setTo(AsyncDnsNameResolution(dnsServers))
   def hostNameAliases(aliases: Map[String, String]): HttpProtocolBuilder = {
     val aliasesToInetAddresses = aliases.map { case (hostname, ip) => hostname -> InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress) }
     this.modify(_.protocol.dnsPart.hostNameAliases).setTo(aliasesToInetAddresses)
   }
-  def perUserDnsNameResolution: HttpProtocolBuilder =
+  def perUserNameResolution: HttpProtocolBuilder =
     this.modify(_.protocol.dnsPart.perUserNameResolution).setTo(true)
 
   def build = protocol
