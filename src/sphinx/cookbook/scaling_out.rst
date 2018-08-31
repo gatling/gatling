@@ -18,6 +18,7 @@ These injectors can be deployed on an on-premises instances, or on the cloud: Am
 .. image:: img/pools.png
    :alt: FrontLine Injectors configuration
 
+
 Scaling out with Gatling open-source
 ====================================
 
