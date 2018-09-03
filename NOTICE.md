@@ -51,11 +51,6 @@ This product depends on scala-java8-compat, distributed by the EPFL and Lightben
   * License: license/LICENSE.scala-java8-compat.bsd3.txt (BSD 3 Clause License)
   * Homepage: https://github.com/scala/scala-java8-compat
 
-This product depends on AsyncHttpClient, distributed by the AsyncHttpClient Project:
-
-  * License: license/LICENSE.ahc.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/AsyncHttpClient/async-http-client
-
 This product depends on Netty, distributed by the Netty Project:
 
   * License: license/LICENSE.netty.al20.txt (Apache License v2.0)
@@ -105,11 +100,6 @@ This product depends on jackson, distributed by FasterXML:
 
   * License: license/LICENSE.jackson.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/FasterXML/jackson
-
-This product depends on boon, distributed by Advantageous:
-
-  * License: license/LICENSE.boon.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/advantageous/boon
 
 This product depends on JsonPath, distributed by GatlingCorp:
 
@@ -165,6 +155,11 @@ This product depends on Caffeine, distributed by Benjamin Manes:
 
   * License: license/LICENSE.quicklens.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/ben-manes/caffeine
+
+This product depends on fast-uuid, distributed by Jon Chambers:
+
+  * License: license/LICENSE.fastuuid.mit.txt (MIT License)
+  * Homepage: https://github.com/jchambers/fast-uuid
 
 This product depends on sbt test-interface, distributed by Mark Harrah:
 
