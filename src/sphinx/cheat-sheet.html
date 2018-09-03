@@ -1630,11 +1630,11 @@
             </div>
           </div>
 
-          <!-- HTTP checks -->
+          <!-- Checks -->
 
           <div class="row-fluid">
             <h2>
-              HTTP Checks
+              Checks
               <small>Verifying server responses</small>
             </h2>
 
@@ -1668,7 +1668,7 @@
                 </div>
               </div>
 
-              <!-- HTTP checks (2/2) -->
+              <!-- Checks (2/2) -->
 
               <div class="http-checks group col-lg-4 col-md-6 col-xs-12 pull-right">
                 <h3 class="visible-lg visible-md">&nbsp;</h3>
@@ -1678,7 +1678,7 @@
                   <input type="checkbox" id="substring" name="substring">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>Extraction will look for <i>expression</i> indices.</dd>
@@ -1691,7 +1691,7 @@
                   <input type="checkbox" id="regex1" name="regex">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>Extraction will use a regular expression defined by <i>expression</i>.</dd>
@@ -1704,7 +1704,7 @@
                   <input type="checkbox" id="xpath1" name="xpath">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>Extraction will use an XPath expression defined by <i>expression</i></dd>
@@ -1726,7 +1726,7 @@
                   <input type="checkbox" id="jsonPath1" name="jsonPath">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd>
@@ -1739,7 +1739,7 @@
                   <input type="checkbox" id="jsonpJsonPath1" name="jsonpJsonPath">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd>
@@ -1752,7 +1752,7 @@
                   <input type="checkbox" id="css" name="css">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>Uses the <i>css</i> selector to extract the value to be checked.</dd>
@@ -1767,7 +1767,7 @@
                   <input type="checkbox" id="cssForm" name="cssForm">
 
                   <div class="function-details">
-                    Check will be applied to an extract of the HTTP response's body
+                    Check will be applied to an extract of the response's body
                     <dl>
                       <dt>(expression)</dt>
                       <dd>Uses the <i>css</i> selector to extract the all the field values of an HTML form.</dd>
@@ -1780,7 +1780,7 @@
                   <input type="checkbox" id="md5" name="md5">
 
                   <div class="function-details">
-                    Check will be applied on the md5 checksum of the HTTP response
+                    Check will be applied on the md5 checksum of the response
                   </div>
                 </div>
 
@@ -1789,15 +1789,15 @@
                   <input type="checkbox" id="sha1" name="sha1">
 
                   <div class="function-details">
-                    Check will be applied on the sha1 checksum of the HTTP response
+                    Check will be applied on the sha1 checksum of the response
                   </div>
                 </div>
               </div>
 
-              <!-- HTTP checks (1/2) -->
+              <!-- Checks (1/2) -->
 
               <div class="http-checks group col-lg-4 col-md-6 col-xs-12 pull-right">
-                <h3>Http checks</h3>
+                <h3>HTTP checks</h3>
 
                 <div class="function">
                   <label class="function-syntax" for="status">status</label>
@@ -1813,7 +1813,7 @@
                   <input type="checkbox" id="currentLocation" name="currentLocation">
 
                   <div class="function-details">
-                    Check will be applied to the current url of the response
+                    Check will be applied to the current url of the HTTP response
                   </div>
                 </div>
 
@@ -2626,7 +2626,7 @@
                 <input type="checkbox" id="sseName" name="sseName">
 
                 <div class="function-details">
-                  Allows to deal with several SSE per virtual user
+                  Allows to deal with several SSE streams per virtual user
                   <dl>
                     <dt>(requestName)</dt>
                     <dd>Gives the requests a name and pass this name on each SSE operation</dd>
@@ -2635,11 +2635,11 @@
               </div>
 
               <div class="function">
-                <label class="function-syntax" for="sse-open">open</label>
-                <input type="checkbox" id="sse-open" name="sse-open">
+                <label class="function-syntax" for="sse-connect">connect</label>
+                <input type="checkbox" id="sse-connect" name="sse-connect">
 
                 <div class="function-details">
-                  Opens a SSE
+                  Connect a SSE stream
                   <dl>
                     <dt>(url)</dt>
                     <dd>Enables communication to the given <i>url</i></dd>
@@ -2652,7 +2652,7 @@
                 <input type="checkbox" id="sse-close" name="sse-close">
 
                 <div class="function-details">
-                  Closes a SSE
+                  Close a SSE stream
                 </div>
               </div>
 
@@ -2675,7 +2675,7 @@
                 <input type="checkbox" id="ws" name="ws">
 
                 <div class="function-details">
-                  Declares an webSocket request
+                  Declares an WebSocket request
                   <dl>
                     <dt>(requestName)</dt>
                     <dd>Name of the request</dd>
@@ -2692,7 +2692,7 @@
                 <input type="checkbox" id="wsName" name="wsName">
 
                 <div class="function-details">
-                  Allows to deal with several webSockets per virtual user
+                  Allows to deal with several WebSockets per virtual user
                   <dl>
                     <dt>(requestName)</dt>
                     <dd>Gives the requests a name and pass this name on each ws operation</dd>
@@ -2701,11 +2701,11 @@
               </div>
 
               <div class="function">
-                <label class="function-syntax" for="open">open</label>
-                <input type="checkbox" id="open" name="open">
+                <label class="function-syntax" for="ws-connect">connect</label>
+                <input type="checkbox" id="ws-connect" name="ws-connect">
 
                 <div class="function-details">
-                  Opens a webSocket
+                  Connects a WebSocket
                   <dl>
                     <dt>(url)</dt>
                     <dd>Enables communication to the given <i>url</i></dd>
@@ -2714,11 +2714,24 @@
               </div>
 
               <div class="function">
-                <label class="function-syntax" for="close">close</label>
-                <input type="checkbox" id="close" name="close">
+                <label class="function-syntax" for="ws-onConnected">onConnected</label>
+                <input type="checkbox" id="ws-onConnected" name="ws-onConnected">
 
                 <div class="function-details">
-                  Closes a webSocket
+                  Pass a chain of actions to be performed on (re-)connecting.
+                  <dl>
+                    <dt>(chain)</dt>
+                    <dd>A chain of actions</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="function">
+                <label class="function-syntax" for="ws-close">close</label>
+                <input type="checkbox" id="ws-close" name="ws-close">
+
+                <div class="function-details">
+                  Closes a WebSocket
                 </div>
               </div>
 
@@ -2727,10 +2740,21 @@
                 <input type="checkbox" id="sendText" name="sendText">
 
                 <div class="function-details">
-                  Sends a message
+                  Sends a String message
                   <dl>
                     <dt>(stringMessage)</dt>
                     <dd>Send <i>stringMessage</i> as a string</dd>
+                  </dl>
+                </div>
+              </div>
+
+              <div class="function">
+                <label class="function-syntax" for="sendBytes">sendBytes</label>
+                <input type="checkbox" id="sendBytes" name="sendBytes">
+
+                <div class="function-details">
+                  Sends a byte[] message
+                  <dl>
                     <dt>(bytesMessage)</dt>
                     <dd>Send <i>bytesMessage</i> as a bytes array</dd>
                   </dl>
@@ -2753,54 +2777,16 @@
               <h3>Checks</h3>
 
               <div class="function">
-                <label class="function-syntax" for="cancelCheck">cancelCheck</label>
-                <input type="checkbox" id="cancelCheck" name="cancelCheck">
-
-                <div class="function-details">
-                  Cancels a pending check
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="wsListen">wsListen</label>
-                <input type="checkbox" id="wsListen" name="wsListen">
-
-                <div class="function-details">
-                  Creates a non blocking check
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="wsAwait">wsAwait</label>
-                <input type="checkbox" id="wsAwait" name="wsAwait">
+                <label class="function-syntax" for="await">await</label>
+                <input type="checkbox" id="await" name="wsAwait">
 
                 <div class="function-details">
                   Creates a blocking check
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="within">within</label>
-                <input type="checkbox" id="within" name="within">
-
-                <div class="function-details">
-                  Sets a timeout
                   <dl>
                     <dt>(timeout)</dt>
-                    <dd>Where <i>timeout</i> is a FiniteDuration instance</dd>
-                  </dl>
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="until">until</label>
-                <input type="checkbox" id="until" name="until">
-
-                <div class="function-details">
-                  Checks will succeed as soon as Gatling has received the expected count of matching messages
-                  <dl>
-                    <dt>(count)</dt>
-                    <dd>Where <i>count</i> is the number of matching messages</dd>
+                    <dd>The <i>timeout</i> if check doesn't completes in due time</dd>
+                    <dt>(checks)</dt>
+                    <dd>The <i>checks</i> applied on expected server messages</dd>
                   </dl>
                 </div>
               </div>
@@ -2812,66 +2798,28 @@
               <h3 class="visible-lg visible-md">&nbsp;</h3>
 
               <div class="function">
-                <label class="function-syntax" for="expect">expect</label>
-                <input type="checkbox" id="expect" name="expect">
+                <label class="function-syntax" for="checkTextMessage">checkTextMessage</label>
+                <input type="checkbox" id="checkTextMessage" name="checkTextMessage">
 
                 <div class="function-details">
-                  Waits until the timeout, then the check will succeed if it has received the expected count of matching
-                  messages
+                  Expect a WebSocket Text frame that would be validated against some criteria
                   <dl>
-                    <dt>(count)</dt>
-                    <dd>Where <i>count</i> is the number of matching messages</dd>
-                    <dt>(range)</dt>
-                    <dd>Where <i>range</i> is an instance of Range</dd>
+                    <dt>(name)</dt>
+                    <dd>The <i>name</i> of the expected message to be displayed in response times and failures</dd>
                   </dl>
                 </div>
               </div>
 
               <div class="function">
-                <label class="function-syntax" for="regex2">regex</label>
-                <input type="checkbox" id="regex2" name="regex">
+                <label class="function-syntax" for="checkBinaryMessage">checkBinaryMessage</label>
+                <input type="checkbox" id="checkBinaryMessage" name="checkBinaryMessage">
 
                 <div class="function-details">
-                  Check will be applied to an extract of the frame payload
+                  Expect a WebSocket Binary frame that would be validated against some criteria
                   <dl>
-                    <dt>(expression)</dt>
-                    <dd>Extraction will use a regular expression defined by <i>expression</i>.</dd>
+                    <dt>(name)</dt>
+                    <dd>The <i>name</i> of the expected message to be displayed in response times and failures</dd>
                   </dl>
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="jsonPath2">jsonPath</label>
-                <input type="checkbox" id="jsonPath2" name="jsonPath">
-
-                <div class="function-details">
-                  Check will be applied to an extract of the frame payload
-                  <dl>
-                    <dt>(expression)</dt>
-                    <dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd>
-                  </dl>
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="jsonpJsonPath2">jsonpJsonPath</label>
-                <input type="checkbox" id="jsonpJsonPath2" name="jsonpJsonPath">
-
-                <div class="function-details">
-                  Check will be applied to an extract of the frame payload
-                  <dl>
-                    <dt>(expression)</dt>
-                    <dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd>
-                  </dl>
-                </div>
-              </div>
-
-              <div class="function">
-                <label class="function-syntax" for="reconciliate">reconciliate</label>
-                <input type="checkbox" id="reconciliate" name="reconciliate">
-
-                <div class="function-details">
-                  Reconciliates main flow and WebSocket/SSE flow
                 </div>
               </div>
             </div>
@@ -2882,7 +2830,7 @@
           <div class="row-fluid">
             <h2>
               WebSockets Configuration
-              <small>Mutualize your webSockets code and tune the behaviour of Gatling's webSocket client</small>
+              <small>Mutualize your WebSockets code and tune the behaviour of Gatling's WebSocket client</small>
             </h2>
 
             <!-- Configuration -->
@@ -2895,7 +2843,7 @@
                 <input type="checkbox" id="wsBaseUrl" name="wsBaseUrl">
 
                 <div class="function-details">
-                  Serves as root that will be prepended to all relative webSocket urls
+                  Serves as root that will be prepended to all relative WebSocket urls
                   <dl>
                     <dt>(url)</dt>
                     <dd>Where <i>url</i> is the root url</dd>
@@ -2908,7 +2856,7 @@
                 <input type="checkbox" id="wsBaseUrls" name="wsBaseUrls">
 
                 <div class="function-details">
-                  Serves as round-robin roots that will be prepended to all relative webSocket urls
+                  Serves as round-robin roots that will be prepended to all relative WebSocket urls
                   <dl>
                     <dt>(url...)</dt>
                     <dd>Where <i>url</i> are the root urls</dd>
@@ -2921,7 +2869,7 @@
                 <input type="checkbox" id="wsReconnect" name="wsReconnect">
 
                 <div class="function-details">
-                  Automatically reconnect a webSocket that would have been closed by someone else than the client
+                  Automatically reconnect a WebSocket that would have been closed by someone else than the client
                 </div>
               </div>
 
@@ -2930,7 +2878,7 @@
                 <input type="checkbox" id="wsMaxReconnects" name="wsMaxReconnects">
 
                 <div class="function-details">
-                  Sets a limit on the number of times a webSocket will be automatically reconnected
+                  Sets a limit on the number of times a WebSocket will be automatically reconnected
                   <dl>
                     <dt>(count)</dt>
                     <dd>Where <i>count</i> is the number of maximum reconnections url</dd>

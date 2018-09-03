@@ -24,34 +24,82 @@ class WsSample {
   ws("WS Operation").wsName("myCustomName")
   //#wsName
 
-  //#wsOpen
+  //#connect
   exec(ws("Connect WS").connect("/room/chat?username=steph"))
-  //#wsOpen
+  //#wsConnect
 
-  //#wsClose
+  //#onConnected
+  exec(ws("Connect WS").connect("/room/chat?username=steph")
+    .onConnected(
+      exec(ws("Perform auth")
+        .sendText("Some auth token"))
+        .pause(1)
+    ))
+  //#onConnected
+
+  //#close
   exec(ws("Close WS").close)
-  //#wsClose
+  //#close
 
   //#sendText
   exec(ws("Message")
     .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
   //#sendText
 
-  val myCheck = ws.checkTextMessage("checkName").check(regex("hello (.*)").saveAs("name"))
+  //#create-single-check
+  val myCheck = ws.checkTextMessage("checkName")
+    .check(regex("hello (.*)").saveAs("name"))
+  //#create-single-check
+
+  //#create-multiple-checks
+  ws.checkTextMessage("checkName")
+    .check(
+      jsonPath("$.code").ofType[Int].is(1).saveAs("code"),
+      jsonPath("$.message").is("OK")
+    )
+  //#create-multiple-checks
+
+  //#matching
+  ws.checkTextMessage("checkName")
+    .matching(jsonPath("$.uuid").is("${correlation}"))
+    .check(jsonPath("$.code").ofType[Int].is(1))
+  //#matching
 
   //#check-from-message
   exec(ws("Send").sendText("hello").await(30 seconds)(myCheck))
   //#check-from-message
 
-  //#check-from-flow
-  // FIXME setCheck is missing for WebSocket support
-  //  exec(ws("Set Check").setCheck.check(myCheck))
-  //#check-from-flow
+  val myCheck1 = myCheck
+  val myCheck2 = myCheck
 
-  //#cancel-check
-  // FIXME remove cancelCheck
-  //  exec(ws("Cancel Check").cancelCheck)
-  //#cancel-check
+  //#check-single-sequence
+  // expecting 2 messages
+  // 1st message will be validated against myCheck1
+  // 2nd message will be validated against myCheck2
+  // whole sequence must complete withing 30 seconds
+  exec(ws("Send").sendText("hello")
+    .await(30 seconds)(myCheck1, myCheck2))
+  //#check-single-sequence
+
+  //#check-multiple-sequence
+  // expecting 2 messages
+  // 1st message will be validated against myCheck1
+  // 2nd message will be validated against myCheck2
+  // both sequences must complete withing 15 seconds
+  // 2nd sequence will start after 1st one completes
+  exec(ws("Send").sendText("hello")
+    .await(15 seconds)(myCheck1)
+    .await(15 seconds)(myCheck2))
+  //#check-multiple-sequence
+
+  //#check-matching
+  exec(ws("Send").sendText("hello")
+    .await(1 second)(
+      ws.checkTextMessage("checkName")
+        .matching(jsonPath("$.uuid").is("${correlation}"))
+        .check(jsonPath("$.code").ofType[Int].is(1))
+    ))
+  //#check-matching
 
   //#check-example
   exec(
@@ -62,11 +110,6 @@ class WsSample {
       )
   )
   //#check-example
-
-  //#reconcile
-  // FIXME remove reconcile for now
-  //  exec(ws("Reconcile states").reconcile)
-  //#reconcile
 
   //#chatroom-example
   val httpConf = http
