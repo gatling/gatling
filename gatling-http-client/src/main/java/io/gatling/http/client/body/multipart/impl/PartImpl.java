@@ -261,7 +261,7 @@ public abstract class PartImpl implements Closeable {
     visitor.withBytes(boundary);
   }
 
-  protected void visitDispositionHeader(PartVisitor visitor) {
+  protected void visitContentDispositionHeader(PartVisitor visitor) {
     visitor.withBytes(CRLF_BYTES);
     visitor.withBytes(CONTENT_DISPOSITION_BYTES);
     visitor.withBytes(part.getDispositionType() != null ? part.getDispositionType().getBytes(US_ASCII) : FORM_DATA_DISPOSITION_TYPE_BYTES);
@@ -324,7 +324,7 @@ public abstract class PartImpl implements Closeable {
 
   private void visitPreContent(PartVisitor visitor) {
     visitStart(visitor);
-    visitDispositionHeader(visitor);
+    visitContentDispositionHeader(visitor);
     visitContentTypeHeader(visitor);
     visitTransferEncodingHeader(visitor);
     visitContentIdHeader(visitor);
