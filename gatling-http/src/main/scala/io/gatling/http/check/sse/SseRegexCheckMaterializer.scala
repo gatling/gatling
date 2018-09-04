@@ -22,7 +22,7 @@ import io.gatling.core.check.extractor.regex.RegexCheckType
 
 object SseRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, SseCheck, String, CharSequence] {
 
-  override val specializer: Specializer[SseCheck, String] = SseCheck(_)
+  override val specializer: Specializer[SseCheck, String] = SseCheck.apply
 
   override val preparer: Preparer[String, CharSequence] = _.success
 }

@@ -22,7 +22,7 @@ import io.gatling.core.json.JsonParsers
 
 class SseJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, SseCheck, String, Any] {
 
-  override val specializer: Specializer[SseCheck, String] = SseCheck(_)
+  override val specializer: Specializer[SseCheck, String] = SseCheck.apply
 
   override val preparer: Preparer[String, Any] = jsonParsers.safeParse
 }
