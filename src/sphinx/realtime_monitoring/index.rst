@@ -14,9 +14,9 @@ Still, it's possible to get live feedback.
 FrontLine
 =========
 
-`FrontLine <https://gatling.io/gatling-frontline/>`_ is a commercial product from GatlingCorp, the company behind Gatling.
+`FrontLine <https://gatling.io/gatling-frontline/>`__ is a commercial product from GatlingCorp, the company behind Gatling.
 
-Amongst other features like clustering support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
+Amongst other features like clustering support, MQTT support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
 FrontLine offers entreprise-grade realtime monitoring and metrics persistence.
 
 .. image:: img/frontline.png

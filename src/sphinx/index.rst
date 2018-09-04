@@ -45,6 +45,7 @@ User's guide
     session/index
     http/index
     jms
+    mqtt
     realtime_monitoring/index
     extensions/index
     cookbook/index

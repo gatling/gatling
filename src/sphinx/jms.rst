@@ -9,7 +9,7 @@ JMS support was initially contributed by `Jason Koch <https://github.com/jasonk0
 Prerequisites
 =============
 
-Gatling JMS DSL is not available by default.
+Gatling JMS DSL is not imported by default.
 
 One has to manually add the following imports:
 
@@ -93,10 +93,10 @@ JMS Type
 
 Jms type can be specified with ``jmsType(Expression[String])``.
 
+.. _jms-check:
+
 JMS Check API
 =============
-
-.. _jms-api:
 
 JMS checks are very basic for now.
 
