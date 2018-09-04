@@ -50,43 +50,65 @@ For example:
 
 .. includecode:: code/SseSample.scala#sseClose
 
+.. _http-sse-checks:
+
 Server Messages: Checks
 =======================
 
-Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
+You deal with incoming messages with checks.
 
-Gatling currently only support one check at a time per SSE stream.
+Beware to not miss messages that would be received prior to setting the check.
+
+Gatling currently only supports blocking checks that will waiting until receiving expected message or timing out.
 
 .. _http-sse-check-set:
-
-Build a Check
--------------
-
-Now, to the matter at heart, how to build a server sent event check.
-
-SSE support uses the same checks as WebSockets.
-So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
-
-Here are few examples:
-
-.. includecode:: code/SseSample.scala#build-check
-
-.. _http-sse-check-conf:
 
 Set a Check
 -----------
 
-Checks can be set in 2 ways.
+You can set a check right after connecting:
 
-First, when sending a message:
+.. includecode:: code/SsSample.scala#check-from-connect
 
-.. includecode:: code/SseSample.scala#check-from-message
-
-Then, directly from the main HTTP flow:
+Or you can set a check from main flow:
 
 .. includecode:: code/SseSample.scala#check-from-flow
 
-If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
+You can set multiple checks sequentially. Each one will expect one single frame.
+
+You can configure multiple checks in a single sequence:
+
+.. includecode:: code/SseSample.scala#check-single-sequence
+
+You can also configure multiple check sequences with different timeouts:
+
+.. includecode:: code/SseSample.scala#check-check-multiple-sequence
+
+Create a check
+--------------
+
+You can create checks for server events with ``checkMessage``.
+You can use almost all the same check criteria as for HTTP requests.
+
+.. includecode:: code/SseSample.scala#create-single-check
+
+You can have multiple criteria for a given message:
+
+.. includecode:: code/SseSample.scala#create-multiple-checks
+
+.. _http-sse-matching:
+
+Matching messages
+-----------------
+
+You can define ``matching`` criteria to filter messages you want to check.
+Matching criterion is a standard check, except it doesn't take ``saveAs``.
+Non matching messages will be ignored.
+
+.. includecode:: code/SseSample.scala#matching
+
+
+.. _http-sse-check-conf:
 
 Configuration
 =============

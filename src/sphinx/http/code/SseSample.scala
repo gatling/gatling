@@ -21,41 +21,77 @@ import io.gatling.http.Predef._
 class SseSample {
 
   //#sseName
-  sse("SSE Operation").sseName("myCustomName")
+  sse("Sse").sseName("myCustomName")
   //#sseName
 
   //#sseConnect
-  exec(sse("Get SSE").connect("/stocks/prices"))
+  exec(sse("Connect").connect("/stocks/prices"))
   //#sseConnect
 
   //#sseClose
-  exec(sse("Close SSE").close())
+  exec(sse("Close").close())
   //#sseClose
 
-  val myCheck = sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
+  //#create-single-check
+  val myCheck = sse.checkMessage("checkName")
+    .check(regex("""event: snapshot(.*)"""))
+  //#create-single-check
 
-  //#check-from-message
-  exec(sse("Get SSE").connect("/stocks/prices").await(5 seconds)(myCheck))
-  //#check-from-message
+  //#create-multiple-checks
+  sse.checkMessage("checkName")
+    .check(
+      regex("""event: event1(.*)"""),
+      regex("""event: event2(.*)""")
+    )
+  //#create-multiple-checks
+
+  //#check-from-connect
+  exec(sse("Connect").connect("/stocks/prices")
+    .await(5 seconds)(myCheck))
+  //#check-from-connect
 
   //#check-from-flow
-  exec(sse("Set Check").setCheck.await(30 seconds)(
-    myCheck
-  ))
+  exec(sse("SetCheck").setCheck
+    .await(30 seconds)(myCheck))
   //#check-from-flow
 
-  //#build-check
-  exec(sse("sse").connect("/stocks/prices")
-    .await(30 seconds)(
-      sse.checkMessage("checkName").check(regex("""event: snapshot(.*)"""))
+  val myCheck1 = myCheck
+  val myCheck2 = myCheck
+
+  //#check-single-sequence
+  // expecting 2 messages
+  // 1st message will be validated against myCheck1
+  // 2nd message will be validated against myCheck2
+  // whole sequence must complete withing 30 seconds
+  exec(sse("SetCheck").setCheck
+    .await(30 seconds)(myCheck1, myCheck2))
+  //#check-single-sequence
+
+  //#check-multiple-sequence
+  // expecting 2 messages
+  // 1st message will be validated against myCheck1
+  // 2nd message will be validated against myCheck2
+  // both sequences must complete withing 15 seconds
+  // 2nd sequence will start after 1st one completes
+  exec(sse("SetCheck").setCheck
+    .await(15 seconds)(myCheck1)
+    .await(15 seconds)(myCheck2))
+  //#check-multiple-sequence
+
+  //#check-matching
+  exec(sse("SetCheck").setCheck
+    .await(1 second)(
+      sse.checkMessage("checkName")
+        .matching(substring("event"))
+        .check(regex("""event: snapshot(.*)"""))
     ))
-  //#build-check
+  //#check-matching
 
   //#stock-market-sample
   val httpConf = http
     .baseUrl("http://localhost:8080/app")
 
-  val scn = scenario("Server Sent Event")
+  val scn = scenario("ServerSentEvents")
     .exec(
       sse("Stocks").connect("/stocks/prices")
         .await(10)(
@@ -63,6 +99,6 @@ class SseSample {
         )
     )
     .pause(15)
-    .exec(sse("Close SSE").close())
+    .exec(sse("Close").close())
   //#stock-market-sample
 }

@@ -65,6 +65,10 @@ class WsSample {
     .check(jsonPath("$.code").ofType[Int].is(1))
   //#matching
 
+  //#check-from-connect
+  exec(ws("Connect").connect("/foo").await(30 seconds)(myCheck))
+  //#check-from-connect
+
   //#check-from-message
   exec(ws("Send").sendText("hello").await(30 seconds)(myCheck))
   //#check-from-message
@@ -100,16 +104,6 @@ class WsSample {
         .check(jsonPath("$.code").ofType[Int].is(1))
     ))
   //#check-matching
-
-  //#check-example
-  exec(
-    ws("Send Message")
-      .sendText("hello, I'm Stephane")
-      .await(30 seconds)(
-        ws.checkTextMessage("checkName").check(regex("hello (.*)").saveAs("name"))
-      )
-  )
-  //#check-example
 
   //#chatroom-example
   val httpConf = http

@@ -79,8 +79,6 @@ For example:
 Server Messages: Checks
 =======================
 
-You deal with incoming messages with the ``check()`` method.
-
 Gatling currently only supports blocking checks that will waiting until receiving expected message or timing out.
 
 .. _http-ws-check-set:
@@ -88,9 +86,15 @@ Gatling currently only supports blocking checks that will waiting until receivin
 Set a Check
 -----------
 
-When you set a check, you define a timeout:
+You can set a check right after connecting:
+
+.. includecode:: code/WsSample.scala#check-from-connect
+
+Or you can set a check right after sending a message to the server:
 
 .. includecode:: code/WsSample.scala#check-from-message
+
+You can set multiple checks sequentially. Each one will expect one single frame.
 
 You can configure multiple checks in a single sequence:
 

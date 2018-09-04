@@ -28,7 +28,7 @@ class SseCompileTest extends Simulation {
     .doNotTrackHeader("1")
 
   val scn = scenario(this.getClass.getSimpleName)
-    .exec(sse("connect")
+    .exec(sse("connect").sseName("sse")
       .connect("/stocks/prices")
       .await(30 seconds)(
         sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
