@@ -33,4 +33,6 @@ trait SseCheckSupport {
   implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers) = new SseJsonPathCheckMaterializer(jsonParsers)
 
   implicit val sseRegexCheckMaterializer = SseRegexCheckMaterializer
+
+  implicit val sseSubstringCheckMaterializer = SseSubstringCheckMaterializer
 }

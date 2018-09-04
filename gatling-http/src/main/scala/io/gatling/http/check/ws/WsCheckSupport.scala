@@ -44,4 +44,6 @@ trait WsCheckSupport {
   implicit val wsRegexCheckMaterializer = WsRegexCheckMaterializer
 
   implicit val wsBodyBytesCheckMaterializer = WsBodyBytesCheckMaterializer
+
+  implicit val wsSubstringCheckMaterializer = WsSubstringCheckMaterializer
 }
