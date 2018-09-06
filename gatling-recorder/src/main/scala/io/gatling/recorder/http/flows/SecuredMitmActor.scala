@@ -56,7 +56,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
       serverChannel.reply500AndClose()
       stop()
 
-    case Event(ClientChannelInactive(inactiveClientChannelId), _) =>
+    case Event(ClientChannelInactive(_), _) =>
       // such event can only be related to previous channel, ignoring
       stay()
   }
