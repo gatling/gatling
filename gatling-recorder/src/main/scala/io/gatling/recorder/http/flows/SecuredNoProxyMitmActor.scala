@@ -27,6 +27,7 @@ import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslHandler
+import io.netty.util.concurrent.Future
 
 /**
  * Standard flow:
@@ -56,10 +57,9 @@ class SecuredNoProxyMitmActor(
   override protected def connectedRemote(requestRemote: Remote): Remote = requestRemote
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
-    // FIXME have an option for disabling
-    val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(remote))
-    clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
+    val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(clientChannel.alloc, remote))
     clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
+    clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
 
     // DIFF FROM HTTP
     if (pendingRequest.method == HttpMethod.CONNECT) {
@@ -71,8 +71,14 @@ class SecuredNoProxyMitmActor(
       serverChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 
     } else {
-      // propagate
-      clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
+      clientSslHandler.handshakeFuture().addListener((future: Future[Channel]) => {
+        if (future.isSuccess) {
+          // propagate
+          clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
+        } else {
+          throw future.cause
+        }
+      })
     }
 
     goto(Connected) using ConnectedData(remote, clientChannel)
