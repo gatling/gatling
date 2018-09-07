@@ -70,14 +70,14 @@ object Dependencies {
 
   private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.0.5"             % "test"
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.14.0"            % "test"
-  private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision  % "test"
+  private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "2.21.0"            % "test"
   private val activemqBroker                 = "org.apache.activemq"                  % "activemq-broker"                 % "5.15.5"            % "test"
   private val h2                             = "com.h2database"                       % "h2"                              % "1.4.197"           % "test"
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.21"
 
-  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.2.0"             % "test"
-  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.11.v20180605"   % "test"
+  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.3.0"             % "test"
+  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.11.v20180605"  % "test"
   private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % "test"
 
   // format: ON
