@@ -133,8 +133,6 @@ This can only happen after Gatling has resolved the request, e.g. computed the b
 
 Gatling provides the ``SignatureCalculator`` API::
 
-  package io.gatling.http.client;
-
   public interface SignatureCalculator {
 
     void sign(Request request) throws Exception;

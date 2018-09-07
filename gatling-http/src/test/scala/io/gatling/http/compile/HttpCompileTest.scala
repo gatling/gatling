@@ -20,7 +20,6 @@ import java.net.InetSocketAddress
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.http.client.{ Request, SignatureCalculator }
 
 import io.netty.handler.codec.http.HttpMethod
 
