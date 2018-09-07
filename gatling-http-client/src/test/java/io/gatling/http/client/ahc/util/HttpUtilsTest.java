@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
@@ -44,6 +45,11 @@ class HttpUtilsTest {
   @Test
   void testExtractCharsetWithDoubleQuotesAndSpaces() {
     assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/html; charset= \"iso-8859-1\" "), ISO_8859_1);
+  }
+
+  @Test
+  void testExtractCharsetWithExtraAttribute() {
+    assertEquals(HttpUtils.extractContentTypeCharsetAttribute("text/xml; charset=utf-8; action=\"someaction\""), UTF_8);
   }
 
   @Test
