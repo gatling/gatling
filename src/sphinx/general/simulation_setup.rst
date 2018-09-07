@@ -66,6 +66,7 @@ The building blocks for profile injection the way you want are:
 #. ``splitUsers(nbUsers) into(injectionStep1) separatedBy(injectionStep2)``: Repeatedly execute the first defined injection step (*injectionStep1*) separated by the execution of the second injection step (*injectionStep2*) until reaching *nbUsers*, the total number of users to inject.
 #. ``heavisideUsers(nbUsers) over(duration)``: Injects a given number of users following a smooth approximation of the `heaviside step function <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ stretched to a given duration.
 
+.. _simulation-inject-closed:
 
 Closed Model
 ^^^^^^^^^^^^

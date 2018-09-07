@@ -54,6 +54,8 @@ Request Type
 
 Currently, ``requestReply`` and ``send`` (fire and forget) requests are supported.
 
+.. _jms-destination:
+
 Destination
 -----------
 
@@ -83,10 +85,14 @@ Message
 * ``mapMessage(Expression[Map[String, Any]])``
 * ``objectMessage(Expression[java.io.Serializable])``
 
+.. _jms-props:
+
 Properties
 ----------
 
 One can send additional properties with ``property(Expression[String], Expression[Any])``.
+
+.. _jms-type:
 
 JMS Type
 --------

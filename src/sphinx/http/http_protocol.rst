@@ -44,8 +44,7 @@ If you want to load test several servers at the same time, to bypass a load-bala
 
 .. includecode:: code/HttpProtocolSample.scala#baseUrls
 
-The selection of the URL is made at each request, using the ``Random`` generator.
-
+The selection of the URL is made once and for all for a given virtual user.
 
 .. _http-protocol-warmup:
 
@@ -105,6 +104,8 @@ HTTP/2 Support
 HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
 
 Note that you'll either need your injectors to run with Java 9, or set `gatling.http.ahc.useOpenSsl` to `true` in Gatling configuration.
+
+.. _http-protocol-dns:
 
 DNS Name Resolution
 -------------------

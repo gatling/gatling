@@ -21,6 +21,8 @@ For further information, you should have a look at `Logback Documentation <http:
 
 .. note:: In order to log requests and responses, uncomment the dedicated loggers in the `default logging configuration file <https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/logback.dummy>`_.
 
+.. _conf-file:
+
 gatling.conf
 ------------
 

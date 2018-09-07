@@ -5,17 +5,56 @@ What's New in 3.0
 Core
 ====
 
-Loop
-----
+* `#1647 <https://github.com/gatling/gatling/issues/1647>`__: Support closed workload model, see :ref:`here <simulation-inject-closed>`.
+* `#2602 <https://github.com/gatling/gatling/issues/2602>`__: Introduce ``batch`` for batching file based feeders instead of loading full content in memory, see :ref:`here <feeder-csv>`.
+* `#2634 <https://github.com/gatling/gatling/issues/2634>`__: Introduce ``doWhile`` loop, see :ref:`here <scenario-doWhile>`.
+* `#3067 <https://github.com/gatling/gatling/issues/3067>`__: Add percentile(rank: Double) assertion.
+* `#3189 <https://github.com/gatling/gatling/issues/3189>`__: Remove ``Validation#get``.
+* `#3283 <https://github.com/gatling/gatling/issues/3283>`__: Introduce ``asLongAsDuring`` and ```doWhileDuring` loops, see :ref:`here <scenario-doWhile>`.
+* `#3359 <https://github.com/gatling/gatling/issues/3359>`__: Support Java 9, 10, 11.
+* `#3384 <https://github.com/gatling/gatling/issues/3384>`__: Introduce ``readRecords`` for reading feeder content, see :ref:`here <feeder-records>`.
+* `#3395 <https://github.com/gatling/gatling/issues/3395>`__: Automatically parse String values stored in Session into expected type, eg numbers.
+* `#3399 <https://github.com/gatling/gatling/issues/3399>`__: Introduce ``unzip`` for compressed feeder files, see :ref:`here <feeder-csv>`.
+* `#3415 <https://github.com/gatling/gatling/issues/3415>`__: Support overriding Gatling configuration file name, see :ref:`here <conf-file>`.
+* `#3486 <https://github.com/gatling/gatling/issues/3486>`__: Make console print period configuration, see ``gatling.conf``.
+* `#3498 <https://github.com/gatling/gatling/issues/3498>`__: Allow the user to pass arbitrary scalac options.
 
-It's now possible to have a do while loop behavior by using the ``doWhile`` function
-see :ref:`doWhile documentation <scenario-doWhile>` for more details.
-
-Http
+HTTP
 ====
 
-Cookie
-------
+* `#1744 <https://github.com/gatling/gatling/issues/1744>`__: SOCKS 4 and 5 proxies support, see :ref:`here <http-protocol-proxy>`.
+* `#3007 <https://github.com/gatling/gatling/issues/3007>`__: Introduce strategies for naming inferred resources, see :ref:`here <http-protocol-infer>`.
+* `#3028 <https://github.com/gatling/gatling/issues/3028>`__: Support Pebble templating engine for crafting request bodies, see :ref:`here <http-request-body-pebble>`.
+* `#3042 <https://github.com/gatling/gatling/issues/3042>`__: HTTP/2 support, see :ref:`here <http-protocol-http2>`.
+* `#3043 <https://github.com/gatling/gatling/issues/3043>`__: baseUrls is now sticky for a given virtual user, see :ref:`here <http-protocol-base-url>`.
+* `#3071 <https://github.com/gatling/gatling/issues/3071>`__: New WebSocket and SSE API, see :ref:`here <http-ws>`.
+* `#3088 <https://github.com/gatling/gatling/issues/3088>`__: Introduce ``findRandom`` to pick a random check result, see :ref:`here <http-check-find-random>`.
+* `#3105 <https://github.com/gatling/gatling/issues/3105>`__: Introduce ``name`` for customizing check error message, see :ref:`here <http-check-naming>`.
+* `#3167 <https://github.com/gatling/gatling/issues/3167>`__: Introduce ``getCookieValue``, see :ref:`here <https-helpers-cookie-get>`.
+* `#3195 <https://github.com/gatling/gatling/issues/3195>`__: ``ofType`` now deep converts into Scala Map and Seq types.
+* `#3313 <https://github.com/gatling/gatling/issues/3313>`__: ``form`` check should extract String or Seq[String] depending on input cardinality.
+* `#3325 <https://github.com/gatling/gatling/issues/3325>`__: Use unsecured TrustManager by default.
+* `#3341 <https://github.com/gatling/gatling/issues/3341>`__: Introduce ``isNull`` and ```notNull` check validators for dealing with null values, typically from JSON, see :ref:`here <http-check-isNull>`.
+* `#3412 <https://github.com/gatling/gatling/issues/3412>`__: Introduce ``asyncNameResolution`` for switching to non-blocking DNS resolver instead of Java's one, see :ref:`here <http-protocol-dns>`.
+* `#3496 <https://github.com/gatling/gatling/issues/3496>`__: ``transformResponse`` now takes a ``Session`` parameter, see :ref:`here <http-response-transformer>`.
 
-It's now possible to get the cookie value by using ``getCookieValue`` function
-see :ref:`getCookieValue documentation <https-helpers-cookie-get>` for more details.
+JMS
+===
+
+* `2875 <https://github.com/gatling/gatling/issues/2875>`__: Introduce ``replyTimeout`` for individual request timeout, see :ref:`here <jms-protocol>`.
+* `2967 <https://github.com/gatling/gatling/issues/2967>`__: JMSType support, see :ref:`here <jms-type>`.
+* `3103 <https://github.com/gatling/gatling/issues/3103>`__: Support passing a ConnectionFactory programmatically, see :ref:`here <jms-protocol>`.
+* `3123 <https://github.com/gatling/gatling/issues/3123>`__: Make Queue names dynamic.
+* `3262 <https://github.com/gatling/gatling/issues/3262>`__: Introduce ``properties`` to set custom JNDI properties, see :ref:`here <jms-props>`.
+* `3428 <https://github.com/gatling/gatling/issues/3428>`__: Introduce ``trackerQueue`` and ``trackerDestination``, see :ref:`here <jms-destination>`.
+* `3514 <https://github.com/gatling/gatling/issues/3514>`__: Introduce ``noJmsReplyTo`` to not set JMSReplyTo, see :ref:`here <jms-destination>`.
+
+Maven
+=====
+
+* `3493 <https://github.com/gatling/gatling/issues/3493>`__: includes/exclude filters now take ant patterns.
+
+SBT
+===
+
+* `3168 <https://github.com/gatling/gatling/issues/3168>`__: Introduce Giter8 template, see :ref:`here <sbt-plugin>`.

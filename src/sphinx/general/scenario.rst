@@ -208,6 +208,36 @@ Similar to ``asLongAs`` but the condition is evaluated after the loop.
 
 *counterName* is optional.
 
+.. _scenario-asLongAsDuring:
+
+``asLongAsDuring``
+^^^^^^^^^^^^^^^^^^
+
+Iterate over the loop as long as the condition is satisfied and the duration hasn't been reached.
+
+.. includecode:: code/ScenarioSample.scala#asLongAsDuring
+
+*condition* is a session function that returns a boolean.
+
+*duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
+
+*counterName* is optional.
+
+.. _scenario-doWhileDuring:
+
+``doWhileDuring``
+^^^^^^^^^^^^^^^^^
+
+Similar to ``asLongAsDuring`` but the condition is evaluated after the loop.
+
+.. includecode:: code/ScenarioSample.scala#doWhileDuring
+
+*condition* is a session function that returns a boolean.
+
+*duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
+
+*counterName* is optional.
+
 .. _scenario-forever:
 
 ``forever``
