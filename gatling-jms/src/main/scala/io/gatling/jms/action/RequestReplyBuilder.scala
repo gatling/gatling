@@ -24,7 +24,7 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 import io.gatling.jms.request.{ JmsAttributes, JmsDestination }
 
-case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsDestination, setJMSReplyTo: Boolean, trackerDestination: Option[JmsDestination], configuration: GatlingConfiguration) extends ActionBuilder {
+case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsDestination, setJmsReplyTo: Boolean, trackerDestination: Option[JmsDestination], configuration: GatlingConfiguration) extends ActionBuilder {
 
   private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
@@ -33,6 +33,6 @@ case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsD
     import ctx._
     val statsEngine = coreComponents.statsEngine
     val jmsComponents = components(protocolComponentsRegistry)
-    new RequestReply(attributes, replyDestination, setJMSReplyTo, trackerDestination, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, statsEngine, coreComponents.clock, next)
+    new RequestReply(attributes, replyDestination, setJmsReplyTo, trackerDestination, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, statsEngine, coreComponents.clock, next)
   }
 }

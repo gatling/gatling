@@ -36,7 +36,7 @@ import io.gatling.jms.request._
 class RequestReply(
     attributes:         JmsAttributes,
     replyDestination:   JmsDestination,
-    setJMSReplyTo:      Boolean,
+    setJmsReplyTo:      Boolean,
     trackerDestination: Option[JmsDestination],
     protocol:           JmsProtocol,
     jmsConnectionPool:  JmsConnectionPool,
@@ -58,7 +58,7 @@ class RequestReply(
       resolvedReplyDestination <- jmsReplyDestination(session)
       resolvedTrackerDestination <- jmsTrackerDestination(session)
     } yield (message: Message) => {
-      if (setJMSReplyTo) {
+      if (setJmsReplyTo) {
         message.setJMSReplyTo(resolvedReplyDestination)
       }
       protocol.messageMatcher.prepareRequest(message)
