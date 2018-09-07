@@ -49,6 +49,8 @@ class JmsCompileTest extends Simulation {
     .usePersistentDeliveryMode
     .replyTimeout(1000)
     .messageMatcher(IdentificationMatcher)
+    .matchByCorrelationId
+    .matchByMessageId
 
   val scn = scenario("JMS DSL test")
     .repeat(1) {
@@ -61,6 +63,7 @@ class JmsCompileTest extends Simulation {
         .exec(jms("req reply testing").requestReply
           .queue("jmstestq")
           .bytesMessage(new Array[Byte](1))
+          .jmsType("foo")
           .property("test_header", "test_value")
           .check(checkBodyTextCorrect))
         .exec(jms("req reply testing").requestReply

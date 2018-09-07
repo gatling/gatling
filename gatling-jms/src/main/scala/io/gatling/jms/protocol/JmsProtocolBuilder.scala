@@ -36,7 +36,7 @@ case class JmsProtocolBuilder(
     connectionFactory:   ConnectionFactory,
     creds:               Option[Credentials] = None,
     deliveryMode:        Int                 = DeliveryMode.NON_PERSISTENT,
-    messageMatcher:      JmsMessageMatcher   = MessageIDMessageMatcher,
+    messageMatcher:      JmsMessageMatcher   = MessageIdMessageMatcher,
     listenerThreadCount: Int                 = 1,
     replyTimeout:        Option[Long]        = None
 ) {
@@ -44,8 +44,8 @@ case class JmsProtocolBuilder(
   def credentials(user: String, password: String) = copy(creds = Some(Credentials(user, password)))
   def usePersistentDeliveryMode = copy(deliveryMode = DeliveryMode.PERSISTENT)
   def useNonPersistentDeliveryMode = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
-  def matchByMessageID = messageMatcher(MessageIDMessageMatcher)
-  def matchByCorrelationID = messageMatcher(CorrelationIDMessageMatcher)
+  def matchByMessageId = messageMatcher(MessageIdMessageMatcher)
+  def matchByCorrelationId = messageMatcher(CorrelationIdMessageMatcher)
   def messageMatcher(matcher: JmsMessageMatcher) = copy(messageMatcher = matcher)
   @deprecated("noop, replaced with replyTimeout which is per request, will be removed in 3.0", "3.0.0-M5")
   def receiveTimeout(timeout: Long): JmsProtocolBuilder = this

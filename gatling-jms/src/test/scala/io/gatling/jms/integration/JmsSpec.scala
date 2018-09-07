@@ -111,7 +111,7 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
 
   def jmsProtocol = jms
     .connectionFactory(cf)
-    .matchByCorrelationID
+    .matchByCorrelationId
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
     val clock = new DefaultClock

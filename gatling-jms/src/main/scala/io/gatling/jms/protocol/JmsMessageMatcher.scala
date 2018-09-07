@@ -31,13 +31,13 @@ trait JmsMessageMatcher {
   def responseMatchId(msg: Message): String
 }
 
-object MessageIDMessageMatcher extends JmsMessageMatcher {
+object MessageIdMessageMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = {}
   override def requestMatchId(msg: Message): String = msg.getJMSMessageID
   override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }
 
-object CorrelationIDMessageMatcher extends JmsMessageMatcher {
+object CorrelationIdMessageMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(FastUUID.toString(UUID.randomUUID))
   override def requestMatchId(msg: Message): String = msg.getJMSCorrelationID
   override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
