@@ -20,7 +20,7 @@ object Dependencies {
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.14.Final"
   private val activation                     = "com.sun.activation"                   % "javax.activation"                % "1.2.0"
-  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.5.15"
+  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.5.16"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.3.3"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "9.8.0-14"
