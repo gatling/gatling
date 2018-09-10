@@ -78,7 +78,7 @@ class AdvancedSimulationStep04 extends Simulation {
   val admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit)
 
   setUp(
-    users.inject(rampUsers(10) over (10 seconds)),
-    admins.inject(rampUsers(2) over (10 seconds))
+    users.inject(rampUsers(10) during (10 seconds)),
+    admins.inject(rampUsers(2) during (10 seconds))
   ).protocols(httpConf)
 }

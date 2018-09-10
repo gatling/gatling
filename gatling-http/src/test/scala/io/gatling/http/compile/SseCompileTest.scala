@@ -23,10 +23,6 @@ import io.gatling.http.Predef._
 
 class SseCompileTest extends Simulation {
 
-  val httpConf = http
-    .baseUrl("http://localhost:8080/app")
-    .doNotTrackHeader("1")
-
   val scn = scenario(this.getClass.getSimpleName)
     .exec(sse("connect").sseName("sse")
       .connect("/stocks/prices")
@@ -39,6 +35,4 @@ class SseCompileTest extends Simulation {
     .pause(15)
     .exec(sse("close").close())
     .exec(sse("foo", "bar").connect("url"))
-
-  setUp(scn.inject(rampUsers(100) over 10)).protocols(httpConf)
 }

@@ -260,6 +260,6 @@ class ScenarioSample {
   //#protocol
 
   //#throttling
-  scn.inject(rampUsers(500) over (10 minutes)).throttle(reachRps(100) in (10 seconds), holdFor(10 minutes))
+  scn.inject(rampUsers(500) during (10 minutes)).throttle(reachRps(100) in (10 seconds), holdFor(10 minutes))
   //#throttling
 }

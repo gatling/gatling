@@ -32,10 +32,10 @@ trait OpenInjectionSupport {
     OpenInjectionSupport.OpenInjectionProfileFactory
 
   case class RampBuilder(users: Int) {
-    def over(d: FiniteDuration) = RampOpenInjection(users, d)
+    def during(d: FiniteDuration) = RampOpenInjection(users, d)
   }
   case class HeavisideBuilder(users: Int) {
-    def over(d: FiniteDuration) = HeavisideOpenInjection(users, d)
+    def during(d: FiniteDuration) = HeavisideOpenInjection(users, d)
   }
   case class ConstantRateBuilder(rate: Double) {
     def during(d: FiniteDuration) = ConstantRateOpenInjection(rate, d)

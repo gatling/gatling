@@ -24,12 +24,6 @@ import io.gatling.http.Predef._
 class WsCompileTest extends Simulation {
 
   private val httpConf = http
-    .baseUrl("http://localhost:9000")
-    .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-    .doNotTrackHeader("1")
-    .acceptLanguageHeader("en-US,en;q=0.5")
-    .acceptEncodingHeader("gzip, deflate")
-    .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
     .wsBaseUrl("ws://localhost:9000")
     .wsReconnect
     .wsMaxReconnects(3)
@@ -91,6 +85,4 @@ class WsCompileTest extends Simulation {
       ))
     .exec(ws("Close WS").close)
     .exec(ws("Open Named", "foo").connect("/bar"))
-
-  setUp(scn.inject(rampUsers(100) over 10)).protocols(httpConf)
 }

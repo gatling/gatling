@@ -19,3 +19,4 @@ Migrating from 2.3 to 3.0
 * Maven users must `upgrade gatling-maven-plugin to 3.0.X <https://search.maven.org/search?q=a:gatling-maven-plugin>``_.
 * WebSocket and SSE support were completely re-written, `see new API <http-ws>`__.
 * ``matchByMessageID`` was renamed into ``matchByMessageId`` and ``matchByCorrelationID`` was renamed into ``matchByCorrelationId``
+* ``over`` inject method was renamed into ``during``
