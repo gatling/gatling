@@ -195,8 +195,6 @@ class CoreCompileTest extends Simulation {
   val inject3 = constantUsersPerSec(10).during(1 minute)
   val inject4 = atOnceUsers(100)
   val inject5 = rampUsersPerSec(10) to 20 during (10 minutes)
-  val inject6 = splitUsers(1000).into(rampUsers(10) during (10 seconds)).separatedBy(10 seconds)
-  val inject7 = splitUsers(1000).into(rampUsers(10) during (10 seconds)).separatedBy(atOnceUsers(30))
   val inject8 = heavisideUsers(1000) during (20 seconds)
 
   val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100) during (5 seconds))

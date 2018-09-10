@@ -138,33 +138,6 @@ class OpenInjectionStepSpec extends BaseSpec {
     constantRampScheduling.last shouldBe <(10 seconds)
   }
 
-  "SplitInjection" should "provide an appropriate injection scheduling and ignore extra users" in {
-    val scheduling = SplitOpenInjection(6, RampOpenInjection(2, 2 seconds), NothingForOpenInjection(5 seconds)).chain(Iterator.empty).toList
-    scheduling shouldBe List(
-      Duration.Zero, 1 second, // 1st ramp
-      7 seconds, 8 seconds, // 2nd ramp after a pause
-      14 seconds, 15 seconds
-    ) // 3rd ramp after a pause
-  }
-
-  it should "provide an appropriate injection scheduling when there is only one split" in {
-    val scheduling = SplitOpenInjection(1, AtOnceOpenInjection(1), NothingForOpenInjection(5 seconds)).chain(Iterator.empty).toList
-    scheduling.length shouldBe 1
-
-    val schedulingWithInjectionInSeparator = SplitOpenInjection(1, AtOnceOpenInjection(1), AtOnceOpenInjection(1)).chain(Iterator.empty).toList
-    schedulingWithInjectionInSeparator.length shouldBe 1
-  }
-
-  it should "should schedule the first and last user through the 'into' injection step" in {
-    val scheduling = SplitOpenInjection(5, RampOpenInjection(2, 2 seconds), AtOnceOpenInjection(1)).chain(AtOnceOpenInjection(1).chain(Iterator.empty)).toList
-    scheduling shouldBe List(
-      Duration.Zero, 1 second, // 1st ramp
-      2 seconds, // at once in between
-      2 seconds, 3 seconds, // 2nd ramp until reaching 5 users
-      4 seconds
-    ) // at once from the chained injection
-  }
-
   val heavisideScheduling = HeavisideOpenInjection(100, 5 seconds).chain(Iterator.empty).toList
   "HeavisideInjection" should "provide an appropriate number of users" in {
     heavisideScheduling.length shouldBe 100

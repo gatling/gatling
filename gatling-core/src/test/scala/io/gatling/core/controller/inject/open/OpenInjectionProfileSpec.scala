@@ -141,23 +141,4 @@ class OpenInjectionProfileSpec extends BaseSpec {
       profile.totalUserCount shouldBe Some(actualCount)
     }
   }
-
-  "SplitOpenInjection" should "produce the expected number of total users" in {
-
-    val validUsers = Gen.choose(10, 100).suchThat(_ > 0)
-    val validDurationSeconds = Gen.choose(20, 200).suchThat(_ > 2)
-    val validStepUsers = Gen.choose(1, 10).suchThat(_ > 0)
-    val validStepDurationSeconds = Gen.choose(1, 10).suchThat(_ > 2)
-    val validSeparatorUsers = Gen.choose(1, 10).suchThat(_ > 0)
-
-    forAll((validUsers, "users"), (validDurationSeconds, "durationSeconds"), (validStepUsers, "stepUsers"), (validStepDurationSeconds, "stepDuration"), (validSeparatorUsers, "separatorUsers")) { (users, durationSeconds, stepUsers, stepDuration, separatorUsers) =>
-      whenever((stepUsers + separatorUsers) < users && (stepDuration < durationSeconds)) {
-        val steps = Seq(SplitOpenInjection(users, RampOpenInjection(stepUsers, stepDuration seconds), AtOnceOpenInjection(separatorUsers)))
-        val profile = OpenInjectionProfile(steps)
-        val actualCount = drain(profile)
-        System.out.println(s"actualCount=$actualCount profile.totalUserCount=${profile.totalUserCount}")
-        profile.totalUserCount shouldBe Some(actualCount)
-      }
-    }
-  }
 }

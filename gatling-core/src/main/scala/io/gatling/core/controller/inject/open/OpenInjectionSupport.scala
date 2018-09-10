@@ -46,18 +46,10 @@ trait OpenInjectionSupport {
   case class RampRateBuilder(rate1: Double, rate2: Double) {
     def during(d: FiniteDuration) = RampRateOpenInjection(rate1, rate2, d)
   }
-  case class PartialSplitBuilder(users: Int) {
-    def into(step: OpenInjectionStep) = SplitBuilder(users, step)
-  }
-  case class SplitBuilder(users: Int, step: OpenInjectionStep) {
-    def separatedBy(separator: OpenInjectionStep) = SplitOpenInjection(users, step, separator)
-    def separatedBy(duration: FiniteDuration) = SplitOpenInjection(users, step, NothingForOpenInjection(duration))
-  }
 
   def rampUsers(users: Int) = RampBuilder(users)
   def heavisideUsers(users: Int) = HeavisideBuilder(users)
   def atOnceUsers(users: Int) = AtOnceOpenInjection(users)
-  def splitUsers(users: Int) = PartialSplitBuilder(users)
 
   def constantUsersPerSec(rate: Double) = ConstantRateBuilder(rate)
   def rampUsersPerSec(rate1: Double) = PartialRampRateBuilder(rate1)

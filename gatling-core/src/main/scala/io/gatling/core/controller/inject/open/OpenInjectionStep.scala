@@ -214,41 +214,6 @@ case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: F
 }
 
 /**
- *  Inject users through separated steps until reaching the closest possible amount of total users.
- *
- *  @param possibleUsers The maximum possible of total users.
- *  @param step The step that will be repeated.
- *  @param separator Will be injected in between the regular injection steps.
- */
-case class SplitOpenInjection(possibleUsers: Long, step: OpenInjectionStep, separator: OpenInjectionStep) extends OpenInjectionStep {
-
-  require(possibleUsers >= 0.0, s"possibleUsers ($possibleUsers) must be >= 0")
-
-  private val stepUsers: Long = step.users
-  private lazy val separatorUsers: Long = separator.users
-
-  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    require(stepUsers > 0, s"stepUsers ($stepUsers) must be > 0")
-    require(separatorUsers >= 0, s"separatorUsers ($separatorUsers) must be >= 0")
-
-    if (possibleUsers >= stepUsers) {
-      val n = ((possibleUsers - stepUsers) / (stepUsers + separatorUsers)).toInt
-      val lastScheduling = step.chain(chained)
-      (1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
-    } else {
-      chained
-    }
-  }
-
-  override def users: Long =
-    if (possibleUsers >= stepUsers) {
-      possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
-    } else {
-      0
-    }
-}
-
-/**
  * Injection rate following a Heaviside distribution function
  *
  * {{{
