@@ -316,7 +316,7 @@
         syntax:
         - description: Load data by chunks of 200 records instead of loading all the data in memory (local file based feeders only)
         - signature: (bufferSize)
-            description: Load data by chunks of <i>bufferSize</i> records instead of loading all the data in memory (local file based feeders only)
+          description: Load data by chunks of <i>bufferSize</i> records instead of loading all the data in memory (local file based feeders only)
 
       - keyword: unzip
         description: Decompress feeder file that is compressed with zip or gzip
@@ -1161,7 +1161,7 @@
             description: If virtual users already know if some hosts support HTTP/2 or not
 
         - keyword: asyncNameResolution
-            description: Use async name resolver instead Java's blocking one.
+          description: Use async name resolver instead Java's blocking one.
 
         - keyword: perUserNameResolution
           description: Use per virtual user name resolver instead of a global one. Only enabled if <code>asyncNameResolution</code> is enabled.
@@ -1600,32 +1600,37 @@
       description: Use protocol version 3.1
 
     - keyword: mqttVersion_3_1_1
-      description: se protocol version 3.1.1
+      description: Use protocol version 3.1.1
 
-    - keyword: broker("hostname", port)
+    - keyword: broker
       syntax:
       - signature: (hostname, port)
         description: Use <i>hostname</i> and<i>port</i> for broker address
 
-    - keyword: useTls(boolean)
-      - signature: (boolean)
-        description: Enable TLS
+    - keyword: useTls
+      syntax:
+        - signature: (boolean)
+          description: Enable TLS
 
     - keyword: clientId
-      - signature: (id)
-        description: Set <i>id</i> as MQTT clientId
+      syntax:
+        - signature: (id)
+          description: Set <i>id</i> as MQTT clientId
 
-    - keyword: cleanSession(boolean)
-      - signature: (boolean)
-        description: Clean session when connecting
+    - keyword: cleanSession
+      syntax:
+        - signature: (boolean)
+          description: Clean session when connecting
 
     - keyword: credentials
-      - signature: (userName, password)
-        description: Use (<i>userName</i>, <i>password</i>) credentials for connecting
+      syntax:
+        - signature: (userName, password)
+          description: Use (<i>userName</i>, <i>password</i>) credentials for connecting
 
     - keyword: keepAlive
-      - signature: (duration)
-        description: Set connection keep-alive as <i>duration<i> seconds
+      syntax:
+        - signature: (duration)
+          description: Set connection keep-alive as <i>duration<i> seconds
 
     - keyword: qosAtMostOnce
       description: Use at-most-once QoS
@@ -1637,37 +1642,46 @@
       description: Use exactly-once QoS
 
     - keyword: retain
-      - signature: (boolean)
-        description: Enable or disable retain
+      syntax:
+        - signature: (boolean)
+          description: Enable or disable retain
 
     - keyword: lastWill
-      - signature: (LastWilltopic, willMessage).qosAtLeastOnce.retain(boolean))
-        description: Define last will
+      syntax:
+        - signature: (LastWilltopic, willMessage).qosAtLeastOnce.retain(boolean)
+          description: Define last will
 
     - keyword: reconnectAttemptsMax
-      - signature: (number)
-        description: Try to reconnect <i>number</i> times max
+      syntax:
+        - signature: (number)
+          description: Try to reconnect <i>number</i> times max
 
     - keyword: reconnectDelay
-      - signature: (delay)
-        description: Wait <i>delay</i> millis before reconnecting
+      syntax:
+        - signature: (delay)
+          description: Wait <i>delay</i> millis before reconnecting
 
     - keyword: reconnectBackoffMultiplier
-      - signature: (multiplier)
-        description: Use <i>multiplier</i> to compure actual reconnect delay
+      syntax:
+        - signature: (multiplier)
+          description: Use <i>multiplier</i> to compure actual reconnect delay
 
     - keyword: resendDelay
-      - signature: (delay)
-        description: Wait <i>delay</i> millis before resending message
+      syntax:
+        - signature: (delay)
+          description: Wait <i>delay</i> millis before resending message
 
     - keyword: resendBackoffMultiplier
-      - signature: (multiplier)
-        description: Use <i>multiplier</i> to compure actual resend delay
+      syntax:
+        - signature: (multiplier)
+          description: Use <i>multiplier</i> to compure actual resend delay
 
     - keyword: timeoutCheckInterval
-      - signature: (duration)
-        description: Check every <i>duration</i> for timed out checks
+      syntax:
+        - signature: (duration)
+          description: Check every <i>duration</i> for timed out checks
 
-    - keyword: correlateBy)
-      - signature: (check)
-        description: Use <i>check</i> for extracting correlationId from sent a,nd received messages
+    - keyword: correlateBy
+      syntax:
+        - signature: (check)
+          description: Use <i>check</i> for extracting correlationId from sent and received messages
