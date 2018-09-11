@@ -9,8 +9,6 @@ Introduction
 
 By default, Gatling only provides live feedback in the console output, and generates static HTML reports.
 
-Still, it's possible to get live feedback.
-
 FrontLine
 =========
 

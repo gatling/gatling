@@ -45,9 +45,7 @@ Demo sample
 
 You can find a `sample project demoing the gatling-sbt-plugin <https://github.com/gatling/gatling-sbt-plugin-demo>`_ in Gatling's Github organization.
 
-You can also use our `Giter8 <http://www.foundweekends.org/giter8/>`_ `template <https://github.com/gatling/gatling.g8>`__ to bootstrap a new sbt project::
-
-  sbt new gatling/gatling.g8
+You can also use the :ref:`Giter8 template <g8-template>` to bootstrap your project.
 
 Usage
 =====

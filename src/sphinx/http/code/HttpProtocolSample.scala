@@ -37,11 +37,11 @@ class HttpProtocolSample extends Simulation {
       .exec(
         http("My Request")
           .get("/my_path")
-      ) // Will actually make a request on "http://my.website.tld/my_path"
+      ) // will make a request to "http://my.website.tld/my_path"
       .exec(
         http("My Other Request")
           .get("http://other.website.tld")
-      ) // Will make a request on "http://other.website.tld"
+      ) // will make a request to "http://other.website.tld"
 
     setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
     //#baseUrl

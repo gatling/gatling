@@ -1,7 +1,7 @@
 .. _maven-archetype:
 
 ###############
-Maven Archetype
+Maven archetype
 ###############
 
 Gatling's Maven Archetype helps you bootstrap a maven project with Gatling dependencies and plugin.

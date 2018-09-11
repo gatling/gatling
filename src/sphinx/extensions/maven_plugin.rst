@@ -1,7 +1,7 @@
 .. _maven-plugin:
 
 ############
-Maven Plugin
+Maven plugin
 ############
 
 .. highlight:: xml
@@ -40,7 +40,7 @@ Demo sample
 
 You can find a `sample project demoing the gatling-sbt-plugin <https://github.com/gatling/gatling-sbt-plugin-demo>`_ in Gatling's Github organization.
 
-You can also use the `gatling-highcharts-maven-archetype <https://search.maven.org/search?q=g:io.gatling.highcharts%20AND%20a:gatling-highcharts-maven-archetype&core=gav>`_ to bootstrap your project.
+You can also use the :ref:`gatling-highcharts-maven-archetype <maven-archetype>` to bootstrap your project.
 
 Usage
 =====

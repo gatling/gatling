@@ -25,7 +25,7 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``connectionFactory``: mandatory, an instance of `ConnectionFactory`. Use `jmsJndiConnectionFactory`_ to obtain one via JNDI lookup or create it by yourself.
 * ``credentials``: optional, to create a JMS connection
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
-* ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
+* ``matchByMessageId`` / ``matchByCorrelationId`` / ``messageMatcher``: specify how request and response messages should be matched, default to ``matchByMessageId``. Use ``matchByCorrelationId`` for ActiveMQ.
 * ``replyTimeout``: optional reply timeout, in milliseconds, default is none
 * ``listenerThreadCount``: optional listener thread count, some JMS implementation (like IBM MQ) need more than on MessageListener to achieve full readout performance
 
@@ -62,7 +62,7 @@ Destination
 Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``
 
 Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)``, otherwise a dynamic queue will be used.
-If you do so, you have to possibility of not setting the `JMSReplyTo` header with ``noJMSReplyTo``.
+If you do so, you have to possibility of not setting the `JMSReplyTo` header with ``noJmsReplyTo``.
 
 Additionally for reply destination JMS selector can be defined with ``selector("selector")``
 

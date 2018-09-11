@@ -9,7 +9,7 @@ Kudos to them!
 
 It's up to you to make it in our Hall of Fame too!
 Features, bug fixes, documentation, answers on the community mailing list...
-There's plenty of opportunities!
+There are plenty of opportunities!
 
 * `Andrew Duffy <https://github.com/amjjd>`_ originally contributed our WebSocket support.
 
@@ -25,4 +25,4 @@ There's plenty of opportunities!
 
 * `Arturas Smorgun <https://github.com/asarturas>`_ created the Giter8 template.
 
-Also, let us know if we've missed your name.
+Please let us know if we've missed your name.

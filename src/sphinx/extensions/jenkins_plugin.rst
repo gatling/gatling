@@ -1,5 +1,5 @@
 ##############
-Jenkins Plugin
+Jenkins plugin
 ##############
 
 Thanks to this plugin, you can track a Gatling simulation launched by the Maven plugin in Jenkins.
