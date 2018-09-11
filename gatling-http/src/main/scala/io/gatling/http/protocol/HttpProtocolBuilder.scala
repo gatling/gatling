@@ -95,7 +95,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def upgradeInsecureRequestsHeader(value: Expression[String]) = header(UpgradeInsecureRequests, value)
   def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
-  def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, ntlmDomain, ntlmHost))
   def authRealm(realm: Expression[Realm]) = this.modify(_.protocol.requestPart.realm).setTo(Some(realm))
   def silentResources = this.modify(_.protocol.requestPart.silentResources).setTo(true)
   def silentUri(regex: String) = this.modify(_.protocol.requestPart.silentUri).setTo(Some(regex.r.pattern))

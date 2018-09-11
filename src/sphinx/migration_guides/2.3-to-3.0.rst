@@ -21,3 +21,4 @@ Migrating from 2.3 to 3.0
 * ``matchByMessageID`` was renamed into ``matchByMessageId`` and ``matchByCorrelationID`` was renamed into ``matchByCorrelationId``
 * ``over`` inject method was renamed into ``during``
 * ``splitUsers`` is dropped in favor of ``incrementUsersPerSec`` and ``incrementConcurrentUsers``
+* ``ntmlAuth`` is dropped until we can support NTLM properly, see `#3525 <https://github.com/gatling/gatling/issues/3525>`__

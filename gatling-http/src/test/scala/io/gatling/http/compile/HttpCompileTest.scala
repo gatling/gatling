@@ -114,10 +114,9 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").queryParamSeq(Seq("foo" -> "${bar}")))
     // queryParamMap
     .exec(http("Request").get("/").queryParamMap(Map("foo" -> "${bar}")))
-    // basic auth
+    // auth
     .exec(http("Request").get("/").basicAuth("usr", "pwd"))
     .exec(http("Request").get("/").digestAuth("usr", "pwd"))
-    .exec(http("Request").get("/").ntlmAuth("usr", "pwd", "domain", "host"))
     // misc
     .exec(
       http("Request").get("/")
