@@ -46,6 +46,6 @@ case class RampConcurrentNumberInjection(from: Int, to: Int, duration: FiniteDur
 
   override def valueAt(t: FiniteDuration): Int = {
     require(t <= duration, s"$t must be <= $duration")
-    math.round(((to + from) / 2.0) / durationSeconds * t.toSeconds).toInt
+    from + math.round((to - from).toDouble / durationSeconds * t.toSeconds).toInt
   }
 }
