@@ -66,7 +66,7 @@ object OpenInjectionProfileSpec {
   }
 }
 
-class OpenInjectionProfileSpec extends BaseSpec {
+class OpenInjectionProfileSpec extends BaseSpec with MetaOpenInjectionSupport {
 
   import OpenInjectionProfileSpec._
 
@@ -140,5 +140,85 @@ class OpenInjectionProfileSpec extends BaseSpec {
       val actualCount = drain(profile)
       profile.totalUserCount shouldBe Some(actualCount)
     }
+  }
+
+  "getInjectionSteps" should "produce the expected injection profile with ramps and starting users" in {
+    val steps = IncrementTest(
+      usersPerSec = 10,
+      nbOfSteps = 5,
+      duration = 10 seconds,
+      startingUsers = 5,
+      rampDuration = 20 seconds
+    ).getInjectionSteps.toSeq
+
+    val expected = Seq(
+      ConstantRateOpenInjection(5, 10 seconds), RampRateOpenInjection(5, 15, 20 seconds),
+      ConstantRateOpenInjection(15, 10 seconds), RampRateOpenInjection(15, 25, 20 seconds),
+      ConstantRateOpenInjection(25, 10 seconds), RampRateOpenInjection(25, 35, 20 seconds),
+      ConstantRateOpenInjection(35, 10 seconds), RampRateOpenInjection(35, 45, 20 seconds),
+      ConstantRateOpenInjection(45, 10 seconds)
+    )
+
+    steps.shouldBe(expected)
+  }
+
+  it should "produce the expected injection profile without starting users and ramp" in {
+    val steps = IncrementTest(
+      usersPerSec = 10,
+      nbOfSteps = 5,
+      duration = 10 seconds,
+      startingUsers = 0,
+      rampDuration = Duration.Zero
+    ).getInjectionSteps.toSeq
+
+    val expected = Seq(
+      ConstantRateOpenInjection(10, 10 seconds),
+      ConstantRateOpenInjection(20, 10 seconds),
+      ConstantRateOpenInjection(30, 10 seconds),
+      ConstantRateOpenInjection(40, 10 seconds),
+      ConstantRateOpenInjection(50, 10 seconds)
+    )
+
+    steps.shouldBe(expected)
+  }
+
+  it should "produce the expected injection profile with starting users and without ramp" in {
+    val steps = IncrementTest(
+      usersPerSec = 10,
+      nbOfSteps = 5,
+      duration = 10 seconds,
+      startingUsers = 5,
+      rampDuration = Duration.Zero
+    ).getInjectionSteps.toSeq
+
+    val expected = Seq(
+      ConstantRateOpenInjection(5, 10 seconds),
+      ConstantRateOpenInjection(15, 10 seconds),
+      ConstantRateOpenInjection(25, 10 seconds),
+      ConstantRateOpenInjection(35, 10 seconds),
+      ConstantRateOpenInjection(45, 10 seconds)
+    )
+
+    steps.shouldBe(expected)
+  }
+
+  it should "produce the expected injection profile without starting users and with ramps" in {
+    val steps = IncrementTest(
+      usersPerSec = 10,
+      nbOfSteps = 5,
+      duration = 10 seconds,
+      startingUsers = 0,
+      rampDuration = 80 seconds
+    ).getInjectionSteps.toSeq
+
+    val expected = Seq(
+      ConstantRateOpenInjection(10, 10 seconds), RampRateOpenInjection(10, 20, 80 seconds),
+      ConstantRateOpenInjection(20, 10 seconds), RampRateOpenInjection(20, 30, 80 seconds),
+      ConstantRateOpenInjection(30, 10 seconds), RampRateOpenInjection(30, 40, 80 seconds),
+      ConstantRateOpenInjection(40, 10 seconds), RampRateOpenInjection(40, 50, 80 seconds),
+      ConstantRateOpenInjection(50, 10 seconds)
+    )
+
+    steps.shouldBe(expected)
   }
 }

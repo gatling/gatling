@@ -59,4 +59,29 @@ class SimulationSetupSample extends Simulation {
   //#max-duration
   setUp(scn.inject(rampUsers(1000) during (20 minutes))).maxDuration(10 minutes)
   //#max-duration
+
+  //#incrementConcurrentUsers
+  setUp(
+    scn.inject(
+      incrementConcurrentUsers(5) // Int
+        .times(5)
+        .eachLevelLasting(10 seconds)
+        .separatedByRampsLasting(10 seconds)
+        .startingFrom(10) // Int
+    )
+  )
+  //#incrementConcurrentUsers
+
+  //#incrementUsersPerSec
+  setUp(
+    scn.inject(
+      incrementUsersPerSec(5) // Double
+        .times(5)
+        .eachLevelLasting(10 seconds)
+        .separatedByRampsLasting(10 seconds)
+        .startingFrom(10) // Double
+    )
+  )
+  //#incrementUsersPerSec
+
 }

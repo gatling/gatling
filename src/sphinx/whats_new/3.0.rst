@@ -18,6 +18,7 @@ Core
 * `#3415 <https://github.com/gatling/gatling/issues/3415>`__: Support overriding Gatling configuration file name, see :ref:`here <conf-file>`.
 * `#3486 <https://github.com/gatling/gatling/issues/3486>`__: Make console print period configuration, see ``gatling.conf``.
 * `#3498 <https://github.com/gatling/gatling/issues/3498>`__: Allow the user to pass arbitrary scalac options.
+* `#3345 <https://github.com/gatling/gatling/issues/3345>`__: Introduce meta DSL components ``incrementUsersPerSec`` and ``incrementConcurrentUsers``.
 
 HTTP
 ====

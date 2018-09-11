@@ -16,9 +16,9 @@
 
 package io.gatling.core.controller.inject.open
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
-import io.gatling.core.controller.inject.InjectionProfileFactory
+import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory, MetaInjectionProfile }
 
 object OpenInjectionSupport {
 
@@ -26,7 +26,7 @@ object OpenInjectionSupport {
     (steps: Iterable[OpenInjectionStep]) => OpenInjectionProfile(steps)
 }
 
-trait OpenInjectionSupport {
+trait OpenInjectionSupport extends MetaOpenInjectionSupport {
 
   implicit def openInjectionProfileFactory: InjectionProfileFactory[OpenInjectionStep] =
     OpenInjectionSupport.OpenInjectionProfileFactory
@@ -55,4 +55,43 @@ trait OpenInjectionSupport {
   def rampUsersPerSec(rate1: Double) = PartialRampRateBuilder(rate1)
 
   def nothingFor(d: FiniteDuration) = NothingForOpenInjection(d)
+}
+
+trait MetaOpenInjectionSupport {
+
+  case class IncrementTest(
+      usersPerSec:   Double,
+      nbOfSteps:     Int,
+      duration:      FiniteDuration,
+      startingUsers: Double,
+      rampDuration:  FiniteDuration
+  ) extends MetaInjectionProfile {
+    def startingFrom(startingUsers: Int): IncrementTest = this.copy(startingUsers = startingUsers)
+    def separatedByRampsLasting(duration: FiniteDuration): IncrementTest = this.copy(rampDuration = duration)
+
+    private[inject] def getInjectionSteps: Iterable[OpenInjectionStep] =
+      (1 to nbOfSteps).foldLeft(Iterable.empty[OpenInjectionStep]) { (acc, currentStep) =>
+        val step = if (startingUsers > 0) currentStep - 1 else currentStep
+        val newRate = startingUsers + step * usersPerSec
+
+        val newInjectionsSteps = if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
+          Seq(ConstantRateOpenInjection(newRate, duration), RampRateOpenInjection(newRate, newRate + usersPerSec, rampDuration))
+        } else {
+          Seq(ConstantRateOpenInjection(newRate, duration))
+        }
+        acc ++ newInjectionsSteps
+      }
+
+    def profile: InjectionProfile = OpenInjectionProfile(getInjectionSteps)
+  }
+
+  case class IncrementTestBuilderWithTime(usersPerSec: Double, nbOfSteps: Int) {
+    def eachLevelLasting(d: FiniteDuration) = IncrementTest(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
+  }
+
+  case class IncrementTestBuilder(usersPerSec: Double) {
+    def times(nbOfSteps: Int) = IncrementTestBuilderWithTime(usersPerSec, nbOfSteps)
+  }
+
+  def incrementUsersPerSec(usersPerSec: Double) = IncrementTestBuilder(usersPerSec)
 }

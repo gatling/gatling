@@ -86,6 +86,27 @@ Closed Model
 
 .. _simulation-setup-pause:
 
+Meta DSL
+^^^^^^^^
+
+It is possible to use elements of Meta DSL to write tests in an easier way.
+If you want to chain levels and ramps to reach the limit of your application (a test sometimes called capacity load testing), you can do it manually using the regular DSL and looping using map and flatMap.
+But there is now an alternative using the meta DSL.
+
+.. includecode:: code/SimulationSetupSample.scala#incrementUsersPerSec
+
+#. ``incrementUsersPerSec(usersPerSecAddedByStage)``
+
+.. includecode:: code/SimulationSetupSample.scala#incrementConcurrentUsers
+
+#. ``incrementConcurrentUsers(concurrentUsersAddedByStage)``
+
+``incrementUsersPerSec`` is for open workload and ``incrementConcurrentUsers`` is for closed workload (users/sec vs concurrent users)
+
+``separatedByRampsLasting`` and ``startingFrom`` are both optionals.
+If you don't precise a ramp, the test will jump from one level to another as soon as it is finished.
+If you don't precise an amount of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
+
 Global Pause configuration
 ==========================
 

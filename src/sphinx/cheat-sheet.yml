@@ -388,6 +388,14 @@
             - signature: (dur unit)
               description: Pause for a given <i>duration</i>
 
+        - keyword: incrementUsersPerSec
+          description: Meta DSL to write open increment tests (succession of several increasing levels)
+          new: "3.0"
+          syntax:
+            - signature: incrementUsersPerSec(incrementUsersPerSec).times(numberOfSteps).eachLevelLasting(levelDuration).separatedByRampsLasting(rampDuration).startingFrom(initialUsersPerSec)
+              description: Inject a succession of <i>numberOfSteps</i> levels each one during <i>levelDuration</i> and increasing the number of users per sec by <i>incrementUsersPerSec</i> starting from zero
+              or the optional <i>initialUsersPerSec</i> and separated by optional ramps lasting <i>rampDuration</i>
+
     - title: Closed injection steps (ie you control number of concurrent virtual users)
       functions:
 
@@ -402,6 +410,15 @@
         syntax:
         - signature: (fromNbUsers) to(toNbUsers) during(duration)
           description: Scale from <i>fromNbUsers</i> to <i>toNbUsers</i> during <i>duration</i>
+
+      - keyword: incrementConcurrentUsers
+        description: Meta DSL to write closed increment tests (succession of several increasing levels)
+        new: "3.0"
+        syntax:
+        - signature: incrementConcurrentUsers(incrementConcurrentUsers).times(numberOfSteps).eachLevelLasting(levelDuration).separatedByRampsLasting(rampDuration).startingFrom(initialConcurrentUsers)
+          description: Inject a succession of <i>numberOfSteps</i> levels each one during <i>levelDuration</i> and increasing the number of users per sec by <i>incrementConcurrentUsers</i> starting from zero
+          or the optional <i>initialConcurrentUsers</i> and separated by optional ramps lasting <i>rampDuration</i>
+
 
 - title: Assertions
   description: Check that your results match your expectations

@@ -16,9 +16,9 @@
 
 package io.gatling.core.controller.inject.closed
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
-import io.gatling.core.controller.inject.InjectionProfileFactory
+import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory, MetaInjectionProfile }
 
 object ClosedInjectionSupport {
 
@@ -26,7 +26,7 @@ object ClosedInjectionSupport {
     (steps: Iterable[ClosedInjectionStep]) => ClosedInjectionProfile(steps)
 }
 
-trait ClosedInjectionSupport {
+trait ClosedInjectionSupport extends MetaClosedInjectionSupport {
 
   implicit def closedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
     ClosedInjectionSupport.ClosedInjectionProfileFactory
@@ -49,4 +49,47 @@ case class RampConcurrentNumberInjectionFrom(from: Int) {
 case class RampConcurrentNumberInjectionTo(from: Int, to: Int) {
 
   def during(d: FiniteDuration) = RampConcurrentNumberInjection(from, to, d)
+}
+
+trait MetaClosedInjectionSupport {
+
+  case class ConcurrentIncreasingTest(
+      concurrentUsers: Int,
+      nbOfSteps:       Int,
+      duration:        FiniteDuration,
+      startingUsers:   Int,
+      rampDuration:    FiniteDuration
+  ) extends MetaInjectionProfile {
+
+    def startingFrom(startingUsers: Int): ConcurrentIncreasingTest = this.copy(startingUsers = startingUsers)
+    def separatedByRampsLasting(duration: FiniteDuration): ConcurrentIncreasingTest = this.copy(rampDuration = duration)
+
+    private[inject] def getInjectionSteps: Iterable[ClosedInjectionStep] =
+      (1 to nbOfSteps).foldLeft(Iterable.empty[ClosedInjectionStep]) { (acc, currentStep) =>
+        val step = if (startingUsers > 0) currentStep - 1 else currentStep
+        val newConcurrentUsers = startingUsers + step * concurrentUsers
+        val newInjectionSteps = if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
+          val nextConcurrentUsers = newConcurrentUsers + concurrentUsers
+          Seq(
+            ConstantConcurrentNumberInjection(newConcurrentUsers, duration),
+            RampConcurrentNumberInjection(newConcurrentUsers, nextConcurrentUsers, rampDuration)
+          )
+        } else {
+          Seq(ConstantConcurrentNumberInjection(newConcurrentUsers, duration))
+        }
+        acc ++ newInjectionSteps
+      }
+
+    override def profile: InjectionProfile = ClosedInjectionProfile(getInjectionSteps)
+  }
+
+  case class ConcurrentIncreasingTestBuilderWithTime(concurrentUsers: Int, nbOfSteps: Int) {
+    def eachLevelLasting(d: FiniteDuration) = ConcurrentIncreasingTest(concurrentUsers, nbOfSteps, d, 0, Duration.Zero)
+  }
+
+  case class ConcurrentIncreasingTestBuilder(concurrentUsers: Int) {
+    def times(nbOfSteps: Int) = ConcurrentIncreasingTestBuilderWithTime(concurrentUsers, nbOfSteps)
+  }
+
+  def incrementConcurrentUsers(concurrentUsers: Int) = ConcurrentIncreasingTestBuilder(concurrentUsers)
 }
