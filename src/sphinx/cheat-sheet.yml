@@ -346,7 +346,8 @@
   description: Control how users are injected in your scenario
   sections:
 
-    - title: Open injection steps (ie you control virtual users arrival rate)
+    - title: Open injection steps
+      description: I.e. you control virtual users arrival rate
       functions:
 
         - keyword: atOnceUsers
@@ -390,13 +391,20 @@
 
         - keyword: incrementUsersPerSec
           description: Meta DSL to write open increment tests (succession of several increasing levels)
-          new: "3.0"
+          new: true
           syntax:
-            - signature: incrementUsersPerSec(incrementUsersPerSec).times(numberOfSteps).eachLevelLasting(levelDuration).separatedByRampsLasting(rampDuration).startingFrom(initialUsersPerSec)
-              description: Inject a succession of <i>numberOfSteps</i> levels each one during <i>levelDuration</i> and increasing the number of users per sec by <i>incrementUsersPerSec</i> starting from zero
-              or the optional <i>initialUsersPerSec</i> and separated by optional ramps lasting <i>rampDuration</i>
+            - signature: |
+                (incrementUsersPerSec)
+                  .times(numberOfSteps)
+                  .eachLevelLasting(levelDuration)
+                  .separatedByRampsLasting(rampDuration)
+                  .startingFrom(initialUsersPerSec)
+              description: >
+                Inject a succession of <i>numberOfSteps</i> levels each one during <i>levelDuration</i> and increasing the number of users per sec by <i>incrementUsersPerSec</i> starting from zero
+                or the optional <i>initialUsersPerSec</i> and separated by optional ramps lasting <i>rampDuration</i>
 
-    - title: Closed injection steps (ie you control number of concurrent virtual users)
+    - title: Closed injection steps
+      description: I.e. you control number of concurrent virtual users)
       functions:
 
       - keyword: constantConcurrentUsers
@@ -413,11 +421,17 @@
 
       - keyword: incrementConcurrentUsers
         description: Meta DSL to write closed increment tests (succession of several increasing levels)
-        new: "3.0"
+        new: true
         syntax:
-        - signature: incrementConcurrentUsers(incrementConcurrentUsers).times(numberOfSteps).eachLevelLasting(levelDuration).separatedByRampsLasting(rampDuration).startingFrom(initialConcurrentUsers)
-          description: Inject a succession of <i>numberOfSteps</i> levels each one during <i>levelDuration</i> and increasing the number of users per sec by <i>incrementConcurrentUsers</i> starting from zero
-          or the optional <i>initialConcurrentUsers</i> and separated by optional ramps lasting <i>rampDuration</i>
+        - signature: |
+            (incrementConcurrentUsers)
+              .times(numberOfSteps)
+              .eachLevelLasting(levelDuration)
+              .separatedByRampsLasting(rampDuration)
+              .startingFrom(initialConcurrentUsers)
+          description: >
+            Inject a succession of <i>numberOfSteps</i> levels each one during <i>levelDuration</i> and increasing the number of users per sec by <i>incrementConcurrentUsers</i> starting from zero
+            or the optional <i>initialConcurrentUsers</i> and separated by optional ramps lasting <i>rampDuration</i>
 
 
 - title: Assertions
@@ -1487,6 +1501,8 @@
         - keyword: jms
           description: Entry point of your JMS configuration
 
+      subsections:
+
         - title: Connecting
           functions:
 
@@ -1557,7 +1573,8 @@
                   description: an implementation of <em>JmsMessageMatcher</em>, specifying how the <em>requestId</em> and <em>responseId</em> are retrieved from the JMS <em>Message</em>
 
 - title: MQTT
-  description: Define the MQTT requests sent in your scenario (FrontLine only)
+  description: Define the MQTT requests sent in your scenario
+  frontline: true
   sections:
 
   - title: Start
