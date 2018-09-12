@@ -18,21 +18,18 @@ package io.gatling.core.action
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
-import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
 
 import akka.actor.ActorRef
 
-class Exit(injector: ActorRef, statsEngine: StatsEngine, clock: Clock) extends Action {
+class Exit(injector: ActorRef, clock: Clock) extends Action {
 
   override val name = "gatling-exit"
 
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
-    val userEnd = UserMessage(session, End, clock.nowMillis)
-    statsEngine.logUser(userEnd)
-    injector ! userEnd
+    injector ! UserMessage(session, End, clock.nowMillis)
   }
 }

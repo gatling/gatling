@@ -93,11 +93,10 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   }
 
   when(Started) {
-    case Event(UserMessage(session, End, _), data: StartedData) =>
-      import data._
+    case Event(userMessage @ UserMessage(session, End, _), data: StartedData) =>
       logger.debug(s"End user #${session.userId}")
-      val workload = workloads(session.scenario)
-      workload.endUser()
+      val workload = data.workloads(session.scenario)
+      workload.endUser(userMessage)
       stay()
 
     case Event(Tick, data: StartedData) =>
@@ -105,11 +104,10 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   }
 
   when(StoppedInjecting) {
-    case Event(UserMessage(session, End, _), StoppedInjectingData(controller, workloads)) =>
-
+    case Event(userMessage @ UserMessage(session, End, timestamp), StoppedInjectingData(controller, workloads)) =>
       val scenario = session.scenario
       val workload = workloads(scenario)
-      workload.endUser()
+      workload.endUser(userMessage)
       if (workload.isAllUsersStopped) {
         logger.info(s"All users of scenario $scenario are stopped")
         if (workloads.size == 1) {

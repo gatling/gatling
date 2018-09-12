@@ -85,7 +85,7 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
     val throttler = Throttler(system, simulationParams)
     val injector = Injector(system, statsEngine, clock)
     val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
-    val exit = new Exit(injector, statsEngine, clock)
+    val exit = new Exit(injector, clock)
     val coreComponents = CoreComponents(system, controller, throttler, statsEngine, clock, exit, configuration)
     logger.trace("CoreComponents instantiated")
 
