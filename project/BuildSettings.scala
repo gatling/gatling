@@ -11,12 +11,13 @@ object BuildSettings {
     headerLicense := ApacheV2License,
     githubPath := "gatling/gatling",
     projectDevelopers := developers,
-    parallelExecution in Test := false
-  // [fl]
-  //
-  //
-  //
-  // [fl]
+    parallelExecution in Test := false,
+    licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
+    // [fl]
+    //
+    //
+    //
+    // [fl]
   )
 
   lazy val gatlingModuleSettings =
