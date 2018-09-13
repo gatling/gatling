@@ -80,7 +80,7 @@ ${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"><
 <div class="frise"></div>
 <div class="container details">
     <div class="head">
-        <a href="http://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.png"/></a>
+        <a href="https://gatling.io" target="blank_" title="Gatling Home Page"><img alt="Gatling" src="style/logo.png"/></a>
     </div>
     <div class="main">
         <div class="cadre">
@@ -114,7 +114,7 @@ ${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"><
     </div>
 </div>
 <div class="foot">
-    <a href="http://gatling.io" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
+    <a href="https://gatling.io" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
 </div>
 <script type="text/javascript">
     $pageStats
