@@ -23,9 +23,9 @@ import org.scalatest.mockito.MockitoSugar
 class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Inspectors {
 
   val hosts = List(
-    "http://excilys.com",
+    "http://takima.fr",
     "http://ebusinessinformation.fr",
-    "http://gatling.io"
+    "https://gatling.io"
   )
 
   val paths = List(
@@ -40,9 +40,9 @@ class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Insp
     path <- paths
   } yield host + path
 
-  val whiteList = WhiteList(List("http://excilys\\.com.*"))
+  val whiteList = WhiteList(List("http://takima\\.fr.*"))
   val emptyWhiteList = WhiteList()
-  val blackList = BlackList(List("http://.*/assets/.*"))
+  val blackList = BlackList(List("http[s]?://.*/assets/.*"))
   val emptyBlackList = BlackList()
 
   def isRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
@@ -57,12 +57,12 @@ class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Insp
   }
 
   "Filters" should "filter whitelist correctly when blacklist is empty" in {
-    isRequestAccepted(Filters(whiteList, emptyBlackList), urls.partition(_.contains("excilys")))
+    isRequestAccepted(Filters(whiteList, emptyBlackList), urls.partition(_.contains("takima")))
   }
 
   it should "filter whitelist then blacklist when both are specified on whitefirst mode" in {
     isRequestAccepted(Filters(whiteList, blackList), urls.partition { url =>
-      url.contains("excilys") && !url.contains("assets")
+      url.contains("takima") && !url.contains("assets")
     })
   }
 
@@ -74,20 +74,20 @@ class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Insp
 
   it should "filter blacklist then whitelist when both are specified on blackfirst mode" in {
     isRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
-      !url.contains("assets") && url.contains("excilys")
+      !url.contains("assets") && url.contains("takima")
     })
   }
 
   it should "filter correctly when there are multiple patterns" in {
     val patterns = List(".*foo.*", ".*bar.*")
-    val url = "http://gatling.io/foo.html"
+    val url = "https://gatling.io/foo.html"
 
     BlackList(patterns).accept(url) shouldBe false
     WhiteList(patterns).accept(url) shouldBe true
   }
 
   it should "filter correctly when there are no patterns" in {
-    val url = "http://gatling.io/foo.html"
+    val url = "https://gatling.io/foo.html"
     BlackList(Nil).accept(url) shouldBe true
     WhiteList(Nil).accept(url) shouldBe true
   }
