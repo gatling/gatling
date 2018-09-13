@@ -56,7 +56,7 @@ class HttpCompileTest extends Simulation {
     .maxRedirects(5)
     .disableAutoReferer
     .disableWarmUp
-    .warmUp("http://gatling.io")
+    .warmUp("https://gatling.io")
     .inferHtmlResources(white = WhiteList(".*\\.html"))
     .maxConnectionsPerHost(6)
     .shareConnections
@@ -172,7 +172,7 @@ class HttpCompileTest extends Simulation {
           status.in(200, 210).saveAs("blablaParam"),
           status.in(Seq(200, 304)).saveAs("blablaParam"),
           responseTimeInMillis.lt(1000),
-          currentLocation.is("http://gatling.io"),
+          currentLocation.is("https://gatling.io"),
           currentLocationRegex("code=(.+)&")
         )
     )

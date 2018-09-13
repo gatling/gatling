@@ -47,7 +47,7 @@ The compiler JVM can be tuned with a parameter named ``gatling.core.zinc`` in `g
 * **I get a "Connection timed out: no further information to http://gatling-tool.org", what happened?**
 
 Since 1.2.0, Gatling has an option for sending a request in order to warm up the engine and have more precise statistics during the run.
-This option is enabled by default and http://gatling.io is the default url.
+This option is enabled by default and https://gatling.io is the default url.
 
 If Gatling can't reach out this url either because you don't have a connection, or because it requires a proxy configuration, you'll get this stacktrace.
 

@@ -174,7 +174,7 @@ class HttpRequestSample {
       //#notSilent
       .resources(
         http("Gatling Logo")
-          .get("http://gatling.io/assets/images/img1.png")
+          .get("https://gatling.io/assets/images/img1.png")
           .notSilent
       )
     //#notSilent
