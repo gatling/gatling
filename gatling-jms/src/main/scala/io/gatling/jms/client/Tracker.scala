@@ -59,7 +59,7 @@ case object TimeoutScan
 
 object Tracker {
   def props(statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) =
-    Props(new Tracker(statsEngine, clock, configuration.jms.replyTimeoutScanPeriod milliseconds))
+    Props(new Tracker(statsEngine, clock, configuration.jms.replyTimeoutScanPeriod))
 }
 
 /**

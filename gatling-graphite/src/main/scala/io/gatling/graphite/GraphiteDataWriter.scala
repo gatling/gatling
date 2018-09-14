@@ -17,7 +17,6 @@
 package io.gatling.graphite
 
 import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
@@ -57,7 +56,7 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     usersByScenario.update(pattern.allUsersPath, new UserBreakdownBuffer(scenarios.sumBy(_.totalUserCount.getOrElse(0L))))
     scenarios.foreach(scenario => usersByScenario += (pattern.usersPath(scenario.name) -> new UserBreakdownBuffer(scenario.totalUserCount.getOrElse(0L))))
 
-    setTimer(flushTimerName, Flush, configuration.data.graphite.writeInterval seconds, repeat = true)
+    setTimer(flushTimerName, Flush, configuration.data.graphite.writePeriod, repeat = true)
 
     GraphiteData(metricsSender, requestsByPath, usersByScenario, pattern)
   }

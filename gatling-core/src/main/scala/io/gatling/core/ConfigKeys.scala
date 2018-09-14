@@ -135,7 +135,7 @@ object ConfigKeys {
     }
     object console {
       val Light = "gatling.data.console.light"
-      val WriteInterval = "gatling.data.console.writeInterval"
+      val WritePeriod = "gatling.data.console.writePeriod"
     }
     object graphite {
       val Light = "gatling.data.graphite.light"
@@ -144,7 +144,7 @@ object ConfigKeys {
       val Protocol = "gatling.data.graphite.protocol"
       val RootPathPrefix = "gatling.data.graphite.rootPathPrefix"
       val BufferSize = "gatling.data.graphite.bufferSize"
-      val WriteInterval = "gatling.data.graphite.writeInterval"
+      val WritePeriod = "gatling.data.graphite.writePeriod"
     }
   }
 

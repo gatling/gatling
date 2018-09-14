@@ -17,7 +17,7 @@
 package io.gatling.core.stats.writer
 
 import scala.collection.mutable
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
@@ -31,7 +31,7 @@ class LeakReporterDataWriter(clock: Clock, configuration: GatlingConfiguration) 
 
   def onInit(init: Init): LeakData = {
 
-    val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
+    val noActivityTimeout = configuration.data.leak.noActivityTimeout
 
     setTimer(flushTimerName, Flush, noActivityTimeout, repeat = true)
 

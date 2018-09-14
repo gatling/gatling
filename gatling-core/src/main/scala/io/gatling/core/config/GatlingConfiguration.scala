@@ -21,6 +21,7 @@ import java.util.ResourceBundle
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.concurrent.duration._
 import scala.io.Codec
 
 import io.gatling.commons.util.{ StringHelper, ConfigHelper }
@@ -165,11 +166,11 @@ object GatlingConfiguration extends StrictLogging {
           )
         },
         ahc = AhcConfiguration(
-          connectTimeout = config.getInt(http.ahc.ConnectTimeout),
-          handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout),
-          pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
+          connectTimeout = config.getInt(http.ahc.ConnectTimeout) millis,
+          handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout) millis,
+          pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout) millis,
           maxRetry = config.getInt(http.ahc.MaxRetry),
-          requestTimeout = config.getInt(http.ahc.RequestTimeout),
+          requestTimeout = config.getInt(http.ahc.RequestTimeout) millis,
           enableSni = config.getBoolean(http.ahc.EnableSni),
           enableHostnameVerification = {
             val enable = config.getBoolean(http.ahc.EnableHostnameVerification)
@@ -184,7 +185,7 @@ object GatlingConfiguration extends StrictLogging {
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
-          sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
+          sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout) seconds,
           disableSslSessionResumption = config.getBoolean(http.ahc.DisableSslSessionResumption),
           useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
           useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport),
@@ -195,24 +196,24 @@ object GatlingConfiguration extends StrictLogging {
           maxThreadLocalCharBufferSize = config.getInt(http.ahc.MaxThreadLocalCharBufferSize)
         ),
         dns = DnsConfiguration(
-          queryTimeout = config.getInt(http.dns.QueryTimeout),
+          queryTimeout = config.getInt(http.dns.QueryTimeout) millis,
           maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
         )
       ),
       jms = JmsConfiguration(
-        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod)
+        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod) millis
       ),
       data = DataConfiguration(
         dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
         console = ConsoleDataWriterConfiguration(
           light = config.getBoolean(data.console.Light),
-          writeInterval = config.getInt(data.console.WriteInterval)
+          writePeriod = config.getInt(data.console.WritePeriod) seconds
         ),
         file = FileDataWriterConfiguration(
           bufferSize = config.getInt(data.file.BufferSize)
         ),
         leak = LeakDataWriterConfiguration(
-          noActivityTimeout = config.getInt(data.leak.NoActivityTimeout)
+          noActivityTimeout = config.getInt(data.leak.NoActivityTimeout) seconds
         ),
         graphite = GraphiteDataWriterConfiguration(
           light = config.getBoolean(data.graphite.Light),
@@ -221,7 +222,7 @@ object GatlingConfiguration extends StrictLogging {
           protocol = TransportProtocol(config.getString(data.graphite.Protocol).trim),
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize),
-          writeInterval = config.getInt(data.graphite.WriteInterval)
+          writePeriod = config.getInt(data.graphite.WritePeriod) seconds
         )
       ),
       // [fl]
@@ -336,15 +337,15 @@ case class HttpConfiguration(
 )
 
 case class JmsConfiguration(
-    replyTimeoutScanPeriod: Long
+    replyTimeoutScanPeriod: FiniteDuration
 )
 
 case class AhcConfiguration(
-    connectTimeout:               Int,
-    handshakeTimeout:             Int,
-    pooledConnectionIdleTimeout:  Int,
+    connectTimeout:               FiniteDuration,
+    handshakeTimeout:             FiniteDuration,
+    pooledConnectionIdleTimeout:  FiniteDuration,
     maxRetry:                     Int,
-    requestTimeout:               Int,
+    requestTimeout:               FiniteDuration,
     enableSni:                    Boolean,
     enableHostnameVerification:   Boolean,
     useInsecureTrustManager:      Boolean,
@@ -352,7 +353,7 @@ case class AhcConfiguration(
     sslEnabledProtocols:          List[String],
     sslEnabledCipherSuites:       List[String],
     sslSessionCacheSize:          Int,
-    sslSessionTimeout:            Int,
+    sslSessionTimeout:            FiniteDuration,
     disableSslSessionResumption:  Boolean,
     useOpenSsl:                   Boolean,
     useNativeTransport:           Boolean,
@@ -365,7 +366,7 @@ case class AhcConfiguration(
 )
 
 case class DnsConfiguration(
-    queryTimeout:         Int,
+    queryTimeout:         FiniteDuration,
     maxQueriesPerResolve: Int
 )
 
@@ -409,12 +410,12 @@ case class FileDataWriterConfiguration(
 )
 
 case class LeakDataWriterConfiguration(
-    noActivityTimeout: Int
+    noActivityTimeout: FiniteDuration
 )
 
 case class ConsoleDataWriterConfiguration(
-    light:         Boolean,
-    writeInterval: Int
+    light:       Boolean,
+    writePeriod: FiniteDuration
 )
 
 case class GraphiteDataWriterConfiguration(
@@ -424,7 +425,7 @@ case class GraphiteDataWriterConfiguration(
     protocol:       TransportProtocol,
     rootPathPrefix: String,
     bufferSize:     Int,
-    writeInterval:  Int
+    writePeriod:    FiniteDuration
 )
 
 // [fl]

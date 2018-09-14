@@ -40,7 +40,7 @@ class DnsNameResolverFactory(eventLoopGroup: EventLoopGroup, configuration: Gatl
   def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     new ExtendedDnsNameResolver(
       eventLoopGroup.next(),
-      configuration.http.dns.queryTimeout,
+      configuration.http.dns.queryTimeout.toMillis.toInt,
       configuration.http.dns.maxQueriesPerResolve,
       dnsServers
     )

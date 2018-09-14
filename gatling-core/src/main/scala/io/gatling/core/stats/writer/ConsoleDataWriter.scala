@@ -17,7 +17,6 @@
 package io.gatling.core.stats.writer
 
 import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
 
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.util.Clock
@@ -61,7 +60,7 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserCount)))
 
-    setTimer(flushTimerName, Flush, configuration.data.console.writeInterval seconds, repeat = true)
+    setTimer(flushTimerName, Flush, configuration.data.console.writePeriod, repeat = true)
 
     data
   }
