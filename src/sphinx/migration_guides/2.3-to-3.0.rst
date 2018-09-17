@@ -17,8 +17,10 @@ Migrating from 2.3 to 3.0
 * ``silentURI`` was renamed into ``silentUri``
 * Gatling now has its own HTTP client and no longer uses AsyncHttpClient (so AHC is no longer shipped)
 * Maven users must upgrade gatling-maven-plugin to `3.0 <https://search.maven.org/search?q=a:gatling-maven-plugin>`__.
-* WebSocket and SSE support were completely re-written, `see new API <http-ws>`__.
+* WebSocket and SSE support were completely re-written, see :ref:`new API <http-ws>`.
 * ``matchByMessageID`` was renamed into ``matchByMessageId`` and ``matchByCorrelationID`` was renamed into ``matchByCorrelationId``
 * ``over`` inject method was renamed into ``during``
 * ``splitUsers`` is dropped in favor of ``incrementUsersPerSec`` and ``incrementConcurrentUsers``
 * ``ntmlAuth`` is dropped until we can support NTLM properly, see `#3525 <https://github.com/gatling/gatling/issues/3525>`__
+* Gatling is no longer built on top of `AsyncHttpClient <https://github.com/AsyncHttpClient/async-http-client>`__, so this library is no longer shipped. If you've been using it, you'll need to pull it explicitly, or switch to another HTTP client library.
+* The way to compute HTTP request signatures was revamped, see :ref:`new API <http-request-signature>`
