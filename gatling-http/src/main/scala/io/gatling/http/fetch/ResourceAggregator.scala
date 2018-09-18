@@ -253,7 +253,7 @@ class DefaultResourceAggregator(
   }
 
   override def onCssResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean, responseStatus: HttpResponseStatus, lastModifiedOrEtag: Option[String], content: String): Unit = {
-    logger.debug(s"Resource $uri was fetched")
+    logger.debug(s"Css resource $uri was fetched")
     this.session = session
     cssFetched(uri, status, responseStatus, lastModifiedOrEtag, content)
     val remote = Remote(uri)
