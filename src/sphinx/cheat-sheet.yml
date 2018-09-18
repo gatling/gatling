@@ -211,7 +211,7 @@
       - keyword: exitBlockOnFail
         description: Stops block execution if a check fails
         syntax:
-        - signature: {chain}
+        - signature: "{chain}"
           description: If a check in <i>chain</i> fails, its execution is stopped and the scenario continues.
 
       - keyword: exitHereIfFailed
