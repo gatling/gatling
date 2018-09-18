@@ -29,10 +29,10 @@ import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
-import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
 import sbt.internal.inc.classpath.ClasspathUtilities
-import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
+import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
 import sbt.util.ShowLines._
+import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
 import xsbti.Problem
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 
@@ -153,12 +153,6 @@ object ZincCompiler extends App with ProblemStringFormats {
       override protected def logInfo(problem: Problem): Unit = logger.info(problem.lines.mkString("\n"))
     }
 
-    val progress = new CompileProgress {
-      override def advance(current: Int, total: Int): Boolean = true
-
-      override def startUnit(phase: String, unitPath: String): Unit = ()
-    }
-
     val setup =
       compiler.setup(
         lookup = lookup,
@@ -167,18 +161,17 @@ object ZincCompiler extends App with ProblemStringFormats {
         cache = CompilerCache.fresh,
         incOptions = IncOptions.of(),
         reporter = reporter,
-        optionProgress = Some(progress),
+        optionProgress = None,
         extra = Array.empty
       )
 
-    // FIXME do we need Directory from scala-reflect??? Java should suffice!
     val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString)
       .deepFiles
       .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
       .toArray
 
     val inputs = compiler.inputs(
-      classpath = classpath,
+      classpath = classpath :+ configuration.binariesDirectory.toFile,
       sources = sources,
       classesDirectory = configuration.binariesDirectory.toFile,
       scalacOptions = Array(
@@ -202,18 +195,17 @@ object ZincCompiler extends App with ProblemStringFormats {
 
     val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
 
-    val newInputs = {
+    val newInputs =
       InterfaceUtil.toOption(analysisStore.get()) match {
         case Some(analysisContents) =>
           val previousAnalysis = analysisContents.getAnalysis
           val previousSetup = analysisContents.getMiniSetup
-          val previousResult = PreviousResult.of(Optional.of[CompileAnalysis](previousAnalysis), Optional.of[MiniSetup](previousSetup))
+          val previousResult = PreviousResult.of(Optional.of(previousAnalysis), Optional.of(previousSetup))
           inputs.withPreviousResult(previousResult)
 
         case _ =>
           inputs
       }
-    }
 
     val newResult = compiler.compile(newInputs, sbtLogger)
     analysisStore.set(AnalysisContents.create(newResult.analysis(), newResult.setup()))
