@@ -227,13 +227,15 @@ class DefaultResourceAggregator(
 
     pendingResourcesCount -= 1
 
-    if (!silent && status == KO)
+    if (!silent && status == KO) {
       globalStatus = KO
+    }
 
-    if (pendingResourcesCount == 0)
+    if (pendingResourcesCount == 0) {
       done()
-    else
+    } else {
       releaseTokenAndContinue(remote, isHttp2)
+    }
   }
 
   private def cssFetched(uri: Uri, status: Status, responseStatus: HttpResponseStatus, lastModifiedOrEtag: Option[String], content: String): Unit =
