@@ -259,7 +259,12 @@
               description: Jump immediately to a given targeted throughput
             - signature: (holdFor(duration))
               description: Hold the current throughput for a given duration
-          example: setUp(...).throttle(reachRps(100) in (10 seconds), holdFor(10 minute))
+          example: |
+            setUp(...)
+              .throttle(
+                reachRps(100) in (10 seconds),
+                holdFor(10 minute)
+              )
 
 - title: Feeder definition
   description: Inject data in your scenario
