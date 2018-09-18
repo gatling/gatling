@@ -70,16 +70,21 @@ class HttpAppHandler extends ChannelDuplexHandler {
   }
 
   private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close) {
-    if (isInactive()) {
-      return;
-    }
+    try {
+      if (isInactive()) {
+        return;
+      }
 
-    tx.listener.onThrowable(cause);
-    tx.requestTimeout.cancel();
-    setInactive();
+      tx.requestTimeout.cancel();
+      tx.listener.onThrowable(cause);
+      setInactive();
 
-    if (close) {
-      ctx.close();
+    } catch (Exception e) {
+      LOGGER.error("Exception while handling HTTP/1.1 crash, please report to Gatling maintainers", e);
+    } finally {
+      if (close) {
+        ctx.close();
+      }
     }
   }
 
@@ -140,17 +145,20 @@ class HttpAppHandler extends ChannelDuplexHandler {
         }
         boolean last = chunk instanceof LastHttpContent;
 
-        HttpListener listener = tx.listener; // might be null out by setInactive
         if (last) {
-          tx.requestTimeout.cancel();
           if (tx.closeConnection) {
             ctx.channel().close();
           } else {
             channelPool.offer(ctx.channel());
           }
+        }
+
+        tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
+
+        if (last) {
+          tx.requestTimeout.cancel();
           setInactive();
         }
-        listener.onHttpResponseBodyChunk(chunk.content(), last);
       }
     } finally {
       ReferenceCountUtil.release(msg);
@@ -166,7 +174,6 @@ class HttpAppHandler extends ChannelDuplexHandler {
     if (!httpResponseReceived && client.retry(tx, ctx.channel().eventLoop())) {
       // only retry when we haven't started receiving response
       setInactive();
-
     } else {
       crash(ctx, PREMATURE_CLOSE, false);
     }
