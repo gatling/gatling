@@ -17,7 +17,6 @@
 package io.gatling.http.fetch
 
 import scala.collection.mutable
-import scala.util.control.NoStackTrace
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock

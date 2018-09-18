@@ -47,17 +47,20 @@ trait Http2PriorKnowledgeSupport extends StrictLogging {
 
   def updateSessionHttp2PriorKnowledge(session: Session, response: Response): Session = {
     val remote = Remote(response.request.getUri)
-    val priorKnowledgeMap = session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]]
-      .getOrElse(throw MissingPriorKnowledgeMapException)
-    if (priorKnowledgeMap.contains(remote)) {
-      session
-    } else {
-      session.set(Http2PriorKnowledgeAttributeName, priorKnowledgeMap + (remote -> response.isHttp2))
+    session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]] match {
+      case Some(priorKnowledgeMap) =>
+        if (priorKnowledgeMap.contains(remote)) {
+          session
+        } else {
+          session.set(Http2PriorKnowledgeAttributeName, priorKnowledgeMap + (remote -> response.isHttp2))
+        }
+      case _ => session
     }
   }
 
-  def isHttp2PriorKnowledge(session: Session, remote: Remote): Option[Boolean] = {
-    session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]]
-      .getOrElse(throw MissingPriorKnowledgeMapException).get(remote)
-  }
+  def isHttp2PriorKnowledge(session: Session, remote: Remote): Option[Boolean] =
+    session(Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName).asOption[Map[Remote, Boolean]] match {
+      case Some(priorKnowledgeMap) => priorKnowledgeMap.get(remote)
+      case _                       => None
+    }
 }
