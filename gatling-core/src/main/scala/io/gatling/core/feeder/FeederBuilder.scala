@@ -28,6 +28,9 @@ case class SourceFeederBuilder[T](
 
   def shard: SourceFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
 
+  def batch: SourceFeederBuilder[T] = batch(2000)
+  def batch(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(batch = Some(bufferSize)))
+
   def unzip: SourceFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
 
   def convert(f: PartialFunction[(String, T), Any]): SourceFeederBuilder[T] = {
@@ -58,7 +61,3 @@ case class FeederOptions[T](
     batch:      Option[Int]                      = None
 )
 
-trait BatchableFeederBuilder[T] extends SourceFeederBuilder[T] {
-  def batch: SourceFeederBuilder[T] = batch(2000)
-  def batch(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(batch = Some(bufferSize)))
-}
