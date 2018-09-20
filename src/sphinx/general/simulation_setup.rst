@@ -95,11 +95,11 @@ But there is now an alternative using the meta DSL.
 
 .. includecode:: code/SimulationSetupSample.scala#incrementUsersPerSec
 
-#. ``incrementUsersPerSec(usersPerSecAddedByStage)``
+* ``incrementUsersPerSec(usersPerSecAddedByStage)``
 
 .. includecode:: code/SimulationSetupSample.scala#incrementConcurrentUsers
 
-#. ``incrementConcurrentUsers(concurrentUsersAddedByStage)``
+* ``incrementConcurrentUsers(concurrentUsersAddedByStage)``
 
 ``incrementUsersPerSec`` is for open workload and ``incrementConcurrentUsers`` is for closed workload (users/sec vs concurrent users)
 
