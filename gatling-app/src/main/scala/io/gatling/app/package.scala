@@ -24,6 +24,7 @@ package object app {
 
   type ConfigOverrides = mutable.Map[String, _]
 
-  type SelectedSimulationClass = Option[Class[Simulation]]
-  type SimulationClasses = List[Class[Simulation]]
+  type SelectedSimulationClass = Option[SimulationInstanceFactory]
+  type SimulationClasses = List[SimulationInstanceFactory]
+
 }

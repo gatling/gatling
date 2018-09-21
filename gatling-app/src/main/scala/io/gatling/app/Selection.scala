@@ -26,7 +26,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.scenario.Simulation
 
-case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
+case class Selection(simulationClass: SimulationInstanceFactory, simulationId: String, description: String)
 
 object Selection {
 
@@ -40,13 +40,13 @@ object Selection {
     def selection(configuration: GatlingConfiguration): Selection = {
       val userDefinedSimulationClass = configuration.core.simulationClass
 
-      val simulation: Class[Simulation] =
+      val simulation: SimulationInstanceFactory =
         selectedSimulationClass.getOrElse {
           val simulationClasses: SimulationClasses =
             if (configuration.core.directory.reportsOnly.isDefined) {
               Nil
             } else {
-              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.getName)
+              SimulationClassLoader(GatlingFiles.binariesDirectory(configuration)).simulationClasses.sortBy(_.name)
             }
 
           singleSimulationFromConfig(simulationClasses, userDefinedSimulationClass)
@@ -64,13 +64,13 @@ object Selection {
     private def singleSimulationFromConfig(simulationClasses: SimulationClasses, userDefinedSimulationClass: Option[String]): SelectedSimulationClass = {
 
       def findUserDefinedSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
-        simulationClasses.find(_.getCanonicalName == className)
+        simulationClasses.find(_.canonicalName == className)
 
       def findUserDefinedSimulationInClassloader(className: String): SelectedSimulationClass =
         Try(Class.forName(className)) match {
           case Success(clazz) =>
             if (classOf[Simulation].isAssignableFrom(clazz)) {
-              Some(clazz.asInstanceOf[Class[Simulation]])
+              Some(new SimulationInstanceClass(clazz.asInstanceOf[Class[Simulation]]))
             } else {
               throw new IllegalArgumentException(s"User defined Simulation class $className does not extend of Simulation")
             }
@@ -86,14 +86,14 @@ object Selection {
     }
 
     private def singleSimulationFromList(simulationClasses: SimulationClasses) = simulationClasses match {
-      case simulation :: Nil =>
-        println(s"${simulation.getName} is the only simulation, executing it.")
-        Some(simulation)
-
-      case _ => None
+       case simulation :: Nil =>
+          println(s"${simulation.name} is the only simulation, executing it.")
+          Some(simulation)
+        
+       case _ => None
     }
 
-    private def interactiveSelect(simulationClasses: SimulationClasses): Class[Simulation] = {
+    private def interactiveSelect(simulationClasses: SimulationClasses): SimulationInstanceFactory = {
       val validRange = simulationClasses.indices
 
       @tailrec
@@ -104,7 +104,7 @@ object Selection {
         } else {
           println("Choose a simulation number:")
           for ((simulation, index) <- simulationClasses.zipWithIndex) {
-            println(s"     [$index] ${simulation.getName}")
+            println(s"     [$index] ${simulation.name}")
           }
 
           Try(StdIn.readInt()) match {
@@ -133,7 +133,7 @@ object Selection {
       StdIn.readLine().trim
     }
 
-    private def defaultOutputDirectoryBaseName(clazz: Class[Simulation], configuration: GatlingConfiguration) =
-      configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)
+    private def defaultOutputDirectoryBaseName(simulationInstance: SimulationInstanceFactory, configuration: GatlingConfiguration) =
+      configuration.core.outputDirectoryBaseName.getOrElse(simulationInstance.simpleName.clean)
   }
 }

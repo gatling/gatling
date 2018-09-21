@@ -72,7 +72,7 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
     io.gatling.core.Predef.configuration = configuration
 
     val selection = Selection(selectedSimulationClass, configuration)
-    val simulation = selection.simulationClass.getDeclaredConstructor().newInstance()
+    val simulation = selection.simulationClass.instance
     logger.trace("Simulation instantiated")
     val simulationParams = simulation.params(configuration)
     logger.trace("Simulation params built")

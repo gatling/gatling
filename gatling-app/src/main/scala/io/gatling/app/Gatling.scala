@@ -21,20 +21,18 @@ import java.nio.file.FileSystems
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
-
 import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
-
 import akka.actor.ActorSystem
 import ch.qos.logback.classic.LoggerContext
 import com.typesafe.scalalogging.StrictLogging
+import io.gatling.core.scenario.Simulation
 import org.slf4j.LoggerFactory
 
 /**
  * Object containing entry point of application
  */
-object Gatling extends StrictLogging {
-
+object Gatling {
   // used by bundle
   def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
 
@@ -42,11 +40,23 @@ object Gatling extends StrictLogging {
   def fromMap(overrides: ConfigOverrides): Int = start(overrides, None)
 
   // used by sbt-test-framework
-  private[gatling] def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int =
+  private[gatling] def fromArgs(args: Array[String], selectedSimulationClass: Option[Class[Simulation]]): Int =
     new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, selectedSimulationClass)
+      case Left(overrides)   => start(overrides, selectedSimulationClass.map(new SimulationInstanceClass(_)))
       case Right(statusCode) => statusCode.code
     }
+
+  // used programmatically e.g. by scalatest
+  def start(overrides: ConfigOverrides, simulation: Simulation): Int = start(overrides, Some(new ConcreteSimulationInstance(simulation)))
+
+  // used programmatically e.g. by scalatest
+  def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass): Int = {
+    new Gatling(selectedSimulationClass).start(overrides)
+  }
+
+}
+
+private[gatling] class Gatling(selectedSimulationClass: SelectedSimulationClass) extends StrictLogging {
 
   private def terminateActorSystem(system: ActorSystem, timeout: FiniteDuration): Unit =
     try {
@@ -57,7 +67,7 @@ object Gatling extends StrictLogging {
         logger.debug("Could not terminate ActorSystem", e)
     }
 
-  private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) =
+  def start(overrides: ConfigOverrides) =
     try {
       logger.trace("Starting")
       // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
