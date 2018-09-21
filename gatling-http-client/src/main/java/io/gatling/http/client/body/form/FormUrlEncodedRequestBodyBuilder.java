@@ -32,7 +32,6 @@ public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder<List<Pa
 
   @Override
   public RequestBody<List<Param>> build(String contentType, Charset charset) {
-    // FIXME
     return new FormUrlEncodedRequestBody(content, contentType != null ? contentType : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(), charset);
   }
 }

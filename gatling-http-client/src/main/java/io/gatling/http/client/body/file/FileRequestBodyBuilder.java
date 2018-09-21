@@ -29,7 +29,7 @@ public class FileRequestBodyBuilder extends RequestBodyBuilder<File> {
   }
 
   @Override
-  public RequestBody build(String contentType, Charset charset) {
+  public RequestBody<File> build(String contentType, Charset charset) {
     return new FileRequestBody(content, contentType, charset);
   }
 }
