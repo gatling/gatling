@@ -10,7 +10,7 @@ Core
 * `#2634 <https://github.com/gatling/gatling/issues/2634>`__: Introduce ``doWhile`` loop, see :ref:`here <scenario-doWhile>`.
 * `#3067 <https://github.com/gatling/gatling/issues/3067>`__: Add percentile(rank: Double) assertion.
 * `#3189 <https://github.com/gatling/gatling/issues/3189>`__: Remove ``Validation#get``.
-* `#3283 <https://github.com/gatling/gatling/issues/3283>`__: Introduce ``asLongAsDuring`` and ```doWhileDuring` loops, see :ref:`here <scenario-doWhile>`.
+* `#3283 <https://github.com/gatling/gatling/issues/3283>`__: Introduce ``asLongAsDuring`` and ``doWhileDuring`` loops, see :ref:`here <scenario-doWhile>`.
 * `#3359 <https://github.com/gatling/gatling/issues/3359>`__: Support Java 9, 10, 11.
 * `#3384 <https://github.com/gatling/gatling/issues/3384>`__: Introduce ``readRecords`` for reading feeder content, see :ref:`here <feeder-records>`.
 * `#3395 <https://github.com/gatling/gatling/issues/3395>`__: Automatically parse String values stored in Session into expected type, eg numbers.
@@ -35,7 +35,7 @@ HTTP
 * `#3195 <https://github.com/gatling/gatling/issues/3195>`__: ``ofType`` now deep converts into Scala Map and Seq types.
 * `#3313 <https://github.com/gatling/gatling/issues/3313>`__: ``form`` check should extract String or Seq[String] depending on input cardinality.
 * `#3325 <https://github.com/gatling/gatling/issues/3325>`__: Use unsecured TrustManager by default.
-* `#3341 <https://github.com/gatling/gatling/issues/3341>`__: Introduce ``isNull`` and ```notNull` check validators for dealing with null values, typically from JSON, see :ref:`here <http-check-isNull>`.
+* `#3341 <https://github.com/gatling/gatling/issues/3341>`__: Introduce ``isNull`` and ``notNull`` check validators for dealing with null values, typically from JSON, see :ref:`here <http-check-isNull>`.
 * `#3412 <https://github.com/gatling/gatling/issues/3412>`__: Introduce ``asyncNameResolution`` for switching to non-blocking DNS resolver instead of Java's one, see :ref:`here <http-protocol-dns>`.
 * `#3496 <https://github.com/gatling/gatling/issues/3496>`__: ``transformResponse`` now takes a ``Session`` parameter, see :ref:`here <http-response-transformer>`.
 * `#3521 <https://github.com/gatling/gatling/issues/3521>`__: Gatling now uses BoringSSL based SSLEngine by default.
