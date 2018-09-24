@@ -47,12 +47,6 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
     this.whenHttp2Handshake = whenHttp2Handshake;
   }
 
-  private void sendLastIfNecessary(ChannelHandlerContext ctx, boolean endOfStream, int streamId) {
-    if (endOfStream) {
-      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId));
-    }
-  }
-
   @Override
   public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream)
     throws Http2Exception {
@@ -63,18 +57,18 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
     }
 
     final int processedBytes = data.readableBytes();
-    fireChannelRead(ctx, new DefaultHttpContent(data), endOfStream, streamId);
-    return processedBytes + padding;
-  }
 
-  private void fireChannelRead(ChannelHandlerContext ctx, HttpObject object, boolean endOfStream, int streamId) {
-    ctx.fireChannelRead(object);
-    sendLastIfNecessary(ctx, endOfStream, streamId);
+    HttpContent content = endOfStream ? new DefaultLastHttpContent(data) : new DefaultHttpContent(data);
+    ctx.fireChannelRead(new Http2Content(content, streamId));
+    return processedBytes + padding;
   }
 
   private void convertAndFire(ChannelHandlerContext ctx, int streamId, Http2Headers headers, boolean endOfStream) throws Http2Exception {
     HttpResponse response = HttpConversionUtil.toHttpResponse(streamId, headers, validateHttpHeaders);
-    fireChannelRead(ctx, response, endOfStream, streamId);
+    ctx.fireChannelRead(response);
+    if (endOfStream) {
+      ctx.fireChannelRead(new Http2Content(LastHttpContent.EMPTY_LAST_CONTENT, streamId));
+    }
   }
 
   @Override
