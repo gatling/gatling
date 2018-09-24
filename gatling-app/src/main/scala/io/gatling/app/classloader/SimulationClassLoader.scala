@@ -20,8 +20,9 @@ import java.io.File
 import java.lang.reflect.Modifier
 import java.nio.file.Path
 
-import scala.util.Properties
+import io.gatling.app.{SimulationClasses, SimulationInstanceClass}
 
+import scala.util.Properties
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.scenario.Simulation
 
@@ -42,11 +43,11 @@ private[app] object SimulationClassLoader {
 
 private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
 
-  def simulationClasses: List[Class[Simulation]] =
+  def simulationClasses: SimulationClasses =
     binaryDir
       .deepFiles(_.path.hasExtension("class"))
       .map(file => classLoader.loadClass(pathToClassName(file.path, binaryDir)))
-      .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
+      .collect { case clazz if isSimulationClass(clazz) => new SimulationInstanceClass(clazz.asInstanceOf[Class[Simulation]])}
       .toList
 
   private def isSimulationClass(clazz: Class[_]): Boolean = {
