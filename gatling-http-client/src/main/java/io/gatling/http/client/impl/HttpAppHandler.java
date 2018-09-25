@@ -70,11 +70,14 @@ class HttpAppHandler extends ChannelDuplexHandler {
   }
 
   private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close) {
-    try {
-      if (isInactive()) {
-        return;
-      }
+    if (isInactive()) {
+      return;
+    }
+    crash0(ctx, cause, close, tx);
+  }
 
+  private void crash0(ChannelHandlerContext ctx, Throwable cause, boolean close, HttpTx tx) {
+    try {
       tx.requestTimeout.cancel();
       tx.listener.onThrowable(cause);
       setInactive();
@@ -145,7 +148,12 @@ class HttpAppHandler extends ChannelDuplexHandler {
         }
         boolean last = chunk instanceof LastHttpContent;
 
+        // making a local copy because setInactive might be called (on last)
+        HttpTx tx = this.tx;
+
         if (last) {
+          tx.requestTimeout.cancel();
+          setInactive();
           if (tx.closeConnection) {
             ctx.channel().close();
           } else {
@@ -153,11 +161,12 @@ class HttpAppHandler extends ChannelDuplexHandler {
           }
         }
 
-        tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
-
-        if (last) {
-          tx.requestTimeout.cancel();
-          setInactive();
+        try {
+          tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
+        } catch (Exception e) {
+          // can't let exceptionCaught handle this because setInactive might have been called (on last)
+          crash0(ctx, e, true, tx);
+          throw e;
         }
       }
     } finally {
