@@ -23,19 +23,24 @@ You can either set the log-level to TRACE to log all HTTP
 requests and responses or DEBUG to log failed HTTP request
 and responses.
 
+.. code-block:: xml
+
+    <!-- set to DEBUG to log all failing requests -->
+    <!-- set to TRACE to log all requests -->
+    <logger name="io.gatling.http.response" level="WARN" />
+
 It will by default print debugging information to the console,
 but you can add a file appender,
 
 .. code-block:: xml
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>../gatling.log</file>
+        <file>PATH_TO_LOG_FILE</file>
         <append>true</append>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%-5level] %logger{15} - %msg%n%rEx</pattern>
         </encoder>
     </appender>
-
 
 And reference that appender
 
