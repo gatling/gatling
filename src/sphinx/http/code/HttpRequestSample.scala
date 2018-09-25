@@ -111,17 +111,17 @@ class HttpRequestSample {
       .header("Content-Type", "application/json")
     //#headers
 
-    //#asJSON
+    //#asJson
     http("foo").get("bar")
       .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationJson)
       .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
-    //#asJSON
+    //#asJson
 
-    //#asXML
+    //#asXml
     http("foo").get("bar")
       .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationXml)
       .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationXml)
-    //#asXML
+    //#asXml
 
     //#authentication
     http("My BASIC secured request").get("http://my.secured.uri").basicAuth("myUser", "myPassword")
@@ -224,26 +224,26 @@ class HttpRequestSample {
       //#RawFileBody
       // myFileBody.json is a file that contains
       // { "myContent": "myHardCodedValue" }
-      .body(RawFileBody("myFileBody.json")).asJSON
+      .body(RawFileBody("myFileBody.json")).asJson
       //#RawFileBody
       //#ElFileBody
       // myFileBody.json is a file that contains
       // { "myContent": "${myDynamicValue}" }
-      .body(ElFileBody("myFileBody.json")).asJSON
+      .body(ElFileBody("myFileBody.json")).asJson
       //#ElFileBody
       //#StringBody
-      .body(StringBody("""{ "myContent": "myHardCodedValue" }""")).asJSON
+      .body(StringBody("""{ "myContent": "myHardCodedValue" }""")).asJson
 
-      .body(StringBody("""{ "myContent": "${myDynamicValue}" }""")).asJSON
+      .body(StringBody("""{ "myContent": "${myDynamicValue}" }""")).asJson
 
-      .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }""")).asJSON
+      .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }""")).asJson
       //#StringBody
       //#PebbleBody
-      .body(PebbleStringBody("""{ "myContent": "{myDynamicValue}" }""")).asJSON
+      .body(PebbleStringBody("""{ "myContent": "{myDynamicValue}" }""")).asJson
 
       // myFileBody.json is a file that contains
       // { "myContent": "{myDynamicValue}" }
-      .body(PebbleFileBody("myFileBody.json")).asJSON
+      .body(PebbleFileBody("myFileBody.json")).asJson
     //#PebbleBody
 
     //#templates

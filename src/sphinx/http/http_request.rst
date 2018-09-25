@@ -111,13 +111,13 @@ Here are some examples:
 .. note::
   There are two handful methods to help you set the required headers for JSON and XML requests:
 
-  * ``http("foo").get("bar").asJSON`` is equivalent to:
+  * ``http("foo").get("bar").asJson`` is equivalent to:
 
-    .. includecode:: code/HttpRequestSample.scala#asJSON
+    .. includecode:: code/HttpRequestSample.scala#asJson
 
-  * ``http("foo").get("bar").asXML`` is equivalent to:
+  * ``http("foo").get("bar").asXml`` is equivalent to:
 
-    .. includecode:: code/HttpRequestSample.scala#asXML
+    .. includecode:: code/HttpRequestSample.scala#asXml
 
 .. note:: Headers can also be defined on the ``HttpProtocol``.
 
@@ -352,7 +352,7 @@ Of course, it can't be binary.::
 
   // myFileBody.json is a file that contains
   // { "myContent": "${myDynamicValue}" }
-  .body(ElFileBody("myFileBody.json")).asJSON
+  .body(ElFileBody("myFileBody.json")).asJson
 
 .. _http-request-body-string:
 

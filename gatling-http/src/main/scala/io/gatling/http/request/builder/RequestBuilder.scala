@@ -125,12 +125,12 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values
    */
-  def asJSON: B = header(HeaderNames.Accept, RequestBuilder.JsonHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.JsonHeaderValueExpression)
+  def asJson: B = header(HeaderNames.Accept, RequestBuilder.JsonHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.JsonHeaderValueExpression)
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/xml" values
    */
-  def asXML: B = header(HeaderNames.Accept, RequestBuilder.XmlHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.XmlHeaderValueExpression)
+  def asXml: B = header(HeaderNames.Accept, RequestBuilder.XmlHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.XmlHeaderValueExpression)
 
   /**
    * Adds BASIC authentication to the request

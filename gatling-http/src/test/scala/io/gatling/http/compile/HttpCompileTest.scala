@@ -194,7 +194,7 @@ class HttpCompileTest extends Simulation {
         http("Request").get("/").queryParam("param", session => "foo")
       ))
     // body
-    .exec(http("Request").post("/things").body(StringBody("FOO${BAR}BAZ")).asJSON)
+    .exec(http("Request").post("/things").body(StringBody("FOO${BAR}BAZ")).asJson)
     .exec(http("Request").post("/things").body(ElFileBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(RawFileBody("create_thing.txt")))
     .exec(http("Request").post("/things").body(PebbleStringBody("create_thing.txt")))

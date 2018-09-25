@@ -15,6 +15,8 @@ Migrating from 2.3 to 3.0
 * Drop deprecated gatling-maven-plugin's ``execute`` task, use ``test`` instead
 * ``baseURL`` was renamed into ``baseUrl``
 * ``silentURI`` was renamed into ``silentUri``
+* ``asJSON`` was renamed into ``asJson``
+* ``asXML`` was renamed into ``asXml``
 * Gatling now has its own HTTP client and no longer uses AsyncHttpClient (so AHC is no longer shipped)
 * Maven users must upgrade gatling-maven-plugin to `3.0 <https://search.maven.org/search?q=a:gatling-maven-plugin>`__.
 * WebSocket and SSE support were completely re-written, see :ref:`new API <http-ws>`.
