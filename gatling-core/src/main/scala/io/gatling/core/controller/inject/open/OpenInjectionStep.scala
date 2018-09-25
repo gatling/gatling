@@ -17,7 +17,6 @@
 package io.gatling.core.controller.inject.open
 
 import java.util.Random
-import java.util.concurrent.TimeUnit
 
 import scala.collection.AbstractIterator
 import scala.concurrent.duration._
@@ -289,20 +288,17 @@ case class PoissonOpenInjection(duration: FiniteDuration, startRate: Double, end
       NothingForOpenInjection(duration).chain(chained)
 
     } else {
-      val durationSecs = duration.toUnit(TimeUnit.SECONDS)
+      val durationSecs = duration.toSeconds
       val rand = new Random(seed)
 
-      // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
-      val maxLambda = startRate max endRate
+      // Uses Lewis and Shedler's thinning algorithm: https://www.math.fsu.edu/~ychen/research/Thinning%20algorithm.pdf chapter 3.2.2
+      val maxLambda = math.max(startRate, endRate)
       def shouldKeep(d: Double) = {
         val actualLambda = startRate + (endRate - startRate) * d / durationSecs
         rand.nextDouble() < actualLambda / maxLambda
       }
 
-      val rawIntervals = Iterator.continually {
-        val u = rand.nextDouble()
-        -math.log(u) / maxLambda
-      }
+      val rawIntervals = Iterator.continually(-math.log(rand.nextDouble()) / maxLambda)
 
       rawIntervals
         .scanLeft(0.0)(_ + _) // Rolling sum
