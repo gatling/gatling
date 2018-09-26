@@ -17,40 +17,14 @@
 package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpListener;
-import io.gatling.netty.util.ahc.StringBuilderPool;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public interface RequestTimeout {
-
-  class RequestTimeoutException extends TimeoutException {
-
-    private static String message(long timeout, InetSocketAddress remoteAddress) {
-      StringBuilder message = StringBuilderPool.DEFAULT.get().append("Request timeout");
-      if (remoteAddress != null) {
-        message.append(" to ").append(remoteAddress.getHostName());
-        if (!remoteAddress.isUnresolved()) {
-          message.append('/').append(remoteAddress.getAddress().getHostAddress());
-        }
-        message.append(':').append(remoteAddress.getPort());
-      }
-      return message.append(" after ").append(timeout).append(" ms").toString();
-    }
-
-    RequestTimeoutException(long timeout, InetSocketAddress remoteAddress) {
-      super(message(timeout, remoteAddress));
-    }
-
-    @Override
-    public Throwable fillInStackTrace() {
-      return this;
-    }
-  }
 
   static RequestTimeout scheduleRequestTimeout(long timeout, HttpListener listener, EventLoop eventLoop) {
     return timeout > 0 ? new DefaultRequestTimeout(timeout, listener, eventLoop) : NoopRequestTimeout.INSTANCE;
