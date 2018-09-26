@@ -25,9 +25,9 @@ and responses.
 
 .. code-block:: xml
 
-    <!-- set to DEBUG to log all failing requests -->
-    <!-- set to TRACE to log all requests -->
-    <logger name="io.gatling.http.response" level="WARN" />
+    <!-- uncomment and set to DEBUG to log all failing HTTP requests -->
+    <!-- uncomment and set to TRACE to log all HTTP requests -->
+    <!--<logger name="io.gatling.http.engine.response" level="TRACE" />-->
 
 It will by default print debugging information to the console,
 but you can add a file appender,
