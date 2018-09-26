@@ -22,7 +22,7 @@ import scala.concurrent.duration._
 
 class BasicSimulation extends Simulation {
 
-  val httpConf = http
+  val httpProtocol = http
     .baseUrl("http://computer-database.gatling.io") // Here is the root for all relative URLs
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // Here are the common headers
     .doNotTrackHeader("1")
@@ -68,5 +68,5 @@ class BasicSimulation extends Simulation {
       .formParam("discontinued", "")
       .formParam("company", "37"))
 
-  setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
+  setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
 }

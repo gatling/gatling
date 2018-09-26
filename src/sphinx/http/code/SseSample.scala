@@ -88,7 +88,7 @@ class SseSample {
   //#check-matching
 
   //#stock-market-sample
-  val httpConf = http
+  val httpProtocol = http
     .baseUrl("http://localhost:8080/app")
 
   val scn = scenario("ServerSentEvents")

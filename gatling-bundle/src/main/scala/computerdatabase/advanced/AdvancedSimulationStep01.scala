@@ -73,7 +73,7 @@ class AdvancedSimulationStep01 extends Simulation {
         .formParam("company", "37"))
   }
 
-  val httpConf = http
+  val httpProtocol = http
     .baseUrl("http://computer-database.gatling.io")
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
@@ -84,5 +84,5 @@ class AdvancedSimulationStep01 extends Simulation {
   // Now, we can write the scenario as a composition
   val scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit)
 
-  setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
+  setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
 }

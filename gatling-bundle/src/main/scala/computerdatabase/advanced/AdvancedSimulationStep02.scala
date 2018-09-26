@@ -70,7 +70,7 @@ class AdvancedSimulationStep02 extends Simulation {
         .formParam("company", "37"))
   }
 
-  val httpConf = http
+  val httpProtocol = http
     .baseUrl("http://computer-database.gatling.io")
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
@@ -86,5 +86,5 @@ class AdvancedSimulationStep02 extends Simulation {
   setUp(
     users.inject(rampUsers(10) during (10 seconds)),
     admins.inject(rampUsers(2) during (10 seconds))
-  ).protocols(httpConf)
+  ).protocols(httpProtocol)
 }

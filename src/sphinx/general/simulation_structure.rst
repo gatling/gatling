@@ -100,7 +100,7 @@ The last part of the file contains the simulation definition, this is where you 
 which correspond to:
 
 #. We inject one single user into the ``scn`` scenario
-#. We configure ``httpConf`` on the ``setUp`` so that we pass the base URL and the common headers.
+#. We configure ``httpProtocol`` on the ``setUp`` so that we pass the base URL and the common headers.
 
 .. _simulation-hooks:
 

@@ -253,10 +253,10 @@ class ScenarioSample {
   //#group
 
   val scn = scenario("foo")
-  val httpConf = http
+  val httpProtocol = http
 
   //#protocol
-  scn.inject(atOnceUsers(5)).protocols(httpConf)
+  scn.inject(atOnceUsers(5)).protocols(httpProtocol)
   //#protocol
 
   //#throttling

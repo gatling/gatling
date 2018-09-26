@@ -20,7 +20,7 @@ import io.gatling.http.Predef._
 
 class SimulationSetupSample extends Simulation {
 
-  val httpConf = http
+  val httpProtocol = http
   val scn = scenario("scenario")
 
   //#open-injection
@@ -34,7 +34,7 @@ class SimulationSetupSample extends Simulation {
       rampUsersPerSec(10) to 20 during (10 minutes), // 6
       rampUsersPerSec(10) to 20 during (10 minutes) randomized, // 7
       heavisideUsers(1000) during (20 seconds) // 8
-    ).protocols(httpConf)
+    ).protocols(httpProtocol)
   )
   //#open-injection
 

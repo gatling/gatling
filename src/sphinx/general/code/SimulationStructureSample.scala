@@ -19,7 +19,7 @@ import io.gatling.http.Predef._
 
 class SimulationStructureSample extends Simulation {
 
-  val httpConf = http
+  val httpProtocol = http
 
   //#headers
   val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
@@ -43,7 +43,7 @@ class SimulationStructureSample extends Simulation {
   //#setUp
   setUp(
     scn.inject(atOnceUsers(1)) // (1)
-      .protocols(httpConf) // (2)
+      .protocols(httpProtocol) // (2)
   )
   //#setUp
 

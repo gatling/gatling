@@ -23,7 +23,7 @@ import scala.concurrent.duration._
 
 class BasicSimulation extends Simulation { // 3
 
-  val httpConf = http // 4
+  val httpProtocol = http // 4
     .baseUrl("http://computer-database.gatling.io") // 5
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // 6
     .doNotTrackHeader("1")
@@ -38,6 +38,6 @@ class BasicSimulation extends Simulation { // 3
 
   setUp( // 11
     scn.inject(atOnceUsers(1)) // 12
-  ).protocols(httpConf) // 13
+  ).protocols(httpProtocol) // 13
 }
 //#quickstart-recorder-output

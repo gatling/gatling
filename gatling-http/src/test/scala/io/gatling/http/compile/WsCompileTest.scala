@@ -23,7 +23,7 @@ import io.gatling.http.Predef._
 
 class WsCompileTest extends Simulation {
 
-  private val httpConf = http
+  private val httpProtocol = http
     .wsBaseUrl("ws://localhost:9000")
     .wsReconnect
     .wsMaxReconnects(3)

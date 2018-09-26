@@ -20,7 +20,7 @@ import io.gatling.http.Predef._
 
 class AdvancedTutorial extends Simulation {
 
-  val httpConf = http
+  val httpProtocol = http
 
   //#isolate-processes
   object Search {
@@ -61,14 +61,14 @@ class AdvancedTutorial extends Simulation {
   import Chains._
 
   //#setup-users
-  setUp(users.inject(atOnceUsers(10)).protocols(httpConf))
+  setUp(users.inject(atOnceUsers(10)).protocols(httpProtocol))
   //#setup-users
 
   //#setup-users-and-admins
   setUp(
     users.inject(rampUsers(10) during (10 seconds)),
     admins.inject(rampUsers(2) during (10 seconds))
-  ).protocols(httpConf)
+  ).protocols(httpProtocol)
   //#setup-users-and-admins
 }
 

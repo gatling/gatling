@@ -21,17 +21,17 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#bootstrapping
-    val httpConf = http.baseUrl("http://my.website.tld")
+    val httpProtocol = http.baseUrl("http://my.website.tld")
 
     val scn = scenario("myScenario") // etc...
 
-    setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
+    setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
     //#bootstrapping
   }
 
   {
     //#baseUrl
-    val httpConf = http.baseUrl("http://my.website.tld")
+    val httpProtocol = http.baseUrl("http://my.website.tld")
 
     val scn = scenario("My Scenario")
       .exec(
@@ -43,36 +43,36 @@ class HttpProtocolSample extends Simulation {
           .get("http://other.website.tld")
       ) // will make a request to "http://other.website.tld"
 
-    setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
+    setUp(scn.inject(atOnceUsers(1)).protocols(httpProtocol))
     //#baseUrl
   }
 
   {
     //#baseUrls
-    val httpConf = http.baseUrls("http://my1.website.tld", "http://my2.website.tld", "http://my3.website.tld")
+    val httpProtocol = http.baseUrls("http://my1.website.tld", "http://my2.website.tld", "http://my3.website.tld")
     //#baseUrls
   }
 
   {
     //#warmUp
     // override warm up URL to http://www.google.com
-    val httpConf = http.warmUp("http://www.google.com")
+    val httpProtocol = http.warmUp("http://www.google.com")
     // disable warm up
-    val httpConfNoWarmUp = http.disableWarmUp
+    val httpProtocolNoWarmUp = http.disableWarmUp
     //#warmUp
   }
 
   {
     //#maxConnectionsPerHost
     // 10 connections per host.
-    val httpConfMax10Connections = http.maxConnectionsPerHost(10)
+    val httpProtocolMax10Connections = http.maxConnectionsPerHost(10)
     // Firefox max connections per host preset.
-    val httpConfMaxConnectionsLikeFirefox = http.maxConnectionsPerHostLikeFirefox
+    val httpProtocolMaxConnectionsLikeFirefox = http.maxConnectionsPerHostLikeFirefox
     //#maxConnectionsPerHost
   }
 
   {
-    val httpConf = http
+    val httpProtocol = http
       //#silentUri
       .silentUri("https://myCDN/.*")
       //#silentUri
@@ -84,7 +84,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#proxy
-    val httpConf = http
+    val httpProtocol = http
       .proxy(
         Proxy("myHttpProxyHost", 8080)
           .httpsPort(8143)
@@ -103,7 +103,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#noProxyFor
-    val httpConf = http
+    val httpProtocol = http
       .proxy(Proxy("myProxyHost", 8080))
       .noProxyFor("www.github.com", "www.akka.io")
     //#noProxyFor
@@ -111,13 +111,13 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#enableHttp2
-    val httpConf = http.enableHttp2
+    val httpProtocol = http.enableHttp2
     //#enableHttp2
   }
 
   {
     //#http2PriorKnowledge
-    val httpConf = http
+    val httpProtocol = http
       .enableHttp2
       .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
     //#http2PriorKnowledge

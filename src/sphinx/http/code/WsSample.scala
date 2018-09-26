@@ -106,7 +106,7 @@ class WsSample {
   //#check-matching
 
   //#chatroom-example
-  val httpConf = http
+  val httpProtocol = http
     .baseUrl("http://localhost:9000")
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
