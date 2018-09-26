@@ -516,7 +516,6 @@ public class DefaultHttpClient implements HttpClient {
             LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
             installSslHandler(tx, channel).addListener(f -> {
               if (tx.requestTimeout.isDone() || !f.isSuccess()) {
-                LOGGER.error("Failed to install SslHandler");
                 channel.close();
                 return;
               }
