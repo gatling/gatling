@@ -37,5 +37,5 @@ Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues?sor
 
 ## Sponsors
 
-![eBusiness Information](https://raw.githubusercontent.com/gatling/gatling/master/src/sphinx/project/img/ebi_logo.png)&nbsp;&nbsp;&nbsp;&nbsp;
+<img alt="Takima" src="https://raw.githubusercontent.com/gatling/gatling/master/src/sphinx/project/img/logo-takima-1-nom-bas.png" width="80">&nbsp;&nbsp;&nbsp;&nbsp;
 ![Highsoft AS](https://raw.githubusercontent.com/gatling/gatling/master/src/sphinx/project/img/highsoft_logo.png)&nbsp;&nbsp;&nbsp;&nbsp;
