@@ -341,8 +341,7 @@ public class DefaultHttpClient implements HttpClient {
   private void sendHttp2RequestsInEventLoop(Pair<Request, HttpListener> requestsAndListeners[], long clientId, boolean shared, EventLoop eventLoop) {
     List<HttpTx> txs = new ArrayList<>();
 
-    for (int i = 0 ; i < requestsAndListeners.length ; i++) {
-       Pair<Request, HttpListener> requestAndListener = requestsAndListeners[i];
+    for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
        Request request = requestAndListener.getLeft();
        HttpListener listener = requestAndListener.getRight();
        txs.add(buildTx(request, clientId, shared, listener, eventLoop));
