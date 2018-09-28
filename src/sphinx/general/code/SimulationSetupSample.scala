@@ -61,6 +61,10 @@ class SimulationSetupSample extends Simulation {
   //#max-duration
 
   //#incrementConcurrentUsers
+  // generate a closed workload injection profile
+  // with levels of 10, 15, 20, 25 and 30 concurrent users
+  // each level lasting 10 seconds
+  // separated by linear ramps lasting 10 seconds
   setUp(
     scn.inject(
       incrementConcurrentUsers(5) // Int
@@ -73,6 +77,10 @@ class SimulationSetupSample extends Simulation {
   //#incrementConcurrentUsers
 
   //#incrementUsersPerSec
+  // generate an open workload injection profile
+  // with levels of 10, 15, 20, 25 and 30 arriving users per second
+  // each level lasting 10 seconds
+  // separated by linear ramps lasting 10 seconds
   setUp(
     scn.inject(
       incrementUsersPerSec(5) // Double
