@@ -65,11 +65,14 @@ When using a build tool such as maven, files must be placed in ``src/main/resour
 CSV feeders
 ===========
 
-Gatling provides several builtins for reading character-separated values files.
+Gatling provides several built-ins for reading character-separated values files.
 
 Our parser honors the `RFC4180 <https://tools.ietf.org/html/rfc4180>`_ specification.
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
+
+.. warning::
+We don't support `Byte Order Mark <https://en.wikipedia.org/wiki/Byte_order_mark>`_ so make sure to use a proper encoding (typically with MS Windows softwares such as MS Excel).
 
 .. includecode:: code/FeederSample.scala#sep-values-feeders
 
