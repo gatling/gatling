@@ -201,7 +201,7 @@ class ResponseBuilder(
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
 
-  private def releaseChunks(): Unit= {
+  private def releaseChunks(): Unit = {
     chunks.foreach(_.release())
     chunks = Nil
   }
