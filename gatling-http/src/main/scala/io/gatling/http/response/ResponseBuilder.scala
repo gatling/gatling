@@ -141,57 +141,68 @@ class ResponseBuilder(
     .getOrElse(defaultCharset)
 
   def buildResponse: HttpResult =
-    status match {
-      case Some(s) =>
-        try {
-          // Clock source might not be monotonic.
-          // Moreover, ProgressListener might be called AFTER ChannelHandler methods
-          // ensure response doesn't end before starting
-          endTimestamp = max(endTimestamp, startTimestamp)
+    try {
+      status match {
+        case Some(s) =>
+          try {
+            // Clock source might not be monotonic.
+            // Moreover, ProgressListener might be called AFTER ChannelHandler methods
+            // ensure response doesn't end before starting
+            endTimestamp = max(endTimestamp, startTimestamp)
 
-          val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+            val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
-          val contentLength = chunks.sumBy(_.readableBytes)
+            val contentLength = chunks.sumBy(_.readableBytes)
 
-          val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
+            val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
 
-          val resolvedCharset = resolveCharset
+            val resolvedCharset = resolveCharset
 
-          val properlyOrderedChunks = chunks.reverse
-          val body: ResponseBody =
-            if (properlyOrderedChunks.isEmpty)
-              NoResponseBody
+            val properlyOrderedChunks = chunks.reverse
+            val body: ResponseBody =
+              if (properlyOrderedChunks.isEmpty)
+                NoResponseBody
 
-            else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
-              ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+              else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
+                ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-            else if (bodyUsages.contains(InputStreamResponseBodyUsage))
-              InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
+              else if (bodyUsages.contains(InputStreamResponseBodyUsage))
+                InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
 
-            else if (bodyUsages.contains(StringResponseBodyUsage))
-              StringResponseBody(properlyOrderedChunks, resolvedCharset)
+              else if (bodyUsages.contains(StringResponseBodyUsage))
+                StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
-            else if (bodyUsages.contains(CharArrayResponseBodyUsage))
-              CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+              else if (bodyUsages.contains(CharArrayResponseBodyUsage))
+                CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-            else if (isTxt(headers))
-              StringResponseBody(properlyOrderedChunks, resolvedCharset)
+              else if (isTxt(headers))
+                StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
-            else
-              ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+              else
+                ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-          chunks.foreach(_.release())
-          chunks = Nil
-          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
-        } catch {
-          case NonFatal(t) => buildFailure(t)
-        }
-      case _ => buildFailure("How come we're trying to build a response with no status?!")
+            Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
+          } catch {
+            case NonFatal(t) => buildFailure(t)
+          }
+        case _ => buildFailure("How come we're trying to build a response with no status?!")
+      }
+    } finally {
+      releaseChunks()
     }
 
   def buildFailure(t: Throwable): HttpFailure =
-    buildFailure(t.detailedMessage)
+    try {
+      buildFailure(t.detailedMessage)
+    } finally {
+      releaseChunks()
+    }
 
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
+
+  private def releaseChunks(): Unit= {
+    chunks.foreach(_.release())
+    chunks = Nil
+  }
 }
