@@ -11,14 +11,14 @@ object Dependencies {
   private val scalaXml                       = "org.scala-lang.modules"              %% "scala-xml"                       % "1.1.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "1.1.1"
   private val java8Compat                    = "org.scala-lang.modules"              %% "scala-java8-compat"              % "0.9.0"
-  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.29.Final"
+  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.30.Final"
   private val nettyBuffer                    = netty.organization                     % "netty-buffer"                    % netty.revision
   private val nettyHandler                   = netty.organization                     % "netty-handler"                   % netty.revision
   private val nettyProxy                     = netty.organization                     % "netty-handler-proxy"             % netty.revision
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyNativeTransport           = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.14.Final"
+  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.15.Final"
   private val activation                     = "com.sun.activation"                   % "javax.activation"                % "1.2.0"
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.5.16"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
