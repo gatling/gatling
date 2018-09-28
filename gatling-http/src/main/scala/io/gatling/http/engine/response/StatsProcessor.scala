@@ -111,7 +111,7 @@ class DefaultStatsProcessor(
     }
 
     if (status == KO) {
-      logger.error(s"Request '$fullRequestName' failed for user ${session.userId}: ${errorMessage.getOrElse("")}")
+      logger.warn(s"Request '$fullRequestName' failed for user ${session.userId}: ${errorMessage.getOrElse("")}")
       if (!logger.underlying.isTraceEnabled) {
         logger.debug(dump)
       }
