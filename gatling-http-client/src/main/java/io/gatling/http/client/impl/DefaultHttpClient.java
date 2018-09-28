@@ -642,6 +642,7 @@ public class DefaultHttpClient implements HttpClient {
           openNewChannelRec(remoteAddresses, localAddress, nextI, channelPromise, bootstrap, listener, requestTimeout);
 
         } else {
+          requestTimeout.cancel();
           listener.onThrowable(f.cause());
           channelPromise.setFailure(f.cause());
         }
@@ -675,11 +676,13 @@ public class DefaultHttpClient implements HttpClient {
         if (f.isSuccess()) {
           tx.listener.onTlsHandshakeSuccess();
         } else {
+          tx.requestTimeout.cancel();
           tx.listener.onTlsHandshakeFailure(f.cause());
           tx.listener.onThrowable(f.cause());
         }
       });
     } catch (RuntimeException e) {
+      tx.requestTimeout.cancel();
       tx.listener.onThrowable(e);
       return new DefaultPromise<Channel>(ImmediateEventExecutor.INSTANCE).setFailure(e);
     }
