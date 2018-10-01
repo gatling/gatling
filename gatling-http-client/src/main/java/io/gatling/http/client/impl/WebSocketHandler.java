@@ -26,10 +26,14 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 public class WebSocketHandler extends ChannelDuplexHandler {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandler.class);
 
   private static final IOException PREMATURE_CLOSE = new IOException("Premature close") {
     @Override
@@ -52,22 +56,15 @@ public class WebSocketHandler extends ChannelDuplexHandler {
     wsListener = (WebSocketListener) tx.listener;
   }
 
-  private void setInactive() {
-    tx = null;
-  }
-
-  private boolean isInactive() {
-    return tx == null || tx.requestTimeout.isDone();
-  }
-
   private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close) {
-    if (isInactive()) {
+    LOGGER.debug("Crash", cause);
+    if (tx == null) {
       return;
     }
 
     wsListener.onThrowable(cause);
     tx.requestTimeout.cancel();
-    setInactive();
+    tx = null;
 
     if (close) {
       ctx.close();
@@ -76,14 +73,12 @@ public class WebSocketHandler extends ChannelDuplexHandler {
 
   @Override
   public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-
     if (msg instanceof HttpTx) {
 
       HttpTx tx = (HttpTx) msg;
       setActive(tx);
 
       if (tx.requestTimeout.isDone()) {
-        setInactive();
         return;
       }
 
@@ -106,16 +101,18 @@ public class WebSocketHandler extends ChannelDuplexHandler {
       }
     } else {
       // all other messages are CONNECT request and WebSocket frames
+      LOGGER.debug("ctx.write msg={}", msg);
       ctx.write(msg, promise);
     }
   }
 
   @Override
   public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    LOGGER.debug("Read msg={}", msg);
 
     Channel ch = ctx.channel();
     if (!handshaker.isHandshakeComplete()) {
-      if (isInactive()) {
+      if (tx == null || tx.requestTimeout.isDone()) {
         return;
       }
 
@@ -149,11 +146,13 @@ public class WebSocketHandler extends ChannelDuplexHandler {
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
+    LOGGER.debug("channelInactive");
     crash(ctx, PREMATURE_CLOSE, false);
   }
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+    LOGGER.debug("exceptionCaught");
     crash(ctx, cause, true);
   }
 }

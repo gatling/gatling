@@ -18,8 +18,6 @@ package io.gatling.http.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.websocketx.*;
 
 public abstract class WebSocketListener implements HttpListener, WebSocket {
@@ -43,10 +41,7 @@ public abstract class WebSocketListener implements HttpListener, WebSocket {
 
   @Override
   public void sendFrame(WebSocketFrame frame) {
-    ChannelFuture whenWrite = channel.writeAndFlush(frame);
-    if (frame instanceof CloseWebSocketFrame) {
-      whenWrite.addListener(ChannelFutureListener.CLOSE);
-    }
+    channel.writeAndFlush(frame);
   }
 
   @Override
