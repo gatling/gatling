@@ -85,6 +85,11 @@ h1 span {
 	left: 0;
 }
 
+.head .logo {
+  display: block;
+  height: 85px;
+}
+
 .sim_desc {
 	float: right;
 	padding: 0;
@@ -95,7 +100,7 @@ h1 span {
 	background: #92918C;
 	width: 100%;
 	color: #FFF;
-	margin-top: 78px;
+	margin-top: 128px;
 }
 
 .foot a {
@@ -107,9 +112,9 @@ h1 span {
 
 .cadre {
 	width: 1050px;
-	padding: 38px 0 0 100px;
+	padding-left: 100px;
 	position: relative;
-	top: 70px;
+	top: 120px;
 }
 
 .onglet {
@@ -121,7 +126,7 @@ h1 span {
 	font-weight: bold;
 	position: absolute;
 	right: 0;
-	top: -9px;
+	top: -47px;
 	z-index: 8;
 	height: 28px;
 	box-shadow: 0 0 0 black, 4px -4px 3px #D1D1CE, -4px -4px 3px #D1D1CE;
