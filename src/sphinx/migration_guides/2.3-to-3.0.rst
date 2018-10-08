@@ -23,6 +23,7 @@ Migrating from 2.3 to 3.0
 * JMS:
   * ``reqreply`` was renamed into ``requestReply``
   * ``matchByMessageID`` was renamed into ``matchByMessageId`` and ``matchByCorrelationID`` was renamed into ``matchByCorrelationId``
+  * Protocol level ``receiveTimeout`` was replaced with request level ``replyTimeout``
 * CLI:
   * ``-m``/``--mute`` option was dropped, now Gatling is automatically mute when you set the simulation class name
   * no longer prompts for a user defined simulationId

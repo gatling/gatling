@@ -47,8 +47,6 @@ case class JmsProtocolBuilder(
   def matchByMessageId = messageMatcher(MessageIdMessageMatcher)
   def matchByCorrelationId = messageMatcher(CorrelationIdMessageMatcher)
   def messageMatcher(matcher: JmsMessageMatcher) = copy(messageMatcher = matcher)
-  @deprecated("noop, replaced with replyTimeout which is per request, will be removed in 3.0", "3.0.0-M5")
-  def receiveTimeout(timeout: Long): JmsProtocolBuilder = this
   def replyTimeout(timeout: Long): JmsProtocolBuilder = copy(replyTimeout = Some(timeout))
   def listenerThreadCount(threadCount: Int): JmsProtocolBuilder = copy(listenerThreadCount = threadCount)
 
