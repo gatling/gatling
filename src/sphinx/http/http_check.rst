@@ -415,10 +415,6 @@ Checks that the value belongs to a given sequence or vararg:
 
 * ``optional``
 
-.. warning::
-
-  ``optional`` used to be named ``dontValidate``. The old name has been deprecated, then removed in Gatling 2.1.
-
 Always true, used for capture an optional value.
 
 .. _http-check-validate:

@@ -276,8 +276,6 @@ e.g.:
 
 .. includecode:: code/HttpProtocolSample.scala#headers
 
-.. warning:: ``headers`` used to be named ``baseHeaders``. Old name was deprecated, then removed in 2.1.
-
 You have also the following built-ins for the more commons headers:
 
 * ``acceptHeader(value: Expression[String])``: set ``Accept`` header.
