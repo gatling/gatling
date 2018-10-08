@@ -106,13 +106,12 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   private def buildConfig(config: Config): RecorderConfiguration = {
     import ConfigKeys._
 
-    def getSimulationsFolder(folder: String) = {
+    def getSimulationsFolder(folder: String) =
       folder.trimToOption match {
         case Some(f)                               => f
-        case _ if sys.env.contains("GATLING_HOME") => resourcesDirectory.toFile.toString
+        case _ if sys.env.contains("GATLING_HOME") => simulationsDirectory.toFile.toString
         case _                                     => userHome
       }
-    }
 
     def getResourcesFolder =
       if (config.hasPath(core.ResourcesFolder)) config.getString(core.ResourcesFolder)
