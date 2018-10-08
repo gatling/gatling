@@ -67,7 +67,6 @@ object Json {
         c match {
           case '"'  => sb.append("\\\"")
           case '\\' => sb.append("\\\\")
-          case '/'  => sb.append("\\/")
           case '\b' => sb.append("\\b")
           case '\f' => sb.append("\\f")
           case '\n' => sb.append("\\n")

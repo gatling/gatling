@@ -90,6 +90,11 @@ class JsonSpec extends BaseSpec {
     stringify(map) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
   }
 
+  it should "not escape solidus" in {
+    val url = "http://foo.com/bar/"
+    stringify(url) shouldBe url
+  }
+
   "asScala" should "deep convert into Scala structures" in {
     implicit val config = GatlingConfiguration.loadForTest()
     val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
