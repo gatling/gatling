@@ -25,7 +25,7 @@ class AdvancedTutorial extends Simulation {
   //#isolate-processes
   object Search {
 
-    val search = exec(http("Home") // let's give proper names, as they are displayed in the reports
+    val search: ChainBuilder = exec(http("Home") // let's give proper names, as they are displayed in the reports
       .get("/"))
       .pause(7)
       .exec(http("Search")
