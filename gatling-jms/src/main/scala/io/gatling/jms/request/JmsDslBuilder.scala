@@ -30,9 +30,6 @@ case class JmsDslBuilderBase(requestName: Expression[String]) {
 
   def send(implicit configuration: GatlingConfiguration) = SendDslBuilderQueue(requestName, configuration)
 
-  @deprecated("Use requestReply, will be removed in 3.0.0", "3.0.0-M5")
-  def reqreply(implicit configuration: GatlingConfiguration) = requestReply
-
   def requestReply(implicit configuration: GatlingConfiguration) = RequestReplyDslBuilderQueue(requestName, configuration)
 }
 
