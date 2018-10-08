@@ -53,13 +53,3 @@ class RegexExtractorFactoryBase(name: String) extends CriterionExtractorFactory[
 }
 
 object RegexExtractorFactory extends RegexExtractorFactoryBase("regex")
-
-@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-class OldRegexExtractorFactory(patterns: Patterns) {
-
-  import RegexExtractorFactory._
-
-  def newSingleExtractor[X: GroupExtractor](pattern: String, occurrence: Int) = newRegexSingleExtractor(pattern, occurrence, patterns)
-  def newMultipleExtractor[X: GroupExtractor](pattern: String) = newRegexMultipleExtractor(pattern, patterns)
-  def newCountExtractor(pattern: String) = newRegexCountExtractor(pattern, patterns)
-}

@@ -42,13 +42,3 @@ sealed abstract class JsonPathExtractorFactoryBase(name: String) extends Criteri
 
 object JsonPathExtractorFactory extends JsonPathExtractorFactoryBase("jsonPath")
 object JsonpJsonPathExtractorFactory extends JsonPathExtractorFactoryBase("jsonpJsonPath")
-
-@deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M3")
-class OldJsonPathExtractorFactory(jsonPaths: JsonPaths) {
-
-  import JsonPathExtractorFactory._
-
-  def newSingleExtractor[X: JsonFilter](path: String, occurrence: Int) = newJsonPathSingleExtractor(path, occurrence, jsonPaths)
-  def newMultipleExtractor[X: JsonFilter](path: String) = newJsonPathMultipleExtractor(path, jsonPaths)
-  def newCountExtractor(path: String) = newJsonPathCountExtractor(path, jsonPaths)
-}

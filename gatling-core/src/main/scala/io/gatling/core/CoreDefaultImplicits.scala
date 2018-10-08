@@ -18,8 +18,8 @@ package io.gatling.core
 
 import io.gatling.core.body.{ ElFileBodies, PebbleFileBodies, RawFileBodies }
 import io.gatling.core.check.extractor.css.CssSelectors
-import io.gatling.core.check.extractor.jsonpath.{ JsonPaths, OldJsonPathExtractorFactory }
-import io.gatling.core.check.extractor.regex.{ OldRegexExtractorFactory, Patterns }
+import io.gatling.core.check.extractor.jsonpath.JsonPaths
+import io.gatling.core.check.extractor.regex.Patterns
 import io.gatling.core.check.extractor.xpath.XmlParsers
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
@@ -40,9 +40,4 @@ trait CoreDefaultImplicits {
   implicit lazy val elFileBodies: ElFileBodies = new ElFileBodies
   implicit lazy val rawFileBodies: RawFileBodies = new RawFileBodies
   implicit lazy val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies
-
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultRegexExtractorFactory: OldRegexExtractorFactory = new OldRegexExtractorFactory(defaultPatterns)
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultJsonPathExtractorFactory: OldJsonPathExtractorFactory = new OldJsonPathExtractorFactory(defaultJsonPaths)
 }
