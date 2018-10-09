@@ -58,7 +58,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     f"${config.core.className}_${request.id.leftPad(4, '0')}_response.txt"
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
-    safely(_ => "Error while processing HAR file") {
+    safely(error => s"Error while processing HAR file: $error") {
       val transactions = HarReader.readFile(harFilePath, config.filters.filters)
 
       if (transactions.isEmpty) {
