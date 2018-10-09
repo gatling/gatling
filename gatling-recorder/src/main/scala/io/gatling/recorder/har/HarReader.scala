@@ -130,7 +130,7 @@ private[recorder] object HarReader {
   private def buildResponseBody(content: HarResponseContent): Option[Array[Byte]] =
     for {
       text <- content.text.flatMap(_.trimToOption)
-      if content.mimeType != "x-unknown" // Chrome
+      if !content.mimeType.contains("x-unknown") // Chrome
       if content.comment.isEmpty // FireFox adds a localized "response body is not included" when there's no body, eg redirect.
     } yield {
       content.encoding.flatMap(_.trimToOption) match {

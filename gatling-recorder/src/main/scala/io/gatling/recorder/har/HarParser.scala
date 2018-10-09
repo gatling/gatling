@@ -41,7 +41,7 @@ object HarParser {
 
   case class HarResponse(status: Int, headers: Seq[HarHeader], statusText: String, content: HarResponseContent)
 
-  case class HarResponseContent(mimeType: String, encoding: Option[String], text: Option[String], comment: Option[String])
+  case class HarResponseContent(mimeType: Option[String], encoding: Option[String], text: Option[String], comment: Option[String])
 
   case class HarTimings(blocked: Double, dns: Double, connect: Double, ssl: Double, send: Double, waitTiming: Double, receive: Double) {
     val time: Double = blocked + dns + connect + ssl + send + waitTiming + receive
