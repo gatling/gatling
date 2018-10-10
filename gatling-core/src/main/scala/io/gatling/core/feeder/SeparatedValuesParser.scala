@@ -19,6 +19,7 @@ package io.gatling.core.feeder
 import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 
+import scala.annotation.switch
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Io._
@@ -45,7 +46,7 @@ object SeparatedValuesParser {
       .quote(quoteChar)
 
     is => {
-      val reader = new InputStreamReader(is, charset)
+      val reader = new InputStreamReader(new Utf8BomSkipInputStream(is), charset)
       val it: Iterator[Array[String]] = parser.iterator(reader).asScala
       if (it.hasNext) {
         val headers = it.next.map(_.trim)

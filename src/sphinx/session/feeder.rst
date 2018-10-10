@@ -71,9 +71,6 @@ Our parser honors the `RFC4180 <https://tools.ietf.org/html/rfc4180>`_ specifica
 
 The only difference is that header fields get trimmed of wrapping whitespaces.
 
-.. warning::
-We don't support `Byte Order Mark <https://en.wikipedia.org/wiki/Byte_order_mark>`_ so make sure to use a proper encoding (typically with MS Windows softwares such as MS Excel).
-
 .. includecode:: code/FeederSample.scala#sep-values-feeders
 
 Those built-ins load by default all the data in memory so Gatling doesn't perform disk access while simulation is running.
