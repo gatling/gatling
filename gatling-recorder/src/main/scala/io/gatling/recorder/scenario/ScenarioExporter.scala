@@ -108,6 +108,11 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
     // dump request & response bodies if needed
+    requestElements.foreach(el => el.body.foreach {
+      case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
+      case _                       =>
+    })
+
     if (config.http.checkResponseBodies) {
       requestElements.foreach(el => el.responseBody.foreach {
         case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
