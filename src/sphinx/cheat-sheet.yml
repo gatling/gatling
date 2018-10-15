@@ -327,7 +327,8 @@
         description: Decompress feeder file that is compressed with zip or gzip
 
       - keyword: shard
-        description: Distribute data amongst nodes when running a cluster of injectors (FrontLine only)
+        frontline: true
+        description: Distribute data amongst nodes when running a cluster of injectors
 
       - keyword: readRecords
         description: Return the feeder content as a <code>Seq[Map[String, Any]]</code>
