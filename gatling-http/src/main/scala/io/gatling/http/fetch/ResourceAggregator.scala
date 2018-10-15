@@ -158,7 +158,7 @@ class DefaultResourceAggregator(
 
     val requestsByRemote = nonCached.groupBy(resource => Remote(resource.clientRequest.getUri))
 
-    if (httpProtocol.requestPart.enableHttp2) {
+    if (httpProtocol.enginePart.enableHttp2) {
       requestsByRemote.foreach {
         case (remote, res) =>
           val isHttp2PriorKnowledge = httpCaches.isHttp2PriorKnowledge(session, remote)

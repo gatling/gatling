@@ -18,8 +18,8 @@ package io.gatling.commons.util
 
 import java.io.{ File, FileInputStream, FileNotFoundException, InputStream }
 import java.security.KeyStore
-import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
+import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 import io.gatling.commons.util.Io.withCloseable
 
 object Ssl {
@@ -52,4 +52,5 @@ object Ssl {
       kmf.init(keyStore, passwordCharArray)
       kmf
     }
+
 }

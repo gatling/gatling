@@ -95,7 +95,7 @@ class HttpRequestExpressionBuilder(
   }
 
   private val configurePriorKnowledge: RequestBuilderConfigure = {
-    if (httpProtocol.requestPart.enableHttp2) { session => requestBuilder =>
+    if (httpProtocol.enginePart.enableHttp2) { session => requestBuilder =>
       val http2PriorKnowledge = httpCaches.isHttp2PriorKnowledge(session, Remote(requestBuilder.getUri))
       requestBuilder
         .setHttp2Enabled(true)

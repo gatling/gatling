@@ -21,6 +21,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.action.ws.{ OnConnectedChainEndAction, WsListener }
+import io.gatling.http.cache.SslContextSupport
 import io.gatling.http.check.ws.WsFrameCheckSequence
 import io.gatling.http.cookie.CookieSupport
 
@@ -31,7 +32,7 @@ object WhenConnecting {
   val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 }
 
-trait WhenConnecting { this: WsActor =>
+trait WhenConnecting extends SslContextSupport { this: WsActor =>
 
   def gotoConnecting(session: Session, next: Either[Action, SendFrame], remainingTries: Int = httpProtocol.wsPart.maxReconnects.getOrElse(0)): State = {
 
@@ -40,7 +41,8 @@ trait WhenConnecting { this: WsActor =>
     // [fl]
     //
     // [fl]
-    httpEngine.executeRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener)
+    val userSslContexts = sslContexts(session)
+    httpEngine.executeRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener, userSslContexts.map(_.sslContext).orNull, userSslContexts.flatMap(_.alplnSslContext).orNull)
 
     goto(Connecting) using ConnectingData(session, next, clock.nowMillis, remainingTries)
   }

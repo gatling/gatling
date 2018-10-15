@@ -32,7 +32,8 @@ case class HttpComponents(
 ) extends ProtocolComponents {
 
   override lazy val onStart: Session => Session =
-    (httpCaches.setNameResolver(httpProtocol, httpEngine)
+    (httpCaches.setSslContexts(httpProtocol, httpEngine)
+      andThen httpCaches.setNameResolver(httpProtocol, httpEngine)
       andThen httpCaches.setLocalAddress(httpProtocol)
       andThen httpCaches.setBaseUrl(httpProtocol)
       andThen httpCaches.setWsBaseUrl(httpProtocol)

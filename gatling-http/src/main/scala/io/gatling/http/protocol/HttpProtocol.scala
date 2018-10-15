@@ -78,7 +78,9 @@ object HttpProtocol extends StrictLogging {
         shareConnections = false,
         maxConnectionsPerHost = 6,
         virtualHost = None,
-        localAddresses = Nil
+        localAddresses = Nil,
+        enableHttp2 = false,
+        http2PriorKnowledge = Map.empty
       ),
       requestPart = HttpProtocolRequestPart(
         headers = Map.empty,
@@ -88,9 +90,7 @@ object HttpProtocol extends StrictLogging {
         disableUrlEncoding = false,
         silentResources = false,
         silentUri = None,
-        signatureCalculator = None,
-        enableHttp2 = false,
-        http2PriorKnowledge = Map.empty
+        signatureCalculator = None
       ),
       responsePart = HttpProtocolResponsePart(
         followRedirect = true,
@@ -149,7 +149,9 @@ case class HttpProtocolEnginePart(
     shareConnections:      Boolean,
     maxConnectionsPerHost: Int,
     virtualHost:           Option[Expression[String]],
-    localAddresses:        List[InetAddress]
+    localAddresses:        List[InetAddress],
+    enableHttp2:           Boolean,
+    http2PriorKnowledge:   Map[Remote, Boolean]
 )
 
 case class HttpProtocolRequestPart(
@@ -160,9 +162,7 @@ case class HttpProtocolRequestPart(
     disableUrlEncoding:  Boolean,
     silentUri:           Option[Pattern],
     silentResources:     Boolean,
-    signatureCalculator: Option[Expression[SignatureCalculator]],
-    enableHttp2:         Boolean,
-    http2PriorKnowledge: Map[Remote, Boolean]
+    signatureCalculator: Option[Expression[SignatureCalculator]]
 )
 
 case class HttpProtocolResponsePart(

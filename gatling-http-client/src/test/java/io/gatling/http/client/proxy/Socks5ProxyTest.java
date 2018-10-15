@@ -24,6 +24,7 @@ import io.gatling.http.client.ahc.uri.Uri;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import java.util.concurrent.CountDownLatch;
@@ -34,7 +35,7 @@ public class Socks5ProxyTest {
 
   public static void main(String[] args) throws Exception {
     HttpClientConfig config = new HttpClientConfig()
-      .setTrustManagerFactory(InsecureTrustManagerFactory.INSTANCE);
+      .setDefaultSslContext(SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
     try (GatlingHttpClient client = new GatlingHttpClient(config)) {
 
       Request request = new RequestBuilder(HttpMethod.GET, Uri.create("https://gatling.io"))

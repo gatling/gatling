@@ -70,4 +70,19 @@ object HttpTypeCaster {
         case _            => cceMessage(value, classOf[CookieJar]).failure
       }
   }
+
+  implicit val SslContextsTypeCaster: TypeCaster[SslContexts] = new TypeCaster[SslContexts] {
+    @throws[ClassCastException]
+    override def cast(value: Any): SslContexts =
+      value match {
+        case v: SslContexts => v
+        case _              => throw new ClassCastException(cceMessage(value, classOf[SslContexts]))
+      }
+
+    override def validate(value: Any): Validation[SslContexts] =
+      value match {
+        case v: SslContexts => v.success
+        case _              => cceMessage(value, classOf[SslContexts]).failure
+      }
+  }
 }

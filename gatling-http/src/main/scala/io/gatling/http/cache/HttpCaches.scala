@@ -32,6 +32,7 @@ class HttpCaches(val coreComponents: CoreComponents)
   with BaseUrlSupport
   with ResourceCacheSupport
   with Http2PriorKnowledgeSupport
+  with SslContextSupport
   with StrictLogging {
 
   override def clock: Clock = coreComponents.clock
@@ -44,5 +45,4 @@ class HttpCaches(val coreComponents: CoreComponents)
     PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName,
     Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName
   ).success
-
 }

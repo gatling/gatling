@@ -31,7 +31,7 @@ public class Http2Main {
 
   public static void main(String[] args) throws Exception {
 
-    try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig().setUseOpenSsl(true))) {
+    try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig())) {
 
       Request request = new RequestBuilder(HttpMethod.GET, Uri.create("https://www.bbc.com/pidgin"))
         .setHttp2Enabled(true)

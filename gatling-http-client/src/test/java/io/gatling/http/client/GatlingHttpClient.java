@@ -47,7 +47,7 @@ public class GatlingHttpClient implements AutoCloseable {
         .build();
     }
 
-    client.sendRequest(request, clientId, shared, listener);
+    client.sendRequest(request, clientId, shared, listener, null, null);
   }
 
   public InetNameResolver getNameResolver() {

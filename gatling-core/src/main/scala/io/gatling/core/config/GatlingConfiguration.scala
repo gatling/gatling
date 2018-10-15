@@ -24,7 +24,7 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.io.Codec
 
-import io.gatling.commons.util.{ StringHelper, ConfigHelper }
+import io.gatling.commons.util.{ ConfigHelper, Ssl, StringHelper }
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.stats.writer._
 import ConfigHelper.configChain
@@ -32,6 +32,7 @@ import StringHelper.RichString
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
+import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
 /**
  * Configuration loader of Gatling
@@ -161,11 +162,23 @@ object GatlingConfiguration extends StrictLogging {
         enableGA = config.getBoolean(http.EnableGA),
         ssl = {
           SslConfiguration(
-            keyStore = StoreConfiguration.newStoreConfiguration(config, http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm),
-            trustStore = StoreConfiguration.newStoreConfiguration(config, http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
+            keyManagerFactory = {
+              val storeType = config.getString(http.ssl.keyStore.Type).trimToOption
+              val storeFile = config.getString(http.ssl.keyStore.File).trimToOption
+              val storePassword = config.getString(http.ssl.keyStore.Password)
+              val storeAlgorithm = config.getString(http.ssl.keyStore.Algorithm).trimToOption
+              storeFile.map(Ssl.newKeyManagerFactory(storeType, _, storePassword, storeAlgorithm))
+            },
+            trustManagerFactory = {
+              val storeType = config.getString(http.ssl.trustStore.Type).trimToOption
+              val storeFile = config.getString(http.ssl.trustStore.File).trimToOption
+              val storePassword = config.getString(http.ssl.trustStore.Password)
+              val storeAlgorithm = config.getString(http.ssl.trustStore.Algorithm).trimToOption
+              storeFile.map(Ssl.newTrustManagerFactory(storeType, _, storePassword, storeAlgorithm))
+            }
           )
         },
-        ahc = AhcConfiguration(
+        advanced = AdvancedConfiguration(
           connectTimeout = config.getInt(http.ahc.ConnectTimeout) millis,
           handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout) millis,
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout) millis,
@@ -181,12 +194,10 @@ object GatlingConfiguration extends StrictLogging {
             enable
           },
           useInsecureTrustManager = config.getBoolean(http.ahc.UseInsecureTrustManager),
-          filterInsecureCipherSuites = config.getBoolean(http.ahc.FilterInsecureCipherSuites),
           sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
           sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout) seconds,
-          disableSslSessionResumption = config.getBoolean(http.ahc.DisableSslSessionResumption),
           useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
           useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport),
           enableZeroCopy = config.getBoolean(http.ahc.EnableZeroCopy),
@@ -332,7 +343,7 @@ case class HttpConfiguration(
     warmUpUrl:                   Option[String],
     enableGA:                    Boolean,
     ssl:                         SslConfiguration,
-    ahc:                         AhcConfiguration,
+    advanced:                    AdvancedConfiguration,
     dns:                         DnsConfiguration
 )
 
@@ -340,7 +351,7 @@ case class JmsConfiguration(
     replyTimeoutScanPeriod: FiniteDuration
 )
 
-case class AhcConfiguration(
+case class AdvancedConfiguration(
     connectTimeout:               FiniteDuration,
     handshakeTimeout:             FiniteDuration,
     pooledConnectionIdleTimeout:  FiniteDuration,
@@ -349,12 +360,10 @@ case class AhcConfiguration(
     enableSni:                    Boolean,
     enableHostnameVerification:   Boolean,
     useInsecureTrustManager:      Boolean,
-    filterInsecureCipherSuites:   Boolean,
     sslEnabledProtocols:          List[String],
     sslEnabledCipherSuites:       List[String],
     sslSessionCacheSize:          Int,
     sslSessionTimeout:            FiniteDuration,
-    disableSslSessionResumption:  Boolean,
     useOpenSsl:                   Boolean,
     useNativeTransport:           Boolean,
     enableZeroCopy:               Boolean,
@@ -371,27 +380,8 @@ case class DnsConfiguration(
 )
 
 case class SslConfiguration(
-    keyStore:   Option[StoreConfiguration],
-    trustStore: Option[StoreConfiguration]
-)
-
-object StoreConfiguration {
-
-  def newStoreConfiguration(config: Config, typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String): Option[StoreConfiguration] = {
-
-    val storeType = config.getString(typeKey).trimToOption
-    val storeFile = config.getString(fileKey).trimToOption
-    val storePassword = config.getString(passwordKey)
-    val storeAlgorithm = config.getString(algorithmKey).trimToOption
-    storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
-  }
-}
-
-case class StoreConfiguration(
-    storeType: Option[String],
-    file:      String,
-    password:  String,
-    algorithm: Option[String]
+    keyManagerFactory:   Option[KeyManagerFactory],
+    trustManagerFactory: Option[TrustManagerFactory]
 )
 
 case class DataConfiguration(

@@ -34,17 +34,24 @@ import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.ExtendedDnsNameResolver
 import io.gatling.http.client.util.{ Pair => JavaPair }
+import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod, HttpResponseStatus }
+import io.netty.handler.ssl.SslContext
 
 object HttpEngine {
-  def apply(coreComponents: CoreComponents): HttpEngine =
-    new HttpEngine(HttpClientFactory(coreComponents).newClient, DnsNameResolverFactory(coreComponents))
+  def apply(coreComponents: CoreComponents): HttpEngine = {
+    val sslContextsFactory = new SslContextsFactory(coreComponents.configuration.http)
+    val httpClient = HttpClientFactory(coreComponents, sslContextsFactory).newClient
+    val dnsNameResolverFactory = DnsNameResolverFactory(coreComponents)
+    new HttpEngine(sslContextsFactory, httpClient, dnsNameResolverFactory)
+  }
 }
 
 class HttpEngine(
+    sslContextsFactory:     SslContextsFactory,
     httpClient:             HttpClient,
     dnsNameResolverFactory: DnsNameResolverFactory
 )
@@ -84,7 +91,7 @@ class HttpEngine(
                 if (last) {
                   p.success(())
                 }
-            })
+            }, null, null)
             Await.result(p.future, 2 seconds)
             logger.debug(s"Warm up request $url successful")
           } catch {
@@ -116,18 +123,21 @@ class HttpEngine(
       logger.info("Warm up done")
     }
 
-  def executeHttp2Requests(requestsAndListeners: Iterable[JavaPair[Request, HttpListener]], clientId: Long, shared: Boolean): Unit =
+  def executeHttp2Requests(requestsAndListeners: Iterable[JavaPair[Request, HttpListener]], clientId: Long, shared: Boolean, sslContext: SslContext, alpnSslContext: SslContext): Unit =
     if (!httpClient.isClosed) {
-      httpClient.sendHttp2Requests(requestsAndListeners.toArray, clientId, shared)
+      httpClient.sendHttp2Requests(requestsAndListeners.toArray, clientId, shared, sslContext, alpnSslContext)
     }
 
-  def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: HttpListener): Unit =
+  def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: HttpListener, sslContext: SslContext, alpnSslContext: SslContext): Unit =
     if (!httpClient.isClosed) {
-      httpClient.sendRequest(ahcRequest, clientId, shared, listener)
+      httpClient.sendRequest(ahcRequest, clientId, shared, listener, sslContext, alpnSslContext)
     }
 
   def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers)
+
+  def newSslContexts(http2Enabled: Boolean): SslContexts =
+    sslContextsFactory.newSslContexts(http2Enabled)
 
   def flushClientIdChannels(clientId: Long): Unit =
     if (!httpClient.isClosed) {

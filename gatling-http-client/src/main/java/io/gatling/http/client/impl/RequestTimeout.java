@@ -26,9 +26,11 @@ import java.util.concurrent.TimeUnit;
 
 public interface RequestTimeout {
 
-  static RequestTimeout scheduleRequestTimeout(long timeout, HttpListener listener, EventLoop eventLoop) {
-    return timeout > 0 ? new DefaultRequestTimeout(timeout, listener, eventLoop) : NoopRequestTimeout.INSTANCE;
+  static RequestTimeout requestTimeout(long timeout, HttpListener listener) {
+    return timeout > 0 ? new DefaultRequestTimeout(timeout, listener) : NoopRequestTimeout.INSTANCE;
   }
+
+  void start(EventLoop eventLoop);
 
   boolean isDone();
 
@@ -38,14 +40,18 @@ public interface RequestTimeout {
 
   class DefaultRequestTimeout implements RequestTimeout {
     private final long timeout;
-    private final ScheduledFuture<?> f;
     private final HttpListener listener;
     private Channel channel;
     private InetSocketAddress remoteAddress;
+    private ScheduledFuture<?> f;
 
-    private DefaultRequestTimeout(long timeout, HttpListener listener, EventLoop eventLoop) {
+    private DefaultRequestTimeout(long timeout, HttpListener listener) {
       this.timeout = timeout;
       this.listener = listener;
+    }
+
+    @Override
+    public void start(EventLoop eventLoop) {
       f = eventLoop.schedule(this::execute, timeout, TimeUnit.MILLISECONDS);
     }
 
@@ -76,6 +82,10 @@ public interface RequestTimeout {
 
     private NoopRequestTimeout() {
 
+    }
+
+    @Override
+    public void start(EventLoop eventLoop) {
     }
 
     @Override

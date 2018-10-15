@@ -31,7 +31,7 @@ trait BaseUrlSupport {
 
   import BaseUrlSupport._
 
-  def setBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
+  def setBaseUrl(httpProtocol: HttpProtocol): Session => Session =
     httpProtocol.baseUrls match {
       case Nil        => identity
       case url :: Nil => _.set(BaseUrlAttributeName, url)
@@ -39,7 +39,6 @@ trait BaseUrlSupport {
         val it = RoundRobin(urls.toVector)
         _.set(BaseUrlAttributeName, it.next())
     }
-  }
 
   def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.wsPart.wsBaseUrls match {

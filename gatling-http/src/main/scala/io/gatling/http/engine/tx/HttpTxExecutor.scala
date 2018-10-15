@@ -18,7 +18,7 @@ package io.gatling.http.engine.tx
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.util.NameGen
-import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
+import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches, SslContextSupport }
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.util.Pair
 import io.gatling.http.engine.response._
@@ -34,7 +34,7 @@ class HttpTxExecutor(
     httpCaches:            HttpCaches,
     defaultStatsProcessor: DefaultStatsProcessor,
     httpProtocol:          HttpProtocol
-) extends NameGen with StrictLogging {
+) extends SslContextSupport with NameGen with StrictLogging {
 
   import coreComponents._
 
@@ -124,11 +124,15 @@ class HttpTxExecutor(
       val clientId = tx.session.userId
       val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
       val listener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
+      val userSslContexts = sslContexts(tx.session)
+      val sslContext = userSslContexts.map(_.sslContext).orNull
+      val alplnSslContext = userSslContexts.flatMap(_.alplnSslContext).orNull
 
-      if (tx.request.requestConfig.throttled)
-        throttler.throttle(tx.session.scenario, () => httpEngine.executeRequest(ahcRequest, clientId, shared, listener))
-      else
-        httpEngine.executeRequest(ahcRequest, clientId, shared, listener)
+      if (tx.request.requestConfig.throttled) {
+        throttler.throttle(tx.session.scenario, () => httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alplnSslContext))
+      } else {
+        httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alplnSslContext)
+      }
     }
 
   def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit = {
@@ -141,11 +145,15 @@ class HttpTxExecutor(
       }
       val clientId = headTx.session.userId
       val shared = headTx.request.requestConfig.httpProtocol.enginePart.shareConnections
+      val userSslContexts = sslContexts(headTx.session)
+      val sslContext = userSslContexts.map(_.sslContext).orNull
+      val alplnSslContext = userSslContexts.flatMap(_.alplnSslContext).orNull
 
-      if (txs.head.request.requestConfig.throttled)
-        throttler.throttle(headTx.session.scenario, () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared))
-      else
-        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared)
+      if (txs.head.request.requestConfig.throttled) {
+        throttler.throttle(headTx.session.scenario, () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alplnSslContext))
+      } else {
+        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alplnSslContext)
+      }
     }
   }
 

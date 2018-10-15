@@ -19,14 +19,15 @@ package io.gatling.http.client.proxy;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.RequestBuilder;
-import io.gatling.http.client.test.TestServer;
-import io.gatling.http.client.test.HttpTest;
-import io.gatling.http.client.test.listener.TestListener;
 import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.test.HttpTest;
+import io.gatling.http.client.test.TestServer;
+import io.gatling.http.client.test.listener.TestListener;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.eclipse.jetty.proxy.ConnectHandler;
 import org.eclipse.jetty.server.Server;
@@ -85,8 +86,8 @@ class HttpsProxyTest extends HttpTest {
 
   @Test
   void testRequestProxy() throws Throwable {
-    HttpClientConfig config = new HttpClientConfig();
-    config.setTrustManagerFactory(InsecureTrustManagerFactory.INSTANCE);
+    HttpClientConfig config = new HttpClientConfig()
+      .setDefaultSslContext(SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
 
     withClient(config).run(client ->
       withServer(target).run(server -> {

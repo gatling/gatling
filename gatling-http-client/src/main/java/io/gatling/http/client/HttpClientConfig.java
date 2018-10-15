@@ -17,9 +17,8 @@
 package io.gatling.http.client;
 
 import io.netty.channel.Channel;
+import io.netty.handler.ssl.SslContext;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.TrustManagerFactory;
 import java.nio.charset.Charset;
 import java.util.function.Consumer;
 
@@ -33,29 +32,15 @@ public class HttpClientConfig {
 
   private boolean enableZeroCopy = true;
 
-  private boolean useOpenSsl;
-
-  private KeyManagerFactory keyManagerFactory;
-
-  private TrustManagerFactory trustManagerFactory;
-
   private long handshakeTimeout = 10_000;
+
+  private SslContext defaultSslContext;
+
+  private SslContext defaultAlpnSslContext;
 
   private boolean enableSni;
 
   private boolean enableHostnameVerification;
-
-  private String[] enabledSslProtocols;
-
-  private String[] enabledSslCipherSuites;
-
-  private int sslSessionCacheSize;
-
-  private long sslSessionTimeout;
-
-  private boolean disableSslSessionResumption;
-
-  private boolean filterInsecureCipherSuites;
 
   private boolean useNativeTransport;
 
@@ -102,33 +87,6 @@ public class HttpClientConfig {
     return this;
   }
 
-  public boolean isUseOpenSsl() {
-    return useOpenSsl;
-  }
-
-  public HttpClientConfig setUseOpenSsl(boolean useOpenSsl) {
-    this.useOpenSsl = useOpenSsl;
-    return this;
-  }
-
-  public KeyManagerFactory getKeyManagerFactory() {
-    return keyManagerFactory;
-  }
-
-  public HttpClientConfig setKeyManagerFactory(KeyManagerFactory keyManagerFactory) {
-    this.keyManagerFactory = keyManagerFactory;
-    return this;
-  }
-
-  public TrustManagerFactory getTrustManagerFactory() {
-    return trustManagerFactory;
-  }
-
-  public HttpClientConfig setTrustManagerFactory(TrustManagerFactory trustManagerFactory) {
-    this.trustManagerFactory = trustManagerFactory;
-    return this;
-  }
-
   public long getHandshakeTimeout() {
     return handshakeTimeout;
   }
@@ -153,33 +111,6 @@ public class HttpClientConfig {
 
   public HttpClientConfig setEnableHostnameVerification(boolean enableHostnameVerification) {
     this.enableHostnameVerification = enableHostnameVerification;
-    return this;
-  }
-
-  public String[] getEnabledSslProtocols() {
-    return enabledSslProtocols;
-  }
-
-  public HttpClientConfig setEnabledSslProtocols(String[] enabledSslProtocols) {
-    this.enabledSslProtocols = enabledSslProtocols;
-    return this;
-  }
-
-  public String[] getEnabledSslCipherSuites() {
-    return enabledSslCipherSuites;
-  }
-
-  public HttpClientConfig setEnabledSslCipherSuites(String[] enabledSslCipherSuites) {
-    this.enabledSslCipherSuites = enabledSslCipherSuites;
-    return this;
-  }
-
-  public boolean isFilterInsecureCipherSuites() {
-    return filterInsecureCipherSuites;
-  }
-
-  public HttpClientConfig setFilterInsecureCipherSuites(boolean filterInsecureCipherSuites) {
-    this.filterInsecureCipherSuites = filterInsecureCipherSuites;
     return this;
   }
 
@@ -255,39 +186,30 @@ public class HttpClientConfig {
     return this;
   }
 
-  public int getSslSessionCacheSize() {
-    return sslSessionCacheSize;
-  }
-
-  public HttpClientConfig setSslSessionCacheSize(int sslSessionCacheSize) {
-    this.sslSessionCacheSize = sslSessionCacheSize;
-    return this;
-  }
-
-  public long getSslSessionTimeout() {
-    return sslSessionTimeout;
-  }
-
-  public HttpClientConfig setSslSessionTimeout(long sslSessionTimeout) {
-    this.sslSessionTimeout = sslSessionTimeout;
-    return this;
-  }
-
-  public boolean isDisableSslSessionResumption() {
-    return disableSslSessionResumption;
-  }
-
-  public HttpClientConfig setDisableSslSessionResumption(boolean disableSslSessionResumption) {
-    this.disableSslSessionResumption = disableSslSessionResumption;
-    return this;
-  }
-
   public String getThreadPoolName() {
     return threadPoolName;
   }
 
   public HttpClientConfig setThreadPoolName(String threadPoolName) {
     this.threadPoolName = threadPoolName;
+    return this;
+  }
+
+  public SslContext getDefaultSslContext() {
+    return defaultSslContext;
+  }
+
+  public HttpClientConfig setDefaultSslContext(SslContext sslContext) {
+    this.defaultSslContext = sslContext;
+    return this;
+  }
+
+  public SslContext getDefaultAlpnSslContext() {
+    return defaultAlpnSslContext;
+  }
+
+  public HttpClientConfig setDefaultAlpnSslContext(SslContext sslContext) {
+    this.defaultAlpnSslContext = sslContext;
     return this;
   }
 }

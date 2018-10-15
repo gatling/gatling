@@ -232,7 +232,7 @@ abstract class RequestExpressionBuilder(
           requestBuilder = new AhcRequestBuilder(commonAttributes.method, uri)
             .setDefaultCharset(configuration.core.charset)
             .setFixUrlEncoding(!disableUrlEncoding)
-            .setRequestTimeout(configuration.http.ahc.requestTimeout.toMillis)
+            .setRequestTimeout(configuration.http.advanced.requestTimeout.toMillis)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build
       }

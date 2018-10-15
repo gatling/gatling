@@ -35,11 +35,11 @@ trait Http2PriorKnowledgeSupport extends StrictLogging {
   import Http2PriorKnowledgeSupport._
 
   def setHttp2PriorKnowledge(httpProtocol: HttpProtocol): Session => Session =
-    if (httpProtocol.requestPart.enableHttp2) {
-      _.set(Http2PriorKnowledgeAttributeName, httpProtocol.requestPart.http2PriorKnowledge)
+    if (httpProtocol.enginePart.enableHttp2) {
+      _.set(Http2PriorKnowledgeAttributeName, httpProtocol.enginePart.http2PriorKnowledge)
     } else {
       logger.debug("HTTP/2 disabled")
-      if (httpProtocol.requestPart.http2PriorKnowledge.nonEmpty) {
+      if (httpProtocol.enginePart.http2PriorKnowledge.nonEmpty) {
         logger.debug("Ignoring configured HTTP/2 prior knowledge")
       }
       Session.Identity

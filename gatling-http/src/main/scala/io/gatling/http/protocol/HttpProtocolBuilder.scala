@@ -102,10 +102,10 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def sign(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
-  def enableHttp2 = this.modify(_.protocol.requestPart.enableHttp2).setTo(true)
+  def enableHttp2 = this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
 
   def http2PriorKnowledge(remotes: Map[String, Boolean]) =
-    this.modify(_.protocol.requestPart.http2PriorKnowledge).setTo(remotes.map {
+    this.modify(_.protocol.enginePart.http2PriorKnowledge).setTo(remotes.map {
       case (address, isHttp2) =>
         val remote = address.split(':') match {
           case Array(hostname, port) => Remote(hostname, port.toInt)

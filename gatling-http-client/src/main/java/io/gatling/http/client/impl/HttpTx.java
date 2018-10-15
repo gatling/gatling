@@ -20,6 +20,7 @@ import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
+import io.netty.handler.ssl.SslContext;
 
 public class HttpTx {
 
@@ -27,16 +28,24 @@ public class HttpTx {
   final HttpListener listener;
   final RequestTimeout requestTimeout;
   final ChannelPoolKey key;
+  private final SslContext sslContext;
+  private final SslContext alpnSslContext;
 
   // mutable state
   int remainingTries;
   boolean closeConnection;
 
-  HttpTx(Request request, HttpListener listener, RequestTimeout requestTimeout, ChannelPoolKey key, int remainingTries) {
+  HttpTx(Request request, HttpListener listener, RequestTimeout requestTimeout, ChannelPoolKey key, int remainingTries, SslContext sslContext, SslContext alpnSslContext) {
     this.request = request;
     this.listener = listener;
     this.requestTimeout = requestTimeout;
     this.key = key;
     this.remainingTries = remainingTries;
+    this.sslContext = sslContext;
+    this.alpnSslContext = alpnSslContext;
+  }
+
+  SslContext sslContext() {
+    return request.isAlpnRequired() ? alpnSslContext : sslContext;
   }
 }
