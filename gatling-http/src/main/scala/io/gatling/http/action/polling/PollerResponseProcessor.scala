@@ -42,43 +42,41 @@ class PollerResponseProcessor(
     defaultCharset:   Charset
 ) extends StrictLogging with NameGen {
 
-  def onComplete(result: HttpResult): (Session, Session => Session) =
+  def onComplete(result: HttpResult): Session =
     result match {
       case response: Response   => handleResponse(response)
       case failure: HttpFailure => handleFailure(failure)
     }
 
-  private def handleFailure(failure: HttpFailure): (Session, Session => Session) = {
+  private def handleFailure(failure: HttpFailure): Session = {
     val sessionWithUpdatedStats = sessionProcessor.updateSessionCrashed(tx.session, failure.startTimestamp, failure.endTimestamp)
-    val updates = sessionProcessor.updateSessionCrashed(_: Session, failure.startTimestamp, failure.endTimestamp)
     try {
       statsProcessor.reportStats(tx.fullRequestName, tx.request.clientRequest, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
     } catch {
       case NonFatal(t) =>
         logger.error(s"ResponseProcessor crashed while handling failure $failure on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
     }
-    (sessionWithUpdatedStats, updates)
+    sessionWithUpdatedStats
   }
 
-  private def handleResponse(response: Response): (Session, Session => Session) = {
+  private def handleResponse(response: Response): Session = {
     val clientRequest = tx.request.clientRequest
     handleResponse0(response) match {
-      case Proceed(newSession, updates, errorMessage) =>
+      case Proceed(newSession, errorMessage) =>
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
         statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, status, response, errorMessage)
-        (newSession, updates)
+        newSession
 
       case Redirect(redirectTx) =>
         statsProcessor.reportStats(tx.fullRequestName, clientRequest, redirectTx.session, OK, response, None)
         logger.error("Polling support doesn't support redirect atm")
-        (tx.session.markAsFailed, Session.Identity)
+        tx.session.markAsFailed
 
       case Crash(errorMessage) =>
         val newSession = sessionProcessor.updateSessionCrashed(tx.session, response.startTimestamp, response.endTimestamp)
-        val updates = sessionProcessor.updateSessionCrashed(_: Session, response.startTimestamp, response.endTimestamp)
         statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, KO, response, Some(errorMessage))
-        (newSession, updates)
+        newSession
     }
   }
 
@@ -110,8 +108,8 @@ class PollerResponseProcessor(
         }
 
       } else {
-        val (newSession, updates, errorMessage) = sessionProcessor.updatedSession(tx.session, response, computeUpdates = true)
-        Proceed(newSession, updates, errorMessage)
+        val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.session, response)
+        Proceed(newSession, errorMessage)
       }
     } catch {
       case NonFatal(t) =>

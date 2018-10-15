@@ -27,35 +27,25 @@ import io.gatling.core.session.{ Expression, Session }
 object Check {
 
   // FIXME do we need a default value?
-  def check[R](response: R, session: Session, checks: List[Check[R]], computeUpdates: Boolean)(implicit preparedCache: JMap[Any, Any] = new JHashMap(2)): (Session, Session => Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: JMap[Any, Any] = new JHashMap(2)): (Session, Option[Failure]) = {
 
     @tailrec
-    def checkRec(currentSession: Session, updates: Session => Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Session => Session, Option[Failure]) =
+    def checkRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
       checks match {
-        case Nil => (currentSession, updates, failure)
+        case Nil => (currentSession, failure)
 
         case check :: tail =>
           check.check(response, currentSession) match {
             case Success(checkResult) =>
               val newSession = checkResult.update(currentSession)
-              val newUpdates =
-                if (computeUpdates) {
-                  if (updates == Session.Identity) {
-                    checkResult.update _
-                  } else {
-                    updates andThen checkResult.update
-                  }
-                } else {
-                  updates
-                }
-              checkRec(newSession, newUpdates, tail, failure)
+              checkRec(newSession, tail, failure)
 
             case f: Failure =>
-              checkRec(currentSession, updates, tail, if (failure.isDefined) failure else Some(f))
+              checkRec(currentSession, tail, if (failure.isDefined) failure else Some(f))
           }
       }
 
-    checkRec(session, Session.Identity, checks, None)
+    checkRec(session, checks, None)
   }
 }
 

@@ -27,7 +27,7 @@ import io.gatling.http.util.HttpHelper
 
 object CheckProcessor {
 
-  private[response] def check(session: Session, response: Response, checks: List[HttpCheck], computeUpdates: Boolean): (Session, Session => Session, Option[Failure]) = {
+  private[response] def check(session: Session, response: Response, checks: List[HttpCheck]): (Session, Option[Failure]) = {
     val filteredChecks =
       if (HttpHelper.isNotModified(response.status)) {
         checks.filter(c => c.scope != HttpCheckScope.Body)
@@ -42,6 +42,6 @@ object CheckProcessor {
         null
       }
 
-    Check.check(response, session, filteredChecks, computeUpdates)
+    Check.check(response, session, filteredChecks)
   }
 }

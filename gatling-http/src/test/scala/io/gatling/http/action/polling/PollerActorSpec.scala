@@ -65,7 +65,7 @@ class PollerActorSpec extends AkkaSpec {
     poller.isTimerActive(PollerActor.PollTimerName) shouldBe true
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
-    poller.stateData.asInstanceOf[PollingData] shouldBe PollingData(session, Session.Identity)
+    poller.stateData shouldBe PollingData(session)
   }
 
   it should "do nothing if the request name could not be resolved and fail the session" in {

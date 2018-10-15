@@ -22,7 +22,6 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
-import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.response._
@@ -76,11 +75,11 @@ class PollerActor(
   when(Uninitialized) {
     case Event(StartPolling(session), NoData) =>
       resetTimer()
-      goto(Polling) using PollingData(session, Session.Identity)
+      goto(Polling) using PollingData(session)
   }
 
   when(Polling) {
-    case Event(Poll, PollingData(session, update)) =>
+    case Event(Poll, PollingData(session)) =>
       val outcome = for {
         requestName <- requestDef.requestName(session).mapError { errorMessage =>
           logger.error(s"'${self.path.name}' failed to execute: $errorMessage")
@@ -105,13 +104,13 @@ class PollerActor(
           stay()
         case _ =>
           resetTimer()
-          stay() using PollingData(session.markAsFailed, update andThen Session.MarkAsFailedUpdate)
+          stay() using PollingData(session.markAsFailed)
       }
 
-    case Event(FetchedResource(tx, result), PollingData(session, update)) =>
+    case Event(FetchedResource(tx, result), PollingData(session)) =>
       resetTimer()
 
-      val (newSession, newUpdates) = new PollerResponseProcessor(
+      val newSession = new PollerResponseProcessor(
         tx.copy(session = session),
         sessionProcessor = new RootSessionProcessor(
           !tx.silent,
@@ -125,11 +124,11 @@ class PollerActor(
         charset
       ).onComplete(result)
 
-      stay() using PollingData(newSession, update andThen newUpdates)
+      stay() using PollingData(newSession)
 
-    case Event(StopPolling(nextActor, session), PollingData(_, update)) =>
+    case Event(StopPolling(nextActor, session), PollingData(_)) =>
       cancelTimer(PollTimerName)
-      nextActor ! update(session).remove(pollerName)
+      nextActor ! session.remove(pollerName)
       stop()
   }
 

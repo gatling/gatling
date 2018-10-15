@@ -35,7 +35,7 @@ import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 
 sealed trait ProcessorResult
-case class Proceed(newSession: Session, updates: Session => Session, error: Option[String]) extends ProcessorResult
+case class Proceed(newSession: Session, error: Option[String]) extends ProcessorResult
 case class Redirect(redirectTx: HttpTx) extends ProcessorResult
 case class Crash(error: String) extends ProcessorResult
 
@@ -72,7 +72,7 @@ class DefaultResponseProcessor(
   private def handleResponse(response: Response): Unit = {
     val clientRequest = tx.request.clientRequest
     handleResponse0(response) match {
-      case Proceed(newSession, _, errorMessage) =>
+      case Proceed(newSession, errorMessage) =>
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
         statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, status, response, errorMessage)
@@ -131,8 +131,8 @@ class DefaultResponseProcessor(
             }
 
           } else {
-            val (newSession, updates, errorMessage) = sessionProcessor.updatedSession(tx.session, response, computeUpdates = false)
-            Proceed(newSession, updates, errorMessage)
+            val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.session, response)
+            Proceed(newSession, errorMessage)
           }
       }
 

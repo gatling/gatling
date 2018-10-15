@@ -103,7 +103,7 @@ trait WhenPerformingCheck { this: SseActor =>
       logger.debug(s"Received matching message $message")
       cancelTimeout() // note, we might already have a Timeout in the mailbox, hence the currentTimeoutId check
       // matching message, apply checks
-      val (sessionWithCheckUpdate, _, checkError) = Check.check(message, session, checks, computeUpdates = false)
+      val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks)
 
       checkError match {
         case Some(Failure(errorMessage)) =>
