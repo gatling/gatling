@@ -28,15 +28,13 @@ public abstract class FileLikePartImpl<T extends FileLikePart> extends PartImpl 
    */
   private static final byte[] FILE_NAME_BYTES = "; filename=".getBytes(US_ASCII);
 
-  private final String fileName;
-
   FileLikePartImpl(T part, byte[] boundary) {
     super(part, boundary);
-    fileName = part.getFileName();
   }
 
   protected void visitContentDispositionHeader(PartVisitor visitor) {
     super.visitContentDispositionHeader(visitor);
+    String fileName = ((T) part).getFileName();
     if (fileName != null) {
       visitor.withBytes(FILE_NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);
