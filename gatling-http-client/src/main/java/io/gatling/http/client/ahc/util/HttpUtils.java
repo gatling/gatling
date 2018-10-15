@@ -118,10 +118,10 @@ public final class HttpUtils {
   // The pool of ASCII chars to be used for generating a multipart boundary.
   private static byte[] MULTIPART_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes(US_ASCII);
 
-  // a random size from 30 to 40
+  // a fixed size of 35
   public static byte[] computeMultipartBoundary() {
     ThreadLocalRandom random = ThreadLocalRandom.current();
-    byte[] bytes = new byte[random.nextInt(11) + 30];
+    byte[] bytes = new byte[35];
     for (int i = 0; i < bytes.length; i++) {
       bytes[i] = MULTIPART_CHARS[random.nextInt(MULTIPART_CHARS.length)];
     }
