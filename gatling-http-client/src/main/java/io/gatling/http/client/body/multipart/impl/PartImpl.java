@@ -129,12 +129,15 @@ public abstract class PartImpl implements Closeable {
 
       case PRE_CONTENT:
         copyInto(lazyLoadPreContentBuffer(), target, PartImplState.CONTENT);
+        return;
 
       case CONTENT:
         copyContentInto(target);
+        return;
 
       case POST_CONTENT:
         copyInto(lazyLoadPostContentBuffer(), target, PartImplState.DONE);
+        return;
 
       default:
         throw new IllegalStateException("Unknown state " + state);
