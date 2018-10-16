@@ -24,11 +24,11 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.io.Codec
 
-import io.gatling.commons.util.{ ConfigHelper, Ssl, StringHelper }
+import io.gatling.commons.util.ConfigHelper._
+import io.gatling.commons.util.Ssl
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.stats.writer._
-import ConfigHelper.configChain
-import StringHelper.RichString
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
