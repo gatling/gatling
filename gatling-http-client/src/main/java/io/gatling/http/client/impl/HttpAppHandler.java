@@ -16,7 +16,6 @@
 
 package io.gatling.http.client.impl;
 
-import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.ahc.util.HttpUtils;
 import io.gatling.http.client.impl.request.WritableRequest;
@@ -70,6 +69,11 @@ class HttpAppHandler extends ChannelDuplexHandler {
   }
 
   private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close) {
+    if (cause instanceof Error) {
+      LOGGER.error("Fatal error", cause);
+      System.exit(1);
+    }
+
     if (isInactive()) {
       return;
     }
@@ -163,7 +167,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
         try {
           tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
-        } catch (Exception e) {
+        } catch (Throwable e) {
           // can't let exceptionCaught handle this because setInactive might have been called (on last)
           crash0(ctx, e, true, tx);
           throw e;
