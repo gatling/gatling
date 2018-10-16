@@ -105,41 +105,24 @@ class SslContextsFactory(httpConfig: HttpConfiguration) {
       val jdkSslContext = SSLContext.getInstance("TLS")
       jdkSslContext.init(httpConfig.ssl.keyManagerFactory.map(_.getKeyManagers).orNull, DefaultTrustManagers, DefaultSslSecureRandom)
 
-      val sslContext = newSslContext(jdkSslContext)
-
-      if (http2Enabled) {
-        SslContexts(sslContext, Some(newAlpnSslContext(jdkSslContext)))
-      } else {
-        SslContexts(sslContext, None)
-      }
-    }
-
-  private def newSslContext(jdkSslContext: SSLContext): SslContext = {
-    new DelegatingSslContext(new JdkSslContext(
-      jdkSslContext,
-      true,
-      ClientAuth.NONE
-    )) {
-      override def initEngine(engine: SSLEngine): Unit = {
-        if (enabledProtocols.nonEmpty) {
-          engine.setEnabledProtocols(enabledProtocols)
-        }
-        if (!enabledCipherSuites.isEmpty) {
-          engine.setEnabledCipherSuites(enabledCipherSuitesArray)
+      val sslContext = newSslContext(jdkSslContext, null)
+      val alpnSslContext =
+        if (http2Enabled) {
+          Some(newSslContext(jdkSslContext, Apn))
         } else {
-          engine.setEnabledCipherSuites(SupportedCiphers)
+          None
         }
-      }
-    }
-  }
 
-  private def newAlpnSslContext(jdkSslContext: SSLContext): SslContext = {
+      SslContexts(sslContext, alpnSslContext)
+    }
+
+  private def newSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext = {
     new DelegatingSslContext(new JdkSslContext(
       jdkSslContext,
       true,
       if (enabledCipherSuites.isEmpty) null else enabledCipherSuites,
       IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS,
-      Apn,
+      apn,
       ClientAuth.NONE
     )) {
       override def initEngine(engine: SSLEngine): Unit =
