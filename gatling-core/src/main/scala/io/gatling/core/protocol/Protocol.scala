@@ -73,7 +73,11 @@ class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Prot
   }
 
   def onStart: Session => Session =
-    componentsCache.values.map(_.onStart).reduce(_ andThen _)
+    if (componentsCache.values.nonEmpty) {
+      componentsCache.values.map(_.onStart).reduceLeft(_ andThen _)
+    } else {
+      ProtocolComponents.NoopOnStart
+    }
 
   def onExit: Session => Unit =
     session => componentsCache.values.foreach(_.onExit(session))
