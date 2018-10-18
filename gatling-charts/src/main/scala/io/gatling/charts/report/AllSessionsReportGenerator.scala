@@ -28,7 +28,7 @@ private[charts] class AllSessionsReportGenerator(reportsGenerationInputs: Report
   def generate(): Unit = {
     import reportsGenerationInputs._
 
-    val series = new Series[IntVsTimePlot]("All Users", logFileReader.numberOfActiveSessionsPerSecond(None), List(Orange))
+    val series = new Series[IntVsTimePlot]("Active Users", logFileReader.numberOfActiveSessionsPerSecond(None), List(Orange))
 
     val javascript = componentLibrary.getAllUsersJs(logFileReader.runStart, series)
 
