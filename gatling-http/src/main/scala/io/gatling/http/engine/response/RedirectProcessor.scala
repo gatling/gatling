@@ -45,9 +45,16 @@ object RedirectProcessor {
       .remove(HeaderNames.Host)
       .remove(HeaderNames.ContentLength)
       .remove(HeaderNames.Cookie)
+      .remove(HeaderNames.Authorization)
+      .remove(HeaderNames.Origin)
 
-    if (!keepBody)
+    if (httpProtocol.requestPart.autoReferer) {
+      newHeaders.add(HeaderNames.Referer, originalRequest.getUri.toString)
+    }
+
+    if (!keepBody) {
       newHeaders.remove(HeaderNames.ContentType)
+    }
 
     val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET else originalMethod, redirectUri)
       .setHeaders(newHeaders)
