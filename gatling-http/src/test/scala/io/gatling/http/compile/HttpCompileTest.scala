@@ -202,6 +202,8 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").post("/things").body(ByteArrayBody("${bytes}")))
     // processRequestBody
     .exec(http("Request").post("/things").body(StringBody("FOO${BAR}BAZ")).processRequestBody(identity))
+    .exec(http("Request").post("/things").body(ByteArrayBody("${bytes}")).processRequestBody(gzipBody))
+    .exec(http("Request").post("/things").body(ByteArrayBody("${bytes}")).processRequestBody(streamBody))
     // bodyParts
     .exec(http("Request").post("url")
       .formUpload("name", "path")
