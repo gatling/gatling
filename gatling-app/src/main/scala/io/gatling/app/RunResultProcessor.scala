@@ -17,13 +17,16 @@
 package io.gatling.app
 
 import io.gatling.app.cli.StatusCode
-import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
+import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator, GatlingReportsGenerator }
 import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.commons.util.StringHelper._
 
 private[app] object RunResultProcessor {
 
+  val GATLING_REPORTS_CLASS = "gatling.app.reports.generator.class"
+  val REPORTS_GENERATOR_CLAZZ = classOf[ReportsGenerator]
   def apply(configuration: GatlingConfiguration): RunResultProcessor =
     configuration.resolve(
       // [fl]
@@ -37,6 +40,24 @@ private[app] object RunResultProcessor {
       // [fl]
       new RunResultProcessor(configuration)
     )
+
+  def validateReportsGenerator(configuration: GatlingConfiguration): Unit = {
+    val reportsClass = configuration.config.getString(RunResultProcessor.GATLING_REPORTS_CLASS).trimToOption
+    val clazz = Class.forName(reportsClass.getOrElse(classOf[GatlingReportsGenerator].getName))
+    require(
+      REPORTS_GENERATOR_CLAZZ.isAssignableFrom(clazz),
+      s"${clazz.getName} is not same as or superclass of ${REPORTS_GENERATOR_CLAZZ.getName}"
+    )
+  }
+
+  def getReportsGenerator(configuration: GatlingConfiguration): ReportsGenerator = {
+    val reportsClass = configuration.config.getString(RunResultProcessor.GATLING_REPORTS_CLASS).trimToOption
+    val clazz = Class.forName(reportsClass.getOrElse(classOf[GatlingReportsGenerator].getName))
+    val cons = clazz.getConstructors
+    println(cons)
+    val constructor = clazz.getConstructor(classOf[GatlingConfiguration])
+    REPORTS_GENERATOR_CLAZZ.cast(constructor.newInstance(configuration))
+  }
 }
 
 class RunResultProcessor(configuration: GatlingConfiguration) {
@@ -73,7 +94,7 @@ class RunResultProcessor(configuration: GatlingConfiguration) {
 
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")
-    val indexFile = new ReportsGenerator().generateFor(reportsGenerationInputs)
+    val indexFile = RunResultProcessor.getReportsGenerator(configuration).generateFor(reportsGenerationInputs)
     println(s"Reports generated in ${(System.currentTimeMillis() - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }

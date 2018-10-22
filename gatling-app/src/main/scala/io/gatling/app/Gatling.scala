@@ -64,6 +64,8 @@ object Gatling extends StrictLogging {
       FileSystems.getDefault
       val configuration = GatlingConfiguration.load(overrides)
       logger.trace("Configuration loaded")
+      //fail fast on reports generator
+      RunResultProcessor.validateReportsGenerator(configuration)
       // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
       val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
       logger.trace("ActorSystem instantiated")

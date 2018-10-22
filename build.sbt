@@ -80,7 +80,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .settings(libraryDependencies ++= benchmarkDependencies)
 
 lazy val app = gatlingModule("gatling-app")
-  .dependsOn(core, http, jms, jdbc, redis, graphite, charts)
+  .dependsOn(core % "compile->compile;test->test", http, jms, jdbc, redis, graphite, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)

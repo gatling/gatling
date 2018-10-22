@@ -26,7 +26,12 @@ import io.gatling.commons.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 
-private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
+abstract class ReportsGenerator(configuration: GatlingConfiguration) {
+  def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path
+}
+
+private[gatling] class GatlingReportsGenerator(implicit configuration: GatlingConfiguration)
+  extends ReportsGenerator(configuration) {
 
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._
@@ -38,15 +43,19 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
 
     def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
 
-    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
+    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance)
+      .generate()
 
     def copyAssets(): Unit = {
       deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(reportFolderName))
       deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(reportFolderName))
     }
 
-    if (!hasAtLeastOneRequestReported)
-      throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+    if (!hasAtLeastOneRequestReported) {
+      throw new UnsupportedOperationException(
+        "There were no requests sent during the simulation, reports won't be generated"
+      )
+    }
 
     val reportGenerators =
       List(
