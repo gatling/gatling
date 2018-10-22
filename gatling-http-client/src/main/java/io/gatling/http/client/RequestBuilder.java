@@ -40,6 +40,7 @@ import java.util.List;
 
 import static io.gatling.http.client.ahc.util.HttpUtils.*;
 import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
+import static io.gatling.http.client.ahc.util.MiscUtils.withDefault;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 import static io.netty.handler.codec.http.HttpHeaderNames.ORIGIN;
@@ -214,17 +215,8 @@ public class RequestBuilder {
 
     RequestBody<?> body = null;
     if (bodyBuilder != null) {
-      Charset charset = defaultCharset;
       String contentType = headers.get(CONTENT_TYPE);
-      if (contentType != null) {
-        Charset contentTypeCharset = extractContentTypeCharsetAttribute(contentType);
-        if (contentTypeCharset != null) {
-          charset = contentTypeCharset;
-        } else {
-          // set Content-Type header missing charset attribute
-          contentType = contentType + "; charset=" + charset.name();
-        }
-      }
+      Charset charset = withDefault(extractContentTypeCharsetAttribute(contentType), defaultCharset);
       body = bodyBuilder.build(contentType, charset);
       String bodyContentType = body.getContentType();
       if (bodyContentType != null) {
