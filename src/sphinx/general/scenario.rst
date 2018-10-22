@@ -325,6 +325,8 @@ Similar to ``doSwitch``, but with a fallback if no switch is selected.
 ``randomSwitch`` can be used to emulate simple Markov chains.
 Simple means cyclic graphs are not currently supported.
 
+.. warning:: Beware: you have to use parentheses when using these switch methods, curly braces will change the semantic and will not work as expected.
+
 .. includecode:: code/ScenarioSample.scala#randomSwitch
 
 Percentages sum can't exceed 100%.
