@@ -39,6 +39,7 @@ HTTP
 * `#3412 <https://github.com/gatling/gatling/issues/3412>`__: Introduce ``asyncNameResolution`` for switching to non-blocking DNS resolver instead of Java's one, see :ref:`here <http-protocol-dns>`.
 * `#3496 <https://github.com/gatling/gatling/issues/3496>`__: ``transformResponse`` now takes a ``Session`` parameter, see :ref:`here <http-response-transformer>`.
 * `#3521 <https://github.com/gatling/gatling/issues/3521>`__: Gatling now uses BoringSSL based SSLEngine by default.
+* `#3560 <https://github.com/gatling/gatling/issues/3560>`__: Every virtual user now has its own SSLContext, except if ``shareConnections`` is enabled.
 
 JMS
 ===
