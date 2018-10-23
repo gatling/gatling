@@ -9,6 +9,4 @@ Project Information
     issue_tracking
     ci
     licenses
-    sponsors
-    events
     online_resources
