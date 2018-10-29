@@ -53,6 +53,11 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
                             |  }
                             |}""".stripMargin
 
+  "jsonPath.find" should "support long values" in {
+    val response = mockResponse(s"""{"value": ${Long.MaxValue}}""")
+    jsonPath("$.value").ofType[Long].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(Long.MaxValue), None)
+  }
+
   "jsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
     jsonPath("$.street").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)

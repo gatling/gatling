@@ -119,6 +119,10 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
     testSingle("$.url", 0, new JsonSample { val value = """{ "url":"http://test-login.test.com/test/" }""" }, Some("http://test-login.test.com/test/"))
   }
 
+  it should "support long values" in {
+    testSingle("$.number", 0, new JsonSample { val value = s"""{"number": ${Long.MaxValue}}""" }, Some(Long.MaxValue))
+  }
+
   "extractMultiple" should "return expected result with anywhere expression" in {
     testMultiple("$..author", Json1, Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
