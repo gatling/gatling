@@ -20,13 +20,20 @@ import javax.jms.Message
 
 import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
 import io.gatling.jms.client.{ JmsConnection, JmsConnectionPool }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
-abstract class JmsAction(attributes: JmsAttributes, protocol: JmsProtocol, pool: JmsConnectionPool)
+abstract class JmsAction(
+    attributes: JmsAttributes,
+    protocol:   JmsProtocol,
+    pool:       JmsConnectionPool,
+    throttler:  Throttler,
+    throttled:  Boolean
+)
   extends RequestAction with JmsLogging with NameGen {
 
   override val requestName: Expression[String] = attributes.requestName
@@ -40,13 +47,18 @@ abstract class JmsAction(attributes: JmsAttributes, protocol: JmsProtocol, pool:
       props <- resolveProperties(attributes.messageProperties, session)
       resolvedJmsDestination <- jmsDestination(session)
       beforeSend0 <- beforeSend(requestName, session)
+      producer = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
+      sendMsgAction <- attributes.message match {
+        case BytesJmsMessage(bytes) => bytes(session).map(bytes => () => producer.sendBytesMessage(bytes, props, jmsType, beforeSend0))
+        case MapJmsMessage(map)     => map(session).map(map => () => producer.sendMapMessage(map, props, jmsType, beforeSend0))
+        case ObjectJmsMessage(o)    => o(session).map(o => () => producer.sendObjectMessage(o, props, jmsType, beforeSend0))
+        case TextJmsMessage(txt)    => txt(session).map(txt => () => producer.sendTextMessage(txt, props, jmsType, beforeSend0))
+      }
     } yield {
-      val producer = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
-      attributes.message match {
-        case BytesJmsMessage(bytes) => bytes(session).map(bytes => producer.sendBytesMessage(bytes, props, jmsType, beforeSend0))
-        case MapJmsMessage(map)     => map(session).map(map => producer.sendMapMessage(map, props, jmsType, beforeSend0))
-        case ObjectJmsMessage(o)    => o(session).map(o => producer.sendObjectMessage(o, props, jmsType, beforeSend0))
-        case TextJmsMessage(txt)    => txt(session).map(txt => producer.sendTextMessage(txt, props, jmsType, beforeSend0))
+      if (throttled) {
+        throttler.throttle(session.scenario, sendMsgAction)
+      } else {
+        sendMsgAction()
       }
     }
 

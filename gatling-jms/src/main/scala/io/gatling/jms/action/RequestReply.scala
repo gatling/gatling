@@ -21,6 +21,7 @@ import io.gatling.commons.util.Clock
 import javax.jms.Message
 import io.gatling.commons.validation.Validation
 import io.gatling.core.action._
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.client.JmsConnectionPool
@@ -42,9 +43,11 @@ class RequestReply(
     jmsConnectionPool:  JmsConnectionPool,
     val statsEngine:    StatsEngine,
     val clock:          Clock,
-    val next:           Action
+    val next:           Action,
+    throttler:          Throttler,
+    throttled:          Boolean
 )
-  extends JmsAction(attributes, protocol, jmsConnectionPool) {
+  extends JmsAction(attributes, protocol, jmsConnectionPool, throttler, throttled) {
 
   override val name: String = genName("jmsRequestReply")
 
