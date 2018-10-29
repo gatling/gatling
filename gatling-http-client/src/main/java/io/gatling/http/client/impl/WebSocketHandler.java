@@ -31,6 +31,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+import static io.gatling.http.client.impl.DefaultHttpClient.APP_WS_HANDLER;
+import static io.gatling.http.client.impl.DefaultHttpClient.WS_AGGREGATOR;
+
 public class WebSocketHandler extends ChannelDuplexHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandler.class);
@@ -92,9 +95,10 @@ public class WebSocketHandler extends ChannelDuplexHandler {
             null,
             true,
             request.getRequest().headers(),
-            config.getWebSocketMaxFramePayloadLength());
+            Integer.MAX_VALUE);
 
         handshaker.handshake(ctx.channel());
+        ctx.pipeline().addBefore(APP_WS_HANDLER, WS_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE));
 
       } catch (Exception e) {
         crash(ctx, e, true);

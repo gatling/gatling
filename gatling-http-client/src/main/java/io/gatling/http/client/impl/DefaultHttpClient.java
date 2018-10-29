@@ -80,7 +80,8 @@ public class DefaultHttpClient implements HttpClient {
   private static final String DIGEST_AUTH_HANDLER = "digest";
   private static final String WS_OBJECT_AGGREGATOR = "ws-aggregator";
   private static final String WS_COMPRESSION = "ws-compression";
-  private static final String APP_WS_HANDLER = "app-ws";
+  static final String WS_AGGREGATOR = "ws-aggregator";
+  static final String APP_WS_HANDLER = "app-ws";
   private static final String ALPN_HANDLER = "alpn";
   private static final String APP_HTTP2_HANDLER = "app-http2";
 

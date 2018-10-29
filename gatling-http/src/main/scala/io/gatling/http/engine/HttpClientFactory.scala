@@ -67,7 +67,6 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
       .setMaxRetry(httpConfig.advanced.maxRetry)
       .setEnableSni(httpConfig.advanced.enableSni)
       .setEnableHostnameVerification(httpConfig.advanced.enableHostnameVerification)
-      .setWebSocketMaxFramePayloadLength(Int.MaxValue)
       .setDefaultCharset(coreComponents.configuration.core.charset)
       .setUseNativeTransport(httpConfig.advanced.useNativeTransport)
       .setTcpNoDelay(httpConfig.advanced.tcpNoDelay)

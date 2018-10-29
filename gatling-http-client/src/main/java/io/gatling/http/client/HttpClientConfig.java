@@ -56,8 +56,6 @@ public class HttpClientConfig {
 
   private int maxRetry;
 
-  private int webSocketMaxFramePayloadLength;
-
   private String threadPoolName = "gatling-http-client";
 
   public long getConnectTimeout() {
@@ -174,15 +172,6 @@ public class HttpClientConfig {
 
   public HttpClientConfig setMaxRetry(int maxRetry) {
     this.maxRetry = maxRetry;
-    return this;
-  }
-
-  public int getWebSocketMaxFramePayloadLength() {
-    return webSocketMaxFramePayloadLength;
-  }
-
-  public HttpClientConfig setWebSocketMaxFramePayloadLength(int webSocketMaxFramePayloadLength) {
-    this.webSocketMaxFramePayloadLength = webSocketMaxFramePayloadLength;
     return this;
   }
 
