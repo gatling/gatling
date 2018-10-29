@@ -34,7 +34,7 @@ public abstract class FileLikePartImpl<T extends FileLikePart> extends PartImpl 
 
   protected void visitContentDispositionHeader(PartVisitor visitor) {
     super.visitContentDispositionHeader(visitor);
-    String fileName = ((T) part).getFileName();
+    String fileName = ((FileLikePart) part).getFileName();
     if (fileName != null) {
       visitor.withBytes(FILE_NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);
