@@ -16,7 +16,9 @@
 
 package io.gatling.core.action.builder
 
-import scala.collection.mutable
+import java.util.{ IdentityHashMap => JIdentityHashMap }
+
+import scala.collection.JavaConverters._
 
 import io.gatling.core.action.{ Action, Feed, SingletonFeed }
 import io.gatling.core.feeder.FeederBuilder
@@ -27,7 +29,7 @@ import io.gatling.core.util.NameGen
 import akka.actor.ActorRef
 
 object FeedBuilder {
-  val Instances = mutable.Map.empty[FeederBuilder, ActorRef]
+  private val Instances = new JIdentityHashMap[FeederBuilder, ActorRef].asScala
 }
 
 class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
