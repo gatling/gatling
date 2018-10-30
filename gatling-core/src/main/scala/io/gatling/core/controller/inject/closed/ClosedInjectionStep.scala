@@ -18,7 +18,7 @@ package io.gatling.core.controller.inject.closed
 
 import scala.concurrent.duration._
 
-trait ClosedInjectionStep {
+private[closed] trait ClosedInjectionStep {
 
   def valueAt(t: FiniteDuration): Int
 
