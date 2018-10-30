@@ -25,8 +25,9 @@ import io.netty.channel.EventLoop
 import io.netty.channel.socket.DatagramChannel
 import io.netty.channel.socket.nio.NioDatagramChannel
 import io.netty.handler.codec.dns.DnsRecord
-import io.netty.resolver.HostsFileEntriesResolver
+import io.netty.resolver.{ HostsFileEntriesResolver, ResolvedAddressTypes }
 import io.netty.resolver.dns._
+import io.netty.util.NetUtil
 import io.netty.util.concurrent.Promise
 
 object ExtendedDnsNameResolver extends StrictLogging {
@@ -36,6 +37,15 @@ object ExtendedDnsNameResolver extends StrictLogging {
   private val NioDatagramChannelFactory = new ChannelFactory[DatagramChannel] {
     override def newChannel(): DatagramChannel = new NioDatagramChannel
   }
+
+  private val DefaultResolveAddressTypes =
+    if (NetUtil.isIpV4StackPreferred) {
+      ResolvedAddressTypes.IPV4_ONLY
+    } else if (NetUtil.isIpV6AddressesPreferred) {
+      ResolvedAddressTypes.IPV6_PREFERRED
+    } else {
+      ResolvedAddressTypes.IPV4_PREFERRED
+    }
 }
 
 /**
@@ -54,7 +64,7 @@ class ExtendedDnsNameResolver(
     NoopAuthoritativeDnsServerCache.INSTANCE, // authoritativeDnsServerCache
     NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
     queryTimeout, // queryTimeoutMillis
-    null, // resolvedAddressTypes, defaults to DEFAULT_RESOLVE_ADDRESS_TYPES
+    ExtendedDnsNameResolver.DefaultResolveAddressTypes, // resolvedAddressTypes, buggy as of https://github.com/netty/netty/commit/bbb6e126b1b24c13b9c21cc3ff4042476e37c226 since 4.1.29
     true, // recursionDesired
     maxQueriesPerResolve, // maxQueriesPerResolve
     ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
