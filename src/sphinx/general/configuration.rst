@@ -68,7 +68,7 @@ Gatling can be started with several options listed below:
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -rf <path>        | --results-folder <path>                | Uses <path> as the folder where results are stored                                               |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -rsf <path>        | --resources-folder <path>             | Uses <path> as the folder where resources are stored                                             |
+| -rsf <path>       | --resources-folder <path>              | Uses <path> as the folder where resources are stored                                             |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -sf <path>        | --simulations-folder <path>            | Uses <path> as the folder where simulations are stored                                           |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
