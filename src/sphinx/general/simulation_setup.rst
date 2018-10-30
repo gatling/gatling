@@ -45,6 +45,9 @@ and injector will slow down to match the imaginary cap you've set.
 
 You can read more about open and closed models `here <http://repository.cmu.edu/cgi/viewcontent.cgi?article=1872&context=compsci>`_.
 
+.. warning::
+
+  Open and closed workload models are antinomical and you can't mix them in the same injection profile.
 
 .. _simulation-inject-open:
 
@@ -83,6 +86,10 @@ Closed Model
   This behavior makes perfect sense when the load you're modeling is internet traffic. Then, you might consider scala out, for example with FrontLine, our Enterprise product.
 
   If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
+
+.. warning::
+
+  Setting a smaller number of concurrent users won't force existing users to abort. The only way for users to terminate is to complete their scenario.
 
 .. _simulation-setup-pause:
 
