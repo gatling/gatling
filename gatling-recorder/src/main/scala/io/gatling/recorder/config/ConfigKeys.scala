@@ -43,6 +43,7 @@ private[recorder] object ConfigKeys {
     val InferHtmlResources = "recorder.http.inferHtmlResources"
     val RemoveCacheHeaders = "recorder.http.removeCacheHeaders"
     val CheckResponseBodies = "recorder.http.checkResponseBodies"
+    val UseSimulationAsPrefix = "recorder.http.useSimulationAsPrefix"
   }
   object proxy {
     val Port = "recorder.proxy.port"
