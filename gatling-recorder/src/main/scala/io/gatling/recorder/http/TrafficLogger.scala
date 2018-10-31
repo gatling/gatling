@@ -27,7 +27,7 @@ import io.gatling.recorder.model._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelId
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, FullHttpRequest, FullHttpResponse, HttpMethod }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, FullHttpRequest, FullHttpResponse, HttpHeaderValues, HttpMethod }
 
 class TrafficLogger(controller: RecorderController) extends StrictLogging {
 
@@ -45,7 +45,8 @@ class TrafficLogger(controller: RecorderController) extends StrictLogging {
     }
 
   def logRequest(serverChannelId: ChannelId, request: FullHttpRequest, remote: Remote, https: Boolean, sendTimestamp: Long): Unit =
-    if (request.method != HttpMethod.CONNECT) {
+    // filter out CONNECT (if HAR was generated with a proxy such as Charles) and Upgrade requests (WebSockets)
+    if (request.method != HttpMethod.CONNECT && !request.headers.contains(HttpHeaderValues.UPGRADE)) {
       import request._
 
       val requestEvent = HttpRequest(
