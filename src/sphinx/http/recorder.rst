@@ -102,6 +102,14 @@ If you check the 'Infer html resources?' option, the Recorder will fetch the emb
 .. warning:: Gatling can't retrieve all the embedded resources in HTML as images embedded in a css embedded in HTML.
              This remaining resources are currently loaded sequentially as regular requests.
 
+.. _recorder-request-naming:
+
+HTTP request naming
+--------------------------------
+By default gatling will use the prefix ``request_`` for recorded and converted http requests.
+When the 'Use class name as request prefix?' option is enabled, http requests will use the
+simulation class as prefix for the request name instead.
+
 .. _recorder-response-bodies:
 
 Response bodies

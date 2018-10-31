@@ -99,8 +99,8 @@ private[scenario] object RequestTemplate {
         })"""
       else
         EmptyFastring
-
-    fast"""http("request_${request.id}")
+    val prefix = if (config.http.useSimulationAsPrefix) simulationClass else "request"
+    fast"""http("${prefix}_${request.id}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""
   }
 

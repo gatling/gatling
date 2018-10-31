@@ -116,6 +116,11 @@ class RecorderPropertiesBuilder {
     this
   }
 
+  def useSimulationAsPrefix(status: Boolean): RecorderPropertiesBuilder = {
+    props += http.UseSimulationAsPrefix -> status
+    this
+  }
+
   def localPort(port: Int): RecorderPropertiesBuilder = {
     props += proxy.Port -> port
     this
