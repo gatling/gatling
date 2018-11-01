@@ -33,7 +33,7 @@ object Io {
   implicit class RichURL(val url: URL) extends AnyVal {
 
     def jfile: JFile = Try(new JFile(url.toURI))
-      .recover { case e: URISyntaxException => new JFile(url.getPath) }
+      .recover { case _: URISyntaxException => new JFile(url.getPath) }
       .get
 
     def toByteArray: Array[Byte] =
@@ -44,12 +44,7 @@ object Io {
 
   implicit class RichFile(val file: JFile) extends AnyVal {
 
-    def toByteArray: Array[Byte] =
-      withCloseable(new FileInputStream(file)) { is =>
-        val buf = new Array[Byte](file.length.toInt)
-        is.read(buf)
-        buf
-      }
+    def toByteArray: Array[Byte] = Files.readAllBytes(file.toPath)
   }
 
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
