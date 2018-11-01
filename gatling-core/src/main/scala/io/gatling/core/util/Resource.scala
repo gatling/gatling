@@ -59,7 +59,7 @@ object Resource {
       case ClasspathResource(res)      => res
       case DirectoryChildResource(res) => res
       case AbsoluteFileResource(res)   => res
-      case _                           => path.failure
+      case _                           => s"Resource $path not found".failure
     }
 
   case class Location(directory: Path, path: String)
