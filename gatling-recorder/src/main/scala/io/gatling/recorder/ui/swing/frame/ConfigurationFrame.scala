@@ -87,6 +87,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   private val removeCacheHeaders = new CheckBox("Remove cache headers?")
   private val checkResponseBodies = new CheckBox("Save & check response bodies?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
+  private val useSimulationAsPrefix = new CheckBox("Use Class Name as request prefix?")
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
@@ -216,6 +217,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
 
         val redirectAndInferOptions = new BorderPanel {
           layout(followRedirects) = West
+          layout(useSimulationAsPrefix) = Center
           layout(inferHtmlResources) = East
         }
 
@@ -521,6 +523,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
     simulationsFolderChooser.setPath(configuration.core.simulationsFolder)
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
+    useSimulationAsPrefix.selected = configuration.http.useSimulationAsPrefix
     savePreferences.selected = configuration.core.saveConfig
 
   }
@@ -594,6 +597,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       props.automaticReferer(automaticReferers.selected)
       props.simulationsFolder(simulationsFolderChooser.selection.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
+      props.useSimulationAsPrefix(useSimulationAsPrefix.selected)
       props.saveConfig(savePreferences.selected)
 
       RecorderConfiguration.reload(props.build)
