@@ -51,4 +51,15 @@ public class HttpProxyServer extends ProxyServer {
             new HttpProxyHandler(securedAddress, realm.getUsername(), realm.getPassword(), EmptyHttpHeaders.INSTANCE, true) :
             new HttpProxyHandler(securedAddress, EmptyHttpHeaders.INSTANCE, true);
   }
+
+  @Override
+  public String toString() {
+    return "HttpProxyServer{" +
+      "realm=" + realm +
+      ", securedPort=" + securedPort +
+      ", securedAddress=" + securedAddress +
+      ", host='" + host + '\'' +
+      ", port=" + port +
+      '}';
+  }
 }

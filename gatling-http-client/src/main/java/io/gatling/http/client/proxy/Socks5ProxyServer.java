@@ -35,4 +35,13 @@ public class Socks5ProxyServer extends ProxyServer {
   public ProxyHandler newHandler() {
     return realm != null ? new Socks5ProxyHandler(address, realm.getUsername(), realm.getPassword()) : new Socks5ProxyHandler(address);
   }
+
+  @Override
+  public String toString() {
+    return "Socks5ProxyServer{" +
+      "realm=" + realm +
+      ", host='" + host + '\'' +
+      ", port=" + port +
+      '}';
+  }
 }

@@ -37,4 +37,14 @@ public class Socks4ProxyServer extends ProxyServer {
   public ProxyHandler newHandler() {
     return new Socks4ProxyHandler(address, username);
   }
+
+  @Override
+  public String toString() {
+    return "Socks4ProxyServer{" +
+      "address=" + address +
+      ", username='" + username + '\'' +
+      ", host='" + host + '\'' +
+      ", port=" + port +
+      '}';
+  }
 }
