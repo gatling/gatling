@@ -23,15 +23,14 @@ import io.gatling.core.stats.StatsEngine
 import akka.actor.ActorSystem
 
 class Loop(
-    continueCondition:          Expression[Boolean],
-    counterName:                String,
-    exitASAP:                   Boolean,
-    timeBased:                  Boolean,
-    evaluateConditionAfterLoop: Boolean,
-    statsEngine:                StatsEngine,
-    clock:                      Clock,
-    override val name:          String,
-    next:                       Action
+    continueCondition: Expression[Boolean],
+    counterName:       String,
+    exitASAP:          Boolean,
+    timeBased:         Boolean,
+    statsEngine:       StatsEngine,
+    clock:             Clock,
+    override val name: String,
+    next:              Action
 ) extends Action {
 
   private[this] var innerLoop: Action = _
@@ -47,7 +46,7 @@ class Loop(
         session.enterLoop(counterName, continueCondition, next, exitASAP)
       }
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, actorSystem, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, actorSystem, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
@@ -57,14 +56,13 @@ class Loop(
 }
 
 class InnerLoop(
-    continueCondition:          Expression[Boolean],
-    loopNext:                   Action,
-    counterIncrement:           Session => Session,
-    counterName:                String,
-    evaluateConditionAfterLoop: Boolean,
-    actorSystem:                ActorSystem,
-    val name:                   String,
-    val next:                   Action
+    continueCondition: Expression[Boolean],
+    loopNext:          Action,
+    counterIncrement:  Session => Session,
+    counterName:       String,
+    actorSystem:       ActorSystem,
+    val name:          String,
+    val next:          Action
 ) extends ChainableAction {
 
   private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]
@@ -85,9 +83,7 @@ class InnerLoop(
     val incrementedSession = counterIncrement(session)
     val lastUserId = getAndSetLastUserId(session)
 
-    // checking if we don't need to evaluate the condition the first time
-    if ((incrementedSession.attributes(counterName) == 0 && evaluateConditionAfterLoop)
-      || LoopBlock.continue(continueCondition, incrementedSession)) {
+    if (LoopBlock.continue(continueCondition, incrementedSession)) {
 
       if (incrementedSession.userId == lastUserId) {
         // except if we're running only one user, it's very likely we're hitting an empty loop

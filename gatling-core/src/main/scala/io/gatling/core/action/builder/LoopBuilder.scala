@@ -16,8 +16,9 @@
 
 package io.gatling.core.action.builder
 
+import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, Loop }
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.core.util.NameGen
 
@@ -44,7 +45,19 @@ class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counte
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val safeCondition = condition.safe
-    val loopAction = new Loop(safeCondition, counterName, exitASAP, loopType.timeBased, loopType.evaluateConditionAfterLoop, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
+    val actualCondition =
+      if (loopType.evaluateConditionAfterLoop) {
+        (session: Session) =>
+          if (session.attributes(counterName) == 0) {
+            TrueSuccess
+          } else {
+            safeCondition(session)
+          }
+      } else {
+        safeCondition
+      }
+
+    val loopAction = new Loop(actualCondition, counterName, exitASAP, loopType.timeBased, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
     val loopNextAction = loopNext.build(ctx, loopAction)
     loopAction.initialize(loopNextAction, ctx.coreComponents.actorSystem)
     loopAction
