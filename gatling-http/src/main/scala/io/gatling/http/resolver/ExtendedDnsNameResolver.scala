@@ -72,8 +72,8 @@ class ExtendedDnsNameResolver(
     true, // optResourceEnabled
     HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
     if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault else new SequentialDnsServerAddressStreamProvider(dnsServers: _*), // dnsServerAddressStreamProvider
-    null, // searchDomains // FIXME should honor host's searchDomains
-    1, // ndots // FIXME should be using host's defaults
+    null, // searchDomains
+    -1, // ndots
     true // decodeIdn
   ) {
   override def doResolveAll(inetHost: String, additionals: Array[DnsRecord], promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
