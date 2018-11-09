@@ -211,7 +211,9 @@ class CoreCompileTest extends Simulation {
     lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)),
     lambdaUser.inject(closedInject1, closedInject2),
     lambdaUser.inject(openSeq),
-    lambdaUser.inject(closedSeq)
+    lambdaUser.inject(closedSeq),
+    lambdaUser.inject(incrementUsersPerSec(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10)),
+    lambdaUser.inject(incrementConcurrentUsers(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10))
   )
     .protocols(protocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))
