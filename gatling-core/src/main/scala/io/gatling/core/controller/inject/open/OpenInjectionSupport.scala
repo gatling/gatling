@@ -59,15 +59,15 @@ trait OpenInjectionSupport extends MetaOpenInjectionSupport {
 
 trait MetaOpenInjectionSupport {
 
-  case class IncrementTest(
+  case class IncreasingUsersPerSecProfile(
       usersPerSec:   Double,
       nbOfSteps:     Int,
       duration:      FiniteDuration,
       startingUsers: Double,
       rampDuration:  FiniteDuration
   ) extends MetaInjectionProfile {
-    def startingFrom(startingUsers: Int): IncrementTest = this.copy(startingUsers = startingUsers)
-    def separatedByRampsLasting(duration: FiniteDuration): IncrementTest = this.copy(rampDuration = duration)
+    def startingFrom(startingUsers: Int): IncreasingUsersPerSecProfile = this.copy(startingUsers = startingUsers)
+    def separatedByRampsLasting(duration: FiniteDuration): IncreasingUsersPerSecProfile = this.copy(rampDuration = duration)
 
     private[inject] def getInjectionSteps: Iterable[OpenInjectionStep] =
       (1 to nbOfSteps).foldLeft(Iterable.empty[OpenInjectionStep]) { (acc, currentStep) =>
@@ -85,13 +85,13 @@ trait MetaOpenInjectionSupport {
     def profile: InjectionProfile = OpenInjectionProfile(getInjectionSteps)
   }
 
-  case class IncrementTestBuilderWithTime(usersPerSec: Double, nbOfSteps: Int) {
-    def eachLevelLasting(d: FiniteDuration) = IncrementTest(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
+  case class IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec: Double, nbOfSteps: Int) {
+    def eachLevelLasting(d: FiniteDuration) = IncreasingUsersPerSecProfile(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
   }
 
-  case class IncrementTestBuilder(usersPerSec: Double) {
-    def times(nbOfSteps: Int) = IncrementTestBuilderWithTime(usersPerSec, nbOfSteps)
+  case class IncreasingUsersPerSecProfileBuilder(usersPerSec: Double) {
+    def times(nbOfSteps: Int) = IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec, nbOfSteps)
   }
 
-  def incrementUsersPerSec(usersPerSec: Double) = IncrementTestBuilder(usersPerSec)
+  def incrementUsersPerSec(usersPerSec: Double) = IncreasingUsersPerSecProfileBuilder(usersPerSec)
 }

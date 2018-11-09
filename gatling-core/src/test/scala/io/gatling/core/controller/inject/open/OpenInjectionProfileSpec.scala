@@ -143,7 +143,7 @@ class OpenInjectionProfileSpec extends BaseSpec with MetaOpenInjectionSupport {
   }
 
   "getInjectionSteps" should "produce the expected injection profile with ramps and starting users" in {
-    val steps = IncrementTest(
+    val steps = IncreasingUsersPerSecProfile(
       usersPerSec = 10,
       nbOfSteps = 5,
       duration = 10 seconds,
@@ -163,7 +163,7 @@ class OpenInjectionProfileSpec extends BaseSpec with MetaOpenInjectionSupport {
   }
 
   it should "produce the expected injection profile without starting users and ramp" in {
-    val steps = IncrementTest(
+    val steps = IncreasingUsersPerSecProfile(
       usersPerSec = 10,
       nbOfSteps = 5,
       duration = 10 seconds,
@@ -183,7 +183,7 @@ class OpenInjectionProfileSpec extends BaseSpec with MetaOpenInjectionSupport {
   }
 
   it should "produce the expected injection profile with starting users and without ramp" in {
-    val steps = IncrementTest(
+    val steps = IncreasingUsersPerSecProfile(
       usersPerSec = 10,
       nbOfSteps = 5,
       duration = 10 seconds,
@@ -203,7 +203,7 @@ class OpenInjectionProfileSpec extends BaseSpec with MetaOpenInjectionSupport {
   }
 
   it should "produce the expected injection profile without starting users and with ramps" in {
-    val steps = IncrementTest(
+    val steps = IncreasingUsersPerSecProfile(
       usersPerSec = 10,
       nbOfSteps = 5,
       duration = 10 seconds,

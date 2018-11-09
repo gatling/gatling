@@ -40,7 +40,7 @@ class ClosedInjectionStepSpec extends BaseSpec with MetaClosedInjectionSupport {
   }
 
   "getInjectionSteps" should "produce the expected injection profile with ramps and starting users" in {
-    val steps = ConcurrentIncreasingTest(
+    val steps = IncreasingConcurrentUsersProfile(
       concurrentUsers = 10,
       nbOfSteps = 5,
       duration = 10 seconds,
@@ -60,7 +60,7 @@ class ClosedInjectionStepSpec extends BaseSpec with MetaClosedInjectionSupport {
   }
 
   it should "produce the expected injection profile without starting users and ramp" in {
-    val steps = ConcurrentIncreasingTest(
+    val steps = IncreasingConcurrentUsersProfile(
       concurrentUsers = 10,
       nbOfSteps = 5,
       duration = 10 seconds,
@@ -80,7 +80,7 @@ class ClosedInjectionStepSpec extends BaseSpec with MetaClosedInjectionSupport {
   }
 
   it should "produce the expected injection profile with starting users and without ramp" in {
-    val steps = ConcurrentIncreasingTest(
+    val steps = IncreasingConcurrentUsersProfile(
       concurrentUsers = 10,
       nbOfSteps = 5,
       duration = 10 seconds,
@@ -100,7 +100,7 @@ class ClosedInjectionStepSpec extends BaseSpec with MetaClosedInjectionSupport {
   }
 
   it should "produce the expected injection profile without starting users and with ramps" in {
-    val steps = ConcurrentIncreasingTest(
+    val steps = IncreasingConcurrentUsersProfile(
       concurrentUsers = 10,
       nbOfSteps = 5,
       duration = 10 seconds,

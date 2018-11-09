@@ -53,7 +53,7 @@ case class RampConcurrentNumberInjectionTo(from: Int, to: Int) {
 
 trait MetaClosedInjectionSupport {
 
-  case class ConcurrentIncreasingTest(
+  case class IncreasingConcurrentUsersProfile(
       concurrentUsers: Int,
       nbOfSteps:       Int,
       duration:        FiniteDuration,
@@ -61,8 +61,8 @@ trait MetaClosedInjectionSupport {
       rampDuration:    FiniteDuration
   ) extends MetaInjectionProfile {
 
-    def startingFrom(startingUsers: Int): ConcurrentIncreasingTest = this.copy(startingUsers = startingUsers)
-    def separatedByRampsLasting(duration: FiniteDuration): ConcurrentIncreasingTest = this.copy(rampDuration = duration)
+    def startingFrom(startingUsers: Int): IncreasingConcurrentUsersProfile = this.copy(startingUsers = startingUsers)
+    def separatedByRampsLasting(duration: FiniteDuration): IncreasingConcurrentUsersProfile = this.copy(rampDuration = duration)
 
     private[inject] def getInjectionSteps: Iterable[ClosedInjectionStep] =
       (1 to nbOfSteps).foldLeft(Iterable.empty[ClosedInjectionStep]) { (acc, currentStep) =>
@@ -83,13 +83,13 @@ trait MetaClosedInjectionSupport {
     override def profile: InjectionProfile = ClosedInjectionProfile(getInjectionSteps)
   }
 
-  case class ConcurrentIncreasingTestBuilderWithTime(concurrentUsers: Int, nbOfSteps: Int) {
-    def eachLevelLasting(d: FiniteDuration) = ConcurrentIncreasingTest(concurrentUsers, nbOfSteps, d, 0, Duration.Zero)
+  case class IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers: Int, nbOfSteps: Int) {
+    def eachLevelLasting(d: FiniteDuration) = IncreasingConcurrentUsersProfile(concurrentUsers, nbOfSteps, d, 0, Duration.Zero)
   }
 
-  case class ConcurrentIncreasingTestBuilder(concurrentUsers: Int) {
-    def times(nbOfSteps: Int) = ConcurrentIncreasingTestBuilderWithTime(concurrentUsers, nbOfSteps)
+  case class IncreasingConcurrentUsersProfileBuilder(concurrentUsers: Int) {
+    def times(nbOfSteps: Int) = IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps)
   }
 
-  def incrementConcurrentUsers(concurrentUsers: Int) = ConcurrentIncreasingTestBuilder(concurrentUsers)
+  def incrementConcurrentUsers(concurrentUsers: Int) = IncreasingConcurrentUsersProfileBuilder(concurrentUsers)
 }
