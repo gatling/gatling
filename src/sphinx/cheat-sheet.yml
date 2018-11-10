@@ -277,25 +277,25 @@
           description: Declares a feeder from a CSV file
           syntax:
             - signature: (fileName)
-              description: <i>fileName</i> is the name of the file under the <i>data</i> folder containing the comma separated values to be injected
+              description: <i>fileName</i> is the name of the file under the <i>resources</i> folder containing the comma separated values to be injected
 
         - keyword: tsv
           description: Declares a feeder from a TSV file
           syntax:
             - signature: (fileName)
-              description: <i>fileName</i> is the name of the file under the <i>data</i> folder containing the tabulation separated values to be injected
+              description: <i>fileName</i> is the name of the file under the <i>resources</i> folder containing the tabulation separated values to be injected
 
         - keyword: ssv
           description: Declares a feeder from a SSV file
           syntax:
             - signature: (fileName)
-              description: <i>fileName</i> is the name of the file under the <i>data</i> folder containing the semi-colon separated values to be injected
+              description: <i>fileName</i> is the name of the file under the <i>resources</i> folder containing the semi-colon separated values to be injected
 
         - keyword: jsonFile
           description: Declares a feeder from a JSON file
           syntax:
             - signature: (fileName)
-              description: <i>fileName</i> is the name of the file under the <i>data</i> folder containing JSON file to be injected
+              description: <i>fileName</i> is the name of the file under the <i>resources</i> folder containing JSON file to be injected
 
         - keyword: jsonUrl
           description: Declares a feeder from a JSON url
@@ -816,7 +816,7 @@
           example: Email attachment
           syntax:
             - signature: (key, filePath)
-              description: Where <i>key</i> is the name of the field and <i>filePath</i> a path to a file located in /bodies
+              description: Where <i>key</i> is the name of the field and <i>filePath</i> a path to a file located in <i>resources</i>
 
 
 - title: Checks
