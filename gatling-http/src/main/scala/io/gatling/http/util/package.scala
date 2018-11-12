@@ -181,11 +181,12 @@ package object util extends LazyLogging {
             } else {
               buff.append("<<<BINARY CONTENT>>>")
             }
+            buff.append(Eol)
           }
         case _ =>
       }
 
-      buff.append(Eol)
+      buff
     }
   }
 }
