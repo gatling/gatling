@@ -47,10 +47,7 @@ object RedirectProcessor {
       .remove(HeaderNames.Cookie)
       .remove(HeaderNames.Authorization)
       .remove(HeaderNames.Origin)
-
-    if (httpProtocol.requestPart.autoReferer) {
-      newHeaders.add(HeaderNames.Referer, originalRequest.getUri.toString)
-    }
+      .set(HeaderNames.Referer, originalRequest.getUri.toString)
 
     if (!keepBody) {
       newHeaders.remove(HeaderNames.ContentType)
