@@ -18,7 +18,6 @@ package io.gatling.recorder.scenario
 
 import java.io.{ File, IOException }
 import java.nio.file.Path
-import java.util.Locale
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -27,7 +26,6 @@ import scala.collection.immutable.SortedMap
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
-import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har._
 import io.gatling.recorder.scenario.template.SimulationTemplate
@@ -35,7 +33,7 @@ import io.gatling.recorder.util.HttpUtils._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod }
+import io.netty.handler.codec.http._
 
 private[recorder] object ScenarioExporter extends StrictLogging {
 
@@ -86,12 +84,18 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
   private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition)(implicit config: RecorderConfiguration): String = {
     // Aggregate headers
-    val filteredHeaders = Set(HeaderNames.Cookie, HeaderNames.ContentLength, HeaderNames.Host) ++
-      (if (config.http.automaticReferer) Set(HeaderNames.Referer) else Set.empty)
+    val filteredHeaders = Set(HttpHeaderNames.COOKIE, HttpHeaderNames.CONTENT_LENGTH, HttpHeaderNames.HOST) ++
+      (if (config.http.automaticReferer) Set(HttpHeaderNames.REFERER) else Set.empty)
 
     val scenarioElements = scenario.elements
     val mainRequestElements = scenarioElements.collect { case req: RequestElement => req }
     val requestElements = mainRequestElements.flatMap(req => req :: req.nonEmbeddedResources)
+    requestElements.foreach { requestElements =>
+      if (requestElements.headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE, true)) {
+        requestElements.headers.remove(HttpHeaderNames.CONNECTION)
+      }
+    }
+
     val baseUrl = getBaseUrl(mainRequestElements)
     val baseHeaders = getBaseHeaders(requestElements)
     val protocolConfigElement = new ProtocolDefinition(baseUrl, baseHeaders)
@@ -131,8 +135,8 @@ private[recorder] object ScenarioExporter extends StrictLogging {
               case (headerName, headerValue) =>
                 val isFiltered = containsIgnoreCase(filteredHeaders, headerName) || isHttp2PseudoHeader(headerName)
                 val isAlreadyInBaseHeaders = getIgnoreCase(baseHeaders, headerName).contains(headerValue)
-                val isPostWithFormParams = element.method == HttpMethod.POST.name() && headerValue.toLowerCase(Locale.ROOT).contains(HeaderValues.ApplicationFormUrlEncoded)
-                val isEmptyContentLength = headerName.equalsIgnoreCase(HeaderNames.ContentLength) && headerValue == "0"
+                val isPostWithFormParams = element.method == HttpMethod.POST.name && HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(headerValue)
+                val isEmptyContentLength = HttpHeaderNames.CONTENT_LENGTH.contentEqualsIgnoreCase(headerName) && headerValue == "0"
                 isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
             }
             .sortBy(_._1)
@@ -182,7 +186,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     }
 
     val baseHeaders = new DefaultHttpHeaders(false)
-    ProtocolDefinition.BaseHeadersAndProtocolMethods.names().asScala.foreach { headerName =>
+    ProtocolDefinition.BaseHeadersAndProtocolMethods.names.asScala.foreach { headerName =>
       getMostFrequentHeaderValue(headerName) match {
         case Some(mostFrequentValue) => baseHeaders.add(headerName, mostFrequentValue)
         case _                       =>

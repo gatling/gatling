@@ -16,27 +16,24 @@
 
 package io.gatling.recorder.util
 
-import java.util.Locale
-
-import scala.collection.JavaConverters._
-
 import io.netty.handler.codec.http.HttpHeaderValues._
 import io.netty.handler.codec.http.HttpHeaders
+import io.netty.util.AsciiString
 
 object HttpUtils {
-  val SupportedEncodings = Set(GZIP.toString, DEFLATE.toString)
+  val SupportedEncodings = Set(GZIP, DEFLATE)
 
   def filterSupportedEncodings(acceptEncodingHeaderValue: String): String =
     acceptEncodingHeaderValue
       .split(",")
-      .filter(encoding => SupportedEncodings.contains(encoding.trim.toLowerCase(Locale.US)))
+      .filter(encoding => containsIgnoreCase(SupportedEncodings, encoding.trim))
       .mkString(",")
 
-  def containsIgnoreCase(headers: Iterable[String], header: String): Boolean =
-    headers.exists(_.equalsIgnoreCase(header))
+  def containsIgnoreCase(headers: Iterable[AsciiString], header: String): Boolean =
+    headers.exists(_.contentEqualsIgnoreCase(header))
 
   def getIgnoreCase(httpHeaders: HttpHeaders, header: String): Option[String] =
-    httpHeaders.asScala.find(_.getKey.equalsIgnoreCase(header)).map(_.getValue)
+    Option(httpHeaders.get(header))
 
   def isHttp2PseudoHeader(header: String): Boolean = header.startsWith(":")
 }

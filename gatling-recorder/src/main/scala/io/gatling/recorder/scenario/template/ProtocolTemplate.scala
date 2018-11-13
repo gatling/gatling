@@ -80,7 +80,7 @@ private[scenario] object ProtocolTemplate {
     def renderHeaders = {
       def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
       protocol.headers.entries().asScala
-        .collect { case entry if !entry.getKey.equalsIgnoreCase(HeaderNames.Connection) || entry.getValue.equalsIgnoreCase(HeaderValues.Close) => entry.getKey -> entry.getValue }
+        .map { case entry => entry.getKey -> entry.getValue }
         .sorted
         .flatMap {
           case (headerName, headerValue) =>
