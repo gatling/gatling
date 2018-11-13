@@ -23,6 +23,7 @@ Migrating from 2.3 to 3.0
   * WebSocket and SSE support were completely re-written, see :ref:`new API <http-ws>`.
   * ``ntmlAuth`` is dropped until we can support NTLM properly, see `#3525 <https://github.com/gatling/gatling/issues/3525>`__
   * The way to compute HTTP request signatures was revamped, see :ref:`new API <http-request-signature>`
+  * ``disableClientSharing`` was dropped. It's not possible atm to specify individual keystore and trustore for each virtual user. However, each virtual user has a distinct ``SSLContext``.
 
 * JMS:
 

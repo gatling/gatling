@@ -6,6 +6,25 @@
 SSL
 ###
 
+.. _http-ssl-sslcontext:
+SSLContext
+==========
+
+By default, each virtual user will have its own ``SSLContext`` and ``SSLSession``s.
+This behavior is realistic when it comes to simulating web traffic so your server has to deal with the proper number of ``SSLSession``s.
+
+You can only have a shared ``SSLContext`` if you decide to :ref:`shareConnections <http-protocol-connection-sharing>`.
+
+.. _http-ssl-openssl:
+Disabling OpenSSL
+=================
+
+By default, Gatling uses `BoringSSL <https://opensource.google.com/projects/boringssl>`_ to perform TLS.
+This implementation is more efficient than the JDK's one, especially on JDK8.
+It's also the only supported solution for HTTP/2 in Gatling with JDK8.
+
+If you want to revert to using JDK's implementation, you can set the ``gatling.http.ahc.useOpenSsl`` property to ``false`` in ``gatling.conf``
+
 .. _http-ssl-sni:
 
 Disabling SNI
@@ -15,43 +34,16 @@ By default, since JDK7, JDK enables `SNI <http://en.wikipedia.org/wiki/Server_Na
 This can cause SSL handshake exceptions, such as ``handshake alert:  unrecognized_name`` when server names are not properly configured on the server side.
 Browsers are more loose than JDK regarding this.
 
-If you want to disable SNI, you can set the following System property::
+If you want to disable SNI, you can set the ``gatling.http.ahc.enableSni`` property to ``false`` in ``gatling.conf``.
 
-  -Djsse.enableSNIExtension=false
+
 
 .. _http-ssl-stores:
 
-Configuring KeyStore and TrustStore
+Configuring KeyStore and TrustStore`
 ===================================
 
 Default Gatling TrustStore is very permissive and doesn't validate certificates,
 meaning that it works out of the box with self-signed certificates.
 
-.. _http-ssl-stores-shared:
-
-Shared Stores
--------------
-
-One can provide custom KeyStores and TrustStores.
-Configuration can be passed with the standard config mechanism, either in ``gatling.conf`` or with System properties::
-
-  "gatling.http.ssl.trustStore.type"      (optional)
-  "gatling.http.ssl.trustStore.file"      (required, can be an absolute path, or a classpath location)
-  "gatling.http.ssl.trustStore.password"  (optional)
-  "gatling.http.ssl.trustStore.algorithm" (optional)
-
-  "gatling.http.ssl.keyStore.type"        (optional)
-  "gatling.http.ssl.keyStore.file"        (required, can be an absolute path, or a classpath location)
-  "gatling.http.ssl.keyStore.password"    (optional)
-  "gatling.http.ssl.keyStore.algorithm"   (optional)
-
-.. _http-ssl-stores-per-user:
-
-Per Virtual User Stores
------------------------
-
-Sometimes, one might want to have virtual users with different KeyStores and TrustStores.
-
-As KeyStores and TrustStores are define at the HTTP engine instance level, one first has to use :ref:`disableClientSharing <http-protocol-client-sharing>`.
-
-Then, simply pass the same properties as session attributes (manually or with a feeder).
+You can pass your own keystore and trustore in ``gatling.conf``.
