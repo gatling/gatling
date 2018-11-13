@@ -28,6 +28,10 @@ class WsSample {
   exec(ws("Connect WS").connect("/room/chat?username=steph"))
   //#wsConnect
 
+  //#subprotocol
+  exec(ws("Connect WS").connect("/room/chat?username=steph").subprotocol("custom"))
+  //#subprotocol
+
   //#onConnected
   exec(ws("Connect WS").connect("/room/chat?username=steph")
     .onConnected(

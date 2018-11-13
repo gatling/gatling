@@ -63,6 +63,7 @@ object WsActor {
   def props(
     wsName:               String,
     connectRequest:       Request,
+    subprotocol:          Option[String],
     connectActionName:    String,
     connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     onConnected:          Option[Action],
@@ -75,6 +76,7 @@ object WsActor {
     Props(new WsActor(
       wsName,
       connectRequest,
+      subprotocol,
       connectActionName,
       connectCheckSequence,
       onConnected,
@@ -89,6 +91,7 @@ object WsActor {
 class WsActor(
     val wsName:               String,
     val connectRequest:       Request,
+    val subprotocol:          Option[String],
     val connectActionName:    String,
     val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     val onConnected:          Option[Action],

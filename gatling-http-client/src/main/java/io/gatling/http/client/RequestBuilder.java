@@ -68,6 +68,7 @@ public class RequestBuilder {
   private boolean http2Enabled;
   private boolean alpnRequired;
   private boolean http2PriorKnowledge;
+  private String wsSubprotocol;
   private boolean fixUrlEncoding = true;
   private Charset defaultCharset = UTF_8;
 
@@ -92,6 +93,7 @@ public class RequestBuilder {
     http2Enabled = request.isHttp2Enabled();
     alpnRequired = request.isAlpnRequired();
     http2PriorKnowledge = request.isHttp2PriorKnowledge();
+    wsSubprotocol = request.getWsSubprotocol();
   }
 
   public Uri getUri() {
@@ -183,6 +185,11 @@ public class RequestBuilder {
     return this;
   }
 
+  public RequestBuilder setWsSubprotocol(String wsSubprotocol) {
+    this.wsSubprotocol = wsSubprotocol;
+    return this;
+  }
+
   public Request build() {
 
     Uri fullUri = UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, queryParams);
@@ -239,7 +246,8 @@ public class RequestBuilder {
       nameResolver,
       http2Enabled,
       alpnRequired,
-      http2PriorKnowledge
+      http2PriorKnowledge,
+      wsSubprotocol
       );
   }
 }

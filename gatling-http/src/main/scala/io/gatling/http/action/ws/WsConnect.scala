@@ -30,6 +30,7 @@ import io.gatling.http.protocol.HttpComponents
 class WsConnect(
     override val requestName: Expression[String],
     wsName:                   String,
+    subprotocol:              Option[String],
     request:                  Expression[Request],
     connectCheckSequences:    List[WsFrameCheckSequence[WsFrameCheck]],
     onConnected:              Option[Action],
@@ -54,6 +55,7 @@ class WsConnect(
           val wsActor = httpComponents.coreComponents.actorSystem.actorOf(WsActor.props(
             wsName,
             request,
+            subprotocol,
             requestName,
             connectCheckSequences,
             onConnected,

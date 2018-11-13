@@ -92,7 +92,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
           WebSocketClientHandshakerFactory.newHandshaker(
             tx.request.getUri().toJavaNetURI(),
             WebSocketVersion.V13,
-            null,
+            tx.request.getWsSubprotocol(),
             true,
             request.getRequest().headers(),
             Integer.MAX_VALUE);

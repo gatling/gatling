@@ -45,6 +45,7 @@ public class Request {
   private final boolean http2Enabled;
   private final boolean alpnRequired;
   private final boolean http2PriorKnowledge;
+  private final String wsSubprotocol;
 
   public Request(HttpMethod method,
                  Uri uri,
@@ -60,7 +61,8 @@ public class Request {
                  NameResolver<InetAddress> nameResolver,
                  boolean http2Enabled,
                  boolean alpnRequired,
-                 boolean http2PriorKnowledge) {
+                 boolean http2PriorKnowledge,
+                 String wsSubprotocol) {
     this.method = method;
     this.uri = uri;
     this.headers = headers;
@@ -76,6 +78,7 @@ public class Request {
     this.http2Enabled = http2Enabled;
     this.alpnRequired = alpnRequired;
     this.http2PriorKnowledge = http2PriorKnowledge;
+    this.wsSubprotocol = wsSubprotocol;
   }
 
   public Request copyWithAlpnRequiredAndPriorKnowledge(boolean isAlpnRequired, boolean isHttp2PriorKnowledge) {
@@ -94,7 +97,8 @@ public class Request {
       this.nameResolver,
       this.http2Enabled,
       isAlpnRequired,
-      isHttp2PriorKnowledge);
+      isHttp2PriorKnowledge,
+      this.wsSubprotocol);
   }
 
   public HttpMethod getMethod() {
@@ -157,6 +161,10 @@ public class Request {
     return http2PriorKnowledge;
   }
 
+  public String getWsSubprotocol() {
+    return wsSubprotocol;
+  }
+
   @Override
   public String toString() {
     return "Request{" +
@@ -175,6 +183,7 @@ public class Request {
       ", http2Enabled=" + http2Enabled +
       ", alpnRequired=" + alpnRequired +
       ", http2PriorKnowledge=" + http2PriorKnowledge +
+      ", wsSubprotocol=" + wsSubprotocol +
       '}';
   }
 }

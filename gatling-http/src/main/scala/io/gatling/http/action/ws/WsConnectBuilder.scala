@@ -49,6 +49,7 @@ case class WsConnectBuilder(
     new WsConnect(
       requestBuilder.commonAttributes.requestName,
       requestBuilder.wsName,
+      requestBuilder.subprotocol,
       request,
       checkSequences,
       onConnected,

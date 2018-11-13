@@ -16,9 +16,11 @@
 
 package io.gatling.http.request.builder.ws
 
+import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 import io.gatling.http.util.HttpHelper
@@ -27,7 +29,8 @@ class WsRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
     httpCaches:       HttpCaches,
     httpProtocol:     HttpProtocol,
-    configuration:    GatlingConfiguration
+    configuration:    GatlingConfiguration,
+    subprotocol:      Option[String]
 )
   extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
@@ -38,4 +41,8 @@ class WsRequestExpressionBuilder(
 
   override protected def isAbsoluteUrl(url: String): Boolean =
     HttpHelper.isAbsoluteWsUrl(url)
+
+  override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
+    // pass sbuprotocol
+    super.configureRequestBuilder(session, requestBuilder.setWsSubprotocol(subprotocol.orNull))
 }

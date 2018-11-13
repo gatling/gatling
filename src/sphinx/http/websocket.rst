@@ -43,6 +43,10 @@ For example:
 
 .. includecode:: code/WsSample.scala#connect
 
+You can specify a subprotocol:
+
+.. includecode:: code/WsSample.scala#subprotocol
+
 You can define a chain of actions to be performed after (re-)connecting with ``onConnected``:
 
 .. includecode:: code/WsSample.scala#onConnected

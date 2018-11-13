@@ -28,10 +28,12 @@ object WsConnectRequestBuilder {
     WsConnectBuilder(requestBuilder, Nil, None)
 }
 
-case class WsConnectRequestBuilder(commonAttributes: CommonAttributes, wsName: String) extends RequestBuilder[WsConnectRequestBuilder] {
+case class WsConnectRequestBuilder(commonAttributes: CommonAttributes, wsName: String, subprotocol: Option[String]) extends RequestBuilder[WsConnectRequestBuilder] {
 
-  private[http] def newInstance(commonAttributes: CommonAttributes) = new WsConnectRequestBuilder(commonAttributes, wsName)
+  def subprotocol(sub: String): WsConnectRequestBuilder = copy(subprotocol = Some(sub))
+
+  private[http] def newInstance(commonAttributes: CommonAttributes) = new WsConnectRequestBuilder(commonAttributes, wsName, subprotocol)
 
   def build(httpComponents: HttpComponents): Expression[Request] =
-    new WsRequestExpressionBuilder(commonAttributes, httpComponents.httpCaches, httpComponents.httpProtocol, httpComponents.coreComponents.configuration).build
+    new WsRequestExpressionBuilder(commonAttributes, httpComponents.httpCaches, httpComponents.httpProtocol, httpComponents.coreComponents.configuration, subprotocol).build
 }

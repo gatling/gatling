@@ -35,6 +35,7 @@ class WsCompileTest extends Simulation {
     .exec(http("Login").get("/room?username=${id}"))
     .pause(1)
     .exec(ws("Connect WS").connect("/room/chat?username=${id}")
+      .subprotocol("FOO")
       .await(1 second) {
         ws.checkTextMessage("checkName")
           .matching(jsonPath("$.uuid").is("${correlation}"))
