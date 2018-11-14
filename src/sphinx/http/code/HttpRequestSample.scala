@@ -239,7 +239,7 @@ class HttpRequestSample {
       .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }""")).asJson
       //#StringBody
       //#PebbleBody
-      .body(PebbleStringBody("""{ "myContent": "{myDynamicValue}" }""")).asJson
+      .body(PebbleStringBody("""{ "myContent": "{% if myCondition %}{{myDynamicValue}}{% endif %}" }""")).asJson
 
       // myFileBody.json is a file that contains
       // { "myContent": "{myDynamicValue}" }

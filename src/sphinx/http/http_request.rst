@@ -376,7 +376,7 @@ Here, you can pass a Stream.
 
 .. _http-request-body-pebble:
 
-* ``PebbleBody(path: Expression[String])``
+* ``PebbleFileBody(path: Expression[String])``
 
 Gatling Expression Language is definitively the most optimized templating engine for Gatling, in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
 If you want loops and conditional blocks, you can use Gatling's `Pebble <https://github.com/PebbleTemplates/pebble>`_ based templating engine.
