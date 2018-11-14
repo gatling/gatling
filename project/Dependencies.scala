@@ -82,7 +82,7 @@ object Dependencies {
 
   // format: ON
 
-  private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
+  private val loggingDeps = Seq(slf4jApi, scalaLogging)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
   private val parserDeps = Seq(jsonpath, jackson, joddJson, saxon, joddLagarto)
 
