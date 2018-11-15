@@ -80,12 +80,12 @@ object Gatling extends StrictLogging {
         }
       RunResultProcessor(configuration).processRunResult(runResult).code
     } finally {
-      val factoryClass = LoggerFactory.getILoggerFactory.getClass
+      val factory = LoggerFactory.getILoggerFactory
       try {
-        factoryClass.getMethod("stop").invoke(factoryClass)
+        factory.getClass.getMethod("stop").invoke(factory)
       } catch {
-        case NonFatal(_) =>
-          logger.warn("The LoggerFactory of your logging framework does not have a stop method. In case you run into buffering issues consider switching to logback or log4j2 which support flushing the buffer before shutdown.")
+        case NonFatal(e) =>
+          logger.warn("The LoggerFactory of your logging framework does not have a stop method. In case you run into buffering issues consider switching to logback or log4j2 which support flushing the buffer before shutdown.", e)
       }
     }
 }
