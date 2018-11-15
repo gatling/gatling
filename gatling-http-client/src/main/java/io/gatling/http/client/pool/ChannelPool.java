@@ -33,6 +33,7 @@ public class ChannelPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(ChannelPool.class);
 
   private static final AttributeKey<ChannelPoolKey> CHANNEL_POOL_KEY_ATTRIBUTE_KEY = AttributeKey.valueOf("poolKey");
+  private static final AttributeKey<Boolean> CHANNEL_REUSED_ATTRIBUTE_KEY = AttributeKey.valueOf("reused");
   private static final AttributeKey<Long> CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY = AttributeKey.valueOf("poolTimestamp");
   private static final AttributeKey<Integer> CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY = AttributeKey.valueOf("poolStreamCount");
   static final int INITIAL_CLIENT_MAP_SIZE = 1000;
@@ -54,6 +55,10 @@ public class ChannelPool {
 
   public static boolean isHttp2(Channel channel) {
     return !isHttp1(channel);
+  }
+
+  public static boolean isReused(Channel channel) {
+    return channel.attr(CHANNEL_REUSED_ATTRIBUTE_KEY).get() != null;
   }
 
   private void incrementStreamCount(Channel channel) {
@@ -108,6 +113,7 @@ public class ChannelPool {
   public void offer(Channel channel) {
     ChannelPoolKey key = channel.attr(CHANNEL_POOL_KEY_ATTRIBUTE_KEY).get();
     assertNotNull(key, "Channel doesn't have a key");
+    channel.attr(CHANNEL_REUSED_ATTRIBUTE_KEY).set(Boolean.TRUE);
 
     if (isHttp1(channel)) {
       remoteChannels(key).offer(channel);
