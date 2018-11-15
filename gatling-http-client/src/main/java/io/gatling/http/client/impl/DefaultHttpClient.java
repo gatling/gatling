@@ -42,6 +42,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.*;
@@ -78,10 +79,10 @@ public class DefaultHttpClient implements HttpClient {
   private static final String INFLATER_HANDLER = "inflater";
   private static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
   private static final String DIGEST_AUTH_HANDLER = "digest";
-  private static final String WS_OBJECT_AGGREGATOR = "ws-aggregator";
+  private static final String WS_OBJECT_AGGREGATOR = "ws-object-aggregator";
   private static final String WS_COMPRESSION = "ws-compression";
-  static final String WS_AGGREGATOR = "ws-aggregator";
-  static final String APP_WS_HANDLER = "app-ws";
+  private static final String WS_FRAME_AGGREGATOR = "ws-frame-aggregator";
+  private static final String APP_WS_HANDLER = "app-ws";
   private static final String ALPN_HANDLER = "alpn";
   private static final String APP_HTTP2_HANDLER = "app-http2";
 
@@ -171,6 +172,7 @@ public class DefaultHttpClient implements HttpClient {
             .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
             .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(8192))
             .addLast(WS_COMPRESSION, WebSocketClientCompressionHandler.INSTANCE)
+            .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
             .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
 
           if (config.getAdditionalChannelInitializer() != null) {
