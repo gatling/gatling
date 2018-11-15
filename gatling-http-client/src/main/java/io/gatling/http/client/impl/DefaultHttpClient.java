@@ -308,17 +308,18 @@ public class DefaultHttpClient implements HttpClient {
     return new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry(), sslContext, alpnSslContext);
   }
 
-  boolean retry(HttpTx tx, EventLoop eventLoop) {
+  boolean canRetry(HttpTx tx) {
+    return tx.remainingTries > 0 && !(tx.request.getBody() instanceof InputStreamRequestBody);
+  }
+
+  void retry(HttpTx tx, EventLoop eventLoop) {
     if (isClosed()) {
-      return false;
+      return;
     }
 
-    if (tx.remainingTries > 0 && !(tx.request.getBody() instanceof InputStreamRequestBody)) {
-      tx.remainingTries = tx.remainingTries - 1;
-      sendTx(tx, eventLoop);
-      return true;
-    }
-    return false;
+    tx.remainingTries = tx.remainingTries - 1;
+    LOGGER.debug("Retrying, remaining {}", tx.remainingTries);
+    sendTx(tx, eventLoop);
   }
 
   private void sendTx(HttpTx tx, EventLoop eventLoop) {

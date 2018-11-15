@@ -36,7 +36,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HttpAppHandler.class);
 
-  private static final IOException PREMATURE_CLOSE = new IOException("Premature close") {
+  static final IOException PREMATURE_CLOSE = new IOException("Premature close") {
     @Override
     public synchronized Throwable fillInStackTrace() {
       return this;
@@ -184,11 +184,15 @@ class HttpAppHandler extends ChannelDuplexHandler {
       return;
     }
 
-    if (!httpResponseReceived && client.retry(tx, ctx.channel().eventLoop())) {
-      // only retry when we haven't started receiving response
-      setInactive();
+    HttpTx tx = this.tx;
+    setInactive();
+    tx.requestTimeout.cancel();
+
+    // only retry when we haven't started receiving response
+    if (!httpResponseReceived && client.canRetry(tx)) {
+      client.retry(tx, ctx.channel().eventLoop());
     } else {
-      crash(ctx, PREMATURE_CLOSE, false);
+      crash0(ctx, PREMATURE_CLOSE, false, tx);
     }
   }
 
