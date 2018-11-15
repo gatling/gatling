@@ -29,7 +29,6 @@ import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 
-
 /**
  * Object containing entry point of application
  */
