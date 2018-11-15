@@ -29,18 +29,11 @@ import io.netty.handler.codec.http.websocketx.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import static io.gatling.http.client.impl.HttpAppHandler.PREMATURE_CLOSE;
 
 public class WebSocketHandler extends ChannelDuplexHandler {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandler.class);
-
-  private static final IOException PREMATURE_CLOSE = new IOException("Premature close") {
-    @Override
-    public synchronized Throwable fillInStackTrace() {
-      return this;
-    }
-  };
 
   private final HttpClientConfig config;
   private HttpTx tx;
