@@ -43,13 +43,6 @@ object SslContextsFactory {
     ApplicationProtocolNames.HTTP_2,
     ApplicationProtocolNames.HTTP_1_1
   )
-
-  private val SupportedCiphers: Array[String] = {
-    val jdkSslContext = SSLContext.getInstance("TLS")
-    jdkSslContext.init(null, DefaultTrustManagers, DefaultSslSecureRandom)
-    val engine = jdkSslContext.createSSLEngine()
-    engine.getEnabledCipherSuites
-  }
 }
 
 class SslContextsFactory(httpConfig: HttpConfiguration) {
