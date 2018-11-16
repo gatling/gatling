@@ -33,6 +33,7 @@ import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.client.Request
+import io.gatling.http.engine.response._
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -40,8 +41,6 @@ import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
 object ResponseBuilder extends StrictLogging {
-
-  private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
   def newResponseBuilderFactory(
     checks:             List[HttpCheck],
@@ -56,7 +55,7 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy)
 
-    val storeBodyParts = IsDebugEnabled || responseBodyUsageStrategies.nonEmpty
+    val storeBodyParts = IsHttpDebugEnabled || responseBodyUsageStrategies.nonEmpty
 
     request => new ResponseBuilder(
       request,
