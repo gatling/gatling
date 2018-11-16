@@ -59,10 +59,9 @@ class SslContextsFactory(httpConfig: HttpConfiguration) {
   private val sslSessionTimeoutSeconds = httpConfig.advanced.sslSessionTimeout.toSeconds
   private val enabledProtocols: Array[String] = httpConfig.advanced.sslEnabledProtocols.toArray
   private val enabledCipherSuites = httpConfig.advanced.sslEnabledCipherSuites.asJava
-  private val enabledCipherSuitesArray = httpConfig.advanced.sslEnabledCipherSuites.toArray
 
   def newSslContexts(http2Enabled: Boolean): SslContexts =
-    if (httpConfig.advanced.useOpenSsl) {
+    if (httpConfig.advanced.useOpenSsl && OpenSsl.isAvailable) {
       val sslContextBuilder = SslContextBuilder.forClient.sslProvider(SslProvider.OPENSSL)
 
       if (httpConfig.advanced.sslSessionCacheSize > 0) {
@@ -123,7 +122,9 @@ class SslContextsFactory(httpConfig: HttpConfiguration) {
       if (enabledCipherSuites.isEmpty) null else enabledCipherSuites,
       IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS,
       apn,
-      ClientAuth.NONE
+      ClientAuth.NONE,
+      null,
+      false
     )) {
       override def initEngine(engine: SSLEngine): Unit =
         if (enabledProtocols.nonEmpty) {
