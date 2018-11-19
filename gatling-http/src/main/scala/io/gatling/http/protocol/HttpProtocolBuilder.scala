@@ -18,6 +18,7 @@ package io.gatling.http.protocol
 
 import java.net.{ InetAddress, InetSocketAddress }
 
+import io.gatling.commons.util.Platform
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
@@ -25,14 +26,15 @@ import io.gatling.core.session.el.El
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.realm.Realm
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
+import io.netty.handler.ssl.OpenSsl
 
 /**
  * HttpProtocolBuilder class companion
@@ -42,7 +44,7 @@ object HttpProtocolBuilder {
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 
   def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
-    HttpProtocolBuilder(HttpProtocol(configuration))
+    HttpProtocolBuilder(HttpProtocol(configuration), configuration.http.advanced.useOpenSsl)
 
   val MissingEnabledHttp2ForPriorKnowledgeException = new IllegalArgumentException("Cannot set HTTP/2 prior knowledge if HTTP/2 is not enabled")
 }
@@ -52,7 +54,7 @@ object HttpProtocolBuilder {
  *
  * @param protocol the protocol being built
  */
-case class HttpProtocolBuilder(protocol: HttpProtocol) {
+case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
 
   def baseUrl(url: String) = baseUrls(List(url))
   def baseUrls(urls: String*): HttpProtocolBuilder = baseUrls(urls.toList)
@@ -102,7 +104,12 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def sign(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
   def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
-  def enableHttp2 = this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
+  def enableHttp2 =
+    if ((useOpenSsl && OpenSsl.isAlpnSupported) || Platform.JavaMajorVersion >= 11) {
+      this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
+    } else {
+      throw new UnsupportedOperationException("You can't use HTTP/2 if OpenSSL is not available and Java version < 11")
+    }
 
   def http2PriorKnowledge(remotes: Map[String, Boolean]) =
     this.modify(_.protocol.enginePart.http2PriorKnowledge).setTo(remotes.map {

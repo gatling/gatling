@@ -19,7 +19,6 @@ package io.gatling.http.client.impl;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.pool.ChannelPoolKey;
-import io.gatling.http.client.pool.RemoteKey;
 import io.netty.handler.ssl.SslContext;
 
 public class HttpTx {
@@ -46,6 +45,13 @@ public class HttpTx {
   }
 
   SslContext sslContext() {
-    return request.isAlpnRequired() ? alpnSslContext : sslContext;
+    if (request.isAlpnRequired()) {
+      if (alpnSslContext == null) {
+        throw new UnsupportedOperationException("ALNP is not available (this path shouldn't be possible, please report).");
+      }
+      return alpnSslContext;
+    } else {
+      return sslContext;
+    }
   }
 }

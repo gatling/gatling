@@ -23,6 +23,7 @@ import scala.concurrent.duration.Duration
 
 import io.gatling.core.config.HttpConfiguration
 
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl._
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import javax.net.ssl.{ SSLContext, SSLEngine, TrustManager, TrustManagerFactory }
@@ -45,16 +46,26 @@ object SslContextsFactory {
   )
 }
 
-class SslContextsFactory(httpConfig: HttpConfiguration) {
+class SslContextsFactory(httpConfig: HttpConfiguration) extends StrictLogging {
 
   import SslContextsFactory._
 
   private val sslSessionTimeoutSeconds = httpConfig.advanced.sslSessionTimeout.toSeconds
   private val enabledProtocols: Array[String] = httpConfig.advanced.sslEnabledProtocols.toArray
   private val enabledCipherSuites = httpConfig.advanced.sslEnabledCipherSuites.asJava
+  private val useOpenSsl =
+    if (httpConfig.advanced.useOpenSsl) {
+      val available = OpenSsl.isAvailable
+      if (!available) {
+        logger.error("OpenSSL is enabled in the Gatling configuration but it's not available on your architecture.")
+      }
+      available
+    } else {
+      false
+    }
 
   def newSslContexts(http2Enabled: Boolean): SslContexts =
-    if (httpConfig.advanced.useOpenSsl && OpenSsl.isAvailable) {
+    if (useOpenSsl) {
       val sslContextBuilder = SslContextBuilder.forClient.sslProvider(SslProvider.OPENSSL)
 
       if (httpConfig.advanced.sslSessionCacheSize > 0) {
@@ -86,13 +97,14 @@ class SslContextsFactory(httpConfig: HttpConfiguration) {
       }
 
       val sslContext = sslContextBuilder.build
+      val alpnSslContext =
+        if (http2Enabled) {
+          Some(sslContextBuilder.applicationProtocolConfig(Apn).build)
+        } else {
+          None
+        }
+      SslContexts(sslContext, alpnSslContext)
 
-      if (http2Enabled) {
-        val alpnSslContext = sslContextBuilder.applicationProtocolConfig(Apn).build
-        SslContexts(sslContext, Some(alpnSslContext))
-      } else {
-        SslContexts(sslContext, None)
-      }
     } else {
       val jdkSslContext = SSLContext.getInstance("TLS")
       jdkSslContext.init(httpConfig.ssl.keyManagerFactory.map(_.getKeyManagers).orNull, DefaultTrustManagers, DefaultSslSecureRandom)
@@ -104,7 +116,6 @@ class SslContextsFactory(httpConfig: HttpConfiguration) {
         } else {
           None
         }
-
       SslContexts(sslContext, alpnSslContext)
     }
 

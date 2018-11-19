@@ -42,8 +42,6 @@ private[gatling] object HttpClientFactory {
 private[gatling] trait HttpClientFactory {
 
   def newClient: HttpClient
-
-  def newSslContexts(http2Enabled: Boolean): SslContexts
 }
 
 private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, sslContextsFactory: SslContextsFactory)
@@ -57,10 +55,10 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
 
-    val SslContexts(defaultSslContext, Some(defaultAlpnSslContext)) = newSslContexts(true)
+    val SslContexts(defaultSslContext, defaultAlpnSslContext) = sslContextsFactory.newSslContexts(true)
     new HttpClientConfig()
       .setDefaultSslContext(defaultSslContext)
-      .setDefaultAlpnSslContext(defaultAlpnSslContext)
+      .setDefaultAlpnSslContext(defaultAlpnSslContext.orNull)
       .setConnectTimeout(httpConfig.advanced.connectTimeout.toMillis)
       .setHandshakeTimeout(httpConfig.advanced.handshakeTimeout.toMillis)
       .setChannelPoolIdleTimeout(httpConfig.advanced.pooledConnectionIdleTimeout.toMillis)
@@ -80,7 +78,4 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
     coreComponents.actorSystem.registerOnTermination(client.close())
     client
   }
-
-  override def newSslContexts(http2Enabled: Boolean): SslContexts =
-    sslContextsFactory.newSslContexts(http2Enabled)
 }
