@@ -1213,7 +1213,7 @@
           description: Binds the sockets from a list of specific local addresses instead of the default one
           syntax:
           - signature: (InetAddress...)
-            description: Address Strings that will be turned ino InetAddresses
+            description: Address Strings that will be turned into InetAddresses
 
         - keyword: disableCaching
           description: Disables caching features for some http headers and ETag
