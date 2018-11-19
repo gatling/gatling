@@ -1207,7 +1207,13 @@
           description: Binds the sockets from a specific local address instead of the default one
           syntax:
             - signature: (InetAddress)
-              description: Instance of InetAddress representing the address
+              description: Address String that will be turned ino a InetAddress
+
+        - keyword: localAddresses
+          description: Binds the sockets from a list of specific local addresses instead of the default one
+          syntax:
+          - signature: (InetAddress...)
+            description: Address Strings that will be turned ino InetAddresses
 
         - keyword: disableCaching
           description: Disables caching features for some http headers and ETag
