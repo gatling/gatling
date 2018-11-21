@@ -58,7 +58,6 @@ object RedirectProcessor {
       .setHttp2Enabled(originalRequest.isHttp2Enabled)
       .setLocalAddress(originalRequest.getLocalAddress)
       .setNameResolver(originalRequest.getNameResolver)
-      .setProxyServer(originalRequest.getProxyServer)
       .setRealm(originalRequest.getRealm)
       .setRequestTimeout(originalRequest.getRequestTimeout)
       .setDefaultCharset(defaultCharset)
