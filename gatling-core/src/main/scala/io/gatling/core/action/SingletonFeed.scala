@@ -36,10 +36,11 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
       def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 
       def pollRecord(): Validation[Record[T]] =
-        if (!feeder.hasNext)
+        if (!feeder.hasNext) {
           "Feeder is now empty, stopping engine".failure
-        else
-          feeder.next().success
+        } else {
+          safely(error => s"Feeder crashed: $error")(feeder.next().success)
+        }
 
       def feedRecords(numberOfRecords: Int): Validation[Session] =
         numberOfRecords match {
