@@ -42,14 +42,5 @@ case class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends 
   //
   //
   //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
   //[fl]
 }

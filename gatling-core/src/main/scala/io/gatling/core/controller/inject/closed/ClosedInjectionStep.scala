@@ -18,7 +18,7 @@ package io.gatling.core.controller.inject.closed
 
 import scala.concurrent.duration._
 
-private[closed] trait ClosedInjectionStep {
+sealed trait ClosedInjectionStep {
 
   def valueAt(t: FiniteDuration): Int
 
@@ -49,3 +49,11 @@ case class RampConcurrentNumberInjection(from: Int, to: Int, duration: FiniteDur
     from + math.round((to - from).toDouble / durationSeconds * t.toSeconds).toInt
   }
 }
+
+//[fl]
+//
+//
+//
+//
+//
+//[fl]
