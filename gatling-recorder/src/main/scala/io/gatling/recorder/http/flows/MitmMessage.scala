@@ -25,7 +25,6 @@ object MitmMessage {
 
   case object ServerChannelInactive extends MitmMessage
 
-  // TODO support not using ObjectAggregator?
   case class RequestReceived(request: FullHttpRequest) extends MitmMessage
 
   case class ClientChannelActive(channel: Channel) extends MitmMessage
