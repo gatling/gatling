@@ -90,7 +90,7 @@ abstract class PlainMitmActor(
 
     case Event(ResponseReceived(response), _) =>
       logger.debug(s"Server channel ${serverChannel.id} received Response while in Connected state")
-      serverChannel.writeAndFlush(response.retain())
+      serverChannel.writeAndFlush(response)
       stay()
 
     case Event(RequestReceived(request), ConnectedData(remote, clientChannel)) =>

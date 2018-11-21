@@ -52,7 +52,7 @@ object Netty {
 
     def makeRelative: FullHttpRequest = {
       val relativeUrl = Uri.create(request.uri).toRelativeUrl
-      val relativeRequest = new DefaultFullHttpRequest(request.protocolVersion, request.method, relativeUrl, request.content.retain())
+      val relativeRequest = new DefaultFullHttpRequest(request.protocolVersion, request.method, relativeUrl, request.content)
       relativeRequest.headers.add(request.headers)
       relativeRequest
     }

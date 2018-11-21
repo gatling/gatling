@@ -58,7 +58,7 @@ class ServerHandler(
         }
 
         trafficLogger.logRequest(ctx.channel.id, request, remote, https, sendTimestamp)
-        mitmActor ! RequestReceived(request.retain())
+        mitmActor ! RequestReceived(request)
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
