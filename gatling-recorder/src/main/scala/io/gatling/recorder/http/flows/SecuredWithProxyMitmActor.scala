@@ -83,11 +83,14 @@ class SecuredWithProxyMitmActor(
   when(WaitingForProxyConnectResponse) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"serverChannel=${serverChannel.id} closed, state=WaitingForClientChannelConnect, closing")
+      // FIXME what about client channel?
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelException(throwable), _) =>
       logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client connect failure, replying 500 and closing", throwable)
       serverChannel.reply500AndClose()
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelInactive(inactiveClientChannelId), WaitingForProxyConnectResponseData(_, pendingRequest, clientChannel)) =>
@@ -95,6 +98,7 @@ class SecuredWithProxyMitmActor(
       if (inactiveClientChannelId == clientChannel.id) {
         logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client got closed, replying 500 and closing")
         serverChannel.reply500AndClose()
+        // FIXME tell handlers to not notify of inactive state
         stop()
       } else {
         // related to previous channel, ignoring
@@ -128,6 +132,7 @@ class SecuredWithProxyMitmActor(
       } else {
         serverChannel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
         clientChannel.close()
+        // FIXME tell handlers to not notify of inactive state
         stop()
       }
   }

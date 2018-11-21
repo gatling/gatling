@@ -45,6 +45,8 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
   when(WaitingForClientChannelConnect) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"serverChannel=${serverChannel.id} closed, state=WaitingForClientChannelConnect, closing")
+      // FIXME what about client channel?
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelActive(clientChannel), WaitingForClientChannelConnectData(remote, pendingRequest)) =>
@@ -53,6 +55,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
 
     case Event(ClientChannelException(throwable), _) =>
       logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client connect failure, replying 500 and closing", throwable)
+      // FIXME tell handlers to not notify of inactive state
       serverChannel.reply500AndClose()
       stop()
 
@@ -64,6 +67,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
   when(Connected) {
     case Event(ServerChannelInactive, ConnectedData(_, clientChannel)) =>
       logger.debug(s"Server channel ${serverChannel.id} was closed while in Connected state, closing")
+      // FIXME tell handlers to not notify of inactive state
       clientChannel.close()
       stop()
 
@@ -96,6 +100,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
   when(Disconnected) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"Server channel ${serverChannel.id} was closed while in Disconnected state, closing")
+      // FIXME what about client channel?
       stop()
 
     case Event(RequestReceived(request), DisconnectedData(remote)) =>

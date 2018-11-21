@@ -41,6 +41,7 @@ abstract class PlainMitmActor(
   when(Init) {
     case Event(ServerChannelInactive, NoData) =>
       logger.debug(s"serverChannel=${serverChannel.id} closed, state=Init, closing")
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(RequestReceived(request), NoData) =>
@@ -51,6 +52,8 @@ abstract class PlainMitmActor(
   when(WaitingForClientChannelConnect) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"serverChannel=${serverChannel.id} closed, state=WaitingForClientChannelConnect, closing")
+      // FIXME what about client channel?
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelActive(clientChannel), WaitingForClientChannelConnectData(remote, pendingRequest)) =>
@@ -62,6 +65,7 @@ abstract class PlainMitmActor(
     case Event(ClientChannelException(throwable), _) =>
       logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client connect failure, replying 500 and closing", throwable)
       serverChannel.reply500AndClose()
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelInactive(inactiveClientChannelId), _) =>
@@ -73,6 +77,7 @@ abstract class PlainMitmActor(
     case Event(ServerChannelInactive, ConnectedData(_, clientChannel)) =>
       logger.debug(s"Server channel ${serverChannel.id} was closed while in Connected state, closing")
       clientChannel.close()
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelInactive(inactiveClientChannelId), ConnectedData(remote, clientChannel)) =>
@@ -111,6 +116,7 @@ abstract class PlainMitmActor(
   when(Disconnected) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"Server channel ${serverChannel.id} was closed while in Disconnected state, closing")
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(RequestReceived(request), _) =>
