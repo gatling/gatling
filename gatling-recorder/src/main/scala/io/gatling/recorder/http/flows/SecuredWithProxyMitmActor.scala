@@ -90,7 +90,8 @@ class SecuredWithProxyMitmActor(
       serverChannel.reply500AndClose()
       stop()
 
-    case Event(ClientChannelInactive(inactiveClientChannelId), WaitingForProxyConnectResponseData(remote, pendingRequest, clientChannel)) =>
+    case Event(ClientChannelInactive(inactiveClientChannelId), WaitingForProxyConnectResponseData(_, pendingRequest, clientChannel)) =>
+      pendingRequest.release()
       if (inactiveClientChannelId == clientChannel.id) {
         logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client got closed, replying 500 and closing")
         serverChannel.reply500AndClose()
@@ -109,6 +110,8 @@ class SecuredWithProxyMitmActor(
         clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
 
         if (pendingRequest.method == HttpMethod.CONNECT) {
+          pendingRequest.release()
+
           // dealing with origin CONNECT from user-agent
           // install SslHandler on serverChannel with startTls = true so CONNECT response doesn't get encrypted
           val serverSslHandler = new SslHandler(sslServerContext.createSSLEngine(remote.host), true)

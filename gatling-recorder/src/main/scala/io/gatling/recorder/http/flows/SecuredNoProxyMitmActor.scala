@@ -63,6 +63,9 @@ class SecuredNoProxyMitmActor(
 
     // DIFF FROM HTTP
     if (pendingRequest.method == HttpMethod.CONNECT) {
+      // request won't be propagated
+      pendingRequest.release()
+
       // install SslHandler on serverChannel with startTls = true so CONNECT response doesn't get encrypted
       val serverSslHandler = new SslHandler(sslServerContext.createSSLEngine(remote.host), true)
       serverChannel.pipeline.addFirst(SslHandlerName, serverSslHandler)
