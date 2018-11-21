@@ -22,8 +22,9 @@ import java.nio.file.Path
 import java.security._
 import java.security.cert.X509Certificate
 import java.util.Date
-import javax.security.auth.x500.X500Principal
+import java.util.concurrent.ThreadLocalRandom
 
+import javax.security.auth.x500.X500Principal
 import scala.util.Try
 import scala.concurrent.duration._
 
@@ -129,7 +130,7 @@ private[recorder] object SslCertUtil extends StrictLogging {
       val now = System.currentTimeMillis()
       val certBuilder = new X509v3CertificateBuilder(
         new JcaX509CertificateHolder(caCert).getSubject, // issuer
-        BigInteger.valueOf(now), // serial
+        BigInteger.valueOf(ThreadLocalRandom.current.nextLong), // serial
         new Date(now), // notBefore
         new Date(now + 1.day.toMillis), // notAfter
         csr.getSubject, //subject
