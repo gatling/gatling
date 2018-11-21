@@ -70,7 +70,7 @@ class SecuredWithProxyMitmActor(
   override protected def connectedRemote(requestRemote: Remote): Remote = proxyRemote
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
-    clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
+    clientChannel.pipeline.addLast(GatlingClientHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
 
     // send connect request
     val connectRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.CONNECT, s"${remote.host}:${remote.port}")

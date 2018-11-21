@@ -42,7 +42,8 @@ object Mitm extends StrictLogging {
 
   val SslHandlerName = "ssl"
   val HttpCodecHandlerName = "http"
-  val GatlingHandler = "gatling"
+  val GatlingClientHandler = "gatling-client"
+  val GatlingServerHandler = "gatling-server"
 
   def apply(controller: RecorderController, clock: Clock, config: RecorderConfiguration): Mitm = {
 
@@ -97,7 +98,7 @@ object Mitm extends StrictLogging {
             .addLast("responseEncoder", new HttpResponseEncoder)
             .addLast("contentCompressor", new HttpContentCompressor)
             .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
-            .addLast(GatlingHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, clock))
+            .addLast(GatlingServerHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, clock))
         }
       })
 

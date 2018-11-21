@@ -58,7 +58,7 @@ class SecuredNoProxyMitmActor(
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
     val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(clientChannel.alloc, remote))
-    clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
+    clientChannel.pipeline.addLast(GatlingClientHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
     clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
 
     // DIFF FROM HTTP

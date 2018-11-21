@@ -55,7 +55,7 @@ abstract class PlainMitmActor(
 
     case Event(ClientChannelActive(clientChannel), WaitingForClientChannelConnectData(remote, pendingRequest)) =>
       logger.debug(s"serverChannel=${serverChannel.id}, clientChannel=${clientChannel.id} active")
-      clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
+      clientChannel.pipeline.addLast(GatlingClientHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
       clientChannel.writeAndFlush(propagatedRequest(pendingRequest))
       goto(Connected) using ConnectedData(remote, clientChannel)
 
