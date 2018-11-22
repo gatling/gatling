@@ -56,7 +56,7 @@ object Dependencies {
     .exclude("org.apache.logging.log4j", "log4j-core")
   private val compilerBridge                 = "org.scala-sbt"                       %% "compiler-bridge"                 % zinc.revision
   private val jmsApi                         = "org.apache.geronimo.specs"            % "geronimo-jms_1.1_spec"           % "1.1.1"
-  private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.3"             % "runtime"
+  private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.3"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.10"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.6.2"
