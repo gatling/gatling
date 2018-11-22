@@ -47,6 +47,7 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.*;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.resolver.NoopAddressResolverGroup;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
@@ -183,7 +184,9 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     private Bootstrap getBootstrapWithProxy(ProxyServer proxy) {
-      return http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
+      return http1Bootstrap.clone()
+        .resolver(NoopAddressResolverGroup.INSTANCE)
+        .handler(new ChannelInitializer<Channel>() {
 
         @Override
         protected void initChannel(Channel ch) {
