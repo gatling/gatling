@@ -38,6 +38,8 @@ case class HttpTx(
       s"${request.requestName} Redirect $redirectCount"
     else
       request.requestName
+
+  def currentSession: Session = resourceTx.map(_.aggregator.currentSession).getOrElse(session)
 }
 
 case class ResourceTx(aggregator: ResourceAggregator, uri: Uri)

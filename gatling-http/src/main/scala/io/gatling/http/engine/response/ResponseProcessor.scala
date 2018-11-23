@@ -58,12 +58,12 @@ class DefaultResponseProcessor(
     }
 
   private def handleFailure(failure: HttpFailure): Unit = {
-    val sessionWithUpdatedStats = sessionProcessor.updateSessionCrashed(tx.session, failure.startTimestamp, failure.endTimestamp)
+    val sessionWithUpdatedStats = sessionProcessor.updateSessionCrashed(tx.currentSession, failure.startTimestamp, failure.endTimestamp)
     try {
       statsProcessor.reportStats(tx.fullRequestName, tx.request.clientRequest, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
     } catch {
       case NonFatal(t) =>
-        logger.error(s"ResponseProcessor crashed while handling failure $failure on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
+        logger.error(s"ResponseProcessor crashed while handling failure $failure on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
     } finally {
       nextExecutor.executeNextOnCrash(sessionWithUpdatedStats, failure.endTimestamp)
     }
@@ -79,11 +79,11 @@ class DefaultResponseProcessor(
         nextExecutor.executeNext(newSession, status, response)
 
       case Redirect(redirectTx) =>
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, redirectTx.session, OK, response, None)
+        statsProcessor.reportStats(tx.fullRequestName, clientRequest, redirectTx.currentSession, OK, response, None)
         nextExecutor.executeRedirect(redirectTx)
 
       case Crash(errorMessage) =>
-        val newSession = sessionProcessor.updateSessionCrashed(tx.session, response.startTimestamp, response.endTimestamp)
+        val newSession = sessionProcessor.updateSessionCrashed(tx.currentSession, response.startTimestamp, response.endTimestamp)
         statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, KO, response, Some(errorMessage))
         nextExecutor.executeNextOnCrash(newSession, response.endTimestamp)
     }
@@ -93,7 +93,7 @@ class DefaultResponseProcessor(
     tx.request.requestConfig.responseTransformer match {
       case Some(transformer) =>
         safely("Response transformer crashed: " + _) {
-          transformer(tx.session, rawResponse)
+          transformer(tx.currentSession, rawResponse)
         }
       case _ => rawResponse.success
     }
@@ -113,7 +113,7 @@ class DefaultResponseProcessor(
               response.header(HeaderNames.Location) match {
                 case Some(location) =>
                   val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
-                  val newSession = sessionProcessor.updatedRedirectSession(tx.session, response, redirectUri)
+                  val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
                   RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
                     case Success(redirectRequest) =>
                       Redirect(tx
@@ -131,14 +131,14 @@ class DefaultResponseProcessor(
             }
 
           } else {
-            val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.session, response)
+            val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
             Proceed(newSession, errorMessage)
           }
       }
 
     } catch {
       case NonFatal(t) =>
-        logger.error(s"ResponseProcessor crashed while handling response ${rawResponse.status} on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
+        logger.error(s"ResponseProcessor crashed while handling response ${rawResponse.status} on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
         Crash(t.detailedMessage)
     }
 }
