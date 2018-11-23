@@ -139,6 +139,7 @@ public class DefaultHttpClient implements HttpClient {
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
         .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())
         .option(ChannelOption.TCP_NODELAY, config.isTcpNoDelay())
+        .resolver(NoopAddressResolverGroup.INSTANCE)
         .handler(new ChannelInitializer<Channel>() {
           @Override
           protected void initChannel(Channel ch) {
@@ -185,7 +186,6 @@ public class DefaultHttpClient implements HttpClient {
 
     private Bootstrap getBootstrapWithProxy(ProxyServer proxy) {
       return http1Bootstrap.clone()
-        .resolver(NoopAddressResolverGroup.INSTANCE)
         .handler(new ChannelInitializer<Channel>() {
 
         @Override
