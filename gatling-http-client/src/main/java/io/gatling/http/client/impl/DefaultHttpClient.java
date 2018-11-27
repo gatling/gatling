@@ -441,17 +441,14 @@ public class DefaultHttpClient implements HttpClient {
 
   private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, HttpListener listener, RequestTimeout requestTimeout) {
     if (request.getProxyServer() instanceof HttpProxyServer) {
-      if (request.getUri().isSecured()) {
-        // HttpProxyHandler will take care of the connect logic
-        Uri remoteUri = request.getUri();
-        InetSocketAddress remoteAddress = InetSocketAddress.createUnresolved(remoteUri.getHost(), remoteUri.getExplicitPort());
-        return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
+      InetSocketAddress remoteAddress =
+              request.getUri().isSecured() ?
+                      // HttpProxyHandler will take care of the connect logic
+                      InetSocketAddress.createUnresolved(request.getUri().getHost(), request.getUri().getExplicitPort()) :
+                      // directly connect to proxy over clear HTTP
+                      ((HttpProxyServer) request.getProxyServer()).getAddress();
 
-      } else {
-        // directly connect to proxy over clear HTTP
-        InetSocketAddress remoteAddress = ((HttpProxyServer) request.getProxyServer()).getAddress();
-        return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
-      }
+      return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
 
     } else {
       Promise<List<InetSocketAddress>> p = eventLoop.newPromise();
