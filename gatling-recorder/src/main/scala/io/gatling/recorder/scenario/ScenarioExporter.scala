@@ -90,10 +90,13 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     val scenarioElements = scenario.elements
     val mainRequestElements = scenarioElements.collect { case req: RequestElement => req }
     val requestElements = mainRequestElements.flatMap(req => req :: req.nonEmbeddedResources)
-    requestElements.foreach { requestElements =>
-      if (requestElements.headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE, true)) {
-        requestElements.headers.remove(HttpHeaderNames.CONNECTION)
+    requestElements.foreach { requestElement =>
+      if (requestElement.headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE, true)) {
+        requestElement.headers.remove(HttpHeaderNames.CONNECTION)
       }
+
+      val authorizationHeaders = requestElement.headers.getAll(HttpHeaderNames.AUTHORIZATION)
+      requestElement.headers.set(HttpHeaderNames.AUTHORIZATION, authorizationHeaders.asScala.filterNot(_.startsWith("Basic ")).asJava)
     }
 
     val baseUrl = getBaseUrl(mainRequestElements)
