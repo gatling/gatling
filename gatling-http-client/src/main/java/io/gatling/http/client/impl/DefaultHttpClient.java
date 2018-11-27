@@ -467,6 +467,7 @@ public class DefaultHttpClient implements HttpClient {
               listener.onThrowable(whenAddresses.cause());
             }
             p.setFailure(whenAddresses.cause());
+            requestTimeout.cancel();
           }
         });
       return p;
