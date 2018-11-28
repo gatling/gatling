@@ -143,7 +143,7 @@ public class OAuthSignatureCalculatorInstance {
                                     String percentEncodedNonce) {
 
     // beware: must generate first as we're using pooled StringBuilder
-    String baseUrl = uri.toBaseUrl();
+    String baseUrl = uri.toUrlWithoutQuery();
     String encodedParams = encodedParams(consumerAuth, userAuth, oauthTimestamp, percentEncodedNonce, uri.getEncodedQueryParams(), formParams);
 
     StringBuilder sb = StringBuilderPool.DEFAULT.get();

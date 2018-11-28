@@ -179,16 +179,28 @@ public class Uri {
   /**
    * @return [scheme]://[hostname](:[port])/path. Port is omitted if it matches the scheme's default one.
    */
-  public String toBaseUrl() {
+  public String toUrlWithoutQuery() {
+    StringBuilder sb = toBaseUrl0();
+    if (isNonEmpty(path)) {
+      sb.append(path);
+    }
+    return sb.toString();
+  }
+
+  /**
+   * @return [scheme]://[hostname](:[port]). Port is omitted if it matches the scheme's default one.
+   */
+  public String getBaseUrl() {
+    return toBaseUrl0().toString();
+  }
+
+  private StringBuilder toBaseUrl0() {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
     sb.append(scheme).append("://").append(host);
     if (port != -1 && port != getSchemeDefaultPort()) {
       sb.append(':').append(port);
     }
-    if (isNonEmpty(path)) {
-      sb.append(path);
-    }
-    return sb.toString();
+    return sb;
   }
 
   public String toRelativeUrl() {
@@ -201,10 +213,6 @@ public class Uri {
       sb.append('?').append(query);
 
     return sb.toString();
-  }
-
-  public String getBaseUrl() {
-    return scheme + "://" + host + ":" + getExplicitPort();
   }
 
   public String getAuthority() {

@@ -16,11 +16,12 @@
 
 package io.gatling.recorder.scenario.template
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
+import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.recorder.scenario.{ ProtocolDefinition, ScenarioElement, TagElement }
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.config.RecorderConfiguration
+
+import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[scenario] object SimulationTemplate {
 
@@ -80,7 +81,9 @@ $mapContent)"""
               val chainContent = chain.map { element =>
                 val prefix = element match {
                   case TagElement(_) => ""
-                  case _             => if (firstNonTagElement) { firstNonTagElement = false; "" } else "."
+                  case _ => if (firstNonTagElement) {
+                    firstNonTagElement = false; ""
+                  } else "."
                 }
                 fast"$prefix${renderScenarioElement(element, extractedUris)}"
               }.mkFastring("\n\t\t")
@@ -90,7 +93,7 @@ $mapContent)"""
           val chainsList = chains.indices.map(i => fast"chain_$i").mkFastring(", ")
 
           fast"""$chainElements
-					
+
 	val scn = scenario("$scenarioName").exec(
 		$chainsList)"""
       }
@@ -104,7 +107,7 @@ $mapContent)"""
       }
 
     val extractedUris = new ExtractedUris(flatScenarioElements(scenarioElements))
-    val nonBaseUrls = extractedUris.vals.filter(_.value != protocol.baseUrl)
+    val nonBaseUrls = extractedUris.vals.filter(value => Uri.create(value.value).getBaseUrl != protocol.baseUrl)
 
     fast"""$renderPackage
 import scala.concurrent.duration._
