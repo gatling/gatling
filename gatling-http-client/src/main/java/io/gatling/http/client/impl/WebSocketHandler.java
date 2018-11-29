@@ -112,11 +112,15 @@ public class WebSocketHandler extends ChannelDuplexHandler {
       try {
         // received 101 response
         FullHttpResponse response = (FullHttpResponse) msg;
-        handshaker.finishHandshake(ch, response);
-        tx.requestTimeout.cancel();
+        try {
+          handshaker.finishHandshake(ch, response);
+          tx.requestTimeout.cancel();
 
-        wsListener.onHttpResponse(response.status(), response.headers());
-        wsListener.openWebSocket(ch);
+          wsListener.onHttpResponse(response.status(), response.headers());
+          wsListener.openWebSocket(ch);
+        } finally {
+          response.release();
+        }
 
       } catch (WebSocketHandshakeException e) {
         crash(ctx, e, true);
@@ -125,15 +129,19 @@ public class WebSocketHandler extends ChannelDuplexHandler {
     }
 
     WebSocketFrame frame = (WebSocketFrame) msg;
-    if (frame instanceof TextWebSocketFrame) {
-      wsListener.onTextFrame((TextWebSocketFrame) frame);
-    } else if (frame instanceof BinaryWebSocketFrame) {
-      wsListener.onBinaryFrame((BinaryWebSocketFrame) frame);
-    } else if (frame instanceof PongWebSocketFrame) {
-      wsListener.onPongFrame((PongWebSocketFrame) frame);
-    } else if (frame instanceof CloseWebSocketFrame) {
-      wsListener.onCloseFrame((CloseWebSocketFrame) frame);
-      ch.close();
+    try {
+      if (frame instanceof TextWebSocketFrame) {
+        wsListener.onTextFrame((TextWebSocketFrame) frame);
+      } else if (frame instanceof BinaryWebSocketFrame) {
+        wsListener.onBinaryFrame((BinaryWebSocketFrame) frame);
+      } else if (frame instanceof PongWebSocketFrame) {
+        wsListener.onPongFrame((PongWebSocketFrame) frame);
+      } else if (frame instanceof CloseWebSocketFrame) {
+        wsListener.onCloseFrame((CloseWebSocketFrame) frame);
+        ch.close();
+      }
+    } finally {
+      frame.release();
     }
   }
 
