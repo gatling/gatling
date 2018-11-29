@@ -84,7 +84,7 @@ object Gatling extends StrictLogging {
         factory.getClass.getMethod("stop").invoke(factory)
       } catch {
         case ex: NoSuchMethodException => //Fail silently if a logging provider other than LogBack is used.
-        case NonFatal(e) => logger.warn("Logback failed to shutdown.", e)
+        case NonFatal(ex) => logger.warn("Logback failed to shutdown.", ex)
       }
     }
 }
