@@ -26,6 +26,7 @@ import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
 
 import akka.actor.ActorSystem
+import ch.qos.logback.classic.LoggerContext
 import com.typesafe.scalalogging.StrictLogging
 import org.slf4j.LoggerFactory
 
@@ -84,8 +85,8 @@ object Gatling extends StrictLogging {
       try {
         factory.getClass.getMethod("stop").invoke(factory)
       } catch {
-        case NonFatal(e) =>
-          logger.warn("The LoggerFactory of your logging framework does not have a stop method. In case you run into buffering issues consider switching to logback or log4j2 which support flushing the buffer before shutdown.", e)
+        case ex: NoSuchMethodException => //Fail silently if a logging provider other than LogBack is used.
+        case NonFatal(ex)              => logger.warn("Logback failed to shutdown.", ex)
       }
     }
 }
