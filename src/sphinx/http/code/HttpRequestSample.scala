@@ -267,7 +267,7 @@ class HttpRequestSample {
     http("foo").get("bar")
       //#response-processors
 
-      // ignore when response status code is 200
+      // ignore when response status code is not 200
       .transformResponse {
         (session, response) =>
           if (response.status.code == 200) {
