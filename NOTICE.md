@@ -28,7 +28,7 @@ Redistributed binaries and runtime dependencies
 
 This product depends on Scala, distributed by the EPFL and Lightbend, Inc.:
 
-  * License: license/LICENSE.scala.bsd3.txt (BSD 3 Clause License)
+  * License: license/LICENSE.scala.al20.txt (Apache License v2.0)
   * Homepage: http://www.scala-lang.org/
 
 This product depends on scala-swing, distributed by the EPFL and Lightbend, Inc.:
