@@ -13,7 +13,7 @@ This is a very convenient feature to write dynamic values.
 
 Gatling parses Strings parameter values and turn them into functions that will compute a result based on the data stored into the Session when they will be evaluated.
 
-The Gatling EL is not a dynamic language, bug just placeholders with a few additional helpers.
+The Gatling EL is not a dynamic language, but just placeholders with a few additional helpers.
 
 If you need a full blown templating engine, you can use our Pebble support.
 
