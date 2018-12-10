@@ -6,7 +6,7 @@ Maven plugin
 
 .. highlight:: xml
 
-Using this plugin, Gatling can be launched when building your project, for example with your favorite Continuous Integration (CI) solution. Note: while you can invoke it explicitly using ``mvn gatling:test``, it cannot (at this time) be run implicitly as part of the normal maven lifecycle, for examole: ``mvn verify``.
+Using this plugin, Gatling can be launched when building your project, for example with your favorite Continuous Integration (CI) solution.
 
 Versions
 ========
@@ -52,6 +52,30 @@ You can directly launch the gatling-maven-plugin with the ``test`` goal::
 It's bound by default to the ``integration-test`` phase.
 
 .. _maven-advanced-configuration:
+
+Verify
+======
+
+To have Gatling run automatically during the integration-test phase,
+for example: ``mvn verify``, add something like the following to your pom.xml
+
+  <plugin>
+    <groupId>io.gatling</groupId>
+    <artifactId>gatling-maven-plugin</artifactId>
+    <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
+    <configuration>
+      <simulationClass>it.mySimulationIT</simulationClass>
+    </configuration>
+    <executions>
+      <execution>
+        <id>mySimulation</id>
+        <phase>integration-test</phase>
+        <goals>
+          <goal>test</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
 
 Configuration
 =============
