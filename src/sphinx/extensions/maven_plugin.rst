@@ -6,7 +6,7 @@ Maven plugin
 
 .. highlight:: xml
 
-Thanks to this plugin, Gatling can be launched when building your project, for example with your favorite CI solution.
+Using this plugin, Gatling can be launched when building your project, for example with your favorite Continuous Integration (CI) solution. Note: while you can invoke it explicitly using ``mvn gatling:test``, it cannot (at this time) be run implicitly as part of the normal maven lifecycle, for examole: ``mvn verify``.
 
 Versions
 ========
