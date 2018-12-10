@@ -18,13 +18,14 @@ package io.gatling.http.action.ws.fsm
 
 import io.gatling.http.check.ws.WsFrameCheckSequence
 
-import io.netty.handler.codec.http.websocketx.{ CloseWebSocketFrame, TextWebSocketFrame }
+import io.netty.buffer.Unpooled
+import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, TextWebSocketFrame }
 
 trait WhenIdle { this: WsActor =>
 
   when(Idle) {
     case Event(SendTextFrame(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
-      logger.debug(s"Send message $actionName $message")
+      logger.debug(s"Send text frame $actionName $message")
       // actually send message!
       val timestamp = clock.nowMillis
       webSocket.sendFrame(new TextWebSocketFrame(message))
@@ -34,7 +35,39 @@ trait WhenIdle { this: WsActor =>
       //[fl]
       checkSequences match {
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
-          logger.debug("Trigger check after send message")
+          logger.debug("Trigger check after sending text frame")
+          val timeoutId = scheduleTimeout(timeout)
+          //[fl]
+          //
+          //[fl]
+          goto(PerformingCheck) using PerformingCheckData(
+            webSocket = webSocket,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
+            checkSequenceStart = timestamp,
+            checkSequenceTimeoutId = timeoutId,
+            remainingCheckSequences,
+            session = session,
+            next = Left(nextAction)
+          )
+
+        case _ => // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
+          nextAction ! session
+          stay()
+      }
+
+    case Event(SendBinaryFrame(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
+      logger.debug(s"Send binary frame $actionName length=${message.length}")
+      // actually send message!
+      val timestamp = clock.nowMillis
+      webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
+
+      //[fl]
+      //
+      //[fl]
+      checkSequences match {
+        case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
+          logger.debug("Trigger check after sending binary frame")
           val timeoutId = scheduleTimeout(timeout)
           //[fl]
           //
