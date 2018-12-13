@@ -136,7 +136,7 @@ case class Session(
       this
   }
 
-  private[gatling] def logGroupRequest(startTimestamp: Long, endTimestamp: Long, status: Status) = blockStack match {
+  def logGroupRequest(startTimestamp: Long, endTimestamp: Long, status: Status) = blockStack match {
     case Nil => this
     case _ =>
       val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
