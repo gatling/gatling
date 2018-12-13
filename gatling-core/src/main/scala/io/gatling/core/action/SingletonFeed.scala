@@ -53,7 +53,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
               for (record1 <- record1V; record2 <- record2V) yield record1 ++ record2
             }
             translatedRecords.map(session.setAll)
-          case n => s"$n is not a valid number of records".failure
+          case _ => s"$numberOfRecords is not a valid number of records".failure
         }
 
       val newSession = number(session).flatMap(feedRecords) match {
