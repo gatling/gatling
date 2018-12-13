@@ -29,7 +29,7 @@ object Dependencies {
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.0")
     .exclude("org.typelevel", "machinist_2.12")
     .exclude("org.typelevel", "algebra_2.12")
-  private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.0"
+  private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.0"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.7"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "6.0.12")
