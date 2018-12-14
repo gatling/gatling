@@ -134,6 +134,8 @@ public class WebSocketHandler extends ChannelDuplexHandler {
         wsListener.onTextFrame((TextWebSocketFrame) frame);
       } else if (frame instanceof BinaryWebSocketFrame) {
         wsListener.onBinaryFrame((BinaryWebSocketFrame) frame);
+      } else if (frame instanceof PingWebSocketFrame) {
+        ctx.write(new PongWebSocketFrame(frame.content().retain()));
       } else if (frame instanceof PongWebSocketFrame) {
         wsListener.onPongFrame((PongWebSocketFrame) frame);
       } else if (frame instanceof CloseWebSocketFrame) {
