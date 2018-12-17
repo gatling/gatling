@@ -145,14 +145,8 @@ public final class Utf8UrlEncoder {
     return appendEncoded(sb, query, BUILT_QUERY_UNTOUCHED_CHARS, false);
   }
 
-  public static String encodeQueryElement(String input) {
-    StringBuilder sb = new StringBuilder(input.length() + 6);
-    encodeAndAppendQueryElement(sb, input);
-    return sb.toString();
-  }
-
   public static StringBuilder encodeAndAppendQueryElement(StringBuilder sb, CharSequence input) {
-    return appendEncoded(sb, input, FORM_URL_ENCODED_SAFE_CHARS, false);
+    return encodeAndAppendFormElement(sb, input);
   }
 
   public static StringBuilder encodeAndAppendFormElement(StringBuilder sb, CharSequence input) {
