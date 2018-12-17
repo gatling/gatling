@@ -39,6 +39,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
   private HttpTx tx;
   private WebSocketListener wsListener;
   private WebSocketClientHandshaker handshaker;
+  private boolean remotelyClosed;
 
   WebSocketHandler(HttpClientConfig config) {
     this.config = config;
@@ -139,6 +140,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
       } else if (frame instanceof PongWebSocketFrame) {
         wsListener.onPongFrame((PongWebSocketFrame) frame);
       } else if (frame instanceof CloseWebSocketFrame) {
+        remotelyClosed = true;
         wsListener.onCloseFrame((CloseWebSocketFrame) frame);
         ch.close();
       }
@@ -150,7 +152,9 @@ public class WebSocketHandler extends ChannelDuplexHandler {
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
     LOGGER.debug("channelInactive");
-    crash(ctx, PREMATURE_CLOSE, false);
+    if (!remotelyClosed) {
+      crash(ctx, PREMATURE_CLOSE, false);
+    }
   }
 
   @Override
