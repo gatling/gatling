@@ -132,6 +132,12 @@ class PollerActor(
       stop()
   }
 
+  whenUnhandled {
+    case Event(message, state) =>
+      logger.debug(s"Can't handle $message in state $state")
+      stay()
+  }
+
   initialize()
 
   private def resetTimer(): Unit =
