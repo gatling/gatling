@@ -61,7 +61,6 @@ class WsListener(wsActor: ActorRef, statsEngine: StatsEngine, clock: Clock) exte
   //
   //
   //
-  //
   //[fl]
 
   override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {

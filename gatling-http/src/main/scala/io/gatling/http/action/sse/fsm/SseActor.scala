@@ -116,8 +116,11 @@ class SseActor(
 
   startWith(Init, InitData)
 
-  override def unhandled(message: Any): Unit =
-    logger.debug(s"Received unhandled message $message")
+  whenUnhandled {
+    case Event(message, state) =>
+      logger.debug(s"Can't handle $message in state $state")
+      stay()
+  }
 
   initialize()
 }

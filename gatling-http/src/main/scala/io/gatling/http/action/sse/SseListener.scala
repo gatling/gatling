@@ -40,14 +40,12 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
   with EventStreamDispatcher
   with StrictLogging {
 
-  private var done = false
-  private var state: SseState = Opening
+  private var state: SseState = Connecting
   private val decoder = new SseStreamDecoder
   private var channel: Channel = _
 
-  override def onTcpConnectSuccess(address: InetSocketAddress, channel: Channel): Unit = {
-    state = Open
-    this.channel = channel
+  override def onWrite(channel: Channel): Unit = {
+    this.channel = channel;
   }
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
@@ -55,6 +53,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
     logger.debug(s"Status ${status.code} received for SSE")
 
     if (status == HttpResponseStatus.OK) {
+      state = Connected
       sseActor ! SseStreamConnected(this, clock.nowMillis)
 
     } else {
@@ -65,7 +64,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
   }
 
   override def onHttpResponseBodyChunk(chunk: ByteBuf, last: Boolean): Unit =
-    if (!done) {
+    if (state != Closed) {
       val events = decoder.decodeStream(chunk)
       events.foreach(dispatchEventStream)
       if (last) {
@@ -74,7 +73,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
     }
 
   override def onThrowable(throwable: Throwable): Unit =
-    if (!done) {
+    if (state != Closed) {
       close()
       sendOnThrowable(throwable)
     }
@@ -89,7 +88,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
     }
 
     state match {
-      case Opening | Open =>
+      case Connecting | Connected =>
         sseActor ! SseStreamCrashed(throwable, clock.nowMillis)
 
       case Closed =>
@@ -97,19 +96,20 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
     }
   }
 
-  override def close(): Unit = {
-    done = true
-    if (channel != null) {
-      channel.close()
-      channel = null
+  override def close(): Unit =
+    if (state != Closed) {
+      state = Closed
+      if (channel != null) {
+        channel.close()
+        channel = null
+      }
       sseActor ! SseStreamClosed(clock.nowMillis)
     }
-  }
 
   override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! SseReceived(sse.asJsonString, clock.nowMillis)
 }
 
 private sealed trait SseState
-private case object Opening extends SseState
-private case object Open extends SseState
+private case object Connecting extends SseState
+private case object Connected extends SseState
 private case object Closed extends SseState

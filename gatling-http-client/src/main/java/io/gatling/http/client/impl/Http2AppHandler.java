@@ -71,6 +71,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       tx.closeConnection = HttpUtils.isConnectionClose(request.getRequest().headers());
       LOGGER.debug("Write request {}", request);
 
+      tx.listener.onWrite(ctx.channel());
       request.write(ctx).addListener(f -> {
         if (f.isSuccess()) {
           Http2Stream stream = connection.stream(nextStreamId);

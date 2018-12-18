@@ -35,7 +35,7 @@ public interface HttpListener {
 
   default void onTcpConnectAttempt(InetSocketAddress remoteAddress) {}
 
-  default void onTcpConnectSuccess(InetSocketAddress remoteAddress, Channel channel) {}
+  default void onTcpConnectSuccess(InetSocketAddress remoteAddress) {}
 
   default void onTcpConnectFailure(InetSocketAddress remoteAddress, Throwable cause) {}
 
@@ -47,4 +47,5 @@ public interface HttpListener {
 
   default void onProtocolAwareness(boolean isHttp2) {}
 
+  default void onWrite(Channel channel) {}
 }

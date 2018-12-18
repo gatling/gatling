@@ -49,8 +49,9 @@ trait WhenIdle { this: SseActor =>
           stay()
       }
 
-    case Event(_: SseReceived, IdleData(session, _)) =>
+    case Event(SseReceived(message, timestamp), IdleData(session, _)) =>
       // server push message, just log
+      logger.debug(s"Received unmatched message=$message")
       logUnmatchedServerMessage(session)
       stay()
 

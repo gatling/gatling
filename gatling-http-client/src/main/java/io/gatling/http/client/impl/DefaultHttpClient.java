@@ -604,9 +604,8 @@ public class DefaultHttpClient implements HttpClient {
 
     whenChannel.addListener(f -> {
       if (f.isSuccess()) {
-        Channel channel = whenChannel.channel();
-        listener.onTcpConnectSuccess(remoteAddress, channel);
-        channelPromise.setSuccess(channel);
+        listener.onTcpConnectSuccess(remoteAddress);
+        channelPromise.setSuccess(whenChannel.channel());
 
       } else {
         listener.onTcpConnectFailure(remoteAddress, f.cause());

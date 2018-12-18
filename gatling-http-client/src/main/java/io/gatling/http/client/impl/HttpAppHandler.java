@@ -112,6 +112,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
       LOGGER.debug("Write request {}", request);
 
+      tx.listener.onWrite(ctx.channel());
       request.write(ctx);
     } catch (Exception e) {
       crash(ctx, e, true);
