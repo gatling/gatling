@@ -98,7 +98,7 @@ object GatlingConfiguration extends StrictLogging {
     val customConfig = ConfigFactory.parseResources(classLoader, customConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
 
-    val config = configChain(ConfigFactory.systemProperties, customConfig, propertiesConfig, defaultsConfig)
+    val config = configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultsConfig)
 
     warnAboutRemovedProperties(config)
 
