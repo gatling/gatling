@@ -212,10 +212,6 @@ public class RequestBuilder {
       headers.set(COOKIE, ClientCookieEncoder.LAX.encode(cookies));
     }
 
-    if (!headers.contains(ORIGIN)) {
-      headers.set(ORIGIN, originHeader(uri));
-    }
-
     if (!headers.contains(HOST)) {
       headers.set(HOST, virtualHost != null ? virtualHost : hostHeader(uri));
     }
