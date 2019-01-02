@@ -54,7 +54,8 @@ object Dependencies {
     .exclude("jline", "jline")
     .exclude("org.apache.logging.log4j", "log4j-api")
     .exclude("org.apache.logging.log4j", "log4j-core")
-  private val compilerBridge                 = "org.scala-sbt"                       %% "compiler-bridge"                 % zinc.revision
+  private val compilerBridge                 = zinc.organization                     %% "compiler-bridge"                 % zinc.revision
+  private val testInterface                  = zinc.organization                      % "test-interface"                  % "1.0"
   private val jmsApi                         = "org.apache.geronimo.specs"            % "geronimo-jms_1.1_spec"           % "1.1.1"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.3"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
@@ -63,7 +64,6 @@ object Dependencies {
   private val bouncycastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.60"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.4.11"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
-  private val testInterface                  = "org.scala-sbt"                        % "test-interface"                  % "1.0"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.0.6"
 
   // Test dependencies
