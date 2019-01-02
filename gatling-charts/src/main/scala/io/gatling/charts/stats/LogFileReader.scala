@@ -48,7 +48,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
   println("Parsing log file(s)...")
 
-  val inputFiles = simulationLogDirectory(runUuid, create = false).files
+  private val inputFiles = simulationLogDirectory(runUuid, create = false).files
     .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
 
   logger.info(s"Collected $inputFiles from $runUuid")
@@ -119,7 +119,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
     logger.info(s"First pass done: read $count lines")
 
-    FirstPassData(runStart, runEnd, runMessages.head, assertions.toList)
+    FirstPassData(runStart, runEnd, runMessages.headOption.getOrElse(throw new UnsupportedOperationException(s"Files $inputFiles don't contain any valid run record")), assertions.toList)
   }
 
   val FirstPassData(runStart, runEnd, runMessage, assertions) = parseInputFiles(firstPass)
