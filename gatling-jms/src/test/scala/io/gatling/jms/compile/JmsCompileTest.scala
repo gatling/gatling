@@ -59,10 +59,18 @@ class JmsCompileTest extends Simulation {
       .queue("queue")
       .replyQueue("responseQueue")
       .textMessage("hello"))
+    // textMessage with ElFileBody
+    .exec(jms("req").requestReply
+      .queue("queue")
+      .textMessage(ElFileBody("file")))
     // bytesMessage
     .exec(jms("req").requestReply
       .queue("queue")
       .bytesMessage(new Array[Byte](1)))
+    // bytesMessage with RawFileBody
+    .exec(jms("req").requestReply
+      .queue("queue")
+      .bytesMessage(RawFileBody("file")))
     // mapMessage
     .exec(jms("req").requestReply
       .queue("queue")
