@@ -66,7 +66,7 @@ trait MetaOpenInjectionSupport {
       startingUsers: Double,
       rampDuration:  FiniteDuration
   ) extends MetaInjectionProfile {
-    def startingFrom(startingUsers: Int): IncreasingUsersPerSecProfile = this.copy(startingUsers = startingUsers)
+    def startingFrom(startingUsers: Double): IncreasingUsersPerSecProfile = this.copy(startingUsers = startingUsers)
     def separatedByRampsLasting(duration: FiniteDuration): IncreasingUsersPerSecProfile = this.copy(rampDuration = duration)
 
     private[inject] def getInjectionSteps: Iterable[OpenInjectionStep] =
