@@ -64,7 +64,7 @@ class RequestReply(
       if (setJmsReplyTo) {
         message.setJMSReplyTo(resolvedReplyDestination)
       }
-      protocol.messageMatcher.prepareRequest(message)
+      messageMatcher.prepareRequest(message)
 
       // notify the tracker that a message was sent
       val matchId = messageMatcher.requestMatchId(message)
