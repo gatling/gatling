@@ -38,7 +38,7 @@ In your ``pom.xml``, add::
 Demo sample
 ===========
 
-You can find a `sample project demoing the gatling-sbt-plugin <https://github.com/gatling/gatling-sbt-plugin-demo>`_ in Gatling's Github organization.
+You can find a `sample project demoing the gatling-maven-plugin <https://github.com/gatling/gatling-maven-plugin-demo>`_ in Gatling's Github organization.
 
 You can also use the :ref:`gatling-highcharts-maven-archetype <maven-archetype>` to bootstrap your project.
 
