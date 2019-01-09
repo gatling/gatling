@@ -34,7 +34,7 @@ class JmsProducerPool(sessionPool: JmsSessionPool) {
       val producer = jmsSession.createProducer(key.destination)
       producer.setDeliveryMode(key.deliveryMode)
       registeredProducers.add(producer)
-      new JmsProducer(jmsSession, producer)
+      JmsProducer(jmsSession, producer)
     })).get()
 
   def close(): Unit = registeredProducers.asScala.foreach(_.close())

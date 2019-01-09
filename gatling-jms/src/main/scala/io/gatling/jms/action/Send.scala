@@ -49,22 +49,25 @@ class Send(
 
   override val name: String = genName("jmsSend")
 
-  override protected def beforeSend(requestName: String, session: Session): Validation[Message => Unit] =
-    ((message: Message) => {
-      val now = clock.nowMillis
-      if (logger.underlying.isDebugEnabled) {
-        logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
-      }
+  override protected def aroundSend(requestName: String, session: Session, message: Message): Validation[Around] =
+    new Around(
+      before = () => {
+        if (logger.underlying.isDebugEnabled) {
+          logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
+        }
 
-      configuration.resolve(
-        // [fl]
-        //
-        //
-        //
-        //
-        // [fl]
-        statsEngine.logResponse(session, requestName, now, now, OK, None, None)
-      )
-      next ! session
-    }).success
+        val now = clock.nowMillis
+        configuration.resolve(
+          // [fl]
+          //
+          //
+          //
+          //
+          // [fl]
+          statsEngine.logResponse(session, requestName, now, now, OK, None, None)
+        )
+        next ! session
+      },
+      after = () => ()
+    ).success
 }

@@ -16,16 +16,25 @@
 
 package io.gatling.jms.action
 
-import javax.jms.Message
-
 import io.gatling.commons.validation._
 import io.gatling.core.action.RequestAction
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
-import io.gatling.jms.client.{ JmsConnection, JmsConnectionPool }
+import io.gatling.jms.client.{ JmsConnection, JmsConnectionPool, JmsProducer }
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
+
+import javax.jms.Message
+
+class Around(before: () => Unit, after: () => Unit) {
+
+  def apply(f: => Any): Unit = {
+    before()
+    f
+    after()
+  }
+}
 
 abstract class JmsAction(
     attributes: JmsAttributes,
@@ -46,19 +55,17 @@ abstract class JmsAction(
       jmsType <- resolveOptionalExpression(attributes.jmsType, session)
       props <- resolveProperties(attributes.messageProperties, session)
       resolvedJmsDestination <- jmsDestination(session)
-      beforeSend0 <- beforeSend(requestName, session)
-      producer = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
-      sendMsgAction <- attributes.message match {
-        case BytesJmsMessage(bytes) => bytes(session).map(bytes => () => producer.sendBytesMessage(bytes, props, jmsType, beforeSend0))
-        case MapJmsMessage(map)     => map(session).map(map => () => producer.sendMapMessage(map, props, jmsType, beforeSend0))
-        case ObjectJmsMessage(o)    => o(session).map(o => () => producer.sendObjectMessage(o, props, jmsType, beforeSend0))
-        case TextJmsMessage(txt)    => txt(session).map(txt => () => producer.sendTextMessage(txt, props, jmsType, beforeSend0))
-      }
+      JmsProducer(jmsSession, producer) = jmsConnection.producer(resolvedJmsDestination, protocol.deliveryMode)
+      message <- attributes.message.jmsMessage(session, jmsSession)
+      around <- aroundSend(requestName, session, message)
     } yield {
+      props.foreach { case (key, value) => message.setObjectProperty(key, value) }
+      jmsType.foreach(message.setJMSType)
+
       if (throttled) {
-        throttler.throttle(session.scenario, sendMsgAction)
+        throttler.throttle(session.scenario, () => around(producer.send(message)))
       } else {
-        sendMsgAction()
+        around(producer.send(message))
       }
     }
 
@@ -75,5 +82,5 @@ abstract class JmsAction(
         } yield resolvedProperties + (key -> value)
     }
 
-  protected def beforeSend(requestName: String, session: Session): Validation[Message => Unit]
+  protected def aroundSend(requestName: String, session: Session, message: Message): Validation[Around]
 }

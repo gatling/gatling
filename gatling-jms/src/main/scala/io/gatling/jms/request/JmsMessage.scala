@@ -18,14 +18,39 @@ package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
 
-import io.gatling.core.session.Expression
+import io.gatling.commons.validation.Validation
+import io.gatling.core.session.{ Expression, Session }
 
-/**
- * Provides the enumeration of JMSMessage types that the implementation supports
- * @author jasonk@bluedevel.com
- */
-sealed trait JmsMessage
-case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage
-case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage
-case class ObjectJmsMessage(o: Expression[JSerializable]) extends JmsMessage
-case class TextJmsMessage(text: Expression[String]) extends JmsMessage
+import javax.jms.{ Message, Session => JmsSession }
+
+sealed trait JmsMessage {
+  private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message]
+}
+
+case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage {
+  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    bytes(session).map { b =>
+      val message = jmsSession.createBytesMessage
+      message.writeBytes(b)
+      message
+    }
+}
+
+case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage {
+  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    map(session).map { m =>
+      val message = jmsSession.createMapMessage
+      m.foreach { case (key, value) => message.setObject(key, value) }
+      message
+    }
+}
+
+case class ObjectJmsMessage(obj: Expression[JSerializable]) extends JmsMessage {
+  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    obj(session).map(jmsSession.createObjectMessage)
+}
+
+case class TextJmsMessage(txt: Expression[String]) extends JmsMessage {
+  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    txt(session).map(jmsSession.createTextMessage)
+}
