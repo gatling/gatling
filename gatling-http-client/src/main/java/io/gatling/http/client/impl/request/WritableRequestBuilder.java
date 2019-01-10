@@ -33,6 +33,7 @@ import java.io.IOException;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpMethod.*;
+import static java.util.Arrays.asList;
 
 public class WritableRequestBuilder {
 
@@ -41,7 +42,7 @@ public class WritableRequestBuilder {
                                                          HttpHeaders headers) {
 
     // force content-length to 0 when method usually takes a body, some servers might break otherwise
-    if (!headers.contains(CONTENT_LENGTH) && (method == POST || method == PUT || method == PATCH)) {
+    if (!headers.contains(CONTENT_LENGTH) && asList(POST, PUT, PATCH).contains(method)) {
       headers.set(CONTENT_LENGTH, 0);
     }
 
