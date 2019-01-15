@@ -61,13 +61,12 @@ object Dependencies {
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.10"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.6.2"
-  private val bouncycastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.60"
+  private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.60"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.4.11"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.0.7"
 
   // Test dependencies
-
   private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.0.5"             % "test"
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.14.0"            % "test"
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
@@ -117,7 +116,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaCompiler(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logback, zinc, compilerBridge, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, json4sJackson, bouncycastle, netty, akka) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, json4sJackson, bouncyCastle, netty, akka) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
