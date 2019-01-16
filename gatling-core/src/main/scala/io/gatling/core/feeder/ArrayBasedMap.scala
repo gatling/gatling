@@ -25,22 +25,16 @@ private[feeder] object ArrayBasedMap {
 
 private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], override val size: Int) extends AbstractMap[K, V] with Map[K, V] with Serializable {
 
-  /* override def +[V1 >: V](kv: (K, V1)) = throw new UnsupportedOperationException */
-  override def +[V1 >: V](kv: (K, V1)): ArrayBasedMap[K, V1] = ArrayBasedMap.this.updated(kv._1, kv._2)
+  override def +[V1 >: V](kv: (K, V1)): Map[K, V1] = updated(kv._1, kv._2)
 
-  /* override def updated[V1 >: V](key: K, value: V1): Map[K, V1] = throw new UnsupportedOperationException */
-  override def updated[V1 >: V](key: K, value: V1): ArrayBasedMap[K, V1] = {
+  override def updated[V1 >: V](key: K, value: V1): Map[K, V1] = {
+    var m: Map[K, V1] = Map.empty
     var i = 0
-
     while (i < size) {
-      if (keys(i) == key) {
-        values(i) = value.asInstanceOf[V]
-        return ArrayBasedMap(keys, values)
-      }
+      m += (keys(i) -> values(i))
       i += 1
     }
-
-    return ArrayBasedMap(keys :+ key, values :+ value) // UNRESOLVED ERROR: No ClassTag available for K, V1
+    m + (key -> value)
   }
 
   override def get(key: K): Option[V] = {
@@ -68,19 +62,15 @@ private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], ove
     }
   }
 
-  /* override def -(key: K) = throw new UnsupportedOperationException */
-  override def -(key: K): ArrayBasedMap[K, V] = {
+  override def -(key: K): Map[K, V] = {
+    var m: Map[K, V] = Map.empty
     var i = 0
-
     while (i < size) {
-      if (keys(i) == key) {
-        val k = keys.take(i) ++ keys.drop(i+1)
-        val v = values.take(i) ++ values.drop(i+1)
-
-        return ArrayBasedMap(k.toArray, v.toArray) // UNRESOLVED ERROR: No ClassTag available for K, V
+      if (keys(i) != key) {
+        m += (keys(i) -> values(i))
       }
+      i += 1
     }
-
-    return ArrayBasedMap(keys, values)
+    m
   }
 }
