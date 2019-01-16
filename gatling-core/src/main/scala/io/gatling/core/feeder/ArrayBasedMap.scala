@@ -27,15 +27,7 @@ private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], ove
 
   override def +[V1 >: V](kv: (K, V1)): Map[K, V1] = updated(kv._1, kv._2)
 
-  override def updated[V1 >: V](key: K, value: V1): Map[K, V1] = {
-    var m: Map[K, V1] = Map.empty
-    var i = 0
-    while (i < size) {
-      m += (keys(i) -> values(i))
-      i += 1
-    }
-    m + (key -> value)
-  }
+  override def updated[V1 >: V](key: K, value: V1): Map[K, V1] = Map.empty[K, V1] ++ this + (key -> value)
 
   override def get(key: K): Option[V] = {
     var i = 0
@@ -62,15 +54,5 @@ private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], ove
     }
   }
 
-  override def -(key: K): Map[K, V] = {
-    var m: Map[K, V] = Map.empty
-    var i = 0
-    while (i < size) {
-      if (keys(i) != key) {
-        m += (keys(i) -> values(i))
-      }
-      i += 1
-    }
-    m
-  }
+  override def -(key: K): Map[K, V] = Map.empty[K, V] ++ this - key
 }
