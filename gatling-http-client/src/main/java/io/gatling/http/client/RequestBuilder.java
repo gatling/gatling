@@ -212,8 +212,12 @@ public class RequestBuilder {
       headers.set(COOKIE, ClientCookieEncoder.LAX.encode(cookies));
     }
 
-    if (!headers.contains(ORIGIN)) {
-      headers.set(ORIGIN, originHeader(uri));
+    String referer = headers.get(REFERER);
+    if (!headers.contains(ORIGIN)
+      && !HttpMethod.GET.equals(method)
+      && !HttpMethod.HEAD.equals(method)
+      && referer != null) {
+      headers.set(ORIGIN, originHeader(Uri.create(referer)));
     }
 
     if (!headers.contains(HOST)) {
