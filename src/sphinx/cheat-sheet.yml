@@ -1180,6 +1180,34 @@
             - signature: (Filters)
               description: More generic version taking any kind of filters
 
+        - keyword: nameInferredHtmlResourcesAfterUrlTail
+          description: Name requests after the resource's url tail (after last ``/``) (default)
+          syntax:
+            - signature: (WhiteList)
+              description: Fetch all resources matching a pattern in the white list
+            - signature: (WhiteList, BlackList)
+              description: Fetch all resources matching a pattern in the white list excepting those in the black list
+            - signature: (Filters)
+              description: More generic version taking any kind of filters
+
+        - keyword: nameInferredHtmlResourcesAfterPath
+          description: Name requests after the resource's path
+
+        - keyword: nameInferredHtmlResourcesAfterAbsoluteUrl
+          description: Name requests after the resource's absolute url
+
+        - keyword: nameInferredHtmlResourcesAfterRelativeUrl
+          description: Name requests after the resource's relative url
+
+        - keyword: nameInferredHtmlResourcesAfterLastPathElement
+          description: Name requests after the resource's last path element
+
+        - keyword: nameInferredHtmlResources
+          description: Name requests with a custom strategy
+          syntax:
+            - signature: (Uri => String)
+              description: A function to generate the name out of the Uri
+
         - keyword: maxConnectionsPerHost
           description: Sets the maximum concurrent connections per host per virtual user. Predefined parameters are available through methods such as maxConnectionsPerHostLikeFirefox...
           syntax:
