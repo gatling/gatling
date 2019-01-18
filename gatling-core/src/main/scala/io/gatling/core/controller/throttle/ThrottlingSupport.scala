@@ -71,7 +71,7 @@ object Throttling {
   def apply(steps: Iterable[ThrottleStep]): Throttling = {
 
     val reversedSteps = steps.toList
-    val limit: (Long => Int) = (now: Long) => valueAt(reversedSteps, now, 0)
+    val limit: Long => Int = valueAt(reversedSteps, _, 0)
 
     val duration: FiniteDuration =
       steps.foldLeft(Duration.Zero) { (acc, step) =>

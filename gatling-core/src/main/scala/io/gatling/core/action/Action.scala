@@ -117,7 +117,7 @@ trait ActorBasedAction {
 
   def actorFetchErrorMessage: String
 
-  final def fetchActor(actorName: String, session: Session) =
+  final def fetchActor(actorName: String, session: Session): Validation[ActorRef] =
     session(actorName)
       .validate[ActorRef]
       .mapError(m => s"$actorFetchErrorMessage: $m")

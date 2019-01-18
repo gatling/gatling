@@ -26,15 +26,15 @@ object HttpCheckBuilders {
   private def specializer(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): Specializer[HttpCheck, Response] =
     (wrapped: Check[Response]) => HttpCheck(wrapped, target, responseBodyUsageStrategy)
 
-  val StatusSpecializer = specializer(Status, None)
-  val UrlSpecializer = specializer(Url, None)
-  val HeaderSpecializer = specializer(Header, None)
-  def bodySpecializer(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = specializer(Body, Some(responseBodyUsageStrategy))
-  val StringBodySpecializer = bodySpecializer(StringResponseBodyUsageStrategy)
-  val CharArrayBodySpecializer = bodySpecializer(CharArrayResponseBodyUsageStrategy)
-  val StreamBodySpecializer = bodySpecializer(InputStreamResponseBodyUsageStrategy)
-  val BytesBodySpecializer = bodySpecializer(ByteArrayResponseBodyUsageStrategy)
-  val TimeSpecializer = specializer(Body, None)
+  val StatusSpecializer: Specializer[HttpCheck, Response] = specializer(Status, None)
+  val UrlSpecializer: Specializer[HttpCheck, Response] = specializer(Url, None)
+  val HeaderSpecializer: Specializer[HttpCheck, Response] = specializer(Header, None)
+  def bodySpecializer(responseBodyUsageStrategy: ResponseBodyUsageStrategy): Specializer[HttpCheck, Response] = specializer(Body, Some(responseBodyUsageStrategy))
+  val StringBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(StringResponseBodyUsageStrategy)
+  val CharArrayBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(CharArrayResponseBodyUsageStrategy)
+  val StreamBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(InputStreamResponseBodyUsageStrategy)
+  val BytesBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(ByteArrayResponseBodyUsageStrategy)
+  val TimeSpecializer: Specializer[HttpCheck, Response] = specializer(Body, None)
 
   val PassThroughResponsePreparer: Preparer[Response, Response] = _.success
   val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success

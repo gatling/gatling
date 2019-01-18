@@ -20,18 +20,27 @@ import scala.annotation.implicitNotFound
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.css.CssSelectors
-import io.gatling.core.check.extractor.regex.Patterns
-import io.gatling.core.check.extractor.xpath.XmlParsers
+import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
+import io.gatling.core.check.extractor.checksum.{ Md5CheckType, Sha1CheckType }
+import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
+import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckType, JsonpJsonPathCheckType }
+import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckType }
+import io.gatling.core.check.extractor.string.BodyStringCheckType
+import io.gatling.core.check.extractor.substring.SubstringCheckType
+import io.gatling.core.check.extractor.xpath.{ Dom, XPathCheckType, XmlParsers }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.time.ResponseTimeCheckType
 import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumCheckMaterializer
 import io.gatling.http.check.header._
-import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusCheckMaterializer }
+import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusCheckMaterializer, HttpStatusCheckType }
 import io.gatling.http.check.time.HttpResponseTimeCheckMaterializer
-import io.gatling.http.check.url.{ CurrentLocationCheckBuilder, CurrentLocationCheckMaterializer, CurrentLocationRegexCheckBuilder, CurrentLocationRegexCheckMaterializer }
+import io.gatling.http.check.url._
 import io.gatling.http.response.Response
+
+import jodd.lagarto.dom.NodeSelector
 
 trait HttpCheckSupport {
 
@@ -47,37 +56,37 @@ trait HttpCheckSupport {
   implicit def findCheckBuilder2HttpCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit CheckMaterializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
     findCheckBuilder.find.exists
 
-  val currentLocation = CurrentLocationCheckBuilder.CurrentLocation
-  implicit val currentLocationCheckMaterializer = CurrentLocationCheckMaterializer
+  val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder.CurrentLocation
+  implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] = CurrentLocationCheckMaterializer
 
-  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns) =
+  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
     CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
-  implicit val currentLocationRegexCheckMaterializer = CurrentLocationRegexCheckMaterializer
+  implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] = CurrentLocationRegexCheckMaterializer
 
-  val status = HttpStatusCheckBuilder.Status
-  implicit val httpStatusCheckMaterializer = HttpStatusCheckMaterializer
+  val status: FindCheckBuilder[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder.Status
+  implicit val httpStatusCheckMaterializer: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] = HttpStatusCheckMaterializer
 
-  val header = new HttpHeaderCheckBuilder(_)
-  implicit val httpHeaderCheckMaterializer = HttpHeaderCheckMaterializer
+  val header: Expression[String] => HttpHeaderCheckBuilder = new HttpHeaderCheckBuilder(_)
+  implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns) =
+  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
-  implicit val httpHeaderRegexCheckMaterializer = HttpHeaderRegexCheckMaterializer
+  implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] = HttpHeaderRegexCheckMaterializer
 
-  implicit val httpBodyBytesCheckMaterializer = HttpBodyBytesCheckMaterializer
-  implicit val httpBodyStringCheckMaterializer = HttpBodyStringCheckMaterializer
+  implicit val httpBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] = HttpBodyBytesCheckMaterializer
+  implicit val httpBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, HttpCheck, Response, String] = HttpBodyStringCheckMaterializer
 
-  implicit val httpBodyRegexCheckMaterializer = HttpBodyRegexCheckMaterializer
-  implicit val httpBodySubstringCheckMaterializer = HttpBodySubstringCheckMaterializer
-  implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers) = new HttpBodyXPathCheckMaterializer(xmlParsers)
-  implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors) = new HttpBodyCssCheckMaterializer(selectors)
-  implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers) = new HttpBodyJsonPathCheckMaterializer(jsonParsers)
-  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers) = new HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers)
+  implicit val httpBodyRegexCheckMaterializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence] = HttpBodyRegexCheckMaterializer
+  implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] = HttpBodySubstringCheckMaterializer
+  implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] = new HttpBodyXPathCheckMaterializer(xmlParsers)
+  implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] = new HttpBodyCssCheckMaterializer(selectors)
+  implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, Any] = new HttpBodyJsonPathCheckMaterializer(jsonParsers)
+  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, Any] = new HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers)
 
-  implicit val httpMd5CheckMaterializer = HttpChecksumCheckMaterializer.Md5
-  implicit val httpSha1CheckMaterializer = HttpChecksumCheckMaterializer.Sha1
+  implicit val httpMd5CheckMaterializer: CheckMaterializer[Md5CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Md5
+  implicit val httpSha1CheckMaterializer: CheckMaterializer[Sha1CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Sha1
 
-  implicit val httpResponseTimeCheckMaterializer = HttpResponseTimeCheckMaterializer
+  implicit val httpResponseTimeCheckMaterializer: CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] = HttpResponseTimeCheckMaterializer
 
   implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
     override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) =
@@ -85,7 +94,7 @@ trait HttpCheckSupport {
   }
 
   implicit object HttpUntypedConditionalCheckWrapper extends UntypedConditionalCheckWrapper[HttpCheck] {
-    override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck) = {
+    override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck): HttpCheck = {
       val typedCondition = (_: Response, session: Session) => condition(session)
       HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
     }

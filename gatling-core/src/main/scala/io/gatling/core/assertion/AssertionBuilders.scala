@@ -33,15 +33,15 @@ class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric)(im
   private def next(selection: TimeSelection) =
     new AssertionWithPathAndTarget[Int](path, TimeTarget(metric, selection))
 
-  def min = next(Min)
-  def max = next(Max)
-  def mean = next(Mean)
-  def stdDev = next(StandardDeviation)
-  def percentile1 = percentile(configuration.charting.indicators.percentile1)
-  def percentile2 = percentile(configuration.charting.indicators.percentile2)
-  def percentile3 = percentile(configuration.charting.indicators.percentile3)
-  def percentile4 = percentile(configuration.charting.indicators.percentile4)
-  def percentile(value: Double) = next(Percentiles(value))
+  def min: AssertionWithPathAndTarget[Int] = next(Min)
+  def max: AssertionWithPathAndTarget[Int] = next(Max)
+  def mean: AssertionWithPathAndTarget[Int] = next(Mean)
+  def stdDev: AssertionWithPathAndTarget[Int] = next(StandardDeviation)
+  def percentile1: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile1)
+  def percentile2: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile2)
+  def percentile3: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile3)
+  def percentile4: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile4)
+  def percentile(value: Double): AssertionWithPathAndTarget[Int] = next(Percentiles(value))
 }
 
 class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
@@ -55,7 +55,7 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
   def next(condition: Condition) =
     Assertion(path, target, condition)
 
-  val numeric = implicitly[Numeric[T]]
+  private val numeric = implicitly[Numeric[T]]
 
   def lt(threshold: T): Assertion = next(Lt(numeric.toDouble(threshold)))
   def lte(threshold: T): Assertion = next(Lte(numeric.toDouble(threshold)))

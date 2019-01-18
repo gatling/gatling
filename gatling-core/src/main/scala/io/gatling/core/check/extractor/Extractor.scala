@@ -40,7 +40,7 @@ trait FindArity {
   this: Extractor[_, _] =>
 
   def occurrence: Int
-  def arity = occurrence match {
+  def arity: String = occurrence match {
     case 0 => "find"
     case i => s"find($i)"
   }

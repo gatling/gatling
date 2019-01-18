@@ -23,20 +23,20 @@ import jodd.lagarto.dom.NodeSelector
 
 object CssExtractorFactory extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {
 
-  def newCssSingleExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], occurrence: Int, selectors: CssSelectors) =
+  def newCssSingleExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], occurrence: Int, selectors: CssSelectors): CriterionExtractor[NodeSelector, (String, Option[String]), X] with FindArity =
     newSingleExtractor(
       (query, nodeAttribute),
       occurrence,
       selectors.extractAll(_, (query, nodeAttribute)).lift(occurrence).success
     )
 
-  def newCssMultipleExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], selectors: CssSelectors) =
+  def newCssMultipleExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], selectors: CssSelectors): CriterionExtractor[NodeSelector, (String, Option[String]), Seq[X]] with FindAllArity =
     newMultipleExtractor(
       (query, nodeAttribute),
       selectors.extractAll(_, (query, nodeAttribute)).liftSeqOption.success
     )
 
-  def newCssCountExtractor(query: String, nodeAttribute: Option[String], selectors: CssSelectors) =
+  def newCssCountExtractor(query: String, nodeAttribute: Option[String], selectors: CssSelectors): CriterionExtractor[NodeSelector, (String, Option[String]), Int] with CountArity =
     newCountExtractor(
       (query, nodeAttribute),
       prepared => Some(selectors.extractAll[String](prepared, (query, nodeAttribute)).size).success

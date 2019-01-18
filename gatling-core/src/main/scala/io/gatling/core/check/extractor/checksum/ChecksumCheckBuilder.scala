@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.checksum
 
 import io.gatling.core.check.extractor.{ Extractor, SingleArity }
 import io.gatling.commons.validation._
-import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check.{ DefaultFindCheckBuilder, FindCheckBuilder }
 import io.gatling.core.session._
 
 trait Md5CheckType
@@ -28,14 +28,14 @@ object ChecksumCheckBuilder {
 
   private def checksum[T](algorithm: String): DefaultFindCheckBuilder[T, String, String] = {
     val extractor = new Extractor[String, String] with SingleArity {
-      val name = algorithm.toLowerCase
-      def apply(prepared: String) = Some(prepared).success
+      override val name: String = algorithm.toLowerCase
+      override def apply(prepared: String): Validation[Some[String]] = Some(prepared).success
     }.expressionSuccess
 
     new DefaultFindCheckBuilder[T, String, String](extractor, displayActualValue = false)
   }
 
-  val Md5 = checksum[Md5CheckType]("MD5")
+  val Md5: FindCheckBuilder[Md5CheckType, String, String] = checksum[Md5CheckType]("MD5")
 
-  val Sha1 = checksum[Sha1CheckType]("SHA1")
+  val Sha1: FindCheckBuilder[Sha1CheckType, String, String] = checksum[Sha1CheckType]("SHA1")
 }

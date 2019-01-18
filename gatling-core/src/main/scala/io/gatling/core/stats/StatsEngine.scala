@@ -18,7 +18,7 @@ package io.gatling.core.stats
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-import scala.concurrent.{ Await, Future }
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
@@ -79,7 +79,7 @@ trait StatsEngine {
 object DataWritersStatsEngine {
 
   def apply(simulationParams: SimulationParams, runMessage: RunMessage, system: ActorSystem, clock: Clock, configuration: GatlingConfiguration): DataWritersStatsEngine = {
-    implicit val dataWriterTimeOut = Timeout(5 seconds)
+    implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
 
     val dataWriters = configuration.data.dataWriters.map { dw =>
       val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
@@ -90,7 +90,7 @@ object DataWritersStatsEngine {
 
     val dataWriterInitResponses = dataWriters.map(_ ? Init(simulationParams.assertions, runMessage, shortScenarioDescriptions))
 
-    implicit val dispatcher = system.dispatcher
+    implicit val dispatcher: ExecutionContext = system.dispatcher
 
     val statsEngineFuture = Future.sequence(dataWriterInitResponses)
       .map(_.forall(_ == true))
@@ -111,8 +111,8 @@ class DataWritersStatsEngine(dataWriters: Seq[ActorRef], system: ActorSystem, cl
 
   override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit =
     if (active.getAndSet(false)) {
-      implicit val dispatcher = system.dispatcher
-      implicit val dataWriterTimeOut = Timeout(5 seconds)
+      implicit val dispatcher: ExecutionContext = system.dispatcher
+      implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
       val responses = dataWriters.map(_ ? Stop)
       Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
     }

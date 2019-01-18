@@ -30,7 +30,7 @@ import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
 
 object ElFileBody {
-  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies) =
+  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): CompositeByteArrayBody =
     CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath), configuration.core.charset)
 }
 

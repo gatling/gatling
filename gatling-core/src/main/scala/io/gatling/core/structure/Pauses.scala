@@ -43,7 +43,7 @@ trait Pauses[B] extends Execs[B] {
     else {
       val minMillis = min.toMillis
       val maxMillis = max.toMillis
-      (session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
+      _ => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
     }
 
   private def durationExpression(min: String, max: String, unit: TimeUnit): Expression[Duration] = {

@@ -32,9 +32,10 @@ class SessionHookBuilder(sessionFunction: Expression[Session], exitable: Boolean
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     val name = genName("hook")
-    if (exitable)
+    if (exitable) {
       new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next) with ExitableAction
-    else
+    } else {
       new SessionHook(sessionFunction, name, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+    }
   }
 }

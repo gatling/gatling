@@ -23,7 +23,6 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
-import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserMessage
 import io.gatling.core.util.Shard

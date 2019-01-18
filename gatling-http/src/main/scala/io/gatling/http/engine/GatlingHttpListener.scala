@@ -21,7 +21,6 @@ import io.gatling.core.CoreComponents
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
 import io.gatling.http.engine.tx.HttpTx
-import io.gatling.http.response.ResponseBuilder
 
 import com.typesafe.scalalogging._
 import io.netty.buffer.ByteBuf

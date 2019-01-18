@@ -27,18 +27,18 @@ import com.fasterxml.jackson.databind.ObjectMapper
 
 object Jackson {
 
+  private val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
+
   def apply()(implicit configuration: GatlingConfiguration) =
     new Jackson(new ObjectMapper, configuration.core.charset)
 }
 
 class Jackson(objectMapper: ObjectMapper, defaultCharset: Charset) {
 
-  val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
-
   def parse(string: String): Object = objectMapper.readValue(string, classOf[Object])
 
   def parse(stream: InputStream, charset: Charset = defaultCharset): Object =
-    if (JsonSupportedEncodings.contains(charset)) {
+    if (Jackson.JsonSupportedEncodings.contains(charset)) {
       objectMapper.readValue(stream, classOf[Object])
     } else {
       val reader = new InputStreamReader(stream, charset)

@@ -28,5 +28,5 @@ object ResponseTimings {
 
 case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) {
 
-  val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
+  val responseTime: Int = ResponseTimings.responseTime(startTimestamp, endTimestamp)
 }

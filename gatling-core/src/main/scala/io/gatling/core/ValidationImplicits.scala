@@ -30,7 +30,7 @@ import io.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
 sealed trait NonValidable
 
 object NonValidable {
-  val exclude = Exclude.list[NonValidable]
+  private val exclude = Exclude.list[NonValidable]
   implicit val a1, a2 = exclude[SessionAttribute]
   implicit val b1, b2 = exclude[ChainBuilder]
   implicit val c1, c2 = exclude[ScenarioBuilder]

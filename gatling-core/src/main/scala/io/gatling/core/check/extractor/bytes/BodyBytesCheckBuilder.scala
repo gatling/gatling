@@ -25,11 +25,11 @@ trait BodyBytesCheckType
 
 object BodyBytesCheckBuilder {
 
-  val BodyBytes = {
+  val BodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = {
 
     val extractor = new Extractor[Array[Byte], Array[Byte]] with SingleArity {
-      val name = "bodyBytes"
-      def apply(prepared: Array[Byte]) = Some(prepared).success
+      override val name = "bodyBytes"
+      override def apply(prepared: Array[Byte]): Validation[Some[Array[Byte]]] = Some(prepared).success
     }.expressionSuccess
 
     new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](extractor, displayActualValue = false)

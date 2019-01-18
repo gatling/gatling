@@ -104,7 +104,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
 
   def countExtractor: Expression[Extractor[P, Int]]
 
-  def find = find(0)
+  def find: ValidatorCheckBuilder[T, P, X] = find(0)
 
   def find(occurrence: Int): ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findExtractor(occurrence), displayActualValue)
 
@@ -128,10 +128,10 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
 
   private def transformExtractor[X2](transformation: X => X2)(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
-      def name = extractor.name
-      def arity = extractor.arity + ".transform"
+      override def name: String = extractor.name
+      override def arity: String = extractor.arity + ".transform"
 
-      def apply(prepared: P): Validation[Option[X2]] =
+      override def apply(prepared: P): Validation[Option[X2]] =
         safely(TransformErrorMapper) {
           extractor(prepared).map(_.map(transformation))
         }
@@ -145,10 +145,10 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
 
   private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
-      def name = extractor.name
-      def arity = extractor.arity + ".transformOption"
+      override def name: String = extractor.name
+      override def arity: String = extractor.arity + ".transformOption"
 
-      def apply(prepared: P): Validation[Option[X2]] =
+      override def apply(prepared: P): Validation[Option[X2]] =
         safely(TransformOptionErrorMapper) {
           extractor(prepared).flatMap(transformation)
         }
@@ -165,23 +165,23 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
 
   def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
     validate((session: Session) => new Validator[X] {
-      override val name = opName
+      override val name: String = opName
       override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] = validator(actual, session)
     }.success)
 
-  def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))
-  def isNull = validate(new IsNullMatcher[X].expressionSuccess)
-  def not(expected: Expression[X]) = validate(expected.map(new NotMatcher(_)))
-  def notNull = validate(new NotNullMatcher[X].expressionSuccess)
-  def in(expected: X*) = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
-  def in(expected: Expression[Seq[X]]) = validate(expected.map(new InMatcher(_)))
-  def exists = validate(new ExistsValidator[X]().expressionSuccess)
-  def notExists = validate(new NotExistsValidator[X]().expressionSuccess)
-  def optional = validate(new NoopValidator[X]().expressionSuccess)
-  def lt(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("lessThan", "less than", ordering.lt, _)))
-  def lte(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("lessThanOrEqual", "less than or equal to", ordering.lteq, _)))
-  def gt(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("greaterThan", "greater than", ordering.gt, _)))
-  def gte(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", ordering.gteq, _)))
+  def is(expected: Expression[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new IsMatcher(_)))
+  def isNull: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new IsNullMatcher[X].expressionSuccess)
+  def not(expected: Expression[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new NotMatcher(_)))
+  def notNull: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new NotNullMatcher[X].expressionSuccess)
+  def in(expected: X*): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
+  def in(expected: Expression[Seq[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new InMatcher(_)))
+  def exists: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new ExistsValidator[X]().expressionSuccess)
+  def notExists: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new NotExistsValidator[X]().expressionSuccess)
+  def optional: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new NoopValidator[X]().expressionSuccess)
+  def lt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new CompareMatcher("lessThan", "less than", ordering.lt, _)))
+  def lte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new CompareMatcher("lessThanOrEqual", "less than or equal to", ordering.lteq, _)))
+  def gt(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new CompareMatcher("greaterThan", "greater than", ordering.gt, _)))
+  def gte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", ordering.gteq, _)))
 }
 
 case class CheckBuilder[T, P, X](

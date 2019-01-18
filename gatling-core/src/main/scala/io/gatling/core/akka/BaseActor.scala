@@ -16,16 +16,17 @@
 
 package io.gatling.core.akka
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration.Duration
 
-import akka.actor.{ Actor, Terminated }
+import akka.actor.{ Actor, ActorSystem, Scheduler, Terminated }
 import com.typesafe.scalalogging.LazyLogging
 
 abstract class BaseActor extends Actor with LazyLogging {
 
-  implicit def system = context.system
-  def scheduler = system.scheduler
-  implicit def dispatcher = system.dispatcher
+  implicit def system: ActorSystem = context.system
+  def scheduler: Scheduler = system.scheduler
+  implicit def dispatcher: ExecutionContext = system.dispatcher
 
   // FIXME is ReceiveTimeout set up by default?
   override def preStart(): Unit = context.setReceiveTimeout(Duration.Undefined)
@@ -35,7 +36,7 @@ abstract class BaseActor extends Actor with LazyLogging {
 
   override def unhandled(message: Any): Unit =
     message match {
-      case Terminated(dead) => super.unhandled(message)
-      case unknown          => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
+      case _: Terminated => super.unhandled(message)
+      case unknown       => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
     }
 }

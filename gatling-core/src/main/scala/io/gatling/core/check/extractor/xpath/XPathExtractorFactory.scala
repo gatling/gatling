@@ -23,7 +23,7 @@ import io.gatling.core.check.extractor._
 
 object XPathExtractorFactory extends CriterionExtractorFactory[Option[Dom], (String, List[(String, String)])]("xpath") {
 
-  def newXpathSingleExtractor(path: String, namespaces: List[(String, String)], occurrence: Int, xmlParsers: XmlParsers) =
+  def newXpathSingleExtractor(path: String, namespaces: List[(String, String)], occurrence: Int, xmlParsers: XmlParsers): CriterionExtractor[Option[Dom], (String, List[(String, String)]), String] with FindArity =
     newSingleExtractor(
       (path, namespaces),
       occurrence,
@@ -39,7 +39,7 @@ object XPathExtractorFactory extends CriterionExtractorFactory[Option[Dom], (Str
       }.success
     )
 
-  def newXpathMultipleExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers) =
+  def newXpathMultipleExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers): CriterionExtractor[Option[Dom], (String, List[(String, String)]), Seq[String]] with FindAllArity =
     newMultipleExtractor(
       (path, namespaces),
       _.flatMap {
@@ -57,7 +57,7 @@ object XPathExtractorFactory extends CriterionExtractorFactory[Option[Dom], (Str
       }.success
     )
 
-  def newXpathCountExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers) =
+  def newXpathCountExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers): CriterionExtractor[Option[Dom], (String, List[(String, String)]), Int] with CountArity =
     newCountExtractor(
       (path, namespaces),
       _.map {

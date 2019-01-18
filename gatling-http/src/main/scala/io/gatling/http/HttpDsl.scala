@@ -39,11 +39,11 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport 
 
   def Proxy(host: String, port: Int) = ProxyBuilder(host, port)
 
-  def http(requestName: Expression[String]) = new Http(requestName)
+  def http(requestName: Expression[String]) = Http(requestName)
   def addCookie(cookie: AddCookieDsl) = AddCookieBuilder(cookie)
   def getCookieValue(cookie: GetCookieDsl) = GetCookieValueBuilder(cookie)
-  def flushSessionCookies = CookieSupport.FlushSessionCookies
-  def flushCookieJar = CookieSupport.FlushCookieJar
+  def flushSessionCookies: Expression[Session] = CookieSupport.FlushSessionCookies
+  def flushCookieJar: Expression[Session] = CookieSupport.FlushCookieJar
   def flushHttpCache = new FlushCacheBuilder
 
   val sse = Sse

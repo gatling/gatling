@@ -47,7 +47,7 @@ class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counte
     val safeCondition = condition.safe
     val actualCondition =
       if (loopType.evaluateConditionAfterLoop) {
-        (session: Session) =>
+        session: Session =>
           if (session.attributes(counterName) == 0) {
             TrueSuccess
           } else {

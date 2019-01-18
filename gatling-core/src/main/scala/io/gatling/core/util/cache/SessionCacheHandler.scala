@@ -44,7 +44,7 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
   import SessionCacheHandler._
 
-  val enabled = maxCapacity > 0
+  val enabled: Boolean = maxCapacity > 0
 
   def getCache(session: Session): Option[Cache[K, V]] =
     session(cacheName).asOption[Cache[K, V]]

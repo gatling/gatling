@@ -20,20 +20,20 @@ import io.gatling.core.check.extractor._
 
 sealed abstract class JsonPathExtractorFactoryBase(name: String) extends CriterionExtractorFactory[Any, String](name) {
 
-  def newJsonPathSingleExtractor[X: JsonFilter](path: String, occurrence: Int, jsonPaths: JsonPaths) =
+  def newJsonPathSingleExtractor[X: JsonFilter](path: String, occurrence: Int, jsonPaths: JsonPaths): CriterionExtractor[Any, String, X] with FindArity =
     newSingleExtractor(
       path,
       occurrence,
       jsonPaths.extractAll(_, path).map(_.toSeq.lift(occurrence))
     )
 
-  def newJsonPathMultipleExtractor[X: JsonFilter](path: String, jsonPaths: JsonPaths) =
+  def newJsonPathMultipleExtractor[X: JsonFilter](path: String, jsonPaths: JsonPaths): CriterionExtractor[Any, String, Seq[X]] with FindAllArity =
     newMultipleExtractor(
       path,
       jsonPaths.extractAll(_, path).map(_.toVector.liftSeqOption)
     )
 
-  def newJsonPathCountExtractor(path: String, jsonPaths: JsonPaths) =
+  def newJsonPathCountExtractor(path: String, jsonPaths: JsonPaths): CriterionExtractor[Any, String, Int] with CountArity =
     newCountExtractor(
       path,
       jsonPaths.extractAll[Any](_, path).map(i => Some(i.size))

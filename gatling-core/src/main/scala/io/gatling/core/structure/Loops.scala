@@ -54,7 +54,7 @@ trait Loops[B] extends Execs[B] {
     loop(continueCondition, chain, counterName, exitASAP, DuringLoopType)
   }
 
-  def forever(chain: ChainBuilder): B = forever(FastUUID.toString(UUID.randomUUID), exitASAP = false)(chain)
+  def forever(chain: ChainBuilder): B = forever(FastUUID.toString(UUID.randomUUID))(chain)
 
   def forever(counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = false)(chain: ChainBuilder): B =
     loop(TrueExpressionSuccess, chain, counterName, exitASAP, ForeachLoopType)

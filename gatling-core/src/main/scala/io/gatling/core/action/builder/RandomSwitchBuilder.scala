@@ -31,16 +31,16 @@ import com.typesafe.scalalogging.StrictLogging
 
 object RandomSwitchBuilder {
 
-  val Accuracy = 10000
+  private val Accuracy = 10000
 
-  def percentageToInt(p: Double) = (p * Accuracy / 100).toInt
+  private def percentageToInt(p: Double): Int = (p * Accuracy / 100).toInt
 
   def randomWithinAccuracy: Int = ThreadLocalRandom.current.nextInt(Accuracy)
 
-  def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) = {
+  def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): RandomSwitchBuilder = {
     val normalizedPossibilities = possibilities
       .collect { case (p, c) => (percentageToInt(p), c) }
-      .filter { case (p, c) => p > 0 }
+      .filter { case (p, _) => p > 0 }
     new RandomSwitchBuilder(normalizedPossibilities, elseNext)
   }
 }
@@ -49,18 +49,16 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
   import RandomSwitchBuilder._
 
-  val sum = possibilities.sumBy(_._1)
+  private val sum = possibilities.sumBy(_._1)
   require(sum <= Accuracy, s"Random switch weights sum is ${sum.toDouble / 100}, mustn't be bigger than 100%")
-  if (sum == Accuracy && elseNext.isDefined)
+  if (sum == Accuracy && elseNext.isDefined) {
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
+  }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
 
-    val possibleActions = possibilities.map {
-      case (percentage, possibility) =>
-        val possibilityAction = possibility.build(ctx, next)
-        (percentage, possibilityAction)
-    }
+    val possibleActions = possibilities
+      .map { case (percentage, possibility) => percentage -> possibility.build(ctx, next) }
 
     val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
 

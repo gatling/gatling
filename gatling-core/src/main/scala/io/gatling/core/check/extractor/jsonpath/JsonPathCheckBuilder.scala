@@ -17,6 +17,7 @@
 package io.gatling.core.check.extractor.jsonpath
 
 import io.gatling.core.check._
+import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.session._
 
 trait JsonPathCheckType
@@ -40,7 +41,7 @@ class JsonPathCheckBuilder[X: JsonFilter](
 
   import JsonPathExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
-  override def findAllExtractor = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
-  override def countExtractor = path.map(newJsonPathCountExtractor(_, jsonPaths))
+  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[Any, String, X] with FindArity] = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
+  override def findAllExtractor: Expression[CriterionExtractor[Any, String, Seq[X]] with FindAllArity] = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
+  override def countExtractor: Expression[CriterionExtractor[Any, String, Int] with CountArity] = path.map(newJsonPathCountExtractor(_, jsonPaths))
 }

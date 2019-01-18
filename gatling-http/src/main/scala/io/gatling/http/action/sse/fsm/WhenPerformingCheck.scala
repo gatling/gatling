@@ -95,7 +95,7 @@ trait WhenPerformingCheck { this: SseActor =>
     import data._
 
     // cache is used for both matching and checking
-    implicit val cache = new JHashMap[Any, Any]
+    implicit val cache: JHashMap[Any, Any] = new JHashMap
 
     // if matchConditions isEmpty, all messages are considered to be matching
     val messageMatches = matchConditions.forall(_.check(message, session).isInstanceOf[Success[_]])

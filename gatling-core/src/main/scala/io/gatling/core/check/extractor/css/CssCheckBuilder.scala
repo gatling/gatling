@@ -17,6 +17,7 @@
 package io.gatling.core.check.extractor.css
 
 import io.gatling.core.check._
+import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.session._
 
 import jodd.lagarto.dom.NodeSelector
@@ -43,7 +44,7 @@ class CssCheckBuilder[X: NodeConverter](
 
   import CssExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = expression.map(newCssSingleExtractor(_, nodeAttribute, occurrence, selectors))
-  override def findAllExtractor = expression.map(newCssMultipleExtractor(_, nodeAttribute, selectors))
-  override def countExtractor = expression.map(newCssCountExtractor(_, nodeAttribute, selectors))
+  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[NodeSelector, (String, Option[String]), X] with FindArity] = expression.map(newCssSingleExtractor(_, nodeAttribute, occurrence, selectors))
+  override def findAllExtractor: Expression[CriterionExtractor[NodeSelector, (String, Option[String]), Seq[X]] with FindAllArity] = expression.map(newCssMultipleExtractor(_, nodeAttribute, selectors))
+  override def countExtractor: Expression[CriterionExtractor[NodeSelector, (String, Option[String]), Int] with CountArity] = expression.map(newCssCountExtractor(_, nodeAttribute, selectors))
 }

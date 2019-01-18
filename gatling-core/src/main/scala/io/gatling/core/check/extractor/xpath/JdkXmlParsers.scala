@@ -28,11 +28,11 @@ import org.xml.sax.{ InputSource, EntityResolver }
 
 class JdkXmlParsers(configuration: GatlingConfiguration) {
 
-  val xpathFactoryTL = new ThreadLocal[XPathFactory] {
-    override def initialValue() = XPathFactory.newInstance
+  private val xpathFactoryTL = new ThreadLocal[XPathFactory] {
+    override def initialValue(): XPathFactory = XPathFactory.newInstance
   }
 
-  val documentBuilderFactoryInstance = {
+  private val documentBuilderFactoryInstance = {
 
     System.setProperty("org.apache.xml.dtm.DTMManager", "org.apache.xml.dtm.ref.DTMManagerDefault")
     System.setProperty("com.sun.org.apache.xml.internal.dtm.DTMManager", "com.sun.org.apache.xml.internal.dtm.ref.DTMManagerDefault")
@@ -44,13 +44,13 @@ class JdkXmlParsers(configuration: GatlingConfiguration) {
     instance
   }
 
-  val noopEntityResolver = new EntityResolver {
+  private val noopEntityResolver = new EntityResolver {
     // FIXME can't we create only one StringReader?
     def resolveEntity(publicId: String, systemId: String) = new InputSource(new StringReader(""))
   }
 
-  val documentBuilderTL = new ThreadLocal[DocumentBuilder] {
-    override def initialValue() = {
+  private val documentBuilderTL = new ThreadLocal[DocumentBuilder] {
+    override def initialValue(): DocumentBuilder = {
       val builder = documentBuilderFactoryInstance.newDocumentBuilder
       builder.setEntityResolver(noopEntityResolver)
       builder
@@ -65,7 +65,7 @@ class JdkXmlParsers(configuration: GatlingConfiguration) {
 
     if (namespaces.nonEmpty) {
 
-      val namespaceCtx = new NamespaceContext {
+      val namespaceCtx: NamespaceContext = new NamespaceContext {
 
         val map: Map[String, String] = namespaces.toMap
 

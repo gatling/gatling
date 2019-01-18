@@ -17,6 +17,8 @@
 package io.gatling.http.check.sse
 
 import io.gatling.core.check._
+import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
 
 trait SseCheckSupport {
@@ -30,9 +32,9 @@ trait SseCheckSupport {
   implicit def findCheckBuilder2SseCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
     findCheckBuilder.find.exists
 
-  implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers) = new SseJsonPathCheckMaterializer(jsonParsers)
+  implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): SseJsonPathCheckMaterializer = new SseJsonPathCheckMaterializer(jsonParsers)
 
-  implicit val sseRegexCheckMaterializer = SseRegexCheckMaterializer
+  implicit val sseRegexCheckMaterializer: CheckMaterializer[RegexCheckType, SseCheck, String, CharSequence] = SseRegexCheckMaterializer
 
-  implicit val sseSubstringCheckMaterializer = SseSubstringCheckMaterializer
+  implicit val sseSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, SseCheck, String, String] = SseSubstringCheckMaterializer
 }

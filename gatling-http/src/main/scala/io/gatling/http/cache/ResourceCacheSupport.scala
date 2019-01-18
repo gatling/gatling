@@ -23,7 +23,7 @@ import scala.compat.java8.FunctionConverters._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.fetch.{ CssParser, ConcurrentResource }
+import io.gatling.http.fetch.ConcurrentResource
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequest
 

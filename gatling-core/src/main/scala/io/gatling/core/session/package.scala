@@ -73,7 +73,7 @@ package object session {
       }
     }
 
-    (session: Session) => resolveRec(session, iterable.iterator, Nil)
+    resolveRec(_, iterable.iterator, Nil)
   }
 
   def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {

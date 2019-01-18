@@ -17,6 +17,7 @@
 package io.gatling.core.check.extractor.xpath
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.check.extractor.xpath.XPathExtractorFactory._
 import io.gatling.core.session._
 
@@ -36,7 +37,7 @@ class XPathCheckBuilder(
 )
   extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[Dom], String](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int) = path.map(newXpathSingleExtractor(_, namespaces, occurrence, xmlParsers))
-  override def findAllExtractor = path.map(newXpathMultipleExtractor(_, namespaces, xmlParsers))
-  override def countExtractor = path.map(newXpathCountExtractor(_, namespaces, xmlParsers))
+  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[Option[Dom], (String, List[(String, String)]), String] with FindArity] = path.map(newXpathSingleExtractor(_, namespaces, occurrence, xmlParsers))
+  override def findAllExtractor: Expression[CriterionExtractor[Option[Dom], (String, List[(String, String)]), Seq[String]] with FindAllArity] = path.map(newXpathMultipleExtractor(_, namespaces, xmlParsers))
+  override def countExtractor: Expression[CriterionExtractor[Option[Dom], (String, List[(String, String)]), Int] with CountArity] = path.map(newXpathCountExtractor(_, namespaces, xmlParsers))
 }

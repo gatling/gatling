@@ -104,7 +104,7 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   }
 
   when(StoppedInjecting) {
-    case Event(userMessage @ UserMessage(session, End, timestamp), StoppedInjectingData(controller, workloads)) =>
+    case Event(userMessage @ UserMessage(session, End, _), StoppedInjectingData(controller, workloads)) =>
       val scenario = session.scenario
       val workload = workloads(scenario)
       workload.endUser(userMessage)

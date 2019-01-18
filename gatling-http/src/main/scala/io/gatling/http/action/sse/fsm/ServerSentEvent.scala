@@ -31,6 +31,6 @@ case class ServerSentEvent(
     val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
       .collect({ case (key, Some(value)) => (key, value) })
 
-    Json.stringify(map, isRootObject = true)
+    Json.stringify(map)
   }
 }

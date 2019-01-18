@@ -81,12 +81,12 @@ abstract class Simulation {
       this
     }
 
-    def disablePauses = pauses(Disabled)
-    def constantPauses = pauses(Constant)
-    def exponentialPauses = pauses(Exponential)
-    def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
-    def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
-    def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
+    def disablePauses: SetUp = pauses(Disabled)
+    def constantPauses: SetUp = pauses(Constant)
+    def exponentialPauses: SetUp = pauses(Exponential)
+    def customPauses(custom: Expression[Long]): SetUp = pauses(Custom(custom))
+    def uniformPauses(plusOrMinus: Double): SetUp = pauses(UniformPercentage(plusOrMinus))
+    def uniformPauses(plusOrMinus: Duration): SetUp = pauses(UniformDuration(plusOrMinus))
     def pauses(pauseType: PauseType): SetUp = {
       _globalPauseType = pauseType
       this

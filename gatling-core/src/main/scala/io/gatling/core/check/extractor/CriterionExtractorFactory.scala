@@ -20,34 +20,34 @@ import io.gatling.commons.validation.Validation
 
 abstract class CriterionExtractorFactory[P, T](name: String) {
 
-  def newSingleExtractor[X](_criterion: T, _occurrence: Int, extractor: P => Validation[Option[X]]) =
+  def newSingleExtractor[X](_criterion: T, _occurrence: Int, extractor: P => Validation[Option[X]]): CriterionExtractor[P, T, X] with FindArity =
     new CriterionExtractor[P, T, X] with FindArity {
 
-      override def criterionName = CriterionExtractorFactory.this.name
+      override def criterionName: String = CriterionExtractorFactory.this.name
 
-      override def criterion = _criterion
+      override def criterion: T = _criterion
 
-      override def occurrence = _occurrence
+      override def occurrence: Int = _occurrence
 
       override def apply(prepared: P): Validation[Option[X]] = extractor(prepared)
     }
 
-  def newMultipleExtractor[X](_criterion: T, extractor: P => Validation[Option[Seq[X]]]) =
+  def newMultipleExtractor[X](_criterion: T, extractor: P => Validation[Option[Seq[X]]]): CriterionExtractor[P, T, Seq[X]] with FindAllArity =
     new CriterionExtractor[P, T, Seq[X]] with FindAllArity {
 
-      override def criterionName = CriterionExtractorFactory.this.name
+      override def criterionName: String = CriterionExtractorFactory.this.name
 
-      override def criterion = _criterion
+      override def criterion: T = _criterion
 
       override def apply(prepared: P): Validation[Option[Seq[X]]] = extractor(prepared)
     }
 
-  def newCountExtractor(_criterion: T, extractor: P => Validation[Option[Int]]) =
+  def newCountExtractor(_criterion: T, extractor: P => Validation[Option[Int]]): CriterionExtractor[P, T, Int] with CountArity =
     new CriterionExtractor[P, T, Int] with CountArity {
 
-      override def criterionName = CriterionExtractorFactory.this.name
+      override def criterionName: String = CriterionExtractorFactory.this.name
 
-      override def criterion = _criterion
+      override def criterion: T = _criterion
 
       override def apply(prepared: P): Validation[Option[Int]] = extractor(prepared)
     }

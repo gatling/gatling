@@ -27,10 +27,10 @@ object SseStreamDecoder {
   private val LF = 0x0A
   private val CR = 0x0D
 
-  val EventHeader = "event:".toCharArray
-  val DataHeader = "data:".toCharArray
-  val IdHeader = "id:".toCharArray
-  val RetryHeader = "retry:".toCharArray
+  private val EventHeader = "event:".toCharArray
+  private val DataHeader = "data:".toCharArray
+  private val IdHeader = "id:".toCharArray
+  private val RetryHeader = "retry:".toCharArray
 }
 
 class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {

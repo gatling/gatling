@@ -124,19 +124,19 @@ case class BodyPart(
     attributes: BodyPartAttributes
 ) {
 
-  def contentType(contentType: Expression[String]) = this.modify(_.attributes.contentType).setTo(Some(contentType))
+  def contentType(contentType: Expression[String]): BodyPart = this.modify(_.attributes.contentType).setTo(Some(contentType))
 
-  def charset(charset: String) = this.modify(_.attributes.charset).setTo(Some(Charset.forName(charset)))
+  def charset(charset: String): BodyPart = this.modify(_.attributes.charset).setTo(Some(Charset.forName(charset)))
 
-  def dispositionType(dispositionType: Expression[String]) = this.modify(_.attributes.dispositionType).setTo(Some(dispositionType))
+  def dispositionType(dispositionType: Expression[String]): BodyPart = this.modify(_.attributes.dispositionType).setTo(Some(dispositionType))
 
-  def fileName(fileName: Expression[String]) = this.modify(_.attributes.fileName).setTo(Some(fileName))
+  def fileName(fileName: Expression[String]): BodyPart = this.modify(_.attributes.fileName).setTo(Some(fileName))
 
-  def contentId(contentId: Expression[String]) = this.modify(_.attributes.contentId).setTo(Some(contentId))
+  def contentId(contentId: Expression[String]): BodyPart = this.modify(_.attributes.contentId).setTo(Some(contentId))
 
-  def transferEncoding(transferEncoding: String) = this.modify(_.attributes.transferEncoding).setTo(Some(transferEncoding))
+  def transferEncoding(transferEncoding: String): BodyPart = this.modify(_.attributes.transferEncoding).setTo(Some(transferEncoding))
 
-  def header(name: String, value: Expression[String]) = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
+  def header(name: String, value: Expression[String]): BodyPart = this.modify(_.attributes.customHeaders).using(_ ::: List(name -> value))
 
   def toMultiPart(session: Session): Validation[Part[_]] =
     for {
@@ -148,7 +148,7 @@ case class BodyPart(
       customHeaders <- attributes.customHeadersExpression(session)
       customHeadersAsParams = if (customHeaders.nonEmpty) {
         val params = new JArrayList[Param](customHeaders.size)
-        customHeaders.foreach { case (name, value) => params.add(new Param(name, value)) }
+        customHeaders.foreach { case (headerName, value) => params.add(new Param(headerName, value)) }
         params
       } else {
         Collections.emptyList[Param]

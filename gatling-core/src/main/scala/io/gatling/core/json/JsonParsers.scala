@@ -24,14 +24,16 @@ import io.gatling.core.config.GatlingConfiguration
 
 object JsonParsers {
 
+  private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
+  private val JoddErrorMapper: String => String = "Jodd failed to parse into a valid AST: " + _
+
   def apply()(implicit configuration: GatlingConfiguration) =
     new JsonParsers(Jackson(), new JoddJson, configuration.core.extract.jsonPath.preferJackson)
 }
 
 case class JsonParsers(jackson: Jackson, jodd: JoddJson, preferJackson: Boolean) {
 
-  private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
-  private val JoddErrorMapper: String => String = "Jodd failed to parse into a valid AST: " + _
+  import JsonParsers._
 
   private def safeParseJackson(string: String): Validation[Object] =
     safely(JacksonErrorMapper)(jackson.parse(string).success)

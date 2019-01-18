@@ -38,32 +38,32 @@ object Predef extends CoreDsl {
    */
   implicit class DurationInteger(val i: Integer) extends AnyVal {
 
-    def nanoseconds = i.toInt.nanoseconds
-    def nanos = i.toInt.nanos
-    def nanosecond = i.toInt.nanosecond
-    def nano = i.toInt.nano
+    def nanoseconds: FiniteDuration = i.toInt.nanoseconds
+    def nanos: FiniteDuration = i.toInt.nanos
+    def nanosecond: FiniteDuration = i.toInt.nanosecond
+    def nano: FiniteDuration = i.toInt.nano
 
-    def microseconds = i.toInt.microseconds
-    def micros = i.toInt.micros
-    def microsecond = i.toInt.microsecond
-    def micro = i.toInt.micro
+    def microseconds: FiniteDuration = i.toInt.microseconds
+    def micros: FiniteDuration = i.toInt.micros
+    def microsecond: FiniteDuration = i.toInt.microsecond
+    def micro: FiniteDuration = i.toInt.micro
 
-    def milliseconds = i.toInt.milliseconds
-    def millis = i.toInt.millis
-    def millisecond = i.toInt.millisecond
-    def milli = i.toInt.milli
+    def milliseconds: FiniteDuration = i.toInt.milliseconds
+    def millis: FiniteDuration = i.toInt.millis
+    def millisecond: FiniteDuration = i.toInt.millisecond
+    def milli: FiniteDuration = i.toInt.milli
 
-    def seconds = i.toInt.seconds
-    def second = i.toInt.second
+    def seconds: FiniteDuration = i.toInt.seconds
+    def second: FiniteDuration = i.toInt.second
 
-    def minutes = i.toInt.minutes
-    def minute = i.toInt.minute
+    def minutes: FiniteDuration = i.toInt.minutes
+    def minute: FiniteDuration = i.toInt.minute
 
-    def hours = i.toInt.hours
-    def hour = i.toInt.hour
+    def hours: FiniteDuration = i.toInt.hours
+    def hour: FiniteDuration = i.toInt.hour
 
-    def days = i.toInt.days
-    def day = i.toInt.day
+    def days: FiniteDuration = i.toInt.days
+    def day: FiniteDuration = i.toInt.day
   }
 
   /**
@@ -72,32 +72,32 @@ object Predef extends CoreDsl {
    */
   implicit class DurationJLong(val l: java.lang.Long) extends AnyVal {
 
-    def nanoseconds = l.toLong.nanoseconds
-    def nanos = l.toLong.nanos
-    def nanosecond = l.toLong.nanosecond
-    def nano = l.toLong.nano
+    def nanoseconds: FiniteDuration = l.toLong.nanoseconds
+    def nanos: FiniteDuration = l.toLong.nanos
+    def nanosecond: FiniteDuration = l.toLong.nanosecond
+    def nano: FiniteDuration = l.toLong.nano
 
-    def microseconds = l.toLong.microseconds
-    def micros = l.toLong.micros
-    def microsecond = l.toLong.microsecond
-    def micro = l.toLong.micro
+    def microseconds: FiniteDuration = l.toLong.microseconds
+    def micros: FiniteDuration = l.toLong.micros
+    def microsecond: FiniteDuration = l.toLong.microsecond
+    def micro: FiniteDuration = l.toLong.micro
 
-    def milliseconds = l.toLong.milliseconds
-    def millis = l.toLong.millis
-    def millisecond = l.toLong.millisecond
-    def milli = l.toLong.milli
+    def milliseconds: FiniteDuration = l.toLong.milliseconds
+    def millis: FiniteDuration = l.toLong.millis
+    def millisecond: FiniteDuration = l.toLong.millisecond
+    def milli: FiniteDuration = l.toLong.milli
 
-    def seconds = l.toLong.seconds
-    def second = l.toLong.second
+    def seconds: FiniteDuration = l.toLong.seconds
+    def second: FiniteDuration = l.toLong.second
 
-    def minutes = l.toLong.minutes
-    def minute = l.toLong.minute
+    def minutes: FiniteDuration = l.toLong.minutes
+    def minute: FiniteDuration = l.toLong.minute
 
-    def hours = l.toLong.hours
-    def hour = l.toLong.hour
+    def hours: FiniteDuration = l.toLong.hours
+    def hour: FiniteDuration = l.toLong.hour
 
-    def days = l.toLong.days
-    def day = l.toLong.day
+    def days: FiniteDuration = l.toLong.days
+    def day: FiniteDuration = l.toLong.day
   }
 
   implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)

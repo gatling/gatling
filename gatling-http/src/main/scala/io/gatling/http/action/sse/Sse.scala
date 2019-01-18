@@ -34,7 +34,7 @@ class Sse(requestName: Expression[String], sseName: String) {
 
   def connect(url: Expression[String]) = SseConnectRequestBuilder(requestName, url, sseName)
 
-  def setCheck = new SseSetCheckBuilder(requestName, sseName, Nil)
+  def setCheck = SseSetCheckBuilder(requestName, sseName, Nil)
 
-  def close() = new SseCloseBuilder(requestName, sseName)
+  def close() = SseCloseBuilder(requestName, sseName)
 }

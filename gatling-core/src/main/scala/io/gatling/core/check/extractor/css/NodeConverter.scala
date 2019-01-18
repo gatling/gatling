@@ -22,28 +22,23 @@ import jodd.lagarto.dom.Node
 
 trait LowPriorityNodeConverterImplicits {
 
-  implicit val stringNodeConverter = new NodeConverter[String] {
-    def convert(node: Node, nodeAttribute: Option[String]): Option[String] = nodeAttribute match {
+  implicit val stringNodeConverter: NodeConverter[String] = (node, nodeAttribute) =>
+    nodeAttribute match {
       case Some(attr) => Option(node.getAttribute(attr))
       case _          => Some(node.getTextContent.trim)
     }
-  }
 
-  implicit val nodeNodeConverter = new NodeConverter[Node] {
-    def convert(node: Node, nodeAttribute: Option[String]): Option[Node] = Some(node)
-  }
+  implicit val nodeNodeConverter: NodeConverter[Node] = (node, _) => Some(node)
 
-  implicit val formNodeConverter = new NodeConverter[Map[String, Any]] {
-    def convert(node: Node, nodeAttribute: Option[String]): Option[Map[String, Any]] =
-      node.getNodeName match {
-        case "form" => Some(FormExtractor.extractFormInputs(node))
-        case _      => None
-      }
-  }
+  implicit val formNodeConverter: NodeConverter[Map[String, Any]] = (node, _) =>
+    node.getNodeName match {
+      case "form" => Some(FormExtractor.extractFormInputs(node))
+      case _      => None
+    }
 }
 
 object NodeConverter extends LowPriorityNodeConverterImplicits {
-  def apply[X: NodeConverter] = implicitly[NodeConverter[X]]
+  def apply[X: NodeConverter]: NodeConverter[X] = implicitly[NodeConverter[X]]
 }
 
 @implicitNotFound("No member of type class NodeConverter found for type ${X}")

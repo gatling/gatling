@@ -27,16 +27,16 @@ import io.netty.handler.codec.http.HttpMethod
 
 object SseConnectRequestBuilder {
 
-  val SseHeaderValueExpression = HeaderValues.TextEventStream.expressionSuccess
-  val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expressionSuccess
+  private val SseHeaderValueExpression = HeaderValues.TextEventStream.expressionSuccess
+  private val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expressionSuccess
 
-  def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
+  def apply(requestName: Expression[String], url: Expression[String], sseName: String): SseConnectRequestBuilder =
     new SseConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), sseName)
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
   implicit def toActionBuilder(requestBuilder: SseConnectRequestBuilder): SseConnectBuilder =
-    new SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder, Nil)
+    SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder, Nil)
 }
 
 case class SseConnectRequestBuilder(

@@ -19,7 +19,7 @@ package io.gatling.core.check.extractor.substring
 import scala.annotation.tailrec
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.CriterionExtractorFactory
+import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, CriterionExtractorFactory, FindAllArity, FindArity }
 
 object SubstringExtractorFactory extends CriterionExtractorFactory[String, String]("substring") {
 
@@ -38,7 +38,7 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
     loop(0, Nil)
   }
 
-  def newSubstringSingleExtractor(substring: String, occurrence: Int) =
+  def newSubstringSingleExtractor(substring: String, occurrence: Int): CriterionExtractor[String, String, Int] with FindArity =
     newSingleExtractor(
       substring,
       occurrence,
@@ -62,7 +62,7 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
       }
     )
 
-  def newSubstringMultipleExtractor(substring: String) =
+  def newSubstringMultipleExtractor(substring: String): CriterionExtractor[String, String, Seq[Int]] with FindAllArity =
     newMultipleExtractor(
       substring,
       extractAll(_, substring) match {
@@ -71,7 +71,7 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
       }
     )
 
-  def newSubstringCountExtractor(substring: String) =
+  def newSubstringCountExtractor(substring: String): CriterionExtractor[String, String, Int] with CountArity =
     newCountExtractor(
       substring,
       text => Some(extractAll(text, substring).size).success

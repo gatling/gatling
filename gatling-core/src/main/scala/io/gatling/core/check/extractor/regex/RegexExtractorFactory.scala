@@ -21,7 +21,7 @@ import io.gatling.core.check.extractor._
 
 class RegexExtractorFactoryBase(name: String) extends CriterionExtractorFactory[CharSequence, String](name) {
 
-  def newRegexSingleExtractor[X: GroupExtractor](pattern: String, occurrence: Int, patterns: Patterns) =
+  def newRegexSingleExtractor[X: GroupExtractor](pattern: String, occurrence: Int, patterns: Patterns): CriterionExtractor[CharSequence, String, X] with FindArity =
     newSingleExtractor(
       pattern,
       occurrence,
@@ -31,13 +31,13 @@ class RegexExtractorFactoryBase(name: String) extends CriterionExtractorFactory[
       }
     )
 
-  def newRegexMultipleExtractor[X: GroupExtractor](pattern: String, patterns: Patterns) =
+  def newRegexMultipleExtractor[X: GroupExtractor](pattern: String, patterns: Patterns): CriterionExtractor[CharSequence, String, Seq[X]] with FindAllArity =
     newMultipleExtractor(
       pattern,
       patterns.extractAll(_, pattern).liftSeqOption.success
     )
 
-  def newRegexCountExtractor(pattern: String, patterns: Patterns) =
+  def newRegexCountExtractor(pattern: String, patterns: Patterns): CriterionExtractor[CharSequence, String, Int] with CountArity =
     newCountExtractor(
       pattern,
       prepared => {

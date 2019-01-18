@@ -38,7 +38,7 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
   private val selectorCache: LoadingCache[String, JList[JList[CssSelector]]] =
     Cache.newConcurrentLoadingCache(configuration.core.extract.css.cacheMaxCapacity, CSSelly.parse)
 
-  def parse(chars: Array[Char]) = new NodeSelector(domBuilder.parse(chars))
+  def parse(chars: Array[Char]): NodeSelector = new NodeSelector(domBuilder.parse(chars))
 
   def extractAll[X: NodeConverter](selector: NodeSelector, criterion: (String, Option[String])): Vector[X] = {
 

@@ -19,7 +19,6 @@ package io.gatling.core.feeder
 import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 
-import scala.annotation.switch
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.Io._

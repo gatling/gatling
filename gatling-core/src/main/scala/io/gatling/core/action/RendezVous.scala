@@ -43,9 +43,9 @@ object RendezVousActor {
  */
 class RendezVousActor(users: Int, val next: Action) extends ActionActor {
 
-  val buffer = mutable.Queue.empty[Session]
+  private val buffer = mutable.Queue.empty[Session]
 
-  val passThrough: Receive = {
+  private val passThrough: Receive = {
     case session: Session => next ! session
   }
 

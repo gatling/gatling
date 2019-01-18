@@ -98,8 +98,8 @@ package object util extends LazyLogging {
         case formBody: FormUrlEncodedRequestBody =>
           buff.append("formBody=").append(Eol).appendParamJList(formBody.getContent)
 
-        case streamBody: InputStreamRequestBody =>
-          buff.append("streamBody=")
+        case _: InputStreamRequestBody =>
+          buff.append("streamBody=???")
 
         case multipartBody: MultipartFormDataRequestBody =>
           buff.append("multipartBody=").append(Eol)

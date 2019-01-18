@@ -27,7 +27,7 @@ class SessionHook(sessionFunction: Expression[Session], val name: String, val st
    *
    * @param session the session of the virtual user
    */
-  override def execute(session: Session) = recover(session) {
+  override def execute(session: Session): Unit = recover(session) {
     sessionFunction(session).map(newSession => next ! newSession)
   }
 }

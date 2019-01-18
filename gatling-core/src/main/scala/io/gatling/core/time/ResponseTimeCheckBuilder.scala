@@ -17,7 +17,7 @@
 package io.gatling.core.time
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check.{ DefaultFindCheckBuilder, FindCheckBuilder }
 import io.gatling.core.check.extractor.{ Extractor, SingleArity }
 import io.gatling.core.session._
 import io.gatling.core.stats.message.ResponseTimings
@@ -26,7 +26,7 @@ trait ResponseTimeCheckType
 
 object ResponseTimeCheckBuilder {
 
-  val ResponseTimeInMillis = {
+  val ResponseTimeInMillis: FindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int] = {
     val extractor = new Extractor[ResponseTimings, Int] with SingleArity {
       override val name = "responseTimeInMillis"
       override def apply(prepared: ResponseTimings): Validation[Some[Int]] = Some(prepared.responseTime).success

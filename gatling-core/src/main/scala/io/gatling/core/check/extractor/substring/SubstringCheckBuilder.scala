@@ -17,13 +17,14 @@
 package io.gatling.core.check.extractor.substring
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
+import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.check.extractor.substring.SubstringExtractorFactory._
 import io.gatling.core.session.Expression
 
 trait SubstringCheckType
 
 class SubstringCheckBuilder(substring: Expression[String]) extends DefaultMultipleFindCheckBuilder[SubstringCheckType, String, Int](displayActualValue = true) {
-  override def findExtractor(occurrence: Int) = substring.map(newSubstringSingleExtractor(_, occurrence))
-  override def findAllExtractor = substring.map(newSubstringMultipleExtractor)
-  override def countExtractor = substring.map(newSubstringCountExtractor)
+  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[String, String, Int] with FindArity] = substring.map(newSubstringSingleExtractor(_, occurrence))
+  override def findAllExtractor: Expression[CriterionExtractor[String, String, Seq[Int]] with FindAllArity] = substring.map(newSubstringMultipleExtractor)
+  override def countExtractor: Expression[CriterionExtractor[String, String, Int] with CountArity] = substring.map(newSubstringCountExtractor)
 }

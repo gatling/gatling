@@ -17,6 +17,7 @@
 package io.gatling.http.check.url
 
 import io.gatling.core.check._
+import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.check.extractor.regex._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
@@ -47,9 +48,9 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
 
   import CurrentLocationRegexCheckBuilder.ExtractorFactory._
 
-  override def findExtractor(occurrence: Int) = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
-  override def findAllExtractor = pattern.map(newRegexMultipleExtractor[X](_, patterns))
-  override def countExtractor = pattern.map(newRegexCountExtractor(_, patterns))
+  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[CharSequence, String, X] with FindArity] = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
+  override def findAllExtractor: Expression[CriterionExtractor[CharSequence, String, Seq[X]] with FindAllArity] = pattern.map(newRegexMultipleExtractor[X](_, patterns))
+  override def countExtractor: Expression[CriterionExtractor[CharSequence, String, Int] with CountArity] = pattern.map(newRegexCountExtractor(_, patterns))
 }
 
 object CurrentLocationRegexCheckMaterializer

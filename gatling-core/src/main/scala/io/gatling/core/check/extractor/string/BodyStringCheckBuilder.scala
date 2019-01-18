@@ -25,11 +25,11 @@ trait BodyStringCheckType
 
 object BodyStringCheckBuilder {
 
-  val BodyString = {
+  val BodyString: FindCheckBuilder[BodyStringCheckType, String, String] = {
 
     val extractor = new Extractor[String, String] with SingleArity {
-      val name = "bodyString"
-      def apply(prepared: String) = Some(prepared).success
+      override val name: String = "bodyString"
+      override def apply(prepared: String): Validation[Some[String]] = Some(prepared).success
     }.expressionSuccess
 
     new DefaultFindCheckBuilder[BodyStringCheckType, String, String](extractor, displayActualValue = false)

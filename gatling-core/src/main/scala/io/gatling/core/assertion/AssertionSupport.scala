@@ -24,9 +24,9 @@ trait AssertionSupport {
   implicit def string2PathParts(string: String): AssertionPathParts =
     AssertionPathParts.string2PathParts(string)
 
-  def global(implicit configuration: GatlingConfiguration) = new AssertionWithPath(Global)
+  def global(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(Global)
 
-  def forAll(implicit configuration: GatlingConfiguration) = new AssertionWithPath(ForAll)
+  def forAll(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(ForAll)
 
-  def details(pathParts: AssertionPathParts)(implicit configuration: GatlingConfiguration) = new AssertionWithPath(Details(pathParts.parts))
+  def details(pathParts: AssertionPathParts)(implicit configuration: GatlingConfiguration): AssertionWithPath = new AssertionWithPath(Details(pathParts.parts))
 }

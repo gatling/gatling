@@ -42,7 +42,7 @@ trait LocalAddressSupport {
     }
   }
 
-  val localAddress: (Session => Option[InetAddress]) = {
+  val localAddress: Session => Option[InetAddress] = {
     // import optimized TypeCaster
     import HttpTypeCaster._
     _(LocalAddressAttributeName).asOption[InetAddress]

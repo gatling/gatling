@@ -17,7 +17,7 @@
 package io.gatling.core
 
 import io.gatling.core.assertion.AssertionSupport
-import io.gatling.core.body.BodyProcessors
+import io.gatling.core.body.{ Body, BodyProcessors, ByteArrayBody, InputStreamBody }
 import io.gatling.core.check.CheckSupport
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.closed.ClosedInjectionSupport
@@ -39,8 +39,8 @@ trait CoreDsl extends StructureSupport
   with CoreDefaultImplicits
   with ValidationImplicits {
 
-  def gzipBody(implicit configuration: GatlingConfiguration) = BodyProcessors.gzip
-  def streamBody(implicit configuration: GatlingConfiguration) = BodyProcessors.stream
+  def gzipBody(implicit configuration: GatlingConfiguration): Body => ByteArrayBody = BodyProcessors.gzip
+  def streamBody(implicit configuration: GatlingConfiguration): Body => InputStreamBody = BodyProcessors.stream
 
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "))
 

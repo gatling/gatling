@@ -36,7 +36,7 @@ class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val stats
    */
   override def execute(session: Session): Unit = recover(session) {
 
-    def schedule(durationInMillis: Long) = {
+    def schedule(durationInMillis: Long): Unit = {
       val drift = session.drift
 
       if (durationInMillis > drift) {

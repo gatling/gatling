@@ -18,21 +18,22 @@ package io.gatling.core.check
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckBuilder
-import io.gatling.core.check.extractor.checksum.ChecksumCheckBuilder
-import io.gatling.core.check.extractor.css.{ CssCheckBuilder, CssSelectors }
-import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckBuilder, JsonPaths, JsonpJsonPathCheckBuilder }
+import io.gatling.core.check.extractor.bytes.{ BodyBytesCheckBuilder, BodyBytesCheckType }
+import io.gatling.core.check.extractor.checksum.{ ChecksumCheckBuilder, Md5CheckType, Sha1CheckType }
+import io.gatling.core.check.extractor.css.{ CssCheckBuilder, CssOfType, CssSelectors }
+import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckBuilder, RegexOfType }
-import io.gatling.core.check.extractor.string.BodyStringCheckBuilder
+import io.gatling.core.check.extractor.string.{ BodyStringCheckBuilder, BodyStringCheckType }
 import io.gatling.core.check.extractor.substring.SubstringCheckBuilder
-import io.gatling.core.check.extractor.xpath.{ XmlParsers, XPathCheckBuilder }
-import io.gatling.core.time.ResponseTimeCheckBuilder
+import io.gatling.core.check.extractor.xpath.{ XPathCheckBuilder, XmlParsers }
+import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.time.{ ResponseTimeCheckBuilder, ResponseTimeCheckType }
 
 trait CheckSupport {
 
-  implicit def validatorCheckBuilder2CheckBuilder[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]) = validatorCheckBuilder.exists
-  implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find
-  implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find.exists
+  implicit def validatorCheckBuilder2CheckBuilder[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]): CheckBuilder[A, P, X] with SaveAs[A, P, X] = validatorCheckBuilder.exists
+  implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): ValidatorCheckBuilder[A, P, X] = findCheckBuilder.find
+  implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): CheckBuilder[A, P, X] with SaveAs[A, P, X] = findCheckBuilder.find.exists
 
   def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =
     cw.wrap(condition, thenCheck)
@@ -42,29 +43,29 @@ trait CheckSupport {
 
   def regex(pattern: Expression[String])(implicit patterns: Patterns): RegexCheckBuilder[String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
 
-  val bodyString = BodyStringCheckBuilder.BodyString
+  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder.BodyString
 
-  val bodyBytes = BodyBytesCheckBuilder.BodyBytes
+  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder.BodyBytes
 
   def substring(pattern: Expression[String]) = new SubstringCheckBuilder(pattern)
 
   def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(implicit xmlParsers: XmlParsers) =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
 
-  def css(selector: Expression[String])(implicit selectors: CssSelectors) =
+  def css(selector: Expression[String])(implicit selectors: CssSelectors): CssCheckBuilder[String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)
-  def css(selector: Expression[String], nodeAttribute: String)(implicit selectors: CssSelectors) =
+  def css(selector: Expression[String], nodeAttribute: String)(implicit selectors: CssSelectors): CssCheckBuilder[String] with CssOfType =
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
-  def form(selector: Expression[String])(implicit selectors: CssSelectors) = css(selector).ofType[Map[String, Any]]
+  def form(selector: Expression[String])(implicit selectors: CssSelectors): CssCheckBuilder[Map[String, Any]] = css(selector).ofType[Map[String, Any]]
 
-  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths) =
+  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): JsonPathCheckBuilder[String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
 
-  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths) =
+  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): JsonpJsonPathCheckBuilder[String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
 
-  val md5 = ChecksumCheckBuilder.Md5
-  val sha1 = ChecksumCheckBuilder.Sha1
+  val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
+  val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1
 
-  val responseTimeInMillis = ResponseTimeCheckBuilder.ResponseTimeInMillis
+  val responseTimeInMillis: FindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int] = ResponseTimeCheckBuilder.ResponseTimeInMillis
 }

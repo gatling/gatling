@@ -30,7 +30,7 @@ abstract class GatlingFunSpec extends Simulation {
   def protocolConf: Protocol
 
   /** Add a spec to be executed */
-  def spec(actionBuilder: ActionBuilder) = specs += actionBuilder
+  def spec(actionBuilder: ActionBuilder): ListBuffer[ActionBuilder] = specs += actionBuilder
 
   private[this] val specs = new ListBuffer[ActionBuilder]
 

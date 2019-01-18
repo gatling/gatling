@@ -22,6 +22,6 @@ package object fetch {
 
   implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
 
-    def filter[T <: ConcurrentResource](resources: List[T]) = resources.filter(res => filters.accept(res.url))
+    def filter[T <: ConcurrentResource](resources: List[T]): List[T] = resources.filter(res => filters.accept(res.url))
   }
 }
