@@ -59,7 +59,7 @@ object Dependencies {
   private val jmsApi                         = "org.apache.geronimo.specs"            % "geronimo-jms_1.1_spec"           % "1.1.1"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.3"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
-  private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.10"
+  private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.11"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.6.2"
   private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.60"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.4.11"
