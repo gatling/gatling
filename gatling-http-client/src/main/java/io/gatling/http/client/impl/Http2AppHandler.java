@@ -23,11 +23,10 @@ import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
 import io.gatling.http.client.pool.ChannelPool;
 import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
-import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +71,17 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());
-      request.write(ctx).addListener(f -> {
+
+      ChannelFuture whenWrite;
+      if (HttpUtil.is100ContinueExpected(request.getRequest())) {
+        LOGGER.debug("Delaying body write");
+        tx.pendingRequestExpectingContinue = request;
+        whenWrite = request.writeWithoutContent(ctx);
+      } else {
+        whenWrite = request.write(ctx);
+      }
+
+      whenWrite.addListener(f -> {
         if (f.isSuccess()) {
           Http2Stream stream = connection.stream(nextStreamId);
           stream.setProperty(propertyKey, tx);
@@ -94,12 +103,27 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       HttpTx tx = stream.getProperty(propertyKey);
 
       if (tx.requestTimeout.isDone()) {
+        tx.releasePendingRequestExpectingContinue();
         http2ConnectionHandler.resetStream(ctx, streamId, 8, ctx.newPromise());
         channelPool.offer(ctx.channel());
         return;
       }
 
-      tx.listener.onHttpResponse(response.status(), response.headers());
+      HttpResponseStatus status = response.status();
+
+      if (tx.pendingRequestExpectingContinue != null) {
+        if (status.equals(HttpResponseStatus.CONTINUE)) {
+          LOGGER.debug("Received 100-Continue");
+          return;
+
+        } else {
+          // TODO implement 417 support
+          LOGGER.debug("Request was sent with Expect:100-Continue but received response with status {}, dropping", status);
+          tx.releasePendingRequestExpectingContinue();
+        }
+      }
+
+      tx.listener.onHttpResponse(status, response.headers());
 
     } else if (msg instanceof Http2Content){
       Http2Content content = (Http2Content) msg;
@@ -115,6 +139,16 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
       HttpContent httpContent = content.getHttpContent();
       boolean last = httpContent instanceof LastHttpContent;
+
+      if (tx.pendingRequestExpectingContinue != null) {
+        if (last) {
+          LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
+          tx.pendingRequestExpectingContinue.writeContent(ctx);
+          tx.pendingRequestExpectingContinue = null;
+        }
+        return;
+      }
+
       tx.listener.onHttpResponseBodyChunk(httpContent.content(), last);
       if (last) {
         tx.requestTimeout.cancel();
@@ -130,6 +164,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       }
       connection.forEachActiveStream(stream -> {
         HttpTx tx = stream.getProperty(propertyKey);
+        tx.releasePendingRequestExpectingContinue();
         tx.listener.onThrowable(cause);
         return true;
       });

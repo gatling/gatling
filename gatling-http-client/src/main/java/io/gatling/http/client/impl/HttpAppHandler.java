@@ -68,19 +68,14 @@ class HttpAppHandler extends ChannelDuplexHandler {
     return tx == null || tx.requestTimeout.isDone();
   }
 
-  private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close) {
-    if (cause instanceof Error) {
-      LOGGER.error("Fatal error", cause);
-      System.exit(1);
+  private void releasePendingRequestExpectingContinue() {
+    if (tx != null) {
+      tx.releasePendingRequestExpectingContinue();
     }
-
-    if (isInactive()) {
-      return;
-    }
-    crash0(ctx, cause, close, tx);
   }
 
-  private void crash0(ChannelHandlerContext ctx, Throwable cause, boolean close, HttpTx tx) {
+  private void crash(ChannelHandlerContext ctx, Throwable cause, boolean close, HttpTx tx) {
+    releasePendingRequestExpectingContinue();
     try {
       tx.requestTimeout.cancel();
       tx.listener.onThrowable(cause);
@@ -113,16 +108,23 @@ class HttpAppHandler extends ChannelDuplexHandler {
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());
-      request.write(ctx);
+      if (HttpUtil.is100ContinueExpected(request.getRequest())) {
+        LOGGER.debug("Delaying body write");
+        tx.pendingRequestExpectingContinue = request;
+        request.writeWithoutContent(ctx);
+      } else {
+        request.write(ctx);
+      }
+
     } catch (Exception e) {
-      crash(ctx, e, true);
+      exceptionCaught(ctx, e);
     }
   }
 
   private boolean exitOnDecodingFailure(ChannelHandlerContext ctx, DecoderResultProvider message) {
     Throwable t = message.decoderResult().cause();
     if (t != null) {
-      crash(ctx, t, true);
+      exceptionCaught(ctx, t);
       return true;
     }
     return false;
@@ -138,12 +140,26 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
     try {
       if (msg instanceof HttpResponse) {
-        httpResponseReceived = true;
         HttpResponse response = (HttpResponse) msg;
+        HttpResponseStatus status = response.status();
+
+        if (tx.pendingRequestExpectingContinue != null) {
+          if (status.equals(HttpResponseStatus.CONTINUE)) {
+            LOGGER.debug("Received 100-Continue");
+            return;
+
+          } else {
+            // TODO implement 417 support
+            LOGGER.debug("Request was sent with Expect:100-Continue but received response with status {}, dropping", status);
+            tx.releasePendingRequestExpectingContinue();
+          }
+        }
+
+        httpResponseReceived = true;
         if (exitOnDecodingFailure(ctx, response)) {
           return;
         }
-        tx.listener.onHttpResponse(response.status(), response.headers());
+        tx.listener.onHttpResponse(status, response.headers());
         tx.closeConnection = tx.closeConnection && HttpUtils.isConnectionClose(response.headers());
 
       } else if (msg instanceof HttpContent) {
@@ -152,6 +168,15 @@ class HttpAppHandler extends ChannelDuplexHandler {
           return;
         }
         boolean last = chunk instanceof LastHttpContent;
+
+        if (tx.pendingRequestExpectingContinue != null) {
+          if (last) {
+            LOGGER.debug("Received 100-Continue' LastHttpContent, sending body");
+            tx.pendingRequestExpectingContinue.writeContent(ctx);
+            tx.pendingRequestExpectingContinue = null;
+          }
+          return;
+        }
 
         // making a local copy because setInactive might be called (on last)
         HttpTx tx = this.tx;
@@ -170,7 +195,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
           tx.listener.onHttpResponseBodyChunk(chunk.content(), last);
         } catch (Throwable e) {
           // can't let exceptionCaught handle this because setInactive might have been called (on last)
-          crash0(ctx, e, true, tx);
+          crash(ctx, e, true, tx);
           throw e;
         }
       }
@@ -181,6 +206,8 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
   @Override
   public void channelInactive(ChannelHandlerContext ctx) {
+    releasePendingRequestExpectingContinue();
+
     if (isInactive()) {
       return;
     }
@@ -193,12 +220,22 @@ class HttpAppHandler extends ChannelDuplexHandler {
     if (!httpResponseReceived && client.canRetry(tx, ctx.channel())) {
       client.retry(tx, ctx.channel().eventLoop());
     } else {
-      crash0(ctx, PREMATURE_CLOSE, false, tx);
+      crash(ctx, PREMATURE_CLOSE, false, tx);
     }
   }
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    crash(ctx, cause, true);
+    releasePendingRequestExpectingContinue();
+
+    if (cause instanceof Error) {
+      LOGGER.error("Fatal error", cause);
+      System.exit(1);
+    }
+
+    if (isInactive()) {
+      return;
+    }
+    crash(ctx, cause, true, tx);
   }
 }

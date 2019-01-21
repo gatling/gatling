@@ -69,7 +69,7 @@ public class WritableRequestBuilder {
 
     Object content = writableContent.getContent();
 
-    if (content instanceof ByteBuf) {
+    if (content instanceof ByteBuf && !headers.contains(EXPECT, HttpHeaderValues.CONTINUE, true)) {
       ByteBuf bb = (ByteBuf) content;
       if (!headers.contains(CONTENT_LENGTH)) {
         headers.set(CONTENT_LENGTH, bb.readableBytes());

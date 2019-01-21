@@ -18,8 +18,11 @@ package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
+import io.gatling.http.client.ahc.util.HttpUtils;
+import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.netty.handler.ssl.SslContext;
+import io.netty.util.ReferenceCounted;
 
 public class HttpTx {
 
@@ -33,6 +36,7 @@ public class HttpTx {
   // mutable state
   int remainingTries;
   boolean closeConnection;
+  WritableRequest pendingRequestExpectingContinue;
 
   HttpTx(Request request, HttpListener listener, RequestTimeout requestTimeout, ChannelPoolKey key, int remainingTries, SslContext sslContext, SslContext alpnSslContext) {
     this.request = request;
@@ -52,6 +56,16 @@ public class HttpTx {
       return alpnSslContext;
     } else {
       return sslContext;
+    }
+  }
+
+  void releasePendingRequestExpectingContinue() {
+    if (pendingRequestExpectingContinue != null) {
+      Object content = pendingRequestExpectingContinue.getContent();
+      if (content instanceof ReferenceCounted) {
+        ((ReferenceCounted) content).release();
+      }
+      pendingRequestExpectingContinue = null;
     }
   }
 }

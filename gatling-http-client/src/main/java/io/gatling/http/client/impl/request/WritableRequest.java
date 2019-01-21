@@ -49,6 +49,15 @@ public class WritableRequest {
     }
   }
 
+  public ChannelFuture writeWithoutContent(ChannelHandlerContext ctx) {
+    return ctx.writeAndFlush(request);
+  }
+
+  public ChannelFuture writeContent(ChannelHandlerContext ctx) {
+    ctx.write(content);
+    return ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
+  }
+
   @Override
   public String toString() {
     return "WritableRequest{" +
