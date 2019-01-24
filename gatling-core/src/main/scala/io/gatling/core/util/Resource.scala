@@ -98,6 +98,7 @@ case class ArchiveResource(url: URL) extends Resource {
     val lastDotIndex = name.lastIndexOf('.')
     val extension = if (lastDotIndex != -1) "" else name.substring(lastDotIndex + 1)
     val tempFile = File.createTempFile("gatling", "." + extension)
+    tempFile.deleteOnExit()
 
     withCloseable(inputStream) { is =>
       withCloseable(new FileOutputStream(tempFile, false)) { os =>

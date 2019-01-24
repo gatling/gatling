@@ -64,6 +64,7 @@ object SeparatedValuesFeederSource {
 
   def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
+    tempFile.deleteOnExit()
 
     val magicNumber: (Int, Int) = withCloseable(resource.inputStream) { os =>
       (os.read(), os.read())
@@ -119,6 +120,7 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
 
     configuration.resolve(
       // [fl]
+      //
       //
       //
       //
