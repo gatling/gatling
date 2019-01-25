@@ -16,6 +16,9 @@
 
 package io.gatling.core.check
 
+import java.util
+
+import io.gatling.commons.util.Equality
 import io.gatling.commons.validation._
 
 object Validator {
@@ -37,16 +40,17 @@ abstract class Matcher[A] extends Validator[A] {
     }
 }
 
-class IsMatcher[A](expected: A) extends Matcher[A] {
+class IsMatcher[A](expected: A, equality: Equality[A]) extends Matcher[A] {
 
   def name = s"is($expected)"
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (actualValue == expected)
+      if (equality.equals(actualValue, expected)) {
         actual.success
-      else
+      } else {
         s"found $actualValue".failure
+      }
     case None => Validator.FoundNothingFailure
   }
 }
@@ -57,24 +61,26 @@ class IsNullMatcher[A] extends Matcher[A] {
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (actualValue == null)
+      if (actualValue == null) {
         actual.success
-      else
+      } else {
         s"found $actualValue".failure
+      }
     case None => Validator.FoundNothingFailure
   }
 }
 
-class NotMatcher[A](expected: A) extends Matcher[A] {
+class NotMatcher[A](expected: A, equality: Equality[A]) extends Matcher[A] {
 
   def name = s"not($expected)"
 
   protected def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
-      if (actualValue != expected)
+      if (!equality.equals(actualValue, expected)) {
         actual.success
-      else
+      } else {
         s"unexpectedly found $actualValue".failure
+      }
     case None => NoneSuccess
   }
 }

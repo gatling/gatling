@@ -18,7 +18,7 @@ package io.gatling.core.check
 
 import java.util.concurrent.ThreadLocalRandom
 
-import io.gatling.commons.util.ThreadLocalRandoms
+import io.gatling.commons.util.{ Equality, ThreadLocalRandoms }
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
@@ -171,9 +171,9 @@ case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]]
       override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] = validator(actual, session)
     }.success)
 
-  def is(expected: Expression[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new IsMatcher(_)))
+  def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new IsMatcher(_, implicitly(equality))))
   def isNull: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new IsNullMatcher[X].expressionSuccess)
-  def not(expected: Expression[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new NotMatcher(_)))
+  def not(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new NotMatcher(_, implicitly(equality))))
   def notNull: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new NotNullMatcher[X].expressionSuccess)
   def in(expected: X*): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
   def in(expected: Expression[Seq[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new InMatcher(_)))
