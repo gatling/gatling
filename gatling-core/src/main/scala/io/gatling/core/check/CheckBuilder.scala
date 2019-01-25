@@ -39,6 +39,8 @@ class DefaultFindCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], d
 
 trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
 
+  override def find: ValidatorCheckBuilder[T, P, X]
+
   def find(occurrence: Int): ValidatorCheckBuilder[T, P, X]
 
   def findAll: ValidatorCheckBuilder[T, P, Seq[X]]

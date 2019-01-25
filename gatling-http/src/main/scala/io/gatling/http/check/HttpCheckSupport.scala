@@ -27,11 +27,11 @@ import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckType, JsonpJsonPa
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckType }
 import io.gatling.core.check.extractor.string.BodyStringCheckType
 import io.gatling.core.check.extractor.substring.SubstringCheckType
+import io.gatling.core.check.extractor.time.ResponseTimeCheckType
 import io.gatling.core.check.extractor.xpath.{ Dom, XPathCheckType, XmlParsers }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.core.time.ResponseTimeCheckType
 import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumCheckMaterializer
 import io.gatling.http.check.header._
@@ -59,17 +59,17 @@ trait HttpCheckSupport {
   val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder.CurrentLocation
   implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] = CurrentLocationCheckMaterializer
 
-  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns): DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
+  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
     CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
   implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] = CurrentLocationRegexCheckMaterializer
 
   val status: FindCheckBuilder[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder.Status
   implicit val httpStatusCheckMaterializer: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] = HttpStatusCheckMaterializer
 
-  val header: Expression[String] => HttpHeaderCheckBuilder = new HttpHeaderCheckBuilder(_)
+  val header: Expression[String] => MultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(_)
   implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns): DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
+  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
   implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] = HttpHeaderRegexCheckMaterializer
 

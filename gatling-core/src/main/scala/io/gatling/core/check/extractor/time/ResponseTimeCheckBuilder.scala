@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.core.time
+package io.gatling.core.check.extractor.time
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.{ DefaultFindCheckBuilder, FindCheckBuilder }
