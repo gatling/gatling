@@ -29,7 +29,7 @@ For people wanting to use the latest evolutions, the SNAPSHOT versions are avail
 
 ## Questions, help?
 
-Read the [documentation](http://gatling.io/documentation/).
+Read the [documentation](https://gatling.io/docs/current/).
 
 Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
