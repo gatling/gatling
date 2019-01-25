@@ -59,7 +59,7 @@ trait HttpCheckSupport {
   val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder.CurrentLocation
   implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] = CurrentLocationCheckMaterializer
 
-  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
+  def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns): DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
     CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
   implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] = CurrentLocationRegexCheckMaterializer
 
@@ -69,7 +69,7 @@ trait HttpCheckSupport {
   val header: Expression[String] => HttpHeaderCheckBuilder = new HttpHeaderCheckBuilder(_)
   implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
+  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit patterns: Patterns): DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
   implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] = HttpHeaderRegexCheckMaterializer
 

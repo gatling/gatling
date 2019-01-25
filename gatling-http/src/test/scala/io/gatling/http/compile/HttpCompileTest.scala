@@ -126,16 +126,21 @@ class HttpCompileTest extends Simulation {
         .disableFollowRedirect
     )
     // check
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value")))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value"), jsonPath("//foo/bar[2]/baz")))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").find))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").find.exists))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").find.is("expected")))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").find.exists.saveAs("key")))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").saveAs("key")))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").findAll))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").count))
-    .exec(http("Request").get("/").check(xpath("//input[@id='text1']/@value").name("This is a check")))
+    .exec(http("Request").get("/")
+      .check(
+        headerRegex("location", ".*&id_token=(.*)&state=.*").find.exists,
+        currentLocationRegex("foo").find.exists,
+        xpath("//input[@id='text1']/@value"),
+        jsonPath("//foo/bar[2]/baz"),
+        xpath("//input[@id='text1']/@value").find,
+        xpath("//input[@id='text1']/@value").find.exists,
+        xpath("//input[@id='text1']/@value").find.is("expected"),
+        xpath("//input[@id='text1']/@value").find.exists.saveAs("key"),
+        xpath("//input[@id='text1']/@value").saveAs("key"),
+        xpath("//input[@id='text1']/@value").findAll,
+        xpath("//input[@id='text1']/@value").count,
+        xpath("//input[@id='text1']/@value").name("This is a check")
+      ))
     .exec(
       http("Request").get("h/")
         .check(
