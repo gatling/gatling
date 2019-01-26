@@ -17,7 +17,6 @@
 package io.gatling.http.action.sse
 
 import java.io.IOException
-import java.net.InetSocketAddress
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
@@ -44,9 +43,8 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) ex
   private val decoder = new SseStreamDecoder
   private var channel: Channel = _
 
-  override def onWrite(channel: Channel): Unit = {
-    this.channel = channel;
-  }
+  override def onWrite(channel: Channel): Unit =
+    this.channel = channel
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
 

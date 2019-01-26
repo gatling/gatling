@@ -17,6 +17,7 @@
 package io.gatling.http.action.sse
 
 import io.gatling.commons.util.Clock
+import io.gatling.commons.validation.Validation
 import io.gatling.core.action.{ Action, ActorBasedAction, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
@@ -31,15 +32,15 @@ class SseClose(
     val next:        Action
 ) extends RequestAction with ActorBasedAction with SseAction with NameGen {
 
-  override val name = genName("sseClose")
+  override val name: String = genName("sseClose")
 
-  override def sendRequest(requestName: String, session: Session) =
+  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      wsActor <- fetchActor(sseName, session)
+      sseActor <- fetchActor(sseName, session)
     } yield {
       // [fl]
       //
       // [fl]
-      wsActor ! ClientCloseRequest(requestName, session, next)
+      sseActor ! ClientCloseRequest(requestName, session, next)
     }
 }

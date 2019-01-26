@@ -50,7 +50,7 @@ class SseConnect(
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsActor = httpComponents.coreComponents.actorSystem.actorOf(SseActor.props(
+          val sseActor = httpComponents.coreComponents.actorSystem.actorOf(SseActor.props(
             sseName,
             request,
             requestName,
@@ -62,7 +62,7 @@ class SseConnect(
             httpComponents.coreComponents.configuration
           ), genName("sseActor"))
 
-          wsActor ! PerformInitialConnect(session, next)
+          sseActor ! PerformInitialConnect(session, next)
         }
 
       case _ =>
