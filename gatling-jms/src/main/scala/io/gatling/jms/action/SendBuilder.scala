@@ -32,9 +32,8 @@ case class SendBuilder(attributes: JmsAttributes, configuration: GatlingConfigur
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val jmsComponents = components(protocolComponentsRegistry)
-    val statsEngine = coreComponents.statsEngine
 
-    new Send(attributes, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, statsEngine, coreComponents.clock,
+    new Send(attributes, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, coreComponents.statsEngine, coreComponents.clock,
       configuration, next, coreComponents.throttler, ctx.throttled)
   }
 }

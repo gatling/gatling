@@ -31,9 +31,8 @@ case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsD
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
-    val statsEngine = coreComponents.statsEngine
     val jmsComponents = components(protocolComponentsRegistry)
     new RequestReply(attributes, replyDestination, setJmsReplyTo, trackerDestination, jmsComponents.jmsProtocol,
-      jmsComponents.jmsConnectionPool, statsEngine, coreComponents.clock, next, coreComponents.throttler, ctx.throttled)
+      jmsComponents.jmsConnectionPool, coreComponents.statsEngine, coreComponents.clock, next, coreComponents.throttler, ctx.throttled)
   }
 }
