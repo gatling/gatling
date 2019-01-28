@@ -1,7 +1,7 @@
 .. _whats_new:
 
-Migration guides
-================
+What's New
+==========
 
 .. toctree::
     :maxdepth: 1
