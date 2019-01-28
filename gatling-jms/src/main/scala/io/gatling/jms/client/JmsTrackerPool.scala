@@ -51,7 +51,7 @@ class JmsTrackerPool(
 
       for (_ <- 1 to listenerThreadCount) {
         // jms session pool logic creates a session per thread and stores it in thread local.
-        // After that the thread can be throughen away. The jms provider takes care of receiving and dispatching
+        // After that the thread can be thrown away. The jms provider takes care of receiving and dispatching
         val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread(() => {
           val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
           consumer.setMessageListener(message => {
