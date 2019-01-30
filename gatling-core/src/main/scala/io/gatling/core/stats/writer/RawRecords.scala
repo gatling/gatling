@@ -29,9 +29,9 @@ sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
     if (array.length >= recordLength && array(0) == header.value) Some(array) else None
 }
 
-object RawRunRecord extends RawRecord(RunRecordHeader, 5)
+object RawRunRecord extends RawRecord(RunRecordHeader, 6)
 object RawRequestRecord extends RawRecord(RequestRecordHeader, 8)
-object RawUserRecord extends RawRecord(UserRecordHeader, 5)
+object RawUserRecord extends RawRecord(UserRecordHeader, 6)
 object RawGroupRecord extends RawRecord(GroupRecordHeader, 7)
 object RawErrorRecord extends RawRecord(ErrorRecordHeader, 3)
-object RawAssertionRecord extends RawRecord(AssertionRecordHeader, 1)
+object RawAssertionRecord extends RawRecord(AssertionRecordHeader, 2)
