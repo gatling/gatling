@@ -28,6 +28,8 @@ import org.xml.sax.{ InputSource, EntityResolver }
 
 class JdkXmlParsers(configuration: GatlingConfiguration) {
 
+  val preferred: Boolean = configuration.core.extract.xpath.preferJdk
+
   private val xpathFactoryTL = new ThreadLocal[XPathFactory] {
     override def initialValue(): XPathFactory = XPathFactory.newInstance
   }

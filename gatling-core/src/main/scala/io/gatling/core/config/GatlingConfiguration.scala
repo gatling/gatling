@@ -123,7 +123,8 @@ object GatlingConfiguration extends StrictLogging {
             cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)
           ),
           xpath = XPathConfiguration(
-            cacheMaxCapacity = config.getLong(core.extract.xpath.CacheMaxCapacity)
+            cacheMaxCapacity = config.getLong(core.extract.xpath.CacheMaxCapacity),
+            preferJdk = config.getBoolean(core.extract.xpath.PreferJdk)
           ),
           jsonPath = JsonPathConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.jsonPath.CacheMaxCapacity),
@@ -300,7 +301,8 @@ case class RegexConfiguration(
 )
 
 case class XPathConfiguration(
-    cacheMaxCapacity: Long
+    cacheMaxCapacity: Long,
+    preferJdk:        Boolean
 )
 
 case class JsonPathConfiguration(

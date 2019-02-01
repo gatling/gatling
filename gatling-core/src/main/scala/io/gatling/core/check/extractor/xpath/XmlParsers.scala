@@ -26,8 +26,9 @@ class XmlParsers(implicit configuration: GatlingConfiguration) {
   val jdk = new JdkXmlParsers(configuration)
 
   val parse: InputSource => Dom =
-    if (saxon.enabled)
-      is => SaxonDom(saxon.parse(is))
-    else
+    if (jdk.preferred) {
       is => JdkDom(jdk.parse(is))
+    } else {
+      is => SaxonDom(saxon.parse(is))
+    }
 }

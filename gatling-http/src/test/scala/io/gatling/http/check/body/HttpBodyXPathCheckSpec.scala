@@ -21,7 +21,6 @@ import java.util.{ HashMap => JHashMap }
 
 import scala.xml.Elem
 
-import org.mockito.Mockito._
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
@@ -29,6 +28,8 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ Response, StringResponseBody }
+
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 
 class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
@@ -39,10 +40,21 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   def mockResponse(xml: Elem): Response = {
-    val response = mock[Response]
-    when(response.body) thenReturn new StringResponseBody(xml.toString(), UTF_8)
-    when(response.hasResponseBody) thenReturn true
-    response
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.ContentType, s"${HttpHeaderValues.ApplicationXml}; charset=$UTF_8")
+    val body = xml.toString()
+    Response(
+      request = null,
+      wireRequestHeaders = headers,
+      status = HttpResponseStatus.OK,
+      headers = headers,
+      body = new StringResponseBody(body, UTF_8),
+      checksums = Map.empty,
+      bodyLength = body.getBytes(UTF_8).length,
+      charset = UTF_8,
+      startTimestamp = 0,
+      endTimestamp = 0,
+      isHttp2 = false
+    )
   }
 
   "xpath.find.exists" should "find single result" in {

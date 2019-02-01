@@ -33,7 +33,14 @@ class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMateri
 
   private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
     safely(ErrorMapper) {
-      val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
+      val root = if (response.hasResponseBody) {
+        val inputSource = new InputSource(response.body.stream)
+        inputSource.setEncoding(response.charset.name)
+        Some(f(inputSource))
+
+      } else {
+        None
+      }
       root.success
     }
 

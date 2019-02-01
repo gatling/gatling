@@ -16,7 +16,6 @@
 
 package io.gatling.core.check.extractor.xpath
 
-import java.nio.charset.StandardCharsets._
 import java.util.concurrent.ConcurrentMap
 import java.util.function.{ Function => JFunction }
 import javax.xml.transform.sax.SAXSource
@@ -31,8 +30,6 @@ import net.sf.saxon.s9api._
 import org.xml.sax.InputSource
 
 class Saxon(configuration: GatlingConfiguration) {
-
-  val enabled: Boolean = Seq(UTF_8, UTF_16, US_ASCII, ISO_8859_1).contains(configuration.core.charset)
 
   private val processor = new Processor(false)
   private val documentBuilder = processor.newDocumentBuilder
@@ -54,7 +51,6 @@ class Saxon(configuration: GatlingConfiguration) {
     Cache.newConcurrentCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def parse(inputSource: InputSource): XdmNode = {
-    inputSource.setEncoding(configuration.core.encoding)
     val source = new SAXSource(inputSource)
     documentBuilder.build(source)
   }
