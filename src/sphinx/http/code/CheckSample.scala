@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import io.gatling.commons.validation._
+import io.gatling.commons.validation.Validation
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
@@ -113,7 +113,7 @@ class CheckSample {
 
     jsonPath("$..foo.bar[2].baz").
       //#transformOption
-      transformOption(extract => extract.orElse(Some("default")).success)
+      transformOption(extract => extract.orElse(Some("default")))
     //#transformOption
 
     //#is
