@@ -57,7 +57,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   private def parseInputFiles[T](f: Iterator[String] => T): T = {
 
     def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
-      streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
+      streams.map(Source.fromInputStream(_)(configuration.core.charset).getLines()).reduce((first, second) => first ++ second)
 
     val streams = inputFiles.map(_.inputStream)
     try f(multipleFileIterator(streams))

@@ -22,7 +22,6 @@ import java.util.ResourceBundle
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
-import scala.io.Codec
 
 import io.gatling.commons.util.ConfigHelper._
 import io.gatling.commons.util.Ssl
@@ -286,7 +285,6 @@ case class CoreConfiguration(
 ) {
 
   val charset: Charset = Charset.forName(encoding)
-  val codec: Codec = charset
 }
 
 case class ExtractConfiguration(
