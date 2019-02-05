@@ -211,7 +211,6 @@ public class OAuthSignatureCalculatorInstance {
     SecretKeySpec signingKey = new SecretKeySpec(keyBytes, HMAC_SHA1_ALGORITHM);
 
     mac.init(signingKey);
-    mac.reset();
     mac.update(message);
     return mac.doFinal();
   }
