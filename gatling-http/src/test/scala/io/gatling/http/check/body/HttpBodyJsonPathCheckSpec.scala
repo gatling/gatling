@@ -21,20 +21,22 @@ import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
+import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
-import io.gatling.http.response.{ Response, CharArrayResponseBody }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.response.{ CharArrayResponseBody, Response }
 
 import org.mockito.Mockito._
 import org.scalatest.matchers.{ MatchResult, Matcher }
 
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val materializer = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
+  override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, Any] = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
 
   implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
