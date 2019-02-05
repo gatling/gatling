@@ -115,6 +115,11 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     jsonPath("$.foo").ofType[Any].find.notNull.check(response, session).failed shouldBe "jsonPath($.foo).find.notNull, but actually found null"
   }
 
+  it should "not fail on empty array" in {
+    val response = mockResponse("""{"documents":[]}""")
+    jsonPath("$.documents").ofType[Seq[_]].find.exists.check(response, session).succeeded shouldBe CheckResult(Some(Vector.empty), None)
+  }
+
   "jsonPath.findAll.exists" should "fetch all matches" in {
     val response = mockResponse(storeJson)
     jsonPath("$..book").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("In store", "On the street")), None)
