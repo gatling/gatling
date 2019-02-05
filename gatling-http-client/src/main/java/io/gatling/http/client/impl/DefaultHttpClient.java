@@ -43,7 +43,6 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
-import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketClientCompressionHandler;
 import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.*;
 import io.netty.handler.stream.ChunkedWriteHandler;
@@ -173,7 +172,7 @@ public class DefaultHttpClient implements HttpClient {
             .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
             .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(8192))
-            .addLast(WS_COMPRESSION, WebSocketClientCompressionHandler.INSTANCE)
+            .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
             .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
             .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
 
