@@ -25,6 +25,12 @@ Migrating from 2.3 to 3.0
   * The way to compute HTTP request signatures was revamped, see :ref:`new API <http-request-signature>`
   * ``disableClientSharing`` was dropped. It's not possible atm to specify individual keystore and trustore for each virtual user. However, each virtual user has a distinct ``SSLContext``.
 
+* HTTP Debugging:
+
+  * In your configuration file `logback.xml` the following needs updating from: `<logger name="io.gatling.http.response" level="TRACE" />` to: `<logger name="io.gatling.http.engine.response" level="TRACE" />`. A full example file can be found `here <https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/logback.dummy>`__
+    
+    
+
 * JMS:
 
   * ``reqreply`` was renamed into ``requestReply``
