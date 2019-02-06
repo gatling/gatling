@@ -34,9 +34,6 @@ trait WhenIdle { this: WsActor =>
       configuration.resolve(
         // [fl]
         //
-        //
-        //
-        //
         // [fl]
         statsEngine.logResponse(session, actionName, now, now, OK, None, None)
       )
@@ -72,9 +69,6 @@ trait WhenIdle { this: WsActor =>
 
       configuration.resolve(
         // [fl]
-        //
-        //
-        //
         //
         // [fl]
         statsEngine.logResponse(session, actionName, now, now, OK, None, None)

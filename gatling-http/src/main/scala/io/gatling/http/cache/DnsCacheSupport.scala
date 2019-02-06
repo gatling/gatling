@@ -70,7 +70,6 @@ object DnsCacheSupport {
       //
       //
       //
-      //
       // [fl]
       dnsNameResolution match {
         case JavaDnsNameResolution =>

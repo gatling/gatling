@@ -59,9 +59,6 @@ class Send(
         configuration.resolve(
           // [fl]
           //
-          //
-          //
-          //
           // [fl]
           {
             val now = clock.nowMillis

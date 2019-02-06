@@ -30,10 +30,6 @@ private[app] object RunResultProcessor {
       //
       //
       //
-      //
-      //
-      //
-      //
       // [fl]
       new RunResultProcessor(configuration)
     )

@@ -33,7 +33,6 @@ private[gatling] object HttpClientFactory {
       //
       //
       //
-      //
       // [fl]
       new DefaultHttpClientFactory(coreComponents, sslContextsFactory)
     )

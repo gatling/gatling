@@ -46,6 +46,8 @@ case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends Feede
         //
         //
         //
+        //
+        //
         // [fl]
         {
           if (options.shard) {
@@ -118,6 +120,15 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
         resource
       }
 
+    def applyBatch(resource: Resource): Feeder[Any] =
+      options.batch match {
+        case Some(batchBufferSize) =>
+          BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, batchBufferSize, charset)
+        case _ =>
+          val records = SeparatedValuesParser.parse(resource, separator, quoteChar, charset)
+          InMemoryFeeder(records, options.conversion, options.strategy)
+      }
+
     configuration.resolve(
       // [fl]
       //
@@ -142,18 +153,8 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
       //
       //
       //
-      //
-      //
-      //
-      //
       // [fl]
-      options.batch match {
-        case Some(batchBufferSize) =>
-          BatchedSeparatedValuesFeeder(uncompressedResource.file, separator, quoteChar, options.conversion, options.strategy, batchBufferSize, charset)
-        case _ =>
-          val records = SeparatedValuesParser.parse(uncompressedResource, separator, quoteChar, charset)
-          InMemoryFeeder(records, options.conversion, options.strategy)
-      }
+      applyBatch(uncompressedResource)
     )
   }
 }

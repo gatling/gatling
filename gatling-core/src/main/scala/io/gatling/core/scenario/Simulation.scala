@@ -100,7 +100,6 @@ abstract class Simulation {
       //
       //
       //
-      //
       // [fl]
       _populationBuilders
     )
@@ -108,7 +107,6 @@ abstract class Simulation {
   private def resolveThrottleSteps(steps: Iterable[ThrottleStep], configuration: GatlingConfiguration): Iterable[ThrottleStep] =
     configuration.resolve(
       // [fl]
-      //
       //
       //
       //

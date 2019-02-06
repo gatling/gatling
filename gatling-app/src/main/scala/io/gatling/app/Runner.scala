@@ -44,7 +44,6 @@ private[app] object Runner {
       //
       //
       //
-      //
       // [fl]
       new Runner(system, new DefaultClock, configuration)
     )
