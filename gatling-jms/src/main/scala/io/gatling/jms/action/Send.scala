@@ -56,7 +56,6 @@ class Send(
           logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
         }
 
-        val now = clock.nowMillis
         configuration.resolve(
           // [fl]
           //
@@ -64,7 +63,10 @@ class Send(
           //
           //
           // [fl]
-          statsEngine.logResponse(session, requestName, now, now, OK, None, None)
+          {
+            val now = clock.nowMillis
+            statsEngine.logResponse(session, requestName, now, now, OK, None, None)
+          }
         )
         next ! session
       },
