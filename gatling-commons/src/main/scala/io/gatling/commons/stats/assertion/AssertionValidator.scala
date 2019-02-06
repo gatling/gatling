@@ -48,14 +48,14 @@ object AssertionValidator {
 
       case Details(parts) =>
         val generalStats: ValidatedRequestPath = findPath(parts, source) match {
-          case None =>
-            Failure(s"Could not find stats matching assertion path $parts")
-
           case Some(RequestStatsPath(request, group)) =>
-            Success(status => source.requestGeneralStats(Some(request), group, status))
+            Success(source.requestGeneralStats(Some(request), group, _))
 
           case Some(GroupStatsPath(group)) =>
-            Success(status => source.groupCumulatedResponseTimeGeneralStats(group, status))
+            Success(source.groupCumulatedResponseTimeGeneralStats(group, _))
+
+          case _ =>
+            Failure(s"Could not find stats matching assertion path $parts")
         }
         generalStats match {
           case Success(stats) => List(resolveTarget(assertion, stats, printablePath))
@@ -117,13 +117,13 @@ object AssertionValidator {
     target.metric match {
       case SuccessfulRequests =>
         if (allCount == 0) {
-          0.0
+          0
         } else {
           stats(Some(OK)).count.toDouble / allCount * 100
         }
       case FailedRequests =>
         if (allCount == 0) {
-          100.0
+          100
         } else {
           stats(Some(KO)).count.toDouble / allCount * 100
         }
