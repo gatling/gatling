@@ -55,13 +55,13 @@ sealed trait TimeMetric extends Printable
 sealed trait CountMetric extends Printable
 
 case object AllRequests extends CountMetric {
-  val printable = "all requests"
+  val printable = "all events"
 }
 case object FailedRequests extends CountMetric {
-  val printable = "failed requests"
+  val printable = "failed events"
 }
 case object SuccessfulRequests extends CountMetric {
-  val printable = "successful requests"
+  val printable = "successful events"
 }
 case object ResponseTime extends TimeMetric {
   val printable = "response time"
