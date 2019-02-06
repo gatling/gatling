@@ -16,6 +16,7 @@
 
 package io.gatling.http.action.ws.fsm
 
+import io.gatling.commons.stats.OK
 import io.gatling.http.check.ws.WsFrameCheckSequence
 
 import io.netty.buffer.Unpooled
@@ -27,12 +28,19 @@ trait WhenIdle { this: WsActor =>
     case Event(SendTextFrame(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
       logger.debug(s"Send text frame $actionName $message")
       // actually send message!
-      val timestamp = clock.nowMillis
+      val now = clock.nowMillis
       webSocket.sendFrame(new TextWebSocketFrame(message))
 
-      //[fl]
-      //
-      //[fl]
+      configuration.resolve(
+        // [fl]
+        //
+        //
+        //
+        //
+        // [fl]
+        statsEngine.logResponse(session, actionName, now, now, OK, None, None)
+      )
+
       checkSequences match {
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
           logger.debug("Trigger check after sending text frame")
@@ -44,7 +52,7 @@ trait WhenIdle { this: WsActor =>
             webSocket = webSocket,
             currentCheck = currentCheck,
             remainingChecks = remainingChecks,
-            checkSequenceStart = timestamp,
+            checkSequenceStart = now,
             checkSequenceTimeoutId = timeoutId,
             remainingCheckSequences,
             session = session,
@@ -59,12 +67,19 @@ trait WhenIdle { this: WsActor =>
     case Event(SendBinaryFrame(actionName, message, checkSequences, session, nextAction), IdleData(_, webSocket)) =>
       logger.debug(s"Send binary frame $actionName length=${message.length}")
       // actually send message!
-      val timestamp = clock.nowMillis
+      val now = clock.nowMillis
       webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
 
-      //[fl]
-      //
-      //[fl]
+      configuration.resolve(
+        // [fl]
+        //
+        //
+        //
+        //
+        // [fl]
+        statsEngine.logResponse(session, actionName, now, now, OK, None, None)
+      )
+
       checkSequences match {
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
           logger.debug("Trigger check after sending binary frame")
@@ -76,7 +91,7 @@ trait WhenIdle { this: WsActor =>
             webSocket = webSocket,
             currentCheck = currentCheck,
             remainingChecks = remainingChecks,
-            checkSequenceStart = timestamp,
+            checkSequenceStart = now,
             checkSequenceTimeoutId = timeoutId,
             remainingCheckSequences,
             session = session,
