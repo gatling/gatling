@@ -22,20 +22,7 @@ import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingConfiguration
 
-private[app] object RunResultProcessor {
-
-  def apply(configuration: GatlingConfiguration): RunResultProcessor =
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      // [fl]
-      new RunResultProcessor(configuration)
-    )
-}
-
-class RunResultProcessor(configuration: GatlingConfiguration) {
+private[app] class RunResultProcessor(configuration: GatlingConfiguration) {
 
   private implicit val config: GatlingConfiguration = configuration
 

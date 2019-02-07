@@ -79,7 +79,7 @@ object Gatling extends StrictLogging {
         } finally {
           terminateActorSystem(system, configuration.core.shutdownTimeout milliseconds)
         }
-      RunResultProcessor(configuration).processRunResult(runResult).code
+      new RunResultProcessor(configuration).processRunResult(runResult).code
     } finally {
       val factory = LoggerFactory.getILoggerFactory
       try {
