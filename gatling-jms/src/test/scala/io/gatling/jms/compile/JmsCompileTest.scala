@@ -116,6 +116,10 @@ class JmsCompileTest extends Simulation {
     .exec(jms("req").send
       .queue("queue")
       .objectMessage("hello"))
+    // mapMessage
+    .exec(jms("req").send
+      .queue("queue")
+      .mapMessage(Map("foo" -> "bar")))
     // destination: topic
     .exec(jms("req").send
       .destination(topic("topic"))
