@@ -22,6 +22,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
+import io.gatling.core.akka.BaseActor
 
 import akka.actor.{ ActorSystem, Props }
 
@@ -41,7 +42,7 @@ object RendezVousActor {
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
  */
-class RendezVousActor(users: Int, val next: Action) extends ActionActor {
+class RendezVousActor(users: Int, val next: Action) extends BaseActor {
 
   private val buffer = mutable.Queue.empty[Session]
 
@@ -57,4 +58,20 @@ class RendezVousActor(users: Int, val next: Action) extends ActionActor {
       buffer.clear()
     }
   }
+
+  override def receive: Receive = {
+    case session: Session => execute(session)
+  }
+
+  /**
+    * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
+    */
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
+    message.foreach {
+      case session: Session =>
+        logger.error(s"'${self.path.name}' crashed on session $session, forwarding to the next one", reason)
+        next.execute(session.markAsFailed)
+      case _ =>
+        logger.error(s"'${self.path.name}' crashed on unknown message $message, dropping", reason)
+    }
 }
