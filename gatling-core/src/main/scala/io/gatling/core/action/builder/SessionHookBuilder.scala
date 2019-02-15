@@ -21,13 +21,6 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 
-/**
- * Builder for SimpleAction
- *
- * @constructor creates a SimpleActionBuilder
- * @param sessionFunction the function that will be executed by the simple action
- * @param exitable if the action can be interrupted
- */
 class SessionHookBuilder(sessionFunction: Expression[Session], exitable: Boolean) extends ActionBuilder with NameGen {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
