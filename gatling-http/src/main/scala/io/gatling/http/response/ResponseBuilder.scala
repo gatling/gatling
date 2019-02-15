@@ -165,26 +165,27 @@ class ResponseBuilder(
 
             val properlyOrderedChunks = chunks.reverse
             val body: ResponseBody =
-              if (properlyOrderedChunks.isEmpty)
+              if (properlyOrderedChunks.isEmpty) {
                 NoResponseBody
 
-              else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
+              } else if (bodyUsages.contains(ByteArrayResponseBodyUsage)) {
                 ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-              else if (bodyUsages.contains(InputStreamResponseBodyUsage))
+              } else if (bodyUsages.contains(InputStreamResponseBodyUsage)) {
                 InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
 
-              else if (bodyUsages.contains(StringResponseBodyUsage))
+              } else if (bodyUsages.contains(StringResponseBodyUsage)) {
                 StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
-              else if (bodyUsages.contains(CharArrayResponseBodyUsage))
+              } else if (bodyUsages.contains(CharArrayResponseBodyUsage)) {
                 CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
 
-              else if (isTxt(headers))
+              } else if (isTxt(headers)) {
                 StringResponseBody(properlyOrderedChunks, resolvedCharset)
 
-              else
+              } else {
                 ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+              }
 
             Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
           } catch {
