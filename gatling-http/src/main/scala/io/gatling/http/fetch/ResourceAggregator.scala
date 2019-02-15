@@ -85,8 +85,7 @@ class DefaultResourceAggregator(
     logger.debug(s"Fetching resource ${resource.clientRequest.getUri}")
 
     val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-      resource.requestConfig.checks,
-      httpProtocol.responsePart.inferHtmlResources,
+      resource.requestConfig,
       clock,
       configuration
     )

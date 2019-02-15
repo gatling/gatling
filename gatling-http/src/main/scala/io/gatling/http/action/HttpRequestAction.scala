@@ -50,8 +50,7 @@ class HttpRequestAction(
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-    requestConfig.checks,
-    requestConfig.httpProtocol.responsePart.inferHtmlResources,
+    requestConfig,
     clock,
     coreComponents.configuration
   )

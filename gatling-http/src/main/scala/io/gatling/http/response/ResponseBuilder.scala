@@ -30,39 +30,45 @@ import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
-import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.client.Request
 import io.gatling.http.engine.response._
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
 
 import com.typesafe.scalalogging.StrictLogging
+import io.gatling.http.request.HttpRequestConfig
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
 object ResponseBuilder extends StrictLogging {
 
   def newResponseBuilderFactory(
-    checks:             List[HttpCheck],
-    inferHtmlResources: Boolean,
-    clock:              Clock,
-    configuration:      GatlingConfiguration
+    requestConfig: HttpRequestConfig,
+    clock:         Clock,
+    configuration: GatlingConfiguration
   ): ResponseBuilderFactory = {
 
-    val checksumChecks = checks.collect {
+    val checksumChecks = requestConfig.checks.collect {
       case checksumCheck: ChecksumCheck => checksumCheck
     }
 
-    val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy)
+    val bodyUsageStrategies =
+      if (requestConfig.responseTransformer.isDefined) {
+        // we can't assume anything about if and how the response body will be used,
+        // let's force bytes so we don't risk decoding binary content
+        List(ByteArrayResponseBodyUsageStrategy)
+      } else {
+        requestConfig.checks.flatMap(_.responseBodyUsageStrategy)
+      }
 
-    val storeBodyParts = IsHttpDebugEnabled || responseBodyUsageStrategies.nonEmpty
+    val storeBodyParts = IsHttpDebugEnabled || bodyUsageStrategies.nonEmpty
 
     request => new ResponseBuilder(
       request,
       checksumChecks,
-      responseBodyUsageStrategies,
+      bodyUsageStrategies,
       storeBodyParts,
-      inferHtmlResources,
+      requestConfig.httpProtocol.responsePart.inferHtmlResources,
       configuration.core.charset,
       clock
     )
