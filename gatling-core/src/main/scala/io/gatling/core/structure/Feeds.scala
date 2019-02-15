@@ -25,7 +25,7 @@ object Feeds {
   private val OneExpression = 1.expressionSuccess
 }
 
-trait Feeds[B] extends Execs[B] {
+private[structure] trait Feeds[B] extends Execs[B] {
 
   /**
    * Method used to load data from a feeder in the current scenario

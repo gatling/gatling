@@ -29,7 +29,7 @@ import io.gatling.core.session.el.El
 
 import com.eatthepath.uuid.FastUUID
 
-trait Pauses[B] extends Execs[B] {
+private[structure] trait Pauses[B] extends Execs[B] {
 
   private def durationExpression(duration: String, unit: TimeUnit): Expression[Duration] = {
     val durationValue = duration.el[Int]

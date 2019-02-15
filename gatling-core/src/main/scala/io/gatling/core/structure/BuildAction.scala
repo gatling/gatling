@@ -16,20 +16,12 @@
 
 package io.gatling.core.structure
 
-import java.util.UUID
+import io.gatling.core.action.Action
 
-import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
-import io.gatling.core.session._
+private[structure] trait BuildAction { this: Execs[_] =>
 
-import com.eatthepath.uuid.FastUUID
-
-private[structure] trait Errors[B] extends Execs[B] {
-
-  def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
-  def tryMax(times: Expression[Int], counter: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
-
-    exec(new TryMaxBuilder(times, counter, chain))
-  }
-
-  def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)
+  private[gatling] def build(ctx: ScenarioContext, chainNext: Action): Action =
+    actionBuilders.foldLeft(chainNext) { (next, actionBuilder) =>
+      actionBuilder.build(ctx, next)
+    }
 }

@@ -19,7 +19,7 @@ package io.gatling.core.structure
 import io.gatling.core.action.builder._
 import io.gatling.core.session.{ Expression, Session }
 
-trait ConditionalStatements[B] extends Execs[B] {
+private[structure] trait ConditionalStatements[B] extends Execs[B] {
 
   /**
    * Method used to add a conditional execution in the scenario

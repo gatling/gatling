@@ -35,9 +35,10 @@ import com.typesafe.scalalogging.LazyLogging
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] with BuildAction {
 
-  private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
+  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
+    copy(actionBuilders = newActionBuilders.toList ::: actionBuilders)
 
   def inject[T: InjectionProfileFactory](is: T, moreIss: T*): PopulationBuilder = inject[T](Seq(is) ++ moreIss)
 

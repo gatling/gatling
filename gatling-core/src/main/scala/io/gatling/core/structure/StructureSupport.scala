@@ -18,9 +18,10 @@ package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
 
-trait StructureSupport extends StructureBuilder[ChainBuilder] {
+private[gatling] trait StructureSupport extends StructureBuilder[ChainBuilder] {
 
-  private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
+  override protected def actionBuilders: List[ActionBuilder] = Nil
 
-  private[core] def actionBuilders: List[ActionBuilder] = Nil
+  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
+    ChainBuilder(newActionBuilders.toList)
 }

@@ -16,22 +16,14 @@
 
 package io.gatling.core.structure
 
-import io.gatling.core.action.Action
-
 /**
  * This trait defines most of the scenario related DSL
  */
-trait StructureBuilder[B <: StructureBuilder[B]]
+private[structure] trait StructureBuilder[B <: StructureBuilder[B]]
   extends Execs[B]
   with Pauses[B]
   with Feeds[B]
   with Loops[B]
   with ConditionalStatements[B]
   with Errors[B]
-  with Groups[B] {
-
-  private[gatling] def build(ctx: ScenarioContext, chainNext: Action): Action =
-    actionBuilders.foldLeft(chainNext) { (next, actionBuilder) =>
-      actionBuilder.build(ctx, next)
-    }
-}
+  with Groups[B]

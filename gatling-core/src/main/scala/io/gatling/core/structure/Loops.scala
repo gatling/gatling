@@ -23,11 +23,10 @@ import scala.concurrent.duration.Duration
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
-import io.gatling.core.structure.ChainBuilder.chainOf
 
 import com.eatthepath.uuid.FastUUID
 
-trait Loops[B] extends Execs[B] {
+private[structure] trait Loops[B] extends Execs[B] {
 
   def repeat(times: Expression[Int], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
@@ -41,7 +40,7 @@ trait Loops[B] extends Execs[B] {
     val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
     val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
 
-    loop(continueCondition, chainOf(new SessionHookBuilder(exposeCurrentValue, exitable = false)).exec(chain), counterName, exitASAP = false, ForeachLoopType)
+    loop(continueCondition, ChainBuilder(List(new SessionHookBuilder(exposeCurrentValue, exitable = false))).exec(chain), counterName, exitASAP = false, ForeachLoopType)
   }
 
   def during(duration: Duration, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = true)(chain: ChainBuilder)(implicit clock: Clock): B =

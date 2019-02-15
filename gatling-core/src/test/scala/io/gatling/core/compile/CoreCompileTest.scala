@@ -58,6 +58,8 @@ class CoreCompileTest extends Simulation {
 
   val testData3 = Array(Map("foo" -> "bar")).circular
 
+  val chainedScenarios = exec(scenario("foo")).exec(scenario("bar"))
+
   val lambdaUser = scenario("Standard User")
     // First request outside iteration
     .repeat(2) {

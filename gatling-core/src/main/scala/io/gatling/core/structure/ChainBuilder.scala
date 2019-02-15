@@ -18,18 +18,14 @@ package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
 
-object ChainBuilder {
-
-  def chainOf(actionBuilder: ActionBuilder*) = new ChainBuilder(actionBuilder.toList)
-}
-
 /**
  * This class defines chain related methods
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
 case class ChainBuilder(actionBuilders: List[ActionBuilder])
-  extends StructureBuilder[ChainBuilder] {
+  extends StructureBuilder[ChainBuilder] with BuildAction {
 
-  private[core] def newInstance(actionBuilders: List[ActionBuilder]) = ChainBuilder(actionBuilders)
+  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
+    ChainBuilder(newActionBuilders.toList ::: actionBuilders)
 }
