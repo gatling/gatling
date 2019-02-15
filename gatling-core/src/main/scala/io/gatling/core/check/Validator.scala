@@ -16,8 +16,6 @@
 
 package io.gatling.core.check
 
-import java.util
-
 import io.gatling.commons.util.Equality
 import io.gatling.commons.validation._
 

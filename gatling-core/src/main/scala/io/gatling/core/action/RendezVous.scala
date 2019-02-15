@@ -64,8 +64,8 @@ class RendezVousActor(users: Int, val next: Action) extends BaseActor {
   }
 
   /**
-    * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
-    */
+   * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
+   */
   override def preRestart(reason: Throwable, message: Option[Any]): Unit =
     message.foreach {
       case session: Session =>

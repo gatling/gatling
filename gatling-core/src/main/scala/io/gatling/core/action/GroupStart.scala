@@ -25,7 +25,7 @@ class GroupStart(groupName: Expression[String], val statsEngine: StatsEngine, va
 
   override val name: String = genName("groupStart")
 
-  override def execute(session: Session) = recover(session) {
+  override def execute(session: Session): Unit = recover(session) {
     groupName(session).map(s => next ! session.enterGroup(s, clock.nowMillis))
   }
 }

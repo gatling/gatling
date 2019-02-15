@@ -17,9 +17,8 @@
 package io.gatling.core
 
 import io.gatling.core.assertion.AssertionSupport
-import io.gatling.core.body.{ Body, BodyProcessors, ByteArrayBody, InputStreamBody }
+import io.gatling.core.body.BodySupport
 import io.gatling.core.check.CheckSupport
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.closed.ClosedInjectionSupport
 import io.gatling.core.controller.inject.open.OpenInjectionSupport
 import io.gatling.core.controller.throttle.ThrottlingSupport
@@ -36,34 +35,16 @@ trait CoreDsl extends StructureSupport
   with ClosedInjectionSupport
   with ThrottlingSupport
   with AssertionSupport
+  with BodySupport
   with CoreDefaultImplicits
   with ValidationImplicits {
 
-  def gzipBody(implicit configuration: GatlingConfiguration): Body => ByteArrayBody = BodyProcessors.gzip
-  def streamBody(implicit configuration: GatlingConfiguration): Body => InputStreamBody = BodyProcessors.stream
-
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "))
 
-  def WhiteList(patterns: String*) = io.gatling.core.filter.WhiteList(patterns.toList)
+  def WhiteList(patterns: String*): io.gatling.core.filter.WhiteList = io.gatling.core.filter.WhiteList(patterns.toList)
 
-  def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
+  def BlackList(patterns: String*): io.gatling.core.filter.BlackList = io.gatling.core.filter.BlackList(patterns.toList)
 
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))
-
-  def ElFileBody = io.gatling.core.body.ElFileBody
-
-  def PebbleStringBody(string: String) = io.gatling.core.body.PebbleStringBody(string)
-
-  def PebbleFileBody(string: String) = io.gatling.core.body.PebbleFileBody(string)
-
-  def StringBody(string: String) = io.gatling.core.body.CompositeByteArrayBody(string)
-
-  def StringBody(string: Expression[String]) = io.gatling.core.body.StringBody(string)
-
-  def RawFileBody = io.gatling.core.body.RawFileBody
-
-  def ByteArrayBody = io.gatling.core.body.ByteArrayBody
-
-  def InputStreamBody = io.gatling.core.body.InputStreamBody
 }

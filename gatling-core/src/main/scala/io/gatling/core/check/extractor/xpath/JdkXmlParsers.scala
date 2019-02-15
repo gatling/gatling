@@ -66,19 +66,16 @@ class JdkXmlParsers(configuration: GatlingConfiguration) {
     val path = xpathFactoryTL.get.newXPath
 
     if (namespaces.nonEmpty) {
-
-      val namespaceCtx: NamespaceContext = new NamespaceContext {
+      path.setNamespaceContext(new NamespaceContext {
 
         val map: Map[String, String] = namespaces.toMap
 
-        def getNamespaceURI(prefix: String) = map(prefix)
+        override def getNamespaceURI(prefix: String): String = map(prefix)
 
-        def getPrefix(uri: String) = throw new UnsupportedOperationException
+        override def getPrefix(uri: String): String = throw new UnsupportedOperationException
 
-        def getPrefixes(uri: String) = throw new UnsupportedOperationException
-      }
-
-      path.setNamespaceContext(namespaceCtx)
+        override def getPrefixes(uri: String): java.util.Iterator[_] = throw new UnsupportedOperationException
+      })
     }
 
     val xpathExpression = path.compile(expression)

@@ -27,7 +27,6 @@ import io.gatling.core.session.el.ElCompiler
 import io.gatling.netty.util.ahc.StringBuilderPool
 
 import com.mitchellbosecke.pebble.template.PebbleTemplate
-import com.typesafe.scalalogging.StrictLogging
 
 object ElFileBody {
   def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): CompositeByteArrayBody =
@@ -92,7 +91,7 @@ object PebbleFileBody {
     PebbleBody(pebbleFileBodies.asTemplate(filePath))
 }
 
-case class PebbleBody(template: Expression[PebbleTemplate]) extends Body with Expression[String] with StrictLogging {
-  def apply(session: Session): Validation[String] =
+case class PebbleBody(template: Expression[PebbleTemplate]) extends Body with Expression[String] {
+  override def apply(session: Session): Validation[String] =
     template(session).flatMap(Pebble.evaluateTemplate(_, session))
 }
