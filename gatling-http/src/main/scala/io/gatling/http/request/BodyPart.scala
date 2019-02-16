@@ -87,7 +87,7 @@ object BodyPart {
       ResourceAndCachedBytes(resource, cachedBytes) <- resource(session)
     } yield cachedBytes match {
       case Some(bytes) => new ByteArrayPart(name, bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentType.orNull)
-      case None =>
+      case _ =>
         resource match {
           case FileResource(file) =>
             new FilePart(name, file, charset.orNull, transferEncoding.orNull, contentType.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(file.getName), contentId.orNull)

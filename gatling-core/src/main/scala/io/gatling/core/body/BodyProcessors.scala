@@ -34,7 +34,7 @@ object BodyProcessors {
             case ResourceAndCachedBytes(resource, cachedBytes) =>
               cachedBytes match {
                 case Some(bytes) => GzipHelper.gzip(bytes)
-                case None        => GzipHelper.gzip(new FileInputStream(resource.file))
+                case _           => GzipHelper.gzip(new FileInputStream(resource.file))
               }
           }
         case InputStreamBody(inputStream) => inputStream.map(GzipHelper.gzip)
@@ -54,7 +54,7 @@ object BodyProcessors {
           case ResourceAndCachedBytes(resource, cachedBytes) =>
             cachedBytes match {
               case Some(bytes) => new FastByteArrayInputStream(bytes)
-              case None        => new FileInputStream(resource.file)
+              case _           => new FileInputStream(resource.file)
             }
         }
         case InputStreamBody(inputStream) => inputStream

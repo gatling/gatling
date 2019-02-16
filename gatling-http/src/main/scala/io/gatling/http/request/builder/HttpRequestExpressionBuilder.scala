@@ -66,7 +66,7 @@ class HttpRequestExpressionBuilder(
         case ResourceAndCachedBytes(resource, cachedBytes) =>
           cachedBytes match {
             case Some(bytes) => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(bytes))
-            case None =>
+            case _ =>
               resource match {
                 case FileResource(file) => requestBuilder.setBodyBuilder(new FileRequestBodyBuilder(file))
                 case _                  => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(resource.bytes))
