@@ -37,7 +37,7 @@ object Cache {
       .newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
-      .build((key: K) => f(key))
+      .build(key => f(key))
 
   def newImmutableCache[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
 }
