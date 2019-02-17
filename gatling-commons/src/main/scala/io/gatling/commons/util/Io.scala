@@ -35,11 +35,6 @@ object Io {
     def jfile: JFile = Try(new JFile(url.toURI))
       .recover { case _: URISyntaxException => new JFile(url.getPath) }
       .get
-
-    def toByteArray: Array[Byte] =
-      withCloseable(url.openConnection.getInputStream) {
-        _.toByteArray()
-      }
   }
 
   implicit class RichFile(val file: JFile) extends AnyVal {

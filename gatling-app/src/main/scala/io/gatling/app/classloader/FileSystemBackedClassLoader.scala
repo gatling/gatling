@@ -18,7 +18,7 @@ package io.gatling.app.classloader
 
 import java.io.InputStream
 import java.net.{ URL, URLConnection }
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.security.cert.Certificate
 import java.security.{ CodeSource, ProtectionDomain }
 
@@ -58,10 +58,10 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
     Option(getResourceAsStream(className.replaceAll("""\.""", "/") + ".class"))
 
   def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
-    case Some(path) => path.inputStream.toByteArray()
-    case None => classAsStream(name) match {
+    case Some(path) => Files.readAllBytes(path)
+    case _ => classAsStream(name) match {
       case Some(stream) => stream.toByteArray()
-      case None         => Array.empty
+      case _            => Array.empty
     }
   }
 
