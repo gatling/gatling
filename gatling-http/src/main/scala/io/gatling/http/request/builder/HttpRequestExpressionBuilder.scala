@@ -22,7 +22,6 @@ import io.gatling.commons.validation._
 import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.util.FileResource
 import io.gatling.http.HeaderNames
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
@@ -66,11 +65,7 @@ class HttpRequestExpressionBuilder(
         case ResourceAndCachedBytes(resource, cachedBytes) =>
           cachedBytes match {
             case Some(bytes) => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(bytes))
-            case _ =>
-              resource match {
-                case FileResource(file) => requestBuilder.setBodyBuilder(new FileRequestBodyBuilder(file))
-                case _                  => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(resource.bytes))
-              }
+            case _           => requestBuilder.setBodyBuilder(new FileRequestBodyBuilder(resource.file))
           }
       }
       case ByteArrayBody(bytes)                  => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b)))

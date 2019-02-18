@@ -16,6 +16,8 @@
 
 package io.gatling.core.body
 
+import java.util.concurrent.ConcurrentHashMap
+
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, StaticStringExpression }
@@ -28,17 +30,18 @@ case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[
 
 class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
-  private val resourceCache: LoadingCache[String, Validation[Resource]] = {
-    val pathToResource: String => Validation[Resource] = path => Resource.resource(path)
-    Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, pathToResource)
-  }
+  private val resourceCache = new ConcurrentHashMap[String, Validation[Resource]]()
+
+  private def cachedResource(path: String): Validation[Resource] =
+    resourceCache.computeIfAbsent(path, Resource.resource)
 
   private val bytesCache: LoadingCache[Resource, Option[Array[Byte]]] = {
     val resourceToBytes: Resource => Option[Array[Byte]] = resource =>
-      if (resource.file.length > configuration.core.rawFileBodiesInMemoryMaxSize)
+      if (resource.file.length > configuration.core.rawFileBodiesInMemoryMaxSize) {
         None
-      else
+      } else {
         Some(resource.bytes)
+      }
 
     Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, resourceToBytes)
   }
@@ -48,7 +51,7 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
       case StaticStringExpression(path) =>
         val resourceAndCachedBytes =
           for {
-            resource <- resourceCache.get(path)
+            resource <- cachedResource(path)
           } yield ResourceAndCachedBytes(resource, Some(resource.bytes))
 
         _ => resourceAndCachedBytes
@@ -57,7 +60,7 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
         session =>
           for {
             path <- filePath(session)
-            resource <- resourceCache.get(path)
+            resource <- cachedResource(path)
           } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
     }
 }

@@ -23,7 +23,6 @@ import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.util.FileResource
 import io.gatling.http.client.Param
 import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, Part, StringPart }
 
@@ -87,13 +86,7 @@ object BodyPart {
       ResourceAndCachedBytes(resource, cachedBytes) <- resource(session)
     } yield cachedBytes match {
       case Some(bytes) => new ByteArrayPart(name, bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentType.orNull)
-      case _ =>
-        resource match {
-          case FileResource(file) =>
-            new FilePart(name, file, charset.orNull, transferEncoding.orNull, contentType.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(file.getName), contentId.orNull)
-          case _ =>
-            new ByteArrayPart(name, resource.bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentType.orNull)
-        }
+      case _           => new FilePart(name, resource.file, charset.orNull, transferEncoding.orNull, contentType.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentId.orNull)
     }
 }
 

@@ -28,12 +28,14 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 
 object Resource {
 
+  private case class Location(directory: Path, path: String)
+
   private object ClasspathResource {
     def unapply(location: Location): Option[Validation[Resource]] =
       Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => FileResource(url.jfile).success
-          case "jar"  => ArchiveResource(url).success
+          case "file" => Resource(url.jfile).success
+          case "jar"  => Resource(url).success
           case _      => s"$url is neither a file nor a jar".failure
         }
       }
@@ -43,7 +45,7 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] =
       (location.directory / location.path).ifFile { f =>
         if (f.canRead)
-          FileResource(f).success
+          Resource(f).success
         else
           s"File $f can't be read".failure
       }
@@ -51,7 +53,7 @@ object Resource {
 
   private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      string2path(location.path).ifFile(f => FileResource(f).success)
+      string2path(location.path).ifFile(Resource(_).success)
   }
 
   private[gatling] def resolveResource(directory: Path, path: String): Validation[Resource] =
@@ -62,51 +64,37 @@ object Resource {
       case _                           => s"Resource $path not found".failure
     }
 
-  case class Location(directory: Path, path: String)
-
   def resource(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
     resolveResource(GatlingFiles.resourcesDirectory, fileName)
-}
 
-sealed trait Resource {
-  def name: String
-  def inputStream: InputStream
-  def file: File
-  def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
-  def bytes: Array[Byte]
-}
-
-case class FileResource(file: File) extends Resource {
-  override def name: String = file.getName
-  override def inputStream = new FileInputStream(file)
-  override def bytes: Array[Byte] = file.toByteArray
-}
-
-case class ArchiveResource(url: URL) extends Resource {
-
-  override val name: String = {
-    val urlString = url.toString
-    urlString.lastIndexOf(File.separatorChar) match {
-      case -1 => urlString
-      case i  => urlString.substring(i)
-    }
-  }
-
-  override def inputStream: InputStream = url.openStream
-
-  override def file: File = {
-    val lastDotIndex = name.lastIndexOf('.')
-    val extension = if (lastDotIndex != -1) "" else name.substring(lastDotIndex + 1)
-    val tempFile = File.createTempFile("gatling", "." + extension)
-    tempFile.deleteOnExit()
-
-    withCloseable(inputStream) { is =>
-      withCloseable(new FileOutputStream(tempFile, false)) { os =>
-        is.copyTo(os)
+  def apply(file: File): Resource = Resource(file.getName, file)
+  def apply(url: URL): Resource = {
+    val name = {
+      val urlString = url.toString
+      urlString.lastIndexOf(File.separatorChar) match {
+        case -1 => urlString
+        case i  => urlString.substring(i + 1)
       }
     }
-    tempFile
-  }
 
-  override def bytes: Array[Byte] = withCloseable(inputStream)(_.toByteArray())
+    val file = {
+      val tempFile = File.createTempFile("gatling-" + name, null)
+      tempFile.deleteOnExit()
+
+      withCloseable(url.openStream()) { is =>
+        withCloseable(new FileOutputStream(tempFile, false)) { os =>
+          is.copyTo(os)
+        }
+      }
+      tempFile
+    }
+
+    Resource(name, file)
+  }
+}
+
+case class Resource(name: String, file: File) {
+  def inputStream: InputStream = new FileInputStream(file)
+  def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
+  def bytes: Array[Byte] = file.toByteArray
 }
