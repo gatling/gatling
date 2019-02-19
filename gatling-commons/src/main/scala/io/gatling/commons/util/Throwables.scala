@@ -24,11 +24,6 @@ object Throwables {
 
   implicit class PimpedException[T <: Throwable](val e: T) extends AnyVal {
 
-    def unknownStackTrace(clazz: Class[_], method: String): T = {
-      e.setStackTrace(Array[StackTraceElement](new StackTraceElement(clazz.getName, method, null, -1)))
-      e
-    }
-
     def rootCause: Throwable = {
       var t: Throwable = e
       while (t.getCause != null && t.getCause.ne(t)) {
