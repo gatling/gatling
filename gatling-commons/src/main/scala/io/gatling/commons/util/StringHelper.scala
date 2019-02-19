@@ -18,28 +18,22 @@ package io.gatling.commons.util
 
 import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
 import java.nio.charset.StandardCharsets._
-import java.security.MessageDigest
 import java.text.Normalizer
 
 import io.gatling.commons.util.UnsafeHelper._
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-/**
- * This object groups all utilities for strings
- */
 object StringHelper {
 
   private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
 
-  val Eol = System.getProperty("line.separator")
-  val EolBytes = Eol.getBytes(US_ASCII)
+  val Eol: String = System.getProperty("line.separator")
+  val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
-  val Crlf = "\r\n"
+  val Crlf: String = "\r\n"
 
-  val EmptyFastring = fast""
-
-  val EmptyCharSequence = ArrayCharSequence(Array.empty[Char])
+  val EmptyFastring: Fastring = fast""
 
   def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
     val shifted = b & 0xff
@@ -50,21 +44,21 @@ object StringHelper {
 
   implicit class RichString(val string: String) extends AnyVal {
 
-    def clean = {
+    def clean: String = {
       val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
       normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
     }
 
-    def escapeJsIllegalChars = string.replace("\"", "\\\"").replace("\\", "\\\\")
+    def escapeJsIllegalChars: String = string.replace("\"", "\\\"").replace("\\", "\\\\")
 
-    def trimToOption = string.trim match {
+    def trimToOption: Option[String] = string.trim match {
       case "" => None
       case s  => Some(s)
     }
 
-    def truncate(maxLength: Int) = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
+    def truncate(maxLength: Int): String = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
 
-    def leftPad(length: Int, padder: String = " ") = {
+    def leftPad(length: Int, padder: String = " "): String = {
       val paddingLength = length - string.length
       if (paddingLength > 0)
         padder * paddingLength + string
@@ -72,7 +66,7 @@ object StringHelper {
         string
     }
 
-    def rightPad(length: Int, padder: String = " ") = {
+    def rightPad(length: Int, padder: String = " "): String = {
       val paddingLength = length - string.length
       if (paddingLength > 0)
         string + padder * paddingLength
@@ -86,9 +80,6 @@ object StringHelper {
       } else {
         string.toCharArray
       }
-
-    def isConstantTimeEqual(other: String): Boolean =
-      MessageDigest.isEqual(string.getBytes(UTF_8), other.getBytes(UTF_8))
   }
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {
