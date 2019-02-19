@@ -880,13 +880,13 @@
       functions:
 
         - keyword: status
-          description: Check will be applied to the status of the HTTP response
+          description: Check the HTTP status code of the response.
 
         - keyword: currentLocation
-          description: Check will be applied to the current url of the HTTP response
+          description: Check the url of the landing response.
 
         - keyword: header
-          description: Check will be applied to selected headers of the HTTP response
+          description: Check the value of a given HTTP header of the response.
           syntax:
             - signature: (headerName)
               description: The check will be applied on the header corresponding to <i>headerName</i>
@@ -894,7 +894,7 @@
               description: Same as above, except that the header name is given by the <i>Session => String</i> function.
 
         - keyword: headerRegex
-          description: Check will be applied to selected headers of the HTTP response
+          description: Apply a regular expression on value of a given HTTP header of the response.
           syntax:
             - signature: (headerName, pattern)
               description: The check will be applied on the headers <i>headerName</i> whose value match the provided <i>pattern</i>.
@@ -902,7 +902,7 @@
               description: Same as above, except that the header name is given by the <i>Session => String</i> function.
 
         - keyword: responseTimeInMillis
-          description: Check will be applied to the response time of the server
+          description: Return the response time of this request in milliseconds.
 
         - keyword: bodyString
           description: Return the full response body String.
@@ -911,19 +911,19 @@
           description: Return the full response body byte array.
 
         - keyword: substring
-          description: Check will be applied to an extract of the response's body
+          description: Look for occurrences of a given String in the response body String
           syntax:
             - signature: (expression)
               description: Extraction will look for <i>expression</i> indices.
 
         - keyword: regex
-          description: Check will be applied to an extract of the response's body
+          description: Apply a regular expression, possibly with capture groups, on the response body String.
           syntax:
             - signature: (expression)
               description: Extraction will use a regular expression defined by <i>expression</i>.
 
         - keyword: xpath
-          description: Check will be applied to an extract of the response's body
+          description: Apply an XPath expression on the response body String.
           syntax:
             - signature: (expression)
               description: Extraction will use an XPath expression defined by <i>expression</i>
@@ -933,19 +933,19 @@
               description: The expression can be expressed as a <i>Session => String</i> function (with namespaces also)
 
         - keyword: jsonPath
-          description: Check will be applied to an extract of the response's body
+          description: Apply a JsonPath expression on the response body String.
           syntax:
             - signature: (expression)
               description: jsonPath is similar to XPATH, but for JSON encoded data.
 
         - keyword: jsonpJsonPath
-          description: Check will be applied to an extract of the response's body
+          description: Apply a JsonPath expression on the JSONP value of the response body String.
           syntax:
             - signature: (expression)
               description: jsonpJsonPath is similar to jsonPath, but for JSONP
 
         - keyword: css
-          description: Check will be applied to an extract of the response's body
+          description: Apply a CSS selector on the response body String.
           syntax:
             - signature: (expression)
               description: Uses the <i>css</i> selector to extract the value to be checked.
@@ -953,28 +953,28 @@
               description: Same as above, except that the extracted value is the <i>attr</i> of the selected node.
 
         - keyword: form
-          description: Check will be applied to an extract of the response's body
+          description: Capture an HTML form in the response body String.
           syntax:
             - signature: (expression)
               description: Uses the <i>css</i> selector to extract the all the field values of an HTML form.
 
         - keyword: md5
-          description: Check will be applied on the md5 checksum of the response
+          description: Compute the md5 checksum of the response body.
 
         - keyword: sha1
-          description: Check will be applied on the sha1 checksum of the response
+          description: Compute the sha1 checksum of the response body.
 
     - title: Check transformer
       functions:
 
         - keyword: transform
-          description: Used to transform data before verification
+          description: Transform extracted data before verification.
           syntax:
             - signature: (A => B)
               description: This function is optional. It can be useful sometimes to apply a transformation on the extracted values before validating them. In this function, type <i>A</i> is the type of the find operation (either <i>String</i>, <i>List[String]</i> or <i>Int</i>). Type B is whatever you want it to be (could be a case class for example)
 
         - keyword: transformOption
-          description: Used to transform data before verification
+          description: Transform extracted data before verification.
           syntax:
             - signature: (Option[A] => Validation[Option[B]])
               description: Gives full control over the extracted result, even providing a default value
@@ -983,46 +983,46 @@
       functions:
 
         - keyword: is
-          description: Checks for equality
+          description: Verify extracted value is equal to expected one.
           syntax:
             - signature: (expected)
               description: if the captured (or transformed) value is equal to <i>expected</i> the check will succeed; it will fail otherwise
 
         - keyword: not
-          description: Checks for inequality
+          description: Verify extracted value is different from to expected one.
           syntax:
             - signature: (expected)
               description: If the captured (or transformed) value is different than <i>expected</i> the check will succeed; it will fail otherwise
 
         - keyword: exists
-          description: Checks that there's at least one value corresponding to the check definition. This is the default verification (it does not need to be specified)
+          description: Verify extracted value exists. This is the default verification (it does not need to be specified)
 
         - keyword: notExists
-          description: Checks that there are no values corresponding to the check definition
+          description: Verify extracted value does not exists.
 
         - keyword: in
-          description: Checks for belonging to a sequence
+          description: Verify extracted value belongs to a specific set of values.
           syntax:
             - signature: (sequence)
               description: If the captured (or transformed) value is included in the <i>sequence</i> the check will succeed; it will fail otherwise
 
         - keyword: optional
-          description: Never fails, used to capture optional values into the session
+          description: Noop, never fail.
 
         - keyword: isNull
-          description: Checks for nullity
+          description: Verify extracted value is null (typically JSON null).
 
         - keyword: notNull
-          description: Checks for non nullity
+          description: Verify extracted value is not null (typically JSON null).
 
     - title: Check saver
       functions:
 
         - keyword: saveAs
-          description: If the check succeeds, it captures the extracted value(s) into the session
+          description: If the check succeeds, store in the Session the extracted value(s).
           syntax:
             - signature: (key)
-              description: The value(s) will be stored in the session under key <i>key</i>
+              description: Extracted values get stored in the Session with the key <i>key</i>.
 
 
 - title: HTTP Protocol
