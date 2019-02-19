@@ -16,24 +16,16 @@
 
 package io.gatling.core.body
 
-import java.util.concurrent.ConcurrentHashMap
-
-import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, StaticStringExpression }
-import io.gatling.core.util.Resource
+import io.gatling.core.util.{ Resource, ResourceCache }
 import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
 case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
 
-class RawFileBodies(implicit configuration: GatlingConfiguration) {
-
-  private val resourceCache = new ConcurrentHashMap[String, Validation[Resource]]()
-
-  private def cachedResource(path: String): Validation[Resource] =
-    resourceCache.computeIfAbsent(path, Resource.resource)
+class RawFileBodies(implicit configuration: GatlingConfiguration) extends ResourceCache {
 
   private val bytesCache: LoadingCache[Resource, Option[Array[Byte]]] = {
     val resourceToBytes: Resource => Option[Array[Byte]] = resource =>
@@ -46,6 +38,7 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
     Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, resourceToBytes)
   }
 
+  // FIXME cache ResourceAndCachedBytes
   def asResourceAndCachedBytes(filePath: Expression[String]): Expression[ResourceAndCachedBytes] =
     filePath match {
       case StaticStringExpression(path) =>

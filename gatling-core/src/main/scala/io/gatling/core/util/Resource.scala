@@ -20,6 +20,7 @@ import java.io.{ File, FileInputStream, FileOutputStream, InputStream }
 import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
@@ -64,8 +65,8 @@ object Resource {
       case _                           => s"Resource $path not found".failure
     }
 
-  def resource(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    resolveResource(GatlingFiles.resourcesDirectory, fileName)
+  def resolveResource(path: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
+    resolveResource(GatlingFiles.resourcesDirectory, path)
 
   def apply(file: File): Resource = Resource(file.getName, file)
   def apply(url: URL): Resource = {
@@ -97,4 +98,11 @@ case class Resource(name: String, file: File) {
   def inputStream: InputStream = new FileInputStream(file)
   def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte] = file.toByteArray
+}
+
+trait ResourceCache {
+  private val resourceCache = new ConcurrentHashMap[String, Validation[Resource]]()
+
+  protected def cachedResource(path: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
+    resourceCache.computeIfAbsent(path, Resource.resolveResource)
 }

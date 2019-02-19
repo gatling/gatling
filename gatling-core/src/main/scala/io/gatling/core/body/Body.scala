@@ -37,7 +37,7 @@ sealed trait Body
 
 case class StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
 
-  def apply(session: Session) = string(session)
+  def apply(session: Session): Validation[String] = string(session)
 
   def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
 }

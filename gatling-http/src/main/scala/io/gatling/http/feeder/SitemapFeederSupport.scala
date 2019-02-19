@@ -19,15 +19,15 @@ package io.gatling.http.feeder
 import io.gatling.commons.validation._
 import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.Resource
+import io.gatling.core.util.{ Resource, ResourceCache }
 
 /**
  * Feeder for [[http://www.sitemaps.org/protocol.html sitemap]] file format.
  */
-trait SitemapFeederSupport {
+trait SitemapFeederSupport extends ResourceCache {
 
   def sitemap(fileName: String)(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
-    sitemap(Resource.resource(fileName))
+    sitemap(cachedResource(fileName))
 
   def sitemap(resource: Validation[Resource])(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
     resource match {
