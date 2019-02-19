@@ -28,7 +28,7 @@ import io.gatling.commons.util.PathHelper._
 
 object ScanHelper {
 
-  val Separator = Character.valueOf(28).toString
+  private val Separator = Character.valueOf(28).toString
 
   sealed trait Resource {
     def path: Path
@@ -37,7 +37,7 @@ object ScanHelper {
     def lastModified: Long
   }
 
-  case class FileResource(path: Path) extends Resource {
+  private case class FileResource(path: Path) extends Resource {
 
     private val file = path.toFile
 
@@ -51,14 +51,14 @@ object ScanHelper {
     override def lastModified: Long = file.lastModified
   }
 
-  case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
+  private case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
 
-    override def path = jarEntry.getName
+    override def path: Path = jarEntry.getName
 
     override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs
 
-      withCloseable(inputStream()) { input =>
+      withCloseable(jar.getInputStream(jarEntry)) { input =>
         withCloseable(target.outputStream) { output =>
           input.copyTo(output)
         }
