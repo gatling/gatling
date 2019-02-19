@@ -53,10 +53,11 @@ object NumberHelper {
       BigDecimal(double).setScale(scale, BigDecimal.RoundingMode.HALF_UP).toDouble
 
     def toRank: String =
-      if (double == Math.floor(double))
+      if (double == Math.floor(double)) {
         toPrintableString + suffix(double.toInt)
-      else
+      } else {
         toPrintableString + suffix((double * 100).toInt % 100)
+      }
 
     def toPrintableString: String = Formatter.format(double)
   }
