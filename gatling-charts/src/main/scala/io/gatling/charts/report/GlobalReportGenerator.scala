@@ -21,7 +21,6 @@ import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.commons.stats.{ Group, KO, OK, Status }
-import io.gatling.commons.util.Iterators
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
@@ -34,7 +33,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     def activeSessionsChartComponent = {
 
       val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
-      val seriesColors = Iterators.infinitely(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
+      val seriesColors = Iterator.continually(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
 
       val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader
         .scenarioNames
