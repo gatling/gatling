@@ -22,21 +22,13 @@ import scala.collection.JavaConverters._
 
 object HtmlHelper {
 
-  val entities = ResourceBundle.getBundle("html-entities")
+  private val entities = ResourceBundle.getBundle("html-entities")
 
-  val charToHtmlEntities: Map[Char, String] = entities.getKeys.asScala.map { entityName => (entities.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
-
-  val htmlEntitiesToChar: Map[String, Char] = charToHtmlEntities.map(_.swap)
+  private val charToHtmlEntities: Map[Char, String] = entities.getKeys.asScala.map { entityName => (entities.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
 
   implicit class HtmlRichString(val string: String) extends AnyVal {
 
-    def htmlEscape: String = {
-      def charToHtmlEntity(char: Char): String = charToHtmlEntities.getOrElse(char, char.toString)
-
-      string.map(charToHtmlEntity).mkString
-    }
+    def htmlEscape: String =
+      string.map(char => charToHtmlEntities.getOrElse(char, char.toString)).mkString
   }
-
-  // used in VTD-XML extension
-  def htmlEntityToInt(entity: String, default: Int): Int = htmlEntitiesToChar.get(entity).map(_.toInt).getOrElse(default)
 }
