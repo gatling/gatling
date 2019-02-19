@@ -16,8 +16,6 @@
 
 package io.gatling.graphite.sender
 
-import io.gatling.commons.util.Retry
-
 import akka.actor.{ ActorRef, FSM }
 
 private[sender] trait TcpSenderFSM extends FSM[TcpSenderState, TcpSenderData]

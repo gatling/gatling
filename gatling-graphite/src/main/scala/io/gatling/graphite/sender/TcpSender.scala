@@ -20,7 +20,7 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import io.gatling.commons.util.{ Clock, Retry }
+import io.gatling.commons.util.Clock
 import io.gatling.graphite.message.GraphiteMetrics
 
 import akka.io.{ IO, Tcp }
@@ -104,4 +104,22 @@ private[graphite] class TcpSender(
   def stopIfLimitReachedOrContinueWith(failures: Retry)(continueState: this.State) =
     if (failures.isLimitReached) goto(RetriesExhausted) using NoData
     else continueState
+}
+
+private[sender] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDuration, retries: List[Long], clock: Clock) {
+
+  def this(maxRetryLimit: Int, retryWindow: FiniteDuration, clock: Clock) =
+    this(maxRetryLimit, retryWindow, Nil, clock)
+
+  private def copyWithNewRetries(retries: List[Long]) =
+    new Retry(maxRetryLimit, retryWindow, retries, clock)
+
+  def newRetry: Retry = copyWithNewRetries(clock.nowMillis :: cleanupOldRetries)
+
+  def isLimitReached = cleanupOldRetries.length >= maxRetryLimit
+
+  private def cleanupOldRetries: List[Long] = {
+    val now = clock.nowMillis
+    retries.filterNot(_ < (now - retryWindow.toMillis))
+  }
 }
