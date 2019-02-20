@@ -69,9 +69,16 @@ class DefaultResponseProcessor(
     }
   }
 
-  private def handleResponse(response: Response): Unit = {
+  private def handleResponse(rawResponse: Response): Unit =
+    applyResponseTransformer(rawResponse) match {
+      case Failure(errorMessage) => proceed(rawResponse, Crash(errorMessage))
+      case Success(response)     => proceed(response, processResponse(response))
+    }
+
+  private def proceed(response: Response, result: ProcessorResult): Unit = {
     val clientRequest = tx.request.clientRequest
-    handleResponse0(response) match {
+
+    result match {
       case Proceed(newSession, errorMessage) =>
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
@@ -89,7 +96,7 @@ class DefaultResponseProcessor(
     }
   }
 
-  private def handleResponseTransformer(rawResponse: Response): Validation[Response] =
+  private def applyResponseTransformer(rawResponse: Response): Validation[Response] =
     tx.request.requestConfig.responseTransformer match {
       case Some(transformer) =>
         safely("Response transformer crashed: " + _) {
@@ -98,47 +105,41 @@ class DefaultResponseProcessor(
       case _ => rawResponse.success
     }
 
-  private def handleResponse0(rawResponse: Response): ProcessorResult =
+  private def processResponse(response: Response): ProcessorResult =
     try {
-      handleResponseTransformer(rawResponse) match {
-        case Failure(errorMessage) =>
-          Crash(errorMessage)
+      if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
+        if (tx.redirectCount >= tx.request.requestConfig.maxRedirects) {
+          Crash("Too many redirects, max is " + tx.request.requestConfig.maxRedirects)
 
-        case Success(response) =>
-          if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
-            if (tx.redirectCount >= tx.request.requestConfig.maxRedirects) {
-              Crash("Too many redirects, max is " + tx.request.requestConfig.maxRedirects)
+        } else {
+          response.header(HeaderNames.Location) match {
+            case Some(location) =>
+              val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
+              val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
+              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
+                case Success(redirectRequest) =>
+                  Redirect(tx
+                    .modify(_.session).setTo(newSession)
+                    .modify(_.request.clientRequest).setTo(redirectRequest)
+                    .modify(_.redirectCount).using(_ + 1))
 
-            } else {
-              response.header(HeaderNames.Location) match {
-                case Some(location) =>
-                  val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
-                  val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
-                  RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
-                    case Success(redirectRequest) =>
-                      Redirect(tx
-                        .modify(_.session).setTo(newSession)
-                        .modify(_.request.clientRequest).setTo(redirectRequest)
-                        .modify(_.redirectCount).using(_ + 1))
-
-                    case Failure(message) =>
-                      Crash(message)
-                  }
-
-                case _ =>
-                  Crash("Redirect status, yet no Location header")
+                case Failure(message) =>
+                  Crash(message)
               }
-            }
 
-          } else {
-            val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
-            Proceed(newSession, errorMessage)
+            case _ =>
+              Crash("Redirect status, yet no Location header")
           }
+        }
+
+      } else {
+        val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
+        Proceed(newSession, errorMessage)
       }
 
     } catch {
       case NonFatal(t) =>
-        logger.error(s"ResponseProcessor crashed while handling response ${rawResponse.status} on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
+        logger.error(s"ResponseProcessor crashed while handling response ${response.status} on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
         Crash(t.detailedMessage)
     }
 }
