@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import java.io.{ File => JFile, _ }
+import java.io._
 import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
 import java.nio.file.attribute.BasicFileAttributes
@@ -32,14 +32,9 @@ object Io {
 
   implicit class RichURL(val url: URL) extends AnyVal {
 
-    def jfile: JFile = Try(new JFile(url.toURI))
-      .recover { case _: URISyntaxException => new JFile(url.getPath) }
+    def file: File = Try(new File(url.toURI))
+      .recover { case _: URISyntaxException => new File(url.getPath) }
       .get
-  }
-
-  implicit class RichFile(val file: JFile) extends AnyVal {
-
-    def toByteArray: Array[Byte] = Files.readAllBytes(file.toPath)
   }
 
   implicit class RichInputStream(val is: InputStream) extends AnyVal {

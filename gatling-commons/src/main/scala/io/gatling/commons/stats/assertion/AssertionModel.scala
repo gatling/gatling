@@ -32,120 +32,75 @@ case class Assertion(path: AssertionPath, target: Target, condition: Condition)
 // -- Path ADT -- //
 // -------------- //
 
-sealed trait AssertionPath extends Printable
-case object Global extends AssertionPath {
-  val printable = "Global"
-}
-case object ForAll extends AssertionPath {
-  val printable = "For all requests"
-}
-case class Details(parts: List[String]) extends AssertionPath {
-  def printable: String =
-    if (parts.isEmpty)
-      Global.printable
-    else
-      parts.mkString(" / ")
-}
+sealed abstract class AssertionPath(val printable: String) extends Printable
+case object Global extends AssertionPath("Global")
+case object ForAll extends AssertionPath("For all requests")
+case class Details(parts: List[String]) extends AssertionPath(if (parts.isEmpty) Global.printable else parts.mkString(" / "))
 
 // ---------------- //
 // -- Metric ADT -- //
 // ---------------- //
 
-sealed trait TimeMetric extends Printable
-sealed trait CountMetric extends Printable
+sealed abstract class TimeMetric(val printable: String) extends Printable
+sealed abstract class CountMetric(val printable: String) extends Printable
 
-case object AllRequests extends CountMetric {
-  val printable = "all events"
-}
-case object FailedRequests extends CountMetric {
-  val printable = "failed events"
-}
-case object SuccessfulRequests extends CountMetric {
-  val printable = "successful events"
-}
-case object ResponseTime extends TimeMetric {
-  val printable = "response time"
-}
+case object AllRequests extends CountMetric("all events")
+case object FailedRequests extends CountMetric("failed events")
+case object SuccessfulRequests extends CountMetric("successful events")
+case object ResponseTime extends TimeMetric("response time")
 
 // ------------------- //
 // -- Selection ADT -- //
 // ------------------- //
 
-sealed trait TimeSelection extends Printable
+sealed abstract class TimeSelection(val printable: String) extends Printable
 
 case object Count extends Printable {
-  val printable = "count"
+  override val printable: String = "count"
 }
 case object Percent extends Printable {
-  val printable = "percentage"
+  override val printable: String = "percentage"
 }
-case object Min extends TimeSelection {
-  val printable = "min"
-}
-case object Max extends TimeSelection {
-  val printable = "max"
-}
-case object Mean extends TimeSelection {
-  val printable = "mean"
-}
-case object StandardDeviation extends TimeSelection {
-  val printable = "standard deviation"
-}
-case class Percentiles(value: Double) extends TimeSelection {
-  val printable = s"${value.toRank} percentile"
-}
+case object Min extends TimeSelection("min")
+case object Max extends TimeSelection("max")
+case object Mean extends TimeSelection("mean")
+case object StandardDeviation extends TimeSelection("standard deviation")
+case class Percentiles(value: Double) extends TimeSelection(s"${value.toRank} percentile")
 
 // ---------------- //
 // -- Target ADT -- //
 // ---------------- //
 
-sealed trait Target extends Printable
-case class CountTarget(metric: CountMetric) extends Target {
-  val selection = Count
-  val printable = s"${selection.printable} of ${metric.printable}"
-}
-case class PercentTarget(metric: CountMetric) extends Target {
-  val selection = Percent
-  val printable = s"${selection.printable} of ${metric.printable}"
-}
-case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target {
-  val printable = s"${selection.printable} of ${metric.printable}"
-}
-case object MeanRequestsPerSecondTarget extends Target {
-  val printable = "mean requests per second"
-}
+sealed abstract class Target(val printable: String) extends Printable
+case class CountTarget(metric: CountMetric) extends Target(s"${Count.printable} of ${metric.printable}")
+case class PercentTarget(metric: CountMetric) extends Target(s"${Percent.printable} of ${metric.printable}")
+case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target(s"${selection.printable} of ${metric.printable}")
+case object MeanRequestsPerSecondTarget extends Target("mean requests per second")
 
 // ------------------- //
 // -- Condition ADT -- //
 // ------------------- //
-sealed trait Condition extends Printable {
+sealed abstract class Condition(val printable: String) extends Printable {
   def values: List[Double]
 }
-case class Lte(value: Double) extends Condition {
-  val printable = "is less than or equal to"
+case class Lte(value: Double) extends Condition("is less than or equal to") {
   override def values: List[Double] = List(value)
 }
-case class Gte(value: Double) extends Condition {
-  val printable = "is greater than or equal to"
+case class Gte(value: Double) extends Condition("is greater than or equal to") {
   override def values = List(value)
 }
-case class Lt(value: Double) extends Condition {
-  val printable = "is less than"
+case class Lt(value: Double) extends Condition("is less than") {
   override def values: List[Double] = List(value)
 }
-case class Gt(value: Double) extends Condition {
-  val printable = "is greater than"
+case class Gt(value: Double) extends Condition("is greater than") {
   override def values = List(value)
 }
-case class Is(value: Double) extends Condition {
-  val printable = "is"
+case class Is(value: Double) extends Condition("is") {
   override def values = List(value)
 }
-case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition {
-  val printable = "is between" + (if (inclusive) " inclusive" else "")
+case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition("is between" + (if (inclusive) " inclusive" else "")) {
   override def values = List(lowerBound, upperBound)
 }
-case class In(elements: List[Double]) extends Condition {
-  val printable = "is in"
-  override def values = elements
+case class In(elements: List[Double]) extends Condition("is in") {
+  override def values: List[Double] = elements
 }

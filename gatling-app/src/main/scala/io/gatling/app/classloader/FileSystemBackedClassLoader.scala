@@ -51,7 +51,7 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
 
   override def getResourceAsStream(name: String): InputStream = findPath(name) match {
     case Some(path) => path.inputStream
-    case None       => super.getResourceAsStream(name)
+    case _          => super.getResourceAsStream(name)
   }
 
   private def classAsStream(className: String): Option[InputStream] =

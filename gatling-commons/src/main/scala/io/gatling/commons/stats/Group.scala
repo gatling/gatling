@@ -17,5 +17,5 @@
 package io.gatling.commons.stats
 
 case class Group(hierarchy: List[String]) {
-  val name = hierarchy.last
+  val name: String = hierarchy.last
 }

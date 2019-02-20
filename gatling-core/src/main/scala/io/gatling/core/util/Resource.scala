@@ -19,7 +19,7 @@ package io.gatling.core.util
 import java.io.{ File, FileInputStream, FileOutputStream, InputStream }
 import java.net.URL
 import java.nio.charset.Charset
-import java.nio.file.Path
+import java.nio.file.{ Files, Path }
 import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.commons.util.Io._
@@ -35,7 +35,7 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] =
       Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => Resource(url.jfile).success
+          case "file" => Resource(url.file).success
           case "jar"  => Resource(url).success
           case _      => s"$url is neither a file nor a jar".failure
         }
@@ -97,7 +97,7 @@ object Resource {
 case class Resource(name: String, file: File) {
   def inputStream: InputStream = new FileInputStream(file)
   def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
-  def bytes: Array[Byte] = file.toByteArray
+  def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
 }
 
 trait ResourceCache {

@@ -136,8 +136,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
         ""
     }
 
-  override lazy val chars: Array[Char] =
-    string.toCharArray
+  override lazy val chars: Array[Char] = string.toCharArray
 
   override lazy val bytes: Array[Byte] = byteArraysToByteArray(chunks)
 
