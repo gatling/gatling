@@ -330,7 +330,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     case SelectionChanged(`filterStrategies`) =>
       val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
       toggleFiltersEdition(isNotDisabledStrategy)
-    case SelectionChanged(`httpsModes`) => toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
+    case SelectionChanged(`httpsModes`) =>
+      toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
     case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
       val props = new RecorderPropertiesBuilder
       props.saveConfig(savePreferences.selected)
@@ -345,19 +346,28 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     blackListTable.setFocusable(enabled)
   }
 
-  private def toggleHttpsModesConfigsVisibility(currentMode: HttpsMode) = currentMode match {
-    case SelfSignedCertificate =>
-      root.center.network.customKeyStoreConfig.visible = false
-      root.center.network.certificateAuthorityConfig.visible = false
-      generateCAFilesButton.visible = false
-    case ProvidedKeyStore =>
-      root.center.network.customKeyStoreConfig.visible = true
-      root.center.network.certificateAuthorityConfig.visible = false
-      generateCAFilesButton.visible = false
-    case CertificateAuthority =>
-      root.center.network.customKeyStoreConfig.visible = false
-      root.center.network.certificateAuthorityConfig.visible = true
-      generateCAFilesButton.visible = true
+  private def toggleHttpsModesConfigsVisibility(currentMode: HttpsMode) = {
+    currentMode match {
+      case SelfSignedCertificate =>
+        root.center.network.customKeyStoreConfig.visible = false
+        root.center.network.certificateAuthorityConfig.visible = false
+        generateCAFilesButton.visible = false
+
+      case ProvidedKeyStore =>
+        root.center.network.customKeyStoreConfig.visible = true
+        root.center.network.certificateAuthorityConfig.visible = false
+        generateCAFilesButton.visible = false
+
+      case CertificateAuthority =>
+        root.center.network.customKeyStoreConfig.visible = false
+        root.center.network.certificateAuthorityConfig.visible = true
+        generateCAFilesButton.visible = true
+    }
+    ignoreValidation(keyStoreChooser.textField, !root.center.network.customKeyStoreConfig.visible)
+    ignoreValidation(keyStorePassword, !root.center.network.customKeyStoreConfig.visible)
+    ignoreValidation(certificatePathChooser.textField, !root.center.network.certificateAuthorityConfig.visible)
+    ignoreValidation(privateKeyPathChooser.textField, !root.center.network.certificateAuthorityConfig.visible)
+    start.enabled = ValidationHelper.validationStatus
   }
 
   /* Reactions II: fields validation */

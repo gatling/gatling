@@ -60,6 +60,7 @@ private[swing] object ValidationHelper {
 
   private val validators = mutable.Map.empty[TextField, Validator]
   private val status = mutable.Map.empty[TextField, Boolean]
+  private val ignoredStatus = mutable.Map.empty[TextField, Boolean]
 
   def registerValidator(textField: TextField, validator: Validator): Unit = {
     validators += (textField -> validator)
@@ -71,14 +72,27 @@ private[swing] object ValidationHelper {
       val callback = if (isValid) validator.successCallback else validator.failureCallback
       callback(field)
       status += (field -> (validator.alwaysValid || isValid))
-    case None =>
+    case _ =>
       throw new IllegalStateException(s"No validator registered for component : $field")
   }
 
-  def allValid = {
+  def ignoreValidation(field: TextField, value: Boolean) = validators.get(field) match {
+    case Some(_) =>
+      if (value) {
+        ignoredStatus += (field -> true)
+      } else {
+        ignoredStatus -= field
+      }
+
+    case _ =>
+      throw new IllegalStateException(s"No validator registered for component : $field")
+  }
+
+  def allValid: Boolean = {
     validators.keys.map(updateValidationStatus)
     validationStatus
   }
 
-  def validationStatus = status.values.forall(identity)
+  def validationStatus: Boolean =
+    status.forall { case (field, s) => s || ignoredStatus.getOrElse(field, false) }
 }
