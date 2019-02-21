@@ -43,7 +43,8 @@ private[recorder] object HarReader {
 
   private[har] def readStream(is: InputStream, filters: Option[Filters]): Seq[HttpTransaction] = {
     val harEntries = HarParser.parseHarEntries(is)
-    val filteredHarEntries = harEntries.filter(entry => filters.forall(_.accept(entry.request.url)))
+    val filteredHarEntries = harEntries
+      .filter(entry => filters.forall(_.accept(entry.request.url)))
     buildHttpTransactions(filteredHarEntries)
   }
 
@@ -53,7 +54,9 @@ private[recorder] object HarReader {
   private def buildHttpTransactions(harEntries: Seq[HarEntry]): Seq[HttpTransaction] =
     harEntries
       .iterator
-      // Filter out all non-HTTP protocols (eg: ws://)
+      // filter out cancelled requests
+      .filter(_.response.status != 0)
+      // filter out all non-HTTP protocols (eg: ws://)
       .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))
       // filter out CONNECT (if HAR was generated with a proxy such as Charles) and Upgrade requests (WebSockets)
       .filter(entry => entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.contains(HttpHeaderValues.UPGRADE))
