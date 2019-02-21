@@ -13,6 +13,9 @@ A ``Simulation`` is a real Scala class containing 4 different parts:
 
 To illustrate this point we will take one of our sample simulations: `computerdatabase.BasicSimulation <https://github.com/gatling/gatling/blob/master/gatling-bundle/src/main/scala/computerdatabase/BasicSimulation.scala>`_
 
+.. warning:: We recommend your Simulation's name doesn't start with ``Test``.
+Some tools such as maven surefire aggressively consider classes with such naming pattern are for them to handle and will try to launch them.
+
 DSL imports
 ===========
 

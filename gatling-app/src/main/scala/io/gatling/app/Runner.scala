@@ -68,7 +68,7 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
 
     // ugly way to pass the clock and the configuration to the DSL
     io.gatling.core.Predef.clock = clock
-    io.gatling.core.Predef.configuration = configuration
+    io.gatling.core.Predef._configuration = configuration
 
     val selection = Selection(selectedSimulationClass, configuration)
     val simulation = selection.simulationClass.getDeclaredConstructor().newInstance()

@@ -24,7 +24,13 @@ import io.gatling.commons.util.Clock
 object Predef extends CoreDsl {
 
   implicit var clock: Clock = _
-  implicit var configuration: GatlingConfiguration = _
+  private[gatling] var _configuration: GatlingConfiguration = _
+  implicit def configuration: GatlingConfiguration = {
+    if (_configuration == null) {
+      throw new IllegalStateException("Simulations can't be instantiated directly but only by Gatling.")
+    }
+    _configuration
+  }
 
   type Session = io.gatling.core.session.Session
   type Status = io.gatling.commons.stats.Status
