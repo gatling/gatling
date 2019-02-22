@@ -47,15 +47,15 @@ object BodyPart {
     transferEncoding: Option[String],
     contentId:        Option[String],
     dispositionType:  Option[String],
+    contentType:      Option[String],
     customHeaders:    JList[Param],
-    fileName:         Option[String],
-    contentType:      Option[String]
+    fileName:         Option[String]
   ): Expression[Part[_]] =
     fileName match {
       case None => string.map { resolvedString =>
-        new StringPart(name, resolvedString, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders)
+        new StringPart(name, resolvedString, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, contentType.orNull, customHeaders)
       }
-      case _ => byteArrayBodyPartBuilder(string.map(_.getBytes(charset.orNull)))(name, charset, transferEncoding, contentId, dispositionType, customHeaders, fileName, contentType)
+      case _ => byteArrayBodyPartBuilder(string.map(_.getBytes(charset.orNull)))(name, charset, transferEncoding, contentId, dispositionType, contentType, customHeaders, fileName)
     }
 
   private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(
@@ -64,12 +64,12 @@ object BodyPart {
     transferEncoding: Option[String],
     contentId:        Option[String],
     dispositionType:  Option[String],
+    contentType:      Option[String],
     customHeaders:    JList[Param],
-    fileName:         Option[String],
-    contentType:      Option[String]
+    fileName:         Option[String]
   ): Expression[Part[_]] =
     bytes.map { resolvedBytes =>
-      new ByteArrayPart(name, resolvedBytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.orNull, contentType.orNull)
+      new ByteArrayPart(name, resolvedBytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, contentType.orNull, customHeaders, fileName.orNull)
     }
 
   private def fileBodyPartBuilder(resource: Expression[ResourceAndCachedBytes])(
@@ -78,15 +78,15 @@ object BodyPart {
     transferEncoding: Option[String],
     contentId:        Option[String],
     dispositionType:  Option[String],
+    contentType:      Option[String],
     customHeaders:    JList[Param],
-    fileName:         Option[String],
-    contentType:      Option[String]
+    fileName:         Option[String]
   ): Expression[Part[_]] =
     session => for {
       ResourceAndCachedBytes(resource, cachedBytes) <- resource(session)
     } yield cachedBytes match {
-      case Some(bytes) => new ByteArrayPart(name, bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentType.orNull)
-      case _           => new FilePart(name, resource.file, charset.orNull, transferEncoding.orNull, contentType.orNull, dispositionType.orNull, customHeaders, fileName.getOrElse(resource.name), contentId.orNull)
+      case Some(bytes) => new ByteArrayPart(name, bytes, charset.orNull, transferEncoding.orNull, contentId.orNull, dispositionType.orNull, contentType.orNull, customHeaders, fileName.getOrElse(resource.name))
+      case _           => new FilePart(name, resource.file, charset.orNull, transferEncoding.orNull, contentType.orNull, dispositionType.orNull, contentId.orNull, customHeaders, fileName.getOrElse(resource.name))
     }
 }
 
@@ -110,9 +110,9 @@ case class BodyPart(
     Option[String], // transferEncoding
     Option[String], // contentId
     Option[String], // dispositionType
+    Option[String], // contentType
     JList[Param], // customHeaders
-    Option[String], // fileName
-    Option[String] // contentType
+    Option[String] // fileName
     ) => Expression[Part[_]],
     attributes: BodyPartAttributes
 ) {
@@ -146,7 +146,7 @@ case class BodyPart(
       } else {
         Collections.emptyList[Param]
       }
-      part <- partBuilder(name.orNull, attributes.charset, attributes.transferEncoding, contentId, dispositionType, customHeadersAsParams, fileName, contentType)(session)
+      part <- partBuilder(name.orNull, attributes.charset, attributes.transferEncoding, contentId, dispositionType, contentType, customHeadersAsParams, fileName)(session)
 
     } yield part
 }

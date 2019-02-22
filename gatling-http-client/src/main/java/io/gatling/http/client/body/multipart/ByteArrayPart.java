@@ -31,18 +31,18 @@ public class ByteArrayPart extends FileLikePart<byte[]> {
                        String transferEncoding,
                        String contentId,
                        String dispositionType,
+                       String contentType,
                        List<Param> customHeaders,
-                       String fileName,
-                       String contentType) {
+                       String fileName) {
     super(name,
             content,
             charset,
             transferEncoding,
             contentId,
             dispositionType,
+            contentType,
             customHeaders,
-            fileName,
-            contentType
+            fileName
     );
   }
 

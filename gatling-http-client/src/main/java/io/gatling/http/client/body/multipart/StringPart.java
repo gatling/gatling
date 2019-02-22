@@ -31,21 +31,17 @@ public class StringPart extends Part<String> {
                     String transferEncoding,
                     String contentId,
                     String dispositionType,
+                    String contentType,
                     List<Param> customHeaders) {
     super(name,
-            content,
-            charset,
-            transferEncoding,
-            contentId,
-            dispositionType,
-            customHeaders
+      content,
+      charset,
+      transferEncoding,
+      contentId,
+      dispositionType,
+      contentType,
+      customHeaders
     );
-  }
-
-  @Override
-  public String getContentType() {
-    // Non File parts don't have a ContentType
-    return null;
   }
 
   @Override

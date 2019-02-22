@@ -32,18 +32,18 @@ public class FilePart extends FileLikePart<File> {
                   String transferEncoding,
                   String contentId,
                   String dispositionType,
+                  String contentType,
                   List<Param> customHeaders,
-                  String fileName,
-                  String contentType) {
+                  String fileName) {
     super(name,
             content,
             charset,
             transferEncoding,
             contentId,
             dispositionType,
+            contentType,
             customHeaders,
-            fileName,
-            contentType
+            fileName
     );
     if (!content.exists()) {
       throw new IllegalArgumentException("File part doesn't exist: " + content.getAbsolutePath());

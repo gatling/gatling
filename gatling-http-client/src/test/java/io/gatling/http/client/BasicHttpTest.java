@@ -301,7 +301,7 @@ class BasicHttpTest extends HttpTest {
       withServer(server).run(server -> {
         server.enqueueEcho();
         List<Part<?>> multiparts = new ArrayList<>();
-        multiparts.add(new StringPart("part1", "foo", UTF_8, null, null, null, null));
+        multiparts.add(new StringPart("part1", "foo", UTF_8, null, null, null, null, null));
         multiparts.add(new FilePart("part2", getTestFile(), UTF_8, null, null, null, null, null, null));
         multiparts.add(new ByteArrayPart("part3", "foo".getBytes(), UTF_8, null, null, null, null, null, null));
         RequestBodyBuilder multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(multiparts);
@@ -325,7 +325,7 @@ class BasicHttpTest extends HttpTest {
       withServer(server).run(server -> {
         server.enqueueEcho();
         // Charset is mandatory and will trigger a NPE
-        StringPart part = new StringPart("part1", "foo", null, null, null, null, null);
+        StringPart part = new StringPart("part1", "foo", null, null, null, null, null, null);
         RequestBodyBuilder multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(singletonList(part));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build();
 

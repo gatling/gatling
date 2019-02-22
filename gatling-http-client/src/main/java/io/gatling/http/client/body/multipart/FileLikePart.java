@@ -38,19 +38,18 @@ public abstract class FileLikePart<T> extends Part<T> {
   }
 
   private final String fileName;
-  private final String contentType;
 
-  FileLikePart(String name, T content, Charset charset, String transferEncoding, String contentId, String dispositionType, List<Param> customHeaders, String fileName, String contentType) {
+  FileLikePart(String name, T content, Charset charset, String transferEncoding, String contentId, String dispositionType, String contentType, List<Param> customHeaders, String fileName) {
     super(name,
             content,
             charset,
             transferEncoding,
             contentId,
             dispositionType,
+            computeContentType(contentType, fileName),
             customHeaders
             );
     this.fileName = fileName;
-    this.contentType = computeContentType(contentType, fileName);
   }
 
   private static String computeContentType(String contentType, String fileName) {
@@ -59,10 +58,5 @@ public abstract class FileLikePart<T> extends Part<T> {
 
   public String getFileName() {
     return fileName;
-  }
-
-  @Override
-  public String getContentType() {
-    return contentType;
   }
 }

@@ -208,7 +208,8 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").post("url")
       .formUpload("name", "path")
       .bodyPart(RawFileBodyPart("name", "path"))
-      .bodyPart(ElFileBodyPart("name", "path")))
+      .bodyPart(ElFileBodyPart("name", "path"))
+      .bodyPart(ElFileBodyPart("name", "path").contentType("foo")))
     // sign
     .exec(http("Request").get("/foo/bar?baz=qix")
       .signWithOAuth1("consumerKey", "clientSharedSecret", "token", "tokenSecret"))

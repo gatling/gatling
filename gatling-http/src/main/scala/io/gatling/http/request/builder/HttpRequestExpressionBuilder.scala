@@ -54,7 +54,7 @@ class HttpRequestExpressionBuilder(
   private def configureBodyParts(session: Session, requestBuilder: AhcRequestBuilder, bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
     for {
       params <- httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session)
-      stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null))
+      stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null, null))
       parts <- Validation.sequence(bodyParts.map(_.toMultiPart(session)))
     } yield requestBuilder.setBodyBuilder(new MultipartFormDataRequestBodyBuilder((parts ++ stringParts).asJava))
 

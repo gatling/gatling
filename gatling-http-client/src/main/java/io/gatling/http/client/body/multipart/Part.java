@@ -34,9 +34,11 @@ public abstract class Part<T> {
 
   private final String contentId;
 
-  private String dispositionType;
+  private final String dispositionType;
 
-  private List<Param> customHeaders;
+  private final String contentType;
+
+  private final List<Param> customHeaders;
 
   Part(String name,
                  T content,
@@ -44,6 +46,7 @@ public abstract class Part<T> {
                  String transferEncoding,
                  String contentId,
                  String dispositionType,
+                 String contentType,
                  List<Param> customHeaders) {
     this.name = name;
     this.content = content;
@@ -51,6 +54,7 @@ public abstract class Part<T> {
     this.transferEncoding = transferEncoding;
     this.contentId = contentId;
     this.dispositionType = dispositionType;
+    this.contentType = contentType;
     this.customHeaders = customHeaders;
   }
 
@@ -78,11 +82,13 @@ public abstract class Part<T> {
     return dispositionType;
   }
 
+  public String getContentType() {
+    return contentType;
+  }
+
   public List<Param> getCustomHeaders() {
     return customHeaders;
   }
-
-  public abstract String getContentType();
 
   public abstract PartImpl toImpl(byte[] boundary);
 }
