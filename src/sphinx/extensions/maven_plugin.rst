@@ -117,7 +117,7 @@ Also note that those filters are only applied against the classes that were comp
 Disabling compiler
 ==================
 
-By default, the gatling-maven-plugin takes care of compiling your Scala code, so you can directly run ``mvn gatling:execute``.
+By default, the gatling-maven-plugin takes care of compiling your Scala code, so you can directly run ``mvn gatling:test``.
 
 Then, for some reason, you might want to have another plugin, such as the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_
 or the `scalor-maven-plugin <https://github.com/random-maven/scalor-maven-plugin>`_, take care of compiling.
