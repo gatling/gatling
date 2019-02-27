@@ -73,7 +73,7 @@ This is where Feeders will be useful.
 Feeders are data sources containing all the values you want to use in your scenarios.
 There are several types of Feeders, the most simple being the CSV Feeder: this is the one we will use in our test.
 
-First let's create a file named *search.csv* and place it in the ``user-files/data`` folder.
+First let's create a file named *search.csv* and place it in the ``user-files`` folder.
 
 This file contains the following lines:
 
