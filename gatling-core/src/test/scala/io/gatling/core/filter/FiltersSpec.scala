@@ -17,8 +17,7 @@
 package io.gatling.core.filter
 
 import org.scalatest.{ FlatSpecLike, Inspectors, Matchers }
-
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Inspectors {
 

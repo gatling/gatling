@@ -19,7 +19,7 @@ package io.gatling.jms
 import javax.jms.{ Message, TextMessage }
 
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 trait MockMessage extends MockitoSugar {
 
