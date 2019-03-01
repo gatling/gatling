@@ -54,7 +54,6 @@ private[inject] class UserStream(users: Iterator[FiniteDuration]) {
 
         if (continue) {
           count += 1
-          // TODO instead of scheduling each user separately, we could group them by rounded-up delay (Akka defaults to 10ms)
           f(delay)
         } else {
           streamNonEmpty = true

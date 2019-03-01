@@ -61,7 +61,7 @@ abstract class Workload(
     incrementScheduledUsers()
     val userId = userIdGen.incrementAndGet()
     if (delay <= Duration.Zero) {
-      startUser(userId)
+      system.dispatcher.execute(() => startUser(userId))
     } else {
       system.scheduler.scheduleOnce(delay)(startUser(userId))(system.dispatcher)
     }
