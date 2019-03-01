@@ -25,6 +25,7 @@ import java.util.Date
 import java.util.concurrent.ThreadLocalRandom
 
 import javax.security.auth.x500.X500Principal
+
 import scala.util.Try
 import scala.concurrent.duration._
 
@@ -32,6 +33,7 @@ import io.gatling.commons.util.Io.withCloseable
 import io.gatling.commons.util.PathHelper._
 
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.ssl.{ OpenSsl, SslProvider }
 import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
 import org.bouncycastle.cert.jcajce.{ JcaX509CertificateConverter, JcaX509CertificateHolder, JcaX509v1CertificateBuilder }
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -47,7 +49,15 @@ private[ssl] case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKe
 /**
  * Utility class to create SSL server certificate on the fly for the recorder keystore
  */
-private[recorder] object SslCertUtil extends StrictLogging {
+private[recorder] object SslUtil extends StrictLogging {
+
+  private[ssl] val TheSslProvider =
+    if (OpenSsl.isAvailable) {
+      logger.info("OpenSSL is not available on your architecture.")
+      SslProvider.OPENSSL
+    } else {
+      SslProvider.JDK
+    }
 
   Security.addProvider(new BouncyCastleProvider)
 

@@ -31,7 +31,7 @@ import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
-import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslCertUtil }
+import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
 import io.gatling.recorder.ui.RecorderFrontEnd
@@ -465,7 +465,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   def updateHarFilePath(path: Option[String]): Unit = path.foreach(p => harPathChooser.setPath(p))
 
   def generateCAFiles(directory: String): Unit = {
-    SslCertUtil.generateGatlingCAPEMFiles(
+    SslUtil.generateGatlingCAPEMFiles(
       directory,
       OnTheFly.GatlingCAKeyFile,
       OnTheFly.GatlingCACrtFile

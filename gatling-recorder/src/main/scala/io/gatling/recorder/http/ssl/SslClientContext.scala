@@ -17,16 +17,22 @@
 package io.gatling.recorder.http.ssl
 
 import javax.net.ssl.SSLEngine
+
 import io.gatling.recorder.http.flows.Remote
 
 import io.netty.buffer.ByteBufAllocator
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
-private[http] object SslClientContext {
+import com.typesafe.scalalogging.StrictLogging
+
+private[http] object SslClientContext extends StrictLogging {
 
   private val TheSslContext =
-    SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build()
+    SslContextBuilder.forClient()
+      .sslProvider(SslUtil.TheSslProvider)
+      .trustManager(InsecureTrustManagerFactory.INSTANCE)
+      .build
 
   def createSSLEngine(alloc: ByteBufAllocator, remote: Remote): SSLEngine =
     TheSslContext.newEngine(alloc, remote.host, remote.port)
