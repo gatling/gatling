@@ -102,14 +102,14 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
   private def value(str: String) = fast"${protectWithTripleQuotes(str)}"
 
-  private def query(url: Uri): Fastring =
-    if (url.getQuery == null) EmptyFastring else fast"?${url.getQuery}"
+  private def query(uri: Uri): Fastring =
+    if (uri.getQuery == null) EmptyFastring else fast"?${uri.getQuery}"
 
-  private def user(url: Uri): Fastring =
-    if (url.getUserInfo == null) EmptyFastring else fast"${url.getUserInfo}@"
+  private def user(uri: Uri): Fastring =
+    if (uri.getUserInfo == null) EmptyFastring else fast"${uri.getUserInfo}@"
 
-  private def port(url: Uri): Fastring =
-    if (url.getPort < 0) EmptyFastring else fast":${url.getPort}"
+  private def port(uri: Uri): Fastring =
+    if (uri.getPort != -1 && uri.getPort != uri.getSchemeDefaultPort) fast":${uri.getPort}" else EmptyFastring
 
   def vals: List[Value] = values
 
