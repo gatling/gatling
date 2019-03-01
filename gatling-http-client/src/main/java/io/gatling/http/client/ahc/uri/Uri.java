@@ -156,17 +156,13 @@ public class Uri {
 
   public String toUrl() {
     if (url == null) {
-      StringBuilder sb = StringBuilderPool.DEFAULT.get();
-      sb.append(scheme).append("://");
-      if (userInfo != null)
-        sb.append(userInfo).append('@');
-      sb.append(host);
-      if (port != -1)
-        sb.append(':').append(port);
-      if (path != null)
+      StringBuilder sb = toBaseUrl0();
+      if (path != null) {
         sb.append(path);
-      if (query != null)
+      }
+      if (query != null) {
         sb.append('?').append(query);
+      }
       url = sb.toString();
     }
     return url;
@@ -196,7 +192,11 @@ public class Uri {
 
   private StringBuilder toBaseUrl0() {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    sb.append(scheme).append("://").append(host);
+    sb.append(scheme).append("://");
+    if (userInfo != null) {
+      sb.append(userInfo).append('@');
+    }
+    sb.append(host);
     if (port != -1 && port != getSchemeDefaultPort()) {
       sb.append(':').append(port);
     }
