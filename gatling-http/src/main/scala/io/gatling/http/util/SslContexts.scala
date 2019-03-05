@@ -28,7 +28,7 @@ import io.netty.handler.ssl._
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import javax.net.ssl.{ SSLContext, SSLEngine, TrustManager, TrustManagerFactory }
 
-object SslContextsFactory {
+private[http] object SslContextsFactory {
   private val DefaultSslSecureRandom = new SecureRandom
   private val DefaultTrustManagers: Array[TrustManager] = {
     val defaultTrustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
@@ -46,7 +46,7 @@ object SslContextsFactory {
   )
 }
 
-class SslContextsFactory(httpConfig: HttpConfiguration) extends StrictLogging {
+private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends StrictLogging {
 
   import SslContextsFactory._
 
@@ -138,4 +138,4 @@ class SslContextsFactory(httpConfig: HttpConfiguration) extends StrictLogging {
   }
 }
 
-case class SslContexts(sslContext: SslContext, alplnSslContext: Option[SslContext])
+private[http] case class SslContexts(sslContext: SslContext, alplnSslContext: Option[SslContext])

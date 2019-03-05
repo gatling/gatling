@@ -33,7 +33,7 @@ import com.typesafe.scalalogging.StrictLogging
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpResponseStatus
 
-trait ResourceAggregator {
+private[http] trait ResourceAggregator {
 
   def currentSession: Session
 
@@ -48,7 +48,7 @@ trait ResourceAggregator {
   def onCachedResource(uri: Uri, tx: HttpTx): Unit
 }
 
-class DefaultResourceAggregator(
+private[fetch] class DefaultResourceAggregator(
     rootTx:           HttpTx,
     initialResources: Seq[HttpRequest],
     httpCaches:       HttpCaches,

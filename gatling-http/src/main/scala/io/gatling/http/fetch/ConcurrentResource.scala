@@ -27,12 +27,12 @@ import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._
 import io.gatling.http.request.HttpRequest
 
-object ConcurrentResource {
+private[fetch] object ConcurrentResource {
 
   val DefaultResourceChecks = List(DefaultHttpCheck)
 }
 
-sealed abstract class ConcurrentResource {
+private[gatling] sealed abstract class ConcurrentResource {
 
   def uri: Uri
   def acceptHeader: Expression[String]
@@ -45,6 +45,6 @@ sealed abstract class ConcurrentResource {
   }
 }
 
-case class CssResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression }
+private[gatling] case class CssResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression }
 
-case class BasicResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression }
+private[gatling] case class BasicResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression }

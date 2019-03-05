@@ -22,7 +22,7 @@ import java.util.{ Collections => JCollections, List => JList }
 import io.netty.resolver.NameResolver
 import io.netty.util.concurrent.{ Future, ImmediateEventExecutor, Promise }
 
-class AliasesAwareNameResolver(aliases: Map[String, InetAddress], wrapped: NameResolver[InetAddress]) extends NameResolver[InetAddress] {
+private[http] class AliasesAwareNameResolver(aliases: Map[String, InetAddress], wrapped: NameResolver[InetAddress]) extends NameResolver[InetAddress] {
 
   override def resolve(s: String): Future[InetAddress] =
     aliases.get(s) match {

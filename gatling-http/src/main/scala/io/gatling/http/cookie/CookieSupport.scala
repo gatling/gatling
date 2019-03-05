@@ -24,7 +24,7 @@ import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.handler.codec.http.cookie.Cookie
 
-object CookieSupport {
+private[http] object CookieSupport {
 
   // import optimized TypeCaster
   import HttpTypeCaster._

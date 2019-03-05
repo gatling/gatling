@@ -29,21 +29,21 @@ import jodd.lagarto.{ EmptyTagVisitor, Tag, TagType }
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 import jodd.util.CharSequenceUtil
 
-sealed abstract class RawResource {
+private[fetch] sealed abstract class RawResource {
   def rawUrl: String
   def uri(rootURI: Uri): Option[Uri] = HttpHelper.resolveFromUriSilently(rootURI, rawUrl)
   def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource]
 }
-case class CssRawResource(rawUrl: String) extends RawResource {
+private[fetch] case class CssRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(CssResource)
 }
-case class RegularRawResource(rawUrl: String) extends RawResource {
+private[fetch] case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(BasicResource)
 }
 
-case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
+private[fetch] case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
-object HtmlParser extends StrictLogging {
+private[gatling] object HtmlParser extends StrictLogging {
   private val AppletTagName = "applet"
   private val BaseTagName = "base"
   private val BgsoundTagName = "bgsound"

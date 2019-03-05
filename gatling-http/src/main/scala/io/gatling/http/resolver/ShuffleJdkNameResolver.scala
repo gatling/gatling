@@ -23,7 +23,7 @@ import java.util.concurrent.ThreadLocalRandom
 import io.netty.resolver.InetNameResolver
 import io.netty.util.concurrent.{ ImmediateEventExecutor, Promise }
 
-class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEventExecutor.INSTANCE) {
+private[http] class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEventExecutor.INSTANCE) {
 
   override def doResolve(inetHost: String, promise: Promise[InetAddress]): Unit =
     throw new UnsupportedOperationException

@@ -21,12 +21,12 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.{ HttpTypeCaster, SslContexts }
 
-object SslContextSupport {
+private[cache] object SslContextSupport {
 
   val HttpSslContextsAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.ssl.sslContexts"
 }
 
-trait SslContextSupport {
+private[http] trait SslContextSupport {
 
   import SslContextSupport._
 

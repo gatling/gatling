@@ -18,7 +18,7 @@ package io.gatling.http.fetch
 
 import io.gatling.http.client.ahc.uri.Uri
 
-object InferredResourceNaming {
+private[http] object InferredResourceNaming {
 
   val AbsoluteUrlInferredResourceNaming: Uri => String = _.toString
 

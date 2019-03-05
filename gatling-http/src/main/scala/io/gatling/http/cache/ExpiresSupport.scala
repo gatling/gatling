@@ -23,7 +23,7 @@ import io.gatling.http.response.Response
 
 import io.netty.handler.codec.DateFormatter
 
-trait ExpiresSupport {
+private[cache] trait ExpiresSupport {
 
   def clock: Clock
 

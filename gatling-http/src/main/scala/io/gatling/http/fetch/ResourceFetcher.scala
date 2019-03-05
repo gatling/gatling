@@ -34,7 +34,7 @@ import io.gatling.http.util.HttpHelper._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 
-object ResourceFetcher extends StrictLogging {
+private[http] object ResourceFetcher extends StrictLogging {
   def applyResourceFilters(resources: List[ConcurrentResource], filters: Option[Filters]): List[ConcurrentResource] =
     filters match {
       case Some(f) => f.filter(resources)
@@ -53,7 +53,7 @@ object ResourceFetcher extends StrictLogging {
     }
 }
 
-class ResourceFetcher(
+private[http] class ResourceFetcher(
     coreComponents: CoreComponents,
     httpCaches:     HttpCaches,
     httpProtocol:   HttpProtocol,

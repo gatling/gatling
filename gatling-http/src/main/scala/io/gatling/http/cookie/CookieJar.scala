@@ -20,11 +20,11 @@ import io.gatling.http.client.ahc.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
 
-case class CookieKey(name: String, domain: String, path: String)
+private[cookie] case class CookieKey(name: String, domain: String, path: String)
 
-case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, creationTime: Long)
+private[cookie] case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, creationTime: Long)
 
-object CookieJar {
+private[cookie] object CookieJar {
 
   val Empty = CookieJar(Map.empty)
 
@@ -84,7 +84,7 @@ object CookieJar {
   def apply(uri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = Empty.add(uri, cookies, nowMillis)
 }
 
-case class CookieJar(store: Map[CookieKey, StoredCookie]) {
+private[http] case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
   import CookieJar._
 

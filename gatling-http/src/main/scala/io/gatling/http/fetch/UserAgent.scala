@@ -19,7 +19,7 @@ package io.gatling.http.fetch
 import io.gatling.http.HeaderNames
 import io.gatling.http.client.Request
 
-object UserAgent {
+private[gatling] object UserAgent {
 
   val IE = "MSIE"
   private val MsIeUserAgentRegex = "MSIE ([0-9]+.[0-9]+)".r
@@ -34,4 +34,4 @@ object UserAgent {
     }
 }
 
-case class UserAgent(name: String, version: Float)
+private[fetch] case class UserAgent(name: String, version: Float)

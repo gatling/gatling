@@ -26,11 +26,11 @@ import io.netty.resolver.NameResolver
 import io.netty.resolver.dns.DnsCache
 import io.netty.util.concurrent.{ Future, Promise }
 
-object CacheOverrideNameResolver {
+private[resolver] object CacheOverrideNameResolver {
   private val EmptyDnsRecordArray = Array.empty[DnsRecord]
 }
 
-case class CacheOverrideNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
+private[http] case class CacheOverrideNameResolver(resolver: ExtendedDnsNameResolver, cache: DnsCache)
   extends NameResolver[InetAddress] {
 
   import CacheOverrideNameResolver._

@@ -22,7 +22,7 @@ import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
 
-object RefererHandling {
+private[http] object RefererHandling {
 
   private val RefererAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.referer"
 

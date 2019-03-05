@@ -23,12 +23,12 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpTypeCaster
 
-object LocalAddressSupport {
+private[cache] object LocalAddressSupport {
 
   val LocalAddressAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localAddress"
 }
 
-trait LocalAddressSupport {
+private[cache] trait LocalAddressSupport {
 
   import LocalAddressSupport._
 

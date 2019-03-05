@@ -24,7 +24,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 import com.typesafe.scalalogging.StrictLogging
 
-class HttpCaches(val coreComponents: CoreComponents)
+private[http] class HttpCaches(val coreComponents: CoreComponents)
   extends HttpContentCacheSupport
   with PermanentRedirectCacheSupport
   with DnsCacheSupport

@@ -24,7 +24,7 @@ import io.gatling.http.cookie.CookieJar
 
 import io.netty.resolver.NameResolver
 
-object HttpTypeCaster {
+private[http] object HttpTypeCaster {
 
   implicit val NameResolverTypeCaster: TypeCaster[NameResolver[InetAddress]] = new TypeCaster[NameResolver[InetAddress]] {
     @throws[ClassCastException]

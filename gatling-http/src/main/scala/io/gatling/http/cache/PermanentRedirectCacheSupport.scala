@@ -25,18 +25,18 @@ import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.engine.tx.HttpTx
 
-object PermanentRedirectCacheKey {
+private[cache] object PermanentRedirectCacheKey {
   def apply(request: Request): PermanentRedirectCacheKey =
     new PermanentRedirectCacheKey(request.getUri, Cookies(request.getCookies))
 }
 
-case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
+private[cache] case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
 
-object PermanentRedirectCacheSupport {
+private[cache] object PermanentRedirectCacheSupport {
   val HttpPermanentRedirectCacheAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 }
 
-trait PermanentRedirectCacheSupport {
+private[cache] trait PermanentRedirectCacheSupport {
 
   import PermanentRedirectCacheSupport._
 

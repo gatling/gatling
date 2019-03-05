@@ -35,7 +35,7 @@ import io.netty.handler.codec.http.HttpResponseStatus._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
-object HttpHelper extends StrictLogging {
+private[gatling] object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
   val WsScheme = "ws"

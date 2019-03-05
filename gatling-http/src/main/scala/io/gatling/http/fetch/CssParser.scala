@@ -24,7 +24,7 @@ import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
 
-object CssParser extends StrictLogging {
+private[fetch] object CssParser extends StrictLogging {
 
   private val InlineStyleImageUrls = """url\((.*)\)""".r
   private val StyleImportsUrls = """@import url\((.*)\)""".r

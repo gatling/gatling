@@ -30,7 +30,7 @@ import io.netty.resolver.NameResolver
 import io.netty.resolver.dns.DefaultDnsCache
 import io.netty.util.concurrent.{ Future, Promise }
 
-object DnsCacheSupport {
+private[cache] object DnsCacheSupport {
 
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 
@@ -90,7 +90,7 @@ object DnsCacheSupport {
     )
 }
 
-trait DnsCacheSupport {
+private[cache] trait DnsCacheSupport {
 
   import DnsCacheSupport._
 

@@ -20,14 +20,14 @@ import io.gatling.commons.util.RoundRobin
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 
-object BaseUrlSupport {
+private[cache] object BaseUrlSupport {
 
   val BaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
 
   val WsBaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
 }
 
-trait BaseUrlSupport {
+private[cache] trait BaseUrlSupport {
 
   import BaseUrlSupport._
 

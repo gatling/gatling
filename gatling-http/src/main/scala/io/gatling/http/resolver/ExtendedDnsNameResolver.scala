@@ -30,7 +30,7 @@ import io.netty.resolver.dns._
 import io.netty.util.NetUtil
 import io.netty.util.concurrent.Promise
 
-object ExtendedDnsNameResolver extends StrictLogging {
+private[resolver] object ExtendedDnsNameResolver extends StrictLogging {
 
   private val DebugEnabled = logger.underlying.isDebugEnabled
 
@@ -51,7 +51,7 @@ object ExtendedDnsNameResolver extends StrictLogging {
 /**
  * DnsNameResolver whose sole purpose is to publicly expose the doResolve and executor methods that are protected
  */
-class ExtendedDnsNameResolver(
+private[http] class ExtendedDnsNameResolver(
     val eventLoop:        EventLoop,
     queryTimeout:         Int,
     maxQueriesPerResolve: Int,
