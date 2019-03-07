@@ -26,10 +26,10 @@ object HttpBodyJsonPathCheckMaterializer {
 
   private val CharsParsingThreshold = 200 * 1000
 
-  private[body] val BoonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+  private[body] val JoddResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
     override def bodyUsage(contentLength: Int): ResponseBodyUsage =
       if (contentLength <= CharsParsingThreshold) {
-        CharArrayResponseBodyUsage
+        StringResponseBodyUsage
       } else {
         InputStreamResponseBodyUsage
       }
@@ -55,7 +55,7 @@ class HttpBodyJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckM
   override val specializer: Specializer[HttpCheck, Response] = {
     val responseBodyUsageStrategy =
       if (jsonParsers.preferJackson) JacksonResponseBodyUsageStrategy
-      else BoonResponseBodyUsageStrategy
+      else JoddResponseBodyUsageStrategy
     HttpCheckBuilders.bodySpecializer(responseBodyUsageStrategy)
   }
 
