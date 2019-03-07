@@ -22,6 +22,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 import io.netty.handler.codec.http.HttpMethod
+import javax.net.ssl.KeyManagerFactory
 
 class HttpCompileTest extends Simulation {
 
@@ -81,6 +82,7 @@ class HttpCompileTest extends Simulation {
     .hostNameAliases(Map("foo" -> "127.0.0.1"))
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
+    .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))
 
   val testData3 = Array(Map("foo" -> "bar")).circular
 

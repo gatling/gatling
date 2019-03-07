@@ -1243,6 +1243,12 @@
           - signature: (InetAddress...)
             description: Address Strings that will be turned into InetAddresses
 
+        - keyword: perUserKeyManagerFactory
+          description: Configure a specific javax.net.ssl.KeyManagerFactory per virtual user
+          syntax:
+            - signature: (Long => javax.net.ssl.KeyManagerFactory)
+              description: Input is the virtual user's id
+
         - keyword: disableCaching
           description: Disables caching features for some http headers and ETag
 

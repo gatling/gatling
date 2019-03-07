@@ -35,25 +35,16 @@ import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
 import io.netty.handler.ssl.OpenSsl
+import javax.net.ssl.KeyManagerFactory
 
-/**
- * HttpProtocolBuilder class companion
- */
 object HttpProtocolBuilder {
 
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 
   def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(HttpProtocol(configuration), configuration.http.advanced.useOpenSsl)
-
-  val MissingEnabledHttp2ForPriorKnowledgeException = new IllegalArgumentException("Cannot set HTTP/2 prior knowledge if HTTP/2 is not enabled")
 }
 
-/**
- * Builder for HttpProtocol used in DSL
- *
- * @param protocol the protocol being built
- */
 case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
 
   def baseUrl(url: String): HttpProtocolBuilder = baseUrls(List(url))
@@ -79,6 +70,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
   def maxConnectionsPerHostLikeIE10: HttpProtocolBuilder = maxConnectionsPerHost(8)
   def maxConnectionsPerHostLikeChrome: HttpProtocolBuilder = maxConnectionsPerHost(6)
   def maxConnectionsPerHost(max: Int): HttpProtocolBuilder = this.modify(_.protocol.enginePart.maxConnectionsPerHost).setTo(max)
+  def perUserKeyManagerFactory(f: Long => KeyManagerFactory): HttpProtocolBuilder = this.modify(_.protocol.enginePart.perUserKeyManagerFactory).setTo(Some(f))
 
   // requestPart
   def disableAutoReferer: HttpProtocolBuilder = this.modify(_.protocol.requestPart.autoReferer).setTo(false)

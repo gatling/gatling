@@ -40,6 +40,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod, HttpResponseStatus }
 import io.netty.handler.ssl.SslContext
+import javax.net.ssl.KeyManagerFactory
 
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {
@@ -136,8 +137,8 @@ class HttpEngine(
   def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     dnsNameResolverFactory.newAsyncDnsNameResolver(dnsServers)
 
-  def newSslContexts(http2Enabled: Boolean): SslContexts =
-    sslContextsFactory.newSslContexts(http2Enabled)
+  def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts =
+    sslContextsFactory.newSslContexts(http2Enabled, perUserKeyManagerFactory)
 
   def flushClientIdChannels(clientId: Long): Unit =
     if (!httpClient.isClosed) {

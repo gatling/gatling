@@ -54,7 +54,7 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
 
-    val SslContexts(defaultSslContext, defaultAlpnSslContext) = sslContextsFactory.newSslContexts(true)
+    val SslContexts(defaultSslContext, defaultAlpnSslContext) = sslContextsFactory.newSslContexts(http2Enabled = true, None)
     new HttpClientConfig()
       .setDefaultSslContext(defaultSslContext)
       .setDefaultAlpnSslContext(defaultAlpnSslContext.orNull)

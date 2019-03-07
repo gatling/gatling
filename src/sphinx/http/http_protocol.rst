@@ -190,6 +190,19 @@ You can bind the sockets from specific local addresses instead of the default on
 
 When setting multiple addresses, each virtual user is assigned to one single local address once and for all.
 
+.. _http-protocol-kmf:
+
+KeyManagerFactory
+-----------------
+
+By default, Gatling uses the KeyManagerFactory configuration defined in `gatling.conf`, or if undefined, falls back to the JVM's default one.
+
+Then, it's possible to have per virtual user KeyManagerFactories, typically if you want them to use different sets of keys::
+
+    perUserKeyManagerFactory(f: Long => KeyManagerFactory)
+
+This function's input is the virtual user's id (if you need it to generate some file name) and returns a `javax.net.ssl.KeyManagerFactory <https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/KeyManagerFactory.html>`_.
+
 Request building parameters
 ===========================
 

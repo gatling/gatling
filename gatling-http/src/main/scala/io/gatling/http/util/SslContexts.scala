@@ -26,7 +26,7 @@ import io.gatling.core.config.HttpConfiguration
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl._
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-import javax.net.ssl.{ SSLContext, SSLEngine, TrustManager, TrustManagerFactory }
+import javax.net.ssl._
 
 private[http] object SslContextsFactory {
   private val DefaultSslSecureRandom = new SecureRandom
@@ -64,7 +64,10 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
       false
     }
 
-  def newSslContexts(http2Enabled: Boolean): SslContexts =
+  def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
+
+    val kmf = perUserKeyManagerFactory.orElse(httpConfig.ssl.keyManagerFactory)
+
     if (useOpenSsl) {
       val sslContextBuilder = SslContextBuilder.forClient.sslProvider(SslProvider.OPENSSL)
 
@@ -86,7 +89,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
         sslContextBuilder.ciphers(null, IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS)
       }
 
-      httpConfig.ssl.keyManagerFactory.foreach(sslContextBuilder.keyManager)
+      kmf.foreach(sslContextBuilder.keyManager)
 
       httpConfig.ssl.trustManagerFactory match {
         case Some(tmf) => sslContextBuilder.trustManager(tmf)
@@ -107,7 +110,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
 
     } else {
       val jdkSslContext = SSLContext.getInstance("TLS")
-      jdkSslContext.init(httpConfig.ssl.keyManagerFactory.map(_.getKeyManagers).orNull, DefaultTrustManagers, DefaultSslSecureRandom)
+      jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, DefaultTrustManagers, DefaultSslSecureRandom)
 
       val sslContext = newSslContext(jdkSslContext, null)
       val alpnSslContext =
@@ -118,8 +121,9 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
         }
       SslContexts(sslContext, alpnSslContext)
     }
+  }
 
-  private def newSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext = {
+  private def newSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext =
     new DelegatingSslContext(new JdkSslContext(
       jdkSslContext,
       true,
@@ -135,7 +139,6 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
           engine.setEnabledProtocols(enabledProtocols)
         }
     }
-  }
 }
 
 private[http] case class SslContexts(sslContext: SslContext, alplnSslContext: Option[SslContext])

@@ -16,14 +16,33 @@
 
 package io.gatling.http.cache
 
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.{ HttpTypeCaster, SslContexts }
 
-private[cache] object SslContextSupport {
+import com.typesafe.scalalogging.StrictLogging
+import javax.net.ssl.KeyManagerFactory
 
-  val HttpSslContextsAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.ssl.sslContexts"
+import scala.util.control.NonFatal
+
+private[cache] object SslContextSupport extends StrictLogging {
+
+  private val HttpSslContextsAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.ssl.sslContexts"
+
+  private def resolvePerUserKeyManagerFactory(session: Session, perUserKeyManagerFactory: Option[Long => KeyManagerFactory]): Option[KeyManagerFactory] =
+    perUserKeyManagerFactory match {
+      case Some(kmf) =>
+        try {
+          Some(kmf(session.userId))
+        } catch {
+          case NonFatal(e) =>
+            logger.error(s"Can't build perUserKeyManagerFactory: ${e.rootMessage}", e)
+            None
+        }
+      case _ => None
+    }
 }
 
 private[http] trait SslContextSupport {
@@ -34,7 +53,11 @@ private[http] trait SslContextSupport {
     if (httpProtocol.enginePart.shareConnections) {
       identity
     } else {
-      _.set(HttpSslContextsAttributeName, httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2))
+      session =>
+        {
+          val kmf = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
+          session.set(HttpSslContextsAttributeName, httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, kmf))
+        }
     }
 
   def sslContexts(session: Session): Option[SslContexts] = {

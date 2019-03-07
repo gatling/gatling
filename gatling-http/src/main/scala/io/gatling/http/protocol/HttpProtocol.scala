@@ -40,6 +40,7 @@ import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
+import javax.net.ssl.KeyManagerFactory
 
 object HttpProtocol extends StrictLogging {
 
@@ -80,7 +81,8 @@ object HttpProtocol extends StrictLogging {
         virtualHost = None,
         localAddresses = Nil,
         enableHttp2 = false,
-        http2PriorKnowledge = Map.empty
+        http2PriorKnowledge = Map.empty,
+        perUserKeyManagerFactory = None
       ),
       requestPart = HttpProtocolRequestPart(
         headers = Map.empty,
@@ -146,12 +148,13 @@ case class HttpProtocol(
 }
 
 case class HttpProtocolEnginePart(
-    shareConnections:      Boolean,
-    maxConnectionsPerHost: Int,
-    virtualHost:           Option[Expression[String]],
-    localAddresses:        List[InetAddress],
-    enableHttp2:           Boolean,
-    http2PriorKnowledge:   Map[Remote, Boolean]
+    shareConnections:         Boolean,
+    maxConnectionsPerHost:    Int,
+    virtualHost:              Option[Expression[String]],
+    localAddresses:           List[InetAddress],
+    enableHttp2:              Boolean,
+    http2PriorKnowledge:      Map[Remote, Boolean],
+    perUserKeyManagerFactory: Option[Long => KeyManagerFactory]
 )
 
 case class HttpProtocolRequestPart(
