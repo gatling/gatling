@@ -138,7 +138,7 @@ class HttpTxExecutor(
   def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit = {
     executeHttp2WithCache(origTxs) { txs =>
       val headTx = txs.head
-      txs.foreach(tx => logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"))
+      txs.foreach(tx => logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri} scenario=${tx.session.scenario}, userId=${tx.session.userId}"))
       val requestsAndListeners = txs.map { tx =>
         val listener: HttpListener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
         new Pair(tx.request.clientRequest, listener)
