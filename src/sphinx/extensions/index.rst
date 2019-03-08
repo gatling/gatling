@@ -51,3 +51,4 @@ Inactive, built against legacy versions of Gatling
 * `ZeroMQ plugin <https://github.com/softwaremill/gatling-zeromq>`_ by SoftwareMill
 * `UDP plugin <https://github.com/arenhage/gatling-udp>`_ by Daniel Arenhage
 * `gRPC plugin <https://github.com/macchiatow/gatling-grpc>`_ by Togrul Mageramov
+* `NATS plugin <https://github.com/Logimethods/nats-connector-gatling>`_ by Laurent Magnin
