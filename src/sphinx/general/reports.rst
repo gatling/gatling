@@ -49,7 +49,10 @@ Active users over time
     :alt: ActiveUsers
 
 This chart displays the active users during the simulation : total and per scenario.
-"Active users" tries to represent a mix of arrival rate (input for open workload model) and number of concurrent users (input for closed workload model).
+
+"Active users" is neither "concurrent users" or "users arrival rate".
+It's a kind of mixed metric that serves for both open and closed workload models and that represents "users who were active on the system under load at a given second".
+
 It's computed as::
 
     (number of alive users at previous second)
