@@ -18,7 +18,7 @@ package io.gatling.core.check
 
 import java.util.concurrent.ThreadLocalRandom
 
-import io.gatling.commons.util.{ Equality, ThreadLocalRandoms }
+import io.gatling.commons.util.{ Arrays, Equality }
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
@@ -92,8 +92,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
                   if (num >= seq.size) {
                     seq
                   } else {
-                    val sortedRandomIndexes = ThreadLocalRandoms.shuffle(seq.indices.toVector).take(num).sorted
-                    sortedRandomIndexes.map(seq)
+                    Arrays.shuffle(seq.indices.toArray).take(num).sorted.map(seq).toSeq
                   }
 
                 Some(randomSeq).success

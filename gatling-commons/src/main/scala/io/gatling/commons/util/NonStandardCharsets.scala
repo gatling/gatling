@@ -20,5 +20,5 @@ import java.nio.charset.Charset
 
 object NonStandardCharsets {
 
-  val UTF_32 = Charset.forName("UTF-32")
+  val UTF_32: Charset = Charset.forName("UTF-32")
 }

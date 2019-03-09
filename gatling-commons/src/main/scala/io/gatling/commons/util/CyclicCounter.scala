@@ -20,5 +20,5 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class CyclicCounter(max: Int) {
   private val counter = new AtomicInteger
-  def nextVal = counter.getAndIncrement % max
+  def nextVal: Int = counter.getAndIncrement % max
 }

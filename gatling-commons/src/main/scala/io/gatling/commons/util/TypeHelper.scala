@@ -35,7 +35,7 @@ trait TypeCaster[T] {
 
 trait LowPriorityTypeCaster {
 
-  implicit def genericTypeCaster[T: ClassTag] = new TypeCaster[T] {
+  implicit def genericTypeCaster[T: ClassTag]: TypeCaster[T] = new TypeCaster[T] {
 
     @throws[ClassCastException]
     override def cast(value: Any): T = {
@@ -67,7 +67,7 @@ object TypeCaster extends LowPriorityTypeCaster {
         e.detailedMessage.failure
     }
 
-  implicit val BooleanCaster = new TypeCaster[Boolean] {
+  implicit val BooleanCaster: TypeCaster[Boolean] = new TypeCaster[Boolean] {
     @throws[ClassCastException]
     override def cast(value: Any): Boolean =
       value match {
@@ -86,7 +86,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val ByteCaster = new TypeCaster[Byte] {
+  implicit val ByteCaster: TypeCaster[Byte] = new TypeCaster[Byte] {
     @throws[ClassCastException]
     override def cast(value: Any): Byte =
       value match {
@@ -105,7 +105,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val ShortCaster = new TypeCaster[Short] {
+  implicit val ShortCaster: TypeCaster[Short] = new TypeCaster[Short] {
     @throws[ClassCastException]
     override def cast(value: Any): Short =
       value match {
@@ -124,7 +124,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val IntCaster = new TypeCaster[Int] {
+  implicit val IntCaster: TypeCaster[Int] = new TypeCaster[Int] {
     @throws[ClassCastException]
     override def cast(value: Any): Int =
       value match {
@@ -143,7 +143,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val LongCaster = new TypeCaster[Long] {
+  implicit val LongCaster: TypeCaster[Long] = new TypeCaster[Long] {
     @throws[ClassCastException]
     override def cast(value: Any): Long =
       value match {
@@ -162,7 +162,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val FloatCaster = new TypeCaster[Float] {
+  implicit val FloatCaster: TypeCaster[Float] = new TypeCaster[Float] {
     @throws[ClassCastException]
     override def cast(value: Any): Float =
       value match {
@@ -181,7 +181,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val DoubleCaster = new TypeCaster[Double] {
+  implicit val DoubleCaster: TypeCaster[Double] = new TypeCaster[Double] {
     @throws[ClassCastException]
     override def cast(value: Any): Double =
       value match {
@@ -200,7 +200,7 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val CharCaster = new TypeCaster[Char] {
+  implicit val CharCaster: TypeCaster[Char] = new TypeCaster[Char] {
     @throws[ClassCastException]
     override def cast(value: Any): Char =
       value match {
@@ -219,14 +219,14 @@ object TypeCaster extends LowPriorityTypeCaster {
       }
   }
 
-  implicit val StringCaster = new TypeCaster[String] {
+  implicit val StringCaster: TypeCaster[String] = new TypeCaster[String] {
     override def cast(value: Any): String = value.toString
 
     override def validate(value: Any): Validation[String] =
       value.toString.success
   }
 
-  implicit val AnyTypeCaster = new TypeCaster[Any] {
+  implicit val AnyTypeCaster: TypeCaster[Any] = new TypeCaster[Any] {
     override def cast(value: Any): Any = value
 
     override def validate(value: Any): Validation[Any] =
@@ -236,7 +236,7 @@ object TypeCaster extends LowPriorityTypeCaster {
 
 object TypeHelper {
 
-  val NullValueFailure = "Value is null".failure
+  val NullValueFailure: Failure = "Value is null".failure
 
   implicit class TypeValidator(val value: Any) extends AnyVal {
 

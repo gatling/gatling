@@ -28,13 +28,14 @@ object Arrays {
     array(j) = tmp
   }
 
-  def shuffle[T](array: Array[T]): Unit =
+  def shuffle[T](array: Array[T]): Array[T] =
     shuffle(array, array.length)
 
-  def shuffle[T](array: Array[T], length: Int): Unit = {
+  def shuffle[T](array: Array[T], length: Int): Array[T] = {
     val rnd = ThreadLocalRandom.current()
     cfor(length)(_ > 1, _ - 1) { i =>
       swap(array, i - 1, rnd.nextInt(i))
     }
+    array
   }
 }

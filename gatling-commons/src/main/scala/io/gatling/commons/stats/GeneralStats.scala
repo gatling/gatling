@@ -18,7 +18,7 @@ package io.gatling.commons.stats
 
 object GeneralStats {
 
-  val NoPlotMagicValue = -1
+  val NoPlotMagicValue: Int = -1
 
   val NoPlot: GeneralStats = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
 }

@@ -75,7 +75,7 @@ object StringHelper {
     }
 
     def unsafeChars: Array[Char] =
-      if (JavaRuntime.IsJava8) {
+      if (JavaRuntime.JavaMajorVersion == 8) {
         TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
       } else {
         string.toCharArray

@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import java.io.File
+import java.io._
 import java.net.{ URI, URL }
 import java.nio.charset.Charset
 import java.nio.file._
@@ -37,27 +37,27 @@ object PathHelper {
 
   implicit class RichPath(val path: Path) extends AnyVal {
 
-    def /(pathString: String) = path.resolve(pathString)
+    def /(pathString: String): Path = path.resolve(pathString)
 
-    def /(other: Path) = path.resolve(other)
+    def /(other: Path): Path = path.resolve(other)
 
-    def filename = path.getFileName.toString
+    def filename: String = path.getFileName.toString
 
-    def exists = Files.exists(path)
+    def exists: Boolean = Files.exists(path)
 
-    def mkdirs = Files.createDirectories(path)
+    def mkdirs: Path = Files.createDirectories(path)
 
-    def touch = Files.createFile(path)
+    def touch: Path = Files.createFile(path)
 
-    def delete() = Files.delete(path)
+    def delete(): Unit = Files.delete(path)
 
-    def inputStream = Files.newInputStream(path)
+    def inputStream: InputStream = Files.newInputStream(path)
 
-    def outputStream = Files.newOutputStream(path)
+    def outputStream: OutputStream = Files.newOutputStream(path)
 
-    def isFile = Files.isRegularFile(path)
+    def isFile: Boolean = Files.isRegularFile(path)
 
-    def isDirectory = Files.isDirectory(path)
+    def isDirectory: Boolean = Files.isDirectory(path)
 
     def segments: List[Path] = path.iterator.asScala.toList
 
@@ -77,9 +77,9 @@ object PathHelper {
 
     def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
 
-    def writer(charset: Charset) = Files.newBufferedWriter(path, charset)
+    def writer(charset: Charset): Writer = Files.newBufferedWriter(path, charset)
 
-    def copyTo(other: Path, options: CopyOption*) = Files.copy(path, other, options: _*)
+    def copyTo(other: Path, options: CopyOption*): Path = Files.copy(path, other, options: _*)
 
     def extension: String = {
       val pathString = path.toString
@@ -87,12 +87,12 @@ object PathHelper {
       if (dotIndex == -1) "" else pathString.substring(dotIndex + 1)
     }
 
-    def hasExtension(ext: String, exts: String*) = {
+    def hasExtension(ext: String, exts: String*): Boolean = {
       val lower = extension.toLowerCase
       ext.toLowerCase == lower || exts.exists(_.toLowerCase == lower)
     }
 
-    def stripExtension = filename stripSuffix ("." + extension)
+    def stripExtension: String = filename stripSuffix ("." + extension)
 
     def deepFiles(f: CachingPath => Boolean = _ => true, maxDepth: Int = Int.MaxValue): Seq[CachingPath] =
       if (path.exists) {
@@ -110,7 +110,7 @@ object PathHelper {
         Nil
       }
 
-    def files = deepFiles(maxDepth = 1)
+    def files: Seq[CachingPath] = deepFiles(maxDepth = 1)
 
     def deepDirs(f: CachingPath => Boolean = _ => true): Seq[CachingPath] =
       if (path.exists) {

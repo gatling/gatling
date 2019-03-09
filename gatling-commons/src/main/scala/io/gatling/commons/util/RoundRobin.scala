@@ -22,14 +22,14 @@ object RoundRobin {
     case 0 => Iterator.empty
     case 1 =>
       new Iterator[T] {
-        val hasNext = true
-        val next = values(0)
+        override val hasNext: Boolean = true
+        override val next: T = values(0)
       }
     case _ =>
       new Iterator[T] {
         val counter = new CyclicCounter(values.length)
-        val hasNext = true
-        def next() = values(counter.nextVal)
+        override val hasNext: Boolean = true
+        override def next(): T = values(counter.nextVal)
       }
   }
 }

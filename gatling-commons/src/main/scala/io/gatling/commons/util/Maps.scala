@@ -26,17 +26,17 @@ object Maps {
     def merge(left: T, right: T): T
   }
 
-  implicit val LongMerger = new Merger[Long] {
+  implicit val LongMerger: Merger[Long] = new Merger[Long] {
     override def copy(value: Long): Long = value
     override def merge(left: Long, right: Long): Long = left + right
   }
 
-  implicit def seqMerger[T] = new Merger[Seq[T]] {
+  implicit def seqMerger[T]: Merger[Seq[T]] = new Merger[Seq[T]] {
     override def copy(value: Seq[T]): Seq[T] = value
     override def merge(left: Seq[T], right: Seq[T]): Seq[T] = left ++ right
   }
 
-  implicit def mapMerger[K, V](implicit merger: Merger[V]) = new Merger[Map[K, V]] {
+  implicit def mapMerger[K, V](implicit merger: Merger[V]): Merger[Map[K, V]] = new Merger[Map[K, V]] {
     override def copy(value: Map[K, V]): Map[K, V] = value.forceMapValues(merger.copy)
     override def merge(left: Map[K, V], right: Map[K, V]): Map[K, V] =
       (left.keySet ++ right.keySet).map { key =>
