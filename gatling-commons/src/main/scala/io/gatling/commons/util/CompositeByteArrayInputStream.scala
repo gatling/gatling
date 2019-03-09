@@ -22,9 +22,11 @@ import io.gatling.commons.util.Collections._
 
 class CompositeByteArrayInputStream(parts: Seq[Array[Byte]]) extends InputStream {
 
+  require(parts.nonEmpty, "Can't create a CompositeByteArrayInputStream with empty parts")
+
   private var currentPos = 0
   private var bytePos = -1
-  private var active: Array[Byte] = parts(currentPos)
+  private var active: Array[Byte] = parts.head
   private var _available = parts.sumBy(_.length)
 
   override val available: Int = _available
