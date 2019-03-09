@@ -143,7 +143,7 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
   override def stream: InputStream =
     (chunks.size: @switch) match {
       case 0 => new FastByteArrayInputStream(Array.emptyByteArray)
-      case 1 => new ByteArrayInputStream(chunks.head)
+      case 1 => new FastByteArrayInputStream(chunks.head)
       case _ => new CompositeByteArrayInputStream(chunks)
     }
 }
