@@ -146,22 +146,20 @@ object AssertionValidator {
     }
   }
 
-  private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, actualValue: Double) = {
+  private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, actualValue: Double): AssertionResult = {
 
-    val printableCondition = assertion.condition.printable
+    val (result, expectedValueMessage) =
+      assertion.condition match {
+        case Lt(upper)                    => (actualValue < upper, upper)
+        case Lte(upper)                   => (actualValue <= upper, upper)
+        case Gt(lower)                    => (actualValue > lower, lower)
+        case Gte(lower)                   => (actualValue >= lower, lower)
+        case Is(exactValue)               => (actualValue == exactValue, exactValue)
+        case Between(lower, upper, true)  => (actualValue >= lower && actualValue <= upper, s"$lower and $upper")
+        case Between(lower, upper, false) => (actualValue > lower && actualValue < upper, s"$lower and $upper")
+        case In(elements)                 => (elements.contains(actualValue), elements)
+      }
 
-    def assertionResult(result: Boolean, expectedValueMessage: Any) =
-      AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", Some(actualValue))
-
-    assertion.condition match {
-      case Lt(upper)                    => assertionResult(actualValue < upper, upper)
-      case Lte(upper)                   => assertionResult(actualValue <= upper, upper)
-      case Gt(lower)                    => assertionResult(actualValue > lower, lower)
-      case Gte(lower)                   => assertionResult(actualValue >= lower, lower)
-      case Is(exactValue)               => assertionResult(actualValue == exactValue, exactValue)
-      case Between(lower, upper, true)  => assertionResult(actualValue >= lower && actualValue <= upper, s"$lower and $upper")
-      case Between(lower, upper, false) => assertionResult(actualValue > lower && actualValue < upper, s"$lower and $upper")
-      case In(elements)                 => assertionResult(elements.contains(actualValue), elements)
-    }
+    AssertionResult(assertion, result, s"$path: $printableTarget ${assertion.condition.printable} $expectedValueMessage", Some(actualValue))
   }
 }
