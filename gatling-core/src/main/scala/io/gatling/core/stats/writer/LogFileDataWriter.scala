@@ -235,6 +235,8 @@ class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
 
 class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[Assertion](writer, AssertionRecordHeader.value) {
 
+  import io.gatling.commons.stats.assertion.AssertionPicklers._
+
   override protected def serialize0(assertion: Assertion): Unit = {
     import boopickle.Default._
     import jodd.util.Base64
