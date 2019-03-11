@@ -33,6 +33,7 @@ Active
 * `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_ by Muneyuki Noguchi
 * `Neo4j Bolt plugin <https://github.com/sarmbruster/gatling-bolt>`_ by Stefan Armbruster
 * `JDBC plugin <https://github.com/codecentric/gatling-jdbc>`_ by Ronny Bräunlich
+* `gRPC plugin <https://github.com/phiSgr/gatling-grpc>`_ by George Leung
 
 Inactive, built against legacy versions of Gatling
 --------------------------------------------------
