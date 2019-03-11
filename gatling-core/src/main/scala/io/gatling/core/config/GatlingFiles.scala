@@ -16,7 +16,7 @@
 
 package io.gatling.core.config
 
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 
 import scala.util.Properties.{ envOrElse, propOrElse }
 
@@ -25,7 +25,7 @@ import io.gatling.commons.util.PathHelper._
 object GatlingFiles {
 
   private val GatlingHome: Path = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
-  private val GatlingAssetsPackage: Path = "assets"
+  private val GatlingAssetsPackage: Path = Paths.get("io", "gatling", "charts", "assets")
   val GatlingJsFolder: Path = "js"
   val GatlingStyleFolder: Path = "style"
   val GatlingAssetsJsPackage: Path = GatlingAssetsPackage / GatlingJsFolder
