@@ -28,7 +28,7 @@ object StringHelper {
 
   private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
 
-  val Eol: String = System.getProperty("line.separator")
+  val Eol: String = System.lineSeparator
   val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
   val Crlf: String = "\r\n"

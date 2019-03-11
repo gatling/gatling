@@ -21,6 +21,7 @@ import java.util.GregorianCalendar
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleDataWriterSpec extends BaseSpec {
@@ -33,9 +34,9 @@ class ConsoleDataWriterSpec extends BaseSpec {
 
   def progressBar(summary: ConsoleSummary) = lines(summary)(8)
 
-  def requestsInfo(summary: ConsoleSummary) = lines(summary).slice(3, 6).mkString(sys.props("line.separator"))
+  def requestsInfo(summary: ConsoleSummary) = lines(summary).slice(3, 6).mkString(Eol)
 
-  def errorsInfo(summary: ConsoleSummary) = lines(summary).slice(6, 9).mkString(sys.props("line.separator"))
+  def errorsInfo(summary: ConsoleSummary) = lines(summary).slice(6, 9).mkString(Eol)
 
   "console summary progress bar" should "handle it correctly when all the users are waiting" in {
 
