@@ -43,7 +43,7 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
     val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
 
     val allUris =
-      (requestElements.map(_.uri) ++ requestElements.flatMap(_.embeddedResources.map(_.url)) ++ requestElements.flatMap(_.nonEmbeddedResources.map(_.uri)))
+      (requestElements.map(_.uri) ++ requestElements.flatMap(_.nonEmbeddedResources.map(_.uri)))
         .map(uri => Uri.create(uri)).toList
     val uriGroupedByHost: Map[String, List[Uri]] = allUris.groupBy(uri => uri.getHost)
 
