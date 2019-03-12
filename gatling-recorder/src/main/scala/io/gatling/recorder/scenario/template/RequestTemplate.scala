@@ -92,7 +92,7 @@ private[scenario] object RequestTemplate {
       if (request.nonEmbeddedResources.nonEmpty)
         fast"""
 			.resources(${
-          request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
+          request.nonEmbeddedResources.zipWithIndex.map { case (resource, _) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
             """,
             """.stripMargin
           )

@@ -83,7 +83,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   private val simulationPackage = new TextField(30)
   private val simulationClassName = new TextField(30)
   private val followRedirects = new CheckBox("Follow Redirects?")
-  private val inferHtmlResources = new CheckBox("Infer html resources?")
+  private val inferHtmlResources = new CheckBox("Infer HTML resources?")
   private val removeCacheHeaders = new CheckBox("Remove cache headers?")
   private val checkResponseBodies = new CheckBox("Save & check response bodies?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
