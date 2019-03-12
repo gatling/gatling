@@ -443,8 +443,10 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       """.*\.jpg""",
       """.*\.ico""",
       """.*\.woff""",
+      """.*\.woff2""",
       """.*\.(t|o)tf""",
-      """.*\.png"""
+      """.*\.png""",
+      """.*detectportal\.firefox\.com.*"""
     ).foreach(blackListTable.addRow)
 
     filterStrategies.selection.item = BlacklistFirst
