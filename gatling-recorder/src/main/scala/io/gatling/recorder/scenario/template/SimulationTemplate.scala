@@ -107,7 +107,16 @@ $mapContent)"""
       }
 
     val extractedUris = new ExtractedUris(flatScenarioElements(scenarioElements))
-    val nonBaseUrls = extractedUris.vals.filter(value => Uri.create(value.value).getBaseUrl != protocol.baseUrl)
+
+    val nonBaseUrls = extractedUris.vals.filter { extractedUri =>
+      val uriWithScheme =
+        if (extractedUri.value.startsWith("http")) {
+          extractedUri.value
+        } else {
+          "http://" + extractedUri.value
+        }
+      Uri.create(uriWithScheme).getBaseUrl != protocol.baseUrl
+    }
 
     fast"""$renderPackage
 import scala.concurrent.duration._
