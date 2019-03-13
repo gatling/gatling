@@ -16,30 +16,41 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.session.Session
-import io.gatling.core.stats.DataWritersStatsEngine
-import io.gatling.core.stats.writer.GroupMessage
+import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.mockito.{ ArgumentCaptor, ArgumentMatchers }
+import org.mockito.Mockito._
+import org.scalatest.{ FlatSpec, GivenWhenThen, Matchers }
+import org.scalatestplus.mockito.MockitoSugar
 
-class GroupEndSpec extends AkkaSpec {
+class GroupEndSpec extends FlatSpec with Matchers with MockitoSugar with GivenWhenThen {
 
   private val clock = new DefaultClock
 
   "GroupEnd" should "exit the current group" in {
-    val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock)
 
-    val groupEnd = new GroupEnd(statsEngine, clock, new ActorDelegatingAction("next", self))
+    Given("a GroupEnd Action")
+    val statsEngine = mock[StatsEngine]
+    val next = mock[Action]
+    val groupEnd = new GroupEnd(statsEngine, clock, next)
 
-    val session = Session("scenario", 0, clock.nowMillis)
-    val sessionInGroup = session.enterGroup("group", clock.nowMillis)
+    When("being sent a Session that has one single group")
+    val session = Session("scenario", 0, clock.nowMillis).enterGroup("group", clock.nowMillis)
+    groupEnd ! session
 
-    groupEnd ! sessionInGroup
-    expectMsg(session)
+    Then("next Action should receive a Session with an empty blockStack")
+    val sessionCaptor: ArgumentCaptor[Session] = ArgumentCaptor.forClass(classOf[Session])
+    verify(next) ! sessionCaptor.capture()
+    val nextSession = sessionCaptor.getValue
+    nextSession.blockStack shouldBe empty
 
-    dataWriterProbe.expectMsgType[GroupMessage]
+    And("StatsEngine#logGroupEnd should be notified with the expected group")
+    val groupBlockCaptor: ArgumentCaptor[GroupBlock] = ArgumentCaptor.forClass(classOf[GroupBlock])
+    verify(statsEngine).logGroupEnd(ArgumentMatchers.any(), groupBlockCaptor.capture(), ArgumentMatchers.anyLong())
+    val groupBlock = groupBlockCaptor.getValue
+
+    groupBlock.hierarchy shouldBe List("group")
   }
 }
