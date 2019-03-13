@@ -16,31 +16,38 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.el.El
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.stats.DataWritersStatsEngine
+import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito._
+import org.scalatest.{ FlatSpec, GivenWhenThen, Matchers }
+import org.scalatestplus.mockito.MockitoSugar
 
-class GroupStartSpec extends AkkaSpec {
+class GroupStartSpec extends FlatSpec with Matchers with MockitoSugar with GivenWhenThen {
 
   private val clock = new DefaultClock
 
   "GroupStart" should "resolve the group name from the session and create a new group" in {
-    val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock)
-    val groupExpr = "${theGroupName}".el[String]
 
-    val groupStart = new GroupStart(groupExpr, statsEngine, clock, new ActorDelegatingAction("next", self))
+    Given("a GroupStart Action with a dynamic name")
+    val next = mock[Action]
+    val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)
 
+    When("being sent a Session that resolves the group name")
     val session = Session("scenario", 0, clock.nowMillis, attributes = Map("theGroupName" -> "foo"))
-
     groupStart ! session
 
-    val sessionInGroup = expectMsgType[Session]
-    sessionInGroup.blockStack.head shouldBe an[GroupBlock]
-    sessionInGroup.blockStack.head.asInstanceOf[GroupBlock].hierarchy shouldBe List("foo")
+    Then("next Action should receive a Session")
+    val captor: ArgumentCaptor[Session] = ArgumentCaptor.forClass(classOf[Session])
+    verify(next) ! captor.capture()
+    val nextSession = captor.getValue
+
+    And("this Session's blockStack should match the resolved group name")
+    val nextBlock = nextSession.blockStack.head
+    nextBlock shouldBe an[GroupBlock]
+    nextBlock.asInstanceOf[GroupBlock].hierarchy shouldBe List("foo")
   }
 }
