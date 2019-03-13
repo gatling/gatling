@@ -25,13 +25,13 @@ import io.gatling.core.session.{ Expression, Session }
 import akka.actor.{ Props, ActorRef }
 
 object SingletonFeed {
-  def props[T](feeder: Feeder[T]) = Props(new SingletonFeed(feeder))
+  def props[T](feeder: Feeder[T], controller: ActorRef) = Props(new SingletonFeed(feeder, controller))
 }
 
-class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
+class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
 
   def receive: Receive = {
-    case FeedMessage(session, number, controller, next) =>
+    case FeedMessage(session, number, next) =>
 
       def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 
@@ -74,4 +74,4 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
     }
 }
 
-case class FeedMessage(session: Session, number: Expression[Int], controller: ActorRef, next: Action)
+case class FeedMessage(session: Session, number: Expression[Int], next: Action)

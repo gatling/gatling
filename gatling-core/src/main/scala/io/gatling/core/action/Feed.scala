@@ -23,9 +23,9 @@ import io.gatling.core.util.NameGen
 
 import akka.actor.ActorRef
 
-class Feed(singleton: ActorRef, number: Expression[Int], controller: ActorRef, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
+class Feed(singleton: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
 
   override val name: String = genName("feed")
 
-  override def execute(session: Session): Unit = singleton ! FeedMessage(session, number, controller, next)
+  override def execute(session: Session): Unit = singleton ! FeedMessage(session, number, next)
 }
