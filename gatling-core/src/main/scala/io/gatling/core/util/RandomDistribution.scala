@@ -25,7 +25,7 @@ import io.gatling.commons.util.Collections._
 private[core] object RandomDistribution {
 
   def uniform[T](possibilities: List[T]): RandomDistribution[T] =
-    RandomDistribution(possibilities.map(1 -> _), possibilities.size, None)
+    new RandomDistribution(possibilities.map(1 -> _), possibilities.size, None)
 
   private val PercentWeightsNormalizingFactor = 1000000 // 100% * 1000000 < Int.MaxValue so no risk of overflowing
 
@@ -50,11 +50,11 @@ private[core] object RandomDistribution {
     val normalizedPossibilities = List(normalizedHeadWeight -> headChain) ::: normalizedTail
     val normalizedMax = normalizedHeadWeight + normalizedTailSum // FIXME + 1???
 
-    RandomDistribution(normalizedPossibilities, normalizedMax, Some(fallback))
+    new RandomDistribution(normalizedPossibilities, normalizedMax, Some(fallback))
   }
 }
 
-private[core] case class RandomDistribution[T](possibilities: List[(Int, T)], max: Int, fallback: Option[T]) {
+private[core] class RandomDistribution[T](possibilities: List[(Int, T)], max: Int, fallback: Option[T]) {
 
   // visible for tests
   private[util] def next(index: Int): T = {
