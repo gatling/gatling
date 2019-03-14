@@ -145,7 +145,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
   }
 
   private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-    exec(RandomSwitchBuilder(possibilities, elseNext))
+    exec(new RandomSwitchBuilder(possibilities, elseNext))
 
   /**
    * Add a switch in the chain. Selection uses a uniformly distributed random strategy
@@ -155,14 +155,7 @@ private[structure] trait ConditionalStatements[B] extends Execs[B] {
    */
   def uniformRandomSwitch(possibilities: ChainBuilder*): B = {
     require(possibilities.size >= 2, "uniformRandomSwitch() requires at least 2 possibilities")
-
-    val possibility1 :: tailPossibilities = possibilities.toList
-    val basePercentage = 100d / (tailPossibilities.size + 1)
-    val firstPercentage = 100d - basePercentage * tailPossibilities.size
-
-    val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
-
-    randomSwitch(possibilitiesWithPercentage, None)
+    exec(new UniformRandomSwitchBuilder(possibilities.toList))
   }
 
   /**
