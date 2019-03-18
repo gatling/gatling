@@ -72,7 +72,7 @@ object Dependencies {
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "2.25.1"            % "test"
   private val activemqBroker                 = "org.apache.activemq"                  % "activemq-broker"                 % "5.15.8"            % "test"
-  private val h2                             = "com.h2database"                       % "h2"                              % "1.4.198"           % "test"
+  private val h2                             = "com.h2database"                       % "h2"                              % "1.4.199"           % "test"
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.21"
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.4.1"             % "test"
