@@ -34,16 +34,16 @@ Active
 * `Neo4j Bolt plugin <https://github.com/sarmbruster/gatling-bolt>`_ by Stefan Armbruster
 * `JDBC plugin <https://github.com/codecentric/gatling-jdbc>`_ by Ronny Bräunlich
 * `gRPC plugin <https://github.com/phiSgr/gatling-grpc>`_ by George Leung
+* `Cassandra plugin <https://github.com/gatling-cql/GatlingCql>`_ by Mikhail Stepura
 
 Inactive, built against legacy versions of Gatling
 --------------------------------------------------
 
 .. warning::
-  Those projects are built against legacy versions of Gatling that are no longer supported.
-  If you plan on using them, please consider contributing a Gatling upgrade.
+  Those projects are built against legacy versions of Gatling and we recommend against using them in their current state.
+  Please consider contributing and help the author upgrade to the current version of Gatling.
 
 * `Gradle plugin <https://github.com/commercehub-oss/gatling-gradle-plugin>`_ by CommerceHub
-* `Cassandra plugin <https://github.com/gatling-cql/GatlingCql>`_ by Mikhail Stepura
 * `MQTT plugin <https://github.com/jeanadrien/gatling-mqtt-protocol>`_ by Jean-Adrien Vaucher
 * `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_ by Muneyuki Noguchi
 * `AMQP plugin <https://github.com/maiha/gatling-amqp>`_ by @maiha
