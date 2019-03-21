@@ -16,7 +16,7 @@
 
 package io.gatling.http.client.body.multipart.impl;
 
-import static io.gatling.http.client.ahc.util.MiscUtils.*;
+import static io.gatling.http.client.util.MiscUtils.*;
 
 import io.gatling.http.client.body.multipart.FilePart;
 import io.netty.buffer.ByteBuf;

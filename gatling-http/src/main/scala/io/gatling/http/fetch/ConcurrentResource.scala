@@ -21,7 +21,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.HeaderNames
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._

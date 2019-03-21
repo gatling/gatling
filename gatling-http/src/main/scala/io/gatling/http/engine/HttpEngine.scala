@@ -29,10 +29,10 @@ import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.ExtendedDnsNameResolver
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.{ Pair => JavaPair }
 import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 

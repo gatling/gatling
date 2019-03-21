@@ -18,7 +18,7 @@ package io.gatling.recorder.http
 
 import scala.util.{ Failure, Success, Try }
 
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.util.HttpUtils
 
 import io.netty.channel.{ Channel, ChannelFuture, ChannelFutureListener }

@@ -28,33 +28,41 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.oauth;
+package io.gatling.http.client.util;
 
-import io.gatling.netty.util.ahc.Utf8UrlEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
-/**
- * Value class for OAuth consumer keys.
- */
-public class ConsumerKey {
-  private final String key;
-  private final String secret;
-  private final String percentEncodedKey;
+public final class MessageDigestUtils {
 
-  public ConsumerKey(String key, String secret) {
-    this.key = key;
-    this.secret = secret;
-    this.percentEncodedKey = Utf8UrlEncoder.percentEncodeQueryElement(key);
+  private MessageDigestUtils() {
   }
 
-  public String getKey() {
-    return key;
+  private static final ThreadLocal<MessageDigest> MD5_MESSAGE_DIGESTS = ThreadLocal.withInitial(() -> {
+    try {
+      return MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      throw new InternalError("MD5 not supported on this platform");
+    }
+  });
+
+  private static final ThreadLocal<MessageDigest> SHA1_MESSAGE_DIGESTS = ThreadLocal.withInitial(() -> {
+    try {
+      return MessageDigest.getInstance("SHA1");
+    } catch (NoSuchAlgorithmException e) {
+      throw new InternalError("SHA1 not supported on this platform");
+    }
+  });
+
+  public static MessageDigest pooledMd5MessageDigest() {
+    MessageDigest md = MD5_MESSAGE_DIGESTS.get();
+    md.reset();
+    return md;
   }
 
-  public String getSecret() {
-    return secret;
-  }
-
-  public String getPercentEncodedKey() {
-    return percentEncodedKey;
+  public static MessageDigest pooledSha1MessageDigest() {
+    MessageDigest md = SHA1_MESSAGE_DIGESTS.get();
+    md.reset();
+    return md;
   }
 }

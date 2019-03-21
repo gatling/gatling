@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.http.flows
 
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 import akka.actor.{ Actor, FSM }
 import io.netty.channel.Channel

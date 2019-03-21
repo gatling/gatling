@@ -16,8 +16,8 @@
 
 package io.gatling.http.client;
 
-import io.gatling.http.client.ahc.uri.Uri;
-import io.gatling.http.client.ahc.uri.UriEncoder;
+import io.gatling.http.client.uri.Uri;
+import io.gatling.http.client.uri.UriEncoder;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.proxy.ProxyServer;
@@ -38,9 +38,9 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 
-import static io.gatling.http.client.ahc.util.HttpUtils.*;
-import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
-import static io.gatling.http.client.ahc.util.MiscUtils.withDefault;
+import static io.gatling.http.client.util.HttpUtils.*;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
+import static io.gatling.http.client.util.MiscUtils.withDefault;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
 import static io.netty.handler.codec.http.HttpHeaderNames.ORIGIN;

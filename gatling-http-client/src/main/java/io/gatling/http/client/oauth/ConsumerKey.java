@@ -28,41 +28,18 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.util;
+package io.gatling.http.client.oauth;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import io.gatling.netty.util.ahc.Utf8UrlEncoder;
 
-public final class MessageDigestUtils {
+public class ConsumerKey {
+  public final String key;
+  public final String secret;
+  public final String percentEncodedKey;
 
-  private MessageDigestUtils() {
-  }
-
-  private static final ThreadLocal<MessageDigest> MD5_MESSAGE_DIGESTS = ThreadLocal.withInitial(() -> {
-    try {
-      return MessageDigest.getInstance("MD5");
-    } catch (NoSuchAlgorithmException e) {
-      throw new InternalError("MD5 not supported on this platform");
-    }
-  });
-
-  private static final ThreadLocal<MessageDigest> SHA1_MESSAGE_DIGESTS = ThreadLocal.withInitial(() -> {
-    try {
-      return MessageDigest.getInstance("SHA1");
-    } catch (NoSuchAlgorithmException e) {
-      throw new InternalError("SHA1 not supported on this platform");
-    }
-  });
-
-  public static MessageDigest pooledMd5MessageDigest() {
-    MessageDigest md = MD5_MESSAGE_DIGESTS.get();
-    md.reset();
-    return md;
-  }
-
-  public static MessageDigest pooledSha1MessageDigest() {
-    MessageDigest md = SHA1_MESSAGE_DIGESTS.get();
-    md.reset();
-    return md;
+  public ConsumerKey(String key, String secret) {
+    this.key = key;
+    this.secret = secret;
+    this.percentEncodedKey = Utf8UrlEncoder.percentEncodeQueryElement(key);
   }
 }

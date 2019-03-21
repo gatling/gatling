@@ -16,7 +16,7 @@
 
 package io.gatling.http.protocol
 
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 object Remote {
   def apply(uri: Uri): Remote = Remote(uri.getHost, uri.getExplicitPort)

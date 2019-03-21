@@ -22,10 +22,10 @@ import io.netty.handler.codec.http.HttpMethod;
 import java.security.MessageDigest;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static io.gatling.http.client.ahc.util.MessageDigestUtils.pooledMd5MessageDigest;
-import static io.gatling.http.client.ahc.util.StringUtils.*;
+import static io.gatling.http.client.util.MessageDigestUtils.pooledMd5MessageDigest;
+import static io.gatling.http.client.util.StringUtils.*;
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
-import static io.gatling.http.client.ahc.util.MiscUtils.*;
+import static io.gatling.http.client.util.MiscUtils.*;
 
 class DigestAuth {
 

@@ -23,10 +23,10 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import static io.gatling.http.client.ahc.util.HttpUtils.computeMultipartBoundary;
-import static io.gatling.http.client.ahc.util.HttpUtils.extractContentTypeBoundaryAttribute;
-import static io.gatling.http.client.ahc.util.HttpUtils.patchContentTypeWithBoundaryAttribute;
-import static io.gatling.http.client.ahc.util.MiscUtils.withDefault;
+import static io.gatling.http.client.util.HttpUtils.computeMultipartBoundary;
+import static io.gatling.http.client.util.HttpUtils.extractContentTypeBoundaryAttribute;
+import static io.gatling.http.client.util.HttpUtils.patchContentTypeWithBoundaryAttribute;
+import static io.gatling.http.client.util.MiscUtils.withDefault;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder<List<Part<?>>> {

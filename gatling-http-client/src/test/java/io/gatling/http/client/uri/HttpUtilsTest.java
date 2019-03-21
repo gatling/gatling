@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.ahc.util;
+package io.gatling.http.client.uri;
 
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
+import io.gatling.http.client.util.Assertions;
+import io.gatling.http.client.util.HttpUtils;
 import org.junit.jupiter.api.Test;
 
 import static io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON;

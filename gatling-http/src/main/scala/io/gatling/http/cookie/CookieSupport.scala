@@ -19,7 +19,7 @@ package io.gatling.http.cookie
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.session.Expression
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.handler.codec.http.cookie.Cookie

@@ -17,7 +17,7 @@
 package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpClientConfig;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.ssl.Tls;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.ssl.SslContext;

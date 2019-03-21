@@ -16,7 +16,7 @@
 
 package io.gatling.http.client.realm;
 
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.HttpMethod;
 
 public class DigestRealm implements Realm {

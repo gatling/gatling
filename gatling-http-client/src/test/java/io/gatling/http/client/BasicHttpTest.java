@@ -27,7 +27,7 @@ import io.gatling.http.client.body.string.StringRequestBodyBuilder;
 import io.gatling.http.client.test.TestServer;
 import io.gatling.http.client.test.HttpTest;
 import io.gatling.http.client.test.listener.TestListener;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;

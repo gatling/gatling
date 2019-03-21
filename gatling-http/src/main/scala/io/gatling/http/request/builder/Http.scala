@@ -17,7 +17,7 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.HttpMethod
 

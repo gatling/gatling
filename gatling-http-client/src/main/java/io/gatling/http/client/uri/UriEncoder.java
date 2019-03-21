@@ -28,9 +28,9 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.uri;
+package io.gatling.http.client.uri;
 
-import static io.gatling.http.client.ahc.util.MiscUtils.*;
+import static io.gatling.http.client.util.MiscUtils.*;
 
 import io.gatling.http.client.Param;
 import io.gatling.netty.util.ahc.StringBuilderPool;

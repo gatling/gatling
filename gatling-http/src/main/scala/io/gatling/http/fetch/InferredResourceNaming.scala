@@ -16,7 +16,7 @@
 
 package io.gatling.http.fetch
 
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 private[http] object InferredResourceNaming {
 

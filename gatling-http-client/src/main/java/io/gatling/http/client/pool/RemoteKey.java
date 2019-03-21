@@ -16,7 +16,7 @@
 
 package io.gatling.http.client.pool;
 
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
 

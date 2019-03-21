@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.ahc.uri;
+package io.gatling.http.client.uri;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -236,7 +236,7 @@ class UriTest {
     String url = "http://user@hello.com:8080/level1/level2/level3?q=1";
     Uri createdUri = Uri.create(url);
     Uri constructedUri = new Uri("http", "user", "hello.com", 8080, "/level1/level2/level3", "q=1", null);
-    assertTrue(createdUri.equals(constructedUri), "The equals method returned false for two equal urls");
+    assertEquals(createdUri, constructedUri, "The equals method returned false for two equal urls");
   }
 
   @Test

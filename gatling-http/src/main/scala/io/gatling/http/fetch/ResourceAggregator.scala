@@ -23,7 +23,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
 import io.gatling.http.protocol.Remote
 import io.gatling.http.request.HttpRequest

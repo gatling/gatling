@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.nio.channels.WritableByteChannel;
 import java.util.List;
 
-import static io.gatling.http.client.ahc.util.MiscUtils.closeSilently;
+import static io.gatling.http.client.util.MiscUtils.closeSilently;
 
 public class MultipartFileRegion extends AbstractReferenceCounted implements FileRegion {
 

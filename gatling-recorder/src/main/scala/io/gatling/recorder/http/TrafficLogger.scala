@@ -19,7 +19,7 @@ package io.gatling.recorder.http
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.netty.util.ahc.ByteBufUtils
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.flows.Remote

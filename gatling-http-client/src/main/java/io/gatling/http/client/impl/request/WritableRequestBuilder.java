@@ -23,7 +23,7 @@ import io.gatling.http.client.SignatureCalculator;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.WritableContent;
 import io.gatling.http.client.proxy.HttpProxyServer;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;

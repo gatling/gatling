@@ -28,35 +28,52 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.oauth;
+package io.gatling.http.client.util;
 
-import io.gatling.netty.util.ahc.Utf8UrlEncoder;
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
 
-/**
- * Value class used for OAuth tokens (request secret, access secret);
- * simple container with two parts, public id part ("key") and
- * confidential ("secret") part.
- */
-public class RequestToken {
-  private final String key;
-  private final String secret;
-  private final String percentEncodedKey;
+public class MiscUtils {
 
-  public RequestToken(String key, String token) {
-    this.key = key;
-    this.secret = token;
-    this.percentEncodedKey = Utf8UrlEncoder.percentEncodeQueryElement(key);
+  private MiscUtils() {
   }
 
-  public String getKey() {
-    return key;
+  public static boolean isNonEmpty(String string) {
+    return !isEmpty(string);
   }
 
-  public String getSecret() {
-    return secret;
+  public static boolean isEmpty(String string) {
+    return string == null || string.isEmpty();
   }
 
-  public String getPercentEncodedKey() {
-    return percentEncodedKey;
+  public static boolean isNonEmpty(Object[] array) {
+    return array != null && array.length != 0;
+  }
+
+  public static boolean isNonEmpty(byte[] array) {
+    return array != null && array.length != 0;
+  }
+
+  public static boolean isNonEmpty(Collection<?> collection) {
+    return collection != null && !collection.isEmpty();
+  }
+
+  public static boolean isNonEmpty(Map<?, ?> map) {
+    return map != null && !map.isEmpty();
+  }
+
+  public static <T> T withDefault(T value, T def) {
+    return value == null ? def : value;
+  }
+
+  public static void closeSilently(Closeable closeable) {
+    if (closeable != null)
+      try {
+        closeable.close();
+      } catch (IOException e) {
+        //
+      }
   }
 }

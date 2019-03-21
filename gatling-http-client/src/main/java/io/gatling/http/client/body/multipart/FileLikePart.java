@@ -17,7 +17,7 @@
 package io.gatling.http.client.body.multipart;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.ahc.util.MiscUtils;
+import io.gatling.http.client.util.MiscUtils;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.IOException;

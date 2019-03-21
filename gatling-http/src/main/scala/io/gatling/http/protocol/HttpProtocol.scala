@@ -30,9 +30,9 @@ import io.gatling.http.ResponseTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.SignatureCalculator
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.response.DefaultStatsProcessor
 import io.gatling.http.engine.tx.HttpTxExecutor

@@ -24,7 +24,7 @@ import scala.concurrent.duration.DurationLong
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.Mitm

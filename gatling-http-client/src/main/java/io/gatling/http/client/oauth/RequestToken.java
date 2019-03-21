@@ -28,24 +28,23 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.util;
+package io.gatling.http.client.oauth;
 
-public final class Assertions {
+import io.gatling.netty.util.ahc.Utf8UrlEncoder;
 
-  private Assertions() {
-  }
+/**
+ * Value class used for OAuth tokens (request secret, access secret);
+ * simple container with two parts, public id part ("key") and
+ * confidential ("secret") part.
+ */
+public class RequestToken {
+  public final String key;
+  public final String secret;
+  public final String percentEncodedKey;
 
-  public static <T> T assertNotNull(T value, String name) {
-    if (value == null)
-      throw new NullPointerException(name);
-    return value;
-
-  }
-
-  public static String assertNotEmpty(String value, String name) {
-    assertNotNull(value, name);
-    if (value.length() == 0)
-      throw new IllegalArgumentException("empty " + name);
-    return value;
+  public RequestToken(String key, String token) {
+    this.key = key;
+    this.secret = token;
+    this.percentEncodedKey = Utf8UrlEncoder.percentEncodeQueryElement(key);
   }
 }

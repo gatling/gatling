@@ -28,10 +28,10 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.uri;
+package io.gatling.http.client.uri;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.ahc.util.MiscUtils;
+import io.gatling.http.client.util.MiscUtils;
 import io.gatling.netty.util.ahc.StringBuilderPool;
 
 import java.net.URI;
@@ -40,9 +40,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static io.gatling.http.client.ahc.util.Assertions.assertNotEmpty;
-import static io.gatling.http.client.ahc.util.MiscUtils.isEmpty;
-import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
+import static io.gatling.http.client.util.Assertions.assertNotEmpty;
+import static io.gatling.http.client.util.MiscUtils.isEmpty;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 public class Uri {
 

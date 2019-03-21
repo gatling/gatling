@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.*;
 
-import static io.gatling.http.client.ahc.util.Assertions.assertNotNull;
+import static io.gatling.http.client.util.Assertions.assertNotNull;
 
 public class ChannelPool {
 

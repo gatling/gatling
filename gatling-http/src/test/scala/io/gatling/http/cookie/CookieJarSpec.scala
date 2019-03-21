@@ -17,7 +17,7 @@
 package io.gatling.http.cookie
 
 import io.gatling.BaseSpec
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder.LAX.encode

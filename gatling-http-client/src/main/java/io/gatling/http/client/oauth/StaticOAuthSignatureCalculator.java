@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.ahc.oauth;
+package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;

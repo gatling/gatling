@@ -16,7 +16,7 @@
 
 package io.gatling.http.client;
 
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;

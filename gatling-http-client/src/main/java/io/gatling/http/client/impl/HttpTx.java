@@ -18,7 +18,6 @@ package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
-import io.gatling.http.client.ahc.util.HttpUtils;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.netty.handler.ssl.SslContext;

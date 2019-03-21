@@ -28,41 +28,24 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.oauth;
+package io.gatling.http.client.util;
 
-import io.gatling.http.client.Param;
-import io.gatling.netty.util.ahc.StringBuilderPool;
+public final class Assertions {
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-final class Params {
-
-  private List<Param> parameters = new ArrayList<>();
-
-  public Params add(String key, String value) {
-    parameters.add(new Param(key, value));
-    return this;
+  private Assertions() {
   }
 
-  public void reset() {
-    parameters.clear();
+  public static <T> T assertNotNull(T value, String name) {
+    if (value == null)
+      throw new NullPointerException(name);
+    return value;
+
   }
 
-  String sortAndConcat() {
-    // then sort them (AFTER encoding, important)
-    Collections.sort(parameters);
-
-    // and build parameter section using pre-encoded pieces:
-    StringBuilder encodedParams = StringBuilderPool.DEFAULT.get();
-    for (Param param : parameters) {
-      encodedParams.append(param.getName()).append('=').append(param.getValue()).append('&');
-    }
-    int length = encodedParams.length();
-    if (length > 0) {
-      encodedParams.setLength(length - 1);
-    }
-    return encodedParams.toString();
+  public static String assertNotEmpty(String value, String name) {
+    assertNotNull(value, name);
+    if (value.length() == 0)
+      throw new IllegalArgumentException("empty " + name);
+    return value;
   }
 }

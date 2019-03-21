@@ -18,7 +18,7 @@ package io.gatling.http.client.impl;
 
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
-import io.gatling.http.client.ahc.util.HttpUtils;
+import io.gatling.http.client.util.HttpUtils;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
 import io.gatling.http.client.pool.ChannelPool;

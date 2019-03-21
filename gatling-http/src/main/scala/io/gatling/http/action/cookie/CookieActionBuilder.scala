@@ -19,7 +19,7 @@ package io.gatling.http.action.cookie
 import io.gatling.commons.validation._
 import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 object CookieActionBuilder {
   private val NoBaseUrlFailure = "Neither cookie domain nor baseUrl".failure

@@ -19,7 +19,7 @@ package io.gatling.http.client.proxy;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.RequestBuilder;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.test.HttpTest;
 import io.gatling.http.client.test.TestServer;
 import io.gatling.http.client.test.listener.TestListener;

@@ -20,8 +20,8 @@ import scala.collection.mutable
 import scala.concurrent.duration._
 
 import io.gatling.BaseSpec
-import io.gatling.http.client.ahc.uri.Uri
-import io.gatling.http.fetch.{ CssResource, BasicResource }
+import io.gatling.http.client.uri.Uri
+import io.gatling.http.fetch.{ BasicResource, CssResource }
 import io.gatling.recorder.config.ConfigKeys.http.{ FollowRedirect, InferHtmlResources }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig

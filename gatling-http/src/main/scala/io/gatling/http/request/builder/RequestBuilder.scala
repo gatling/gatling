@@ -26,10 +26,10 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
 import io.gatling.http.client.SignatureCalculator
-import io.gatling.http.client.ahc.oauth.{ ConsumerKey, RequestToken }
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.oauth.{ ConsumerKey, RequestToken }
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.sign.OAuthSignatureCalculator
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper

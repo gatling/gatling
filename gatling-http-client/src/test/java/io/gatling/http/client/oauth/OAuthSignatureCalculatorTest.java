@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.ahc.oauth;
+package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.RequestBuilder;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.sign.OAuthSignatureCalculator;

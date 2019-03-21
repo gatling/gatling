@@ -28,10 +28,10 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.uri;
+package io.gatling.http.client.uri;
 
-import static io.gatling.http.client.ahc.util.Assertions.assertNotNull;
-import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
+import static io.gatling.http.client.util.Assertions.assertNotNull;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 final class UriParser {
 

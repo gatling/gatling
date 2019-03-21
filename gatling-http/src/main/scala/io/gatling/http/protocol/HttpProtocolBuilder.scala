@@ -27,8 +27,8 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.SignatureCalculator
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.realm.Realm
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming
 import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.util.HttpHelper

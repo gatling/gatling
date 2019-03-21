@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.scenario.template
 
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.scenario.{ ProtocolDefinition, ScenarioElement, TagElement }
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.config.RecorderConfiguration

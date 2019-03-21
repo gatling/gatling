@@ -23,7 +23,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.Request
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }

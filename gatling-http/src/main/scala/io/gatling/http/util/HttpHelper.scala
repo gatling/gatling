@@ -26,13 +26,13 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.{ HeaderNames, HeaderValues }
 
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.HttpResponseStatus._
-import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.cookie.{ ClientCookieDecoder, Cookie }
 
 private[gatling] object HttpHelper extends StrictLogging {

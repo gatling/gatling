@@ -17,7 +17,7 @@
 package io.gatling.recorder.scenario.template
 
 import io.gatling.commons.util.StringHelper._
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 
 import com.dongxiguo.fastring.Fastring.Implicits._

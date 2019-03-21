@@ -23,8 +23,8 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.{ Request, RequestBuilder }
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.protocol.HttpProtocol

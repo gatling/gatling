@@ -18,7 +18,7 @@ package io.gatling.http.engine.tx
 
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.ResourceAggregator
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._

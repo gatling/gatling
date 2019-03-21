@@ -21,7 +21,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.check.extractor.css.Jodd
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging

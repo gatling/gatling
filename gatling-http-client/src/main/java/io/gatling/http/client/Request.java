@@ -21,7 +21,7 @@ import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.Realm;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.cookie.Cookie;
 import io.netty.resolver.NameResolver;
 

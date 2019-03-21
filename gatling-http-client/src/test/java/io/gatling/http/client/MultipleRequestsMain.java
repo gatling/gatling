@@ -18,7 +18,7 @@ package io.gatling.http.client;
 
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

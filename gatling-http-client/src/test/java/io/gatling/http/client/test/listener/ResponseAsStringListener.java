@@ -17,8 +17,8 @@
 package io.gatling.http.client.test.listener;
 
 import static java.nio.charset.StandardCharsets.*;
-import static io.gatling.http.client.ahc.util.HttpUtils.*;
-import static io.gatling.http.client.ahc.util.MiscUtils.*;
+import static io.gatling.http.client.util.HttpUtils.*;
+import static io.gatling.http.client.util.MiscUtils.*;
 
 import io.gatling.netty.util.ahc.ByteBufUtils;
 import io.netty.buffer.ByteBuf;

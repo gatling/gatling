@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
 
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
-import io.gatling.http.client.ahc.uri.Uri
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.{ ConcurrentResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration

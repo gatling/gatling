@@ -28,12 +28,12 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.http.client.ahc.oauth;
+package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.Param;
-import io.gatling.http.client.ahc.uri.Uri;
+import io.gatling.http.client.uri.Uri;
 import io.gatling.netty.util.ahc.StringBuilderPool;
-import io.gatling.http.client.ahc.util.StringUtils;
+import io.gatling.http.client.util.StringUtils;
 import io.gatling.netty.util.ahc.Utf8UrlEncoder;
 import io.netty.handler.codec.http.HttpMethod;
 
@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Pattern;
 
-import static io.gatling.http.client.ahc.util.MiscUtils.isNonEmpty;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -168,12 +168,12 @@ public class OAuthSignatureCalculatorInstance {
 
     // List of all query and form parameters added to this request; needed for calculating request signature
     // Start with standard OAuth parameters we need
-    params.add(KEY_OAUTH_CONSUMER_KEY, consumerAuth.getPercentEncodedKey())
+    params.add(KEY_OAUTH_CONSUMER_KEY, consumerAuth.percentEncodedKey)
             .add(KEY_OAUTH_NONCE, percentEncodedNonce)
             .add(KEY_OAUTH_SIGNATURE_METHOD, OAUTH_SIGNATURE_METHOD)
             .add(KEY_OAUTH_TIMESTAMP, String.valueOf(oauthTimestamp));
-    if (userAuth.getKey() != null) {
-      params.add(KEY_OAUTH_TOKEN, userAuth.getPercentEncodedKey());
+    if (userAuth.key != null) {
+      params.add(KEY_OAUTH_TOKEN, userAuth.percentEncodedKey);
     }
     params.add(KEY_OAUTH_VERSION, OAUTH_VERSION_1_0);
 
@@ -202,10 +202,10 @@ public class OAuthSignatureCalculatorInstance {
 
   private byte[] digest(ConsumerKey consumerAuth, RequestToken userAuth, ByteBuffer message) throws InvalidKeyException {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    Utf8UrlEncoder.encodeAndAppendQueryElement(sb, consumerAuth.getSecret());
+    Utf8UrlEncoder.encodeAndAppendQueryElement(sb, consumerAuth.secret);
     sb.append('&');
-    if (userAuth != null && userAuth.getSecret() != null) {
-      Utf8UrlEncoder.encodeAndAppendQueryElement(sb, userAuth.getSecret());
+    if (userAuth != null && userAuth.secret != null) {
+      Utf8UrlEncoder.encodeAndAppendQueryElement(sb, userAuth.secret);
     }
     byte[] keyBytes = StringUtils.charSequence2Bytes(sb, UTF_8);
     SecretKeySpec signingKey = new SecretKeySpec(keyBytes, HMAC_SHA1_ALGORITHM);
@@ -218,9 +218,9 @@ public class OAuthSignatureCalculatorInstance {
   String computeAuthorizationHeader(ConsumerKey consumerAuth, RequestToken userAuth, String signature, long oauthTimestamp, String percentEncodedNonce) {
     StringBuilder sb = StringBuilderPool.DEFAULT.get();
     sb.append("OAuth ");
-    sb.append(KEY_OAUTH_CONSUMER_KEY).append("=\"").append(consumerAuth.getPercentEncodedKey()).append("\", ");
-    if (userAuth.getKey() != null) {
-      sb.append(KEY_OAUTH_TOKEN).append("=\"").append(userAuth.getPercentEncodedKey()).append("\", ");
+    sb.append(KEY_OAUTH_CONSUMER_KEY).append("=\"").append(consumerAuth.percentEncodedKey).append("\", ");
+    if (userAuth.key != null) {
+      sb.append(KEY_OAUTH_TOKEN).append("=\"").append(userAuth.percentEncodedKey).append("\", ");
     }
     sb.append(KEY_OAUTH_SIGNATURE_METHOD).append("=\"").append(OAUTH_SIGNATURE_METHOD).append("\", ");
 

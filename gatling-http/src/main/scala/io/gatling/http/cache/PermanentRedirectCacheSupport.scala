@@ -21,8 +21,8 @@ import scala.annotation.tailrec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.{ Request, RequestBuilder }
-import io.gatling.http.client.ahc.uri.Uri
 import io.gatling.http.engine.tx.HttpTx
 
 private[cache] object PermanentRedirectCacheKey {
