@@ -91,7 +91,7 @@ public class DefaultHttpClient implements HttpClient {
   private HttpClientCodec newHttpClientCodec() {
     return new HttpClientCodec(
       4096,
-      8192,
+      Integer.MAX_VALUE,
       8192,
       false,
       false,
@@ -171,7 +171,7 @@ public class DefaultHttpClient implements HttpClient {
           ch.pipeline()
             .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-            .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(8192))
+            .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(Integer.MAX_VALUE))
             .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
             .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
             .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
