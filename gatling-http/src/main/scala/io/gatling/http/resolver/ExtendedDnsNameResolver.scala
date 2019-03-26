@@ -37,15 +37,6 @@ private[resolver] object ExtendedDnsNameResolver extends StrictLogging {
   private val NioDatagramChannelFactory = new ChannelFactory[DatagramChannel] {
     override def newChannel(): DatagramChannel = new NioDatagramChannel
   }
-
-  private val DefaultResolveAddressTypes =
-    if (NetUtil.isIpV4StackPreferred) {
-      ResolvedAddressTypes.IPV4_ONLY
-    } else if (NetUtil.isIpV6AddressesPreferred) {
-      ResolvedAddressTypes.IPV6_PREFERRED
-    } else {
-      ResolvedAddressTypes.IPV4_PREFERRED
-    }
 }
 
 /**
@@ -64,7 +55,7 @@ private[http] class ExtendedDnsNameResolver(
     NoopAuthoritativeDnsServerCache.INSTANCE, // authoritativeDnsServerCache
     NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
     queryTimeout, // queryTimeoutMillis
-    ExtendedDnsNameResolver.DefaultResolveAddressTypes, // resolvedAddressTypes, buggy as of https://github.com/netty/netty/commit/bbb6e126b1b24c13b9c21cc3ff4042476e37c226 since 4.1.29
+    null, // resolvedAddressTypes
     true, // recursionDesired
     maxQueriesPerResolve, // maxQueriesPerResolve
     ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
