@@ -50,7 +50,7 @@ case class Remote(host: String, port: Int) {
 
     if (rawUri.isEmpty || rawUri.startsWith("/")) {
       sb.append(host)
-      if ((https && port != 443) || port != 80) {
+      if ((https && port != 443) || (!https && port != 80)) {
         sb.append(":").append(port)
       }
     }
