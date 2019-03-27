@@ -114,5 +114,5 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   def vals: List[Value] = values
 
   def renderUri(uri: String): Fastring =
-    if (renders.contains(uri)) renders(uri) else fast"$uri"
+    renders.getOrElse(uri, fast"$uri")
 }

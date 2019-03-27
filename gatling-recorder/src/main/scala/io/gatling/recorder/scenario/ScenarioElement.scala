@@ -97,7 +97,7 @@ private[recorder] object RequestElement {
         requestHeaders
       }
 
-    new RequestElement(new String(request.uri), request.method, filteredRequestHeaders, requestBody, responseBody, response.status, embeddedResources)
+    RequestElement(request.uri, request.method, filteredRequestHeaders, requestBody, responseBody, response.status, embeddedResources)
   }
 }
 
