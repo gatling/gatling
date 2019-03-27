@@ -88,19 +88,25 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   }
 
   private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String): List[(String, Fastring)] =
-    urls.map(url => {
+    urls.map { url =>
       val restPath = url.getPath.substring(longestCommonPath.length)
-      (url.toString, fast"$valName + ${value(s"$restPath${query(url)}")}")
-    })
+      val tail = s"$restPath${query(url)}"
+      val urlTail =
+        if (tail.isEmpty) {
+          fast"$valName"
+        } else {
+          fast"$valName + ${protectWithTripleQuotes(tail)}"
+        }
+
+      (url.toString, urlTail)
+    }
 
   private def extractCommonHostUrls(uris: List[Uri], valName: String): List[(String, Fastring)] =
     uris.map(uri =>
-      (uri.toString, fast""""${uri.getScheme}://${user(uri)}" + $valName + ${value(s"${port(uri)}${uri.getPath}${query(uri)}")}"""))
+      (uri.toString, fast""""${uri.getScheme}://${user(uri)}" + $valName + ${protectWithTripleQuotes(s"${port(uri)}${uri.getPath}${query(uri)}")}"""))
 
   private def schemesPortAreSame(uris: Seq[Uri]): Boolean =
     uris.map(uri => uri.getScheme -> uri.getExplicitPort).toSet.size == 1
-
-  private def value(str: String) = fast"${protectWithTripleQuotes(str)}"
 
   private def query(uri: Uri): Fastring =
     if (uri.getQuery == null) EmptyFastring else fast"?${uri.getQuery}"
