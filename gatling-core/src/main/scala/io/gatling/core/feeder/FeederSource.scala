@@ -121,9 +121,11 @@ class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar
       }
 
     def applyBatch(resource: Resource): Feeder[Any] =
-      options.batch match {
-        case Some(batchBufferSize) =>
-          BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, batchBufferSize, charset)
+      options.loadingMode match {
+        case Batch(bufferSize) =>
+          BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, bufferSize, charset)
+        case Adaptive if resource.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
+          BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferSize, charset)
         case _ =>
           val records = SeparatedValuesParser.parse(resource, separator, quoteChar, charset)
           InMemoryFeeder(records, options.conversion, options.strategy)

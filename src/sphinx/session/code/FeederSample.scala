@@ -61,6 +61,12 @@ class FeederSample {
   }
 
   {
+    //#eager
+    val csvFeeder = csv("foo.csv").eager.random
+    //#eager
+  }
+
+  {
     //#batch
     val csvFeeder = csv("foo.csv").batch.random
     val csvFeeder2 = csv("foo.csv").batch(200).random // tune internal buffer size

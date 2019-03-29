@@ -73,27 +73,48 @@ The only difference is that header fields get trimmed of wrapping whitespaces.
 
 .. includecode:: code/FeederSample.scala#sep-values-feeders
 
-Those built-ins load by default all the data in memory so Gatling doesn't perform disk access while simulation is running.
+.. _feeder-loading-mode:
 
-Then, if your files are very large, it might be difficult to have them sit in memory.
-You can then use the `batch` mode.
+Loading mode
+============
+
+CSV files feeders provide several options for how data should be loaded in memory.
+
+``eager`` loads the whole data in memory before the Simulation starts, saving disk access at runtime.
+This mode works best with reasonably small files that can be parsed quickly without delaying simulation start time and easily sit in memory.
+This behavior was the default prior to Gatling 3.1 and you can still force it.
+
+.. includecode:: code/FeederSample.scala#eager
+
+``batch`` works better with large files whose parsing would delay simulation start time and eat a lot of heap space.
+Data is then read by chunks.
 
 .. warning::
-``batch`` must be the first option to be configured.
-
-.. warning::
-When in ``batch`` mode, ``random`` and ``shuffle`` can't of course operate on the full data, and only operate on an internal buffer of records.
+When in ``batch`` mode, ``random`` and ``shuffle`` can't of course operate on the full stock, and only operate on an internal buffer of records.
 The default size of this buffer is 2,000 and can be changed.
 
 .. includecode:: code/FeederSample.scala#batch
 
-Also, if your files are very large, you can provide them zipped and ask gatling to ``unzip`` them on the fly:
+Default behavior is an adaptive policy based on (unzipped, sharded) file size, see ``gatling.core.feederAdaptiveLoadModeThreshold`` in config file.
+Gatling will use ``eager`` below threshold and `batch` above.
+
+.. _feeder-unzip:
+
+Zipped files
+============
+
+If your files are very large, you can provide them zipped and ask gatling to ``unzip`` them on the fly:
 
 .. includecode:: code/FeederSample.scala#unzip
 
 Supported formats are gzip and zip (but archive most contain only one single file).
 
-Finally, if you want to run distributed with `FrontLine <https://gatling.io/gatling-frontline/>`_
+.. _feeder-shard:
+
+Distributed files (FrontLine only)
+==================================
+
+If you want to run distributed with `FrontLine <https://gatling.io/gatling-frontline/>`_
 and you want to distribute data so that users don't use the same data when they run on different cluster nodes, you can use the ``shard`` option.
 For example, if you have a file with 30,000 records deployed on 3 nodes, each will use a 10,000 records slice.
 

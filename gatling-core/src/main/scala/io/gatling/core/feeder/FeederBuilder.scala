@@ -28,8 +28,9 @@ case class SourceFeederBuilder[T](
 
   def shard: SourceFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
 
-  def batch: SourceFeederBuilder[T] = batch(2000)
-  def batch(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(batch = Some(bufferSize)))
+  def eager: SourceFeederBuilder[T] = copy(options = options.copy(loadingMode = Eager))
+  def batch: SourceFeederBuilder[T] = batch(Batch.DefaultBufferSize)
+  def batch(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(loadingMode = Batch(bufferSize)))
 
   def unzip: SourceFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
 
@@ -53,11 +54,19 @@ case class SourceFeederBuilder[T](
   def readRecords: Seq[Record[Any]] = apply().toVector
 }
 
+private[feeder] trait FeederLoadingMode
+private[feeder] case object Eager extends FeederLoadingMode
+private[feeder] object Batch {
+  val DefaultBufferSize = 2000
+}
+private[feeder] case class Batch(bufferSize: Int) extends FeederLoadingMode
+private[feeder] case object Adaptive extends FeederLoadingMode
+
 case class FeederOptions[T](
-    shard:      Boolean                          = false,
-    unzip:      Boolean                          = false,
-    conversion: Option[Record[T] => Record[Any]] = None,
-    strategy:   FeederStrategy                   = Queue,
-    batch:      Option[Int]                      = None
+    shard:       Boolean                          = false,
+    unzip:       Boolean                          = false,
+    conversion:  Option[Record[T] => Record[Any]] = None,
+    strategy:    FeederStrategy                   = Queue,
+    loadingMode: FeederLoadingMode                = Adaptive
 )
 

@@ -116,6 +116,7 @@ object GatlingConfiguration extends StrictLogging {
         rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
         rawFileBodiesInMemoryMaxSize = config.getLong(core.RawFileBodiesInMemoryMaxSize),
         pebbleFileBodiesCacheMaxCapacity = config.getLong(core.PebbleFileBodiesCacheMaxCapacity),
+        feederAdaptiveLoadModeThreshold = config.getLong(core.FeederAdaptiveLoadModeThreshold) * 1048576,
         shutdownTimeout = config.getLong(core.ShutdownTimeout),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
@@ -281,6 +282,7 @@ case class CoreConfiguration(
     rawFileBodiesCacheMaxCapacity:    Long,
     rawFileBodiesInMemoryMaxSize:     Long,
     pebbleFileBodiesCacheMaxCapacity: Long,
+    feederAdaptiveLoadModeThreshold:  Long,
     shutdownTimeout:                  Long
 ) {
 
