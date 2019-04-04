@@ -44,7 +44,7 @@ private[recorder] object HarReader {
   private[har] def readStream(is: InputStream, filters: Option[Filters]): Seq[HttpTransaction] = {
     val harEntries = HarParser.parseHarEntries(is)
     val filteredHarEntries = harEntries
-      .filter(entry => filters.forall(_.accept(entry.request.url)))
+      .filter(entry => filters.forall(_.accept(entry.request.url) && Filters.BrowserNoiseFilters.accept(entry.request.url)))
     buildHttpTransactions(filteredHarEntries)
   }
 

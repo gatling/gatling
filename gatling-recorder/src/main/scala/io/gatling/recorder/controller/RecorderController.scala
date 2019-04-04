@@ -24,6 +24,7 @@ import scala.concurrent.duration.DurationLong
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
+import io.gatling.core.filter.Filters
 import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
@@ -86,7 +87,8 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
   }
 
   def receiveResponse(request: HttpRequest, response: HttpResponse): Unit =
-    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.uri))) {
+    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.uri))
+      && Filters.BrowserNoiseFilters.accept(request.uri)) {
       requests.add(TimedScenarioElement(request.timestamp, response.timestamp, RequestElement(request, response)))
 
       // Notify frontend

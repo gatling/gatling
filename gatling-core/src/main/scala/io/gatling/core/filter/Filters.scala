@@ -21,6 +21,25 @@ import scala.util.{ Failure, Success, Try }
 
 import com.typesafe.scalalogging.StrictLogging
 
+object Filters {
+  val BrowserNoiseFilters =
+    Filters(
+      BlackList(
+        Seq(
+          ".*/detectportal.firefox.com/.*",
+          ".*/incoming.telemetry.mozilla.org/.*",
+          ".*/safebrowsing.googleapis.com/.*",
+          ".*/search.services.mozilla.com/.*",
+          ".*/snippets.cdn.mozilla.net/.*",
+          ".*/tiles.services.mozilla.com/.*",
+          ".*/shavar.services.mozilla.com/.*",
+          ".*/tracking-protection.cdn.mozilla.net/.*"
+        )
+      ),
+      WhiteList(Seq.empty)
+    )
+}
+
 case class Filters(first: Filter, second: Filter) {
   def accept(url: String): Boolean = first.accept(url) && second.accept(url)
 }
