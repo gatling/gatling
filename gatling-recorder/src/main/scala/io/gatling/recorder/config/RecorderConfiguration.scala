@@ -184,8 +184,8 @@ private[recorder] case class FiltersConfiguration(
 
   def filters: Option[Filters] = filterStrategy match {
     case FilterStrategy.Disabled       => None
-    case FilterStrategy.BlacklistFirst => Some(Filters(blackList, whiteList))
-    case FilterStrategy.WhitelistFirst => Some(Filters(whiteList, blackList))
+    case FilterStrategy.BlackListFirst => Some(Filters(blackList, whiteList))
+    case FilterStrategy.WhiteListFirst => Some(Filters(whiteList, blackList))
   }
 }
 

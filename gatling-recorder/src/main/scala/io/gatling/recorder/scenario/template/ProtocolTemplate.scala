@@ -67,8 +67,8 @@ private[scenario] object ProtocolTemplate {
         def whiteListPatterns = fast"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
 
         val patterns = filtersConfig.filterStrategy match {
-          case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $blackListPatterns"
-          case FilterStrategy.BlacklistFirst => fast"$blackListPatterns, $whiteListPatterns"
+          case FilterStrategy.WhiteListFirst => fast"$whiteListPatterns, $blackListPatterns"
+          case FilterStrategy.BlackListFirst => fast"$blackListPatterns, $whiteListPatterns"
           case FilterStrategy.Disabled       => EmptyFastring
         }
 

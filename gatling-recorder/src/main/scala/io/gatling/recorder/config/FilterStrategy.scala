@@ -23,14 +23,14 @@ sealed abstract class FilterStrategy(val label: String) extends Labelled with Cl
 
 object FilterStrategy {
 
-  case object WhitelistFirst extends FilterStrategy("Whitelist First")
-  case object BlacklistFirst extends FilterStrategy("Blacklist First")
+  case object WhiteListFirst extends FilterStrategy("WhiteList First")
+  case object BlackListFirst extends FilterStrategy("BlackList First")
   case object Disabled extends FilterStrategy("Disabled")
 
-  val AllStrategies = List(WhitelistFirst, BlacklistFirst, Disabled)
+  val AllStrategies = List(WhiteListFirst, BlackListFirst, Disabled)
 
   def apply(s: String): FilterStrategy =
-    AllStrategies.find(_.toString == s).getOrElse {
+    AllStrategies.find(_.toString.equalsIgnoreCase(s)).getOrElse {
       throw new IllegalArgumentException(s"$s is not a valid filter strategy")
     }
 }

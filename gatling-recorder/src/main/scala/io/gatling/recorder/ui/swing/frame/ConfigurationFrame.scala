@@ -29,7 +29,7 @@ import scala.util.Try
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
-import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
+import io.gatling.recorder.config.FilterStrategy.BlackListFirst
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
 import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
@@ -449,7 +449,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       """.*detectportal\.firefox\.com.*"""
     ).foreach(blackListTable.addRow)
 
-    filterStrategies.selection.item = BlacklistFirst
+    filterStrategies.selection.item = BlackListFirst
   }
 
   reactions += {
