@@ -79,7 +79,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
         sslContextBuilder.sessionTimeout(sslSessionTimeoutSeconds)
       }
 
-      if (enabledProtocols.length > 0) {
+      if (enabledProtocols.nonEmpty) {
         sslContextBuilder.protocols(enabledProtocols: _*)
       }
 
@@ -124,21 +124,16 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
   }
 
   private def newSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext =
-    new DelegatingSslContext(new JdkSslContext(
+    new JdkSslContext(
       jdkSslContext,
       true,
       if (enabledCipherSuites.isEmpty) null else enabledCipherSuites,
       IdentityCipherSuiteFilter.INSTANCE_DEFAULTING_TO_SUPPORTED_CIPHERS,
       apn,
       ClientAuth.NONE,
-      null,
+      if (enabledProtocols.nonEmpty) enabledProtocols else null,
       false
-    )) {
-      override def initEngine(engine: SSLEngine): Unit =
-        if (enabledProtocols.nonEmpty) {
-          engine.setEnabledProtocols(enabledProtocols)
-        }
-    }
+    )
 }
 
 private[http] case class SslContexts(sslContext: SslContext, alplnSslContext: Option[SslContext])
