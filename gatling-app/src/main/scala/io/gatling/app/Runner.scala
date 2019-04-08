@@ -90,8 +90,6 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
 
     val scenarios = simulationParams.scenarios(coreComponents)
 
-    System.gc()
-
     start(simulationParams, scenarios, coreComponents) match {
       case Failure(t) => throw t
       case _ =>
