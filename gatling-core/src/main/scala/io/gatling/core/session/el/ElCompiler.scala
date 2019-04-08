@@ -44,7 +44,7 @@ object ElMessages {
   def randomNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support .random function".failure
   def indexAccessNotSupported(value: Any, name: String): Failure = s"$value named '$name' does not support index access".failure
   def outOfRangeAccess(name: String, value: Any, index: Int): Failure = s"Product $value named $name has no element with index $index".failure
-  def tupleAccessNotSupported(name: String, value: Any): Failure = s"Product $value named $name do not support tuple access".failure
+  def tupleAccessNotSupported(name: String, value: Any): Failure = s"$value named $name do not support tuple access".failure
 }
 
 sealed trait Part[+T] extends (Session => Validation[T])
