@@ -22,12 +22,12 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.uri.Uri
 
 object CookieActionBuilder {
-  private val NoBaseUrlFailure = "Neither cookie domain nor baseUrl".failure
+  private val NoBaseUrlFailure = "Neither cookie domain nor baseUrl nor wsBaseUrl".failure
   val DefaultPath: String = "/"
 
   def defaultDomain(httpCaches: HttpCaches): Expression[String] =
     session =>
-      httpCaches.baseUrl(session) match {
+      httpCaches.baseUrl(session).orElse(httpCaches.wsBaseUrl(session)) match {
         case Some(baseUrl) => Uri.create(baseUrl).getHost.success
         case _             => NoBaseUrlFailure
       }
