@@ -60,7 +60,7 @@ class HttpEngine(
 
   private[this] var warmedUp = false
 
-  def warmpUp(httpComponents: HttpComponents): Unit =
+  def warmUp(httpComponents: HttpComponents): Unit =
     if (!warmedUp) {
       logger.info("Start warm up")
       warmedUp = true
