@@ -39,21 +39,35 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
   private val EventsGrouping = 100
 
+  private def packageAsFolderPath(separator: String)(implicit config: RecorderConfiguration) =
+    config.core.pkg.replace(".", separator)
+
   def simulationFilePath(implicit config: RecorderConfiguration): Path = {
     def getSimulationFileName: String = s"${config.core.className}.scala"
     def getSimulationsFolder = {
-      val path = config.core.simulationsFolder + File.separator + config.core.pkg.replace(".", File.separator)
+      val path = config.core.simulationsFolder + File.separator + packageAsFolderPath(File.separator)
       getFolder(path)
     }
 
     getSimulationsFolder / getSimulationFileName
   }
 
-  def requestBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
-    f"${config.core.className}_${request.id.leftPad(4, '0')}_request.txt"
+  private def resourcesFolder(implicit config: RecorderConfiguration): Path = {
+    val path = config.core.resourcesFolder + File.separator + packageAsFolderPath(File.separator) + File.separator + config.core.className
+    getFolder(path)
+  }
 
-  def responseBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
-    f"${config.core.className}_${request.id.leftPad(4, '0')}_response.txt"
+  private def requestBodyFileName(request: RequestElement) =
+    s"${request.id.leftPad(4, '0')}_request.txt"
+
+  def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
+    packageAsFolderPath("/") + "/" + config.core.className + "/" + requestBodyFileName(request)
+
+  private def responseBodyFileName(request: RequestElement) =
+    s"${request.id.leftPad(4, '0')}_response.txt"
+
+  def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
+    packageAsFolderPath("/") + "/" + config.core.className + "/" + responseBodyFileName(request)
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
     safely(error => s"Error while processing HAR file: $error") {
@@ -212,7 +226,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       Left(scenarioElements)
 
   private def dumpBody(fileName: String, content: Array[Byte])(implicit config: RecorderConfiguration): Unit = {
-    withCloseable((getFolder(config.core.resourcesFolder) / fileName).outputStream) { fw =>
+    withCloseable((resourcesFolder / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {

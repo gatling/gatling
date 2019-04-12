@@ -62,7 +62,7 @@ private[scenario] object RequestTemplate {
 
     def renderBodyOrParams: Fastring = request.body.map {
       case _: RequestBodyBytes => fast"""
-			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
+			.body(RawFileBody("${ScenarioExporter.requestBodyRelativeFilePath(request)}"))"""
       case RequestBodyParams(params) => params.map {
         case (key, value) => fast"""
 			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
@@ -84,7 +84,7 @@ private[scenario] object RequestTemplate {
     def renderResponseBodyCheck: Fastring =
       if (request.responseBody.isDefined && config.http.checkResponseBodies)
         fast"""
-			.check(bodyBytes.is(RawFileBody("${ScenarioExporter.responseBodyFileName(request)}")))"""
+			.check(bodyBytes.is(RawFileBody("${ScenarioExporter.responseBodyRelativeFilePath(request)}")))"""
       else
         EmptyFastring
 
