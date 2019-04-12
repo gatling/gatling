@@ -308,6 +308,8 @@ If no switch is selected, the switch is bypassed.
 
 .. includecode:: code/ScenarioSample.scala#doSwitch
 
+.. warning:: When using any kind of switch component, make sure to use parentheses, not curly braces!
+
 .. _scenario-doswitchorelse:
 
 ``doSwitchOrElse``
