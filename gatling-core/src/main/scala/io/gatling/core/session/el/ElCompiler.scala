@@ -124,6 +124,10 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
         if (index < list.size) list.get(index).success
         else ElMessages.undefinedSeqIndex(seqName, index)
 
+      case product: Product =>
+        if (index < product.productArity) product.productElement(index).success
+        else ElMessages.outOfRangeAccess(seqName, product, index)
+
       case other => ElMessages.indexAccessNotSupported(other, seqName)
     }
 

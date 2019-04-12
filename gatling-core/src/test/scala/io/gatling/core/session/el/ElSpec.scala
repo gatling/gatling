@@ -180,6 +180,12 @@ class ElSpec extends BaseSpec with ValidationValues {
     expression(session).failed shouldBe ElMessages.indexAccessNotSupported(1, "i").message
   }
 
+  it should "support tuples" in {
+    val session = newSession(Map("tuple" -> ("foo", "bar")))
+    val expression = "${tuple(0)}".el[String]
+    expression(session).succeeded shouldBe "foo"
+  }
+
   "'size' function in Expression" should "return correct size for non empty seq" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
     val expression = "${bar.size()}".el[Int]

@@ -30,9 +30,9 @@ Moreover, Gatling EL provide the following built-in functions::
   "${foo.exists()}"        // returns true if the session contains a `foo` attribute, false otherwise
   "${foo.isUndefined()}"   // returns true if the session doesn't contains a `foo` attribute, false otherwise
   "${foo(5)}"              // returns the 5th element of `foo` if `foo` points to an indexed collection
-  "${foo(n)}"              // returns the n-th element of `foo` if `n` points to an Int and `foo` to an indexed collection
+  "${foo(n)}"              // returns the n-th element of `foo` if `n` points to an Int and `foo` to an indexed collection or a Tuple
   "${foo.bar}"             // returns the value associated with key `bar` if `foo` points to a map
-  "${foo._2}"              // returns the second element if `foo` points to a Tuple object
+  "${foo._2}"              // returns the second element if `foo` points to a Tuple object (identical to idiomatic Scala Tuple syntax, 1 based index)
   "${foo.jsonStringify()}" // properly formats into a JSON value (wrap Strings with double quotes, deal with null)
 
 You can also combine different Gatling EL builtin functions. For example if ``foo`` is a List of Lists ``${foo(0)(0)}`` will return first element of the first list in ``foo``. ``${foo.list.random()}`` will return random element from an indexed collection associated with key ``list`` in a map ``foo``.
