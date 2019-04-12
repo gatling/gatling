@@ -17,7 +17,7 @@ body {
 	font-family: arial;
 	margin: 0;
 	padding: 0;
-	background: #DCDBD4;
+	background-color: #f0f5fb;
 	color: #000;
 	font-size: 12px;
 }
@@ -30,7 +30,7 @@ body {
 }
 
 .frise {
-	background: url('fond-degrade.gif') repeat-x;
+	background-color: #f0f5fb;
 	height: 530px;
 	width: 100%;
 	position: absolute;
@@ -77,37 +77,31 @@ h1 span {
 .head {
 	height: 100px;
 	width: 600px;
-	padding: 10px 0 0 160px;
-	background: url('fond-lueur.gif') no-repeat;
-	background-position: 70px 0;
+	padding: 10px 0 0 120px;
+	background-color: #f0f5fb;
 	position: absolute;
 	top: 0;
 	left: 0;
 }
 
 .head .logo {
-  display: block;
-  height: 85px;
+    display: block;
+    height: 85px;
+}
+
+.logo img {
+    height: 100%;
+}
+
+.head .frontline {
+    padding: 0 0 0 10px;
+    font-size: 16px;
 }
 
 .sim_desc {
 	float: right;
 	padding: 0;
 	margin: 0
-}
-
-.foot {
-	background: #92918C;
-	width: 100%;
-	color: #FFF;
-	margin-top: 128px;
-}
-
-.foot a {
-	width: 85px;
-	height: 27px;
-	margin: 3px auto;
-	display: block
 }
 
 .cadre {
@@ -127,11 +121,11 @@ h1 span {
 	position: absolute;
 	right: 0;
 	top: -47px;
-	z-index: 8;
+	z-index: -1;
 	height: 28px;
-	box-shadow: 0 0 0 black, 4px -4px 3px #D1D1CE, -4px -4px 3px #D1D1CE;
-	-moz-box-shadow: 0 0 0 black, 4px -4px 3px #D1D1CE, -4px -4px 3px #D1D1CE;
-	-webkit-box-shadow: 0 0 0 black, 4px -4px 3px #D1D1CE, -4px -4px 3px #D1D1CE;
+	-webkit-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+    -moz-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+    box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
 	-webkit-border-top-right-radius: 8px;
 	-webkit-border-top-left-radius: 8px;
 	border-color: #D1D1CE
@@ -157,9 +151,9 @@ h1 span {
 	margin-right: 5px;
 	padding: 0 10px 40px 1px;
 	background: #FFF;
-	box-shadow: -4px -4px 3px #D1D1CE, 4px 4px 3px #D1D1CE, -4px 4px 3px #D1D1CE, 4px -4px 3px #D1D1CE;
-	-moz-box-shadow: -4px -4px 3px #D1D1CE, 4px 4px 3px #D1D1CE, -4px 4px 3px #D1D1CE, 4px -4px 3px #D1D1CE;
-	-webkit-box-shadow: -4px -4px 3px #D1D1CE, 4px 4px 3px #D1D1CE, -4px 4px 3px #D1D1CE, 4px -4px 3px #D1D1CE;
+	-webkit-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+    -moz-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+    box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
 
 	border-top-left-radius: 8px;
 	border-bottom-left-radius: 8px;
@@ -599,7 +593,9 @@ h1 span {
     z-index:10;display:none;
     margin-top: -5px;
     padding: 4px;
-    box-shadow: 1px 1px 1px rgba(18, 18, 18, 0.7);
+    -webkit-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+    -moz-box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
+    box-shadow: 1px 2px 4px 0px rgba(47,47,47,0.2);
     border-radius:4px;
     position:absolute; color:#ffffff;
     background:#d16b00;
