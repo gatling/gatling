@@ -16,12 +16,11 @@
 
 package io.gatling.core.json
 
-import io.gatling.core.jodd.FixedJoddJsonParser
 import jodd.json.JsonParser
 
 class JoddJson {
 
-  private val parsers: ThreadLocal[JsonParser] = ThreadLocal.withInitial(() => new FixedJoddJsonParser)
+  private val parsers: ThreadLocal[JsonParser] = ThreadLocal.withInitial(() => JsonParser.createLazyOne)
 
   def parse(string: String): AnyRef = parsers.get().parse(string)
 }
