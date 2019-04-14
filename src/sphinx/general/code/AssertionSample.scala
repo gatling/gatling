@@ -28,8 +28,12 @@ class AssertionSample extends Simulation {
   //#setUp
 
   //#details
-  details("Search" / "Index")
+  details("Index")
   //#details
+
+  //#details-group
+  details("Search" / "Index")
+  //#details-group
 
   //#examples
   // Assert that the max response time of all requests is less than 100 ms
