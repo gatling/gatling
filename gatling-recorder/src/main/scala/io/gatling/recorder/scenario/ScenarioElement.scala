@@ -32,7 +32,9 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.model._
 import io.gatling.http.fetch.{ UserAgent => UserAgentHelper }
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpUtil }
+
+import jodd.net.MimeTypes
 
 private[recorder] case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
 
@@ -97,7 +99,7 @@ private[recorder] object RequestElement {
         requestHeaders
       }
 
-    RequestElement(request.uri, request.method, filteredRequestHeaders, requestBody, responseBody, response.status, embeddedResources)
+    RequestElement(request.uri, request.method, filteredRequestHeaders, requestBody, response.headers, responseBody, response.status, embeddedResources)
   }
 }
 
@@ -106,6 +108,7 @@ private[recorder] case class RequestElement(
     method:               String,
     headers:              HttpHeaders,
     body:                 Option[RequestBody],
+    responseHeaders:      HttpHeaders,
     responseBody:         Option[ResponseBody],
     statusCode:           Int,
     embeddedResources:    List[ConcurrentResource],
@@ -153,5 +156,26 @@ private[recorder] case class RequestElement(
       }
 
     Option(headers.get(Authorization)).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
+  }
+
+  val (mimeType, responseMimeType) = {
+    def getMimeType(headers: HttpHeaders) =
+      Option(headers.get(ContentType)).flatMap(e => Option(HttpUtil.getMimeType(e))).getOrElse(ApplicationOctetStream).toString
+
+    (getMimeType(headers), getMimeType(responseHeaders))
+  }
+
+  val (fileExtension, responseFileExtension) = {
+    def getFileExtension(mimeType: String) = {
+      val extensions = MimeTypes.findExtensionsByMimeTypes(mimeType, false)
+
+      if (extensions.isEmpty) {
+        "dat"
+      } else {
+        extensions(0)
+      }
+    }
+
+    (getFileExtension(mimeType), getFileExtension(responseMimeType))
   }
 }

@@ -34,7 +34,7 @@ class RequestTemplateSpec extends BaseSpec {
 
   def mockRequestBody(paramName: String, paramValue: String) = RequestBodyParams(List((paramName, paramValue)))
   def mockRequestElement(paramName: String, paramValue: String) =
-    new RequestElement(url, "post", EmptyHttpHeaders.INSTANCE, Some(mockRequestBody(paramName, paramValue)), None, 200, Nil)
+    new RequestElement(url, "post", EmptyHttpHeaders.INSTANCE, Some(mockRequestBody(paramName, paramValue)), EmptyHttpHeaders.INSTANCE, None, 200, Nil)
 
   "request template" should "not wrap with joinStrings strings shorter than 65535 characters" in {
     val mockedRequest1 = mockRequestElement("name", "short")

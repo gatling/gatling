@@ -58,13 +58,13 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   }
 
   private def requestBodyFileName(request: RequestElement) =
-    s"${request.id.leftPad(4, '0')}_request.txt"
+    s"${request.id.leftPad(4, '0')}_request.${request.fileExtension}"
 
   def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
     packageAsFolderPath("/") + "/" + config.core.className + "/" + requestBodyFileName(request)
 
   private def responseBodyFileName(request: RequestElement) =
-    s"${request.id.leftPad(4, '0')}_response.txt"
+    s"${request.id.leftPad(4, '0')}_response.${request.responseFileExtension}"
 
   def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
     packageAsFolderPath("/") + "/" + config.core.className + "/" + responseBodyFileName(request)
