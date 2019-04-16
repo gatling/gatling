@@ -103,6 +103,8 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
         case RawAssertionRecord(array) =>
           val assertion: Assertion = {
+            // WARN: don't believe IntelliJ here, this import is absolutely mandatory, see
+            import io.gatling.commons.stats.assertion.AssertionPicklers._
             val base64String = array(1)
             val bytes = Base64.decode(base64String)
             Unpickle[Assertion].fromBytes(ByteBuffer.wrap(bytes))
