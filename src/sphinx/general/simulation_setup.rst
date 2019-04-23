@@ -43,7 +43,7 @@ If you're using a closed workload model in your load tests while your system act
 In such case, when system under test starts to has some trouble, response time will increase, journey time will become longer, so number of concurrent users will increase
 and injector will slow down to match the imaginary cap you've set.
 
-You can read more about open and closed models `here <http://repository.cmu.edu/cgi/viewcontent.cgi?article=1872&context=compsci>`_.
+You can read more about open and closed models `here <https://kilthub.cmu.edu/articles/Open_Versus_Closed_A_Cautionary_Tale/6608078>`_ and on `our blog <https://gatling.io/2018/10/04/gatling-3-closed-workload-model-support/>`_.
 
 .. warning::
 
