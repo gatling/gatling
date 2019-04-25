@@ -10,7 +10,7 @@ Concept
 =======
 
 ``Validation`` is an abstraction for describing something that can either be a valid result, or an error message.
-Scalaz has a great implementation, but Gatling has its own, less powerful but much more simple.
+Scala has a great implementation, but Gatling has its own, less powerful but much more simple.
 
 The benefit of using this abstraction is that it's composable, so one can chain operations that consume and produce validations without having to determine on every operation if it's actually dealing with a succeeding operation or not.
 
