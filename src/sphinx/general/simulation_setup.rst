@@ -83,7 +83,7 @@ Closed Model
   Then, you have to understand that Gatling's default behavior is mimic human users with browsers, so each virtual user has its own connections.
   If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every seconds.
   As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
-  This behavior makes perfect sense when the load you're modeling is internet traffic. Then, you might consider scala out, for example with FrontLine, our Enterprise product.
+  This behavior makes perfect sense when the load you're modeling is internet traffic. Then, you might consider scaling out, for example with FrontLine, our Enterprise product.
 
   If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
 
