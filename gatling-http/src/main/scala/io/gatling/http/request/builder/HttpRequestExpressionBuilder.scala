@@ -46,11 +46,6 @@ class HttpRequestExpressionBuilder(
 
   import RequestExpressionBuilder._
 
-  private val ConfigureFormParams: RequestBuilderConfigure =
-    session => requestBuilder => httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
-      requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(resolvedFormParams))
-    }
-
   private def configureBodyParts(session: Session, requestBuilder: AhcRequestBuilder, bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
     for {
       params <- httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session)
@@ -82,8 +77,11 @@ class HttpRequestExpressionBuilder(
       case Some(body) => session => requestBuilder => setBody(session, requestBuilder, body)
       case _ =>
         if (httpAttributes.bodyParts.nonEmpty) { session => requestBuilder => configureBodyParts(session, requestBuilder, httpAttributes.bodyParts)
-        } else if (httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty) {
-          ConfigureFormParams
+        } else if (httpAttributes.formParams.nonEmpty || httpAttributes.form.nonEmpty) { session => requestBuilder =>
+          httpAttributes.formParams
+            .mergeWithFormIntoParamJList(httpAttributes.form, session)
+            .map { resolvedFormParams => requestBuilder.setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(resolvedFormParams))
+            }
         } else {
           ConfigureIdentity
         }
