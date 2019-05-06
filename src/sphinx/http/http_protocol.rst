@@ -336,7 +336,7 @@ Response handling parameters
 Follow redirects
 ----------------
 
-By default Gatling automatically follow redirects in case of 301, 302, 303 or 307 response status code, you can disable this behavior with ``.disableFollowRedirect``.
+By default Gatling automatically follow redirects in case of 301, 302, 303, 307 or 308 response status code, you can disable this behavior with ``.disableFollowRedirect``.
 
 To avoid infinite redirection loops, Gatling sets a limit on the number of redirects.
 The default value is 20. You can tune this limit with: ``.maxRedirects(max: Int)``
