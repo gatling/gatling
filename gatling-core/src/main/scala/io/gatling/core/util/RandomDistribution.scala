@@ -48,9 +48,8 @@ private[core] object RandomDistribution {
       }
 
     val normalizedPossibilities = List(normalizedHeadWeight -> headChain) ::: normalizedTail
-    val normalizedMax = normalizedHeadWeight + normalizedTailSum // FIXME + 1???
 
-    new RandomDistribution(normalizedPossibilities, normalizedMax, Some(fallback))
+    new RandomDistribution(normalizedPossibilities, 100 * PercentWeightsNormalizingFactor, Some(fallback))
   }
 }
 
