@@ -175,7 +175,7 @@
             Current user will continue in one of the specified weighted chains.
             Can be used to simulate simple Markov chains
           syntax:
-            - signature: (Map[%,Chain])
+            - signature: (Map[_,Chain])
               description: The <i>Map</i> contains the distribution of the randomSwitch. Each chain is weighted with a percentage. Make sure the sum of weights does not exceed 100.
 
         - keyword: randomSwitchOrElse
@@ -184,7 +184,7 @@
             Can be used to simulate simple Markov chains.
             Fallback available if no switch is selected
           syntax:
-            - signature: (Map[%,Chain]){chain}
+            - signature: (Map[_,Chain]){chain}
               description: The <i>Map</i> contains the distribution of the randomSwitch. Each chain is weighted with a percentage. Make sure the sum of weights does not exceed 100. If no switch is selected then <i>chain</i> is executed.
 
         - keyword: uniformRandomSwitch
