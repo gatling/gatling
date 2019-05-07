@@ -47,7 +47,7 @@ object Pebble extends StrictLogging {
 
   def parseStringTemplate(string: String): Validation[PebbleTemplate] =
     try {
-      Pebble.Engine.getTemplate(string).success
+      Engine.getTemplate(string).success
     } catch {
       case NonFatal(e) =>
         logger.error("Error while parsing Pebble string", e)
