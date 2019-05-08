@@ -40,5 +40,8 @@ case class HttpComponents(
       andThen httpCaches.setHttp2PriorKnowledge(httpProtocol))
 
   override lazy val onExit: Session => Unit =
-    session => httpEngine.flushClientIdChannels(session.userId)
+    session => {
+      httpCaches.nameResolver(session).foreach(_.close())
+      httpEngine.flushClientIdChannels(session.userId)
+    }
 }
