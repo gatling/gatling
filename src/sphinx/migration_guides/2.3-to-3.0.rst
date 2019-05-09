@@ -12,11 +12,16 @@ Migrating from 2.3 to 3.0
   * check's ``transformResponse`` now takes a second ``Session`` parameter
   * ``over`` inject method was renamed into ``during``
   * ``splitUsers`` is dropped in favor of ``incrementUsersPerSec`` and ``incrementConcurrentUsers``
+  * ``Validation#get`` is dropped as it's very error prone, use pattern matching if you must
+  * ``PerMillion`` assertion is dropped as ``Percent`` now takes a Double
+  * ``greaterThan`` and ``lowerThan`` assertion operators are renamed into ``gt`` and ``lt`` and are strict (vs ``gte`` and ``lte``)
+  *
 
 * HTTP:
 
   * Gatling now has its own HTTP client and no longer uses `AsyncHttpClient <https://github.com/AsyncHttpClient/async-http-client>`__, so this library is no longer shipped. If you've been using it, you'll need to pull it explicitly, or switch to another HTTP client library.
   * ``baseURL`` was renamed into ``baseUrl``
+  * ``baseURLs`` was renamed into ``baseUrls`` and is now sticky for a given virtual user
   * ``silentURI`` was renamed into ``silentUri``
   * ``asJSON`` was renamed into ``asJson``
   * ``asXML`` was renamed into ``asXml``
