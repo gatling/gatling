@@ -54,9 +54,6 @@ class AdvancedSimulationStep05 extends Simulation {
   object Edit {
 
     // Note we should be using a feeder here
-
-    val headers_10 = Map("Content-Type" -> "application/x-www-form-urlencoded")
-
     // let's demonstrate how we can retry: let's make the request fail randomly and retry a given number of times
 
     val edit = tryMax(2) { // let's try at max 2 times
@@ -65,7 +62,6 @@ class AdvancedSimulationStep05 extends Simulation {
         .pause(1)
         .exec(http("Post")
           .post("/computers")
-          .headers(headers_10)
           .formParam("name", "Beautiful Computer")
           .formParam("introduced", "2012-05-30")
           .formParam("discontinued", "")

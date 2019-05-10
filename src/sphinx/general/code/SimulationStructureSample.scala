@@ -22,7 +22,11 @@ class SimulationStructureSample extends Simulation {
   val httpProtocol = http
 
   //#headers
-  val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
+  val someExtraHeaders = Map("Origin" -> "http://mydomain.com")
+
+  http("request")
+    .get("/foo")
+    .headers(someExtraHeaders)
   //#headers
 
   //#scenario-definition
@@ -33,7 +37,6 @@ class SimulationStructureSample extends Simulation {
   // Here's an example of a POST request
   http("request_10")
     .post("/computers")
-    .headers(headers_10)
     .formParam("name", "Beautiful Computer")
     .formParam("introduced", "2012-05-30")
     .formParam("discontinued", "")
