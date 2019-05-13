@@ -39,7 +39,7 @@ object Dependencies {
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.6.14"
   private val joddJson                       = "org.jodd"                             % "jodd-json"                       % "5.0.12"
   private val joddLagarto                    = joddJson.organization                  % "jodd-lagarto"                    % joddJson.revision
-  private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.0"
+  private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.1"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.9"
   private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.2.5")
     .exclude("org.scala-lang.modules", "scala-parser-combinators_2.12")
