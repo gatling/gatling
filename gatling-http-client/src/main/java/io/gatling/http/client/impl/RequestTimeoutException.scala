@@ -25,7 +25,7 @@ object RequestTimeoutException {
   private def message(timeout: Long, remoteAddress: InetSocketAddress) = {
     val message = StringBuilderPool.DEFAULT.get.append("Request timeout")
     if (remoteAddress != null) {
-      message.append(" to ").append(remoteAddress.getHostName)
+      message.append(" to ").append(remoteAddress.getHostString)
       if (!remoteAddress.isUnresolved) message.append('/').append(remoteAddress.getAddress.getHostAddress)
       message.append(':').append(remoteAddress.getPort)
     }
