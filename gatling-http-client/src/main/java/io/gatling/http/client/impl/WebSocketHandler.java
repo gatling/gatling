@@ -159,7 +159,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    LOGGER.debug("exceptionCaught");
+    LOGGER.debug("exceptionCaught", cause);
     crash(ctx, cause, true);
   }
 }

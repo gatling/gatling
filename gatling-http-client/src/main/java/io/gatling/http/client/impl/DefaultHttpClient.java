@@ -111,15 +111,19 @@ public class DefaultHttpClient implements HttpClient {
 
     private final Bootstrap http1Bootstrap;
     private final Bootstrap http2Bootstrap;
-    private final Bootstrap wsBoostrap;
+    private final Bootstrap wsBootstrap;
     private final ChannelPool channelPool;
 
-    private void addDefaultHttpHandlers(ChannelPipeline pipeline) {
-      pipeline
+    private void addDefaultHttpHandlers(Channel channel) {
+      channel.pipeline()
         .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
         .addLast(INFLATER_HANDLER, newHttpContentDecompressor())
         .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
         .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+
+      if (config.getAdditionalChannelInitializer() != null) {
+        config.getAdditionalChannelInitializer().accept(channel);
+      }
     }
 
     private EventLoopResources(EventLoop eventLoop) {
@@ -143,10 +147,7 @@ public class DefaultHttpClient implements HttpClient {
           @Override
           protected void initChannel(Channel ch) {
             ch.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
-            addDefaultHttpHandlers(ch.pipeline());
-            if (config.getAdditionalChannelInitializer() != null) {
-              config.getAdditionalChannelInitializer().accept(ch);
-            }
+            addDefaultHttpHandlers(ch);
           }
         });
 
@@ -164,7 +165,7 @@ public class DefaultHttpClient implements HttpClient {
         }
       });
 
-      wsBoostrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
+      wsBootstrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
 
         @Override
         protected void initChannel(Channel ch) {
@@ -186,17 +187,12 @@ public class DefaultHttpClient implements HttpClient {
     private Bootstrap getBootstrapWithProxy(ProxyServer proxy) {
       return http1Bootstrap.clone()
         .handler(new ChannelInitializer<Channel>() {
-
         @Override
         protected void initChannel(Channel ch) {
-          ChannelPipeline pipeline = ch.pipeline()
+          ch.pipeline()
             .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(PROXY_HANDLER, proxy.newHandler());
-
-          addDefaultHttpHandlers(pipeline);
-          if (config.getAdditionalChannelInitializer() != null) {
-            config.getAdditionalChannelInitializer().accept(ch);
-          }
+          addDefaultHttpHandlers(ch);
         }
       });
     }
@@ -567,7 +563,7 @@ public class DefaultHttpClient implements HttpClient {
 
     Bootstrap bootstrap =
       uri.isWebSocket() ?
-        resources.wsBoostrap :
+        resources.wsBootstrap :
         uri.isSecured() && proxyServer != null ?
           resources.getBootstrapWithProxy(proxyServer) :
           request.isAlpnRequired() && request.getUri().isSecured() ? resources.http2Bootstrap : resources.http1Bootstrap;
