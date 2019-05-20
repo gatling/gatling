@@ -24,10 +24,10 @@ import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import io.gatling.jms.protocol.JmsMessageMatcher
 
-object headerMatcher extends JmsMessageMatcher {
+object HeaderMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = {}
-  override def responseMatchId(msg: Message): String = requestMatchId(msg)
   override def requestMatchId(msg: Message): String = msg.getStringProperty("header")
+  override def responseMatchId(msg: Message): String = requestMatchId(msg)
 }
 
 class JmsCompileTest extends Simulation {
@@ -48,7 +48,7 @@ class JmsCompileTest extends Simulation {
     )
     .usePersistentDeliveryMode
     .replyTimeout(1000)
-    .messageMatcher(headerMatcher)
+    .messageMatcher(HeaderMatcher)
     .matchByCorrelationId
     .matchByMessageId
 
