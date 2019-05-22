@@ -35,7 +35,7 @@ An assertion can test a statistic calculated from all requests or only a part.
 
 * ``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
 
-For example, to perform an assertion on the request ``Index``, use:
+For example, to perform an assertion on the request ``Home``, use:
 
 .. includecode:: code/AssertionSample.scala#details
 

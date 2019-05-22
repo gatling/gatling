@@ -28,7 +28,7 @@ class AssertionSample extends Simulation {
   //#setUp
 
   //#details
-  details("Index")
+  details("Home")
   //#details
 
   //#details-group
@@ -46,7 +46,7 @@ class AssertionSample extends Simulation {
   // is exactly 0 %
   setUp(scn).assertions(details("Search" / "Index").failedRequests.percent.is(0))
 
-  // Assert that the rate of requests per seconds for the group "Search"
-  setUp(scn).assertions(details("Search").requestsPerSec.between(100, 1000))
+  // Assert that the rate of requests per seconds for the request "Home"
+  setUp(scn).assertions(details("Home").requestsPerSec.between(100, 1000))
   //#examples
 }
