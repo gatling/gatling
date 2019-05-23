@@ -65,8 +65,8 @@ class AdvancedSimulationStep05 extends Simulation {
           .formParam("name", "Beautiful Computer")
           .formParam("introduced", "2012-05-30")
           .formParam("discontinued", "")
-          .formParam("company", "37").
-          check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
+          .formParam("company", "37")
+          .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
     }.exitHereIfFailed // if the chain didn't finally succeed, have the user exit the whole scenario
   }
 
