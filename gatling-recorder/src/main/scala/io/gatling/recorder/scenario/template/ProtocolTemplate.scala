@@ -35,9 +35,9 @@ private[scenario] object ProtocolTemplate {
 
     def renderProxy = {
 
-      def renderSslPort = config.proxy.outgoing.sslPort match {
-        case Some(proxySslPort) => s".httpsPort($proxySslPort)"
-        case _                  => ""
+      def renderSslPort(proxyPort: Int) = config.proxy.outgoing.sslPort match {
+        case Some(proxySslPort) if proxySslPort != proxyPort => s".httpsPort($proxySslPort)"
+        case _                                               => ""
       }
 
       def renderCredentials = {
@@ -51,7 +51,7 @@ private[scenario] object ProtocolTemplate {
       val protocol = for {
         proxyHost <- config.proxy.outgoing.host
         proxyPort <- config.proxy.outgoing.port
-      } yield fast"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+      } yield fast"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)${renderSslPort(proxyPort)}$renderCredentials)"""
 
       protocol.getOrElse(EmptyFastring)
     }
