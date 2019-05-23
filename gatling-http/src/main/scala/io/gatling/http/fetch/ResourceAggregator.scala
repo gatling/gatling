@@ -181,7 +181,8 @@ private[fetch] class DefaultResourceAggregator(
       if (rootTx.silent) {
         session
       } else {
-        session.logGroupRequest(startTimestamp, clock.nowMillis, globalStatus)
+        val sessionWithMark = if (globalStatus == KO) session.markAsFailed else session
+        sessionWithMark.logGroupRequestTimings(startTimestamp, clock.nowMillis)
       }
 
     rootTx.next ! newSession

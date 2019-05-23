@@ -136,13 +136,13 @@ case class Session(
       this
   }
 
-  def logGroupRequest(startTimestamp: Long, endTimestamp: Long, status: Status): Session =
+  def logGroupRequestTimings(startTimestamp: Long, endTimestamp: Long): Session =
     if (blockStack.isEmpty) {
       this
     } else {
       val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
       copy(blockStack = blockStack.map {
-        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime, status = if (status == KO) KO else g.status)
+        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime)
         case b             => b
       })
     }

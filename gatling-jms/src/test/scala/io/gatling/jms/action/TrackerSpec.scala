@@ -94,7 +94,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     tracker ! MessageSent("1", 15, 0, Nil, groupSession, new ActorDelegatingAction("next", testActor), "logGroupResponse")
     tracker ! MessageReceived("1", 30, textMessage("group"))
 
-    val newSession = groupSession.logGroupRequest(15, 30, OK)
+    val newSession = groupSession.logGroupRequestTimings(15, 30)
     val nextSession1 = expectMsgType[Session]
 
     val failedCheck = JmsSimpleCheck(_ => false)
@@ -104,6 +104,6 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val nextSession2 = expectMsgType[Session]
 
     ignoreDrift(nextSession1) shouldBe newSession
-    ignoreDrift(nextSession2) shouldBe newSession.logGroupRequest(25, 50, KO).markAsFailed
+    ignoreDrift(nextSession2) shouldBe newSession.logGroupRequestTimings(25, 50).markAsFailed
   }
 }
