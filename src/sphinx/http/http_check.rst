@@ -349,7 +349,7 @@ Validating
 
 * ``is(expected)``
 
-Checks that the value is equal to the expected one, e.g.:
+Validate that the value is equal to the expected one, e.g.:
 
 .. includecode:: code/CheckSample.scala#is
 
@@ -361,7 +361,7 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``isNull``
 
-Checks that the value is null, typically a JSON value, e.g.:
+Validate that the extracted value is null, typically a JSON value, e.g.:
 
 .. includecode:: code/CheckSample.scala#isNull
 
@@ -369,7 +369,7 @@ Checks that the value is null, typically a JSON value, e.g.:
 
 * ``not(expected)``
 
-Checks that the value is different from the expected one:
+Validate that the extracted value is different from the expected one:
 
 .. includecode:: code/CheckSample.scala#not
 
@@ -381,7 +381,7 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``notNull``
 
-Checks that the value is not null, typically a JSON value, e.g.:
+Validate that the extracted value is not null, typically a JSON value, e.g.:
 
 .. includecode:: code/CheckSample.scala#notNull
 
@@ -389,7 +389,7 @@ Checks that the value is not null, typically a JSON value, e.g.:
 
 * ``exists``
 
-Checks that the value exists and is not empty in case of multiple results:
+Validate that the extracted value exists:
 
 .. includecode:: code/CheckSample.scala#exists
 
@@ -397,7 +397,7 @@ Checks that the value exists and is not empty in case of multiple results:
 
 * ``notExists``
 
-Checks that the value doesn't exist and or is empty in case of multiple results:
+Validate that the check didn't match and couldn't extract anything:
 
 .. includecode:: code/CheckSample.scala#notExists
 
@@ -405,7 +405,7 @@ Checks that the value doesn't exist and or is empty in case of multiple results:
 
 * ``in(sequence)``
 
-Checks that the value belongs to a given sequence or vararg:
+Validate that the extracted value belongs to a given sequence or vararg:
 
 .. includecode:: code/CheckSample.scala#in
 
