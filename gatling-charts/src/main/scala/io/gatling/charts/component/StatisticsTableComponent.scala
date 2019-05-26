@@ -60,7 +60,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
                                         <th id="col-3" class="header sortable"><span>OK</span></th>
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
                                         <th id="col-5" class="header sortable"><span>% KO</span></th>
-                                        <th id="col-6" class="header sortable"><span>Req/s</span></th>
+                                        <th id="col-6" class="header sortable"><span>Cnt/s</span></th>
                                         ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }.mkFastring(Eol)}
                                     </tr>
                                 </thead>
