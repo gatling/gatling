@@ -26,7 +26,7 @@ object Dependencies {
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "9.9.1-3"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.26"
   private val fastring                       = "com.dongxiguo"                       %% "fastring"                        % "1.0.0"
-  private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.1")
+  private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.2")
     .exclude("org.typelevel", "machinist_2.12")
     .exclude("org.typelevel", "algebra_2.12")
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
