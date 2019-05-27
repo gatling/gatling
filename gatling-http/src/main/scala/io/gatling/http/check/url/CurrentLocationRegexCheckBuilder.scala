@@ -53,10 +53,7 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
   override def countExtractor: Expression[CriterionExtractor[CharSequence, String, Int] with CountArity] = pattern.map(newRegexCountExtractor(_, patterns))
 }
 
-object CurrentLocationRegexCheckMaterializer
-  extends CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] {
-
-  override protected val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
+object CurrentLocationRegexCheckMaterializer extends CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence](UrlSpecializer) {
 
   override protected val preparer: Preparer[Response, String] = UrlStringPreparer
 }

@@ -19,7 +19,7 @@ package io.gatling.http.check.header
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.check.extractor.regex.{ GroupExtractor, Patterns }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Expression
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
@@ -48,10 +48,11 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
   import HttpHeaderRegexExtractorFactory._
 
   private def withHeaderAndPattern[T](f: (String, String) => T): Expression[T] =
-    (session: Session) => for {
-      headerName <- headerName(session)
-      pattern <- pattern(session)
-    } yield f(headerName, pattern)
+    session =>
+      for {
+        headerName <- headerName(session)
+        pattern <- pattern(session)
+      } yield f(headerName, pattern)
 
   override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] =
     withHeaderAndPattern(newHeaderRegexSingleExtractor(_, _, occurrence, patterns))
@@ -63,9 +64,7 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
     withHeaderAndPattern(newHeaderRegexCountExtractor(_, _, patterns))
 }
 
-object HttpHeaderRegexCheckMaterializer extends CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {
-
-  override val specializer: Specializer[HttpCheck, Response] = HeaderSpecializer
+object HttpHeaderRegexCheckMaterializer extends CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response](HeaderSpecializer) {
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

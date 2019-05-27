@@ -20,9 +20,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.regex.RegexCheckType
 
-object WsRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, WsTextCheck, String, CharSequence] {
-
-  override val specializer: Specializer[WsTextCheck, String] = WsTextCheck.apply
+object WsRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, WsTextCheck, String, CharSequence](WsTextCheck.apply) {
 
   override val preparer: Preparer[String, CharSequence] = _.success
 }

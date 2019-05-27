@@ -38,9 +38,7 @@ object HttpStatusCheckBuilder {
   }
 }
 
-object HttpStatusCheckMaterializer extends CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StatusSpecializer
+object HttpStatusCheckMaterializer extends CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response](StatusSpecializer) {
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

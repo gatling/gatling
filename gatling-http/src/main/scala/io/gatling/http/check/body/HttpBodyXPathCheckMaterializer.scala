@@ -25,22 +25,21 @@ import io.gatling.http.response.Response
 
 import org.xml.sax.InputSource
 
-class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
+class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]](StreamBodySpecializer) {
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
   private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
     safely(ErrorMapper) {
-      val root = if (response.hasResponseBody) {
-        val inputSource = new InputSource(response.body.stream)
-        inputSource.setEncoding(response.charset.name)
-        Some(f(inputSource))
+      val root =
+        if (response.hasResponseBody) {
+          val inputSource = new InputSource(response.body.stream)
+          inputSource.setEncoding(response.charset.name)
+          Some(f(inputSource))
 
-      } else {
-        None
-      }
+        } else {
+          None
+        }
       root.success
     }
 

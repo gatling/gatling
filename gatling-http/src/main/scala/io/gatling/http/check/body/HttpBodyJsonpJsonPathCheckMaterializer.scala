@@ -30,18 +30,14 @@ object HttpBodyJsonpJsonPathCheckMaterializer {
 
   private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
+}
 
-  def parseJsonpString(string: String, jsonParsers: JsonParsers): Validation[JsonNode] = string match {
+class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode](StringBodySpecializer) {
+
+  import HttpBodyJsonpJsonPathCheckMaterializer._
+
+  override val preparer: Preparer[Response, JsonNode] = response => response.body.string match {
     case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
     case _                 => JsonpRegexFailure
   }
-
-  def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, JsonNode] = response => parseJsonpString(response.body.string, jsonParsers)
-}
-
-class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
-
-  override val preparer: Preparer[Response, JsonNode] = HttpBodyJsonpJsonPathCheckMaterializer.jsonpPreparer(jsonParsers)
 }

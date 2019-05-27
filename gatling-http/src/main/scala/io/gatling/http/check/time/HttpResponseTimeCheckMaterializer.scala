@@ -24,9 +24,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpResponseTimeCheckMaterializer extends CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] {
-
-  override val specializer: Specializer[HttpCheck, Response] = TimeSpecializer
+object HttpResponseTimeCheckMaterializer extends CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings](TimeSpecializer) {
 
   override val preparer: Preparer[Response, ResponseTimings] = response => ResponseTimings(response.startTimestamp, response.endTimestamp).success
 }

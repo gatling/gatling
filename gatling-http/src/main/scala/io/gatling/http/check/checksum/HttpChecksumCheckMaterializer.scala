@@ -28,12 +28,10 @@ object HttpChecksumCheckMaterializer {
   val Sha1 = new HttpChecksumCheckMaterializer[Sha1CheckType]("SHA1")
 }
 
-class HttpChecksumCheckMaterializer[T](algorithm: String) extends CheckMaterializer[T, HttpCheck, Response, String] {
-
-  override val specializer: Specializer[HttpCheck, Response] = new ChecksumCheck(algorithm, _)
+class HttpChecksumCheckMaterializer[T](algorithm: String) extends CheckMaterializer[T, HttpCheck, Response, String](new ChecksumCheck(algorithm, _)) {
 
   override val preparer: Preparer[Response, String] = _.checksum(algorithm) match {
     case Some(chk) => chk.success
-    case None      => s"$algorithm checksum wasn't computed".failure
+    case _         => s"$algorithm checksum wasn't computed".failure
   }
 }

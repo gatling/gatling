@@ -17,14 +17,12 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.extractor.regex.RegexCheckType
-import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpBodyRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
+object HttpBodyRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence](StringBodySpecializer) {
 
   override val preparer: Preparer[Response, CharSequence] = ResponseBodyStringPreparer
 }

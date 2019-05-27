@@ -26,9 +26,7 @@ import io.gatling.jms.JmsCheck
 
 import org.xml.sax.InputSource
 
-class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] {
-
-  override val specializer: Specializer[JmsCheck, Message] = identity
+class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]](identity) {
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 

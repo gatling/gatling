@@ -17,12 +17,10 @@
 package io.gatling.http.check.sse
 
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
-import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
 
-class SseJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, SseCheck, String, Any] {
-
-  override val specializer: Specializer[SseCheck, String] = SseCheck.apply
+class SseJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, SseCheck, String, Any](SseCheck.apply) {
 
   override val preparer: Preparer[String, Any] = jsonParsers.safeParse
 }

@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 import io.gatling.http.check.HttpCheck
@@ -25,9 +25,7 @@ import io.gatling.http.response._
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class HttpBodyJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
+class HttpBodyJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode](StreamBodySpecializer) {
 
   override val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.charset)
 }

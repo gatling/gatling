@@ -16,15 +16,13 @@
 
 package io.gatling.http.check.ws
 
-import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class WsJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode] {
-
-  override val specializer: Specializer[WsTextCheck, String] = WsTextCheck.apply
+class WsJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode](WsTextCheck.apply) {
 
   override val preparer: Preparer[String, JsonNode] = jsonParsers.safeParse
 }

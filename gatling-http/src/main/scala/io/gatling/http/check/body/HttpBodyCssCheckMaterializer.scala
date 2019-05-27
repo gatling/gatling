@@ -25,15 +25,9 @@ import io.gatling.http.response.Response
 
 import jodd.lagarto.dom.NodeSelector
 
-class HttpBodyCssCheckMaterializer(selectors: CssSelectors)
-  extends CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] {
-
-  override val specializer: Specializer[HttpCheck, Response] = CharArrayBodySpecializer
+class HttpBodyCssCheckMaterializer(selectors: CssSelectors) extends CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector](CharArrayBodySpecializer) {
 
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 
-  override val preparer: Preparer[Response, NodeSelector] = response =>
-    safely(ErrorMapper) {
-      selectors.parse(response.body.chars).success
-    }
+  override val preparer: Preparer[Response, NodeSelector] = response => safely(ErrorMapper)(selectors.parse(response.body.chars).success)
 }

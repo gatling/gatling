@@ -20,9 +20,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.substring.SubstringCheckType
 
-object SseSubstringCheckMaterializer extends CheckMaterializer[SubstringCheckType, SseCheck, String, String] {
-
-  override val specializer: Specializer[SseCheck, String] = SseCheck.apply
+object SseSubstringCheckMaterializer extends CheckMaterializer[SubstringCheckType, SseCheck, String, String](SseCheck.apply) {
 
   override val preparer: Preparer[String, String] = _.success
 }

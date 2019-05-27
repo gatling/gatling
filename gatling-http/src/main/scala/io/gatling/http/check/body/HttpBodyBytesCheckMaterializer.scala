@@ -22,9 +22,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
-object HttpBodyBytesCheckMaterializer extends CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] {
-
-  override protected val specializer: Specializer[HttpCheck, Response] = BytesBodySpecializer
+object HttpBodyBytesCheckMaterializer extends CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]](BytesBodySpecializer) {
 
   override protected val preparer: Preparer[Response, Array[Byte]] = ResponseBodyBytesPreparer
 }
