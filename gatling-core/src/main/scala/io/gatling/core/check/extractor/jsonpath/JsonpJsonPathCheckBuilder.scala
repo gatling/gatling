@@ -20,6 +20,8 @@ import io.gatling.core.check._
 import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.session._
 
+import com.fasterxml.jackson.databind.JsonNode
+
 trait JsonpJsonPathCheckType
 
 // we have to duplicate JsonPathCheckBuilder because traits can't take parameters (for now)
@@ -39,11 +41,11 @@ class JsonpJsonPathCheckBuilder[X: JsonFilter](
     private[jsonpath] val path:      Expression[String],
     private[jsonpath] val jsonPaths: JsonPaths
 )
-  extends DefaultMultipleFindCheckBuilder[JsonpJsonPathCheckType, Any, X](displayActualValue = true) {
+  extends DefaultMultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, X](displayActualValue = true) {
 
   import JsonpJsonPathExtractorFactory._
 
-  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[Any, String, X] with FindArity] = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
-  override def findAllExtractor: Expression[CriterionExtractor[Any, String, Seq[X]] with FindAllArity] = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
-  override def countExtractor: Expression[CriterionExtractor[Any, String, Int] with CountArity] = path.map(newJsonPathCountExtractor(_, jsonPaths))
+  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[JsonNode, String, X] with FindArity] = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
+  override def findAllExtractor: Expression[CriterionExtractor[JsonNode, String, Seq[X]] with FindAllArity] = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
+  override def countExtractor: Expression[CriterionExtractor[JsonNode, String, Int] with CountArity] = path.map(newJsonPathCountExtractor(_, jsonPaths))
 }

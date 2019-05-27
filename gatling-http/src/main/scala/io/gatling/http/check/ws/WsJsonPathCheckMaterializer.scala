@@ -20,9 +20,11 @@ import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 
-class WsJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, WsTextCheck, String, Any] {
+import com.fasterxml.jackson.databind.JsonNode
+
+class WsJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode] {
 
   override val specializer: Specializer[WsTextCheck, String] = WsTextCheck.apply
 
-  override val preparer: Preparer[String, Any] = jsonParsers.safeParse
+  override val preparer: Preparer[String, JsonNode] = jsonParsers.safeParse
 }

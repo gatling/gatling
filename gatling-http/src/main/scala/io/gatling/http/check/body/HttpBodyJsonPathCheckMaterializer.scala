@@ -19,45 +19,15 @@ package io.gatling.http.check.body
 import io.gatling.core.check.{ CheckMaterializer, Preparer, Specializer }
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders.StreamBodySpecializer
 import io.gatling.http.response._
 
-object HttpBodyJsonPathCheckMaterializer {
+import com.fasterxml.jackson.databind.JsonNode
 
-  private val CharsParsingThreshold = 200 * 1000
+class HttpBodyJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] {
 
-  private[body] val JoddResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-    override def bodyUsage(contentLength: Int): ResponseBodyUsage =
-      if (contentLength <= CharsParsingThreshold) {
-        StringResponseBodyUsage
-      } else {
-        InputStreamResponseBodyUsage
-      }
-  }
+  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
 
-  private[body] val JacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-    override def bodyUsage(contentLength: Int): ResponseBodyUsage =
-      InputStreamResponseBodyUsage
-  }
-
-  private def jsonPathPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] =
-    response =>
-      if (response.bodyLength > CharsParsingThreshold || jsonParsers.preferJackson)
-        jsonParsers.safeParseJackson(response.body.stream, response.charset)
-      else
-        jsonParsers.safeParse(response.body.string)
-}
-
-class HttpBodyJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, HttpCheck, Response, Any] {
-
-  import HttpBodyJsonPathCheckMaterializer._
-
-  override val specializer: Specializer[HttpCheck, Response] = {
-    val responseBodyUsageStrategy =
-      if (jsonParsers.preferJackson) JacksonResponseBodyUsageStrategy
-      else JoddResponseBodyUsageStrategy
-    HttpCheckBuilders.bodySpecializer(responseBodyUsageStrategy)
-  }
-
-  override val preparer: Preparer[Response, Any] = jsonPathPreparer(jsonParsers)
+  override val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.charset)
 }

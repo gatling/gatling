@@ -28,22 +28,24 @@ import io.gatling.core.json.JsonParsers
 import io.gatling.core.session._
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.response.{ CharArrayResponseBody, Response }
+import io.gatling.http.response.{ InputStreamResponseBody, Response }
 
+import com.fasterxml.jackson.databind.JsonNode
 import org.mockito.Mockito._
 import org.scalatest.matchers.{ MatchResult, Matcher }
 
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, Any] = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
+  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
 
   implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
-  private def mockResponse(body: String) = {
+  private def mockResponse(body: String): Response = {
     val response = mock[Response]
-    when(response.body) thenReturn new CharArrayResponseBody(body.toCharArray, UTF_8)
+    when(response.body) thenReturn new InputStreamResponseBody(Seq(body.getBytes(UTF_8)), UTF_8)
+    when(response.charset) thenReturn UTF_8
     response
   }
 

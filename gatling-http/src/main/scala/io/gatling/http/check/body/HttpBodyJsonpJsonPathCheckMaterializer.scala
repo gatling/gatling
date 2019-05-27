@@ -24,22 +24,24 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
+import com.fasterxml.jackson.databind.JsonNode
+
 object HttpBodyJsonpJsonPathCheckMaterializer {
 
   private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
 
-  def parseJsonpString(string: String, jsonParsers: JsonParsers): Validation[Any] = string match {
+  def parseJsonpString(string: String, jsonParsers: JsonParsers): Validation[JsonNode] = string match {
     case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
     case _                 => JsonpRegexFailure
   }
 
-  def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] = response => parseJsonpString(response.body.string, jsonParsers)
+  def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, JsonNode] = response => parseJsonpString(response.body.string, jsonParsers)
 }
 
-class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, Any] {
+class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] {
 
   override val specializer: Specializer[HttpCheck, Response] = StringBodySpecializer
 
-  override val preparer: Preparer[Response, Any] = HttpBodyJsonpJsonPathCheckMaterializer.jsonpPreparer(jsonParsers)
+  override val preparer: Preparer[Response, JsonNode] = HttpBodyJsonpJsonPathCheckMaterializer.jsonpPreparer(jsonParsers)
 }

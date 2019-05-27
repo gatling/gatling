@@ -37,26 +37,6 @@ case object CharArrayResponseBodyUsage extends ResponseBodyUsage
 case object ByteArrayResponseBodyUsage extends ResponseBodyUsage
 case object InputStreamResponseBodyUsage extends ResponseBodyUsage
 
-trait ResponseBodyUsageStrategy {
-  def bodyUsage(contentLength: Int): ResponseBodyUsage
-}
-
-object StringResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  override def bodyUsage(contentLength: Int): ResponseBodyUsage = StringResponseBodyUsage
-}
-
-object CharArrayResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  override def bodyUsage(contentLength: Int): ResponseBodyUsage = CharArrayResponseBodyUsage
-}
-
-object ByteArrayResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  override def bodyUsage(contentLength: Int): ResponseBodyUsage = ByteArrayResponseBodyUsage
-}
-
-object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  override def bodyUsage(contentLength: Int): ResponseBodyUsage = InputStreamResponseBodyUsage
-}
-
 sealed trait ResponseBody {
   def string: String
   def chars: Array[Char]

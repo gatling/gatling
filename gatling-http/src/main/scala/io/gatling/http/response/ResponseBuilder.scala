@@ -56,9 +56,9 @@ object ResponseBuilder extends StrictLogging {
       if (requestConfig.responseTransformer.isDefined) {
         // we can't assume anything about if and how the response body will be used,
         // let's force bytes so we don't risk decoding binary content
-        List(ByteArrayResponseBodyUsageStrategy)
+        List(ByteArrayResponseBodyUsage)
       } else {
-        requestConfig.checks.flatMap(_.responseBodyUsageStrategy)
+        requestConfig.checks.flatMap(_.responseBodyUsage)
       }
 
     val storeBodyParts = IsHttpDebugEnabled || bodyUsageStrategies.nonEmpty
@@ -76,13 +76,13 @@ object ResponseBuilder extends StrictLogging {
 }
 
 class ResponseBuilder(
-    request:             Request,
-    checksumChecks:      List[ChecksumCheck],
-    bodyUsageStrategies: Seq[ResponseBodyUsageStrategy],
-    storeBodyParts:      Boolean,
-    inferHtmlResources:  Boolean,
-    defaultCharset:      Charset,
-    clock:               Clock
+    request:            Request,
+    checksumChecks:     List[ChecksumCheck],
+    bodyUsages:         Seq[ResponseBodyUsage],
+    storeBodyParts:     Boolean,
+    inferHtmlResources: Boolean,
+    defaultCharset:     Charset,
+    clock:              Clock
 ) {
 
   private val computeChecksums = checksumChecks.nonEmpty
@@ -159,32 +159,38 @@ class ResponseBuilder(
 
             val contentLength = chunks.sumBy(_.readableBytes)
 
-            val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
-
             val resolvedCharset = resolveCharset
 
-            val properlyOrderedChunks = chunks.reverse
+            val chunksOrderedByArrival = chunks.reverse
             val body: ResponseBody =
-              if (properlyOrderedChunks.isEmpty) {
+              if (chunksOrderedByArrival.isEmpty) {
                 NoResponseBody
 
               } else if (bodyUsages.contains(ByteArrayResponseBodyUsage)) {
-                ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+                // bodyBytes
+                ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
 
               } else if (bodyUsages.contains(InputStreamResponseBodyUsage)) {
-                InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
+                // jsonPath
+                // xpath
+                InputStreamResponseBody(chunksOrderedByArrival, resolvedCharset)
 
               } else if (bodyUsages.contains(StringResponseBodyUsage)) {
-                StringResponseBody(properlyOrderedChunks, resolvedCharset)
+                // jsonpJsonPath
+                // regex
+                // bodyString
+                // substring
+                StringResponseBody(chunksOrderedByArrival, resolvedCharset)
 
               } else if (bodyUsages.contains(CharArrayResponseBodyUsage)) {
-                CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+                // css
+                CharArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
 
               } else if (isTxt(headers)) {
-                StringResponseBody(properlyOrderedChunks, resolvedCharset)
+                StringResponseBody(chunksOrderedByArrival, resolvedCharset)
 
               } else {
-                ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
+                ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
               }
 
             Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)

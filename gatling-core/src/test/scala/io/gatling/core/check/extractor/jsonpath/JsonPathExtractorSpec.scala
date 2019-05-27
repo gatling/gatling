@@ -29,17 +29,14 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
   def testCount(path: String, sample: JsonSample, expected: Int): Unit = {
     val extractor = newJsonPathCountExtractor(path, jsonPaths)
-    extractor(sample.joddAST(jsonParsers)).succeeded shouldBe Some(expected)
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe Some(expected)
   }
   def testSingle[T: JsonFilter](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
     val extractor = newJsonPathSingleExtractor[T](path, occurrence, jsonPaths)
-    extractor(sample.joddAST(jsonParsers)).succeeded shouldBe expected
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
   def testMultiple[T: JsonFilter](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
     val extractor = newJsonPathMultipleExtractor[T](path, jsonPaths)
-    extractor(sample.joddAST(jsonParsers)).succeeded shouldBe expected
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
 

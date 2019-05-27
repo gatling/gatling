@@ -20,51 +20,58 @@ import scala.annotation.implicitNotFound
 
 import io.gatling.core.json.Json
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType._
+
 trait LowPriorityJsonFilterImplicits {
 
-  private def newJsonFilter[T](f: PartialFunction[Any, T]): JsonFilter[T] =
+  private def newJsonFilter[T](f: PartialFunction[JsonNode, T]): JsonFilter[T] =
     new JsonFilter[T] {
-      override val filter: PartialFunction[Any, T] = f
+      override val filter: PartialFunction[JsonNode, T] = f
     }
 
   implicit val stringJsonFilter: JsonFilter[String] = newJsonFilter {
-    case e: Any => Json.stringify(e)
-    case null   => null
+    case node =>
+      if (node.getNodeType == NULL) {
+        null
+      } else {
+        Json.stringify(node, isRootObject = true)
+      }
   }
 
   implicit val jBooleanJsonFilter: JsonFilter[Boolean] = newJsonFilter {
-    case e: java.lang.Boolean => e
-    case null                 => null.asInstanceOf[Boolean]
+    case node if node.getNodeType == BOOLEAN => node.booleanValue
+    case node if node.getNodeType == NULL    => null.asInstanceOf[Boolean]
   }
 
   implicit val integerJsonFilter: JsonFilter[Int] = newJsonFilter {
-    case e: Number => e.intValue
-    case null      => null.asInstanceOf[Int]
+    case node if node.getNodeType == NUMBER => node.intValue
+    case node if node.getNodeType == NULL   => null.asInstanceOf[Int]
   }
 
   implicit val jLongJsonFilter: JsonFilter[Long] = newJsonFilter {
-    case e: Number => e.longValue
-    case null      => null.asInstanceOf[Long]
+    case node if node.getNodeType == NUMBER => node.longValue
+    case node if node.getNodeType == NULL   => null.asInstanceOf[Long]
   }
 
   implicit val jDoubleJsonFilter: JsonFilter[Double] = newJsonFilter {
-    case e: Number => e.doubleValue
-    case null      => null.asInstanceOf[Double]
+    case node if node.getNodeType == NUMBER => node.doubleValue
+    case node if node.getNodeType == NULL   => null.asInstanceOf[Double]
   }
 
   implicit val jFloatJsonFilter: JsonFilter[Float] = newJsonFilter {
-    case e: Number => e.floatValue
-    case null      => null.asInstanceOf[Float]
+    case node if node.getNodeType == NUMBER => node.floatValue
+    case node if node.getNodeType == NULL   => null.asInstanceOf[Float]
   }
 
   implicit val jListJsonFilter: JsonFilter[Seq[Any]] = newJsonFilter {
-    case e: java.util.List[_] => Json.asScala(e).asInstanceOf[Seq[Any]]
-    case null                 => null.asInstanceOf[Seq[Any]]
+    case node if node.getNodeType == ARRAY => Json.asScala(node).asInstanceOf[Seq[Any]]
+    case node if node.getNodeType == NULL  => null.asInstanceOf[Seq[Any]]
   }
 
   implicit val jMapJsonFilter: JsonFilter[Map[String, Any]] = newJsonFilter {
-    case e: java.util.Map[_, _] => Json.asScala(e).asInstanceOf[Map[String, Any]]
-    case null                   => null.asInstanceOf[Map[String, Any]]
+    case node if node.getNodeType == OBJECT => Json.asScala(node).asInstanceOf[Map[String, Any]]
+    case node if node.getNodeType == NULL   => null.asInstanceOf[Map[String, Any]]
   }
 
   implicit val anyJsonFilter: JsonFilter[Any] = newJsonFilter {
@@ -78,5 +85,5 @@ object JsonFilter extends LowPriorityJsonFilterImplicits {
 
 @implicitNotFound("No member of type class JsonFilter found for type ${X}")
 trait JsonFilter[X] {
-  def filter: PartialFunction[Any, X]
+  def filter: PartialFunction[JsonNode, X]
 }

@@ -29,6 +29,7 @@ import io.gatling.core.check.extractor.time._
 import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.stats.message.ResponseTimings
 
+import com.fasterxml.jackson.databind.JsonNode
 import jodd.lagarto.dom.NodeSelector
 
 trait CheckSupport {
@@ -60,10 +61,10 @@ trait CheckSupport {
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
   def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] = css(selector).ofType[Map[String, Any]]
 
-  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, Any, String] with JsonPathOfType =
+  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
 
-  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, Any, String] with JsonpJsonPathOfType =
+  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
 
   val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5

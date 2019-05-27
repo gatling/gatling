@@ -20,7 +20,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath._
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckBuilders.StreamBodySpecializer
 import io.gatling.http.response.Response
 
 import org.xml.sax.InputSource

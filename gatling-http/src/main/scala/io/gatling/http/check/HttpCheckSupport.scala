@@ -40,6 +40,7 @@ import io.gatling.http.check.time.HttpResponseTimeCheckMaterializer
 import io.gatling.http.check.url._
 import io.gatling.http.response.Response
 
+import com.fasterxml.jackson.databind.JsonNode
 import jodd.lagarto.dom.NodeSelector
 
 trait HttpCheckSupport {
@@ -80,8 +81,8 @@ trait HttpCheckSupport {
   implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] = HttpBodySubstringCheckMaterializer
   implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] = new HttpBodyXPathCheckMaterializer(xmlParsers)
   implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] = new HttpBodyCssCheckMaterializer(selectors)
-  implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, Any] = new HttpBodyJsonPathCheckMaterializer(jsonParsers)
-  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, Any] = new HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers)
+  implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonPathCheckMaterializer(jsonParsers)
+  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers)
 
   implicit val httpMd5CheckMaterializer: CheckMaterializer[Md5CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Md5
   implicit val httpSha1CheckMaterializer: CheckMaterializer[Sha1CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Sha1
@@ -90,13 +91,13 @@ trait HttpCheckSupport {
 
   implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
     override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) =
-      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
+      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsage)
   }
 
   implicit object HttpUntypedConditionalCheckWrapper extends UntypedConditionalCheckWrapper[HttpCheck] {
     override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck): HttpCheck = {
       val typedCondition = (_: Response, session: Session) => condition(session)
-      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsageStrategy)
+      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsage)
     }
   }
 }

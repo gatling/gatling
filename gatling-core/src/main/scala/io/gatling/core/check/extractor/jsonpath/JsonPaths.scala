@@ -21,6 +21,8 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 import io.gatling.jsonpath.JsonPath
 
+import com.fasterxml.jackson.databind.JsonNode
+
 class JsonPaths(implicit configuration: GatlingConfiguration) {
 
   private val jsonPathCache = {
@@ -32,7 +34,7 @@ class JsonPaths(implicit configuration: GatlingConfiguration) {
     Cache.newConcurrentLoadingCache(configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
   }
 
-  def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
+  def extractAll[X: JsonFilter](json: JsonNode, expression: String): Validation[Iterator[X]] =
     compileJsonPath(expression).map(_.query(json).collect(JsonFilter[X].filter))
 
   def compileJsonPath(expression: String): Validation[JsonPath] = jsonPathCache.get(expression)

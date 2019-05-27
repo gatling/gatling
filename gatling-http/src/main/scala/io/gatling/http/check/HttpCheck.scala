@@ -19,18 +19,18 @@ package io.gatling.http.check
 import java.util.{ Map => JMap }
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ CheckResult, Check }
+import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.Session
-import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
+import io.gatling.http.response.{ Response, ResponseBodyUsage }
 
 /**
  * This class serves as model for the HTTP-specific checks
  *
  * @param wrapped the underlying check
  * @param scope the part of the response this check targets
- * @param responseBodyUsageStrategy how this check uses the response body
+ * @param responseBodyUsage how this check uses the response body
  */
-case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
+case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope, responseBodyUsage: Option[ResponseBodyUsage])
   extends Check[Response] {
   override def check(response: Response, session: Session)(implicit cache: JMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(response, session)

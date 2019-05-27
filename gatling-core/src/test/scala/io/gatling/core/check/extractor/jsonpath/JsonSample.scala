@@ -18,11 +18,11 @@ package io.gatling.core.check.extractor.jsonpath
 
 import io.gatling.core.json.JsonParsers
 
+import com.fasterxml.jackson.databind.JsonNode
+
 trait JsonSample {
 
   def value: String
 
-  def joddAST(jsonParsers: JsonParsers) = jsonParsers.jodd.parse(value)
-
-  def jacksonAST(jsonParsers: JsonParsers) = jsonParsers.jackson.parse(value)
+  def jacksonAST(jsonParsers: JsonParsers): JsonNode = jsonParsers.parse(value)
 }

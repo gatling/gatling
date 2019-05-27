@@ -27,9 +27,96 @@ import io.gatling.commons.util.Maps._
 import io.gatling.netty.util.ahc.StringBuilderPool
 import io.gatling.commons.util.Spire._
 
+import com.fasterxml.jackson.core.JsonParser.NumberType._
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType._
+
 object Json {
 
   private val stringBuilders = new StringBuilderPool
+
+  def stringify(node: JsonNode, isRootObject: Boolean): String = {
+
+    val sb = stringBuilders.get()
+
+    def appendStringified(node: JsonNode, rootLevel: Boolean): JStringBuilder = node.getNodeType match {
+      case NUMBER =>
+        node.numberType match {
+          case INT         => sb.append(node.intValue)
+          case LONG        => sb.append(node.longValue)
+          case FLOAT       => sb.append(node.floatValue)
+          case DOUBLE      => sb.append(node.doubleValue)
+          case BIG_INTEGER => sb.append(node.bigIntegerValue)
+          case BIG_DECIMAL => sb.append(node.decimalValue)
+        }
+      case BOOLEAN       => sb.append(node.booleanValue)
+      case STRING | NULL => appendString(node.asText, rootLevel)
+      case OBJECT        => appendMap(node)
+      case ARRAY         => appendArray(node)
+      case _             => appendString(node.toString, rootLevel)
+    }
+
+    def appendString(s: String, rootLevel: Boolean): JStringBuilder =
+      if (rootLevel) {
+        appendString0(s)
+      } else {
+        sb.append('"')
+        appendString0(s).append('"')
+      }
+
+    def appendString0(s: String): JStringBuilder = {
+      cfor(0)(_ < s.length, _ + 1) { i =>
+        val c = s.charAt(i)
+        c match {
+          case '"'  => sb.append("\\\"")
+          case '\\' => sb.append("\\\\")
+          case '\b' => sb.append("\\b")
+          case '\f' => sb.append("\\f")
+          case '\n' => sb.append("\\n")
+          case '\r' => sb.append("\\r")
+          case '\t' => sb.append("\\t")
+          case _ =>
+            if (Character.isISOControl(c)) {
+              sb.append("\\u")
+              var n: Int = c
+              cfor(0)(_ < 4, _ + 1) { _ =>
+                val digit = (n & 0xf000) >> 12
+                sb.append(HexUtils.toHexChar(digit))
+                n <<= 4
+              }
+            } else {
+              sb.append(c)
+            }
+        }
+      }
+      sb
+    }
+
+    def appendArray(node: JsonNode): JStringBuilder = {
+      sb.append('[')
+      node.elements.asScala.foreach { elem =>
+        appendStringified(elem, rootLevel = false).append(',')
+      }
+      if (node.size > 0) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append(']')
+    }
+
+    def appendMap(node: JsonNode): JStringBuilder = {
+      sb.append('{')
+      node.fields.asScala.foreach { e =>
+        sb.append('"').append(e.getKey).append("\":")
+        appendStringified(e.getValue, rootLevel = false).append(',')
+      }
+      if (node.size > 0) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append('}')
+    }
+
+    appendStringified(node, isRootObject).toString
+  }
 
   def stringify(value: Any, isRootObject: Boolean = true): String = {
 
@@ -116,17 +203,43 @@ object Json {
     appendStringified(value, isRootObject).toString
   }
 
-  def asScala(value: Any): Any =
-    value match {
-      case list: JCollection[_] => list.asScala.map(asScala)
-      case map: JMap[_, _] =>
-        (map.size: @switch) match {
+  def asScala(node: JsonNode): Any =
+    node.getNodeType match {
+      case ARRAY =>
+        (node.size: @switch) match {
+          case 0 => Seq.empty
+          case 1 =>
+            Array(asScala(node.get(0))).toSeq
+          case 2 =>
+            Array(
+              asScala(node.get(0)),
+              asScala(node.get(1))
+            ).toSeq
+          case 3 =>
+            Array(
+              asScala(node.get(0)),
+              asScala(node.get(1)),
+              asScala(node.get(2))
+            ).toSeq
+          case 4 =>
+            Array(
+              asScala(node.get(0)),
+              asScala(node.get(1)),
+              asScala(node.get(2)),
+              asScala(node.get(3))
+            ).toSeq
+          case _ =>
+            node.elements.asScala.map(asScala).toVector
+        }
+
+      case OBJECT =>
+        (node.size: @switch) match {
           case 0 => Map.empty
           case 1 =>
-            val entry0 = map.entrySet.iterator.next()
+            val entry0 = node.fields.next()
             new Map.Map1(entry0.getKey, asScala(entry0.getValue))
           case 2 =>
-            val it = map.entrySet.iterator
+            val it = node.fields
             val entry0 = it.next()
             val entry1 = it.next()
             new Map.Map2(
@@ -134,7 +247,7 @@ object Json {
               entry1.getKey, asScala(entry1.getValue)
             )
           case 3 =>
-            val it = map.entrySet.iterator
+            val it = node.fields
             val entry0 = it.next()
             val entry1 = it.next()
             val entry2 = it.next()
@@ -144,7 +257,7 @@ object Json {
               entry2.getKey, asScala(entry2.getValue)
             )
           case 4 =>
-            val it = map.entrySet.iterator
+            val it = node.fields
             val entry0 = it.next()
             val entry1 = it.next()
             val entry2 = it.next()
@@ -156,9 +269,20 @@ object Json {
               entry3.getKey, asScala(entry3.getValue)
             )
           case _ =>
-            map.asScala.toMap.forceMapValues(asScala)
+            node.fields.asScala.map(e => e.getKey -> e.getValue).toMap.forceMapValues(asScala)
         }
 
-      case _ => value
+      case STRING  => node.textValue
+      case BOOLEAN => node.booleanValue
+      case NULL    => null
+      case NUMBER => node.numberType match {
+        case INT         => node.intValue
+        case LONG        => node.longValue
+        case FLOAT       => node.floatValue
+        case DOUBLE      => node.doubleValue
+        case BIG_INTEGER => node.bigIntegerValue
+        case BIG_DECIMAL => node.decimalValue
+      }
+      case _ => new IllegalArgumentException(s"Unsupported node type ${node.getNodeType}")
     }
 }

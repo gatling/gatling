@@ -17,23 +17,23 @@
 package io.gatling.http.check
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ Check, Preparer, Specializer }
+import io.gatling.core.check.{ Preparer, Specializer }
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response._
 
 object HttpCheckBuilders {
 
-  private def specializer(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): Specializer[HttpCheck, Response] =
-    (wrapped: Check[Response]) => HttpCheck(wrapped, target, responseBodyUsageStrategy)
+  private def specializer(target: HttpCheckScope, responseBodyUsage: Option[ResponseBodyUsage]): Specializer[HttpCheck, Response] =
+    HttpCheck(_, target, responseBodyUsage)
 
   val StatusSpecializer: Specializer[HttpCheck, Response] = specializer(Status, None)
   val UrlSpecializer: Specializer[HttpCheck, Response] = specializer(Url, None)
   val HeaderSpecializer: Specializer[HttpCheck, Response] = specializer(Header, None)
-  def bodySpecializer(responseBodyUsageStrategy: ResponseBodyUsageStrategy): Specializer[HttpCheck, Response] = specializer(Body, Some(responseBodyUsageStrategy))
-  val StringBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(StringResponseBodyUsageStrategy)
-  val CharArrayBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(CharArrayResponseBodyUsageStrategy)
-  val StreamBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(InputStreamResponseBodyUsageStrategy)
-  val BytesBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(ByteArrayResponseBodyUsageStrategy)
+  private def bodySpecializer(responseBodyUsage: ResponseBodyUsage): Specializer[HttpCheck, Response] = specializer(Body, Some(responseBodyUsage))
+  val StringBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(StringResponseBodyUsage)
+  val CharArrayBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(CharArrayResponseBodyUsage)
+  val StreamBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(InputStreamResponseBodyUsage)
+  val BytesBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(ByteArrayResponseBodyUsage)
   val TimeSpecializer: Specializer[HttpCheck, Response] = specializer(Body, None)
 
   val PassThroughResponsePreparer: Preparer[Response, Response] = _.success

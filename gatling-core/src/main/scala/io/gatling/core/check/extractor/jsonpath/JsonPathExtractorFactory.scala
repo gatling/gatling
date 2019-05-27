@@ -18,7 +18,9 @@ package io.gatling.core.check.extractor.jsonpath
 
 import io.gatling.core.check.extractor._
 
-sealed abstract class JsonPathExtractorFactoryBase(name: String) extends CriterionExtractorFactory[Any, String](name) {
+import com.fasterxml.jackson.databind.JsonNode
+
+sealed abstract class JsonPathExtractorFactoryBase(name: String) extends CriterionExtractorFactory[JsonNode, String](name) {
 
   private def lift[T](it: Iterator[T], i: Int): Option[T] = {
     var j = 0
@@ -32,20 +34,20 @@ sealed abstract class JsonPathExtractorFactoryBase(name: String) extends Criteri
     None
   }
 
-  def newJsonPathSingleExtractor[X: JsonFilter](path: String, occurrence: Int, jsonPaths: JsonPaths): CriterionExtractor[Any, String, X] with FindArity =
+  def newJsonPathSingleExtractor[X: JsonFilter](path: String, occurrence: Int, jsonPaths: JsonPaths): CriterionExtractor[JsonNode, String, X] with FindArity =
     newSingleExtractor(
       path,
       occurrence,
       jsonPaths.extractAll(_, path).map(lift(_, occurrence))
     )
 
-  def newJsonPathMultipleExtractor[X: JsonFilter](path: String, jsonPaths: JsonPaths): CriterionExtractor[Any, String, Seq[X]] with FindAllArity =
+  def newJsonPathMultipleExtractor[X: JsonFilter](path: String, jsonPaths: JsonPaths): CriterionExtractor[JsonNode, String, Seq[X]] with FindAllArity =
     newMultipleExtractor(
       path,
       jsonPaths.extractAll(_, path).map(_.toVector.liftSeqOption)
     )
 
-  def newJsonPathCountExtractor(path: String, jsonPaths: JsonPaths): CriterionExtractor[Any, String, Int] with CountArity =
+  def newJsonPathCountExtractor(path: String, jsonPaths: JsonPaths): CriterionExtractor[JsonNode, String, Int] with CountArity =
     newCountExtractor(
       path,
       jsonPaths.extractAll[Any](_, path).map(i => Some(i.size))
