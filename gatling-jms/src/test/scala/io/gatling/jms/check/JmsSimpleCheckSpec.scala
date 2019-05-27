@@ -27,8 +27,6 @@ import io.gatling.jms._
 
 class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
 
-  private implicit def cache = new JHashMap[Any, Any]
-
   val session = Session("mockSession", 0, System.currentTimeMillis())
   val check = simpleCheck {
     case tm: TextMessage => tm.getText == "OK"
@@ -36,14 +34,14 @@ class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
   }
 
   "simple check" should "return success if condition is true" in {
-    check.check(textMessage("OK"), session) shouldBe a[Success[_]]
+    check.check(textMessage("OK"), session, new JHashMap[Any, Any]) shouldBe a[Success[_]]
   }
 
   it should "return failure if condition is false" in {
-    check.check(textMessage("KO"), session) shouldBe a[Failure]
+    check.check(textMessage("KO"), session, new JHashMap[Any, Any]) shouldBe a[Failure]
   }
 
   it should "return failure if message is not TextMessage" in {
-    check.check(message, session) shouldBe a[Failure]
+    check.check(message, session, new JHashMap[Any, Any]) shouldBe a[Failure]
   }
 }

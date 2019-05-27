@@ -16,7 +16,7 @@
 
 package io.gatling.core.check
 
-import java.util.{ HashMap => JHashMap, Map => JMap }
+import java.util.{ Map => JMap }
 
 import scala.annotation.tailrec
 
@@ -26,8 +26,7 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  // FIXME do we need a default value?
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: JMap[Any, Any] = new JHashMap(2)): (Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: JMap[Any, Any]): (Session, Option[Failure]) = {
 
     @tailrec
     def checkRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
@@ -35,7 +34,7 @@ object Check {
         case Nil => (currentSession, failure)
 
         case check :: tail =>
-          check.check(response, currentSession) match {
+          check.check(response, currentSession, preparedCache) match {
             case Success(checkResult) =>
               val newSession = checkResult.update(currentSession)
               checkRec(newSession, tail, failure)
@@ -51,7 +50,7 @@ object Check {
 
 trait Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: JMap[Any, Any]): Validation[CheckResult]
+  def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult]
 }
 
 case class CheckBase[R, P, X](
@@ -63,23 +62,15 @@ case class CheckBase[R, P, X](
     saveAs:              Option[String]
 ) extends Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
 
+    def unbuiltName: String = customName.getOrElse("Check")
     def memoizedPrepared: Validation[P] =
       if (preparedCache == null) {
         preparer(response)
       } else {
-        val cachedValue = preparedCache.get(preparer)
-        if (cachedValue == null) {
-          val prepared = preparer(response)
-          preparedCache.put(preparer, prepared)
-          prepared
-        } else {
-          cachedValue.asInstanceOf[Validation[P]]
-        }
+        preparedCache.computeIfAbsent(preparer, _ => preparer(response)).asInstanceOf[Validation[P]]
       }
-
-    def unbuiltName: String = customName.getOrElse("Check")
     def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
 
     for {

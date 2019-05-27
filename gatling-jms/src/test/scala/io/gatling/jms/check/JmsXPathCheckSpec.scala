@@ -28,20 +28,19 @@ import io.gatling.jms.{ MockMessage, JmsCheck }
 class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport {
 
   val configuration = GatlingConfiguration.loadForTest()
-  implicit def cache: JHashMap[Any, Any] = new JHashMap
 
   val session = Session("mockSession", 0, System.currentTimeMillis())
   val check: JmsCheck = xpath("/ok").find
 
   "xpath check" should "return success if condition is true" in {
-    check.check(textMessage("<ok></ok>"), session) shouldBe a[Success[_]]
+    check.check(textMessage("<ok></ok>"), session, new JHashMap[Any, Any]) shouldBe a[Success[_]]
   }
 
   it should "return failure if condition is false" in {
-    check.check(textMessage("<ko></ko>"), session) shouldBe a[Failure]
+    check.check(textMessage("<ko></ko>"), session, new JHashMap[Any, Any]) shouldBe a[Failure]
   }
 
   it should "return failure if message is not TextMessage" in {
-    check.check(message, session).failed.message should include("Unsupported message type")
+    check.check(message, session, new JHashMap[Any, Any]).failed.message should include("Unsupported message type")
   }
 }

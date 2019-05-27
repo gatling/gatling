@@ -33,7 +33,6 @@ class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = HttpBodyBytesCheckMaterializer
 
-  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: Array[Byte]) = {
@@ -46,13 +45,13 @@ class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl
     val string = "Hello World"
     val responseBytes = string.getBytes(UTF_8)
     val response = mockResponse(responseBytes)
-    bodyBytes.find.is(string.getBytes(UTF_8)).check(response, session).succeeded shouldBe CheckResult(Some(responseBytes), None)
+    bodyBytes.find.is(string.getBytes(UTF_8)).check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(responseBytes), None)
   }
 
   it should "fail when byte arrays are different" in {
     val string = "Hello World"
     val responseBytes = string.getBytes(UTF_8)
     val response = mockResponse(responseBytes)
-    bodyBytes.find.is("HELLO WORLD".getBytes(UTF_8)).check(response, session).failed shouldBe a[String]
+    bodyBytes.find.is("HELLO WORLD".getBytes(UTF_8)).check(response, session, new JHashMap[Any, Any]).failed shouldBe a[String]
   }
 }

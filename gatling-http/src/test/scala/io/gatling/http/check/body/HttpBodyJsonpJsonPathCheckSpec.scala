@@ -35,7 +35,6 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
 
-  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String) = {
@@ -54,6 +53,6 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
 
   "jsonpJsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonpJsonPath("$.street").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)
+    jsonpJsonPath("$.street").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)
   }
 }

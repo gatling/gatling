@@ -36,7 +36,6 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = HttpBodyRegexCheckMaterializer
 
-  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   val regexCheck = super[CoreDsl].regex(_)
@@ -49,39 +48,39 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   "regex.find.exists" should "find single result" in {
     val response = mockResponse("""{"id":"1072920417"}""")
-    regexCheck(""""id":"(.+?)"""").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regexCheck(""""id":"(.+?)"""").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regexCheck(""""id":"(.+?)"""").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "regex.findAll.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    regexCheck(""""id":"(.+?)"""").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regexCheck(regexValue).findAll.exists.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
+    regexCheck(regexValue).findAll.exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
   it should "fail with expected message when transforming" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regexCheck(regexValue).findAll.transform(_.map(_ + "foo")).exists.check(response, session).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
+    regexCheck(regexValue).findAll.transform(_.map(_ + "foo")).exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    regexCheck(""""id":"(.+?)"""").count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regexCheck(regexValue).count.exists.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    regexCheck(regexValue).count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

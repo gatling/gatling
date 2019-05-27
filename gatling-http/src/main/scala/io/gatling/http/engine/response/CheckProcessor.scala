@@ -35,13 +35,13 @@ object CheckProcessor {
         checks
       }
 
-    implicit val preparedCache: JMap[Any, Any] =
+    val preparedCache: JMap[Any, Any] =
       if (filteredChecks.size > 1) {
         new JHashMap(2)
       } else {
         null
       }
 
-    Check.check(response, session, filteredChecks)
+    Check.check(response, session, filteredChecks, preparedCache)
   }
 }

@@ -30,7 +30,7 @@ object JmsSimpleCheck {
 }
 
 case class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
-  override def check(response: Message, session: Session)(implicit cache: JMap[Any, Any]): Validation[CheckResult] =
+  override def check(response: Message, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     if (func(response)) {
       CheckResult.NoopCheckResultSuccess
     } else {

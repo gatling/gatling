@@ -34,7 +34,6 @@ class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with Cor
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = HttpBodySubstringCheckMaterializer
 
-  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String) = {
@@ -45,32 +44,32 @@ class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with Cor
 
   "substring.find.exists" should "find single result" in {
     val response = mockResponse("""{"id":"1072920417"}""")
-    substring(""""id":"""").find.exists.check(response, session).succeeded shouldBe CheckResult(Some(1), None)
+    substring(""""id":"""").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(1), None)
   }
 
   it should "find first occurrence" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    substring(""""id":"""").find.exists.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    substring(""""id":"""").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   "substring.findAll.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    substring(""""id":"""").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq(2, 21)), None)
+    substring(""""id":"""").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(Seq(2, 21)), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val substringValue = """"foo":""""
-    substring(substringValue).findAll.exists.check(response, session).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
+    substring(substringValue).findAll.exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
   }
 
   "substring.count.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    substring(""""id":"""").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    substring(""""id":"""").count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    substring(""""foo":"""").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    substring(""""foo":"""").count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
   }
 }
