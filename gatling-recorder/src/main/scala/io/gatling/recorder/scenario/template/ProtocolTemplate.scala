@@ -37,7 +37,7 @@ private[scenario] object ProtocolTemplate {
 
       def renderSslPort(proxyPort: Int) = config.proxy.outgoing.sslPort match {
         case Some(proxySslPort) if proxySslPort != proxyPort => s".httpsPort($proxySslPort)"
-        case _                                               => ""
+        case _ => ""
       }
 
       def renderCredentials = {
