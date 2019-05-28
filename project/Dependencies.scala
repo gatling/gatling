@@ -56,7 +56,7 @@ object Dependencies {
     .exclude("org.apache.logging.log4j", "log4j-core")
   private val compilerBridge                 = zinc.organization                     %% "compiler-bridge"                 % zinc.revision
   private val testInterface                  = zinc.organization                      % "test-interface"                  % "1.0"
-  private val jmsApi                         = "org.apache.geronimo.specs"            % "geronimo-jms_1.1_spec"           % "1.1.1"
+  private val jmsApi                         = "javax.jms"                            % "javax.jms-api"                   % "2.0.1"
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.3"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.11"
@@ -71,7 +71,8 @@ object Dependencies {
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.14.0"            % "test"
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "2.27.0"            % "test"
-  private val activemqBroker                 = "org.apache.activemq"                  % "activemq-broker"                 % "5.15.9"            % "test"
+  private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.15.9"            % "test")
+    .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
   private val h2                             = "com.h2database"                       % "h2"                              % "1.4.199"           % "test"
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.21"
 
