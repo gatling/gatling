@@ -18,8 +18,9 @@ package io.gatling.http.check.header
 
 import io.gatling.core.check._
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckScope.Header
 import io.gatling.http.response.Response
 
 trait HttpHeaderCheckType
@@ -30,7 +31,7 @@ class HttpHeaderCheckBuilder(headerName: Expression[String]) extends DefaultMult
   override def countExtractor: Expression[CountHttpHeaderExtractor] = headerName.map(new CountHttpHeaderExtractor(_))
 }
 
-object HttpHeaderCheckMaterializer extends CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response](HeaderSpecializer) {
+object HttpHeaderCheckMaterializer extends HttpCheckMaterializer[HttpHeaderCheckType, Response](Header) {
 
   override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
 }

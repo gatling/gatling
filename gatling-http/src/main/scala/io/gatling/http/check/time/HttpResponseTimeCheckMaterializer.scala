@@ -17,14 +17,14 @@
 package io.gatling.http.check.time
 
 import io.gatling.commons.validation._
-import io.gatling.core.check._
+import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.time.ResponseTimeCheckType
 import io.gatling.core.stats.message.ResponseTimings
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheckScope.Time
 import io.gatling.http.response.Response
 
-object HttpResponseTimeCheckMaterializer extends CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings](TimeSpecializer) {
+object HttpResponseTimeCheckMaterializer extends HttpCheckMaterializer[ResponseTimeCheckType, ResponseTimings](Time) {
 
   override val preparer: Preparer[Response, ResponseTimings] = response => ResponseTimings(response.startTimestamp, response.endTimestamp).success
 }

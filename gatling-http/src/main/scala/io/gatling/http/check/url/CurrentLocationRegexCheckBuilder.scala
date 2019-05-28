@@ -20,8 +20,9 @@ import io.gatling.core.check._
 import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
 import io.gatling.core.check.extractor.regex._
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckScope.Url
 import io.gatling.http.response.Response
 
 trait CurrentLocationRegexCheckType
@@ -53,7 +54,7 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
   override def countExtractor: Expression[CriterionExtractor[CharSequence, String, Int] with CountArity] = pattern.map(newRegexCountExtractor(_, patterns))
 }
 
-object CurrentLocationRegexCheckMaterializer extends CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence](UrlSpecializer) {
+object CurrentLocationRegexCheckMaterializer extends HttpCheckMaterializer[CurrentLocationRegexCheckType, CharSequence](Url) {
 
   override protected val preparer: Preparer[Response, String] = UrlStringPreparer
 }

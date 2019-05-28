@@ -17,24 +17,10 @@
 package io.gatling.http.check
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ Preparer, Specializer }
-import io.gatling.http.check.HttpCheckScope._
+import io.gatling.core.check.Preparer
 import io.gatling.http.response._
 
 object HttpCheckBuilders {
-
-  private def specializer(target: HttpCheckScope, responseBodyUsage: Option[ResponseBodyUsage]): Specializer[HttpCheck, Response] =
-    HttpCheck(_, target, responseBodyUsage)
-
-  val StatusSpecializer: Specializer[HttpCheck, Response] = specializer(Status, None)
-  val UrlSpecializer: Specializer[HttpCheck, Response] = specializer(Url, None)
-  val HeaderSpecializer: Specializer[HttpCheck, Response] = specializer(Header, None)
-  private def bodySpecializer(responseBodyUsage: ResponseBodyUsage): Specializer[HttpCheck, Response] = specializer(Body, Some(responseBodyUsage))
-  val StringBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(StringResponseBodyUsage)
-  val CharArrayBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(CharArrayResponseBodyUsage)
-  val StreamBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(InputStreamResponseBodyUsage)
-  val BytesBodySpecializer: Specializer[HttpCheck, Response] = bodySpecializer(ByteArrayResponseBodyUsage)
-  val TimeSpecializer: Specializer[HttpCheck, Response] = specializer(Body, None)
 
   val PassThroughResponsePreparer: Preparer[Response, Response] = _.success
   val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success

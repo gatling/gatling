@@ -21,7 +21,8 @@ import java.util.{ HashMap => JHashMap, Map => JMap }
 import io.gatling.commons.validation.Failure
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
-import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
@@ -30,7 +31,7 @@ object CheckProcessor {
   private[response] def check(session: Session, response: Response, checks: List[HttpCheck]): (Session, Option[Failure]) = {
     val filteredChecks =
       if (HttpHelper.isNotModified(response.status)) {
-        checks.filter(c => c.scope != HttpCheckScope.Body)
+        checks.filter(c => c.scope != Chunks && c.scope != Body)
       } else {
         checks
       }

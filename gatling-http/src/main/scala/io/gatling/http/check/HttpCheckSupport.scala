@@ -91,13 +91,13 @@ trait HttpCheckSupport {
 
   implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
     override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) =
-      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsage)
+      HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope)
   }
 
   implicit object HttpUntypedConditionalCheckWrapper extends UntypedConditionalCheckWrapper[HttpCheck] {
     override def wrap(condition: Expression[Boolean], thenCheck: HttpCheck): HttpCheck = {
       val typedCondition = (_: Response, session: Session) => condition(session)
-      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope, thenCheck.responseBodyUsage)
+      HttpCheck(ConditionalCheck(typedCondition, thenCheck), thenCheck.scope)
     }
   }
 }

@@ -17,12 +17,12 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check._
+import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.JsonpJsonPathCheckType
 import io.gatling.core.json.JsonParsers
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.response.Response
+import io.gatling.http.check.HttpCheckScope.Body
 
 import com.fasterxml.jackson.databind.JsonNode
 
@@ -32,7 +32,7 @@ object HttpBodyJsonpJsonPathCheckMaterializer {
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
 }
 
-class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode](StringBodySpecializer) {
+class HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends HttpCheckMaterializer[JsonpJsonPathCheckType, JsonNode](Body) {
 
   import HttpBodyJsonpJsonPathCheckMaterializer._
 

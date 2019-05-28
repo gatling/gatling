@@ -31,9 +31,10 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.checksum.ChecksumCheck
+import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.client.Request
 import io.gatling.http.engine.response._
-import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
+import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml }
 import io.gatling.http.request.HttpRequestConfig
 
 import com.typesafe.scalalogging.StrictLogging
@@ -52,21 +53,15 @@ object ResponseBuilder extends StrictLogging {
       case checksumCheck: ChecksumCheck => checksumCheck
     }
 
-    val bodyUsageStrategies =
-      if (requestConfig.responseTransformer.isDefined) {
-        // we can't assume anything about if and how the response body will be used,
-        // let's force bytes so we don't risk decoding binary content
-        List(ByteArrayResponseBodyUsage)
-      } else {
-        requestConfig.checks.flatMap(_.responseBodyUsage)
-      }
-
-    val storeBodyParts = IsHttpDebugEnabled || bodyUsageStrategies.nonEmpty
+    val storeBodyParts = IsHttpDebugEnabled ||
+      // we can't assume anything about if and how the response body will be used,
+      // let's force bytes so we don't risk decoding binary content
+      requestConfig.responseTransformer.isDefined ||
+      requestConfig.checks.exists(_.scope == Body)
 
     request => new ResponseBuilder(
       request,
       checksumChecks,
-      bodyUsageStrategies,
       storeBodyParts,
       requestConfig.httpProtocol.responsePart.inferHtmlResources,
       configuration.core.charset,
@@ -78,7 +73,6 @@ object ResponseBuilder extends StrictLogging {
 class ResponseBuilder(
     request:            Request,
     checksumChecks:     List[ChecksumCheck],
-    bodyUsages:         Seq[ResponseBodyUsage],
     storeBodyParts:     Boolean,
     inferHtmlResources: Boolean,
     defaultCharset:     Charset,
@@ -161,38 +155,7 @@ class ResponseBuilder(
           val resolvedCharset = resolveCharset
 
           val chunksOrderedByArrival = chunks.reverse
-          val body: ResponseBody =
-            if (chunksOrderedByArrival.isEmpty) {
-              NoResponseBody
-
-            } else if (bodyUsages.contains(ByteArrayResponseBodyUsage)) {
-              // bodyBytes
-              ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
-
-            } else if (bodyUsages.contains(InputStreamResponseBodyUsage)) {
-              // jsonPath
-              // xpath
-              new InputStreamResponseBody(chunksOrderedByArrival, resolvedCharset)
-
-            } else if (bodyUsages.contains(StringResponseBodyUsage)) {
-              // jsonpJsonPath
-              // regex
-              // bodyString
-              // substring
-              StringResponseBody(chunksOrderedByArrival, resolvedCharset)
-
-            } else if (bodyUsages.contains(CharArrayResponseBodyUsage)) {
-              // css
-              CharArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
-
-            } else if (isTxt(headers)) {
-              // debugging text
-              StringResponseBody(chunksOrderedByArrival, resolvedCharset)
-
-            } else {
-              // debugging binary
-              ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
-            }
+          val body: ResponseBody = ResponseBody(chunksOrderedByArrival, resolvedCharset)
 
           Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
         } catch {

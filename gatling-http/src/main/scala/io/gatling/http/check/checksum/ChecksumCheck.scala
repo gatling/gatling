@@ -18,7 +18,7 @@ package io.gatling.http.check.checksum
 
 import io.gatling.core.check.Check
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckScope.Body
+import io.gatling.http.check.HttpCheckScope.Chunks
 import io.gatling.http.response.Response
 
-class ChecksumCheck(val algorithm: String, wrapped: Check[Response]) extends HttpCheck(wrapped, Body, None)
+class ChecksumCheck(val algorithm: String, wrapped: Check[Response]) extends HttpCheck(wrapped, Chunks)
