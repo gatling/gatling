@@ -17,7 +17,7 @@
 package io.gatling.jms.jndi
 
 import java.util
-import javax.jms.{ Connection, ConnectionFactory }
+import javax.jms.{ Connection, ConnectionFactory, JMSContext }
 import javax.naming.Context
 import javax.naming.spi.InitialContextFactory
 
@@ -37,4 +37,12 @@ class DummyConnectionFactory(env: util.Hashtable[_, _]) extends ConnectionFactor
   override def createConnection(): Connection = null
 
   override def createConnection(userName: String, password: String): Connection = null
+
+  override def createContext(sessionMode: Int): JMSContext = null
+
+  override def createContext(userName: String, password: String, sessionMode: Int): JMSContext = null
+
+  override def createContext(userName: String, password: String): JMSContext = null
+
+  override def createContext(): JMSContext = null
 }
