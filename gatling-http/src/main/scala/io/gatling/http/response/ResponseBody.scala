@@ -16,20 +16,21 @@
 
 package io.gatling.http.response
 
-import java.io.{ ByteArrayInputStream, InputStream }
+import java.io.{ ByteArrayInputStream, InputStream, SequenceInputStream }
 import java.nio.charset.Charset
 
 import scala.annotation.switch
 import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
 
-import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInputStream }
+import io.gatling.commons.util.FastByteArrayInputStream
 import io.gatling.commons.util.ByteBufs._
 import io.gatling.commons.util.Bytes._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.netty.util.ahc.ByteBufUtils._
 
 import com.typesafe.scalalogging.LazyLogging
-import io.netty.buffer.ByteBuf
+import io.netty.buffer.{ ByteBuf, ByteBufInputStream }
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -97,19 +98,11 @@ class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends Re
   override def stream: InputStream = new FastByteArrayInputStream(bytes)
 }
 
-object InputStreamResponseBody {
-
-  def apply(chunks: Seq[ByteBuf], charset: Charset): InputStreamResponseBody = {
-    val bytes = chunks.map(byteBufToByteArray)
-    new InputStreamResponseBody(bytes, charset)
-  }
-}
-
-class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
+class InputStreamResponseBody(chunks: Seq[ByteBuf], charset: Charset) extends ResponseBody with LazyLogging {
 
   override lazy val string: String =
     try {
-      byteArraysToString(chunks, charset)
+      byteBuf2String(charset, chunks.map(_.duplicate): _*)
     } catch {
       case NonFatal(e) =>
         logger.error(s"Response body is not valid ${charset.name} bytes", e)
@@ -118,13 +111,18 @@ class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extend
 
   override lazy val chars: Array[Char] = string.toCharArray
 
-  override lazy val bytes: Array[Byte] = byteArraysToByteArray(chunks)
+  override lazy val bytes: Array[Byte] =
+    (chunks.size: @switch) match {
+      case 0 => Array.emptyByteArray
+      case 1 => byteBuf2Bytes(chunks.head.duplicate)
+      case _ => byteBufsToByteArray(chunks.map(_.duplicate))
+    }
 
   override def stream: InputStream =
     (chunks.size: @switch) match {
       case 0 => new FastByteArrayInputStream(Array.emptyByteArray)
-      case 1 => new FastByteArrayInputStream(chunks.head)
-      case _ => new CompositeByteArrayInputStream(chunks)
+      case 1 => new ByteBufInputStream(chunks.head.duplicate)
+      case _ => new SequenceInputStream(chunks.map(chunk => new ByteBufInputStream(chunk.duplicate)).iterator.asJavaEnumeration)
     }
 }
 

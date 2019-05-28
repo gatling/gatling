@@ -31,6 +31,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ InputStreamResponseBody, Response }
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.netty.buffer.Unpooled
 import org.mockito.Mockito._
 import org.scalatest.matchers.{ MatchResult, Matcher }
 
@@ -43,7 +44,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   private def mockResponse(body: String): Response = {
     val response = mock[Response]
-    when(response.body) thenReturn new InputStreamResponseBody(Seq(body.getBytes(UTF_8)), UTF_8)
+    when(response.body) thenReturn new InputStreamResponseBody(Seq(Unpooled.wrappedBuffer(body.getBytes(UTF_8))), UTF_8)
     when(response.charset) thenReturn UTF_8
     response
   }

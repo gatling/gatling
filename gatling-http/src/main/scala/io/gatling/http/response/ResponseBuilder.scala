@@ -34,9 +34,9 @@ import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.client.Request
 import io.gatling.http.engine.response._
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
+import io.gatling.http.request.HttpRequestConfig
 
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.http.request.HttpRequestConfig
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
@@ -146,74 +146,67 @@ class ResponseBuilder(
     .getOrElse(defaultCharset)
 
   def buildResponse: HttpResult =
-    try {
-      status match {
-        case Some(s) =>
-          try {
-            // Clock source might not be monotonic.
-            // Moreover, ProgressListener might be called AFTER ChannelHandler methods
-            // ensure response doesn't end before starting
-            endTimestamp = max(endTimestamp, startTimestamp)
+    status match {
+      case Some(s) =>
+        try {
+          // Clock source might not be monotonic.
+          // Moreover, ProgressListener might be called AFTER ChannelHandler methods
+          // ensure response doesn't end before starting
+          endTimestamp = max(endTimestamp, startTimestamp)
 
-            val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+          val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
-            val contentLength = chunks.sumBy(_.readableBytes)
+          val contentLength = chunks.sumBy(_.readableBytes)
 
-            val resolvedCharset = resolveCharset
+          val resolvedCharset = resolveCharset
 
-            val chunksOrderedByArrival = chunks.reverse
-            val body: ResponseBody =
-              if (chunksOrderedByArrival.isEmpty) {
-                NoResponseBody
+          val chunksOrderedByArrival = chunks.reverse
+          val body: ResponseBody =
+            if (chunksOrderedByArrival.isEmpty) {
+              NoResponseBody
 
-              } else if (bodyUsages.contains(ByteArrayResponseBodyUsage)) {
-                // bodyBytes
-                ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
+            } else if (bodyUsages.contains(ByteArrayResponseBodyUsage)) {
+              // bodyBytes
+              ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-              } else if (bodyUsages.contains(InputStreamResponseBodyUsage)) {
-                // jsonPath
-                // xpath
-                InputStreamResponseBody(chunksOrderedByArrival, resolvedCharset)
+            } else if (bodyUsages.contains(InputStreamResponseBodyUsage)) {
+              // jsonPath
+              // xpath
+              new InputStreamResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-              } else if (bodyUsages.contains(StringResponseBodyUsage)) {
-                // jsonpJsonPath
-                // regex
-                // bodyString
-                // substring
-                StringResponseBody(chunksOrderedByArrival, resolvedCharset)
+            } else if (bodyUsages.contains(StringResponseBodyUsage)) {
+              // jsonpJsonPath
+              // regex
+              // bodyString
+              // substring
+              StringResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-              } else if (bodyUsages.contains(CharArrayResponseBodyUsage)) {
-                // css
-                CharArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
+            } else if (bodyUsages.contains(CharArrayResponseBodyUsage)) {
+              // css
+              CharArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-              } else if (isTxt(headers)) {
-                StringResponseBody(chunksOrderedByArrival, resolvedCharset)
+            } else if (isTxt(headers)) {
+              // debugging text
+              StringResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-              } else {
-                ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
-              }
+            } else {
+              // debugging binary
+              ByteArrayResponseBody(chunksOrderedByArrival, resolvedCharset)
+            }
 
-            Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
-          } catch {
-            case NonFatal(t) => buildFailure(t)
-          }
-        case _ => buildFailure("How come we're trying to build a response with no status?!")
-      }
-    } finally {
-      releaseChunks()
+          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
+        } catch {
+          case NonFatal(t) => buildFailure(t)
+        }
+      case _ => buildFailure("How come we're trying to build a response with no status?!")
     }
 
-  def buildFailure(t: Throwable): HttpFailure =
-    try {
-      buildFailure(t.detailedMessage)
-    } finally {
-      releaseChunks()
-    }
+  def buildFailure(t: Throwable): HttpFailure = buildFailure(t.detailedMessage)
 
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
 
-  private def releaseChunks(): Unit = {
+  def releaseChunks(): Unit = {
     chunks.foreach(_.release())
     chunks = Nil
   }
