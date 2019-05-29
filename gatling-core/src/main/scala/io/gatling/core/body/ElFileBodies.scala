@@ -16,7 +16,6 @@
 
 package io.gatling.core.body
 
-import io.gatling.commons.util.Io._
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -31,19 +30,13 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) extends Resourc
   private val charset = configuration.core.charset
 
   private def compileFile(path: String): Validation[Expression[String]] =
-    cachedResource(path).map { resource =>
-      withCloseable(resource.inputStream) {
-        _.toString(charset)
-      }
-    }.map(_.el[String])
+    cachedResource(path).map(_.string(charset).el[String])
 
   private val elFileBodyStringCache: LoadingCache[String, Validation[Expression[String]]] =
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
 
   private def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
-    cachedResource(path).map { resource =>
-      ElCompiler.compile2BytesSeq(resource.string(charset), charset)
-    }
+    cachedResource(path).map(resource => ElCompiler.compile2BytesSeq(resource.string(charset), charset))
 
   private val elFileBodyBytesCache: LoadingCache[String, Validation[Expression[Seq[Array[Byte]]]]] =
     Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)

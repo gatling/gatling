@@ -32,21 +32,23 @@ object Resource {
   private case class Location(directory: Path, path: String)
 
   private object ClasspathResource {
-    def unapply(location: Location): Option[Validation[Resource]] =
-      Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
+    def unapply(location: Location): Option[Validation[Resource]] = {
+      val cleanPath = location.path.replace('\\', '/')
+      Option(getClass.getClassLoader.getResource(cleanPath)).map { url =>
         url.getProtocol match {
-          case "file" => Resource(url.file).success
-          case "jar"  => Resource(url).success
+          case "file" => ClasspathFileResource(cleanPath, url.file).success
+          case "jar"  => ClasspathPackagedResource(cleanPath, url).success
           case _      => s"$url is neither a file nor a jar".failure
         }
       }
+    }
   }
 
   private object DirectoryChildResource {
     def unapply(location: Location): Option[Validation[Resource]] =
       (location.directory / location.path).ifFile { f =>
         if (f.canRead)
-          Resource(f).success
+          FilesystemResource(f).success
         else
           s"File $f can't be read".failure
       }
@@ -54,7 +56,7 @@ object Resource {
 
   private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      string2path(location.path).ifFile(Resource(_).success)
+      string2path(location.path).ifFile(FilesystemResource(_).success)
   }
 
   private[gatling] def resolveResource(directory: Path, path: String): Validation[Resource] =
@@ -67,37 +69,44 @@ object Resource {
 
   def resolveResource(path: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
     resolveResource(GatlingFiles.resourcesDirectory, path)
-
-  def apply(file: File): Resource = Resource(file.getName, file)
-  def apply(url: URL): Resource = {
-    val name = {
-      val urlString = url.toString
-      urlString.lastIndexOf(File.separatorChar) match {
-        case -1 => urlString
-        case i  => urlString.substring(i + 1)
-      }
-    }
-
-    val file = {
-      val tempFile = File.createTempFile("gatling-" + name, null)
-      tempFile.deleteOnExit()
-
-      withCloseable(url.openStream()) { is =>
-        withCloseable(new FileOutputStream(tempFile, false)) { os =>
-          is.copyTo(os)
-        }
-      }
-      tempFile
-    }
-
-    Resource(name, file)
-  }
 }
 
-case class Resource(name: String, file: File) {
+sealed trait Resource {
+  def name: String
+  def file: File
   def inputStream: InputStream = new FileInputStream(file)
   def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
+}
+
+case class ClasspathPackagedResource(path: String, url: URL) extends Resource {
+  override val name = {
+    val urlString = url.toString
+    urlString.lastIndexOf(File.separatorChar) match {
+      case -1 => urlString
+      case i  => urlString.substring(i + 1)
+    }
+  }
+
+  override lazy val file = {
+    val tempFile = File.createTempFile("gatling-" + name, null)
+    tempFile.deleteOnExit()
+
+    withCloseable(url.openStream()) { is =>
+      withCloseable(new FileOutputStream(tempFile, false)) { os =>
+        is.copyTo(os)
+      }
+    }
+    tempFile
+  }
+}
+
+case class ClasspathFileResource(path: String, file: File) extends Resource {
+  override val name: String = file.getName
+}
+
+case class FilesystemResource(file: File) extends Resource {
+  override val name: String = file.getName
 }
 
 trait ResourceCache {

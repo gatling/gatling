@@ -104,7 +104,7 @@ object SeparatedValuesFeederSource {
       case _ => throw new IllegalArgumentException("Archive format not supported, couldn't find neither ZIP nor GZIP magic number")
     }
 
-    Resource(tempFile)
+    FilesystemResource(tempFile)
   }
 }
 

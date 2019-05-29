@@ -81,7 +81,7 @@ case class InputStreamBody(is: Expression[InputStream]) extends Body
 
 object PebbleStringBody {
   def apply(string: String)(implicit configuration: GatlingConfiguration): PebbleBody = {
-    val template = Pebble.parseStringTemplate(string)
+    val template = Pebble.getStringTemplate(string)
     PebbleBody(_ => template)
   }
 }
