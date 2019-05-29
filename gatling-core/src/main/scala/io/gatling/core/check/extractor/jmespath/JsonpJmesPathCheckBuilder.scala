@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package io.gatling.core.check.extractor.jsonpath
+package io.gatling.core.check.extractor.jmespath
 
+import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.session._
 
-trait JsonpJsonPathCheckType
+trait JsonpJmesPathCheckType
 
-// we have to duplicate JsonPathCheckBuilder because traits can't take parameters (for now)
+// we have to duplicate JmesPathCheckBuilder because traits can't take parameters (for now)
 // so we can't make CheckType a parameter
-trait JsonpJsonPathOfType { self: JsonpJsonPathCheckBuilder[String] =>
+trait JsonpJmesPathOfType { self: JsonpJmesPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
+  def ofType[X: JsonFilter] = new JsonpJmesPathCheckBuilder[X](path, jmesPaths)
 }
 
-object JsonpJsonPathCheckBuilder {
+object JsonpJmesPathCheckBuilder {
 
-  def jsonpJsonPath(path: Expression[String], jsonPaths: JsonPaths) =
-    new JsonpJsonPathCheckBuilder[String](path, jsonPaths) with JsonpJsonPathOfType
+  def jsonpJmesPath(path: Expression[String], jmesPaths: JmesPaths) =
+    new JsonpJmesPathCheckBuilder[String](path, jmesPaths) with JsonpJmesPathOfType
 }
 
-class JsonpJsonPathCheckBuilder[X: JsonFilter](
+class JsonpJmesPathCheckBuilder[X: JsonFilter](
     path:      Expression[String],
-    jsonPaths: JsonPaths
-) extends JsonPathCheckBuilderBase[JsonpJsonPathCheckType, X]("jsonpJsonPath", path, jsonPaths)
+    jmesPaths: JmesPaths
+) extends JmesPathCheckBuilderBase[JsonpJmesPathCheckType, X]("jsonpJmesPath", path, jmesPaths)

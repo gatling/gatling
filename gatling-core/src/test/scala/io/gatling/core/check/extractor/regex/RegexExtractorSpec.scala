@@ -22,16 +22,15 @@ import io.gatling.core.config.GatlingConfiguration
 class RegexExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  import RegexExtractorFactory._
   val patterns = new Patterns()
 
   "count" should "return Some(0) when no results" in {
-    val stringRegexExtractor = newRegexCountExtractor("""foo""", patterns)
+    val stringRegexExtractor = new RegexCountExtractor("regex", """foo""", patterns)
     stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(0)
   }
 
-  "extractMultiple" should "return expected result with anywhere expression" in {
-    val stringRegexExtractor = newRegexMultipleExtractor[String](""""SearchDefinitionID\\":(\d*)""", patterns)
+  "findAll" should "return expected result with anywhere expression" in {
+    val stringRegexExtractor = new RegexFindAllExtractor[String]("regex", """"SearchDefinitionID\\":(\d*)""", patterns)
     stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(List("116", "108"))
   }
 }

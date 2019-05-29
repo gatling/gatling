@@ -21,50 +21,50 @@ import scala.collection.JavaConverters._
 import io.gatling.commons.validation._
 import io.gatling.core.check.extractor._
 
-object XPathExtractorFactory extends CriterionExtractorFactory[Option[Dom], (String, List[(String, String)])]("xpath") {
+class XPathFindExtractor(path: String, namespaces: List[(String, String)], occurrence: Int, xmlParsers: XmlParsers)
+  extends FindCriterionExtractor[Option[Dom], (String, List[(String, String)]), String](
+    "xpath",
+    (path, namespaces),
+    occurrence,
+    _.flatMap {
+      case SaxonDom(document) =>
+        val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document)
+        if (occurrence < xdmValue.size)
+          Some(xdmValue.itemAt(occurrence).getStringValue)
+        else
+          None
 
-  def newXpathSingleExtractor(path: String, namespaces: List[(String, String)], occurrence: Int, xmlParsers: XmlParsers): CriterionExtractor[Option[Dom], (String, List[(String, String)]), String] with FindArity =
-    newSingleExtractor(
-      (path, namespaces),
-      occurrence,
-      _.flatMap {
-        case SaxonDom(document) =>
-          val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document)
-          if (occurrence < xdmValue.size)
-            Some(xdmValue.itemAt(occurrence).getStringValue)
-          else
-            None
+      case JdkDom(document) => xmlParsers.jdk.extractAll(document, path, namespaces).lift(occurrence)
+    }.success
+  )
 
-        case JdkDom(document) => xmlParsers.jdk.extractAll(document, path, namespaces).lift(occurrence)
-      }.success
-    )
+class XPathFindAllExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers)
+  extends FindAllCriterionExtractor[Option[Dom], (String, List[(String, String)]), String](
+    "xpath",
+    (path, namespaces),
+    _.flatMap {
+      case SaxonDom(document) =>
+        val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document).asScala
 
-  def newXpathMultipleExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers): CriterionExtractor[Option[Dom], (String, List[(String, String)]), Seq[String]] with FindAllArity =
-    newMultipleExtractor(
-      (path, namespaces),
-      _.flatMap {
-        case SaxonDom(document) =>
-          val xdmValue = xmlParsers.saxon.evaluateXPath(path, namespaces, document).asScala
+        if (xdmValue.nonEmpty)
+          // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream
+          // we don't want it to lazy load and hold a reference to the underlying DOM
+          Some(xdmValue.map(_.getStringValue).toVector)
+        else
+          None
 
-          if (xdmValue.nonEmpty)
-            // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream
-            // we don't want it to lazy load and hold a reference to the underlying DOM
-            Some(xdmValue.map(_.getStringValue).toVector)
-          else
-            None
+      case JdkDom(document) => xmlParsers.jdk.extractAll(document, path, namespaces).liftSeqOption
+    }.success
+  )
 
-        case JdkDom(document) => xmlParsers.jdk.extractAll(document, path, namespaces).liftSeqOption
-      }.success
-    )
+class XPathCountExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers)
+  extends CountCriterionExtractor[Option[Dom], (String, List[(String, String)])](
+    "xpath",
+    (path, namespaces),
+    _.map {
+      case SaxonDom(document) => xmlParsers.saxon.evaluateXPath(path, namespaces, document).size
 
-  def newXpathCountExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers): CriterionExtractor[Option[Dom], (String, List[(String, String)]), Int] with CountArity =
-    newCountExtractor(
-      (path, namespaces),
-      _.map {
-        case SaxonDom(document) => xmlParsers.saxon.evaluateXPath(path, namespaces, document).size
-
-        case JdkDom(document)   => xmlParsers.jdk.nodeList(document, path, namespaces).getLength
-      }.orElse(Some(0))
-        .success
-    )
-}
+      case JdkDom(document)   => xmlParsers.jdk.nodeList(document, path, namespaces).getLength
+    }.orElse(Some(0))
+      .success
+  )

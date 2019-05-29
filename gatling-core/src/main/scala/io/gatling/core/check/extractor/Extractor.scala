@@ -24,36 +24,26 @@ trait Extractor[P, X] {
   def apply(prepared: P): Validation[Option[X]]
 }
 
-abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
-  def criterion: T
-  def criterionName: String
-  def name = s"$criterionName($criterion)"
+class FindExtractor[P, X](val name: String, extractor: P => Validation[Option[X]]) extends Extractor[P, X] {
+  override def apply(prepared: P): Validation[Option[X]] = extractor(prepared)
+  override val arity = "find"
 }
 
-trait SingleArity {
-  this: Extractor[_, _] =>
-
-  val arity = "find"
+abstract class CriterionExtractor[P, T, X](checkName: String, criterion: T) extends Extractor[P, X] {
+  override val name = s"$checkName($criterion)"
 }
 
-trait FindArity {
-  this: Extractor[_, _] =>
-
-  def occurrence: Int
-  def arity: String = occurrence match {
-    case 0 => "find"
-    case i => s"find($i)"
-  }
+class FindCriterionExtractor[P, T, X](checkName: String, criterion: T, occurrence: Int, extractor: P => Validation[Option[X]]) extends CriterionExtractor[P, T, X](checkName, criterion) {
+  override def apply(prepared: P): Validation[Option[X]] = extractor(prepared)
+  override val arity: String = if (occurrence == 0) "find" else s"find($occurrence)"
 }
 
-trait FindAllArity {
-  this: Extractor[_, _] =>
-
-  val arity = "findAll"
+class FindAllCriterionExtractor[P, T, X](checkName: String, criterion: T, extractor: P => Validation[Option[Seq[X]]]) extends CriterionExtractor[P, T, Seq[X]](checkName, criterion) {
+  override def apply(prepared: P): Validation[Option[Seq[X]]] = extractor(prepared)
+  override val arity = "findAll"
 }
 
-trait CountArity {
-  this: Extractor[_, _] =>
-
-  val arity = "count"
+class CountCriterionExtractor[P, T](checkName: String, criterion: T, extractor: P => Validation[Option[Int]]) extends CriterionExtractor[P, T, Int](checkName, criterion) {
+  override def apply(prepared: P): Validation[Option[Int]] = extractor(prepared)
+  override val arity = "count"
 }

@@ -944,6 +944,18 @@
             - signature: (expression)
               description: jsonpJsonPath is similar to jsonPath, but for JSONP
 
+        - keyword: jmesPath
+          description: Apply a JMESPath expression on the response body String.
+          syntax:
+            - signature: (expression)
+              description: JMESPath is similar to XPATH, but for JSON encoded data.
+
+        - keyword: jsonpJmesPath
+          description: Apply a JMESPath expression on the JSONP value of the response body String.
+          syntax:
+            - signature: (expression)
+              description: jsonpJmesPath is similar to jmesPath, but for JSONP
+
         - keyword: css
           description: Apply a CSS selector on the response body String.
           syntax:

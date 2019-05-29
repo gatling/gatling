@@ -1,0 +1,8 @@
+#################
+What's New in 3.2
+#################
+
+Core
+====
+
+* `#3743 <https://github.com/gatling/gatling/issues/3743>`__: JMESPath support, see :ref:`here <http-check-jsonpath>`

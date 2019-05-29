@@ -232,6 +232,45 @@ The example below shows how to extract Ints:
 
 Same as :ref:`jsonPath <http-check-jsonpath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
 
+.. _http-check-jmespath:
+
+* ``jmesPath(expression)``
+
+`JMESPath <http://jmespath.org/>`_ is a query language for JSON.
+
+*expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
+
+.. includecode:: code/CheckSample.scala#jmesPath
+
+By default, it extracts ``String``\ s, so JSON values of different types get serialized.
+
+You can define an different type with the ``ofType[T]`` extra step:
+
+.. includecode:: code/CheckSample.scala#jmesPath-ofType
+
+Gatling provides built-in support for the following types:
+
+* String (default): serializes back to valid JSON (meaning that special characters are escaped, e.g. `\n` and `\"`)
+* Boolean
+* Int
+* Long
+* Double
+* Float
+* Seq (JSON array)
+* Map (JSON object)
+* Any
+
+The example below shows how to extract Ints:
+
+.. includecode:: code/CheckSample.scala
+  :include: json-response,jmesPath-Int
+
+.. _http-check-jsonp-jsonpath:
+
+* ``jsonpJmesPath(expression)``
+
+Same as :ref:`jmesPath <http-check-jmespath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
+
 .. _http-check-css:
 
 * ``css(expression, attribute)``

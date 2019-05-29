@@ -18,9 +18,13 @@ package io.gatling.http.check.ws
 
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
+import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
+import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.check.extractor.regex.RegexCheckType
 import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
+
+import com.fasterxml.jackson.databind.JsonNode
 
 trait WsCheckSupport {
 
@@ -42,7 +46,9 @@ trait WsCheckSupport {
   implicit def findCheckBuilder2WsBinaryCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
     findCheckBuilder.find.exists
 
-  implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): WsJsonPathCheckMaterializer = new WsJsonPathCheckMaterializer(jsonParsers)
+  implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode] = new WsJsonPathCheckMaterializer(jsonParsers)
+
+  implicit def wsJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, WsTextCheck, String, JsonNode] = new WsJmesPathCheckMaterializer(jsonParsers)
 
   implicit val wsRegexCheckMaterializer: CheckMaterializer[RegexCheckType, WsTextCheck, String, CharSequence] = WsRegexCheckMaterializer
 

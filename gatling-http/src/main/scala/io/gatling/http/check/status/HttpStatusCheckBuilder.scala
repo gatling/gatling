@@ -30,10 +30,7 @@ trait HttpStatusCheckType
 object HttpStatusCheckBuilder {
 
   val Status: DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int] = {
-    val statusExtractor = new Extractor[Response, Int] with SingleArity {
-      val name = "status"
-      def apply(prepared: Response): Validation[Option[Int]] = Some(prepared.status.code).success
-    }.expressionSuccess
+    val statusExtractor = new FindExtractor[Response, Int]("status", prepared => Some(prepared.status.code).success).expressionSuccess
 
     new DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](statusExtractor, displayActualValue = true)
   }

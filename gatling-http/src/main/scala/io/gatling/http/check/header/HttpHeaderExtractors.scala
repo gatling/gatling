@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.core.check.extractor.bytes
+package io.gatling.http.check.header
 
 import io.gatling.commons.validation._
-import io.gatling.core.check._
 import io.gatling.core.check.extractor._
-import io.gatling.core.session._
+import io.gatling.http.response.Response
 
-trait BodyBytesCheckType
+class HttpHeaderFindExtractor(headerName: String, occurrence: Int) extends FindCriterionExtractor[Response, String, String]("header", headerName, occurrence, _.headers(headerName).lift(occurrence).success)
 
-object BodyBytesCheckBuilder {
+class HttpHeaderFindAllExtractor(headerName: String) extends FindAllCriterionExtractor[Response, String, String]("header", headerName, _.headers(headerName).liftSeqOption.success)
 
-  val BodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = {
-
-    val extractor = new FindExtractor[Array[Byte], Array[Byte]]("bodyBytes", Some(_).success).expressionSuccess
-
-    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](extractor, displayActualValue = false)
-  }
-}
+class HttpHeaderCountExtractor(val headerName: String) extends CountCriterionExtractor[Response, String]("header", headerName, _.headers(headerName).liftSeqOption.map(_.size).success)

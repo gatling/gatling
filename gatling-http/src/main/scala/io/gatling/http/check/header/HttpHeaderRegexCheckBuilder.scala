@@ -46,8 +46,6 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
 )
   extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
 
-  import HttpHeaderRegexExtractorFactory._
-
   private def withHeaderAndPattern[T](f: (String, String) => T): Expression[T] =
     session =>
       for {
@@ -55,14 +53,11 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
         pattern <- pattern(session)
       } yield f(headerName, pattern)
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] =
-    withHeaderAndPattern(newHeaderRegexSingleExtractor(_, _, occurrence, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] = withHeaderAndPattern(new HttpHeaderRegexFindExtractor(_, _, occurrence, patterns))
 
-  override def findAllExtractor: Expression[Extractor[Response, Seq[X]]] =
-    withHeaderAndPattern(newHeaderRegexMultipleExtractor(_, _, patterns))
+  override def findAllExtractor: Expression[Extractor[Response, Seq[X]]] = withHeaderAndPattern(new HttpHeaderRegexFindAllExtractor(_, _, patterns))
 
-  override def countExtractor: Expression[Extractor[Response, Int]] =
-    withHeaderAndPattern(newHeaderRegexCountExtractor(_, _, patterns))
+  override def countExtractor: Expression[Extractor[Response, Int]] = withHeaderAndPattern(new HttpHeaderRegexCountExtractor(_, _, patterns))
 }
 
 object HttpHeaderRegexCheckMaterializer extends HttpCheckMaterializer[HttpHeaderRegexCheckType, Response](Header) {

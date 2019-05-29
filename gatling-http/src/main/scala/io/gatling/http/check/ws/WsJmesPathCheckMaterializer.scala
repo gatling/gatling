@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check.sse
+package io.gatling.http.check.ws
 
-import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
+import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class SseJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode](SseCheck.apply) {
+class WsJmesPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JmesPathCheckType, WsTextCheck, String, JsonNode](WsTextCheck.apply) {
 
   override val preparer: Preparer[String, JsonNode] = jsonParsers.safeParse
 }

@@ -17,7 +17,7 @@
 package io.gatling.http.check.url
 
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
+import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.check.extractor.regex._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheckMaterializer
@@ -37,8 +37,6 @@ object CurrentLocationRegexCheckBuilder {
 
   def currentLocationRegex(pattern: Expression[String], patterns: Patterns) =
     new CurrentLocationRegexCheckBuilder[String](pattern, patterns) with CurrentLocationRegexOfType
-
-  private val ExtractorFactory = new RegexExtractorFactoryBase("currentLocationRegex")
 }
 
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
@@ -47,11 +45,9 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
 )
   extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X](displayActualValue = true) {
 
-  import CurrentLocationRegexCheckBuilder.ExtractorFactory._
-
-  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[CharSequence, String, X] with FindArity] = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
-  override def findAllExtractor: Expression[CriterionExtractor[CharSequence, String, Seq[X]] with FindAllArity] = pattern.map(newRegexMultipleExtractor[X](_, patterns))
-  override def countExtractor: Expression[CriterionExtractor[CharSequence, String, Int] with CountArity] = pattern.map(newRegexCountExtractor(_, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[CharSequence, X]] = pattern.map(new RegexFindExtractor[X]("currentLocationRegex", _, occurrence, patterns))
+  override def findAllExtractor: Expression[Extractor[CharSequence, Seq[X]]] = pattern.map(new RegexFindAllExtractor[X]("currentLocationRegex", _, patterns))
+  override def countExtractor: Expression[Extractor[CharSequence, Int]] = pattern.map(new RegexCountExtractor("currentLocationRegex", _, patterns))
 }
 
 object CurrentLocationRegexCheckMaterializer extends HttpCheckMaterializer[CurrentLocationRegexCheckType, CharSequence](Url) {

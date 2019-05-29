@@ -16,13 +16,13 @@
 
 package io.gatling.http.check.sse
 
-import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
+import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class SseJsonPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode](SseCheck.apply) {
+class SseJmesPathCheckMaterializer(jsonParsers: JsonParsers) extends CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode](SseCheck.apply) {
 
   override val preparer: Preparer[String, JsonNode] = jsonParsers.safeParse
 }

@@ -21,12 +21,12 @@ import javax.jms.Message
 import scala.annotation.implicitNotFound
 
 import io.gatling.core.check.{ CheckBuilder, CheckMaterializer, FindCheckBuilder, ValidatorCheckBuilder }
-import io.gatling.core.check.extractor.xpath.XmlParsers
+import io.gatling.core.check.extractor.xpath.{ Dom, XPathCheckType, XmlParsers }
 import io.gatling.jms.JmsCheck
 
 trait JmsCheckSupport {
 
-  def simpleCheck = JmsSimpleCheck
+  def simpleCheck: JmsSimpleCheck.type = JmsSimpleCheck
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
   implicit def checkBuilder2JmsCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
@@ -40,5 +40,5 @@ trait JmsCheckSupport {
   implicit def findCheckBuilder2JmsCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
     findCheckBuilder.find.exists
 
-  implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers) = new JmsXPathCheckMaterializer(xmlParsers)
+  implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] = new JmsXPathCheckMaterializer(xmlParsers)
 }

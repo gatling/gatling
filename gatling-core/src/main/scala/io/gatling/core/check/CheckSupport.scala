@@ -21,6 +21,7 @@ import io.gatling.commons.validation.Validation
 import io.gatling.core.check.extractor.bytes._
 import io.gatling.core.check.extractor.checksum._
 import io.gatling.core.check.extractor.css._
+import io.gatling.core.check.extractor.jmespath._
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.extractor.regex._
 import io.gatling.core.check.extractor.string._
@@ -64,8 +65,14 @@ trait CheckSupport {
   def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
 
+  def jmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JmesPathCheckType, JsonNode, String] with JmesPathOfType =
+    JmesPathCheckBuilder.jmesPath(path, jmesPaths)
+
   def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
+
+  def jsonpJmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
+    JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
 
   val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
   val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1

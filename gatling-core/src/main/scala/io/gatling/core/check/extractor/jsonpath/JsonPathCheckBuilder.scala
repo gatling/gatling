@@ -17,10 +17,22 @@
 package io.gatling.core.check.extractor.jsonpath
 
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.{ CountArity, CriterionExtractor, FindAllArity, FindArity }
+import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
 
 import com.fasterxml.jackson.databind.JsonNode
+
+abstract class JsonPathCheckBuilderBase[T, X: JsonFilter](
+                                                            name:                String,
+                                                            private[jsonpath] val path:      Expression[String],
+                                                            private[jsonpath] val jsonPaths: JsonPaths,
+                                                          )
+  extends DefaultMultipleFindCheckBuilder[T, JsonNode, X](displayActualValue = true) {
+
+  override def findExtractor(occurrence: Int): Expression[Extractor[JsonNode, X]] = path.map(new JsonPathFindExtractor[X](name, _, occurrence, jsonPaths))
+  override def findAllExtractor: Expression[Extractor[JsonNode, Seq[X]]] = path.map(new JsonPathFindAllExtractor[X](name, _, jsonPaths))
+  override def countExtractor: Expression[Extractor[JsonNode, Int]] = path.map(new JsonPathCountExtractor(name, _, jsonPaths))
+}
 
 trait JsonPathCheckType
 
@@ -36,14 +48,6 @@ object JsonPathCheckBuilder {
 }
 
 class JsonPathCheckBuilder[X: JsonFilter](
-    private[jsonpath] val path:      Expression[String],
-    private[jsonpath] val jsonPaths: JsonPaths
-)
-  extends DefaultMultipleFindCheckBuilder[JsonPathCheckType, JsonNode, X](displayActualValue = true) {
-
-  import JsonPathExtractorFactory._
-
-  override def findExtractor(occurrence: Int): Expression[CriterionExtractor[JsonNode, String, X] with FindArity] = path.map(newJsonPathSingleExtractor[X](_, occurrence, jsonPaths))
-  override def findAllExtractor: Expression[CriterionExtractor[JsonNode, String, Seq[X]] with FindAllArity] = path.map(newJsonPathMultipleExtractor[X](_, jsonPaths))
-  override def countExtractor: Expression[CriterionExtractor[JsonNode, String, Int] with CountArity] = path.map(newJsonPathCountExtractor(_, jsonPaths))
-}
+    path:      Expression[String],
+    jsonPaths: JsonPaths
+) extends JsonPathCheckBuilderBase[JsonPathCheckType, X]("jsonPath", path, jsonPaths)

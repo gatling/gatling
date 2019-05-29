@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.string
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor._
+import io.gatling.core.check.extractor.FindExtractor
 import io.gatling.core.session._
 
 trait BodyStringCheckType
@@ -27,10 +27,7 @@ object BodyStringCheckBuilder {
 
   val BodyString: FindCheckBuilder[BodyStringCheckType, String, String] = {
 
-    val extractor = new Extractor[String, String] with SingleArity {
-      override val name: String = "bodyString"
-      override def apply(prepared: String): Validation[Some[String]] = Some(prepared).success
-    }.expressionSuccess
+    val extractor = new FindExtractor[String, String]("bodyString", Some(_).success).expressionSuccess
 
     new DefaultFindCheckBuilder[BodyStringCheckType, String, String](extractor, displayActualValue = false)
   }

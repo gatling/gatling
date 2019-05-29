@@ -23,6 +23,7 @@ import io.gatling.core.check._
 import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
 import io.gatling.core.check.extractor.checksum.{ Md5CheckType, Sha1CheckType }
 import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
+import io.gatling.core.check.extractor.jmespath.{ JmesPathCheckType, JsonpJmesPathCheckType }
 import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckType, JsonpJsonPathCheckType }
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckType }
 import io.gatling.core.check.extractor.string.BodyStringCheckType
@@ -82,7 +83,9 @@ trait HttpCheckSupport {
   implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] = new HttpBodyXPathCheckMaterializer(xmlParsers)
   implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] = new HttpBodyCssCheckMaterializer(selectors)
   implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonPathCheckMaterializer(jsonParsers)
-  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonpJsonPathCheckMaterializer(jsonParsers)
+  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonpCheckMaterializer(jsonParsers)
+  implicit def httpBodyJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJmesPathCheckMaterializer(jsonParsers)
+  implicit def httpBodyJsonpJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonpJmesPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonpCheckMaterializer(jsonParsers)
 
   implicit val httpMd5CheckMaterializer: CheckMaterializer[Md5CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Md5
   implicit val httpSha1CheckMaterializer: CheckMaterializer[Sha1CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Sha1

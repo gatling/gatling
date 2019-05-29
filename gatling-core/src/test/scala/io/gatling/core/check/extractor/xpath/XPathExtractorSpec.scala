@@ -19,13 +19,12 @@ package io.gatling.core.check.extractor.xpath
 import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.check.extractor.xpath.XPathExtractorFactory._
 
 import org.xml.sax.InputSource
 
 abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   val namespaces = List("foo" -> "http://foo/foo")
 
   val xmlParsers = new XmlParsers
@@ -33,17 +32,17 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
   def dom(file: String): Option[Dom]
 
   def testCount(expression: String, file: String, expected: Int): Unit = {
-    val extractor = newXpathCountExtractor(expression, namespaces, xmlParsers)
+    val extractor = new XPathCountExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe Some(expected)
   }
 
   def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
-    val extractor = newXpathSingleExtractor(expression, namespaces, occurrence, xmlParsers)
+    val extractor = new XPathFindExtractor(expression, namespaces, occurrence, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 
   def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
-    val extractor = newXpathMultipleExtractor(expression, namespaces, xmlParsers)
+    val extractor = new XPathFindAllExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 

@@ -19,7 +19,6 @@ package io.gatling.core.check.extractor.jsonpath
 import io.gatling.{ ValidationValues, BaseSpec }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory._
 
 class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
@@ -28,15 +27,15 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
   private val jsonParsers = JsonParsers()
 
   def testCount(path: String, sample: JsonSample, expected: Int): Unit = {
-    val extractor = newJsonPathCountExtractor(path, jsonPaths)
+    val extractor = new JsonPathCountExtractor("jsonPath", path, jsonPaths)
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe Some(expected)
   }
-  def testSingle[T: JsonFilter](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
-    val extractor = newJsonPathSingleExtractor[T](path, occurrence, jsonPaths)
+  def testFind[T: JsonFilter](path: String, occurrence: Int, sample: JsonSample, expected: Option[T]): Unit = {
+    val extractor = new JsonPathFindExtractor[T]("jsonPath", path, occurrence, jsonPaths)
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
-  def testMultiple[T: JsonFilter](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
-    val extractor = newJsonPathMultipleExtractor[T](path, jsonPaths)
+  def testFindAll[T: JsonFilter](path: String, sample: JsonSample, expected: Option[List[T]]): Unit = {
+    val extractor = new JsonPathFindAllExtractor[T]("jsonPath", path, jsonPaths)
     extractor(sample.jacksonAST(jsonParsers)).succeeded shouldBe expected
   }
 
@@ -52,99 +51,99 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
     testCount("$.bar", Json1, 0)
   }
 
-  "extractSingle" should "return expected result with anywhere expression and rank 0" in {
-    testSingle("$..author", 0, Json1, Some("Nigel Rees"))
+  "find" should "return expected result with anywhere expression and rank 0" in {
+    testFind("$..author", 0, Json1, Some("Nigel Rees"))
   }
 
   it should "return expected result with anywhere expression and rank 1" in {
-    testSingle("$..author", 1, Json1, Some("Evelyn Waugh"))
+    testFind("$..author", 1, Json1, Some("Evelyn Waugh"))
   }
 
   it should "return expected result with array expression" in {
-    testSingle("$.store.book[2].author", 0, Json1, Some("Herman Melville"))
+    testFind("$.store.book[2].author", 0, Json1, Some("Herman Melville"))
   }
 
   it should "return expected None with array expression" in {
-    testSingle[String]("$.store.book[2].author", 1, Json1, None)
+    testFind[String]("$.store.book[2].author", 1, Json1, None)
   }
 
   it should "return expected result with last function expression" in {
-    testSingle("$.store.book[-1].title", 0, Json1, Some("The Lord of the Rings"))
+    testFind("$.store.book[-1].title", 0, Json1, Some("The Lord of the Rings"))
   }
 
   it should "not mess up if two nodes with the same name are placed in different locations" in {
-    testSingle("$.foo", 0, Json1, Some("bar"))
+    testFind("$.foo", 0, Json1, Some("bar"))
   }
 
   it should "support bracket notation" in {
-    testSingle("$['@id']", 0, Json1, Some("ID"))
+    testFind("$['@id']", 0, Json1, Some("ID"))
   }
 
   it should "support element filter with object root" in {
-    testSingle("$..book[?(@.category=='reference')].author", 0, Json1, Some("Nigel Rees"))
+    testFind("$..book[?(@.category=='reference')].author", 0, Json1, Some("Nigel Rees"))
   }
 
   it should "support element filter with array root" in {
-    testSingle("$[?(@.id==19434)].foo", 0, Json2, Some("1"))
+    testFind("$[?(@.id==19434)].foo", 0, Json2, Some("1"))
   }
 
   it should "support multiple element filters" in {
-    testSingle("$[?(@.id==19434 && @.foo==1)].foo", 0, Json2, Some("1"))
+    testFind("$[?(@.id==19434 && @.foo==1)].foo", 0, Json2, Some("1"))
   }
 
   it should "support @" in {
-    testSingle("$.object[*]['@id']", 0, Json3, Some("3"))
+    testFind("$.object[*]['@id']", 0, Json3, Some("3"))
   }
 
   it should "support null attribute value when expected type is Any" in {
-    testSingle[Any]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
+    testFind[Any]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
   }
 
   it should "support null attribute value when expected type is String" in {
-    testSingle[String]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
+    testFind[String]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null))
   }
 
   it should "support null attribute value when expected type is Int" in {
-    testSingle[Int]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null.asInstanceOf[Int]))
+    testFind[Int]("$.foo", 0, new JsonSample { val value = """{"foo": null}""" }, Some(null.asInstanceOf[Int]))
   }
 
   it should "support square braces in filter compared String" in {
-    testSingle("$.error[?(@.errorMessage=='my service message, actualError=Not Found [404]')].errorCode", 0, Json4, Some("87263"))
+    testFind("$.error[?(@.errorMessage=='my service message, actualError=Not Found [404]')].errorCode", 0, Json4, Some("87263"))
   }
 
   it should "not escape solidus" in {
-    testSingle("$.url", 0, new JsonSample { val value = """{ "url":"http://test-login.test.com/test/" }""" }, Some("http://test-login.test.com/test/"))
+    testFind("$.url", 0, new JsonSample { val value = """{ "url":"http://test-login.test.com/test/" }""" }, Some("http://test-login.test.com/test/"))
   }
 
   it should "support long values" in {
-    testSingle("$.number", 0, new JsonSample { val value = s"""{"number": ${Long.MaxValue}}""" }, Some(Long.MaxValue))
+    testFind("$.number", 0, new JsonSample { val value = s"""{"number": ${Long.MaxValue}}""" }, Some(Long.MaxValue))
   }
 
-  "extractMultiple" should "return expected result with anywhere expression" in {
-    testMultiple("$..author", Json1, Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
+  "findAll" should "return expected result with anywhere expression" in {
+    testFindAll("$..author", Json1, Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
 
   it should "return expected result with array expression" in {
-    testMultiple("$.store.book[2].author", Json1, Some(List("Herman Melville")))
+    testFindAll("$.store.book[2].author", Json1, Some(List("Herman Melville")))
   }
 
   it should "support wildcard at first level" in {
-    testMultiple("$[*].id", Json2, Some(List("19434", "19435")))
+    testFindAll("$[*].id", Json2, Some(List("19434", "19435")))
   }
 
   it should "support wildcard at first level with multiple sublevels" in {
-    testMultiple("$..owner.id", Json2, Some(List("18957", "18957")))
+    testFindAll("$..owner.id", Json2, Some(List("18957", "18957")))
   }
 
   it should "support wildcard at second level" in {
-    testMultiple("$..store..category", Json1, Some(List("reference", "fiction", "fiction", "fiction")))
+    testFindAll("$..store..category", Json1, Some(List("reference", "fiction", "fiction", "fiction")))
   }
 
   it should "support array slicing" in {
-    testMultiple("$.store.book[1:3].title", Json1, Some(List("Sword of Honour", "Moby Dick")))
+    testFindAll("$.store.book[1:3].title", Json1, Some(List("Sword of Honour", "Moby Dick")))
   }
 
   it should "support a step parameter in array slicing" in {
-    testMultiple("$.store.book[::-2].title", Json1, Some(List("The Lord of the Rings", "Sword of Honour")))
+    testFindAll("$.store.book[::-2].title", Json1, Some(List("The Lord of the Rings", "Sword of Honour")))
   }
 }

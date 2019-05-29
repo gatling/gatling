@@ -1,0 +1,32 @@
+#################
+What's New in 3.1
+#################
+
+.. warning::
+  Gatling 3.1 is not binary compatible with 3.0. Code compiled with a previous version must be recompiled when upgrading.
+
+Core
+====
+
+* `#3708 <https://github.com/gatling/gatling/issues/3708>`__: Gatling EL support sequence syntax for tuples, see :ref:`here <el>`
+* `#3696 <https://github.com/gatling/gatling/issues/3696>`__: Default to an adaptive policy when loading CSV feeders
+* `#3681 <https://github.com/gatling/gatling/issues/3681>`__: Issue an IllegalStateException when trying to instantiate Simulation directly
+
+HTTP
+====
+
+* `#3702 <https://github.com/gatling/gatling/issues/3702>`__: Try using wsBaseUrl in addCookie when neither domain nor baseUrl are defined
+* `#3699 <https://github.com/gatling/gatling/issues/3699>`__: Enable TLSv1.3 by default
+* `#3671 <https://github.com/gatling/gatling/issues/3671>`__: Provide a way to pass per user keystore
+* `#3664 <https://github.com/gatling/gatling/issues/3664>`__: Honor Content-Type charset attribute for forcing encoding when parsing XML
+
+Recorder
+========
+
+* `#3698 <https://github.com/gatling/gatling/issues/3698>`__: Automatically filter out browser noise
+* `#3687 <https://github.com/gatling/gatling/issues/3687>`__: Use OpenSSL when architecture supports it
+
+JMS
+===
+
+* `#3673 <https://github.com/gatling/gatling/issues/3673>`__: Send mapMessage support

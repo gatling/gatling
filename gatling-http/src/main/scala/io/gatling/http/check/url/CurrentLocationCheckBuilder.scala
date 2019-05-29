@@ -16,7 +16,7 @@
 
 package io.gatling.http.check.url
 
-import io.gatling.commons.validation.{ SuccessWrapper, Validation }
+import io.gatling.commons.validation._
 import io.gatling.core.check.{ DefaultFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor._
 import io.gatling.core.session._
@@ -30,10 +30,7 @@ trait CurrentLocationCheckType
 object CurrentLocationCheckBuilder {
 
   val CurrentLocation: DefaultFindCheckBuilder[CurrentLocationCheckType, String, String] = {
-    val extractor = new Extractor[String, String] with SingleArity {
-      val name = "currentLocation"
-      def apply(prepared: String): Validation[Some[String]] = Some(prepared).success
-    }.expressionSuccess
+    val extractor = new FindExtractor[String, String]("currentLocation", Some(_).success).expressionSuccess
 
     new DefaultFindCheckBuilder[CurrentLocationCheckType, String, String](extractor, displayActualValue = true)
   }

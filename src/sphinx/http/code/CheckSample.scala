@@ -97,6 +97,19 @@ class CheckSample {
     jsonPath("$..foo").ofType[Int] // will match 1
     //#jsonPath-Int
 
+    //#jmesPath
+    jmesPath("foo.bar[2].baz")
+    //#jmesPath
+
+    //#jmesPath-ofType
+    jsonPath(expression).ofType[T]
+    //#jmesPath-ofType
+
+    //#jmesPath-Int
+
+    jsonPath("foo").ofType[Int] // will match 1
+    //#jmesPath-Int
+
     //#css
     css("article.more a", "href")
     //#css
@@ -108,7 +121,6 @@ class CheckSample {
     jsonPath("$..foo.bar[2].baz").
       //#transform
       transform(string => string + "foo")
-
     //#transform
 
     jsonPath("$..foo.bar[2].baz").

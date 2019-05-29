@@ -18,6 +18,7 @@ package io.gatling.core
 
 import io.gatling.core.body.{ ElFileBodies, PebbleFileBodies, RawFileBodies }
 import io.gatling.core.check.extractor.css.CssSelectors
+import io.gatling.core.check.extractor.jmespath.JmesPaths
 import io.gatling.core.check.extractor.jsonpath.JsonPaths
 import io.gatling.core.check.extractor.regex.Patterns
 import io.gatling.core.check.extractor.xpath.XmlParsers
@@ -32,6 +33,7 @@ trait CoreDefaultImplicits {
 
   implicit lazy val defaultJsonParsers: JsonParsers = JsonParsers()
   implicit lazy val defaultJsonPaths: JsonPaths = new JsonPaths
+  implicit lazy val defaultJmesPaths: JmesPaths = new JmesPaths
 
   implicit lazy val defaultXmlParsers: XmlParsers = new XmlParsers
 

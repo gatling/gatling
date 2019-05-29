@@ -39,9 +39,7 @@ class RegexCheckBuilder[X: GroupExtractor](
 )
   extends DefaultMultipleFindCheckBuilder[RegexCheckType, CharSequence, X](displayActualValue = true) {
 
-  import RegexExtractorFactory._
-
-  override def findExtractor(occurrence: Int): Expression[Extractor[CharSequence, X]] = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
-  override def findAllExtractor: Expression[Extractor[CharSequence, Seq[X]]] = pattern.map(newRegexMultipleExtractor[X](_, patterns))
-  override def countExtractor: Expression[Extractor[CharSequence, Int]] = pattern.map(newRegexCountExtractor(_, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[CharSequence, X]] = pattern.map(new RegexFindExtractor[X]("regex", _, occurrence, patterns))
+  override def findAllExtractor: Expression[Extractor[CharSequence, Seq[X]]] = pattern.map(new RegexFindAllExtractor[X]("regex", _, patterns))
+  override def countExtractor: Expression[Extractor[CharSequence, Int]] = pattern.map(new RegexCountExtractor("regex", _, patterns))
 }
