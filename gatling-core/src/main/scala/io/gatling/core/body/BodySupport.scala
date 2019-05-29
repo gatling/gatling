@@ -21,6 +21,8 @@ import java.io.InputStream
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 
+import com.mitchellbosecke.pebble.extension.Extension
+
 trait BodySupport {
 
   def gzipBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.gzip
@@ -49,4 +51,6 @@ trait BodySupport {
 
   def InputStreamBody(is: Expression[InputStream]): Body =
     io.gatling.core.body.InputStreamBody(is)
+
+  def registerPebbleExtensions(extensions: Extension*): Unit = PebbleExtensions.register(extensions)
 }

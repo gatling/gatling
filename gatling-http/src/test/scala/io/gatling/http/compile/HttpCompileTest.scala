@@ -26,6 +26,8 @@ import javax.net.ssl.KeyManagerFactory
 
 class HttpCompileTest extends Simulation {
 
+  registerPebbleExtensions(null: com.mitchellbosecke.pebble.extension.Extension)
+
   val httpProtocol = http
     .baseUrl("http://172.30.5.143:8080")
     .baseUrls("http://172.30.5.143:8080", "http://172.30.5.143:8081")
