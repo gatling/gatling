@@ -265,6 +265,8 @@ The example below shows how to extract Ints:
 .. includecode:: code/CheckSample.scala
   :include: json-response,jmesPath-Int
 
+.. note:: You can use ``registerJmesPathFunctions(io.burt.jmespath.function.Function*)`` to register custom functions.
+
 .. _http-check-jsonp-jsonpath:
 
 * ``jsonpJmesPath(expression)``

@@ -27,10 +27,23 @@ import io.gatling.core.util.cache.Cache
 import com.fasterxml.jackson.databind.JsonNode
 import io.burt.jmespath.Expression
 import io.burt.jmespath.jackson.JacksonRuntime
+import io.burt.jmespath.function.{ FunctionRegistry, Function => JmesPathFunction }
 
-class JmesPaths(implicit configuration: GatlingConfiguration) {
+private[gatling] object JmesPathFunctions {
 
-  private val runtime = new JacksonRuntime()
+  private[jmespath] var functions: Seq[JmesPathFunction] = Nil
+
+  def register(functions: Seq[JmesPathFunction]): Unit = {
+    if (functions.nonEmpty) {
+      throw new UnsupportedOperationException("JmesPath functions have already been registered")
+    }
+    this.functions = functions
+  }
+}
+
+private[gatling] class JmesPaths(implicit configuration: GatlingConfiguration) {
+
+  private val runtime = new JacksonRuntime(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*))
 
   private val jmesPathCache = {
     def compile(expression: String): Validation[Expression[JsonNode]] =

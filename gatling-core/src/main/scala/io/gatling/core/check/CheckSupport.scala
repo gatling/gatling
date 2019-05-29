@@ -31,6 +31,7 @@ import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.stats.message.ResponseTimings
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.burt.jmespath.function.{ Function => JmesPathFunction }
 import jodd.lagarto.dom.NodeSelector
 
 trait CheckSupport {
@@ -73,6 +74,8 @@ trait CheckSupport {
 
   def jsonpJmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
     JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
+
+  def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = JmesPathFunctions.register(functions)
 
   val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
   val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1
