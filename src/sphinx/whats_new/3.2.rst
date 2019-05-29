@@ -5,4 +5,6 @@ What's New in 3.2
 Core
 ====
 
+* `#3724 <https://github.com/gatling/gatling/issues/3724>`__: Custom Pebble Extensions registering
+* `#3735 <https://github.com/gatling/gatling/issues/3735>`__: PebbleFileBody now supports template inheritance
 * `#3743 <https://github.com/gatling/gatling/issues/3743>`__: JMESPath support, see :ref:`here <http-check-jsonpath>`
