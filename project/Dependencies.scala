@@ -64,7 +64,7 @@ object Dependencies {
   private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.61"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.4.12"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
-  private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.0.9"
+  private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.0.10"
 
   // Test dependencies
   private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.0.7"             % "test"
