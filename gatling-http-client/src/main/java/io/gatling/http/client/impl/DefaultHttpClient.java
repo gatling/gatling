@@ -114,12 +114,25 @@ public class DefaultHttpClient implements HttpClient {
     private final Bootstrap wsBootstrap;
     private final ChannelPool channelPool;
 
-    private void addDefaultHttpHandlers(Channel channel) {
+    private void addHttpHandlers(Channel channel) {
       channel.pipeline()
         .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
         .addLast(INFLATER_HANDLER, newHttpContentDecompressor())
         .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
         .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
+
+      if (config.getAdditionalChannelInitializer() != null) {
+        config.getAdditionalChannelInitializer().accept(channel);
+      }
+    }
+
+    private void addWsHandlers(Channel channel) {
+      channel.pipeline()
+        .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
+        .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(Integer.MAX_VALUE))
+        .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
+        .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
+        .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
 
       if (config.getAdditionalChannelInitializer() != null) {
         config.getAdditionalChannelInitializer().accept(channel);
@@ -145,54 +158,54 @@ public class DefaultHttpClient implements HttpClient {
         .resolver(NoopAddressResolverGroup.INSTANCE)
         .handler(new ChannelInitializer<Channel>() {
           @Override
-          protected void initChannel(Channel ch) {
-            ch.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
-            addDefaultHttpHandlers(ch);
+          protected void initChannel(Channel channel) {
+            channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
+            addHttpHandlers(channel);
           }
         });
 
       http2Bootstrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
-
         @Override
-        protected void initChannel(Channel ch) {
-          ch.pipeline()
+        protected void initChannel(Channel channel) {
+          channel.pipeline()
             .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler());
 
           if (config.getAdditionalChannelInitializer() != null) {
-            config.getAdditionalChannelInitializer().accept(ch);
+            config.getAdditionalChannelInitializer().accept(channel);
           }
         }
       });
 
       wsBootstrap = http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
-
         @Override
-        protected void initChannel(Channel ch) {
-          ch.pipeline()
-            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
-            .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-            .addLast(WS_OBJECT_AGGREGATOR, new HttpObjectAggregator(Integer.MAX_VALUE))
-            .addLast(WS_COMPRESSION, AllowClientNoContextWebSocketClientCompressionHandler.INSTANCE)
-            .addLast(WS_FRAME_AGGREGATOR, new WebSocketFrameAggregator(Integer.MAX_VALUE))
-            .addLast(APP_WS_HANDLER, new WebSocketHandler(config));
-
-          if (config.getAdditionalChannelInitializer() != null) {
-            config.getAdditionalChannelInitializer().accept(ch);
-          }
+        protected void initChannel(Channel channel) {
+          channel.pipeline().addLast(PINNED_HANDLER, NoopHandler.INSTANCE);
+          addWsHandlers(channel);
         }
       });
     }
 
-    private Bootstrap getBootstrapWithProxy(ProxyServer proxy) {
-      return http1Bootstrap.clone()
-        .handler(new ChannelInitializer<Channel>() {
+    private Bootstrap getHttp1BootstrapWithProxy(ProxyServer proxy) {
+      return http1Bootstrap.clone().handler(new ChannelInitializer<Channel>() {
         @Override
         protected void initChannel(Channel ch) {
           ch.pipeline()
             .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
             .addLast(PROXY_HANDLER, proxy.newHandler());
-          addDefaultHttpHandlers(ch);
+          addHttpHandlers(ch);
+        }
+      });
+    }
+
+    private Bootstrap getWsBootstrapWithProxy(ProxyServer proxy) {
+      return wsBootstrap.clone().handler(new ChannelInitializer<Channel>() {
+        @Override
+        protected void initChannel(Channel ch) {
+          ch.pipeline()
+            .addLast(PINNED_HANDLER, NoopHandler.INSTANCE)
+            .addLast(PROXY_HANDLER, proxy.newHandler());
+          addWsHandlers(ch);
         }
       });
     }
@@ -437,7 +450,7 @@ public class DefaultHttpClient implements HttpClient {
   private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, HttpListener listener, RequestTimeout requestTimeout) {
     if (request.getProxyServer() instanceof HttpProxyServer) {
       InetSocketAddress remoteAddress =
-              request.getUri().isSecured() ?
+              request.getUri().isSecured() || request.getUri().isWebSocket() ?
                       // HttpProxyHandler will take care of the connect logic
                       InetSocketAddress.createUnresolved(request.getUri().getHost(), request.getUri().getExplicitPort()) :
                       // directly connect to proxy over clear HTTP
@@ -550,6 +563,29 @@ public class DefaultHttpClient implements HttpClient {
        });
   }
 
+  private Bootstrap bootstrap(Request request, EventLoopResources resources) {
+    Uri uri = request.getUri();
+    ProxyServer proxyServer = request.getProxyServer();
+
+    if (uri.isWebSocket()) {
+      if (proxyServer != null) {
+        return resources.getWsBootstrapWithProxy(proxyServer);
+
+      } else {
+        return resources.wsBootstrap;
+      }
+
+    } else if (uri.isSecured() && proxyServer != null) {
+      return resources.getHttp1BootstrapWithProxy(proxyServer);
+
+    } else if (request.isAlpnRequired() && request.getUri().isSecured()) {
+      return resources.http2Bootstrap;
+
+    } else {
+      return resources.http1Bootstrap;
+    }
+  }
+
   private Future<Channel> openNewChannel(Request request,
                                          EventLoop eventLoop,
                                          EventLoopResources resources,
@@ -557,18 +593,9 @@ public class DefaultHttpClient implements HttpClient {
                                          HttpListener listener,
                                          RequestTimeout requestTimeout) {
 
-    InetSocketAddress localAddress = request.getLocalAddress() != null ? new InetSocketAddress(request.getLocalAddress(), 0) : null;
-    Uri uri = request.getUri();
-    ProxyServer proxyServer = request.getProxyServer();
-
-    Bootstrap bootstrap =
-      uri.isWebSocket() ?
-        resources.wsBootstrap :
-        uri.isSecured() && proxyServer != null ?
-          resources.getBootstrapWithProxy(proxyServer) :
-          request.isAlpnRequired() && request.getUri().isSecured() ? resources.http2Bootstrap : resources.http1Bootstrap;
-
+    Bootstrap bootstrap = bootstrap(request, resources);
     Promise<Channel> channelPromise = eventLoop.newPromise();
+    InetSocketAddress localAddress = request.getLocalAddress() != null ? new InetSocketAddress(request.getLocalAddress(), 0) : null;
     openNewChannelRec(remoteAddresses, localAddress, 0, channelPromise, bootstrap, listener, requestTimeout);
     return channelPromise;
   }

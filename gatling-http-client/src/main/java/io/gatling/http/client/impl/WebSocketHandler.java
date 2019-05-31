@@ -79,6 +79,8 @@ public class WebSocketHandler extends ChannelDuplexHandler {
       try {
         WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
 
+        // FIXME once https://github.com/netty/netty/pull/9206 is merged and shipped
+        // absoluteUpgradeUrl = !tx.request.getUri().isSecured() && tx.request.getProxyServer() instanceof HttpProxyServer
         handshaker =
           WebSocketClientHandshakerFactory.newHandshaker(
             tx.request.getUri().toJavaNetURI(),
