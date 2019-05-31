@@ -41,7 +41,8 @@ class WsCompileTest extends Simulation {
           .matching(jsonPath("$.uuid").is("${correlation}"))
           .check(
             jsonPath("$.code").ofType[Int].is(1),
-            jmesPath("code").ofType[Int].is(1)
+            jmesPath("code").ofType[Int].is(1),
+            bodyString.is("echo")
           )
       }
       .await(1) { // simple int

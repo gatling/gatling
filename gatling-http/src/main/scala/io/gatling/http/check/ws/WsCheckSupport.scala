@@ -21,6 +21,7 @@ import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
 import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.extractor.string.BodyStringCheckType
 import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
 
@@ -52,7 +53,9 @@ trait WsCheckSupport {
 
   implicit val wsRegexCheckMaterializer: CheckMaterializer[RegexCheckType, WsTextCheck, String, CharSequence] = WsRegexCheckMaterializer
 
-  implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] = WsBodyBytesCheckMaterializer
+  implicit val wsBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, WsTextCheck, String, String] = WsBodyStringCheckMaterializer
 
   implicit val wsSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, WsTextCheck, String, String] = WsSubstringCheckMaterializer
+
+  implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] = WsBodyBytesCheckMaterializer
 }

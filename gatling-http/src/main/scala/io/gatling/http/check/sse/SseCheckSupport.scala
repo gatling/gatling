@@ -20,6 +20,7 @@ import io.gatling.core.check._
 import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
 import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.extractor.string.BodyStringCheckType
 import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
 
@@ -43,4 +44,6 @@ trait SseCheckSupport {
   implicit val sseRegexCheckMaterializer: CheckMaterializer[RegexCheckType, SseCheck, String, CharSequence] = SseRegexCheckMaterializer
 
   implicit val sseSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, SseCheck, String, String] = SseSubstringCheckMaterializer
+
+  implicit val sseBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] = SseBodyStringCheckMaterializer
 }
