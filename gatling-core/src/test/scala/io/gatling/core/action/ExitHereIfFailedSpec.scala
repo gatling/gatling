@@ -18,9 +18,13 @@ package io.gatling.core.action
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.controller.throttle.Throttlings
+import io.gatling.core.pause.Constant
+import io.gatling.core.protocol.Protocols
 import io.gatling.core.session.Session
+import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.DataWritersStatsEngine
-import io.gatling.core.stats.writer.GroupMessage
+import io.gatling.core.stats.writer.{ GroupMessage, RunMessage }
 
 import akka.testkit._
 
@@ -30,7 +34,24 @@ class ExitHereIfFailedSpec extends AkkaSpec {
   private val nextAction = mock[Action]
 
   def newExitHereIfFailed(exitProbe: TestProbe, datawriterProbe: TestProbe): ExitHereIfFailed = {
-    val statsEngine = new DataWritersStatsEngine(List(datawriterProbe.ref), system, clock)
+    val statsEngine = new DataWritersStatsEngine(
+      SimulationParams(
+        "name",
+        Nil,
+        Protocols(),
+        Constant,
+        Throttlings(None, Map.empty),
+        None,
+        Nil
+      ),
+      RunMessage(
+        "simulationClassName",
+        "simulationId",
+        0,
+        "runDescription",
+        "gatlingVersion"
+      ), List(datawriterProbe.ref), system, clock
+    )
     val exit = new ActorDelegatingAction("exit", exitProbe.ref)
 
     new ExitHereIfFailed(exit, statsEngine, clock, new ActorDelegatingAction("next", self))

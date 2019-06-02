@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
 
 import io.gatling.commons.stats.Status
 import io.gatling.commons.util.Clock
@@ -79,12 +78,23 @@ trait StatsEngine {
 object DataWritersStatsEngine {
 
   def apply(simulationParams: SimulationParams, runMessage: RunMessage, system: ActorSystem, clock: Clock, configuration: GatlingConfiguration): DataWritersStatsEngine = {
-    implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
 
     val dataWriters = configuration.data.dataWriters.map { dw =>
       val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
       system.actorOf(Props(clazz, clock, configuration), clazz.getName)
     }
+
+    new DataWritersStatsEngine(simulationParams, runMessage, dataWriters, system, clock)
+  }
+}
+
+class DataWritersStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
+
+  private val active = new AtomicBoolean(true)
+
+  override def start(): Unit = {
+
+    implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
 
     val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
 
@@ -92,22 +102,18 @@ object DataWritersStatsEngine {
 
     implicit val dispatcher: ExecutionContext = system.dispatcher
 
-    val statsEngineFuture = Future.sequence(dataWriterInitResponses)
-      .map(_.forall(_ == true))
-      .map {
-        case true => Success(new DataWritersStatsEngine(dataWriters, system, clock))
-        case _    => Failure(new Exception("DataWriters didn't initialize properly"))
+    val statsEngineFuture: Future[Unit] = Future.sequence(dataWriterInitResponses)
+      .flatMap { responses =>
+        if (responses.forall(_ == true)) {
+          Future.unit
+        } else {
+          Future.failed(new Exception("DataWriters didn't initialize properly"))
+        }
+
       }
 
-    Await.result(statsEngineFuture, 5 seconds).get
+    Await.ready(statsEngineFuture, dataWriterTimeOut.duration)
   }
-}
-
-class DataWritersStatsEngine(dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
-
-  private val active = new AtomicBoolean(true)
-
-  override def start(): Unit = {}
 
   override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit =
     if (active.getAndSet(false)) {

@@ -24,8 +24,12 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.validation.Failure
 import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.throttle.Throttlings
+import io.gatling.core.pause.Constant
+import io.gatling.core.protocol.Protocols
+import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.DataWritersStatsEngine
-import io.gatling.core.stats.writer.ErrorMessage
+import io.gatling.core.stats.writer.{ ErrorMessage, RunMessage }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
@@ -113,7 +117,24 @@ class PollerActorSpec extends AkkaSpec {
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
         httpTxExecutor = mock[HttpTxExecutor],
-        statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock),
+        statsEngine = new DataWritersStatsEngine(
+          SimulationParams(
+            "name",
+            Nil,
+            Protocols(),
+            Constant,
+            Throttlings(None, Map.empty),
+            None,
+            Nil
+          ),
+          RunMessage(
+            "simulationClassName",
+            "simulationId",
+            0,
+            "runDescription",
+            "gatlingVersion"
+          ), List(dataWriterProbe.ref), system, clock
+        ),
         clock = clock,
         httpCaches = mock[HttpCaches],
         httpProtocol = HttpProtocol(configuration),
