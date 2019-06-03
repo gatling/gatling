@@ -84,23 +84,26 @@ object DataWritersStatsEngine {
       system.actorOf(Props(clazz, clock, configuration), clazz.getName)
     }
 
-    new DataWritersStatsEngine(simulationParams, runMessage, dataWriters, system, clock)
+    val dataWriterInitMessage = Init(
+      simulationParams.assertions,
+      runMessage,
+      simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
+    )
+
+    new DataWritersStatsEngine(dataWriterInitMessage, dataWriters, system, clock)
   }
 }
 
-class DataWritersStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
+class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[ActorRef], system: ActorSystem, clock: Clock) extends StatsEngine {
 
   private val active = new AtomicBoolean(true)
 
   override def start(): Unit = {
 
     implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
-
-    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
-
-    val dataWriterInitResponses = dataWriters.map(_ ? Init(simulationParams.assertions, runMessage, shortScenarioDescriptions))
-
     implicit val dispatcher: ExecutionContext = system.dispatcher
+
+    val dataWriterInitResponses = dataWriters.map(_ ? dataWriterInitMessage)
 
     val statsEngineFuture: Future[Unit] = Future.sequence(dataWriterInitResponses)
       .flatMap { responses =>
