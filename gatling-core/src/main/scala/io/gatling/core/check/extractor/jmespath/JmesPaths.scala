@@ -16,10 +16,7 @@
 
 package io.gatling.core.check.extractor.jmespath
 
-import scala.util.control.NonFatal
-
 import io.gatling.commons.validation._
-import io.gatling.commons.util.Throwables._
 import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
@@ -49,11 +46,7 @@ private[gatling] class JmesPaths(implicit configuration: GatlingConfiguration) {
 
   private val jmesPathCache = {
     def compile(expression: String): Validation[Expression[JsonNode]] =
-      try {
-        runtime.compile(expression).success
-      } catch {
-        case NonFatal(e) => e.detailedMessage.failure
-      }
+      safely()(runtime.compile(expression).success)
 
     Cache.newConcurrentLoadingCache(configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
   }
