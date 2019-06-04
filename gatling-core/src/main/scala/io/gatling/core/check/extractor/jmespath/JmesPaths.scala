@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.burt.jmespath.Expression
+import io.burt.jmespath.{ Expression, RuntimeConfiguration }
 import io.burt.jmespath.jackson.JacksonRuntime
 import io.burt.jmespath.function.{ FunctionRegistry, Function => JmesPathFunction }
 
@@ -43,7 +43,9 @@ private[gatling] object JmesPathFunctions {
 
 private[gatling] class JmesPaths(implicit configuration: GatlingConfiguration) {
 
-  private val runtime = new JacksonRuntime(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*))
+  private val runtime = new JacksonRuntime(
+    new RuntimeConfiguration.Builder().withFunctionRegistry(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*)).build
+  )
 
   private val jmesPathCache = {
     def compile(expression: String): Validation[Expression[JsonNode]] =

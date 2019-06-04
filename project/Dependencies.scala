@@ -38,7 +38,7 @@ object Dependencies {
   private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.6"
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.7.0"
   private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.0.13"
-  private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.2.1"
+  private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.3.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.1"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.9"
   private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.2.5")
