@@ -103,8 +103,6 @@ class HttpAppHandler extends ChannelDuplexHandler {
 
     try {
       WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
-      tx.closeConnection = HttpUtils.isConnectionClose(request.getRequest().headers());
-
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());
@@ -160,7 +158,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
           return;
         }
         tx.listener.onHttpResponse(status, response.headers());
-        tx.closeConnection = tx.closeConnection && HttpUtils.isConnectionClose(response.headers());
+        tx.closeConnection = tx.closeConnection || HttpUtils.isConnectionClose(response.headers());
 
       } else if (msg instanceof HttpContent) {
         HttpContent chunk = (HttpContent) msg;
