@@ -23,11 +23,10 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
-import io.gatling.http.resolver.{ AliasesAwareNameResolver, CacheOverrideNameResolver, ShuffleJdkNameResolver }
+import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
 import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.resolver.NameResolver
-import io.netty.resolver.dns.DefaultDnsCache
 import io.netty.util.concurrent.{ Future, Promise }
 
 private[cache] object DnsCacheSupport {
@@ -69,7 +68,6 @@ private[cache] object DnsCacheSupport {
       //
       //
       //
-      //
       // [fl]
       dnsNameResolution match {
         case JavaDnsNameResolution =>
@@ -81,10 +79,11 @@ private[cache] object DnsCacheSupport {
           }
 
         case AsyncDnsNameResolution(dnsServers) =>
+          val nameResolver = httpEngine.newAsyncDnsNameResolver(dnsServers)
           if (hostNameAliases.isEmpty) {
-            new CacheOverrideNameResolver(httpEngine.newAsyncDnsNameResolver(dnsServers), new DefaultDnsCache)
+            nameResolver
           } else {
-            new AliasesAwareNameResolver(hostNameAliases, httpEngine.newAsyncDnsNameResolver(dnsServers))
+            new AliasesAwareNameResolver(hostNameAliases, nameResolver)
           }
       }
     )
