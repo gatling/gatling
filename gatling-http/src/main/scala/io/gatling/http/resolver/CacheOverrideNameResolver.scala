@@ -52,5 +52,8 @@ private[http] case class CacheOverrideNameResolver(resolver: ExtendedDnsNameReso
       case NonFatal(e) => promise.setFailure(e)
     }
 
-  override def close(): Unit = cache.clear()
+  override def close(): Unit = {
+    cache.clear()
+    resolver.close()
+  }
 }
