@@ -25,13 +25,13 @@ import scala.collection.immutable.SortedMap
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har._
 import io.gatling.recorder.scenario.template.SimulationTemplate
 import io.gatling.recorder.util.HttpUtils._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http._
 
@@ -58,13 +58,13 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   }
 
   private def requestBodyFileName(request: RequestElement) =
-    s"${request.id.leftPad(4, '0')}_request.${request.fileExtension}"
+    s"${request.id.toString.leftPad(4, "0")}_request.${request.fileExtension}"
 
   def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
     packageAsFolderPath("/") + "/" + config.core.className + "/" + requestBodyFileName(request)
 
   private def responseBodyFileName(request: RequestElement) =
-    s"${request.id.leftPad(4, '0')}_response.${request.responseFileExtension}"
+    s"${request.id.toString.leftPad(4, "0")}_response.${request.responseFileExtension}"
 
   def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
     packageAsFolderPath("/") + "/" + config.core.className + "/" + responseBodyFileName(request)

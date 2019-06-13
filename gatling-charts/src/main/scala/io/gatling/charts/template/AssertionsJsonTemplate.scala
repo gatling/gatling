@@ -19,13 +19,11 @@ package io.gatling.charts.template
 import io.gatling.commons.stats.assertion.AssertionResult
 import io.gatling.core.stats.writer.RunMessage
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult]) {
 
-  private[this] def print(assertionResult: AssertionResult): Fastring = {
+  private[this] def print(assertionResult: AssertionResult): String = {
     import assertionResult._
-    fast"""{
+    s"""{
   "path": "${assertion.path.printable}",
   "target": "${assertion.target.printable}",
   "condition": "${assertion.condition.printable}",
@@ -36,15 +34,15 @@ private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNam
 }"""
   }
 
-  def getOutput: Fastring = {
-    fast"""{
+  def getOutput: String = {
+    s"""{
   "simulation": "${runMessage.simulationClassName}",
   "simulationId": "${runMessage.simulationId}",
   "start": ${runMessage.start},
   "description": "${runMessage.runDescription}",
   "scenarios": [${scenarioNames.map(n => s""""$n"""").mkString(", ")}],
   "assertions": [
-${assertionResults.map(print).mkFastring(",\n")}
+${assertionResults.map(print).mkString(",\n")}
   ]
 }"""
   }

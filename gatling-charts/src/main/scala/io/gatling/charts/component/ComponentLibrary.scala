@@ -20,7 +20,6 @@ import scala.collection.JavaConverters._
 
 import io.gatling.core.stats._
 
-import com.dongxiguo.fastring.Fastring
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
@@ -47,7 +46,7 @@ private[charts] object ComponentLibrary extends StrictLogging {
 }
 
 private[gatling] trait ComponentLibrary {
-  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring
+  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
   def getRequestsChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
   def getResponsesChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component

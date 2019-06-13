@@ -16,13 +16,11 @@
 
 package io.gatling.charts.component
 
-import com.dongxiguo.fastring.Fastring
-
 private[gatling] trait Component {
 
-  def html: Fastring
+  def html: String
 
-  def js: Fastring
+  def js: String
 
   def jsFiles: Seq[String]
 }

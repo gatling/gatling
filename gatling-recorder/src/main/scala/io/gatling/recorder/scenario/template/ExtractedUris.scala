@@ -20,8 +20,6 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[scenario] case class Value(name: String, value: String)
 
 private[scenario] case class SchemeHost(scheme: String, host: String)
@@ -39,7 +37,7 @@ private[scenario] case class SchemeHost(scheme: String, host: String)
  */
 private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
-  private val (values: List[Value], renders: Map[String, Fastring]) = {
+  private val (values: List[Value], renders: Map[String, String]) = {
     val requestElements = scenarioElements.collect { case elem: RequestElement => elem }
 
     val allUris =
@@ -87,38 +85,38 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
     paths.reduce(longestCommonRootRec).toSeq.mkString("/")
   }
 
-  private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String): List[(String, Fastring)] =
+  private def extractLongestPathUrls(urls: List[Uri], longestCommonPath: String, valName: String): List[(String, String)] =
     urls.map { url =>
       val restPath = url.getPath.substring(longestCommonPath.length)
       val tail = s"$restPath${query(url)}"
       val urlTail =
         if (tail.isEmpty) {
-          fast"$valName"
+          valName
         } else {
-          fast"$valName + ${protectWithTripleQuotes(tail)}"
+          s"$valName + ${protectWithTripleQuotes(tail)}"
         }
 
       (url.toString, urlTail)
     }
 
-  private def extractCommonHostUrls(uris: List[Uri], valName: String): List[(String, Fastring)] =
+  private def extractCommonHostUrls(uris: List[Uri], valName: String): List[(String, String)] =
     uris.map(uri =>
-      (uri.toString, fast""""${uri.getScheme}://${user(uri)}" + $valName + ${protectWithTripleQuotes(s"${port(uri)}${uri.getPath}${query(uri)}")}"""))
+      (uri.toString, s""""${uri.getScheme}://${user(uri)}" + $valName + ${protectWithTripleQuotes(s"${port(uri)}${uri.getPath}${query(uri)}")}"""))
 
   private def schemesPortAreSame(uris: Seq[Uri]): Boolean =
     uris.map(uri => uri.getScheme -> uri.getExplicitPort).toSet.size == 1
 
-  private def query(uri: Uri): Fastring =
-    if (uri.getQuery == null) EmptyFastring else fast"?${uri.getQuery}"
+  private def query(uri: Uri): String =
+    if (uri.getQuery == null) "" else s"?${uri.getQuery}"
 
-  private def user(uri: Uri): Fastring =
-    if (uri.getUserInfo == null) EmptyFastring else fast"${uri.getUserInfo}@"
+  private def user(uri: Uri): String =
+    if (uri.getUserInfo == null) "" else s"${uri.getUserInfo}@"
 
-  private def port(uri: Uri): Fastring =
-    if (uri.getPort != -1 && uri.getPort != uri.getSchemeDefaultPort) fast":${uri.getPort}" else EmptyFastring
+  private def port(uri: Uri): String =
+    if (uri.getPort != -1 && uri.getPort != uri.getSchemeDefaultPort) s":${uri.getPort}" else ""
 
   def vals: List[Value] = values
 
-  def renderUri(uri: String): Fastring =
-    renders.getOrElse(uri, fast"$uri")
+  def renderUri(uri: String): String =
+    renders.getOrElse(uri, uri)
 }

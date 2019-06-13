@@ -18,11 +18,9 @@ package io.gatling.recorder.scenario.template
 
 import io.gatling.BaseSpec
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 class ValuesTemplateSpec extends BaseSpec {
 
-  def str(s: Fastring) = s.toString.replaceAll("""\r\n""", "\n")
+  def str(s: String) = s.replaceAll("""\r\n""", "\n")
 
   "values template" should "generate empty string if no variables" in {
     val res = ValuesTemplate.render(Seq.empty)
@@ -31,7 +29,7 @@ class ValuesTemplateSpec extends BaseSpec {
 
   it should "list variables" in {
     val res = str(ValuesTemplate.render(Seq(new Value("n1", "v1"), new Value("n2", "v2"))))
-    val expected = str(fast"""    val n1 = ${protectWithTripleQuotes("v1")}
+    val expected = str(s"""    val n1 = ${protectWithTripleQuotes("v1")}
     val n2 = ${protectWithTripleQuotes("v2")}""")
 
     res shouldBe expected

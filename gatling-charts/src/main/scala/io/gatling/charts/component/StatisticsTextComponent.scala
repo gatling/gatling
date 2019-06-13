@@ -18,10 +18,7 @@ package io.gatling.charts.component
 
 import io.gatling.commons.stats.GeneralStats
 import io.gatling.commons.util.NumberHelper._
-import io.gatling.commons.util.StringHelper.EmptyFastring
 import io.gatling.core.config.GatlingConfiguration
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] object Statistics {
   def printable[T: Numeric](value: T) =
@@ -58,7 +55,7 @@ private[charts] case class RequestStatistics(
 
 private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {
 
-  def html = fast"""
+  def html = s"""
                         <div class="infos">
                             <div class="infos-in">
 	                        <div class="infos-title">STATISTICS</div>
@@ -150,7 +147,7 @@ private[charts] class StatisticsTextComponent(implicit configuration: GatlingCon
                         </div>
 """
 
-  val js = EmptyFastring
+  val js = ""
 
   val jsFiles: Seq[String] = Seq.empty
 }

@@ -20,8 +20,6 @@ import java.nio.charset.Charset
 
 import io.gatling.commons.util.StringHelper
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 import StringHelper.RichString
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
@@ -32,46 +30,46 @@ private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean
 
   private def fieldName(field: String) = if (outputJson) '"' + field + '"' else field
 
-  def getOutput(charset: Charset): Fastring = {
+  def getOutput(charset: Charset): String = {
 
-    def renderStats(request: RequestStatistics, path: String): Fastring = {
+    def renderStats(request: RequestStatistics, path: String): String = {
       val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
 
-      fast"""${fieldName("name")}: "${request.name.escapeJsIllegalChars}",
+      s"""${fieldName("name")}: "${request.name.escapeJsIllegalChars}",
 ${fieldName("path")}: "${request.path.escapeJsIllegalChars}",
 ${fieldName("pathFormatted")}: "$path",
 ${fieldName("stats")}: $jsonStats"""
     }
 
-    def renderSubGroups(group: GroupContainer): Iterable[Fastring] =
+    def renderSubGroups(group: GroupContainer): Iterable[String] =
       group.groups.values.map { subGroup =>
-        fast""""${subGroup.name.toGroupFileName(charset)}": {
+        s""""${subGroup.name.toGroupFileName(charset)}": {
           ${renderGroup(subGroup)}
      }"""
       }
 
-    def renderSubRequests(group: GroupContainer): Iterable[Fastring] =
+    def renderSubRequests(group: GroupContainer): Iterable[String] =
       group.requests.values.map { request =>
-        fast""""${request.name.toRequestFileName(charset)}": {
+        s""""${request.name.toRequestFileName(charset)}": {
         ${fieldName("type")}: "$Request",
         ${renderStats(request.stats, request.stats.path.toRequestFileName(charset))}
     }"""
       }
 
-    def renderGroup(group: GroupContainer): Fastring =
-      fast"""${fieldName("type")}: "$Group",
+    def renderGroup(group: GroupContainer): String =
+      s"""${fieldName("type")}: "$Group",
 ${renderStats(group.stats, group.stats.path.toGroupFileName(charset))},
 ${fieldName("contents")}: {
-${(renderSubGroups(group) ++ renderSubRequests(group)).mkFastring(",")}
+${(renderSubGroups(group) ++ renderSubRequests(group)).mkString(",")}
 }
 """
 
     if (outputJson)
-      fast"""{
+      s"""{
   ${renderGroup(stats)}
 }"""
     else
-      fast"""var stats = {
+      s"""var stats = {
     ${renderGroup(stats)}
 }
 

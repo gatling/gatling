@@ -25,7 +25,6 @@ object Dependencies {
   private val config                         = "com.typesafe"                         % "config"                          % "1.3.4"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "9.9.1-3"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.26"
-  private val fastring                       = "com.dongxiguo"                       %% "fastring"                        % "1.0.0"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.2")
     .exclude("org.typelevel", "machinist_2.12")
     .exclude("org.typelevel", "algebra_2.12")
@@ -92,7 +91,7 @@ object Dependencies {
     Seq(nettyBuffer, junit)
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring, boopickle, spire, quicklens, java8Compat, fastUuid) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, boopickle, spire, quicklens, java8Compat, fastUuid) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
     Seq(akka, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, pebble, scalaParserCombinators, scopt) ++

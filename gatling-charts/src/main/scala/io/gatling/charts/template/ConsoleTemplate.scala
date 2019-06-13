@@ -16,6 +16,8 @@
 
 package io.gatling.charts.template
 
+import java.lang.{ StringBuilder => JStringBuilder }
+
 import io.gatling.commons.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
 import io.gatling.charts.component.Statistics
@@ -24,47 +26,45 @@ import io.gatling.charts.component.{ GroupedCount, RequestStatistics }
 import io.gatling.core.stats.writer.ConsoleErrorsWriter
 import io.gatling.core.stats.writer.ConsoleSummary._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[charts] object ConsoleTemplate {
 
-  def writeRequestCounters[T: Numeric](statistics: Statistics[T]): Fastring = {
+  private[template] def writeRequestCounters[T: Numeric](sb: JStringBuilder, statistics: Statistics[T]): JStringBuilder = {
     import statistics._
-    fast"> ${name.rightPad(OutputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
+    sb.append("> ").append(name.rightPad(OutputLength - 32)).append(' ').append(printable(total).leftPad(7)).append(" (OK=").append(printable(success).rightPad(6)).append(" KO=").append(printable(failure).rightPad(6)).append(')')
   }
 
-  def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
+  private[template] def writeGroupedCounters(sb: JStringBuilder, groupedCount: GroupedCount): JStringBuilder = {
     import groupedCount._
-    fast"> ${name.rightPad(OutputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
+    sb.append("> ").append(name.rightPad(OutputLength - 32)).append(' ').append(count.toString.leftPad(7)).append(" (").append(percentage.toString.leftPad(3)).append("%)")
   }
 
-  def writeErrorsAndEndBlock(errors: Seq[ErrorStats]): Fastring = {
-    if (errors.isEmpty)
-      fast"$NewBlock"
-    else
-      fast"""${writeSubTitle("Errors")}
-${errors.map(ConsoleErrorsWriter.writeError).mkFastring(Eol)}
-$NewBlock"""
+  private[template] def writeErrorsAndEndBlock(sb: JStringBuilder, errors: Seq[ErrorStats]): JStringBuilder = {
+    if (errors.nonEmpty) {
+      writeSubTitle(sb, "Errors").append(Eol)
+      errors.foreach(ConsoleErrorsWriter.writeError(sb, _).append(Eol))
+    }
+    sb.append(NewBlock)
   }
 
   def println(requestStatistics: RequestStatistics, errors: Seq[ErrorStats]): String = {
     import requestStatistics._
-    fast"""
-$NewBlock
-${writeSubTitle("Global Information")}
-${writeRequestCounters(numberOfRequestsStatistics)}
-${writeRequestCounters(minResponseTimeStatistics)}
-${writeRequestCounters(maxResponseTimeStatistics)}
-${writeRequestCounters(meanStatistics)}
-${writeRequestCounters(stdDeviationStatistics)}
-${writeRequestCounters(percentiles1)}
-${writeRequestCounters(percentiles2)}
-${writeRequestCounters(percentiles3)}
-${writeRequestCounters(percentiles4)}
-${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
-${writeSubTitle("Response Time Distribution")}
-${groupedCounts.map(writeGroupedCounters).mkFastring(Eol)}
-${writeErrorsAndEndBlock(errors)}
-""".toString
+
+    val sb = new JStringBuilder().append(Eol)
+      .append(NewBlock).append(Eol)
+
+    writeSubTitle(sb, "Global Information").append(Eol)
+    writeRequestCounters(sb, numberOfRequestsStatistics).append(Eol)
+    writeRequestCounters(sb, minResponseTimeStatistics).append(Eol)
+    writeRequestCounters(sb, maxResponseTimeStatistics).append(Eol)
+    writeRequestCounters(sb, meanStatistics).append(Eol)
+    writeRequestCounters(sb, stdDeviationStatistics).append(Eol)
+    writeRequestCounters(sb, percentiles1).append(Eol)
+    writeRequestCounters(sb, percentiles2).append(Eol)
+    writeRequestCounters(sb, percentiles3).append(Eol)
+    writeRequestCounters(sb, percentiles4).append(Eol)
+    writeRequestCounters(sb, meanNumberOfRequestsPerSecondStatistics).append(Eol)
+    writeSubTitle(sb, "Response Time Distribution").append(Eol)
+    groupedCounts.foreach(writeGroupedCounters(sb, _).append(Eol))
+    writeErrorsAndEndBlock(sb, errors).append(Eol).toString
   }
 }

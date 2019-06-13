@@ -16,6 +16,7 @@
 
 package io.gatling.core.stats.writer
 
+import java.lang.{ StringBuilder => JStringBuilder }
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -27,8 +28,6 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 object ConsoleSummary {
 
   private val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
@@ -36,7 +35,8 @@ object ConsoleSummary {
   val OutputLength: Int = 80
   val NewBlock: String = "=" * OutputLength
 
-  def writeSubTitle(title: String): Fastring = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
+  def writeSubTitle(sb: JStringBuilder, title: String): JStringBuilder =
+    sb.append(("---- " + title + " ").rightPad(OutputLength, "-"))
 
   def apply(
     runDuration:           Long,
@@ -48,7 +48,7 @@ object ConsoleSummary {
     time:                  Date                                 = new Date
   ): ConsoleSummary = {
 
-    def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
+    def writeUsersCounters(sb: JStringBuilder, scenarioName: String, userCounters: UserCounters): JStringBuilder = {
 
       import userCounters._
       totalUserCount match {
@@ -59,49 +59,65 @@ object ConsoleSummary {
           val done = floor(width * doneCount.toDouble / tot).toInt
           val active = ceil(width * activeCount.toDouble / tot).toInt
           val waiting = width - done - active
-          fast"""${writeSubTitle(scenarioName)}
-[${"#" * done}${"-" * active}${" " * waiting}]${donePercent.toString.leftPad(3)}%
-          waiting: ${waitingCount.toString.rightPad(6)} / active: ${activeCount.toString.rightPad(6)} / done: ${doneCount.toString.rightPad(6)}"""
+          writeSubTitle(sb, scenarioName).append(Eol)
+            .append('[').append("#" * done).append("-" * active).append(" " * waiting).append(']').append(donePercent.toString.leftPad(3)).append('%').append(Eol)
+            .append("          waiting: ").append(waitingCount.toString.rightPad(6)).append(" / active: ").append(activeCount.toString.rightPad(6)).append(" / done: ").append(doneCount.toString.rightPad(6))
+
         case _ =>
           // Don't display progression for closed workload model, nor when tot is broken, it doesn't make sense
-          fast"""${writeSubTitle(scenarioName)}
-          active: ${activeCount.toString.rightPad(6)} / done: ${doneCount.toString.rightPad(6)}"""
+          writeSubTitle(sb, scenarioName).append(Eol)
+            .append("          active: ").append(activeCount.toString.rightPad(6)).append(" / done: ").append(doneCount.toString.rightPad(6))
       }
     }
 
-    def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
+    def writeRequestsCounter(sb: JStringBuilder, actionName: String, requestCounters: RequestCounters): JStringBuilder = {
 
       import requestCounters._
       val maxActionNameLength = OutputLength - 24
-
-      fast"> ${actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
+      sb.append("> ").append(actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength)).append(" (OK=").append(successfulCount.toString.rightPad(6)).append(" KO=").append(failedCount.toString.rightPad(6)).append(')')
     }
 
-    def writeDetailedRequestsCounter: Fastring =
-      if (configuration.data.console.light)
-        EmptyFastring
-      else
-        requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
+    def writeDetailedRequestsCounter(sb: JStringBuilder): JStringBuilder = {
+      if (!configuration.data.console.light) {
+        requestsCounters.foreach { case (actionName, requestCounters) => writeRequestsCounter(sb, actionName, requestCounters).append(Eol) }
+        if (requestsCounters.nonEmpty) {
+          sb.setLength(sb.length - Eol.length)
+        }
+      }
+      sb
+    }
 
-    def writeErrors: Fastring =
+    def writeErrors(sb: JStringBuilder): JStringBuilder = {
       if (errorsCounters.nonEmpty) {
         val errorsTotal = errorsCounters.values.sum
-        fast"""${writeSubTitle("Errors")}
-${errorsCounters.toVector.sortBy(-_._2).map { case (message, count) => ConsoleErrorsWriter.writeError(ErrorStats(message, count, errorsTotal)) }.mkFastring(Eol)}
-"""
-      } else
-        EmptyFastring
 
-    val text = fast"""
-$NewBlock
-${ConsoleSummary.Iso8601DateTimeFormat.format(time)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
-${writeSubTitle("Requests")}
-${writeRequestsCounter("Global", globalRequestCounters)}
-$writeDetailedRequestsCounter
-$writeErrors
-${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
-$NewBlock
-""".toString
+        writeSubTitle(sb, "Errors").append(Eol)
+
+        errorsCounters.toSeq.sortBy(-_._2).foreach {
+          case (message, count) =>
+            ConsoleErrorsWriter.writeError(sb, ErrorStats(message, count, errorsTotal)).append(Eol)
+        }
+      }
+      sb
+    }
+
+    val sb = new JStringBuilder().append(Eol)
+      .append(NewBlock).append(Eol)
+      .append(ConsoleSummary.Iso8601DateTimeFormat.format(time)).append(' ').append((runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)).append(Eol)
+
+    writeSubTitle(sb, "Requests").append(Eol)
+    writeRequestsCounter(sb, "Global", globalRequestCounters).append(Eol)
+    writeDetailedRequestsCounter(sb).append(Eol)
+    writeErrors(sb).append(Eol)
+
+    usersCounters.foreach {
+      case (scenarioName, usersStats) =>
+        writeUsersCounters(sb, scenarioName, usersStats).append(Eol)
+    }
+
+    sb.append(NewBlock).append(Eol)
+
+    val text = sb.toString
 
     val complete = {
       val totalWaiting = usersCounters.values.sumBy(_.waitingCount)

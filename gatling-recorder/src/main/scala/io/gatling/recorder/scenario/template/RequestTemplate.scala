@@ -18,27 +18,24 @@ package io.gatling.recorder.scenario.template
 
 import java.util.Locale
 
-import io.gatling.commons.util.StringHelper.EmptyFastring
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioExporter }
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[scenario] object RequestTemplate {
 
   val BuiltInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
   val MaxLiteralSize = 65534
 
-  def headersBlockName(id: Int) = fast"headers_$id"
+  def headersBlockName(id: Int) = s"headers_$id"
 
-  def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): Fastring = {
-    def renderMethod: Fastring =
+  def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): String = {
+    def renderMethod: String =
       if (BuiltInHttpMethods.contains(request.method)) {
-        fast"${request.method.toLowerCase(Locale.ROOT)}($renderUrl)"
+        s"${request.method.toLowerCase(Locale.ROOT)}($renderUrl)"
       } else {
-        fast"""httpRequest("${request.method}", $renderUrl)"""
+        s"""httpRequest("${request.method}", $renderUrl)"""
       }
 
     def usesBaseUrl: Boolean =
@@ -56,41 +53,41 @@ private[scenario] object RequestTemplate {
 
     def renderLongString(value: String) =
       if (value.length > MaxLiteralSize)
-        fast"""Seq(${value.grouped(MaxLiteralSize).map(protectWithTripleQuotes).mkFastring(", ")}).mkString"""
+        s"""Seq(${value.grouped(MaxLiteralSize).map(protectWithTripleQuotes).mkString(", ")}).mkString"""
       else
         protectWithTripleQuotes(value)
 
-    def renderBodyOrParams: Fastring = request.body.map {
-      case _: RequestBodyBytes => fast"""
+    def renderBodyOrParams: String = request.body.map {
+      case _: RequestBodyBytes => s"""
 			.body(RawFileBody("${ScenarioExporter.requestBodyRelativeFilePath(request)}"))"""
       case RequestBodyParams(params) => params.map {
-        case (key, value) => fast"""
+        case (key, value) => s"""
 			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
-      }.mkFastring
-    }.getOrElse(EmptyFastring)
+      }.mkString
+    }.getOrElse("")
 
     def renderCredentials: String = request.basicAuthCredentials.map {
       case (username, password) => s"""
 			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
     }.getOrElse("")
 
-    def renderStatusCheck: Fastring =
+    def renderStatusCheck: String =
       if (!HttpHelper.isOk(request.statusCode))
-        fast"""
+        s"""
 			.check(status.is(${request.statusCode}))"""
       else
-        EmptyFastring
+        ""
 
-    def renderResponseBodyCheck: Fastring =
+    def renderResponseBodyCheck: String =
       if (request.responseBody.isDefined && config.http.checkResponseBodies)
-        fast"""
+        s"""
 			.check(bodyBytes.is(RawFileBody("${ScenarioExporter.responseBodyRelativeFilePath(request)}")))"""
       else
-        EmptyFastring
+        ""
 
-    def renderResources: Fastring =
+    def renderResources: String =
       if (request.nonEmbeddedResources.nonEmpty)
-        fast"""
+        s"""
 			.resources(${
           request.nonEmbeddedResources.zipWithIndex.map { case (resource, _) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
             """,
@@ -98,12 +95,12 @@ private[scenario] object RequestTemplate {
           )
         })"""
       else
-        EmptyFastring
+        ""
     val prefix = if (config.http.useSimulationAsPrefix) simulationClass else "request"
-    fast"""http("${prefix}_${request.id}")
+    s"""http("${prefix}_${request.id}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""
   }
 
   def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): String =
-    fast"exec(${renderRequest(simulationClass, request, extractedUri)})".toString
+    s"exec(${renderRequest(simulationClass, request, extractedUri)})".toString
 }

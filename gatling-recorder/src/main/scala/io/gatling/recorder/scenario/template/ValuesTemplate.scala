@@ -18,10 +18,8 @@ package io.gatling.recorder.scenario.template
 
 import io.gatling.commons.util.StringHelper.Eol
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[scenario] object ValuesTemplate {
-  def render(values: Seq[Value]): Fastring =
-    values.sortBy(_.name).map(value => fast"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
-      .mkFastring(Eol)
+  def render(values: Seq[Value]): String =
+    values.sortBy(_.name).map(value => s"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
+      .mkString(Eol)
 }

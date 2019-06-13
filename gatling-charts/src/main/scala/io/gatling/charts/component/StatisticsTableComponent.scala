@@ -22,8 +22,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[charts] class StatisticsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 
   private val MaxRequestNameSize = 20
@@ -40,7 +38,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
     val pct4 = pctTitle(configuration.charting.indicators.percentile4)
     val responseTimeFields = Vector("Min", pct1, pct2, pct3, pct4, "Max", "Mean", "Std Dev")
 
-    fast"""
+    s"""
                         <div class="statistics extensible-geant collapsed">
                             <div class="title">
                                 <div class="right">
@@ -61,7 +59,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
                                         <th id="col-5" class="header sortable"><span>% KO</span></th>
                                         <th id="col-6" class="header sortable"><span>Cnt/s</span></th>
-                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }.mkFastring(Eol)}
+                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => s"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }.mkString(Eol)}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -75,7 +73,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
 """
   }
 
-  val js = fast"""
+  val js = s"""
 
   function shortenNameAndDisplayFullOnHover(name){
    if (name.length < $MaxRequestNameSize)

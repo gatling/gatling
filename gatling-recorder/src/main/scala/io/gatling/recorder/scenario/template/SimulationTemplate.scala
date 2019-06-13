@@ -21,8 +21,6 @@ import io.gatling.recorder.scenario.{ ProtocolDefinition, ScenarioElement, TagEl
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.config.RecorderConfiguration
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[scenario] object SimulationTemplate {
 
   def render(
@@ -34,26 +32,26 @@ private[scenario] object SimulationTemplate {
     scenarioElements:    Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]
   )(implicit config: RecorderConfiguration): String = {
 
-    def renderPackage = if (!packageName.isEmpty) fast"package $packageName\n" else ""
+    def renderPackage = if (!packageName.isEmpty) s"package $packageName\n" else ""
 
     def renderHeaders = {
 
       def printHeaders(headers: Seq[(String, String)]) = headers match {
         case Seq((name, value)) =>
-          fast"Map(${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)})"
+          s"Map(${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)})"
         case _ =>
-          val mapContent = headers.map { case (name, value) => fast"		${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)}" }.mkFastring(",\n")
-          fast"""Map(
+          val mapContent = headers.map { case (name, value) => s"		${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)}" }.mkString(",\n")
+          s"""Map(
 $mapContent)"""
       }
 
       headers
-        .map { case (headersBlockIndex, headersBlock) => fast"""	val ${RequestTemplate.headersBlockName(headersBlockIndex)} = ${printHeaders(headersBlock)}""" }
-        .mkFastring("\n\n")
+        .map { case (headersBlockIndex, headersBlock) => s"""	val ${RequestTemplate.headersBlockName(headersBlockIndex)} = ${printHeaders(headersBlock)}""" }
+        .mkString("\n\n")
     }
 
     def renderScenarioElement(se: ScenarioElement, extractedUris: ExtractedUris) = se match {
-      case TagElement(text)        => fast"// $text"
+      case TagElement(text)        => s"// $text"
       case PauseElement(duration)  => PauseTemplate.render(duration)
       case request: RequestElement => RequestTemplate.render(simulationClassName, request, extractedUris)
     }
@@ -68,10 +66,10 @@ $mapContent)"""
               case TagElement(_) => ""
               case _             => "."
             }
-            fast"$prefix${renderScenarioElement(element, extractedUris)}"
-          }.mkFastring("\n\t\t")
+            s"$prefix${renderScenarioElement(element, extractedUris)}"
+          }.mkString("\n\t\t")
 
-          fast"""val scn = scenario("$scenarioName")
+          s"""val scn = scenario("$scenarioName")
 		$scenarioElements"""
 
         case Right(chains) =>
@@ -85,14 +83,14 @@ $mapContent)"""
                     firstNonTagElement = false; ""
                   } else "."
                 }
-                fast"$prefix${renderScenarioElement(element, extractedUris)}"
-              }.mkFastring("\n\t\t")
-              fast"val chain_$i = $chainContent"
-          }.mkFastring("\n\n")
+                s"$prefix${renderScenarioElement(element, extractedUris)}"
+              }.mkString("\n\t\t")
+              s"val chain_$i = $chainContent"
+          }.mkString("\n\n")
 
-          val chainsList = chains.indices.map(i => fast"chain_$i").mkFastring(", ")
+          val chainsList = chains.indices.map(i => s"chain_$i").mkString(", ")
 
-          fast"""$chainElements
+          s"""$chainElements
 
 	val scn = scenario("$scenarioName").exec(
 		$chainsList)"""
@@ -118,7 +116,7 @@ $mapContent)"""
       Uri.create(uriWithScheme).getBaseUrl != protocol.baseUrl
     }
 
-    fast"""$renderPackage
+    s"""$renderPackage
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._

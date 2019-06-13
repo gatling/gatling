@@ -18,14 +18,12 @@ package io.gatling.recorder.scenario.template
 
 import scala.collection.JavaConverters._
 
-import io.gatling.commons.util.StringHelper.{ EmptyFastring, Eol }
-import io.gatling.http.{ HeaderNames, HeaderValues }
+import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeadersAndProtocolMethods
 import io.gatling.recorder.util.HttpUtils
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[scenario] object ProtocolTemplate {
 
@@ -51,34 +49,34 @@ private[scenario] object ProtocolTemplate {
       val protocol = for {
         proxyHost <- config.proxy.outgoing.host
         proxyPort <- config.proxy.outgoing.port
-      } yield fast"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)${renderSslPort(proxyPort)}$renderCredentials)"""
+      } yield s"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)${renderSslPort(proxyPort)}$renderCredentials)"""
 
-      protocol.getOrElse(EmptyFastring)
+      protocol.getOrElse("")
     }
 
-    def renderFollowRedirect = if (!config.http.followRedirect) fast"$Eol$Indent.disableFollowRedirect" else fast""
+    def renderFollowRedirect = if (!config.http.followRedirect) s"$Eol$Indent.disableFollowRedirect" else ""
 
     def renderInferHtmlResources =
       if (config.http.inferHtmlResources) {
         val filtersConfig = config.filters
 
         def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-        def blackListPatterns = fast"BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
-        def whiteListPatterns = fast"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+        def blackListPatterns = s"BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
+        def whiteListPatterns = s"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
 
         val patterns = filtersConfig.filterStrategy match {
-          case FilterStrategy.WhiteListFirst => fast"$whiteListPatterns, $blackListPatterns"
-          case FilterStrategy.BlackListFirst => fast"$blackListPatterns, $whiteListPatterns"
-          case FilterStrategy.Disabled       => EmptyFastring
+          case FilterStrategy.WhiteListFirst => s"$whiteListPatterns, $blackListPatterns"
+          case FilterStrategy.BlackListFirst => s"$blackListPatterns, $whiteListPatterns"
+          case FilterStrategy.Disabled       => ""
         }
 
-        fast"$Eol$Indent.inferHtmlResources($patterns)"
-      } else fast""
+        s"$Eol$Indent.inferHtmlResources($patterns)"
+      } else ""
 
-    def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$Eol$Indent.disableAutoReferer" else fast""
+    def renderAutomaticReferer = if (!config.http.automaticReferer) s"$Eol$Indent.disableAutoReferer" else ""
 
     def renderHeaders = {
-      def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
+      def renderHeader(methodName: String, headerValue: String) = s"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
       protocol.headers.entries().asScala
         .map { case entry => entry.getKey -> entry.getValue }
         .sorted
@@ -92,10 +90,10 @@ private[scenario] object ProtocolTemplate {
               }
 
             Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue))
-        }.mkFastring
+        }.mkString
     }
 
-    fast"""
+    s"""
 		.baseUrl("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderInferHtmlResources$renderAutomaticReferer$renderHeaders""".toString
   }
 }
