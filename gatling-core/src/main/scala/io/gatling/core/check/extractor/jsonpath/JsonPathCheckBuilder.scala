@@ -23,10 +23,10 @@ import io.gatling.core.session._
 import com.fasterxml.jackson.databind.JsonNode
 
 abstract class JsonPathCheckBuilderBase[T, X: JsonFilter](
-                                                            name:                String,
-                                                            private[jsonpath] val path:      Expression[String],
-                                                            private[jsonpath] val jsonPaths: JsonPaths,
-                                                          )
+    name:                            String,
+    private[jsonpath] val path:      Expression[String],
+    private[jsonpath] val jsonPaths: JsonPaths
+)
   extends DefaultMultipleFindCheckBuilder[T, JsonNode, X](displayActualValue = true) {
 
   override def findExtractor(occurrence: Int): Expression[Extractor[JsonNode, X]] = path.map(new JsonPathFindExtractor[X](name, _, occurrence, jsonPaths))
