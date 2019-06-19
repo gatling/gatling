@@ -25,25 +25,25 @@ object HarParser {
 
   private implicit val formats = DefaultFormats
 
-  case class HarHttpArchive(log: HarLog)
+  final case class HarHttpArchive(log: HarLog)
 
-  case class HarLog(entries: Seq[HarEntry])
+  final case class HarLog(entries: Seq[HarEntry])
 
-  case class HarEntry(startedDateTime: String, time: Option[Double], timings: Option[HarTimings], request: HarRequest, response: HarResponse)
+  final case class HarEntry(startedDateTime: String, time: Option[Double], timings: Option[HarTimings], request: HarRequest, response: HarResponse)
 
-  case class HarRequest(httpVersion: String, method: String, url: String, headers: Seq[HarHeader], postData: Option[HarRequestPostData])
+  final case class HarRequest(httpVersion: String, method: String, url: String, headers: Seq[HarHeader], postData: Option[HarRequestPostData])
 
-  case class HarHeader(name: String, value: String)
+  final case class HarHeader(name: String, value: String)
 
-  case class HarRequestPostData(text: Option[String], params: Seq[HarRequestPostParam])
+  final case class HarRequestPostData(text: Option[String], params: Seq[HarRequestPostParam])
 
-  case class HarRequestPostParam(name: String, value: String)
+  final case class HarRequestPostParam(name: String, value: String)
 
-  case class HarResponse(status: Int, headers: Seq[HarHeader], statusText: String, content: HarResponseContent)
+  final case class HarResponse(status: Int, headers: Seq[HarHeader], statusText: String, content: HarResponseContent)
 
-  case class HarResponseContent(mimeType: Option[String], encoding: Option[String], text: Option[String], comment: Option[String])
+  final case class HarResponseContent(mimeType: Option[String], encoding: Option[String], text: Option[String], comment: Option[String])
 
-  case class HarTimings(blocked: Double, dns: Double, connect: Double, ssl: Double, send: Double, waitTiming: Double, receive: Double) {
+  final case class HarTimings(blocked: Double, dns: Double, connect: Double, ssl: Double, send: Double, waitTiming: Double, receive: Double) {
     val time: Double = blocked + dns + connect + ssl + send + waitTiming + receive
   }
 

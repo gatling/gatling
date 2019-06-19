@@ -23,7 +23,7 @@ import io.gatling.http.fetch.ResourceAggregator
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
 
-case class HttpTx(
+final case class HttpTx(
     session:                Session,
     request:                HttpRequest,
     responseBuilderFactory: ResponseBuilderFactory,
@@ -42,4 +42,4 @@ case class HttpTx(
   def currentSession: Session = resourceTx.map(_.aggregator.currentSession).getOrElse(session)
 }
 
-case class ResourceTx(aggregator: ResourceAggregator, uri: Uri)
+final case class ResourceTx(aggregator: ResourceAggregator, uri: Uri)

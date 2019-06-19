@@ -63,8 +63,8 @@ object GatlingConfiguration extends StrictLogging {
 
   def load(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
     sealed abstract class ObsoleteUsage(val message: String) { def path: String }
-    case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
-    case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
+    final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
+    final case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
 
     def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
       val bundle = ResourceBundle.getBundle(bundleName)
@@ -269,7 +269,7 @@ object GatlingConfiguration extends StrictLogging {
     )
 }
 
-case class CoreConfiguration(
+final case class CoreConfiguration(
     version:                          String,
     outputDirectoryBaseName:          Option[String],
     runDescription:                   Option[String],
@@ -288,31 +288,31 @@ case class CoreConfiguration(
   val charset: Charset = Charset.forName(encoding)
 }
 
-case class ExtractConfiguration(
+final case class ExtractConfiguration(
     regex:    RegexConfiguration,
     xpath:    XPathConfiguration,
     jsonPath: JsonPathConfiguration,
     css:      CssConfiguration
 )
 
-case class RegexConfiguration(
+final case class RegexConfiguration(
     cacheMaxCapacity: Long
 )
 
-case class XPathConfiguration(
+final case class XPathConfiguration(
     cacheMaxCapacity: Long,
     preferJdk:        Boolean
 )
 
-case class JsonPathConfiguration(
+final case class JsonPathConfiguration(
     cacheMaxCapacity: Long
 )
 
-case class CssConfiguration(
+final case class CssConfiguration(
     cacheMaxCapacity: Long
 )
 
-case class DirectoryConfiguration(
+final case class DirectoryConfiguration(
     simulations: String,
     resources:   String,
     binaries:    Option[String],
@@ -320,14 +320,14 @@ case class DirectoryConfiguration(
     results:     String
 )
 
-case class ChartingConfiguration(
+final case class ChartingConfiguration(
     noReports:              Boolean,
     maxPlotsPerSeries:      Int,
     useGroupDurationMetric: Boolean,
     indicators:             IndicatorsConfiguration
 )
 
-case class IndicatorsConfiguration(
+final case class IndicatorsConfiguration(
     lowerBound:  Int,
     higherBound: Int,
     percentile1: Double,
@@ -336,7 +336,7 @@ case class IndicatorsConfiguration(
     percentile4: Double
 )
 
-case class HttpConfiguration(
+final case class HttpConfiguration(
     fetchedCssCacheMaxCapacity:  Long,
     fetchedHtmlCacheMaxCapacity: Long,
     perUserCacheMaxCapacity:     Int,
@@ -347,11 +347,11 @@ case class HttpConfiguration(
     dns:                         DnsConfiguration
 )
 
-case class JmsConfiguration(
+final case class JmsConfiguration(
     replyTimeoutScanPeriod: FiniteDuration
 )
 
-case class AdvancedConfiguration(
+final case class AdvancedConfiguration(
     connectTimeout:               FiniteDuration,
     handshakeTimeout:             FiniteDuration,
     pooledConnectionIdleTimeout:  FiniteDuration,
@@ -374,17 +374,17 @@ case class AdvancedConfiguration(
 
 )
 
-case class DnsConfiguration(
+final case class DnsConfiguration(
     queryTimeout:         FiniteDuration,
     maxQueriesPerResolve: Int
 )
 
-case class SslConfiguration(
+final case class SslConfiguration(
     keyManagerFactory:   Option[KeyManagerFactory],
     trustManagerFactory: Option[TrustManagerFactory]
 )
 
-case class DataConfiguration(
+final case class DataConfiguration(
     dataWriters: Seq[DataWriterType],
     file:        FileDataWriterConfiguration,
     leak:        LeakDataWriterConfiguration,
@@ -395,20 +395,20 @@ case class DataConfiguration(
   def fileDataWriterEnabled: Boolean = dataWriters.contains(FileDataWriterType)
 }
 
-case class FileDataWriterConfiguration(
+final case class FileDataWriterConfiguration(
     bufferSize: Int
 )
 
-case class LeakDataWriterConfiguration(
+final case class LeakDataWriterConfiguration(
     noActivityTimeout: FiniteDuration
 )
 
-case class ConsoleDataWriterConfiguration(
+final case class ConsoleDataWriterConfiguration(
     light:       Boolean,
     writePeriod: FiniteDuration
 )
 
-case class GraphiteDataWriterConfiguration(
+final case class GraphiteDataWriterConfiguration(
     light:          Boolean,
     host:           String,
     port:           Int,
@@ -429,7 +429,7 @@ case class GraphiteDataWriterConfiguration(
 //
 // [fl]
 
-case class GatlingConfiguration(
+final case class GatlingConfiguration(
     core:     CoreConfiguration,
     charting: ChartingConfiguration,
     http:     HttpConfiguration,

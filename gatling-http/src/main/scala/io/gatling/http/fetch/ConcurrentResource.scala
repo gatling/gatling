@@ -45,6 +45,6 @@ private[gatling] sealed abstract class ConcurrentResource {
   }
 }
 
-private[gatling] case class CssResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression }
+private[gatling] final case class CssResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression }
 
-private[gatling] case class BasicResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression }
+private[gatling] final case class BasicResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression }

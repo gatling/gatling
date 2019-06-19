@@ -29,15 +29,15 @@ private[charts] object Statistics {
     }
 }
 
-private[charts] case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
+private[charts] final case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
   def all = List(total, success, failure)
 }
 
-private[charts] case class GroupedCount(name: String, count: Long, total: Long) {
+private[charts] final case class GroupedCount(name: String, count: Long, total: Long) {
   val percentage: Int = if (total == 0) 0 else (count.toDouble / total * 100).round.toInt
 }
 
-private[charts] case class RequestStatistics(
+private[charts] final case class RequestStatistics(
     name:                                    String,
     path:                                    String,
     numberOfRequestsStatistics:              Statistics[Long],

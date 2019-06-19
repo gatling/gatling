@@ -42,7 +42,7 @@ object JmsProtocol {
   }
 }
 
-case class JmsProtocol(
+final case class JmsProtocol(
     connectionFactory:   ConnectionFactory,
     credentials:         Option[Credentials],
     deliveryMode:        Int,

@@ -36,19 +36,19 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpUtil }
 
 import jodd.net.MimeTypes
 
-private[recorder] case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
+private[recorder] final case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
 
 private[recorder] sealed trait RequestBody
-private[recorder] case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
-private[recorder] case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
+private[recorder] final case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
+private[recorder] final case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
 private[recorder] sealed trait ResponseBody
-private[recorder] case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
+private[recorder] final case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
 
 private[recorder] sealed trait ScenarioElement
 
-private[recorder] case class PauseElement(duration: FiniteDuration) extends ScenarioElement
-private[recorder] case class TagElement(text: String) extends ScenarioElement
+private[recorder] final case class PauseElement(duration: FiniteDuration) extends ScenarioElement
+private[recorder] final case class TagElement(text: String) extends ScenarioElement
 
 private[recorder] object RequestElement {
 
@@ -103,7 +103,7 @@ private[recorder] object RequestElement {
   }
 }
 
-private[recorder] case class RequestElement(
+private[recorder] final case class RequestElement(
     uri:                  String,
     method:               String,
     headers:              HttpHeaders,

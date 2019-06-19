@@ -91,7 +91,7 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
 /**
  * Ramp a given number of users over a given duration
  */
-case class RampOpenInjection(users: Long, duration: FiniteDuration) extends OpenInjectionStep {
+final case class RampOpenInjection(users: Long, duration: FiniteDuration) extends OpenInjectionStep {
 
   require(users >= 0, s"users ($users) must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
@@ -115,7 +115,7 @@ case class RampOpenInjection(users: Long, duration: FiniteDuration) extends Open
 /**
  * Inject users at constant rate : an other expression of a RampInjection
  */
-case class ConstantRateOpenInjection(rate: Double, duration: FiniteDuration) extends OpenInjectionStep {
+final case class ConstantRateOpenInjection(rate: Double, duration: FiniteDuration) extends OpenInjectionStep {
 
   require(rate >= 0, s"rate ($rate) must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
@@ -136,7 +136,7 @@ case class ConstantRateOpenInjection(rate: Double, duration: FiniteDuration) ext
 /**
  * Don't injection any user for a given duration
  */
-case class NothingForOpenInjection(duration: FiniteDuration) extends OpenInjectionStep {
+final case class NothingForOpenInjection(duration: FiniteDuration) extends OpenInjectionStep {
 
   require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
 
@@ -153,7 +153,7 @@ case class NothingForOpenInjection(duration: FiniteDuration) extends OpenInjecti
 /**
  * Inject all the users at once
  */
-case class AtOnceOpenInjection(users: Long) extends OpenInjectionStep {
+final case class AtOnceOpenInjection(users: Long) extends OpenInjectionStep {
 
   require(users >= 0, s"users ($users) must be >= 0")
 
@@ -181,7 +181,7 @@ case class AtOnceOpenInjection(users: Long) extends OpenInjectionStep {
  * @param endRate Final injection rate in users/seconds
  * @param duration Injection duration
  */
-case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends OpenInjectionStep {
+final case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: FiniteDuration) extends OpenInjectionStep {
 
   require(startRate >= 0.0 && endRate >= 0.0, s"injection rates ($startRate, $endRate) must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be >= 0")
@@ -223,7 +223,7 @@ case class RampRateOpenInjection(startRate: Double, endRate: Double, duration: F
  *                          // (good numerical approximation)
  * }}}
  */
-case class HeavisideOpenInjection(users: Long, duration: FiniteDuration) extends OpenInjectionStep {
+final case class HeavisideOpenInjection(users: Long, duration: FiniteDuration) extends OpenInjectionStep {
 
   require(users >= 0, s"users ($users) must be >= 0")
   require(duration >= Duration.Zero, s"Duration ($duration) must be >= 0")
@@ -275,7 +275,7 @@ case class HeavisideOpenInjection(users: Long, duration: FiniteDuration) extends
  * @param endRate final injection rate for users
  * @param seed a seed for the randomization. If the same seed is re-used, the same timings will be obtained
  */
-case class PoissonOpenInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends OpenInjectionStep {
+final case class PoissonOpenInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends OpenInjectionStep {
 
   require(startRate >= 0.0 && endRate >= 0.0, s"injection rates ($startRate, $endRate) must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")

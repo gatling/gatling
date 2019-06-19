@@ -20,7 +20,7 @@ import io.gatling.core.scenario.SimulationParams
 
 import akka.actor.{ Props, ActorSystem, ActorRef }
 
-case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
+final case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
 
   def limitReached(scenario: String): Boolean = {
     global.map(_.limitReached) match {

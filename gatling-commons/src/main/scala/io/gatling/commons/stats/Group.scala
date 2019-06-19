@@ -16,6 +16,6 @@
 
 package io.gatling.commons.stats
 
-case class Group(hierarchy: List[String]) {
+final case class Group(hierarchy: List[String]) {
   val name: String = hierarchy.last
 }

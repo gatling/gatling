@@ -30,7 +30,7 @@ import io.gatling.graphite.types._
 
 import akka.actor.ActorRef
 
-case class GraphiteData(
+final case class GraphiteData(
     metricsSender:   ActorRef,
     requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
     usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],

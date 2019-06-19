@@ -27,5 +27,5 @@ private[sender] case object RetriesExhausted extends TcpSenderState
 
 private[sender] sealed trait TcpSenderData
 private[sender] case object NoData extends TcpSenderData
-private[sender] case class DisconnectedData(retry: Retry) extends TcpSenderData
-private[sender] case class ConnectedData(connection: ActorRef, retry: Retry) extends TcpSenderData
+private[sender] final case class DisconnectedData(retry: Retry) extends TcpSenderData
+private[sender] final case class ConnectedData(connection: ActorRef, retry: Retry) extends TcpSenderData

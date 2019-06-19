@@ -29,4 +29,4 @@ private[polling] case object Polling extends PollerState
 
 private[polling] sealed trait PollerData
 private[polling] case object NoData extends PollerData
-private[polling] case class PollingData(session: Session) extends PollerData
+private[polling] final case class PollingData(session: Session) extends PollerData

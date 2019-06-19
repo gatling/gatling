@@ -32,7 +32,7 @@ import io.gatling.http.response.{ HttpResult, ResponseBuilderFactory }
 
 import akka.actor.Props
 
-case class FetchedResource(
+final case class FetchedResource(
     tx:     HttpTx,
     result: HttpResult
 )

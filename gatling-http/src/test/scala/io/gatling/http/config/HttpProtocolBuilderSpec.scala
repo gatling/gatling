@@ -29,9 +29,7 @@ import org.mockito.Mockito.when
 class HttpProtocolBuilderSpec extends BaseSpec {
 
   val configuration = GatlingConfiguration.loadForTest()
-  val coreComponents = mock[CoreComponents]
-  when(coreComponents.configuration).thenReturn(configuration)
-  when(coreComponents.clock).thenReturn(new DefaultClock)
+  val coreComponents = CoreComponents(null, null, null, null, new DefaultClock, null, configuration)
   val httpCaches = new HttpCaches(coreComponents)
   val httpEngine = mock[HttpEngine]
   val httpProtocolBuilder = HttpProtocolBuilder(configuration)

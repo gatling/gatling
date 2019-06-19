@@ -20,7 +20,7 @@ import io.gatling.commons.model.Credentials
 import io.gatling.http.client.proxy.{ HttpProxyServer, ProxyServer }
 import io.gatling.http.client.realm.BasicRealm
 
-case class Proxy(
+final case class Proxy(
     host:        String,
     port:        Int,
     securePort:  Int,

@@ -23,7 +23,7 @@ import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.getCookieValue
 
-case class GetCookieDsl(
+final case class GetCookieDsl(
     name:   String,
     domain: Option[String] = None,
     path:   Option[String] = None,

@@ -17,5 +17,5 @@
 package io.gatling.commons.stats
 
 sealed trait StatsPath
-case class RequestStatsPath(request: String, group: Option[Group]) extends StatsPath
-case class GroupStatsPath(group: Group) extends StatsPath
+final case class RequestStatsPath(request: String, group: Option[Group]) extends StatsPath
+final case class GroupStatsPath(group: Group) extends StatsPath

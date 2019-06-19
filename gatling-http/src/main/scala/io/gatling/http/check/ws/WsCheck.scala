@@ -23,11 +23,11 @@ import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.Session
 
 sealed trait WsCheck
-case class WsTextCheck(wrapped: Check[String]) extends WsCheck with Check[String] {
+final case class WsTextCheck(wrapped: Check[String]) extends WsCheck with Check[String] {
   override def check(message: String, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 }
-case class WsBinaryCheck(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
+final case class WsBinaryCheck(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
   override def check(message: Array[Byte], session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 }

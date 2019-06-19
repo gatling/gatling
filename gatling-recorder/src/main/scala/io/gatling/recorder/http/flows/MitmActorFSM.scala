@@ -39,7 +39,7 @@ object Remote {
   }
 }
 
-case class Remote(host: String, port: Int) {
+final case class Remote(host: String, port: Int) {
 
   def makeAbsoluteUri(rawUri: String, https: Boolean): String = {
     val sb = new StringBuilder
@@ -69,10 +69,10 @@ object MitmActorFSM {
 
   // data
   case object NoData extends MitmActorData
-  case class WaitingForClientChannelConnectData(remote: Remote, pendingRequest: FullHttpRequest) extends MitmActorData
-  case class WaitingForProxyConnectResponseData(remote: Remote, pendingRequest: FullHttpRequest, clientChannel: Channel) extends MitmActorData
-  case class ConnectedData(remote: Remote, clientChannel: Channel) extends MitmActorData
-  case class DisconnectedData(remote: Remote) extends MitmActorData
+  final case class WaitingForClientChannelConnectData(remote: Remote, pendingRequest: FullHttpRequest) extends MitmActorData
+  final case class WaitingForProxyConnectResponseData(remote: Remote, pendingRequest: FullHttpRequest, clientChannel: Channel) extends MitmActorData
+  final case class ConnectedData(remote: Remote, clientChannel: Channel) extends MitmActorData
+  final case class DisconnectedData(remote: Remote) extends MitmActorData
 }
 
 trait MitmActorFSM extends Actor with FSM[MitmActorState, MitmActorData]

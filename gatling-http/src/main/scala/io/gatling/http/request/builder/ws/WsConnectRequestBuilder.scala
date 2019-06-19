@@ -28,7 +28,7 @@ object WsConnectRequestBuilder {
     WsConnectBuilder(requestBuilder, Nil, None)
 }
 
-case class WsConnectRequestBuilder(commonAttributes: CommonAttributes, wsName: String, subprotocol: Option[String]) extends RequestBuilder[WsConnectRequestBuilder] {
+final case class WsConnectRequestBuilder(commonAttributes: CommonAttributes, wsName: String, subprotocol: Option[String]) extends RequestBuilder[WsConnectRequestBuilder] {
 
   def subprotocol(sub: String): WsConnectRequestBuilder = copy(subprotocol = Some(sub))
 

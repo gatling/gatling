@@ -26,8 +26,8 @@ import org.w3c.dom.Document
 trait XPathCheckType
 
 sealed trait Dom
-case class SaxonDom(document: XdmNode) extends Dom
-case class JdkDom(document: Document) extends Dom
+final case class SaxonDom(document: XdmNode) extends Dom
+final case class JdkDom(document: Document) extends Dom
 
 class XPathCheckBuilder(
     path:       Expression[String],

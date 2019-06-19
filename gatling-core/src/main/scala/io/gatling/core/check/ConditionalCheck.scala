@@ -29,7 +29,7 @@ trait UntypedConditionalCheckWrapper[C <: Check[_]] {
   def wrap(condition: Expression[Boolean], thenCheck: C): C
 }
 
-case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
+final case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
 
   def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     condition(response, session).flatMap { boolean =>

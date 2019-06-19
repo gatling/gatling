@@ -30,7 +30,7 @@ import io.gatling.core.stats.StatsEngine
  * @param session       the new Session to be sent to exitAction
  * @param groupsToClose the groups to be closed as we bypass the regular GroupEnd from the regular flow
  */
-case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[GroupBlock]) {
+final case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[GroupBlock]) {
 
   def exitBlock(statsEngine: StatsEngine, nowMillis: Long): Unit = {
     groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session, _, nowMillis))

@@ -29,7 +29,7 @@ package object session {
   val TrueExpressionSuccess: Expression[Boolean] = true.expressionSuccess
   val EmptyStringExpressionSuccess: Expression[String] = "".expressionSuccess
 
-  case class StaticStringExpression(value: String) extends Expression[String] {
+  final case class StaticStringExpression(value: String) extends Expression[String] {
     private val valueV = value.success
     override def apply(session: Session): Validation[String] = valueV
   }

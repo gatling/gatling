@@ -44,10 +44,10 @@ object LoopBlock extends StrictLogging {
   }
 }
 
-case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
+final case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
 
-case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends CounterBlock
+final case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends CounterBlock
 
-case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status = OK) extends CounterBlock
+final case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status = OK) extends CounterBlock
 
-case class GroupBlock(hierarchy: List[String], startTimestamp: Long, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block
+final case class GroupBlock(hierarchy: List[String], startTimestamp: Long, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block

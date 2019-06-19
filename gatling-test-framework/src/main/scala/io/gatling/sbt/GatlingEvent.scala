@@ -28,7 +28,7 @@ import sbt.testing.{ Event, Fingerprint, OptionalThrowable, Selector, Status }
  * @param throwable The exception that may have been thrown by Gatling.
  * @param duration The simulation's execution's duration.
  */
-case class SimulationSuccessful(
+final case class SimulationSuccessful(
     fullyQualifiedName: String,
     fingerprint:        Fingerprint,
     selector:           Selector,
@@ -49,7 +49,7 @@ case class SimulationSuccessful(
  * @param throwable The exception that may have been thrown by Gatling.
  * @param duration The simulation's execution's duration.
  */
-case class SimulationFailed(
+final case class SimulationFailed(
     fullyQualifiedName: String,
     fingerprint:        Fingerprint,
     selector:           Selector,
@@ -70,7 +70,7 @@ case class SimulationFailed(
  * @param throwable The exception that may have been thrown by Gatling.
  * @param duration The simulation's execution's duration.
  */
-case class InvalidArguments(
+final case class InvalidArguments(
     fullyQualifiedName: String,
     fingerprint:        Fingerprint,
     selector:           Selector,

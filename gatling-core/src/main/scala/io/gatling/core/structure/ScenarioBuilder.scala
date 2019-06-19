@@ -35,7 +35,7 @@ import com.typesafe.scalalogging.LazyLogging
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] with BuildAction {
+final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] with BuildAction {
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
     copy(actionBuilders = newActionBuilders.toList ::: actionBuilders)
@@ -51,7 +51,7 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
     PopulationBuilder(this, meta.profile)
 }
 
-case class PopulationBuilder(
+final case class PopulationBuilder(
     scenarioBuilder:       ScenarioBuilder,
     injectionProfile:      InjectionProfile,
     scenarioProtocols:     Protocols              = Protocols(),
@@ -104,7 +104,7 @@ case class PopulationBuilder(
   }
 }
 
-case class ScenarioContext(
+final case class ScenarioContext(
     coreComponents:             CoreComponents,
     protocolComponentsRegistry: ProtocolComponentsRegistry,
     pauseType:                  PauseType,

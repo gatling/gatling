@@ -45,7 +45,7 @@ object HttpProtocolBuilder {
     HttpProtocolBuilder(HttpProtocol(configuration), configuration.http.advanced.useOpenSsl)
 }
 
-case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
+final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {
 
   def baseUrl(url: String): HttpProtocolBuilder = baseUrls(List(url))
   def baseUrls(urls: String*): HttpProtocolBuilder = baseUrls(urls.toList)

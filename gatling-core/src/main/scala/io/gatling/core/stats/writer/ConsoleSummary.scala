@@ -129,4 +129,4 @@ object ConsoleSummary {
   }
 }
 
-case class ConsoleSummary(text: String, complete: Boolean)
+final case class ConsoleSummary(text: String, complete: Boolean)

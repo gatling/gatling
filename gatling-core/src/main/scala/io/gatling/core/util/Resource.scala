@@ -29,7 +29,7 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 
 object Resource {
 
-  private case class Location(directory: Path, path: String)
+  private final case class Location(directory: Path, path: String)
 
   private object ClasspathResource {
     def unapply(location: Location): Option[Validation[Resource]] = {
@@ -79,7 +79,7 @@ sealed trait Resource {
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
 }
 
-case class ClasspathPackagedResource(path: String, url: URL) extends Resource {
+final case class ClasspathPackagedResource(path: String, url: URL) extends Resource {
   override val name = {
     val urlString = url.toString
     urlString.lastIndexOf(File.separatorChar) match {
@@ -101,11 +101,11 @@ case class ClasspathPackagedResource(path: String, url: URL) extends Resource {
   }
 }
 
-case class ClasspathFileResource(path: String, file: File) extends Resource {
+final case class ClasspathFileResource(path: String, file: File) extends Resource {
   override val name: String = file.getName
 }
 
-case class FilesystemResource(file: File) extends Resource {
+final case class FilesystemResource(file: File) extends Resource {
   override val name: String = file.getName
 }
 

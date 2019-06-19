@@ -53,7 +53,7 @@ trait Check[R] {
   def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult]
 }
 
-case class CheckBase[R, P, X](
+final case class CheckBase[R, P, X](
     preparer:            Preparer[R, P],
     extractorExpression: Expression[Extractor[P, X]],
     validatorExpression: Expression[Validator[X]],
@@ -88,7 +88,7 @@ object CheckResult {
   val NoopCheckResultSuccess: Validation[CheckResult] = CheckResult(None, None).success
 }
 
-case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
+final case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
 
   def update(session: Session): Session = {
     val maybeUpdatedSession =

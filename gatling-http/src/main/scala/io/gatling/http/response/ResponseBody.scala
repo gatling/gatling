@@ -46,7 +46,7 @@ sealed trait ResponseBody {
   def stream: InputStream
 }
 
-class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends ResponseBody with LazyLogging {
+final class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends ResponseBody with LazyLogging {
 
   override lazy val string: String =
     try {
@@ -67,7 +67,7 @@ class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends ResponseBody
     new ByteBufInputStream(chunk.duplicate)
 }
 
-class ByteBufsResponseBody(chunks: Seq[ByteBuf], charset: Charset) extends ResponseBody with LazyLogging {
+final class ByteBufsResponseBody(chunks: Seq[ByteBuf], charset: Charset) extends ResponseBody with LazyLogging {
 
   override lazy val string: String =
     try {
@@ -96,7 +96,7 @@ case object NoResponseBody extends ResponseBody {
 }
 
 // for ResponseTransformer
-class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
+final class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
 
   override lazy val chars: Array[Char] = string.toCharArray
 
@@ -106,7 +106,7 @@ class StringResponseBody(val string: String, charset: Charset) extends ResponseB
 }
 
 // for ResponseTransformer
-class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
+final class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
   override lazy val string: String = new String(bytes, charset)
 

@@ -27,7 +27,7 @@ object Protocols {
 /**
  * A placeholder for Protocols
  */
-case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
+final case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
 
   /**
    * @return a registered Protocol according to its type

@@ -102,7 +102,7 @@ private[stats] object ErrorRecordParser {
   }
 }
 
-private[stats] case class RequestRecord(group: Option[Group], name: String, status: Status, start: Long, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String], incoming: Boolean)
-private[stats] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
-private[stats] case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
-private[stats] case class ErrorRecord(message: String, timestamp: Long)
+private[stats] final case class RequestRecord(group: Option[Group], name: String, status: Status, start: Long, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String], incoming: Boolean)
+private[stats] final case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
+private[stats] final case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
+private[stats] final case class ErrorRecord(message: String, timestamp: Long)

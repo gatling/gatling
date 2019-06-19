@@ -23,17 +23,17 @@ object Series {
   val Distribution = "Distribution"
 }
 
-case class Series[X](name: String, data: Iterable[X], colors: List[String])
-case class IntVsTimePlot(time: Int, value: Int)
-case class CountsVsTimePlot(time: Int, oks: Int, kos: Int) {
+final case class Series[X](name: String, data: Iterable[X], colors: List[String])
+final case class IntVsTimePlot(time: Int, value: Int)
+final case class CountsVsTimePlot(time: Int, oks: Int, kos: Int) {
   def total: Int = oks + kos
 }
-case class PercentVsTimePlot(time: Int, value: Double) {
+final case class PercentVsTimePlot(time: Int, value: Double) {
   def roundedUpValue: Double = (value * 100).toInt / 100.0
 }
-case class PieSlice(name: String, value: Double)
-case class PercentilesVsTimePlot(time: Int, percentiles: Option[Percentiles])
-case class Percentiles(
+final case class PieSlice(name: String, value: Double)
+final case class PercentilesVsTimePlot(time: Int, percentiles: Option[Percentiles])
+final case class Percentiles(
     percentile0:   Int,
     percentile25:  Int,
     percentile50:  Int,

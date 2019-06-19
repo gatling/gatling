@@ -38,7 +38,7 @@ import akka.actor.{ Props, Timers }
 /**
  * Advise actor a message was sent to JMS provider
  */
-case class MessageSent(
+final case class MessageSent(
     matchId:      String,
     sent:         Long,
     replyTimeout: Long,
@@ -51,7 +51,7 @@ case class MessageSent(
 /**
  * Advise actor a response message was received from JMS provider
  */
-case class MessageReceived(
+final case class MessageReceived(
     matchId:  String,
     received: Long,
     message:  Message

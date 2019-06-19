@@ -20,9 +20,9 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 
-private[scenario] case class Value(name: String, value: String)
+private[scenario] final case class Value(name: String, value: String)
 
-private[scenario] case class SchemeHost(scheme: String, host: String)
+private[scenario] final case class SchemeHost(scheme: String, host: String)
 
 /**
  * Extracts common URIs parts into vals. The algorithm is the following:

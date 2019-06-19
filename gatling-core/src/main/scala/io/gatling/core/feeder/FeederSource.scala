@@ -31,7 +31,7 @@ sealed trait FeederSource[T] {
   def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any]
 }
 
-case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
+final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends FeederSource[T] with LazyLogging {
 
   require(records.nonEmpty, "Feeder must not be empty")
 

@@ -40,7 +40,7 @@ object Filters {
     )
 }
 
-case class Filters(first: Filter, second: Filter) {
+final case class Filters(first: Filter, second: Filter) {
   def accept(url: String): Boolean = first.accept(url) && second.accept(url)
 }
 
@@ -56,10 +56,10 @@ sealed abstract class Filter(patterns: Seq[String]) extends StrictLogging {
   def accept(url: String): Boolean
 }
 
-case class WhiteList(patterns: Seq[String] = Nil) extends Filter(patterns) {
+final case class WhiteList(patterns: Seq[String] = Nil) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
 }
 
-case class BlackList(patterns: Seq[String] = Nil) extends Filter(patterns) {
+final case class BlackList(patterns: Seq[String] = Nil) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }

@@ -39,7 +39,7 @@ object SessionPrivateAttributes {
   val PrivateAttributePrefix = "gatling."
 }
 
-case class SessionAttribute(session: Session, key: String) {
+final case class SessionAttribute(session: Session, key: String) {
 
   def as[T: TypeCaster: ClassTag: NotNothing]: T = session.attributes.get(key) match {
     case Some(value) => value.as[T]
@@ -75,7 +75,7 @@ object Session {
  * @param blockStack the block stack
  * @param onExit hook to execute once the user reaches the exit
  */
-case class Session(
+final case class Session(
     scenario:   String,
     userId:     Long,
     startDate:  Long,

@@ -26,7 +26,7 @@ private[graphite] object GraphitePath {
   def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
 }
 
-private[graphite] case class GraphitePath private (path: List[String]) {
+private[graphite] final case class GraphitePath private (path: List[String]) {
   import GraphitePath.sanitizeString
   def /(subPath: String) = new GraphitePath(sanitizeString(subPath) :: path)
   def /(subPath: GraphitePath) = new GraphitePath(subPath.path.map(sanitizeString) ::: path)

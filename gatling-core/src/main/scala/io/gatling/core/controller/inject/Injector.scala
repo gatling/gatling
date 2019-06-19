@@ -33,8 +33,8 @@ import akka.actor.{ ActorRef, ActorSystem, Props }
 
 sealed trait InjectorCommand
 object InjectorCommand {
-  case class Start(controller: ActorRef, scenarios: List[Scenario]) extends InjectorCommand
-  case object Tick extends InjectorCommand
+  final case class Start(controller: ActorRef, scenarios: List[Scenario]) extends InjectorCommand
+  final case object Tick extends InjectorCommand
 }
 
 object Injector {

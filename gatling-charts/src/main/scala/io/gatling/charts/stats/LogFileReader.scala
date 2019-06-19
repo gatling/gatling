@@ -42,6 +42,8 @@ object LogFileReader {
   private val SimulationFilesNamePattern = """.*\.log"""
 }
 
+final case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage, assertions: List[Assertion])
+
 class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends GeneralStatsSource with StrictLogging {
 
   import LogFileReader._
@@ -63,8 +65,6 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     try f(multipleFileIterator(streams))
     finally streams.foreach(_.close)
   }
-
-  case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage, assertions: List[Assertion])
 
   private def firstPass(records: Iterator[String]): FirstPassData = {
 

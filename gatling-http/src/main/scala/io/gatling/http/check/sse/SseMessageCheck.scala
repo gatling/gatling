@@ -20,11 +20,11 @@ import scala.concurrent.duration.FiniteDuration
 
 import com.softwaremill.quicklens._
 
-case class SseMessageCheckSequence(timeout: FiniteDuration, checks: List[SseMessageCheck]) {
+final case class SseMessageCheckSequence(timeout: FiniteDuration, checks: List[SseMessageCheck]) {
   require(checks.nonEmpty, "Can't pass empty check sequence")
 }
 
-case class SseMessageCheck(name: String, matchConditions: List[SseCheck], checks: List[SseCheck]) {
+final case class SseMessageCheck(name: String, matchConditions: List[SseCheck], checks: List[SseCheck]) {
 
   def matching(newMatchConditions: SseCheck*): SseMessageCheck =
     this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)

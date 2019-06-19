@@ -26,7 +26,8 @@ import io.gatling.core.session.Session
 import io.gatling.http.HttpDsl
 import io.gatling.http.response.{ ByteArrayResponseBody, Response }
 import io.gatling.{ BaseSpec, ValidationValues }
-import org.mockito.Mockito._
+
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 
 class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
@@ -35,11 +36,20 @@ class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
-  private def mockResponse(body: Array[Byte]) = {
-    val response = mock[Response]
-    when(response.body) thenReturn new ByteArrayResponseBody(body, UTF_8)
-    response
-  }
+  private def mockResponse(body: Array[Byte]): Response =
+    Response(
+      request = null,
+      wireRequestHeaders = new DefaultHttpHeaders,
+      status = HttpResponseStatus.OK,
+      headers = new DefaultHttpHeaders,
+      body = new ByteArrayResponseBody(body, UTF_8),
+      checksums = null,
+      bodyLength = 0,
+      charset = null,
+      startTimestamp = 0,
+      endTimestamp = 0,
+      isHttp2 = false
+    )
 
   "bodyBytes.find.is" should "support byte arrays equality" in {
     val string = "Hello World"

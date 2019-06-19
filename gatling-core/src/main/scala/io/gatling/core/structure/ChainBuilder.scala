@@ -23,7 +23,7 @@ import io.gatling.core.action.builder.ActionBuilder
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-case class ChainBuilder(actionBuilders: List[ActionBuilder])
+final case class ChainBuilder(actionBuilders: List[ActionBuilder])
   extends StructureBuilder[ChainBuilder] with BuildAction {
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =

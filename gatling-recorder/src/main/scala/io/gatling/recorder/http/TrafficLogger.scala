@@ -29,11 +29,11 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelId
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, FullHttpRequest, FullHttpResponse, HttpHeaderValues, HttpMethod }
 
+final case class Key(channelId: ChannelId)
+
 class TrafficLogger(controller: RecorderController) extends StrictLogging {
 
   private val flyingRequests = new ConcurrentHashMap[ChannelId, HttpRequest]
-
-  private case class Key(channelId: ChannelId)
 
   def logException(remote: Remote, throwable: Throwable): Unit =
     throwable match {

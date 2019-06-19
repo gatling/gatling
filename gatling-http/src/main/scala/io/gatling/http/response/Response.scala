@@ -35,7 +35,7 @@ sealed trait HttpResult {
   def endTimestamp: Long
 }
 
-case class HttpFailure(
+final case class HttpFailure(
     request:            Request,
     wireRequestHeaders: HttpHeaders,
     startTimestamp:     Long,
@@ -43,7 +43,7 @@ case class HttpFailure(
     errorMessage:       String
 ) extends HttpResult
 
-case class Response(
+final case class Response(
     request:            Request,
     wireRequestHeaders: HttpHeaders,
     status:             HttpResponseStatus,

@@ -35,26 +35,26 @@ object ElFileBody {
 
 sealed trait Body
 
-case class StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
+final case class StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
 
   override def apply(session: Session): Validation[String] = string(session)
 
   def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
 }
 
-object RawFileBody {
+final object RawFileBody {
   def apply(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): RawFileBody =
     new RawFileBody(rawFileBodies.asResourceAndCachedBytes(filePath))
 
   def unapply(b: RawFileBody) = Some(b.resourceAndCachedBytes)
 }
 
-class RawFileBody(val resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {
+final class RawFileBody(val resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {
   override def apply(session: Session): Validation[Array[Byte]] =
     resourceAndCachedBytes(session).map(resourceAndCachedBytes => resourceAndCachedBytes.cachedBytes.getOrElse(resourceAndCachedBytes.resource.bytes))
 }
 
-case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expression[Array[Byte]] {
+final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with Expression[Array[Byte]] {
   override def apply(session: Session): Validation[Array[Byte]] =
     bytes(session)
 }
@@ -66,7 +66,7 @@ object CompositeByteArrayBody {
   }
 }
 
-case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], charset: Charset) extends Body with Expression[String] {
+final case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], charset: Charset) extends Body with Expression[String] {
 
   override def apply(session: Session): Validation[String] = bytes(session).map { bs =>
     val sb = StringBuilderPool.DEFAULT.get()
@@ -77,7 +77,7 @@ case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], charset: 
   def asStream: Expression[InputStream] = bytes.map(new CompositeByteArrayInputStream(_))
 }
 
-case class InputStreamBody(is: Expression[InputStream]) extends Body
+final case class InputStreamBody(is: Expression[InputStream]) extends Body
 
 object PebbleStringBody {
   def apply(string: String)(implicit configuration: GatlingConfiguration): PebbleBody = {
@@ -91,7 +91,7 @@ object PebbleFileBody {
     PebbleBody(pebbleFileBodies.asTemplate(filePath))
 }
 
-case class PebbleBody(template: Expression[PebbleTemplate]) extends Body with Expression[String] {
+final case class PebbleBody(template: Expression[PebbleTemplate]) extends Body with Expression[String] {
   override def apply(session: Session): Validation[String] =
     template(session).flatMap(Pebble.evaluateTemplate(_, session))
 }

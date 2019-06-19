@@ -35,7 +35,7 @@ import io.gatling.core.structure._
 
 import akka.actor.{ ActorRef, ActorSystem }
 
-case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {
+final case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {
 
   private[test] val expectations = new ArrayBuffer[PartialFunction[Any, Unit]]
 }

@@ -31,7 +31,7 @@ import io.gatling.http.response.{ Response, StringResponseBody }
 import io.gatling.{ BaseSpec, ValidationValues }
 
 import com.fasterxml.jackson.databind.JsonNode
-import org.mockito.Mockito._
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 
 class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
@@ -40,12 +40,20 @@ class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
-  private def mockResponse(body: String): Response = {
-    val response = mock[Response]
-    when(response.body) thenReturn new StringResponseBody(body, UTF_8)
-    when(response.charset) thenReturn UTF_8
-    response
-  }
+  private def mockResponse(body: String): Response =
+    Response(
+      request = null,
+      wireRequestHeaders = new DefaultHttpHeaders,
+      status = HttpResponseStatus.OK,
+      headers = new DefaultHttpHeaders,
+      body = new StringResponseBody(body, UTF_8),
+      checksums = null,
+      bodyLength = 0,
+      charset = UTF_8,
+      startTimestamp = 0,
+      endTimestamp = 0,
+      isHttp2 = false
+    )
 
   private val storeJson = """{ "store": {
                             |    "book": "In store"

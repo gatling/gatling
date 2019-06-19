@@ -26,23 +26,23 @@ sealed trait ThrottleStep {
   def rps(time: Long, previousLastValue: Int): Int
 }
 
-case class ReachIntermediate(target: Int) {
+final case class ReachIntermediate(target: Int) {
   def in(duration: FiniteDuration) = Reach(target, duration)
 }
 
-case class Reach(target: Int, duration: FiniteDuration) extends ThrottleStep {
+final case class Reach(target: Int, duration: FiniteDuration) extends ThrottleStep {
   override val durationInSec: Long = duration.toSeconds
   override def target(previousLastValue: Int): Int = target
   override def rps(time: Long, previousLastValue: Int): Int = (previousLastValue + (target - previousLastValue) * (time + 1) / durationInSec).toInt
 }
 
-case class Hold(duration: FiniteDuration) extends ThrottleStep {
+final case class Hold(duration: FiniteDuration) extends ThrottleStep {
   override val durationInSec: Long = duration.toSeconds
   override def target(previousLastValue: Int): Int = previousLastValue
   override def rps(time: Long, previousLastValue: Int): Int = previousLastValue
 }
 
-case class Jump(target: Int) extends ThrottleStep {
+final case class Jump(target: Int) extends ThrottleStep {
   override val durationInSec: Long = 0L
   override def target(previousLastValue: Int): Int = target
   override def rps(time: Long, previousLastValue: Int) = 0
@@ -54,7 +54,7 @@ trait ThrottlingSupport {
   def jumpToRps(target: Int) = Jump(target)
 }
 
-case class Throttlings(global: Option[Throttling], perScenario: Map[String, Throttling])
+final case class Throttlings(global: Option[Throttling], perScenario: Map[String, Throttling])
 
 object Throttling {
 
@@ -86,4 +86,4 @@ object Throttling {
   }
 }
 
-case class Throttling(limit: Long => Int, duration: FiniteDuration)
+final case class Throttling(limit: Long => Int, duration: FiniteDuration)

@@ -133,7 +133,7 @@ object HttpProtocol extends StrictLogging {
  * @param proxyPart the Proxy related configuration
  * @param dnsPart the DNS related configuration
  */
-case class HttpProtocol(
+final case class HttpProtocol(
     baseUrls:     List[String],
     warmUpUrl:    Option[String],
     enginePart:   HttpProtocolEnginePart,
@@ -147,7 +147,7 @@ case class HttpProtocol(
   type Components = HttpComponents
 }
 
-case class HttpProtocolEnginePart(
+final case class HttpProtocolEnginePart(
     shareConnections:         Boolean,
     maxConnectionsPerHost:    Int,
     virtualHost:              Option[Expression[String]],
@@ -157,7 +157,7 @@ case class HttpProtocolEnginePart(
     perUserKeyManagerFactory: Option[Long => KeyManagerFactory]
 )
 
-case class HttpProtocolRequestPart(
+final case class HttpProtocolRequestPart(
     headers:             Map[String, Expression[String]],
     realm:               Option[Expression[Realm]],
     autoReferer:         Boolean,
@@ -168,7 +168,7 @@ case class HttpProtocolRequestPart(
     signatureCalculator: Option[Expression[SignatureCalculator]]
 )
 
-case class HttpProtocolResponsePart(
+final case class HttpProtocolResponsePart(
     followRedirect:                Boolean,
     maxRedirects:                  Int,
     strict302Handling:             Boolean,
@@ -179,7 +179,7 @@ case class HttpProtocolResponsePart(
     htmlResourcesInferringFilters: Option[Filters]
 )
 
-case class HttpProtocolWsPart(
+final case class HttpProtocolWsPart(
     wsBaseUrls:    List[String],
     reconnect:     Boolean,
     maxReconnects: Option[Int]
@@ -206,12 +206,12 @@ case class HttpProtocolWsPart(
       doMakeAbsoluteWsUri(url)
 }
 
-case class HttpProtocolProxyPart(
+final case class HttpProtocolProxyPart(
     proxy:           Option[ProxyServer],
     proxyExceptions: Seq[String]
 )
 
-case class DnsPart(
+final case class DnsPart(
     dnsNameResolution:     DnsNameResolution,
     hostNameAliases:       Map[String, InetAddress],
     perUserNameResolution: Boolean
