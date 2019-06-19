@@ -29,4 +29,4 @@ private[writer] case object Terminated extends DataWriterState
 
 trait DataWriterData
 private[writer] case object NoData extends DataWriterData
-case class InitData(configuration: GatlingConfiguration) extends DataWriterData
+final case class InitData(configuration: GatlingConfiguration) extends DataWriterData

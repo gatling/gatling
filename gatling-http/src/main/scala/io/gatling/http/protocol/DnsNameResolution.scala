@@ -20,4 +20,4 @@ import java.net.InetSocketAddress
 
 sealed trait DnsNameResolution
 case object JavaDnsNameResolution extends DnsNameResolution
-case class AsyncDnsNameResolution(dnsServers: Array[InetSocketAddress]) extends DnsNameResolution
+final case class AsyncDnsNameResolution(dnsServers: Array[InetSocketAddress]) extends DnsNameResolution

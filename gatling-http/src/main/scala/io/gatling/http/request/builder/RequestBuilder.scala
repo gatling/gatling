@@ -37,7 +37,7 @@ import io.gatling.http.util.HttpHelper
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpMethod
 
-case class CommonAttributes(
+final case class CommonAttributes(
     requestName:         Expression[String],
     method:              HttpMethod,
     urlOrURI:            Either[Expression[String], Uri],

@@ -24,9 +24,9 @@ import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.session.Session
 import io.gatling.core.stats.message.MessageEvent
 
-case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
+final case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
 
-case class RunMessage(
+final case class RunMessage(
     simulationClassName: String,
     simulationId:        String,
     start:               Long,
@@ -41,20 +41,20 @@ case class RunMessage(
 }
 
 sealed trait DataWriterMessage
-case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 case object Flush extends DataWriterMessage
-case class Crash(cause: String) extends DataWriterMessage
+final case class Crash(cause: String) extends DataWriterMessage
 case object Stop extends DataWriterMessage
 
 sealed trait LoadEventMessage extends DataWriterMessage
 
-case class UserMessage(
+final case class UserMessage(
     session:   Session,
     event:     MessageEvent,
     timestamp: Long
 ) extends LoadEventMessage
 
-case class ResponseMessage(
+final case class ResponseMessage(
     scenario:       String,
     userId:         Long,
     groupHierarchy: List[String],
@@ -66,7 +66,7 @@ case class ResponseMessage(
     message:        Option[String]
 ) extends LoadEventMessage
 
-case class GroupMessage(
+final case class GroupMessage(
     scenario:              String,
     userId:                Long,
     groupHierarchy:        List[String],
@@ -78,4 +78,4 @@ case class GroupMessage(
   val duration: Int = (endTimestamp - startTimestamp).toInt
 }
 
-case class ErrorMessage(message: String, date: Long) extends LoadEventMessage
+final case class ErrorMessage(message: String, date: Long) extends LoadEventMessage

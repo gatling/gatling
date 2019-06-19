@@ -49,15 +49,15 @@ object ElMessages {
 
 sealed trait Part[+T] extends (Session => Validation[T])
 
-case class StaticPart(string: String) extends Part[String] {
+final case class StaticPart(string: String) extends Part[String] {
   def apply(session: Session): Validation[String] = string.success
 }
 
-case class AttributePart(name: String) extends Part[Any] {
+final case class AttributePart(name: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = session(name).validate[Any]
 }
 
-case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
+final case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
   def apply(session: Session): Validation[Int] =
     seqPart(session).flatMap {
       case t: Traversable[_]          => t.size.success
@@ -69,7 +69,7 @@ case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
     }
 }
 
-case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
+final case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
     def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
@@ -83,7 +83,7 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   }
 }
 
-case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
+final case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
     part(session) match {
       case _: Failure => FalseSuccess
@@ -91,7 +91,7 @@ case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
     }
 }
 
-case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] {
+final case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
     part(session) match {
       case _: Failure => TrueSuccess
@@ -99,7 +99,7 @@ case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] 
     }
 }
 
-case class JsonStringify(part: Part[Any], name: String) extends Part[String] {
+final case class JsonStringify(part: Part[Any], name: String) extends Part[String] {
   def apply(session: Session): Validation[String] =
     part(session) match {
       case Success(value)   => Json.stringify(value, isRootObject = false).success
@@ -108,7 +108,7 @@ case class JsonStringify(part: Part[Any], name: String) extends Part[String] {
     }
 }
 
-case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
+final case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
 
     def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
@@ -138,7 +138,7 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
   }
 }
 
-case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part[Any] {
+final case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part[Any] {
 
   def apply(session: Session): Validation[Any] = map(session).flatMap {
     case m: Map[_, _] => m.asInstanceOf[Map[Any, _]].get(key) match {
@@ -154,7 +154,7 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
   }
 }
 
-case class TupleAccessPart(tuple: Part[Any], tupleName: String, index: Int) extends Part[Any] {
+final case class TupleAccessPart(tuple: Part[Any], tupleName: String, index: Int) extends Part[Any] {
   def apply(session: Session): Validation[Any] = tuple(session).flatMap {
     case product: Product =>
       if (index > 0 && product.productArity >= index) product.productElement(index - 1).success
@@ -232,20 +232,20 @@ object ElCompiler {
   }
 }
 
+private[el] sealed trait AccessToken { def token: String }
+private[el] final case class AccessIndex(pos: String, token: String) extends AccessToken
+private[el] final case class AccessKey(key: String, token: String) extends AccessToken
+private[el] sealed trait AccessFunction extends AccessToken { protected def functionToken(functionName: String) = s".$functionName()" }
+private[el] case object AccessRandom extends AccessFunction { val token: String = functionToken("random") }
+private[el] case object AccessSize extends AccessFunction { val token: String = functionToken("size") }
+private[el] case object AccessExists extends AccessFunction { val token: String = functionToken("exists") }
+private[el] case object AccessIsUndefined extends AccessFunction { val token: String = functionToken("isUndefined") }
+private[el] case object AccessJSONStringify extends AccessFunction { val token: String = functionToken("jsonStringify") }
+private[el] final case class AccessTuple(index: String, token: String) extends AccessToken
+
 class ElCompiler extends RegexParsers {
 
   import ElCompiler._
-
-  sealed trait AccessToken { def token: String }
-  case class AccessIndex(pos: String, token: String) extends AccessToken
-  case class AccessKey(key: String, token: String) extends AccessToken
-  sealed trait AccessFunction extends AccessToken { protected def functionToken(functionName: String) = s".$functionName()" }
-  case object AccessRandom extends AccessFunction { val token: String = functionToken("random") }
-  case object AccessSize extends AccessFunction { val token: String = functionToken("size") }
-  case object AccessExists extends AccessFunction { val token: String = functionToken("exists") }
-  case object AccessIsUndefined extends AccessFunction { val token: String = functionToken("isUndefined") }
-  case object AccessJSONStringify extends AccessFunction { val token: String = functionToken("jsonStringify") }
-  case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
 
@@ -339,7 +339,7 @@ class ElCompiler extends RegexParsers {
 }
 
 sealed trait Bytes { def bytes: Expression[Array[Byte]] }
-case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
-case class DynamicBytes(part: Part[Any], charset: Charset) extends Bytes {
+final case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
+final case class DynamicBytes(part: Part[Any], charset: Charset) extends Bytes {
   val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(charset))
 }

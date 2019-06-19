@@ -26,7 +26,7 @@ trait Printable {
 // -- Assertion ADT -- //
 // ------------------- //
 
-case class Assertion(path: AssertionPath, target: Target, condition: Condition)
+final case class Assertion(path: AssertionPath, target: Target, condition: Condition)
 
 // -------------- //
 // -- Path ADT -- //
@@ -35,7 +35,7 @@ case class Assertion(path: AssertionPath, target: Target, condition: Condition)
 sealed abstract class AssertionPath(val printable: String) extends Printable
 case object Global extends AssertionPath("Global")
 case object ForAll extends AssertionPath("For all requests")
-case class Details(parts: List[String]) extends AssertionPath(if (parts.isEmpty) Global.printable else parts.mkString(" / "))
+final case class Details(parts: List[String]) extends AssertionPath(if (parts.isEmpty) Global.printable else parts.mkString(" / "))
 
 // ---------------- //
 // -- Metric ADT -- //
@@ -65,16 +65,16 @@ case object Min extends TimeSelection("min")
 case object Max extends TimeSelection("max")
 case object Mean extends TimeSelection("mean")
 case object StandardDeviation extends TimeSelection("standard deviation")
-case class Percentiles(value: Double) extends TimeSelection(s"${value.toRank} percentile")
+final case class Percentiles(value: Double) extends TimeSelection(s"${value.toRank} percentile")
 
 // ---------------- //
 // -- Target ADT -- //
 // ---------------- //
 
 sealed abstract class Target(val printable: String) extends Printable
-case class CountTarget(metric: CountMetric) extends Target(s"${Count.printable} of ${metric.printable}")
-case class PercentTarget(metric: CountMetric) extends Target(s"${Percent.printable} of ${metric.printable}")
-case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target(s"${selection.printable} of ${metric.printable}")
+final case class CountTarget(metric: CountMetric) extends Target(s"${Count.printable} of ${metric.printable}")
+final case class PercentTarget(metric: CountMetric) extends Target(s"${Percent.printable} of ${metric.printable}")
+final case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target(s"${selection.printable} of ${metric.printable}")
 case object MeanRequestsPerSecondTarget extends Target("mean requests per second")
 
 // ------------------- //
@@ -83,24 +83,24 @@ case object MeanRequestsPerSecondTarget extends Target("mean requests per second
 sealed abstract class Condition(val printable: String) extends Printable {
   def values: List[Double]
 }
-case class Lte(value: Double) extends Condition("is less than or equal to") {
+final case class Lte(value: Double) extends Condition("is less than or equal to") {
   override def values: List[Double] = List(value)
 }
-case class Gte(value: Double) extends Condition("is greater than or equal to") {
+final case class Gte(value: Double) extends Condition("is greater than or equal to") {
   override def values = List(value)
 }
-case class Lt(value: Double) extends Condition("is less than") {
+final case class Lt(value: Double) extends Condition("is less than") {
   override def values: List[Double] = List(value)
 }
-case class Gt(value: Double) extends Condition("is greater than") {
+final case class Gt(value: Double) extends Condition("is greater than") {
   override def values = List(value)
 }
-case class Is(value: Double) extends Condition("is") {
+final case class Is(value: Double) extends Condition("is") {
   override def values = List(value)
 }
-case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition("is between" + (if (inclusive) " inclusive" else "")) {
+final case class Between(lowerBound: Double, upperBound: Double, inclusive: Boolean) extends Condition("is between" + (if (inclusive) " inclusive" else "")) {
   override def values = List(lowerBound, upperBound)
 }
-case class In(elements: List[Double]) extends Condition("is in") {
+final case class In(elements: List[Double]) extends Condition("is in") {
   override def values: List[Double] = elements
 }

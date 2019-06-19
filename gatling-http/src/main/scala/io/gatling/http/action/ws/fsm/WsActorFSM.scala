@@ -34,8 +34,8 @@ case object Crashed extends WsActorState
 
 sealed trait WsActorData
 case object InitData extends WsActorData
-case class ConnectingData(session: Session, next: Either[Action, SendFrame], timestamp: Long, remainingTries: Int) extends WsActorData
-case class PerformingCheckData(
+final case class ConnectingData(session: Session, next: Either[Action, SendFrame], timestamp: Long, remainingTries: Int) extends WsActorData
+final case class PerformingCheckData(
     webSocket:               WebSocket,
     currentCheck:            WsFrameCheck,
     remainingChecks:         List[WsFrameCheck],
@@ -45,8 +45,8 @@ case class PerformingCheckData(
     session:                 Session,
     next:                    Either[Action, SendFrame]
 ) extends WsActorData
-case class IdleData(session: Session, webSocket: WebSocket) extends WsActorData
-case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends WsActorData
-case class CrashedData(errorMessage: Option[String]) extends WsActorData
+final case class IdleData(session: Session, webSocket: WebSocket) extends WsActorData
+final case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends WsActorData
+final case class CrashedData(errorMessage: Option[String]) extends WsActorData
 
 class WsActorFSM extends BaseActor with FSM[WsActorState, WsActorData]

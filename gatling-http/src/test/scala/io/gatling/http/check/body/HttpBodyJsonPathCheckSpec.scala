@@ -30,7 +30,7 @@ import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ CharArrayResponseBody, Response }
 
-import org.mockito.Mockito._
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 import org.scalatest.matchers.{ MatchResult, Matcher }
 
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
@@ -41,11 +41,20 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
   implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
-  private def mockResponse(body: String) = {
-    val response = mock[Response]
-    when(response.body) thenReturn new CharArrayResponseBody(body.toCharArray, UTF_8)
-    response
-  }
+  private def mockResponse(body: String): Response =
+    Response(
+      request = null,
+      wireRequestHeaders = new DefaultHttpHeaders,
+      status = HttpResponseStatus.OK,
+      headers = new DefaultHttpHeaders,
+      body = new CharArrayResponseBody(body.toCharArray, UTF_8),
+      checksums = null,
+      bodyLength = 0,
+      charset = UTF_8,
+      startTimestamp = 0,
+      endTimestamp = 0,
+      isHttp2 = false
+    )
 
   private val storeJson = """{ "store": {
                             |    "book": "In store"

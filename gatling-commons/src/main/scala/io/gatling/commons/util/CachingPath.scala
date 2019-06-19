@@ -18,7 +18,7 @@ package io.gatling.commons.util
 
 import java.nio.file.Path
 
-case class CachingPath(path: Path) {
+final case class CachingPath(path: Path) {
 
   private var _fileName: Path = _
 

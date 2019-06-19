@@ -39,7 +39,7 @@ object SseConnectRequestBuilder {
     SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder, Nil)
 }
 
-case class SseConnectRequestBuilder(
+final case class SseConnectRequestBuilder(
     commonAttributes: CommonAttributes,
     sseName:          String
 )

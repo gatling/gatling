@@ -29,7 +29,7 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 
 object Resource {
 
-  private case class Location(directory: Path, path: String)
+  private final case class Location(directory: Path, path: String)
 
   private object ClasspathResource {
     def unapply(location: Location): Option[Validation[Resource]] =
@@ -94,7 +94,7 @@ object Resource {
   }
 }
 
-case class Resource(name: String, file: File) {
+final case class Resource(name: String, file: File) {
   def inputStream: InputStream = new FileInputStream(file)
   def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)

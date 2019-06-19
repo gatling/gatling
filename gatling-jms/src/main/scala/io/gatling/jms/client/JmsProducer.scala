@@ -18,4 +18,4 @@ package io.gatling.jms.client
 
 import javax.jms.{ MessageProducer, Session => JmsSession }
 
-case class JmsProducer(session: JmsSession, producer: MessageProducer)
+final case class JmsProducer(session: JmsSession, producer: MessageProducer)

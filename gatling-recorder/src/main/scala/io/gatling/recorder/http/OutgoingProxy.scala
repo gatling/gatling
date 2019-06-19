@@ -18,4 +18,4 @@ package io.gatling.recorder.http
 
 import io.gatling.commons.model.Credentials
 
-case class OutgoingProxy(host: String, port: Int, sslPort: Int, credentials: Option[Credentials])
+final case class OutgoingProxy(host: String, port: Int, sslPort: Int, credentials: Option[Credentials])

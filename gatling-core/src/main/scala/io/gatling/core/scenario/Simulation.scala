@@ -177,7 +177,7 @@ abstract class Simulation {
   private[gatling] def executeAfter(): Unit = _afterSteps.foreach(_.apply())
 }
 
-case class SimulationParams(
+final case class SimulationParams(
     name:               String,
     populationBuilders: List[PopulationBuilder],
     globalProtocols:    Protocols,

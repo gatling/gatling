@@ -31,13 +31,13 @@ case object JmsJndiConnectionFactoryBuilderBase {
   def connectionFactoryName(cfn: String) = JmsJndiConnectionFactoryBuilderUrlStep(cfn)
 }
 
-case class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String) {
+final case class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String) {
 
   def url(theUrl: String) =
     JmsJndiConnectionFactoryBuilderFactoryStep(connectionFactoryName, theUrl)
 }
 
-case class JmsJndiConnectionFactoryBuilderFactoryStep(
+final case class JmsJndiConnectionFactoryBuilderFactoryStep(
     connectionFactoryName: String,
     url:                   String,
     credentials:           Option[Credentials] = None,
@@ -52,7 +52,7 @@ case class JmsJndiConnectionFactoryBuilderFactoryStep(
     JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
 }
 
-case class JmsJndiConnectionFactoryBuilder(
+final case class JmsJndiConnectionFactoryBuilder(
     contextFactory:        String,
     connectionFactoryName: String,
     url:                   String,

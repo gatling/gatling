@@ -20,7 +20,7 @@ import io.gatling.BaseSpec
 
 import scala.concurrent.duration._
 
-class ClosedInjectionStepSpec extends BaseSpec with MetaClosedInjectionSupport {
+class ClosedInjectionStepSpec extends BaseSpec {
 
   "ConstantConcurrentNumberInjection" should "return the correct number of users target" in {
     val step = ConstantConcurrentNumberInjection(5, 2 second)

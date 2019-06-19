@@ -30,8 +30,8 @@ private[throttle] object ThrottlerControllerState {
 private[throttle] sealed trait ThrottlerControllerData
 private[throttle] object ThrottlerControllerData {
   case object NoData extends ThrottlerControllerData
-  case class StartedData(tick: Int) extends ThrottlerControllerData
-  case class OverrideData(overrides: Throttlings, tick: Int) extends ThrottlerControllerData
+  final case class StartedData(tick: Int) extends ThrottlerControllerData
+  final case class OverrideData(overrides: Throttlings, tick: Int) extends ThrottlerControllerData
 }
 
 private[throttle] class ThrottlerControllerFSM extends BaseActor with FSM[ThrottlerControllerState, ThrottlerControllerData]

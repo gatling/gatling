@@ -77,7 +77,7 @@ object StringResponseBody {
   }
 }
 
-class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
+final class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
 
   override lazy val chars: Array[Char] = string.unsafeChars
   override lazy val bytes: Array[Byte] = string.getBytes(charset)
@@ -97,7 +97,7 @@ object CharArrayResponseBody {
   }
 }
 
-class CharArrayResponseBody(val chars: Array[Char], charset: Charset) extends ResponseBody {
+final class CharArrayResponseBody(val chars: Array[Char], charset: Charset) extends ResponseBody {
 
   override lazy val string: String = new String(chars)
   override lazy val bytes: Array[Byte] = charArrayToByteArray(chars, charset)
@@ -110,7 +110,7 @@ object ByteArrayResponseBody {
     new ByteArrayResponseBody(byteBufsToByteArray(chunks), charset)
 }
 
-class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
+final class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
   override lazy val string: String = byteArrayToString(bytes, charset)
   override lazy val chars: Array[Char] = string.toCharArray
@@ -125,7 +125,7 @@ object InputStreamResponseBody {
   }
 }
 
-class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
+final class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
 
   override lazy val string: String =
     try {

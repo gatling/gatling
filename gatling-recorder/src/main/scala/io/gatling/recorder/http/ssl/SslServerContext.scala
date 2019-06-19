@@ -108,7 +108,7 @@ private[recorder] object SslServerContext {
     val GatlingCACrtFile = "gatlingCA.cert.pem"
   }
 
-  case class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
+  final case class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
 
     require(pemCrtFile.isFile, s"$pemCrtFile is not a file")
     require(pemKeyFile.isFile, s"$pemKeyFile is not a file")

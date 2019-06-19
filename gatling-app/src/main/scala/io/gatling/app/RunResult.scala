@@ -16,4 +16,4 @@
 
 package io.gatling.app
 
-case class RunResult(runId: String, hasAssertions: Boolean)
+final case class RunResult(runId: String, hasAssertions: Boolean)

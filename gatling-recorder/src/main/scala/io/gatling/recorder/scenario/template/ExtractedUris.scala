@@ -22,9 +22,9 @@ import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-private[scenario] case class Value(name: String, value: String)
+private[scenario] final case class Value(name: String, value: String)
 
-private[scenario] case class SchemeHost(scheme: String, host: String)
+private[scenario] final case class SchemeHost(scheme: String, host: String)
 
 /**
  * Extracts common URIs parts into vals. The algorithm is the following:

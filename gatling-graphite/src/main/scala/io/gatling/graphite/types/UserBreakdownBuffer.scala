@@ -52,4 +52,4 @@ private[graphite] class UserBreakdownBuffer(val totalUserEstimate: Long) {
   }
 }
 
-private[graphite] case class UserBreakdown(active: Long, waiting: Long, done: Long)
+private[graphite] final case class UserBreakdown(active: Long, waiting: Long, done: Long)

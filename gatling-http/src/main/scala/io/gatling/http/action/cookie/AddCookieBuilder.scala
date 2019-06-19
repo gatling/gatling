@@ -25,7 +25,7 @@ import io.gatling.http.cookie.CookieSupport.storeCookie
 
 import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 
-case class AddCookieDsl(
+final case class AddCookieDsl(
     name:   String,
     value:  Expression[String],
     domain: Option[String]     = None,

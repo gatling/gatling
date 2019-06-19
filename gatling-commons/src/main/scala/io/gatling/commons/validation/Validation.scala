@@ -38,7 +38,7 @@ sealed trait Validation[@specialized(Short, Int, Long, Double, Char, Boolean) +T
   def toOption: Option[T]
 }
 
-case class Success[+T](value: T) extends Validation[T] {
+final case class Success[+T](value: T) extends Validation[T] {
   override def map[A](f: T => A): Validation[A] = Success(f(value))
   override def flatMap[A](f: T => Validation[A]): Validation[A] = f(value)
   override def mapError(f: String => String): Validation[T] = this
@@ -49,7 +49,7 @@ case class Success[+T](value: T) extends Validation[T] {
   override def toOption: Option[T] = Some(value)
 }
 
-case class Failure(message: String) extends Validation[Nothing] {
+final case class Failure(message: String) extends Validation[Nothing] {
   override def map[A](f: Nothing => A): Validation[A] = this
   override def flatMap[A](f: Nothing => Validation[A]): Validation[A] = this
   override def mapError(f: String => String): Validation[Nothing] = Failure(f(message))

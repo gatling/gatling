@@ -20,9 +20,9 @@ import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
 
-private[cookie] case class CookieKey(name: String, domain: String, path: String)
+private[cookie] final case class CookieKey(name: String, domain: String, path: String)
 
-private[cookie] case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, creationTime: Long)
+private[cookie] final case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, creationTime: Long)
 
 private[cookie] object CookieJar {
 
@@ -84,7 +84,7 @@ private[cookie] object CookieJar {
   def apply(uri: Uri, cookies: List[Cookie], nowMillis: Long): CookieJar = Empty.add(uri, cookies, nowMillis)
 }
 
-private[http] case class CookieJar(store: Map[CookieKey, StoredCookie]) {
+private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
   import CookieJar._
 

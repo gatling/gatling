@@ -26,7 +26,7 @@ import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
 
 import com.softwaremill.quicklens._
 
-case class SseSetCheckBuilder(
+final case class SseSetCheckBuilder(
     requestName:    Expression[String],
     sseName:        String,
     checkSequences: List[SseMessageCheckSequence]
@@ -39,7 +39,7 @@ case class SseSetCheckBuilder(
     new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }
 
-case class SseCloseBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+final case class SseCloseBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)

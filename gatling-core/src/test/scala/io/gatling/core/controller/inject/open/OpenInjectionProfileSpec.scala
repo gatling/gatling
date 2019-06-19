@@ -66,7 +66,7 @@ object OpenInjectionProfileSpec {
   }
 }
 
-class OpenInjectionProfileSpec extends BaseSpec with MetaOpenInjectionSupport {
+class OpenInjectionProfileSpec extends BaseSpec {
 
   import OpenInjectionProfileSpec._
 

@@ -32,7 +32,7 @@ case object JmsProtocolBuilderBase {
   def connectionFactory(cf: ConnectionFactory) = JmsProtocolBuilder(cf)
 }
 
-case class JmsProtocolBuilder(
+final case class JmsProtocolBuilder(
     connectionFactory:   ConnectionFactory,
     creds:               Option[Credentials] = None,
     deliveryMode:        Int                 = DeliveryMode.NON_PERSISTENT,

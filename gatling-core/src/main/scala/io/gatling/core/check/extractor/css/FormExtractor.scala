@@ -25,11 +25,11 @@ private[css] object FormExtractor {
   private sealed trait Input { def name: String }
   private sealed trait SelectInput extends Input
   private sealed trait SingleValueInput extends Input { def value: String }
-  private case class SingleSelectInput(name: String, value: String) extends SelectInput with SingleValueInput
-  private case class MultipleSelectInput(name: String, values: Seq[String]) extends SelectInput
-  private case class RadioInput(name: String, value: String) extends SingleValueInput
-  private case class CheckboxInput(name: String, value: String, checked: Boolean) extends SingleValueInput
-  private case class RegularInput(name: String, value: String) extends SingleValueInput
+  private final case class SingleSelectInput(name: String, value: String) extends SelectInput with SingleValueInput
+  private final case class MultipleSelectInput(name: String, values: Seq[String]) extends SelectInput
+  private final case class RadioInput(name: String, value: String) extends SingleValueInput
+  private final case class CheckboxInput(name: String, value: String, checked: Boolean) extends SingleValueInput
+  private final case class RegularInput(name: String, value: String) extends SingleValueInput
 
   private val IgnoredInputTypes = Set("submit", "reset", "button", "file")
 
@@ -51,7 +51,7 @@ private[css] object FormExtractor {
       case _          => RegularInput(name, value)
     }
 
-  private case class SelectOption(value: String, selected: Boolean)
+  private final case class SelectOption(value: String, selected: Boolean)
 
   private def extractSelect(node: Node): Option[SelectInput] = {
 

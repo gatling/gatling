@@ -29,13 +29,13 @@ private[gatling] object Container {
 
 private[charts] trait Container
 
-private[charts] case class RequestContainer(name: String, stats: RequestStatistics) extends Container
+private[charts] final case class RequestContainer(name: String, stats: RequestStatistics) extends Container
 
 private[charts] object GroupContainer {
   def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
 }
 
-private[charts] case class GroupContainer(
+private[charts] final case class GroupContainer(
     name:     String,
     stats:    RequestStatistics,
     requests: mutable.Map[String, RequestContainer] = mutable.LinkedHashMap.empty,

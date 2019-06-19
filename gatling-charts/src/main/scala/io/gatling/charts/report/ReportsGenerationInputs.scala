@@ -19,7 +19,7 @@ package io.gatling.charts.report
 import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.AssertionResult
 
-private[gatling] case class ReportsGenerationInputs(
+private[gatling] final case class ReportsGenerationInputs(
     reportFolderName: String,
     logFileReader:    LogFileReader,
     assertionResults: List[AssertionResult]

@@ -33,8 +33,8 @@ case object Crashed extends SseActorState
 
 sealed trait SseActorData
 case object InitData extends SseActorData
-case class ConnectingData(session: Session, next: Either[Action, SetCheck], timestamp: Long, remainingTries: Int) extends SseActorData
-case class PerformingCheckData(
+final case class ConnectingData(session: Session, next: Either[Action, SetCheck], timestamp: Long, remainingTries: Int) extends SseActorData
+final case class PerformingCheckData(
     stream:                  SseStream,
     currentCheck:            SseMessageCheck,
     remainingChecks:         List[SseMessageCheck],
@@ -44,8 +44,8 @@ case class PerformingCheckData(
     session:                 Session,
     next:                    Either[Action, SetCheck]
 ) extends SseActorData
-case class IdleData(session: Session, stream: SseStream) extends SseActorData
-case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends SseActorData
-case class CrashedData(errorMessage: Option[String]) extends SseActorData
+final case class IdleData(session: Session, stream: SseStream) extends SseActorData
+final case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends SseActorData
+final case class CrashedData(errorMessage: Option[String]) extends SseActorData
 
 class SseActorFSM extends BaseActor with FSM[SseActorState, SseActorData]

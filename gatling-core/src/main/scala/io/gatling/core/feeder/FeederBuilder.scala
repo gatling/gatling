@@ -20,7 +20,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 import com.softwaremill.quicklens._
 
-case class SourceFeederBuilder[T](
+final case class SourceFeederBuilder[T](
     source:        FeederSource[T],
     configuration: GatlingConfiguration,
     options:       FeederOptions[T]     = FeederOptions[T]()
@@ -59,10 +59,10 @@ private[feeder] case object Eager extends FeederLoadingMode
 private[feeder] object Batch {
   val DefaultBufferSize = 2000
 }
-private[feeder] case class Batch(bufferSize: Int) extends FeederLoadingMode
+private[feeder] final case class Batch(bufferSize: Int) extends FeederLoadingMode
 private[feeder] case object Adaptive extends FeederLoadingMode
 
-case class FeederOptions[T](
+final case class FeederOptions[T](
     shard:       Boolean                          = false,
     unzip:       Boolean                          = false,
     conversion:  Option[Record[T] => Record[Any]] = None,

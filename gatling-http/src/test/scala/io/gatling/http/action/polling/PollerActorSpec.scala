@@ -44,7 +44,7 @@ class PollerActorSpec extends AkkaSpec {
 
   private val clock = new DefaultClock
 
-  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, mock[HttpRequestConfig])
+  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, null)
 
   "PollerActor" should "start in Uninitalized state with NoData" in {
     val dataWriterProbe = TestProbe()

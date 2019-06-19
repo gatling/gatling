@@ -90,7 +90,7 @@ object BodyPart {
     }
 }
 
-case class BodyPartAttributes(
+final case class BodyPartAttributes(
     contentType:      Option[Expression[String]]         = None,
     charset:          Option[Charset]                    = None,
     dispositionType:  Option[Expression[String]]         = None,
@@ -103,7 +103,7 @@ case class BodyPartAttributes(
   lazy val customHeadersExpression: Expression[Seq[(String, String)]] = resolveIterable(customHeaders)
 }
 
-case class BodyPart(
+final case class BodyPart(
     name: Option[Expression[String]],
     partBuilder: (String, // name
     Option[Charset], // charset

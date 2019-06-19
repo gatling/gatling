@@ -27,7 +27,7 @@ import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
 
 import com.softwaremill.quicklens._
 
-case class SseConnectBuilder(
+final case class SseConnectBuilder(
     requestName:    Expression[String],
     sseName:        String,
     requestBuilder: SseConnectRequestBuilder,

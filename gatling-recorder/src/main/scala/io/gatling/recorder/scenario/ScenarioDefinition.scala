@@ -26,7 +26,7 @@ import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
 
-private[recorder] case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
+private[recorder] final case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
   def isEmpty: Boolean = elements.isEmpty
 }
 

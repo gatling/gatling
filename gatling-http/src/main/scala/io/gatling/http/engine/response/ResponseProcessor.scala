@@ -35,9 +35,9 @@ import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 
 sealed trait ProcessorResult
-case class Proceed(newSession: Session, error: Option[String]) extends ProcessorResult
-case class Redirect(redirectTx: HttpTx) extends ProcessorResult
-case class Crash(error: String) extends ProcessorResult
+final case class Proceed(newSession: Session, error: Option[String]) extends ProcessorResult
+final case class Redirect(redirectTx: HttpTx) extends ProcessorResult
+final case class Crash(error: String) extends ProcessorResult
 
 trait ResponseProcessor {
   def onComplete(result: HttpResult): Unit

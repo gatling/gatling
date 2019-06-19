@@ -259,7 +259,7 @@ class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
   }
 }
 
-case class FileData(
+final case class FileData(
     userMessageSerializer:     UserMessageSerializer,
     responseMessageSerializer: ResponseMessageSerializer,
     groupMessageSerializer:    GroupMessageSerializer,

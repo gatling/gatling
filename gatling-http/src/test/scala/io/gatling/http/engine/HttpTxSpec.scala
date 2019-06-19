@@ -37,13 +37,9 @@ class HttpTxSpec extends BaseSpec {
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   trait Context {
-    val coreComponents = mock[CoreComponents]
-    val clock = new DefaultClock
-    when(coreComponents.configuration).thenReturn(configuration)
-    when(coreComponents.actorSystem).thenReturn(mock[ActorSystem])
-    val httpEngine = mock[HttpEngine]
+    val coreComponents = CoreComponents(mock[ActorSystem], null, null, null, new DefaultClock, null, configuration)
     val httpProtocol = HttpProtocol(configuration)
-    val httpComponents = HttpComponents(coreComponents, httpProtocol, httpEngine, new HttpCaches(coreComponents), mock[HttpTxExecutor])
+    val httpComponents = HttpComponents(coreComponents, httpProtocol, mock[HttpEngine], new HttpCaches(coreComponents), mock[HttpTxExecutor])
 
     val configBase = HttpRequestConfig(
       checks = Nil,

@@ -34,7 +34,7 @@ import io.gatling.recorder.model._
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderValues, HttpHeaders, HttpMethod }
 
-case class HttpTransaction(request: HttpRequest, response: HttpResponse)
+final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 
 private[recorder] object HarReader {
 

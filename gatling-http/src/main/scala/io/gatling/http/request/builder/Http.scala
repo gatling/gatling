@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.HttpMethod
 /**
  * @param requestName the name of the request
  */
-case class Http(requestName: Expression[String]) {
+final case class Http(requestName: Expression[String]) {
 
   def get(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.GET, url)
   def get(uri: Uri): HttpRequestBuilder = httpRequest(HttpMethod.GET, Right(uri))

@@ -123,7 +123,7 @@ object ValidatorCheckBuilder {
   val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
 }
 
-case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) {
+final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) {
 
   import ValidatorCheckBuilder._
 

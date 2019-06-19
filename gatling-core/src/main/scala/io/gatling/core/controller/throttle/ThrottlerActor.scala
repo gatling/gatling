@@ -21,7 +21,7 @@ import java.lang.System._
 import scala.concurrent.duration._
 import scala.collection.mutable
 
-case class ThrottledRequest(scenarioName: String, request: () => Unit)
+final case class ThrottledRequest(scenarioName: String, request: () => Unit)
 
 class ThrottlerActor extends ThrottlerActorFSM {
 

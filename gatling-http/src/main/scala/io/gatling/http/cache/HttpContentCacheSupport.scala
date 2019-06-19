@@ -30,9 +30,9 @@ object ContentCacheKey {
     new ContentCacheKey(request.getUri, request.getMethod.name, Cookies(request.getCookies))
 }
 
-private[cache] case class ContentCacheKey(uri: Uri, method: String, cookies: Map[String, String])
+private[cache] final case class ContentCacheKey(uri: Uri, method: String, cookies: Map[String, String])
 
-private[http] case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
+private[http] final case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
 
 private[cache] object HttpContentCacheSupport {
   val HttpContentCacheAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.contentCache"

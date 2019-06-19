@@ -74,4 +74,4 @@ class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends Base
     }
 }
 
-case class FeedMessage(session: Session, number: Expression[Int], next: Action)
+final case class FeedMessage(session: Session, number: Expression[Int], next: Action)

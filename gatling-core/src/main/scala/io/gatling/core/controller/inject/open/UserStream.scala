@@ -24,7 +24,7 @@ private[inject] object UserStreamBatchResult {
   val Empty = UserStreamBatchResult(0, continue = false)
 }
 
-private[inject] case class UserStreamBatchResult(count: Long, continue: Boolean)
+private[inject] final case class UserStreamBatchResult(count: Long, continue: Boolean)
 
 object UserStream {
   def apply(steps: Iterable[OpenInjectionStep]): UserStream = {

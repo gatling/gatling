@@ -25,7 +25,7 @@ import io.gatling.compiler.config.cli.{ ArgsParser, CommandLineOverrides }
 
 import com.typesafe.config.ConfigFactory
 
-private[compiler] case class CompilerConfiguration(
+private[compiler] final case class CompilerConfiguration(
     encoding:             String,
     simulationsDirectory: Path,
     binariesDirectory:    Path,

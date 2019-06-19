@@ -18,4 +18,4 @@ package io.gatling.charts.stats.buffers
 
 import io.gatling.commons.stats.{ Group, Status }
 
-private[stats] case class BufferKey(requestName: Option[String], group: Option[Group], status: Option[Status])
+private[stats] final case class BufferKey(requestName: Option[String], group: Option[Group], status: Option[Status])

@@ -16,16 +16,13 @@
 
 package io.gatling.http.feeder
 
-import java.io.{ File, IOException, InputStream }
+import java.io.File
 import java.nio.file.Paths
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
 import io.gatling.core.util.Resource
 import io.gatling.core.feeder.Record
-
-import org.mockito.Mockito._
-import org.mockito.ArgumentMatchers._
 
 class SitemapParserSpec extends BaseSpec with ValidationValues {
 
@@ -44,17 +41,6 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
     val resource = Resource.resolveResource(Paths.get(""), "sitemap.xml")
     val records = resource.map(SitemapParser.parse(_).toArray)
     verifySitemapRecords(records.succeeded)
-  }
-
-  it should "input stream is closed on error" in {
-    val fileIs = mock[InputStream]
-    val resource = mock[Resource]
-    when(resource.inputStream).thenReturn(fileIs)
-    when(fileIs.read()) thenThrow new IOException
-    when(fileIs.read(any[Array[Byte]])) thenThrow new IOException
-    when(fileIs.read(any[Array[Byte]], anyInt, anyInt)) thenThrow new IOException
-
-    a[IOException] shouldBe thrownBy(SitemapParser.parse(resource).toArray)
   }
 
   it should "throw exception when loc node is missing" in {
