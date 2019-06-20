@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check.checksum
+package io.gatling.core.check
 
-import io.gatling.core.check.Check
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckScope.Chunks
-import io.gatling.http.response.Response
+import java.util.{ Map => JMap }
 
-class ChecksumCheck(val algorithm: String, wrapped: Check[Response]) extends HttpCheck(wrapped, Chunks)
+import io.gatling.commons.validation.Validation
+import io.gatling.core.session.Session
+
+class ChecksumCheck[R](wrapped: Check[R], val algorithm: String) extends Check[R] {
+  override def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+    wrapped.check(response, session, preparedCache)
+}

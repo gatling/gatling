@@ -28,9 +28,9 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.commons.util.Throwables._
+import io.gatling.core.check.ChecksumCheck
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
-import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.client.Request
 import io.gatling.http.engine.response._
@@ -49,9 +49,10 @@ object ResponseBuilder extends StrictLogging {
     configuration: GatlingConfiguration
   ): ResponseBuilderFactory = {
 
-    val checksumChecks = requestConfig.checks.collect {
-      case checksumCheck: ChecksumCheck => checksumCheck
-    }
+    val digests: Map[String, MessageDigest] =
+      requestConfig.checks
+        .map(_.wrapped)
+        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }(breakOut)
 
     val storeBodyParts = IsHttpDebugEnabled ||
       // we can't assume anything about if and how the response body will be used,
@@ -61,7 +62,7 @@ object ResponseBuilder extends StrictLogging {
 
     request => new ResponseBuilder(
       request,
-      checksumChecks,
+      digests,
       storeBodyParts,
       requestConfig.httpProtocol.responsePart.inferHtmlResources,
       configuration.core.charset,
@@ -72,14 +73,13 @@ object ResponseBuilder extends StrictLogging {
 
 class ResponseBuilder(
     request:            Request,
-    checksumChecks:     List[ChecksumCheck],
+    digests:            Map[String, MessageDigest],
     storeBodyParts:     Boolean,
     inferHtmlResources: Boolean,
     defaultCharset:     Charset,
     clock:              Clock
 ) {
 
-  private val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss: Boolean = _
   var startTimestamp: Long = _
   var endTimestamp: Long = _
@@ -89,11 +89,6 @@ class ResponseBuilder(
 
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var chunks: List[ByteBuf] = Nil
-  private val digests: Map[String, MessageDigest] =
-    if (computeChecksums)
-      checksumChecks.map(check => check.algorithm -> MessageDigest.getInstance(check.algorithm))(breakOut)
-    else
-      Map.empty
 
   def updateStartTimestamp(): Unit =
     startTimestamp = clock.nowMillis
@@ -127,7 +122,7 @@ class ResponseBuilder(
         chunks = byteBuf.retain() :: chunks // beware, we have to retain!
       }
 
-      if (computeChecksums)
+      if (digests.nonEmpty)
         for {
           nioBuffer <- byteBuf.nioBuffers
           digest <- digests.values

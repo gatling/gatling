@@ -29,7 +29,7 @@ import io.gatling.http.response.Response
  * @param wrapped the underlying check
  * @param scope the part of the response this check targets
  */
-case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope)
+final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope)
   extends Check[Response] {
   override def check(response: Response, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     wrapped.check(response, session, preparedCache)
