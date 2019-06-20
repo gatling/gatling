@@ -46,7 +46,7 @@ sealed trait ResponseBody {
   def stream: InputStream
 }
 
-final class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends ResponseBody with LazyLogging {
+private[gatling] final class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends ResponseBody with LazyLogging {
 
   override lazy val string: String =
     try {
@@ -67,7 +67,7 @@ final class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends Respon
     new ByteBufInputStream(chunk.duplicate)
 }
 
-final class ByteBufsResponseBody(chunks: Seq[ByteBuf], charset: Charset) extends ResponseBody with LazyLogging {
+private[gatling] final class ByteBufsResponseBody(chunks: Seq[ByteBuf], charset: Charset) extends ResponseBody with LazyLogging {
 
   override lazy val string: String =
     try {
