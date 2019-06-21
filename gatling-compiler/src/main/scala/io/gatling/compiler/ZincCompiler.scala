@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory
 import sbt.internal.inc.classpath.ClasspathUtilities
 import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
 import sbt.util.ShowLines._
-import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
+import sbt.util.{ Level, Logger => SbtLogger }
 import xsbti.Problem
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 
@@ -127,7 +127,7 @@ object ZincCompiler extends App with ProblemStringFormats {
         }
     }
 
-    val compiler = new IncrementalCompilerImpl
+    val compiler = ZincUtil.defaultIncrementalCompiler
 
     val scalaCompiler = new AnalyzingCompiler(
       scalaInstance = scalaInstance,
@@ -137,7 +137,7 @@ object ZincCompiler extends App with ProblemStringFormats {
       classLoaderCache = None
     )
 
-    val compilers = compiler.compilers(scalaInstance, ClasspathOptionsUtil.boot, None, scalaCompiler)
+    val compilers = ZincUtil.compilers(scalaInstance, ClasspathOptionsUtil.boot, None, scalaCompiler)
 
     val lookup = new PerClasspathEntryLookup {
       override def analysis(classpathEntry: JFile): Optional[CompileAnalysis] = Optional.empty[CompileAnalysis]
@@ -154,15 +154,15 @@ object ZincCompiler extends App with ProblemStringFormats {
     }
 
     val setup =
-      compiler.setup(
-        lookup = lookup,
-        skip = false,
-        cacheFile = cacheFile,
-        cache = CompilerCache.fresh,
-        incOptions = IncOptions.of(),
-        reporter = reporter,
-        optionProgress = None,
-        extra = Array.empty
+      Setup.of(
+        lookup, // lookup
+        false, // skip
+        cacheFile, // cacheFile
+        CompilerCache.fresh, // cache
+        IncOptions.of(), // incOptions
+        reporter, // reporter
+        Optional.empty[CompileProgress], // optionProgress
+        Array.empty // extra
       )
 
     val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString)
@@ -170,11 +170,25 @@ object ZincCompiler extends App with ProblemStringFormats {
       .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
       .toArray
 
-    val inputs = compiler.inputs(
-      classpath = classpath :+ configuration.binariesDirectory.toFile,
-      sources = sources,
-      classesDirectory = configuration.binariesDirectory.toFile,
-      scalacOptions = Array(
+    val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
+
+    val previousResult = {
+      val analysisContents = analysisStore.get
+      if (analysisContents.isPresent) {
+        val analysisContents0 = analysisContents.get
+        val previousAnalysis = analysisContents0.getAnalysis
+        val previousSetup = analysisContents0.getMiniSetup
+        PreviousResult.of(Optional.of(previousAnalysis), Optional.of(previousSetup))
+      } else {
+        PreviousResult.of(Optional.empty[CompileAnalysis], Optional.empty[MiniSetup])
+      }
+    }
+
+    val options = CompileOptions.of(
+      classpath :+ configuration.binariesDirectory.toFile, // classpath
+      sources, // sources
+      configuration.binariesDirectory.toFile, // classesDirectory
+      Array(
         "-encoding",
         configuration.encoding,
         "-target:jvm-1.8",
@@ -183,31 +197,17 @@ object ZincCompiler extends App with ProblemStringFormats {
         "-unchecked",
         "-language:implicitConversions",
         "-language:postfixOps"
-      ) ++ configuration.extraScalacOptions,
-      javacOptions = Array.empty,
-      maxErrors,
-      sourcePositionMappers = Array.empty,
-      order = CompileOrder.Mixed,
-      compilers,
-      setup,
-      compiler.emptyPreviousResult
+      ) ++ configuration.extraScalacOptions, // scalacOptions
+      Array.empty, // javacOptions
+      100, // maxErrors
+      identity, // sourcePositionMappers
+      CompileOrder.Mixed, // order
+      Optional.empty[JFile] // temporaryClassesDirectory
     )
 
-    val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
+    val inputs = Inputs.of(compilers, options, setup, previousResult)
 
-    val newInputs =
-      InterfaceUtil.toOption(analysisStore.get()) match {
-        case Some(analysisContents) =>
-          val previousAnalysis = analysisContents.getAnalysis
-          val previousSetup = analysisContents.getMiniSetup
-          val previousResult = PreviousResult.of(Optional.of(previousAnalysis), Optional.of(previousSetup))
-          inputs.withPreviousResult(previousResult)
-
-        case _ =>
-          inputs
-      }
-
-    val newResult = compiler.compile(newInputs, sbtLogger)
+    val newResult = compiler.compile(inputs, sbtLogger)
     analysisStore.set(AnalysisContents.create(newResult.analysis(), newResult.setup()))
   }
 
