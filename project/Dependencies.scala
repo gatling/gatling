@@ -50,7 +50,6 @@ object Dependencies {
     .exclude("com.eed3si9n", "sjson-new-scalajson_2.12")
     .exclude("com.lihaoyi", "fastparse_2.12")
     .exclude("com.lmax", "disruptor")
-    .exclude("jline", "jline")
     .exclude("org.apache.logging.log4j", "log4j-api")
     .exclude("org.apache.logging.log4j", "log4j-core")
   private val compilerBridge                 = zinc.organization                     %% "compiler-bridge"                 % zinc.revision
