@@ -20,7 +20,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.Validator
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.http.check.status.HttpStatusCheckBuilder._
+import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
@@ -68,7 +68,7 @@ object RequestBuilder {
       }
     }
 
-    Status.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer)
+    HttpStatusCheckBuilder.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer)
   }
 
   private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess

@@ -27,14 +27,10 @@ import io.gatling.http.response.Response
 
 trait CurrentLocationCheckType
 
-object CurrentLocationCheckBuilder {
-
-  val CurrentLocation: DefaultFindCheckBuilder[CurrentLocationCheckType, String, String] = {
-    val extractor = new FindExtractor[String, String]("currentLocation", Some(_).success).expressionSuccess
-
-    new DefaultFindCheckBuilder[CurrentLocationCheckType, String, String](extractor, displayActualValue = true)
-  }
-}
+object CurrentLocationCheckBuilder extends DefaultFindCheckBuilder[CurrentLocationCheckType, String, String](
+  extractor = new FindExtractor[String, String]("currentLocation", Some(_).success).expressionSuccess,
+  displayActualValue = true
+)
 
 object CurrentLocationCheckMaterializer extends HttpCheckMaterializer[CurrentLocationCheckType, String](Url) {
 

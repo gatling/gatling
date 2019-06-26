@@ -58,14 +58,14 @@ trait HttpCheckSupport {
   implicit def findCheckBuilder2HttpCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit CheckMaterializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
     findCheckBuilder.find.exists
 
-  val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder.CurrentLocation
+  val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder
   implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] = CurrentLocationCheckMaterializer
 
   def currentLocationRegex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
     CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
   implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] = CurrentLocationRegexCheckMaterializer
 
-  val status: FindCheckBuilder[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder.Status
+  val status: FindCheckBuilder[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder
   implicit val httpStatusCheckMaterializer: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] = HttpStatusCheckMaterializer
 
   val header: Expression[String] => MultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(_)

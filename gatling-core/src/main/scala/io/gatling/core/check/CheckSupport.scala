@@ -48,9 +48,9 @@ trait CheckSupport {
 
   def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, CharSequence, String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
 
-  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder.BodyString
+  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder
 
-  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder.BodyBytes
+  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 

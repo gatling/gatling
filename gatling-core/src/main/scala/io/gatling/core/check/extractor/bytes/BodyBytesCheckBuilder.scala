@@ -23,12 +23,7 @@ import io.gatling.core.session._
 
 trait BodyBytesCheckType
 
-object BodyBytesCheckBuilder {
-
-  val BodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = {
-
-    val extractor = new FindExtractor[Array[Byte], Array[Byte]]("bodyBytes", Some(_).success).expressionSuccess
-
-    new DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](extractor, displayActualValue = false)
-  }
-}
+object BodyBytesCheckBuilder extends DefaultFindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]](
+  extractor = new FindExtractor[Array[Byte], Array[Byte]]("bodyBytes", Some(_).success).expressionSuccess,
+  displayActualValue = false
+)
