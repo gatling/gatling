@@ -16,6 +16,8 @@
 
 package io.gatling.http.check
 
+import java.io.InputStream
+
 import scala.annotation.implicitNotFound
 
 import io.gatling.commons.validation.Validation
@@ -26,6 +28,7 @@ import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
 import io.gatling.core.check.extractor.jmespath.{ JmesPathCheckType, JsonpJmesPathCheckType }
 import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckType, JsonpJsonPathCheckType }
 import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckType }
+import io.gatling.core.check.extractor.stream.BodyStreamCheckType
 import io.gatling.core.check.extractor.string.BodyStringCheckType
 import io.gatling.core.check.extractor.substring.SubstringCheckType
 import io.gatling.core.check.extractor.time.ResponseTimeCheckType
@@ -77,6 +80,7 @@ trait HttpCheckSupport {
 
   implicit val httpBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] = HttpBodyBytesCheckMaterializer
   implicit val httpBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, HttpCheck, Response, String] = HttpBodyStringCheckMaterializer
+  implicit val httpBodyStreamCheckMaterializer: CheckMaterializer[BodyStreamCheckType, HttpCheck, Response, () => InputStream] = HttpBodyStreamCheckMaterializer
 
   implicit val httpBodyRegexCheckMaterializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence] = HttpBodyRegexCheckMaterializer
   implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] = HttpBodySubstringCheckMaterializer

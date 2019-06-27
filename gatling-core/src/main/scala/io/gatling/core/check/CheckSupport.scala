@@ -16,6 +16,8 @@
 
 package io.gatling.core.check
 
+import java.io.InputStream
+
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.extractor.bytes._
@@ -24,6 +26,7 @@ import io.gatling.core.check.extractor.css._
 import io.gatling.core.check.extractor.jmespath._
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.extractor.regex._
+import io.gatling.core.check.extractor.stream._
 import io.gatling.core.check.extractor.string._
 import io.gatling.core.check.extractor.substring._
 import io.gatling.core.check.extractor.time._
@@ -51,6 +54,8 @@ trait CheckSupport {
   val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder
 
   val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
+
+  val bodyStream: FindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream] = BodyStreamCheckBuilder
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 

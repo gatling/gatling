@@ -910,6 +910,9 @@
         - keyword: bodyBytes
           description: Return the full response body byte array.
 
+        - keyword: bodyStream
+          description: Return an InputStream of the full response body bytes.
+
         - keyword: substring
           description: Look for occurrences of a given String in the response body String
           syntax:

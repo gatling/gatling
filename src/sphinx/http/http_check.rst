@@ -137,6 +137,12 @@ Note that this can be matched against content from the the filesystem using :ref
 
 Return the full response body byte array.
 
+.. _http-check-body-stream:
+
+* ``bodyStream``
+
+Return an InputStream of the full response body bytes.
+
 .. _http-check-substring:
 
 * ``substring(expression)``
