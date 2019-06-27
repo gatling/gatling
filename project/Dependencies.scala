@@ -34,7 +34,7 @@ object Dependencies {
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "6.7.2")
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val sfmUtil                        = sfm.organization                       % "sfm-util"                        % sfm.revision
-  private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.6"
+  private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.7"
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.7.0"
   private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.0.13"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.3.0"
