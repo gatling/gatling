@@ -17,7 +17,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.substring.SubstringCheckType
+import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.check.HttpCheckScope.Body

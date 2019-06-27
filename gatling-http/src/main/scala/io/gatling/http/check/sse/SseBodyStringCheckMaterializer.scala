@@ -18,7 +18,7 @@ package io.gatling.http.check.sse
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.string.BodyStringCheckType
+import io.gatling.core.check.string.BodyStringCheckType
 
 object SseBodyStringCheckMaterializer extends CheckMaterializer[BodyStringCheckType, SseCheck, String, String](SseCheck.apply) {
 

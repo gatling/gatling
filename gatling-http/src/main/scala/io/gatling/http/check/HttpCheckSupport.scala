@@ -22,25 +22,25 @@ import scala.annotation.implicitNotFound
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
-import io.gatling.core.check.extractor.checksum.{ Md5CheckType, Sha1CheckType }
-import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
-import io.gatling.core.check.extractor.jmespath.{ JmesPathCheckType, JsonpJmesPathCheckType }
-import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckType, JsonpJsonPathCheckType }
-import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckType }
-import io.gatling.core.check.extractor.stream.BodyStreamCheckType
-import io.gatling.core.check.extractor.string.BodyStringCheckType
-import io.gatling.core.check.extractor.substring.SubstringCheckType
-import io.gatling.core.check.extractor.time.ResponseTimeCheckType
-import io.gatling.core.check.extractor.xpath.{ Dom, XPathCheckType, XmlParsers }
+import io.gatling.core.check.bytes._
+import io.gatling.core.check.checksum._
+import io.gatling.core.check.css._
+import io.gatling.core.check.jmespath._
+import io.gatling.core.check.jsonpath._
+import io.gatling.core.check.regex._
+import io.gatling.core.check.stream._
+import io.gatling.core.check.string._
+import io.gatling.core.check.substring._
+import io.gatling.core.check.time._
+import io.gatling.core.check.xpath._
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.stats.message._
 import io.gatling.http.check.body._
-import io.gatling.http.check.checksum.HttpChecksumCheckMaterializer
+import io.gatling.http.check.checksum._
 import io.gatling.http.check.header._
-import io.gatling.http.check.status.{ HttpStatusCheckBuilder, HttpStatusCheckMaterializer, HttpStatusCheckType }
-import io.gatling.http.check.time.HttpResponseTimeCheckMaterializer
+import io.gatling.http.check.status._
+import io.gatling.http.check.time._
 import io.gatling.http.check.url._
 import io.gatling.http.response.Response
 

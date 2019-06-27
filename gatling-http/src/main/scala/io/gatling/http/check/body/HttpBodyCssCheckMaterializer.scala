@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
+import io.gatling.core.check.css.{ CssCheckType, CssSelectors }
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response

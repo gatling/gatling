@@ -20,7 +20,6 @@ import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.commons.util.{ Arrays, Equality }
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
 
 // T: Check type, only used for CheckMaterializer Type Class

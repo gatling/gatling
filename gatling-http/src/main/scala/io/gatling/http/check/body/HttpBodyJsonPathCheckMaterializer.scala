@@ -17,11 +17,11 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.response.Response
 import io.gatling.http.check.HttpCheckScope.Body
+import io.gatling.core.check.jsonpath.JsonPathCheckType
 
 import com.fasterxml.jackson.databind.JsonNode
 

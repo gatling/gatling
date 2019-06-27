@@ -20,18 +20,18 @@ import java.io.InputStream
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.extractor.bytes._
-import io.gatling.core.check.extractor.checksum._
-import io.gatling.core.check.extractor.css._
-import io.gatling.core.check.extractor.jmespath._
-import io.gatling.core.check.extractor.jsonpath._
-import io.gatling.core.check.extractor.regex._
-import io.gatling.core.check.extractor.stream._
-import io.gatling.core.check.extractor.string._
-import io.gatling.core.check.extractor.substring._
-import io.gatling.core.check.extractor.time._
-import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.check.bytes._
+import io.gatling.core.check.checksum._
+import io.gatling.core.check.css._
+import io.gatling.core.check.jmespath._
+import io.gatling.core.check.jsonpath._
+import io.gatling.core.check.regex._
+import io.gatling.core.check.stream._
+import io.gatling.core.check.string._
+import io.gatling.core.check.substring._
+import io.gatling.core.check.time._
+import io.gatling.core.check.xpath._
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.burt.jmespath.function.{ Function => JmesPathFunction }

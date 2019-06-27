@@ -18,7 +18,7 @@ package io.gatling.http.check.time
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.time.ResponseTimeCheckType
+import io.gatling.core.check.time.ResponseTimeCheckType
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckScope.Time

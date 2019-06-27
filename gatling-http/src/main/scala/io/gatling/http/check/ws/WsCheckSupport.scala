@@ -17,12 +17,12 @@
 package io.gatling.http.check.ws
 
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
-import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
-import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
-import io.gatling.core.check.extractor.regex.RegexCheckType
-import io.gatling.core.check.extractor.string.BodyStringCheckType
-import io.gatling.core.check.extractor.substring.SubstringCheckType
+import io.gatling.core.check.bytes.BodyBytesCheckType
+import io.gatling.core.check.jmespath.JmesPathCheckType
+import io.gatling.core.check.jsonpath.JsonPathCheckType
+import io.gatling.core.check.regex.RegexCheckType
+import io.gatling.core.check.string.BodyStringCheckType
+import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode

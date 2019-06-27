@@ -20,7 +20,7 @@ import java.io.InputStream
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.stream.BodyStreamCheckType
+import io.gatling.core.check.stream.BodyStreamCheckType
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response

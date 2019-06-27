@@ -17,8 +17,8 @@
 package io.gatling.http.check.header
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor._
-import io.gatling.core.check.extractor.regex.{ GroupExtractor, Patterns }
+import io.gatling.core.check._
+import io.gatling.core.check.regex.{ GroupExtractor, Patterns }
 import io.gatling.http.response.Response
 
 object HttpHeaderRegexExtractors {

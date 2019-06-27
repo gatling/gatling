@@ -31,4 +31,8 @@ package object check {
    * Specializes a generic check for a given protocol.
    */
   type Specializer[C <: Check[R], R] = Check[R] => C
+
+  implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
+    def liftSeqOption: Option[Seq[X]] = if (values.isEmpty) None else Some(values)
+  }
 }

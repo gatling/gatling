@@ -18,7 +18,7 @@ package io.gatling.http.check.checksum
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.checksum.{ Md5CheckType, Sha1CheckType }
+import io.gatling.core.check.checksum.{ Md5CheckType, Sha1CheckType }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Chunks
 import io.gatling.http.response.Response

@@ -21,7 +21,7 @@ import javax.jms.{ Message, TextMessage }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath._
+import io.gatling.core.check.xpath.{ Dom, XPathCheckType, XmlParsers }
 import io.gatling.jms.JmsCheck
 
 import org.xml.sax.InputSource

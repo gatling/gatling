@@ -17,8 +17,7 @@
 package io.gatling.http.check.url
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ DefaultFindCheckBuilder, Preparer }
-import io.gatling.core.check.extractor._
+import io.gatling.core.check.{ DefaultFindCheckBuilder, FindExtractor, Preparer }
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders._

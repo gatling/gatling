@@ -17,7 +17,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
+import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders.ResponseBodyBytesPreparer
 import io.gatling.http.check.HttpCheckScope.Body

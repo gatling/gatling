@@ -17,8 +17,7 @@
 package io.gatling.http.check.header
 
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.check.extractor.regex.{ GroupExtractor, Patterns }
+import io.gatling.core.check.regex.{ GroupExtractor, Patterns }
 import io.gatling.core.session.Expression
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders._

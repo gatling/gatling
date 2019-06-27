@@ -17,7 +17,7 @@
 package io.gatling.http.check.header
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor._
+import io.gatling.core.check._
 import io.gatling.http.response.Response
 
 class HttpHeaderFindExtractor(headerName: String, occurrence: Int) extends FindCriterionExtractor[Response, String, String]("header", headerName, occurrence, _.headers(headerName).lift(occurrence).success)

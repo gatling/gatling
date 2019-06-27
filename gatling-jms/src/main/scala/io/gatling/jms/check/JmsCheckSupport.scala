@@ -21,7 +21,7 @@ import javax.jms.Message
 import scala.annotation.implicitNotFound
 
 import io.gatling.core.check.{ CheckBuilder, CheckMaterializer, FindCheckBuilder, ValidatorCheckBuilder }
-import io.gatling.core.check.extractor.xpath.{ Dom, XPathCheckType, XmlParsers }
+import io.gatling.core.check.xpath.{ Dom, XPathCheckType, XmlParsers }
 import io.gatling.jms.JmsCheck
 
 trait JmsCheckSupport {

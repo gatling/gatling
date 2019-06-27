@@ -17,7 +17,7 @@
 package io.gatling.http.check.ws
 
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
-import io.gatling.core.check.extractor.jsonpath.JsonPathCheckType
+import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode

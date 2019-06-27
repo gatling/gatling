@@ -20,8 +20,8 @@ import java.nio.charset.StandardCharsets._
 import java.util.{ HashMap => JHashMap }
 
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.extractor.jmespath.JmesPathCheckType
 import io.gatling.core.check.{ CheckMaterializer, CheckResult }
+import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session._

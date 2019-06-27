@@ -18,7 +18,7 @@ package io.gatling.http.check.ws
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.regex.RegexCheckType
+import io.gatling.core.check.regex.RegexCheckType
 
 object WsRegexCheckMaterializer extends CheckMaterializer[RegexCheckType, WsTextCheck, String, CharSequence](WsTextCheck.apply) {
 

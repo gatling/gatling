@@ -17,7 +17,7 @@
 package io.gatling.http.check.ws
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.string.BodyStringCheckType
+import io.gatling.core.check.string.BodyStringCheckType
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
 
 object WsBodyStringCheckMaterializer extends CheckMaterializer[BodyStringCheckType, WsTextCheck, String, String](WsTextCheck.apply) {

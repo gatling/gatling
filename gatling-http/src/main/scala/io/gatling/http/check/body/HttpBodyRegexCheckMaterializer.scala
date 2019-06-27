@@ -16,8 +16,8 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.core.check.extractor.regex.RegexCheckType
 import io.gatling.core.check.Preparer
+import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.check.HttpCheckBuilders.ResponseBodyStringPreparer
 import io.gatling.http.check.HttpCheckScope.Body

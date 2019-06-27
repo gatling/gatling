@@ -21,7 +21,6 @@ import java.util.{ Map => JMap }
 import scala.annotation.tailrec
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, Session }
 
 object Check {
