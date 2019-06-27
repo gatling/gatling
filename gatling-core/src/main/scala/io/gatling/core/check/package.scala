@@ -16,7 +16,7 @@
 
 package io.gatling.core
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 
 package object check {
 
@@ -26,6 +26,8 @@ package object check {
    * The result might be cached and reused for other checks of the same kind performed on the same response.
    */
   type Preparer[R, P] = R => Validation[P]
+
+  def identityPreparer[T]: Preparer[T, T] = _.success
 
   /**
    * Specializes a generic check for a given protocol.

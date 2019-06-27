@@ -19,7 +19,6 @@ package io.gatling.http.check.header
 import io.gatling.core.check._
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.check.HttpCheckMaterializer
-import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.check.HttpCheckScope.Header
 import io.gatling.http.response.Response
 
@@ -33,5 +32,5 @@ class HttpHeaderCheckBuilder(headerName: Expression[String]) extends DefaultMult
 
 object HttpHeaderCheckMaterializer extends HttpCheckMaterializer[HttpHeaderCheckType, Response](Header) {
 
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  override val preparer: Preparer[Response, Response] = identityPreparer
 }

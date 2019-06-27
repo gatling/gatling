@@ -20,7 +20,6 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheckMaterializer
-import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.check.HttpCheckScope.Status
 import io.gatling.http.response.Response
 
@@ -33,5 +32,5 @@ object HttpStatusCheckBuilder extends DefaultFindCheckBuilder[HttpStatusCheckTyp
 
 object HttpStatusCheckMaterializer extends HttpCheckMaterializer[HttpStatusCheckType, Response](Status) {
 
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  override val preparer: Preparer[Response, Response] = identityPreparer
 }
