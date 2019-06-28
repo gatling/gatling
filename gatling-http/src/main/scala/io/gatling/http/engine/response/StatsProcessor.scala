@@ -29,7 +29,7 @@ import io.gatling.netty.util.ahc.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 
-sealed trait StatsProcessor {
+sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
   def reportStats(
     fullRequestName: String,
     request:         Request,
@@ -37,57 +37,27 @@ sealed trait StatsProcessor {
     status:          Status,
     result:          HttpResult,
     errorMessage:    Option[String]
-  ): Unit
-}
-
-object NoopStatsProcessor extends StatsProcessor {
-  override def reportStats(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String]
-  ): Unit = {}
-}
-
-class DefaultStatsProcessor(
-    charset:     Charset,
-    statsEngine: StatsEngine
-) extends StatsProcessor with StrictLogging {
-
-  override def reportStats(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String]
   ): Unit = {
-    logTx0(fullRequestName, request, session, status, result, errorMessage, charset)
-
-    statsEngine.logResponse(
-      session,
-      fullRequestName,
-      result.startTimestamp,
-      result.endTimestamp,
-      status,
-      result match {
-        case response: Response => Some(Integer.toString(response.status.code))
-        case _                  => None
-      },
-      errorMessage
-    )
+    logTx(fullRequestName, request, session, status, result, errorMessage)
+    reportStats0(fullRequestName, request, session, status, result, errorMessage)
   }
 
-  private def logTx0(
+  protected def reportStats0(
     fullRequestName: String,
     request:         Request,
     session:         Session,
     status:          Status,
     result:          HttpResult,
-    errorMessage:    Option[String] = None,
-    charset:         Charset
+    errorMessage:    Option[String]
+  ): Unit
+
+  private def logTx(
+    fullRequestName: String,
+    request:         Request,
+    session:         Session,
+    status:          Status,
+    result:          HttpResult,
+    errorMessage:    Option[String] = None
   ): Unit = {
     def dump = {
       // hack: pre-cache url because it would reset the StringBuilder
@@ -119,4 +89,42 @@ class DefaultStatsProcessor(
 
     logger.trace(dump)
   }
+}
+
+final class NoopStatsProcessor(charset: Charset) extends StatsProcessor(charset) {
+  override protected def reportStats0(
+    fullRequestName: String,
+    request:         Request,
+    session:         Session,
+    status:          Status,
+    result:          HttpResult,
+    errorMessage:    Option[String]
+  ): Unit = {}
+}
+
+final class DefaultStatsProcessor(
+    charset:     Charset,
+    statsEngine: StatsEngine
+) extends StatsProcessor(charset) with StrictLogging {
+
+  override def reportStats0(
+    fullRequestName: String,
+    request:         Request,
+    session:         Session,
+    status:          Status,
+    result:          HttpResult,
+    errorMessage:    Option[String]
+  ): Unit =
+    statsEngine.logResponse(
+      session,
+      fullRequestName,
+      result.startTimestamp,
+      result.endTimestamp,
+      status,
+      result match {
+        case response: Response => Some(Integer.toString(response.status.code))
+        case _                  => None
+      },
+      errorMessage
+    )
 }

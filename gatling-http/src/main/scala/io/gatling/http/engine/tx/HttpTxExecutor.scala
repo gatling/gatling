@@ -37,6 +37,7 @@ class HttpTxExecutor(
 ) extends SslContextSupport with NameGen with StrictLogging {
 
   import coreComponents._
+  private val noopStatsProcessor = new NoopStatsProcessor(coreComponents.configuration.core.charset)
 
   private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
 
@@ -197,5 +198,5 @@ class HttpTxExecutor(
     )
 
   def statsProcessor(tx: HttpTx): StatsProcessor =
-    if (tx.silent) NoopStatsProcessor else defaultStatsProcessor
+    if (tx.silent) noopStatsProcessor else defaultStatsProcessor
 }
