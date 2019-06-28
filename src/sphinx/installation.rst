@@ -13,7 +13,7 @@ You can use Gatling as a standalone bundle.
 Then, you'll just need a text editor, possibly with Scala syntactic coloration, to edit your simulations
 and you'll be able to launch Gatling from the command line.
 
-Check out our `download page </#/resources/download>`__ for the download link.
+Check out our `Open Source page </open-source/>`__ for the download link.
 
 Unzip the downloaded bundle to a folder of your choice.
 Use the scripts located in the ``bin`` directory for launching Gatling and the Recorder.
