@@ -31,7 +31,7 @@ import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType._
 
-object Json {
+private[gatling] object Json {
 
   private val stringBuilders = new StringBuilderPool
 
