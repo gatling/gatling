@@ -35,7 +35,7 @@ Active
 * `JDBC plugin <https://github.com/rbraeunlich/gatling-jdbc>`_ by Ronny Bräunlich
 * `gRPC plugin <https://github.com/phiSgr/gatling-grpc>`_ by George Leung
 * `Cassandra plugin <https://github.com/gatling-cql/GatlingCql>`_ by Mikhail Stepura
-* `Git plugin <https://github.com/barbasa/gatling-git>`_ by Fabio Ponciroli
+* `Git plugin <https://github.com/GerritForge/gatling-git>`_ by GerritForge
 
 Inactive, built against legacy versions of Gatling
 --------------------------------------------------
