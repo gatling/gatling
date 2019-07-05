@@ -60,6 +60,18 @@ When using the bundle distribution, files must be in the ``user-files/resources`
 
 When using a build tool such as maven, files must be placed in ``src/main/resources`` or ``src/test/resources``.
 
+In order the locate the file, Gatling try the following strategies in sequence:
+
+1. as a classpath resource from the classpath root, eg ``data/file.csv`` for targeting the ``src/main/resources/data/file.csv`` file. This strategy is the recommended one.
+2. from the filesystem, as a path relative to the Gatling root dir. This strategy should only be used when using the Gatling bundle.
+3. from the filesystem, as an absolute path. Use this strategy if you want your feeder files to be deployed separately.
+
+.. warning::
+Do NOT rely on having an exploded gradle/maven/sbt project structure.
+Typically, don't use strategy #2 and paths such as ``src/main/resources/data/file.csv``.
+The exploded structure might no longer be there at runtime, all the more when deploying with `FrontLine <https://gatling.io/gatling-frontline/>`_.
+Use strategy #1 and classpath paths such as ``data/file.csv``.
+
 .. _feeder-csv:
 
 CSV feeders
