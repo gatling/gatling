@@ -36,6 +36,7 @@ Active
 * `gRPC plugin <https://github.com/phiSgr/gatling-grpc>`_ by George Leung
 * `Cassandra plugin <https://github.com/gatling-cql/GatlingCql>`_ by Mikhail Stepura
 * `Git plugin <https://github.com/GerritForge/gatling-git>`_ by GerritForge
+* `Radius plugin <https://github.com/bpabdelkader/gatling-radius>`_ by Bilal Pierre ABDELKADER
 
 Inactive, built against legacy versions of Gatling
 --------------------------------------------------
