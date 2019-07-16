@@ -251,11 +251,13 @@ By default RedisFeeder uses LPOP command:
 
 .. includecode:: code/FeederSample.scala#redis-LPOP
 
-An optional third parameter is used to specify desired Redis command:
+You can then override the desired Redis command:
 
 .. includecode:: code/FeederSample.scala#redis-SPOP
 
-Note that since v2.1.14, Redis supports mass insertion of data from a `file <http://redis.io/topics/mass-insert>`_.
+.. includecode:: code/FeederSample.scala#redis-SRANDMEMBER
+
+Note that since v2.1.14, Redis supports mass insertion of data from a `file <https://redis.io/topics/mass-insert>`_.
 It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
 
 For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*:
