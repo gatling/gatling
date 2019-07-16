@@ -23,7 +23,7 @@ trait RegexCheckType
 
 trait RegexOfType { self: RegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new RegexCheckBuilder[X](pattern, patterns)
+  def ofType[X: GroupExtractor]: RegexCheckBuilder[X] = new RegexCheckBuilder[X](pattern, patterns)
 }
 
 object RegexCheckBuilder {
