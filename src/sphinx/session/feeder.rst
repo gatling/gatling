@@ -185,7 +185,7 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 .. note::
     Do not forget to add the required JDBC driver jar in the classpath (``lib`` folder in the bundle)
 
-.. _feeder-redis:
+.. _feeder-sitemap:
 
 Sitemap Feeder
 ==============
@@ -233,6 +233,8 @@ will be turned into::
              "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
              "lastmod" -> "2004-12-23",
              "changefreq" -> "weekly")
+
+.. _feeder-redis:
 
 Redis feeder
 ============
