@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.jdbc
+package io.gatling.redis.compile
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.feeder.{ FeederBuilderBase, InMemoryFeederSource, SourceFeederBuilder }
-import io.gatling.jdbc.feeder.JdbcFeederSource
+import io.gatling.core.Predef._
+import io.gatling.redis.Predef._
 
-object Predef {
+class JdbcCompileTest extends Simulation {
 
-  def jdbcFeeder(url: String, username: String, password: String, sql: String)(implicit configuration: GatlingConfiguration): FeederBuilderBase[Any] =
-    SourceFeederBuilder(InMemoryFeederSource(JdbcFeederSource(url, username, password, sql)), configuration)
+  redisFeeder(???, "key")
 }

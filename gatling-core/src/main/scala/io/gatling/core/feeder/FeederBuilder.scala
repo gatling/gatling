@@ -20,21 +20,42 @@ import io.gatling.core.config.GatlingConfiguration
 
 import com.softwaremill.quicklens._
 
+trait FeederBuilderBase[T] extends FeederBuilder {
+  type F <: FeederBuilderBase[T]
+  def queue: F
+  def random: F
+  def shuffle: F
+  def circular: F
+  def convert(f: PartialFunction[(String, T), Any]): F
+  def readRecords: Seq[Record[Any]]
+  def shard: F
+}
+
+trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
+  def unzip: F
+}
+
+trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
+  override type F <: BatchableFeederBuilder[T]
+  def eager: BatchableFeederBuilder[T]
+  def batch: BatchableFeederBuilder[T] = batch(Batch.DefaultBufferSize)
+  def batch(bufferSize: Int): BatchableFeederBuilder[T]
+}
+
 final case class SourceFeederBuilder[T](
     source:        FeederSource[T],
     configuration: GatlingConfiguration,
     options:       FeederOptions[T]     = FeederOptions[T]()
-) extends FeederBuilder {
+) extends BatchableFeederBuilder[T] {
 
-  def shard: SourceFeederBuilder[T] = this.modify(_.options.shard).setTo(true)
+  override type F = BatchableFeederBuilder[T]
 
-  def eager: SourceFeederBuilder[T] = copy(options = options.copy(loadingMode = Eager))
-  def batch: SourceFeederBuilder[T] = batch(Batch.DefaultBufferSize)
-  def batch(bufferSize: Int): SourceFeederBuilder[T] = copy(options = options.copy(loadingMode = Batch(bufferSize)))
+  def queue: F = this.modify(_.options.strategy).setTo(Queue)
+  def random: F = this.modify(_.options.strategy).setTo(Random)
+  def shuffle: F = this.modify(_.options.strategy).setTo(Shuffle)
+  def circular: F = this.modify(_.options.strategy).setTo(Circular)
 
-  def unzip: SourceFeederBuilder[T] = this.modify(_.options.unzip).setTo(true)
-
-  def convert(f: PartialFunction[(String, T), Any]): SourceFeederBuilder[T] = {
+  override def convert(f: PartialFunction[(String, T), Any]): F = {
     val conversion: Record[T] => Record[Any] =
       _.map {
         case pair if f.isDefinedAt(pair) => pair._1 -> f(pair)
@@ -44,14 +65,15 @@ final case class SourceFeederBuilder[T](
     this.modify(_.options.conversion).setTo(Some(conversion))
   }
 
-  def queue: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(Queue)
-  def random: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(Random)
-  def shuffle: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(Shuffle)
-  def circular: SourceFeederBuilder[T] = this.modify(_.options.strategy).setTo(Circular)
+  override def readRecords: Seq[Record[Any]] = apply().toVector
+
+  override def unzip: F = this.modify(_.options.unzip).setTo(true)
+
+  override def eager: F = copy(options = options.copy(loadingMode = Eager))
+  override def batch(bufferSize: Int): F = copy(options = options.copy(loadingMode = Batch(bufferSize)))
+  override def shard: F = this.modify(_.options.shard).setTo(true)
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
-
-  def readRecords: Seq[Record[Any]] = apply().toVector
 }
 
 private[feeder] trait FeederLoadingMode
