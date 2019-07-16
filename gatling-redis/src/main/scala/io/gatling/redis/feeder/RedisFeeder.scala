@@ -47,6 +47,6 @@ object RedisFeeder {
         value.map(value => Map(key -> value))
       }
 
-      Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
+      Iterator.continually(next).flatten
     }
 }
