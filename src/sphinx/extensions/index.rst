@@ -37,6 +37,10 @@ Active
 * `Cassandra plugin <https://github.com/gatling-cql/GatlingCql>`_ by Mikhail Stepura
 * `Git plugin <https://github.com/GerritForge/gatling-git>`_ by GerritForge
 * `Radius plugin <https://github.com/bpabdelkader/gatling-radius>`_ by Bilal Pierre Abdelkader
+* `Kafka plugin <https://github.com/TinkoffCreditSystems/gatling-kafka-plugin>`_ by Ioann Akhaltsev
+* `AMQP plugin <https://github.com/TinkoffCreditSystems/gatling-amqp-plugin>`_ by Vyacheslav Kalyokin
+
+
 
 Inactive, built against legacy versions of Gatling
 --------------------------------------------------
