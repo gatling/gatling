@@ -207,7 +207,6 @@ object ZincCompiler extends App with ProblemStringFormats {
 
     val inputs = Inputs.of(compilers, options, setup, previousResult)
 
-    System.setProperty("swoval.directory.lister", "com.swoval.files.NioDirectoryLister")
     val newResult = compiler.compile(inputs, sbtLogger)
     analysisStore.set(AnalysisContents.create(newResult.analysis(), newResult.setup()))
   }
