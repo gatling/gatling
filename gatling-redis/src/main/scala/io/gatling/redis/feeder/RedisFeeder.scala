@@ -16,7 +16,7 @@
 
 package io.gatling.redis.feeder
 
-import io.gatling.core.feeder.FeederBuilder
+import io.gatling.core.feeder.{ Feeder, FeederBuilder }
 
 import com.redis.{ RedisClient, RedisClientPool }
 
@@ -46,18 +46,20 @@ object RedisFeeder {
 
   @deprecated(message = "Will be removed in 3.3.0. Use RedisPredef#redisFeeder instead.", since = "3.2.0")
   def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): FeederBuilder =
-    () => {
-      def next = clientPool.withClient { client =>
-        val value = redisCommand(client, key)
-        value.map(value => Map(key -> value))
-      }
-
-      Iterator.continually(next).flatten
-    }
+    RedisFeederBuilder(clientPool, key, redisCommand)
 }
 
 final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, command: RedisFeeder.RedisCommand = RedisFeeder.LPOP) extends FeederBuilder {
   def LPOP: RedisFeederBuilder = copy(command = RedisFeeder.LPOP)
   def SPOP: RedisFeederBuilder = copy(command = RedisFeeder.SPOP)
   def SRANDMEMBER: RedisFeederBuilder = copy(command = RedisFeeder.SRANDMEMBER)
+
+  override def apply(): Feeder[Any] = {
+    def next: Option[Map[String, String]] = clientPool.withClient { client =>
+      val value = command(client, key)
+      value.map(value => Map(key -> value))
+    }
+
+    Iterator.continually(next).flatten
+  }
 }
