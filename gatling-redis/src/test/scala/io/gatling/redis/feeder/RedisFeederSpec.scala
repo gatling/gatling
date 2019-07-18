@@ -16,21 +16,21 @@
 
 package io.gatling.redis.feeder
 
-import io.gatling.AkkaSpec
+import io.gatling.BaseSpec
 import io.gatling.core.feeder.Record
+import io.gatling.redis.Predef._
 
 import com.redis._
 import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
 
-class RedisFeederSpec extends AkkaSpec {
+class RedisFeederSpec extends BaseSpec {
 
   val KEY = "key"
 
   // Generate list of maps Map(<redis-key> -> <expected-value>)
-  def valsLst(key: String, s: String*): List[Record[String]] = {
+  def valsLst(key: String, s: String*): List[Record[String]] =
     s.map(str => Map(key -> str)).toList
-  }
 
   trait MockContext {
     var clientPool: RedisClientPool = mock[RedisClientPool]
@@ -47,22 +47,14 @@ class RedisFeederSpec extends AkkaSpec {
   "redis feeder" should "use lpop as default command" in {
     new MockContext {
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
-
-      val feeder = RedisFeeder(clientPool, KEY).apply
-      val actual = feeder.toList
-
-      actual shouldBe valsLst(KEY, "v1", "v2", "v3")
+      redisFeeder(clientPool, KEY).apply.toList shouldBe valsLst(KEY, "v1", "v2", "v3")
     }
   }
 
   it should "use spop command" in {
     new MockContext {
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
-
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP).apply
-      val actual = feeder.toList
-
-      actual shouldBe valsLst(KEY, "v1", "v2", "v3")
+      redisFeeder(clientPool, KEY).SPOP.apply.toList shouldBe valsLst(KEY, "v1", "v2", "v3")
     }
   }
 
@@ -70,7 +62,7 @@ class RedisFeederSpec extends AkkaSpec {
     new MockContext {
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER).apply
+      val feeder = redisFeeder(clientPool, KEY).SRANDMEMBER.apply
 
       feeder.next() shouldBe Map(KEY -> "v1")
       feeder.next() shouldBe Map(KEY -> "v2")

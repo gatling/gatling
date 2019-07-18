@@ -60,6 +60,6 @@ final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, co
       value.map(value => Map(key -> value))
     }
 
-    Iterator.continually(next).flatten
+    Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
   }
 }
