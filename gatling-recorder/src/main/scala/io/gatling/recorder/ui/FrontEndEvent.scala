@@ -30,7 +30,7 @@ private[recorder] final case class PauseFrontEndEvent(duration: FiniteDuration) 
 
 private[recorder] final case class RequestFrontEndEvent(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration) extends FrontEndEvent {
 
-  val requestBody = new String(response.body, configuration.core.encoding)
+  val requestBody = new String(request.body, configuration.core.encoding)
 
   val responseBody = new String(response.body, configuration.core.encoding)
 
