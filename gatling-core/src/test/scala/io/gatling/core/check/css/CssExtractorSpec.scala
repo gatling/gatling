@@ -68,7 +68,7 @@ class CssExtractorSpec extends BaseSpec with ValidationValues {
     cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Sponsors", "Social"))
   }
 
-  it should "return expected result with an attribute containg a given substring" in {
+  it should "return expected result with an attribute containing a given substring" in {
     val cssExtractor = new CssFindAllExtractor[String](".article a[href*=api]", None, cssSelectors)
     cssExtractor(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("API Documentation"))
   }
