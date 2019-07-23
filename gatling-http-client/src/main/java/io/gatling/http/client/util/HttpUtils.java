@@ -136,12 +136,12 @@ public final class HttpUtils {
     return sb.append(' ').append(CONTENT_TYPE_BOUNDARY_ATTRIBUTE).append(new String(boundary, US_ASCII)).toString();
   }
 
-  public static CharSequence filterOutBrotliFromAcceptEncoding(String acceptEncoding) {
+  public static String filterOutBrotliFromAcceptEncoding(String acceptEncoding) {
     // we don't support Brotly ATM
     if (acceptEncoding.endsWith(BROTLY_ACCEPT_ENCODING_SUFFIX)) {
-      return acceptEncoding.subSequence(0, acceptEncoding.length() - BROTLY_ACCEPT_ENCODING_SUFFIX.length());
+      return acceptEncoding.substring(0, acceptEncoding.length() - BROTLY_ACCEPT_ENCODING_SUFFIX.length());
     }
-    return acceptEncoding;
+    return null;
   }
 
   public static boolean isConnectionClose(HttpHeaders headers) {
