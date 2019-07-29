@@ -97,7 +97,10 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
 
   override def onCrash(cause: String, data: GraphiteData): Unit = {}
 
-  def onStop(data: GraphiteData): Unit = cancelTimer(flushTimerName)
+  def onStop(data: GraphiteData): Unit = {
+    cancelTimer(flushTimerName)
+    onFlush(data)
+  }
 
   private def sendMetricsToGraphite(
     data:            GraphiteData,
