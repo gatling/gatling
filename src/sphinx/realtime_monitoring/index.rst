@@ -46,7 +46,7 @@ of the Carbon or InfluxDB server.
 
   graphite {
     host = "192.0.2.235"  # InfluxDB or Carbon server
-    # writeInterval = 1   # Default write interval of one second
+    # writePeriod = 1   # Default write interval of one second
   }
 
 InfluxDB
@@ -132,9 +132,9 @@ In ``$GRAPHITE_HOME/conf/storage-schemas.conf``:
   pattern = ^gatling\..*
   retentions = 1s:6d,10s:60d
 
-If you use a different writeInterval in your Graphite data writer configuration,
+If you use a different writePeriod in your Graphite data writer configuration,
 make sure that your smallest retention is equal or greater than your
-writeInterval.
+writePeriod.
 
 In ``$GRAPHITE_HOME/conf/storage-aggregation.conf``:
 
