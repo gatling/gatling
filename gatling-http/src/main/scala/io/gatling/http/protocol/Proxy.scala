@@ -31,7 +31,7 @@ final case class Proxy(
     def basicRealm: Option[BasicRealm] = credentials.map(c => new BasicRealm(c.username, c.password))
 
     proxyType match {
-      case HttpProxy => new HttpProxyServer(host, port, securePort, basicRealm.orNull)
+      case HttpProxy   => new HttpProxyServer(host, port, securePort, basicRealm.orNull)
       case Socks4Proxy => new Socks4ProxyServer(host, port, credentials.map(_.username).orNull)
       case Socks5Proxy => new Socks5ProxyServer(host, port, basicRealm.orNull)
     }
