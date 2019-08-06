@@ -206,6 +206,11 @@ This product depends on SimpleFlatMapper, distributed by Arnaud Roger:
   * License: license/LICENSE.sfm.mit.txt (BSD 3-Clause License)
   * Homepage: https://github.com/arnaudroger/SimpleFlatMapper
 
+This product depends on JMESPATH-Java, distributed by Burt AB:
+
+  * License: license/LICENSE.sfm.mit.txt (BSD 3-Clause License)
+  * Homepage: https://github.com/burtcorp/jmespath-java
+
 Test and documentation dependencies
 ===================================
 
