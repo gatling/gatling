@@ -24,7 +24,7 @@ object Dependencies {
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.3.4"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "9.9.1-4"
-  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.26"
+  private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.27"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.2")
     .exclude("org.typelevel", "machinist_2.12")
     .exclude("org.typelevel", "algebra_2.12")
