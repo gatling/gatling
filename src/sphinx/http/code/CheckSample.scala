@@ -102,12 +102,12 @@ class CheckSample {
     //#jmesPath
 
     //#jmesPath-ofType
-    jsonPath(expression).ofType[T]
+    jmesPath(expression).ofType[T]
     //#jmesPath-ofType
 
     //#jmesPath-Int
 
-    jsonPath("foo").ofType[Int] // will match 1
+    jmesPath("foo").ofType[Int] // will match 1
     //#jmesPath-Int
 
     //#css
