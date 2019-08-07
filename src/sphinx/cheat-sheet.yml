@@ -910,6 +910,9 @@
         - keyword: bodyBytes
           description: Return the full response body byte array.
 
+        - keyword: bodyStream
+          description: Return an InputStream of the full response body bytes.
+
         - keyword: substring
           description: Look for occurrences of a given String in the response body String
           syntax:
@@ -943,6 +946,18 @@
           syntax:
             - signature: (expression)
               description: jsonpJsonPath is similar to jsonPath, but for JSONP
+
+        - keyword: jmesPath
+          description: Apply a JMESPath expression on the response body String.
+          syntax:
+            - signature: (expression)
+              description: JMESPath is similar to XPATH, but for JSON encoded data.
+
+        - keyword: jsonpJmesPath
+          description: Apply a JMESPath expression on the JSONP value of the response body String.
+          syntax:
+            - signature: (expression)
+              description: jsonpJmesPath is similar to jmesPath, but for JSONP
 
         - keyword: css
           description: Apply a CSS selector on the response body String.

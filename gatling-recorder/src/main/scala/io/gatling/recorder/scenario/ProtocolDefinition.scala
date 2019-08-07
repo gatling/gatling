@@ -36,4 +36,4 @@ private[scenario] object ProtocolDefinition {
     .add(HeaderNames.UpgradeInsecureRequests, "upgradeInsecureRequestsHeader")
 }
 
-private[scenario] case class ProtocolDefinition(baseUrl: String, headers: HttpHeaders)
+private[scenario] final case class ProtocolDefinition(baseUrl: String, headers: HttpHeaders)

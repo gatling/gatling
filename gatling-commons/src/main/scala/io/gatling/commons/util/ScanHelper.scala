@@ -37,7 +37,7 @@ object ScanHelper {
     def lastModified: Long
   }
 
-  private case class FileResource(path: Path) extends Resource {
+  private final case class FileResource(path: Path) extends Resource {
 
     private val file = path.toFile
 
@@ -51,7 +51,7 @@ object ScanHelper {
     override def lastModified: Long = file.lastModified
   }
 
-  private case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
+  private final case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
 
     override def path: Path = jarEntry.getName
 

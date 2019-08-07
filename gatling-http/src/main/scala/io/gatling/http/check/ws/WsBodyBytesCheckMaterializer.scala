@@ -18,11 +18,9 @@ package io.gatling.http.check.ws
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckType
+import io.gatling.core.check.bytes.BodyBytesCheckType
 
-object WsBodyBytesCheckMaterializer extends CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] {
-
-  override val specializer: Specializer[WsBinaryCheck, Array[Byte]] = WsBinaryCheck.apply
+object WsBodyBytesCheckMaterializer extends CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]](WsBinaryCheck.apply) {
 
   override val preparer: Preparer[Array[Byte], Array[Byte]] = _.success
 }

@@ -24,7 +24,7 @@ import io.gatling.core.stats.StatsEngine
 
 import _root_.akka.actor.{ ActorRef, ActorSystem }
 
-case class CoreComponents(
+final case class CoreComponents(
     actorSystem:   ActorSystem,
     controller:    ActorRef,
     throttler:     Throttler,

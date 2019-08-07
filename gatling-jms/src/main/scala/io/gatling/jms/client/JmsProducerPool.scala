@@ -22,10 +22,11 @@ import javax.jms.{ Destination, MessageProducer }
 
 import scala.collection.JavaConverters._
 
+private[client] final case class CachedProducerKey(destination: Destination, deliveryMode: Int)
+
 class JmsProducerPool(sessionPool: JmsSessionPool) {
 
   private val registeredProducers = Collections.newSetFromMap(new ConcurrentHashMap[MessageProducer, java.lang.Boolean])
-  private case class CachedProducerKey(destination: Destination, deliveryMode: Int)
   private val producers = new ConcurrentHashMap[CachedProducerKey, ThreadLocal[JmsProducer]]
 
   def producer(destination: Destination, deliveryMode: Int): JmsProducer =

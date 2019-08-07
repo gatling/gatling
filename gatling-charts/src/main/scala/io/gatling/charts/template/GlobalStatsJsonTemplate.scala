@@ -21,11 +21,9 @@ import io.gatling.charts.component.Statistics.printable
 import io.gatling.commons.stats.GeneralStats
 import io.gatling.commons.util.StringHelper._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
-  def getOutput: Fastring = {
+  def getOutput: String = {
 
     def style[T: Numeric](value: T) =
       if (raw) {
@@ -35,7 +33,7 @@ private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boo
       } else
         s""""${printable(value)}""""
 
-    fast"""{
+    s"""{
     "name": "${stats.name.escapeJsIllegalChars}",
     "numberOfRequests": {
         "total": ${style(stats.numberOfRequestsStatistics.total)},

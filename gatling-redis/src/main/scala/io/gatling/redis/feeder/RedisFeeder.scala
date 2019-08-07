@@ -16,7 +16,7 @@
 
 package io.gatling.redis.feeder
 
-import io.gatling.core.feeder.FeederBuilder
+import io.gatling.core.feeder.{ Feeder, FeederBuilder }
 
 import com.redis.{ RedisClient, RedisClientPool }
 
@@ -29,24 +29,37 @@ import com.redis.{ RedisClient, RedisClientPool }
 object RedisFeeder {
 
   // Function for executing Redis command
+  @deprecated(message = "Will be removed in 3.3.0. Use RedisPredef#redisFeeder instead.", since = "3.2.0")
   type RedisCommand = (RedisClient, String) => Option[String]
 
   // LPOP Redis command
-  def LPOP(redisClient: RedisClient, key: String) = redisClient.lpop(key)
+  @deprecated(message = "Will be removed in 3.3.0. Use RedisPredef#redisFeeder instead.", since = "3.2.0")
+  def LPOP(redisClient: RedisClient, key: String): Option[String] = redisClient.lpop(key)
 
   // SPOP Redis command
-  def SPOP(redisClient: RedisClient, key: String) = redisClient.spop(key)
+  @deprecated(message = "Will be removed in 3.3.0. Use RedisPredef#redisFeeder instead.", since = "3.2.0")
+  def SPOP(redisClient: RedisClient, key: String): Option[String] = redisClient.spop(key)
 
   // SRANDMEMBER Redis command
-  def SRANDMEMBER(redisClient: RedisClient, key: String) = redisClient.srandmember(key)
+  @deprecated(message = "Will be removed in 3.3.0. Use RedisPredef#redisFeeder instead.", since = "3.2.0")
+  def SRANDMEMBER(redisClient: RedisClient, key: String): Option[String] = redisClient.srandmember(key)
 
+  @deprecated(message = "Will be removed in 3.3.0. Use RedisPredef#redisFeeder instead.", since = "3.2.0")
   def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): FeederBuilder =
-    () => {
-      def next = clientPool.withClient { client =>
-        val value = redisCommand(client, key)
-        value.map(value => Map(key -> value))
-      }
+    RedisFeederBuilder(clientPool, key, redisCommand)
+}
 
-      Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
+final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, command: RedisFeeder.RedisCommand = RedisFeeder.LPOP) extends FeederBuilder {
+  def LPOP: RedisFeederBuilder = copy(command = RedisFeeder.LPOP)
+  def SPOP: RedisFeederBuilder = copy(command = RedisFeeder.SPOP)
+  def SRANDMEMBER: RedisFeederBuilder = copy(command = RedisFeeder.SRANDMEMBER)
+
+  override def apply(): Feeder[Any] = {
+    def next: Option[Map[String, String]] = clientPool.withClient { client =>
+      val value = command(client, key)
+      value.map(value => Map(key -> value))
     }
+
+    Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
+  }
 }

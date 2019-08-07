@@ -28,13 +28,13 @@ import akka.actor.ActorRef
 
 sealed trait StatsEngineMessage
 
-case class LogUser(userMessage: UserMessage) extends StatsEngineMessage
+final case class LogUser(userMessage: UserMessage) extends StatsEngineMessage
 
-case class LogResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String]) extends StatsEngineMessage
+final case class LogResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String]) extends StatsEngineMessage
 
-case class LogGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
+final case class LogGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
 
-case class LogCrash(session: Session, requestName: String, error: String) extends StatsEngineMessage
+final case class LogCrash(session: Session, requestName: String, error: String) extends StatsEngineMessage
 
 class LoggingStatsEngine extends StatsEngine {
 

@@ -98,7 +98,7 @@ class JsonSpec extends BaseSpec {
   "asScala" should "deep convert into Scala structures" in {
     implicit val config = GatlingConfiguration.loadForTest()
     val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
-      Jackson().parse(is)
+      JsonParsers().parse(is)
     }
 
     asScala(input) shouldBe Seq(

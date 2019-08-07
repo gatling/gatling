@@ -19,7 +19,7 @@ package io.gatling.http.request.builder
 import io.gatling.core.session.Expression
 
 sealed trait HttpParam
-case class SimpleParam(key: Expression[String], value: Expression[Any]) extends HttpParam
-case class MultivaluedParam(key: Expression[String], values: Expression[Seq[Any]]) extends HttpParam
-case class ParamSeq(seq: Expression[Seq[(String, Any)]]) extends HttpParam
-case class ParamMap(map: Expression[Map[String, Any]]) extends HttpParam
+final case class SimpleParam(key: Expression[String], value: Expression[Any]) extends HttpParam
+final case class MultivaluedParam(key: Expression[String], values: Expression[Seq[Any]]) extends HttpParam
+final case class ParamSeq(seq: Expression[Seq[(String, Any)]]) extends HttpParam
+final case class ParamMap(map: Expression[Map[String, Any]]) extends HttpParam

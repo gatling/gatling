@@ -22,8 +22,6 @@ import java.text.Normalizer
 
 import io.gatling.commons.util.UnsafeHelper._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 object StringHelper {
 
   private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
@@ -32,8 +30,6 @@ object StringHelper {
   val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
   val Crlf: String = "\r\n"
-
-  val EmptyFastring: Fastring = fast""
 
   def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
     val shifted = b & 0xff

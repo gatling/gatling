@@ -20,7 +20,6 @@ import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.commons.util.{ Arrays, Equality }
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session._
 
 // T: Check type, only used for CheckMaterializer Type Class
@@ -123,7 +122,7 @@ object ValidatorCheckBuilder {
   val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
 }
 
-case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) {
+final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) {
 
   import ValidatorCheckBuilder._
 

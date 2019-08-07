@@ -24,23 +24,23 @@ import io.gatling.core.config.GatlingConfiguration
 
 import org.mockito.Mockito.when
 
+final case class Stats(
+    generalStats: GeneralStats,
+    requestName:  String         = "",
+    groupPath:    List[String]   = Nil,
+    status:       Option[Status] = None
+) {
+
+  def request = requestName.trimToOption
+  def group = if (groupPath.nonEmpty) Some(Group(groupPath)) else None
+}
+
 class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   private type Conditions[T] = List[AssertionWithPathAndTarget[T] => Assertion]
   private type StatsModifiers = List[Stats => Stats]
-
-  private case class Stats(
-      generalStats: GeneralStats,
-      requestName:  String         = "",
-      groupPath:    List[String]   = Nil,
-      status:       Option[Status] = None
-  ) {
-
-    def request = requestName.trimToOption
-    def group = if (groupPath.nonEmpty) Some(Group(groupPath)) else None
-  }
 
   private val SetRequestThenGroupModifiers: StatsModifiers =
     List(_.copy(requestName = "foo"), _.copy(groupPath = List("foo")))

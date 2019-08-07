@@ -16,7 +16,9 @@
 
 package io.gatling.jms.client
 
+import java.util.{ HashMap => JHashMap }
 import javax.jms.Message
+
 import scala.collection.mutable
 import scala.concurrent.duration._
 
@@ -36,7 +38,7 @@ import akka.actor.{ Props, Timers }
 /**
  * Advise actor a message was sent to JMS provider
  */
-case class MessageSent(
+final case class MessageSent(
     matchId:      String,
     sent:         Long,
     replyTimeout: Long,
@@ -49,7 +51,7 @@ case class MessageSent(
 /**
  * Advise actor a response message was received from JMS provider
  */
-case class MessageReceived(
+final case class MessageReceived(
     matchId:  String,
     received: Long,
     message:  Message
@@ -120,7 +122,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
     message:     Option[String]
   ): Unit = {
     statsEngine.logResponse(session, requestName, sent, received, status, None, message)
-    next ! session.logGroupRequest(sent, received, status).increaseDrift(clock.nowMillis - received)
+    next ! session.logGroupRequestTimings(sent, received).increaseDrift(clock.nowMillis - received)
   }
 
   /**
@@ -136,7 +138,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
     requestName: String
   ): Unit = {
     // run all the checks, advise the Gatling API that it is complete and move to next
-    val (newSession, error) = Check.check(message, session, checks)
+    val (newSession, error) = Check.check(message, session, checks, new JHashMap(2))
     error match {
       case Some(Failure(errorMessage)) => executeNext(newSession.markAsFailed, sent, received, KO, next, requestName, Some(errorMessage))
       case _                           => executeNext(newSession, sent, received, OK, next, requestName, None)

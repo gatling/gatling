@@ -17,30 +17,29 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath._
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.core.check.Preparer
+import io.gatling.core.check.xpath.{ Dom, XPathCheckType, XmlParsers }
+import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 import org.xml.sax.InputSource
 
-class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StreamBodySpecializer
+class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends HttpCheckMaterializer[XPathCheckType, Option[Dom]](Body) {
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
   private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
     safely(ErrorMapper) {
-      val root = if (response.hasResponseBody) {
-        val inputSource = new InputSource(response.body.stream)
-        inputSource.setEncoding(response.charset.name)
-        Some(f(inputSource))
+      val root =
+        if (response.hasResponseBody) {
+          val inputSource = new InputSource(response.body.stream)
+          inputSource.setEncoding(response.charset.name)
+          Some(f(inputSource))
 
-      } else {
-        None
-      }
+        } else {
+          None
+        }
       root.success
     }
 

@@ -161,6 +161,7 @@ trait WhenConnecting extends SslContextSupport { this: WsActor =>
 
     case Event(WebSocketCrashed(t, timestamp), ConnectingData(session, next, connectStart, remainingTries)) =>
       // crash
+      logger.debug("WebSocket crashed", t)
       handleConnectFailure(session, next, connectStart, timestamp, None, t.rootMessage, remainingTries)
   }
 }

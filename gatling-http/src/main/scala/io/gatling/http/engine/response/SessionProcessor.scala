@@ -50,7 +50,7 @@ sealed abstract class SessionProcessor(
           session
         }
 
-      updateGroupStats(sessionWithUpdatedStatus, startTimestamp, endTimestamp, status)
+      updateGroupRequestTimings(sessionWithUpdatedStatus, startTimestamp, endTimestamp)
     } else {
       session
     }
@@ -91,7 +91,7 @@ sealed abstract class SessionProcessor(
     }
 
   protected def updateReferer(session: Session, response: Response): Session
-  protected def updateGroupStats(session: Session, startTimestamp: Long, endTimestamp: Long, status: Status): Session
+  protected def updateGroupRequestTimings(session: Session, startTimestamp: Long, endTimestamp: Long): Session
 }
 
 class RootSessionProcessor(
@@ -112,12 +112,8 @@ class RootSessionProcessor(
   override protected def updateReferer(session: Session, response: Response): Session =
     RefererHandling.storeReferer(request, response, httpProtocol)(session)
 
-  override protected def updateGroupStats(session: Session, startTimestamp: Long, endTimestamp: Long, status: Status): Session =
-    if (notSilent) {
-      session.logGroupRequest(startTimestamp, endTimestamp, status)
-    } else {
-      session
-    }
+  override protected def updateGroupRequestTimings(session: Session, startTimestamp: Long, endTimestamp: Long): Session =
+    session.logGroupRequestTimings(startTimestamp, endTimestamp)
 }
 
 class ResourceSessionProcessor(
@@ -137,5 +133,5 @@ class ResourceSessionProcessor(
 ) {
   override protected def updateReferer(session: Session, response: Response): Session = session
 
-  override protected def updateGroupStats(session: Session, startTimestamp: Long, endTimestamp: Long, status: Status): Session = session
+  override protected def updateGroupRequestTimings(session: Session, startTimestamp: Long, endTimestamp: Long): Session = session
 }

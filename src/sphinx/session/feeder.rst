@@ -60,6 +60,18 @@ When using the bundle distribution, files must be in the ``user-files/resources`
 
 When using a build tool such as maven, files must be placed in ``src/main/resources`` or ``src/test/resources``.
 
+In order the locate the file, Gatling try the following strategies in sequence:
+
+1. as a classpath resource from the classpath root, eg ``data/file.csv`` for targeting the ``src/main/resources/data/file.csv`` file. This strategy is the recommended one.
+2. from the filesystem, as a path relative to the Gatling root dir. This strategy should only be used when using the Gatling bundle.
+3. from the filesystem, as an absolute path. Use this strategy if you want your feeder files to be deployed separately.
+
+.. warning::
+Do NOT rely on having an exploded gradle/maven/sbt project structure.
+Typically, don't use strategy #2 and paths such as ``src/main/resources/data/file.csv``.
+The exploded structure might no longer be there at runtime, all the more when deploying with `FrontLine <https://gatling.io/gatling-frontline/>`_.
+Use strategy #1 and classpath paths such as ``data/file.csv``.
+
 .. _feeder-csv:
 
 CSV feeders
@@ -173,7 +185,7 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 .. note::
     Do not forget to add the required JDBC driver jar in the classpath (``lib`` folder in the bundle)
 
-.. _feeder-redis:
+.. _feeder-sitemap:
 
 Sitemap Feeder
 ==============
@@ -222,6 +234,8 @@ will be turned into::
              "lastmod" -> "2004-12-23",
              "changefreq" -> "weekly")
 
+.. _feeder-redis:
+
 Redis feeder
 ============
 
@@ -237,11 +251,13 @@ By default RedisFeeder uses LPOP command:
 
 .. includecode:: code/FeederSample.scala#redis-LPOP
 
-An optional third parameter is used to specify desired Redis command:
+You can then override the desired Redis command:
 
 .. includecode:: code/FeederSample.scala#redis-SPOP
 
-Note that since v2.1.14, Redis supports mass insertion of data from a `file <http://redis.io/topics/mass-insert>`_.
+.. includecode:: code/FeederSample.scala#redis-SRANDMEMBER
+
+Note that since v2.1.14, Redis supports mass insertion of data from a `file <https://redis.io/topics/mass-insert>`_.
 It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
 
 For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*:

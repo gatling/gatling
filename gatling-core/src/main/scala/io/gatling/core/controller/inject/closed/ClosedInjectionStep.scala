@@ -25,7 +25,7 @@ sealed trait ClosedInjectionStep {
   def duration: FiniteDuration
 }
 
-case class ConstantConcurrentNumberInjection(number: Int, duration: FiniteDuration) extends ClosedInjectionStep {
+final case class ConstantConcurrentNumberInjection(number: Int, duration: FiniteDuration) extends ClosedInjectionStep {
 
   require(number >= 0, s"Constant number of concurrent users $number must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
@@ -36,7 +36,7 @@ case class ConstantConcurrentNumberInjection(number: Int, duration: FiniteDurati
   }
 }
 
-case class RampConcurrentNumberInjection(from: Int, to: Int, duration: FiniteDuration) extends ClosedInjectionStep {
+final case class RampConcurrentNumberInjection(from: Int, to: Int, duration: FiniteDuration) extends ClosedInjectionStep {
 
   private val durationSeconds = duration.toSeconds
 

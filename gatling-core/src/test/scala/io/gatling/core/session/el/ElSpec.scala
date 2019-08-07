@@ -18,10 +18,9 @@ package io.gatling.core.session.el
 
 import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
 
-import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.json.Jackson
-import io.gatling.core.session.{ el, Session }
+import io.gatling.core.session.{ Session, el }
 
 class ElSpec extends BaseSpec with ValidationValues {
 
@@ -547,14 +546,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "support key access" in {
-
-    val json = Jackson().parse(
-      """{
-        |"bar": {
-        |    "baz": "qix"
-        |  }
-        |}""".stripMargin
-    )
+    val json = Map("bar" -> Map("baz" -> "qix"))
     val session = newSession(Map("foo" -> json))
     val expression = "${foo.bar.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"baz":"qix"}"""

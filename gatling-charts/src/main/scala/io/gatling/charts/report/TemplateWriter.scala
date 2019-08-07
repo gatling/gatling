@@ -22,10 +22,8 @@ import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 
-import com.dongxiguo.fastring.Fastring
-
 private[charts] class TemplateWriter(path: Path) {
 
-  def writeToFile(output: Fastring)(implicit configuration: GatlingConfiguration): Unit =
-    withCloseable(path.writer(configuration.core.charset)) { output.appendTo }
+  def writeToFile(output: String)(implicit configuration: GatlingConfiguration): Unit =
+    withCloseable(path.writer(configuration.core.charset)) { _.write(output) }
 }

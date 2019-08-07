@@ -34,4 +34,4 @@ private[gatling] object UserAgent {
     }
 }
 
-private[fetch] case class UserAgent(name: String, version: Float)
+private[fetch] final case class UserAgent(name: String, version: Float)

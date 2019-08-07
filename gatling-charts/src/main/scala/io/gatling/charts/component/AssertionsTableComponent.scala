@@ -17,23 +17,20 @@
 package io.gatling.charts.component
 
 import io.gatling.commons.stats.assertion.AssertionResult
-import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.HtmlHelper.HtmlRichString
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
 
-  def js = fast"""
+  def js: String = s"""
 	    $$('#container_exceptions').sortable('#container_exceptions');
     """
 
   private def resultStyle(assertionResult: AssertionResult) = if (assertionResult.result) "ok" else "ko"
 
-  def html = if (assertionResults.isEmpty)
-    EmptyFastring
+  def html: String = if (assertionResults.isEmpty)
+    ""
   else
-    fast"""<div class="statistics extensible-geant collapsed">
+    s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         <div class="title_collapsed" style="cursor: auto;">ASSERTIONS</div>
     </div>
@@ -47,12 +44,12 @@ private[charts] class AssertionsTableComponent(assertionResults: List[AssertionR
 		<tbody>
 		    ${
       assertionResults.zipWithIndex.map {
-        case (assertionResult, index) => fast"""
+        case (assertionResult, index) => s"""
 		    <tr>
 		    	<td class="error-col-1 ${resultStyle(assertionResult)} total">${assertionResult.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="error-col-2 value ${resultStyle(assertionResult)} total">${if (assertionResult.result) "OK" else "KO"}</td>
 		    </tr>"""
-      }.mkFastring
+      }.mkString
     }
 		</tbody>
     </table>

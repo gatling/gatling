@@ -25,13 +25,13 @@ object MitmMessage {
 
   case object ServerChannelInactive extends MitmMessage
 
-  case class RequestReceived(request: FullHttpRequest) extends MitmMessage
+  final case class RequestReceived(request: FullHttpRequest) extends MitmMessage
 
-  case class ClientChannelActive(channel: Channel) extends MitmMessage
+  final case class ClientChannelActive(channel: Channel) extends MitmMessage
 
-  case class ClientChannelException(t: Throwable) extends MitmMessage
+  final case class ClientChannelException(t: Throwable) extends MitmMessage
 
-  case class ClientChannelInactive(channelId: ChannelId) extends MitmMessage
+  final case class ClientChannelInactive(channelId: ChannelId) extends MitmMessage
 
-  case class ResponseReceived(response: FullHttpResponse) extends MitmMessage
+  final case class ResponseReceived(response: FullHttpResponse) extends MitmMessage
 }

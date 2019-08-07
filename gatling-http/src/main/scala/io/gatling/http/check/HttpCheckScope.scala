@@ -24,5 +24,6 @@ object HttpCheckScope {
   case object Url extends HttpCheckScope
   case object Time extends HttpCheckScope
   case object Header extends HttpCheckScope
+  case object Chunks extends HttpCheckScope
   case object Body extends HttpCheckScope
 }

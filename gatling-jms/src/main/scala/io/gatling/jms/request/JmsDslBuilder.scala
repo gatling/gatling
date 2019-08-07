@@ -26,14 +26,14 @@ import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
 import com.softwaremill.quicklens._
 
-case class JmsDslBuilderBase(requestName: Expression[String]) {
+final case class JmsDslBuilderBase(requestName: Expression[String]) {
 
   def send(implicit configuration: GatlingConfiguration): SendDslBuilderQueue = SendDslBuilderQueue(requestName, configuration)
 
   def requestReply(implicit configuration: GatlingConfiguration): RequestReplyDslBuilderQueue = RequestReplyDslBuilderQueue(requestName, configuration)
 }
 
-case class SendDslBuilderQueue(
+final case class SendDslBuilderQueue(
     requestName:   Expression[String],
     configuration: GatlingConfiguration
 ) {
@@ -44,7 +44,7 @@ case class SendDslBuilderQueue(
     SendDslDslBuilderMessage(requestName, destination, configuration)
 }
 
-case class RequestReplyDslBuilderQueue(
+final case class RequestReplyDslBuilderQueue(
     requestName:   Expression[String],
     configuration: GatlingConfiguration
 ) {
@@ -55,7 +55,7 @@ case class RequestReplyDslBuilderQueue(
     RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, setJmsReplyTo = true, None, None, configuration)
 }
 
-case class SendDslDslBuilderMessage(
+final case class SendDslDslBuilderMessage(
     requestName:   Expression[String],
     destination:   JmsDestination,
     configuration: GatlingConfiguration
@@ -71,7 +71,7 @@ case class SendDslDslBuilderMessage(
     SendDslBuilder(JmsAttributes(requestName, destination, None, mess), SendBuilder.apply(_, configuration))
 }
 
-case class RequestReplyDslBuilderMessage(
+final case class RequestReplyDslBuilderMessage(
     requestName:     Expression[String],
     destination:     JmsDestination,
     replyDest:       JmsDestination,
@@ -104,7 +104,7 @@ case class RequestReplyDslBuilderMessage(
     RequestReplyDslBuilder(JmsAttributes(requestName, destination, messageSelector, mess), RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest, configuration))
 }
 
-case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
+final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
 
   /**
    * Add JMS message properties (aka headers) to the outbound message
@@ -116,7 +116,7 @@ case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => A
   def build(): ActionBuilder = factory(attributes)
 }
 
-case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
+final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
 
   /**
    * Add JMS message properties (aka headers) to the outbound message

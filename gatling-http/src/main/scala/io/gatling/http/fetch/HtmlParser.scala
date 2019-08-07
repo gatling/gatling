@@ -20,7 +20,7 @@ import scala.collection.{ breakOut, mutable }
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
-import io.gatling.core.check.extractor.css.Jodd
+import io.gatling.core.check.css.Jodd
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.util.HttpHelper
 
@@ -34,14 +34,14 @@ private[fetch] sealed abstract class RawResource {
   def uri(rootURI: Uri): Option[Uri] = HttpHelper.resolveFromUriSilently(rootURI, rawUrl)
   def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource]
 }
-private[fetch] case class CssRawResource(rawUrl: String) extends RawResource {
+private[fetch] final case class CssRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(CssResource)
 }
-private[fetch] case class RegularRawResource(rawUrl: String) extends RawResource {
+private[fetch] final case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(BasicResource)
 }
 
-private[fetch] case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
+private[fetch] final case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
 private[gatling] object HtmlParser extends StrictLogging {
   private val AppletTagName = "applet"

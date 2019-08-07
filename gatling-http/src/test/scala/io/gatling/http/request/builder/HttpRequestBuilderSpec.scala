@@ -33,16 +33,13 @@ import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.ActorSystem
 import io.netty.handler.codec.http.HttpMethod
-import org.mockito.Mockito.when
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val coreComponents = mock[CoreComponents]
-  when(coreComponents.configuration).thenReturn(configuration)
-  when(coreComponents.actorSystem).thenReturn(mock[ActorSystem])
+  val coreComponents = CoreComponents(mock[ActorSystem], null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
   private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {

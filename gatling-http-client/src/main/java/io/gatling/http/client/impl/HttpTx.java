@@ -20,6 +20,7 @@ import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.pool.ChannelPoolKey;
+import io.gatling.http.client.util.HttpUtils;
 import io.netty.handler.ssl.SslContext;
 import io.netty.util.ReferenceCounted;
 
@@ -45,6 +46,7 @@ public class HttpTx {
     this.remainingTries = remainingTries;
     this.sslContext = sslContext;
     this.alpnSslContext = alpnSslContext;
+    this.closeConnection =  HttpUtils.isConnectionClose(request.getHeaders());
   }
 
   SslContext sslContext() {

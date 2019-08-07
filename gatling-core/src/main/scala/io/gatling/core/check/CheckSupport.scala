@@ -16,19 +16,25 @@
 
 package io.gatling.core.check
 
+import java.io.InputStream
+
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.extractor.bytes._
-import io.gatling.core.check.extractor.checksum._
-import io.gatling.core.check.extractor.css._
-import io.gatling.core.check.extractor.jsonpath._
-import io.gatling.core.check.extractor.regex._
-import io.gatling.core.check.extractor.string._
-import io.gatling.core.check.extractor.substring._
-import io.gatling.core.check.extractor.time._
-import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.stats.message.ResponseTimings
+import io.gatling.core.check.bytes._
+import io.gatling.core.check.checksum._
+import io.gatling.core.check.css._
+import io.gatling.core.check.jmespath._
+import io.gatling.core.check.jsonpath._
+import io.gatling.core.check.regex._
+import io.gatling.core.check.stream._
+import io.gatling.core.check.string._
+import io.gatling.core.check.substring._
+import io.gatling.core.check.time._
+import io.gatling.core.check.xpath._
 
+import com.fasterxml.jackson.databind.JsonNode
+import io.burt.jmespath.function.{ Function => JmesPathFunction }
 import jodd.lagarto.dom.NodeSelector
 
 trait CheckSupport {
@@ -45,9 +51,11 @@ trait CheckSupport {
 
   def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, CharSequence, String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
 
-  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder.BodyString
+  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder
 
-  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder.BodyBytes
+  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
+
+  val bodyStream: FindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream] = BodyStreamCheckBuilder
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
@@ -60,11 +68,19 @@ trait CheckSupport {
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
   def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] = css(selector).ofType[Map[String, Any]]
 
-  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, Any, String] with JsonPathOfType =
+  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
 
-  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, Any, String] with JsonpJsonPathOfType =
+  def jmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JmesPathCheckType, JsonNode, String] with JmesPathOfType =
+    JmesPathCheckBuilder.jmesPath(path, jmesPaths)
+
+  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
+
+  def jsonpJmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
+    JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
+
+  def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = JmesPathFunctions.register(functions)
 
   val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
   val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1

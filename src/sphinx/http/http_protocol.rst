@@ -250,7 +250,7 @@ Silencing
 
 Request stats are logged and then used to produce reports.
 Sometimes, some requests may be important for you for generating load, but you don't actually want to report them.
-Typically, reporting all static resources might generate a lot of noise, and yet failed static resources are usually non blocking from a user experience perspective.
+Typically, reporting all static resources might generate a lot of noise, and yet failed static resources might not be blocking from a user experience perspective.
 
 Gatling provides several means to turn requests silent.
 Silent requests won't be reported and won't influence error triggers such as :ref:`tryMax <scenario-trymax>` and :ref:`exitHereIfFailed <scenario-exithereiffailed>`.

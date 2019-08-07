@@ -25,7 +25,7 @@ import io.gatling.commons.validation.Failure
 import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.DataWritersStatsEngine
-import io.gatling.core.stats.writer.ErrorMessage
+import io.gatling.core.stats.writer.{ ErrorMessage, Init, RunMessage }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
@@ -44,7 +44,7 @@ class PollerActorSpec extends AkkaSpec {
 
   private val clock = new DefaultClock
 
-  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, mock[HttpRequestConfig])
+  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, null)
 
   "PollerActor" should "start in Uninitalized state with NoData" in {
     val dataWriterProbe = TestProbe()
@@ -113,7 +113,20 @@ class PollerActorSpec extends AkkaSpec {
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
         httpTxExecutor = mock[HttpTxExecutor],
-        statsEngine = new DataWritersStatsEngine(List(dataWriterProbe.ref), system, clock),
+        statsEngine = new DataWritersStatsEngine(
+          Init(
+            Nil,
+            RunMessage(
+              "simulationClassName",
+              "simulationId",
+              0,
+              "runDescription",
+              "gatlingVersion"
+            ),
+            Nil
+          ),
+          List(dataWriterProbe.ref), system, clock
+        ),
         clock = clock,
         httpCaches = mock[HttpCaches],
         httpProtocol = HttpProtocol(configuration),

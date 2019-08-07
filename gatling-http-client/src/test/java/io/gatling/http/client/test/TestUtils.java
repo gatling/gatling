@@ -46,7 +46,8 @@ public class TestUtils {
 
     public static ServerConnector addHttpsConnector(Server server) throws IOException, URISyntaxException {
         String keyStoreFile = resourceAsFile("ssltest-keystore.jks").getAbsolutePath();
-        SslContextFactory sslContextFactory = new SslContextFactory(keyStoreFile);
+        SslContextFactory sslContextFactory = new SslContextFactory.Server();
+        sslContextFactory.setKeyStorePath(keyStoreFile);
         sslContextFactory.setKeyStorePassword("changeit");
 
         String trustStoreFile = resourceAsFile("ssltest-cacerts.jks").getAbsolutePath();

@@ -39,7 +39,7 @@ object SessionPrivateAttributes {
   val PrivateAttributePrefix = "gatling."
 }
 
-case class SessionAttribute(session: Session, key: String) {
+final case class SessionAttribute(session: Session, key: String) {
 
   def as[T: TypeCaster: ClassTag: NotNothing]: T = session.attributes.get(key) match {
     case Some(value) => value.as[T]
@@ -75,7 +75,7 @@ object Session {
  * @param blockStack the block stack
  * @param onExit hook to execute once the user reaches the exit
  */
-case class Session(
+final case class Session(
     scenario:   String,
     userId:     Long,
     startDate:  Long,
@@ -123,38 +123,39 @@ case class Session(
 
   private[gatling] def enterGroup(groupName: String, nowMillis: Long) = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
-      case None    => List(groupName)
       case Some(l) => l :+ groupName
+      case _       => List(groupName)
     }
     copy(blockStack = GroupBlock(groupHierarchy, nowMillis) :: blockStack)
   }
 
   private[gatling] def exitGroup = blockStack match {
     case head :: tail if head.isInstanceOf[GroupBlock] => copy(blockStack = tail)
-    case _ =>
+    case _ => // Nil
       logger.error(s"exitGroup called but stack head $blockStack isn't a GroupBlock, please report.")
       this
   }
 
-  def logGroupRequest(startTimestamp: Long, endTimestamp: Long, status: Status) = blockStack match {
-    case Nil => this
-    case _ =>
+  def logGroupRequestTimings(startTimestamp: Long, endTimestamp: Long): Session =
+    if (blockStack.isEmpty) {
+      this
+    } else {
       val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
       copy(blockStack = blockStack.map {
-        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime, status = if (status == KO) KO else g.status)
+        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime)
         case b             => b
       })
-  }
+    }
 
   def groupHierarchy: List[String] = {
 
     @tailrec
     def gh(blocks: List[Block]): List[String] = blocks match {
-      case Nil => Nil
       case head :: tail => head match {
         case g: GroupBlock => g.hierarchy
         case _             => gh(tail)
       }
+      case _ => Nil
     }
 
     gh(blockStack)
@@ -182,7 +183,7 @@ case class Session(
 
   def status: Status = if (isFailed) KO else OK
 
-  private def failStatusUntilFirstTryMaxBlock: List[Block] = {
+  private def failStatusUntilClosestTryMaxBlock: List[Block] = {
     var firstTryMaxBlockNotReached = true
     blockStack.map {
       case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == OK =>
@@ -194,7 +195,7 @@ case class Session(
     }
   }
 
-  private def restoreFirstTryMaxBlockStatus: List[Block] = {
+  private def restoreClosestTryMaxBlockStatus: List[Block] = {
     var firstTryMaxBlockNotReached = true
     blockStack.map {
       case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == KO =>
@@ -215,7 +216,7 @@ case class Session(
 
   def markAsSucceeded: Session =
     if (isWithinTryMax) {
-      copy(blockStack = restoreFirstTryMaxBlockStatus)
+      copy(blockStack = restoreClosestTryMaxBlockStatus)
     } else if (baseStatus == KO) {
       copy(baseStatus = OK)
     } else {
@@ -227,7 +228,7 @@ case class Session(
       this
     } else {
       val updatedStatus = if (isWithinTryMax) baseStatus else KO
-      copy(baseStatus = updatedStatus, blockStack = failStatusUntilFirstTryMaxBlock)
+      copy(baseStatus = updatedStatus, blockStack = failStatusUntilClosestTryMaxBlock)
     }
 
   private def newBlockStack(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): List[Block] = {

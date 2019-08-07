@@ -53,4 +53,4 @@ object Shard {
     }
 }
 
-case class Shard(offset: Int, length: Int)
+final case class Shard(offset: Int, length: Int)

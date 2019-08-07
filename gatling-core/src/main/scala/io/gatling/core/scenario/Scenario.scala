@@ -21,4 +21,4 @@ import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioContext
 
-case class Scenario(name: String, entry: Action, onStart: Session => Session, onExit: Session => Unit, injectionProfile: InjectionProfile, ctx: ScenarioContext)
+final case class Scenario(name: String, entry: Action, onStart: Session => Session, onExit: Session => Unit, injectionProfile: InjectionProfile, ctx: ScenarioContext)

@@ -376,12 +376,16 @@ Here, you can pass a Stream.
 
 .. _http-request-body-pebble:
 
-* ``PebbleFileBody(path: Expression[String])``
+* ``PebbleStringBody(template: String)`` and ``PebbleFileBody(path: Expression[String])``
 
 Gatling Expression Language is definitively the most optimized templating engine for Gatling, in terms of raw performance. However, it's a bit limited in terms of logic you can implement in there.
 If you want loops and conditional blocks, you can use Gatling's `Pebble <https://github.com/PebbleTemplates/pebble>`_ based templating engine.
 
 .. includecode:: code/HttpRequestSample.scala#PebbleBody
+
+.. note:: Template inheritance is only available when using ``PebbleFileBody``.
+
+.. note:: You can register Pebble ``Extensions``s with ``registerPebbleExtensions(extensions: Extension*)``. This can only be do once, and must be done prior to loading any Pebble template.
 
 .. note:: When you pass a path, Gatling searches first for an absolute path on the filesystem, then in the classpath.
 

@@ -18,10 +18,7 @@ package io.gatling.charts.component
 
 import io.gatling.commons.stats.GeneralStats
 import io.gatling.commons.util.NumberHelper._
-import io.gatling.commons.util.StringHelper.EmptyFastring
 import io.gatling.core.config.GatlingConfiguration
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] object Statistics {
   def printable[T: Numeric](value: T) =
@@ -32,15 +29,15 @@ private[charts] object Statistics {
     }
 }
 
-private[charts] case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
+private[charts] final case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
   def all = List(total, success, failure)
 }
 
-private[charts] case class GroupedCount(name: String, count: Long, total: Long) {
+private[charts] final case class GroupedCount(name: String, count: Long, total: Long) {
   val percentage: Int = if (total == 0) 0 else (count.toDouble / total * 100).round.toInt
 }
 
-private[charts] case class RequestStatistics(
+private[charts] final case class RequestStatistics(
     name:                                    String,
     path:                                    String,
     numberOfRequestsStatistics:              Statistics[Long],
@@ -58,7 +55,7 @@ private[charts] case class RequestStatistics(
 
 private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {
 
-  def html = fast"""
+  def html = s"""
                         <div class="infos">
                             <div class="infos-in">
 	                        <div class="infos-title">STATISTICS</div>
@@ -77,7 +74,7 @@ private[charts] class StatisticsTextComponent(implicit configuration: GatlingCon
                                                 <td id="numberOfRequestsKO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">Mean req/s</td>
+                                                <td class="title">Mean cnt/s</td>
                                                 <td id="meanNumberOfRequestsPerSecond" class="total"></td>
                                                 <td id="meanNumberOfRequestsPerSecondOK" class="ok"></td>
                                                 <td id="meanNumberOfRequestsPerSecondKO" class="ko"></td>
@@ -150,7 +147,7 @@ private[charts] class StatisticsTextComponent(implicit configuration: GatlingCon
                         </div>
 """
 
-  val js = EmptyFastring
+  val js = ""
 
   val jsFiles: Seq[String] = Seq.empty
 }

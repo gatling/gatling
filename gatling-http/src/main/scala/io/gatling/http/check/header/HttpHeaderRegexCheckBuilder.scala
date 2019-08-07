@@ -17,11 +17,10 @@
 package io.gatling.http.check.header
 
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.check.extractor.regex.{ GroupExtractor, Patterns }
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.core.check.regex.{ GroupExtractor, Patterns }
+import io.gatling.core.session.Expression
+import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheckScope.Header
 import io.gatling.http.response.Response
 
 trait HttpHeaderRegexCheckType
@@ -45,27 +44,21 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
 )
   extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
 
-  import HttpHeaderRegexExtractorFactory._
-
   private def withHeaderAndPattern[T](f: (String, String) => T): Expression[T] =
-    (session: Session) => for {
-      headerName <- headerName(session)
-      pattern <- pattern(session)
-    } yield f(headerName, pattern)
+    session =>
+      for {
+        headerName <- headerName(session)
+        pattern <- pattern(session)
+      } yield f(headerName, pattern)
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] =
-    withHeaderAndPattern(newHeaderRegexSingleExtractor(_, _, occurrence, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] = withHeaderAndPattern(new HttpHeaderRegexFindExtractor(_, _, occurrence, patterns))
 
-  override def findAllExtractor: Expression[Extractor[Response, Seq[X]]] =
-    withHeaderAndPattern(newHeaderRegexMultipleExtractor(_, _, patterns))
+  override def findAllExtractor: Expression[Extractor[Response, Seq[X]]] = withHeaderAndPattern(new HttpHeaderRegexFindAllExtractor(_, _, patterns))
 
-  override def countExtractor: Expression[Extractor[Response, Int]] =
-    withHeaderAndPattern(newHeaderRegexCountExtractor(_, _, patterns))
+  override def countExtractor: Expression[Extractor[Response, Int]] = withHeaderAndPattern(new HttpHeaderRegexCountExtractor(_, _, patterns))
 }
 
-object HttpHeaderRegexCheckMaterializer extends CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] {
+object HttpHeaderRegexCheckMaterializer extends HttpCheckMaterializer[HttpHeaderRegexCheckType, Response](Header) {
 
-  override val specializer: Specializer[HttpCheck, Response] = HeaderSpecializer
-
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  override val preparer: Preparer[Response, Response] = identityPreparer
 }

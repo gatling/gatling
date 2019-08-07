@@ -26,7 +26,7 @@ sealed trait ThrottlerControllerCommand
 
 object ThrottlerControllerCommand {
   case object Start extends ThrottlerControllerCommand
-  case class OverrideStart(overrides: Throttlings) extends ThrottlerControllerCommand
+  final case class OverrideStart(overrides: Throttlings) extends ThrottlerControllerCommand
   case object OverrideStop extends ThrottlerControllerCommand
   case object Tick extends ThrottlerControllerCommand
 }

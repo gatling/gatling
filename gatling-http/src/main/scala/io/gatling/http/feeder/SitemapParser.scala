@@ -40,11 +40,10 @@ object SitemapParser {
    * @param resource resource to parse
    * @return a record for each url described in a sitemap file
    */
-  def parse(resource: Resource): IndexedSeq[Record[String]] = {
+  def parse(resource: Resource): IndexedSeq[Record[String]] =
     withCloseable(resource.inputStream) { stream: InputStream =>
       parse(stream)
     }
-  }
 
   /**
    * Parse a file in sitemap format. Returns a Record for each location described

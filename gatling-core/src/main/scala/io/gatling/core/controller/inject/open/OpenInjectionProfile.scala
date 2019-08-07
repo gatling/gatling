@@ -31,7 +31,7 @@ import akka.actor.ActorSystem
  *
  * @param steps the number of users that will behave as this scenario says
  */
-case class OpenInjectionProfile(steps: Iterable[OpenInjectionStep]) extends InjectionProfile {
+final case class OpenInjectionProfile(steps: Iterable[OpenInjectionStep]) extends InjectionProfile {
 
   override def totalUserCount: Option[Long] = Some(steps.sumBy(_.users))
 

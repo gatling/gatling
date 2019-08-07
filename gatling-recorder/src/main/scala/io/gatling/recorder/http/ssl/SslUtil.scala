@@ -34,6 +34,7 @@ import io.gatling.commons.util.PathHelper._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }
+import org.bouncycastle.asn1.x509.{ Extension, GeneralName, GeneralNames }
 import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }
 import org.bouncycastle.cert.jcajce.{ JcaX509CertificateConverter, JcaX509CertificateHolder, JcaX509v1CertificateBuilder }
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -44,7 +45,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 
 private[ssl] case class Ca(cert: X509Certificate, privKey: PrivateKey)
-private[ssl] case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey)
+private[ssl] case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey, hostname: String)
 
 /**
  * Utility class to create SSL server certificate on the fly for the recorder keystore
@@ -121,21 +122,22 @@ private[recorder] object SslUtil extends StrictLogging {
     for {
       ca <- caT
       csr <- createCSR(alias)
-      serverCrt <- createServerCert(ca.cert, ca.privKey, csr.cert)
+      serverCrt <- createServerCert(ca.cert, ca.privKey, csr.cert, csr.hostname)
       updatedKeyStore <- addNewKeystoreEntry(keyStore, password, serverCrt, csr.privKey, ca.cert, alias)
     } yield updatedKeyStore
 
-  private def createCSR(dnHostName: String): Try[Csr] =
+  private def createCSR(hostname: String): Try[Csr] =
     Try {
       val pair = newRSAKeyPair
-      val dn = s"C=FR, ST=Val de marne, O=GatlingCA, OU=Gatling, CN=$dnHostName"
+      val dn = s"C=FR, ST=Val de marne, O=GatlingCA, OU=Gatling, CN=$hostname"
       val builder = new JcaPKCS10CertificationRequestBuilder(new X500Principal(dn), pair.getPublic)
       val signer = newSigner(pair.getPrivate)
+
       val pkcs10CR = builder.build(signer)
-      Csr(pkcs10CR, pair.getPrivate)
+      Csr(pkcs10CR, pair.getPrivate, hostname)
     }
 
-  private def createServerCert(caCert: X509Certificate, caKey: PrivateKey, csr: PKCS10CertificationRequest): Try[X509Certificate] =
+  private def createServerCert(caCert: X509Certificate, caKey: PrivateKey, csr: PKCS10CertificationRequest, hostname: String): Try[X509Certificate] =
     Try {
       val now = System.currentTimeMillis()
       val certBuilder = new X509v3CertificateBuilder(
@@ -146,6 +148,10 @@ private[recorder] object SslUtil extends StrictLogging {
         csr.getSubject, //subject
         csr.getSubjectPublicKeyInfo
       ) // publicKey
+
+      val subjectAltName = new GeneralNames(new GeneralName(GeneralName.dNSName, hostname)).getEncoded()
+      certBuilder.addExtension(Extension.subjectAlternativeName, false, subjectAltName)
+
       val signer = newSigner(caKey)
       certificateFromHolder(certBuilder.build(signer))
     }

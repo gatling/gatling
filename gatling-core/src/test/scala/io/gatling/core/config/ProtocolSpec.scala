@@ -20,18 +20,18 @@ import io.gatling.BaseSpec
 import io.gatling.core.protocol.{ Protocols, Protocol }
 import org.scalatest.OptionValues
 
+final case class FooProtocol(foo: String) extends Protocol
+
+final case class BarProtocol(bar: String) extends Protocol
+
 class ProtocolSpec extends BaseSpec with OptionValues {
 
-  case class FooProtocol(foo: String) extends Protocol
-
-  case class BarProtocol(bar: String) extends Protocol
-
   "building registry" should "return the configuration when 1 configuration" in {
-    Protocols(new FooProtocol("foo")).protocol[FooProtocol].map(_.foo) shouldBe Some("foo")
+    Protocols(FooProtocol("foo")).protocol[FooProtocol].map(_.foo) shouldBe Some("foo")
   }
 
   it should "return the configurations when 2 different configurations" in {
-    val protocols = Protocols(new FooProtocol("foo"), new BarProtocol("bar"))
+    val protocols = Protocols(FooProtocol("foo"), BarProtocol("bar"))
     protocols.protocol[FooProtocol].map(_.foo) shouldBe Some("foo")
     protocols.protocol[BarProtocol].map(_.bar) shouldBe Some("bar")
   }
@@ -41,6 +41,6 @@ class ProtocolSpec extends BaseSpec with OptionValues {
   }
 
   it should "override with latest when multiple configurations of the same type" in {
-    Protocols(new FooProtocol("foo1"), new FooProtocol("foo2")).protocol[FooProtocol].map(_.foo) shouldBe Some("foo2")
+    Protocols(FooProtocol("foo1"), FooProtocol("foo2")).protocol[FooProtocol].map(_.foo) shouldBe Some("foo2")
   }
 }

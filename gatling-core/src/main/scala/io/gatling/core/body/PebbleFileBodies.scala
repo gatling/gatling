@@ -27,11 +27,8 @@ import com.mitchellbosecke.pebble.template.PebbleTemplate
 
 class PebbleFileBodies(implicit configuration: GatlingConfiguration) extends ResourceCache {
 
-  private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] = {
-    val resourceToTemplate: Resource => Validation[PebbleTemplate] = resource =>
-      Pebble.parseStringTemplate(resource.string(configuration.core.charset))
-    Cache.newConcurrentLoadingCache(configuration.core.pebbleFileBodiesCacheMaxCapacity, resourceToTemplate)
-  }
+  private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] =
+    Cache.newConcurrentLoadingCache(configuration.core.pebbleFileBodiesCacheMaxCapacity, Pebble.getResourceTemplate)
 
   def asTemplate(filePath: Expression[String]): Expression[PebbleTemplate] =
     filePath match {

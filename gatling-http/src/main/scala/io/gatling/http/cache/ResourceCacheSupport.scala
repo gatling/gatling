@@ -27,8 +27,8 @@ import io.gatling.http.fetch.ConcurrentResource
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequest
 
-private[cache] case class InferredPageResources(expire: String, requests: List[HttpRequest])
-private[cache] case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
+private[cache] final case class InferredPageResources(expire: String, requests: List[HttpRequest])
+private[cache] final case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
 
 private[cache] trait ResourceCacheSupport {
 

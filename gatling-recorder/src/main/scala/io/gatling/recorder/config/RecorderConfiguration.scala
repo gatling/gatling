@@ -176,7 +176,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   }
 }
 
-private[recorder] case class FiltersConfiguration(
+private[recorder] final case class FiltersConfiguration(
     filterStrategy: FilterStrategy,
     whiteList:      WhiteList,
     blackList:      BlackList
@@ -189,7 +189,7 @@ private[recorder] case class FiltersConfiguration(
   }
 }
 
-private[recorder] case class CoreConfiguration(
+private[recorder] final case class CoreConfiguration(
     mode:                      RecorderMode,
     encoding:                  String,
     simulationsFolder:         String,
@@ -202,7 +202,7 @@ private[recorder] case class CoreConfiguration(
     harFilePath:               Option[String]
 )
 
-private[recorder] case class HttpConfiguration(
+private[recorder] final case class HttpConfiguration(
     automaticReferer:      Boolean,
     followRedirect:        Boolean,
     inferHtmlResources:    Boolean,
@@ -211,24 +211,24 @@ private[recorder] case class HttpConfiguration(
     useSimulationAsPrefix: Boolean
 )
 
-private[recorder] case class KeyStoreConfiguration(
+private[recorder] final case class KeyStoreConfiguration(
     path:         String,
     password:     String,
     keyStoreType: KeyStoreType
 )
 
-private[recorder] case class CertificateAuthorityConfiguration(
+private[recorder] final case class CertificateAuthorityConfiguration(
     certificatePath: String,
     privateKeyPath:  String
 )
 
-private[recorder] case class HttpsModeConfiguration(
+private[recorder] final case class HttpsModeConfiguration(
     mode:                 HttpsMode,
     keyStore:             KeyStoreConfiguration,
     certificateAuthority: CertificateAuthorityConfiguration
 )
 
-private[recorder] case class OutgoingProxyConfiguration(
+private[recorder] final case class OutgoingProxyConfiguration(
     host:     Option[String],
     username: Option[String],
     password: Option[String],
@@ -236,20 +236,20 @@ private[recorder] case class OutgoingProxyConfiguration(
     sslPort:  Option[Int]
 )
 
-private[recorder] case class ProxyConfiguration(
+private[recorder] final case class ProxyConfiguration(
     port:     Int,
     https:    HttpsModeConfiguration,
     outgoing: OutgoingProxyConfiguration
 )
 
-private[recorder] case class NettyConfiguration(
+private[recorder] final case class NettyConfiguration(
     maxInitialLineLength: Int,
     maxHeaderSize:        Int,
     maxChunkSize:         Int,
     maxContentLength:     Int
 )
 
-private[recorder] case class RecorderConfiguration(
+private[recorder] final case class RecorderConfiguration(
     core:    CoreConfiguration,
     filters: FiltersConfiguration,
     http:    HttpConfiguration,

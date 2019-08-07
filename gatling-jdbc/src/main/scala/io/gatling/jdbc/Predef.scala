@@ -17,11 +17,11 @@
 package io.gatling.jdbc
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
+import io.gatling.core.feeder.{ FeederBuilderBase, InMemoryFeederSource, SourceFeederBuilder }
 import io.gatling.jdbc.feeder.JdbcFeederSource
 
 object Predef {
 
-  def jdbcFeeder(url: String, username: String, password: String, sql: String)(implicit configuration: GatlingConfiguration): SourceFeederBuilder[Any] =
+  def jdbcFeeder(url: String, username: String, password: String, sql: String)(implicit configuration: GatlingConfiguration): FeederBuilderBase[Any] =
     SourceFeederBuilder(InMemoryFeederSource(JdbcFeederSource(url, username, password, sql)), configuration)
 }

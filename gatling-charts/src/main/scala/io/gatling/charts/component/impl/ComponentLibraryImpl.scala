@@ -18,8 +18,6 @@ package io.gatling.charts.component.impl
 
 import io.gatling.core.stats._
 
-import com.dongxiguo.fastring.Fastring
-
 import io.gatling.charts.component.{ Component, ComponentLibrary }
 
 /**
@@ -28,7 +26,7 @@ import io.gatling.charts.component.{ Component, ComponentLibrary }
  */
 private[component] class ComponentLibraryImpl extends ComponentLibrary {
 
-  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring = throw new UnsupportedOperationException
+  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String = throw new UnsupportedOperationException
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException
   def getRequestsChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
   def getResponsesChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException

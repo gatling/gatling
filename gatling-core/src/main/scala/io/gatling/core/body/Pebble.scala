@@ -23,16 +23,31 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
+import io.gatling.core.util.{ ClasspathFileResource, ClasspathPackagedResource, FilesystemResource, Resource }
 
 import com.mitchellbosecke.pebble.PebbleEngine
+import com.mitchellbosecke.pebble.extension.Extension
 import com.mitchellbosecke.pebble.extension.writer.PooledSpecializedStringWriter
 import com.mitchellbosecke.pebble.loader.StringLoader
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
 
-object Pebble extends StrictLogging {
+private[gatling] object PebbleExtensions {
 
-  private val Engine = new PebbleEngine.Builder().autoEscaping(false).loader(new StringLoader).build
+  private[body] var extensions: Seq[Extension] = Nil
+
+  def register(extensions: Seq[Extension]): Unit = {
+    if (extensions.nonEmpty) {
+      throw new UnsupportedOperationException("Pebble extensions have already been registered")
+    }
+    this.extensions = extensions
+  }
+}
+
+private[gatling] object Pebble extends StrictLogging {
+
+  private val StringEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).loader(new StringLoader).build
+  private val DelegatingEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).build
 
   private def matchMap(map: Map[String, Any]): JMap[String, AnyRef] = {
     val jMap: JMap[String, AnyRef] = new JHashMap(map.size)
@@ -45,12 +60,27 @@ object Pebble extends StrictLogging {
     jMap
   }
 
-  def parseStringTemplate(string: String): Validation[PebbleTemplate] =
+  def getStringTemplate(string: String): Validation[PebbleTemplate] =
     try {
-      Engine.getTemplate(string).success
+      StringEngine.getTemplate(string).success
     } catch {
       case NonFatal(e) =>
         logger.error("Error while parsing Pebble string", e)
+        e.getMessage.failure
+    }
+
+  def getResourceTemplate(resource: Resource): Validation[PebbleTemplate] =
+    try {
+      val templateName = resource match {
+        case ClasspathPackagedResource(path, _) => path
+        case ClasspathFileResource(path, _)     => path
+        case FilesystemResource(file)           => file.getAbsolutePath
+      }
+
+      DelegatingEngine.getTemplate(templateName).success
+    } catch {
+      case NonFatal(e) =>
+        logger.error(s"Error while parsing Pebble template $resource", e)
         e.getMessage.failure
     }
 

@@ -21,14 +21,12 @@ import javax.jms.{ Message, TextMessage }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath._
+import io.gatling.core.check.xpath.{ Dom, XPathCheckType, XmlParsers }
 import io.gatling.jms.JmsCheck
 
 import org.xml.sax.InputSource
 
-class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] {
-
-  override val specializer: Specializer[JmsCheck, Message] = identity
+class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]](identity) {
 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 

@@ -18,29 +18,19 @@ package io.gatling.http.check.status
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor._
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheckScope.Status
 import io.gatling.http.response.Response
 
 trait HttpStatusCheckType
 
-object HttpStatusCheckBuilder {
+object HttpStatusCheckBuilder extends DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](
+  extractor = new FindExtractor[Response, Int]("status", response => Some(response.status.code).success).expressionSuccess,
+  displayActualValue = true
+)
 
-  val Status: DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int] = {
-    val statusExtractor = new Extractor[Response, Int] with SingleArity {
-      val name = "status"
-      def apply(prepared: Response): Validation[Option[Int]] = Some(prepared.status.code).success
-    }.expressionSuccess
+object HttpStatusCheckMaterializer extends HttpCheckMaterializer[HttpStatusCheckType, Response](Status) {
 
-    new DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](statusExtractor, displayActualValue = true)
-  }
-}
-
-object HttpStatusCheckMaterializer extends CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StatusSpecializer
-
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  override val preparer: Preparer[Response, Response] = identityPreparer
 }

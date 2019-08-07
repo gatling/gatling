@@ -17,23 +17,17 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check._
-import io.gatling.core.check.extractor.css.{ CssCheckType, CssSelectors }
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.core.check.Preparer
+import io.gatling.core.check.css.{ CssCheckType, CssSelectors }
+import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 import jodd.lagarto.dom.NodeSelector
 
-class HttpBodyCssCheckMaterializer(selectors: CssSelectors)
-  extends CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] {
-
-  override val specializer: Specializer[HttpCheck, Response] = CharArrayBodySpecializer
+class HttpBodyCssCheckMaterializer(selectors: CssSelectors) extends HttpCheckMaterializer[CssCheckType, NodeSelector](Body) {
 
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 
-  override val preparer: Preparer[Response, NodeSelector] = response =>
-    safely(ErrorMapper) {
-      selectors.parse(response.body.chars).success
-    }
+  override val preparer: Preparer[Response, NodeSelector] = response => safely(ErrorMapper)(selectors.parse(response.body.chars).success)
 }

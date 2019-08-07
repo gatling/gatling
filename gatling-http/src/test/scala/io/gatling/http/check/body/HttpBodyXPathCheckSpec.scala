@@ -36,7 +36,6 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val materializer = new HttpBodyXPathCheckMaterializer(defaultXmlParsers)
 
-  implicit def cache: JHashMap[Any, Any] = new JHashMap
   val session = Session("mockSession", 0, System.currentTimeMillis())
 
   def mockResponse(xml: Elem): Response = {
@@ -61,7 +60,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
     val response = mockResponse(<id>1072920417</id>)
 
-    xpath("/id", Nil).find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("/id", Nil).find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
@@ -70,7 +69,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//id").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("//id").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "xpath.findAll.exists" should "find all occurrences" in {
@@ -79,7 +78,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//id").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    xpath("//id").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
@@ -88,7 +87,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").findAll.exists.check(response, session).failed shouldBe "xpath((//fo,List())).findAll.exists, found nothing"
+    xpath("//fo").findAll.exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe "xpath((//fo,List())).findAll.exists, found nothing"
   }
 
   "xpath.count.exists" should "find all occurrences" in {
@@ -97,7 +96,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//id").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    xpath("//id").count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
@@ -106,6 +105,6 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    xpath("//fo").count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

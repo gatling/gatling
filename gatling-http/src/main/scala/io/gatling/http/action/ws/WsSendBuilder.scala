@@ -26,7 +26,7 @@ import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTe
 
 import com.softwaremill.quicklens._
 
-case class WsSendTextFrameBuilder(
+final case class WsSendTextFrameBuilder(
     requestName:    Expression[String],
     wsName:         String,
     message:        Expression[String],
@@ -48,7 +48,7 @@ case class WsSendTextFrameBuilder(
     )
 }
 
-case class WsSendBinaryFrameBuilder(
+final case class WsSendBinaryFrameBuilder(
     requestName:    Expression[String],
     wsName:         String,
     message:        Expression[Array[Byte]],

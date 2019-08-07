@@ -205,7 +205,10 @@ public class RequestBuilder {
     String originalAcceptEncoding = headers.get(ACCEPT_ENCODING);
     if (originalAcceptEncoding != null) {
       // we don't support Brotly ATM
-      headers.set(ACCEPT_ENCODING, filterOutBrotliFromAcceptEncoding(originalAcceptEncoding));
+      String newAcceptEncodingHeader = filterOutBrotliFromAcceptEncoding(originalAcceptEncoding);
+      if (newAcceptEncodingHeader != null) {
+        headers.set(ACCEPT_ENCODING, newAcceptEncodingHeader);
+      }
     }
 
     if (isNonEmpty(cookies)) {

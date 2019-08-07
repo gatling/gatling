@@ -39,7 +39,11 @@ class WsCompileTest extends Simulation {
       .await(1 second) {
         ws.checkTextMessage("checkName")
           .matching(jsonPath("$.uuid").is("${correlation}"))
-          .check(jsonPath("$.code").ofType[Int].is(1))
+          .check(
+            jsonPath("$.code").ofType[Int].is(1),
+            jmesPath("code").ofType[Int].is(1),
+            bodyString.is("echo")
+          )
       }
       .await(1) { // simple int
         ws.checkTextMessage("checkName")

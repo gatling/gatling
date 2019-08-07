@@ -26,8 +26,6 @@ import io.gatling.commons.util.HtmlHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.stats.writer.RunMessage
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[charts] object PageTemplate {
 
   private var runMessage: RunMessage = _
@@ -45,7 +43,7 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
 
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 
-  def getOutput(charset: Charset): Fastring = {
+  def getOutput(charset: Charset): String = {
     val runMessage = PageTemplate.runMessage
     val runStart = PageTemplate.runStart
     val runEnd = PageTemplate.runEnd
@@ -65,7 +63,7 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
         "var pageStats = stats.stats;"
       }
 
-    fast"""
+    s"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -73,7 +71,7 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
 <link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
 <link href="style/style.css" rel="stylesheet" type="text/css" />
 <link href="style/bootstrap.min.css" rel="stylesheet" type="text/css" />
-${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring(Eol)}
+${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></script>""").mkString(Eol)}
 <title>Gatling Stats - $title</title>
 </head>
 <body>
@@ -104,7 +102,7 @@ ${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"><
                     <div class="content-in">
                         <h1><span>> </span>$title</h1>
                         <div class="article">
-                            ${components.map(_.html).mkFastring}
+                            ${components.map(_.html).mkString}
                         </div>
                     </div>
                 </div>
@@ -122,7 +120,7 @@ ${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"><
         ${if (isDetails) "setDetailsMenu();" else "setGlobalMenu();"}
         setActiveMenu();
         fillStats(pageStats);
-        ${components.map(_.js).mkFastring}
+        ${components.map(_.js).mkString}
     });
 </script>
 </body>

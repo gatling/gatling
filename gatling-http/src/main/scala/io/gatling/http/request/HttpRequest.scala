@@ -23,7 +23,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 
-case class HttpRequestConfig(
+final case class HttpRequestConfig(
     checks:              List[HttpCheck],
     responseTransformer: Option[ResponseTransformer],
     maxRedirects:        Int,
@@ -34,7 +34,7 @@ case class HttpRequestConfig(
     httpProtocol:        HttpProtocol
 )
 
-case class HttpRequestDef(
+final case class HttpRequestDef(
     requestName:   Expression[String],
     clientRequest: Expression[Request],
     requestConfig: HttpRequestConfig
@@ -44,7 +44,7 @@ case class HttpRequestDef(
     clientRequest(session).map(HttpRequest(requestName, _, requestConfig))
 }
 
-case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {
+final case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {
 
   def isSilent(root: Boolean): Boolean = {
 

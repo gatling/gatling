@@ -16,7 +16,7 @@
 
 package io.gatling.core
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 
 package object check {
 
@@ -27,8 +27,14 @@ package object check {
    */
   type Preparer[R, P] = R => Validation[P]
 
+  def identityPreparer[T]: Preparer[T, T] = _.success
+
   /**
    * Specializes a generic check for a given protocol.
    */
   type Specializer[C <: Check[R], R] = Check[R] => C
+
+  implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
+    def liftSeqOption: Option[Seq[X]] = if (values.isEmpty) None else Some(values)
+  }
 }

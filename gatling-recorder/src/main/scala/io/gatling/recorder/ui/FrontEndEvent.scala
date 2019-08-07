@@ -23,22 +23,22 @@ import io.gatling.recorder.model._
 
 private[recorder] sealed trait FrontEndEvent
 
-private[recorder] case class PauseFrontEndEvent(duration: FiniteDuration) extends FrontEndEvent {
+private[recorder] final case class PauseFrontEndEvent(duration: FiniteDuration) extends FrontEndEvent {
   private val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
   override def toString = s"PAUSE $toPrint"
 }
 
-private[recorder] case class RequestFrontEndEvent(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration) extends FrontEndEvent {
+private[recorder] final case class RequestFrontEndEvent(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration) extends FrontEndEvent {
 
-  val requestBody = new String(response.body, configuration.core.encoding)
+  val requestBody = new String(request.body, configuration.core.encoding)
 
   val responseBody = new String(response.body, configuration.core.encoding)
 
   override def toString = s"${request.method} | ${request.uri}"
 }
 
-private[recorder] case class SslFrontEndEvent(uri: String) extends FrontEndEvent
+private[recorder] final case class SslFrontEndEvent(uri: String) extends FrontEndEvent
 
-private[recorder] case class TagFrontEndEvent(tag: String) extends FrontEndEvent {
+private[recorder] final case class TagFrontEndEvent(tag: String) extends FrontEndEvent {
   override def toString = s"TAG | $tag"
 }

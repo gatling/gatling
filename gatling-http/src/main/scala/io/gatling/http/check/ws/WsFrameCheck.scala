@@ -20,7 +20,7 @@ import scala.concurrent.duration.FiniteDuration
 
 import com.softwaremill.quicklens._
 
-case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
+final case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuration, checks: List[T]) {
   require(checks.nonEmpty, "Can't pass empty check sequence")
 }
 
@@ -28,7 +28,7 @@ sealed trait WsFrameCheck {
   def name: String
 }
 
-case class WsBinaryFrameCheck(name: String, matchConditions: List[WsBinaryCheck], checks: List[WsBinaryCheck]) extends WsFrameCheck {
+final case class WsBinaryFrameCheck(name: String, matchConditions: List[WsBinaryCheck], checks: List[WsBinaryCheck]) extends WsFrameCheck {
 
   def matching(newMatchConditions: WsBinaryCheck*): WsBinaryFrameCheck =
     this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)
@@ -37,7 +37,7 @@ case class WsBinaryFrameCheck(name: String, matchConditions: List[WsBinaryCheck]
     this.modify(_.checks).using(_ ::: newChecks.toList)
 }
 
-case class WsTextFrameCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck]) extends WsFrameCheck {
+final case class WsTextFrameCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck]) extends WsFrameCheck {
 
   def matching(newMatchConditions: WsTextCheck*): WsTextFrameCheck =
     this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)

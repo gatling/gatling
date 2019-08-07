@@ -29,7 +29,7 @@ import io.gatling.http.request._
 
 import com.softwaremill.quicklens._
 
-case class HttpAttributes(
+final case class HttpAttributes(
     checks:              List[HttpCheck]                      = Nil,
     ignoreDefaultChecks: Boolean                              = false,
     silent:              Option[Boolean]                      = None,
@@ -56,7 +56,7 @@ object HttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes) extends RequestBuilder[HttpRequestBuilder] {
+final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes) extends RequestBuilder[HttpRequestBuilder] {
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 

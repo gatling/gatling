@@ -23,7 +23,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
 
-case class HttpComponents(
+final case class HttpComponents(
     coreComponents: CoreComponents,
     httpProtocol:   HttpProtocol,
     httpEngine:     HttpEngine,

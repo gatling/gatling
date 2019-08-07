@@ -31,16 +31,16 @@ import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.Props
 
-case class PerformInitialConnect(session: Session, initialConnectNext: Action)
-case class SseStreamConnected(stream: SseStream, timestamp: Long)
-case class SetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action) {
+final case class PerformInitialConnect(session: Session, initialConnectNext: Action)
+final case class SseStreamConnected(stream: SseStream, timestamp: Long)
+final case class SetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action) {
   def copyWithSession(newSession: Session): SetCheck = copy(session = newSession)
 }
-case class SseReceived(message: String, timestamp: Long)
-case class SseStreamClosed(timestamp: Long)
-case class SseStreamCrashed(t: Throwable, timestamp: Long)
-case class ClientCloseRequest(actionName: String, session: Session, next: Action)
-case class Timeout(id: Long)
+final case class SseReceived(message: String, timestamp: Long)
+final case class SseStreamClosed(timestamp: Long)
+final case class SseStreamCrashed(t: Throwable, timestamp: Long)
+final case class ClientCloseRequest(actionName: String, session: Session, next: Action)
+final case class Timeout(id: Long)
 
 object SseActor {
 
@@ -105,7 +105,7 @@ class SseActor(
   //[fl]
 
   protected def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
-    val newSession = session.logGroupRequest(start, end, status)
+    val newSession = session.logGroupRequestTimings(start, end)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
     statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason)
     newSessionWithMark

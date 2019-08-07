@@ -52,6 +52,11 @@ class CoreCompileTest extends Simulation {
   feed(csv("foo.csv").batch(500))
   feed(csv("foo.csv").batch(500).random)
   feed(csv("foo.csv.zip"), 5)
+  feed(jsonFile("foo.json"))
+  feed(jsonFile("foo.json").unzip)
+  feed(jsonFile("foo.json").unzip.random)
+  feed(jsonUrl("http://foo.com"))
+  feed(jsonUrl("http://foo.com").random)
 
   val records: Seq[Map[String, Any]] = csv("foo.csv").readRecords
 

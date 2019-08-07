@@ -17,9 +17,14 @@
 package io.gatling.http.check.sse
 
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.regex.RegexCheckType
-import io.gatling.core.check.extractor.substring.SubstringCheckType
+import io.gatling.core.check.jmespath.JmesPathCheckType
+import io.gatling.core.check.jsonpath.JsonPathCheckType
+import io.gatling.core.check.regex.RegexCheckType
+import io.gatling.core.check.string.BodyStringCheckType
+import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
+
+import com.fasterxml.jackson.databind.JsonNode
 
 trait SseCheckSupport {
 
@@ -32,9 +37,13 @@ trait SseCheckSupport {
   implicit def findCheckBuilder2SseCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
     findCheckBuilder.find.exists
 
-  implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): SseJsonPathCheckMaterializer = new SseJsonPathCheckMaterializer(jsonParsers)
+  implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] = new SseJsonPathCheckMaterializer(jsonParsers)
+
+  implicit def sseJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode] = new SseJmesPathCheckMaterializer(jsonParsers)
 
   implicit val sseRegexCheckMaterializer: CheckMaterializer[RegexCheckType, SseCheck, String, CharSequence] = SseRegexCheckMaterializer
 
   implicit val sseSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, SseCheck, String, String] = SseSubstringCheckMaterializer
+
+  implicit val sseBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] = SseBodyStringCheckMaterializer
 }

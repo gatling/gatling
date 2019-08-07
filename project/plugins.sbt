@@ -1,4 +1,4 @@
-resolvers += Resolver.url("gatling", url("http://dl.bintray.com/content/gatling/sbt-plugins/"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.url("gatling", url("https://dl.bintray.com/content/gatling/sbt-plugins/"))(Resolver.ivyStylePatterns)
 resolvers += Resolver.jcenterRepo
 
 addSbtPlugin("io.gatling" % "gatling-build-plugin" % "2.2.2")

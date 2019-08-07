@@ -20,23 +20,21 @@ import io.gatling.commons.stats.assertion.AssertionResult
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.stats.writer.RunMessage
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult]) {
 
-  private[this] def printMessage(assertionResult: AssertionResult): Fastring =
+  private[this] def printMessage(assertionResult: AssertionResult): String =
     if (assertionResult.result)
-      fast"""<system-out>${assertionResult.message}</system-out>"""
+      s"""<system-out>${assertionResult.message}</system-out>"""
     else
-      fast"""<failure type="${assertionResult.assertion.path.printable}">Actual value: ${assertionResult.actualValue.getOrElse(-1)}</failure>"""
+      s"""<failure type="${assertionResult.assertion.path.printable}">Actual value: ${assertionResult.actualValue.getOrElse(-1)}</failure>"""
 
-  private[this] def print(assertionResult: AssertionResult): Fastring =
-    fast"""<testcase name="${assertionResult.message}" status="${assertionResult.result}" time="0">
+  private[this] def print(assertionResult: AssertionResult): String =
+    s"""<testcase name="${assertionResult.message}" status="${assertionResult.result}" time="0">
   ${printMessage(assertionResult)}
 </testcase>"""
 
-  def getOutput: Fastring =
-    fast"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults.count(_.result == false)}" time="0">
-${assertionResults.map(print).mkFastring(Eol)}
+  def getOutput: String =
+    s"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults.count(_.result == false)}" time="0">
+${assertionResults.map(print).mkString(Eol)}
 </testsuite>"""
 }

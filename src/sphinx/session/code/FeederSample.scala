@@ -113,25 +113,38 @@ class FeederSample {
   {
     //#redis-LPOP
     import com.redis._
-    import io.gatling.redis.feeder.RedisFeeder
+    import io.gatling.redis.Predef._
 
     val redisPool = new RedisClientPool("localhost", 6379)
 
     // use a list, so there's one single value per record, which is here named "foo"
-    val feeder = RedisFeeder(redisPool, "foo")
+    // same as redisFeeder(redisPool, "foo").LPOP
+    val feeder = redisFeeder(redisPool, "foo")
     //#redis-LPOP
   }
 
   {
     import com.redis._
-    import io.gatling.redis.feeder.RedisFeeder
+    import io.gatling.redis.Predef._
 
-    val clientPool = new RedisClientPool("localhost", 6379)
+    val redisPool = new RedisClientPool("localhost", 6379)
 
     //#redis-SPOP
     // read data using SPOP command from a set named "foo"
-    val feeder = RedisFeeder(clientPool, "foo", RedisFeeder.SPOP)
+    val feeder = redisFeeder(redisPool, "foo").SPOP
     //#redis-SPOP
+  }
+
+  {
+    import com.redis._
+    import io.gatling.redis.Predef._
+
+    val redisPool = new RedisClientPool("localhost", 6379)
+
+    //#redis-SRANDMEMBER
+    // read data using SRANDMEMBER command from a set named "foo"
+    val feeder = redisFeeder(redisPool, "foo").SRANDMEMBER
+    //#redis-SRANDMEMBER
   }
 
   {

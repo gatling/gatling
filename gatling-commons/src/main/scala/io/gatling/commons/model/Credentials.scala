@@ -16,4 +16,4 @@
 
 package io.gatling.commons.model
 
-case class Credentials(username: String, password: String)
+final case class Credentials(username: String, password: String)

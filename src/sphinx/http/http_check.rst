@@ -137,6 +137,12 @@ Note that this can be matched against content from the the filesystem using :ref
 
 Return the full response body byte array.
 
+.. _http-check-body-stream:
+
+* ``bodyStream``
+
+Return an InputStream of the full response body bytes.
+
 .. _http-check-substring:
 
 * ``substring(expression)``
@@ -231,6 +237,47 @@ The example below shows how to extract Ints:
 * ``jsonpJsonPath(expression)``
 
 Same as :ref:`jsonPath <http-check-jsonpath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
+
+.. _http-check-jmespath:
+
+* ``jmesPath(expression)``
+
+`JMESPath <http://jmespath.org/>`_ is a query language for JSON.
+
+*expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
+
+.. includecode:: code/CheckSample.scala#jmesPath
+
+By default, it extracts ``String``\ s, so JSON values of different types get serialized.
+
+You can define an different type with the ``ofType[T]`` extra step:
+
+.. includecode:: code/CheckSample.scala#jmesPath-ofType
+
+Gatling provides built-in support for the following types:
+
+* String (default): serializes back to valid JSON (meaning that special characters are escaped, e.g. `\n` and `\"`)
+* Boolean
+* Int
+* Long
+* Double
+* Float
+* Seq (JSON array)
+* Map (JSON object)
+* Any
+
+The example below shows how to extract Ints:
+
+.. includecode:: code/CheckSample.scala
+  :include: json-response,jmesPath-Int
+
+.. note:: You can use ``registerJmesPathFunctions(io.burt.jmespath.function.Function*)`` to register custom functions.
+
+.. _http-check-jsonp-jsonpath:
+
+* ``jsonpJmesPath(expression)``
+
+Same as :ref:`jmesPath <http-check-jmespath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
 
 .. _http-check-css:
 
@@ -349,7 +396,7 @@ Validating
 
 * ``is(expected)``
 
-Checks that the value is equal to the expected one, e.g.:
+Validate that the value is equal to the expected one, e.g.:
 
 .. includecode:: code/CheckSample.scala#is
 
@@ -361,7 +408,7 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``isNull``
 
-Checks that the value is null, typically a JSON value, e.g.:
+Validate that the extracted value is null, typically a JSON value, e.g.:
 
 .. includecode:: code/CheckSample.scala#isNull
 
@@ -369,7 +416,7 @@ Checks that the value is null, typically a JSON value, e.g.:
 
 * ``not(expected)``
 
-Checks that the value is different from the expected one:
+Validate that the extracted value is different from the expected one:
 
 .. includecode:: code/CheckSample.scala#not
 
@@ -381,7 +428,7 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``notNull``
 
-Checks that the value is not null, typically a JSON value, e.g.:
+Validate that the extracted value is not null, typically a JSON value, e.g.:
 
 .. includecode:: code/CheckSample.scala#notNull
 
@@ -389,7 +436,7 @@ Checks that the value is not null, typically a JSON value, e.g.:
 
 * ``exists``
 
-Checks that the value exists and is not empty in case of multiple results:
+Validate that the extracted value exists:
 
 .. includecode:: code/CheckSample.scala#exists
 
@@ -397,7 +444,7 @@ Checks that the value exists and is not empty in case of multiple results:
 
 * ``notExists``
 
-Checks that the value doesn't exist and or is empty in case of multiple results:
+Validate that the check didn't match and couldn't extract anything:
 
 .. includecode:: code/CheckSample.scala#notExists
 
@@ -405,7 +452,7 @@ Checks that the value doesn't exist and or is empty in case of multiple results:
 
 * ``in(sequence)``
 
-Checks that the value belongs to a given sequence or vararg:
+Validate that the extracted value belongs to a given sequence or vararg:
 
 .. includecode:: code/CheckSample.scala#in
 

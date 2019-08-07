@@ -1,6 +1,6 @@
 language: scala
 jdk:
-  - oraclejdk8
+  - openjdk8
 sbt_args: -Xmx2048M
 before_script: ./make_credentials.sh
 script: 

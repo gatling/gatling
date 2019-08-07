@@ -26,7 +26,7 @@ import io.gatling.http.request.builder.ws.WsConnectRequestBuilder
 
 import com.softwaremill.quicklens._
 
-case class WsConnectBuilder(
+final case class WsConnectBuilder(
     requestBuilder:   WsConnectRequestBuilder,
     checkSequences:   List[WsFrameCheckSequence[WsFrameCheck]],
     onConnectedChain: Option[ChainBuilder]

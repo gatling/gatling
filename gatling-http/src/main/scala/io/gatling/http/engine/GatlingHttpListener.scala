@@ -88,14 +88,22 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
       responseBuilder.accumulate(chunk)
       if (last) {
         done = true
-        responseProcessor.onComplete(responseBuilder.buildResponse)
+        try {
+          responseProcessor.onComplete(responseBuilder.buildResponse)
+        } finally {
+          responseBuilder.releaseChunks()
+        }
       }
     }
 
   override def onThrowable(throwable: Throwable): Unit = {
     responseBuilder.updateEndTimestamp()
     logger.warn(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
-    responseProcessor.onComplete(responseBuilder.buildFailure(throwable))
+    try {
+      responseProcessor.onComplete(responseBuilder.buildFailure(throwable))
+    } finally {
+      responseBuilder.releaseChunks()
+    }
   }
 
   override def onProtocolAwareness(isHttp2: Boolean): Unit =

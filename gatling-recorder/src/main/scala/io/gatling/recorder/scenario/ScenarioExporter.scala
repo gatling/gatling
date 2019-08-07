@@ -18,6 +18,7 @@ package io.gatling.recorder.scenario
 
 import java.io.{ File, IOException }
 import java.nio.file.Path
+import java.util.Locale
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -25,13 +26,13 @@ import scala.collection.immutable.SortedMap
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.validation._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har._
 import io.gatling.recorder.scenario.template.SimulationTemplate
 import io.gatling.recorder.util.HttpUtils._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http._
 
@@ -42,32 +43,30 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   private def packageAsFolderPath(separator: String)(implicit config: RecorderConfiguration) =
     config.core.pkg.replace(".", separator)
 
-  def simulationFilePath(implicit config: RecorderConfiguration): Path = {
-    def getSimulationFileName: String = s"${config.core.className}.scala"
-    def getSimulationsFolder = {
-      val path = config.core.simulationsFolder + File.separator + packageAsFolderPath(File.separator)
-      getFolder(path)
-    }
+  private def classNameToFolderName(config: RecorderConfiguration): String =
+    config.core.className.toLowerCase(Locale.ROOT)
 
-    getSimulationsFolder / getSimulationFileName
+  def simulationFilePath(implicit config: RecorderConfiguration): Path = {
+    val path = config.core.simulationsFolder + File.separator + packageAsFolderPath(File.separator)
+    getFolder(path) / s"${config.core.className}.scala"
   }
 
-  private def resourcesFolder(implicit config: RecorderConfiguration): Path = {
-    val path = config.core.resourcesFolder + File.separator + packageAsFolderPath(File.separator) + File.separator + config.core.className
+  private def resourcesFolderPath(implicit config: RecorderConfiguration): Path = {
+    val path = config.core.resourcesFolder + File.separator + packageAsFolderPath(File.separator) + File.separator + classNameToFolderName(config)
     getFolder(path)
   }
 
   private def requestBodyFileName(request: RequestElement) =
-    s"${request.id.leftPad(4, '0')}_request.txt"
+    s"${request.id.toString.leftPad(4, "0")}_request.${request.fileExtension}"
 
   def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
-    packageAsFolderPath("/") + "/" + config.core.className + "/" + requestBodyFileName(request)
+    packageAsFolderPath("/") + "/" + classNameToFolderName(config) + "/" + requestBodyFileName(request)
 
   private def responseBodyFileName(request: RequestElement) =
-    s"${request.id.leftPad(4, '0')}_response.txt"
+    s"${request.id.toString.leftPad(4, "0")}_response.${request.responseFileExtension}"
 
   def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
-    packageAsFolderPath("/") + "/" + config.core.className + "/" + responseBodyFileName(request)
+    packageAsFolderPath("/") + "/" + classNameToFolderName(config) + "/" + responseBodyFileName(request)
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
     safely(error => s"Error while processing HAR file: $error") {
@@ -226,7 +225,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       Left(scenarioElements)
 
   private def dumpBody(fileName: String, content: Array[Byte])(implicit config: RecorderConfiguration): Unit = {
-    withCloseable((resourcesFolder / fileName).outputStream) { fw =>
+    withCloseable((resourcesFolderPath / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {

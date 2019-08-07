@@ -18,4 +18,4 @@ package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
 
-case class HttpForm(data: Expression[Map[String, Any]])
+final case class HttpForm(data: Expression[Map[String, Any]])

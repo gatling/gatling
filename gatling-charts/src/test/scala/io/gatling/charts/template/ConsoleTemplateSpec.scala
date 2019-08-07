@@ -16,6 +16,8 @@
 
 package io.gatling.charts.template
 
+import java.lang.{ StringBuilder => JStringBuilder }
+
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.charts.component.Statistics
@@ -23,16 +25,16 @@ import io.gatling.charts.component.GroupedCount
 
 class ConsoleTemplateSpec extends BaseSpec {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "console template" should "format the request counters properly" in {
     val numberOfRequestsStatistics = Statistics("numberOfRequestsStatistics", 20l, 19l, 1l)
-    val out = ConsoleTemplate.writeRequestCounters(numberOfRequestsStatistics)
-    out.mkString shouldBe "> numberOfRequestsStatistics                            20 (OK=19     KO=1     )"
+    val out = ConsoleTemplate.writeRequestCounters(new JStringBuilder, numberOfRequestsStatistics).toString
+    out shouldBe "> numberOfRequestsStatistics                            20 (OK=19     KO=1     )"
   }
 
   it should "format the grouped counts properly" in {
-    val out = ConsoleTemplate.writeGroupedCounters(GroupedCount("t < 42 ms", 90, (90 / 0.42d).round.toInt))
-    out.mkString shouldBe "> t < 42 ms                                             90 ( 42%)"
+    val out = ConsoleTemplate.writeGroupedCounters(new JStringBuilder, GroupedCount("t < 42 ms", 90, (90 / 0.42d).round.toInt)).toString
+    out shouldBe "> t < 42 ms                                             90 ( 42%)"
   }
 }

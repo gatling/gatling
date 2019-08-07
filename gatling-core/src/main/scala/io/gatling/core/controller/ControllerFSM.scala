@@ -36,17 +36,17 @@ private[controller] object ControllerState {
 private[controller] sealed trait ControllerData
 private[controller] object ControllerData {
   case object NoData extends ControllerData
-  case class InitData(launcher: ActorRef, scenarios: List[Scenario])
-  case class StartedData(initData: InitData) extends ControllerData
-  case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
+  final case class InitData(launcher: ActorRef, scenarios: List[Scenario])
+  final case class StartedData(initData: InitData) extends ControllerData
+  final case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 }
 
 sealed trait ControllerCommand
 object ControllerCommand {
-  case class Start(scenarios: List[Scenario]) extends ControllerCommand
-  case object InjectorStopped extends ControllerCommand
-  case class Crash(exception: Exception) extends ControllerCommand
-  case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
-  case object Kill extends ControllerCommand
-  case object StatsEngineStopped extends ControllerCommand
+  final case class Start(scenarios: List[Scenario]) extends ControllerCommand
+  final case object InjectorStopped extends ControllerCommand
+  final case class Crash(exception: Exception) extends ControllerCommand
+  final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
+  final case object Kill extends ControllerCommand
+  final case object StatsEngineStopped extends ControllerCommand
 }

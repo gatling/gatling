@@ -28,15 +28,16 @@ import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.commons.util.Throwables._
+import io.gatling.core.check.ChecksumCheck
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
-import io.gatling.http.check.checksum.ChecksumCheck
+import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.client.Request
 import io.gatling.http.engine.response._
-import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
+import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml }
+import io.gatling.http.request.HttpRequestConfig
 
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.http.request.HttpRequestConfig
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
@@ -48,25 +49,20 @@ object ResponseBuilder extends StrictLogging {
     configuration: GatlingConfiguration
   ): ResponseBuilderFactory = {
 
-    val checksumChecks = requestConfig.checks.collect {
-      case checksumCheck: ChecksumCheck => checksumCheck
-    }
+    val digests: Map[String, MessageDigest] =
+      requestConfig.checks
+        .map(_.wrapped)
+        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }(breakOut)
 
-    val bodyUsageStrategies =
-      if (requestConfig.responseTransformer.isDefined) {
-        // we can't assume anything about if and how the response body will be used,
-        // let's force bytes so we don't risk decoding binary content
-        List(ByteArrayResponseBodyUsageStrategy)
-      } else {
-        requestConfig.checks.flatMap(_.responseBodyUsageStrategy)
-      }
-
-    val storeBodyParts = IsHttpDebugEnabled || bodyUsageStrategies.nonEmpty
+    val storeBodyParts = IsHttpDebugEnabled ||
+      // we can't assume anything about if and how the response body will be used,
+      // let's force bytes so we don't risk decoding binary content
+      requestConfig.responseTransformer.isDefined ||
+      requestConfig.checks.exists(_.scope == Body)
 
     request => new ResponseBuilder(
       request,
-      checksumChecks,
-      bodyUsageStrategies,
+      digests,
       storeBodyParts,
       requestConfig.httpProtocol.responsePart.inferHtmlResources,
       configuration.core.charset,
@@ -76,16 +72,14 @@ object ResponseBuilder extends StrictLogging {
 }
 
 class ResponseBuilder(
-    request:             Request,
-    checksumChecks:      List[ChecksumCheck],
-    bodyUsageStrategies: Seq[ResponseBodyUsageStrategy],
-    storeBodyParts:      Boolean,
-    inferHtmlResources:  Boolean,
-    defaultCharset:      Charset,
-    clock:               Clock
+    request:            Request,
+    digests:            Map[String, MessageDigest],
+    storeBodyParts:     Boolean,
+    inferHtmlResources: Boolean,
+    defaultCharset:     Charset,
+    clock:              Clock
 ) {
 
-  private val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss: Boolean = _
   var startTimestamp: Long = _
   var endTimestamp: Long = _
@@ -95,11 +89,6 @@ class ResponseBuilder(
 
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var chunks: List[ByteBuf] = Nil
-  private val digests: Map[String, MessageDigest] =
-    if (computeChecksums)
-      checksumChecks.map(check => check.algorithm -> MessageDigest.getInstance(check.algorithm))(breakOut)
-    else
-      Map.empty
 
   def updateStartTimestamp(): Unit =
     startTimestamp = clock.nowMillis
@@ -133,7 +122,7 @@ class ResponseBuilder(
         chunks = byteBuf.retain() :: chunks // beware, we have to retain!
       }
 
-      if (computeChecksums)
+      if (digests.nonEmpty)
         for {
           nioBuffer <- byteBuf.nioBuffers
           digest <- digests.values
@@ -146,68 +135,36 @@ class ResponseBuilder(
     .getOrElse(defaultCharset)
 
   def buildResponse: HttpResult =
-    try {
-      status match {
-        case Some(s) =>
-          try {
-            // Clock source might not be monotonic.
-            // Moreover, ProgressListener might be called AFTER ChannelHandler methods
-            // ensure response doesn't end before starting
-            endTimestamp = max(endTimestamp, startTimestamp)
+    status match {
+      case Some(s) =>
+        try {
+          // Clock source might not be monotonic.
+          // Moreover, ProgressListener might be called AFTER ChannelHandler methods
+          // ensure response doesn't end before starting
+          endTimestamp = max(endTimestamp, startTimestamp)
 
-            val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+          val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
-            val contentLength = chunks.sumBy(_.readableBytes)
+          val contentLength = chunks.sumBy(_.readableBytes)
 
-            val bodyUsages: Set[ResponseBodyUsage] = bodyUsageStrategies.map(_.bodyUsage(contentLength))(breakOut)
+          val resolvedCharset = resolveCharset
 
-            val resolvedCharset = resolveCharset
+          val chunksOrderedByArrival = chunks.reverse
+          val body: ResponseBody = ResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-            val properlyOrderedChunks = chunks.reverse
-            val body: ResponseBody =
-              if (properlyOrderedChunks.isEmpty) {
-                NoResponseBody
-
-              } else if (bodyUsages.contains(ByteArrayResponseBodyUsage)) {
-                ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
-
-              } else if (bodyUsages.contains(InputStreamResponseBodyUsage)) {
-                InputStreamResponseBody(properlyOrderedChunks, resolvedCharset)
-
-              } else if (bodyUsages.contains(StringResponseBodyUsage)) {
-                StringResponseBody(properlyOrderedChunks, resolvedCharset)
-
-              } else if (bodyUsages.contains(CharArrayResponseBodyUsage)) {
-                CharArrayResponseBody(properlyOrderedChunks, resolvedCharset)
-
-              } else if (isTxt(headers)) {
-                StringResponseBody(properlyOrderedChunks, resolvedCharset)
-
-              } else {
-                ByteArrayResponseBody(properlyOrderedChunks, resolvedCharset)
-              }
-
-            Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
-          } catch {
-            case NonFatal(t) => buildFailure(t)
-          }
-        case _ => buildFailure("How come we're trying to build a response with no status?!")
-      }
-    } finally {
-      releaseChunks()
+          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
+        } catch {
+          case NonFatal(t) => buildFailure(t)
+        }
+      case _ => buildFailure("How come we're trying to build a response with no status?!")
     }
 
-  def buildFailure(t: Throwable): HttpFailure =
-    try {
-      buildFailure(t.detailedMessage)
-    } finally {
-      releaseChunks()
-    }
+  def buildFailure(t: Throwable): HttpFailure = buildFailure(t.detailedMessage)
 
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
 
-  private def releaseChunks(): Unit = {
+  def releaseChunks(): Unit = {
     chunks.foreach(_.release())
     chunks = Nil
   }

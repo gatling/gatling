@@ -23,7 +23,7 @@ import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
-case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
+final case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
 
 class RawFileBodies(implicit configuration: GatlingConfiguration) extends ResourceCache {
 

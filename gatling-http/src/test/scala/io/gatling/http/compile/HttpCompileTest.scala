@@ -26,10 +26,15 @@ import javax.net.ssl.KeyManagerFactory
 
 class HttpCompileTest extends Simulation {
 
+  registerPebbleExtensions(null: com.mitchellbosecke.pebble.extension.Extension)
+  registerJmesPathFunctions(null: io.burt.jmespath.function.Function)
+
   val httpProtocol = http
     .baseUrl("http://172.30.5.143:8080")
     .baseUrls("http://172.30.5.143:8080", "http://172.30.5.143:8081")
     .virtualHost("172.30.5.143:8080")
+    .proxy(Proxy("172.31.76.106", 8080))
+    .proxy(Proxy("172.31.76.106", 8080).credentials("username", "password"))
     .proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
     .proxy(Proxy("172.31.76.106", 8080).http)
     .proxy(Proxy("172.31.76.106", 8080).socks4)
@@ -141,6 +146,7 @@ class HttpCompileTest extends Simulation {
         currentLocationRegex("foo").find.exists,
         bodyBytes.is(Array.fill(5)(1.toByte)),
         bodyBytes.is(RawFileBody("foobar.txt")),
+        bodyStream.transform(is => "").saveAs("foo"),
         bodyString.is("foo"),
         bodyString.is(ElFileBody("foobar.txt")),
         css(".foo"),
@@ -157,6 +163,13 @@ class HttpCompileTest extends Simulation {
         jsonPath("$..foo").ofType[Seq[Any]].is(Seq("foo")),
         jsonPath("$..foo").ofType[Map[String, Any]].is(Map[String, Any]("foo" -> 1)),
         jsonpJsonPath("$..foo").is("bar"),
+        jmesPath("[].friends[].name"),
+        jmesPath("[].friends[].name").is("bar"),
+        jmesPath("[].friends[].name").ofType[String].is("bar"),
+        jmesPath("[].friends[].name").ofType[Int].is(1),
+        jmesPath("[].friends[].name").ofType[Seq[Any]].is(Seq("foo")),
+        jmesPath("[].friends[].name").ofType[Map[String, Any]].is(Map[String, Any]("foo" -> 1)),
+        jsonpJmesPath("foo").is("bar"),
         regex("""<input id="text1" type="text" value="aaaa" />""").optional.saveAs("var1"),
         regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
         regex("""<input id="text1" type="test" value="aaaa" />""").notExists,

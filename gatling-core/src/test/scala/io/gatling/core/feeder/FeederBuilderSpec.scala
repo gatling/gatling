@@ -23,22 +23,14 @@ import io.gatling.core.config._
 
 class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
-  private implicit val configuration = GatlingConfiguration.loadForTest()
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "FeederSupport.separatedValues" should "throw an exception when provided with bad resource" in {
     an[IllegalArgumentException] should be thrownBy
       separatedValues("fileDoesNotExist", SeparatedValuesParser.CommaSeparator, quoteChar = '\'')
   }
 
-  "FeederSupport.seq2FeederBuilder" should "be able to use all the strategies" in {
-    val builder = IndexedSeq(Map("foo" -> "bar"))
-    builder.queue.options.strategy shouldBe Queue
-    builder.random.options.strategy shouldBe Random
-    builder.shuffle.options.strategy shouldBe Shuffle
-    builder.circular.options.strategy shouldBe Circular
-  }
-
-  it should "build a Feeder with a queue strategy" in {
+  "FeederSupport.seq2FeederBuilder" should "build a Feeder with a queue strategy" in {
     val queuedFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test")).queue.apply
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
   }

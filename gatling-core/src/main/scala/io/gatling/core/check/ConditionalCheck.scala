@@ -29,16 +29,12 @@ trait UntypedConditionalCheckWrapper[C <: Check[_]] {
   def wrap(condition: Expression[Boolean], thenCheck: C): C
 }
 
-case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
+final case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
 
-  def performNestedCheck(nestedCheck: Check[R], response: R, session: Session)(implicit cache: JMap[Any, Any]): Validation[CheckResult] = {
-    nestedCheck.check(response, session)
-  }
-
-  def check(response: R, session: Session)(implicit cache: JMap[Any, Any]): Validation[CheckResult] =
+  def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     condition(response, session).flatMap { boolean =>
       if (boolean) {
-        performNestedCheck(thenCheck, response, session)
+        thenCheck.check(response, session, preparedCache)
       } else {
         CheckResult.NoopCheckResultSuccess
       }

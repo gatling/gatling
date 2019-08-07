@@ -16,15 +16,14 @@
 
 package io.gatling.commons.util
 
-import java.io.{ BufferedReader, InputStreamReader }
+import java.io.BufferedInputStream
 import java.net.{ URL, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
 import javax.net.ssl.HttpsURLConnection
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent._
 import scala.util.Properties._
-import scala.util.Success
 
 import io.gatling.commons.util.Io._
 
@@ -37,52 +36,48 @@ object Ga {
   def send(version: String): Unit = {
     import ExecutionContext.Implicits.global
 
-    val whenConnected = Future {
-      val url = new URL("https://ssl.google-analytics.com/collect")
-      url.openConnection().asInstanceOf[HttpsURLConnection]
-    }
-
     val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
 
-    val body =
+    val bodyBytes =
       s"""tid=$trackingId&dl=${encode("https://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(FastUUID.toString(UUID.randomUUID))}"""
+        .getBytes(UTF_8)
 
-    val bytes = body.getBytes(UTF_8)
+    val url = new URL("https://ssl.google-analytics.com/collect")
 
-    whenConnected.map { conn =>
-      conn.setReadTimeout(1000)
-      conn.setConnectTimeout(1000)
-      conn.setDoInput(true)
-      conn.setDoOutput(true)
-      conn.setUseCaches(false)
-      conn.setRequestMethod("POST")
-      conn.setRequestProperty("Accept", "*/*")
-      conn.setRequestProperty("Connection", "Close")
-      conn.setRequestProperty("Content-Length", Integer.toString(bytes.length))
-      conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-      conn.setRequestProperty("Host", "ssl.google-analytics.com")
-      conn.setRequestProperty("User-Agent", s"java/$javaVersion")
+    Future {
+      blocking {
+        val conn = url.openConnection().asInstanceOf[HttpsURLConnection]
 
-      withCloseable(conn.getOutputStream) { os =>
-        os.write(bytes)
-        os.flush()
-        os.close()
+        try {
+          conn.setReadTimeout(1000)
+          conn.setConnectTimeout(1000)
+          conn.setDoInput(true)
+          conn.setDoOutput(true)
+          conn.setUseCaches(false)
+          conn.setRequestMethod("POST")
+          conn.setRequestProperty("Accept", "*/*")
+          conn.setRequestProperty("Connection", "Close")
+          conn.setRequestProperty("Content-Length", bodyBytes.length.toString)
+          conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+          conn.setRequestProperty("Host", "ssl.google-analytics.com")
+          conn.setRequestProperty("User-Agent", s"java/$javaVersion")
 
-        // get response before closing
-        val is = conn.getInputStream()
-        val rd = new BufferedReader(new InputStreamReader(is))
-        var line: String = rd.readLine()
-        while (line != null) {
-          line = rd.readLine()
+          withCloseable(conn.getOutputStream) { os =>
+            os.write(bodyBytes)
+            os.flush()
+
+            // get response before closing
+            withCloseable(new BufferedInputStream(conn.getInputStream)) { rd =>
+              var byte: Int = -1
+              do {
+                byte = rd.read
+              } while (byte != -1)
+            }
+          }
+        } finally {
+          conn.disconnect()
         }
-        rd.close()
       }
-      conn
-    }.recoverWith {
-      case _ => whenConnected
-    }.onComplete {
-      case Success(conn) => conn.disconnect()
-      case _             =>
     }
   }
 }

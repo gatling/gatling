@@ -27,7 +27,7 @@ object ProxyBuilder {
   implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
 }
 
-case class ProxyBuilder(proxy: Proxy) {
+final case class ProxyBuilder(proxy: Proxy) {
 
   def http: ProxyBuilder =
     this.modify(_.proxy.proxyType).setTo(HttpProxy)

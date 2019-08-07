@@ -67,7 +67,6 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
     try {
       WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, true);
-      tx.closeConnection = HttpUtils.isConnectionClose(request.getRequest().headers());
       LOGGER.debug("Write request {}", request);
 
       tx.listener.onWrite(ctx.channel());

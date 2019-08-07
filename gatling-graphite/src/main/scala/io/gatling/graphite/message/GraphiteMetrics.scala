@@ -23,7 +23,7 @@ import io.gatling.netty.util.ahc.StringBuilderPool
 import akka.util.ByteString
 import com.typesafe.scalalogging.StrictLogging
 
-private[graphite] case class GraphiteMetrics(byteString: ByteString)
+private[graphite] final case class GraphiteMetrics(byteString: ByteString)
 
 private[graphite] object GraphiteMetrics extends StrictLogging {
 

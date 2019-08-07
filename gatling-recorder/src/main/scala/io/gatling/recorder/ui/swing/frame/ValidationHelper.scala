@@ -27,7 +27,7 @@ import io.gatling.commons.util.StringHelper.RichString
 
 private[swing] object ValidationHelper {
 
-  case class Validator(
+  final case class Validator(
       condition:       String => Boolean,
       successCallback: Component => Unit = setStandardBorder,
       failureCallback: Component => Unit = setErrorBorder,

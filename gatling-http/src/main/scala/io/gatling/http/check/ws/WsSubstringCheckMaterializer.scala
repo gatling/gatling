@@ -18,11 +18,9 @@ package io.gatling.http.check.ws
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.substring.SubstringCheckType
+import io.gatling.core.check.substring.SubstringCheckType
 
-object WsSubstringCheckMaterializer extends CheckMaterializer[SubstringCheckType, WsTextCheck, String, String] {
-
-  override val specializer: Specializer[WsTextCheck, String] = WsTextCheck.apply
+object WsSubstringCheckMaterializer extends CheckMaterializer[SubstringCheckType, WsTextCheck, String, String](WsTextCheck.apply) {
 
   override val preparer: Preparer[String, String] = _.success
 }

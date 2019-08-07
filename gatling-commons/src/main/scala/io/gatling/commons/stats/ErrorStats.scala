@@ -16,6 +16,6 @@
 
 package io.gatling.commons.stats
 
-case class ErrorStats(message: String, count: Int, totalCount: Int) {
+final case class ErrorStats(message: String, count: Int, totalCount: Int) {
   def percentage: Double = count * 100.0 / totalCount
 }

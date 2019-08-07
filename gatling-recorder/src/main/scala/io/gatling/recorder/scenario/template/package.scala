@@ -16,8 +16,6 @@
 
 package io.gatling.recorder.scenario
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
 package object template {
 
   val SimpleQuotes: String = "\""
@@ -27,8 +25,8 @@ package object template {
 
   private def containsEscapeCharacters(string: String) = string.exists(isUnsafeStringChar)
 
-  def protectWithTripleQuotes(string: String): Fastring = {
+  def protectWithTripleQuotes(string: String): String = {
     val stringDelimiter = if (containsEscapeCharacters(string)) TripleQuotes else SimpleQuotes
-    fast"$stringDelimiter$string$stringDelimiter"
+    s"$stringDelimiter$string$stringDelimiter"
   }
 }
