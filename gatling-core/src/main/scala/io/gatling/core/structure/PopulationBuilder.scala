@@ -29,28 +29,6 @@ import io.gatling.core.session.Expression
 
 import com.typesafe.scalalogging.LazyLogging
 
-/**
- * The scenario builder is used in the DSL to define the scenario
- *
- * @param name the name of the scenario
- * @param actionBuilders the list of all the actions that compose the scenario
- */
-final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] with BuildAction {
-
-  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
-    copy(actionBuilders = newActionBuilders.toList ::: actionBuilders)
-
-  def inject[T: InjectionProfileFactory](is: T, moreIss: T*): PopulationBuilder = inject[T](Seq(is) ++ moreIss)
-
-  def inject[T: InjectionProfileFactory](iss: Iterable[T]): PopulationBuilder = {
-    require(iss.nonEmpty, "Calling inject with empty injection steps")
-    PopulationBuilder(this, implicitly[InjectionProfileFactory[T]].profile(iss))
-  }
-
-  def inject(meta: MetaInjectionProfile): PopulationBuilder =
-    PopulationBuilder(this, meta.profile)
-}
-
 final case class PopulationBuilder(
     scenarioBuilder:       ScenarioBuilder,
     injectionProfile:      InjectionProfile,
@@ -103,10 +81,3 @@ final case class PopulationBuilder(
     Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onStart, protocolComponentsRegistry.onExit, injectionProfile, ctx)
   }
 }
-
-final case class ScenarioContext(
-    coreComponents:             CoreComponents,
-    protocolComponentsRegistry: ProtocolComponentsRegistry,
-    pauseType:                  PauseType,
-    throttled:                  Boolean
-)

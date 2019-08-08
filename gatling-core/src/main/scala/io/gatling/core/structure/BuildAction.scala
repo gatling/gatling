@@ -16,7 +16,10 @@
 
 package io.gatling.core.structure
 
+import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
+import io.gatling.core.pause.PauseType
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 
 private[structure] trait BuildAction { this: Execs[_] =>
 
@@ -25,3 +28,10 @@ private[structure] trait BuildAction { this: Execs[_] =>
       actionBuilder.build(ctx, next)
     }
 }
+
+final case class ScenarioContext(
+    coreComponents:             CoreComponents,
+    protocolComponentsRegistry: ProtocolComponentsRegistry,
+    pauseType:                  PauseType,
+    throttled:                  Boolean
+)

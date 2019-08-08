@@ -16,10 +16,13 @@
 
 package io.gatling.core.structure
 
+import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.controller.inject.{ InjectionProfileFactory, MetaInjectionProfile }
+
 /**
  * This trait defines most of the scenario related DSL
  */
-private[structure] trait StructureBuilder[B <: StructureBuilder[B]]
+sealed trait StructureBuilder[B <: StructureBuilder[B]]
   extends Execs[B]
   with Pauses[B]
   with Feeds[B]
@@ -27,3 +30,45 @@ private[structure] trait StructureBuilder[B <: StructureBuilder[B]]
   with ConditionalStatements[B]
   with Errors[B]
   with Groups[B]
+
+/**
+ * This class defines chain related methods
+ *
+ * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
+ */
+final case class ChainBuilder(actionBuilders: List[ActionBuilder])
+  extends StructureBuilder[ChainBuilder] with BuildAction {
+
+  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
+    ChainBuilder(newActionBuilders.toList ::: actionBuilders)
+}
+
+/**
+ * The scenario builder is used in the DSL to define the scenario
+ *
+ * @param name the name of the scenario
+ * @param actionBuilders the list of all the actions that compose the scenario
+ */
+final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] with BuildAction {
+
+  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
+    copy(actionBuilders = newActionBuilders.toList ::: actionBuilders)
+
+  def inject[T: InjectionProfileFactory](is: T, moreIss: T*): PopulationBuilder = inject[T](Seq(is) ++ moreIss)
+
+  def inject[T: InjectionProfileFactory](iss: Iterable[T]): PopulationBuilder = {
+    require(iss.nonEmpty, "Calling inject with empty injection steps")
+    PopulationBuilder(this, implicitly[InjectionProfileFactory[T]].profile(iss))
+  }
+
+  def inject(meta: MetaInjectionProfile): PopulationBuilder =
+    PopulationBuilder(this, meta.profile)
+}
+
+private[gatling] trait StructureSupport extends StructureBuilder[ChainBuilder] {
+
+  override protected def actionBuilders: List[ActionBuilder] = Nil
+
+  override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
+    ChainBuilder(newActionBuilders.toList)
+}
