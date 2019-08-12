@@ -90,10 +90,13 @@ final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEnco
     Integers.writePositiveIntString(i, stringSize, bb)
   }
 
-  override def close(): Unit = {
-    flush()
-    channel.force(true)
-  }
+  override def close(): Unit =
+    try {
+      flush()
+      channel.force(true)
+    } finally {
+      channel.close()
+    }
 }
 
 object DataWriterMessageSerializer {
