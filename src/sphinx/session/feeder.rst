@@ -102,8 +102,8 @@ This behavior was the default prior to Gatling 3.1 and you can still force it.
 Data is then read by chunks.
 
 .. warning::
-When in ``batch`` mode, ``random`` and ``shuffle`` can't of course operate on the full stock, and only operate on an internal buffer of records.
-The default size of this buffer is 2,000 and can be changed.
+  When in ``batch`` mode, ``random`` and ``shuffle`` can't of course operate on the full stock, and only operate on an internal buffer of records.
+  The default size of this buffer is 2,000 and can be changed.
 
 .. includecode:: code/FeederSample.scala#batch
 

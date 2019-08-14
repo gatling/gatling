@@ -105,14 +105,14 @@ The former will compile Scala code and the latter will do the integration betwee
 
 You'll have to add the following section in your `pom.xml`::
 
-	<build>
-		<sourceDirectory>src/main/scala</sourceDirectory>
-		<testSourceDirectory>src/test/scala</testSourceDirectory>
-		<plugins>
-			<plugin>
-				<groupId>net.alchim31.maven</groupId>
-				<artifactId>scala-maven-plugin</artifactId>
-				<version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
+  <build>
+    <sourceDirectory>src/main/scala</sourceDirectory>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <groupId>net.alchim31.maven</groupId>
+        <artifactId>scala-maven-plugin</artifactId>
+        <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
         <configuration>
           <args>
             <arg>-target:jvm-1.8</arg>
@@ -123,17 +123,17 @@ You'll have to add the following section in your `pom.xml`::
             <arg>-language:postfixOps</arg>
           </args>
         </configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>compile</goal>
-							<goal>testCompile</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 You can also use the `scalor-maven-plugin <https://github.com/random-maven/scalor-maven-plugin>`_ instead.
 
@@ -154,15 +154,15 @@ You'll have to add the following section in your `pom.xml`::
         <artifactId>scalor-maven-plugin_2.12</artifactId>
         <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
         <configuration>
-					<zincOptionsScala>
-						-target:jvm-1.8
-						-deprecation
-						-feature
-						-unchecked
-						-language:implicitConversions
-						-language:postfixOps
-					</zincOptionsScala>
-				</configuration>
+          <zincOptionsScala>
+            -target:jvm-1.8
+            -deprecation
+            -feature
+            -unchecked
+            -language:implicitConversions
+            -language:postfixOps
+          </zincOptionsScala>
+        </configuration>
         <executions>
           <execution>
             <goals>

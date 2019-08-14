@@ -10,8 +10,8 @@ SSL
 SSLContext
 ==========
 
-By default, each virtual user will have its own ``SSLContext`` and ``SSLSession``s.
-This behavior is realistic when it comes to simulating web traffic so your server has to deal with the proper number of ``SSLSession``s.
+By default, each virtual user will have its own ``SSLContext`` and ``SSLSession``.
+This behavior is realistic when it comes to simulating web traffic so your server has to deal with the proper number of ``SSLSession``.
 
 You can only have a shared ``SSLContext`` if you decide to :ref:`shareConnections <http-protocol-connection-sharing>`.
 
@@ -36,11 +36,9 @@ Browsers are more loose than JDK regarding this.
 
 If you want to disable SNI, you can set the ``gatling.http.ahc.enableSni`` property to ``false`` in ``gatling.conf``.
 
-
-
 .. _http-ssl-stores:
 
-Configuring KeyStore and TrustStore`
+Configuring KeyStore and TrustStore
 ===================================
 
 Default Gatling TrustStore is very permissive and doesn't validate certificates,

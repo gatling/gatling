@@ -23,10 +23,11 @@ Gatling FrontLine
 
 FrontLine is a web interface with more features: real-time monitoring, clustering, metrics persistence, new metrics & trends, advanced integration with CI tools...
 
-.. image:: img/frontline-logo.png
+.. image:: img/frontline-logo.svg
    :alt: FrontLine
    :align: center
-
+   :target: https://gatling.io/gatling-frontline/
+   :width: 40%
 
 Migrating from a previous version of Gatling
 ============================================
