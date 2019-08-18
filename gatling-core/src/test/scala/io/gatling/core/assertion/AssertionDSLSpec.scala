@@ -24,12 +24,12 @@ class AssertionDSLSpec extends BaseSpec with AssertionSupport {
 
   "The Assertion DSL builders" should "produce the expected Assertions ASTs" in {
 
-    implicit val configuration = GatlingConfiguration.loadForTest()
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
     global.responseTime.min.is(100) shouldBe Assertion(Global, TimeTarget(ResponseTime, Min), Is(100))
     details("Foo" / "Bar").responseTime.max.lte(100) shouldBe Assertion(Details(List("Foo", "Bar")), TimeTarget(ResponseTime, Max), Lte(100))
     forAll.responseTime.mean.gte(100) shouldBe Assertion(ForAll, TimeTarget(ResponseTime, Mean), Gte(100))
-    global.responseTime.stdDev.between(1, 3) shouldBe Assertion(Global, TimeTarget(ResponseTime, StandardDeviation), Between(1, 3, true))
+    global.responseTime.stdDev.between(1, 3) shouldBe Assertion(Global, TimeTarget(ResponseTime, StandardDeviation), Between(1, 3, inclusive = true))
     global.responseTime.percentile1.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(50)), Is(300))
     global.responseTime.percentile2.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(75)), In(List(1, 2, 3)))
     global.responseTime.percentile3.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(95)), Is(300))
@@ -39,7 +39,7 @@ class AssertionDSLSpec extends BaseSpec with AssertionSupport {
     forAll.allRequests.percent.lt(5) shouldBe Assertion(ForAll, PercentTarget(AllRequests), Lt(5))
 
     global.failedRequests.count.gt(10) shouldBe Assertion(Global, CountTarget(FailedRequests), Gt(10))
-    details("Foo" / "Bar").failedRequests.percent.between(1, 5, inclusive = false) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(1, 5, false))
+    details("Foo" / "Bar").failedRequests.percent.between(1, 5, inclusive = false) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(1, 5, inclusive = false))
 
     global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests), In(List(1, 2, 4)))
     global.successfulRequests.percent.is(6) shouldBe Assertion(Global, PercentTarget(SuccessfulRequests), Is(6))
