@@ -16,7 +16,7 @@
 
 package io.gatling.http.util
 
-import java.security.{ KeyStore, SecureRandom }
+import java.security.SecureRandom
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
@@ -30,11 +30,6 @@ import javax.net.ssl._
 
 private[http] object SslContextsFactory {
   private val DefaultSslSecureRandom = new SecureRandom
-  private val DefaultTrustManagers: Array[TrustManager] = {
-    val defaultTrustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm)
-    defaultTrustManagerFactory.init(null.asInstanceOf[KeyStore])
-    defaultTrustManagerFactory.getTrustManagers
-  }
   private val Apn = new ApplicationProtocolConfig(
     ApplicationProtocolConfig.Protocol.ALPN,
     // NO_ADVERTISE is currently the only mode supported by both OpenSsl and JDK providers.
@@ -67,6 +62,13 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
 
     val kmf = perUserKeyManagerFactory.orElse(httpConfig.ssl.keyManagerFactory)
+    val tmf = httpConfig.ssl.trustManagerFactory.orElse {
+      if (httpConfig.advanced.useInsecureTrustManager) {
+        Some(InsecureTrustManagerFactory.INSTANCE)
+      } else {
+        None
+      }
+    }
 
     if (useOpenSsl) {
       val sslContextBuilder = SslContextBuilder.forClient.sslProvider(SslProvider.OPENSSL)
@@ -90,14 +92,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
       }
 
       kmf.foreach(sslContextBuilder.keyManager)
-
-      httpConfig.ssl.trustManagerFactory match {
-        case Some(tmf) => sslContextBuilder.trustManager(tmf)
-        case _ =>
-          if (httpConfig.advanced.useInsecureTrustManager) {
-            sslContextBuilder.trustManager(InsecureTrustManagerFactory.INSTANCE)
-          }
-      }
+      tmf.foreach(sslContextBuilder.trustManager)
 
       val sslContext = sslContextBuilder.build
       val alpnSslContext =
@@ -110,7 +105,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
 
     } else {
       val jdkSslContext = SSLContext.getInstance("TLS")
-      jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, DefaultTrustManagers, DefaultSslSecureRandom)
+      jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, tmf.map(_.getTrustManagers).orNull, DefaultSslSecureRandom)
 
       val sslContext = newSslContext(jdkSslContext, null)
       val alpnSslContext =
