@@ -16,18 +16,18 @@
 
 package io.gatling.jms.action
 
-import javax.jms.Message
 import io.gatling.commons.stats.OK
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.client.JmsConnectionPool
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
+
+import javax.jms.Message
 
 /**
  * Core JMS Action to handle Send
@@ -40,7 +40,6 @@ class Send(
     jmsConnectionPool: JmsConnectionPool,
     val statsEngine:   StatsEngine,
     val clock:         Clock,
-    configuration:     GatlingConfiguration,
     val next:          Action,
     throttler:         Throttler,
     throttled:         Boolean
@@ -56,15 +55,8 @@ class Send(
           logMessage(s"Message sent JMSMessageID=${message.getJMSMessageID}", message)
         }
 
-        configuration.resolve(
-          // [fl]
-          //
-          // [fl]
-          {
-            val now = clock.nowMillis
-            statsEngine.logResponse(session, requestName, now, now, OK, None, None)
-          }
-        )
+        val now = clock.nowMillis
+        statsEngine.logResponse(session, requestName, now, now, OK, None, None)
         next ! session
       },
       after = () => ()

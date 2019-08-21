@@ -34,6 +34,6 @@ final case class SendBuilder(attributes: JmsAttributes, configuration: GatlingCo
     val jmsComponents = components(protocolComponentsRegistry)
 
     new Send(attributes, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, coreComponents.statsEngine, coreComponents.clock,
-      configuration, next, coreComponents.throttler, ctx.throttled)
+      next, coreComponents.throttler, ctx.throttled)
   }
 }

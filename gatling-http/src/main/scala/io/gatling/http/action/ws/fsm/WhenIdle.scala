@@ -30,13 +30,7 @@ trait WhenIdle { this: WsActor =>
       // actually send message!
       val now = clock.nowMillis
       webSocket.sendFrame(new TextWebSocketFrame(message))
-
-      configuration.resolve(
-        // [fl]
-        //
-        // [fl]
-        statsEngine.logResponse(session, actionName, now, now, OK, None, None)
-      )
+      statsEngine.logResponse(session, actionName, now, now, OK, None, None)
 
       checkSequences match {
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
@@ -66,13 +60,7 @@ trait WhenIdle { this: WsActor =>
       // actually send message!
       val now = clock.nowMillis
       webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
-
-      configuration.resolve(
-        // [fl]
-        //
-        // [fl]
-        statsEngine.logResponse(session, actionName, now, now, OK, None, None)
-      )
+      statsEngine.logResponse(session, actionName, now, now, OK, None, None)
 
       checkSequences match {
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
