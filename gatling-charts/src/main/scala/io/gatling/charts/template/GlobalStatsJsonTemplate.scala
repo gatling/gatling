@@ -23,6 +23,13 @@ import io.gatling.commons.util.StringHelper._
 
 private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
+  private def group(i: Int) =
+    s""""group${i + 1}": {
+       |    "name": "${stats.groupedCounts(i).name}",
+       |    "count": ${stats.groupedCounts(i).count},
+       |    "percentage": ${stats.groupedCounts(i).percentage}
+       |}""".stripMargin
+
   def getOutput: String = {
 
     def style[T: Numeric](value: T) =
@@ -80,26 +87,10 @@ private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boo
         "ok": ${style(stats.percentiles4.success)},
         "ko": ${style(stats.percentiles4.failure)}
     },
-    "group1": {
-        "name": "${stats.groupedCounts(0).name}",
-        "count": ${stats.groupedCounts(0).count},
-        "percentage": ${stats.groupedCounts(0).percentage}
-    },
-    "group2": {
-        "name": "${stats.groupedCounts(1).name}",
-        "count": ${stats.groupedCounts(1).count},
-        "percentage": ${stats.groupedCounts(1).percentage}
-    },
-    "group3": {
-        "name": "${stats.groupedCounts(2).name}",
-        "count": ${stats.groupedCounts(2).count},
-        "percentage": ${stats.groupedCounts(2).percentage}
-    },
-    "group4": {
-        "name": "${stats.groupedCounts(3).name}",
-        "count": ${stats.groupedCounts(3).count},
-        "percentage": ${stats.groupedCounts(3).percentage}
-    },
+    ${group(0)},
+    ${group(1)},
+    ${group(2)},
+    ${group(3)},
     "meanNumberOfRequestsPerSecond": {
         "total": ${style(stats.meanNumberOfRequestsPerSecondStatistics.total)},
         "ok": ${style(stats.meanNumberOfRequestsPerSecondStatistics.success)},
