@@ -161,17 +161,7 @@ private[http] class ResourceFetcher(
     inferredResources ::: explicitResources match {
       case Nil => None
       case resources =>
-        val (_, filteredResources) = resources.foldLeft((Set.empty[String], List.empty[HttpRequest])) {
-          case ((urls, requests), request) =>
-            val newUrl = request.clientRequest.getUri.toUrl
-            if (urls.contains(newUrl)) {
-              (urls, requests)
-            } else {
-              (urls + newUrl, request :: requests)
-            }
-        }
-
-        Some(new DefaultResourceAggregator(tx, filteredResources.reverse, httpCaches, this, httpTxExecutor, coreComponents.clock, coreComponents.configuration))
+        Some(new DefaultResourceAggregator(tx, resources, httpCaches, this, httpTxExecutor, coreComponents.clock, coreComponents.configuration))
     }
   }
 
