@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel
 import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets.US_ASCII
 import java.nio.{ ByteBuffer, CharBuffer }
+import java.util.Base64
 
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.StringHelper.EolBytes
@@ -242,13 +243,12 @@ class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterM
 
   override protected def serialize0(assertion: Assertion): Unit = {
     import boopickle.Default._
-    import jodd.util.Base64
 
     val byteBuffer = Pickle.intoBytes(assertion)
     val bytes = new Array[Byte](byteBuffer.remaining)
     byteBuffer.get(bytes)
 
-    writer.writeBytes(Base64.encodeToByte(bytes))
+    writer.writeBytes(Base64.getEncoder.encode(bytes))
   }
 }
 

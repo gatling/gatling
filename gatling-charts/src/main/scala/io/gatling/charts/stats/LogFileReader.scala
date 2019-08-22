@@ -18,6 +18,7 @@ package io.gatling.charts.stats
 
 import java.io.InputStream
 import java.nio.ByteBuffer
+import java.util.Base64
 
 import scala.collection.{ breakOut, mutable }
 import scala.io.Source
@@ -33,7 +34,6 @@ import io.gatling.core.stats.writer._
 
 import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
-import jodd.util.Base64
 
 object LogFileReader {
 
@@ -106,7 +106,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
             // WARN: don't believe IntelliJ here, this import is absolutely mandatory, see
             import io.gatling.commons.stats.assertion.AssertionPicklers._
             val base64String = array(1)
-            val bytes = Base64.decode(base64String)
+            val bytes = Base64.getDecoder.decode(base64String)
             Unpickle[Assertion].fromBytes(ByteBuffer.wrap(bytes))
           }
 
