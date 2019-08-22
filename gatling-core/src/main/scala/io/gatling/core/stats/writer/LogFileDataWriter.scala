@@ -277,8 +277,6 @@ class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     import init._
 
     val writer = BufferedFileChannelWriter(runMessage.runId, configuration)
-    system.registerOnTermination(writer.close())
-
     val assertionSerializer = new AssertionSerializer(writer)
     assertions.foreach(assertion => assertionSerializer.serialize(assertion))
     new RunMessageSerializer(writer).serialize(runMessage)
