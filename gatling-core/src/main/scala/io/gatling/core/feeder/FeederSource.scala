@@ -75,22 +75,18 @@ object SeparatedValuesFeederSource {
     magicNumber match {
       case ('P', 'K') => // PK: zip
         withCloseable(new ZipInputStream(resource.inputStream)) { zis =>
-          try {
-            val zipEntry = zis.getNextEntry()
-            if (zipEntry == null) {
-              throw new IllegalArgumentException("ZIP Archive is empty")
-            }
+          val zipEntry = zis.getNextEntry()
+          if (zipEntry == null) {
+            throw new IllegalArgumentException("ZIP Archive is empty")
+          }
 
-            withCloseable(new FileOutputStream(tempFile)) { os =>
-              zis.copyTo(os, BufferSize)
-            }
+          withCloseable(new FileOutputStream(tempFile)) { os =>
+            zis.copyTo(os, BufferSize)
+          }
 
-            if (zis.getNextEntry() != null) {
-              throw new IllegalArgumentException("ZIP Archive contains more than one file")
-            }
-
-          } finally {
-            zis.closeEntry()
+          val nextZipEntry = zis.getNextEntry()
+          if (nextZipEntry != null) {
+            throw new IllegalArgumentException(s"ZIP Archive contains more than one file (at least ${zipEntry.getName} and ${nextZipEntry.getName})")
           }
         }
 
