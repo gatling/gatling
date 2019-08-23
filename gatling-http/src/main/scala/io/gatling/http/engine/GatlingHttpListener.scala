@@ -16,7 +16,6 @@
 
 package io.gatling.http.engine
 
-import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
@@ -54,6 +53,7 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
     }
 
   // [fl]
+  //
   //
   //
   //
