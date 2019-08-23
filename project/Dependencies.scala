@@ -33,6 +33,7 @@ object Dependencies {
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.9.3"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "7.0.3")
     .exclude("org.simpleflatmapper", "ow2-asm")
+    .exclude("org.simpleflatmapper", "sfm-util") // otherwise IntelliJ pulls jdk9 classifier
   private val sfmUtil                        = sfm.organization                       % "sfm-util"                        % sfm.revision
   private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.7"
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.7.0"
