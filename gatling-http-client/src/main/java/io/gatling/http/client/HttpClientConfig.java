@@ -52,6 +52,8 @@ public class HttpClientConfig {
 
   private boolean tcpNoDelay;
 
+  private boolean soKeepAlive;
+
   private boolean soReuseAddress;
 
   private int maxRetry;
@@ -154,6 +156,15 @@ public class HttpClientConfig {
 
   public HttpClientConfig setTcpNoDelay(boolean tcpNoDelay) {
     this.tcpNoDelay = tcpNoDelay;
+    return this;
+  }
+
+  public boolean isSoKeepAlive() {
+    return soKeepAlive;
+  }
+
+  public HttpClientConfig setSoKeepAlive(boolean soKeepAlive) {
+    this.soKeepAlive = soKeepAlive;
     return this;
   }
 
