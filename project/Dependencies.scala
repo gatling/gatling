@@ -32,10 +32,8 @@ object Dependencies {
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.2"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.9.3"
-  private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "7.0.3")
+  private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.0.0")
     .exclude("org.simpleflatmapper", "ow2-asm")
-    .exclude("org.simpleflatmapper", "sfm-util") // otherwise IntelliJ pulls jdk9 classifier
-  private val sfmUtil                        = sfm.organization                       % "sfm-util"                        % sfm.revision
   private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.7"
   private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.7.0"
   private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.0.13"
@@ -95,7 +93,7 @@ object Dependencies {
     Seq(scalaReflect(scalaVersion), config, boopickle, spire, quicklens, java8Compat, fastUuid) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akka, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler) ++
+    Seq(akka, akkaSlf4j, sfm, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
