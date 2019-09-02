@@ -13,7 +13,7 @@ Gatling FrontLine MQTT DSL is not imported by default.
 
 One has to manually add the following imports::
 
-  import io.gatling.frontline.mqtt.Predef._
+  import io.gatling.mqtt.Predef._
 
 MQTT Protocol
 =============
@@ -113,7 +113,7 @@ Example
 
   import scala.concurrent.duration._
   import io.gatling.core.Predef._
-  import io.gatling.frontline.mqtt.Predef._
+  import io.gatling.mqtt.Predef._
 
   class MqttSample {
 

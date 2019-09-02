@@ -10,8 +10,8 @@ import sbt._
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
-  .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-  .aggregate(nettyUtil, commons, core, jdbc, redis, httpClient, http, jms, charts, graphite, app, recorder, testFramework, bundle, compiler)
+  .dependsOn(Seq(commons, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+  .aggregate(nettyUtil, commons, core, jdbc, redis, httpClient, http, jms, mqtt, charts, graphite, app, recorder, testFramework, bundle, compiler)
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
   .settings(libraryDependencies ++= docDependencies)
@@ -41,6 +41,10 @@ lazy val core = gatlingModule("gatling-core")
 lazy val jdbc = gatlingModule("gatling-jdbc")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= jdbcDependencies)
+
+lazy val mqtt = gatlingModule("gatling-mqtt")
+  .dependsOn(nettyUtil, core)
+  .settings(libraryDependencies ++= mqttDependencies)
 
 lazy val redis = gatlingModule("gatling-redis")
   .dependsOn(core % "compile->compile;test->test")

@@ -14,6 +14,7 @@ object Dependencies {
   private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.39.Final"
   private val nettyBuffer                    = netty.organization                     % "netty-buffer"                    % netty.revision
   private val nettyHandler                   = netty.organization                     % "netty-handler"                   % netty.revision
+  private val nettyMqtt                      = netty.organization                     % "netty-codec-mqtt"                % netty.revision
   private val nettyProxy                     = netty.organization                     % "netty-handler-proxy"             % netty.revision
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyNativeTransport           = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
@@ -94,7 +95,7 @@ object Dependencies {
     Seq(scalaReflect(scalaVersion), config, boopickle, spire, quicklens, java8Compat, fastUuid) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
-    Seq(akka, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, pebble, scalaParserCombinators, scopt) ++
+    Seq(akka, akkaSlf4j, sfm, sfmUtil, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
@@ -106,6 +107,8 @@ object Dependencies {
   val jmsDependencies = Seq(jmsApi, activemqBroker) ++ testDeps
 
   val jdbcDependencies = h2 +: testDeps
+
+  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyNativeTransport)
 
   val chartsDependencies = tdigest +: testDeps
 
