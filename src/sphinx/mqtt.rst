@@ -6,6 +6,10 @@ MQTT
 
 MQTT support is only available in `FrontLine <https://gatling.io/gatling-frontline/>`__.
 
+Jar published in Gatling OSS only contains noop stubs.
+
+It only supports MQTT 3.1 and 3.1.1. More recent versions are not currently supported.
+
 Prerequisites
 =============
 
