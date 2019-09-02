@@ -75,6 +75,11 @@ IntelliJ IDEA
 You'll need to install the Scala plugin, which is available in the Community Edition.
 You'll then be able to directly import regular maven or sbt projects with Scala sources out of the box.
 
+You'll most likely have to increase the stack size for the scala compiler so you don't suffer from StackOverflowErrors.
+We recommend setting ``Xss`` to ``100M``.
+
+.. image:: img/intellij-scalac-xss.png
+
 .. _eclipse:
 
 Eclipse
@@ -90,6 +95,8 @@ Note that Eclipse 4.7 doesn't support Java 9+, so if you have multiple Java inst
   /Library/Java/JavaVirtualMachines/jdk1.8.0_162.jdk/Contents/Home/bin/java
 
 
+Moreover, if you're using maven, you'll need to install `m2eclipse-scala <https://github.com/sonatype/m2eclipse-scala>`_ to integrate ScalaIDE and m2e (the eclipse plugin for maven).
+
 With sbt
 ^^^^^^^^
 
@@ -100,8 +107,7 @@ With maven
 
 .. highlight:: xml
 
-If you're using maven, you can use the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_ in combination with `m2eclipse-scala <https://github.com/sonatype/m2eclipse-scala>`_.
-The former will compile Scala code and the latter will do the integration between ScalaIDE and m2e (the eclipse plugin for maven).
+If you're using maven, you can use the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_ for compiling Scala code.
 
 You'll have to add the following section in your `pom.xml`::
 
@@ -114,6 +120,9 @@ You'll have to add the following section in your `pom.xml`::
         <artifactId>scala-maven-plugin</artifactId>
         <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
         <configuration>
+           <jvmArgs>
+            <jvmArg>-Xss100M</jvmArg>
+          </jvmArgs>
           <args>
             <arg>-target:jvm-1.8</arg>
             <arg>-deprecation</arg>
@@ -128,52 +137,6 @@ You'll have to add the following section in your `pom.xml`::
             <goals>
               <goal>compile</goal>
               <goal>testCompile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
-
-You can also use the `scalor-maven-plugin <https://github.com/random-maven/scalor-maven-plugin>`_ instead.
-
-You'll have to add the following section in your `pom.xml`::
-
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.0</version>
-        <configuration>
-          <skip>true</skip>
-          <skipMain>true</skipMain>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.carrotgarden.maven</groupId>
-        <artifactId>scalor-maven-plugin_2.12</artifactId>
-        <version>MANUALLY_REPLACE_WITH_LATEST_VERSION</version>
-        <configuration>
-          <zincOptionsScala>
-            -target:jvm-1.8
-            -deprecation
-            -feature
-            -unchecked
-            -language:implicitConversions
-            -language:postfixOps
-          </zincOptionsScala>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>eclipse-config</goal>
-              <goal>eclipse-format</goal>
-              <goal>eclipse-restart</goal>
-              <goal>eclipse-prescomp</goal>
-              <!-- <goal>register-main</goal> --> <!-- uncomment if you have some Scala code to compile in src/main/scala -->
-              <goal>register-test</goal>
-              <!-- <goal>compile-main</goal> -->  <!-- uncomment if you have some Scala code to compile in src/main/scala -->
-              <goal>compile-test</goal>
             </goals>
           </execution>
         </executions>
