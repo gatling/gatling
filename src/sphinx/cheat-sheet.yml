@@ -239,7 +239,7 @@
               description: Pause durations are on average those filled in the <i>pause(duration)</i> elements and follow an uniform distribution.
 
         - keyword: maxDuration
-          description: Allows to configure the maximum duration of your simulation
+          description: Set a duration limit on your simulation
           syntax:
             - signature: (maxDuration)
               description: The maximum duration of the simulation

@@ -169,7 +169,8 @@ The building block for the throttling are:
 Maximum duration
 ================
 
-Finally, you can configure the maximum duration of your simulation with the method ``maxDuration``.
+Finally, with ``maxDuration`` you can force your run to terminate based on a duration limit, even though some virtual users are still running.
+
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 
 .. includecode:: code/SimulationSetupSample.scala#max-duration
