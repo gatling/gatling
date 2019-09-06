@@ -58,6 +58,13 @@ object Gatling extends StrictLogging {
 
   private[app] def start(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) =
     try {
+      //[fl]
+      //
+      //
+      //
+      //
+      //[fl]
+
       logger.trace("Starting")
       // workaround for deadlock issue, see https://github.com/gatling/gatling/issues/3411
       FileSystems.getDefault
