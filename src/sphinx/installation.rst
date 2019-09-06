@@ -4,6 +4,25 @@
 Installation
 ############
 
+Prerequisites
+=============
+
+.. _prerequisite_java:
+
+Java Version
+------------
+
+Gatling supports 64bits OpenJDK 8 and OpenJDK 11 with HotSpot.
+Other JVMs such as JDK 12+, client JVMs, 32bits systems or OpenJ9 are not supported.
+
+.. _prerequisite_scala:
+
+Scala Version
+-------------
+
+Since 3.0, Gatling requires Scala 2.12.
+Gatling is not compatible with Scala 2.11 nor Scala 2.13.
+
 .. _bundle:
 
 Using the Bundle
@@ -37,21 +56,21 @@ Using a Build Tool
 ==================
 
 Maven
-=====
+-----
 
 Gatling provides an official maven plugin named `gatling-maven-plugin`. This plugin lets you compile your Scala code and launch Gatling simulations.
 
 Check the :ref:`maven plugin documentation <maven-plugin>` for more information.
 
 Sbt
-===
+---
 
 Gatling provides an official sbt plugin named `gatling-sbt`. This plugin lets you launch your Gatling simulations.
 
 Check the :ref:`sbt plugin documentation <sbt-plugin>` for more information.
 
 Gradle
-======
+------
 
 Gatling doesn't provide an official gradle plugin. Still, you can find several community ones.
 
@@ -92,7 +111,7 @@ Sadly, as of today, ScalaIDE is only available for Eclipse 4.7 (Oxygen) and is n
 Note that Eclipse 4.7 doesn't support Java 9+, so if you have multiple Java installations on your machine, you might have to force the JVM used in ``eclipse.ini``, eg::
 
   -vm
-  /Library/Java/JavaVirtualMachines/jdk1.8.0_162.jdk/Contents/Home/bin/java
+  /Library/Java/JavaVirtualMachines/jdk1.8.0_222.jdk/Contents/Home/bin/java
 
 
 Moreover, if you're using maven, you'll need to install `m2eclipse-scala <https://github.com/sonatype/m2eclipse-scala>`_ to integrate ScalaIDE and m2e (the eclipse plugin for maven).
