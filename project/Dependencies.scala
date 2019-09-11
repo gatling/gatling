@@ -59,7 +59,7 @@ object Dependencies {
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.11"
   private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.8.0"
-  private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.62"
+  private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.63"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.4.12"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.0"
