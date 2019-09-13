@@ -25,12 +25,12 @@ import io.gatling.http.cookie.CookieSupport.getCookieValue
 
 final case class GetCookieDsl(
     name:   String,
-    domain: Option[String] = None,
+    domain: Option[Expression[String]] = None,
     path:   Option[String] = None,
     secure: Boolean        = false,
     saveAs: Option[String] = None
 ) {
-  def withDomain(domain: String): GetCookieDsl = copy(domain = Some(domain))
+  def withDomain(domain: Expression[String]): GetCookieDsl = copy(domain = Some(domain))
   def withPath(path: String): GetCookieDsl = copy(path = Some(path))
   def withSecure(secure: Boolean): GetCookieDsl = copy(secure = secure)
   def saveAs(key: String): GetCookieDsl = copy(saveAs = Some(key))
@@ -42,7 +42,7 @@ object GetCookieValueBuilder {
     new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen {
+class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen {
 
   import CookieActionBuilder._
 
@@ -50,9 +50,7 @@ class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[S
 
     import ctx._
 
-    val resolvedDomain = domain
-      .map(_.expressionSuccess)
-      .getOrElse(defaultDomain(lookUpHttpComponents(protocolComponentsRegistry).httpCaches))
+    val resolvedDomain = domain.getOrElse(defaultDomain(lookUpHttpComponents(protocolComponentsRegistry).httpCaches))
     val resolvedPath = path.getOrElse(DefaultPath)
     val resolvedSaveAs = saveAs.getOrElse(name)
 
