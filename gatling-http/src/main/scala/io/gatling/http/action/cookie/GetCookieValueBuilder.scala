@@ -20,16 +20,15 @@ import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
-import io.gatling.core.ValidationImplicits
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.getCookieValue
 
 final case class GetCookieDsl(
     name:   String,
     domain: Option[Expression[String]] = None,
-    path:   Option[String]             = None,
-    secure: Boolean                    = false,
-    saveAs: Option[String]             = None
+    path:   Option[String] = None,
+    secure: Boolean        = false,
+    saveAs: Option[String] = None
 ) {
   def withDomain(domain: Expression[String]): GetCookieDsl = copy(domain = Some(domain))
   def withPath(path: String): GetCookieDsl = copy(path = Some(path))
@@ -43,7 +42,7 @@ object GetCookieValueBuilder {
     new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen with ValidationImplicits {
+class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen {
 
   import CookieActionBuilder._
 
