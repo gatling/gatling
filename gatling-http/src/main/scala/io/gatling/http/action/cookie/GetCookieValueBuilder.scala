@@ -20,6 +20,7 @@ import io.gatling.core.action.{ Action, ExitableAction, SessionHook }
 import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
+import io.gatling.core.ValidationImplicits
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.getCookieValue
 
@@ -42,7 +43,7 @@ object GetCookieValueBuilder {
     new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen {
+class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen with ValidationImplicits {
 
   import CookieActionBuilder._
 
@@ -51,7 +52,7 @@ class GetCookieValueBuilder(name: String, domain: Option[String], path: Option[S
     import ctx._
 
     val resolvedDomain = domain
-      .map(_.expressionSuccess)
+      .map(stringToExpression)
       .getOrElse(defaultDomain(lookUpHttpComponents(protocolComponentsRegistry).httpCaches))
     val resolvedPath = path.getOrElse(DefaultPath)
     val resolvedSaveAs = saveAs.getOrElse(name)
