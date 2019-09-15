@@ -26,9 +26,9 @@ import io.gatling.http.cookie.CookieSupport.getCookieValue
 final case class GetCookieDsl(
     name:   String,
     domain: Option[Expression[String]] = None,
-    path:   Option[String] = None,
-    secure: Boolean        = false,
-    saveAs: Option[String] = None
+    path:   Option[String]             = None,
+    secure: Boolean                    = false,
+    saveAs: Option[String]             = None
 ) {
   def withDomain(domain: Expression[String]): GetCookieDsl = copy(domain = Some(domain))
   def withPath(path: String): GetCookieDsl = copy(path = Some(path))
