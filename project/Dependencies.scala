@@ -98,7 +98,20 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpClientDependencies = Seq(netty, nettyBuffer, nettyHandler, nettyProxy, nettyDns, nettyNativeTransport, nettyHttp2, nettyBoringSsl, activation, junit, jetty, jettyProxy) ++ loggingDeps
+  val httpClientDependencies = Seq(
+    netty,
+    nettyBuffer,
+    nettyHandler,
+    nettyProxy,
+    nettyDns,
+    nettyNativeTransport,
+    nettyHttp2,
+    nettyBoringSsl,
+    activation,
+    junit,
+    jetty,
+    jettyProxy
+  ) ++ loggingDeps
 
   val httpDependencies = Seq(scalaXml) ++ testDeps
 
