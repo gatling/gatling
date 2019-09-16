@@ -26,7 +26,9 @@ package object regex {
 
     def foldLeft[T](zero: T)(f: (JMatcher, T) => T): T = {
       var temp = zero
-      while (matcher.find) temp = f(matcher, temp)
+      while (matcher.find) {
+        temp = f(matcher, temp)
+      }
       temp
     }
 

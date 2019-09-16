@@ -27,11 +27,7 @@ private[stats] object SessionDeltas {
   val Empty = SessionDeltas(0, 0)
 }
 
-private[stats] final case class SessionDeltas(starts: Int, ends: Int) {
-
-  def addStart() = copy(starts = starts + 1)
-  def addEnd() = copy(ends = ends + 1)
-}
+private[stats] final case class SessionDeltas(starts: Int, ends: Int)
 
 private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, buckets: Array[Int], runDurationInSeconds: Int) {
 

@@ -104,13 +104,9 @@ private[css] object FormExtractor {
         } yield {
           val childNode = currentNode.getChild(i)
           childNode.getNodeName match {
-            case "input" => extractInput(childNode).map(Seq(_)).getOrElse(Nil)
-            case "select" =>
-              extractSelect(childNode) match {
-                case Some(input) => Seq(input)
-                case None        => Nil
-              }
-            case "textarea" => extractTextArea(childNode).map(Seq(_)).getOrElse(Nil)
+            case "input"    => extractInput(childNode).toList
+            case "select"   => extractSelect(childNode).toList
+            case "textarea" => extractTextArea(childNode).toList
             case _          => processFormRec(childNode, inputs)
           }
         }
