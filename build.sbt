@@ -15,15 +15,14 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(basicSettings: _*)
   .settings(noArtifactToPublish)
   .settings(libraryDependencies ++= docDependencies)
-  .settings(updateOptions := updateOptions.value.withGigahorse(false))
   .settings(unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get)
 
 // Modules
 
-def gatlingModule(id: String) = Project(id, file(id))
-  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
-  .settings(gatlingModuleSettings: _*)
-  .settings(updateOptions := updateOptions.value.withGigahorse(false))
+def gatlingModule(id: String) =
+  Project(id, file(id))
+    .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
+    .settings(gatlingModuleSettings: _*)
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
   .settings(libraryDependencies ++= nettyUtilDependencies)
@@ -55,9 +54,7 @@ lazy val httpClient = gatlingModule("gatling-http-client")
   .settings(libraryDependencies ++= httpClientDependencies)
 
 lazy val http = gatlingModule("gatling-http")
-  .dependsOn(
-    core % "compile->compile;test->test",
-    httpClient % "compile->compile;test->test")
+  .dependsOn(core % "compile->compile;test->test", httpClient % "compile->compile;test->test")
   .settings(libraryDependencies ++= httpDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")
