@@ -16,7 +16,7 @@ You can configure assertions and protocols with these two methods:
 Injection
 =========
 
-The definition of the injection profile of users is done with the ``inject`` method. This method takes as argument a sequence of injection steps that will be processed sequentially.
+The definition of the injection profile of users is done with the ``inject`` method. This method takes as an argument a sequence of injection steps that will be processed sequentially.
 
 Open vs Closed Workload Models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33,14 +33,14 @@ At full capacity, a new user can effectively enter the system only once another 
 
 Typical systems that behave this way are:
 
-* call center when all operators are busy
-* ticketing websites where users get placed into a queue when system is at full capacity
+* call center where all operators are busy
+* ticketing websites where users get placed into a queue when the system is at full capacity
 
-On the contrary, open system have no control over the number concurrent users: users keep on arriving even though applications has some trouble serving them.
+On the contrary, open systems have no control over the number of concurrent users: users keep on arriving even though applications have trouble serving them.
 Most websites behave this way.
 
-If you're using a closed workload model in your load tests while your system actually is a open one, your test is broken and you're testing some different imaginary behavior.
-In such case, when system under test starts to has some trouble, response time will increase, journey time will become longer, so number of concurrent users will increase
+If you're using a closed workload model in your load tests while your system actually is an open one, your test is broken and you're testing some different imaginary behavior.
+In such case, when the system under test starts to have some trouble, response times will increase, journey time will become longer, so number of concurrent users will increase
 and injector will slow down to match the imaginary cap you've set.
 
 You can read more about open and closed models `here <https://www.usenix.org/legacy/event/nsdi06/tech/full_papers/schroeder/schroeder.pdf>`_ and on `our blog <https://gatling.io/2018/10/04/gatling-3-closed-workload-model-support/>`_.
@@ -80,12 +80,12 @@ Closed Model
 
 .. warning::
 
-  Then, you have to understand that Gatling's default behavior is mimic human users with browsers, so each virtual user has its own connections.
-  If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every seconds.
+  You have to understand that Gatling's default behavior is to mimic human users with browsers so, each virtual user has its own connections.
+  If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every second.
   As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
-  This behavior makes perfect sense when the load you're modeling is internet traffic. Then, you might consider scaling out, for example with FrontLine, our Enterprise product.
+  This behavior makes perfect sense when the load you're modeling is internet traffic. You then might consider scaling out, for example with FrontLine, our Enterprise product.
 
-  If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
+  If you're actually trying to model a small fleet of webservice clients with connection pools, you might want to fine-tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
 
 .. warning::
 
@@ -110,9 +110,9 @@ But there is now an alternative using the meta DSL.
 
 ``incrementUsersPerSec`` is for open workload and ``incrementConcurrentUsers`` is for closed workload (users/sec vs concurrent users)
 
-``separatedByRampsLasting`` and ``startingFrom`` are both optionals.
-If you don't precise a ramp, the test will jump from one level to another as soon as it is finished.
-If you don't precise an amount of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
+``separatedByRampsLasting`` and ``startingFrom`` are both optional.
+If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
+If you don't specify the number of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
 
 Global Pause configuration
 ==========================
@@ -140,7 +140,7 @@ If you want to reason in terms of requests per second and not in terms of concur
 consider using constantUsersPerSec(...) to set the arrival rate of users, and therefore requests,
 without need for throttling as well as it will be redundant in most cases.
 
-If this is not sufficient for some reason then Gatling supports throttling with the ``throttle`` method.
+If this is not sufficient for some reason, then Gatling supports throttling with the ``throttle`` method.
 
 Throttling is implemented per protocol with support for regular HTTP and JMS.
 
