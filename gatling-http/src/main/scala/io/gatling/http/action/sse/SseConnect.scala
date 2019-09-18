@@ -28,13 +28,15 @@ import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
 class SseConnect(
-    val requestName:       Expression[String],
-    sseName:               String,
-    request:               Expression[Request],
+    val requestName: Expression[String],
+    sseName: String,
+    request: Expression[Request],
     connectCheckSequences: List[SseMessageCheckSequence],
-    httpComponents:        HttpComponents,
-    val next:              Action
-) extends RequestAction with SseAction with NameGen {
+    httpComponents: HttpComponents,
+    val next: Action
+) extends RequestAction
+    with SseAction
+    with NameGen {
 
   override val name: String = genName("sseConnect")
 
@@ -50,17 +52,20 @@ class SseConnect(
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val sseActor = httpComponents.coreComponents.actorSystem.actorOf(SseActor.props(
-            sseName,
-            request,
-            requestName,
-            connectCheckSequences,
-            statsEngine,
-            httpComponents.httpEngine,
-            httpComponents.httpProtocol,
-            clock,
-            httpComponents.coreComponents.configuration
-          ), genName("sseActor"))
+          val sseActor = httpComponents.coreComponents.actorSystem.actorOf(
+            SseActor.props(
+              sseName,
+              request,
+              requestName,
+              connectCheckSequences,
+              statsEngine,
+              httpComponents.httpEngine,
+              httpComponents.httpProtocol,
+              clock,
+              httpComponents.coreComponents.configuration
+            ),
+            genName("sseActor")
+          )
 
           sseActor ! PerformInitialConnect(session, next)
         }

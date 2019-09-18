@@ -20,7 +20,7 @@ import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => J
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.{ Session, el }
+import io.gatling.core.session.{ el, Session }
 
 class ElSpec extends BaseSpec with ValidationValues {
 

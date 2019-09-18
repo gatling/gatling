@@ -52,61 +52,68 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       ""
     }
 
-  implicit val groupExtractor2: GroupExtractor[(String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2)
-  )
+  implicit val groupExtractor2: GroupExtractor[(String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2)
+    )
 
-  implicit val groupExtractor3: GroupExtractor[(String, String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2),
-    safeGetGroupValue(matcher, 3)
-  )
+  implicit val groupExtractor3: GroupExtractor[(String, String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2),
+      safeGetGroupValue(matcher, 3)
+    )
 
-  implicit val groupExtractor4: GroupExtractor[(String, String, String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2),
-    safeGetGroupValue(matcher, 3),
-    safeGetGroupValue(matcher, 4)
-  )
+  implicit val groupExtractor4: GroupExtractor[(String, String, String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2),
+      safeGetGroupValue(matcher, 3),
+      safeGetGroupValue(matcher, 4)
+    )
 
-  implicit val groupExtractor5: GroupExtractor[(String, String, String, String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2),
-    safeGetGroupValue(matcher, 3),
-    safeGetGroupValue(matcher, 4),
-    safeGetGroupValue(matcher, 5)
-  )
+  implicit val groupExtractor5: GroupExtractor[(String, String, String, String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2),
+      safeGetGroupValue(matcher, 3),
+      safeGetGroupValue(matcher, 4),
+      safeGetGroupValue(matcher, 5)
+    )
 
-  implicit val groupExtractor6: GroupExtractor[(String, String, String, String, String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2),
-    safeGetGroupValue(matcher, 3),
-    safeGetGroupValue(matcher, 4),
-    safeGetGroupValue(matcher, 5),
-    safeGetGroupValue(matcher, 6)
-  )
+  implicit val groupExtractor6: GroupExtractor[(String, String, String, String, String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2),
+      safeGetGroupValue(matcher, 3),
+      safeGetGroupValue(matcher, 4),
+      safeGetGroupValue(matcher, 5),
+      safeGetGroupValue(matcher, 6)
+    )
 
-  implicit val groupExtractor7: GroupExtractor[(String, String, String, String, String, String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2),
-    safeGetGroupValue(matcher, 3),
-    safeGetGroupValue(matcher, 4),
-    safeGetGroupValue(matcher, 5),
-    safeGetGroupValue(matcher, 6),
-    safeGetGroupValue(matcher, 7)
-  )
+  implicit val groupExtractor7: GroupExtractor[(String, String, String, String, String, String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2),
+      safeGetGroupValue(matcher, 3),
+      safeGetGroupValue(matcher, 4),
+      safeGetGroupValue(matcher, 5),
+      safeGetGroupValue(matcher, 6),
+      safeGetGroupValue(matcher, 7)
+    )
 
-  implicit val groupExtractor8: GroupExtractor[(String, String, String, String, String, String, String, String)] = matcher => (
-    safeGetGroupValue(matcher, 1),
-    safeGetGroupValue(matcher, 2),
-    safeGetGroupValue(matcher, 3),
-    safeGetGroupValue(matcher, 4),
-    safeGetGroupValue(matcher, 5),
-    safeGetGroupValue(matcher, 6),
-    safeGetGroupValue(matcher, 7),
-    safeGetGroupValue(matcher, 8)
-  )
+  implicit val groupExtractor8: GroupExtractor[(String, String, String, String, String, String, String, String)] = matcher =>
+    (
+      safeGetGroupValue(matcher, 1),
+      safeGetGroupValue(matcher, 2),
+      safeGetGroupValue(matcher, 3),
+      safeGetGroupValue(matcher, 4),
+      safeGetGroupValue(matcher, 5),
+      safeGetGroupValue(matcher, 6),
+      safeGetGroupValue(matcher, 7),
+      safeGetGroupValue(matcher, 8)
+    )
 }
 
 object GroupExtractor extends LowPriorityGroupExtractorImplicits {

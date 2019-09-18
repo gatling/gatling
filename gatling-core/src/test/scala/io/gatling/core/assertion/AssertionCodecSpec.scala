@@ -64,7 +64,10 @@ trait AssertionGenerator {
     val lessThan = for (d <- doubleGen) yield Lt(d)
     val greaterThan = for (d <- doubleGen) yield Gt(d)
     val is = for (d <- doubleGen) yield Is(d)
-    val between = for (d1 <- doubleGen; d2 <- doubleGen) yield Between(d1, d2, inclusive = true)
+    val between = for {
+      d1 <- doubleGen
+      d2 <- doubleGen
+    } yield Between(d1, d2, inclusive = true)
     val in = for (doubleList <- Gen.nonEmptyListOf(doubleGen)) yield In(doubleList)
 
     Gen.oneOf(lessThan, greaterThan, is, between, in)
@@ -84,7 +87,6 @@ class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {
     forAll(assertionGen) { assertion =>
-
       val bytes = Pickle.intoBytes(assertion)
       val roundtrip = Unpickle[Assertion].fromBytes(bytes)
 

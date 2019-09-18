@@ -24,7 +24,8 @@ import io.gatling.core.session._
 
 trait BodyStreamCheckType
 
-object BodyStreamCheckBuilder extends DefaultFindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream](
-  extractor = new FindExtractor[() => InputStream, InputStream]("bodyStream", isSource => Some(isSource()).success).expressionSuccess,
-  displayActualValue = false
-)
+object BodyStreamCheckBuilder
+    extends DefaultFindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream](
+      extractor = new FindExtractor[() => InputStream, InputStream]("bodyStream", isSource => Some(isSource()).success).expressionSuccess,
+      displayActualValue = false
+    )

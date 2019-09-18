@@ -134,7 +134,6 @@ abstract class Simulation {
     val populationBuilders = resolvePopulationBuilders(_populationBuilders, configuration)
 
     val scenarioThrottlings: Map[String, Throttling] = populationBuilders.flatMap { scn =>
-
       val steps = resolveThrottleSteps(scn.scenarioThrottleSteps, configuration)
 
       if (steps.isEmpty) {
@@ -178,13 +177,13 @@ abstract class Simulation {
 }
 
 final case class SimulationParams(
-    name:               String,
+    name: String,
     populationBuilders: List[PopulationBuilder],
-    globalProtocols:    Protocols,
-    globalPauseType:    PauseType,
-    throttlings:        Throttlings,
-    maxDuration:        Option[FiniteDuration],
-    assertions:         Seq[Assertion]
+    globalProtocols: Protocols,
+    globalPauseType: PauseType,
+    throttlings: Throttlings,
+    maxDuration: Option[FiniteDuration],
+    assertions: Seq[Assertion]
 ) {
 
   def scenarios(coreComponents: CoreComponents): List[Scenario] = {

@@ -27,13 +27,16 @@ import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTe
 
 class WsSendTextFrame(
     override val requestName: Expression[String],
-    wsName:                   String,
-    message:                  Expression[String],
-    checkSequences:           List[WsFrameCheckSequence[WsTextFrameCheck]],
+    wsName: String,
+    message: Expression[String],
+    checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
     override val statsEngine: StatsEngine,
-    override val clock:       Clock,
-    override val next:        Action
-) extends RequestAction with WsAction with ExitableAction with NameGen {
+    override val clock: Clock,
+    override val next: Action
+) extends RequestAction
+    with WsAction
+    with ExitableAction
+    with NameGen {
 
   override val name: String = genName("wsSendTextFrame")
 
@@ -49,13 +52,16 @@ class WsSendTextFrame(
 
 class WsSendBinaryFrame(
     override val requestName: Expression[String],
-    wsName:                   String,
-    message:                  Expression[Array[Byte]],
-    checkSequences:           List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+    wsName: String,
+    message: Expression[Array[Byte]],
+    checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
     override val statsEngine: StatsEngine,
-    override val clock:       Clock,
-    override val next:        Action
-) extends RequestAction with WsAction with ExitableAction with NameGen {
+    override val clock: Clock,
+    override val next: Action
+) extends RequestAction
+    with WsAction
+    with ExitableAction
+    with NameGen {
 
   override val name: String = genName("wsSendBinaryFrame")
 

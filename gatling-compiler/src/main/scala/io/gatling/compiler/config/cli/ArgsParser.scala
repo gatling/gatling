@@ -22,8 +22,8 @@ import io.gatling.compiler.config.cli.CommandLineConstants._
 
 private[config] final case class CommandLineOverrides(
     simulationsDirectory: String = "",
-    binariesFolder:       String = "",
-    extraScalacOptions:   String = ""
+    binariesFolder: String = "",
+    extraScalacOptions: String = ""
 )
 
 private[config] class ArgsParser(args: Array[String]) {
@@ -39,13 +39,19 @@ private[config] class ArgsParser(args: Array[String]) {
     help("help").abbr("h")
 
     opt[String](SimulationsFolder)
-      .action { (folder, c) => c.copy(simulationsDirectory = folder) }
+      .action { (folder, c) =>
+        c.copy(simulationsDirectory = folder)
+      }
 
     opt[String](BinariesFolder)
-      .action { (binFolder, c) => c.copy(binariesFolder = binFolder) }
+      .action { (binFolder, c) =>
+        c.copy(binariesFolder = binFolder)
+      }
 
     opt[String](ExtraScalacOptions)
-      .action { (extraScalacOpts, c) => c.copy(extraScalacOptions = extraScalacOpts) }
+      .action { (extraScalacOpts, c) =>
+        c.copy(extraScalacOptions = extraScalacOpts)
+      }
   }
 
   def parseArguments =

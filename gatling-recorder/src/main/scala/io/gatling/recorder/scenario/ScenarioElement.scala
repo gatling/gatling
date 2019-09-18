@@ -79,13 +79,15 @@ private[recorder] object RequestElement {
         None
       }
 
-    val embeddedResources = Option(response.headers.get(ContentType)).collect {
-      case HtmlContentType(headerCharset) if responseBody.nonEmpty =>
-        val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
-        val htmlChars = new String(response.body, charset).toCharArray
-        val userAgent = Option(requestHeaders.get(UserAgent)).flatMap(UserAgentHelper.parseFromHeader)
-        new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars, userAgent)
-    }.getOrElse(Nil)
+    val embeddedResources = Option(response.headers.get(ContentType))
+      .collect {
+        case HtmlContentType(headerCharset) if responseBody.nonEmpty =>
+          val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
+          val htmlChars = new String(response.body, charset).toCharArray
+          val userAgent = Option(requestHeaders.get(UserAgent)).flatMap(UserAgentHelper.parseFromHeader)
+          new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars, userAgent)
+      }
+      .getOrElse(Nil)
 
     val filteredRequestHeaders: HttpHeaders =
       if (configuration.http.removeCacheHeaders) {
@@ -104,15 +106,15 @@ private[recorder] object RequestElement {
 }
 
 private[recorder] final case class RequestElement(
-    uri:                  String,
-    method:               String,
-    headers:              HttpHeaders,
-    body:                 Option[RequestBody],
-    responseHeaders:      HttpHeaders,
-    responseBody:         Option[ResponseBody],
-    statusCode:           Int,
-    embeddedResources:    List[ConcurrentResource],
-    nonEmbeddedResources: List[RequestElement]     = Nil
+    uri: String,
+    method: String,
+    headers: HttpHeaders,
+    body: Option[RequestBody],
+    responseHeaders: HttpHeaders,
+    responseBody: Option[ResponseBody],
+    statusCode: Int,
+    embeddedResources: List[ConcurrentResource],
+    nonEmbeddedResources: List[RequestElement] = Nil
 ) extends ScenarioElement {
 
   val (baseUrl, pathQuery) = {
@@ -120,9 +122,9 @@ private[recorder] final case class RequestElement(
 
     val base = new StringBuilder().append(uriComponents.getScheme).append("://").append(uriComponents.getHost)
     val port = uriComponents.getScheme match {
-      case "http" if !Set(-1, 80).contains(uriComponents.getPort) => ":" + uriComponents.getPort
+      case "http" if !Set(-1, 80).contains(uriComponents.getPort)   => ":" + uriComponents.getPort
       case "https" if !Set(-1, 443).contains(uriComponents.getPort) => ":" + uriComponents.getPort
-      case _ => ""
+      case _                                                        => ""
     }
     base.append(port)
 

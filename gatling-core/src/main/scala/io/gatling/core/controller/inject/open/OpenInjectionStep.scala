@@ -25,6 +25,7 @@ import scala.math.abs
 import io.gatling.core.util.Shard
 
 sealed trait OpenInjectionStep {
+
   /**
    * Iterator of time deltas in between any injected user and the beginning of the simulation
    */
@@ -57,7 +58,8 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
         val users = thisSecondUsers(thisSecond)
 
         if (users > 0) {
-          thisSecondIterator = Shard.shards(users, 1000)
+          thisSecondIterator = Shard
+            .shards(users, 1000)
             .zipWithIndex
             .flatMap {
               case (millisUsers, millis) =>

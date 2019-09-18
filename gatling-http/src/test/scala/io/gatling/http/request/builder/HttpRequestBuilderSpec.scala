@@ -56,7 +56,8 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
         writableRequest.getRequest.headers.get("X-Token")
-      }.succeeded shouldBe "foo"
+      }
+      .succeeded shouldBe "foo"
   }
 
   "form" should "work when overriding a value" in {
@@ -66,7 +67,10 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
-      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
+      .map(
+        _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
+      )
+      .succeeded shouldBe Seq("BAZ")
   }
 
   it should "work when passing only formParams" in {
@@ -75,7 +79,10 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
-      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(
+        _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
+      )
+      .succeeded shouldBe Seq("BAR")
   }
 
   it should "work when passing only a form" in {
@@ -85,6 +92,9 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)
-      .map(_.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+      .map(
+        _.clientRequest.getBody.asInstanceOf[FormUrlEncodedRequestBody].getContent.asScala.collect { case param if param.getName == "bar" => param.getValue }
+      )
+      .succeeded shouldBe Seq("BAR")
   }
 }

@@ -22,7 +22,7 @@ import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.{ Expression, Session }
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorRef, Props }
 
 object SingletonFeed {
   def props[T](feeder: Feeder[T], controller: ActorRef) = Props(new SingletonFeed(feeder, controller))
@@ -32,7 +32,6 @@ class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends Base
 
   def receive: Receive = {
     case FeedMessage(session, number, next) =>
-
       def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 
       def pollRecord(): Validation[Record[T]] =
@@ -47,11 +46,16 @@ class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends Base
           case 1 =>
             pollRecord().map(session.setAll)
           case n if n > 0 =>
-            val translatedRecords = Iterator.tabulate(n) { i =>
-              pollRecord().map(translateRecord(_, i + 1))
-            }.reduce { (record1V, record2V) =>
-              for (record1 <- record1V; record2 <- record2V) yield record1 ++ record2
-            }
+            val translatedRecords = Iterator
+              .tabulate(n) { i =>
+                pollRecord().map(translateRecord(_, i + 1))
+              }
+              .reduce { (record1V, record2V) =>
+                for {
+                  record1 <- record1V
+                  record2 <- record2V
+                } yield record1 ++ record2
+              }
             translatedRecords.map(session.setAll)
           case _ => s"$numberOfRecords is not a valid number of records".failure
         }

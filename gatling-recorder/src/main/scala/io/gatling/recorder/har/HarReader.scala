@@ -52,9 +52,8 @@ private[recorder] object HarReader {
     ZonedDateTime.parse(time).toInstant.toEpochMilli
 
   private def buildHttpTransactions(harEntries: Seq[HarEntry]): Seq[HttpTransaction] =
-    harEntries
-      .iterator
-      // filter out cancelled requests
+    harEntries.iterator
+    // filter out cancelled requests
       .filter(_.response.status != 0)
       // filter out all non-HTTP protocols (eg: ws://)
       .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))

@@ -45,8 +45,11 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
     val (query, nodeAttribute) = criterion
     val selectors = selectorCache.get(query)
 
-    selector.select(selectors).asScala.flatMap { node =>
-      NodeConverter[X].convert(node, nodeAttribute)
-    }(breakOut)
+    selector
+      .select(selectors)
+      .asScala
+      .flatMap { node =>
+        NodeConverter[X].convert(node, nodeAttribute)
+      }(breakOut)
   }
 }

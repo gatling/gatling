@@ -65,9 +65,9 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   }
 
   def runScenario(
-    sb:                 ScenarioBuilder,
-    timeout:            FiniteDuration                             = 10.seconds,
-    protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
+      sb: ScenarioBuilder,
+      timeout: FiniteDuration = 10.seconds,
+      protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
   )(implicit configuration: GatlingConfiguration) = {
     val protocols = Protocols(protocolCustomizer(httpProtocol))
     val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
@@ -94,7 +94,8 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
 
     ctx.write(response)
     ctx.write(region)
-    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+    ctx
+      .writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
       .addListener(ChannelFutureListener.CLOSE)
   }
 

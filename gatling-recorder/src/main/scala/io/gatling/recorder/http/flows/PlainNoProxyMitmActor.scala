@@ -40,12 +40,11 @@ import io.netty.handler.codec.http.FullHttpRequest
  * @param trafficLogger log the traffic
  */
 class PlainNoProxyMitmActor(
-    serverChannel:   Channel,
+    serverChannel: Channel,
     clientBootstrap: Bootstrap,
-    trafficLogger:   TrafficLogger,
-    clock:           Clock
-)
-  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
+    trafficLogger: TrafficLogger,
+    clock: Clock
+) extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
 
   override protected def connectedRemote(requestRemote: Remote): Remote =
     requestRemote

@@ -178,8 +178,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
 private[recorder] final case class FiltersConfiguration(
     filterStrategy: FilterStrategy,
-    whiteList:      WhiteList,
-    blackList:      BlackList
+    whiteList: WhiteList,
+    blackList: BlackList
 ) {
 
   def filters: Option[Filters] = filterStrategy match {
@@ -190,70 +190,70 @@ private[recorder] final case class FiltersConfiguration(
 }
 
 private[recorder] final case class CoreConfiguration(
-    mode:                      RecorderMode,
-    encoding:                  String,
-    simulationsFolder:         String,
-    resourcesFolder:           String,
-    pkg:                       String,
-    className:                 String,
+    mode: RecorderMode,
+    encoding: String,
+    simulationsFolder: String,
+    resourcesFolder: String,
+    pkg: String,
+    className: String,
     thresholdForPauseCreation: Duration,
-    saveConfig:                Boolean,
-    headless:                  Boolean,
-    harFilePath:               Option[String]
+    saveConfig: Boolean,
+    headless: Boolean,
+    harFilePath: Option[String]
 )
 
 private[recorder] final case class HttpConfiguration(
-    automaticReferer:      Boolean,
-    followRedirect:        Boolean,
-    inferHtmlResources:    Boolean,
-    removeCacheHeaders:    Boolean,
-    checkResponseBodies:   Boolean,
+    automaticReferer: Boolean,
+    followRedirect: Boolean,
+    inferHtmlResources: Boolean,
+    removeCacheHeaders: Boolean,
+    checkResponseBodies: Boolean,
     useSimulationAsPrefix: Boolean
 )
 
 private[recorder] final case class KeyStoreConfiguration(
-    path:         String,
-    password:     String,
+    path: String,
+    password: String,
     keyStoreType: KeyStoreType
 )
 
 private[recorder] final case class CertificateAuthorityConfiguration(
     certificatePath: String,
-    privateKeyPath:  String
+    privateKeyPath: String
 )
 
 private[recorder] final case class HttpsModeConfiguration(
-    mode:                 HttpsMode,
-    keyStore:             KeyStoreConfiguration,
+    mode: HttpsMode,
+    keyStore: KeyStoreConfiguration,
     certificateAuthority: CertificateAuthorityConfiguration
 )
 
 private[recorder] final case class OutgoingProxyConfiguration(
-    host:     Option[String],
+    host: Option[String],
     username: Option[String],
     password: Option[String],
-    port:     Option[Int],
-    sslPort:  Option[Int]
+    port: Option[Int],
+    sslPort: Option[Int]
 )
 
 private[recorder] final case class ProxyConfiguration(
-    port:     Int,
-    https:    HttpsModeConfiguration,
+    port: Int,
+    https: HttpsModeConfiguration,
     outgoing: OutgoingProxyConfiguration
 )
 
 private[recorder] final case class NettyConfiguration(
     maxInitialLineLength: Int,
-    maxHeaderSize:        Int,
-    maxChunkSize:         Int,
-    maxContentLength:     Int
+    maxHeaderSize: Int,
+    maxChunkSize: Int,
+    maxContentLength: Int
 )
 
 private[recorder] final case class RecorderConfiguration(
-    core:    CoreConfiguration,
+    core: CoreConfiguration,
     filters: FiltersConfiguration,
-    http:    HttpConfiguration,
-    proxy:   ProxyConfiguration,
-    netty:   NettyConfiguration,
-    config:  Config
+    http: HttpConfiguration,
+    proxy: ProxyConfiguration,
+    netty: NettyConfiguration,
+    config: Config
 )

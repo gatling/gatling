@@ -62,6 +62,9 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
 
   "jsonpJsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonpJsonPath("$.street").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)
+    jsonpJsonPath("$.street").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      Some("""{"book":"On the street"}"""),
+      None
+    )
   }
 }

@@ -30,7 +30,6 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
   "exec" should "wrap Scenarios in chains" in {
     scenarioTest { implicit ctx =>
-
       val message1 = "Message 1"
       val message2 = "Message 2"
       val message3 = "Message 3"
@@ -42,15 +41,16 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
           logMsg(message1)
           session
         }.exec {
-          scenario("Wrapped Scenario")
-            .exec { session =>
-              logMsg(message2)
-              session
-            }
-        }.exec { session =>
-          logMsg(message3)
-          session
-        }
+            scenario("Wrapped Scenario")
+              .exec { session =>
+                logMsg(message2)
+                session
+              }
+          }
+          .exec { session =>
+            logMsg(message3)
+            session
+          }
       }
 
       chain ! session
@@ -63,7 +63,6 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
   it should "fail group when action fails, eg when request can't be built" in {
     scenarioTest { implicit ctx =>
-
       val chain = buildChain {
         group("group") {
           exec(session => "Forced failure".failure)

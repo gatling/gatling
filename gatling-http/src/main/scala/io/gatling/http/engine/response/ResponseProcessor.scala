@@ -44,12 +44,14 @@ trait ResponseProcessor {
 }
 
 class DefaultResponseProcessor(
-    tx:               HttpTx,
+    tx: HttpTx,
     sessionProcessor: SessionProcessor,
-    statsProcessor:   StatsProcessor,
-    nextExecutor:     NextExecutor,
-    defaultCharset:   Charset
-) extends ResponseProcessor with StrictLogging with NameGen {
+    statsProcessor: StatsProcessor,
+    nextExecutor: NextExecutor,
+    defaultCharset: Charset
+) extends ResponseProcessor
+    with StrictLogging
+    with NameGen {
 
   def onComplete(result: HttpResult): Unit =
     result match {
@@ -63,7 +65,10 @@ class DefaultResponseProcessor(
       statsProcessor.reportStats(tx.fullRequestName, tx.request.clientRequest, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
     } catch {
       case NonFatal(t) =>
-        logger.error(s"ResponseProcessor crashed while handling failure $failure on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
+        logger.error(
+          s"ResponseProcessor crashed while handling failure $failure on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding",
+          t
+        )
     } finally {
       nextExecutor.executeNextOnCrash(sessionWithUpdatedStats, failure.endTimestamp)
     }
@@ -116,12 +121,23 @@ class DefaultResponseProcessor(
             case Some(location) =>
               val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
               val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
-              RedirectProcessor.redirectRequest(tx.request.clientRequest, newSession, response.status, tx.request.requestConfig.httpProtocol, redirectUri, defaultCharset) match {
+              RedirectProcessor.redirectRequest(
+                tx.request.clientRequest,
+                newSession,
+                response.status,
+                tx.request.requestConfig.httpProtocol,
+                redirectUri,
+                defaultCharset
+              ) match {
                 case Success(redirectRequest) =>
-                  Redirect(tx
-                    .modify(_.session).setTo(newSession)
-                    .modify(_.request.clientRequest).setTo(redirectRequest)
-                    .modify(_.redirectCount).using(_ + 1))
+                  Redirect(
+                    tx.modify(_.session)
+                      .setTo(newSession)
+                      .modify(_.request.clientRequest)
+                      .setTo(redirectRequest)
+                      .modify(_.redirectCount)
+                      .using(_ + 1)
+                  )
 
                 case Failure(message) =>
                   Crash(message)
@@ -139,7 +155,10 @@ class DefaultResponseProcessor(
 
     } catch {
       case NonFatal(t) =>
-        logger.error(s"ResponseProcessor crashed while handling response ${response.status} on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding", t)
+        logger.error(
+          s"ResponseProcessor crashed while handling response ${response.status} on session=${tx.currentSession} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding",
+          t
+        )
         Crash(t.detailedMessage)
     }
 }

@@ -37,10 +37,10 @@ final case class RampConcurrentNumberInjectionTo(from: Int, to: Int) {
 
 final case class IncreasingConcurrentUsersProfile(
     concurrentUsers: Int,
-    nbOfSteps:       Int,
-    duration:        FiniteDuration,
-    startingUsers:   Int,
-    rampDuration:    FiniteDuration
+    nbOfSteps: Int,
+    duration: FiniteDuration,
+    startingUsers: Int,
+    rampDuration: FiniteDuration
 ) extends MetaInjectionProfile {
 
   def startingFrom(startingUsers: Int): IncreasingConcurrentUsersProfile = this.copy(startingUsers = startingUsers)

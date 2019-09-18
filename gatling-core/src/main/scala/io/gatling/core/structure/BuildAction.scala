@@ -30,8 +30,8 @@ private[structure] trait BuildAction { this: Execs[_] =>
 }
 
 final case class ScenarioContext(
-    coreComponents:             CoreComponents,
+    coreComponents: CoreComponents,
     protocolComponentsRegistry: ProtocolComponentsRegistry,
-    pauseType:                  PauseType,
-    throttled:                  Boolean
+    pauseType: PauseType,
+    throttled: Boolean
 )

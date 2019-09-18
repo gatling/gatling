@@ -24,9 +24,11 @@ import io.gatling.commons.util.Collections._
 class OpenInjectionStepSpec extends BaseSpec {
 
   private def scheduling(steps: OpenInjectionStep*): List[FiniteDuration] =
-    steps.reverse.foldLeft[Iterator[FiniteDuration]](Iterator.empty) { (it, step) =>
-      step.chain(it)
-    }.toList
+    steps.reverse
+      .foldLeft[Iterator[FiniteDuration]](Iterator.empty) { (it, step) =>
+        step.chain(it)
+      }
+      .toList
 
   "RampInjection" should "return the correct number of users" in {
     RampOpenInjection(5, 1 second).users shouldBe 5
@@ -129,9 +131,12 @@ class OpenInjectionStepSpec extends BaseSpec {
 
     val constantRampScheduling = scheduling(RampRateOpenInjection(1.0, 1.0, 10 seconds))
 
-    val steps = constantRampScheduling.zip(constantRampScheduling.drop(1)).map {
-      case (i1, i2) => i2 - i1
-    }.toSet[FiniteDuration]
+    val steps = constantRampScheduling
+      .zip(constantRampScheduling.drop(1))
+      .map {
+        case (i1, i2) => i2 - i1
+      }
+      .toSet[FiniteDuration]
 
     constantRampScheduling shouldBe sorted
     steps.size shouldBe 1

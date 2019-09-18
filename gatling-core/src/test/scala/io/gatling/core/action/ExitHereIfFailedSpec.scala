@@ -42,7 +42,9 @@ class ExitHereIfFailedSpec extends AkkaSpec {
         ),
         Nil
       ),
-      List(dataWriterProbe.ref), system, clock
+      List(dataWriterProbe.ref),
+      system,
+      clock
     )
     val exit = new ActorDelegatingAction("exit", exitProbe.ref)
 

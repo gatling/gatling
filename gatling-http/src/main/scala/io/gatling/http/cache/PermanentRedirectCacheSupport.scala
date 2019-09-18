@@ -56,14 +56,14 @@ private[cache] trait PermanentRedirectCacheSupport {
 
     @tailrec
     def permanentRedirectRec(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
-
       httpPermanentRedirectCacheHandler.getEntry(session, from) match {
         case Some(toUri) => permanentRedirectRec(new PermanentRedirectCacheKey(toUri, from.cookies), redirectCount + 1)
 
-        case None => redirectCount match {
-          case 0 => None
-          case _ => Some((from.uri, redirectCount))
-        }
+        case None =>
+          redirectCount match {
+            case 0 => None
+            case _ => Some((from.uri, redirectCount))
+          }
       }
 
     permanentRedirectRec(PermanentRedirectCacheKey(request), redirectCount = 0)
@@ -76,7 +76,6 @@ private[cache] trait PermanentRedirectCacheSupport {
     if (origTx.request.requestConfig.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
       permanentRedirect(origTx.session, origTx.request.clientRequest) match {
         case Some((targetUri, redirectCount)) =>
-
           val newClientRequest = redirectRequest(origTx.request.clientRequest, targetUri)
 
           origTx.copy(

@@ -141,10 +141,11 @@ final case class SeqElementPart(seq: Part[Any], seqName: String, index: String) 
 final case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part[Any] {
 
   def apply(session: Session): Validation[Any] = map(session).flatMap {
-    case m: Map[_, _] => m.asInstanceOf[Map[Any, _]].get(key) match {
-      case Some(value) => value.success
-      case None        => ElMessages.undefinedMapKey(mapName, key)
-    }
+    case m: Map[_, _] =>
+      m.asInstanceOf[Map[Any, _]].get(key) match {
+        case Some(value) => value.success
+        case None        => ElMessages.undefinedMapKey(mapName, key)
+      }
 
     case map: JMap[_, _] =>
       if (map.containsKey(key)) map.get(key).success
@@ -193,16 +194,19 @@ object ElCompiler {
       case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
-        (session: Session) => parts.foldLeft(StringBuilderPool.DEFAULT.get().success) { (sb, part) =>
-          part match {
-            case StaticPart(s) => sb.map(_.append(s))
-            case _ =>
-              for {
-                sb <- sb
-                part <- part(session)
-              } yield sb.append(part)
-          }
-        }.flatMap(_.toString.asValidation[T])
+        (session: Session) =>
+          parts
+            .foldLeft(StringBuilderPool.DEFAULT.get().success) { (sb, part) =>
+              part match {
+                case StaticPart(s) => sb.map(_.append(s))
+                case _ =>
+                  for {
+                    sb <- sb
+                    part <- part(session)
+                  } yield sb.append(part)
+              }
+            }
+            .flatMap(_.toString.asValidation[T])
     }
 
   def compile2BytesSeq(string: String, charset: Charset): Expression[Seq[Array[Byte]]] = {
@@ -211,10 +215,11 @@ object ElCompiler {
     def compile2BytesSeqRec(session: Session, bytes: List[Bytes], resolved: List[Array[Byte]]): Validation[Seq[Array[Byte]]] =
       bytes match {
         case Nil => resolved.reverse.success
-        case head :: tail => head.bytes(session) match {
-          case Success(bs)      => compile2BytesSeqRec(session, tail, bs :: resolved)
-          case failure: Failure => failure
-        }
+        case head :: tail =>
+          head.bytes(session) match {
+            case Success(bs)      => compile2BytesSeqRec(session, tail, bs :: resolved)
+            case failure: Failure => failure
+          }
       }
 
     val parts = ElCompiler.parse(string)
@@ -252,8 +257,9 @@ class ElCompiler extends RegexParsers {
   def parseEl(string: String): List[Part[Any]] = {
 
     val parseResult =
-      try { parseAll(expr, string) }
-      catch { case NonFatal(e) => throw new ElParserException(string, e.getMessage) }
+      try {
+        parseAll(expr, string)
+      } catch { case NonFatal(e) => throw new ElParserException(string, e.getMessage) }
 
     parseResult match {
       case Success(parts, _) => parts
@@ -261,7 +267,9 @@ class ElCompiler extends RegexParsers {
     }
   }
 
-  private val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { part => List(part) })
+  private val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { part =>
+    List(part)
+  })
 
   private def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
@@ -283,7 +291,9 @@ class ElCompiler extends RegexParsers {
     }
   }
 
-  private def staticPart: Parser[StaticPart] = staticPartPattern ^^ { staticStr => StaticPart(staticStr) }
+  private def staticPart: Parser[StaticPart] = staticPartPattern ^^ { staticStr =>
+    StaticPart(staticStr)
+  }
 
   private def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
@@ -314,9 +324,13 @@ class ElCompiler extends RegexParsers {
     (objectName ~ (valueAccess *) ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }) | emptyAttribute
   }
 
-  private def objectName: Parser[AttributePart] = NameRegex ^^ { name => AttributePart(name) }
+  private def objectName: Parser[AttributePart] = NameRegex ^^ { name =>
+    AttributePart(name)
+  }
 
-  private def functionAccess(access: AccessFunction) = access.token ^^ { _ => access }
+  private def functionAccess(access: AccessFunction) = access.token ^^ { _ =>
+    access
+  }
 
   private def valueAccess =
     tupleAccess |
@@ -327,15 +341,25 @@ class ElCompiler extends RegexParsers {
       functionAccess(AccessIsUndefined) |
       functionAccess(AccessJSONStringify) |
       keyAccess |
-      (elExpr ^^ { _ => throw new Exception("nested attribute definition is not allowed") })
+      (elExpr ^^ { _ =>
+        throw new Exception("nested attribute definition is not allowed")
+      })
 
-  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { posStr => AccessIndex(posStr, s"($posStr)") }
+  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { posStr =>
+    AccessIndex(posStr, s"($posStr)")
+  }
 
-  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { keyName => AccessKey(keyName, "." + keyName) }
+  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { keyName =>
+    AccessKey(keyName, "." + keyName)
+  }
 
-  private def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { indexPart => AccessTuple(indexPart, "._" + indexPart) }
+  private def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { indexPart =>
+    AccessTuple(indexPart, "._" + indexPart)
+  }
 
-  private def emptyAttribute: Parser[Part[Any]] = "" ^^ { _ => throw new Exception("attribute name is missing") }
+  private def emptyAttribute: Parser[Part[Any]] = "" ^^ { _ =>
+    throw new Exception("attribute name is missing")
+  }
 }
 
 sealed trait Bytes { def bytes: Expression[Array[Byte]] }

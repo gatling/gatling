@@ -25,15 +25,15 @@ import io.gatling.core.session.{ Expression, Session }
 import com.typesafe.scalalogging.StrictLogging
 
 private[http] class HttpCaches(val coreComponents: CoreComponents)
-  extends HttpContentCacheSupport
-  with PermanentRedirectCacheSupport
-  with DnsCacheSupport
-  with LocalAddressSupport
-  with BaseUrlSupport
-  with ResourceCacheSupport
-  with Http2PriorKnowledgeSupport
-  with SslContextSupport
-  with StrictLogging {
+    extends HttpContentCacheSupport
+    with PermanentRedirectCacheSupport
+    with DnsCacheSupport
+    with LocalAddressSupport
+    with BaseUrlSupport
+    with ResourceCacheSupport
+    with Http2PriorKnowledgeSupport
+    with SslContextSupport
+    with StrictLogging {
 
   override def clock: Clock = coreComponents.clock
 

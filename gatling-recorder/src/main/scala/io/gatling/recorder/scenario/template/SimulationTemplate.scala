@@ -24,12 +24,12 @@ import io.gatling.recorder.config.RecorderConfiguration
 private[scenario] object SimulationTemplate {
 
   def render(
-    packageName:         String,
-    simulationClassName: String,
-    protocol:            ProtocolDefinition,
-    headers:             Map[Int, Seq[(String, String)]],
-    scenarioName:        String,
-    scenarioElements:    Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]
+      packageName: String,
+      simulationClassName: String,
+      protocol: ProtocolDefinition,
+      headers: Map[Int, Seq[(String, String)]],
+      scenarioName: String,
+      scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]
   )(implicit config: RecorderConfiguration): String = {
 
     def renderPackage = if (!packageName.isEmpty) s"package $packageName\n" else ""
@@ -61,32 +61,39 @@ $mapContent)"""
     def renderScenario(extractedUris: ExtractedUris) = {
       scenarioElements match {
         case Left(elements) =>
-          val scenarioElements = elements.map { element =>
-            val prefix = element match {
-              case TagElement(_) => ""
-              case _             => "."
+          val scenarioElements = elements
+            .map { element =>
+              val prefix = element match {
+                case TagElement(_) => ""
+                case _             => "."
+              }
+              s"$prefix${renderScenarioElement(element, extractedUris)}"
             }
-            s"$prefix${renderScenarioElement(element, extractedUris)}"
-          }.mkString("\n\t\t")
+            .mkString("\n\t\t")
 
           s"""val scn = scenario("$scenarioName")
 		$scenarioElements"""
 
         case Right(chains) =>
-          val chainElements = chains.zipWithIndex.map {
-            case (chain, i) =>
-              var firstNonTagElement = true
-              val chainContent = chain.map { element =>
-                val prefix = element match {
-                  case TagElement(_) => ""
-                  case _ => if (firstNonTagElement) {
-                    firstNonTagElement = false; ""
-                  } else "."
-                }
-                s"$prefix${renderScenarioElement(element, extractedUris)}"
-              }.mkString("\n\t\t")
-              s"val chain_$i = $chainContent"
-          }.mkString("\n\n")
+          val chainElements = chains.zipWithIndex
+            .map {
+              case (chain, i) =>
+                var firstNonTagElement = true
+                val chainContent = chain
+                  .map { element =>
+                    val prefix = element match {
+                      case TagElement(_) => ""
+                      case _ =>
+                        if (firstNonTagElement) {
+                          firstNonTagElement = false; ""
+                        } else "."
+                    }
+                    s"$prefix${renderScenarioElement(element, extractedUris)}"
+                  }
+                  .mkString("\n\t\t")
+                s"val chain_$i = $chainContent"
+            }
+            .mkString("\n\n")
 
           val chainsList = chains.indices.map(i => s"chain_$i").mkString(", ")
 

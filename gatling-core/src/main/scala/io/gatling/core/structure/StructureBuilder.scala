@@ -23,21 +23,20 @@ import io.gatling.core.controller.inject.{ InjectionProfileFactory, MetaInjectio
  * This trait defines most of the scenario related DSL
  */
 sealed trait StructureBuilder[B <: StructureBuilder[B]]
-  extends Execs[B]
-  with Pauses[B]
-  with Feeds[B]
-  with Loops[B]
-  with ConditionalStatements[B]
-  with Errors[B]
-  with Groups[B]
+    extends Execs[B]
+    with Pauses[B]
+    with Feeds[B]
+    with Loops[B]
+    with ConditionalStatements[B]
+    with Errors[B]
+    with Groups[B]
 
 /**
  * This class defines chain related methods
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-final case class ChainBuilder(actionBuilders: List[ActionBuilder])
-  extends StructureBuilder[ChainBuilder] with BuildAction {
+final case class ChainBuilder(actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction {
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
     ChainBuilder(newActionBuilders.toList ::: actionBuilders)

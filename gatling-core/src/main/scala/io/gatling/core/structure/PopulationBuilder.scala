@@ -30,13 +30,12 @@ import io.gatling.core.session.Expression
 import com.typesafe.scalalogging.LazyLogging
 
 final case class PopulationBuilder(
-    scenarioBuilder:       ScenarioBuilder,
-    injectionProfile:      InjectionProfile,
-    scenarioProtocols:     Protocols              = Protocols(),
+    scenarioBuilder: ScenarioBuilder,
+    injectionProfile: InjectionProfile,
+    scenarioProtocols: Protocols = Protocols(),
     scenarioThrottleSteps: Iterable[ThrottleStep] = Nil,
-    pauseType:             Option[PauseType]      = None
-)
-  extends LazyLogging {
+    pauseType: Option[PauseType] = None
+) extends LazyLogging {
 
   def protocols(protocols: Protocol*): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ protocols)
 
@@ -62,7 +61,12 @@ final case class PopulationBuilder(
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries, globalPauseType: PauseType, globalThrottling: Option[Throttling]): Scenario = {
+  private[core] def build(
+      coreComponents: CoreComponents,
+      protocolComponentsRegistries: ProtocolComponentsRegistries,
+      globalPauseType: PauseType,
+      globalThrottling: Option[Throttling]
+  ): Scenario = {
 
     val resolvedPauseType =
       if (scenarioThrottleSteps.nonEmpty || globalThrottling.isDefined) {

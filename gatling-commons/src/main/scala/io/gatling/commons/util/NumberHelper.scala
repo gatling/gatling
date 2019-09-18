@@ -30,9 +30,9 @@ object NumberHelper {
     var k = start
     var c = ' '
     while (k < s.length && {
-      c = s.charAt(k)
-      c.isDigit
-    }) {
+             c = s.charAt(k)
+             c.isDigit
+           }) {
       value = value * 10L + c.getNumericValue
       k += 1
     }
@@ -43,10 +43,10 @@ object NumberHelper {
 
     private def suffix(i: Int) = i % 10 match {
       case _ if (11 to 13) contains i % 100 => "th"
-      case 1                                => "st"
-      case 2                                => "nd"
-      case 3                                => "rd"
-      case _                                => "th"
+      case 1 => "st"
+      case 2 => "nd"
+      case 3 => "rd"
+      case _ => "th"
     }
 
     def roundWithScale(scale: Int): Double =

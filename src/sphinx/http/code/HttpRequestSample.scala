@@ -112,13 +112,15 @@ class HttpRequestSample {
     //#headers
 
     //#asJson
-    http("foo").get("bar")
+    http("foo")
+      .get("bar")
       .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationJson)
       .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
     //#asJson
 
     //#asXml
-    http("foo").get("bar")
+    http("foo")
+      .get("bar")
       .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationXml)
       .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationXml)
     //#asXml
@@ -224,26 +226,31 @@ class HttpRequestSample {
       //#RawFileBody
       // myFileBody.json is a file that contains
       // { "myContent": "myHardCodedValue" }
-      .body(RawFileBody("myFileBody.json")).asJson
+      .body(RawFileBody("myFileBody.json"))
+      .asJson
       //#RawFileBody
       //#ElFileBody
       // myFileBody.json is a file that contains
       // { "myContent": "${myDynamicValue}" }
-      .body(ElFileBody("myFileBody.json")).asJson
+      .body(ElFileBody("myFileBody.json"))
+      .asJson
       //#ElFileBody
       //#StringBody
-      .body(StringBody("""{ "myContent": "myHardCodedValue" }""")).asJson
-
-      .body(StringBody("""{ "myContent": "${myDynamicValue}" }""")).asJson
-
-      .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }""")).asJson
+      .body(StringBody("""{ "myContent": "myHardCodedValue" }"""))
+      .asJson
+      .body(StringBody("""{ "myContent": "${myDynamicValue}" }"""))
+      .asJson
+      .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }"""))
+      .asJson
       //#StringBody
       //#PebbleBody
-      .body(PebbleStringBody("""{ "myContent": "{% if myCondition %}{{myDynamicValue}}{% endif %}" }""")).asJson
+      .body(PebbleStringBody("""{ "myContent": "{% if myCondition %}{{myDynamicValue}}{% endif %}" }"""))
+      .asJson
 
       // myFileBody.json is a file that contains
       // { "myContent": "{myDynamicValue}" }
-      .body(PebbleFileBody("myFileBody.json")).asJson
+      .body(PebbleFileBody("myFileBody.json"))
+      .asJson
     //#PebbleBody
 
     //#templates
@@ -264,17 +271,17 @@ class HttpRequestSample {
     import java.nio.charset.StandardCharsets.UTF_8
     //#resp-processors-imports
 
-    http("foo").get("bar")
+    http("foo")
+      .get("bar")
       //#response-processors
 
       // ignore when response status code is not 200
-      .transformResponse {
-        (session, response) =>
-          if (response.status.code == 200) {
-            response.copy(body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8))
-          } else {
-            response
-          }
+      .transformResponse { (session, response) =>
+        if (response.status.code == 200) {
+          response.copy(body = new ByteArrayResponseBody(Base64.getDecoder.decode(response.body.string), UTF_8))
+        } else {
+          response
+        }
       }
     //#response-processors
   }

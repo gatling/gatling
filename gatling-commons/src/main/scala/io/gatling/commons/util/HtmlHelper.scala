@@ -24,7 +24,9 @@ object HtmlHelper {
 
   private val entities = ResourceBundle.getBundle("html-entities")
 
-  private val charToHtmlEntities: Map[Char, String] = entities.getKeys.asScala.map { entityName => (entities.getString(entityName).toInt.toChar, s"&$entityName;") }.toMap
+  private val charToHtmlEntities: Map[Char, String] = entities.getKeys.asScala.map { entityName =>
+    (entities.getString(entityName).toInt.toChar, s"&$entityName;")
+  }.toMap
 
   implicit class HtmlRichString(val string: String) extends AnyVal {
 

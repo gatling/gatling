@@ -29,17 +29,17 @@ trait CoreDefaultImplicits {
 
   implicit def configuration: GatlingConfiguration
 
-  implicit lazy val defaultPatterns: Patterns = new Patterns
+  lazy implicit val defaultPatterns: Patterns = new Patterns
 
-  implicit lazy val defaultJsonParsers: JsonParsers = JsonParsers()
-  implicit lazy val defaultJsonPaths: JsonPaths = new JsonPaths
-  implicit lazy val defaultJmesPaths: JmesPaths = new JmesPaths
+  lazy implicit val defaultJsonParsers: JsonParsers = JsonParsers()
+  lazy implicit val defaultJsonPaths: JsonPaths = new JsonPaths
+  lazy implicit val defaultJmesPaths: JmesPaths = new JmesPaths
 
-  implicit lazy val defaultXmlParsers: XmlParsers = new XmlParsers
+  lazy implicit val defaultXmlParsers: XmlParsers = new XmlParsers
 
-  implicit lazy val defaultCssSelectors: CssSelectors = new CssSelectors
+  lazy implicit val defaultCssSelectors: CssSelectors = new CssSelectors
 
-  implicit lazy val elFileBodies: ElFileBodies = new ElFileBodies
-  implicit lazy val rawFileBodies: RawFileBodies = new RawFileBodies
-  implicit lazy val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies
+  lazy implicit val elFileBodies: ElFileBodies = new ElFileBodies
+  lazy implicit val rawFileBodies: RawFileBodies = new RawFileBodies
+  lazy implicit val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies
 }

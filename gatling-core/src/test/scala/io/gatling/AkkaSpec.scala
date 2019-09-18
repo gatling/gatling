@@ -20,14 +20,10 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 import akka.actor.ActorSystem
-import akka.testkit.{ TestKit, ImplicitSender }
+import akka.testkit.{ ImplicitSender, TestKit }
 import org.scalatest.BeforeAndAfterAll
 
-abstract class AkkaSpec
-  extends TestKit(ActorSystem())
-  with BaseSpec
-  with ImplicitSender
-  with BeforeAndAfterAll {
+abstract class AkkaSpec extends TestKit(ActorSystem()) with BaseSpec with ImplicitSender with BeforeAndAfterAll {
 
   override def afterAll() = {
     val whenTerminated = system.terminate()

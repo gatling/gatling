@@ -42,7 +42,9 @@ object ZincCompiler extends App with ProblemStringFormats {
 
   private def manifestClasspath: Array[JFile] = {
 
-    val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF").asScala
+    val manifests = Thread.currentThread.getContextClassLoader
+      .getResources("META-INF/MANIFEST.MF")
+      .asScala
       .map { url =>
         val is = url.openStream()
         try {
@@ -165,10 +167,9 @@ object ZincCompiler extends App with ProblemStringFormats {
         Array.empty // extra
       )
 
-    val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString)
-      .deepFiles
-      .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
-      .toArray
+    val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString).deepFiles.collect {
+      case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile
+    }.toArray
 
     val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
 

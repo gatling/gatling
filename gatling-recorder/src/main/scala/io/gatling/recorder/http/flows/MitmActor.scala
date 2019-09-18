@@ -32,14 +32,14 @@ import io.netty.handler.codec.http.{ FullHttpRequest, HttpClientCodec }
 
 object MitmActor {
   def apply(
-    outgoingProxy:          Option[OutgoingProxy],
-    clientBootstrap:        Bootstrap,
-    sslServerContext:       SslServerContext,
-    trafficLogger:          TrafficLogger,
-    httpClientCodecFactory: () => HttpClientCodec,
-    channel:                Channel,
-    https:                  Boolean,
-    clock:                  Clock
+      outgoingProxy: Option[OutgoingProxy],
+      clientBootstrap: Bootstrap,
+      sslServerContext: SslServerContext,
+      trafficLogger: TrafficLogger,
+      httpClientCodecFactory: () => HttpClientCodec,
+      channel: Channel,
+      https: Boolean,
+      clock: Clock
   ): MitmActor =
     if (https) {
       outgoingProxy match {

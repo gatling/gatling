@@ -30,12 +30,26 @@ private[charts] object ConsoleTemplate {
 
   private[template] def writeRequestCounters[T: Numeric](sb: JStringBuilder, statistics: Statistics[T]): JStringBuilder = {
     import statistics._
-    sb.append("> ").append(name.rightPad(OutputLength - 32)).append(' ').append(printable(total).leftPad(7)).append(" (OK=").append(printable(success).rightPad(6)).append(" KO=").append(printable(failure).rightPad(6)).append(')')
+    sb.append("> ")
+      .append(name.rightPad(OutputLength - 32))
+      .append(' ')
+      .append(printable(total).leftPad(7))
+      .append(" (OK=")
+      .append(printable(success).rightPad(6))
+      .append(" KO=")
+      .append(printable(failure).rightPad(6))
+      .append(')')
   }
 
   private[template] def writeGroupedCounters(sb: JStringBuilder, groupedCount: GroupedCount): JStringBuilder = {
     import groupedCount._
-    sb.append("> ").append(name.rightPad(OutputLength - 32)).append(' ').append(count.toString.leftPad(7)).append(" (").append(percentage.toString.leftPad(3)).append("%)")
+    sb.append("> ")
+      .append(name.rightPad(OutputLength - 32))
+      .append(' ')
+      .append(count.toString.leftPad(7))
+      .append(" (")
+      .append(percentage.toString.leftPad(3))
+      .append("%)")
   }
 
   private[template] def writeErrorsAndEndBlock(sb: JStringBuilder, errors: Seq[ErrorStats]): JStringBuilder = {
@@ -49,8 +63,10 @@ private[charts] object ConsoleTemplate {
   def println(requestStatistics: RequestStatistics, errors: Seq[ErrorStats]): String = {
     import requestStatistics._
 
-    val sb = new JStringBuilder().append(Eol)
-      .append(NewBlock).append(Eol)
+    val sb = new JStringBuilder()
+      .append(Eol)
+      .append(NewBlock)
+      .append(Eol)
 
     writeSubTitle(sb, "Global Information").append(Eol)
     writeRequestCounters(sb, numberOfRequestsStatistics).append(Eol)

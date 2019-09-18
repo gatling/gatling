@@ -16,7 +16,7 @@
 
 package io.gatling.core.session
 
-import io.gatling.{ ValidationValues, BaseSpec }
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation._
 import io.gatling.core.session.el._
 

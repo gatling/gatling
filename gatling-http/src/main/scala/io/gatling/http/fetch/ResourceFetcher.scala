@@ -41,11 +41,18 @@ private[http] object ResourceFetcher extends StrictLogging {
       case _       => resources
     }
 
-  def resourcesToRequests(resources: List[ConcurrentResource], session: Session, httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): List[HttpRequest] =
+  def resourcesToRequests(
+      resources: List[ConcurrentResource],
+      session: Session,
+      httpCaches: HttpCaches,
+      httpProtocol: HttpProtocol,
+      throttled: Boolean,
+      configuration: GatlingConfiguration
+  ): List[HttpRequest] =
     resources.flatMap {
       _.toRequest(session, httpCaches, httpProtocol, throttled, configuration) match {
         case Success(httpRequest) => List(httpRequest)
-        case Failure(m) =>
+        case Failure(m)           =>
           // shouldn't happen, only static values
           logger.error("Couldn't build request for embedded resource: " + m)
           Nil
@@ -55,8 +62,8 @@ private[http] object ResourceFetcher extends StrictLogging {
 
 private[http] class ResourceFetcher(
     coreComponents: CoreComponents,
-    httpCaches:     HttpCaches,
-    httpProtocol:   HttpProtocol,
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
     httpTxExecutor: HttpTxExecutor
 ) extends StrictLogging {
 
@@ -95,7 +102,14 @@ private[http] class ResourceFetcher(
     }
   }
 
-  def cssFetched(uri: Uri, responseStatus: HttpResponseStatus, lastModifiedOrEtag: Option[String], content: String, session: Session, throttled: Boolean): List[HttpRequest] = {
+  def cssFetched(
+      uri: Uri,
+      responseStatus: HttpResponseStatus,
+      lastModifiedOrEtag: Option[String],
+      content: String,
+      session: Session,
+      throttled: Boolean
+  ): List[HttpRequest] = {
 
     def parseCssResources(): List[HttpRequest] = {
       val computer = CssParser.extractResources(_: Uri, content)
@@ -132,16 +146,16 @@ private[http] class ResourceFetcher(
   }
 
   private def buildExplicitResources(resources: List[HttpRequestDef], session: Session): List[HttpRequest] = resources.flatMap { resource =>
-
     resource.requestName(session) match {
-      case Success(requestName) => resource.build(requestName, session) match {
-        case Success(httpRequest) =>
-          Some(httpRequest)
+      case Success(requestName) =>
+        resource.build(requestName, session) match {
+          case Success(httpRequest) =>
+            Some(httpRequest)
 
-        case Failure(m) =>
-          coreComponents.statsEngine.reportUnbuildableRequest(session, requestName, m)
-          None
-      }
+          case Failure(m) =>
+            coreComponents.statsEngine.reportUnbuildableRequest(session, requestName, m)
+            None
+        }
 
       case Failure(m) =>
         logger.error("Could build request name for explicitResource: " + m)

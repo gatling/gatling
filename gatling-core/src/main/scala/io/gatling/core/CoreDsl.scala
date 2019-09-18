@@ -27,17 +27,18 @@ import io.gatling.core.pause.PauseSupport
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 
-trait CoreDsl extends StructureSupport
-  with PauseSupport
-  with CheckSupport
-  with FeederSupport
-  with OpenInjectionSupport
-  with ClosedInjectionSupport
-  with ThrottlingSupport
-  with AssertionSupport
-  with BodySupport
-  with CoreDefaultImplicits
-  with ValidationImplicits {
+trait CoreDsl
+    extends StructureSupport
+    with PauseSupport
+    with CheckSupport
+    with FeederSupport
+    with OpenInjectionSupport
+    with ClosedInjectionSupport
+    with ThrottlingSupport
+    with AssertionSupport
+    with BodySupport
+    with CoreDefaultImplicits
+    with ValidationImplicits {
 
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "))
 

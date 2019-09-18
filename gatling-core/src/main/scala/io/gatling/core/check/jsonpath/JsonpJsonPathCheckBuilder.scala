@@ -34,6 +34,6 @@ object JsonpJsonPathCheckBuilder {
 }
 
 class JsonpJsonPathCheckBuilder[X: JsonFilter](
-    path:      Expression[String],
+    path: Expression[String],
     jsonPaths: JsonPaths
 ) extends JsonPathCheckBuilderBase[JsonpJsonPathCheckType, X]("jsonpJsonPath", path, jsonPaths)

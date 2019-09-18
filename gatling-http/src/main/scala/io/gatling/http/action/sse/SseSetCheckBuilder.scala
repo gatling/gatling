@@ -27,8 +27,8 @@ import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
 import com.softwaremill.quicklens._
 
 final case class SseSetCheckBuilder(
-    requestName:    Expression[String],
-    sseName:        String,
+    requestName: Expression[String],
+    sseName: String,
     checkSequences: List[SseMessageCheckSequence]
 ) extends HttpActionBuilder {
 

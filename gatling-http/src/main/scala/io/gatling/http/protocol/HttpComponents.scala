@@ -25,9 +25,9 @@ import io.gatling.http.engine.tx.HttpTxExecutor
 
 final case class HttpComponents(
     coreComponents: CoreComponents,
-    httpProtocol:   HttpProtocol,
-    httpEngine:     HttpEngine,
-    httpCaches:     HttpCaches,
+    httpProtocol: HttpProtocol,
+    httpEngine: HttpEngine,
+    httpCaches: HttpCaches,
     httpTxExecutor: HttpTxExecutor
 ) extends ProtocolComponents {
 

@@ -20,6 +20,8 @@ import io.gatling.commons.util.StringHelper.Eol
 
 private[scenario] object ValuesTemplate {
   def render(values: Seq[Value]): String =
-    values.sortBy(_.name).map(value => s"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
+    values
+      .sortBy(_.name)
+      .map(value => s"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
       .mkString(Eol)
 }

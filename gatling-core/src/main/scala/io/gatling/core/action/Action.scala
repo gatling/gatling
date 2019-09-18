@@ -58,7 +58,7 @@ trait ChainableAction extends Action {
    */
   def next: Action
 
-  abstract override def !(session: Session): Unit =
+  override abstract def !(session: Session): Unit =
     try {
       super.!(session)
     } catch {
@@ -84,7 +84,9 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
   def execute(session: Session): Unit = actor ! session
 }
 
-class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action, actor: ActorRef) extends ActorDelegatingAction(name, actor) with ExitableAction
+class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action, actor: ActorRef)
+    extends ActorDelegatingAction(name, actor)
+    with ExitableAction
 
 trait RequestAction extends ExitableAction {
 
@@ -122,4 +124,3 @@ trait ActorBasedAction {
       .validate[ActorRef]
       .mapError(m => s"$actorFetchErrorMessage: $m")
 }
-

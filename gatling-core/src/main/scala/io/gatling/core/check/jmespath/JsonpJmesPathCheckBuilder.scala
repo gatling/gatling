@@ -35,6 +35,6 @@ object JsonpJmesPathCheckBuilder {
 }
 
 class JsonpJmesPathCheckBuilder[X: JsonFilter](
-    path:      Expression[String],
+    path: Expression[String],
     jmesPaths: JmesPaths
 ) extends JmesPathCheckBuilderBase[JsonpJmesPathCheckType, X]("jsonpJmesPath", path, jmesPaths)

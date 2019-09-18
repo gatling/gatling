@@ -23,7 +23,10 @@ private[feeder] object ArrayBasedMap {
     new ArrayBasedMap(keys, values, math.min(keys.length, values.length))
 }
 
-private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], override val size: Int) extends AbstractMap[K, V] with Map[K, V] with Serializable {
+private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], override val size: Int)
+    extends AbstractMap[K, V]
+    with Map[K, V]
+    with Serializable {
 
   override def +[V1 >: V](kv: (K, V1)): Map[K, V1] = updated(kv._1, kv._2)
 

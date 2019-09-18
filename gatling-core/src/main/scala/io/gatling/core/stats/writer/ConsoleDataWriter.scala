@@ -39,14 +39,13 @@ class UserCounters(val totalUserCount: Option[Long]) {
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
 class ConsoleData(
-    val startUpTime:           Long,
-    var complete:              Boolean                              = false,
-    val usersCounters:         mutable.Map[String, UserCounters]    = mutable.Map.empty[String, UserCounters],
-    val globalRequestCounters: RequestCounters                      = new RequestCounters,
-    val requestsCounters:      mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty,
-    val errorsCounters:        mutable.Map[String, Int]             = mutable.LinkedHashMap.empty
-)
-  extends DataWriterData
+    val startUpTime: Long,
+    var complete: Boolean = false,
+    val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty[String, UserCounters],
+    val globalRequestCounters: RequestCounters = new RequestCounters,
+    val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty,
+    val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
+) extends DataWriterData
 
 class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
 

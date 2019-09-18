@@ -22,8 +22,9 @@ import io.gatling.charts.util.Colors.Orange
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.{ IntVsTimePlot, Series }
 
-private[charts] class AllSessionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-  extends ReportGenerator {
+private[charts] class AllSessionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+    implicit configuration: GatlingConfiguration
+) extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._

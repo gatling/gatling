@@ -21,7 +21,9 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NameGen
 
-class If(condition: Expression[Boolean], thenNext: Action, elseNext: Action, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
+class If(condition: Expression[Boolean], thenNext: Action, elseNext: Action, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ExitableAction
+    with NameGen {
 
   override val name: String = genName("if")
 

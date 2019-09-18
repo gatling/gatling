@@ -32,15 +32,17 @@ import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilder
 
 class PollingStart(
-    pollerName:     String,
-    period:         FiniteDuration,
+    pollerName: String,
+    period: FiniteDuration,
     coreComponents: CoreComponents,
     httpRequestDef: HttpRequestDef,
-    httpCaches:     HttpCaches,
-    httpProtocol:   HttpProtocol,
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
     httpTxExecutor: HttpTxExecutor,
-    val next:       Action
-) extends ExitableAction with PollingAction with NameGen {
+    val next: Action
+) extends ExitableAction
+    with PollingAction
+    with NameGen {
 
   import httpRequestDef._
 

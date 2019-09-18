@@ -25,10 +25,11 @@ import io.gatling.http.response.Response
 
 trait HttpStatusCheckType
 
-object HttpStatusCheckBuilder extends DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](
-  extractor = new FindExtractor[Response, Int]("status", response => Some(response.status.code).success).expressionSuccess,
-  displayActualValue = true
-)
+object HttpStatusCheckBuilder
+    extends DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](
+      extractor = new FindExtractor[Response, Int]("status", response => Some(response.status.code).success).expressionSuccess,
+      displayActualValue = true
+    )
 
 object HttpStatusCheckMaterializer extends HttpCheckMaterializer[HttpStatusCheckType, Response](Status) {
 

@@ -18,7 +18,7 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.{ UserRecord, GroupRecord, RequestRecord }
+import io.gatling.charts.stats.{ GroupRecord, RequestRecord, UserRecord }
 import io.gatling.commons.stats.{ GroupStatsPath, RequestStatsPath, StatsPath }
 
 private[stats] trait NamesBuffers {

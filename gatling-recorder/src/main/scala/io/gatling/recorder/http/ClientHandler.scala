@@ -24,7 +24,9 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.{ ChannelHandlerContext, ChannelId, ChannelInboundHandlerAdapter }
 import io.netty.handler.codec.http.FullHttpResponse
 
-class ClientHandler(mitmActor: ActorRef, serverChannelId: ChannelId, trafficLogger: TrafficLogger, clock: Clock) extends ChannelInboundHandlerAdapter with StrictLogging {
+class ClientHandler(mitmActor: ActorRef, serverChannelId: ChannelId, trafficLogger: TrafficLogger, clock: Clock)
+    extends ChannelInboundHandlerAdapter
+    with StrictLogging {
 
   override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
     val receiveTimestamp = clock.nowMillis

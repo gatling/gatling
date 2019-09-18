@@ -271,29 +271,29 @@ object GatlingConfiguration extends StrictLogging {
 }
 
 final case class CoreConfiguration(
-    version:                          String,
-    outputDirectoryBaseName:          Option[String],
-    runDescription:                   Option[String],
-    encoding:                         String,
-    simulationClass:                  Option[String],
-    extract:                          ExtractConfiguration,
-    directory:                        DirectoryConfiguration,
-    elFileBodiesCacheMaxCapacity:     Long,
-    rawFileBodiesCacheMaxCapacity:    Long,
-    rawFileBodiesInMemoryMaxSize:     Long,
+    version: String,
+    outputDirectoryBaseName: Option[String],
+    runDescription: Option[String],
+    encoding: String,
+    simulationClass: Option[String],
+    extract: ExtractConfiguration,
+    directory: DirectoryConfiguration,
+    elFileBodiesCacheMaxCapacity: Long,
+    rawFileBodiesCacheMaxCapacity: Long,
+    rawFileBodiesInMemoryMaxSize: Long,
     pebbleFileBodiesCacheMaxCapacity: Long,
-    feederAdaptiveLoadModeThreshold:  Long,
-    shutdownTimeout:                  Long
+    feederAdaptiveLoadModeThreshold: Long,
+    shutdownTimeout: Long
 ) {
 
   val charset: Charset = Charset.forName(encoding)
 }
 
 final case class ExtractConfiguration(
-    regex:    RegexConfiguration,
-    xpath:    XPathConfiguration,
+    regex: RegexConfiguration,
+    xpath: XPathConfiguration,
     jsonPath: JsonPathConfiguration,
-    css:      CssConfiguration
+    css: CssConfiguration
 )
 
 final case class RegexConfiguration(
@@ -302,7 +302,7 @@ final case class RegexConfiguration(
 
 final case class XPathConfiguration(
     cacheMaxCapacity: Long,
-    preferJdk:        Boolean
+    preferJdk: Boolean
 )
 
 final case class JsonPathConfiguration(
@@ -315,21 +315,21 @@ final case class CssConfiguration(
 
 final case class DirectoryConfiguration(
     simulations: String,
-    resources:   String,
-    binaries:    Option[String],
+    resources: String,
+    binaries: Option[String],
     reportsOnly: Option[String],
-    results:     String
+    results: String
 )
 
 final case class ChartingConfiguration(
-    noReports:              Boolean,
-    maxPlotsPerSeries:      Int,
+    noReports: Boolean,
+    maxPlotsPerSeries: Int,
     useGroupDurationMetric: Boolean,
-    indicators:             IndicatorsConfiguration
+    indicators: IndicatorsConfiguration
 )
 
 final case class IndicatorsConfiguration(
-    lowerBound:  Int,
+    lowerBound: Int,
     higherBound: Int,
     percentile1: Double,
     percentile2: Double,
@@ -338,14 +338,14 @@ final case class IndicatorsConfiguration(
 )
 
 final case class HttpConfiguration(
-    fetchedCssCacheMaxCapacity:  Long,
+    fetchedCssCacheMaxCapacity: Long,
     fetchedHtmlCacheMaxCapacity: Long,
-    perUserCacheMaxCapacity:     Int,
-    warmUpUrl:                   Option[String],
-    enableGA:                    Boolean,
-    ssl:                         SslConfiguration,
-    advanced:                    AdvancedConfiguration,
-    dns:                         DnsConfiguration
+    perUserCacheMaxCapacity: Int,
+    warmUpUrl: Option[String],
+    enableGA: Boolean,
+    ssl: SslConfiguration,
+    advanced: AdvancedConfiguration,
+    dns: DnsConfiguration
 )
 
 final case class JmsConfiguration(
@@ -353,45 +353,44 @@ final case class JmsConfiguration(
 )
 
 final case class AdvancedConfiguration(
-    connectTimeout:               FiniteDuration,
-    handshakeTimeout:             FiniteDuration,
-    pooledConnectionIdleTimeout:  FiniteDuration,
-    maxRetry:                     Int,
-    requestTimeout:               FiniteDuration,
-    enableSni:                    Boolean,
-    enableHostnameVerification:   Boolean,
-    useInsecureTrustManager:      Boolean,
-    sslEnabledProtocols:          List[String],
-    sslEnabledCipherSuites:       List[String],
-    sslSessionCacheSize:          Int,
-    sslSessionTimeout:            FiniteDuration,
-    useOpenSsl:                   Boolean,
-    useNativeTransport:           Boolean,
-    enableZeroCopy:               Boolean,
-    tcpNoDelay:                   Boolean,
-    soKeepAlive:                  Boolean,
-    soReuseAddress:               Boolean,
-    allocator:                    String,
+    connectTimeout: FiniteDuration,
+    handshakeTimeout: FiniteDuration,
+    pooledConnectionIdleTimeout: FiniteDuration,
+    maxRetry: Int,
+    requestTimeout: FiniteDuration,
+    enableSni: Boolean,
+    enableHostnameVerification: Boolean,
+    useInsecureTrustManager: Boolean,
+    sslEnabledProtocols: List[String],
+    sslEnabledCipherSuites: List[String],
+    sslSessionCacheSize: Int,
+    sslSessionTimeout: FiniteDuration,
+    useOpenSsl: Boolean,
+    useNativeTransport: Boolean,
+    enableZeroCopy: Boolean,
+    tcpNoDelay: Boolean,
+    soKeepAlive: Boolean,
+    soReuseAddress: Boolean,
+    allocator: String,
     maxThreadLocalCharBufferSize: Int
-
 )
 
 final case class DnsConfiguration(
-    queryTimeout:         FiniteDuration,
+    queryTimeout: FiniteDuration,
     maxQueriesPerResolve: Int
 )
 
 final case class SslConfiguration(
-    keyManagerFactory:   Option[KeyManagerFactory],
+    keyManagerFactory: Option[KeyManagerFactory],
     trustManagerFactory: Option[TrustManagerFactory]
 )
 
 final case class DataConfiguration(
     dataWriters: Seq[DataWriterType],
-    file:        FileDataWriterConfiguration,
-    leak:        LeakDataWriterConfiguration,
-    console:     ConsoleDataWriterConfiguration,
-    graphite:    GraphiteDataWriterConfiguration
+    file: FileDataWriterConfiguration,
+    leak: LeakDataWriterConfiguration,
+    console: ConsoleDataWriterConfiguration,
+    graphite: GraphiteDataWriterConfiguration
 ) {
 
   def fileDataWriterEnabled: Boolean = dataWriters.contains(FileDataWriterType)
@@ -406,18 +405,18 @@ final case class LeakDataWriterConfiguration(
 )
 
 final case class ConsoleDataWriterConfiguration(
-    light:       Boolean,
+    light: Boolean,
     writePeriod: FiniteDuration
 )
 
 final case class GraphiteDataWriterConfiguration(
-    light:          Boolean,
-    host:           String,
-    port:           Int,
-    protocol:       TransportProtocol,
+    light: Boolean,
+    host: String,
+    port: Int,
+    protocol: TransportProtocol,
     rootPathPrefix: String,
-    bufferSize:     Int,
-    writePeriod:    FiniteDuration
+    bufferSize: Int,
+    writePeriod: FiniteDuration
 )
 
 // [fl]
@@ -432,11 +431,11 @@ final case class GraphiteDataWriterConfiguration(
 // [fl]
 
 final case class GatlingConfiguration(
-    core:     CoreConfiguration,
+    core: CoreConfiguration,
     charting: ChartingConfiguration,
-    http:     HttpConfiguration,
-    jms:      JmsConfiguration,
-    data:     DataConfiguration,
+    http: HttpConfiguration,
+    jms: JmsConfiguration,
+    data: DataConfiguration,
     // [fl]
     //
     // [fl]

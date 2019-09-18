@@ -19,9 +19,9 @@ package io.gatling.recorder.model
 import io.netty.handler.codec.http.HttpHeaders
 
 final case class HttpResponse(
-    status:     Int,
+    status: Int,
     statusText: String,
-    headers:    HttpHeaders,
-    body:       Array[Byte],
-    timestamp:  Long
+    headers: HttpHeaders,
+    body: Array[Byte],
+    timestamp: Long
 )

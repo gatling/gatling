@@ -56,25 +56,27 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
   // [fl]
 
   override def logResponse(
-    session:        Session,
-    requestName:    String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String] = None
+      session: Session,
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String] = None
   ): Unit =
-    handle(ResponseMessage(
-      session.scenario,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      startTimestamp,
-      endTimestamp,
-      status,
-      None,
-      message
-    ))
+    handle(
+      ResponseMessage(
+        session.scenario,
+        session.userId,
+        session.groupHierarchy,
+        requestName,
+        startTimestamp,
+        endTimestamp,
+        status,
+        None,
+        message
+      )
+    )
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
     handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startTimestamp, exitTimestamp, group.cumulatedResponseTime, group.status))

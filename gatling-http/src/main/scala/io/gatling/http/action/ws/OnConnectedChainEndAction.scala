@@ -51,10 +51,12 @@ class OnConnectedChainEndAction(override val name: String, exit: Action) extends
   import OnConnectedChainEndAction._
 
   override def execute(session: Session): Unit =
-    session(OnConnectedChainEndCallback).validate[Session => Unit]
+    session(OnConnectedChainEndCallback)
+      .validate[Session => Unit]
       .map {
         _(removeOnConnectedChainEndCallback(session))
-      }.onFailure { message =>
+      }
+      .onFailure { message =>
         logger.error(s"'$name' failed to execute: $message")
         exit ! session
       }

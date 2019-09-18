@@ -50,13 +50,14 @@ object BodyProcessors {
         case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
         case pebbleBody: PebbleBody   => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(configuration.core.charset)))
         case ByteArrayBody(byteArray) => byteArray.map(new FastByteArrayInputStream(_))
-        case RawFileBody(resourceAndCachedBytes) => resourceAndCachedBytes.map {
-          case ResourceAndCachedBytes(resource, cachedBytes) =>
-            cachedBytes match {
-              case Some(bytes) => new FastByteArrayInputStream(bytes)
-              case _           => new FileInputStream(resource.file)
-            }
-        }
+        case RawFileBody(resourceAndCachedBytes) =>
+          resourceAndCachedBytes.map {
+            case ResourceAndCachedBytes(resource, cachedBytes) =>
+              cachedBytes match {
+                case Some(bytes) => new FastByteArrayInputStream(bytes)
+                case _           => new FileInputStream(resource.file)
+              }
+          }
         case InputStreamBody(inputStream) => inputStream
         case b: CompositeByteArrayBody    => b.asStream
       }

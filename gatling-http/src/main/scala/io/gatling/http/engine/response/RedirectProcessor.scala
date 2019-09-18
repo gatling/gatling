@@ -34,7 +34,14 @@ import io.netty.handler.codec.http.HttpResponseStatus._
 
 object RedirectProcessor {
 
-  def redirectRequest(originalRequest: Request, session: Session, responseStatus: HttpResponseStatus, httpProtocol: HttpProtocol, redirectUri: Uri, defaultCharset: Charset): Validation[Request] = {
+  def redirectRequest(
+      originalRequest: Request,
+      session: Session,
+      responseStatus: HttpResponseStatus,
+      httpProtocol: HttpProtocol,
+      redirectUri: Uri,
+      defaultCharset: Charset
+  ): Validation[Request] = {
 
     val originalMethod = originalRequest.getMethod
 
@@ -86,8 +93,8 @@ object RedirectProcessor {
     val newClientRequest = requestBuilder.build
 
     if (newClientRequest.getUri == originalRequest.getUri
-      && newClientRequest.getMethod == originalRequest.getMethod
-      && newClientRequest.getCookies.asScala.toSet == originalRequest.getCookies.asScala.toSet) {
+        && newClientRequest.getMethod == originalRequest.getMethod
+        && newClientRequest.getCookies.asScala.toSet == originalRequest.getCookies.asScala.toSet) {
       // invalid redirect
 
       "Invalid redirect to the same request".failure

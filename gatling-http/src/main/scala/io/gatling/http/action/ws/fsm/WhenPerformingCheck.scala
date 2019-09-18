@@ -55,7 +55,6 @@ trait WhenPerformingCheck { this: WsActor =>
       }
 
     case Event(TextFrameReceived(message, timestamp), data: PerformingCheckData) =>
-
       data.currentCheck match {
         case WsTextFrameCheck(_, matchConditions, checks) => tryApplyingChecks(message, timestamp, matchConditions, checks, data)
 
@@ -67,7 +66,6 @@ trait WhenPerformingCheck { this: WsActor =>
       }
 
     case Event(BinaryFrameReceived(message, timestamp), data: PerformingCheckData) =>
-
       data.currentCheck match {
         case WsBinaryFrameCheck(_, matchConditions, checks) => tryApplyingChecks(message, timestamp, matchConditions, checks, data)
 
@@ -91,7 +89,14 @@ trait WhenPerformingCheck { this: WsActor =>
       handleWebSocketCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, t.getMessage)
   }
 
-  private def handleWebSocketCheckCrash(checkName: String, session: Session, next: Either[Action, SendFrame], checkSequenceStart: Long, code: Option[String], errorMessage: String): State = {
+  private def handleWebSocketCheckCrash(
+      checkName: String,
+      session: Session,
+      next: Either[Action, SendFrame],
+      checkSequenceStart: Long,
+      code: Option[String],
+      errorMessage: String
+  ): State = {
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
     val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))

@@ -39,13 +39,13 @@ object ConsoleSummary {
     sb.append(("---- " + title + " ").rightPad(OutputLength, "-"))
 
   def apply(
-    runDuration:           Long,
-    usersCounters:         mutable.Map[String, UserCounters],
-    globalRequestCounters: RequestCounters,
-    requestsCounters:      mutable.Map[String, RequestCounters],
-    errorsCounters:        mutable.Map[String, Int],
-    configuration:         GatlingConfiguration,
-    time:                  Date                                 = new Date
+      runDuration: Long,
+      usersCounters: mutable.Map[String, UserCounters],
+      globalRequestCounters: RequestCounters,
+      requestsCounters: mutable.Map[String, RequestCounters],
+      errorsCounters: mutable.Map[String, Int],
+      configuration: GatlingConfiguration,
+      time: Date = new Date
   ): ConsoleSummary = {
 
     def writeUsersCounters(sb: JStringBuilder, scenarioName: String, userCounters: UserCounters): JStringBuilder = {
@@ -59,14 +59,31 @@ object ConsoleSummary {
           val done = floor(width * doneCount.toDouble / tot).toInt
           val active = ceil(width * activeCount.toDouble / tot).toInt
           val waiting = width - done - active
-          writeSubTitle(sb, scenarioName).append(Eol)
-            .append('[').append("#" * done).append("-" * active).append(" " * waiting).append(']').append(donePercent.toString.leftPad(3)).append('%').append(Eol)
-            .append("          waiting: ").append(waitingCount.toString.rightPad(6)).append(" / active: ").append(activeCount.toString.rightPad(6)).append(" / done: ").append(doneCount.toString.rightPad(6))
+          writeSubTitle(sb, scenarioName)
+            .append(Eol)
+            .append('[')
+            .append("#" * done)
+            .append("-" * active)
+            .append(" " * waiting)
+            .append(']')
+            .append(donePercent.toString.leftPad(3))
+            .append('%')
+            .append(Eol)
+            .append("          waiting: ")
+            .append(waitingCount.toString.rightPad(6))
+            .append(" / active: ")
+            .append(activeCount.toString.rightPad(6))
+            .append(" / done: ")
+            .append(doneCount.toString.rightPad(6))
 
         case _ =>
           // Don't display progression for closed workload model, nor when tot is broken, it doesn't make sense
-          writeSubTitle(sb, scenarioName).append(Eol)
-            .append("          active: ").append(activeCount.toString.rightPad(6)).append(" / done: ").append(doneCount.toString.rightPad(6))
+          writeSubTitle(sb, scenarioName)
+            .append(Eol)
+            .append("          active: ")
+            .append(activeCount.toString.rightPad(6))
+            .append(" / done: ")
+            .append(doneCount.toString.rightPad(6))
       }
     }
 
@@ -74,7 +91,13 @@ object ConsoleSummary {
 
       import requestCounters._
       val maxActionNameLength = OutputLength - 24
-      sb.append("> ").append(actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength)).append(" (OK=").append(successfulCount.toString.rightPad(6)).append(" KO=").append(failedCount.toString.rightPad(6)).append(')')
+      sb.append("> ")
+        .append(actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength))
+        .append(" (OK=")
+        .append(successfulCount.toString.rightPad(6))
+        .append(" KO=")
+        .append(failedCount.toString.rightPad(6))
+        .append(')')
     }
 
     def writeDetailedRequestsCounter(sb: JStringBuilder): JStringBuilder = {
@@ -101,9 +124,14 @@ object ConsoleSummary {
       sb
     }
 
-    val sb = new JStringBuilder().append(Eol)
-      .append(NewBlock).append(Eol)
-      .append(ConsoleSummary.Iso8601DateTimeFormat.format(time)).append(' ').append((runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)).append(Eol)
+    val sb = new JStringBuilder()
+      .append(Eol)
+      .append(NewBlock)
+      .append(Eol)
+      .append(ConsoleSummary.Iso8601DateTimeFormat.format(time))
+      .append(' ')
+      .append((runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9))
+      .append(Eol)
 
     writeSubTitle(sb, "Requests").append(Eol)
     writeRequestsCounter(sb, "Global", globalRequestCounters).append(Eol)

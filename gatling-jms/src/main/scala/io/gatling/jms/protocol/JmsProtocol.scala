@@ -30,7 +30,8 @@ object JmsProtocol {
 
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[JmsProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
-    def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
+    def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol =
+      throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
     def newComponents(coreComponents: CoreComponents): JmsProtocol => JmsComponents = {
       val jmsConnectionPool = new JmsConnectionPool(coreComponents.actorSystem, coreComponents.statsEngine, coreComponents.clock, coreComponents.configuration)
@@ -43,12 +44,12 @@ object JmsProtocol {
 }
 
 final case class JmsProtocol(
-    connectionFactory:   ConnectionFactory,
-    credentials:         Option[Credentials],
-    deliveryMode:        Int,
-    replyTimeout:        Option[Long],
+    connectionFactory: ConnectionFactory,
+    credentials: Option[Credentials],
+    deliveryMode: Int,
+    replyTimeout: Option[Long],
     listenerThreadCount: Int,
-    messageMatcher:      JmsMessageMatcher
+    messageMatcher: JmsMessageMatcher
 ) extends Protocol {
 
   type Components = JmsComponents

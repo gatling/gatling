@@ -66,7 +66,9 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
           val averageSessionCount = sessionCounts.sum / sessionCounts.size
           val time = buckets(bucket)
           IntVsTimePlot(time, averageSessionCount)
-      }.toList.sortBy(_.time)
+      }
+      .toList
+      .sortBy(_.time)
   }
 }
 

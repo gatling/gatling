@@ -33,11 +33,11 @@ class FeederSample {
     //#feed-multiple
 
     csv("foo")
-      //#strategies
-      .queue // default behavior: use an Iterator on the underlying sequence
-      .random // randomly pick an entry in the sequence
-      .shuffle // shuffle entries, then behave like queue
-      .circular // go back to the top of the sequence once the end is reached
+    //#strategies
+    .queue // default behavior: use an Iterator on the underlying sequence
+    .random // randomly pick an entry in the sequence
+    .shuffle // shuffle entries, then behave like queue
+    .circular // go back to the top of the sequence once the end is reached
     //#strategies
   }
 
@@ -200,19 +200,23 @@ class FeederSample {
 
     // index records by project
     val recordsByProject: Map[String, Seq[Record[Any]]] =
-      csv("projectIssue.csv").readRecords.groupBy { record => record("project").toString }
+      csv("projectIssue.csv").readRecords.groupBy { record =>
+        record("project").toString
+      }
 
     // convert the Map values to get only the issues instead of the full records
     val issuesByProject: Map[String, Seq[Any]] =
-      recordsByProject.mapValues { records => records.map { record => record("issue") } }
+      recordsByProject.mapValues { records =>
+        records.map { record =>
+          record("issue")
+        }
+      }
 
     // inject project
     feed(csv("userProject.csv"))
-
       .exec { session =>
         // fetch project from  session
         session("project").validate[String].map { project =>
-
           // fetch project's issues
           val issues = issuesByProject(project)
 

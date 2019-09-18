@@ -73,7 +73,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     val httpProtocol = http
-      //#silentUri
+    //#silentUri
       .silentUri("https://myCDN/.*")
       //#silentUri
       //#headers
@@ -89,14 +89,15 @@ class HttpProtocolSample extends Simulation {
         Proxy("myHttpProxyHost", 8080)
           .httpsPort(8143)
           .credentials("myUsername", "myPassword")
-      ).proxy(
-          Proxy("mySocks4ProxyHost", 8080)
-            .socks4
-        ).proxy(
-            Proxy("mySocks5ProxyHost", 8080)
-              .httpsPort(8143)
-              .socks5
-          )
+      )
+      .proxy(
+        Proxy("mySocks4ProxyHost", 8080).socks4
+      )
+      .proxy(
+        Proxy("mySocks5ProxyHost", 8080)
+          .httpsPort(8143)
+          .socks5
+      )
     //#proxy
 
   }
@@ -117,8 +118,7 @@ class HttpProtocolSample extends Simulation {
 
   {
     //#http2PriorKnowledge
-    val httpProtocol = http
-      .enableHttp2
+    val httpProtocol = http.enableHttp2
       .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
     //#http2PriorKnowledge
   }

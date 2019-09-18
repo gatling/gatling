@@ -26,10 +26,11 @@ private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Comp
 	    $$('#container_errors').sortable('#container_errors');
     """
 
-  def html: String = if (errors.isEmpty)
-    ""
-  else
-    s"""<div class="statistics extensible-geant collapsed">
+  def html: String =
+    if (errors.isEmpty)
+      ""
+    else
+      s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         <div class="title_collapsed" style="cursor: auto;">ERRORS</div>
     </div>
@@ -42,16 +43,14 @@ private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Comp
             </tr>
         </thead>
 		<tbody>
-		    ${
-      errors.zipWithIndex.map {
+		    ${errors.zipWithIndex.map {
         case (error, index) => s"""
 		    <tr>
 		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="value error-col-2 total">${error.count}</td>
 		    	<td class="value error-col-3 total">${error.percentage.toPrintableString} %</td>
 		    </tr>"""
-      }.mkString
-    }
+      }.mkString}
 		</tbody>
     </table>
 </div>

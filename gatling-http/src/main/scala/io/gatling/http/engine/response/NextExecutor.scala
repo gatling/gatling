@@ -33,11 +33,12 @@ trait NextExecutor {
 }
 
 class RootNextExecutor(
-    tx:              HttpTx,
-    clock:           Clock,
+    tx: HttpTx,
+    clock: Clock,
     resourceFetcher: ResourceFetcher,
-    httpTxExecutor:  HttpTxExecutor
-) extends NextExecutor with NameGen {
+    httpTxExecutor: HttpTxExecutor
+) extends NextExecutor
+    with NameGen {
 
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     resourceFetcher.newResourceAggregatorForFetchedPage(response, tx.copy(session = session), status) match {
@@ -53,13 +54,21 @@ class RootNextExecutor(
 }
 
 class ResourceNextExecutor(
-    tx:         HttpTx,
+    tx: HttpTx,
     resourceTx: ResourceTx
 ) extends NextExecutor {
 
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     if (isCss(response.headers)) {
-      resourceTx.aggregator.onCssResourceFetched(resourceTx.uri, status, session, tx.silent, response.status, response.lastModifiedOrEtag(tx.request.requestConfig.httpProtocol), response.body.string)
+      resourceTx.aggregator.onCssResourceFetched(
+        resourceTx.uri,
+        status,
+        session,
+        tx.silent,
+        response.status,
+        response.lastModifiedOrEtag(tx.request.requestConfig.httpProtocol),
+        response.body.string
+      )
     } else {
       resourceTx.aggregator.onRegularResourceFetched(resourceTx.uri, status, session, tx.silent)
     }

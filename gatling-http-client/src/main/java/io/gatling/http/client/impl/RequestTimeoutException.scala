@@ -34,9 +34,8 @@ object RequestTimeoutException {
 }
 
 class RequestTimeoutException private[impl] (
-    val timeout:       Long,
+    val timeout: Long,
     val remoteAddress: InetSocketAddress
-)
-  extends TimeoutException(RequestTimeoutException.message(timeout, remoteAddress)) {
+) extends TimeoutException(RequestTimeoutException.message(timeout, remoteAddress)) {
   override def fillInStackTrace: Throwable = this
 }

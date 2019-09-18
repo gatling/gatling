@@ -28,7 +28,9 @@ private[inject] final case class UserStreamBatchResult(count: Long, continue: Bo
 
 object UserStream {
   def apply(steps: Iterable[OpenInjectionStep]): UserStream = {
-    val users = steps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
+    val users = steps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) =>
+      step.chain(iterator)
+    }
     new UserStream(users)
   }
 }

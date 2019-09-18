@@ -39,22 +39,22 @@ import akka.actor.{ Props, Timers }
  * Advise actor a message was sent to JMS provider
  */
 final case class MessageSent(
-    matchId:      String,
-    sent:         Long,
+    matchId: String,
+    sent: Long,
     replyTimeout: Long,
-    checks:       List[JmsCheck],
-    session:      Session,
-    next:         Action,
-    requestName:  String
+    checks: List[JmsCheck],
+    session: Session,
+    next: Action,
+    requestName: String
 )
 
 /**
  * Advise actor a response message was received from JMS provider
  */
 final case class MessageReceived(
-    matchId:  String,
+    matchId: String,
     received: Long,
-    message:  Message
+    message: Message
 )
 
 case object TimeoutScan
@@ -113,13 +113,13 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
   }
 
   private def executeNext(
-    session:     Session,
-    sent:        Long,
-    received:    Long,
-    status:      Status,
-    next:        Action,
-    requestName: String,
-    message:     Option[String]
+      session: Session,
+      sent: Long,
+      received: Long,
+      status: Status,
+      next: Action,
+      requestName: String,
+      message: Option[String]
   ): Unit = {
     statsEngine.logResponse(session, requestName, sent, received, status, None, message)
     next ! session.logGroupRequestTimings(sent, received).increaseDrift(clock.nowMillis - received)
@@ -129,13 +129,13 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
    * Processes a matched message
    */
   private def processMessage(
-    session:     Session,
-    sent:        Long,
-    received:    Long,
-    checks:      List[JmsCheck],
-    message:     Message,
-    next:        Action,
-    requestName: String
+      session: Session,
+      sent: Long,
+      received: Long,
+      checks: List[JmsCheck],
+      message: Message,
+      next: Action,
+      requestName: String
   ): Unit = {
     // run all the checks, advise the Gatling API that it is complete and move to next
     val (newSession, error) = Check.check(message, session, checks, new JHashMap(2))

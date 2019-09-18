@@ -24,7 +24,8 @@ import io.gatling.http.response.Response
 
 trait HttpHeaderCheckType
 
-class HttpHeaderCheckBuilder(headerName: Expression[String]) extends DefaultMultipleFindCheckBuilder[HttpHeaderCheckType, Response, String](displayActualValue = true) {
+class HttpHeaderCheckBuilder(headerName: Expression[String])
+    extends DefaultMultipleFindCheckBuilder[HttpHeaderCheckType, Response, String](displayActualValue = true) {
   override def findExtractor(occurrence: Int): Expression[Extractor[Response, String]] = headerName.map(new HttpHeaderFindExtractor(_, occurrence))
   override def findAllExtractor: Expression[Extractor[Response, Seq[String]]] = headerName.map(new HttpHeaderFindAllExtractor(_))
   override def countExtractor: Expression[Extractor[Response, Int]] = headerName.map(new HttpHeaderCountExtractor(_))

@@ -25,14 +25,19 @@ class AdvancedTutorial extends Simulation {
   //#isolate-processes
   object Search {
 
-    val search = exec(http("Home") // let's give proper names, as they are displayed in the reports
-      .get("/"))
-      .pause(7)
-      .exec(http("Search")
-        .get("/computers?f=macbook"))
+    val search = exec(
+      http("Home") // let's give proper names, as they are displayed in the reports
+        .get("/")
+    ).pause(7)
+      .exec(
+        http("Search")
+          .get("/computers?f=macbook")
+      )
       .pause(2)
-      .exec(http("Select")
-        .get("/computers/6"))
+      .exec(
+        http("Select")
+          .get("/computers/6")
+      )
       .pause(3)
   }
 
@@ -77,16 +82,21 @@ object Search {
 
   val feeder = csv("search.csv").random // 1, 2
 
-  val search = exec(http("Home")
-    .get("/"))
-    .pause(1)
+  val search = exec(
+    http("Home")
+      .get("/")
+  ).pause(1)
     .feed(feeder) // 3
-    .exec(http("Search")
-      .get("/computers?f=${searchCriterion}") // 4
-      .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL"))) // 5
+    .exec(
+      http("Search")
+        .get("/computers?f=${searchCriterion}") // 4
+        .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL"))
+    ) // 5
     .pause(1)
-    .exec(http("Select")
-      .get("${computerURL}")) // 6
+    .exec(
+      http("Select")
+        .get("${computerURL}")
+    ) // 6
     .pause(1)
 }
 //#feeder
@@ -96,9 +106,11 @@ object BrowseLoopSimple {
   //#loop-simple
   object Browse {
 
-    def gotoPage(page: Int) = exec(http("Page " + page)
-      .get("/computers?p=" + page))
-      .pause(1)
+    def gotoPage(page: Int) =
+      exec(
+        http("Page " + page)
+          .get("/computers?p=" + page)
+      ).pause(1)
 
     val browse = exec(gotoPage(0), gotoPage(1), gotoPage(2), gotoPage(3), gotoPage(4))
   }
@@ -111,8 +123,10 @@ object BrowseLoopFor {
   object Browse {
 
     val browse = repeat(5, "n") { // 1
-      exec(http("Page ${n}")
-        .get("/computers?p=${n}")) // 2
+      exec(
+        http("Page ${n}")
+          .get("/computers?p=${n}")
+      ) // 2
         .pause(1)
     }
   }
@@ -123,12 +137,15 @@ object CheckAndTryMax {
   //#check
   import java.util.concurrent.ThreadLocalRandom // 1
 
-  val edit = exec(http("Form")
-    .get("/computers/new"))
-    .pause(1)
-    .exec(http("Post")
-      .post("/computers")
-      .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // 2
+  val edit = exec(
+    http("Form")
+      .get("/computers/new")
+  ).pause(1)
+    .exec(
+      http("Post")
+        .post("/computers")
+        .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))
+    ) // 2
   //#check
 
   //#tryMax-exitHereIfFailed

@@ -28,6 +28,7 @@ import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
 
 import javax.jms.Message
+
 /**
  * Core JMS Action to handle Request-Reply semantics
  *
@@ -35,19 +36,18 @@ import javax.jms.Message
  * This implementation then forwards it on to a tracking actor.
  */
 class RequestReply(
-    attributes:         JmsAttributes,
-    replyDestination:   JmsDestination,
-    setJmsReplyTo:      Boolean,
+    attributes: JmsAttributes,
+    replyDestination: JmsDestination,
+    setJmsReplyTo: Boolean,
     trackerDestination: Option[JmsDestination],
-    protocol:           JmsProtocol,
-    jmsConnectionPool:  JmsConnectionPool,
-    val statsEngine:    StatsEngine,
-    val clock:          Clock,
-    val next:           Action,
-    throttler:          Throttler,
-    throttled:          Boolean
-)
-  extends JmsAction(attributes, protocol, jmsConnectionPool, throttler, throttled) {
+    protocol: JmsProtocol,
+    jmsConnectionPool: JmsConnectionPool,
+    val statsEngine: StatsEngine,
+    val clock: Clock,
+    val next: Action,
+    throttler: Throttler,
+    throttled: Boolean
+) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler, throttled) {
 
   override val name: String = genName("jmsRequestReply")
 

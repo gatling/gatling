@@ -19,7 +19,7 @@ package io.gatling.http.util
 import java.net.URLDecoder
 import java.nio.charset.{ Charset, StandardCharsets }
 
-import scala.collection.{ BitSet, breakOut }
+import scala.collection.{ breakOut, BitSet }
 import scala.collection.JavaConverters._
 import scala.io.Codec.UTF8
 import scala.util.Try
@@ -39,7 +39,8 @@ private[gatling] object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
   val WsScheme = "ws"
-  val OkCodes: BitSet = BitSet.empty + OK.code + NOT_MODIFIED.code + CREATED.code + ACCEPTED.code + NON_AUTHORITATIVE_INFORMATION.code + NO_CONTENT.code + RESET_CONTENT.code + PARTIAL_CONTENT.code + MULTI_STATUS.code + 208 + 209
+  val OkCodes
+      : BitSet = BitSet.empty + OK.code + NOT_MODIFIED.code + CREATED.code + ACCEPTED.code + NON_AUTHORITATIVE_INFORMATION.code + NO_CONTENT.code + RESET_CONTENT.code + PARTIAL_CONTENT.code + MULTI_STATUS.code + 208 + 209
   private val RedirectStatusCodes = BitSet.empty + MOVED_PERMANENTLY.code + FOUND.code + SEE_OTHER.code + TEMPORARY_REDIRECT.code + PERMANENT_REDIRECT.code
 
   def parseFormBody(body: String): List[(String, String)] = {
@@ -71,9 +72,11 @@ private[gatling] object HttpHelper extends StrictLogging {
 
   private def headerExists(headers: HttpHeaders, headerName: String, f: String => Boolean): Boolean = Option(headers.get(headerName)).exists(f)
   def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
-  def isHtml(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
+  def isHtml(headers: HttpHeaders): Boolean =
+    headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
   def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
-  def isTxt(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
+  def isTxt(headers: HttpHeaders): Boolean =
+    headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))
@@ -113,15 +116,13 @@ private[gatling] object HttpHelper extends StrictLogging {
           var end = contentType.indexOf(';', start) match {
             case -1 => contentType.length
 
-            case e  => e
+            case e => e
           }
 
           Try {
-            while (contentType.charAt(start) == ' ' && start < end)
-              start += 1
+            while (contentType.charAt(start) == ' ' && start < end) start += 1
 
-            while (contentType.charAt(end - 1) == ' ' && end > start)
-              end -= 1
+            while (contentType.charAt(end - 1) == ' ' && end > start) end -= 1
 
             if (contentType.charAt(start) == '"' && start < end)
               start += 1

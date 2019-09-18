@@ -29,16 +29,16 @@ class SseStreamDecoderSpec extends BaseSpec {
 
   val data =
     s""": test stream
-      |
-      |data: first event
-      |id: 1
-      |
-      |data:second event 加特林岩石
-      |id
-      |
-      |data:  third event $longString
-      |foo: bar
-      |
+       |
+       |data: first event
+       |id: 1
+       |
+       |data:second event 加特林岩石
+       |id
+       |
+       |data:  third event $longString
+       |foo: bar
+       |
     """.stripMargin
 
   val bytes = data.getBytes(UTF_8)

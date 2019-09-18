@@ -58,7 +58,10 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport 
 
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     BodyPart.elFileBodyPart(None, filePath)
-  def ElFileBodyPart(name: Expression[String], filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
+  def ElFileBodyPart(
+      name: Expression[String],
+      filePath: Expression[String]
+  )(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     BodyPart.elFileBodyPart(Some(name), filePath)
 
   def StringBodyPart(string: Expression[String])(implicit configuration: GatlingConfiguration): BodyPart =

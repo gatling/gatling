@@ -28,8 +28,8 @@ import io.gatling.http.request.builder.sse.SseConnectRequestBuilder
 import com.softwaremill.quicklens._
 
 final case class SseConnectBuilder(
-    requestName:    Expression[String],
-    sseName:        String,
+    requestName: Expression[String],
+    sseName: String,
     requestBuilder: SseConnectRequestBuilder,
     checkSequences: List[SseMessageCheckSequence]
 ) extends HttpActionBuilder {

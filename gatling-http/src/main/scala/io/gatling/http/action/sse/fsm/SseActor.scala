@@ -45,48 +45,50 @@ final case class Timeout(id: Long)
 object SseActor {
 
   def props(
-    sseName:              String,
-    connectRequest:       Request,
-    connectActionName:    String,
-    connectCheckSequence: List[SseMessageCheckSequence],
-    statsEngine:          StatsEngine,
-    httpEngine:           HttpEngine,
-    httpProtocol:         HttpProtocol,
-    clock:                Clock,
-    configuration:        GatlingConfiguration
+      sseName: String,
+      connectRequest: Request,
+      connectActionName: String,
+      connectCheckSequence: List[SseMessageCheckSequence],
+      statsEngine: StatsEngine,
+      httpEngine: HttpEngine,
+      httpProtocol: HttpProtocol,
+      clock: Clock,
+      configuration: GatlingConfiguration
   ) =
-    Props(new SseActor(
-      sseName,
-      connectRequest,
-      connectActionName,
-      connectCheckSequence,
-      statsEngine,
-      httpEngine,
-      httpProtocol,
-      clock,
-      configuration
-    ))
+    Props(
+      new SseActor(
+        sseName,
+        connectRequest,
+        connectActionName,
+        connectCheckSequence,
+        statsEngine,
+        httpEngine,
+        httpProtocol,
+        clock,
+        configuration
+      )
+    )
 
   val TimeoutTimerName = "timeout"
 }
 
 class SseActor(
-    val wsName:               String,
-    val connectRequest:       Request,
-    val connectActionName:    String,
+    val wsName: String,
+    val connectRequest: Request,
+    val connectActionName: String,
     val connectCheckSequence: List[SseMessageCheckSequence],
-    val statsEngine:          StatsEngine,
-    val httpEngine:           HttpEngine,
-    val httpProtocol:         HttpProtocol,
-    val clock:                Clock,
-    val configuration:        GatlingConfiguration
+    val statsEngine: StatsEngine,
+    val httpEngine: HttpEngine,
+    val httpProtocol: HttpProtocol,
+    val clock: Clock,
+    val configuration: GatlingConfiguration
 ) extends SseActorFSM
-  with WhenInit
-  with WhenConnecting
-  with WhenPerformingCheck
-  with WhenIdle
-  with WhenClosing
-  with WhenCrashed {
+    with WhenInit
+    with WhenConnecting
+    with WhenPerformingCheck
+    with WhenIdle
+    with WhenClosing
+    with WhenCrashed {
 
   private var _timeoutId = 0L
   protected def scheduleTimeout(dur: FiniteDuration): Long = {
@@ -104,7 +106,15 @@ class SseActor(
   //
   //[fl]
 
-  protected def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
+  protected def logResponse(
+      session: Session,
+      actionName: String,
+      start: Long,
+      end: Long,
+      status: Status,
+      code: Option[String],
+      reason: Option[String]
+  ): Session = {
     val newSession = session.logGroupRequestTimings(start, end)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
     statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason)

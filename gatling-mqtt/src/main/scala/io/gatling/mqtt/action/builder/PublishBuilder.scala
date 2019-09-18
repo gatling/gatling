@@ -33,13 +33,14 @@ trait CheckablePublishBuilder { this: PublishBuilder =>
 }
 
 case class PublishBuilder(
-    requestName:    Expression[String],
-    topic:          Expression[String],
-    body:           Body,
-    qosOverride:    Option[MqttQoS]         = None,
-    retainOverride: Option[Boolean]         = None,
-    expectation:    Option[MqttExpectation] = None
-) extends MqttActionBuilder with StrictLogging {
+    requestName: Expression[String],
+    topic: Expression[String],
+    body: Body,
+    qosOverride: Option[MqttQoS] = None,
+    retainOverride: Option[Boolean] = None,
+    expectation: Option[MqttExpectation] = None
+) extends MqttActionBuilder
+    with StrictLogging {
 
   def qosAtMostOnce: PublishBuilder = qos(MqttQoS.AT_MOST_ONCE)
   def qosAtLeastOnce: PublishBuilder = qos(MqttQoS.AT_LEAST_ONCE)
@@ -49,10 +50,24 @@ case class PublishBuilder(
   def retain(newRetain: Boolean): PublishBuilder = copy(retainOverride = Some(newRetain))
 
   def wait(timeout: FiniteDuration, expectedTopic: Expression[String] = null): PublishBuilder with CheckablePublishBuilder =
-    new PublishBuilder(requestName, topic, body, qosOverride, retainOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true))) with CheckablePublishBuilder
+    new PublishBuilder(
+      requestName,
+      topic,
+      body,
+      qosOverride,
+      retainOverride,
+      Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true))
+    ) with CheckablePublishBuilder
 
   def expect(timeout: FiniteDuration, expectedTopic: Expression[String] = null): PublishBuilder with CheckablePublishBuilder =
-    new PublishBuilder(requestName, topic, body, qosOverride, retainOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false))) with CheckablePublishBuilder
+    new PublishBuilder(
+      requestName,
+      topic,
+      body,
+      qosOverride,
+      retainOverride,
+      Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false))
+    ) with CheckablePublishBuilder
 
   override def build(ctx: ScenarioContext, next: Action): Action = ???
 }

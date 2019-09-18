@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import io.gatling.core.session.{ SessionAttribute, Session }
+import io.gatling.core.session.{ Session, SessionAttribute }
 
 class SessionSample {
 

@@ -31,39 +31,41 @@ import com.typesafe.scalalogging.StrictLogging
 
 sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
   def reportStats(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String]
+      fullRequestName: String,
+      request: Request,
+      session: Session,
+      status: Status,
+      result: HttpResult,
+      errorMessage: Option[String]
   ): Unit = {
     logTx(fullRequestName, request, session, status, result, errorMessage)
     reportStats0(fullRequestName, request, session, status, result, errorMessage)
   }
 
   protected def reportStats0(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String]
+      fullRequestName: String,
+      request: Request,
+      session: Session,
+      status: Status,
+      result: HttpResult,
+      errorMessage: Option[String]
   ): Unit
 
   private def logTx(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String] = None
+      fullRequestName: String,
+      request: Request,
+      session: Session,
+      status: Status,
+      result: HttpResult,
+      errorMessage: Option[String] = None
   ): Unit = {
     def dump = {
       // hack: pre-cache url because it would reset the StringBuilder
       // FIXME isn't this url already built when sending the request?
       request.getUri.toUrl
-      StringBuilderPool.DEFAULT.get().append(Eol)
+      StringBuilderPool.DEFAULT
+        .get()
+        .append(Eol)
         .appendWithEol(">>>>>>>>>>>>>>>>>>>>>>>>>>")
         .appendWithEol("Request:")
         .appendWithEol(s"$fullRequestName: $status ${errorMessage.getOrElse("")}")
@@ -93,27 +95,28 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
 
 final class NoopStatsProcessor(charset: Charset) extends StatsProcessor(charset) {
   override protected def reportStats0(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String]
+      fullRequestName: String,
+      request: Request,
+      session: Session,
+      status: Status,
+      result: HttpResult,
+      errorMessage: Option[String]
   ): Unit = {}
 }
 
 final class DefaultStatsProcessor(
-    charset:     Charset,
+    charset: Charset,
     statsEngine: StatsEngine
-) extends StatsProcessor(charset) with StrictLogging {
+) extends StatsProcessor(charset)
+    with StrictLogging {
 
   override def reportStats0(
-    fullRequestName: String,
-    request:         Request,
-    session:         Session,
-    status:          Status,
-    result:          HttpResult,
-    errorMessage:    Option[String]
+      fullRequestName: String,
+      request: Request,
+      session: Session,
+      status: Status,
+      result: HttpResult,
+      errorMessage: Option[String]
   ): Unit =
     statsEngine.logResponse(
       session,

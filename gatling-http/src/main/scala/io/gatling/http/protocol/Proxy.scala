@@ -21,10 +21,10 @@ import io.gatling.http.client.proxy._
 import io.gatling.http.client.realm.BasicRealm
 
 final case class Proxy(
-    host:        String,
-    port:        Int,
-    securePort:  Int,
-    proxyType:   ProxyType,
+    host: String,
+    port: Int,
+    securePort: Int,
+    proxyType: ProxyType,
     credentials: Option[Credentials] = None
 ) {
   def proxyServer: ProxyServer = {

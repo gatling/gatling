@@ -35,14 +35,13 @@ private[swing] case object Open extends ChooserType
 private[swing] case object Save extends ChooserType
 
 private[swing] class DisplayedSelectionFileChooser(
-    creator:         Container,
+    creator: Container,
     textFieldLength: Int,
-    chooserType:     ChooserType,
-    buttonText:      String              = "Browse",
-    selectionMode:   SelectionMode.Value = SelectionMode.FilesAndDirectories,
-    fileFilter:      FileFilter          = new AcceptAllFileFilter
-)
-  extends BoxPanel(Orientation.Horizontal) {
+    chooserType: ChooserType,
+    buttonText: String = "Browse",
+    selectionMode: SelectionMode.Value = SelectionMode.FilesAndDirectories,
+    fileFilter: FileFilter = new AcceptAllFileFilter
+) extends BoxPanel(Orientation.Horizontal) {
 
   val selectionDisplay = new TextField(textFieldLength)
   private val fileChooser = new FileChooser { fileSelectionMode = selectionMode; fileFilter = fileFilter }

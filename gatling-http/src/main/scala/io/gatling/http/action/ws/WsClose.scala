@@ -26,11 +26,14 @@ import io.gatling.http.action.ws.fsm.ClientCloseRequest
 
 class WsClose(
     override val requestName: Expression[String],
-    wsName:                   String,
+    wsName: String,
     override val statsEngine: StatsEngine,
-    override val clock:       Clock,
-    val next:                 Action
-) extends RequestAction with WsAction with ExitableAction with NameGen {
+    override val clock: Clock,
+    val next: Action
+) extends RequestAction
+    with WsAction
+    with ExitableAction
+    with NameGen {
 
   override val name: String = genName("wsClose")
 

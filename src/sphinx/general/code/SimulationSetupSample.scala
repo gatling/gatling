@@ -25,16 +25,18 @@ class SimulationSetupSample extends Simulation {
 
   //#open-injection
   setUp(
-    scn.inject(
-      nothingFor(4 seconds), // 1
-      atOnceUsers(10), // 2
-      rampUsers(10) during (5 seconds), // 3
-      constantUsersPerSec(20) during (15 seconds), // 4
-      constantUsersPerSec(20) during (15 seconds) randomized, // 5
-      rampUsersPerSec(10) to 20 during (10 minutes), // 6
-      rampUsersPerSec(10) to 20 during (10 minutes) randomized, // 7
-      heavisideUsers(1000) during (20 seconds) // 8
-    ).protocols(httpProtocol)
+    scn
+      .inject(
+        nothingFor(4 seconds), // 1
+        atOnceUsers(10), // 2
+        rampUsers(10) during (5 seconds), // 3
+        constantUsersPerSec(20) during (15 seconds), // 4
+        constantUsersPerSec(20) during (15 seconds) randomized, // 5
+        rampUsersPerSec(10) to 20 during (10 minutes), // 6
+        rampUsersPerSec(10) to 20 during (10 minutes) randomized, // 7
+        heavisideUsers(1000) during (20 seconds) // 8
+      )
+      .protocols(httpProtocol)
   )
   //#open-injection
 

@@ -109,11 +109,14 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  def jmsProtocol = jms
-    .connectionFactory(cf)
-    .matchByCorrelationId
+  def jmsProtocol =
+    jms
+      .connectionFactory(cf)
+      .matchByCorrelationId
 
-  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
+  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(
+      implicit configuration: GatlingConfiguration
+  ) = {
     val clock = new DefaultClock
     val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val next = new ActorDelegatingAction("next", self)

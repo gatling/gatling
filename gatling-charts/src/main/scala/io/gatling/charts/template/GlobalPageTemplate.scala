@@ -19,5 +19,4 @@ package io.gatling.charts.template
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles.GlobalPageName
 
-private[charts] class GlobalPageTemplate(components: Component*)
-  extends PageTemplate(GlobalPageName, false, None, None, components: _*)
+private[charts] class GlobalPageTemplate(components: Component*) extends PageTemplate(GlobalPageName, false, None, None, components: _*)

@@ -25,8 +25,9 @@ import io.gatling.commons.stats._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
-private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-  extends ReportGenerator {
+private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+    implicit configuration: GatlingConfiguration
+) extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -42,12 +43,16 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
       }
 
       def responseTimeChartComponent: Component =
-        percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
+        percentilesChartComponent(
+          logFileReader.responseTimePercentilesOverTime,
+          componentLibrary.getRequestDetailsResponseTimeChartComponent,
+          "Response Time Percentiles over Time"
+        )
 
       def percentilesChartComponent(
-        dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
-        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
-        title:            String
+          dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+          componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+          title: String
       ): Component = {
         val successData = dataSource(OK, Some(requestName), group)
         val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
@@ -62,8 +67,8 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
         countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
       def countsChartComponent(
-        dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-        componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
+          dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+          componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
       ): Component = {
 
         val counts = dataSource(Some(requestName), group).sortBy(_.time)
@@ -77,11 +82,14 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
       }
 
       def responseTimeScatterChartComponent: Component =
-        scatterChartComponent(logFileReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
+        scatterChartComponent(
+          logFileReader.responseTimeAgainstGlobalNumberOfRequestsPerSec,
+          componentLibrary.getRequestDetailsResponseTimeScatterChartComponent
+        )
 
       def scatterChartComponent(
-        dataSource:       (Status, String, Option[Group]) => Seq[IntVsTimePlot],
-        componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
+          dataSource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
+          componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
       ): Component = {
 
         val scatterPlotSuccessData = dataSource(OK, requestName, group)
@@ -93,7 +101,10 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
       }
 
       val template =
-        new RequestDetailsPageTemplate(path, requestName, group,
+        new RequestDetailsPageTemplate(
+          path,
+          requestName,
+          group,
           new StatisticsTextComponent,
           componentLibrary.getRequestDetailsIndicatorChartComponent,
           new ErrorsTableComponent(logFileReader.errors(Some(requestName), group)),
@@ -101,7 +112,8 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           responseTimeChartComponent,
           requestsChartComponent,
           responsesChartComponent,
-          responseTimeScatterChartComponent)
+          responseTimeScatterChartComponent
+        )
 
       new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
     }

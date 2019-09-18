@@ -26,9 +26,9 @@ import org.mockito.Mockito.when
 
 final case class Stats(
     generalStats: GeneralStats,
-    requestName:  String         = "",
-    groupPath:    List[String]   = Nil,
-    status:       Option[Status] = None
+    requestName: String = "",
+    groupPath: List[String] = Nil,
+    status: Option[Status] = None
 ) {
 
   def request: Option[String] = requestName.trimToOption
@@ -46,9 +46,9 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
     List(_.copy(requestName = "foo"), _.copy(groupPath = List("foo")))
 
   private def generalStatsSource[T: Numeric](
-    metric:     AssertionWithPathAndTarget[T],
-    conditions: Conditions[T],
-    stats:      Stats*
+      metric: AssertionWithPathAndTarget[T],
+      conditions: Conditions[T],
+      stats: Stats*
   ): GeneralStatsSource = {
     def mockAssertion(source: GeneralStatsSource): Unit =
       when(source.assertions) thenReturn conditions.map(_(metric))
@@ -60,11 +60,15 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
       }
     }
 
-    def statsPaths = stats.map(stat => (stat.request, stat.group)).map {
-      case (Some(request), group) => RequestStatsPath(request, group)
-      case (None, Some(group))    => GroupStatsPath(group)
-      case _                      => throw new AssertionError("Can't have neither a request or group stats path")
-    }.toList
+    def statsPaths =
+      stats
+        .map(stat => (stat.request, stat.group))
+        .map {
+          case (Some(request), group) => RequestStatsPath(request, group)
+          case (None, Some(group))    => GroupStatsPath(group)
+          case _                      => throw new AssertionError("Can't have neither a request or group stats path")
+        }
+        .toList
 
     def mockStatsPath(source: GeneralStatsSource) =
       when(source.statsPaths) thenReturn statsPaths

@@ -35,8 +35,9 @@ class HttpBodyJsonpCheckMaterializer[T](jsonParsers: JsonParsers) extends HttpCh
 
   import HttpBodyJsonpCheckMaterializer._
 
-  override val preparer: Preparer[Response, JsonNode] = response => response.body.string match {
-    case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
-    case _                 => JsonpRegexFailure
-  }
+  override val preparer: Preparer[Response, JsonNode] = response =>
+    response.body.string match {
+      case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
+      case _                 => JsonpRegexFailure
+    }
 }

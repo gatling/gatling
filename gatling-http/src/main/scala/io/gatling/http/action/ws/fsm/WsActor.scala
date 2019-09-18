@@ -40,10 +40,22 @@ sealed trait SendFrame {
   def next: Action
   def copyWithSession(newSession: Session): SendFrame
 }
-final case class SendTextFrame(actionName: String, message: String, checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]], session: Session, next: Action) extends SendFrame {
+final case class SendTextFrame(
+    actionName: String,
+    message: String,
+    checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+    session: Session,
+    next: Action
+) extends SendFrame {
   override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
 }
-final case class SendBinaryFrame(actionName: String, message: Array[Byte], checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]], session: Session, next: Action) extends SendFrame {
+final case class SendBinaryFrame(
+    actionName: String,
+    message: Array[Byte],
+    checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+    session: Session,
+    next: Action
+) extends SendFrame {
   override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
 }
 
@@ -61,52 +73,54 @@ object WsActor {
   val TimeoutTimerName = "timeout"
 
   def props(
-    wsName:               String,
-    connectRequest:       Request,
-    subprotocol:          Option[String],
-    connectActionName:    String,
-    connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
-    onConnected:          Option[Action],
-    statsEngine:          StatsEngine,
-    httpEngine:           HttpEngine,
-    httpProtocol:         HttpProtocol,
-    clock:                Clock,
-    configuration:        GatlingConfiguration
+      wsName: String,
+      connectRequest: Request,
+      subprotocol: Option[String],
+      connectActionName: String,
+      connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
+      onConnected: Option[Action],
+      statsEngine: StatsEngine,
+      httpEngine: HttpEngine,
+      httpProtocol: HttpProtocol,
+      clock: Clock,
+      configuration: GatlingConfiguration
   ) =
-    Props(new WsActor(
-      wsName,
-      connectRequest,
-      subprotocol,
-      connectActionName,
-      connectCheckSequence,
-      onConnected,
-      statsEngine,
-      httpEngine,
-      httpProtocol,
-      clock,
-      configuration
-    ))
+    Props(
+      new WsActor(
+        wsName,
+        connectRequest,
+        subprotocol,
+        connectActionName,
+        connectCheckSequence,
+        onConnected,
+        statsEngine,
+        httpEngine,
+        httpProtocol,
+        clock,
+        configuration
+      )
+    )
 }
 
 class WsActor(
-    val wsName:               String,
-    val connectRequest:       Request,
-    val subprotocol:          Option[String],
-    val connectActionName:    String,
+    val wsName: String,
+    val connectRequest: Request,
+    val subprotocol: Option[String],
+    val connectActionName: String,
     val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
-    val onConnected:          Option[Action],
-    val statsEngine:          StatsEngine,
-    val httpEngine:           HttpEngine,
-    val httpProtocol:         HttpProtocol,
-    val clock:                Clock,
-    val configuration:        GatlingConfiguration
+    val onConnected: Option[Action],
+    val statsEngine: StatsEngine,
+    val httpEngine: HttpEngine,
+    val httpProtocol: HttpProtocol,
+    val clock: Clock,
+    val configuration: GatlingConfiguration
 ) extends WsActorFSM
-  with WhenInit
-  with WhenConnecting
-  with WhenPerformingCheck
-  with WhenIdle
-  with WhenClosing
-  with WhenCrashed {
+    with WhenInit
+    with WhenConnecting
+    with WhenPerformingCheck
+    with WhenIdle
+    with WhenClosing
+    with WhenCrashed {
 
   private var _timeoutId = 0L
   protected def scheduleTimeout(dur: FiniteDuration): Long = {
@@ -124,7 +138,15 @@ class WsActor(
   //
   //[fl]
 
-  protected def logResponse(session: Session, actionName: String, start: Long, end: Long, status: Status, code: Option[String], reason: Option[String]): Session = {
+  protected def logResponse(
+      session: Session,
+      actionName: String,
+      start: Long,
+      end: Long,
+      status: Status,
+      code: Option[String],
+      reason: Option[String]
+  ): Session = {
     val newSession = session.logGroupRequestTimings(start, end)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
     statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason)

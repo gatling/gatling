@@ -31,15 +31,21 @@ trait SseCheckSupport {
   implicit def checkBuilder2SseCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2SseCheck[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
+  implicit def validatorCheckBuilder2SseCheck[A, P, X](
+      validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]
+  )(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
     validatorCheckBuilder.exists
 
-  implicit def findCheckBuilder2SseCheck[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
+  implicit def findCheckBuilder2SseCheck[A, P, X](
+      findCheckBuilder: FindCheckBuilder[A, P, X]
+  )(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
     findCheckBuilder.find.exists
 
-  implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] = new SseJsonPathCheckMaterializer(jsonParsers)
+  implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] =
+    new SseJsonPathCheckMaterializer(jsonParsers)
 
-  implicit def sseJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode] = new SseJmesPathCheckMaterializer(jsonParsers)
+  implicit def sseJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode] =
+    new SseJmesPathCheckMaterializer(jsonParsers)
 
   implicit val sseRegexCheckMaterializer: CheckMaterializer[RegexCheckType, SseCheck, String, CharSequence] = SseRegexCheckMaterializer
 

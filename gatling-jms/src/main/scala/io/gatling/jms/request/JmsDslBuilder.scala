@@ -34,7 +34,7 @@ final case class JmsDslBuilderBase(requestName: Expression[String]) {
 }
 
 final case class SendDslBuilderQueue(
-    requestName:   Expression[String],
+    requestName: Expression[String],
     configuration: GatlingConfiguration
 ) {
 
@@ -45,7 +45,7 @@ final case class SendDslBuilderQueue(
 }
 
 final case class RequestReplyDslBuilderQueue(
-    requestName:   Expression[String],
+    requestName: Expression[String],
     configuration: GatlingConfiguration
 ) {
 
@@ -56,8 +56,8 @@ final case class RequestReplyDslBuilderQueue(
 }
 
 final case class SendDslDslBuilderMessage(
-    requestName:   Expression[String],
-    destination:   JmsDestination,
+    requestName: Expression[String],
+    destination: JmsDestination,
     configuration: GatlingConfiguration
 ) {
 
@@ -72,14 +72,15 @@ final case class SendDslDslBuilderMessage(
 }
 
 final case class RequestReplyDslBuilderMessage(
-    requestName:     Expression[String],
-    destination:     JmsDestination,
-    replyDest:       JmsDestination,
-    setJmsReplyTo:   Boolean,
-    trackerDest:     Option[JmsDestination],
+    requestName: Expression[String],
+    destination: JmsDestination,
+    replyDest: JmsDestination,
+    setJmsReplyTo: Boolean,
+    trackerDest: Option[JmsDestination],
     messageSelector: Option[String],
-    configuration:   GatlingConfiguration
+    configuration: GatlingConfiguration
 ) {
+
   /**
    * Add a reply queue, if not specified dynamic queue is used
    */
@@ -101,7 +102,10 @@ final case class RequestReplyDslBuilderMessage(
   def objectMessage(o: Expression[JSerializable]): RequestReplyDslBuilder = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    RequestReplyDslBuilder(JmsAttributes(requestName, destination, messageSelector, mess), RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest, configuration))
+    RequestReplyDslBuilder(
+      JmsAttributes(requestName, destination, messageSelector, mess),
+      RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest, configuration)
+    )
 }
 
 final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {

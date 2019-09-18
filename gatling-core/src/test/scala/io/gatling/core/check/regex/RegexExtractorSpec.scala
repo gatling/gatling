@@ -26,11 +26,15 @@ class RegexExtractorSpec extends BaseSpec with ValidationValues {
 
   "count" should "return Some(0) when no results" in {
     val stringRegexExtractor = new RegexCountExtractor("regex", """foo""", patterns)
-    stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(0)
+    stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(
+      0
+    )
   }
 
   "findAll" should "return expected result with anywhere expression" in {
     val stringRegexExtractor = new RegexFindAllExtractor[String]("regex", """"SearchDefinitionID\\":(\d*)""", patterns)
-    stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(List("116", "108"))
+    stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(
+      List("116", "108")
+    )
   }
 }

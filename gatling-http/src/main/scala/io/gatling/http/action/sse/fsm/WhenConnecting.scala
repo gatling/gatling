@@ -41,12 +41,27 @@ trait WhenConnecting extends SslContextSupport { this: SseActor =>
     //
     // [fl]
     val userSslContexts = sslContexts(session)
-    httpEngine.executeRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener, userSslContexts.map(_.sslContext).orNull, userSslContexts.flatMap(_.alplnSslContext).orNull)
+    httpEngine.executeRequest(
+      connectRequest,
+      session.userId,
+      httpProtocol.enginePart.shareConnections,
+      listener,
+      userSslContexts.map(_.sslContext).orNull,
+      userSslContexts.flatMap(_.alplnSslContext).orNull
+    )
 
     goto(Connecting) using ConnectingData(session, next, clock.nowMillis, remainingTries)
   }
 
-  private def handleConnectFailure(session: Session, next: Either[Action, SetCheck], connectStart: Long, connectEnd: Long, code: Option[String], reason: String, remainingTries: Int): State = {
+  private def handleConnectFailure(
+      session: Session,
+      next: Either[Action, SetCheck],
+      connectStart: Long,
+      connectEnd: Long,
+      code: Option[String],
+      reason: String,
+      remainingTries: Int
+  ): State = {
     // log connect failure
     val newSession = logResponse(session, connectActionName, connectStart, connectEnd, KO, code, Some(reason))
     val newRemainingTries = remainingTries - 1
@@ -119,4 +134,3 @@ trait WhenConnecting extends SslContextSupport { this: SseActor =>
       handleConnectFailure(session, next, connectStart, timestamp, None, t.rootMessage, remainingTries)
   }
 }
-

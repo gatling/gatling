@@ -21,12 +21,13 @@ import io.gatling.charts.config.ChartsFiles.groupFile
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors._
-import io.gatling.commons.stats.{ GroupStatsPath, Group, OK }
+import io.gatling.commons.stats.{ Group, GroupStatsPath, OK }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.{ PercentilesVsTimePlot, Series }
 
-private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-  extends ReportGenerator {
+private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+    implicit configuration: GatlingConfiguration
+) extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -34,9 +35,15 @@ private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: Repor
     def generateDetailPage(path: String, group: Group): Unit = {
       def cumulatedResponseTimeChartComponent: Component = {
         val dataSuccess = logFileReader.groupCumulatedResponseTimePercentilesOverTime(OK, group)
-        val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)
+        val seriesSuccess =
+          new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)
 
-        componentLibrary.getGroupDetailsDurationChartComponent("cumulatedResponseTimeChartContainer", "Cumulated Response Time (ms)", logFileReader.runStart, seriesSuccess)
+        componentLibrary.getGroupDetailsDurationChartComponent(
+          "cumulatedResponseTimeChartContainer",
+          "Cumulated Response Time (ms)",
+          logFileReader.runStart,
+          seriesSuccess
+        )
       }
 
       def cumulatedResponseTimeDistributionChartComponent: Component = {
@@ -44,7 +51,12 @@ private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: Repor
         val distributionSeriesSuccess = new Series("Group cumulated response time (success)", distributionSuccess, List(Blue))
         val distributionSeriesFailure = new Series("Group cumulated response time (failure)", distributionFailure, List(Red))
 
-        componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Cumulated Response Time Distribution", "cumulatedResponseTimeDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
+        componentLibrary.getGroupDetailsDurationDistributionChartComponent(
+          "Group Cumulated Response Time Distribution",
+          "cumulatedResponseTimeDistributionContainer",
+          distributionSeriesSuccess,
+          distributionSeriesFailure
+        )
       }
 
       def durationChartComponent: Component = {
@@ -59,7 +71,12 @@ private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: Repor
         val distributionSeriesSuccess = new Series("Group duration (success)", distributionSuccess, List(Blue))
         val distributionSeriesFailure = new Series("Group duration (failure)", distributionFailure, List(Red))
 
-        componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Duration Distribution", "durationDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
+        componentLibrary.getGroupDetailsDurationDistributionChartComponent(
+          "Group Duration Distribution",
+          "durationDistributionContainer",
+          distributionSeriesSuccess,
+          distributionSeriesFailure
+        )
       }
 
       def statisticsComponent: Component = new StatisticsTextComponent

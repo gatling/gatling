@@ -53,12 +53,38 @@ class ScenarioSpec extends BaseSpec {
   }
 
   it should "filter out embedded resources of HTML documents" in {
-    val r1 = RequestElement("http://gatling.io", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200,
-      List(CssResource(Uri.create("http://gatling.io/main.css")), BasicResource(Uri.create("http://gatling.io/img.jpg"))))
+    val r1 = RequestElement(
+      "http://gatling.io",
+      "GET",
+      EmptyHttpHeaders.INSTANCE,
+      None,
+      EmptyHttpHeaders.INSTANCE,
+      None,
+      200,
+      List(CssResource(Uri.create("http://gatling.io/main.css")), BasicResource(Uri.create("http://gatling.io/img.jpg")))
+    )
     val r2 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
-    val r3 = RequestElement("http://gatling.io/details.html", "GET", new DefaultHttpHeaders().add(CONTENT_TYPE, "text/html;charset=UTF-8"), None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
+    val r3 = RequestElement(
+      "http://gatling.io/details.html",
+      "GET",
+      new DefaultHttpHeaders().add(CONTENT_TYPE, "text/html;charset=UTF-8"),
+      None,
+      EmptyHttpHeaders.INSTANCE,
+      None,
+      200,
+      List.empty
+    )
     val r4 = RequestElement("http://gatling.io/img.jpg", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
-    val r5 = RequestElement("http://gatling.io", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List(CssResource(Uri.create("http://gatling.io/main.css"))))
+    val r5 = RequestElement(
+      "http://gatling.io",
+      "GET",
+      EmptyHttpHeaders.INSTANCE,
+      None,
+      EmptyHttpHeaders.INSTANCE,
+      None,
+      200,
+      List(CssResource(Uri.create("http://gatling.io/main.css")))
+    )
     val r6 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
 
     val scn = ScenarioDefinition(

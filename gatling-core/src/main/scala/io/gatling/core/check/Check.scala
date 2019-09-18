@@ -53,12 +53,12 @@ trait Check[R] {
 }
 
 final case class CheckBase[R, P, X](
-    preparer:            Preparer[R, P],
+    preparer: Preparer[R, P],
     extractorExpression: Expression[Extractor[P, X]],
     validatorExpression: Expression[Validator[X]],
-    displayActualValue:  Boolean,
-    customName:          Option[String],
-    saveAs:              Option[String]
+    displayActualValue: Boolean,
+    customName: Option[String],
+    saveAs: Option[String]
 ) extends Check[R] {
 
   def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] = {

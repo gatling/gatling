@@ -38,13 +38,24 @@ private[gatling] sealed abstract class ConcurrentResource {
   def acceptHeader: Expression[String]
   val url: String = uri.toString
 
-  def toRequest(session: Session, httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): Validation[HttpRequest] = {
+  def toRequest(
+      session: Session,
+      httpCaches: HttpCaches,
+      httpProtocol: HttpProtocol,
+      throttled: Boolean,
+      configuration: GatlingConfiguration
+  ): Validation[HttpRequest] = {
     val requestName = httpProtocol.responsePart.inferredHtmlResourcesNaming(uri)
-    val httpRequestDef = Http(requestName.expressionSuccess).get(uri).header(HeaderNames.Accept, acceptHeader).build(httpCaches, httpProtocol, throttled, configuration)
+    val httpRequestDef =
+      Http(requestName.expressionSuccess).get(uri).header(HeaderNames.Accept, acceptHeader).build(httpCaches, httpProtocol, throttled, configuration)
     httpRequestDef.build(requestName, session)
   }
 }
 
-private[gatling] final case class CssResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression }
+private[gatling] final case class CssResource(uri: Uri) extends ConcurrentResource {
+  override val acceptHeader: Expression[String] = AcceptCssHeaderValueExpression
+}
 
-private[gatling] final case class BasicResource(uri: Uri) extends ConcurrentResource { override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression }
+private[gatling] final case class BasicResource(uri: Uri) extends ConcurrentResource {
+  override val acceptHeader: Expression[String] = AcceptAllHeaderValueExpression
+}

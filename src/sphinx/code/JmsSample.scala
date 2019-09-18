@@ -44,12 +44,14 @@ class TestJmsDsl extends Simulation {
     .usePersistentDeliveryMode
 
   val scn = scenario("JMS DSL test").repeat(1) {
-    exec(jms("req reply testing").requestReply
-      .queue("jmstestq")
-      .textMessage("hello from gatling jms dsl")
-      .property("test_header", "test_value")
-      .jmsType("test_jms_type")
-      .check(simpleCheck(checkBodyTextCorrect)))
+    exec(
+      jms("req reply testing").requestReply
+        .queue("jmstestq")
+        .textMessage("hello from gatling jms dsl")
+        .property("test_header", "test_value")
+        .jmsType("test_jms_type")
+        .check(simpleCheck(checkBodyTextCorrect))
+    )
   }
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))

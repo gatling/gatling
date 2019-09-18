@@ -27,23 +27,23 @@ object HttpHeaderRegexExtractors {
 }
 
 class HttpHeaderRegexFindExtractor[X: GroupExtractor](headerName: String, pattern: String, occurrence: Int, patterns: Patterns)
-  extends FindCriterionExtractor[Response, (String, String), X](
-    "headerRegex",
-    (headerName, pattern),
-    occurrence,
-    HttpHeaderRegexExtractors.extractHeadersValues(_, headerName, pattern, patterns).lift(occurrence).success
-  )
+    extends FindCriterionExtractor[Response, (String, String), X](
+      "headerRegex",
+      (headerName, pattern),
+      occurrence,
+      HttpHeaderRegexExtractors.extractHeadersValues(_, headerName, pattern, patterns).lift(occurrence).success
+    )
 
 class HttpHeaderRegexFindAllExtractor[X: GroupExtractor](headerName: String, pattern: String, patterns: Patterns)
-  extends FindAllCriterionExtractor[Response, (String, String), X](
-    "headerRegex",
-    (headerName, pattern),
-    HttpHeaderRegexExtractors.extractHeadersValues(_, headerName, pattern, patterns).liftSeqOption.success
-  )
+    extends FindAllCriterionExtractor[Response, (String, String), X](
+      "headerRegex",
+      (headerName, pattern),
+      HttpHeaderRegexExtractors.extractHeadersValues(_, headerName, pattern, patterns).liftSeqOption.success
+    )
 
 class HttpHeaderRegexCountExtractor(headerName: String, pattern: String, patterns: Patterns)
-  extends CountCriterionExtractor[Response, (String, String)](
-    "headerRegex",
-    (headerName, pattern),
-    HttpHeaderRegexExtractors.extractHeadersValues[String](_, headerName, pattern, patterns).liftSeqOption.map(_.size).success
-  )
+    extends CountCriterionExtractor[Response, (String, String)](
+      "headerRegex",
+      (headerName, pattern),
+      HttpHeaderRegexExtractors.extractHeadersValues[String](_, headerName, pattern, patterns).liftSeqOption.map(_.size).success
+    )

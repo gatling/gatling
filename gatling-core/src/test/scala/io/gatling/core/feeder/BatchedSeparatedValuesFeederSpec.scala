@@ -27,12 +27,12 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
 
   private val csvContent =
     s"""column1,column2
-         |line1_1,line1_2
-         |line2_1,line2_2
-         |line3_1,line3_2
-         |line4_1,line4_2
-         |line5_1,line5_2
-         |""".stripMargin
+       |line1_1,line1_2
+       |line2_1,line2_2
+       |line3_1,line3_2
+       |line4_1,line4_2
+       |line5_1,line5_2
+       |""".stripMargin
 
   private def newInputStream(text: String): InputStream =
     new ByteArrayInputStream(text.getBytes(UTF_8))

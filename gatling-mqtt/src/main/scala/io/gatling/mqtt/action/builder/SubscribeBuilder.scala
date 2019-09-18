@@ -32,8 +32,8 @@ trait CheckableSubscribeBuilder { this: SubscribeBuilder =>
 
 case class SubscribeBuilder(
     requestName: Expression[String],
-    topic:       Expression[String],
-    qosOverride: Option[MqttQoS]         = None,
+    topic: Expression[String],
+    qosOverride: Option[MqttQoS] = None,
     expectation: Option[MqttExpectation] = None
 ) extends MqttActionBuilder {
 
@@ -43,10 +43,12 @@ case class SubscribeBuilder(
   private def qos(newQos: MqttQoS): SubscribeBuilder = copy(qosOverride = Some(newQos))
 
   def wait(timeout: FiniteDuration, expectedTopic: Expression[String] = null): SubscribeBuilder with CheckableSubscribeBuilder =
-    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true))) with CheckableSubscribeBuilder
+    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true)))
+    with CheckableSubscribeBuilder
 
   def expect(timeout: FiniteDuration, expectedTopic: Expression[String] = null): SubscribeBuilder with CheckableSubscribeBuilder =
-    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false))) with CheckableSubscribeBuilder
+    new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false)))
+    with CheckableSubscribeBuilder
 
   override def build(ctx: ScenarioContext, next: Action): Action = ???
 }

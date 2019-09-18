@@ -19,10 +19,10 @@ package io.gatling.http.action.sse.fsm
 import io.gatling.core.json.Json
 
 final case class ServerSentEvent(
-    name:  Option[String] = None,
-    data:  Option[String] = None,
-    id:    Option[String] = None,
-    retry: Option[Int]    = None
+    name: Option[String] = None,
+    data: Option[String] = None,
+    id: Option[String] = None,
+    retry: Option[Int] = None
 ) {
 
   def asJsonString: String = {

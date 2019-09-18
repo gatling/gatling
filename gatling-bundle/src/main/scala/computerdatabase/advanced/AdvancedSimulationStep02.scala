@@ -24,47 +24,64 @@ class AdvancedSimulationStep02 extends Simulation {
 
   object Search {
 
-    val search = exec(http("Home")
-      .get("/"))
+    val search = exec(
+      http("Home")
+        .get("/")
+    ).pause(1)
+      .exec(
+        http("Search")
+          .get("/computers?f=macbook")
+      )
       .pause(1)
-      .exec(http("Search")
-        .get("/computers?f=macbook"))
-      .pause(1)
-      .exec(http("Select")
-        .get("/computers/6"))
+      .exec(
+        http("Select")
+          .get("/computers/6")
+      )
       .pause(1)
   }
 
   object Browse {
 
-    val browse = exec(http("Home")
-      .get("/"))
-      .pause(2)
-      .exec(http("Page 1")
-        .get("/computers?p=1"))
+    val browse = exec(
+      http("Home")
+        .get("/")
+    ).pause(2)
+      .exec(
+        http("Page 1")
+          .get("/computers?p=1")
+      )
       .pause(670 milliseconds)
-      .exec(http("Page 2")
-        .get("/computers?p=2"))
+      .exec(
+        http("Page 2")
+          .get("/computers?p=2")
+      )
       .pause(629 milliseconds)
-      .exec(http("Page 3")
-        .get("/computers?p=3"))
+      .exec(
+        http("Page 3")
+          .get("/computers?p=3")
+      )
       .pause(734 milliseconds)
-      .exec(http("Page 4")
-        .get("/computers?p=4"))
+      .exec(
+        http("Page 4")
+          .get("/computers?p=4")
+      )
       .pause(5)
   }
 
   object Edit {
 
-    val edit = exec(http("Form")
-      .get("/computers/new"))
-      .pause(1)
-      .exec(http("Post")
-        .post("/computers")
-        .formParam("name", "Beautiful Computer")
-        .formParam("introduced", "2012-05-30")
-        .formParam("discontinued", "")
-        .formParam("company", "37"))
+    val edit = exec(
+      http("Form")
+        .get("/computers/new")
+    ).pause(1)
+      .exec(
+        http("Post")
+          .post("/computers")
+          .formParam("name", "Beautiful Computer")
+          .formParam("introduced", "2012-05-30")
+          .formParam("discontinued", "")
+          .formParam("company", "37")
+      )
   }
 
   val httpProtocol = http

@@ -23,7 +23,15 @@ import io.gatling.commons.util.Arrays
 
 object BatchedSeparatedValuesFeeder {
 
-  def apply(file: File, separator: Char, quoteChar: Char, conversion: Option[Record[String] => Record[Any]], strategy: FeederStrategy, bufferSize: Int, charset: Charset): Feeder[Any] = {
+  def apply(
+      file: File,
+      separator: Char,
+      quoteChar: Char,
+      conversion: Option[Record[String] => Record[Any]],
+      strategy: FeederStrategy,
+      bufferSize: Int,
+      charset: Charset
+  ): Feeder[Any] = {
 
     val streamer: InputStream => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
 
@@ -68,7 +76,8 @@ class QueueBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStrea
   override def next(): Record[String] = feeder.next()
 }
 
-class RandomBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String], bufferSize: Int) extends BatchedSeparatedValuesFeeder(is, streamer) {
+class RandomBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String], bufferSize: Int)
+    extends BatchedSeparatedValuesFeeder(is, streamer) {
 
   private val buffer = new Array[Record[String]](bufferSize)
   private var index = 0
@@ -100,7 +109,8 @@ class RandomBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStre
     }
 }
 
-class ShuffleBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String], bufferSize: Int) extends BatchedSeparatedValuesFeeder(is, streamer) {
+class ShuffleBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String], bufferSize: Int)
+    extends BatchedSeparatedValuesFeeder(is, streamer) {
 
   private val buffer = new Array[Record[String]](bufferSize)
   private var index = 0

@@ -82,41 +82,64 @@ class ConsoleDataWriterSpec extends BaseSpec {
   "console summary" should "display requests without errors" in {
     val requestCounters = mutable.Map("request1" -> new RequestCounters(20, 0))
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(Some(11))), new RequestCounters(20, 0), requestCounters, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> new UserCounters(Some(11))),
+      new RequestCounters(20, 0),
+      requestCounters,
+      mutable.Map.empty,
+      configuration,
+      time
+    )
 
     val actual = requestsInfo(summary)
     actual shouldBe """---- Requests ------------------------------------------------------------------
-                        |> Global                                                   (OK=20     KO=0     )
-                        |> request1                                                 (OK=20     KO=0     )""".stripMargin
+                      |> Global                                                   (OK=20     KO=0     )
+                      |> request1                                                 (OK=20     KO=0     )""".stripMargin
   }
 
   it should "display requests with multiple errors" in {
     val requestCounters = mutable.Map("request1" -> new RequestCounters(0, 20))
 
     val errorsCounters1 = mutable.Map("error1" -> 19, "error2" -> 1)
-    val summary1 = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(Some(11))), new RequestCounters(0, 20),
-      requestCounters, errorsCounters1, configuration, time)
+    val summary1 = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> new UserCounters(Some(11))),
+      new RequestCounters(0, 20),
+      requestCounters,
+      errorsCounters1,
+      configuration,
+      time
+    )
 
     val output = errorsInfo(summary1)
 
     output shouldBe s"""|---- Errors --------------------------------------------------------------------
-            |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
-            |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)""".stripMargin
+                        |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
+                        |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)""".stripMargin
     all(output.lines.map(_.length).toSet) shouldBe <=(80)
   }
 
   it should "display requests with high number of errors" in {
     val requestCounters = mutable.Map("request1" -> new RequestCounters(0, 123456))
-    val loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    val loremIpsum =
+      "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     val errorsCounters = mutable.Map(loremIpsum -> 123456)
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(Some(11))), new RequestCounters(0, 123456),
-      requestCounters, errorsCounters, configuration, time)
+    val summary = ConsoleSummary(
+      10000,
+      mutable.Map("request1" -> new UserCounters(Some(11))),
+      new RequestCounters(0, 123456),
+      requestCounters,
+      errorsCounters,
+      configuration,
+      time
+    )
 
     val output = errorsInfo(summary)
 
     output shouldBe s"""|---- Errors --------------------------------------------------------------------
-            |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
-            |do eiusmod tempor incididunt ut labore et dolore magna aliqua....""".stripMargin
+                        |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
+                        |do eiusmod tempor incididunt ut labore et dolore magna aliqua....""".stripMargin
     all(output.lines.map(_.length).toSet) shouldBe <=(80)
   }
 }

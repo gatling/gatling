@@ -129,7 +129,7 @@ private[recorder] object SslServerContext {
     private def newAliasContext(alias: String): SslContext =
       SslUtil.updateKeystoreWithNewAlias(keyStore, password, alias, ca) match {
         case Failure(t) => throw t
-        case _ =>
+        case _          =>
           // Set up key manager factory to use our key store
           val kmf = KeyManagerFactory.getInstance(Algorithm)
           kmf.init(keyStore, password)

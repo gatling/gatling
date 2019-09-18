@@ -27,10 +27,11 @@ private[charts] class AssertionsTableComponent(assertionResults: List[AssertionR
 
   private def resultStyle(assertionResult: AssertionResult) = if (assertionResult.result) "ok" else "ko"
 
-  def html: String = if (assertionResults.isEmpty)
-    ""
-  else
-    s"""<div class="statistics extensible-geant collapsed">
+  def html: String =
+    if (assertionResults.isEmpty)
+      ""
+    else
+      s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         <div class="title_collapsed" style="cursor: auto;">ASSERTIONS</div>
     </div>
@@ -42,15 +43,14 @@ private[charts] class AssertionsTableComponent(assertionResults: List[AssertionR
             </tr>
         </thead>
 		<tbody>
-		    ${
-      assertionResults.zipWithIndex.map {
-        case (assertionResult, index) => s"""
+		    ${assertionResults.zipWithIndex.map {
+        case (assertionResult, index) =>
+          s"""
 		    <tr>
 		    	<td class="error-col-1 ${resultStyle(assertionResult)} total">${assertionResult.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="error-col-2 value ${resultStyle(assertionResult)} total">${if (assertionResult.result) "OK" else "KO"}</td>
 		    </tr>"""
-      }.mkString
-    }
+      }.mkString}
 		</tbody>
     </table>
 </div>

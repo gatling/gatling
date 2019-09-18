@@ -20,9 +20,9 @@ import io.netty.handler.codec.http.HttpHeaders
 
 case class HttpRequest(
     httpVersion: String,
-    method:      String,
-    uri:         String,
-    headers:     HttpHeaders,
-    body:        Array[Byte],
-    timestamp:   Long
+    method: String,
+    uri: String,
+    headers: HttpHeaders,
+    body: Array[Byte],
+    timestamp: Long
 )

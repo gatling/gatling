@@ -38,12 +38,13 @@ class Around(before: () => Unit, after: () => Unit) {
 
 abstract class JmsAction(
     attributes: JmsAttributes,
-    protocol:   JmsProtocol,
-    pool:       JmsConnectionPool,
-    throttler:  Throttler,
-    throttled:  Boolean
-)
-  extends RequestAction with JmsLogging with NameGen {
+    protocol: JmsProtocol,
+    pool: JmsConnectionPool,
+    throttler: Throttler,
+    throttled: Boolean
+) extends RequestAction
+    with JmsLogging
+    with NameGen {
 
   override val requestName: Expression[String] = attributes.requestName
 
@@ -70,8 +71,8 @@ abstract class JmsAction(
     }
 
   private def resolveProperties(
-    properties: Map[Expression[String], Expression[Any]],
-    session:    Session
+      properties: Map[Expression[String], Expression[Any]],
+      session: Session
   ): Validation[Map[String, Any]] =
     properties.foldLeft(Map.empty[String, Any].success) {
       case (resolvedProperties, (key, value)) =>

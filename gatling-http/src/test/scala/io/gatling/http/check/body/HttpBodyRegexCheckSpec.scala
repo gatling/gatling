@@ -68,7 +68,10 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   "regex.findAll.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    regexCheck(""""id":"(.+?)"""").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      Some(Seq("1072920417", "1072920418")),
+      None
+    )
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
@@ -80,7 +83,11 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   it should "fail with expected message when transforming" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regexCheck(regexValue).findAll.transform(_.map(_ + "foo")).exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
+    regexCheck(regexValue).findAll
+      .transform(_.map(_ + "foo"))
+      .exists
+      .check(response, session, new JHashMap[Any, Any])
+      .failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {

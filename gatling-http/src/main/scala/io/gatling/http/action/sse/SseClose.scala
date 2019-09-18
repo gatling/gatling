@@ -26,11 +26,14 @@ import io.gatling.http.action.sse.fsm.ClientCloseRequest
 
 class SseClose(
     val requestName: Expression[String],
-    sseName:         String,
+    sseName: String,
     val statsEngine: StatsEngine,
-    val clock:       Clock,
-    val next:        Action
-) extends RequestAction with ActorBasedAction with SseAction with NameGen {
+    val clock: Clock,
+    val next: Action
+) extends RequestAction
+    with ActorBasedAction
+    with SseAction
+    with NameGen {
 
   override val name: String = genName("sseClose")
 

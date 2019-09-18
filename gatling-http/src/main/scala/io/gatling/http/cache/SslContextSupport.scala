@@ -52,12 +52,11 @@ private[http] trait SslContextSupport {
   def setSslContexts(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session =
     if (httpProtocol.enginePart.shareConnections) {
       identity
-    } else {
-      session =>
-        {
-          val kmf = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
-          session.set(HttpSslContextsAttributeName, httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, kmf))
-        }
+    } else { session =>
+      {
+        val kmf = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
+        session.set(HttpSslContextsAttributeName, httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, kmf))
+      }
     }
 
   def sslContexts(session: Session): Option[SslContexts] = {

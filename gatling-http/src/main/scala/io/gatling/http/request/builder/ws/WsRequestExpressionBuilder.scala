@@ -27,12 +27,11 @@ import io.gatling.http.util.HttpHelper
 
 class WsRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
-    httpCaches:       HttpCaches,
-    httpProtocol:     HttpProtocol,
-    configuration:    GatlingConfiguration,
-    subprotocol:      Option[String]
-)
-  extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
+    configuration: GatlingConfiguration,
+    subprotocol: Option[String]
+) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
   override protected def baseUrl: Session => Option[String] = httpCaches.wsBaseUrl
 

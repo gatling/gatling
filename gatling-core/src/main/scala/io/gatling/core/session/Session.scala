@@ -76,14 +76,14 @@ object Session {
  * @param onExit hook to execute once the user reaches the exit
  */
 final case class Session(
-    scenario:   String,
-    userId:     Long,
-    startDate:  Long,
+    scenario: String,
+    userId: Long,
+    startDate: Long,
     attributes: Map[String, Any] = Map.empty,
-    drift:      Long             = 0L,
-    baseStatus: Status           = OK,
-    blockStack: List[Block]      = Nil,
-    onExit:     Session => Unit  = Session.NothingOnExit
+    drift: Long = 0L,
+    baseStatus: Status = OK,
+    blockStack: List[Block] = Nil,
+    onExit: Session => Unit = Session.NothingOnExit
 ) extends LazyLogging {
 
   import Session._
@@ -108,7 +108,9 @@ final case class Session(
           Map.empty[String, Any]
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
-          attributes.filter { case (key, _) => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix) }
+          attributes.filter {
+            case (key, _) => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
+          }
         }
       }
     copy(attributes = newAttributes)
@@ -151,10 +153,11 @@ final case class Session(
 
     @tailrec
     def gh(blocks: List[Block]): List[String] = blocks match {
-      case head :: tail => head match {
-        case g: GroupBlock => g.hierarchy
-        case _             => gh(tail)
-      }
+      case head :: tail =>
+        head match {
+          case g: GroupBlock => g.hierarchy
+          case _             => gh(tail)
+        }
       case _ => Nil
     }
 
@@ -247,7 +250,13 @@ final case class Session(
       attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
     )
 
-  private[gatling] def enterTimeBasedLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, nowMillis: Long): Session =
+  private[gatling] def enterTimeBasedLoop(
+      counterName: String,
+      condition: Expression[Boolean],
+      exitAction: Action,
+      exitASAP: Boolean,
+      nowMillis: Long
+  ): Session =
     copy(
       blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
       attributes = newAttributesWithCounter(counterName, withTimestamp = true, nowMillis)
@@ -286,8 +295,8 @@ final case class Session(
         copy(attributes = attributes - counterName - timestampName(counterName))
     }
 
-  def update(updates: Iterable[Session => Session]): Session = updates.foldLeft(this) {
-    (session, update) => update(session)
+  def update(updates: Iterable[Session => Session]): Session = updates.foldLeft(this) { (session, update) =>
+    update(session)
   }
 
   def exit(): Unit = onExit(this)

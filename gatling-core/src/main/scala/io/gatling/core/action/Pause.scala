@@ -24,7 +24,8 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorSystem
 
-class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action) extends ExitableAction {
+class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action)
+    extends ExitableAction {
 
   import actorSystem._
 

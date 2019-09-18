@@ -26,10 +26,10 @@ import io.gatling.compiler.config.cli.{ ArgsParser, CommandLineOverrides }
 import com.typesafe.config.ConfigFactory
 
 private[compiler] final case class CompilerConfiguration(
-    encoding:             String,
+    encoding: String,
     simulationsDirectory: Path,
-    binariesDirectory:    Path,
-    extraScalacOptions:   Seq[String]
+    binariesDirectory: Path,
+    extraScalacOptions: Seq[String]
 )
 
 private[compiler] object CompilerConfiguration {

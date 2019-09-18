@@ -44,10 +44,9 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 
 private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
-/************************************/
+  /************************************/
   /**           COMPONENTS           **/
-/************************************/
-
+  /************************************/
   /* Top panel components */
   private val modeSelector = new LabelledComboBox[RecorderMode](RecorderMode.AllModes)
 
@@ -111,10 +110,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
   private val start = Button("Start !")(reloadConfigurationAndStart())
 
-/**********************************/
+  /**********************************/
   /**           UI SETUP           **/
-/**********************************/
-
+  /**********************************/
   /* Frame setup */
   title = "Gatling Recorder - Configuration"
   resizable = true
@@ -308,10 +306,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   registerValidators()
   populateItemsFromConfiguration()
 
-/*****************************************/
+  /*****************************************/
   /**           EVENTS HANDLING           **/
-/*****************************************/
-
+  /*****************************************/
   def toggleModeSelector(mode: RecorderMode): Unit = mode match {
     case Proxy =>
       root.center.network.visible = true
@@ -475,16 +472,14 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
 
     Dialog.showMessage(
       title = "Download successful",
-      message =
-        s"""|Gatling's CA certificate and key were successfully saved to
-           |$directory .""".stripMargin
+      message = s"""|Gatling's CA certificate and key were successfully saved to
+                    |$directory .""".stripMargin
     )
   }
 
-/****************************************/
+  /****************************************/
   /**           CONFIGURATION            **/
-/****************************************/
-
+  /****************************************/
   /**
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
    */

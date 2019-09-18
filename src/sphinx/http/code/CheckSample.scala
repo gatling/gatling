@@ -119,13 +119,13 @@ class CheckSample {
     //#css-ofType
 
     jsonPath("$..foo.bar[2].baz").
-      //#transform
-      transform(string => string + "foo")
+    //#transform
+    transform(string => string + "foo")
     //#transform
 
     jsonPath("$..foo.bar[2].baz").
-      //#transformOption
-      transformOption(extract => extract.orElse(Some("default")))
+    //#transformOption
+    transformOption(extract => extract.orElse(Some("default")))
     //#transformOption
 
     //#is
@@ -168,8 +168,7 @@ class CheckSample {
     //#regex-count-is
 
     //#regex-findAll-is
-    regex("""https://(.*)/.*""")
-      .findAll
+    regex("""https://(.*)/.*""").findAll
       .is(List("www.google.com", "www.mysecuredsite.com"))
     //#regex-findAll-is
 

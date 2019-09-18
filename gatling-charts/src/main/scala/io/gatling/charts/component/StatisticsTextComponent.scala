@@ -38,18 +38,18 @@ private[charts] final case class GroupedCount(name: String, count: Long, total: 
 }
 
 private[charts] final case class RequestStatistics(
-    name:                                    String,
-    path:                                    String,
-    numberOfRequestsStatistics:              Statistics[Long],
-    minResponseTimeStatistics:               Statistics[Int],
-    maxResponseTimeStatistics:               Statistics[Int],
-    meanStatistics:                          Statistics[Int],
-    stdDeviationStatistics:                  Statistics[Int],
-    percentiles1:                            Statistics[Int],
-    percentiles2:                            Statistics[Int],
-    percentiles3:                            Statistics[Int],
-    percentiles4:                            Statistics[Int],
-    groupedCounts:                           Seq[GroupedCount],
+    name: String,
+    path: String,
+    numberOfRequestsStatistics: Statistics[Long],
+    minResponseTimeStatistics: Statistics[Int],
+    maxResponseTimeStatistics: Statistics[Int],
+    meanStatistics: Statistics[Int],
+    stdDeviationStatistics: Statistics[Int],
+    percentiles1: Statistics[Int],
+    percentiles2: Statistics[Int],
+    percentiles3: Statistics[Int],
+    percentiles4: Statistics[Int],
+    groupedCounts: Seq[GroupedCount],
     meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
 )
 

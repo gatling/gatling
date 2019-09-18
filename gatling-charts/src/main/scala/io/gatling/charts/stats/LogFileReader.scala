@@ -113,7 +113,6 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
           assertions += assertion
 
         case RawErrorRecord(_) =>
-
         case _ =>
           logger.debug(s"Record broken on line $count: $line")
       }
@@ -121,12 +120,21 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
     logger.info(s"First pass done: read $count lines")
 
-    FirstPassData(runStart, runEnd, runMessages.headOption.getOrElse(throw new UnsupportedOperationException(s"Files $inputFiles don't contain any valid run record")), assertions.toList)
+    FirstPassData(
+      runStart,
+      runEnd,
+      runMessages.headOption.getOrElse(throw new UnsupportedOperationException(s"Files $inputFiles don't contain any valid run record")),
+      assertions.toList
+    )
   }
 
   val FirstPassData(runStart, runEnd, runMessage, assertions) = parseInputFiles(firstPass)
 
-  val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
+  val step = StatsHelper.step(
+    math.floor(runStart / SecMillisecRatio).toInt,
+    math.ceil(runEnd / SecMillisecRatio).toInt,
+    configuration.charting.maxPlotsPerSeries
+  ) * SecMillisecRatio
 
   val buckets = StatsHelper.buckets(0, runEnd - runStart, step)
   val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length)
@@ -168,29 +176,31 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   println("Parsing log file(s) done")
 
   val statsPaths: List[StatsPath] =
-    resultsHolder.groupAndRequestsNameBuffer.map.toList.map {
-      case (path @ RequestStatsPath(_, group), time) => (path, (time, group.map(_.hierarchy.size + 1).getOrElse(0)))
-      case (path @ GroupStatsPath(group), time)      => (path, (time, group.hierarchy.size))
-      case _                                         => throw new UnsupportedOperationException
-    }.sortBy(_._2).map(_._1)
+    resultsHolder.groupAndRequestsNameBuffer.map.toList
+      .map {
+        case (path @ RequestStatsPath(_, group), time) => (path, (time, group.map(_.hierarchy.size + 1).getOrElse(0)))
+        case (path @ GroupStatsPath(group), time)      => (path, (time, group.hierarchy.size))
+        case _                                         => throw new UnsupportedOperationException
+      }
+      .sortBy(_._2)
+      .map(_._1)
 
   def requestNames: List[String] = statsPaths.collect { case RequestStatsPath(request, _) => request }
 
-  def scenarioNames: List[String] = resultsHolder.scenarioNameBuffer
-    .map
-    .toList
-    .sortBy(_._2)
-    .map(_._1)
+  def scenarioNames: List[String] =
+    resultsHolder.scenarioNameBuffer.map.toList
+      .sortBy(_._2)
+      .map(_._1)
 
-  def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] = resultsHolder
-    .getSessionDeltaPerSecBuffers(scenarioName)
-    .distribution
+  def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] =
+    resultsHolder
+      .getSessionDeltaPerSecBuffers(scenarioName)
+      .distribution
 
   private def toNumberPerSec(value: Int) = (value / step * SecMillisecRatio).round.toInt
 
   private def countBuffer2IntVsTimePlots(buffer: CountsBuffer): Seq[CountsVsTimePlot] =
-    buffer
-      .distribution
+    buffer.distribution
       .map(plot => plot.copy(oks = toNumberPerSec(plot.oks), kos = toNumberPerSec(plot.kos)))
       .toSeq
       .sortBy(_.time)
@@ -201,7 +211,12 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   def numberOfResponsesPerSecond(requestName: Option[String], group: Option[Group]): Seq[CountsVsTimePlot] =
     countBuffer2IntVsTimePlots(resultsHolder.getResponsesPerSecBuffer(requestName, group))
 
-  private def distribution(maxPlots: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
+  private def distribution(
+      maxPlots: Int,
+      allBuffer: GeneralStatsBuffer,
+      okBuffers: GeneralStatsBuffer,
+      koBuffer: GeneralStatsBuffer
+  ): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
 
     // get main and max for request/all status
     val size = allBuffer.stats.count
@@ -235,16 +250,15 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
           .groupBy(_._1)
           .map {
             case (responseTimeBucket, recordList) =>
-
-              val bucketSize = recordList.foldLeft(0) {
-                (partialSize, record) => partialSize + record._2.value
+              val bucketSize = recordList.foldLeft(0) { (partialSize, record) =>
+                partialSize + record._2.value
               }
 
               (responseTimeBucket, percent(bucketSize))
           }(breakOut)
 
-        buckets.map {
-          bucket => PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
+        buckets.map { bucket =>
+          PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
         }
       }
 
@@ -276,17 +290,20 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(KO))
     )
 
-  def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats = resultsHolder
-    .getRequestGeneralStatsBuffers(requestName, group, status)
-    .stats
+  def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats =
+    resultsHolder
+      .getRequestGeneralStatsBuffers(requestName, group, status)
+      .stats
 
-  def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats = resultsHolder
-    .getGroupCumulatedResponseTimeGeneralStatsBuffers(group, status)
-    .stats
+  def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats =
+    resultsHolder
+      .getGroupCumulatedResponseTimeGeneralStatsBuffers(group, status)
+      .stats
 
-  def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats = resultsHolder
-    .getGroupDurationGeneralStatsBuffers(group, status)
-    .stats
+  def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats =
+    resultsHolder
+      .getGroupDurationGeneralStatsBuffers(group, status)
+      .stats
 
   def numberOfRequestInResponseTimeRange(requestName: Option[String], group: Option[Group]): Seq[(String, Int)] = {
 
@@ -305,7 +322,12 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
-  private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
+  private def timeAgainstGlobalNumberOfRequestsPerSec(
+      buffer: PercentilesBuffers,
+      status: Status,
+      requestName: String,
+      group: Option[Group]
+  ): Seq[IntVsTimePlot] = {
 
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None).counts
 

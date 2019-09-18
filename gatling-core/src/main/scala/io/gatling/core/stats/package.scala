@@ -34,14 +34,14 @@ final case class PercentVsTimePlot(time: Int, value: Double) {
 final case class PieSlice(name: String, value: Double)
 final case class PercentilesVsTimePlot(time: Int, percentiles: Option[Percentiles])
 final case class Percentiles(
-    percentile0:   Int,
-    percentile25:  Int,
-    percentile50:  Int,
-    percentile75:  Int,
-    percentile80:  Int,
-    percentile85:  Int,
-    percentile90:  Int,
-    percentile95:  Int,
-    percentile99:  Int,
+    percentile0: Int,
+    percentile25: Int,
+    percentile50: Int,
+    percentile75: Int,
+    percentile80: Int,
+    percentile85: Int,
+    percentile90: Int,
+    percentile95: Int,
+    percentile99: Int,
     percentile100: Int
 )

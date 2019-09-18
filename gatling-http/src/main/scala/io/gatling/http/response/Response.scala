@@ -36,25 +36,25 @@ sealed trait HttpResult {
 }
 
 final case class HttpFailure(
-    request:            Request,
+    request: Request,
     wireRequestHeaders: HttpHeaders,
-    startTimestamp:     Long,
-    endTimestamp:       Long,
-    errorMessage:       String
+    startTimestamp: Long,
+    endTimestamp: Long,
+    errorMessage: String
 ) extends HttpResult
 
 final case class Response(
-    request:            Request,
+    request: Request,
     wireRequestHeaders: HttpHeaders,
-    status:             HttpResponseStatus,
-    headers:            HttpHeaders,
-    body:               ResponseBody,
-    checksums:          Map[String, String],
-    bodyLength:         Int,
-    charset:            Charset,
-    startTimestamp:     Long,
-    endTimestamp:       Long,
-    isHttp2:            Boolean
+    status: HttpResponseStatus,
+    headers: HttpHeaders,
+    body: ResponseBody,
+    checksums: Map[String, String],
+    bodyLength: Int,
+    charset: Charset,
+    startTimestamp: Long,
+    endTimestamp: Long,
+    isHttp2: Boolean
 ) extends HttpResult {
 
   val isRedirect: Boolean = HttpHelper.isRedirect(status)

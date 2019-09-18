@@ -25,4 +25,14 @@ private[graphite] trait RequestMetricsBuffer {
 }
 
 private[graphite] final case class MetricByStatus(ok: Option[Metrics], ko: Option[Metrics], all: Option[Metrics])
-private[graphite] final case class Metrics(count: Long, min: Int, max: Int, mean: Int, stdDev: Int, percentile1: Int, percentile2: Int, percentile3: Int, percentile4: Int)
+private[graphite] final case class Metrics(
+    count: Long,
+    min: Int,
+    max: Int,
+    mean: Int,
+    stdDev: Int,
+    percentile1: Int,
+    percentile2: Int,
+    percentile3: Int,
+    percentile4: Int
+)

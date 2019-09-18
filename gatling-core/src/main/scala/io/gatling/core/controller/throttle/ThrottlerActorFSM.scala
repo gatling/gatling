@@ -33,7 +33,8 @@ private[throttle] object ThrottlerActorData {
   private[throttle] case object NoData extends ThrottlerActorData
 
   // mutable state is very ugly and error prone, but we're trying to limit allocations...
-  private[throttle] final case class StartedData(throttles: Throttles, buffer: mutable.ArrayBuffer[ThrottledRequest], tickNanos: Long) extends ThrottlerActorData {
+  private[throttle] final case class StartedData(throttles: Throttles, buffer: mutable.ArrayBuffer[ThrottledRequest], tickNanos: Long)
+      extends ThrottlerActorData {
 
     var count: Int = 0
 

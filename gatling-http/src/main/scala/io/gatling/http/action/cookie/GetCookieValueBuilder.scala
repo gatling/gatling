@@ -24,11 +24,11 @@ import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.getCookieValue
 
 final case class GetCookieDsl(
-    name:   String,
+    name: String,
     domain: Option[Expression[String]] = None,
-    path:   Option[String]             = None,
-    secure: Boolean                    = false,
-    saveAs: Option[String]             = None
+    path: Option[String] = None,
+    secure: Boolean = false,
+    saveAs: Option[String] = None
 ) {
   def withDomain(domain: Expression[String]): GetCookieDsl = copy(domain = Some(domain))
   def withPath(path: String): GetCookieDsl = copy(path = Some(path))
@@ -42,7 +42,9 @@ object GetCookieValueBuilder {
     new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String]) extends HttpActionBuilder with NameGen {
+class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
+    extends HttpActionBuilder
+    with NameGen {
 
   import CookieActionBuilder._
 
@@ -54,10 +56,11 @@ class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], pa
     val resolvedPath = path.getOrElse(DefaultPath)
     val resolvedSaveAs = saveAs.getOrElse(name)
 
-    val expression: Expression[Session] = session => for {
-      domain <- resolvedDomain(session)
-      cookieValue <- getCookieValue(session, domain, resolvedPath, name, secure)
-    } yield session.set(resolvedSaveAs, cookieValue)
+    val expression: Expression[Session] = session =>
+      for {
+        domain <- resolvedDomain(session)
+        cookieValue <- getCookieValue(session, domain, resolvedPath, name, secure)
+      } yield session.set(resolvedSaveAs, cookieValue)
 
     new SessionHook(expression, genName("getCookie"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
   }

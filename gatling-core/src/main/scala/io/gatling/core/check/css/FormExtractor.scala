@@ -105,10 +105,11 @@ private[css] object FormExtractor {
           val childNode = currentNode.getChild(i)
           childNode.getNodeName match {
             case "input" => extractInput(childNode).map(Seq(_)).getOrElse(Nil)
-            case "select" => extractSelect(childNode) match {
-              case Some(input) => Seq(input)
-              case None        => Nil
-            }
+            case "select" =>
+              extractSelect(childNode) match {
+                case Some(input) => Seq(input)
+                case None        => Nil
+              }
             case "textarea" => extractTextArea(childNode).map(Seq(_)).getOrElse(Nil)
             case _          => processFormRec(childNode, inputs)
           }
@@ -132,9 +133,12 @@ private[css] object FormExtractor {
 
     val allInputs = processForm(node)
 
-    val nonEmptyMultipleSelectInputs: Map[String, Seq[String]] = allInputs.collect { case MultipleSelectInput(name, values) if values.nonEmpty => name -> values }.toMap
+    val nonEmptyMultipleSelectInputs: Map[String, Seq[String]] = allInputs.collect {
+      case MultipleSelectInput(name, values) if values.nonEmpty => name -> values
+    }.toMap
 
-    val (multiValuedInputs, singleValuedInputs) = allInputs.collect { case single: SingleValueInput => single }.groupBy(_.name).partition { case (_, inputs) => inputs.size > 1 }
+    val (multiValuedInputs, singleValuedInputs) =
+      allInputs.collect { case single: SingleValueInput => single }.groupBy(_.name).partition { case (_, inputs) => inputs.size > 1 }
 
     val nonEmptyMultiValuedInputs: Map[String, Seq[String]] = filterNonCheckedCheckboxes(multiValuedInputs).collect {
       case (key, nonEmptyInputs) if nonEmptyInputs.nonEmpty => key -> nonEmptyInputs.map(_.value)

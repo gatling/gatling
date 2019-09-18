@@ -25,13 +25,13 @@ import akka.actor.ActorRef
 class JmsTracker(actor: ActorRef) {
 
   def track(
-    matchId:      String,
-    sent:         Long,
-    replyTimeout: Long,
-    checks:       List[JmsCheck],
-    session:      Session,
-    next:         Action,
-    requestName:  String
+      matchId: String,
+      sent: Long,
+      replyTimeout: Long,
+      checks: List[JmsCheck],
+      session: Session,
+      next: Action,
+      requestName: String
   ): Unit =
     actor ! MessageSent(
       matchId,

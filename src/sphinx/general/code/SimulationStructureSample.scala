@@ -45,7 +45,8 @@ class SimulationStructureSample extends Simulation {
 
   //#setUp
   setUp(
-    scn.inject(atOnceUsers(1)) // (1)
+    scn
+      .inject(atOnceUsers(1)) // (1)
       .protocols(httpProtocol) // (2)
   )
   //#setUp

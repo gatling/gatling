@@ -263,11 +263,11 @@ class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
 }
 
 final case class FileData(
-    userMessageSerializer:     UserMessageSerializer,
+    userMessageSerializer: UserMessageSerializer,
     responseMessageSerializer: ResponseMessageSerializer,
-    groupMessageSerializer:    GroupMessageSerializer,
-    errorMessageSerializer:    ErrorMessageSerializer,
-    writer:                    BufferedFileChannelWriter
+    groupMessageSerializer: GroupMessageSerializer,
+    errorMessageSerializer: ErrorMessageSerializer,
+    writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
 class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {

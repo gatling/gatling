@@ -18,7 +18,7 @@ package io.gatling.core.controller.throttle
 
 import io.gatling.core.scenario.SimulationParams
 
-import akka.actor.{ Props, ActorSystem, ActorRef }
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
 final case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
 

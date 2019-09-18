@@ -23,7 +23,11 @@ import org.mockito.Mockito._
 
 class AssertionValidatorSpec extends BaseSpec {
 
-  private def validateAssertions[T](assertions: List[Assertion], mockedMethodCall: GeneralStatsSource => T, mockedMethodCallResult: T): List[AssertionResult] = {
+  private def validateAssertions[T](
+      assertions: List[Assertion],
+      mockedMethodCall: GeneralStatsSource => T,
+      mockedMethodCallResult: T
+  ): List[AssertionResult] = {
     val source = mock[GeneralStatsSource]
     when(source.assertions) thenReturn assertions
     when(mockedMethodCall(source)) thenReturn mockedMethodCallResult

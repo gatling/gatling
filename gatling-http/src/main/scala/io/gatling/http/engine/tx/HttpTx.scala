@@ -24,12 +24,12 @@ import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
 
 final case class HttpTx(
-    session:                Session,
-    request:                HttpRequest,
+    session: Session,
+    request: HttpRequest,
     responseBuilderFactory: ResponseBuilderFactory,
-    next:                   Action,
-    resourceTx:             Option[ResourceTx]     = None,
-    redirectCount:          Int                    = 0
+    next: Action,
+    resourceTx: Option[ResourceTx] = None,
+    redirectCount: Int = 0
 ) {
   lazy val silent: Boolean = request.isSilent(resourceTx.isEmpty)
 

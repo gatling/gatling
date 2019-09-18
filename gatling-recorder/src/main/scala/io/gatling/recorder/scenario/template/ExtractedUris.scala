@@ -42,7 +42,8 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
     val allUris =
       (requestElements.map(_.uri) ++ requestElements.flatMap(_.nonEmbeddedResources.map(_.uri)))
-        .map(uri => Uri.create(uri)).toList
+        .map(uri => Uri.create(uri))
+        .toList
     val uriGroupedByHost: Map[String, List[Uri]] = allUris.groupBy(uri => uri.getHost)
 
     val maxNbDigits = uriGroupedByHost.size.toString.length
@@ -51,7 +52,6 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
     val tmpRenders = uriGroupedByHost.zipWithIndex.flatMap {
       case ((_, uris), index) =>
-
         val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
 
         if (uris.size == 1 || schemesPortAreSame(uris)) {
@@ -100,8 +100,9 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
     }
 
   private def extractCommonHostUrls(uris: List[Uri], valName: String): List[(String, String)] =
-    uris.map(uri =>
-      (uri.toString, s""""${uri.getScheme}://${user(uri)}" + $valName + ${protectWithTripleQuotes(s"${port(uri)}${uri.getPath}${query(uri)}")}"""))
+    uris.map(
+      uri => (uri.toString, s""""${uri.getScheme}://${user(uri)}" + $valName + ${protectWithTripleQuotes(s"${port(uri)}${uri.getPath}${query(uri)}")}""")
+    )
 
   private def schemesPortAreSame(uris: Seq[Uri]): Boolean =
     uris.map(uri => uri.getScheme -> uri.getExplicitPort).toSet.size == 1

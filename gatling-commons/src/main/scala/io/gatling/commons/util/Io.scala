@@ -32,9 +32,7 @@ object Io {
 
   implicit class RichURL(val url: URL) extends AnyVal {
 
-    def file: File = Try(new File(url.toURI))
-      .recover { case _: URISyntaxException => new File(url.getPath) }
-      .get
+    def file: File = Try(new File(url.toURI)).recover { case _: URISyntaxException => new File(url.getPath) }.get
   }
 
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
@@ -111,16 +109,12 @@ object Io {
   }
 
   def withCloseable[T, C <: AutoCloseable](closeable: C)(block: C => T): T =
-    try
-      block(closeable)
-    finally
-      closeable.close()
+    try block(closeable)
+    finally closeable.close()
 
   def withSource[T, C <: Source](closeable: C)(block: C => T): T =
-    try
-      block(closeable)
-    finally
-      closeable.close()
+    try block(closeable)
+    finally closeable.close()
 
   def deleteDirectoryAsap(directory: Path): Unit =
     if (!deleteDirectory(directory)) {
@@ -135,19 +129,22 @@ object Io {
    */
   def deleteDirectory(directory: Path): Boolean =
     try {
-      Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
-        @throws[IOException]
-        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-          Files.delete(file)
-          FileVisitResult.CONTINUE
-        }
+      Files.walkFileTree(
+        directory,
+        new SimpleFileVisitor[Path]() {
+          @throws[IOException]
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            Files.delete(file)
+            FileVisitResult.CONTINUE
+          }
 
-        @throws[IOException]
-        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-          Files.delete(dir)
-          FileVisitResult.CONTINUE
+          @throws[IOException]
+          override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+            Files.delete(dir)
+            FileVisitResult.CONTINUE
+          }
         }
-      })
+      )
       true
     } catch {
       case NonFatal(_) => false
@@ -159,17 +156,20 @@ object Io {
    * @param directory the directory to delete
    */
   def deleteDirectoryOnExit(directory: Path): Unit =
-    Files.walkFileTree(directory, new SimpleFileVisitor[Path]() {
-      @throws[IOException]
-      override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-        file.toFile.deleteOnExit()
-        FileVisitResult.CONTINUE
-      }
+    Files.walkFileTree(
+      directory,
+      new SimpleFileVisitor[Path]() {
+        @throws[IOException]
+        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+          file.toFile.deleteOnExit()
+          FileVisitResult.CONTINUE
+        }
 
-      @throws[IOException]
-      override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-        dir.toFile.deleteOnExit()
-        FileVisitResult.CONTINUE
+        @throws[IOException]
+        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
+          dir.toFile.deleteOnExit()
+          FileVisitResult.CONTINUE
+        }
       }
-    })
+    )
 }

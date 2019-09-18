@@ -19,7 +19,8 @@ package io.gatling.core.stats.writer
 object DataWriterType {
 
   private val AllTypes = Seq(ConsoleDataWriterType, FileDataWriterType, GraphiteDataWriterType, LeakReporterDataWriterType)
-    .map(t => t.name -> t).toMap
+    .map(t => t.name -> t)
+    .toMap
 
   def findByName(name: String): Option[DataWriterType] = AllTypes.get(name)
 }

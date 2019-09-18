@@ -27,7 +27,8 @@ import com.typesafe.scalalogging.StrictLogging
 private[cache] object Http2PriorKnowledgeSupport {
   val Http2PriorKnowledgeAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.priorKnowledgeHttp2"
 
-  val MissingPriorKnowledgeMapException = new UnsupportedOperationException("HTTP/2 is enabled but there is no prior knowledge map in session.") with NoStackTrace
+  val MissingPriorKnowledgeMapException = new UnsupportedOperationException("HTTP/2 is enabled but there is no prior knowledge map in session.")
+  with NoStackTrace
 }
 
 private[cache] trait Http2PriorKnowledgeSupport extends StrictLogging {

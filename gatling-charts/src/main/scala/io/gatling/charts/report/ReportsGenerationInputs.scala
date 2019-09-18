@@ -21,6 +21,6 @@ import io.gatling.commons.stats.assertion.AssertionResult
 
 private[gatling] final case class ReportsGenerationInputs(
     reportFolderName: String,
-    logFileReader:    LogFileReader,
+    logFileReader: LogFileReader,
     assertionResults: List[AssertionResult]
 )

@@ -50,7 +50,6 @@ class ScenarioSample {
 
   //#session-improper
   exec { session =>
-
     if (someSessionBasedCondition(session)) {
       // just create a builder that is immediately discarded, hence doesn't do anything
       // you should be using a doIf here
@@ -195,8 +194,8 @@ class ScenarioSample {
     key1 -> chain1,
     key1 -> chain2
   )(
-      myFallbackChain
-    )
+    myFallbackChain
+  )
   //#doSwitchOrElse
 
   //#randomSwitch
@@ -211,8 +210,8 @@ class ScenarioSample {
     percentage1 -> chain1,
     percentage2 -> chain2
   ) {
-      myFallbackChain
-    }
+    myFallbackChain
+  }
   //#randomSwitchOrElse
 
   //#uniformRandomSwitch

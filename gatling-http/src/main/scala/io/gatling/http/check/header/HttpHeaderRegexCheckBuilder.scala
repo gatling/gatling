@@ -39,10 +39,9 @@ object HttpHeaderRegexCheckBuilder {
 
 class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
     private[header] val headerName: Expression[String],
-    private[header] val pattern:    Expression[String],
-    private[header] val patterns:   Patterns
-)
-  extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
+    private[header] val pattern: Expression[String],
+    private[header] val patterns: Patterns
+) extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
 
   private def withHeaderAndPattern[T](f: (String, String) => T): Expression[T] =
     session =>
@@ -51,7 +50,8 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
         pattern <- pattern(session)
       } yield f(headerName, pattern)
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] = withHeaderAndPattern(new HttpHeaderRegexFindExtractor(_, _, occurrence, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] =
+    withHeaderAndPattern(new HttpHeaderRegexFindExtractor(_, _, occurrence, patterns))
 
   override def findAllExtractor: Expression[Extractor[Response, Seq[X]]] = withHeaderAndPattern(new HttpHeaderRegexFindAllExtractor(_, _, patterns))
 

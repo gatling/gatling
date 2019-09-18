@@ -25,7 +25,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.session._
 import io.gatling.core.session.el._
-import io.gatling.core.structure.{ ScenarioBuilder, ChainBuilder }
+import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
 
 sealed trait NonValidable
 

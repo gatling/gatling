@@ -56,8 +56,7 @@ private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Pa
   }
 
   private def pathToClassName(path: Path, root: Path): String =
-    (path.getParent / path.stripExtension)
-      .toString
+    (path.getParent / path.stripExtension).toString
       .stripPrefix(root + File.separator)
       .replace(File.separator, ".")
 }

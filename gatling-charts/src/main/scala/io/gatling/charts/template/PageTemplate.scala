@@ -95,7 +95,9 @@ ${jsFiles.map(jsFile => s"""<script type="text/javascript" src="js/$jsFile"></sc
                           var timestamp = $runStart;
                           var runStartHumanDate = moment(timestamp).format("YYYY-MM-DD HH:mm:ss Z");
                           document.writeln("<p class='sim_desc' title='"+ runStartHumanDate +", duration : $duration seconds' data-content='${runMessage.runDescription.htmlEscape}'>");
-                          document.writeln("<b>" + runStartHumanDate + ", duration : $duration seconds ${runMessage.runDescription.truncate(70).htmlEscape}</b>");
+                          document.writeln("<b>" + runStartHumanDate + ", duration : $duration seconds ${runMessage.runDescription
+      .truncate(70)
+      .htmlEscape}</b>");
                           document.writeln("</p>");
                         </script>
                     </div>

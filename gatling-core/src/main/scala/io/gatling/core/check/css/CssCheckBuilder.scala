@@ -35,13 +35,13 @@ object CssCheckBuilder {
 }
 
 class CssCheckBuilder[X: NodeConverter](
-    private[css] val expression:    Expression[String],
+    private[css] val expression: Expression[String],
     private[css] val nodeAttribute: Option[String],
-    private[css] val selectors:     CssSelectors
-)
-  extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X](displayActualValue = true) {
+    private[css] val selectors: CssSelectors
+) extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] = expression.map(new CssFindExtractor(_, nodeAttribute, occurrence, selectors))
+  override def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] =
+    expression.map(new CssFindExtractor(_, nodeAttribute, occurrence, selectors))
   override def findAllExtractor: Expression[Extractor[NodeSelector, Seq[X]]] = expression.map(new CssFindAllExtractor(_, nodeAttribute, selectors))
   override def countExtractor: Expression[Extractor[NodeSelector, Int]] = expression.map(new CssCountExtractor(_, nodeAttribute, selectors))
 }

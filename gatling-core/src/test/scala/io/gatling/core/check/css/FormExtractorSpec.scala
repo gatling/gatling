@@ -76,7 +76,7 @@ class FormExtractorSpec extends BaseSpec {
     val inputs = formInputs(
       """<form>
         | <input type="text" name="foo" value="bar">
-      |   <input type="text" name="foo" value="baz">
+        |   <input type="text" name="foo" value="baz">
         |</form>
       """.stripMargin
     )

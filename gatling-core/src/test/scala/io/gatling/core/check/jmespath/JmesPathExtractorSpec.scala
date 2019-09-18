@@ -54,6 +54,10 @@ class JmesPathExtractorSpec extends BaseSpec with ValidationValues {
   }
 
   it should "be able to return a JSON object as a Map" in {
-    testSingle[Map[String, Any]]("locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}", json, Some(Map("WashingtonCities" -> "Bellevue, Olympia, Seattle")))
+    testSingle[Map[String, Any]](
+      "locations[?state == 'WA'].name | sort(@) | {WashingtonCities: join(', ', @)}",
+      json,
+      Some(Map("WashingtonCities" -> "Bellevue, Olympia, Seattle"))
+    )
   }
 }

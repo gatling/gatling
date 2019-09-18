@@ -38,8 +38,7 @@ private[cache] trait ExpiresSupport {
         case '-'            => Some(-1)
         case c if c.isDigit => Some(extractLongValue(s, start))
         case _              => None
-      }
-    else
+      } else
       None
   }
 
@@ -68,8 +67,10 @@ private[cache] trait ExpiresSupport {
 
   def getResponseExpires(response: Response): Option[Long] = {
     def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
-    def cacheControlNoCache = response.header(HeaderNames.CacheControl)
-      .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
+    def cacheControlNoCache =
+      response
+        .header(HeaderNames.CacheControl)
+        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
     def maxAgeAsExpiresValue = response.header(HeaderNames.CacheControl).flatMap(extractMaxAgeValue).map { maxAge =>
       if (maxAge < 0)
         maxAge

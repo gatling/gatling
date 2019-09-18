@@ -30,10 +30,10 @@ import sbt.testing.{ Event, Fingerprint, OptionalThrowable, Selector, Status }
  */
 final case class SimulationSuccessful(
     fullyQualifiedName: String,
-    fingerprint:        Fingerprint,
-    selector:           Selector,
-    throwable:          OptionalThrowable,
-    duration:           Long
+    fingerprint: Fingerprint,
+    selector: Selector,
+    throwable: OptionalThrowable,
+    duration: Long
 ) extends Event {
 
   val status = Status.Success
@@ -51,10 +51,10 @@ final case class SimulationSuccessful(
  */
 final case class SimulationFailed(
     fullyQualifiedName: String,
-    fingerprint:        Fingerprint,
-    selector:           Selector,
-    throwable:          OptionalThrowable,
-    duration:           Long
+    fingerprint: Fingerprint,
+    selector: Selector,
+    throwable: OptionalThrowable,
+    duration: Long
 ) extends Event {
 
   val status = Status.Failure
@@ -72,10 +72,10 @@ final case class SimulationFailed(
  */
 final case class InvalidArguments(
     fullyQualifiedName: String,
-    fingerprint:        Fingerprint,
-    selector:           Selector,
-    throwable:          OptionalThrowable,
-    duration:           Long
+    fingerprint: Fingerprint,
+    selector: Selector,
+    throwable: OptionalThrowable,
+    duration: Long
 ) extends Event {
 
   val status = Status.Error

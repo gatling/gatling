@@ -36,23 +36,23 @@ object JsonPathExtractor {
 }
 
 class JsonPathFindExtractor[X: JsonFilter](name: String, path: String, occurrence: Int, jsonPaths: JsonPaths)
-  extends FindCriterionExtractor[JsonNode, String, X](
-    name,
-    path,
-    occurrence,
-    jsonPaths.extractAll(_, path).map(JsonPathExtractor.lift(_, occurrence))
-  )
+    extends FindCriterionExtractor[JsonNode, String, X](
+      name,
+      path,
+      occurrence,
+      jsonPaths.extractAll(_, path).map(JsonPathExtractor.lift(_, occurrence))
+    )
 
 class JsonPathFindAllExtractor[X: JsonFilter](name: String, path: String, jsonPaths: JsonPaths)
-  extends FindAllCriterionExtractor[JsonNode, String, X](
-    name,
-    path,
-    jsonPaths.extractAll(_, path).map(_.toVector.liftSeqOption)
-  )
+    extends FindAllCriterionExtractor[JsonNode, String, X](
+      name,
+      path,
+      jsonPaths.extractAll(_, path).map(_.toVector.liftSeqOption)
+    )
 
 class JsonPathCountExtractor(name: String, path: String, jsonPaths: JsonPaths)
-  extends CountCriterionExtractor[JsonNode, String](
-    name,
-    path,
-    jsonPaths.extractAll[Any](_, path).map(i => Some(i.size))
-  )
+    extends CountCriterionExtractor[JsonNode, String](
+      name,
+      path,
+      jsonPaths.extractAll[Any](_, path).map(i => Some(i.size))
+    )

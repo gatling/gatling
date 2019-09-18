@@ -39,7 +39,11 @@ class AssertionDSLSpec extends BaseSpec with AssertionSupport {
     forAll.allRequests.percent.lt(5) shouldBe Assertion(ForAll, PercentTarget(AllRequests), Lt(5))
 
     global.failedRequests.count.gt(10) shouldBe Assertion(Global, CountTarget(FailedRequests), Gt(10))
-    details("Foo" / "Bar").failedRequests.percent.between(1, 5, inclusive = false) shouldBe Assertion(Details(List("Foo", "Bar")), PercentTarget(FailedRequests), Between(1, 5, inclusive = false))
+    details("Foo" / "Bar").failedRequests.percent.between(1, 5, inclusive = false) shouldBe Assertion(
+      Details(List("Foo", "Bar")),
+      PercentTarget(FailedRequests),
+      Between(1, 5, inclusive = false)
+    )
 
     global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests), In(List(1, 2, 4)))
     global.successfulRequests.percent.is(6) shouldBe Assertion(Global, PercentTarget(SuccessfulRequests), Is(6))

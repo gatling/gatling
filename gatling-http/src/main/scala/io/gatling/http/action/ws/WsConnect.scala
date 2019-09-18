@@ -29,14 +29,16 @@ import io.gatling.http.protocol.HttpComponents
 
 class WsConnect(
     override val requestName: Expression[String],
-    wsName:                   String,
-    subprotocol:              Option[String],
-    request:                  Expression[Request],
-    connectCheckSequences:    List[WsFrameCheckSequence[WsFrameCheck]],
-    onConnected:              Option[Action],
-    httpComponents:           HttpComponents,
-    val next:                 Action
-) extends RequestAction with WsAction with NameGen {
+    wsName: String,
+    subprotocol: Option[String],
+    request: Expression[Request],
+    connectCheckSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+    onConnected: Option[Action],
+    httpComponents: HttpComponents,
+    val next: Action
+) extends RequestAction
+    with WsAction
+    with NameGen {
 
   override val name: String = genName("wsConnect")
 
@@ -52,19 +54,22 @@ class WsConnect(
         } yield {
           logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsActor = httpComponents.coreComponents.actorSystem.actorOf(WsActor.props(
-            wsName,
-            request,
-            subprotocol,
-            requestName,
-            connectCheckSequences,
-            onConnected,
-            statsEngine,
-            httpComponents.httpEngine,
-            httpComponents.httpProtocol,
-            clock,
-            httpComponents.coreComponents.configuration
-          ), genName("wsActor"))
+          val wsActor = httpComponents.coreComponents.actorSystem.actorOf(
+            WsActor.props(
+              wsName,
+              request,
+              subprotocol,
+              requestName,
+              connectCheckSequences,
+              onConnected,
+              statsEngine,
+              httpComponents.httpEngine,
+              httpComponents.httpProtocol,
+              clock,
+              httpComponents.coreComponents.configuration
+            ),
+            genName("wsActor")
+          )
 
           wsActor ! PerformInitialConnect(session, next)
         }

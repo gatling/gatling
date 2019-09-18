@@ -42,12 +42,27 @@ trait WhenConnecting extends SslContextSupport { this: WsActor =>
     //
     // [fl]
     val userSslContexts = sslContexts(session)
-    httpEngine.executeRequest(connectRequest, session.userId, httpProtocol.enginePart.shareConnections, listener, userSslContexts.map(_.sslContext).orNull, userSslContexts.flatMap(_.alplnSslContext).orNull)
+    httpEngine.executeRequest(
+      connectRequest,
+      session.userId,
+      httpProtocol.enginePart.shareConnections,
+      listener,
+      userSslContexts.map(_.sslContext).orNull,
+      userSslContexts.flatMap(_.alplnSslContext).orNull
+    )
 
     goto(Connecting) using ConnectingData(session, next, clock.nowMillis, remainingTries)
   }
 
-  private def handleConnectFailure(session: Session, next: Either[Action, SendFrame], connectStart: Long, connectEnd: Long, code: Option[String], reason: String, remainingTries: Int): State = {
+  private def handleConnectFailure(
+      session: Session,
+      next: Either[Action, SendFrame],
+      connectStart: Long,
+      connectEnd: Long,
+      code: Option[String],
+      reason: String,
+      remainingTries: Int
+  ): State = {
     // log connect failure
     val newSession = logResponse(session, connectActionName, connectStart, connectEnd, KO, code, Some(reason))
     val newRemainingTries = remainingTries - 1
@@ -76,7 +91,8 @@ trait WhenConnecting extends SslContextSupport { this: WsActor =>
   when(Connecting) {
     case Event(WebSocketConnected(webSocket, cookies, connectEnd), ConnectingData(session, next, connectStart, _)) =>
       val sessionWithCookies = CookieSupport.storeCookies(session, connectRequest.getUri, cookies, connectEnd)
-      val sessionWithGroupTimings = logResponse(sessionWithCookies, connectActionName, connectStart, connectEnd, OK, WhenConnecting.WsConnectSuccessStatusCode, None)
+      val sessionWithGroupTimings =
+        logResponse(sessionWithCookies, connectActionName, connectStart, connectEnd, OK, WhenConnecting.WsConnectSuccessStatusCode, None)
 
       connectCheckSequence match {
         case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>

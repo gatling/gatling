@@ -31,9 +31,11 @@ class Patterns(implicit configuration: GatlingConfiguration) {
   def extractAll[G: GroupExtractor](chars: CharSequence, pattern: String): Seq[G] = {
 
     val matcher = compilePattern(pattern).matcher(chars)
-    matcher.foldLeft(List.empty[G]) { (matcher, values) =>
-      matcher.value :: values
-    }.reverse
+    matcher
+      .foldLeft(List.empty[G]) { (matcher, values) =>
+        matcher.value :: values
+      }
+      .reverse
   }
 
   def compilePattern(pattern: String): Pattern = patternCache.get(pattern)

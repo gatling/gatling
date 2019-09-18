@@ -34,7 +34,9 @@ import akka.actor.ActorSystem
  * @param counter the name of the counter used to keep track of the run state. Typically this would be random, but
  *                can be set explicitly if needed
  */
-class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
+class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ExitableAction
+    with NameGen {
 
   import actorSystem._
 

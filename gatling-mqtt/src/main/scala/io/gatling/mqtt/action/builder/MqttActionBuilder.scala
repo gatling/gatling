@@ -34,5 +34,4 @@ class MqttActionPublishBase(requestName: Expression[String], topic: Expression[S
   def message(body: Body): PublishBuilder = PublishBuilder(requestName, topic, body)
 }
 
-abstract class MqttActionBuilder extends ActionBuilder {
-}
+abstract class MqttActionBuilder extends ActionBuilder {}

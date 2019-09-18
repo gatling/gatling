@@ -152,10 +152,14 @@ class OpenInjectionProfileSpec extends BaseSpec {
     ).getInjectionSteps.toSeq
 
     val expected = Seq(
-      ConstantRateOpenInjection(5, 10 seconds), RampRateOpenInjection(5, 15, 20 seconds),
-      ConstantRateOpenInjection(15, 10 seconds), RampRateOpenInjection(15, 25, 20 seconds),
-      ConstantRateOpenInjection(25, 10 seconds), RampRateOpenInjection(25, 35, 20 seconds),
-      ConstantRateOpenInjection(35, 10 seconds), RampRateOpenInjection(35, 45, 20 seconds),
+      ConstantRateOpenInjection(5, 10 seconds),
+      RampRateOpenInjection(5, 15, 20 seconds),
+      ConstantRateOpenInjection(15, 10 seconds),
+      RampRateOpenInjection(15, 25, 20 seconds),
+      ConstantRateOpenInjection(25, 10 seconds),
+      RampRateOpenInjection(25, 35, 20 seconds),
+      ConstantRateOpenInjection(35, 10 seconds),
+      RampRateOpenInjection(35, 45, 20 seconds),
       ConstantRateOpenInjection(45, 10 seconds)
     )
 
@@ -212,10 +216,14 @@ class OpenInjectionProfileSpec extends BaseSpec {
     ).getInjectionSteps.toSeq
 
     val expected = Seq(
-      ConstantRateOpenInjection(10, 10 seconds), RampRateOpenInjection(10, 20, 80 seconds),
-      ConstantRateOpenInjection(20, 10 seconds), RampRateOpenInjection(20, 30, 80 seconds),
-      ConstantRateOpenInjection(30, 10 seconds), RampRateOpenInjection(30, 40, 80 seconds),
-      ConstantRateOpenInjection(40, 10 seconds), RampRateOpenInjection(40, 50, 80 seconds),
+      ConstantRateOpenInjection(10, 10 seconds),
+      RampRateOpenInjection(10, 20, 80 seconds),
+      ConstantRateOpenInjection(20, 10 seconds),
+      RampRateOpenInjection(20, 30, 80 seconds),
+      ConstantRateOpenInjection(30, 10 seconds),
+      RampRateOpenInjection(30, 40, 80 seconds),
+      ConstantRateOpenInjection(40, 10 seconds),
+      RampRateOpenInjection(40, 50, 80 seconds),
       ConstantRateOpenInjection(50, 10 seconds)
     )
 

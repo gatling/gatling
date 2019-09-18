@@ -20,26 +20,26 @@ import io.netty.channel.WriteBufferWaterMark
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
 case class MqttConfiguration(
-    useNativeTransport:   Boolean,
-    threadNumber:         Option[Int],
+    useNativeTransport: Boolean,
+    threadNumber: Option[Int],
     writeBufferWaterMark: WriteBufferWaterMark,
-    socket:               MqttSocketConfiguration,
-    ssl:                  MqttSslConfiguration
+    socket: MqttSocketConfiguration,
+    ssl: MqttSslConfiguration
 )
 
 case class MqttSocketConfiguration(
     soReceiveBufferSize: Option[Int],
-    soSendBufferSize:    Option[Int],
-    soLinger:            Option[Int],
-    tcpNoDelay:          Boolean,
-    ipTrafficClass:      Option[Int]
+    soSendBufferSize: Option[Int],
+    soLinger: Option[Int],
+    tcpNoDelay: Boolean,
+    ipTrafficClass: Option[Int]
 )
 
 case class MqttSslConfiguration(
-    useOpenSsl:              Boolean,
-    sslSessionCacheSize:     Int,
-    sslSessionTimeout:       Int,
+    useOpenSsl: Boolean,
+    sslSessionCacheSize: Int,
+    sslSessionTimeout: Int,
     useInsecureTrustManager: Boolean,
-    keyManagerFactory:       Option[KeyManagerFactory],
-    trustManagerFactory:     Option[TrustManagerFactory]
+    keyManagerFactory: Option[KeyManagerFactory],
+    trustManagerFactory: Option[TrustManagerFactory]
 )

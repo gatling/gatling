@@ -43,30 +43,29 @@ private[resolver] object ExtendedDnsNameResolver extends StrictLogging {
  * DnsNameResolver whose sole purpose is to publicly expose the doResolve and executor methods that are protected
  */
 private[http] class ExtendedDnsNameResolver(
-    val eventLoop:        EventLoop,
-    queryTimeout:         Int,
+    val eventLoop: EventLoop,
+    queryTimeout: Int,
     maxQueriesPerResolve: Int,
-    dnsServers:           Array[InetSocketAddress]
-)
-  extends DnsNameResolver(
-    eventLoop, // eventLoop
-    ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
-    NoopDnsCache.INSTANCE, // resolveCache
-    NoopAuthoritativeDnsServerCache.INSTANCE, // authoritativeDnsServerCache
-    NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
-    queryTimeout, // queryTimeoutMillis
-    null, // resolvedAddressTypes
-    true, // recursionDesired
-    maxQueriesPerResolve, // maxQueriesPerResolve
-    ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
-    4096, // maxPayloadSize
-    true, // optResourceEnabled
-    HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
-    if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault else new SequentialDnsServerAddressStreamProvider(dnsServers: _*), // dnsServerAddressStreamProvider
-    null, // searchDomains
-    -1, // ndots
-    true // decodeIdn
-  ) {
+    dnsServers: Array[InetSocketAddress]
+) extends DnsNameResolver(
+      eventLoop, // eventLoop
+      ExtendedDnsNameResolver.NioDatagramChannelFactory, // channelFactory
+      NoopDnsCache.INSTANCE, // resolveCache
+      NoopAuthoritativeDnsServerCache.INSTANCE, // authoritativeDnsServerCache
+      NoopDnsQueryLifecycleObserverFactory.INSTANCE, // dnsQueryLifecycleObserverFactory
+      queryTimeout, // queryTimeoutMillis
+      null, // resolvedAddressTypes
+      true, // recursionDesired
+      maxQueriesPerResolve, // maxQueriesPerResolve
+      ExtendedDnsNameResolver.DebugEnabled, // traceEnabled
+      4096, // maxPayloadSize
+      true, // optResourceEnabled
+      HostsFileEntriesResolver.DEFAULT, // hostsFileEntriesResolver
+      if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault else new SequentialDnsServerAddressStreamProvider(dnsServers: _*), // dnsServerAddressStreamProvider
+      null, // searchDomains
+      -1, // ndots
+      true // decodeIdn
+    ) {
   override def doResolveAll(inetHost: String, additionals: Array[DnsRecord], promise: Promise[JList[InetAddress]], resolveCache: DnsCache): Unit =
     super.doResolveAll(inetHost, additionals, promise, resolveCache)
 }

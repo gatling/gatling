@@ -28,16 +28,16 @@ final case class ShortScenarioDescription(name: String, totalUserCount: Option[L
 
 final case class RunMessage(
     simulationClassName: String,
-    simulationId:        String,
-    start:               Long,
-    runDescription:      String,
-    gatlingVersion:      String
+    simulationId: String,
+    start: Long,
+    runDescription: String,
+    gatlingVersion: String
 ) {
 
   val runId: String = simulationId + "-" +
     DateTimeFormatter
-    .ofPattern("yyyyMMddHHmmssSSS")
-    .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneOffset.UTC))
+      .ofPattern("yyyyMMddHHmmssSSS")
+      .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneOffset.UTC))
 }
 
 sealed trait DataWriterMessage
@@ -49,31 +49,31 @@ case object Stop extends DataWriterMessage
 sealed trait LoadEventMessage extends DataWriterMessage
 
 final case class UserMessage(
-    session:   Session,
-    event:     MessageEvent,
+    session: Session,
+    event: MessageEvent,
     timestamp: Long
 ) extends LoadEventMessage
 
 final case class ResponseMessage(
-    scenario:       String,
-    userId:         Long,
+    scenario: String,
+    userId: Long,
     groupHierarchy: List[String],
-    name:           String,
+    name: String,
     startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String]
+    endTimestamp: Long,
+    status: Status,
+    responseCode: Option[String],
+    message: Option[String]
 ) extends LoadEventMessage
 
 final case class GroupMessage(
-    scenario:              String,
-    userId:                Long,
-    groupHierarchy:        List[String],
-    startTimestamp:        Long,
-    endTimestamp:          Long,
+    scenario: String,
+    userId: Long,
+    groupHierarchy: List[String],
+    startTimestamp: Long,
+    endTimestamp: Long,
     cumulatedResponseTime: Int,
-    status:                Status
+    status: Status
 ) extends LoadEventMessage {
   val duration: Int = (endTimestamp - startTimestamp).toInt
 }

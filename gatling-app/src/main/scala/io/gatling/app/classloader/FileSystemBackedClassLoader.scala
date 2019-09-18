@@ -27,8 +27,7 @@ import scala.collection.mutable
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 
-private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader)
-  extends ClassLoader(parent) {
+private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
 
   def classNameToPath(name: String): Path =
     if (name endsWith ".class") name
@@ -42,12 +41,18 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
     if (fullPath.exists) Some(fullPath) else None
   }
 
-  override def findResource(name: String): URL = findPath(name).map { path =>
-    new URL(null, "repldir:" + path, (url: URL) => new URLConnection(url) {
-      override def connect(): Unit = ()
-      override def getInputStream: InputStream = path.inputStream
-    })
-  }.orNull
+  override def findResource(name: String): URL =
+    findPath(name).map { path =>
+      new URL(
+        null,
+        "repldir:" + path,
+        (url: URL) =>
+          new URLConnection(url) {
+            override def connect(): Unit = ()
+            override def getInputStream: InputStream = path.inputStream
+          }
+      )
+    }.orNull
 
   override def getResourceAsStream(name: String): InputStream = findPath(name) match {
     case Some(path) => path.inputStream
@@ -59,10 +64,11 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
 
   def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
     case Some(path) => Files.readAllBytes(path)
-    case _ => classAsStream(name) match {
-      case Some(stream) => stream.toByteArray()
-      case _            => Array.empty
-    }
+    case _ =>
+      classAsStream(name) match {
+        case Some(stream) => stream.toByteArray()
+        case _            => Array.empty
+      }
   }
 
   override def findClass(name: String): Class[_] = {
@@ -76,34 +82,51 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
   private lazy val protectionDomain = {
     val cl = Thread.currentThread.getContextClassLoader
     val resource = cl.getResource("scala/runtime/package.class")
-    if (resource == null || resource.getProtocol != "jar") null else {
+    if (resource == null || resource.getProtocol != "jar") null
+    else {
       val s = resource.getPath
       val n = s.lastIndexOf('!')
-      if (n < 0) null else {
+      if (n < 0) null
+      else {
         val path = s.substring(0, n)
         new ProtectionDomain(new CodeSource(new URL(path), null.asInstanceOf[Array[Certificate]]), null, this, null)
       }
     }
   }
 
-  override def definePackage(name: String, specTitle: String,
-                             specVersion: String, specVendor: String,
-                             implTitle: String, implVersion: String,
-                             implVendor: String, sealBase: URL): Package = {
+  override def definePackage(
+      name: String,
+      specTitle: String,
+      specVersion: String,
+      specVendor: String,
+      implTitle: String,
+      implVersion: String,
+      implVendor: String,
+      sealBase: URL
+  ): Package = {
     throw new UnsupportedOperationException()
   }
 
   override def getPackage(name: String): Package = findPath(dirNameToPath(name)) match {
     case None => super.getPackage(name)
-    case _ => pckgs.getOrElseUpdate(name, {
-      val constructor = classOf[Package].getDeclaredConstructor(
-        classOf[String], classOf[String], classOf[String],
-        classOf[String], classOf[String], classOf[String],
-        classOf[String], classOf[URL], classOf[ClassLoader]
+    case _ =>
+      pckgs.getOrElseUpdate(
+        name, {
+          val constructor = classOf[Package].getDeclaredConstructor(
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[URL],
+            classOf[ClassLoader]
+          )
+          constructor.setAccessible(true)
+          constructor.newInstance(name, null, null, null, null, null, null, null, this)
+        }
       )
-      constructor.setAccessible(true)
-      constructor.newInstance(name, null, null, null, null, null, null, null, this)
-    })
   }
 
   override def getPackages: Array[Package] =

@@ -38,7 +38,7 @@ object Controller {
 }
 
 class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
-  extends ControllerFSM {
+    extends ControllerFSM {
 
   import ControllerState._
   import ControllerData._

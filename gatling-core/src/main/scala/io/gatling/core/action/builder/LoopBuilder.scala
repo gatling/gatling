@@ -40,24 +40,26 @@ case object DoWhileDuringType extends LoopType("doWhileDuring", true, true)
  * @param exitASAP if the loop is to be exited as soon as the condition no longer holds
  * @param loopType the loop type
  */
-class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder with NameGen {
+class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType)
+    extends ActionBuilder
+    with NameGen {
 
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val safeCondition = condition.safe
     val actualCondition =
-      if (loopType.evaluateConditionAfterLoop) {
-        session: Session =>
-          if (session.attributes(counterName) == 0) {
-            TrueSuccess
-          } else {
-            safeCondition(session)
-          }
+      if (loopType.evaluateConditionAfterLoop) { session: Session =>
+        if (session.attributes(counterName) == 0) {
+          TrueSuccess
+        } else {
+          safeCondition(session)
+        }
       } else {
         safeCondition
       }
 
-    val loopAction = new Loop(actualCondition, counterName, exitASAP, loopType.timeBased, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
+    val loopAction =
+      new Loop(actualCondition, counterName, exitASAP, loopType.timeBased, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
     val loopNextAction = loopNext.build(ctx, loopAction)
     loopAction.initialize(loopNextAction, ctx.coreComponents.actorSystem)
     loopAction

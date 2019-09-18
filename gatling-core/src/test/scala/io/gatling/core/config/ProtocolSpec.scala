@@ -17,7 +17,7 @@
 package io.gatling.core.config
 
 import io.gatling.BaseSpec
-import io.gatling.core.protocol.{ Protocols, Protocol }
+import io.gatling.core.protocol.{ Protocol, Protocols }
 import org.scalatest.OptionValues
 
 final case class FooProtocol(foo: String) extends Protocol

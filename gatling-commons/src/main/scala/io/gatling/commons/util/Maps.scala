@@ -41,10 +41,11 @@ object Maps {
     override def merge(left: Map[K, V], right: Map[K, V]): Map[K, V] =
       (left.keySet ++ right.keySet).map { key =>
         val value = left.get(key) match {
-          case Some(leftValue) => right.get(key) match {
-            case Some(rightValue) => merger.merge(leftValue, rightValue)
-            case _                => leftValue
-          }
+          case Some(leftValue) =>
+            right.get(key) match {
+              case Some(rightValue) => merger.merge(leftValue, rightValue)
+              case _                => leftValue
+            }
           case _ => merger.copy(right(key))
         }
         key -> value

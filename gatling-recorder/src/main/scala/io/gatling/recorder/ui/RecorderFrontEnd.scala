@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.ui
 
-import io.gatling.recorder.config.{ RecorderMode, RecorderConfiguration }
+import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.headless.HeadlessFrontEnd
 import io.gatling.recorder.ui.swing.SwingFrontEnd
@@ -29,10 +29,9 @@ private[recorder] object RecorderFrontEnd {
 }
 private[recorder] abstract class RecorderFrontEnd(controller: RecorderController) {
 
-/******************************/
+  /******************************/
   /**  Controller => Frontend  **/
-/******************************/
-
+  /******************************/
   def selectedRecorderMode: RecorderMode
 
   def harFilePath: String
@@ -55,10 +54,9 @@ private[recorder] abstract class RecorderFrontEnd(controller: RecorderController
 
   def receiveEvent(event: FrontEndEvent): Unit
 
-/******************************/
+  /******************************/
   /**  Frontend => Controller  **/
-/******************************/
-
+  /******************************/
   def addTag(tag: String): Unit = controller.addTag(tag)
 
   def startRecording(): Unit = controller.startRecording()

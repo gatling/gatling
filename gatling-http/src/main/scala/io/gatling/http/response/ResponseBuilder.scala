@@ -44,9 +44,9 @@ import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponse
 object ResponseBuilder extends StrictLogging {
 
   def newResponseBuilderFactory(
-    requestConfig: HttpRequestConfig,
-    clock:         Clock,
-    configuration: GatlingConfiguration
+      requestConfig: HttpRequestConfig,
+      clock: Clock,
+      configuration: GatlingConfiguration
   ): ResponseBuilderFactory = {
 
     val digests: Map[String, MessageDigest] =
@@ -60,24 +60,25 @@ object ResponseBuilder extends StrictLogging {
       requestConfig.responseTransformer.isDefined ||
       requestConfig.checks.exists(_.scope == Body)
 
-    request => new ResponseBuilder(
-      request,
-      digests,
-      storeBodyParts,
-      requestConfig.httpProtocol.responsePart.inferHtmlResources,
-      configuration.core.charset,
-      clock
-    )
+    request =>
+      new ResponseBuilder(
+        request,
+        digests,
+        storeBodyParts,
+        requestConfig.httpProtocol.responsePart.inferHtmlResources,
+        configuration.core.charset,
+        clock
+      )
   }
 }
 
 class ResponseBuilder(
-    request:            Request,
-    digests:            Map[String, MessageDigest],
-    storeBodyParts:     Boolean,
+    request: Request,
+    digests: Map[String, MessageDigest],
+    storeBodyParts: Boolean,
     inferHtmlResources: Boolean,
-    defaultCharset:     Charset,
-    clock:              Clock
+    defaultCharset: Charset,
+    clock: Clock
 ) {
 
   var storeHtmlOrCss: Boolean = _
@@ -130,9 +131,10 @@ class ResponseBuilder(
     }
   }
 
-  private def resolveCharset: Charset = Option(headers.get(HeaderNames.ContentType))
-    .flatMap(extractCharsetFromContentType)
-    .getOrElse(defaultCharset)
+  private def resolveCharset: Charset =
+    Option(headers.get(HeaderNames.ContentType))
+      .flatMap(extractCharsetFromContentType)
+      .getOrElse(defaultCharset)
 
   def buildResponse: HttpResult =
     status match {

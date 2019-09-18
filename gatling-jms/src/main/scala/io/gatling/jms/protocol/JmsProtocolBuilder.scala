@@ -33,12 +33,12 @@ case object JmsProtocolBuilderBase {
 }
 
 final case class JmsProtocolBuilder(
-    connectionFactory:   ConnectionFactory,
-    creds:               Option[Credentials] = None,
-    deliveryMode:        Int                 = DeliveryMode.NON_PERSISTENT,
-    messageMatcher:      JmsMessageMatcher   = MessageIdMessageMatcher,
-    listenerThreadCount: Int                 = 1,
-    replyTimeout:        Option[Long]        = None
+    connectionFactory: ConnectionFactory,
+    creds: Option[Credentials] = None,
+    deliveryMode: Int = DeliveryMode.NON_PERSISTENT,
+    messageMatcher: JmsMessageMatcher = MessageIdMessageMatcher,
+    listenerThreadCount: Int = 1,
+    replyTimeout: Option[Long] = None
 ) {
 
   def credentials(user: String, password: String) = copy(creds = Some(Credentials(user, password)))

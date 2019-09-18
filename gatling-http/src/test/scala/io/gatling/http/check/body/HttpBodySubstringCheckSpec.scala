@@ -69,7 +69,9 @@ class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with Cor
   it should "fail when finding nothing instead of returning an empty Seq" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val substringValue = """"foo":""""
-    substring(substringValue).findAll.exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
+    substring(substringValue).findAll.exists
+      .check(response, session, new JHashMap[Any, Any])
+      .failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
   }
 
   "substring.count.exists" should "find all occurrences" in {

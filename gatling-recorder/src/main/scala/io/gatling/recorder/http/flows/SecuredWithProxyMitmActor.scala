@@ -54,18 +54,18 @@ import io.netty.handler.ssl.SslHandler
  * @param httpClientCodecFactory create new HttpClientCodecs
  */
 class SecuredWithProxyMitmActor(
-    serverChannel:          Channel,
-    clientBootstrap:        Bootstrap,
-    sslServerContext:       SslServerContext,
-    proxy:                  OutgoingProxy,
-    trafficLogger:          TrafficLogger,
+    serverChannel: Channel,
+    clientBootstrap: Bootstrap,
+    sslServerContext: SslServerContext,
+    proxy: OutgoingProxy,
+    trafficLogger: TrafficLogger,
     httpClientCodecFactory: () => HttpClientCodec,
-    clock:                  Clock
-)
-  extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
+    clock: Clock
+) extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
-  private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.getEncoder.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
+  private val proxyBasicAuthHeader =
+    proxy.credentials.map(credentials => "Basic " + Base64.getEncoder.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
 
   override protected def connectedRemote(requestRemote: Remote): Remote = proxyRemote
 

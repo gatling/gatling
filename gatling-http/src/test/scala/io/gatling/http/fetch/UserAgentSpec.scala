@@ -26,7 +26,8 @@ class UserAgentSpec extends BaseSpec {
   }
 
   it should "extract IE 8.0 version" in {
-    val agent = UserAgent.parseFromHeader("Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.2; SV1; .NET CLR 3.3.69573; WOW64; en-US)")
+    val agent =
+      UserAgent.parseFromHeader("Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.2; SV1; .NET CLR 3.3.69573; WOW64; en-US)")
     agent shouldBe Some(UserAgent(UserAgent.IE, 8.0f))
   }
 

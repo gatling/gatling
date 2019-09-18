@@ -73,7 +73,9 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
 
     case Event(ClientChannelInactive(inactiveClientChannelId), ConnectedData(remote, clientChannel)) =>
       if (clientChannel.id == inactiveClientChannelId) {
-        logger.debug(s"Server channel ${serverChannel.id} received ClientChannelInactive while in Connected state paired with ${clientChannel.id}, becoming disconnected")
+        logger.debug(
+          s"Server channel ${serverChannel.id} received ClientChannelInactive while in Connected state paired with ${clientChannel.id}, becoming disconnected"
+        )
         goto(Disconnected) using DisconnectedData(remote)
       } else {
         // event from previous channel, ignoring

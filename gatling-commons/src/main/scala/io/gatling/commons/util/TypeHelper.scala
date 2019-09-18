@@ -61,8 +61,9 @@ trait LowPriorityTypeCaster {
 object TypeCaster extends LowPriorityTypeCaster {
 
   private def safely[T](f: => T): Validation[T] =
-    try { f.success }
-    catch {
+    try {
+      f.success
+    } catch {
       case NonFatal(e) =>
         e.detailedMessage.failure
     }

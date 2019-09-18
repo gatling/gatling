@@ -30,12 +30,12 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 sealed abstract class SessionProcessor(
-    notSilent:    Boolean,
-    request:      Request,
-    checks:       List[HttpCheck],
-    httpCaches:   HttpCaches,
+    notSilent: Boolean,
+    request: Request,
+    checks: List[HttpCheck],
+    httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
-    clock:        Clock
+    clock: Clock
 ) {
 
   def updateSessionCrashed(session: Session, startTimestamp: Long, endTimestamp: Long): Session =
@@ -95,20 +95,20 @@ sealed abstract class SessionProcessor(
 }
 
 class RootSessionProcessor(
-    notSilent:    Boolean,
-    request:      Request,
-    checks:       List[HttpCheck],
-    httpCaches:   HttpCaches,
+    notSilent: Boolean,
+    request: Request,
+    checks: List[HttpCheck],
+    httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
-    clock:        Clock
+    clock: Clock
 ) extends SessionProcessor(
-  notSilent,
-  request,
-  checks,
-  httpCaches,
-  httpProtocol,
-  clock
-) {
+      notSilent,
+      request,
+      checks,
+      httpCaches,
+      httpProtocol,
+      clock
+    ) {
   override protected def updateReferer(session: Session, response: Response): Session =
     RefererHandling.storeReferer(request, response, httpProtocol)(session)
 
@@ -117,20 +117,20 @@ class RootSessionProcessor(
 }
 
 class ResourceSessionProcessor(
-    notSilent:    Boolean,
-    request:      Request,
-    checks:       List[HttpCheck],
-    httpCaches:   HttpCaches,
+    notSilent: Boolean,
+    request: Request,
+    checks: List[HttpCheck],
+    httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
-    clock:        Clock
+    clock: Clock
 ) extends SessionProcessor(
-  notSilent,
-  request,
-  checks,
-  httpCaches,
-  httpProtocol,
-  clock
-) {
+      notSilent,
+      request,
+      checks,
+      httpCaches,
+      httpProtocol,
+      clock
+    ) {
   override protected def updateReferer(session: Session, response: Response): Session = session
 
   override protected def updateGroupRequestTimings(session: Session, startTimestamp: Long, endTimestamp: Long): Session = session

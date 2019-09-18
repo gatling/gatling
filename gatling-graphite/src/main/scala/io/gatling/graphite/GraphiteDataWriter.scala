@@ -31,10 +31,10 @@ import io.gatling.graphite.types._
 import akka.actor.ActorRef
 
 final case class GraphiteData(
-    metricsSender:   ActorRef,
-    requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
+    metricsSender: ActorRef,
+    requestsByPath: mutable.Map[GraphitePath, RequestMetricsBuffer],
     usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
-    format:          GraphitePathPattern
+    format: GraphitePathPattern
 ) extends DataWriterData
 
 private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[GraphiteData] with NameGen {
@@ -103,10 +103,10 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
   }
 
   private def sendMetricsToGraphite(
-    data:            GraphiteData,
-    epoch:           Long,
-    requestsMetrics: Map[GraphitePath, MetricByStatus],
-    userBreakdowns:  Map[GraphitePath, UserBreakdown]
+      data: GraphiteData,
+      epoch: Long,
+      requestsMetrics: Map[GraphitePath, MetricByStatus],
+      userBreakdowns: Map[GraphitePath, UserBreakdown]
   ): Unit = {
 
     import data._

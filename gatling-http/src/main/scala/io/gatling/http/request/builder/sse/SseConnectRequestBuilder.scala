@@ -41,9 +41,8 @@ object SseConnectRequestBuilder {
 
 final case class SseConnectRequestBuilder(
     commonAttributes: CommonAttributes,
-    sseName:          String
-)
-  extends RequestBuilder[SseConnectRequestBuilder] {
+    sseName: String
+) extends RequestBuilder[SseConnectRequestBuilder] {
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName)
 

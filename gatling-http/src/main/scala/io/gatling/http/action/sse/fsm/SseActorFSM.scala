@@ -35,14 +35,14 @@ sealed trait SseActorData
 case object InitData extends SseActorData
 final case class ConnectingData(session: Session, next: Either[Action, SetCheck], timestamp: Long, remainingTries: Int) extends SseActorData
 final case class PerformingCheckData(
-    stream:                  SseStream,
-    currentCheck:            SseMessageCheck,
-    remainingChecks:         List[SseMessageCheck],
-    checkSequenceStart:      Long,
-    checkSequenceTimeoutId:  Long,
+    stream: SseStream,
+    currentCheck: SseMessageCheck,
+    remainingChecks: List[SseMessageCheck],
+    checkSequenceStart: Long,
+    checkSequenceTimeoutId: Long,
     remainingCheckSequences: List[SseMessageCheckSequence],
-    session:                 Session,
-    next:                    Either[Action, SetCheck]
+    session: Session,
+    next: Either[Action, SetCheck]
 ) extends SseActorData
 final case class IdleData(session: Session, stream: SseStream) extends SseActorData
 final case class ClosingData(actionName: String, session: Session, next: Action, timestamp: Long) extends SseActorData

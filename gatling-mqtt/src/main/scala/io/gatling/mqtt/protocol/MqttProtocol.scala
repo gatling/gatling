@@ -48,11 +48,11 @@ object MqttProtocol extends StrictLogging {
       reconnect = MqttProtocolReconnectPart(
         reconnectAttemptsMax = 3,
         reconnectDelay = 100,
-        reconnectBackOffMultiplier = 1.5F
+        reconnectBackOffMultiplier = 1.5f
       ),
       resend = MqttProtocolResendPart(
         resendDelay = 5000,
-        resendBackoffMultiplier = 1F
+        resendBackoffMultiplier = 1f
       ),
       correlator = None,
       timeoutCheckInterval = 1 second
@@ -60,30 +60,30 @@ object MqttProtocol extends StrictLogging {
 }
 
 case class MqttProtocol(
-    version:              MqttVersion,
-    brokerAddress:        InetSocketAddress,
-    useTls:               Boolean,
-    clientId:             Option[Expression[String]],
-    cleanSession:         Boolean,
-    credentials:          Option[Expression[Credentials]],
-    connectTimeout:       FiniteDuration,
-    keepAlive:            FiniteDuration,
-    qos:                  MqttQoS,
-    retain:               Boolean,
-    reconnect:            MqttProtocolReconnectPart,
-    resend:               MqttProtocolResendPart,
-    lastWill:             Option[LastWill],
-    correlator:           Option[MessageCorrelator],
+    version: MqttVersion,
+    brokerAddress: InetSocketAddress,
+    useTls: Boolean,
+    clientId: Option[Expression[String]],
+    cleanSession: Boolean,
+    credentials: Option[Expression[Credentials]],
+    connectTimeout: FiniteDuration,
+    keepAlive: FiniteDuration,
+    qos: MqttQoS,
+    retain: Boolean,
+    reconnect: MqttProtocolReconnectPart,
+    resend: MqttProtocolResendPart,
+    lastWill: Option[LastWill],
+    correlator: Option[MessageCorrelator],
     timeoutCheckInterval: FiniteDuration
 ) extends Protocol
 
 case class MqttProtocolReconnectPart(
-    reconnectAttemptsMax:       Int,
-    reconnectDelay:             Long,
+    reconnectAttemptsMax: Int,
+    reconnectDelay: Long,
     reconnectBackOffMultiplier: Float
 )
 
 case class MqttProtocolResendPart(
-    resendDelay:             Long,
+    resendDelay: Long,
     resendBackoffMultiplier: Float
 )

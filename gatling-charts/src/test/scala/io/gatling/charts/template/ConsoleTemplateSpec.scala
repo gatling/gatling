@@ -28,7 +28,7 @@ class ConsoleTemplateSpec extends BaseSpec {
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "console template" should "format the request counters properly" in {
-    val numberOfRequestsStatistics = Statistics("numberOfRequestsStatistics", 20l, 19l, 1l)
+    val numberOfRequestsStatistics = Statistics("numberOfRequestsStatistics", 20L, 19L, 1L)
     val out = ConsoleTemplate.writeRequestCounters(new JStringBuilder, numberOfRequestsStatistics).toString
     out shouldBe "> numberOfRequestsStatistics                            20 (OK=19     KO=1     )"
   }

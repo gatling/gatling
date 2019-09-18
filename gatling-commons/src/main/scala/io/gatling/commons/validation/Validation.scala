@@ -19,7 +19,10 @@ package io.gatling.commons.validation
 object Validation {
   def sequence[T](seq: Seq[Validation[T]]): Validation[Seq[T]] =
     seq.foldLeft(Seq.empty[T].success) { (acc, validation) =>
-      for (accValue <- acc; value <- validation) yield accValue :+ value
+      for {
+        accValue <- acc
+        value <- validation
+      } yield accValue :+ value
     }
 
   val unit: Validation[Unit] = ().success

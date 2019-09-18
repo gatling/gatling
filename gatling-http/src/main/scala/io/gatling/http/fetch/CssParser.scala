@@ -89,20 +89,22 @@ private[fetch] object CssParser extends StrictLogging {
         else
           (string.charAt(cur - 1): @switch) match {
             case ' ' | '\r' | '\n' => trimRight(cur - 1, leftLimit)
-            case '\'' => protectChar match {
-              case `SingleQuoteEscapeChar` =>
-                trimRight(cur - 1, leftLimit)
-              case _ =>
-                broken = true
-                cur
-            }
-            case '"' => protectChar match {
-              case `DoubleQuoteEscapeChar` =>
-                trimRight(cur - 1, leftLimit)
-              case _ =>
-                broken = true
-                cur
-            }
+            case '\'' =>
+              protectChar match {
+                case `SingleQuoteEscapeChar` =>
+                  trimRight(cur - 1, leftLimit)
+                case _ =>
+                  broken = true
+                  cur
+              }
+            case '"' =>
+              protectChar match {
+                case `DoubleQuoteEscapeChar` =>
+                  trimRight(cur - 1, leftLimit)
+                case _ =>
+                  broken = true
+                  cur
+              }
             case _ => cur
           }
 
@@ -152,12 +154,12 @@ private[fetch] object CssParser extends StrictLogging {
       (cssContent.charAt(i): @switch) match {
         case '/' =>
           if (i < cssContent.length - 1 &&
-            cssContent.charAt(i + 1) == '*') {
+              cssContent.charAt(i + 1) == '*') {
             withinComment = true
             i += 1
 
           } else if (i > 0 &&
-            cssContent.charAt(i - 1) == '*') {
+                     cssContent.charAt(i - 1) == '*') {
             withinComment = false
           }
 

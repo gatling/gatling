@@ -73,8 +73,7 @@ object ReusableGzipOutputStream {
   }
 }
 
-class ReusableGzipOutputStream(val os: SettableOutputStream)
-  extends DeflaterOutputStream(os, new Deflater(Deflater.DEFAULT_COMPRESSION, true)) {
+class ReusableGzipOutputStream(val os: SettableOutputStream) extends DeflaterOutputStream(os, new Deflater(Deflater.DEFAULT_COMPRESSION, true)) {
 
   import ReusableGzipOutputStream._
 
@@ -105,18 +104,20 @@ class ReusableGzipOutputStream(val os: SettableOutputStream)
     }
 
   def writeHeader(): Unit =
-    os.write(Array(
-      GzipMagic.toByte, // Magic number (short)
-      (GzipMagic >> 8).toByte, // Magic number (short)
-      Deflater.DEFLATED.toByte, // Compression method (CM)
-      0.toByte, // Flags (FLG)
-      0.toByte, // Modification time MTIME (int)
-      0.toByte, // Modification time MTIME (int)
-      0.toByte, // Modification time MTIME (int)
-      0.toByte, // Modification time MTIME (int)
-      0.toByte, // Extra flags (XFLG)
-      0.toByte // Operating system (OS)
-    ))
+    os.write(
+      Array(
+        GzipMagic.toByte, // Magic number (short)
+        (GzipMagic >> 8).toByte, // Magic number (short)
+        Deflater.DEFLATED.toByte, // Compression method (CM)
+        0.toByte, // Flags (FLG)
+        0.toByte, // Modification time MTIME (int)
+        0.toByte, // Modification time MTIME (int)
+        0.toByte, // Modification time MTIME (int)
+        0.toByte, // Modification time MTIME (int)
+        0.toByte, // Extra flags (XFLG)
+        0.toByte // Operating system (OS)
+      )
+    )
 
   private def writeTrailer(buf: Array[Byte], offset: Int): Unit = {
     writeInt(crc.getValue.toInt, buf, offset)

@@ -70,19 +70,19 @@ trait StatsEngine {
   // [fl]
 
   def logResponse(
-    session:        Session,
-    requestName:    String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String]
+      session: Session,
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String]
   ): Unit
 
   def logGroupEnd(
-    session:       Session,
-    group:         GroupBlock,
-    exitTimestamp: Long
+      session: Session,
+      group: GroupBlock,
+      exitTimestamp: Long
   ): Unit
 
   def logCrash(session: Session, requestName: String, error: String): Unit
@@ -93,7 +93,13 @@ trait StatsEngine {
 
 object DataWritersStatsEngine {
 
-  def apply(simulationParams: SimulationParams, runMessage: RunMessage, system: ActorSystem, clock: Clock, configuration: GatlingConfiguration): DataWritersStatsEngine = {
+  def apply(
+      simulationParams: SimulationParams,
+      runMessage: RunMessage,
+      system: ActorSystem,
+      clock: Clock,
+      configuration: GatlingConfiguration
+  ): DataWritersStatsEngine = {
 
     val dataWriters = configuration.data.dataWriters.map { dw =>
       val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
@@ -121,7 +127,8 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
 
     val dataWriterInitResponses = dataWriters.map(_ ? dataWriterInitMessage)
 
-    val statsEngineFuture: Future[Unit] = Future.sequence(dataWriterInitResponses)
+    val statsEngineFuture: Future[Unit] = Future
+      .sequence(dataWriterInitResponses)
       .flatMap { responses =>
         if (responses.forall(_ == true)) {
           Future.unit
@@ -183,42 +190,46 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
   // [fl]
 
   override def logResponse(
-    session:        Session,
-    requestName:    String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String]
+      session: Session,
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String]
   ): Unit =
     if (endTimestamp >= 0) {
-      dispatch(ResponseMessage(
-        session.scenario,
-        session.userId,
-        session.groupHierarchy,
-        requestName,
-        startTimestamp,
-        endTimestamp,
-        status,
-        responseCode,
-        message
-      ))
+      dispatch(
+        ResponseMessage(
+          session.scenario,
+          session.userId,
+          session.groupHierarchy,
+          requestName,
+          startTimestamp,
+          endTimestamp,
+          status,
+          responseCode,
+          message
+        )
+      )
     }
 
   override def logGroupEnd(
-    session:       Session,
-    group:         GroupBlock,
-    exitTimestamp: Long
+      session: Session,
+      group: GroupBlock,
+      exitTimestamp: Long
   ): Unit =
-    dispatch(GroupMessage(
-      session.scenario,
-      session.userId,
-      group.hierarchy,
-      group.startTimestamp,
-      exitTimestamp,
-      group.cumulatedResponseTime,
-      group.status
-    ))
+    dispatch(
+      GroupMessage(
+        session.scenario,
+        session.userId,
+        group.hierarchy,
+        group.startTimestamp,
+        exitTimestamp,
+        group.cumulatedResponseTime,
+        group.status
+      )
+    )
 
   override def logCrash(session: Session, requestName: String, error: String): Unit =
     dispatch(ErrorMessage(s"$requestName: $error ", clock.nowMillis))

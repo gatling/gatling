@@ -35,16 +35,15 @@ import javax.jms.Message
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  */
 class Send(
-    attributes:        JmsAttributes,
-    protocol:          JmsProtocol,
+    attributes: JmsAttributes,
+    protocol: JmsProtocol,
     jmsConnectionPool: JmsConnectionPool,
-    val statsEngine:   StatsEngine,
-    val clock:         Clock,
-    val next:          Action,
-    throttler:         Throttler,
-    throttled:         Boolean
-)
-  extends JmsAction(attributes, protocol, jmsConnectionPool, throttler, throttled) {
+    val statsEngine: StatsEngine,
+    val clock: Clock,
+    val next: Action,
+    throttler: Throttler,
+    throttled: Boolean
+) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler, throttled) {
 
   override val name: String = genName("jmsSend")
 

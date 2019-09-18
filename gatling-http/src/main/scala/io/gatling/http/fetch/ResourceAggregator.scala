@@ -41,7 +41,15 @@ private[http] trait ResourceAggregator {
 
   def onRegularResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean): Unit
 
-  def onCssResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean, responseStatus: HttpResponseStatus, lastModifiedOrEtag: Option[String], content: String): Unit
+  def onCssResourceFetched(
+      uri: Uri,
+      status: Status,
+      session: Session,
+      silent: Boolean,
+      responseStatus: HttpResponseStatus,
+      lastModifiedOrEtag: Option[String],
+      content: String
+  ): Unit
 
   def onRedirect(originalTx: HttpTx, redirectTx: HttpTx): Unit
 
@@ -49,14 +57,15 @@ private[http] trait ResourceAggregator {
 }
 
 private[fetch] class DefaultResourceAggregator(
-    rootTx:           HttpTx,
+    rootTx: HttpTx,
     initialResources: Seq[HttpRequest],
-    httpCaches:       HttpCaches,
-    resourceFetcher:  ResourceFetcher,
-    httpTxExecutor:   HttpTxExecutor,
-    clock:            Clock,
-    configuration:    GatlingConfiguration
-) extends ResourceAggregator with StrictLogging {
+    httpCaches: HttpCaches,
+    resourceFetcher: ResourceFetcher,
+    httpTxExecutor: HttpTxExecutor,
+    clock: Clock,
+    configuration: GatlingConfiguration
+) extends ResourceAggregator
+    with StrictLogging {
 
   // immutable state
   private val throttled = rootTx.request.requestConfig.throttled
@@ -144,7 +153,7 @@ private[fetch] class DefaultResourceAggregator(
     val (cached, nonCached) = resources.partition { resource =>
       val request = resource.clientRequest
       httpCaches.contentCacheEntry(session, request) match {
-        case None | Some(ContentCacheEntry(None, _, _)) => false
+        case None | Some(ContentCacheEntry(None, _, _))                              => false
         case Some(ContentCacheEntry(Some(expire), _, _)) if clock.nowMillis > expire =>
           // beware, side effecting
           session = httpCaches.clearContentCache(session, request)
@@ -254,7 +263,15 @@ private[fetch] class DefaultResourceAggregator(
     resourceFetched(remote, status, silent, httpCaches.isHttp2PriorKnowledge(session, remote).contains(true))
   }
 
-  override def onCssResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean, responseStatus: HttpResponseStatus, lastModifiedOrEtag: Option[String], content: String): Unit = {
+  override def onCssResourceFetched(
+      uri: Uri,
+      status: Status,
+      session: Session,
+      silent: Boolean,
+      responseStatus: HttpResponseStatus,
+      lastModifiedOrEtag: Option[String],
+      content: String
+  ): Unit = {
     logger.debug(s"Css resource $uri was fetched")
     this.session = session
     cssFetched(uri, status, responseStatus, lastModifiedOrEtag, content)

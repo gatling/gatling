@@ -30,13 +30,19 @@ class JmsProducerPool(sessionPool: JmsSessionPool) {
   private val producers = new ConcurrentHashMap[CachedProducerKey, ThreadLocal[JmsProducer]]
 
   def producer(destination: Destination, deliveryMode: Int): JmsProducer =
-    producers.computeIfAbsent(CachedProducerKey(destination, deliveryMode), key => ThreadLocal.withInitial[JmsProducer](() => {
-      val jmsSession = sessionPool.jmsSession()
-      val producer = jmsSession.createProducer(key.destination)
-      producer.setDeliveryMode(key.deliveryMode)
-      registeredProducers.add(producer)
-      JmsProducer(jmsSession, producer)
-    })).get()
+    producers
+      .computeIfAbsent(
+        CachedProducerKey(destination, deliveryMode),
+        key =>
+          ThreadLocal.withInitial[JmsProducer](() => {
+            val jmsSession = sessionPool.jmsSession()
+            val producer = jmsSession.createProducer(key.destination)
+            producer.setDeliveryMode(key.deliveryMode)
+            registeredProducers.add(producer)
+            JmsProducer(jmsSession, producer)
+          })
+      )
+      .get()
 
   def close(): Unit = registeredProducers.asScala.foreach(_.close())
 }

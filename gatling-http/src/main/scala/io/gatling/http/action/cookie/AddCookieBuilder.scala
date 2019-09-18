@@ -26,12 +26,12 @@ import io.gatling.http.cookie.CookieSupport.storeCookie
 import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 
 final case class AddCookieDsl(
-    name:   String,
-    value:  Expression[String],
-    domain: Option[String]     = None,
-    path:   Option[String]     = None,
-    maxAge: Option[Long]       = None,
-    secure: Boolean            = false
+    name: String,
+    value: Expression[String],
+    domain: Option[String] = None,
+    path: Option[String] = None,
+    maxAge: Option[Long] = None,
+    secure: Boolean = false
 ) {
   def withDomain(domain: String): AddCookieDsl = copy(domain = Some(domain))
   def withPath(path: String): AddCookieDsl = copy(path = Some(path))
@@ -45,7 +45,9 @@ object AddCookieBuilder {
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
 }
 
-class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean) extends HttpActionBuilder with NameGen {
+class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
+    extends HttpActionBuilder
+    with NameGen {
 
   import CookieActionBuilder._
 
@@ -65,16 +67,17 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
         EmptyStringExpressionSuccess
     }
 
-    val expression: Expression[Session] = session => for {
-      value <- value(session)
-      resolvedRequestDomain <- requestDomain(session)
-    } yield {
-      val cookie = new DefaultCookie(name, value)
-      domain.foreach(cookie.setDomain)
-      path.foreach(cookie.setPath)
-      cookie.setSecure(secure)
-      storeCookie(session, resolvedRequestDomain, DefaultPath, cookie, clock.nowMillis)
-    }
+    val expression: Expression[Session] = session =>
+      for {
+        value <- value(session)
+        resolvedRequestDomain <- requestDomain(session)
+      } yield {
+        val cookie = new DefaultCookie(name, value)
+        domain.foreach(cookie.setDomain)
+        path.foreach(cookie.setPath)
+        cookie.setSecure(secure)
+        storeCookie(session, resolvedRequestDomain, DefaultPath, cookie, clock.nowMillis)
+      }
 
     new SessionHook(expression, genName("addCookie"), coreComponents.statsEngine, coreComponents.clock, next) with ExitableAction
   }

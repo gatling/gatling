@@ -46,13 +46,12 @@ import io.netty.util.concurrent.Future
  * @param trafficLogger log the traffic
  */
 class SecuredNoProxyMitmActor(
-    serverChannel:    Channel,
-    clientBootstrap:  Bootstrap,
+    serverChannel: Channel,
+    clientBootstrap: Bootstrap,
     sslServerContext: SslServerContext,
-    trafficLogger:    TrafficLogger,
-    clock:            Clock
-)
-  extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
+    trafficLogger: TrafficLogger,
+    clock: Clock
+) extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   override protected def connectedRemote(requestRemote: Remote): Remote = requestRemote
 
@@ -74,14 +73,16 @@ class SecuredNoProxyMitmActor(
       serverChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 
     } else {
-      clientSslHandler.handshakeFuture().addListener((future: Future[Channel]) => {
-        if (future.isSuccess) {
-          // propagate
-          clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
-        } else {
-          throw future.cause
-        }
-      })
+      clientSslHandler
+        .handshakeFuture()
+        .addListener((future: Future[Channel]) => {
+          if (future.isSuccess) {
+            // propagate
+            clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
+          } else {
+            throw future.cause
+          }
+        })
     }
 
     goto(Connected) using ConnectedData(remote, clientChannel)

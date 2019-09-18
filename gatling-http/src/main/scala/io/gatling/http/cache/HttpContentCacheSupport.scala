@@ -44,7 +44,8 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
 
   def configuration: GatlingConfiguration
 
-  private[this] val httpContentCacheHandler = new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
+  private[this] val httpContentCacheHandler =
+    new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, response: Response): Session =
     if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {

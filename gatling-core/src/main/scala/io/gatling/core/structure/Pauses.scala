@@ -39,7 +39,6 @@ private[structure] trait Pauses[B] extends Execs[B] {
   private def durationExpression(min: Duration, max: Duration): Expression[Duration] =
     if (min == max)
       min.expressionSuccess
-
     else {
       val minMillis = min.toMillis
       val maxMillis = max.toMillis

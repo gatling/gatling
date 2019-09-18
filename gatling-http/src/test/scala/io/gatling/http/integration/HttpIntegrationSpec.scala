@@ -41,7 +41,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.MOVED_PERMANENTLY)
-        response.headers()
+        response
+          .headers()
           .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie1", "Test1")))
           .set(Location, "/page2")
           .set(ContentLength, 0)
@@ -52,7 +53,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val bytes = "Hello World".getBytes(StandardCharsets.UTF_8)
 
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
-        response.headers()
+        response
+          .headers()
           .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
           .set(ContentLength, bytes.length)
 
@@ -62,7 +64,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val bytes = "Hello Again".getBytes(StandardCharsets.UTF_8)
 
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
-        response.headers()
+        response
+          .headers()
           .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
           .set(ContentLength, bytes.length)
 
@@ -70,7 +73,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
     }
 
     runWithHttpServer(handler) { implicit httpServer =>
-
       val session = runScenario(
         scenario("Cookie Redirect")
           .exec(

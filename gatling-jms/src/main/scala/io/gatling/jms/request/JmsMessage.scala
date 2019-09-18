@@ -28,7 +28,7 @@ sealed trait JmsMessage {
 }
 
 final case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage {
-  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
     bytes(session).map { b =>
       val message = jmsSession.createBytesMessage
       message.writeBytes(b)
@@ -37,7 +37,7 @@ final case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMess
 }
 
 final case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage {
-  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
     map(session).map { m =>
       val message = jmsSession.createMapMessage
       m.foreach { case (key, value) => message.setObject(key, value) }
@@ -46,11 +46,11 @@ final case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMes
 }
 
 final case class ObjectJmsMessage(obj: Expression[JSerializable]) extends JmsMessage {
-  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
     obj(session).map(jmsSession.createObjectMessage)
 }
 
 final case class TextJmsMessage(txt: Expression[String]) extends JmsMessage {
-  private[jms] override def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
     txt(session).map(jmsSession.createTextMessage)
 }

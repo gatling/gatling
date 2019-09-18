@@ -29,12 +29,14 @@ import io.gatling.http.protocol.HttpProtocol
 import com.typesafe.scalalogging.StrictLogging
 
 class HttpTxExecutor(
-    coreComponents:        CoreComponents,
-    httpEngine:            HttpEngine,
-    httpCaches:            HttpCaches,
+    coreComponents: CoreComponents,
+    httpEngine: HttpEngine,
+    httpCaches: HttpCaches,
     defaultStatsProcessor: DefaultStatsProcessor,
-    httpProtocol:          HttpProtocol
-) extends SslContextSupport with NameGen with StrictLogging {
+    httpProtocol: HttpProtocol
+) extends SslContextSupport
+    with NameGen
+    with StrictLogging {
 
   import coreComponents._
   private val noopStatsProcessor = new NoopStatsProcessor(coreComponents.configuration.core.charset)
@@ -57,7 +59,9 @@ class HttpTxExecutor(
       case _ =>
         resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
           case Some(aggregator) =>
-            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+            logger.info(
+              s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
+            )
             aggregator.start(tx.session)
 
           case _ =>
@@ -98,7 +102,8 @@ class HttpTxExecutor(
       val uri = tx.request.clientRequest.getUri
       resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
         case Some(aggregator) =>
-          logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+          logger
+            .info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
           aggregator.start(tx.session)
 
         case _ =>
@@ -119,7 +124,9 @@ class HttpTxExecutor(
 
   def execute(origTx: HttpTx, responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
     executeWithCache(origTx) { tx =>
-      logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+      logger.debug(
+        s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
+      )
 
       val ahcRequest = tx.request.clientRequest
       val clientId = tx.session.userId
@@ -139,7 +146,12 @@ class HttpTxExecutor(
   def execute(origTxs: Iterable[HttpTx], responseProcessorFactory: HttpTx => ResponseProcessor): Unit = {
     executeHttp2WithCache(origTxs) { txs =>
       val headTx = txs.head
-      txs.foreach(tx => logger.debug(s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri} scenario=${tx.session.scenario}, userId=${tx.session.userId}"))
+      txs.foreach(
+        tx =>
+          logger.debug(
+            s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri} scenario=${tx.session.scenario}, userId=${tx.session.userId}"
+          )
+      )
       val requestsAndListeners = txs.map { tx =>
         val listener: HttpListener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
         new Pair(tx.request.clientRequest, listener)
@@ -167,15 +179,14 @@ class HttpTxExecutor(
   private def newRootResponseProcessor(tx: HttpTx): ResponseProcessor =
     new DefaultResponseProcessor(
       tx,
-      sessionProcessor =
-        new RootSessionProcessor(
-          !tx.silent,
-          tx.request.clientRequest,
-          tx.request.requestConfig.checks,
-          httpCaches,
-          httpProtocol,
-          clock
-        ),
+      sessionProcessor = new RootSessionProcessor(
+        !tx.silent,
+        tx.request.clientRequest,
+        tx.request.requestConfig.checks,
+        httpCaches,
+        httpProtocol,
+        clock
+      ),
       statsProcessor = statsProcessor(tx),
       nextExecutor = new RootNextExecutor(tx, clock, resourceFetcher, this),
       configuration.core.charset

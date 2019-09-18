@@ -36,34 +36,38 @@ object JmsTrackerPool {
 }
 
 class JmsTrackerPool(
-    sessionPool:   JmsSessionPool,
-    system:        ActorSystem,
-    statsEngine:   StatsEngine,
-    clock:         Clock,
+    sessionPool: JmsSessionPool,
+    system: ActorSystem,
+    statsEngine: StatsEngine,
+    clock: Clock,
     configuration: GatlingConfiguration
-) extends JmsLogging with NameGen {
+) extends JmsLogging
+    with NameGen {
 
   private val trackers = new ConcurrentHashMap[(Destination, Option[String]), JmsTracker]
 
   def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
-    trackers.computeIfAbsent((destination, selector), _ => {
-      val actor = system.actorOf(Tracker.props(statsEngine, clock, configuration), genName("jmsTrackerActor"))
+    trackers.computeIfAbsent(
+      (destination, selector),
+      _ => {
+        val actor = system.actorOf(Tracker.props(statsEngine, clock, configuration), genName("jmsTrackerActor"))
 
-      for (_ <- 1 to listenerThreadCount) {
-        // jms session pool logic creates a session per thread and stores it in thread local.
-        // After that the thread can be thrown away. The jms provider takes care of receiving and dispatching
-        val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread(() => {
-          val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
-          consumer.setMessageListener(message => {
-            val matchId = messageMatcher.responseMatchId(message)
-            logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-            actor ! MessageReceived(matchId, clock.nowMillis, message)
+        for (_ <- 1 to listenerThreadCount) {
+          // jms session pool logic creates a session per thread and stores it in thread local.
+          // After that the thread can be thrown away. The jms provider takes care of receiving and dispatching
+          val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread(() => {
+            val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
+            consumer.setMessageListener(message => {
+              val matchId = messageMatcher.responseMatchId(message)
+              logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
+              actor ! MessageReceived(matchId, clock.nowMillis, message)
+            })
           })
-        })
 
-        thread.start()
+          thread.start()
+        }
+
+        new JmsTracker(actor)
       }
-
-      new JmsTracker(actor)
-    })
+    )
 }

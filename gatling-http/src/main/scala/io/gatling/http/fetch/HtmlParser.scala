@@ -70,12 +70,18 @@ private[gatling] object HtmlParser extends StrictLogging {
 
   def logException(htmlContent: Array[Char], e: Throwable): Unit =
     if (logger.underlying.isDebugEnabled)
-      logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
+      logger.debug(
+        s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
 >>>>>>>>>>>>>>>>>>>>>>>
 ${new String(htmlContent)}
-<<<<<<<<<<<<<<<<<<<<<<<""", e)
+<<<<<<<<<<<<<<<<<<<<<<<""",
+        e
+      )
     else
-      logger.error(s"HTML parser crashed: ${e.rootMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
+      logger.error(
+        s"HTML parser crashed: ${e.rootMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content",
+        e
+      )
 }
 
 class HtmlParser extends StrictLogging {
@@ -138,7 +144,6 @@ class HtmlParser extends StrictLogging {
           tag.getType match {
 
             case TagType.START | TagType.SELF_CLOSING =>
-
               if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
                 inStyle = true
 
@@ -149,7 +154,8 @@ class HtmlParser extends StrictLogging {
                 Option(tag.getAttributeValue(RelAttribute)) match {
                   case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, StylesheetAttributeName) =>
                     addResource(tag, HrefAttribute, CssRawResource)
-                  case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
+                  case Some(rel)
+                      if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
                     addResource(tag, HrefAttribute, RegularRawResource)
                   case None =>
                     logger.error("Malformed HTML: <link> tag without rel attribute")
@@ -157,9 +163,9 @@ class HtmlParser extends StrictLogging {
                 }
 
               } else if (tag.nameEquals(ImgTagName) ||
-                tag.nameEquals(BgsoundTagName) ||
-                tag.nameEquals(EmbedTagName) ||
-                tag.nameEquals(InputTagName)) {
+                         tag.nameEquals(BgsoundTagName) ||
+                         tag.nameEquals(EmbedTagName) ||
+                         tag.nameEquals(InputTagName)) {
 
                 addResource(tag, SrcAttribute, RegularRawResource)
 
@@ -205,8 +211,9 @@ class HtmlParser extends StrictLogging {
       }
     }
 
-    try { Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor) }
-    catch { case NonFatal(e) => logException(htmlContent, e) }
+    try {
+      Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor)
+    } catch { case NonFatal(e) => logException(htmlContent, e) }
     HtmlResources(rawResources, base)
   }
 
@@ -216,8 +223,7 @@ class HtmlParser extends StrictLogging {
 
     val rootURI = htmlResources.base.map(Uri.create(documentURI, _)).getOrElse(documentURI)
 
-    htmlResources.rawResources
-      .distinct
+    htmlResources.rawResources.distinct
       .filterNot(res => res.rawUrl.isEmpty || res.rawUrl.charAt(0) == '#' || res.rawUrl.startsWith("data:"))
       .flatMap(_.toEmbeddedResource(rootURI))(breakOut)
   }

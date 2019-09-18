@@ -61,7 +61,7 @@ private[cookie] object CookieJar {
 
     rawCookiePath match {
       case Some(path) if !path.isEmpty && path.charAt(0) == '/' => path
-      case _ => defaultCookiePath()
+      case _                                                    => defaultCookiePath()
     }
   }
 
@@ -102,20 +102,18 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
   def add(requestDomain: String, requestPath: String, cookies: List[Cookie], nowMillis: Long): CookieJar = {
 
-    val newStore = cookies.foldLeft(store) {
-      (updatedStore, cookie) =>
+    val newStore = cookies.foldLeft(store) { (updatedStore, cookie) =>
+      val (keyDomain, hostOnly) = cookieDomain(Option(cookie.domain), requestDomain)
 
-        val (keyDomain, hostOnly) = cookieDomain(Option(cookie.domain), requestDomain)
+      val keyPath = cookiePath(Option(cookie.path), requestPath)
 
-        val keyPath = cookiePath(Option(cookie.path), requestPath)
+      if (hasExpired(cookie)) {
+        updatedStore - CookieKey(cookie.name.toLowerCase, keyDomain, keyPath)
 
-        if (hasExpired(cookie)) {
-          updatedStore - CookieKey(cookie.name.toLowerCase, keyDomain, keyPath)
-
-        } else {
-          val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
-          updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
-        }
+      } else {
+        val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
+        updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
+      }
     }
 
     CookieJar(newStore)
@@ -134,9 +132,8 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
         case (key, storedCookie) => isCookieMatching(key, storedCookie)
       }
 
-      matchingCookies.toList.sortWith {
-        (entry1, entry2) =>
-
+      matchingCookies.toList
+        .sortWith { (entry1, entry2) =>
           val (key1, storedCookie1) = entry1
           val (key2, storedCookie2) = entry2
 
@@ -145,7 +142,8 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
           else
             key1.path.length >= key2.path.length
 
-      }.map(_._2.cookie)
+        }
+        .map(_._2.cookie)
     }
 
   def get(requestUri: Uri): List[Cookie] =

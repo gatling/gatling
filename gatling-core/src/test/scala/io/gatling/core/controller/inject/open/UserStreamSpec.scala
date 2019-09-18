@@ -45,11 +45,10 @@ class UserStreamSpec extends BaseSpec {
       // batches are scheduled every 1 second
       lastBatchTimeSinceStart = count * (TickPeriod.toMillis.toInt + 5) // 5 ms scheduler drift on each iteration
 
-      val injection = userStream.withStream(TickPeriod * 2, lastBatchTimeSinceStart + startTime, startTime) {
-        duration =>
-          injectedUsers += 1
-          // calls are sorted
-          lastBatchMaxOffset = duration
+      val injection = userStream.withStream(TickPeriod * 2, lastBatchTimeSinceStart + startTime, startTime) { duration =>
+        injectedUsers += 1
+        // calls are sorted
+        lastBatchMaxOffset = duration
       }
 
       count += 1
@@ -71,8 +70,7 @@ class UserStreamSpec extends BaseSpec {
     for (timeSinceStart <- -1001 until 2000) {
       val userStream = UserStream(List(ramp))
 
-      val injection = userStream.withStream(TickPeriod * 2, timeSinceStart + startTime, startTime) {
-        _ => // nothing
+      val injection = userStream.withStream(TickPeriod * 2, timeSinceStart + startTime, startTime) { _ => // nothing
       }
 
       injection.continue shouldBe true

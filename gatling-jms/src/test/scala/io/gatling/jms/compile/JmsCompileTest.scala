@@ -53,89 +53,121 @@ class JmsCompileTest extends Simulation {
     .matchByMessageId
 
   val scn = scenario("scn")
-    // requestReply
-    // textMessage
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .replyQueue("responseQueue")
-      .textMessage("hello"))
+  // requestReply
+  // textMessage
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .replyQueue("responseQueue")
+        .textMessage("hello")
+    )
     // textMessage with ElFileBody
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .textMessage(ElFileBody("file")))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .textMessage(ElFileBody("file"))
+    )
     // bytesMessage
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .bytesMessage(new Array[Byte](1)))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .bytesMessage(new Array[Byte](1))
+    )
     // bytesMessage with RawFileBody
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .bytesMessage(RawFileBody("file")))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .bytesMessage(RawFileBody("file"))
+    )
     // mapMessage
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .mapMessage(Map("foo" -> "bar")))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .mapMessage(Map("foo" -> "bar"))
+    )
     // objectMessage
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .objectMessage("hello"))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .objectMessage("hello")
+    )
     // destination
-    .exec(jms("req").requestReply
-      .destination(topic("topic"))
-      .noJmsReplyTo
-      .replyDestination(queue("queue"))
-      .trackerQueue("queue")
-      .trackerDestination(topic("topic"))
-      .selector("selector")
-      .textMessage("hello"))
+    .exec(
+      jms("req").requestReply
+        .destination(topic("topic"))
+        .noJmsReplyTo
+        .replyDestination(queue("queue"))
+        .trackerQueue("queue")
+        .trackerDestination(topic("topic"))
+        .selector("selector")
+        .textMessage("hello")
+    )
     // check
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .textMessage("hello")
-      .check(checkBodyTextCorrect)
-      .check(xpath("//TEST").saveAs("name")))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .textMessage("hello")
+        .check(checkBodyTextCorrect)
+        .check(xpath("//TEST").saveAs("name"))
+    )
     // extra
-    .exec(jms("req").requestReply
-      .queue("queue")
-      .textMessage("hello")
-      .property("header", "value")
-      .property("header", "${value}")
-      .property("header", _ => "value")
-      .jmsType("foo"))
+    .exec(
+      jms("req").requestReply
+        .queue("queue")
+        .textMessage("hello")
+        .property("header", "value")
+        .property("header", "${value}")
+        .property("header", _ => "value")
+        .jmsType("foo")
+    )
 
     // send
     // textMessage
-    .exec(jms("req").send
-      .queue("queue")
-      .textMessage("hello"))
+    .exec(
+      jms("req").send
+        .queue("queue")
+        .textMessage("hello")
+    )
     // bytesMessage
-    .exec(jms("req").send
-      .queue("queue")
-      .bytesMessage(new Array[Byte](1)))
+    .exec(
+      jms("req").send
+        .queue("queue")
+        .bytesMessage(new Array[Byte](1))
+    )
     // objectMessage
-    .exec(jms("req").send
-      .queue("queue")
-      .objectMessage("hello"))
+    .exec(
+      jms("req").send
+        .queue("queue")
+        .objectMessage("hello")
+    )
     // mapMessage
-    .exec(jms("req").send
-      .queue("queue")
-      .mapMessage(Map("foo" -> "bar")))
+    .exec(
+      jms("req").send
+        .queue("queue")
+        .mapMessage(Map("foo" -> "bar"))
+    )
     // destination: topic
-    .exec(jms("req").send
-      .destination(topic("topic"))
-      .textMessage("hello"))
+    .exec(
+      jms("req").send
+        .destination(topic("topic"))
+        .textMessage("hello")
+    )
     // destination: queue
-    .exec(jms("req").send
-      .destination(queue("queue"))
-      .textMessage("hello"))
+    .exec(
+      jms("req").send
+        .destination(queue("queue"))
+        .textMessage("hello")
+    )
     // extra
-    .exec(jms("req").send
-      .queue("queue")
-      .textMessage("hello")
-      .property("header", "value")
-      .property("header", "${value}")
-      .property("header", _ => "value")
-      .jmsType("foo"))
+    .exec(
+      jms("req").send
+        .queue("queue")
+        .textMessage("hello")
+        .property("header", "value")
+        .property("header", "${value}")
+        .property("header", _ => "value")
+        .jmsType("foo")
+    )
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
     .protocols(jmsProtocolWithNativeConnectionFactory)

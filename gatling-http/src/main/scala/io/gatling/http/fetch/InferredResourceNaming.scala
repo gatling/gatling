@@ -33,10 +33,11 @@ private[http] object InferredResourceNaming {
         case -1 => path
         case i  => path.substring(i + 1, path.length)
       }
-    case path => path.lastIndexOf('/') match {
-      case -1 => path
-      case i  => path.substring(i + 1)
-    }
+    case path =>
+      path.lastIndexOf('/') match {
+        case -1 => path
+        case i  => path.substring(i + 1)
+      }
   }
 
   val UrlTailInferredResourceNaming: Uri => String = uri => {

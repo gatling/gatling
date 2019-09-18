@@ -38,7 +38,13 @@ object ConsoleErrorsWriter {
     val percent = if (errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
     val firstLineLen = TextLen.min(msg.length)
 
-    sb.append("> ").append(msg.substring(0, firstLineLen).rightPad(TextLen)).append(' ').append(count.toString.leftPad(6)).append(" (").append(percent.leftPad(5)).append("%)")
+    sb.append("> ")
+      .append(msg.substring(0, firstLineLen).rightPad(TextLen))
+      .append(' ')
+      .append(count.toString.leftPad(6))
+      .append(" (")
+      .append(percent.leftPad(5))
+      .append("%)")
 
     if (msg.length > TextLen) {
       sb.append(Eol).append(msg.substring(TextLen).truncate(TextLen))

@@ -29,7 +29,8 @@ import com.typesafe.scalalogging.StrictLogging
 private[http] object SslClientContext extends StrictLogging {
 
   private val TheSslContext =
-    SslContextBuilder.forClient()
+    SslContextBuilder
+      .forClient()
       .sslProvider(SslUtil.TheSslProvider)
       .trustManager(InsecureTrustManagerFactory.INSTANCE)
       .build

@@ -192,7 +192,8 @@ class SessionSpec extends BaseSpec {
     val session = newSession
       .enterGroup("root group", System.currentTimeMillis())
       .enterTryMax("tryMax", nextAction)
-      .markAsFailed.exitTryMax
+      .markAsFailed
+      .exitTryMax
 
     session.blockStack.head shouldBe a[GroupBlock]
     session.contains("tryMax") shouldBe false
@@ -274,7 +275,8 @@ class SessionSpec extends BaseSpec {
   }
 
   it should "set the TryMaxBlock's status to OK if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
-    val session = newSession.copy(baseStatus = KO)
+    val session = newSession
+      .copy(baseStatus = KO)
       .enterGroup("root group", System.currentTimeMillis())
       .enterTryMax("tryMax", nextAction)
     val failedSession = session.markAsSucceeded

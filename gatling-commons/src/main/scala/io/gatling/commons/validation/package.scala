@@ -31,8 +31,9 @@ package object validation extends StrictLogging {
   val NullStringSuccess = "null".success
 
   def safely[T](errorMapper: String => String = identity)(f: => Validation[T]): Validation[T] =
-    try { f }
-    catch {
+    try {
+      f
+    } catch {
       case NonFatal(e) =>
         val message = errorMapper(e.detailedMessage)
         logger.info(message, e)

@@ -45,11 +45,13 @@ private[scenario] object RequestTemplate {
       if (usesBaseUrl) protectWithTripleQuotes(request.printedUrl)
       else extractedUri.renderUri(request.uri)
 
-    def renderHeaders: String = request.filteredHeadersId
-      .map { id =>
-        s"""
+    def renderHeaders: String =
+      request.filteredHeadersId
+        .map { id =>
+          s"""
 			.headers(${headersBlockName(id)})"""
-      }.getOrElse("")
+        }
+        .getOrElse("")
 
     def renderLongString(value: String) =
       if (value.length > MaxLiteralSize)
@@ -57,19 +59,26 @@ private[scenario] object RequestTemplate {
       else
         protectWithTripleQuotes(value)
 
-    def renderBodyOrParams: String = request.body.map {
-      case _: RequestBodyBytes => s"""
+    def renderBodyOrParams: String =
+      request.body
+        .map {
+          case _: RequestBodyBytes => s"""
 			.body(RawFileBody("${ScenarioExporter.requestBodyRelativeFilePath(request)}"))"""
-      case RequestBodyParams(params) => params.map {
-        case (key, value) => s"""
+          case RequestBodyParams(params) =>
+            params.map {
+              case (key, value) => s"""
 			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
-      }.mkString
-    }.getOrElse("")
+            }.mkString
+        }
+        .getOrElse("")
 
-    def renderCredentials: String = request.basicAuthCredentials.map {
-      case (username, password) => s"""
+    def renderCredentials: String =
+      request.basicAuthCredentials
+        .map {
+          case (username, password) => s"""
 			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
-    }.getOrElse("")
+        }
+        .getOrElse("")
 
     def renderStatusCheck: String =
       if (!HttpHelper.isOk(request.statusCode))
@@ -88,12 +97,12 @@ private[scenario] object RequestTemplate {
     def renderResources: String =
       if (request.nonEmbeddedResources.nonEmpty)
         s"""
-			.resources(${
-          request.nonEmbeddedResources.zipWithIndex.map { case (resource, _) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
+			.resources(${request.nonEmbeddedResources.zipWithIndex
+          .map { case (resource, _) => renderRequest(simulationClass, resource, extractedUri) }
+          .mkString(
             """,
             """.stripMargin
-          )
-        })"""
+          )})"""
       else
         ""
     val prefix = if (config.http.useSimulationAsPrefix) simulationClass else "request"

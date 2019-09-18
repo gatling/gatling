@@ -29,21 +29,22 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
 
     val requestQueue = JmsQueue("request")
 
-    replier(requestQueue, {
-      case (tm: TextMessage, session) =>
-        session.createTextMessage(s"""<response>
-                                     |<hello>${tm.getText.toUpperCase}</hello>
-                                     |<property><key>${tm.getStringProperty("key")}</key></property>
-                                     |<jmsType>${tm.getJMSType}</jmsType>
-                                     |</response>""".stripMargin)
-    })
+    replier(
+      requestQueue, {
+        case (tm: TextMessage, session) =>
+          session.createTextMessage(s"""<response>
+                                       |<hello>${tm.getText.toUpperCase}</hello>
+                                       |<property><key>${tm.getStringProperty("key")}</key></property>
+                                       |<jmsType>${tm.getJMSType}</jmsType>
+                                       |</response>""".stripMargin)
+      }
+    )
 
     val session = runScenario(
       scenario("Jms upperCase")
         .exec(_.set("sessionMarker", "test"))
         .exec(
-          jms("toUpperCase")
-            .requestReply
+          jms("toUpperCase").requestReply
             .destination(requestQueue)
             .textMessage("hi ${sessionMarker}")
             .property("key", "${sessionMarker} value")

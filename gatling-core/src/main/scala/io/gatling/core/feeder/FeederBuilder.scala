@@ -43,9 +43,9 @@ trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
 }
 
 final case class SourceFeederBuilder[T](
-    source:        FeederSource[T],
+    source: FeederSource[T],
     configuration: GatlingConfiguration,
-    options:       FeederOptions[T]     = FeederOptions[T]()
+    options: FeederOptions[T] = FeederOptions[T]()
 ) extends BatchableFeederBuilder[T] {
 
   override type F = BatchableFeederBuilder[T]
@@ -85,10 +85,9 @@ private[feeder] final case class Batch(bufferSize: Int) extends FeederLoadingMod
 private[feeder] case object Adaptive extends FeederLoadingMode
 
 final case class FeederOptions[T](
-    shard:       Boolean                          = false,
-    unzip:       Boolean                          = false,
-    conversion:  Option[Record[T] => Record[Any]] = None,
-    strategy:    FeederStrategy                   = Queue,
-    loadingMode: FeederLoadingMode                = Adaptive
+    shard: Boolean = false,
+    unzip: Boolean = false,
+    conversion: Option[Record[T] => Record[Any]] = None,
+    strategy: FeederStrategy = Queue,
+    loadingMode: FeederLoadingMode = Adaptive
 )
-

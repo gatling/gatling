@@ -35,7 +35,7 @@ private[scenario] object ProtocolTemplate {
 
       def renderSslPort(proxyPort: Int) = config.proxy.outgoing.sslPort match {
         case Some(proxySslPort) if proxySslPort != proxyPort => s".httpsPort($proxySslPort)"
-        case _ => ""
+        case _                                               => ""
       }
 
       def renderCredentials = {
@@ -77,7 +77,9 @@ private[scenario] object ProtocolTemplate {
 
     def renderHeaders = {
       def renderHeader(methodName: String, headerValue: String) = s"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
-      protocol.headers.entries().asScala
+      protocol.headers
+        .entries()
+        .asScala
         .map { case entry => entry.getKey -> entry.getValue }
         .sorted
         .flatMap {
@@ -90,7 +92,8 @@ private[scenario] object ProtocolTemplate {
               }
 
             Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue))
-        }.mkString
+        }
+        .mkString
     }
 
     s"""

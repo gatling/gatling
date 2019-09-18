@@ -101,10 +101,10 @@ class PollerActorSpec extends AkkaSpec {
   }
 
   def createPollerActor(
-    period:          FiniteDuration,
-    requestDef:      HttpRequestDef,
-    httpEngine:      HttpEngine,
-    dataWriterProbe: TestProbe
+      period: FiniteDuration,
+      requestDef: HttpRequestDef,
+      httpEngine: HttpEngine,
+      dataWriterProbe: TestProbe
   ) =
     TestFSMRef(
       new PollerActor(
@@ -125,7 +125,9 @@ class PollerActorSpec extends AkkaSpec {
             ),
             Nil
           ),
-          List(dataWriterProbe.ref), system, clock
+          List(dataWriterProbe.ref),
+          system,
+          clock
         ),
         clock = clock,
         httpCaches = mock[HttpCaches],

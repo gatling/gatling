@@ -75,7 +75,10 @@ class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "find single result into Map object form" in {
     val response = mockResponse(storeJson)
-    jmesPath("street").ofType[Map[String, Any]].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(Map("book" -> "On the street")), None)
+    jmesPath("street").ofType[Map[String, Any]].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      Some(Map("book" -> "On the street")),
+      None
+    )
   }
 
   it should "find a null attribute value when expected type is String" in {
@@ -120,7 +123,12 @@ class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "fail when expecting a non-null value and getting a null one" in {
     val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[Any].find.notNull.check(response, session, new JHashMap[Any, Any]).failed shouldBe "jmesPath(foo).find.notNull, but actually found null"
+    jmesPath("foo")
+      .ofType[Any]
+      .find
+      .notNull
+      .check(response, session, new JHashMap[Any, Any])
+      .failed shouldBe "jmesPath(foo).find.notNull, but actually found null"
   }
 
   it should "not fail on empty array" in {

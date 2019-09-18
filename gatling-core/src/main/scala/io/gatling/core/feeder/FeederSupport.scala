@@ -24,8 +24,10 @@ import io.gatling.core.util.ResourceCache
 
 trait FeederSupport extends ResourceCache {
 
-  implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] = SourceFeederBuilder(InMemoryFeederSource(data), configuration)
-  implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] = SourceFeederBuilder(InMemoryFeederSource(data), configuration)
+  implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
+    SourceFeederBuilder(InMemoryFeederSource(data), configuration)
+  implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
+    SourceFeederBuilder(InMemoryFeederSource(data), configuration)
   implicit def feeder2FeederBuilder(feeder: Feeder[Any]): FeederBuilder = () => feeder
 
   def csv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
@@ -35,7 +37,9 @@ trait FeederSupport extends ResourceCache {
   def tsv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, TabulationSeparator, quoteChar)
 
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(
+      implicit configuration: GatlingConfiguration
+  ): BatchableFeederBuilder[String] =
     cachedResource(fileName) match {
       case Success(resource) => new SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")

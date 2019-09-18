@@ -21,8 +21,7 @@ import scala.concurrent.duration._
 import io.gatling.core.action.Action
 import io.gatling.core.structure.ScenarioContext
 
-case class WaitForMessagesBuilder(timeout: FiniteDuration = 60 seconds)
-  extends MqttActionBuilder {
+case class WaitForMessagesBuilder(timeout: FiniteDuration = 60 seconds) extends MqttActionBuilder {
 
   def timeout(duration: FiniteDuration): WaitForMessagesBuilder =
     copy(timeout = duration)

@@ -20,34 +20,33 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 
 class RegexFindExtractor[X: GroupExtractor](name: String, pattern: String, occurrence: Int, patterns: Patterns)
-  extends FindCriterionExtractor[CharSequence, String, X](
-    name,
-    pattern,
-    occurrence,
-    prepared => {
-      val matcher = patterns.compilePattern(pattern).matcher(prepared)
-      matcher.findMatchN(occurrence).success
-    }
-  )
+    extends FindCriterionExtractor[CharSequence, String, X](
+      name,
+      pattern,
+      occurrence,
+      prepared => {
+        val matcher = patterns.compilePattern(pattern).matcher(prepared)
+        matcher.findMatchN(occurrence).success
+      }
+    )
 
 class RegexFindAllExtractor[X: GroupExtractor](name: String, pattern: String, patterns: Patterns)
-  extends FindAllCriterionExtractor[CharSequence, String, X](
-    name,
-    pattern,
-    patterns.extractAll(_, pattern).liftSeqOption.success
-  )
+    extends FindAllCriterionExtractor[CharSequence, String, X](
+      name,
+      pattern,
+      patterns.extractAll(_, pattern).liftSeqOption.success
+    )
 
 class RegexCountExtractor(name: String, pattern: String, patterns: Patterns)
-  extends CountCriterionExtractor[CharSequence, String](
-    name,
-    pattern,
-    prepared => {
-      val matcher = patterns.compilePattern(pattern).matcher(prepared)
+    extends CountCriterionExtractor[CharSequence, String](
+      name,
+      pattern,
+      prepared => {
+        val matcher = patterns.compilePattern(pattern).matcher(prepared)
 
-      var count = 0
-      while (matcher.find)
-        count = count + 1
+        var count = 0
+        while (matcher.find) count = count + 1
 
-      Some(count).success
-    }
-  )
+        Some(count).success
+      }
+    )

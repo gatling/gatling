@@ -34,10 +34,11 @@ class SseException(statusCode: Int) extends IOException("Server returned http re
   override def fillInStackTrace(): Throwable = this
 }
 
-class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock) extends HttpListener
-  with SseStream
-  with EventStreamDispatcher
-  with StrictLogging {
+class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock)
+    extends HttpListener
+    with SseStream
+    with EventStreamDispatcher
+    with StrictLogging {
 
   private var state: SseState = Connecting
   private val decoder = new SseStreamDecoder

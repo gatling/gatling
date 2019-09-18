@@ -39,7 +39,9 @@ object Ga {
     val trackingId = if (version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
 
     val bodyBytes =
-      s"""tid=$trackingId&dl=${encode("https://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(FastUUID.toString(UUID.randomUUID))}"""
+      s"""tid=$trackingId&dl=${encode("https://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(
+        FastUUID.toString(UUID.randomUUID)
+      )}"""
         .getBytes(UTF_8)
 
     val url = new URL("https://ssl.google-analytics.com/collect")

@@ -24,7 +24,13 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 import io.gatling.jms.request.{ JmsAttributes, JmsDestination }
 
-final case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsDestination, setJmsReplyTo: Boolean, trackerDestination: Option[JmsDestination], configuration: GatlingConfiguration) extends ActionBuilder {
+final case class RequestReplyBuilder(
+    attributes: JmsAttributes,
+    replyDestination: JmsDestination,
+    setJmsReplyTo: Boolean,
+    trackerDestination: Option[JmsDestination],
+    configuration: GatlingConfiguration
+) extends ActionBuilder {
 
   private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
@@ -32,7 +38,18 @@ final case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val jmsComponents = components(protocolComponentsRegistry)
-    new RequestReply(attributes, replyDestination, setJmsReplyTo, trackerDestination, jmsComponents.jmsProtocol,
-      jmsComponents.jmsConnectionPool, coreComponents.statsEngine, coreComponents.clock, next, coreComponents.throttler, ctx.throttled)
+    new RequestReply(
+      attributes,
+      replyDestination,
+      setJmsReplyTo,
+      trackerDestination,
+      jmsComponents.jmsProtocol,
+      jmsComponents.jmsConnectionPool,
+      coreComponents.statsEngine,
+      coreComponents.clock,
+      next,
+      coreComponents.throttler,
+      ctx.throttled
+    )
   }
 }

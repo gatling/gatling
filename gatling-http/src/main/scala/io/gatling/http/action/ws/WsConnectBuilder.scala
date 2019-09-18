@@ -27,8 +27,8 @@ import io.gatling.http.request.builder.ws.WsConnectRequestBuilder
 import com.softwaremill.quicklens._
 
 final case class WsConnectBuilder(
-    requestBuilder:   WsConnectRequestBuilder,
-    checkSequences:   List[WsFrameCheckSequence[WsFrameCheck]],
+    requestBuilder: WsConnectRequestBuilder,
+    checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
     onConnectedChain: Option[ChainBuilder]
 ) extends HttpActionBuilder {
 

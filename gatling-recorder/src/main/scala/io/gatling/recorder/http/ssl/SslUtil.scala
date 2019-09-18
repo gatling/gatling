@@ -156,7 +156,14 @@ private[recorder] object SslUtil extends StrictLogging {
       certificateFromHolder(certBuilder.build(signer))
     }
 
-  private def addNewKeystoreEntry(keyStore: KeyStore, password: Array[Char], serverCert: X509Certificate, csrPrivKey: PrivateKey, caCert: X509Certificate, alias: String): Try[KeyStore] =
+  private def addNewKeystoreEntry(
+      keyStore: KeyStore,
+      password: Array[Char],
+      serverCert: X509Certificate,
+      csrPrivKey: PrivateKey,
+      caCert: X509Certificate,
+      alias: String
+  ): Try[KeyStore] =
     Try {
       keyStore.setCertificateEntry(alias, serverCert)
       keyStore.setKeyEntry(alias, csrPrivKey, password, Array(serverCert, caCert))

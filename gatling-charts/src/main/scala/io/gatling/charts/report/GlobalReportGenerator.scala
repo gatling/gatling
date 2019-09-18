@@ -24,8 +24,9 @@ import io.gatling.commons.stats.{ Group, KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
-private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
-  extends ReportGenerator {
+private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+    implicit configuration: GatlingConfiguration
+) extends ReportGenerator {
 
   def generate(): Unit = {
     import reportsGenerationInputs._
@@ -35,9 +36,10 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
       val seriesColors = Iterator.continually(baseColors).flatten.take(logFileReader.scenarioNames.size).toList
 
-      val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader
-        .scenarioNames
-        .map { scenarioName => scenarioName -> logFileReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
+      val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = logFileReader.scenarioNames
+        .map { scenarioName =>
+          scenarioName -> logFileReader.numberOfActiveSessionsPerSecond(Some(scenarioName))
+        }
         .reverse
         .zip(seriesColors)
         .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
@@ -54,12 +56,16 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     }
 
     def responseTimeChartComponent: Component =
-      percentilesChartComponent(logFileReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
+      percentilesChartComponent(
+        logFileReader.responseTimePercentilesOverTime,
+        componentLibrary.getRequestDetailsResponseTimeChartComponent,
+        "Response Time Percentiles over Time"
+      )
 
     def percentilesChartComponent(
-      dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
-      componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
-      title:            String
+        dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+        title: String
     ): Component = {
       val successData = dataSource(OK, None, None)
       val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
@@ -74,8 +80,8 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       countsChartComponent(logFileReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
     def countsChartComponent(
-      dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-      componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
+        dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+        componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
     ): Component = {
       val counts = dataSource(None, None).sortBy(_.time)
 

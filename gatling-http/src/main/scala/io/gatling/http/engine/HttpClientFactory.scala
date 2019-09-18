@@ -44,9 +44,9 @@ private[gatling] trait HttpClientFactory {
 }
 
 private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, sslContextsFactory: SslContextsFactory)
-  extends HttpClientFactory
-  with EventLoopGroups
-  with StrictLogging {
+    extends HttpClientFactory
+    with EventLoopGroups
+    with StrictLogging {
 
   private val httpConfig = coreComponents.configuration.http
   setSystemPropertyIfUndefined("io.netty.allocator.type", httpConfig.advanced.allocator)

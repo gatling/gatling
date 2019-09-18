@@ -30,7 +30,15 @@ sealed trait StatsEngineMessage
 
 final case class LogUser(userMessage: UserMessage) extends StatsEngineMessage
 
-final case class LogResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String]) extends StatsEngineMessage
+final case class LogResponse(
+    session: Session,
+    requestName: String,
+    startTimestamp: Long,
+    endTimestamp: Long,
+    status: Status,
+    responseCode: Option[String],
+    message: Option[String]
+) extends StatsEngineMessage
 
 final case class LogGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
 
@@ -68,7 +76,15 @@ class LoggingStatsEngine extends StatsEngine {
   //
   // [fl]
 
-  override def logResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String]): Unit =
+  override def logResponse(
+      session: Session,
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String]
+  ): Unit =
     msgQueue.addLast(LogResponse(session, requestName, startTimestamp, endTimestamp, status, responseCode, message))
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =

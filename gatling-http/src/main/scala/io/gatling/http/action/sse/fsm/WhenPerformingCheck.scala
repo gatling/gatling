@@ -70,7 +70,14 @@ trait WhenPerformingCheck { this: SseActor =>
       handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, t.getMessage)
   }
 
-  private def handleSseCheckCrash(checkName: String, session: Session, next: Either[Action, SetCheck], checkSequenceStart: Long, code: Option[String], errorMessage: String): State = {
+  private def handleSseCheckCrash(
+      checkName: String,
+      session: Session,
+      next: Either[Action, SetCheck],
+      checkSequenceStart: Long,
+      code: Option[String],
+      errorMessage: String
+  ): State = {
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
     val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))

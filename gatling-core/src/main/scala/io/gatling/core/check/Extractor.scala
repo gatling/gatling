@@ -33,17 +33,20 @@ abstract class CriterionExtractor[P, T, X](checkName: String, criterion: T) exte
   override val name = s"$checkName($criterion)"
 }
 
-class FindCriterionExtractor[P, T, X](checkName: String, criterion: T, occurrence: Int, extractor: P => Validation[Option[X]]) extends CriterionExtractor[P, T, X](checkName, criterion) {
+class FindCriterionExtractor[P, T, X](checkName: String, criterion: T, occurrence: Int, extractor: P => Validation[Option[X]])
+    extends CriterionExtractor[P, T, X](checkName, criterion) {
   override def apply(prepared: P): Validation[Option[X]] = extractor(prepared)
   override val arity: String = if (occurrence == 0) "find" else s"find($occurrence)"
 }
 
-class FindAllCriterionExtractor[P, T, X](checkName: String, criterion: T, extractor: P => Validation[Option[Seq[X]]]) extends CriterionExtractor[P, T, Seq[X]](checkName, criterion) {
+class FindAllCriterionExtractor[P, T, X](checkName: String, criterion: T, extractor: P => Validation[Option[Seq[X]]])
+    extends CriterionExtractor[P, T, Seq[X]](checkName, criterion) {
   override def apply(prepared: P): Validation[Option[Seq[X]]] = extractor(prepared)
   override val arity = "findAll"
 }
 
-class CountCriterionExtractor[P, T](checkName: String, criterion: T, extractor: P => Validation[Option[Int]]) extends CriterionExtractor[P, T, Int](checkName, criterion) {
+class CountCriterionExtractor[P, T](checkName: String, criterion: T, extractor: P => Validation[Option[Int]])
+    extends CriterionExtractor[P, T, Int](checkName, criterion) {
   override def apply(prepared: P): Validation[Option[Int]] = extractor(prepared)
   override val arity = "count"
 }

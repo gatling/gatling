@@ -31,10 +31,11 @@ class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterialize
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
   override val preparer: Preparer[Message, Option[Dom]] =
-    message => safely(ErrorMapper) {
-      message match {
-        case tm: TextMessage => Some(xmlParsers.parse(new InputSource(new StringReader(tm.getText)))).success
-        case _               => "Unsupported message type".failure
+    message =>
+      safely(ErrorMapper) {
+        message match {
+          case tm: TextMessage => Some(xmlParsers.parse(new InputSource(new StringReader(tm.getText)))).success
+          case _               => "Unsupported message type".failure
+        }
       }
-    }
 }

@@ -19,37 +19,37 @@ package io.gatling.core.check.jsonpath
 object Json2 extends JsonSample {
 
   val value = """[
-               |    {
-               |        "id":19434,
-               |        "foo":1,
-               |        "company":
-               |        {
-               |            "id":18971
-               |        },
-               |        "owner":
-               |        {
-               |            "id":18957
-               |        },
-               |        "process":
-               |        {
-               |            "id":18972
-               |        }
-               |    },
-               |    {
-               |        "id":19435,
-               |        "foo":2,
-               |        "company":
-               |        {
-               |            "id":18972
-               |        },
-               |        "owner":
-               |        {
-               |            "id":18957
-               |        },
-               |        "process":
-               |        {
-               |            "id":18974
-               |        }
-               |    }
-               |]""".stripMargin
+                |    {
+                |        "id":19434,
+                |        "foo":1,
+                |        "company":
+                |        {
+                |            "id":18971
+                |        },
+                |        "owner":
+                |        {
+                |            "id":18957
+                |        },
+                |        "process":
+                |        {
+                |            "id":18972
+                |        }
+                |    },
+                |    {
+                |        "id":19435,
+                |        "foo":2,
+                |        "company":
+                |        {
+                |            "id":18972
+                |        },
+                |        "owner":
+                |        {
+                |            "id":18957
+                |        },
+                |        "process":
+                |        {
+                |            "id":18974
+                |        }
+                |    }
+                |]""".stripMargin
 }

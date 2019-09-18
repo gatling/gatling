@@ -20,4 +20,4 @@ import io.gatling.charts.component.Component
 import io.gatling.commons.stats.Group
 
 private[charts] class RequestDetailsPageTemplate(title: String, requestName: String, group: Option[Group], components: Component*)
-  extends PageTemplate(title, true, Some(requestName), group, components: _*)
+    extends PageTemplate(title, true, Some(requestName), group, components: _*)

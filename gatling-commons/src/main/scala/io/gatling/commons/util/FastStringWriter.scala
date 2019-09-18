@@ -28,7 +28,6 @@ final class FastStringWriter(initialSize: Int = 16) extends Writer {
   def write(cbuf: Array[Char], off: Int, len: Int): Unit =
     if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0))
       throw new IndexOutOfBoundsException
-
     else if (len > 0)
       buf.append(cbuf, off, len)
 

@@ -28,10 +28,10 @@ import io.netty.channel.Channel
 import io.netty.handler.codec.http.FullHttpRequest
 
 abstract class PlainMitmActor(
-    serverChannel:   Channel,
+    serverChannel: Channel,
     clientBootstrap: Bootstrap,
-    trafficLogger:   TrafficLogger,
-    clock:           Clock
+    trafficLogger: TrafficLogger,
+    clock: Clock
 ) extends MitmActor(clientBootstrap) {
 
   protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest
@@ -82,7 +82,9 @@ abstract class PlainMitmActor(
 
     case Event(ClientChannelInactive(inactiveClientChannelId), ConnectedData(remote, clientChannel)) =>
       if (clientChannel.id == inactiveClientChannelId) {
-        logger.debug(s"Server channel ${serverChannel.id} received ClientChannelInactive while in Connected state paired with ${clientChannel.id}, becoming disconnected")
+        logger.debug(
+          s"Server channel ${serverChannel.id} received ClientChannelInactive while in Connected state paired with ${clientChannel.id}, becoming disconnected"
+        )
         goto(Disconnected) using DisconnectedData(remote)
       } else {
         // event from previous channel, ignoring

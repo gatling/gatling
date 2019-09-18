@@ -38,15 +38,15 @@ import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpMethod
 
 final case class CommonAttributes(
-    requestName:         Expression[String],
-    method:              HttpMethod,
-    urlOrURI:            Either[Expression[String], Uri],
-    disableUrlEncoding:  Option[Boolean]                         = None,
-    queryParams:         List[HttpParam]                         = Nil,
-    headers:             Map[String, Expression[String]]         = Map.empty,
-    realm:               Option[Expression[Realm]]               = None,
-    virtualHost:         Option[Expression[String]]              = None,
-    proxy:               Option[ProxyServer]                     = None,
+    requestName: Expression[String],
+    method: HttpMethod,
+    urlOrURI: Either[Expression[String], Uri],
+    disableUrlEncoding: Option[Boolean] = None,
+    queryParams: List[HttpParam] = Nil,
+    headers: Map[String, Expression[String]] = Map.empty,
+    realm: Option[Expression[Realm]] = None,
+    virtualHost: Option[Expression[String]] = None,
+    proxy: Option[ProxyServer] = None,
     signatureCalculator: Option[Expression[SignatureCalculator]] = None
 )
 
@@ -77,17 +77,18 @@ object RequestBuilder {
   val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
   def oauth1SignatureCalculator(
-    consumerKey:        Expression[String],
-    clientSharedSecret: Expression[String],
-    token:              Expression[String],
-    tokenSecret:        Expression[String]
-  ): Expression[SignatureCalculator] = session =>
-    for {
-      ck <- consumerKey(session)
-      css <- clientSharedSecret(session)
-      tk <- token(session)
-      tks <- tokenSecret(session)
-    } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks))
+      consumerKey: Expression[String],
+      clientSharedSecret: Expression[String],
+      token: Expression[String],
+      tokenSecret: Expression[String]
+  ): Expression[SignatureCalculator] =
+    session =>
+      for {
+        ck <- consumerKey(session)
+        css <- clientSharedSecret(session)
+        tk <- token(session)
+        tks <- tokenSecret(session)
+      } yield new OAuthSignatureCalculator(new ConsumerKey(ck, css), new RequestToken(tk, tks))
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {

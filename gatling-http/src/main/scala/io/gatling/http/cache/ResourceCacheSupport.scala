@@ -35,8 +35,10 @@ private[cache] trait ResourceCacheSupport {
   def configuration: GatlingConfiguration
 
   // FIXME should CssContentCache use the same key?
-  private val cssContentCache: ConcurrentMap[Uri, List[ConcurrentResource]] = Cache.newConcurrentCache[Uri, List[ConcurrentResource]](configuration.http.fetchedCssCacheMaxCapacity)
-  private val inferredResourcesCache: ConcurrentMap[InferredResourcesCacheKey, InferredPageResources] = Cache.newConcurrentCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
+  private val cssContentCache: ConcurrentMap[Uri, List[ConcurrentResource]] =
+    Cache.newConcurrentCache[Uri, List[ConcurrentResource]](configuration.http.fetchedCssCacheMaxCapacity)
+  private val inferredResourcesCache: ConcurrentMap[InferredResourcesCacheKey, InferredPageResources] =
+    Cache.newConcurrentCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
 
   def isCssCached(uri: Uri): Boolean = cssContentCache.get(uri) != null
 
@@ -49,7 +51,12 @@ private[cache] trait ResourceCacheSupport {
   def getCachedInferredResources(httpProtocol: HttpProtocol, htmlDocumentUri: Uri): InferredPageResources =
     inferredResourcesCache.get(InferredResourcesCacheKey(httpProtocol, htmlDocumentUri))
 
-  def computeInferredResourcesIfAbsent(httpProtocol: HttpProtocol, uri: Uri, lastModifiedOrEtag: String, computeResources: () => List[HttpRequest]): List[HttpRequest] = {
+  def computeInferredResourcesIfAbsent(
+      httpProtocol: HttpProtocol,
+      uri: Uri,
+      lastModifiedOrEtag: String,
+      computeResources: () => List[HttpRequest]
+  ): List[HttpRequest] = {
     val cacheKey = InferredResourcesCacheKey(httpProtocol, uri)
     Option(inferredResourcesCache.get(cacheKey)) match {
       case Some(InferredPageResources(`lastModifiedOrEtag`, inferredResources)) =>

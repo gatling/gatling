@@ -49,10 +49,14 @@ class ClosedInjectionStepSpec extends BaseSpec {
     ).getInjectionSteps.toSeq
 
     val expected = Seq(
-      ConstantConcurrentNumberInjection(5, 10 seconds), RampConcurrentNumberInjection(5, 15, 20 seconds),
-      ConstantConcurrentNumberInjection(15, 10 seconds), RampConcurrentNumberInjection(15, 25, 20 seconds),
-      ConstantConcurrentNumberInjection(25, 10 seconds), RampConcurrentNumberInjection(25, 35, 20 seconds),
-      ConstantConcurrentNumberInjection(35, 10 seconds), RampConcurrentNumberInjection(35, 45, 20 seconds),
+      ConstantConcurrentNumberInjection(5, 10 seconds),
+      RampConcurrentNumberInjection(5, 15, 20 seconds),
+      ConstantConcurrentNumberInjection(15, 10 seconds),
+      RampConcurrentNumberInjection(15, 25, 20 seconds),
+      ConstantConcurrentNumberInjection(25, 10 seconds),
+      RampConcurrentNumberInjection(25, 35, 20 seconds),
+      ConstantConcurrentNumberInjection(35, 10 seconds),
+      RampConcurrentNumberInjection(35, 45, 20 seconds),
       ConstantConcurrentNumberInjection(45, 10 seconds)
     )
 
@@ -109,10 +113,14 @@ class ClosedInjectionStepSpec extends BaseSpec {
     ).getInjectionSteps.toSeq
 
     val expected = Seq(
-      ConstantConcurrentNumberInjection(10, 10 seconds), RampConcurrentNumberInjection(10, 20, 80 seconds),
-      ConstantConcurrentNumberInjection(20, 10 seconds), RampConcurrentNumberInjection(20, 30, 80 seconds),
-      ConstantConcurrentNumberInjection(30, 10 seconds), RampConcurrentNumberInjection(30, 40, 80 seconds),
-      ConstantConcurrentNumberInjection(40, 10 seconds), RampConcurrentNumberInjection(40, 50, 80 seconds),
+      ConstantConcurrentNumberInjection(10, 10 seconds),
+      RampConcurrentNumberInjection(10, 20, 80 seconds),
+      ConstantConcurrentNumberInjection(20, 10 seconds),
+      RampConcurrentNumberInjection(20, 30, 80 seconds),
+      ConstantConcurrentNumberInjection(30, 10 seconds),
+      RampConcurrentNumberInjection(30, 40, 80 seconds),
+      ConstantConcurrentNumberInjection(40, 10 seconds),
+      RampConcurrentNumberInjection(40, 50, 80 seconds),
       ConstantConcurrentNumberInjection(50, 10 seconds)
     )
 

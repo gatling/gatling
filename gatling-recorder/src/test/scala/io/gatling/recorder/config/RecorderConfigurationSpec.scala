@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.config
 
-import java.io.{ FileNotFoundException, File }
+import java.io.{ File, FileNotFoundException }
 import java.nio.file.Paths
 
 import io.gatling.BaseSpec

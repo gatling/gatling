@@ -39,9 +39,12 @@ import jodd.lagarto.dom.NodeSelector
 
 trait CheckSupport {
 
-  implicit def validatorCheckBuilder2CheckBuilder[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]): CheckBuilder[A, P, X] with SaveAs[A, P, X] = validatorCheckBuilder.exists
-  implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): ValidatorCheckBuilder[A, P, X] = findCheckBuilder.find
-  implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): CheckBuilder[A, P, X] with SaveAs[A, P, X] = findCheckBuilder.find.exists
+  implicit def validatorCheckBuilder2CheckBuilder[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]): CheckBuilder[A, P, X] with SaveAs[A, P, X] =
+    validatorCheckBuilder.exists
+  implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): ValidatorCheckBuilder[A, P, X] =
+    findCheckBuilder.find
+  implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): CheckBuilder[A, P, X] with SaveAs[A, P, X] =
+    findCheckBuilder.find.exists
 
   def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =
     cw.wrap(condition, thenCheck)
@@ -49,7 +52,8 @@ trait CheckSupport {
   def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: TypedConditionalCheckWrapper[R, C]): C =
     cw.wrap(condition, thenCheck)
 
-  def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, CharSequence, String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
+  def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, CharSequence, String] with RegexOfType =
+    RegexCheckBuilder.regex(pattern, patterns)
 
   val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder
 
@@ -59,14 +63,19 @@ trait CheckSupport {
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
-  def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
+  def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(
+      implicit xmlParsers: XmlParsers
+  ): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)
-  def css(selector: Expression[String], nodeAttribute: String)(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
+  def css(selector: Expression[String], nodeAttribute: String)(
+      implicit selectors: CssSelectors
+  ): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
-  def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] = css(selector).ofType[Map[String, Any]]
+  def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] =
+    css(selector).ofType[Map[String, Any]]
 
   def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
@@ -74,10 +83,14 @@ trait CheckSupport {
   def jmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JmesPathCheckType, JsonNode, String] with JmesPathOfType =
     JmesPathCheckBuilder.jmesPath(path, jmesPaths)
 
-  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
+  def jsonpJsonPath(
+      path: Expression[String]
+  )(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
 
-  def jsonpJmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
+  def jsonpJmesPath(
+      path: Expression[String]
+  )(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
     JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
 
   def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = JmesPathFunctions.register(functions)

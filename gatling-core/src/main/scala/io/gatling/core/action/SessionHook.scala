@@ -20,7 +20,8 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 
-class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ChainableAction {
+class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ChainableAction {
 
   /**
    * Applies the function to the Session

@@ -26,11 +26,10 @@ import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 
 class SseRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
-    httpCaches:       HttpCaches,
-    httpProtocol:     HttpProtocol,
-    configuration:    GatlingConfiguration
-)
-  extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
+    configuration: GatlingConfiguration
+) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
   override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
     // disable request timeout for SSE

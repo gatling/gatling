@@ -39,9 +39,9 @@ final case class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: S
 
 final case class JmsJndiConnectionFactoryBuilderFactoryStep(
     connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials] = None,
-    properties:            Map[String, String] = Map.empty
+    url: String,
+    credentials: Option[Credentials] = None,
+    properties: Map[String, String] = Map.empty
 ) {
 
   def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
@@ -53,11 +53,11 @@ final case class JmsJndiConnectionFactoryBuilderFactoryStep(
 }
 
 final case class JmsJndiConnectionFactoryBuilder(
-    contextFactory:        String,
+    contextFactory: String,
     connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials],
-    jndiProperties:        Map[String, String]
+    url: String,
+    credentials: Option[Credentials],
+    jndiProperties: Map[String, String]
 ) extends StrictLogging {
 
   def build(): ConnectionFactory = {

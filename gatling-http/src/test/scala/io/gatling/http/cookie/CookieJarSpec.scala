@@ -107,7 +107,9 @@ class CookieJarSpec extends BaseSpec {
     val uri = Uri.create("http://www.foo.com/bar")
     val cookieStore = CookieJar(uri, List(cookie), System.currentTimeMillis())
 
-    val storedCookies = cookieStore.add(uri, List(decode("ALPHA=EXPIRED; Domain=www.foo.com; Path=/bar; Expires=Sun, 06 Nov 1994 08:49:37 GMT")), System.currentTimeMillis()).get(uri)
+    val storedCookies = cookieStore
+      .add(uri, List(decode("ALPHA=EXPIRED; Domain=www.foo.com; Path=/bar; Expires=Sun, 06 Nov 1994 08:49:37 GMT")), System.currentTimeMillis())
+      .get(uri)
     storedCookies shouldBe empty
   }
 

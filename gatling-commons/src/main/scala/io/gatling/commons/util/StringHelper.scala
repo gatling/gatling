@@ -31,12 +31,15 @@ object StringHelper {
 
   val Crlf: String = "\r\n"
 
-  def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
-    val shifted = b & 0xff
-    if (shifted < 0x10)
-      buff.append("0")
-    buff.append(JLong.toString(shifted.toLong, 16))
-  }.toString
+  def bytes2Hex(bytes: Array[Byte]): String =
+    bytes
+      .foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
+        val shifted = b & 0xff
+        if (shifted < 0x10)
+          buff.append("0")
+        buff.append(JLong.toString(shifted.toLong, 16))
+      }
+      .toString
 
   implicit class RichString(val string: String) extends AnyVal {
 

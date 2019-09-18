@@ -38,10 +38,9 @@ import io.netty.handler.codec.http.HttpHeaders
 
 private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
 
-/************************************/
+  /************************************/
   /**           COMPONENTS           **/
-/************************************/
-
+  /************************************/
   /* Top panel components */
   private val tagField = new TextField(15)
   private val tagButton = Button("Add")(addTag())
@@ -62,10 +61,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   /* Bottom panel components */
   private val hostsRequiringCertificates = new ListView[String] { foreground = Color.red }
 
-/**********************************/
+  /**********************************/
   /**           UI SETUP           **/
-/**********************************/
-
+  /**********************************/
   /* Frame setup */
   title = "Gatling Recorder - Running..."
   peer.setIconImages(IconList.asJava)
@@ -139,10 +137,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
 
   centerOnScreen()
 
-/*****************************************/
+  /*****************************************/
   /**           EVENTS HANDLING           **/
-/*****************************************/
-
+  /*****************************************/
   /* Reactions */
   listenTo(events.selection)
   reactions += {
@@ -166,18 +163,22 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   }
 
   private def headersToString(headers: HttpHeaders): String =
-    headers.entries.asScala.map { entry => s"${entry.getKey}: ${entry.getValue}" }.mkString(Eol)
+    headers.entries.asScala
+      .map { entry =>
+        s"${entry.getKey}: ${entry.getValue}"
+      }
+      .mkString(Eol)
 
   private def summary(request: HttpRequest): String = {
     import request._
     s"""$httpVersion $method $uri
-         |${headersToString(headers)}""".stripMargin
+       |${headersToString(headers)}""".stripMargin
   }
 
   private def summary(response: HttpResponse): String = {
     import response._
     s"""$status $statusText
-          |${headersToString(headers)}""".stripMargin
+       |${headersToString(headers)}""".stripMargin
   }
 
   /**
@@ -211,11 +212,11 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
    */
   def receiveEvent(event: FrontEndEvent): Unit = {
     event match {
-      case pauseInfo: PauseFrontEndEvent => events.add(pauseInfo)
-      case requestInfo: RequestFrontEndEvent => events.add(requestInfo)
-      case tagInfo: TagFrontEndEvent => events.add(tagInfo)
+      case pauseInfo: PauseFrontEndEvent                                               => events.add(pauseInfo)
+      case requestInfo: RequestFrontEndEvent                                           => events.add(requestInfo)
+      case tagInfo: TagFrontEndEvent                                                   => events.add(tagInfo)
       case SslFrontEndEvent(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
-      case e => logger.debug(s"dropping event $e")
+      case e                                                                           => logger.debug(s"dropping event $e")
     }
   }
 }

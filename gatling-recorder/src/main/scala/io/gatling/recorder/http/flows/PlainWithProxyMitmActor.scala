@@ -42,16 +42,16 @@ import io.netty.handler.codec.http._
  * @param trafficLogger log the traffic
  */
 class PlainWithProxyMitmActor(
-    serverChannel:   Channel,
+    serverChannel: Channel,
     clientBootstrap: Bootstrap,
-    proxy:           OutgoingProxy,
-    trafficLogger:   TrafficLogger,
-    clock:           Clock
-)
-  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
+    proxy: OutgoingProxy,
+    trafficLogger: TrafficLogger,
+    clock: Clock
+) extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
-  private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.getEncoder.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
+  private val proxyBasicAuthHeader =
+    proxy.credentials.map(credentials => "Basic " + Base64.getEncoder.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
 
   override protected def connectedRemote(requestRemote: Remote): Remote =
     proxyRemote
@@ -60,8 +60,7 @@ class PlainWithProxyMitmActor(
     (proxyBasicAuthHeader match {
       case Some(header) =>
         val requestWithCreds = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, originalRequest.method, originalRequest.uri, originalRequest.content)
-        requestWithCreds
-          .headers
+        requestWithCreds.headers
           .set(originalRequest.headers)
           .set(HttpHeaderNames.PROXY_AUTHORIZATION, header)
 

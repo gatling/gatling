@@ -23,13 +23,13 @@ import io.gatling.core.session.Expression
 import com.fasterxml.jackson.databind.JsonNode
 
 abstract class JmesPathCheckBuilderBase[T, X: JsonFilter](
-    name:                            String,
-    private[jmespath] val path:      Expression[String],
+    name: String,
+    private[jmespath] val path: Expression[String],
     private[jmespath] val jmesPaths: JmesPaths
-)
-  extends DefaultFindCheckBuilder[T, JsonNode, X](path.map(new JmesPathExtractor(name, _, jmesPaths)), displayActualValue = true)
+) extends DefaultFindCheckBuilder[T, JsonNode, X](path.map(new JmesPathExtractor(name, _, jmesPaths)), displayActualValue = true)
 
-class JmesPathExtractor[X: JsonFilter](name: String, path: String, jmesPaths: JmesPaths) extends FindCriterionExtractor[JsonNode, String, X](name, path, 0, jmesPaths.extract(_, path))
+class JmesPathExtractor[X: JsonFilter](name: String, path: String, jmesPaths: JmesPaths)
+    extends FindCriterionExtractor[JsonNode, String, X](name, path, 0, jmesPaths.extract(_, path))
 
 trait JmesPathCheckType
 
@@ -45,6 +45,6 @@ object JmesPathCheckBuilder {
 }
 
 class JmesPathCheckBuilder[X: JsonFilter](
-    path:      Expression[String],
+    path: Expression[String],
     jmesPaths: JmesPaths
 ) extends JmesPathCheckBuilderBase[JmesPathCheckType, X]("jmesPath", path, jmesPaths)

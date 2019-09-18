@@ -243,8 +243,10 @@ private[gatling] object Json {
             val entry0 = it.next()
             val entry1 = it.next()
             new Map.Map2(
-              entry0.getKey, asScala(entry0.getValue),
-              entry1.getKey, asScala(entry1.getValue)
+              entry0.getKey,
+              asScala(entry0.getValue),
+              entry1.getKey,
+              asScala(entry1.getValue)
             )
           case 3 =>
             val it = node.fields
@@ -252,9 +254,12 @@ private[gatling] object Json {
             val entry1 = it.next()
             val entry2 = it.next()
             new Map.Map3(
-              entry0.getKey, asScala(entry0.getValue),
-              entry1.getKey, asScala(entry1.getValue),
-              entry2.getKey, asScala(entry2.getValue)
+              entry0.getKey,
+              asScala(entry0.getValue),
+              entry1.getKey,
+              asScala(entry1.getValue),
+              entry2.getKey,
+              asScala(entry2.getValue)
             )
           case 4 =>
             val it = node.fields
@@ -263,10 +268,14 @@ private[gatling] object Json {
             val entry2 = it.next()
             val entry3 = it.next()
             new Map.Map4(
-              entry0.getKey, asScala(entry0.getValue),
-              entry1.getKey, asScala(entry1.getValue),
-              entry2.getKey, asScala(entry2.getValue),
-              entry3.getKey, asScala(entry3.getValue)
+              entry0.getKey,
+              asScala(entry0.getValue),
+              entry1.getKey,
+              asScala(entry1.getValue),
+              entry2.getKey,
+              asScala(entry2.getValue),
+              entry3.getKey,
+              asScala(entry3.getValue)
             )
           case _ =>
             node.fields.asScala.map(e => e.getKey -> e.getValue).toMap.forceMapValues(asScala)
@@ -275,14 +284,15 @@ private[gatling] object Json {
       case STRING  => node.textValue
       case BOOLEAN => node.booleanValue
       case NULL    => null
-      case NUMBER => node.numberType match {
-        case INT         => node.intValue
-        case LONG        => node.longValue
-        case FLOAT       => node.floatValue
-        case DOUBLE      => node.doubleValue
-        case BIG_INTEGER => node.bigIntegerValue
-        case BIG_DECIMAL => node.decimalValue
-      }
+      case NUMBER =>
+        node.numberType match {
+          case INT         => node.intValue
+          case LONG        => node.longValue
+          case FLOAT       => node.floatValue
+          case DOUBLE      => node.doubleValue
+          case BIG_INTEGER => node.bigIntegerValue
+          case BIG_DECIMAL => node.decimalValue
+        }
       case _ => new IllegalArgumentException(s"Unsupported node type ${node.getNodeType}")
     }
 }

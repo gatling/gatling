@@ -25,11 +25,13 @@ import io.gatling.core.config.GatlingConfiguration
 
 class RequestMetricsBufferSpec extends BaseSpec {
 
-  private val configuration = GatlingConfiguration.loadForTest(mutable.Map(
-    charting.indicators.Percentile1 -> 95,
-    charting.indicators.Percentile2 -> 99,
-    http.ahc.RequestTimeout -> 60000
-  ))
+  private val configuration = GatlingConfiguration.loadForTest(
+    mutable.Map(
+      charting.indicators.Percentile1 -> 95,
+      charting.indicators.Percentile2 -> 99,
+      http.ahc.RequestTimeout -> 60000
+    )
+  )
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
@@ -50,7 +52,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
     val okMetrics = metricsByStatus.ok.get
 
     metricsByStatus.ko shouldBe None
-    metricsByStatus.all.map(_.count) shouldBe Some(1l)
+    metricsByStatus.all.map(_.count) shouldBe Some(1L)
     okMetrics.count shouldBe 1L
     all(allValues(okMetrics)) shouldBe 20
   }

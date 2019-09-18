@@ -18,5 +18,4 @@ package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
 
-private[charts] class RequestsPageTemplate(chartComponent: Component)
-  extends PageTemplate("Requests / sec", false, None, None, chartComponent)
+private[charts] class RequestsPageTemplate(chartComponent: Component) extends PageTemplate("Requests / sec", false, None, None, chartComponent)

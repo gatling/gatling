@@ -38,7 +38,9 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   it should "build a Feeder with a random strategy" in {
     val fiftyTimes = 1 to 50
     val orderedMaps =
-      fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) => Map(id.toString -> "Test") +: acc }
+      fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) =>
+        Map(id.toString -> "Test") +: acc
+      }
 
     val testsOutcome: immutable.IndexedSeq[Boolean] =
       (1 to 3).map { _ =>
@@ -54,7 +56,9 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   it should "build a Feeder with a shuffle strategy" in {
     val fiftyTimes = 1 to 50
     val orderedMaps =
-      fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) => Map(id.toString -> "Test") +: acc }
+      fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) =>
+        Map(id.toString -> "Test") +: acc
+      }
 
     val shuffledOutcome: immutable.IndexedSeq[IndexedSeq[Record[_]]] =
       (1 to 3).map { _ =>
@@ -77,15 +81,23 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   "RecordSeqFeederBuilder" should "be able to have a record converted" in {
     val queuedFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))
 
-    val convertedValue: Option[Any] = queuedFeeder.convert {
-      case ("1", attr) => attr.concat("s are boring !")
-    }.apply.next().get("1")
+    val convertedValue: Option[Any] = queuedFeeder
+      .convert {
+        case ("1", attr) => attr.concat("s are boring !")
+      }
+      .apply
+      .next()
+      .get("1")
 
     convertedValue.fold(fail("Could not find key"))(_ shouldBe "Tests are boring !")
 
-    val cantConvert: Option[Any] = queuedFeeder.convert {
-      case ("Can't find because don't exist", shouldKeepAsIs) => shouldKeepAsIs.concat("s are boring !")
-    }.apply.next().get("1")
+    val cantConvert: Option[Any] = queuedFeeder
+      .convert {
+        case ("Can't find because don't exist", shouldKeepAsIs) => shouldKeepAsIs.concat("s are boring !")
+      }
+      .apply
+      .next()
+      .get("1")
 
     cantConvert.fold(fail("Could not find key"))(_ shouldBe "Test")
   }

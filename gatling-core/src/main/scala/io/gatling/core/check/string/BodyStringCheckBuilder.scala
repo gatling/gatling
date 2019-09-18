@@ -22,7 +22,8 @@ import io.gatling.core.session._
 
 trait BodyStringCheckType
 
-object BodyStringCheckBuilder extends DefaultFindCheckBuilder[BodyStringCheckType, String, String](
-  extractor = new FindExtractor[String, String]("bodyString", Some(_).success).expressionSuccess,
-  displayActualValue = false
-)
+object BodyStringCheckBuilder
+    extends DefaultFindCheckBuilder[BodyStringCheckType, String, String](
+      extractor = new FindExtractor[String, String]("bodyString", Some(_).success).expressionSuccess,
+      displayActualValue = false
+    )

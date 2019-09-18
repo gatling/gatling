@@ -24,13 +24,13 @@ import akka.actor.ActorSystem
 
 class Loop(
     continueCondition: Expression[Boolean],
-    counterName:       String,
-    exitASAP:          Boolean,
-    timeBased:         Boolean,
-    statsEngine:       StatsEngine,
-    clock:             Clock,
+    counterName: String,
+    exitASAP: Boolean,
+    timeBased: Boolean,
+    statsEngine: StatsEngine,
+    clock: Clock,
     override val name: String,
-    next:              Action
+    next: Action
 ) extends Action {
 
   private[this] var innerLoop: Action = _
@@ -57,12 +57,12 @@ class Loop(
 
 class InnerLoop(
     continueCondition: Expression[Boolean],
-    loopNext:          Action,
-    counterIncrement:  Session => Session,
-    counterName:       String,
-    actorSystem:       ActorSystem,
-    val name:          String,
-    val next:          Action
+    loopNext: Action,
+    counterIncrement: Session => Session,
+    counterName: String,
+    actorSystem: ActorSystem,
+    val name: String,
+    val next: Action
 ) extends ChainableAction {
 
   private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]

@@ -28,14 +28,15 @@ import io.netty.channel.{ ChannelHandlerContext, ChannelInboundHandlerAdapter }
 import io.netty.handler.codec.http.{ FullHttpRequest, HttpClientCodec, HttpMethod }
 
 class ServerHandler(
-    system:                 ActorSystem,
-    outgoingProxy:          Option[OutgoingProxy],
-    clientBootstrap:        Bootstrap,
-    sslServerContext:       SslServerContext,
-    trafficLogger:          TrafficLogger,
+    system: ActorSystem,
+    outgoingProxy: Option[OutgoingProxy],
+    clientBootstrap: Bootstrap,
+    sslServerContext: SslServerContext,
+    trafficLogger: TrafficLogger,
     httpClientCodecFactory: () => HttpClientCodec,
-    clock:                  Clock
-) extends ChannelInboundHandlerAdapter with StrictLogging {
+    clock: Clock
+) extends ChannelInboundHandlerAdapter
+    with StrictLogging {
 
   @volatile private var https = false
   @volatile private var remote: Remote = _
@@ -54,7 +55,8 @@ class ServerHandler(
             }
             Remote.fromAbsoluteUri(firstRequestUriWithScheme)
           }
-          mitmActor = system.actorOf(Props(MitmActor(outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, ctx.channel, https, clock)))
+          mitmActor =
+            system.actorOf(Props(MitmActor(outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, ctx.channel, https, clock)))
         }
 
         trafficLogger.logRequest(ctx.channel.id, request, remote, https, sendTimestamp)

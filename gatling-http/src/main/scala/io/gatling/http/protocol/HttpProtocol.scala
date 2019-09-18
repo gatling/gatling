@@ -134,54 +134,54 @@ object HttpProtocol extends StrictLogging {
  * @param dnsPart the DNS related configuration
  */
 final case class HttpProtocol(
-    baseUrls:     List[String],
-    warmUpUrl:    Option[String],
-    enginePart:   HttpProtocolEnginePart,
-    requestPart:  HttpProtocolRequestPart,
+    baseUrls: List[String],
+    warmUpUrl: Option[String],
+    enginePart: HttpProtocolEnginePart,
+    requestPart: HttpProtocolRequestPart,
     responsePart: HttpProtocolResponsePart,
-    wsPart:       HttpProtocolWsPart,
-    proxyPart:    HttpProtocolProxyPart,
-    dnsPart:      DnsPart
+    wsPart: HttpProtocolWsPart,
+    proxyPart: HttpProtocolProxyPart,
+    dnsPart: DnsPart
 ) extends Protocol {
 
   type Components = HttpComponents
 }
 
 final case class HttpProtocolEnginePart(
-    shareConnections:         Boolean,
-    maxConnectionsPerHost:    Int,
-    virtualHost:              Option[Expression[String]],
-    localAddresses:           List[InetAddress],
-    enableHttp2:              Boolean,
-    http2PriorKnowledge:      Map[Remote, Boolean],
+    shareConnections: Boolean,
+    maxConnectionsPerHost: Int,
+    virtualHost: Option[Expression[String]],
+    localAddresses: List[InetAddress],
+    enableHttp2: Boolean,
+    http2PriorKnowledge: Map[Remote, Boolean],
     perUserKeyManagerFactory: Option[Long => KeyManagerFactory]
 )
 
 final case class HttpProtocolRequestPart(
-    headers:             Map[String, Expression[String]],
-    realm:               Option[Expression[Realm]],
-    autoReferer:         Boolean,
-    cache:               Boolean,
-    disableUrlEncoding:  Boolean,
-    silentUri:           Option[Pattern],
-    silentResources:     Boolean,
+    headers: Map[String, Expression[String]],
+    realm: Option[Expression[Realm]],
+    autoReferer: Boolean,
+    cache: Boolean,
+    disableUrlEncoding: Boolean,
+    silentUri: Option[Pattern],
+    silentResources: Boolean,
     signatureCalculator: Option[Expression[SignatureCalculator]]
 )
 
 final case class HttpProtocolResponsePart(
-    followRedirect:                Boolean,
-    maxRedirects:                  Int,
-    strict302Handling:             Boolean,
-    responseTransformer:           Option[ResponseTransformer],
-    checks:                        List[HttpCheck],
-    inferHtmlResources:            Boolean,
-    inferredHtmlResourcesNaming:   Uri => String,
+    followRedirect: Boolean,
+    maxRedirects: Int,
+    strict302Handling: Boolean,
+    responseTransformer: Option[ResponseTransformer],
+    checks: List[HttpCheck],
+    inferHtmlResources: Boolean,
+    inferredHtmlResourcesNaming: Uri => String,
     htmlResourcesInferringFilters: Option[Filters]
 )
 
 final case class HttpProtocolWsPart(
-    wsBaseUrls:    List[String],
-    reconnect:     Boolean,
+    wsBaseUrls: List[String],
+    reconnect: Boolean,
     maxReconnects: Option[Int]
 ) {
 
@@ -192,7 +192,7 @@ final case class HttpProtocolWsPart(
 
   private val doMakeAbsoluteWsUri: String => Validation[Uri] =
     wsBaseUrls match {
-      case Nil => url => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
+      case Nil              => url => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
       case wsBaseUrl :: Nil => url => Uri.create(wsBaseUrl + url).success
       case _ =>
         val it = wsBaseUrlIterator.get
@@ -207,12 +207,12 @@ final case class HttpProtocolWsPart(
 }
 
 final case class HttpProtocolProxyPart(
-    proxy:           Option[ProxyServer],
+    proxy: Option[ProxyServer],
     proxyExceptions: Seq[String]
 )
 
 final case class DnsPart(
-    dnsNameResolution:     DnsNameResolution,
-    hostNameAliases:       Map[String, InetAddress],
+    dnsNameResolution: DnsNameResolution,
+    hostNameAliases: Map[String, InetAddress],
     perUserNameResolution: Boolean
 )

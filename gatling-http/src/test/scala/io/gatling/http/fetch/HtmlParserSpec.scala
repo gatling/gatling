@@ -142,7 +142,10 @@ class HtmlParserSpec extends BaseSpec {
 
     embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 9))) shouldBe List(CssResource("http://example.com/style9.css"))
 
-    embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 8))) shouldBe List(CssResource("http://example.com/style8.css"), CssResource("http://example.com/style9.css"))
+    embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 8))) shouldBe List(
+      CssResource("http://example.com/style8.css"),
+      CssResource("http://example.com/style9.css")
+    )
   }
 
   it should "parse nested conditional comments with alternative syntax" in {

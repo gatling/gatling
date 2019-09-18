@@ -30,16 +30,16 @@ import io.gatling.http.request._
 import com.softwaremill.quicklens._
 
 final case class HttpAttributes(
-    checks:              List[HttpCheck]                      = Nil,
-    ignoreDefaultChecks: Boolean                              = false,
-    silent:              Option[Boolean]                      = None,
-    followRedirect:      Boolean                              = true,
-    responseTransformer: Option[ResponseTransformer]          = None,
-    explicitResources:   List[HttpRequestBuilder]             = Nil,
-    body:                Option[Body]                         = None,
-    bodyParts:           List[BodyPart]                       = Nil,
-    formParams:          List[HttpParam]                      = Nil,
-    form:                Option[Expression[Map[String, Any]]] = None
+    checks: List[HttpCheck] = Nil,
+    ignoreDefaultChecks: Boolean = false,
+    silent: Option[Boolean] = None,
+    followRedirect: Boolean = true,
+    responseTransformer: Option[ResponseTransformer] = None,
+    explicitResources: List[HttpRequestBuilder] = Nil,
+    body: Option[Body] = None,
+    bodyParts: List[BodyPart] = Nil,
+    formParams: List[HttpParam] = Nil,
+    form: Option[Expression[Map[String, Any]]] = None
 )
 
 object HttpRequestBuilder {
@@ -81,7 +81,8 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   /**
    * @param responseTransformer transforms the response before it's handled to the checks pipeline
    */
-  def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder = this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
+  def transformResponse(responseTransformer: ResponseTransformer): HttpRequestBuilder =
+    this.modify(_.httpAttributes.responseTransformer).setTo(Some(responseTransformer))
 
   def body(bd: Body): HttpRequestBuilder = this.modify(_.httpAttributes.body).setTo(Some(bd))
 

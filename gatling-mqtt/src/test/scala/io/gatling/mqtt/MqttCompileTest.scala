@@ -45,9 +45,9 @@ class MqttCompileTest extends Simulation {
     .mqttVersion_3_1_1
     .reconnectAttemptsMax(1)
     .reconnectDelay(1L)
-    .reconnectBackoffMultiplier(1.2F)
+    .reconnectBackoffMultiplier(1.2f)
     .resendDelay(1000)
-    .resendBackoffMultiplier(2.0F)
+    .resendBackoffMultiplier(2.0f)
     .timeoutCheckInterval(1 second)
     .correlateBy(jsonPath("$.correlationId"))
     .correlateBy(jsonPath("$.correlationId").find)
@@ -58,40 +58,62 @@ class MqttCompileTest extends Simulation {
 
   private val scn = scenario("MQTT Test")
     .exec(mqtt("Connecting").connect)
-    .exec(mqtt("Subscribing").subscribe("${myTopic}")
-      .qosAtMostOnce
-      .qosAtLeastOnce
-      .qosExactlyOnce)
-    .exec(mqtt("Subscribing").subscribe("${myTopic2}")
-      .wait(100 milliseconds))
-    .exec(mqtt("Subscribing").subscribe("${myTopic2}")
-      .expect(100 milliseconds))
-
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myTextPayload}"))
-      .qosAtMostOnce
-      .qosAtLeastOnce
-      .qosExactlyOnce
-      .retain(true))
+    .exec(mqtt("Subscribing").subscribe("${myTopic}").qosAtMostOnce.qosAtLeastOnce.qosExactlyOnce)
+    .exec(
+      mqtt("Subscribing")
+        .subscribe("${myTopic2}")
+        .wait(100 milliseconds)
+    )
+    .exec(
+      mqtt("Subscribing")
+        .subscribe("${myTopic2}")
+        .expect(100 milliseconds)
+    )
+    .exec(
+      mqtt("Publishing")
+        .publish("${myTopic}")
+        .message(StringBody("${myTextPayload}"))
+        .qosAtMostOnce
+        .qosAtLeastOnce
+        .qosExactlyOnce
+        .retain(true)
+    )
     .exec(mqtt("Publishing").publish("${myTopic}").message(ElFileBody("file")))
     .exec(mqtt("Publishing").publish("${myTopic}").message(PebbleFileBody("file")))
-
     .exec(mqtt("Publishing").publish("${myTopic}").message(ByteArrayBody("${myBinaryPayload}")))
     .exec(mqtt("Publishing").publish("${myTopic}").message(RawFileBody("file")))
-
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
-      .wait(100 milliseconds))
-
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
-      .wait(100 milliseconds).check(jsonPath("$.error").notExists))
-
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
-      .expect(100 milliseconds))
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
-      .expect(100 milliseconds, "repub/${myTopic}"))
-
-    .exec(mqtt("Publishing").publish("${myTopic}").message(StringBody("${myPayload}"))
-      .expect(100 milliseconds).check(jsonPath("$.error").notExists))
-
+    .exec(
+      mqtt("Publishing")
+        .publish("${myTopic}")
+        .message(StringBody("${myPayload}"))
+        .wait(100 milliseconds)
+    )
+    .exec(
+      mqtt("Publishing")
+        .publish("${myTopic}")
+        .message(StringBody("${myPayload}"))
+        .wait(100 milliseconds)
+        .check(jsonPath("$.error").notExists)
+    )
+    .exec(
+      mqtt("Publishing")
+        .publish("${myTopic}")
+        .message(StringBody("${myPayload}"))
+        .expect(100 milliseconds)
+    )
+    .exec(
+      mqtt("Publishing")
+        .publish("${myTopic}")
+        .message(StringBody("${myPayload}"))
+        .expect(100 milliseconds, "repub/${myTopic}")
+    )
+    .exec(
+      mqtt("Publishing")
+        .publish("${myTopic}")
+        .message(StringBody("${myPayload}"))
+        .expect(100 milliseconds)
+        .check(jsonPath("$.error").notExists)
+    )
     .exec(waitForMessages.timeout(100 milliseconds))
 
   setUp(scn.inject(atOnceUsers(1))).protocols(mqttConf)

@@ -36,11 +36,11 @@ final case class RampRateBuilder(rate1: Double, rate2: Double) {
   def during(d: FiniteDuration) = RampRateOpenInjection(rate1, rate2, d)
 }
 final case class IncreasingUsersPerSecProfile(
-    usersPerSec:   Double,
-    nbOfSteps:     Int,
-    duration:      FiniteDuration,
+    usersPerSec: Double,
+    nbOfSteps: Int,
+    duration: FiniteDuration,
     startingUsers: Double,
-    rampDuration:  FiniteDuration
+    rampDuration: FiniteDuration
 ) extends MetaInjectionProfile {
   def startingFrom(startingUsers: Double): IncreasingUsersPerSecProfile = this.copy(startingUsers = startingUsers)
   def separatedByRampsLasting(duration: FiniteDuration): IncreasingUsersPerSecProfile = this.copy(rampDuration = duration)

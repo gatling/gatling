@@ -128,16 +128,22 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
     // dump request & response bodies if needed
-    requestElements.foreach(el => el.body.foreach {
-      case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
-      case _                       =>
-    })
+    requestElements.foreach(
+      el =>
+        el.body.foreach {
+          case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
+          case _                       =>
+        }
+    )
 
     if (config.http.checkResponseBodies) {
-      requestElements.foreach(el => el.responseBody.foreach {
-        case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
-        case _                        =>
-      })
+      requestElements.foreach(
+        el =>
+          el.responseBody.foreach {
+            case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
+            case _                        =>
+          }
+      )
     }
 
     val headers: Map[Int, Seq[(String, String)]] = {
@@ -146,12 +152,15 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
         case Seq() => headers
         case element +: others =>
-          val acceptedHeaders = element.headers.entries.asScala.map(e => e.getKey -> e.getValue).toList
+          val acceptedHeaders = element.headers.entries.asScala
+            .map(e => e.getKey -> e.getValue)
+            .toList
             .filterNot {
               case (headerName, headerValue) =>
                 val isFiltered = containsIgnoreCase(filteredHeaders, headerName) || isHttp2PseudoHeader(headerName)
                 val isAlreadyInBaseHeaders = getIgnoreCase(baseHeaders, headerName).contains(headerValue)
-                val isPostWithFormParams = element.method == HttpMethod.POST.name && HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.contentEqualsIgnoreCase(headerValue)
+                val isPostWithFormParams = element.method == HttpMethod.POST.name && HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED
+                  .contentEqualsIgnoreCase(headerValue)
                 val isEmptyContentLength = HttpHeaderNames.CONTENT_LENGTH.contentEqualsIgnoreCase(headerName) && headerValue == "0"
                 isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
             }

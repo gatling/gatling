@@ -34,10 +34,10 @@ private[cache] object DnsCacheSupport {
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 
   private def newNameResolver(
-    dnsNameResolution: DnsNameResolution,
-    hostNameAliases:   Map[String, InetAddress],
-    httpEngine:        HttpEngine,
-    coreComponents:    CoreComponents
+      dnsNameResolution: DnsNameResolution,
+      hostNameAliases: Map[String, InetAddress],
+      httpEngine: HttpEngine,
+      coreComponents: CoreComponents
   ) =
     coreComponents.configuration.resolve(
       // [fl]

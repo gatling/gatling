@@ -35,9 +35,9 @@ class HttpRequestAction(
     httpRequestDef: HttpRequestDef,
     httpTxExecutor: HttpTxExecutor,
     coreComponents: CoreComponents,
-    val next:       Action
-)
-  extends RequestAction with NameGen {
+    val next: Action
+) extends RequestAction
+    with NameGen {
 
   import httpRequestDef._
 

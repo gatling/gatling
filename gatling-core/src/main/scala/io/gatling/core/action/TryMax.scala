@@ -28,12 +28,13 @@ import io.gatling.core.util.NameGen
 import akka.actor.ActorSystem
 
 class TryMax(
-    times:       Expression[Int],
+    times: Expression[Int],
     counterName: String,
     statsEngine: StatsEngine,
-    clock:       Clock,
-    next:        Action
-) extends Action with NameGen {
+    clock: Clock,
+    next: Action
+) extends Action
+    with NameGen {
 
   override val name: String = genName("tryMax")
 
@@ -48,12 +49,12 @@ class TryMax(
 }
 
 class InnerTryMax(
-    times:       Expression[Int],
-    loopNext:    Action,
+    times: Expression[Int],
+    loopNext: Action,
     counterName: String,
     actorSystem: ActorSystem,
-    val name:    String,
-    val next:    Action
+    val name: String,
+    val next: Action
 ) extends ChainableAction {
 
   private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]

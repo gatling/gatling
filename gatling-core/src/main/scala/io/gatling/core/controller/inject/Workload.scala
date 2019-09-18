@@ -31,12 +31,12 @@ import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 
 abstract class Workload(
-    scenario:    Scenario,
-    userIdGen:   AtomicLong,
-    startTime:   Long,
-    system:      ActorSystem,
+    scenario: Scenario,
+    userIdGen: AtomicLong,
+    startTime: Long,
+    system: ActorSystem,
     statsEngine: StatsEngine,
-    clock:       Clock
+    clock: Clock
 ) extends StrictLogging {
 
   private var scheduled = 0

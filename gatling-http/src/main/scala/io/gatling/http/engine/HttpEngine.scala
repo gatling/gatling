@@ -52,11 +52,11 @@ object HttpEngine {
 }
 
 class HttpEngine(
-    sslContextsFactory:     SslContextsFactory,
-    httpClient:             HttpClient,
+    sslContextsFactory: SslContextsFactory,
+    httpClient: HttpClient,
     dnsNameResolverFactory: DnsNameResolverFactory
-)
-  extends NameGen with StrictLogging {
+) extends NameGen
+    with StrictLogging {
 
   private[this] var warmedUp = false
 
@@ -70,12 +70,14 @@ class HttpEngine(
       httpProtocol.warmUpUrl match {
         case Some(url) =>
           val requestBuilder = new RequestBuilder(HttpMethod.GET, Uri.create(url))
-            .setHeaders(new DefaultHttpHeaders()
-              .add(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-              .add(AcceptLanguage, "en-US,en;q=0.5")
-              .add(AcceptEncoding, "gzip")
-              .add(Connection, Close)
-              .add(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0"))
+            .setHeaders(
+              new DefaultHttpHeaders()
+                .add(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .add(AcceptLanguage, "en-US,en;q=0.5")
+                .add(AcceptEncoding, "gzip")
+                .add(Connection, Close)
+                .add(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+            )
             .setRequestTimeout(1000)
             .setDefaultCharset(coreComponents.configuration.core.charset)
 
@@ -83,16 +85,23 @@ class HttpEngine(
 
           try {
             val p = Promise[Unit]
-            httpClient.sendRequest(requestBuilder.build, 0, true, new HttpListener {
-              override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
+            httpClient.sendRequest(
+              requestBuilder.build,
+              0,
+              true,
+              new HttpListener {
+                override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
-              override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)
+                override def onThrowable(throwable: Throwable): Unit = p.failure(throwable)
 
-              override def onHttpResponseBodyChunk(byteBuf: ByteBuf, last: Boolean): Unit =
-                if (last) {
-                  p.success(())
-                }
-            }, null, null)
+                override def onHttpResponseBodyChunk(byteBuf: ByteBuf, last: Boolean): Unit =
+                  if (last) {
+                    p.success(())
+                  }
+              },
+              null,
+              null
+            )
             Await.result(p.future, 2 seconds)
             logger.debug(s"Warm up request $url successful")
           } catch {
@@ -124,7 +133,13 @@ class HttpEngine(
       logger.info("Warm up done")
     }
 
-  def executeHttp2Requests(requestsAndListeners: Iterable[JavaPair[Request, HttpListener]], clientId: Long, shared: Boolean, sslContext: SslContext, alpnSslContext: SslContext): Unit =
+  def executeHttp2Requests(
+      requestsAndListeners: Iterable[JavaPair[Request, HttpListener]],
+      clientId: Long,
+      shared: Boolean,
+      sslContext: SslContext,
+      alpnSslContext: SslContext
+  ): Unit =
     if (!httpClient.isClosed) {
       httpClient.sendHttp2Requests(requestsAndListeners.toArray, clientId, shared, sslContext, alpnSslContext)
     }

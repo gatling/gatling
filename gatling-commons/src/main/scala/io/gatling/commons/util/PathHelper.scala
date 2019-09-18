@@ -97,14 +97,17 @@ object PathHelper {
     def deepFiles(f: CachingPath => Boolean = _ => true, maxDepth: Int = Int.MaxValue): Seq[CachingPath] =
       if (path.exists) {
         val acc = new collection.mutable.ArrayBuffer[CachingPath]
-        Files.walkFileTree(path, new SimpleFileVisitor[Path] {
-          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            val cachingPath = CachingPath(file)
-            if (f(cachingPath))
-              acc += cachingPath
-            super.visitFile(path, attrs)
+        Files.walkFileTree(
+          path,
+          new SimpleFileVisitor[Path] {
+            override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+              val cachingPath = CachingPath(file)
+              if (f(cachingPath))
+                acc += cachingPath
+              super.visitFile(path, attrs)
+            }
           }
-        })
+        )
         acc
       } else {
         Nil
@@ -115,14 +118,17 @@ object PathHelper {
     def deepDirs(f: CachingPath => Boolean = _ => true): Seq[CachingPath] =
       if (path.exists) {
         val acc = new collection.mutable.ArrayBuffer[CachingPath]
-        Files.walkFileTree(path, new SimpleFileVisitor[Path] {
-          override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            val cachingPath = CachingPath(dir)
-            if (f(cachingPath))
-              acc += cachingPath
-            super.preVisitDirectory(path, attrs)
+        Files.walkFileTree(
+          path,
+          new SimpleFileVisitor[Path] {
+            override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+              val cachingPath = CachingPath(dir)
+              if (f(cachingPath))
+                acc += cachingPath
+              super.preVisitDirectory(path, attrs)
+            }
           }
-        })
+        )
         acc
       } else {
         Nil

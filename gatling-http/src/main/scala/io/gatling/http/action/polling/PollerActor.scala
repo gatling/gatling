@@ -33,22 +33,22 @@ import io.gatling.http.response.{ HttpResult, ResponseBuilderFactory }
 import akka.actor.Props
 
 final case class FetchedResource(
-    tx:     HttpTx,
+    tx: HttpTx,
     result: HttpResult
 )
 
 object PollerActor {
   def props(
-    pollerName:             String,
-    period:                 FiniteDuration,
-    requestDef:             HttpRequestDef,
-    responseBuilderFactory: ResponseBuilderFactory,
-    httpTxExecutor:         HttpTxExecutor,
-    httpCaches:             HttpCaches,
-    httpProtocol:           HttpProtocol,
-    statsEngine:            StatsEngine,
-    clock:                  Clock,
-    charset:                Charset
+      pollerName: String,
+      period: FiniteDuration,
+      requestDef: HttpRequestDef,
+      responseBuilderFactory: ResponseBuilderFactory,
+      httpTxExecutor: HttpTxExecutor,
+      httpCaches: HttpCaches,
+      httpProtocol: HttpProtocol,
+      statsEngine: StatsEngine,
+      clock: Clock,
+      charset: Charset
   ): Props =
     Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, httpTxExecutor, httpCaches, httpProtocol, statsEngine, clock, charset))
 
@@ -56,16 +56,16 @@ object PollerActor {
 }
 
 class PollerActor(
-    pollerName:             String,
-    period:                 FiniteDuration,
-    requestDef:             HttpRequestDef,
+    pollerName: String,
+    period: FiniteDuration,
+    requestDef: HttpRequestDef,
     responseBuilderFactory: ResponseBuilderFactory,
-    httpTxExecutor:         HttpTxExecutor,
-    httpCaches:             HttpCaches,
-    httpProtocol:           HttpProtocol,
-    statsEngine:            StatsEngine,
-    clock:                  Clock,
-    charset:                Charset
+    httpTxExecutor: HttpTxExecutor,
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
+    statsEngine: StatsEngine,
+    clock: Clock,
+    charset: Charset
 ) extends PollerFSM {
 
   import PollerActor.PollTimerName
@@ -92,11 +92,15 @@ class PollerActor(
         }
       } yield {
         val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, next = null, resourceTx = None)
-        httpTxExecutor.execute(nonBlockingTx, (tx: HttpTx) => new ResponseProcessor() {
-          override def onComplete(result: HttpResult): Unit = {
-            self ! FetchedResource(tx, result)
-          }
-        })
+        httpTxExecutor.execute(
+          nonBlockingTx,
+          (tx: HttpTx) =>
+            new ResponseProcessor() {
+              override def onComplete(result: HttpResult): Unit = {
+                self ! FetchedResource(tx, result)
+              }
+            }
+        )
       }
 
       outcome match {

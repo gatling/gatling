@@ -50,8 +50,7 @@ private[swing] object CharsetHelper extends StrictLogging {
     "windows-1254" -> "Turkish (Windows-1254)",
     "windows-1258" -> "Vietnamese (Windows-1258)",
     "ISO-8859-15" -> "West European Latin-9 (ISO-8859-15)"
-  )
-    .filter {
+  ).filter {
       case (name, label) =>
         val supported = Charset.isSupported(name)
         if (!supported) logger.warn(s"This JVM doesn't support $name $label")

@@ -48,11 +48,10 @@ object RequestExpressionBuilder {
 
 abstract class RequestExpressionBuilder(
     commonAttributes: CommonAttributes,
-    httpCaches:       HttpCaches,
-    httpProtocol:     HttpProtocol,
-    configuration:    GatlingConfiguration
-)
-  extends LazyLogging {
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
+    configuration: GatlingConfiguration
+) extends LazyLogging {
 
   import RequestExpressionBuilder._
 
@@ -61,7 +60,8 @@ abstract class RequestExpressionBuilder(
   private val refererHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.Referer)
   protected val contentTypeHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.ContentType)
   private val disableUrlEncoding: Boolean = commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
-  private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] = commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
+  private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] =
+    commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
   protected def baseUrl: Session => Option[String] =
     if (httpProtocol.baseUrls.size <= 1) {
@@ -181,22 +181,23 @@ abstract class RequestExpressionBuilder(
   }
 
   private def configureDynamicHeaders: RequestBuilderConfigure =
-    session => requestBuilder => {
-      val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
-        val (key, value) = header
-        for {
-          requestBuilder <- requestBuilder
-          value <- value(session)
-        } yield requestBuilder.addHeader(key, value)
-      }
+    session =>
+      requestBuilder => {
+        val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
+          val (key, value) = header
+          for {
+            requestBuilder <- requestBuilder
+            value <- value(session)
+          } yield requestBuilder.addHeader(key, value)
+        }
 
-      requestBuilderWithHeaders.map(addDefaultHeaders(session))
-    }
+        requestBuilderWithHeaders.map(addDefaultHeaders(session))
+      }
 
   private val configureRealm: RequestBuilderConfigure =
     commonAttributes.realm.orElse(httpProtocol.requestPart.realm) match {
       case Some(realm) => session => requestBuilder => realm(session).map(requestBuilder.setRealm)
-      case _ => ConfigureIdentity
+      case _           => ConfigureIdentity
     }
 
   private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit =

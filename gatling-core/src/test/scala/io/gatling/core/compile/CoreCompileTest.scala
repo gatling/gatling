@@ -67,7 +67,7 @@ class CoreCompileTest extends Simulation {
   val chainedScenarios = exec(scenario("foo")).exec(scenario("bar"))
 
   val lambdaUser = scenario("Standard User")
-    // First request outside iteration
+  // First request outside iteration
     .repeat(2) {
       feed(richTestData)
         .exec(noop)
@@ -123,8 +123,7 @@ class CoreCompileTest extends Simulation {
       exec { session =>
         println("iterate: " + session("counter"))
         session
-      }
-        .exec(noop)
+      }.exec(noop)
         .during(12000 milliseconds, "foo") {
           exec(noop)
             .pause(2, constantPauses)
@@ -163,7 +162,8 @@ class CoreCompileTest extends Simulation {
           exec(noop)
         } {
           exec(noop)
-        }.pause(pause2)
+        }
+        .pause(pause2)
         // switch
         .randomSwitch(
           40d -> exec(noop),
@@ -222,8 +222,7 @@ class CoreCompileTest extends Simulation {
     lambdaUser.inject(closedSeq),
     lambdaUser.inject(incrementUsersPerSec(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10)),
     lambdaUser.inject(incrementConcurrentUsers(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10))
-  )
-    .protocols(protocol)
+  ).protocols(protocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))
     .disablePauses
     .constantPauses

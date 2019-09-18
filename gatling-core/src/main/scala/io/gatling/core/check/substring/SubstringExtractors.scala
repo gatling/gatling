@@ -39,43 +39,43 @@ object SubstringExtractor {
 }
 
 class SubstringFindExtractor(substring: String, occurrence: Int)
-  extends FindCriterionExtractor[String, String, Int](
-    "substring",
-    substring,
-    occurrence,
-    text => {
+    extends FindCriterionExtractor[String, String, Int](
+      "substring",
+      substring,
+      occurrence,
+      text => {
 
-      @tailrec
-      def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
-        if (fromIndex >= substring.length)
-          NoneSuccess
-        else
-          text.indexOf(substring, fromIndex) match {
-            case -1 => NoneSuccess
-            case i =>
-              if (occ == occurrence)
-                Some(i).success
-              else
-                loop(i + substring.length, occ + 1)
-          }
+        @tailrec
+        def loop(fromIndex: Int, occ: Int): Validation[Option[Int]] =
+          if (fromIndex >= substring.length)
+            NoneSuccess
+          else
+            text.indexOf(substring, fromIndex) match {
+              case -1 => NoneSuccess
+              case i =>
+                if (occ == occurrence)
+                  Some(i).success
+                else
+                  loop(i + substring.length, occ + 1)
+            }
 
-      loop(0, 0)
-    }
-  )
+        loop(0, 0)
+      }
+    )
 
 class SubstringFindAllExtractor(substring: String)
-  extends FindAllCriterionExtractor[String, String, Int](
-    "substring",
-    substring,
-    SubstringExtractor.extractAll(_, substring) match {
-      case Nil => NoneSuccess
-      case is  => Some(is.reverse).success
-    }
-  )
+    extends FindAllCriterionExtractor[String, String, Int](
+      "substring",
+      substring,
+      SubstringExtractor.extractAll(_, substring) match {
+        case Nil => NoneSuccess
+        case is  => Some(is.reverse).success
+      }
+    )
 
 class SubstringCountExtractor(substring: String)
-  extends CountCriterionExtractor[String, String](
-    "substring",
-    substring,
-    text => Some(SubstringExtractor.extractAll(text, substring).size).success
-  )
+    extends CountCriterionExtractor[String, String](
+      "substring",
+      substring,
+      text => Some(SubstringExtractor.extractAll(text, substring).size).success
+    )

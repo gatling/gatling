@@ -54,12 +54,13 @@ object BlockExit {
   private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
     case Nil => BlockExit(exitAction, session, groupsToClose)
 
-    case head :: tail => head match {
-      case `until`           => BlockExit(exitAction, session, groupsToClose)
-      case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup, group :: groupsToClose)
-      case _: TryMaxBlock    => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
-      case _: CounterBlock   => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
-    }
+    case head :: tail =>
+      head match {
+        case `until`           => BlockExit(exitAction, session, groupsToClose)
+        case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup, group :: groupsToClose)
+        case _: TryMaxBlock    => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
+        case _: CounterBlock   => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
+      }
   }
 
   /**
@@ -75,15 +76,16 @@ object BlockExit {
     def exitAsapLoopRec(leftToRightBlocks: List[Block]): Option[BlockExit] = leftToRightBlocks match {
       case Nil => None
 
-      case head :: tail => head match {
+      case head :: tail =>
+        head match {
 
-        case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
-          val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
-          // block stack head is now the loop itself, we must exit it
-          Some(exit.copy(session = exit.session.exitLoop))
+          case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
+            val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
+            // block stack head is now the loop itself, we must exit it
+            Some(exit.copy(session = exit.session.exitLoop))
 
-        case _ => exitAsapLoopRec(tail)
-      }
+          case _ => exitAsapLoopRec(tail)
+        }
     }
 
     exitAsapLoopRec(session.blockStack.reverse)
@@ -102,15 +104,16 @@ object BlockExit {
     def exitTryMaxRec(stack: List[Block]): Option[BlockExit] = stack match {
       case Nil => None
 
-      case head :: tail => head match {
+      case head :: tail =>
+        head match {
 
-        case TryMaxBlock(_, tryMaxActor, KO) =>
-          // block stack head is now the tryMax itself, leave as is
-          val exit = blockExit(session.blockStack, head, tryMaxActor, session, Nil)
-          Some(exit)
+          case TryMaxBlock(_, tryMaxActor, KO) =>
+            // block stack head is now the tryMax itself, leave as is
+            val exit = blockExit(session.blockStack, head, tryMaxActor, session, Nil)
+            Some(exit)
 
-        case _ => exitTryMaxRec(tail)
-      }
+          case _ => exitTryMaxRec(tail)
+        }
     }
 
     exitTryMaxRec(session.blockStack)
@@ -133,7 +136,7 @@ trait ExitableAction extends ChainableAction {
   def statsEngine: StatsEngine
   def clock: Clock
 
-  abstract override def !(session: Session): Unit =
+  override abstract def !(session: Session): Unit =
     if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
       super.!(session)
     }

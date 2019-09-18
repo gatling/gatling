@@ -58,7 +58,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def virtualHost(virtualHost: Expression[String]): HttpProtocolBuilder = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
   def localAddress(address: String): HttpProtocolBuilder = localAddresses(List(address))
   def localAddresses(addresses: String*): HttpProtocolBuilder = localAddresses(addresses.toList)
-  def localAddresses(addresses: List[String]): HttpProtocolBuilder = this.modify(_.protocol.enginePart.localAddresses).setTo(addresses.map(InetAddress.getByName))
+  def localAddresses(addresses: List[String]): HttpProtocolBuilder =
+    this.modify(_.protocol.enginePart.localAddresses).setTo(addresses.map(InetAddress.getByName))
   def maxConnectionsPerHostLikeFirefoxOld: HttpProtocolBuilder = maxConnectionsPerHost(2)
   def maxConnectionsPerHostLikeFirefox: HttpProtocolBuilder = maxConnectionsPerHost(6)
   def maxConnectionsPerHostLikeOperaOld: HttpProtocolBuilder = maxConnectionsPerHost(4)
@@ -88,13 +89,19 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def userAgentHeader(value: Expression[String]): HttpProtocolBuilder = header(UserAgent, value)
   def upgradeInsecureRequestsHeader(value: Expression[String]): HttpProtocolBuilder = header(UpgradeInsecureRequests, value)
   def basicAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
-  def digestAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
+  def digestAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder =
+    authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   def authRealm(realm: Expression[Realm]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.realm).setTo(Some(realm))
   def silentResources: HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentResources).setTo(true)
   def silentUri(regex: String): HttpProtocolBuilder = this.modify(_.protocol.requestPart.silentUri).setTo(Some(regex.r.pattern))
   def disableUrlEncoding: HttpProtocolBuilder = this.modify(_.protocol.requestPart.disableUrlEncoding).setTo(true)
   def sign(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.signatureCalculator).setTo(Some(calculator))
-  def signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String]): HttpProtocolBuilder =
+  def signWithOAuth1(
+      consumerKey: Expression[String],
+      clientSharedSecret: Expression[String],
+      token: Expression[String],
+      tokenSecret: Expression[String]
+  ): HttpProtocolBuilder =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
   def enableHttp2: HttpProtocolBuilder =
     if ((useOpenSsl && OpenSsl.isAlpnSupported) || JavaRuntime.JavaMajorVersion >= 11) {
@@ -104,21 +111,24 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     }
 
   def http2PriorKnowledge(remotes: Map[String, Boolean]): HttpProtocolBuilder =
-    this.modify(_.protocol.enginePart.http2PriorKnowledge).setTo(remotes.map {
-      case (address, isHttp2) =>
-        val remote = address.split(':') match {
-          case Array(hostname, port) => Remote(hostname, port.toInt)
-          case Array(hostname)       => Remote(hostname, 443)
-          case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
-        }
-        remote -> isHttp2
-    })
+    this
+      .modify(_.protocol.enginePart.http2PriorKnowledge)
+      .setTo(remotes.map {
+        case (address, isHttp2) =>
+          val remote = address.split(':') match {
+            case Array(hostname, port) => Remote(hostname, port.toInt)
+            case Array(hostname)       => Remote(hostname, 443)
+            case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
+          }
+          remote -> isHttp2
+      })
 
   // responsePart
   def disableFollowRedirect: HttpProtocolBuilder = this.modify(_.protocol.responsePart.followRedirect).setTo(false)
   def maxRedirects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.responsePart.maxRedirects).setTo(max)
   def strict302Handling: HttpProtocolBuilder = this.modify(_.protocol.responsePart.strict302Handling).setTo(true)
-  def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder = this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
+  def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder =
+    this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*): HttpProtocolBuilder = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
   def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList())))
@@ -126,13 +136,16 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, white)))
   private def inferHtmlResources(filters: Option[Filters]): HttpProtocolBuilder =
     this
-      .modify(_.protocol.responsePart.inferHtmlResources).setTo(true)
-      .modify(_.protocol.responsePart.htmlResourcesInferringFilters).setTo(filters)
+      .modify(_.protocol.responsePart.inferHtmlResources)
+      .setTo(true)
+      .modify(_.protocol.responsePart.htmlResourcesInferringFilters)
+      .setTo(filters)
   def nameInferredHtmlResourcesAfterUrlTail: HttpProtocolBuilder = nameInferredHtmlResources(InferredResourceNaming.UrlTailInferredResourceNaming)
   def nameInferredHtmlResourcesAfterAbsoluteUrl: HttpProtocolBuilder = nameInferredHtmlResources(InferredResourceNaming.AbsoluteUrlInferredResourceNaming)
   def nameInferredHtmlResourcesAfterRelativeUrl: HttpProtocolBuilder = nameInferredHtmlResources(InferredResourceNaming.RelativeUrlInferredResourceNaming)
   def nameInferredHtmlResourcesAfterPath: HttpProtocolBuilder = nameInferredHtmlResources(InferredResourceNaming.PathInferredResourceNaming)
-  def nameInferredHtmlResourcesAfterLastPathElement: HttpProtocolBuilder = nameInferredHtmlResources(InferredResourceNaming.LastPathElementInferredResourceNaming)
+  def nameInferredHtmlResourcesAfterLastPathElement: HttpProtocolBuilder =
+    nameInferredHtmlResources(InferredResourceNaming.LastPathElementInferredResourceNaming)
   def nameInferredHtmlResources(f: Uri => String): HttpProtocolBuilder = this.modify(_.protocol.responsePart.inferredHtmlResourcesNaming).setTo(f)
 
   // wsPart

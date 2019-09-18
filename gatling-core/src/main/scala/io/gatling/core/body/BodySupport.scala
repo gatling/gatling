@@ -43,7 +43,9 @@ trait BodySupport {
   def PebbleStringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
     io.gatling.core.body.PebbleStringBody(string)
 
-  def PebbleFileBody(filePath: Expression[String])(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): Body with Expression[String] =
+  def PebbleFileBody(
+      filePath: Expression[String]
+  )(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): Body with Expression[String] =
     io.gatling.core.body.PebbleFileBody(filePath)
 
   def ByteArrayBody(bytes: Expression[Array[Byte]]): Body with Expression[Array[Byte]] =

@@ -33,14 +33,17 @@ class JmsConnectionPool(system: ActorSystem, statsEngine: StatsEngine, clock: Cl
   private val connections = new ConcurrentHashMap[ConnectionFactory, JmsConnection]
 
   def jmsConnection(connectionFactory: ConnectionFactory, credentials: Option[Credentials]): JmsConnection = {
-    val connection = connections.computeIfAbsent(connectionFactory, (connectionFactory: ConnectionFactory) => {
-      val connection = credentials match {
-        case Some(Credentials(username, password)) => connectionFactory.createConnection(username, password)
-        case _                                     => connectionFactory.createConnection()
+    val connection = connections.computeIfAbsent(
+      connectionFactory,
+      (connectionFactory: ConnectionFactory) => {
+        val connection = credentials match {
+          case Some(Credentials(username, password)) => connectionFactory.createConnection(username, password)
+          case _                                     => connectionFactory.createConnection()
+        }
+        connection.start()
+        new JmsConnection(connection, credentials, system, statsEngine, clock, configuration)
       }
-      connection.start()
-      new JmsConnection(connection, credentials, system, statsEngine, clock, configuration)
-    })
+    )
 
     if (connection.credentials != credentials) {
       throw new UnsupportedOperationException("The same ConnectionFactory was already used to create a connection with different credentials")

@@ -27,12 +27,15 @@ import io.gatling.http.check.sse.SseMessageCheckSequence
 
 class SseSetCheck(
     val requestName: Expression[String],
-    checkSequences:  List[SseMessageCheckSequence],
-    sseName:         String,
+    checkSequences: List[SseMessageCheckSequence],
+    sseName: String,
     val statsEngine: StatsEngine,
-    val clock:       Clock,
-    val next:        Action
-) extends RequestAction with ActorBasedAction with SseAction with NameGen {
+    val clock: Clock,
+    val next: Action
+) extends RequestAction
+    with ActorBasedAction
+    with SseAction
+    with NameGen {
 
   override val name: String = genName("sseSetCheck")
 

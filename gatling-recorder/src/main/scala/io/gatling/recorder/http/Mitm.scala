@@ -72,7 +72,8 @@ object Mitm extends StrictLogging {
       }
 
     val clientBootstrap =
-      new Bootstrap().channel(classOf[NioSocketChannel])
+      new Bootstrap()
+        .channel(classOf[NioSocketChannel])
         .group(clientEventLoopGroup)
         .option(ChannelOption.TCP_NODELAY, java.lang.Boolean.TRUE)
         .handler(new ChannelInitializer[Channel] {
@@ -98,7 +99,10 @@ object Mitm extends StrictLogging {
             .addLast("responseEncoder", new HttpResponseEncoder)
             .addLast("contentCompressor", new HttpContentCompressor)
             .addLast("aggregator", new HttpObjectAggregator(maxContentLength))
-            .addLast(GatlingServerHandler, new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, clock))
+            .addLast(
+              GatlingServerHandler,
+              new ServerHandler(actorSystem, outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, clock)
+            )
         }
       })
 
@@ -115,11 +119,11 @@ object Mitm extends StrictLogging {
 }
 
 class Mitm(
-    serverChannelGroup:         ChannelGroup,
-    clientEventLoopGroup:       EventLoopGroup,
-    serverBossEventLoopGroup:   EventLoopGroup,
+    serverChannelGroup: ChannelGroup,
+    clientEventLoopGroup: EventLoopGroup,
+    serverBossEventLoopGroup: EventLoopGroup,
     serverWorkerEventLoopGroup: EventLoopGroup,
-    actorSystem:                ActorSystem
+    actorSystem: ActorSystem
 ) {
 
   def shutdown(): Unit = {
