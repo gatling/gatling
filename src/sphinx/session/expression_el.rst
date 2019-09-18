@@ -41,7 +41,7 @@ Gatling EL supports the following indexed collections: java.util.List, Seq and A
 
 .. warning::
   This Expression Language only works on String values being passed to Gatling DSL methods.
-  Such Strings are parsed only once, when the Gatling simulation is being instanciated.
+  Such Strings are parsed only once, when the Gatling simulation is being instantiated.
 
   For example ``queryParam("latitude", session => "${latitude}")`` wouldn't work because the parameter is not a String, but a function that returns a String.
 
@@ -55,6 +55,18 @@ Gatling EL supports the following indexed collections: java.util.List, Seq and A
   By default, IntelliJ will automatically prepend your String with an ``s`` as soon as you start typing ``${``
   because it thinks you want to use `Scala's String interpolation <https://docs.scala-lang.org/overviews/core/string-interpolation.html>`_.
   You need to remove this ``s`` to use Gatling EL.
+
+Escaping ``${``
+---------------
+
+To prevent ``"${"`` from being interpreted by the EL compiler, add a ``$`` before it. ``"$${foo}"`` will be turned into ``"${foo}"``.
+
+If you want a ``$`` before the placeholder, add another ``$``.
+Assuming the session attribute ``foo`` holds ``"FOO"``, ``"$$${foo}"`` will be turned into ``"$FOO"``.
+
+This can go on and on. In general, if there are 2n-1 ``$`` characters before ``${`` -- an even number of ``$`` characters totally --
+there will be n ``$`` before ``{`` in the final string;
+if there are 2n ``$`` before ``${`` -- an odd number totally -- there will be n ``$`` before the placeholder.
 
 .. _expression:
 

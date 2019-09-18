@@ -273,27 +273,39 @@ class ElCompiler extends RegexParsers {
 
   private def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
-  private val staticPartPattern = new Parser[String] {
+  private val staticPartPattern: Parser[List[String]] = new Parser[String] {
     override def apply(in: Input): ParseResult[String] = {
       val source = in.source
       val offset = in.offset
       val end = source.length
 
       def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
-      def failure = Failure("Not a static part", in)
 
       source.indexOf(DynamicPartStart, offset) match {
-        case -1 if offset == end => failure
-        case -1                  => success(end)
-        case n if n == offset    => failure
-        case n                   => success(n)
+        case -1 => success(end)
+        case n =>
+          val extra$Count = (n - 1).to(offset, step = -1).takeWhile(source.charAt(_) == '$').size
+          val halfCount = extra$Count / 2
+          val throughEscaped$ = success(n - halfCount)
+          if (extra$Count % 2 == 0) {
+            throughEscaped$.copy(next = throughEscaped$.next.drop(halfCount))
+          } else { // should escape
+            throughEscaped$.copy(
+              result = throughEscaped$.result + "{",
+              next = throughEscaped$.next.drop(halfCount + 2)
+            )
+          }
       }
     }
+  } >> {
+    case "" => success(Nil)
+    case s  => staticPartPattern ^^ (s :: _)
   }
 
-  private def staticPart: Parser[StaticPart] = staticPartPattern ^^ { staticStr =>
-    StaticPart(staticStr)
-  }
+  private def staticPart: Parser[StaticPart] =
+    staticPartPattern ^? ({
+      case staticStr if staticStr.nonEmpty => StaticPart(staticStr.mkString)
+    }, _ => "Not a static part")
 
   private def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
