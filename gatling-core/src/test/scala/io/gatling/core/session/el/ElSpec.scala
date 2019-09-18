@@ -558,4 +558,24 @@ class ElSpec extends BaseSpec with ValidationValues {
     val failedJsonStringifyExpression = "${foo.bar.jsonStringify()}".el[String]
     failedJsonStringifyExpression(session).failed shouldBe failedKeyAccessExpression(session).failed
   }
+
+  "Escaping" should "turn $${ into ${" in {
+    val session = newSession(Map("foo" -> "FOO"))
+    val expression = "$${foo}".el[String]
+    expression(session).succeeded shouldBe "${foo}"
+  }
+
+  it should "keep one $ in $$${" in {
+    val session = newSession(Map("foo" -> "FOO"))
+    val expression = "$$${foo}".el[String]
+    expression(session).succeeded shouldBe "$FOO"
+  }
+
+  it should "handle multiple escape sequences correctly" in {
+    val session = newSession(Map("foo" -> "FOO"))
+
+    "$${foo$${foo}".el[String].apply(session).succeeded shouldBe "${foo${foo}"
+    "bar$$$$${foo}$${foo}".el[String].apply(session).succeeded shouldBe "bar$$FOO${foo}"
+    "$$$${foo}$${foo}$${foo}$$${foo}".el[String].apply(session).succeeded shouldBe "$${foo}${foo}${foo}$FOO"
+  }
 }
