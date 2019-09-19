@@ -20,6 +20,7 @@ import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.WebSocketListener;
 import io.gatling.http.client.impl.request.WritableRequest;
 import io.gatling.http.client.impl.request.WritableRequestBuilder;
+import io.gatling.http.client.proxy.HttpProxyServer;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -79,16 +80,20 @@ public class WebSocketHandler extends ChannelDuplexHandler {
       try {
         WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
 
-        // FIXME once https://github.com/netty/netty/pull/9206 is merged and shipped
-        // absoluteUpgradeUrl = !tx.request.getUri().isSecured() && tx.request.getProxyServer() instanceof HttpProxyServer
+        boolean absoluteUpgradeUrl = !tx.request.getUri().isSecured() && tx.request.getProxyServer() instanceof HttpProxyServer;
         handshaker =
           WebSocketClientHandshakerFactory.newHandshaker(
-            tx.request.getUri().toJavaNetURI(),
-            WebSocketVersion.V13,
-            tx.request.getWsSubprotocol(),
-            true,
-            request.getRequest().headers(),
-            Integer.MAX_VALUE);
+            tx.request.getUri().toJavaNetURI(), // webSocketURL
+            WebSocketVersion.V13, // version
+            tx.request.getWsSubprotocol(), // subprotocol
+            true, // allowExtensions
+            request.getRequest().headers(), // customHeaders
+            Integer.MAX_VALUE, // maxFramePayloadLength
+            true, // performMasking
+            false, // allowMaskMismatch
+            -1, //forceCloseTimeoutMillis
+            absoluteUpgradeUrl
+          );
 
         handshaker.handshake(ctx.channel());
 
