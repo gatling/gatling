@@ -31,7 +31,7 @@ object Dependencies {
     .exclude("org.typelevel", "algebra_2.12")
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.2"
-  private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.9.3"
+  private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.9.10"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.0.3")
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.7"
