@@ -22,7 +22,7 @@ import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingConfiguration
 
-private[app] class RunResultProcessor(configuration: GatlingConfiguration) {
+private[app] final class RunResultProcessor(configuration: GatlingConfiguration) {
 
   private implicit val config: GatlingConfiguration = configuration
 
@@ -51,8 +51,8 @@ private[app] class RunResultProcessor(configuration: GatlingConfiguration) {
     else
       None
 
-  private def reportsGenerationEnabled =
-    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
+  private def reportsGenerationEnabled: Boolean =
+    !configuration.charting.noReports && (configuration.core.directory.reportsOnly.isDefined || configuration.data.fileDataWriterEnabled)
 
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")
