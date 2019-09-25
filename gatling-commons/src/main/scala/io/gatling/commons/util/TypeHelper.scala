@@ -18,6 +18,7 @@ package io.gatling.commons.util
 
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
+import scala.concurrent.duration._
 
 import io.gatling.commons.NotNothing
 import io.gatling.commons.validation._
@@ -225,6 +226,27 @@ object TypeCaster extends LowPriorityTypeCaster {
 
     override def validate(value: Any): Validation[String] =
       value.toString.success
+  }
+
+  implicit val DurationCaster: TypeCaster[Duration] = new TypeCaster[Duration] {
+    @throws[ClassCastException]
+    override def cast(value: Any): Duration =
+      value match {
+        case v: Long           => v seconds
+        case v: java.lang.Long => v.longValue seconds
+        case v: String         => v.toLong seconds
+        case v: Duration       => v
+        case _                 => throw new ClassCastException(cceMessage(value, classOf[Duration]))
+      }
+
+    override def validate(value: Any): Validation[Duration] =
+      value match {
+        case v: Long           => (v seconds).success
+        case v: java.lang.Long => (v.longValue seconds).success
+        case v: String         => safely(v.toLong seconds)
+        case v: Duration       => v.success
+        case _                 => cceMessage(value, classOf[Duration]).failure
+      }
   }
 
   implicit val AnyTypeCaster: TypeCaster[Any] = new TypeCaster[Any] {
