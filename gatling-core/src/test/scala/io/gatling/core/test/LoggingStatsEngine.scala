@@ -16,7 +16,6 @@
 
 package io.gatling.core.test
 
-import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentLinkedDeque
 
 import io.gatling.commons.stats.Status
