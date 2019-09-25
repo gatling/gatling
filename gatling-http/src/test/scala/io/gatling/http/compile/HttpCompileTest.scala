@@ -29,7 +29,7 @@ class HttpCompileTest extends Simulation {
   registerPebbleExtensions(null: com.mitchellbosecke.pebble.extension.Extension)
   registerJmesPathFunctions(null: io.burt.jmespath.function.Function)
 
-  val httpProtocol = http
+  private val httpProtocol = http
     .baseUrl("http://172.30.5.143:8080")
     .baseUrls("http://172.30.5.143:8080", "http://172.30.5.143:8081")
     .virtualHost("172.30.5.143:8080")
@@ -97,9 +97,9 @@ class HttpCompileTest extends Simulation {
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
     .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))
 
-  val testData3 = Array(Map("foo" -> "bar")).circular
+  private val testData3 = Array(Map("foo" -> "bar")).circular
 
-  val scn = scenario("Scn")
+  private val scn = scenario("Scn")
   // method
     .exec(http("Request").get("/"))
     .exec(http("Request").put("/"))
@@ -300,7 +300,7 @@ class HttpCompileTest extends Simulation {
   setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 
   // Conditional check compile test
-  val requestWithUntypedCheckIf =
+  private val requestWithUntypedCheckIf =
     http("untypedCheckIf")
       .get("/")
       .check(
@@ -311,7 +311,7 @@ class HttpCompileTest extends Simulation {
 
   def isJsonResponse(response: Response): Boolean = response.header(HttpHeaderNames.ContentType).exists(_.contains(HttpHeaderValues.ApplicationJson))
 
-  val requestWithTypedCheckIf =
+  private val requestWithTypedCheckIf =
     http("typedCheckIf")
       .get("/")
       .check(

@@ -24,26 +24,26 @@ import io.gatling.core.structure.ChainBuilder
 
 class CoreCompileTest extends Simulation {
 
-  val iterations = 10
-  val pause1 = 1
-  val pause2 = 2
-  val pause3 = 3
-  val pause4 = Integer.getInteger("testProperty")
+  private val iterations = 10
+  private val pause1 = 1
+  private val pause2 = 2
+  private val pause3 = 3
+  private val pause4 = Integer.getInteger("testProperty")
 
-  val pause5 = pause4 milliseconds
-  val pause6 = pause4 seconds
-  val pause7 = pause4 nanoseconds
+  private val pause5 = pause4 milliseconds
+  private val pause6 = pause4 seconds
+  private val pause7 = pause4 nanoseconds
 
-  val baseUrl = "http://localhost:3000"
+  private val baseUrl = "http://localhost:3000"
 
-  val noop: ChainBuilder = ???
-  val protocol: Protocol = ???
+  private val noop: ChainBuilder = ???
+  private val protocol: Protocol = ???
 
-  val usersInformation = tsv("user_information.tsv")
+  private val usersInformation = tsv("user_information.tsv")
 
-  val loginChain = exec(noop).pause(1)
+  private val loginChain = exec(noop).pause(1)
 
-  val testData = tsv("test-data.tsv")
+  private val testData = tsv("test-data.tsv")
 
   feed(csv("foo.csv.zip").unzip)
   feed(csv("foo.csv").eager)
@@ -58,15 +58,15 @@ class CoreCompileTest extends Simulation {
   feed(jsonUrl("http://foo.com"))
   feed(jsonUrl("http://foo.com").random)
 
-  val records: Seq[Map[String, Any]] = csv("foo.csv").readRecords
+  private val records: Seq[Map[String, Any]] = csv("foo.csv").readRecords
 
-  val richTestData = testData.convert { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
+  private val richTestData = testData.convert { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
 
-  val testData3 = Array(Map("foo" -> "bar")).circular
+  private val testData3 = Array(Map("foo" -> "bar")).circular
 
-  val chainedScenarios = exec(scenario("foo")).exec(scenario("bar"))
+  private val chainedScenarios = exec(scenario("foo")).exec(scenario("bar"))
 
-  val lambdaUser = scenario("Standard User")
+  private val lambdaUser = scenario("Standard User")
   // First request outside iteration
     .repeat(2) {
       feed(richTestData)
@@ -198,20 +198,20 @@ class CoreCompileTest extends Simulation {
       exec(noop)
     }
 
-  val inject1 = nothingFor(10 milliseconds)
-  val inject2 = rampUsers(10).during(10 minutes)
-  val inject3 = constantUsersPerSec(10).during(1 minute)
-  val inject4 = atOnceUsers(100)
-  val inject5 = rampUsersPerSec(10) to 20 during (10 minutes)
-  val inject8 = heavisideUsers(1000) during (20 seconds)
+  private val inject1 = nothingFor(10 milliseconds)
+  private val inject2 = rampUsers(10).during(10 minutes)
+  private val inject3 = constantUsersPerSec(10).during(1 minute)
+  private val inject4 = atOnceUsers(100)
+  private val inject5 = rampUsersPerSec(10) to 20 during (10 minutes)
+  private val inject8 = heavisideUsers(1000) during (20 seconds)
 
-  val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100) during (5 seconds))
+  private val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100) during (5 seconds))
 
-  val closedInject1 = constantConcurrentUsers(100).during(10 seconds)
-  val closedInject2 = rampConcurrentUsers(100).to(200).during(10 seconds)
+  private val closedInject1 = constantConcurrentUsers(100).during(10 seconds)
+  private val closedInject2 = rampConcurrentUsers(100).to(200).during(10 seconds)
 
-  val openSeq = Seq(inject1, inject2, inject3)
-  val closedSeq = Seq(closedInject1, closedInject2)
+  private val openSeq = Seq(inject1, inject2, inject3)
+  private val closedSeq = Seq(closedInject1, closedInject2)
 
   setUp(
     lambdaUser.inject(inject1),

@@ -33,11 +33,11 @@ object HeaderMatcher extends JmsMessageMatcher {
 class JmsCompileTest extends Simulation {
 
   // create JmsProtocol from standard ConnectionFactory
-  val jmsProtocolWithNativeConnectionFactory = jms
+  private val jmsProtocolWithNativeConnectionFactory = jms
     .connectionFactory(new org.apache.activemq.ActiveMQConnectionFactory("tcp://localhost:61616"))
 
   // create JmsProtocol from JNDI based ConnectionFactory
-  val jmsProtocolWithJndiConnectionFactory = jms
+  private val jmsProtocolWithJndiConnectionFactory = jms
     .connectionFactory(
       jmsJndiConnectionFactory
         .connectionFactoryName("ConnectionFactory")
@@ -52,7 +52,7 @@ class JmsCompileTest extends Simulation {
     .matchByCorrelationId
     .matchByMessageId
 
-  val scn = scenario("scn")
+  private val scn = scenario("scn")
   // requestReply
   // textMessage
     .exec(
@@ -172,7 +172,7 @@ class JmsCompileTest extends Simulation {
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
     .protocols(jmsProtocolWithNativeConnectionFactory)
 
-  def checkBodyTextCorrect = simpleCheck {
+  private def checkBodyTextCorrect = simpleCheck {
     case tm: TextMessage => tm.getText == "hello"
     case _               => false
   }
