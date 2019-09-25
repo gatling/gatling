@@ -98,7 +98,7 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
 
   override def onThrowable(throwable: Throwable): Unit = {
     responseBuilder.updateEndTimestamp()
-    logger.warn(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
+    logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
     try {
       responseProcessor.onComplete(responseBuilder.buildFailure(throwable))
     } finally {
