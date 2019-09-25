@@ -17,8 +17,8 @@ Gatling is for you!
 
 Gatling is developed in Scala and built upon :
 
-* [Netty](http://netty.io) for non blocking HTTP
-* [Akka](http://akka.io) for actions (requests, pauses, assertions, etc...) modeling and orchestration
+* [Netty](https://netty.io) for non blocking HTTP
+* [Akka](https://akka.io) for actions (requests, pauses, assertions, etc...) modeling and orchestration
 ...
 
 
