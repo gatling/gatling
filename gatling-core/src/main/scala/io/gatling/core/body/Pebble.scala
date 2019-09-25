@@ -37,7 +37,7 @@ private[gatling] object PebbleExtensions {
   private[body] var extensions: Seq[Extension] = Nil
 
   def register(extensions: Seq[Extension]): Unit = {
-    if (extensions.nonEmpty) {
+    if (this.extensions.nonEmpty) {
       throw new UnsupportedOperationException("Pebble extensions have already been registered")
     }
     this.extensions = extensions
