@@ -42,8 +42,6 @@ import static io.gatling.http.client.util.HttpUtils.*;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 import static io.gatling.http.client.util.MiscUtils.withDefault;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
-import static io.netty.handler.codec.http.HttpHeaderNames.HOST;
-import static io.netty.handler.codec.http.HttpHeaderNames.ORIGIN;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RequestBuilder {
