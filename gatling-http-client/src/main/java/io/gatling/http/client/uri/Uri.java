@@ -32,7 +32,7 @@ package io.gatling.http.client.uri;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.util.MiscUtils;
-import io.gatling.netty.util.ahc.StringBuilderPool;
+import io.gatling.netty.util.StringBuilderPool;
 
 import java.net.URI;
 import java.net.URISyntaxException;

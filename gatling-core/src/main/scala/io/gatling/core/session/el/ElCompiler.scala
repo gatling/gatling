@@ -33,7 +33,7 @@ import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
-import io.gatling.netty.util.ahc.StringBuilderPool
+import io.gatling.netty.util.StringBuilderPool
 
 object ElMessages {
   def undefinedSeqIndex(name: String, index: Int): Failure = s"Seq named '$name' is undefined for index $index".failure

@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import io.gatling.netty.util.ahc.StringBuilderPool
+import io.gatling.netty.util.StringBuilderPool
 
 object ClassHelper {
 

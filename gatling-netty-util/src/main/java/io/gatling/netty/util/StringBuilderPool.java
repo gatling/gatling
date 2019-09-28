@@ -28,7 +28,7 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.netty.util.ahc;
+package io.gatling.netty.util;
 
 public class StringBuilderPool {
 

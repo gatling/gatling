@@ -24,7 +24,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el.ElCompiler
-import io.gatling.netty.util.ahc.StringBuilderPool
+import io.gatling.netty.util.StringBuilderPool
 
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 
@@ -42,7 +42,7 @@ final case class StringBody(string: Expression[String])(implicit configuration: 
   def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
 }
 
-final object RawFileBody {
+object RawFileBody {
   def apply(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): RawFileBody =
     new RawFileBody(rawFileBodies.asResourceAndCachedBytes(filePath))
 

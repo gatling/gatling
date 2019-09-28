@@ -16,7 +16,7 @@
 
 package io.gatling.http.client.realm;
 
-import io.gatling.netty.util.ahc.StringBuilderPool;
+import io.gatling.netty.util.StringBuilderPool;
 import io.netty.handler.codec.http.HttpMethod;
 
 import java.security.MessageDigest;

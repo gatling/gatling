@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.*;
 import static io.gatling.http.client.util.HttpUtils.*;
 import static io.gatling.http.client.util.MiscUtils.*;
 
-import io.gatling.netty.util.ahc.ByteBufUtils;
+import io.gatling.netty.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpHeaderNames;

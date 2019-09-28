@@ -30,7 +30,7 @@
 
 package io.gatling.http.client.oauth;
 
-import io.gatling.netty.util.ahc.Utf8UrlEncoder;
+import io.gatling.netty.util.Utf8UrlEncoder;
 
 /**
  * Value class used for OAuth tokens (request secret, access secret);

@@ -31,7 +31,7 @@
 package io.gatling.http.client.util;
 
 import io.gatling.http.client.uri.Uri;
-import io.gatling.netty.util.ahc.StringBuilderPool;
+import io.gatling.netty.util.StringBuilderPool;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;

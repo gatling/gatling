@@ -33,8 +33,8 @@ package io.gatling.http.client.uri;
 import static io.gatling.http.client.util.MiscUtils.*;
 
 import io.gatling.http.client.Param;
-import io.gatling.netty.util.ahc.StringBuilderPool;
-import io.gatling.netty.util.ahc.Utf8UrlEncoder;
+import io.gatling.netty.util.StringBuilderPool;
+import io.gatling.netty.util.Utf8UrlEncoder;
 
 import java.util.List;
 

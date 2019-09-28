@@ -23,7 +23,7 @@ import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.sign.OAuthSignatureCalculator;
-import io.gatling.netty.util.ahc.Utf8UrlEncoder;
+import io.gatling.netty.util.Utf8UrlEncoder;
 import io.netty.handler.codec.http.HttpMethod;
 import org.junit.jupiter.api.Test;
 

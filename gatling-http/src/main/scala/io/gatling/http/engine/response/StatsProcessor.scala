@@ -25,7 +25,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.http.client.Request
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util._
-import io.gatling.netty.util.ahc.StringBuilderPool
+import io.gatling.netty.util.StringBuilderPool
 
 import com.typesafe.scalalogging.StrictLogging
 

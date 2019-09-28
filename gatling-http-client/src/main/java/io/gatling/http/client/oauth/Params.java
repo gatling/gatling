@@ -31,7 +31,7 @@
 package io.gatling.http.client.oauth;
 
 import io.gatling.http.client.Param;
-import io.gatling.netty.util.ahc.StringBuilderPool;
+import io.gatling.netty.util.StringBuilderPool;
 
 import java.util.ArrayList;
 import java.util.Collections;

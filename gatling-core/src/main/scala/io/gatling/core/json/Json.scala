@@ -24,8 +24,8 @@ import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.HexUtils
 import io.gatling.commons.util.Maps._
-import io.gatling.netty.util.ahc.StringBuilderPool
 import io.gatling.commons.util.Spire._
+import io.gatling.netty.util.StringBuilderPool
 
 import com.fasterxml.jackson.core.JsonParser.NumberType._
 import com.fasterxml.jackson.databind.JsonNode

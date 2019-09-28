@@ -30,7 +30,7 @@
 
 package io.gatling.http.client.util;
 
-import io.gatling.netty.util.ahc.StringBuilderPool;
+import io.gatling.netty.util.StringBuilderPool;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;

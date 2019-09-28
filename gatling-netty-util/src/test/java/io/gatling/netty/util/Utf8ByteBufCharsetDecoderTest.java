@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package io.gatling.netty.util.ahc;
+package io.gatling.netty.util;
+
+import java.util.Arrays;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;

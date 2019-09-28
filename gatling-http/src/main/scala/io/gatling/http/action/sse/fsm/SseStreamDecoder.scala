@@ -18,7 +18,7 @@ package io.gatling.http.action.sse.fsm
 
 import java.nio.CharBuffer
 
-import io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder
+import io.gatling.netty.util.Utf8ByteBufCharsetDecoder
 
 import io.netty.buffer.ByteBuf
 

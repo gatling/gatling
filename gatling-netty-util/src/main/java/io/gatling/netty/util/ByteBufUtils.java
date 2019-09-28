@@ -28,11 +28,7 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.netty.util.ahc;
-
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.util.CharsetUtil;
+package io.gatling.netty.util;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -41,9 +37,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.util.CharsetUtil;
+
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static io.gatling.netty.util.ahc.Utf8ByteBufCharsetDecoder.*;
+import static io.gatling.netty.util.Utf8ByteBufCharsetDecoder.*;
 
 public final class ByteBufUtils {
 

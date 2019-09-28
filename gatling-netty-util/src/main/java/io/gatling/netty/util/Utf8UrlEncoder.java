@@ -28,7 +28,7 @@
 // See the Apache License Version 2.0 for the specific language governing permissions and limitations there under.
 //
 
-package io.gatling.netty.util.ahc;
+package io.gatling.netty.util;
 
 import java.util.BitSet;
 
@@ -141,12 +141,12 @@ public final class Utf8UrlEncoder {
     return sb == null ? input : sb.toString();
   }
 
-  public static StringBuilder encodeAndAppendQuery(StringBuilder sb, String query) {
-    return appendEncoded(sb, query, BUILT_QUERY_UNTOUCHED_CHARS, false);
+  public static void encodeAndAppendQuery(StringBuilder sb, String query) {
+    appendEncoded(sb, query, BUILT_QUERY_UNTOUCHED_CHARS, false);
   }
 
-  public static StringBuilder encodeAndAppendQueryElement(StringBuilder sb, CharSequence input) {
-    return encodeAndAppendFormElement(sb, input);
+  public static void encodeAndAppendQueryElement(StringBuilder sb, CharSequence input) {
+    encodeAndAppendFormElement(sb, input);
   }
 
   public static StringBuilder encodeAndAppendFormElement(StringBuilder sb, CharSequence input) {

@@ -21,7 +21,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.ws.fsm._
 import io.gatling.http.client.WebSocketListener
 import io.gatling.http.util.HttpHelper
-import io.gatling.netty.util.ahc.{ ByteBufUtils, Utf8ByteBufCharsetDecoder }
+import io.gatling.netty.util.{ ByteBufUtils, Utf8ByteBufCharsetDecoder }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.LazyLogging

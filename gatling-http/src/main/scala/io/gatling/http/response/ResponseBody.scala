@@ -25,7 +25,7 @@ import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.FastByteArrayInputStream
 import io.gatling.commons.util.ByteBufs._
-import io.gatling.netty.util.ahc.ByteBufUtils._
+import io.gatling.netty.util.ByteBufUtils._
 
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.buffer.{ ByteBuf, ByteBufInputStream }

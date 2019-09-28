@@ -18,7 +18,7 @@ package io.gatling.http.client.body;
 
 import io.gatling.http.client.Param;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody;
-import io.gatling.netty.util.ahc.ByteBufUtils;
+import io.gatling.netty.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import org.junit.jupiter.api.Test;
