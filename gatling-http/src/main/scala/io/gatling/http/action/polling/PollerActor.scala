@@ -117,7 +117,7 @@ class PollerActor(
       val newSession = new PollerResponseProcessor(
         tx.copy(session = session),
         sessionProcessor = new RootSessionProcessor(
-          !tx.silent,
+          tx.silent,
           tx.request.clientRequest,
           tx.request.requestConfig.checks,
           httpCaches,

@@ -30,7 +30,7 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 sealed abstract class SessionProcessor(
-    notSilent: Boolean,
+    silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
     httpCaches: HttpCaches,
@@ -42,7 +42,9 @@ sealed abstract class SessionProcessor(
     updateSessionStats(session, startTimestamp, endTimestamp, KO)
 
   private def updateSessionStats(session: Session, startTimestamp: Long, endTimestamp: Long, status: Status): Session =
-    if (notSilent) {
+    if (silent) {
+      session
+    } else {
       val sessionWithUpdatedStatus =
         if (status == KO) {
           session.markAsFailed
@@ -51,8 +53,6 @@ sealed abstract class SessionProcessor(
         }
 
       updateGroupRequestTimings(sessionWithUpdatedStatus, startTimestamp, endTimestamp)
-    } else {
-      session
     }
 
   def updatedSession(session: Session, response: Response): (Session, Option[String]) = {
@@ -95,14 +95,14 @@ sealed abstract class SessionProcessor(
 }
 
 class RootSessionProcessor(
-    notSilent: Boolean,
+    silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
     clock: Clock
 ) extends SessionProcessor(
-      notSilent,
+      silent,
       request,
       checks,
       httpCaches,
@@ -117,14 +117,14 @@ class RootSessionProcessor(
 }
 
 class ResourceSessionProcessor(
-    notSilent: Boolean,
+    silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
     clock: Clock
 ) extends SessionProcessor(
-      notSilent,
+      silent,
       request,
       checks,
       httpCaches,

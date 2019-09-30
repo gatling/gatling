@@ -180,7 +180,7 @@ class HttpTxExecutor(
     new DefaultResponseProcessor(
       tx,
       sessionProcessor = new RootSessionProcessor(
-        !tx.silent,
+        tx.silent,
         tx.request.clientRequest,
         tx.request.requestConfig.checks,
         httpCaches,
@@ -196,7 +196,7 @@ class HttpTxExecutor(
     new DefaultResponseProcessor(
       tx = tx.copy(session = resourceTx.aggregator.currentSession),
       sessionProcessor = new ResourceSessionProcessor(
-        !tx.silent,
+        tx.silent,
         tx.request.clientRequest,
         tx.request.requestConfig.checks,
         httpCaches,
