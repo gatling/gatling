@@ -134,12 +134,12 @@ class HttpTxExecutor(
       val listener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
       val userSslContexts = sslContexts(tx.session)
       val sslContext = userSslContexts.map(_.sslContext).orNull
-      val alplnSslContext = userSslContexts.flatMap(_.alplnSslContext).orNull
+      val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
       if (tx.request.requestConfig.throttled) {
-        throttler.throttle(tx.session.scenario, () => httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alplnSslContext))
+        throttler.throttle(tx.session.scenario, () => httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alpnSslContext))
       } else {
-        httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alplnSslContext)
+        httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alpnSslContext)
       }
     }
 
@@ -160,12 +160,12 @@ class HttpTxExecutor(
       val shared = headTx.request.requestConfig.httpProtocol.enginePart.shareConnections
       val userSslContexts = sslContexts(headTx.session)
       val sslContext = userSslContexts.map(_.sslContext).orNull
-      val alplnSslContext = userSslContexts.flatMap(_.alplnSslContext).orNull
+      val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
       if (txs.head.request.requestConfig.throttled) {
-        throttler.throttle(headTx.session.scenario, () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alplnSslContext))
+        throttler.throttle(headTx.session.scenario, () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alpnSslContext))
       } else {
-        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alplnSslContext)
+        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alpnSslContext)
       }
     }
   }

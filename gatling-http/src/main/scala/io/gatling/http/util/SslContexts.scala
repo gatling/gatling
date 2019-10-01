@@ -131,4 +131,4 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
     )
 }
 
-private[http] final case class SslContexts(sslContext: SslContext, alplnSslContext: Option[SslContext])
+private[http] final case class SslContexts(sslContext: SslContext, alpnSslContext: Option[SslContext])

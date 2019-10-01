@@ -47,7 +47,7 @@ trait WhenConnecting extends SslContextSupport { this: SseActor =>
       httpProtocol.enginePart.shareConnections,
       listener,
       userSslContexts.map(_.sslContext).orNull,
-      userSslContexts.flatMap(_.alplnSslContext).orNull
+      userSslContexts.flatMap(_.alpnSslContext).orNull
     )
 
     goto(Connecting) using ConnectingData(session, next, clock.nowMillis, remainingTries)
