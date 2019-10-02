@@ -26,8 +26,7 @@ import io.gatling.core.controller.ControllerCommand.InjectorStopped
 import io.gatling.core.controller.inject.open.OpenWorkload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.End
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
 
@@ -93,7 +92,7 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   }
 
   when(Started) {
-    case Event(userMessage @ UserMessage(session, End, _), data: StartedData) =>
+    case Event(userMessage @ UserEndMessage(session, _), data: StartedData) =>
       logger.debug(s"End user #${session.userId}")
       val workload = data.workloads(session.scenario)
       workload.endUser(userMessage)
@@ -104,7 +103,7 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   }
 
   when(StoppedInjecting) {
-    case Event(userMessage @ UserMessage(session, End, _), StoppedInjectingData(controller, workloads)) =>
+    case Event(userMessage @ UserEndMessage(session, _), StoppedInjectingData(controller, workloads)) =>
       val scenario = session.scenario
       val workload = workloads(scenario)
       workload.endUser(userMessage)

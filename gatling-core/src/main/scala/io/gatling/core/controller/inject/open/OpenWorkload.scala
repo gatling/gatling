@@ -24,7 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorSystem
 
@@ -39,8 +39,8 @@ class OpenWorkload(scenario: Scenario, stream: UserStream, userIdGen: AtomicLong
     }
   }
 
-  override def endUser(userMessage: UserMessage): Unit = {
-    statsEngine.logUser(userMessage)
+  override def endUser(userMessage: UserEndMessage): Unit = {
+    statsEngine.logUserEnd(userMessage)
     incrementStoppedUsers()
   }
 }

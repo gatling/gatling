@@ -73,10 +73,10 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     sendMetricsToGraphite(data, clock.nowSeconds, requestsMetrics, usersBreakdowns)
   }
 
-  private def onUserMessage(userMessage: UserMessage, data: GraphiteData): Unit = {
+  private def onUserMessage(scenario: String, isStart: Boolean, data: GraphiteData): Unit = {
     import data._
-    usersByScenario(format.usersPath(userMessage.session.scenario)).add(userMessage)
-    usersByScenario(format.allUsersPath).add(userMessage)
+    usersByScenario(format.usersPath(scenario)).record(isStart)
+    usersByScenario(format.allUsersPath).record(isStart)
   }
 
   private def onResponseMessage(response: ResponseMessage, data: GraphiteData): Unit = {
@@ -90,9 +90,10 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
   }
 
   override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {
-    case user: UserMessage         => onUserMessage(user, data)
-    case response: ResponseMessage => onResponseMessage(response, data)
-    case _                         =>
+    case UserStartMessage(session)  => onUserMessage(session.scenario, isStart = true, data)
+    case UserEndMessage(session, _) => onUserMessage(session.scenario, isStart = false, data)
+    case response: ResponseMessage  => onResponseMessage(response, data)
+    case _                          =>
   }
 
   override def onCrash(cause: String, data: GraphiteData): Unit = {}

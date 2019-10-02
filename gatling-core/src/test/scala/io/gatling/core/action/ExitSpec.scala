@@ -19,8 +19,7 @@ package io.gatling.core.action
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.End
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 class ExitSpec extends AkkaSpec {
 
@@ -36,8 +35,7 @@ class ExitSpec extends AkkaSpec {
     exit ! session
 
     hasTerminated shouldBe true
-    val userMessage = expectMsgType[UserMessage]
+    val userMessage = expectMsgType[UserEndMessage]
     userMessage.session shouldBe session
-    userMessage.event shouldBe End
   }
 }

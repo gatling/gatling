@@ -18,8 +18,7 @@ package io.gatling.core.action
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.End
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
@@ -30,6 +29,6 @@ class Exit(injector: ActorRef, clock: Clock) extends Action {
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
-    injector ! UserMessage(session, End, clock.nowMillis)
+    injector ! UserEndMessage(session, clock.nowMillis)
   }
 }

@@ -24,7 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.Workload
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 import io.gatling.core.util.Shard
 
 import akka.actor.ActorSystem
@@ -74,8 +74,8 @@ class ClosedWorkload(
     }
   }
 
-  override def endUser(userMessage: UserMessage): Unit = {
-    statsEngine.logUser(userMessage)
+  override def endUser(userMessage: UserEndMessage): Unit = {
+    statsEngine.logUserEnd(userMessage)
     incrementStoppedUsers()
     if (getConcurrentUsers < _thisBatchTarget && !isAllUsersScheduled) {
       // start a new user

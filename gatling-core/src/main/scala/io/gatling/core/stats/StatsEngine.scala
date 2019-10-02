@@ -39,7 +39,9 @@ trait StatsEngine {
 
   def stop(replyTo: ActorRef, exception: Option[Exception]): Unit
 
-  def logUser(userMessage: UserMessage): Unit
+  def logUserStart(session: Session): Unit
+
+  def logUserEnd(userMessage: UserEndMessage): Unit
 
   // [fl]
   //
@@ -153,7 +155,9 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
-  override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
+  override def logUserStart(session: Session): Unit = dispatch(UserStartMessage(session))
+
+  override def logUserEnd(userMessage: UserEndMessage): Unit = dispatch(userMessage)
 
   // [fl]
   //

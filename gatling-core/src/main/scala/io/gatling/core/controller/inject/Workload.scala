@@ -24,8 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.Start
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -54,7 +53,7 @@ abstract class Workload(
     val session = scenario.onStart(rawSession)
     scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")
-    statsEngine.logUser(UserMessage(session, Start, session.startDate))
+    statsEngine.logUserStart(session)
   }
 
   protected def injectUser(delay: FiniteDuration): Unit = {
@@ -71,7 +70,7 @@ abstract class Workload(
 
   def injectBatch(batchWindow: FiniteDuration): Unit
 
-  def endUser(userMessage: UserMessage): Unit
+  def endUser(userMessage: UserEndMessage): Unit
 
   def isAllUsersScheduled: Boolean = allScheduled
 

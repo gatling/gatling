@@ -29,6 +29,7 @@ import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.{ Clock, StringReplace }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.util.{ Integers, Longs }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -178,15 +179,31 @@ class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriter
   }
 }
 
-class UserMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserMessage](writer, UserRecordHeader.value) {
+class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserStartMessage](writer, UserRecordHeader.value) {
 
-  override protected def serialize0(user: UserMessage): Unit = {
+  override protected def serialize0(user: UserStartMessage): Unit = {
     import user._
     writer.writeString(session.scenario)
     writeSeparator()
     writer.writePositiveLong(session.userId)
     writeSeparator()
-    writer.writeString(event.name)
+    writer.writeString(Start.name)
+    writeSeparator()
+    writer.writePositiveLong(session.startDate)
+    writeSeparator()
+    writer.writePositiveLong(session.startDate) // FIXME remove?
+  }
+}
+
+class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserEndMessage](writer, UserRecordHeader.value) {
+
+  override protected def serialize0(user: UserEndMessage): Unit = {
+    import user._
+    writer.writeString(session.scenario)
+    writeSeparator()
+    writer.writePositiveLong(session.userId)
+    writeSeparator()
+    writer.writeString(End.name)
     writeSeparator()
     writer.writePositiveLong(session.startDate)
     writeSeparator()
@@ -263,7 +280,8 @@ class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
 }
 
 final case class FileData(
-    userMessageSerializer: UserMessageSerializer,
+    userStartMessageSerializer: UserStartMessageSerializer,
+    userEndMessageSerializer: UserEndMessageSerializer,
     responseMessageSerializer: ResponseMessageSerializer,
     groupMessageSerializer: GroupMessageSerializer,
     errorMessageSerializer: ErrorMessageSerializer,
@@ -282,7 +300,8 @@ class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     new RunMessageSerializer(writer).serialize(runMessage)
 
     FileData(
-      new UserMessageSerializer(writer),
+      new UserStartMessageSerializer(writer),
+      new UserEndMessageSerializer(writer),
       new ResponseMessageSerializer(writer),
       new GroupMessageSerializer(writer),
       new ErrorMessageSerializer(writer),
@@ -294,7 +313,8 @@ class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
 
   override def onMessage(message: LoadEventMessage, data: FileData): Unit =
     message match {
-      case user: UserMessage         => data.userMessageSerializer.serialize(user)
+      case user: UserStartMessage    => data.userStartMessageSerializer.serialize(user)
+      case user: UserEndMessage      => data.userEndMessageSerializer.serialize(user)
       case group: GroupMessage       => data.groupMessageSerializer.serialize(group)
       case response: ResponseMessage => data.responseMessageSerializer.serialize(response)
       case error: ErrorMessage       => data.errorMessageSerializer.serialize(error)

@@ -21,13 +21,11 @@ import java.util.concurrent.ConcurrentLinkedDeque
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
 sealed trait StatsEngineMessage
-
-final case class LogUser(userMessage: UserMessage) extends StatsEngineMessage
 
 final case class LogResponse(
     session: Session,
@@ -51,8 +49,9 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
 
-  override def logUser(userMessage: UserMessage): Unit =
-    msgQueue.addLast(LogUser(userMessage))
+  override def logUserStart(session: Session): Unit = {}
+
+  override def logUserEnd(userMessage: UserEndMessage): Unit = {}
 
   // [fl]
   //
