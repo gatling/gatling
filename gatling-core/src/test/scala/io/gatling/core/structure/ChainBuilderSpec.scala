@@ -26,7 +26,7 @@ import io.gatling.core.test._
 
 class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "exec" should "wrap Scenarios in chains" in {
     scenarioTest { implicit ctx =>

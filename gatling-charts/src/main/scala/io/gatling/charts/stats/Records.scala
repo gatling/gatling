@@ -24,7 +24,7 @@ import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequest
 
 private[stats] object UserRecordParser {
 
-  def unapply(array: Array[String]) = RawUserRecord.unapply(array).map(parseUserRecord)
+  def unapply(array: Array[String]): Option[UserRecord] = RawUserRecord.unapply(array).map(parseUserRecord)
 
   private def parseUserRecord(strings: Array[String]): UserRecord = {
 
@@ -40,7 +40,7 @@ private[stats] object UserRecordParser {
 
 private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
 
-  def unapply(array: Array[String]) = RawRequestRecord.unapply(array).map(parseRequestRecord)
+  def unapply(array: Array[String]): Option[RequestRecord] = RawRequestRecord.unapply(array).map(parseRequestRecord)
 
   private def parseRequestRecord(strings: Array[String]): RequestRecord = {
 
@@ -70,12 +70,12 @@ private[stats] object GroupRecordParser {
 
   val GroupCache = mutable.Map.empty[String, Group]
 
-  def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
+  def parseGroup(string: String): Group = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
 }
 
 private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
 
-  def unapply(array: Array[String]) = RawGroupRecord.unapply(array).map(parseGroupRecord)
+  def unapply(array: Array[String]): Option[GroupRecord] = RawGroupRecord.unapply(array).map(parseGroupRecord)
 
   private def parseGroupRecord(strings: Array[String]): GroupRecord = {
 
@@ -91,7 +91,7 @@ private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
 
 private[stats] object ErrorRecordParser {
 
-  def unapply(array: Array[String]) = RawErrorRecord.unapply(array).map(parseErrorRecord)
+  def unapply(array: Array[String]): Option[ErrorRecord] = RawErrorRecord.unapply(array).map(parseErrorRecord)
 
   private def parseErrorRecord(strings: Array[String]): ErrorRecord = {
 
