@@ -17,7 +17,7 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.controller.inject.{ InjectionProfileFactory, MetaInjectionProfile }
+import io.gatling.core.controller.inject.InjectionProfileFactory
 
 /**
  * This trait defines most of the scenario related DSL
@@ -59,9 +59,6 @@ final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilde
     require(iss.nonEmpty, "Calling inject with empty injection steps")
     PopulationBuilder(this, implicitly[InjectionProfileFactory[T]].profile(iss))
   }
-
-  def inject(meta: MetaInjectionProfile): PopulationBuilder =
-    PopulationBuilder(this, meta.profile)
 }
 
 private[gatling] trait StructureSupport extends StructureBuilder[ChainBuilder] {

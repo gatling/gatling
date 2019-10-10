@@ -18,7 +18,7 @@ package io.gatling.core.controller.inject.closed
 
 import scala.concurrent.duration._
 
-import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory, MetaInjectionProfile }
+import io.gatling.core.controller.inject.InjectionProfileFactory
 
 final case class ConstantConcurrentNumberBuilder(number: Int) {
 
@@ -35,39 +35,8 @@ final case class RampConcurrentNumberInjectionTo(from: Int, to: Int) {
   def during(d: FiniteDuration) = RampConcurrentNumberInjection(from, to, d)
 }
 
-final case class IncreasingConcurrentUsersProfile(
-    concurrentUsers: Int,
-    nbOfSteps: Int,
-    duration: FiniteDuration,
-    startingUsers: Int,
-    rampDuration: FiniteDuration
-) extends MetaInjectionProfile {
-
-  def startingFrom(startingUsers: Int): IncreasingConcurrentUsersProfile = this.copy(startingUsers = startingUsers)
-
-  def separatedByRampsLasting(duration: FiniteDuration): IncreasingConcurrentUsersProfile = this.copy(rampDuration = duration)
-
-  private[inject] def getInjectionSteps: Iterable[ClosedInjectionStep] =
-    (1 to nbOfSteps).foldLeft(Iterable.empty[ClosedInjectionStep]) { (acc, currentStep) =>
-      val step = if (startingUsers > 0) currentStep - 1 else currentStep
-      val newConcurrentUsers = startingUsers + step * concurrentUsers
-      val newInjectionSteps = if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
-        val nextConcurrentUsers = newConcurrentUsers + concurrentUsers
-        Seq(
-          ConstantConcurrentNumberInjection(newConcurrentUsers, duration),
-          RampConcurrentNumberInjection(newConcurrentUsers, nextConcurrentUsers, rampDuration)
-        )
-      } else {
-        Seq(ConstantConcurrentNumberInjection(newConcurrentUsers, duration))
-      }
-      acc ++ newInjectionSteps
-    }
-
-  override def profile: InjectionProfile = ClosedInjectionProfile(getInjectionSteps)
-}
-
 final case class IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers: Int, nbOfSteps: Int) {
-  def eachLevelLasting(d: FiniteDuration) = IncreasingConcurrentUsersProfile(concurrentUsers, nbOfSteps, d, 0, Duration.Zero)
+  def eachLevelLasting(levelDuration: FiniteDuration) = IncreasingConcurrentUsersCompositeStep(concurrentUsers, nbOfSteps, levelDuration, 0, Duration.Zero)
 }
 
 final case class IncreasingConcurrentUsersProfileBuilder(concurrentUsers: Int) {

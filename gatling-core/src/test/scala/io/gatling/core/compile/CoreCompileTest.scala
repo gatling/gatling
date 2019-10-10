@@ -213,6 +213,9 @@ class CoreCompileTest extends Simulation {
   private val openSeq = Seq(inject1, inject2, inject3)
   private val closedSeq = Seq(closedInject1, closedInject2)
 
+  private val openMeta = incrementUsersPerSec(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10)
+  private val closedMeta = incrementConcurrentUsers(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10)
+
   setUp(
     lambdaUser.inject(inject1),
     lambdaUser.inject(injectionSeq),
@@ -220,8 +223,8 @@ class CoreCompileTest extends Simulation {
     lambdaUser.inject(closedInject1, closedInject2),
     lambdaUser.inject(openSeq),
     lambdaUser.inject(closedSeq),
-    lambdaUser.inject(incrementUsersPerSec(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10)),
-    lambdaUser.inject(incrementConcurrentUsers(5).times(5).eachLevelLasting(10).separatedByRampsLasting(10).startingFrom(10))
+    lambdaUser.inject(openMeta, inject1),
+    lambdaUser.inject(closedMeta, closedInject1)
   ).protocols(protocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))
     .disablePauses

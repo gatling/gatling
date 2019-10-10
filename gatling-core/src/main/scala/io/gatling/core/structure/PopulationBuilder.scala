@@ -19,11 +19,10 @@ package io.gatling.core.structure
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.CoreComponents
-import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory, MetaInjectionProfile }
+import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._
-import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, ProtocolComponentsRegistry, Protocols }
+import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
 

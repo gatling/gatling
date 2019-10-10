@@ -18,7 +18,7 @@ package io.gatling.core.controller.inject.open
 
 import scala.concurrent.duration._
 
-import io.gatling.core.controller.inject.{ InjectionProfile, InjectionProfileFactory, MetaInjectionProfile }
+import io.gatling.core.controller.inject.InjectionProfileFactory
 
 final case class RampBuilder(users: Int) {
   def during(d: FiniteDuration) = RampOpenInjection(users, d)
@@ -35,34 +35,9 @@ final case class PartialRampRateBuilder(rate1: Double) {
 final case class RampRateBuilder(rate1: Double, rate2: Double) {
   def during(d: FiniteDuration) = RampRateOpenInjection(rate1, rate2, d)
 }
-final case class IncreasingUsersPerSecProfile(
-    usersPerSec: Double,
-    nbOfSteps: Int,
-    duration: FiniteDuration,
-    startingUsers: Double,
-    rampDuration: FiniteDuration
-) extends MetaInjectionProfile {
-  def startingFrom(startingUsers: Double): IncreasingUsersPerSecProfile = this.copy(startingUsers = startingUsers)
-  def separatedByRampsLasting(duration: FiniteDuration): IncreasingUsersPerSecProfile = this.copy(rampDuration = duration)
-
-  private[inject] def getInjectionSteps: Iterable[OpenInjectionStep] =
-    (1 to nbOfSteps).foldLeft(Iterable.empty[OpenInjectionStep]) { (acc, currentStep) =>
-      val step = if (startingUsers > 0) currentStep - 1 else currentStep
-      val newRate = startingUsers + step * usersPerSec
-
-      val newInjectionsSteps = if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
-        Seq(ConstantRateOpenInjection(newRate, duration), RampRateOpenInjection(newRate, newRate + usersPerSec, rampDuration))
-      } else {
-        Seq(ConstantRateOpenInjection(newRate, duration))
-      }
-      acc ++ newInjectionsSteps
-    }
-
-  def profile: InjectionProfile = OpenInjectionProfile(getInjectionSteps)
-}
 
 final case class IncreasingUsersPerSecProfileBuilderWithTime(usersPerSec: Double, nbOfSteps: Int) {
-  def eachLevelLasting(d: FiniteDuration) = IncreasingUsersPerSecProfile(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
+  def eachLevelLasting(d: FiniteDuration) = IncreasingUsersPerSecCompositeStep(usersPerSec, nbOfSteps, d, 0, Duration.Zero)
 }
 
 final case class IncreasingUsersPerSecProfileBuilder(usersPerSec: Double) {
