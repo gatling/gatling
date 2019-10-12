@@ -23,7 +23,7 @@ object Dependencies {
   private val activation                     = "com.sun.activation"                   % "javax.activation"                % "1.2.0"
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.5.25"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
-  private val config                         = "com.typesafe"                         % "config"                          % "1.3.4"
+  private val config                         = "com.typesafe"                         % "config"                          % "1.4.0"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "9.9.1-5"
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.28"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.2")
