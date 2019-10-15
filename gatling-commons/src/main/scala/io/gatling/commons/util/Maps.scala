@@ -75,9 +75,7 @@ object Maps {
 
     def groupByKey[K2](f: K => K2): mutable.Map[K2, mutable.ArrayBuffer[V]] = {
       val mm = new mutable.HashMap[K2, mutable.ArrayBuffer[V]]
-      for {
-        (k1, value) <- iterable
-      } {
+      for ((k1, value) <- iterable) {
         val k2 = f(k1)
         if (mm.contains(k2)) {
           mm(k2) += value
