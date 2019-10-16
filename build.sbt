@@ -1,12 +1,16 @@
+import sbt._
+
 import BuildSettings._
 import Bundle._
 import ConfigFiles._
 import CopyLogback._
 import Dependencies._
 import VersionFile._
-import sbt._
 
 // Root project
+
+ThisBuild / Keys.useCoursier := false
+concurrentRestrictions in Global := Seq.empty
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
