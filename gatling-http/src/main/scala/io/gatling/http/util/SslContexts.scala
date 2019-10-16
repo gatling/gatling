@@ -16,6 +16,7 @@
 
 package io.gatling.http.util
 
+import java.io.Closeable
 import java.security.SecureRandom
 
 import scala.collection.JavaConverters._
@@ -26,6 +27,7 @@ import io.gatling.core.config.HttpConfiguration
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl._
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
+import io.netty.util.ReferenceCountUtil
 import javax.net.ssl._
 
 private[http] object SslContextsFactory {
@@ -58,6 +60,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
     } else {
       false
     }
+  private val useOpenSslFinalizers = httpConfig.advanced.useOpenSslFinalizers
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
 
@@ -71,7 +74,8 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
     }
 
     if (useOpenSsl) {
-      val sslContextBuilder = SslContextBuilder.forClient.sslProvider(SslProvider.OPENSSL)
+      val provider = if (useOpenSslFinalizers) SslProvider.OPENSSL else SslProvider.OPENSSL_REFCNT
+      val sslContextBuilder = SslContextBuilder.forClient.sslProvider(provider)
 
       if (httpConfig.advanced.sslSessionCacheSize > 0) {
         sslContextBuilder.sessionCacheSize(httpConfig.advanced.sslSessionCacheSize)
@@ -107,10 +111,10 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
       val jdkSslContext = SSLContext.getInstance("TLS")
       jdkSslContext.init(kmf.map(_.getKeyManagers).orNull, tmf.map(_.getTrustManagers).orNull, DefaultSslSecureRandom)
 
-      val sslContext = newSslContext(jdkSslContext, null)
+      val sslContext = newJdkSslContext(jdkSslContext, null)
       val alpnSslContext =
         if (http2Enabled) {
-          Some(newSslContext(jdkSslContext, Apn))
+          Some(newJdkSslContext(jdkSslContext, Apn))
         } else {
           None
         }
@@ -118,7 +122,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
     }
   }
 
-  private def newSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext =
+  private def newJdkSslContext(jdkSslContext: SSLContext, apn: ApplicationProtocolConfig): SslContext =
     new JdkSslContext(
       jdkSslContext,
       true,
@@ -131,4 +135,9 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
     )
 }
 
-private[http] final case class SslContexts(sslContext: SslContext, alpnSslContext: Option[SslContext])
+private[http] final case class SslContexts(sslContext: SslContext, alpnSslContext: Option[SslContext]) extends Closeable {
+  override def close(): Unit = {
+    ReferenceCountUtil.release(sslContext)
+    alpnSslContext.foreach(ReferenceCountUtil.release)
+  }
+}

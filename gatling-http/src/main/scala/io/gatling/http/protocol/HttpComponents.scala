@@ -42,6 +42,7 @@ final case class HttpComponents(
   override lazy val onExit: Session => Unit =
     session => {
       httpCaches.nameResolver(session).foreach(_.close())
+      httpCaches.sslContexts(session).foreach(_.close())
       httpEngine.flushClientIdChannels(session.userId)
     }
 }

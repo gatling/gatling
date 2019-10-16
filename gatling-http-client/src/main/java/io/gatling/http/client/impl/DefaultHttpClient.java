@@ -47,6 +47,7 @@ import io.netty.handler.codec.http2.*;
 import io.netty.handler.ssl.*;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
+import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 import io.netty.util.internal.logging.Slf4JLoggerFactory;
@@ -232,6 +233,8 @@ public class DefaultHttpClient implements HttpClient {
     if (closed.compareAndSet(false, true)) {
       channelGroup.close().awaitUninterruptibly();
       eventLoopGroup.shutdownGracefully();
+      ReferenceCountUtil.release(config.getDefaultSslContext());
+      ReferenceCountUtil.release(config.getDefaultAlpnSslContext());
     }
   }
 
