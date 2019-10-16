@@ -79,7 +79,7 @@ class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Thrott
       stopGracefully(data, Some(exception))
 
     case Event(Kill, StartedData(initData)) =>
-      logger.error("Simulation was killed")
+      logger.info("Simulation was killed")
       stop(EndData(initData, None))
   }
 
