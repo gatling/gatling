@@ -41,7 +41,7 @@ object ByteBufs {
 
       bufs.foreach { buf =>
         val bufSize = buf.readableBytes
-        buf.getBytes(0, bytes, offset, bufSize)
+        buf.getBytes(buf.readerIndex, bytes, offset, bufSize)
         offset += bufSize
       }
 
