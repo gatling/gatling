@@ -6,11 +6,8 @@ import sbt._
 
 object Bundle {
 
-  lazy val bundleArtifacts = {
-    def bundleArtifact(ext: String) = Artifact("gatling-bundle", ext, ext, "bundle")
-
-    addArtifact(bundleArtifact("zip"), packageBin in Universal).settings
-  }
+  lazy val bundleArtifacts =
+    addArtifact(Artifact("gatling-bundle", "zip", "zip", "bundle"), packageBin in Universal).settings
 
   lazy val bundleSettings = bundleArtifacts ++ Seq(
     mappings in Universal ++= mapSourcesToBundleLocation((sources in Compile).value, (scalaSource in Compile).value)
