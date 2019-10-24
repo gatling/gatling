@@ -23,6 +23,9 @@ object BuildSettings {
   lazy val gatlingModuleSettings =
     basicSettings ++ scaladocSettings ++ utf8Encoding
 
+  lazy val skipPublishing =
+    skip in publish := true
+
   lazy val noArtifactToPublish =
     publishArtifact in Compile := false
 
