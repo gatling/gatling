@@ -105,6 +105,12 @@ class PebbleStringBodySpec extends BaseSpec with ValidationValues {
     body(session).succeeded shouldBe "hellobonjour42"
   }
 
+  it should "support index access for Scala Seq" in {
+    val session = newSession(Map("list" -> Seq(1, 2, 3)))
+    val body = PebbleStringBody("{{list[0]}}")
+    body(session).succeeded shouldBe "1"
+  }
+
   it should "return expected result when using filters" in {
     val session = newSession(Map("bar" -> "bar"))
     val body = PebbleStringBody("{{ bar | capitalize }}{% filter upper %}hello{% endfilter %}")
