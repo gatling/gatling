@@ -52,10 +52,12 @@ private[gatling] object Pebble extends StrictLogging {
   private def matchMap(map: Map[String, Any]): JMap[String, AnyRef] = {
     val jMap: JMap[String, AnyRef] = new JHashMap(map.size)
     for ((k, v) <- map) {
-      v match {
-        case c: Iterable[Any] => jMap.put(k, c.asJava)
-        case any: AnyRef      => jMap.put(k, any) //The AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
+      val javaValue = v match {
+        case c: Seq[Any]      => c.asJava
+        case c: Iterable[Any] => c.asJavaCollection
+        case any: AnyRef      => any // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
       }
+      jMap.put(k, javaValue)
     }
     jMap
   }
