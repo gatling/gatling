@@ -18,7 +18,6 @@ package io.gatling.http.protocol
 
 import java.net.{ InetAddress, InetSocketAddress }
 
-import io.gatling.commons.util.JavaRuntime
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
@@ -34,7 +33,7 @@ import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import io.netty.handler.ssl.OpenSsl
+import io.netty.handler.ssl.SslProvider
 import javax.net.ssl.KeyManagerFactory
 
 object HttpProtocolBuilder {
@@ -104,7 +103,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   ): HttpProtocolBuilder =
     sign(RequestBuilder.oauth1SignatureCalculator(consumerKey, clientSharedSecret, token, tokenSecret))
   def enableHttp2: HttpProtocolBuilder =
-    if ((useOpenSsl && OpenSsl.isAlpnSupported) || JavaRuntime.JavaMajorVersion >= 11) {
+    if (SslProvider.isAlpnSupported(if (useOpenSsl) SslProvider.OPENSSL_REFCNT else SslProvider.JDK)) {
       this.modify(_.protocol.enginePart.enableHttp2).setTo(true)
     } else {
       throw new UnsupportedOperationException("You can't use HTTP/2 if OpenSSL is not available and Java version < 11")
