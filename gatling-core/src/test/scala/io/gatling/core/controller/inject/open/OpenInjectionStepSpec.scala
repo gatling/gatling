@@ -143,7 +143,7 @@ class OpenInjectionStepSpec extends BaseSpec {
     constantRampScheduling.last shouldBe <(10 seconds)
   }
 
-  val heavisideScheduling = HeavisideOpenInjection(100, 5 seconds).chain(Iterator.empty).toList
+  private val heavisideScheduling = HeavisideOpenInjection(100, 5 seconds).chain(Iterator.empty).toList
   "HeavisideInjection" should "provide an appropriate number of users" in {
     heavisideScheduling.length shouldBe 100
   }
@@ -155,7 +155,7 @@ class OpenInjectionStepSpec extends BaseSpec {
   }
 
   it should "have most of the scheduling values close to half of the duration" in {
-    val l = heavisideScheduling.count((t) => (t > (1.5 seconds)) && (t < (3.5 seconds)))
+    val l = heavisideScheduling.count(t => (t > (1.5 seconds)) && (t < (3.5 seconds)))
     l shouldBe 67 // two thirds
   }
 
