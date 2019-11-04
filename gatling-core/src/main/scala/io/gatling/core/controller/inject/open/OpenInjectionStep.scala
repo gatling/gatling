@@ -352,8 +352,8 @@ final case class IncreasingUsersPerSecCompositeStep(
 private[inject] final case class CompositeOpenInjectionStep(injectionSteps: List[OpenInjectionStep]) extends OpenInjectionStep {
 
   override private[inject] def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    injectionSteps.foldLeft(iterator) {
-      case (acc, injectionStep) =>
+    injectionSteps.foldRight(iterator) {
+      case (injectionStep, acc) =>
         injectionStep.chain(acc)
     }
 

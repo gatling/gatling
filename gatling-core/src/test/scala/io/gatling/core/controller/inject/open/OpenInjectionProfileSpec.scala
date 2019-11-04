@@ -229,4 +229,21 @@ class OpenInjectionProfileSpec extends BaseSpec {
 
     steps.shouldBe(expected)
   }
+
+  it should "chain components in correct order" in {
+    val composite = CompositeOpenInjectionStep(
+      List(
+        ConstantRateOpenInjection(2, 1 seconds),
+        ConstantRateOpenInjection(4, 1 seconds)
+      )
+    )
+    composite.chain(Iterator.empty).toList shouldBe Seq(
+      0 milliseconds,
+      500 milliseconds,
+      1000 milliseconds,
+      1250 milliseconds,
+      1500 milliseconds,
+      1750 milliseconds
+    )
+  }
 }
