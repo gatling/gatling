@@ -185,14 +185,14 @@ class ScenarioSample {
   //#doSwitch
   doSwitch("${myKey}")( // beware: use parentheses, not curly braces!
     key1 -> chain1,
-    key1 -> chain2
+    key2 -> chain2
   )
   //#doSwitch
 
   //#doSwitchOrElse
   doSwitchOrElse("${myKey}")( // beware: use parentheses, not curly braces!
     key1 -> chain1,
-    key1 -> chain2
+    key2 -> chain2
   )(
     myFallbackChain
   )
