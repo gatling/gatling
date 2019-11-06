@@ -87,7 +87,7 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
         scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, system, statsEngine, clock)
       }(breakOut)
 
-      val timer = system.scheduler.schedule(TickPeriod, TickPeriod, self, Tick)
+      val timer = system.scheduler.scheduleWithFixedDelay(TickPeriod, TickPeriod, self, Tick)
       inject(StartedData(controller, workloads, timer), firstBatch = true)
   }
 

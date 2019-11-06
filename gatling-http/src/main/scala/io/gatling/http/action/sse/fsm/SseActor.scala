@@ -93,7 +93,7 @@ class SseActor(
   private var _timeoutId = 0L
   protected def scheduleTimeout(dur: FiniteDuration): Long = {
     val curr = _timeoutId
-    setTimer(SseActor.TimeoutTimerName, Timeout(curr), dur, repeat = false)
+    startSingleTimer(SseActor.TimeoutTimerName, Timeout(curr), dur)
     _timeoutId += 1
     curr
   }

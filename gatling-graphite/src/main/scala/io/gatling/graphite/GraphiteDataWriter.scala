@@ -56,7 +56,7 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
     usersByScenario.update(pattern.allUsersPath, new UserBreakdownBuffer(scenarios.sumBy(_.totalUserCount.getOrElse(0L))))
     scenarios.foreach(scenario => usersByScenario += (pattern.usersPath(scenario.name) -> new UserBreakdownBuffer(scenario.totalUserCount.getOrElse(0L))))
 
-    setTimer(flushTimerName, Flush, configuration.data.graphite.writePeriod, repeat = true)
+    startTimerWithFixedDelay(flushTimerName, Flush, configuration.data.graphite.writePeriod)
 
     GraphiteData(metricsSender, requestsByPath, usersByScenario, pattern)
   }

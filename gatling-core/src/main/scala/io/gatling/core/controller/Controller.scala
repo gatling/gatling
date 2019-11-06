@@ -54,7 +54,7 @@ class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Thrott
 
       simulationParams.maxDuration.foreach { maxDuration =>
         logger.debug("Setting up max duration")
-        setTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
+        startSingleTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
       }
 
       throttler.start()

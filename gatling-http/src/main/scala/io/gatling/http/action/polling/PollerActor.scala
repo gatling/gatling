@@ -145,5 +145,5 @@ class PollerActor(
   initialize()
 
   private def resetTimer(): Unit =
-    setTimer(PollTimerName, Poll, period)
+    startSingleTimer(PollTimerName, Poll, period)
 }

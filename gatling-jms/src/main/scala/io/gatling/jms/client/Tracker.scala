@@ -77,7 +77,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
   def triggerPeriodicTimeoutScan(): Unit =
     if (!periodicTimeoutScanTriggered) {
       periodicTimeoutScanTriggered = true
-      timers.startPeriodicTimer("timeoutTimer", TimeoutScan, replyTimeoutScanPeriod)
+      timers.startTimerWithFixedDelay("timeoutTimer", TimeoutScan, replyTimeoutScanPeriod)
     }
 
   override def receive: Receive = {
