@@ -59,16 +59,15 @@ Currently, ``requestReply`` and ``send`` (fire and forget) requests are supporte
 Destination
 -----------
 
-Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``
+Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``.
 
 Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)``, otherwise a dynamic queue will be used.
-If you do so, you have to possibility of not setting the `JMSReplyTo` header with ``noJmsReplyTo``.
+If you do so, you have the possibility of not setting the `JMSReplyTo` header with ``noJmsReplyTo``.
 
-Additionally for reply destination JMS selector can be defined with ``selector("selector")``
+Additionally for reply destination, JMS selector can be defined with ``selector(Expression[String])``
 
-If you have the need, to measure the time when a message arrive at a different message queue then the ``replyDestination(JmsDestination)``
+If you have the need to measure the time when a message arrive at a message queue different from the ``replyDestination(JmsDestination)``,
 you can additional define a ``trackerDestination(JmsDestination)``.
-
 
 Message Matching
 ----------------

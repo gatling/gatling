@@ -1503,7 +1503,7 @@
           description: Defines a JMS message selector
           syntax:
             - signature: (selector)
-              description: Where <i>selector</i> is the name of the selector
+              description: Where <i>selector</i> is the selector
 
         - keyword: textMessage
           description: Sends a text message

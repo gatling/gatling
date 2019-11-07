@@ -77,7 +77,7 @@ final case class RequestReplyDslBuilderMessage(
     replyDest: JmsDestination,
     setJmsReplyTo: Boolean,
     trackerDest: Option[JmsDestination],
-    messageSelector: Option[String],
+    selector: Option[Expression[String]],
     configuration: GatlingConfiguration
 ) {
 
@@ -93,7 +93,7 @@ final case class RequestReplyDslBuilderMessage(
   /**
    * defines selector for reply destination that is used for responses
    */
-  def selector(selector: String): RequestReplyDslBuilderMessage = this.copy(messageSelector = Some(selector))
+  def selector(select: Expression[String]): RequestReplyDslBuilderMessage = this.copy(selector = Some(select))
 
   def textMessage(text: Expression[String]): RequestReplyDslBuilder = message(TextJmsMessage(text))
   def bytesMessage(bytes: Expression[Array[Byte]]): RequestReplyDslBuilder = message(BytesJmsMessage(bytes))
@@ -103,7 +103,7 @@ final case class RequestReplyDslBuilderMessage(
 
   private def message(mess: JmsMessage) =
     RequestReplyDslBuilder(
-      JmsAttributes(requestName, destination, messageSelector, mess),
+      JmsAttributes(requestName, destination, selector, mess),
       RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest, configuration)
     )
 }

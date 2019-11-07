@@ -31,7 +31,7 @@ import io.gatling.jms.JmsCheck
 final case class JmsAttributes(
     requestName: Expression[String],
     destination: JmsDestination,
-    selector: Option[String],
+    selector: Option[Expression[String]],
     message: JmsMessage,
     messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
     jmsType: Option[Expression[String]] = None,
