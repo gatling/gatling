@@ -105,7 +105,7 @@ final class StringResponseBody(val string: String, charset: Charset) extends Res
   override def stream: InputStream = new FastByteArrayInputStream(bytes)
 }
 
-// for ResponseTransformer
+// for ResponseTransformer and PollerActor
 final class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
   override lazy val string: String = new String(bytes, charset)
