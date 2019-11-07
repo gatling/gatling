@@ -28,9 +28,10 @@ import io.gatling.http.engine.response._
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequestDef
-import io.gatling.http.response.{ HttpResult, ResponseBuilderFactory }
+import io.gatling.http.response._
 
 import akka.actor.Props
+import com.softwaremill.quicklens._
 
 final case class FetchedResource(
     tx: HttpTx,
@@ -97,7 +98,14 @@ class PollerActor(
           (tx: HttpTx) =>
             new ResponseProcessor() {
               override def onComplete(result: HttpResult): Unit = {
-                self ! FetchedResource(tx, result)
+                val safeBodyResult = result match {
+                  case response: Response =>
+                    response.modify(_.body).using { body =>
+                      new ByteArrayResponseBody(body.bytes, response.charset)
+                    }
+                  case _ => result
+                }
+                self ! FetchedResource(tx, safeBodyResult)
               }
             }
         )
