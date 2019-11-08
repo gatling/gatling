@@ -119,6 +119,7 @@ The example below shows the default values (so don't bother specifying options y
     <simulationsFolder>${project.basedir}/src/test/scala</simulationsFolder> <!-- where the simulations to be compiled are located -->
     <resourcesFolder>${project.basedir}/src/test/resources</resourcesFolder> <!-- where the test resources are located -->
     <resultsFolder>${project.basedir}/target/gatling</resultsFolder>         <!-- where the simulation log and the HTML reports will be generated -->
+    <workingDirectory>${project.basedir}</workingDirectory>                  <!-- change working directory to something other than the current working directory -->
   </configuration>
 
 Includes/Excludes filters
