@@ -293,6 +293,32 @@ final class UriParser {
     }
   }
 
+  private void handleConsecutiveSlashes() {
+    StringBuilder sb = null;
+    boolean inSlashSequence = false;
+    for (int i = 0; i < path.length(); i ++) {
+      char c = path.charAt(i);
+      if (c == '/') {
+        if (inSlashSequence) {
+          if (sb == null) {
+            sb = new StringBuilder(path.length() - 1);
+            sb.append(path, 0, i);
+          }
+        } else if (sb != null) {
+          sb.append(c);
+        }
+        inSlashSequence = true;
+      } else {
+        inSlashSequence = false;
+        if (sb != null) {
+          sb.append(c);
+        }
+      }
+    }
+
+    path = sb != null ? sb.toString() : path;
+  }
+
   private void handlePathDots() {
     if (path.indexOf('.') != -1) {
       removeEmbeddedDot();
@@ -339,6 +365,7 @@ final class UriParser {
       path = isNonEmpty(pathEnd) && pathEnd.charAt(0) != '/' ? "/" + pathEnd : pathEnd;
     }
     handlePathDots();
+    handleConsecutiveSlashes();
   }
 
   private void computeQueryOnlyPath() {
@@ -358,7 +385,6 @@ final class UriParser {
   }
 
   public void parse(Uri context, final String originalUrl) {
-
     assertNotNull(originalUrl, "originalUrl");
     this.originalUrl = originalUrl;
     this.end = originalUrl.length();

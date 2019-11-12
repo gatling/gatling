@@ -349,6 +349,18 @@ class UriTest {
   @Test
   void testGetPathWhenPathIsEmpty() {
     Uri uri = Uri.create("http://stackoverflow.com");
-    assertEquals(uri.getNonEmptyPath(), "/", "Incorrect path returned from getNonEmptyPath");
+    assertEquals(uri.getNonEmptyPath(), "/", "getNonEmptyPath should return / for host root");
+  }
+
+  @Test
+  void removeDoubleTrailingSlashes() {
+    Uri uri = Uri.create("https://gatling.io//");
+    assertEquals(uri.getNonEmptyPath(), "/", "getNonEmptyPath should normalize double trailing slashes");
+  }
+
+  @Test
+  void removeMultipleConsecutiveSlashes() {
+    Uri uri = Uri.create("https://gatling.io//foo///bar//");
+    assertEquals(uri.getNonEmptyPath(), "/foo/bar/", "getNonEmptyPath should normalize consecutive slashes anywhere in the path");
   }
 }
