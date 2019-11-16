@@ -29,7 +29,6 @@ import com.typesafe.scalalogging.StrictLogging
 
 /**
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.
- * It is implemented as an Akka Actor that receives Session messages.
  */
 trait Action extends StrictLogging {
 
