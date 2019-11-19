@@ -44,12 +44,8 @@ final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, co
   def SPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.SPOP)
   def SRANDMEMBER: RedisFeederBuilder = copy(command = RedisFeederBuilder.SRANDMEMBER)
 
-  override def apply(): Feeder[Any] = {
-    def next: Option[Map[String, String]] = clientPool.withClient { client =>
-      val value = command(client, key)
-      value.map(value => Map(key -> value))
-    }
-
-    Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
-  }
+  override def apply(): Feeder[Any] =
+    clientPool
+      .withClient(client => command(client, key))
+      .fold(Iterator.empty: Iterator[Map[String, String]])(value => Iterator.single(Map(key -> value)))
 }
