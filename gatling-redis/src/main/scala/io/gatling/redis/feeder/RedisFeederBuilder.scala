@@ -16,8 +16,7 @@
 
 package io.gatling.redis.feeder
 
-import io.gatling.core.feeder.{ Feeder, FeederBuilder }
-
+import io.gatling.core.feeder.{ Feeder, FeederBuilder, Record }
 import com.redis.{ RedisClient, RedisClientPool }
 
 /**
@@ -47,5 +46,6 @@ final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, co
   override def apply(): Feeder[Any] =
     clientPool
       .withClient(client => command(client, key))
-      .fold(Iterator.empty: Iterator[Map[String, String]])(value => Iterator.single(Map(key -> value)))
+      .fold(Iterator.empty: Iterator[Record[String]])(value => Iterator.single(Map(key -> value)))
+
 }
