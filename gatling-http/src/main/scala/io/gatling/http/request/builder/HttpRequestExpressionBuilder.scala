@@ -31,7 +31,7 @@ import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder
 import io.gatling.http.client.body.is.InputStreamRequestBodyBuilder
 import io.gatling.http.client.body.multipart.{ MultipartFormDataRequestBodyBuilder, StringPart }
 import io.gatling.http.client.body.string.StringRequestBodyBuilder
-import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
+import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
 
@@ -45,14 +45,14 @@ class HttpRequestExpressionBuilder(
 
   import RequestExpressionBuilder._
 
-  private def configureBodyParts(session: Session, requestBuilder: AhcRequestBuilder, bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] =
+  private def configureBodyParts(session: Session, requestBuilder: ClientRequestBuilder, bodyParts: List[BodyPart]): Validation[ClientRequestBuilder] =
     for {
       params <- httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session)
       stringParts = params.asScala.map(param => new StringPart(param.getName, param.getValue, charset, null, null, null, null, null))
       parts <- Validation.sequence(bodyParts.map(_.toMultiPart(session)))
     } yield requestBuilder.setBodyBuilder(new MultipartFormDataRequestBodyBuilder((stringParts ++ parts).asJava))
 
-  private def setBody(session: Session, requestBuilder: AhcRequestBuilder, body: Body): Validation[AhcRequestBuilder] =
+  private def setBody(session: Session, requestBuilder: ClientRequestBuilder, body: Body): Validation[ClientRequestBuilder] =
     body match {
       case StringBody(string) => string(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
       case RawFileBody(resourceWithCachedBytes) =>
@@ -103,7 +103,7 @@ class HttpRequestExpressionBuilder(
     }
   }
 
-  override protected def configureRequestBuilder(session: Session, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
+  override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
     super
       .configureRequestBuilder(session, requestBuilder)
       .flatMap(configureBody(session))

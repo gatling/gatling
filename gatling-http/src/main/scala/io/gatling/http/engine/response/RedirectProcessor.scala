@@ -24,7 +24,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.http.HeaderNames
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.client.{ Request, RequestBuilder => AhcRequestBuilder }
+import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpProtocol
 
@@ -60,7 +60,7 @@ object RedirectProcessor {
       newHeaders.remove(HeaderNames.ContentType)
     }
 
-    val requestBuilder = new AhcRequestBuilder(if (switchToGet) GET else originalMethod, redirectUri)
+    val requestBuilder = new RequestBuilder(if (switchToGet) GET else originalMethod, redirectUri)
       .setHeaders(newHeaders)
       .setHttp2Enabled(originalRequest.isHttp2Enabled)
       .setLocalAddress(originalRequest.getLocalAddress)
