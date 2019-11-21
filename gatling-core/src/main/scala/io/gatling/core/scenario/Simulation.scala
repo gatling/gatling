@@ -30,7 +30,7 @@ import io.gatling.core.structure.PopulationBuilder
 abstract class Simulation {
 
   private var _populationBuilders: List[PopulationBuilder] = Nil
-  private var _globalProtocols: Protocols = Protocols()
+  private var _globalProtocols: Protocols = Map.empty
   private var _assertions = Seq.empty[Assertion]
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
@@ -58,7 +58,7 @@ abstract class Simulation {
     def protocols(ps: Protocol*): SetUp = protocols(ps.toIterable)
 
     def protocols(ps: Iterable[Protocol]): SetUp = {
-      _globalProtocols = _globalProtocols ++ ps
+      _globalProtocols = _globalProtocols ++ Protocol.indexByType(ps)
       this
     }
 

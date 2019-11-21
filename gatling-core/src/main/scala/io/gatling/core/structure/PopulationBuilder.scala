@@ -31,12 +31,13 @@ import com.typesafe.scalalogging.LazyLogging
 final case class PopulationBuilder(
     scenarioBuilder: ScenarioBuilder,
     injectionProfile: InjectionProfile,
-    scenarioProtocols: Protocols = Protocols(),
+    scenarioProtocols: Protocols = Map.empty,
     scenarioThrottleSteps: Iterable[ThrottleStep] = Nil,
     pauseType: Option[PauseType] = None
 ) extends LazyLogging {
 
-  def protocols(protocols: Protocol*): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ protocols)
+  def protocols(ps: Protocol*): PopulationBuilder = protocols(ps.toIterable)
+  def protocols(ps: Iterable[Protocol]): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ Protocol.indexByType(ps))
 
   def disablePauses: PopulationBuilder = pauses(Disabled)
   def constantPauses: PopulationBuilder = pauses(Constant)

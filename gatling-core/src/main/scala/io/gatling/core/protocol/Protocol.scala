@@ -16,15 +16,18 @@
 
 package io.gatling.core.protocol
 
+import scala.collection.breakOut
 import scala.collection.mutable
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 
-/**
- * This trait is a model to all protocol specific configuration
- */
+object Protocol {
+  def indexByType(protocols: Iterable[Protocol]): Protocols =
+    protocols.map(p => p.getClass.asInstanceOf[Class[Protocol]] -> p)(breakOut)
+}
+
 trait Protocol
 
 trait ProtocolKey[P, C] {
@@ -67,7 +70,7 @@ class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Prot
 
     def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
     def protocol: P =
-      protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]
+      protocolCache.getOrElse(key, protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]
     def comps: C = componentsFactory(protocol)
 
     componentsCache.getOrElseUpdate(key, comps.asInstanceOf[ProtocolComponents]).asInstanceOf[C]

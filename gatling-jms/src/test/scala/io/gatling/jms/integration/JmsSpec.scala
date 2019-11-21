@@ -17,6 +17,7 @@
 package io.gatling.jms.integration
 
 import javax.jms.{ Session => JmsSession, _ }
+
 import scala.concurrent.duration._
 
 import io.gatling.AkkaSpec
@@ -26,11 +27,12 @@ import io.gatling.core.action.{ Action, ActorDelegatingAction }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
-import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols }
+import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.{ Session, StaticStringExpression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
+import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
 import akka.actor.ActorRef
@@ -73,12 +75,12 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
 
 trait JmsSpec extends AkkaSpec with JmsDsl {
 
-  override def beforeAll() = {
+  override def beforeAll(): Unit = {
     sys.props += "org.apache.activemq.SERIALIZABLE_PACKAGES" -> "io.gatling"
     startBroker()
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     super.afterAll()
     synchronized {
       cleanUpActions.foreach(_.apply())
@@ -87,7 +89,7 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
     stopBroker()
   }
 
-  var cleanUpActions: List[(() => Unit)] = Nil
+  var cleanUpActions: List[() => Unit] = Nil
 
   protected def registerCleanUpAction(f: () => Unit): Unit = synchronized {
     cleanUpActions = f :: cleanUpActions
@@ -95,32 +97,32 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
 
   lazy val broker: BrokerService = BrokerFactory.createBroker("broker://()/gatling?persistent=false&useJmx=false")
 
-  def startBroker() = {
+  def startBroker(): Boolean = {
     broker.start()
     broker.waitUntilStarted()
   }
 
-  def stopBroker() = {
+  def stopBroker(): Unit = {
     broker.stop()
     broker.waitUntilStopped()
   }
 
   val cf = new ActiveMQConnectionFactory("vm://gatling?broker.persistent=false&broker.useJmx=false")
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
-  def jmsProtocol =
+  def jmsProtocol: JmsProtocolBuilder =
     jms
       .connectionFactory(cf)
       .matchByCorrelationId
 
-  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(
+  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocol.indexByType(Seq(jmsProtocol)))(
       implicit configuration: GatlingConfiguration
-  ) = {
+  ): Session = {
     val clock = new DefaultClock
     val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val next = new ActorDelegatingAction("next", self)
-    val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Protocols(Nil))
+    val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     actor ! Session("TestSession", 0, clock.nowMillis)
     val session = expectMsgClass(timeout, classOf[Session])
@@ -128,7 +130,6 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
     session
   }
 
-  def replier(queue: JmsDestination, f: PartialFunction[(Message, JmsSession), Message]): Unit = {
-    val replier = new Replier(cf, queue, f)
-  }
+  def replier(queue: JmsDestination, f: PartialFunction[(Message, JmsSession), Message]): Replier =
+    new Replier(cf, queue, f)
 }
