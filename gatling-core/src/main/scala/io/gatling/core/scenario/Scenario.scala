@@ -27,5 +27,11 @@ final case class Scenario(
     onStart: Session => Session,
     onExit: Session => Unit,
     injectionProfile: InjectionProfile,
-    ctx: ScenarioContext
+    ctx: ScenarioContext,
+    children: Iterable[Scenario]
+)
+
+private[gatling] final case class Scenarios(
+    roots: List[Scenario],
+    children: Map[String, List[Scenario]]
 )

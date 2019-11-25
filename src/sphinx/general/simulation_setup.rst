@@ -91,7 +91,7 @@ Closed Model
 
   Setting a smaller number of concurrent users won't force existing users to abort. The only way for users to terminate is to complete their scenario.
 
-.. _simulation-setup-pause:
+.. _simulation-inject-meta:
 
 Meta DSL
 ^^^^^^^^
@@ -113,6 +113,19 @@ But there is now an alternative using the meta DSL.
 ``separatedByRampsLasting`` and ``startingFrom`` are both optional.
 If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
 If you don't specify the number of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
+
+.. _simulation-inject-seq:
+
+Chaining Sequences of Scenarios
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Scenarios defined in the same ``setUp`` block will be started at the same time and executed concurrently.
+
+However, it's possible with ``followedBy`` to chain scenarios so that children scenarios starts once all the users in the parent ones terminate.
+
+.. includecode:: code/SimulationSetupSample.scala#followedBy
+
+.. _simulation-setup-pause:
 
 Global Pause configuration
 ==========================

@@ -24,7 +24,7 @@ import scala.concurrent.duration._
 import io.gatling.commons.util.Clock
 import io.gatling.core.controller.ControllerCommand.InjectorStopped
 import io.gatling.core.controller.inject.open.OpenWorkload
-import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.{ Scenario, Scenarios }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 
@@ -32,7 +32,7 @@ import akka.actor.{ ActorRef, ActorSystem, Props }
 
 sealed trait InjectorCommand
 object InjectorCommand {
-  final case class Start(controller: ActorRef, scenarios: List[Scenario]) extends InjectorCommand
+  final case class Start(controller: ActorRef, scenarios: Scenarios) extends InjectorCommand
   final case object Tick extends InjectorCommand
 }
 
@@ -52,71 +52,76 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   import InjectorData._
   import InjectorCommand._
 
-  private def inject(data: StartedData, firstBatch: Boolean): State = {
-    import data._
+  startWith(WaitingToStart, NoData)
 
-    workloads.values.foreach {
+  private val userIdGen = new AtomicLong
+
+  private def buildWorkloads(scenarios: List[Scenario]): Map[String, Workload] = {
+    val startTime = clock.nowMillis
+    scenarios.map { scenario =>
+      scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, system, statsEngine, clock)
+    }(breakOut)
+  }
+
+  private def inject(data: StartedData, firstBatch: Boolean): State = {
+
+    val newInProgressWorkloads = data.inProgressWorkloads ++ buildWorkloads(data.todoScenarios)
+
+    newInProgressWorkloads.values.foreach {
       case workload: OpenWorkload if firstBatch => workload.injectBatch(TickPeriod * 2) // inject 1 second ahead
       case workload                             => workload.injectBatch(TickPeriod)
     }
 
-    if (workloads.values.forall(_.isAllUsersScheduled)) {
-      logger.info(s"StoppedInjecting")
-      timer.cancel()
-      val pendingWorkloads = workloads.filterNot { case (_, workload) => workload.isAllUsersStopped }
+    val (allScheduledWorkloads, stillInjectingProgressWorkloads) = newInProgressWorkloads.partition(_._2.isAllUsersScheduled)
 
-      if (pendingWorkloads.isEmpty) {
-        // all users are already stopped
-        stopInjector(controller)
-      } else {
-        goto(StoppedInjecting) using StoppedInjectingData(controller, pendingWorkloads)
-      }
-    } else {
-      goto(Started) using data
+    allScheduledWorkloads.keys.foreach { scenario =>
+      logger.info(s"Scenario $scenario has finished injecting")
     }
-  }
 
-  startWith(WaitingToStart, NoData)
+    if (stillInjectingProgressWorkloads.isEmpty && data.pendingChildrenScenarios.isEmpty) {
+      logger.info(s"StoppedInjecting")
+      data.timer.cancel()
+    }
+
+    goto(Started) using data.copy(inProgressWorkloads = newInProgressWorkloads, todoScenarios = Nil)
+  }
 
   when(WaitingToStart) {
     case Event(Start(controller, scenarios), NoData) =>
-      val userIdGen = new AtomicLong
-      val startTime = clock.nowMillis
-
-      val workloads: Map[String, Workload] = scenarios.map { scenario =>
-        scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, system, statsEngine, clock)
-      }(breakOut)
-
+      val rootWorkloads = buildWorkloads(scenarios.roots)
       val timer = system.scheduler.scheduleWithFixedDelay(TickPeriod, TickPeriod, self, Tick)
-      inject(StartedData(controller, workloads, timer), firstBatch = true)
+      inject(StartedData(controller, rootWorkloads, Nil, scenarios.children, timer), firstBatch = true)
   }
 
   when(Started) {
     case Event(userMessage @ UserEndMessage(session, _), data: StartedData) =>
       logger.debug(s"End user #${session.userId}")
-      val workload = data.workloads(session.scenario)
-      workload.endUser(userMessage)
-      stay()
-
-    case Event(Tick, data: StartedData) =>
-      inject(data, firstBatch = false)
-  }
-
-  when(StoppedInjecting) {
-    case Event(userMessage @ UserEndMessage(session, _), StoppedInjectingData(controller, workloads)) =>
       val scenario = session.scenario
-      val workload = workloads(scenario)
+      val workload = data.inProgressWorkloads(scenario)
       workload.endUser(userMessage)
       if (workload.isAllUsersStopped) {
         logger.info(s"All users of scenario $scenario are stopped")
-        if (workloads.size == 1) {
-          stopInjector(controller)
+        val newInProgressWorkloads = data.inProgressWorkloads - scenario
+        // children scenarios will be started on next tick
+        val newTodoScenarios = data.todoScenarios ++ data.pendingChildrenScenarios.getOrElse(scenario, Nil)
+
+        if (newInProgressWorkloads.isEmpty && newTodoScenarios.isEmpty) {
+          stopInjector(data.controller)
         } else {
-          stay() using StoppedInjectingData(controller, workloads - scenario)
+          stay() using StartedData(
+            controller = data.controller,
+            inProgressWorkloads = newInProgressWorkloads,
+            todoScenarios = newTodoScenarios,
+            pendingChildrenScenarios = data.pendingChildrenScenarios - scenario,
+            timer = data.timer
+          )
         }
       } else {
         stay()
       }
+
+    case Event(Tick, data: StartedData) =>
+      inject(data, firstBatch = false)
   }
 
   private def stopInjector(controller: ActorRef): State = {

@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.{ Controller, ControllerCommand }
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.scenario.{ Scenario, SimulationParams }
+import io.gatling.core.scenario.{ Scenarios, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.RunMessage
 
@@ -99,7 +99,11 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
     }
   }
 
-  protected[gatling] def start(simulationParams: SimulationParams, scenarios: List[Scenario], coreComponents: CoreComponents): Try[_] = {
+  protected[gatling] def start(
+      simulationParams: SimulationParams,
+      scenarios: Scenarios,
+      coreComponents: CoreComponents
+  ): Try[_] = {
     val timeout = Int.MaxValue.milliseconds - 10.seconds
     val start = coreComponents.clock.nowMillis
     println(s"Simulation ${simulationParams.name} started...")

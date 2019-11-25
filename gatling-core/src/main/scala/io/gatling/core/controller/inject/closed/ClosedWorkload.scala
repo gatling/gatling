@@ -33,11 +33,10 @@ class ClosedWorkload(
     scenario: Scenario,
     steps: Iterable[ClosedInjectionStep],
     userIdGen: AtomicLong,
-    startTime: Long,
     system: ActorSystem,
     statsEngine: StatsEngine,
     clock: Clock
-) extends Workload(scenario, userIdGen, startTime, system, statsEngine, clock) {
+) extends Workload(scenario, userIdGen, system, statsEngine, clock) {
 
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero

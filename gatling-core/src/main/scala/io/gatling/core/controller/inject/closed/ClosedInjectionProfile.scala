@@ -31,7 +31,7 @@ final case class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) ex
   override def totalUserCount: Option[Long] = None
 
   override def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock): Workload =
-    new ClosedWorkload(scenario, steps, userIdGen, startTime, system, statsEngine, clock)
+    new ClosedWorkload(scenario, steps, userIdGen, system, statsEngine, clock)
 
   //[fl]
   //

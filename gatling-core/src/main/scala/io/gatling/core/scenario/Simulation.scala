@@ -100,6 +100,14 @@ abstract class Simulation {
       //
       //
       //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
+      //
       // [fl]
       _populationBuilders
     )
@@ -126,14 +134,21 @@ abstract class Simulation {
 
   private[gatling] def params(configuration: GatlingConfiguration): SimulationParams = {
 
-    require(_populationBuilders.nonEmpty, "No scenario set up")
-    val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
+    val rootPopulationBuilders = resolvePopulationBuilders(_populationBuilders, configuration)
+    require(rootPopulationBuilders.nonEmpty, "No scenario set up")
+
+    val childrenPopulationBuilders = PopulationBuilder.groupChildrenByParent(rootPopulationBuilders)
+    val allPopulationBuilders = childrenPopulationBuilders.values.flatten
+
+    val duplicates =
+      allPopulationBuilders
+        .groupBy(_.scenarioBuilder.name)
+        .collect { case (name, scns) if scns.size > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
-    _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    val populationBuilders = resolvePopulationBuilders(_populationBuilders, configuration)
+    allPopulationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    val scenarioThrottlings: Map[String, Throttling] = populationBuilders.flatMap { scn =>
+    val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { scn =>
       val steps = resolveThrottleSteps(scn.scenarioThrottleSteps, configuration)
 
       if (steps.isEmpty) {
@@ -151,7 +166,6 @@ abstract class Simulation {
       }
 
     val maxDuration = {
-
       val globalThrottlingMaxDuration = globalThrottling.map(_.duration)
       val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
 
@@ -163,7 +177,8 @@ abstract class Simulation {
 
     SimulationParams(
       getClass.getName,
-      populationBuilders,
+      rootPopulationBuilders,
+      childrenPopulationBuilders,
       _globalProtocols,
       _globalPauseType,
       Throttlings(globalThrottling, scenarioThrottlings),
@@ -178,7 +193,8 @@ abstract class Simulation {
 
 final case class SimulationParams(
     name: String,
-    populationBuilders: List[PopulationBuilder],
+    rootPopulationBuilders: List[PopulationBuilder],
+    childrenPopulationBuilders: Map[String, List[PopulationBuilder]],
     globalProtocols: Protocols,
     globalPauseType: PauseType,
     throttlings: Throttlings,
@@ -186,8 +202,14 @@ final case class SimulationParams(
     assertions: Seq[Assertion]
 ) {
 
-  def scenarios(coreComponents: CoreComponents): List[Scenario] = {
+  private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
+    populationBuilder.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global)
+
+  def scenarios(coreComponents: CoreComponents): Scenarios = {
     val protocolComponentsRegistries = new ProtocolComponentsRegistries(coreComponents, globalProtocols)
-    populationBuilders.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, throttlings.global))
+    val rootScenarios = rootPopulationBuilders.map(buildScenario(_, coreComponents, protocolComponentsRegistries))
+    val childrenScenarios = childrenPopulationBuilders.mapValues(_.map(buildScenario(_, coreComponents, protocolComponentsRegistries)))
+
+    Scenarios(rootScenarios, childrenScenarios)
   }
 }

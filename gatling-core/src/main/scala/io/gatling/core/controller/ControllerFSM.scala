@@ -18,7 +18,7 @@ package io.gatling.core.controller
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.Scenarios
 import io.gatling.core.akka.BaseActor
 
 import akka.actor.{ ActorRef, FSM }
@@ -36,14 +36,14 @@ private[controller] object ControllerState {
 private[controller] sealed trait ControllerData
 private[controller] object ControllerData {
   case object NoData extends ControllerData
-  final case class InitData(launcher: ActorRef, scenarios: List[Scenario])
+  final case class InitData(launcher: ActorRef, scenarios: Scenarios)
   final case class StartedData(initData: InitData) extends ControllerData
   final case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 }
 
 sealed trait ControllerCommand
 object ControllerCommand {
-  final case class Start(scenarios: List[Scenario]) extends ControllerCommand
+  final case class Start(scenarios: Scenarios) extends ControllerCommand
   final case object InjectorStopped extends ControllerCommand
   final case class Crash(exception: Exception) extends ControllerCommand
   final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand

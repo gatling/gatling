@@ -32,7 +32,6 @@ import com.typesafe.scalalogging.StrictLogging
 abstract class Workload(
     scenario: Scenario,
     userIdGen: AtomicLong,
-    startTime: Long,
     system: ActorSystem,
     statsEngine: StatsEngine,
     clock: Clock

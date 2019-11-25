@@ -110,10 +110,12 @@ object DataWritersStatsEngine {
       system.actorOf(Props(clazz, clock, configuration), clazz.getName)
     }
 
+    val allPopulationBuilders = simulationParams.rootPopulationBuilders ++ simulationParams.childrenPopulationBuilders.values.flatten
+
     val dataWriterInitMessage = Init(
       simulationParams.assertions,
       runMessage,
-      simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
+      allPopulationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserCount))
     )
 
     new DataWritersStatsEngine(dataWriterInitMessage, dataWriters, system, clock)

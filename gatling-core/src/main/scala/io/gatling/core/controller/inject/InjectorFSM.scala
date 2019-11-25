@@ -17,6 +17,7 @@
 package io.gatling.core.controller.inject
 
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.scenario.Scenario
 
 import akka.actor.{ ActorRef, Cancellable, FSM }
 
@@ -24,14 +25,18 @@ private[inject] trait InjectorState
 private[inject] object InjectorState {
   case object WaitingToStart extends InjectorState
   case object Started extends InjectorState
-  case object StoppedInjecting extends InjectorState
 }
 
 private[inject] trait InjectorData
 private[inject] object InjectorData {
   case object NoData extends InjectorData
-  final case class StartedData(controller: ActorRef, workloads: Map[String, Workload], timer: Cancellable) extends InjectorData
-  final case class StoppedInjectingData(controller: ActorRef, workloads: Map[String, Workload]) extends InjectorData
+  final case class StartedData(
+      controller: ActorRef,
+      inProgressWorkloads: Map[String, Workload],
+      todoScenarios: List[Scenario],
+      pendingChildrenScenarios: Map[String, List[Scenario]],
+      timer: Cancellable
+  ) extends InjectorData
 }
 
 private[inject] class InjectorFSM extends BaseActor with FSM[InjectorState, InjectorData]

@@ -26,18 +26,39 @@ import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protoc
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
 
+import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.LazyLogging
+
+object PopulationBuilder {
+
+  def groupChildrenByParent(populationBuilders: List[PopulationBuilder]): Map[String, List[PopulationBuilder]] = {
+    def groupChildrenByParentRec(ancestorName: String, populationBuilders: List[PopulationBuilder]): Map[String, List[PopulationBuilder]] =
+      if (populationBuilders.isEmpty) {
+        Map.empty
+      } else {
+        Map(ancestorName -> populationBuilders) ++ populationBuilders.flatMap(pb => groupChildrenByParentRec(pb.scenarioBuilder.name, pb.children.toList))
+      }
+
+    populationBuilders.foldLeft(Map.empty[String, List[PopulationBuilder]]) { (acc, populationBuilder) =>
+      acc ++ groupChildrenByParentRec(populationBuilder.scenarioBuilder.name, populationBuilder.children.toList)
+    }
+  }
+}
 
 final case class PopulationBuilder(
     scenarioBuilder: ScenarioBuilder,
     injectionProfile: InjectionProfile,
-    scenarioProtocols: Protocols = Map.empty,
-    scenarioThrottleSteps: Iterable[ThrottleStep] = Nil,
-    pauseType: Option[PauseType] = None
+    scenarioProtocols: Protocols,
+    scenarioThrottleSteps: Iterable[ThrottleStep],
+    pauseType: Option[PauseType] = None,
+    children: Iterable[PopulationBuilder]
 ) extends LazyLogging {
 
   def protocols(ps: Protocol*): PopulationBuilder = protocols(ps.toIterable)
   def protocols(ps: Iterable[Protocol]): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ Protocol.indexByType(ps))
+
+  def followedBy(children: PopulationBuilder*): PopulationBuilder = followedBy(children.toIterable)
+  def followedBy(children: Iterable[PopulationBuilder]): PopulationBuilder = this.modify(_.children).using(_ ++ children)
 
   def disablePauses: PopulationBuilder = pauses(Disabled)
   def constantPauses: PopulationBuilder = pauses(Constant)
@@ -48,26 +69,17 @@ final case class PopulationBuilder(
   def pauses(pauseType: PauseType): PopulationBuilder = copy(pauseType = Some(pauseType))
 
   def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toIterable)
-
   def throttle(throttleSteps: Iterable[ThrottleStep]): PopulationBuilder = {
     require(throttleSteps.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
     copy(scenarioThrottleSteps = throttleSteps)
   }
 
-  /**
-   * @param coreComponents the CoreComponents
-   * @param protocolComponentsRegistries the ProtocolComponents registries
-   * @param globalPauseType the pause type
-   * @param globalThrottling the optional throttling profile
-   * @return the scenario
-   */
   private[core] def build(
       coreComponents: CoreComponents,
       protocolComponentsRegistries: ProtocolComponentsRegistries,
       globalPauseType: PauseType,
       globalThrottling: Option[Throttling]
   ): Scenario = {
-
     val resolvedPauseType =
       if (scenarioThrottleSteps.nonEmpty || globalThrottling.isDefined) {
         logger.info("Throttle is enabled, disabling pauses")
@@ -82,6 +94,8 @@ final case class PopulationBuilder(
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
-    Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onStart, protocolComponentsRegistry.onExit, injectionProfile, ctx)
+    val childrenScenarios = children.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottling))
+
+    Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onStart, protocolComponentsRegistry.onExit, injectionProfile, ctx, childrenScenarios)
   }
 }

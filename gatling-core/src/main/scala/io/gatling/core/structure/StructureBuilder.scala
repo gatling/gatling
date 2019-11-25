@@ -57,7 +57,14 @@ final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilde
 
   def inject[T: InjectionProfileFactory](iss: Iterable[T]): PopulationBuilder = {
     require(iss.nonEmpty, "Calling inject with empty injection steps")
-    PopulationBuilder(this, implicitly[InjectionProfileFactory[T]].profile(iss))
+    PopulationBuilder(
+      scenarioBuilder = this,
+      injectionProfile = implicitly[InjectionProfileFactory[T]].profile(iss),
+      scenarioProtocols = Map.empty,
+      scenarioThrottleSteps = Nil,
+      pauseType = None,
+      children = Nil
+    )
   }
 }
 
