@@ -49,6 +49,7 @@ final case class SendTextFrame(
 ) extends SendFrame {
   override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
 }
+@SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 final case class SendBinaryFrame(
     actionName: String,
     message: Array[Byte],
@@ -62,6 +63,7 @@ final case class SendBinaryFrame(
 sealed trait FrameReceived
 
 final case class TextFrameReceived(message: String, timestamp: Long) extends FrameReceived
+@SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 final case class BinaryFrameReceived(message: Array[Byte], timestamp: Long) extends FrameReceived
 final case class WebSocketClosed(code: Int, reason: String, timestamp: Long)
 final case class WebSocketCrashed(t: Throwable, timestamp: Long)

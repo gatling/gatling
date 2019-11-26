@@ -18,6 +18,7 @@ package io.gatling.recorder.model
 
 import io.netty.handler.codec.http.HttpHeaders
 
+@SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 case class HttpRequest(
     httpVersion: String,
     method: String,

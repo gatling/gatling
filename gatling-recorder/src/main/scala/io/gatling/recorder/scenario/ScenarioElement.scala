@@ -40,9 +40,11 @@ private[recorder] final case class TimedScenarioElement[+T <: ScenarioElement](s
 
 private[recorder] sealed trait RequestBody
 private[recorder] final case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
+@SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 private[recorder] final case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
 private[recorder] sealed trait ResponseBody
+@SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 private[recorder] final case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
 
 private[recorder] sealed trait ScenarioElement

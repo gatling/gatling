@@ -20,4 +20,5 @@ import java.net.InetSocketAddress
 
 sealed trait DnsNameResolution
 case object JavaDnsNameResolution extends DnsNameResolution
+@SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 final case class AsyncDnsNameResolution(dnsServers: Array[InetSocketAddress]) extends DnsNameResolution
