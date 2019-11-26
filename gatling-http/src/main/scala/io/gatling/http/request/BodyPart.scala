@@ -31,7 +31,7 @@ import com.softwaremill.quicklens._
 object BodyPart {
 
   def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
-    BodyPart(name, fileBodyPartBuilder(rawFileBodies.asResourceAndCachedBytes(filePath)), BodyPartAttributes())
+    BodyPart(name, fileBodyPartBuilder(rawFileBodies.asResourceAndCachedBytes(filePath)), BodyPartAttributes.Empty)
 
   def elFileBodyPart(
       name: Option[Expression[String]],
@@ -40,10 +40,10 @@ object BodyPart {
     stringBodyPart(name, elFileBodies.asString(filePath))
 
   def stringBodyPart(name: Option[Expression[String]], string: Expression[String])(implicit configuration: GatlingConfiguration): BodyPart =
-    BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.charset)))
+    BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes.Empty.copy(charset = Some(configuration.core.charset)))
 
   def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart =
-    BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
+    BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes.Empty)
 
   private def stringBodyPartBuilder(string: Expression[String])(
       name: String,
@@ -147,14 +147,18 @@ object BodyPart {
       }
 }
 
+object BodyPartAttributes {
+  val Empty: BodyPartAttributes = BodyPartAttributes(None, None, None, None, None, None, Nil)
+}
+
 final case class BodyPartAttributes(
-    contentType: Option[Expression[String]] = None,
-    charset: Option[Charset] = None,
-    dispositionType: Option[Expression[String]] = None,
-    fileName: Option[Expression[String]] = None,
-    contentId: Option[Expression[String]] = None,
-    transferEncoding: Option[String] = None,
-    customHeaders: List[(String, Expression[String])] = Nil
+    contentType: Option[Expression[String]],
+    charset: Option[Charset],
+    dispositionType: Option[Expression[String]],
+    fileName: Option[Expression[String]],
+    contentId: Option[Expression[String]],
+    transferEncoding: Option[String],
+    customHeaders: List[(String, Expression[String])]
 ) {
 
   lazy val customHeadersExpression: Expression[Seq[(String, String)]] = resolveIterable(customHeaders)

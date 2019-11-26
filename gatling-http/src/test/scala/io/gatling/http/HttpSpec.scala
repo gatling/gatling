@@ -65,6 +65,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def runScenario(
       sb: ScenarioBuilder,
       timeout: FiniteDuration = 10.seconds,

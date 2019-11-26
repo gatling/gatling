@@ -29,74 +29,74 @@ import io.gatling.core.json.Json._
 class JsonSpec extends BaseSpec {
 
   "stringify" should "be able to stringify strings" in {
-    stringify("Foo") shouldBe "Foo"
+    stringify("Foo", isRootObject = true) shouldBe "Foo"
   }
 
   it should "be able to stringify double-quoted strings" in {
-    stringify("""Double quoted "Foo"""") shouldBe """Double quoted \"Foo\""""
+    stringify("""Double quoted "Foo"""", isRootObject = true) shouldBe """Double quoted \"Foo\""""
   }
 
   it should "be able to stringify numbers" in {
-    stringify(3.toByte) shouldBe "3"
-    stringify(3.toShort) shouldBe "3"
-    stringify(3) shouldBe "3"
-    stringify(3L) shouldBe "3"
-    stringify(4.5) shouldBe "4.5"
-    stringify(4.5.toFloat) shouldBe "4.5"
+    stringify(3.toByte, isRootObject = true) shouldBe "3"
+    stringify(3.toShort, isRootObject = true) shouldBe "3"
+    stringify(3, isRootObject = true) shouldBe "3"
+    stringify(3L, isRootObject = true) shouldBe "3"
+    stringify(4.5, isRootObject = true) shouldBe "4.5"
+    stringify(4.5.toFloat, isRootObject = true) shouldBe "4.5"
   }
 
   it should "be able to stringify booleans" in {
-    stringify(true) shouldBe "true"
-    stringify(false) shouldBe "false"
+    stringify(true, isRootObject = true) shouldBe "true"
+    stringify(false, isRootObject = true) shouldBe "false"
   }
 
   it should "be able to stringify nulls" in {
-    stringify(null) shouldBe "null"
+    stringify(null, isRootObject = true) shouldBe "null"
   }
 
   it should "be able to stringify arrays" in {
-    stringify(Array(1, 2, 3)) shouldBe "[1,2,3]"
-    stringify(Array("foo", "bar", "quz")) shouldBe """["foo","bar","quz"]"""
-    stringify(Array(true, false, false)) shouldBe "[true,false,false]"
+    stringify(Array(1, 2, 3), isRootObject = true) shouldBe "[1,2,3]"
+    stringify(Array("foo", "bar", "quz"), isRootObject = true) shouldBe """["foo","bar","quz"]"""
+    stringify(Array(true, false, false), isRootObject = true) shouldBe "[true,false,false]"
   }
 
   it should "be able to stringify Scala collections" in {
-    stringify(Seq(1, 2, 3)) shouldBe "[1,2,3]"
-    stringify(IndexedSeq(1, 2, 3)) shouldBe "[1,2,3]"
-    stringify(1 to 3) shouldBe "[1,2,3]"
-    stringify(mutable.Buffer(1, 2, 3)) shouldBe "[1,2,3]"
-    stringify(mutable.Queue(1, 2, 3)) shouldBe "[1,2,3]"
+    stringify(Seq(1, 2, 3), isRootObject = true) shouldBe "[1,2,3]"
+    stringify(IndexedSeq(1, 2, 3), isRootObject = true) shouldBe "[1,2,3]"
+    stringify(1 to 3, isRootObject = true) shouldBe "[1,2,3]"
+    stringify(mutable.Buffer(1, 2, 3), isRootObject = true) shouldBe "[1,2,3]"
+    stringify(mutable.Queue(1, 2, 3), isRootObject = true) shouldBe "[1,2,3]"
   }
 
   it should "be able to stringify Java collections" in {
     val list: JCollection[Int] = Seq(1, 2, 3).asJava
-    stringify(list) shouldBe "[1,2,3]"
+    stringify(list, isRootObject = true) shouldBe "[1,2,3]"
   }
 
   it should "be able to stringify nested collections" in {
-    stringify(Seq(1, Seq(2, 3), 4)) shouldBe "[1,[2,3],4]"
+    stringify(Seq(1, Seq(2, 3), 4), isRootObject = true) shouldBe "[1,[2,3],4]"
   }
 
   it should "be able to stringify Scala maps" in {
-    stringify(Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2))) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
+    stringify(Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2)), isRootObject = true) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
   }
 
   it should "be able to stringify Scala maps with double quoted string values" in {
-    stringify(Map(1 -> """Double quoted "Foo"""", "bar" -> 4.5, "toto" -> Seq(1, 2))) shouldBe """{"1":"Double quoted \"Foo\"","bar":4.5,"toto":[1,2]}"""
+    stringify(Map(1 -> """Double quoted "Foo"""", "bar" -> 4.5, "toto" -> Seq(1, 2)), isRootObject = true) shouldBe """{"1":"Double quoted \"Foo\"","bar":4.5,"toto":[1,2]}"""
   }
 
   it should "be able to stringify Java maps" in {
     val map: JMap[Any, Any] = Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2)).asJava
-    stringify(map) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
+    stringify(map, isRootObject = true) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
   }
 
   it should "not escape solidus" in {
     val url = "http://foo.com/bar/"
-    stringify(url) shouldBe url
+    stringify(url, isRootObject = true) shouldBe url
   }
 
   "asScala" should "deep convert into Scala structures" in {
-    implicit val config = GatlingConfiguration.loadForTest()
+    implicit val config: GatlingConfiguration = GatlingConfiguration.loadForTest()
     val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
       JsonParsers().parse(is)
     }

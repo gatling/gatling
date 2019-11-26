@@ -52,7 +52,7 @@ private[recorder] final case class TagElement(text: String) extends ScenarioElem
 
 private[recorder] object RequestElement {
 
-  val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
+  private val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
 
   private val HtmlContentType = """(?i)text/html\s*;\s+charset=(.+)?""".r
 
@@ -101,7 +101,7 @@ private[recorder] object RequestElement {
         requestHeaders
       }
 
-    RequestElement(request.uri, request.method, filteredRequestHeaders, requestBody, response.headers, responseBody, response.status, embeddedResources)
+    RequestElement(request.uri, request.method, filteredRequestHeaders, requestBody, response.headers, responseBody, response.status, embeddedResources, Nil)
   }
 }
 
@@ -114,7 +114,7 @@ private[recorder] final case class RequestElement(
     responseBody: Option[ResponseBody],
     statusCode: Int,
     embeddedResources: List[ConcurrentResource],
-    nonEmbeddedResources: List[RequestElement] = Nil
+    nonEmbeddedResources: List[RequestElement]
 ) extends ScenarioElement {
 
   val (baseUrl, pathQuery) = {

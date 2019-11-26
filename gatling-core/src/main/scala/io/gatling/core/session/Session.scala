@@ -58,6 +58,30 @@ object Session {
   val NothingOnExit: Session => Unit = _ => ()
 
   private[session] def timestampName(counterName: String) = "timestamp." + counterName
+
+  def apply(
+      scenario: String,
+      userId: Long,
+      startDate: Long
+  ): Session =
+    apply(scenario, userId, startDate, Session.NothingOnExit)
+
+  private[core] def apply(
+      scenario: String,
+      userId: Long,
+      startDate: Long,
+      onExit: Session => Unit
+  ): Session =
+    Session(
+      scenario = scenario,
+      userId = userId,
+      startDate = startDate,
+      attributes = Map.empty,
+      drift = 0L,
+      baseStatus = OK,
+      blockStack = Nil,
+      onExit = onExit
+    )
 }
 
 /**
@@ -79,11 +103,11 @@ final case class Session(
     scenario: String,
     userId: Long,
     startDate: Long,
-    attributes: Map[String, Any] = Map.empty,
-    drift: Long = 0L,
-    baseStatus: Status = OK,
-    blockStack: List[Block] = Nil,
-    onExit: Session => Unit = Session.NothingOnExit
+    attributes: Map[String, Any],
+    drift: Long,
+    baseStatus: Status,
+    blockStack: List[Block],
+    onExit: Session => Unit
 ) extends LazyLogging {
 
   import Session._
@@ -123,12 +147,12 @@ final case class Session(
 
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
-  private[gatling] def enterGroup(groupName: String, nowMillis: Long) = {
+  private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
       case Some(l) => l :+ groupName
       case _       => List(groupName)
     }
-    copy(blockStack = GroupBlock(groupHierarchy, nowMillis) :: blockStack)
+    copy(blockStack = GroupBlock(groupHierarchy, nowMillis, 0, OK) :: blockStack)
   }
 
   private[gatling] def exitGroup = blockStack match {
@@ -166,7 +190,7 @@ final case class Session(
 
   private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
     copy(
-      blockStack = TryMaxBlock(counterName, loopAction) :: blockStack,
+      blockStack = TryMaxBlock(counterName, loopAction, OK) :: blockStack,
       attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
     )
 

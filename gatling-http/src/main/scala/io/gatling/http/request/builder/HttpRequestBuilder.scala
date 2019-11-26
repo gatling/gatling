@@ -29,17 +29,33 @@ import io.gatling.http.request._
 
 import com.softwaremill.quicklens._
 
+object HttpAttributes {
+  val Empty: HttpAttributes =
+    new HttpAttributes(
+      checks = Nil,
+      ignoreDefaultChecks = false,
+      silent = None,
+      followRedirect = true,
+      responseTransformer = None,
+      explicitResources = Nil,
+      body = None,
+      bodyParts = Nil,
+      formParams = Nil,
+      form = None
+    )
+}
+
 final case class HttpAttributes(
-    checks: List[HttpCheck] = Nil,
-    ignoreDefaultChecks: Boolean = false,
-    silent: Option[Boolean] = None,
-    followRedirect: Boolean = true,
-    responseTransformer: Option[ResponseTransformer] = None,
-    explicitResources: List[HttpRequestBuilder] = Nil,
-    body: Option[Body] = None,
-    bodyParts: List[BodyPart] = Nil,
-    formParams: List[HttpParam] = Nil,
-    form: Option[Expression[Map[String, Any]]] = None
+    checks: List[HttpCheck],
+    ignoreDefaultChecks: Boolean,
+    silent: Option[Boolean],
+    followRedirect: Boolean,
+    responseTransformer: Option[ResponseTransformer],
+    explicitResources: List[HttpRequestBuilder],
+    body: Option[Body],
+    bodyParts: List[BodyPart],
+    formParams: List[HttpParam],
+    form: Option[Expression[Map[String, Any]]]
 )
 
 object HttpRequestBuilder {

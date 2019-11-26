@@ -79,15 +79,15 @@ class LogFileReaderSpec extends BaseSpec {
 
   val singleLogFileReader = new LogFileReader("run_single_node_with_known_stats")
   "When reading a single log file with known statistics, FileDataReder" should "return expected minResponseTime for correct request data" in {
-    singleLogFileReader.requestGeneralStats().min shouldBe 2000
+    singleLogFileReader.requestGeneralStats(None, None, None).min shouldBe 2000
   }
 
   it should "return expected maxResponseTime for correct request data" in {
-    singleLogFileReader.requestGeneralStats().max shouldBe 9000
+    singleLogFileReader.requestGeneralStats(None, None, None).max shouldBe 9000
   }
 
   it should "return expected responseTimeStandardDeviation for correct request data" in {
-    val computedValue = singleLogFileReader.requestGeneralStats().stdDev
+    val computedValue = singleLogFileReader.requestGeneralStats(None, None, None).stdDev
     val expectedValue = 2138
     val error = (computedValue.toDouble - expectedValue) / expectedValue
 
@@ -102,8 +102,8 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
     val lowPercentilesLogFileReader = new LogFileReader("run_single_node_with_known_stats")
-    lowPercentilesLogFileReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile1) shouldBe 2000
-    lowPercentilesLogFileReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile2) shouldBe 5000
+    lowPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile1) shouldBe 2000
+    lowPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile2) shouldBe 5000
   }
 
   it should "return expected result for the (99.99, 100) percentiles" in {
@@ -114,8 +114,8 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
     val highPercentilesLogFileReader = new LogFileReader("run_single_node_with_known_stats")
-    highPercentilesLogFileReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile1) shouldBe 8860
-    highPercentilesLogFileReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile2) shouldBe 9000
+    highPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile1) shouldBe 8860
+    highPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile2) shouldBe 9000
   }
 
   it should "indicate that all the request have their response time in between 0 and 100000" in {

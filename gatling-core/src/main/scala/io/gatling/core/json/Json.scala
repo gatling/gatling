@@ -35,7 +35,7 @@ private[gatling] object Json {
 
   private val stringBuilders = new StringBuilderPool
 
-  def stringify(node: JsonNode, isRootObject: Boolean): String = {
+  def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
 
     val sb = stringBuilders.get()
 
@@ -118,7 +118,7 @@ private[gatling] object Json {
     appendStringified(node, isRootObject).toString
   }
 
-  def stringify(value: Any, isRootObject: Boolean = true): String = {
+  def stringify(value: Any, isRootObject: Boolean): String = {
 
     val sb = stringBuilders.get()
 

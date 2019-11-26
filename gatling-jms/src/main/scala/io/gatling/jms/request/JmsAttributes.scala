@@ -19,6 +19,24 @@ package io.gatling.jms.request
 import io.gatling.core.session.Expression
 import io.gatling.jms.JmsCheck
 
+object JmsAttributes {
+  def apply(
+      requestName: Expression[String],
+      destination: JmsDestination,
+      selector: Option[Expression[String]],
+      message: JmsMessage
+  ): JmsAttributes =
+    new JmsAttributes(
+      requestName,
+      destination,
+      selector,
+      message,
+      messageProperties = Map.empty,
+      jmsType = None,
+      checks = Nil
+    )
+}
+
 /**
  * JmsAttributes carries around the JMS settings.
  * <p>
@@ -33,7 +51,7 @@ final case class JmsAttributes(
     destination: JmsDestination,
     selector: Option[Expression[String]],
     message: JmsMessage,
-    messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
-    jmsType: Option[Expression[String]] = None,
-    checks: List[JmsCheck] = Nil
+    messageProperties: Map[Expression[String], Expression[Any]],
+    jmsType: Option[Expression[String]],
+    checks: List[JmsCheck]
 )

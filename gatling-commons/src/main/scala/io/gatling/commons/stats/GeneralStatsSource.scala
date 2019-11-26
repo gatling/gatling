@@ -22,6 +22,6 @@ trait GeneralStatsSource {
 
   def assertions: List[Assertion]
   def statsPaths: List[StatsPath]
-  def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
+  def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats
   def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats
 }

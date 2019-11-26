@@ -16,6 +16,8 @@
 
 package io.gatling.core.stats.writer
 
+import java.util.Date
+
 import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK }
@@ -35,16 +37,19 @@ class UserCounters(val totalUserCount: Option[Long]) {
   def waitingCount: Long = totalUserCount.map(c => math.max(c - _activeCount - _doneCount, 0)).getOrElse(0L)
 }
 
-class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
+object RequestCounters {
+  def empty = new RequestCounters(0, 0)
+}
 
-class ConsoleData(
-    val startUpTime: Long,
-    var complete: Boolean = false,
-    val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty[String, UserCounters],
-    val globalRequestCounters: RequestCounters = new RequestCounters,
-    val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty,
-    val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
-) extends DataWriterData
+class RequestCounters(var successfulCount: Int, var failedCount: Int)
+
+class ConsoleData(val startUpTime: Long) extends DataWriterData {
+  var complete: Boolean = false
+  val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty
+  val globalRequestCounters: RequestCounters = RequestCounters.empty
+  val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
+  val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
+}
 
 class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[ConsoleData] {
 
@@ -68,7 +73,7 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
 
     val runDuration = (clock.nowMillis - startUpTime) / 1000
 
-    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration)
+    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration, new Date)
     complete = summary.complete
     println(summary.text)
   }
@@ -106,7 +111,7 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     import response._
 
     val requestPath = (groupHierarchy :+ name).mkString(" / ")
-    val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)
+    val requestCounters = requestsCounters.getOrElseUpdate(requestPath, RequestCounters.empty)
 
     status match {
       case OK =>

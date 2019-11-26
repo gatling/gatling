@@ -30,6 +30,7 @@ package object validation extends StrictLogging {
   val NoneSuccess = None.success
   val NullStringSuccess = "null".success
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def safely[T](errorMapper: String => String = identity)(f: => Validation[T]): Validation[T] =
     try {
       f

@@ -92,7 +92,7 @@ class PollerActor(
           errorMessage
         }
       } yield {
-        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, next = null, resourceTx = None)
+        val nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, next = null, resourceTx = None, redirectCount = 0)
         httpTxExecutor.execute(
           nonBlockingTx,
           (tx: HttpTx) =>

@@ -56,10 +56,18 @@ sealed abstract class Filter(patterns: Seq[String]) extends StrictLogging {
   def accept(url: String): Boolean
 }
 
-final case class WhiteList(patterns: Seq[String] = Nil) extends Filter(patterns) {
+object WhiteList {
+  val Empty: WhiteList = WhiteList(Nil)
+}
+
+final case class WhiteList(patterns: Seq[String]) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
 }
 
-final case class BlackList(patterns: Seq[String] = Nil) extends Filter(patterns) {
+object BlackList {
+  val Empty: BlackList = BlackList(Nil)
+}
+
+final case class BlackList(patterns: Seq[String]) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }

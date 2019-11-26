@@ -57,7 +57,7 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
       session: Session,
       status: Status,
       result: HttpResult,
-      errorMessage: Option[String] = None
+      errorMessage: Option[String]
   ): Unit = {
     def dump = {
       // hack: pre-cache url because it would reset the StringBuilder

@@ -48,7 +48,7 @@ final case class ChainBuilder(actionBuilders: List[ActionBuilder]) extends Struc
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] with BuildAction {
+final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder]) extends StructureBuilder[ScenarioBuilder] with BuildAction {
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
     copy(actionBuilders = newActionBuilders.toList ::: actionBuilders)

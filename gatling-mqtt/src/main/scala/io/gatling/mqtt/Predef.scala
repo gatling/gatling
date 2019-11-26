@@ -34,5 +34,5 @@ object Predef extends MqttCheckSupport with StrictLogging {
 
   def mqtt(requestName: Expression[String]): MqttActionBuilderBase = ???
 
-  def waitForMessages: WaitForMessagesBuilder = ???
+  def waitForMessages: WaitForMessagesBuilder = WaitForMessagesBuilder.Default
 }

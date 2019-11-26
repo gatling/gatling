@@ -98,7 +98,7 @@ object Selection {
       val validRange = simulationClasses.indices
 
       @tailrec
-      def readSimulationNumber(attempts: Int = 0): Int = {
+      def readSimulationNumber(attempts: Int): Int = {
         if (attempts > MaxReadSimulationNumberAttempts) {
           println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
           sys.exit()
@@ -126,7 +126,7 @@ object Selection {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")
         sys.exit()
       }
-      simulationClasses(readSimulationNumber())
+      simulationClasses(readSimulationNumber(0))
     }
 
     private def askRunDescription(): String = {

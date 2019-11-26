@@ -50,7 +50,7 @@ final case class PopulationBuilder(
     injectionProfile: InjectionProfile,
     scenarioProtocols: Protocols,
     scenarioThrottleSteps: Iterable[ThrottleStep],
-    pauseType: Option[PauseType] = None,
+    pauseType: Option[PauseType],
     children: Iterable[PopulationBuilder]
 ) extends LazyLogging {
 

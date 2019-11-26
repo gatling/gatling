@@ -43,7 +43,7 @@ object GatlingFiles {
   def jsDirectory(runUuid: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runUuid) / GatlingJsFolder
   def styleDirectory(runUuid: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runUuid) / GatlingStyleFolder
 
-  def simulationLogDirectory(runUuid: String, create: Boolean = true)(implicit configuration: GatlingConfiguration): Path = {
+  def simulationLogDirectory(runUuid: String, create: Boolean)(implicit configuration: GatlingConfiguration): Path = {
     val dir = resultDirectory(runUuid)
     if (create) dir.mkdirs
     else {

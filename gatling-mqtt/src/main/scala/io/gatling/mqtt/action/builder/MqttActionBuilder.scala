@@ -24,14 +24,14 @@ class MqttActionBuilderBase(requestName: Expression[String]) {
 
   def connect: ConnectBuilder = new ConnectBuilder(requestName)
 
-  def subscribe(topic: Expression[String]): SubscribeBuilder = SubscribeBuilder(requestName, topic)
+  def subscribe(topic: Expression[String]): SubscribeBuilder = SubscribeBuilder(requestName, topic, None, None)
 
   def publish(topic: Expression[String]): MqttActionPublishBase = new MqttActionPublishBase(requestName, topic)
 }
 
 class MqttActionPublishBase(requestName: Expression[String], topic: Expression[String]) {
 
-  def message(body: Body): PublishBuilder = PublishBuilder(requestName, topic, body)
+  def message(body: Body): PublishBuilder = PublishBuilder(requestName, topic, body, None, None, None)
 }
 
 abstract class MqttActionBuilder extends ActionBuilder {}

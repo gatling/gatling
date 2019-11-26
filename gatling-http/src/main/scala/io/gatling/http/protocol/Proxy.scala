@@ -25,7 +25,7 @@ final case class Proxy(
     port: Int,
     securePort: Int,
     proxyType: ProxyType,
-    credentials: Option[Credentials] = None
+    credentials: Option[Credentials]
 ) {
   def proxyServer: ProxyServer = {
     def basicRealm: Option[BasicRealm] = credentials.map(c => new BasicRealm(c.username, c.password))

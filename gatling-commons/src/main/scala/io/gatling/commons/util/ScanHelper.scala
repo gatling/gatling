@@ -81,7 +81,7 @@ object ScanHelper {
       pkgURL.getProtocol match {
         case "file" =>
           val rootDir: Path = pkgURL
-          val files = if (deep) rootDir.deepFiles() else rootDir.files
+          val files = if (deep) rootDir.deepFiles(_ => true) else rootDir.files
           files.map(f => FileResource(f.path))
 
         case "jar" =>

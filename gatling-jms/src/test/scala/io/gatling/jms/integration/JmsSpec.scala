@@ -116,6 +116,7 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
       .connectionFactory(cf)
       .matchByCorrelationId
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocol.indexByType(Seq(jmsProtocol)))(
       implicit configuration: GatlingConfiguration
   ): Session = {

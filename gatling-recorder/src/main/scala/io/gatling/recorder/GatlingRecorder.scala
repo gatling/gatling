@@ -32,7 +32,7 @@ object GatlingRecorder {
     argsParser.parseArguments.map(overrides => initRecorder(overrides, None))
   }
 
-  def fromMap(props: ConfigOverrides, recorderConfigFile: Option[Path] = None): RecorderController =
+  def fromMap(props: ConfigOverrides, recorderConfigFile: Option[Path]): RecorderController =
     initRecorder(props, recorderConfigFile)
 
   private def initRecorder(props: ConfigOverrides, recorderConfigFile: Option[Path]) = {

@@ -38,7 +38,7 @@ object BufferedFileChannelWriter {
 
   def apply(runId: String, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
     val encoder = configuration.core.charset.newEncoder
-    val simulationLog = simulationLogDirectory(runId)(configuration) / "simulation.log"
+    val simulationLog = simulationLogDirectory(runId, create = true)(configuration) / "simulation.log"
     val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
 

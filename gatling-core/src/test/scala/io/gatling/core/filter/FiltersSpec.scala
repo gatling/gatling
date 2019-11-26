@@ -21,30 +21,28 @@ import org.scalatestplus.mockito.MockitoSugar
 
 class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Inspectors {
 
-  val hosts = List(
+  private val hosts = List(
     "http://takima.fr",
     "http://ebusinessinformation.fr",
     "https://gatling.io"
   )
 
-  val paths = List(
+  private val paths = List(
     "",
     "/infos.html",
     "/assets/images/foo.png",
     "/assets/js/bar.js"
   )
 
-  val urls = for {
+  private val urls = for {
     host <- hosts
     path <- paths
   } yield host + path
 
-  val whiteList = WhiteList(List("http://takima\\.fr.*"))
-  val emptyWhiteList = WhiteList()
-  val blackList = BlackList(List("http[s]?://.*/assets/.*"))
-  val emptyBlackList = BlackList()
+  private val whiteList = WhiteList(List("http://takima\\.fr.*"))
+  private val blackList = BlackList(List("http[s]?://.*/assets/.*"))
 
-  def isRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
+  private def checkRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
     val (expectedAccepted, expectedRejected) = partition
 
     forAll(expectedAccepted) {
@@ -56,23 +54,23 @@ class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Insp
   }
 
   "Filters" should "filter whitelist correctly when blacklist is empty" in {
-    isRequestAccepted(Filters(whiteList, emptyBlackList), urls.partition(_.contains("takima")))
+    checkRequestAccepted(Filters(whiteList, BlackList.Empty), urls.partition(_.contains("takima")))
   }
 
   it should "filter whitelist then blacklist when both are specified on whitefirst mode" in {
-    isRequestAccepted(Filters(whiteList, blackList), urls.partition { url =>
+    checkRequestAccepted(Filters(whiteList, blackList), urls.partition { url =>
       url.contains("takima") && !url.contains("assets")
     })
   }
 
   it should "filter blacklist correctly when whitelist is empty" in {
-    isRequestAccepted(Filters(blackList, emptyWhiteList), urls.partition { url =>
+    checkRequestAccepted(Filters(blackList, WhiteList.Empty), urls.partition { url =>
       !url.contains("assets")
     })
   }
 
   it should "filter blacklist then whitelist when both are specified on blackfirst mode" in {
-    isRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
+    checkRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
       !url.contains("assets") && url.contains("takima")
     })
   }

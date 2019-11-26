@@ -17,6 +17,7 @@
 package io.gatling.core.session
 
 import io.gatling.BaseSpec
+import io.gatling.commons.stats.OK
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 
@@ -30,7 +31,7 @@ class BlockSpec extends BaseSpec {
   }
 
   it should "return None if it isn't an instance of LoopBlock" in {
-    LoopBlock.unapply(GroupBlock(List("root group"), System.currentTimeMillis())) shouldBe None
+    LoopBlock.unapply(GroupBlock(List("root group"), System.currentTimeMillis(), 0, OK)) shouldBe None
   }
 
   "LoopBlock.continue" should "return true if the condition evaluation succeeds and evaluates to true" in {

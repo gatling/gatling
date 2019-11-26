@@ -130,9 +130,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*): HttpProtocolBuilder = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
-  def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList())))
+  def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList.Empty)))
   def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, black)))
-  def inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, white)))
+  def inferHtmlResources(black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, WhiteList.Empty)))
+  def inferHtmlResources(black: BlackList, white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, white)))
   private def inferHtmlResources(filters: Option[Filters]): HttpProtocolBuilder =
     this
       .modify(_.protocol.responsePart.inferHtmlResources)

@@ -19,6 +19,7 @@ package io.gatling.charts.stats.buffers
 import io.gatling.commons.stats.{ OK, Status }
 import io.gatling.core.stats.CountsVsTimePlot
 
+@SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 private[stats] class Counts(var oks: Int = 0, var kos: Int = 0) {
 
   def increment(status: Status): Unit = status match {

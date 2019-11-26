@@ -27,6 +27,8 @@ object Ws {
 
   private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  // binary compat
   def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws = new Ws(requestName, wsName)
 
   def checkTextMessage(name: String) = WsTextFrameCheck(name, Nil, Nil)

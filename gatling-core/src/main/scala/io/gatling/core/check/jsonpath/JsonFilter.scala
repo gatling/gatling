@@ -35,7 +35,7 @@ trait LowPriorityJsonFilterImplicits {
       if (node.getNodeType == NULL) {
         null
       } else {
-        Json.stringify(node, isRootObject = true)
+        Json.stringifyNode(node, isRootObject = true)
       }
   }
 

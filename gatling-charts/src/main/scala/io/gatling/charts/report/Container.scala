@@ -33,13 +33,16 @@ private[charts] final case class RequestContainer(name: String, stats: RequestSt
 
 private[charts] object GroupContainer {
   def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
+
+  def apply(name: String, stats: RequestStatistics): GroupContainer =
+    new GroupContainer(name, stats, mutable.LinkedHashMap.empty, mutable.LinkedHashMap.empty)
 }
 
 private[charts] final case class GroupContainer(
     name: String,
     stats: RequestStatistics,
-    requests: mutable.Map[String, RequestContainer] = mutable.LinkedHashMap.empty,
-    groups: mutable.Map[String, GroupContainer] = mutable.LinkedHashMap.empty
+    requests: mutable.Map[String, RequestContainer],
+    groups: mutable.Map[String, GroupContainer]
 ) extends Container {
 
   private def findGroup(path: List[String]) = {

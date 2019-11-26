@@ -120,7 +120,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   "redirect memoization" should "return transaction with no redirect cache" in new RedirectContext {
-    val tx = txTo("http://example.com/", session, cache = true)
+    val tx = txTo("http://example.com/", session, redirectCount = 0, cache = true)
     val actualTx = httpCaches.applyPermanentRedirect(tx)
 
     actualTx shouldBe tx
@@ -129,7 +129,7 @@ class CacheSupportSpec extends BaseSpec {
   it should "return updated transaction with single redirect" in new RedirectContext {
     addRedirect("http://example.com/", "http://gatling.io/")
 
-    val origTx = txTo("http://example.com/", session, cache = true)
+    val origTx = txTo("http://example.com/", session, redirectCount = 0, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
     tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling.io/")
@@ -142,7 +142,7 @@ class CacheSupportSpec extends BaseSpec {
     addRedirect("http://gatling.io/", "http://gatling2.io/")
     addRedirect("http://gatling2.io/", "http://gatling3.io/")
 
-    val origTx = txTo("http://example.com/", session, cache = true)
+    val origTx = txTo("http://example.com/", session, redirectCount = 0, cache = true)
     val tx = httpCaches.applyPermanentRedirect(origTx)
 
     tx.request.clientRequest.getUri shouldBe Uri.create("http://gatling3.io/")
@@ -164,7 +164,7 @@ class CacheSupportSpec extends BaseSpec {
     tx.redirectCount shouldBe 5
   }
 
-  def txTo(uri: String, session: Session, redirectCount: Int = 0, cache: Boolean = false) = {
+  private def txTo(uri: String, session: Session, redirectCount: Int, cache: Boolean) = {
     val protocol = HttpProtocol(configuration)
     val request = mock[Request]
     val caches = mock[HttpCaches]
@@ -191,6 +191,7 @@ class CacheSupportSpec extends BaseSpec {
       ),
       responseBuilderFactory = null,
       next = null,
+      resourceTx = None,
       redirectCount = redirectCount
     )
   }

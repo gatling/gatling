@@ -37,17 +37,33 @@ import io.gatling.http.util.HttpHelper
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpMethod
 
+object CommonAttributes {
+  def apply(requestName: Expression[String], method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): CommonAttributes =
+    new CommonAttributes(
+      requestName,
+      method,
+      urlOrURI,
+      disableUrlEncoding = None,
+      queryParams = Nil,
+      headers = Map.empty,
+      realm = None,
+      virtualHost = None,
+      proxy = None,
+      signatureCalculator = None
+    )
+}
+
 final case class CommonAttributes(
     requestName: Expression[String],
     method: HttpMethod,
     urlOrURI: Either[Expression[String], Uri],
-    disableUrlEncoding: Option[Boolean] = None,
-    queryParams: List[HttpParam] = Nil,
-    headers: Map[String, Expression[String]] = Map.empty,
-    realm: Option[Expression[Realm]] = None,
-    virtualHost: Option[Expression[String]] = None,
-    proxy: Option[ProxyServer] = None,
-    signatureCalculator: Option[Expression[SignatureCalculator]] = None
+    disableUrlEncoding: Option[Boolean],
+    queryParams: List[HttpParam],
+    headers: Map[String, Expression[String]],
+    realm: Option[Expression[Realm]],
+    virtualHost: Option[Expression[String]],
+    proxy: Option[ProxyServer],
+    signatureCalculator: Option[Expression[SignatureCalculator]]
 )
 
 object RequestBuilder {

@@ -37,6 +37,7 @@ object Io {
 
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
 
+    @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
     def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
       val writer = new FastStringWriter(bufferSize)
       val reader = new InputStreamReader(is, charset)
@@ -52,6 +53,7 @@ object Io {
       os.toByteArray
     }
 
+    @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
     def copyTo(os: OutputStream, bufferSize: Int = DefaultBufferSize): Int = {
 
       def copyLarge(buffer: Array[Byte]): Long = {
@@ -81,6 +83,7 @@ object Io {
 
   implicit class RichReader(val reader: Reader) extends AnyVal {
 
+    @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
     def copyTo(writer: Writer, bufferSize: Int = DefaultBufferSize): Int = {
 
       def copyLarge(buffer: Array[Char]) = {

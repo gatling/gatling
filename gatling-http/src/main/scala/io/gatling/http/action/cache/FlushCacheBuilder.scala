@@ -21,7 +21,7 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 
-class FlushCacheBuilder extends HttpActionBuilder with NameGen {
+object FlushCacheBuilder extends HttpActionBuilder with NameGen {
 
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._

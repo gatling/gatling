@@ -35,10 +35,10 @@ class ScenarioSpec extends BaseSpec {
 
   "Scenario" should "remove HTTP redirection " in {
 
-    val r1 = RequestElement("http://gatling.io/", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
-    val r2 = RequestElement("http://gatling.io/rn1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 302, List.empty)
-    val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
-    val r4 = RequestElement("http://gatling.io/details.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
+    val r1 = RequestElement("http://gatling.io/", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
+    val r2 = RequestElement("http://gatling.io/rn1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 302, Nil, Nil)
+    val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
+    val r4 = RequestElement("http://gatling.io/details.html", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
     val scn = ScenarioDefinition(
       List(
@@ -61,9 +61,10 @@ class ScenarioSpec extends BaseSpec {
       EmptyHttpHeaders.INSTANCE,
       None,
       200,
-      List(CssResource(Uri.create("http://gatling.io/main.css")), BasicResource(Uri.create("http://gatling.io/img.jpg")))
+      List(CssResource(Uri.create("http://gatling.io/main.css")), BasicResource(Uri.create("http://gatling.io/img.jpg"))),
+      Nil
     )
-    val r2 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
+    val r2 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
     val r3 = RequestElement(
       "http://gatling.io/details.html",
       "GET",
@@ -72,9 +73,10 @@ class ScenarioSpec extends BaseSpec {
       EmptyHttpHeaders.INSTANCE,
       None,
       200,
-      List.empty
+      Nil,
+      Nil
     )
-    val r4 = RequestElement("http://gatling.io/img.jpg", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
+    val r4 = RequestElement("http://gatling.io/img.jpg", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
     val r5 = RequestElement(
       "http://gatling.io",
       "GET",
@@ -83,9 +85,10 @@ class ScenarioSpec extends BaseSpec {
       EmptyHttpHeaders.INSTANCE,
       None,
       200,
-      List(CssResource(Uri.create("http://gatling.io/main.css")))
+      List(CssResource(Uri.create("http://gatling.io/main.css"))),
+      Nil
     )
-    val r6 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, List.empty)
+    val r6 = RequestElement("http://gatling.io/main.css", "GET", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
     val scn = ScenarioDefinition(
       List(
@@ -96,7 +99,7 @@ class ScenarioSpec extends BaseSpec {
         TimedScenarioElement(5000, 5001, r5),
         TimedScenarioElement(5005, 5010, r6)
       ),
-      List.empty
+      Nil
     )
     scn.elements shouldBe List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(DurationInt(2997) milliseconds), r5)
   }

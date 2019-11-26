@@ -34,6 +34,7 @@ private[swing] sealed trait ChooserType
 private[swing] case object Open extends ChooserType
 private[swing] case object Save extends ChooserType
 
+@SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 private[swing] class DisplayedSelectionFileChooser(
     creator: Container,
     textFieldLength: Int,
@@ -45,7 +46,7 @@ private[swing] class DisplayedSelectionFileChooser(
 
   val selectionDisplay = new TextField(textFieldLength)
   private val fileChooser = new FileChooser { fileSelectionMode = selectionMode; fileFilter = fileFilter }
-  private val openChooserButton = Button("Browse")(fileChooserSelection().foreach(setAndPublish))
+  private val openChooserButton = Button(buttonText)(fileChooserSelection().foreach(setAndPublish))
 
   def selection = selectionDisplay.text
 

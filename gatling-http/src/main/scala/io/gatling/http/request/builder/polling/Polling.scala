@@ -24,9 +24,11 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 
 object Polling {
   private val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
+
+  val Default = new Polling(DefaultPollerName)
 }
 
-class Polling(pollerName: String = Polling.DefaultPollerName) {
+final class Polling(pollerName: String) {
 
   def pollerName(pollerName: String) = new Polling(pollerName)
 
@@ -35,7 +37,7 @@ class Polling(pollerName: String = Polling.DefaultPollerName) {
   def stop = new PollingStopBuilder(pollerName)
 }
 
-class PollingEveryStep(pollerName: String, period: FiniteDuration) {
+final class PollingEveryStep(pollerName: String, period: FiniteDuration) {
 
   def exec(requestBuilder: HttpRequestBuilder) =
     new PollingStartBuilder(pollerName, period, requestBuilder)

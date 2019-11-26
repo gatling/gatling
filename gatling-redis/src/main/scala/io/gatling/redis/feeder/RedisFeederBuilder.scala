@@ -36,10 +36,12 @@ object RedisFeederBuilder {
   private val SPOP: RedisCommand = (redisClient, key) => redisClient.spop(key)
 
   private val SRANDMEMBER: RedisCommand = (redisClient, key) => redisClient.srandmember(key)
+
+  def apply(clientPool: RedisClientPool, key: String): RedisFeederBuilder =
+    new RedisFeederBuilder(clientPool, key, RedisFeederBuilder.LPOP)
 }
 
-final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, command: RedisFeederBuilder.RedisCommand = RedisFeederBuilder.LPOP)
-    extends FeederBuilder {
+final case class RedisFeederBuilder(clientPool: RedisClientPool, key: String, command: RedisFeederBuilder.RedisCommand) extends FeederBuilder {
   def LPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.LPOP)
   def SPOP: RedisFeederBuilder = copy(command = RedisFeederBuilder.SPOP)
   def SRANDMEMBER: RedisFeederBuilder = copy(command = RedisFeederBuilder.SRANDMEMBER)

@@ -65,7 +65,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
       endTimestamp: Long,
       status: Status,
       responseCode: Option[String],
-      message: Option[String] = None
+      message: Option[String]
   ): Unit =
     handle(
       ResponseMessage(

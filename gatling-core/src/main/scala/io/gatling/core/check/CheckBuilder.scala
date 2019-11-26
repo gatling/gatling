@@ -45,6 +45,8 @@ trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
 
   def findRandom: ValidatorCheckBuilder[T, P, X]
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  // binary compat
   def findRandom(num: Int, failIfLess: Boolean = false): ValidatorCheckBuilder[T, P, Seq[X]]
 
   def count: ValidatorCheckBuilder[T, P, Int]
@@ -158,7 +160,7 @@ final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
   def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
-    new CheckBuilder[T, P, X](this.extractor, validator, displayActualValue) with SaveAs[T, P, X]
+    new CheckBuilder[T, P, X](this.extractor, validator, displayActualValue, None, None) with SaveAs[T, P, X]
 
   def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
     validate(
@@ -194,8 +196,8 @@ case class CheckBuilder[T, P, X](
     extractor: Expression[Extractor[P, X]],
     validator: Expression[Validator[X]],
     displayActualValue: Boolean,
-    customName: Option[String] = None,
-    saveAs: Option[String] = None
+    customName: Option[String],
+    saveAs: Option[String]
 ) {
   def name(n: String): CheckBuilder[T, P, X] = copy(customName = Some(n))
 

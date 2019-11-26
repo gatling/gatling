@@ -37,7 +37,7 @@ class GroupStartSpec extends FlatSpec with Matchers with MockitoSugar with Given
     val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)
 
     When("being sent a Session that resolves the group name")
-    val session = Session("scenario", 0, clock.nowMillis, attributes = Map("theGroupName" -> "foo"))
+    val session = Session("scenario", 0, clock.nowMillis).copy(attributes = Map("theGroupName" -> "foo"))
     groupStart ! session
 
     Then("next Action should receive a Session")

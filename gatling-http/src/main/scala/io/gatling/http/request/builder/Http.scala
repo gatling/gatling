@@ -37,5 +37,5 @@ final case class Http(requestName: Expression[String]) {
   def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.valueOf(method), Left(url))
   def httpRequest(method: HttpMethod, url: Expression[String]): HttpRequestBuilder = httpRequest(method, Left(url))
   def httpRequest(method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
-    new HttpRequestBuilder(CommonAttributes(requestName, method, urlOrURI), HttpAttributes())
+    new HttpRequestBuilder(CommonAttributes(requestName, method, urlOrURI), HttpAttributes.Empty)
 }

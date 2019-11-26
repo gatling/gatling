@@ -26,6 +26,7 @@ class PopulationBuilderSpec extends FlatSpec with Matchers {
       injectionProfile = null,
       scenarioProtocols = Map.empty,
       scenarioThrottleSteps = Nil,
+      pauseType = None,
       children = children
     )
 
@@ -37,7 +38,6 @@ class PopulationBuilderSpec extends FlatSpec with Matchers {
   }
 
   it should "group children" in {
-
     val child1 = newPopulationBuilder("child1", Nil)
     val child2 = newPopulationBuilder("child2", Nil)
     val child3 = newPopulationBuilder("child3", Nil)

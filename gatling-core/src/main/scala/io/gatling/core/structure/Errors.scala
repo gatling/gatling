@@ -26,10 +26,11 @@ import com.eatthepath.uuid.FastUUID
 private[structure] trait Errors[B] extends Execs[B] {
 
   def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
-  def tryMax(times: Expression[Int], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  // binary compat
+  def tryMax(times: Expression[Int], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B =
     exec(new TryMaxBuilder(times, counterName, chain))
-  }
 
   def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)
 }

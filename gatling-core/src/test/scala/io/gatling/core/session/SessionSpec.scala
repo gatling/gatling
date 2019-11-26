@@ -236,7 +236,7 @@ class SessionSpec extends BaseSpec {
   }
 
   it should "return true if baseStatus is OK and there is a failed TryMaxBlock in the stack" in {
-    val session = newSession.copy(blockStack = List(TryMaxBlock("tryMax", nextAction, status = KO)))
+    val session = newSession.copy(blockStack = List(TryMaxBlock("tryMax", nextAction, KO)))
 
     session.isFailed shouldBe true
   }
@@ -246,7 +246,7 @@ class SessionSpec extends BaseSpec {
   }
 
   it should "return false if baseStatus is OK and there is no failed TryMaxBlock in the stack" in {
-    val session = newSession.copy(blockStack = List(TryMaxBlock("tryMax", nextAction)))
+    val session = newSession.copy(blockStack = List(TryMaxBlock("tryMax", nextAction, OK)))
 
     session.isFailed shouldBe false
   }

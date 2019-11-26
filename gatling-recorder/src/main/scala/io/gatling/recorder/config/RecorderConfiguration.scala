@@ -50,7 +50,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
   implicit var configuration: RecorderConfiguration = _
 
-  implicit val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load()
+  implicit val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load(mutable.Map.empty)
 
   private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
   private[this] def getDefaultConfig(classLoader: ClassLoader) =
@@ -61,7 +61,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
     buildConfig(configChain(ConfigFactory.parseMap(props.asJava), defaultConfig))
   }
 
-  def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[Path] = None): Unit = {
+  def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[Path]): Unit = {
     val classLoader = getClassLoader
     val defaultConfig = getDefaultConfig(classLoader)
     configFile = recorderConfigFile.orElse(Option(classLoader.getResource("recorder.conf")).map(url => url.toURI))

@@ -57,7 +57,8 @@ object StringHelper {
 
     def truncate(maxLength: Int): String = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
 
-    def leftPad(length: Int, padder: String = " "): String = {
+    def leftPad(length: Int): String = leftPad(length, " ")
+    def leftPad(length: Int, padder: String): String = {
       val paddingLength = length - string.length
       if (paddingLength > 0)
         padder * paddingLength + string
@@ -65,7 +66,8 @@ object StringHelper {
         string
     }
 
-    def rightPad(length: Int, padder: String = " "): String = {
+    def rightPad(length: Int): String = rightPad(length, " ")
+    def rightPad(length: Int, padder: String): String = {
       val paddingLength = length - string.length
       if (paddingLength > 0)
         string + padder * paddingLength

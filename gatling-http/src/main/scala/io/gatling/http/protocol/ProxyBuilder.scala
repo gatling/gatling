@@ -22,7 +22,7 @@ import com.softwaremill.quicklens._
 
 object ProxyBuilder {
 
-  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, port, HttpProxy))
+  def apply(host: String, port: Int): ProxyBuilder = new ProxyBuilder(Proxy(host, port, port, HttpProxy, None))
 
   implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
 }

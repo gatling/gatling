@@ -30,7 +30,8 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession =
+      Session("scenarioName", 0, System.currentTimeMillis()).copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE1")
   }
 
@@ -49,7 +50,8 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession =
+      Session("scenarioName", 0, System.currentTimeMillis()).copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE1")
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.isSecure) shouldBe List(true)
   }
@@ -58,7 +60,8 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE6; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession =
+      Session("scenarioName", 0, System.currentTimeMillis()).copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.value) shouldBe List("VALUE6")
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.isSecure) shouldBe List(false)
   }
@@ -67,8 +70,8 @@ class CookieHandlingSpec extends BaseSpec {
     val originalCookie = decode("ALPHA=VALUE6; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-    val originalSession = Session("scenarioName", 0, System.currentTimeMillis(), Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+    val originalSession =
+      Session("scenarioName", 0, System.currentTimeMillis()).copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "http://docs.foo.com/accounts").size shouldBe 0
   }
-
 }

@@ -33,8 +33,8 @@ trait CheckableSubscribeBuilder { this: SubscribeBuilder =>
 case class SubscribeBuilder(
     requestName: Expression[String],
     topic: Expression[String],
-    qosOverride: Option[MqttQoS] = None,
-    expectation: Option[MqttExpectation] = None
+    qosOverride: Option[MqttQoS],
+    expectation: Option[MqttExpectation]
 ) extends MqttActionBuilder {
 
   def qosAtMostOnce: SubscribeBuilder = qos(MqttQoS.AT_MOST_ONCE)
@@ -42,11 +42,15 @@ case class SubscribeBuilder(
   def qosExactlyOnce: SubscribeBuilder = qos(MqttQoS.EXACTLY_ONCE)
   private def qos(newQos: MqttQoS): SubscribeBuilder = copy(qosOverride = Some(newQos))
 
-  def wait(timeout: FiniteDuration, expectedTopic: Expression[String] = null): SubscribeBuilder with CheckableSubscribeBuilder =
+  def wait(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
+    wait(timeout, null)
+  def wait(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
     new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true)))
     with CheckableSubscribeBuilder
 
-  def expect(timeout: FiniteDuration, expectedTopic: Expression[String] = null): SubscribeBuilder with CheckableSubscribeBuilder =
+  def expect(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
+    expect(timeout, null)
+  def expect(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
     new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false)))
     with CheckableSubscribeBuilder
 

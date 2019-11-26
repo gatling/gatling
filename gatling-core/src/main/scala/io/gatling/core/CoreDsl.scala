@@ -40,7 +40,7 @@ trait CoreDsl
     with CoreDefaultImplicits
     with ValidationImplicits {
 
-  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "))
+  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "), Nil)
 
   def WhiteList(patterns: String*): io.gatling.core.filter.WhiteList = io.gatling.core.filter.WhiteList(patterns.toList)
 

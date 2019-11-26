@@ -62,7 +62,6 @@ final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends
 }
 
 object SeparatedValuesFeederSource {
-  private val BufferSize = 1024
 
   def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
@@ -81,7 +80,7 @@ object SeparatedValuesFeederSource {
           }
 
           withCloseable(new FileOutputStream(tempFile)) { os =>
-            zis.copyTo(os, BufferSize)
+            zis.copyTo(os)
           }
 
           val nextZipEntry = zis.getNextEntry()
@@ -91,9 +90,9 @@ object SeparatedValuesFeederSource {
         }
 
       case (31, 139) => // gzip
-        withCloseable(new GZIPInputStream(resource.inputStream, BufferSize)) { is =>
+        withCloseable(new GZIPInputStream(resource.inputStream)) { is =>
           withCloseable(new FileOutputStream(tempFile)) { os =>
-            is.copyTo(os, BufferSize)
+            is.copyTo(os)
           }
         }
 

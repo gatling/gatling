@@ -68,7 +68,7 @@ class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Prot
 
   def components[P, C](key: ProtocolKey[P, C]): C = {
 
-    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
+    def componentsFactory: P => C = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
     def protocol: P =
       protocolCache.getOrElse(key, protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]
     def comps: C = componentsFactory(protocol)

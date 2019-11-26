@@ -25,9 +25,9 @@ import io.netty.buffer.Unpooled
 
 class SseStreamDecoderSpec extends BaseSpec {
 
-  val longString = "x" * 920
+  private val longString = "x" * 920
 
-  val data =
+  private val data =
     s""": test stream
        |
        |data: first event
@@ -41,22 +41,30 @@ class SseStreamDecoderSpec extends BaseSpec {
        |
     """.stripMargin
 
-  val bytes = data.getBytes(UTF_8)
+  private val bytes = data.getBytes(UTF_8)
 
-  val expected = Seq(
+  private val expected = Seq(
     ServerSentEvent(
+      name = None,
       data = Some("first event"),
-      id = Some("1")
+      id = Some("1"),
+      retry = None
     ),
     ServerSentEvent(
-      data = Some("second event 加特林岩石")
+      name = None,
+      data = Some("second event 加特林岩石"),
+      id = None,
+      retry = None
     ),
     ServerSentEvent(
-      data = Some(s" third event $longString")
+      name = None,
+      data = Some(s" third event $longString"),
+      id = None,
+      retry = None
     )
   )
 
-  def decodeChunks(splitPos: Int) = {
+  private def decodeChunks(splitPos: Int) = {
     val (chunk1, chunk2) = bytes.splitAt(splitPos)
     val chunks = Seq(Unpooled.wrappedBuffer(chunk1), Unpooled.wrappedBuffer(chunk2))
     try {

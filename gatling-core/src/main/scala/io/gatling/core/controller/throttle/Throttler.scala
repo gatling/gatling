@@ -35,7 +35,9 @@ final case class Throttles(global: Option[Throttle], perScenario: Map[String, Th
   }
 }
 
-class Throttle(val limit: Int, var count: Int = 0) {
+class Throttle(val limit: Int) {
+
+  private var count: Int = 0
 
   def increment(): Unit = count += 1
 

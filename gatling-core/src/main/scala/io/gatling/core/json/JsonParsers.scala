@@ -39,7 +39,9 @@ class JsonParsers(objectMapper: ObjectMapper, defaultCharset: Charset) {
 
   import JsonParsers._
 
-  def parse(is: InputStream, charset: Charset = defaultCharset): JsonNode =
+  def parse(is: InputStream): JsonNode = parse(is, defaultCharset)
+
+  private def parse(is: InputStream, charset: Charset): JsonNode =
     if (JsonParsers.JsonSupportedEncodings.contains(charset)) {
       objectMapper.readValue(is, classOf[JsonNode])
     } else {
@@ -47,7 +49,7 @@ class JsonParsers(objectMapper: ObjectMapper, defaultCharset: Charset) {
       objectMapper.readValue(reader, classOf[JsonNode])
     }
 
-  def safeParse(is: InputStream, charset: Charset = defaultCharset): Validation[JsonNode] =
+  def safeParse(is: InputStream, charset: Charset): Validation[JsonNode] =
     safely(JacksonErrorMapper)(parse(is, charset).success)
 
   def parse(string: String): JsonNode =

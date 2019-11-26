@@ -23,7 +23,7 @@ import scala.concurrent.duration.Duration
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 
-private[test] class BlockingExitAction(latchSize: Int = 1) extends Action {
+private[test] class BlockingExitAction(latchSize: Int) extends Action {
 
   private val latch = new CountDownLatch(latchSize)
 

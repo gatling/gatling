@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-package io.gatling.http.action.sse.fsm
+package io.gatling.http.action.cookie
 
-import io.gatling.core.json.Json
+import io.gatling.core.session.Expression
 
-final case class ServerSentEvent(
-    name: Option[String],
-    data: Option[String],
-    id: Option[String],
-    retry: Option[Int]
+final case class GetCookieDsl(
+    name: String,
+    domain: Option[Expression[String]],
+    path: Option[String],
+    secure: Boolean,
+    saveAs: Option[String]
 ) {
-
-  def asJsonString: String = {
-
-    // BEWARE: assume Map4 is implemented as an Array, so order is kept
-    val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
-      .collect({ case (key, Some(value)) => (key, value) })
-
-    Json.stringify(map, isRootObject = true)
-  }
+  def withDomain(domain: Expression[String]): GetCookieDsl = copy(domain = Some(domain))
+  def withPath(path: String): GetCookieDsl = copy(path = Some(path))
+  def withSecure(secure: Boolean): GetCookieDsl = copy(secure = secure)
+  def saveAs(key: String): GetCookieDsl = copy(saveAs = Some(key))
 }

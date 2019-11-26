@@ -38,7 +38,7 @@ import java.io.{ InputStream, OutputStream }
 object FastByteArrayOutputStream {
 
   private[this] val Pool = new ThreadLocal[FastByteArrayOutputStream] {
-    override protected def initialValue(): FastByteArrayOutputStream = new FastByteArrayOutputStream
+    override protected def initialValue(): FastByteArrayOutputStream = new FastByteArrayOutputStream(1024)
   }
 
   def pooled(): FastByteArrayOutputStream = {
@@ -48,7 +48,7 @@ object FastByteArrayOutputStream {
   }
 }
 
-class FastByteArrayOutputStream(initialSize: Int = 1024) extends OutputStream {
+class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
 
   private val buffers = collection.mutable.ArrayBuffer.empty[Array[Byte]]
   private var currentBufferIndex = 0

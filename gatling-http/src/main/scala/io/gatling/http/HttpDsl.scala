@@ -35,26 +35,26 @@ import io.gatling.http.request.builder.polling.Polling
 
 trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport with SitemapFeederSupport {
 
-  def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
+  def http(implicit configuration: GatlingConfiguration): HttpProtocolBuilder = HttpProtocolBuilder(configuration)
 
-  def Proxy(host: String, port: Int) = ProxyBuilder(host, port)
+  def Proxy(host: String, port: Int): ProxyBuilder = ProxyBuilder(host, port)
 
-  def http(requestName: Expression[String]) = Http(requestName)
-  def addCookie(cookie: AddCookieDsl) = AddCookieBuilder(cookie)
-  def getCookieValue(cookie: GetCookieDsl) = GetCookieValueBuilder(cookie)
+  def http(requestName: Expression[String]): Http = Http(requestName)
+  def addCookie(cookie: AddCookieDsl): AddCookieBuilder = AddCookieBuilder(cookie)
+  def getCookieValue(cookie: GetCookieDsl): GetCookieValueBuilder = GetCookieValueBuilder(cookie)
   def flushSessionCookies: Expression[Session] = CookieSupport.FlushSessionCookies
   def flushCookieJar: Expression[Session] = CookieSupport.FlushCookieJar
-  def flushHttpCache = new FlushCacheBuilder
+  def flushHttpCache: FlushCacheBuilder.type = FlushCacheBuilder
 
-  val sse = Sse
-  val ws = Ws
-  def polling = new Polling()
+  val sse: Sse.type = Sse
+  val ws: Ws.type = Ws
+  def polling: Polling = Polling.Default
 
-  val HttpHeaderNames = HeaderNames
-  val HttpHeaderValues = HeaderValues
+  val HttpHeaderNames: HeaderNames.type = HeaderNames
+  val HttpHeaderValues: HeaderValues.type = HeaderValues
 
-  def Cookie = AddCookieDsl
-  def CookieKey = GetCookieDsl
+  def Cookie(name: String, value: Expression[String]): AddCookieDsl = AddCookieDsl(name, value, domain = None, path = None, maxAge = None, secure = false)
+  def CookieKey(name: String): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
 
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     BodyPart.elFileBodyPart(None, filePath)

@@ -24,6 +24,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 import org.mockito.Mockito.when
 
+@SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class Stats(
     generalStats: GeneralStats,
     requestName: String = "",
@@ -60,7 +61,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
       }
     }
 
-    def statsPaths =
+    def statsPaths: List[StatsPath] =
       stats
         .map(stat => (stat.request, stat.group))
         .map {

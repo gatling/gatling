@@ -35,7 +35,6 @@ object CodeAnalysis {
     List(
       Wart.ArrayEquals,
       Wart.AnyVal,
-      Wart.DefaultArguments,
       Wart.ExplicitImplicitTypes,
       Wart.FinalCaseClass,
       Wart.IsInstanceOf,

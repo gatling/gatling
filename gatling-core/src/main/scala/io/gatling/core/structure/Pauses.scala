@@ -101,6 +101,8 @@ private[structure] trait Pauses[B] extends Execs[B] {
   private def pause(duration: Expression[Duration], force: Option[PauseType]): B = exec(new PauseBuilder(duration, force))
 
   def pace(duration: Duration): B = pace(duration.expressionSuccess)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  // binary compat
   def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, Some(unit)))
 
   def pace(min: Duration, max: Duration): B = pace(durationExpression(min, max))

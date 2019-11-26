@@ -45,7 +45,7 @@ object Throwables {
     }
 
     def stackTraceString: String = {
-      val sw = new FastStringWriter()
+      val sw = new FastStringWriter(16)
       e.printStackTrace(new PrintWriter(sw))
       sw.toString
     }

@@ -34,7 +34,10 @@ object WhenConnecting {
 
 trait WhenConnecting extends SslContextSupport { this: WsActor =>
 
-  def gotoConnecting(session: Session, next: Either[Action, SendFrame], remainingTries: Int = httpProtocol.wsPart.maxReconnects.getOrElse(0)): State = {
+  def gotoConnecting(session: Session, next: Either[Action, SendFrame]): State =
+    gotoConnecting(session, next, httpProtocol.wsPart.maxReconnects.getOrElse(0))
+
+  def gotoConnecting(session: Session, next: Either[Action, SendFrame], remainingTries: Int): State = {
 
     val listener = new WsListener(self, statsEngine, clock)
 

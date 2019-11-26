@@ -263,6 +263,11 @@ final case class HeavisideOpenInjection(private[inject] val users: Long, duratio
     }
 }
 
+object PoissonOpenInjection {
+  def apply(duration: FiniteDuration, startRate: Double, endRate: Double): PoissonOpenInjection =
+    new PoissonOpenInjection(duration, startRate, endRate, System.nanoTime)
+}
+
 /**
  * Inject users following a Poisson random process, with a ramped injection rate.
  *
@@ -277,7 +282,7 @@ final case class HeavisideOpenInjection(private[inject] val users: Long, duratio
  * @param endRate final injection rate for users
  * @param seed a seed for the randomization. If the same seed is re-used, the same timings will be obtained
  */
-final case class PoissonOpenInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends OpenInjectionStep {
+final case class PoissonOpenInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long) extends OpenInjectionStep {
 
   require(startRate >= 0.0 && endRate >= 0.0, s"injection rates ($startRate, $endRate) must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")

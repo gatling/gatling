@@ -94,7 +94,8 @@ object PathHelper {
 
     def stripExtension: String = filename stripSuffix ("." + extension)
 
-    def deepFiles(f: CachingPath => Boolean = _ => true, maxDepth: Int = Int.MaxValue): Seq[CachingPath] =
+    def deepFiles(f: CachingPath => Boolean): Seq[CachingPath] = deepFiles(f, Int.MaxValue)
+    def deepFiles(f: CachingPath => Boolean, maxDepth: Int): Seq[CachingPath] =
       if (path.exists) {
         val acc = new collection.mutable.ArrayBuffer[CachingPath]
         Files.walkFileTree(
@@ -113,9 +114,9 @@ object PathHelper {
         Nil
       }
 
-    def files: Seq[CachingPath] = deepFiles(maxDepth = 1)
+    def files: Seq[CachingPath] = deepFiles(_ => true, maxDepth = 1)
 
-    def deepDirs(f: CachingPath => Boolean = _ => true): Seq[CachingPath] =
+    def deepDirs(f: CachingPath => Boolean): Seq[CachingPath] =
       if (path.exists) {
         val acc = new collection.mutable.ArrayBuffer[CachingPath]
         Files.walkFileTree(

@@ -20,10 +20,14 @@ import scopt.{ OptionDef, OptionParser, Read }
 
 import io.gatling.compiler.config.cli.CommandLineConstants._
 
+private[config] object CommandLineOverrides {
+  val Empty = CommandLineOverrides("", "", "")
+}
+
 private[config] final case class CommandLineOverrides(
-    simulationsDirectory: String = "",
-    binariesFolder: String = "",
-    extraScalacOptions: String = ""
+    simulationsDirectory: String,
+    binariesFolder: String,
+    extraScalacOptions: String
 )
 
 private[config] class ArgsParser(args: Array[String]) {
@@ -54,6 +58,6 @@ private[config] class ArgsParser(args: Array[String]) {
       }
   }
 
-  def parseArguments =
-    cliOptsParser.parse(args, CommandLineOverrides()).get
+  def parseArguments: CommandLineOverrides =
+    cliOptsParser.parse(args, CommandLineOverrides.Empty).get
 }

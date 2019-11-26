@@ -28,8 +28,8 @@ final case class HttpTx(
     request: HttpRequest,
     responseBuilderFactory: ResponseBuilderFactory,
     next: Action,
-    resourceTx: Option[ResourceTx] = None,
-    redirectCount: Int = 0
+    resourceTx: Option[ResourceTx],
+    redirectCount: Int
 ) {
   lazy val silent: Boolean = request.isSilent(resourceTx.isEmpty)
 

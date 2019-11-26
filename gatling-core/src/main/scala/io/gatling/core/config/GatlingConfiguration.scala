@@ -53,7 +53,9 @@ object GatlingConfiguration extends StrictLogging {
     configChain(customConfig, defaultsConfig)
   }
 
-  def loadForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
+  def loadForTest(): GatlingConfiguration = loadForTest(mutable.Map.empty)
+
+  def loadForTest(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
 
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, GatlingDefaultsConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
@@ -61,7 +63,7 @@ object GatlingConfiguration extends StrictLogging {
     mapToGatlingConfig(config)
   }
 
-  def load(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
+  def load(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
     sealed abstract class ObsoleteUsage(val message: String) { def path: String }
     final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
     final case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")

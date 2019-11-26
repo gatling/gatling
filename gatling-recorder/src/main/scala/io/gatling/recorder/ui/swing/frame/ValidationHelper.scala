@@ -27,6 +27,7 @@ import io.gatling.commons.util.StringHelper.RichString
 
 private[swing] object ValidationHelper {
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   final case class Validator(
       condition: String => Boolean,
       successCallback: Component => Unit = setStandardBorder,

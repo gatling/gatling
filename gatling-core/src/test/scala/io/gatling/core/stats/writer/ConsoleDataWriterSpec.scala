@@ -26,23 +26,23 @@ import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleDataWriterSpec extends BaseSpec {
 
-  val configuration = GatlingConfiguration.loadForTest()
+  private val configuration = GatlingConfiguration.loadForTest()
 
-  val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
+  private val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
 
-  def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
+  private def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
 
-  def progressBar(summary: ConsoleSummary) = lines(summary)(8)
+  private def progressBar(summary: ConsoleSummary) = lines(summary)(8)
 
-  def requestsInfo(summary: ConsoleSummary) = lines(summary).slice(3, 6).mkString(Eol)
+  private def requestsInfo(summary: ConsoleSummary) = lines(summary).slice(3, 6).mkString(Eol)
 
-  def errorsInfo(summary: ConsoleSummary) = lines(summary).slice(6, 9).mkString(Eol)
+  private def errorsInfo(summary: ConsoleSummary) = lines(summary).slice(6, 9).mkString(Eol)
 
   "console summary progress bar" should "handle it correctly when all the users are waiting" in {
 
     val counters = new UserCounters(Some(11))
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[                                                                          ]  0%"
   }
@@ -52,7 +52,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
     val counters = new UserCounters(Some(11))
     for (_ <- 1 to 11) counters.userStart()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[--------------------------------------------------------------------------]  0%"
   }
@@ -63,7 +63,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
     for (_ <- 1 to 11) counters.userStart()
     for (_ <- 1 to 11) counters.userDone()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe true
     progressBar(summary) shouldBe "[##########################################################################]100%"
   }
@@ -74,7 +74,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
     for (_ <- 1 to 11) counters.userStart()
     for (_ <- 1 to 10) counters.userDone()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), RequestCounters.empty, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[###################################################################-------] 90%"
   }

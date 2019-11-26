@@ -45,7 +45,7 @@ object ConsoleSummary {
       requestsCounters: mutable.Map[String, RequestCounters],
       errorsCounters: mutable.Map[String, Int],
       configuration: GatlingConfiguration,
-      time: Date = new Date
+      time: Date
   ): ConsoleSummary = {
 
     def writeUsersCounters(sb: JStringBuilder, scenarioName: String, userCounters: UserCounters): JStringBuilder = {

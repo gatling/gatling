@@ -26,8 +26,8 @@ class PebbleFileBodySpec extends BaseSpec with ValidationValues {
 
   private implicit val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies
 
-  private def newSession(contents: Map[String, Any]) =
-    Session("scenario", 0, System.currentTimeMillis(), contents)
+  private def newSession(attributes: Map[String, Any]) =
+    Session("scenario", 0, System.currentTimeMillis()).copy(attributes = attributes)
 
   "PebbleFileBody" should "support templates inheritance" in {
     val session = newSession(Map("name" -> "Mitchell"))
