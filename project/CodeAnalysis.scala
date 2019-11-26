@@ -36,7 +36,6 @@ object CodeAnalysis {
       Wart.ExplicitImplicitTypes,
       Wart.IsInstanceOf,
       Wart.JavaSerializable,
-      Wart.LeakingSealed,
       Wart.Option2Iterable,
       Wart.Product,
       Wart.Serializable,

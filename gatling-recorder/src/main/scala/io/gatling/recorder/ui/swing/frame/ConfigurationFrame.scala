@@ -42,6 +42,8 @@ import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
+@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed"))
+// error is in scala-swing
 private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
   /************************************/

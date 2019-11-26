@@ -103,7 +103,7 @@ object SeparatedValuesFeederSource {
   }
 }
 
-class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
+final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
 
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
     val charset = configuration.core.charset

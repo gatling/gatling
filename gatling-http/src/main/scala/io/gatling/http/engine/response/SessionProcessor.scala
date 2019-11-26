@@ -94,7 +94,7 @@ sealed abstract class SessionProcessor(
   protected def updateGroupRequestTimings(session: Session, startTimestamp: Long, endTimestamp: Long): Session
 }
 
-class RootSessionProcessor(
+final class RootSessionProcessor(
     silent: Boolean,
     request: Request,
     checks: List[HttpCheck],
@@ -116,7 +116,7 @@ class RootSessionProcessor(
     session.logGroupRequestTimings(startTimestamp, endTimestamp)
 }
 
-class ResourceSessionProcessor(
+final class ResourceSessionProcessor(
     silent: Boolean,
     request: Request,
     checks: List[HttpCheck],

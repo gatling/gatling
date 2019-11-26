@@ -22,7 +22,7 @@ import io.gatling.core.controller.inject.InjectionProfileFactory
 /**
  * This trait defines most of the scenario related DSL
  */
-sealed trait StructureBuilder[B <: StructureBuilder[B]]
+trait StructureBuilder[B <: StructureBuilder[B]]
     extends Execs[B]
     with Pauses[B]
     with Feeds[B]
@@ -68,7 +68,7 @@ final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilde
   }
 }
 
-private[gatling] trait StructureSupport extends StructureBuilder[ChainBuilder] {
+trait StructureSupport extends StructureBuilder[ChainBuilder] {
 
   override protected def actionBuilders: List[ActionBuilder] = Nil
 

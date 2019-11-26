@@ -61,7 +61,7 @@ private[recorder] object SslServerContext {
         new ProvidedKeystore(ksFile, keyStoreType, password)
 
       case HttpsMode.CertificateAuthority =>
-        OnTheFly(certificateAuthority.certificatePath, certificateAuthority.privateKeyPath)
+        new OnTheFly(certificateAuthority.certificatePath, certificateAuthority.privateKeyPath)
     }
   }
 
@@ -79,7 +79,7 @@ private[recorder] object SslServerContext {
     override def context(alias: String): SslContext = context
   }
 
-  class ProvidedKeystore(ksFile: File, val keyStoreType: KeyStoreType, val password: Array[Char]) extends SslServerContext {
+  final class ProvidedKeystore(ksFile: File, val keyStoreType: KeyStoreType, val password: Array[Char]) extends SslServerContext {
 
     private lazy val context = {
       val keyStore = {
@@ -108,7 +108,7 @@ private[recorder] object SslServerContext {
     val GatlingCACrtFile = "gatlingCA.cert.pem"
   }
 
-  final case class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
+  final class OnTheFly(pemCrtFile: Path, pemKeyFile: Path) extends SslServerContext {
 
     require(pemCrtFile.isFile, s"$pemCrtFile is not a file")
     require(pemKeyFile.isFile, s"$pemKeyFile is not a file")
