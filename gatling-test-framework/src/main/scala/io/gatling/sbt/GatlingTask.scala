@@ -66,8 +66,9 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
     val fingerprint = taskDef.fingerprint
 
     // Check return code and fire appropriate event
+    @SuppressWarnings(Array("org.wartremover.warts.Product", "org.wartremover.warts.Serializable"))
+    // problem's in sbt
     val event = returnCode match {
-
       case StatusCode.Success.code =>
         loggers.foreach(_.info(s"Simulation $simulationName successful."))
         SimulationSuccessful(className, fingerprint, selector, optionalThrowable, duration)

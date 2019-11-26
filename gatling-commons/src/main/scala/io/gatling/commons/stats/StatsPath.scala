@@ -16,6 +16,6 @@
 
 package io.gatling.commons.stats
 
-sealed trait StatsPath
+sealed trait StatsPath extends Product with Serializable
 final case class RequestStatsPath(request: String, group: Option[Group]) extends StatsPath
 final case class GroupStatsPath(group: Group) extends StatsPath

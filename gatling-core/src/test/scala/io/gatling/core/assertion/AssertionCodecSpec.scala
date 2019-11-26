@@ -27,7 +27,6 @@ trait AssertionGenerator {
   private val doubleGen = Arbitrary.arbitrary[Double]
 
   private val pathGen = {
-
     val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.length > 0))) yield Details(parts)
     Gen.frequency(33 -> Gen.const(Global), 33 -> Gen.const(ForAll), 33 -> detailsGen)
   }
@@ -35,15 +34,12 @@ trait AssertionGenerator {
   private val targetGen = {
     val countTargetGen = {
       val countMetricGen = Gen.oneOf(AllRequests, FailedRequests, SuccessfulRequests)
-      val countSelectionGen = Gen.oneOf(Count, Percent)
+      val countSelectionGen = Gen.oneOf(CountTarget.apply _, PercentTarget.apply _)
 
       for {
         metric <- countMetricGen
         selection <- countSelectionGen
-      } yield selection match {
-        case Count   => CountTarget(metric)
-        case Percent => PercentTarget(metric)
-      }
+      } yield selection(metric)
     }
 
     val timeTargetGen = {

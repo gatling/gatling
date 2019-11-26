@@ -19,7 +19,7 @@ package io.gatling.core.controller.throttle
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 
-sealed trait ThrottleStep {
+sealed trait ThrottleStep extends Product with Serializable {
 
   val durationInSec: Long
   def target(previousLastValue: Int): Int

@@ -22,7 +22,7 @@ import io.gatling.core.action.Action
 
 import com.typesafe.scalalogging.StrictLogging
 
-sealed trait Block
+sealed trait Block extends Product with Serializable
 
 sealed trait CounterBlock extends Block {
   def counterName: String

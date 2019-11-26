@@ -37,8 +37,6 @@ object CodeAnalysis {
       Wart.IsInstanceOf,
       Wart.JavaSerializable,
       Wart.Option2Iterable,
-      Wart.Product,
-      Wart.Serializable,
       Wart.PublicInference,
       Wart.Return,
       Wart.StringPlusAny,

@@ -16,7 +16,7 @@
 
 package io.gatling.charts.util
 
-private[gatling] sealed abstract class Color(val code: String)
+private[gatling] sealed abstract class Color(val code: String) extends Product with Serializable
 
 private[gatling] object Colors {
 

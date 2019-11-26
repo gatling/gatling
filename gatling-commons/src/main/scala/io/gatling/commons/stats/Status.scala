@@ -24,6 +24,6 @@ object Status {
   }
 }
 
-sealed abstract class Status(val name: String)
+sealed abstract class Status(val name: String) extends Product with Serializable
 case object OK extends Status("OK")
 case object KO extends Status("KO")

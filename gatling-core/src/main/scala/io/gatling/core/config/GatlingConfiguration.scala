@@ -68,7 +68,7 @@ object GatlingConfiguration extends StrictLogging {
     final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
     final case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
 
-    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
+    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Seq[ObsoleteUsage] = {
       val bundle = ResourceBundle.getBundle(bundleName)
       bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
     }

@@ -22,4 +22,4 @@ object StatusCode {
   case object AssertionsFailed extends StatusCode(2)
 }
 
-private[gatling] sealed abstract class StatusCode(val code: Int)
+private[gatling] sealed abstract class StatusCode(val code: Int) extends Product with Serializable

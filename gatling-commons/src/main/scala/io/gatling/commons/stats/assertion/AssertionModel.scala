@@ -32,7 +32,7 @@ final case class Assertion(path: AssertionPath, target: Target, condition: Condi
 // -- Path ADT -- //
 // -------------- //
 
-sealed abstract class AssertionPath(val printable: String) extends Printable
+sealed abstract class AssertionPath(val printable: String) extends Printable with Product with Serializable
 case object Global extends AssertionPath("Global")
 case object ForAll extends AssertionPath("For all requests")
 final case class Details(parts: List[String]) extends AssertionPath(if (parts.isEmpty) Global.printable else parts.mkString(" / "))
@@ -41,8 +41,8 @@ final case class Details(parts: List[String]) extends AssertionPath(if (parts.is
 // -- Metric ADT -- //
 // ---------------- //
 
-sealed abstract class TimeMetric(val printable: String) extends Printable
-sealed abstract class CountMetric(val printable: String) extends Printable
+sealed abstract class TimeMetric(val printable: String) extends Printable with Product with Serializable
+sealed abstract class CountMetric(val printable: String) extends Printable with Product with Serializable
 
 case object AllRequests extends CountMetric("all events")
 case object FailedRequests extends CountMetric("failed events")
@@ -53,7 +53,7 @@ case object ResponseTime extends TimeMetric("response time")
 // -- Selection ADT -- //
 // ------------------- //
 
-sealed abstract class TimeSelection(val printable: String) extends Printable
+sealed abstract class TimeSelection(val printable: String) extends Printable with Product with Serializable
 
 case object Count extends Printable {
   override val printable: String = "count"
@@ -71,7 +71,7 @@ final case class Percentiles(value: Double) extends TimeSelection(s"${value.toRa
 // -- Target ADT -- //
 // ---------------- //
 
-sealed abstract class Target(val printable: String) extends Printable
+sealed abstract class Target(val printable: String) extends Printable with Product with Serializable
 final case class CountTarget(metric: CountMetric) extends Target(s"${Count.printable} of ${metric.printable}")
 final case class PercentTarget(metric: CountMetric) extends Target(s"${Percent.printable} of ${metric.printable}")
 final case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target(s"${selection.printable} of ${metric.printable}")
@@ -80,7 +80,7 @@ case object MeanRequestsPerSecondTarget extends Target("mean requests per second
 // ------------------- //
 // -- Condition ADT -- //
 // ------------------- //
-sealed abstract class Condition(val printable: String) extends Printable {
+sealed abstract class Condition(val printable: String) extends Printable with Product with Serializable {
   def values: List[Double]
 }
 final case class Lte(value: Double) extends Condition("is less than or equal to") {

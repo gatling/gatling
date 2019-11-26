@@ -47,7 +47,7 @@ object ElMessages {
   def tupleAccessNotSupported(name: String, value: Any): Failure = s"$value named $name do not support tuple access".failure
 }
 
-sealed trait Part[+T] extends (Session => Validation[T])
+sealed trait Part[+T] extends (Session => Validation[T]) with Product with Serializable
 
 final case class StaticPart(string: String) extends Part[String] {
   def apply(session: Session): Validation[String] = string.success
@@ -237,7 +237,7 @@ object ElCompiler {
   }
 }
 
-private[el] sealed trait AccessToken { def token: String }
+private[el] sealed trait AccessToken extends Product with Serializable { def token: String }
 private[el] final case class AccessIndex(pos: String, token: String) extends AccessToken
 private[el] final case class AccessKey(key: String, token: String) extends AccessToken
 private[el] sealed trait AccessFunction extends AccessToken { protected def functionToken(functionName: String) = s".$functionName()" }
@@ -374,7 +374,7 @@ class ElCompiler extends RegexParsers {
   }
 }
 
-sealed trait Bytes { def bytes: Expression[Array[Byte]] }
+sealed trait Bytes extends Product with Serializable { def bytes: Expression[Array[Byte]] }
 final case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
 final case class DynamicBytes(part: Part[Any], charset: Charset) extends Bytes {
   val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(charset))

@@ -19,7 +19,7 @@ package io.gatling.core.controller.inject.closed
 import scala.annotation.tailrec
 import scala.concurrent.duration._
 
-sealed trait ClosedInjectionStep {
+sealed trait ClosedInjectionStep extends Product with Serializable {
 
   private[inject] def valueAt(t: FiniteDuration): Int
 
@@ -71,15 +71,16 @@ final case class IncreasingConcurrentUsersCompositeStep(
     val parts = (1 to nbOfSteps).foldLeft(List.empty[ClosedInjectionStep]) { (acc, currentStep) =>
       val step = if (startingUsers > 0) currentStep - 1 else currentStep
       val newConcurrentUsers = startingUsers + step * concurrentUsers
-      val newInjectionSteps = if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
-        val nextConcurrentUsers = newConcurrentUsers + concurrentUsers
-        List(
-          ConstantConcurrentNumberInjection(newConcurrentUsers, levelDuration),
-          RampConcurrentNumberInjection(newConcurrentUsers, nextConcurrentUsers, rampDuration)
-        )
-      } else {
-        List(ConstantConcurrentNumberInjection(newConcurrentUsers, levelDuration))
-      }
+      val newInjectionSteps: List[ClosedInjectionStep] =
+        if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
+          val nextConcurrentUsers = newConcurrentUsers + concurrentUsers
+          List(
+            ConstantConcurrentNumberInjection(newConcurrentUsers, levelDuration),
+            RampConcurrentNumberInjection(newConcurrentUsers, nextConcurrentUsers, rampDuration)
+          )
+        } else {
+          List(ConstantConcurrentNumberInjection(newConcurrentUsers, levelDuration))
+        }
       acc ++ newInjectionSteps
     }
     CompositeClosedInjectionStep(parts)
