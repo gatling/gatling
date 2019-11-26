@@ -33,7 +33,6 @@ object CodeAnalysis {
 
   private def toFix =
     List(
-      Wart.AnyVal,
       Wart.ExplicitImplicitTypes,
       Wart.FinalCaseClass,
       Wart.IsInstanceOf,

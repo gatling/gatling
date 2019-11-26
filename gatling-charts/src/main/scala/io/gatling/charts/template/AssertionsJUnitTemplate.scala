@@ -26,7 +26,7 @@ private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionR
     if (assertionResult.result)
       s"""<system-out>${assertionResult.message}</system-out>"""
     else
-      s"""<failure type="${assertionResult.assertion.path.printable}">Actual value: ${assertionResult.actualValue.getOrElse(-1)}</failure>"""
+      s"""<failure type="${assertionResult.assertion.path.printable}">Actual value: ${assertionResult.actualValue.getOrElse(-1.0)}</failure>"""
 
   private[this] def print(assertionResult: AssertionResult): String =
     s"""<testcase name="${assertionResult.message}" status="${assertionResult.result}" time="0">
