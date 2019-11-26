@@ -25,7 +25,7 @@ lazy val root = Project("gatling-parent", file("."))
 def gatlingModule(id: String) =
   Project(id, file(id))
     .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
-    .settings(gatlingModuleSettings)
+    .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
   .settings(libraryDependencies ++= nettyUtilDependencies)
