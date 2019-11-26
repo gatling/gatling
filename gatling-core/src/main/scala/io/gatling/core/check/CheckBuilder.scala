@@ -192,6 +192,8 @@ final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[
     validate(expected.map(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", ordering.gteq, _)))
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.FinalCaseClass"))
+// because CheckBuilder with SaveAs
 case class CheckBuilder[T, P, X](
     extractor: Expression[Extractor[P, X]],
     validator: Expression[Validator[X]],

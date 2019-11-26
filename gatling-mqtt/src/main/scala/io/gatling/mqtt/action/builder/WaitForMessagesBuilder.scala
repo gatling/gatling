@@ -25,7 +25,7 @@ object WaitForMessagesBuilder {
   val Default: WaitForMessagesBuilder = new WaitForMessagesBuilder(60 seconds)
 }
 
-case class WaitForMessagesBuilder(timeout: FiniteDuration) extends MqttActionBuilder {
+final case class WaitForMessagesBuilder(timeout: FiniteDuration) extends MqttActionBuilder {
 
   def timeout(duration: FiniteDuration): WaitForMessagesBuilder =
     copy(timeout = duration)

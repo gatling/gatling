@@ -20,4 +20,4 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.session.Expression
 
-case class MqttExpectation(check: Option[MqttCheck], timeout: FiniteDuration, topic: Option[Expression[String]], blocking: Boolean)
+final case class MqttExpectation(check: Option[MqttCheck], timeout: FiniteDuration, topic: Option[Expression[String]], blocking: Boolean)

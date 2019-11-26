@@ -59,7 +59,7 @@ object MqttProtocol extends StrictLogging {
     )
 }
 
-case class MqttProtocol(
+final case class MqttProtocol(
     version: MqttVersion,
     brokerAddress: InetSocketAddress,
     useTls: Boolean,
@@ -77,13 +77,13 @@ case class MqttProtocol(
     timeoutCheckInterval: FiniteDuration
 ) extends Protocol
 
-case class MqttProtocolReconnectPart(
+final case class MqttProtocolReconnectPart(
     reconnectAttemptsMax: Int,
     reconnectDelay: Long,
     reconnectBackOffMultiplier: Float
 )
 
-case class MqttProtocolResendPart(
+final case class MqttProtocolResendPart(
     resendDelay: Long,
     resendBackoffMultiplier: Float
 )

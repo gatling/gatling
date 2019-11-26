@@ -19,7 +19,7 @@ package io.gatling.mqtt.config
 import io.netty.channel.WriteBufferWaterMark
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
-case class MqttConfiguration(
+final case class MqttConfiguration(
     useNativeTransport: Boolean,
     threadNumber: Option[Int],
     writeBufferWaterMark: WriteBufferWaterMark,
@@ -27,7 +27,7 @@ case class MqttConfiguration(
     ssl: MqttSslConfiguration
 )
 
-case class MqttSocketConfiguration(
+final case class MqttSocketConfiguration(
     soReceiveBufferSize: Option[Int],
     soSendBufferSize: Option[Int],
     soLinger: Option[Int],
@@ -35,7 +35,7 @@ case class MqttSocketConfiguration(
     ipTrafficClass: Option[Int]
 )
 
-case class MqttSslConfiguration(
+final case class MqttSslConfiguration(
     useOpenSsl: Boolean,
     sslSessionCacheSize: Int,
     sslSessionTimeout: Int,

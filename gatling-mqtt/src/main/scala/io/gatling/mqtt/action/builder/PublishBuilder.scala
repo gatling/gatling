@@ -32,6 +32,8 @@ trait CheckablePublishBuilder { this: PublishBuilder =>
     PublishBuilder(requestName, topic, body, qosOverride, retainOverride, expectation.map(_.copy(check = Some(ck))))
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.FinalCaseClass"))
+// because PublishBuilder with CheckablePublishBuilder
 case class PublishBuilder(
     requestName: Expression[String],
     topic: Expression[String],

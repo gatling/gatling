@@ -23,7 +23,7 @@ object Series {
   val Distribution = "Distribution"
 }
 
-case class Series[X](name: String, data: Iterable[X], colors: List[String])
+final case class Series[X](name: String, data: Iterable[X], colors: List[String])
 final case class IntVsTimePlot(time: Int, value: Int)
 final case class CountsVsTimePlot(time: Int, oks: Int, kos: Int) {
   def total: Int = oks + kos

@@ -30,6 +30,8 @@ trait CheckableSubscribeBuilder { this: SubscribeBuilder =>
     SubscribeBuilder(requestName, topic, qosOverride, expectation.map(_.copy(check = Some(ck))))
 }
 
+@SuppressWarnings(Array("org.wartremover.warts.FinalCaseClass"))
+// because SubscribeBuilder with CheckableSubscribeBuilder
 case class SubscribeBuilder(
     requestName: Expression[String],
     topic: Expression[String],

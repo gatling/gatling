@@ -44,8 +44,8 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import org.bouncycastle.pkcs.PKCS10CertificationRequest
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 
-private[ssl] case class Ca(cert: X509Certificate, privKey: PrivateKey)
-private[ssl] case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey, hostname: String)
+private[ssl] final case class Ca(cert: X509Certificate, privKey: PrivateKey)
+private[ssl] final case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey, hostname: String)
 
 /**
  * Utility class to create SSL server certificate on the fly for the recorder keystore

@@ -25,7 +25,7 @@ object LastWillBuilder {
     new LastWillBuilder(topic, message, qosOverride = None, retainOverride = None)
 }
 
-case class LastWillBuilder(
+final case class LastWillBuilder(
     topic: Expression[String],
     message: Expression[Array[Byte]],
     qosOverride: Option[MqttQoS],
@@ -40,4 +40,4 @@ case class LastWillBuilder(
   def build: LastWill = LastWill(topic, message, qosOverride, retainOverride)
 }
 
-case class LastWill(topic: Expression[String], message: Expression[Array[Byte]], qosOverride: Option[MqttQoS], retainOverride: Option[Boolean])
+final case class LastWill(topic: Expression[String], message: Expression[Array[Byte]], qosOverride: Option[MqttQoS], retainOverride: Option[Boolean])

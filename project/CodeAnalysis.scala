@@ -34,7 +34,6 @@ object CodeAnalysis {
   private def toFix =
     List(
       Wart.ExplicitImplicitTypes,
-      Wart.FinalCaseClass,
       Wart.IsInstanceOf,
       Wart.JavaSerializable,
       Wart.LeakingSealed,
