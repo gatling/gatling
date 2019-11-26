@@ -25,7 +25,7 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 
 class LogFileReaderSpec extends BaseSpec {
 
-  private implicit val configuration =
+  private implicit val configuration: GatlingConfiguration =
     GatlingConfiguration.loadForTest(new GatlingPropertiesBuilder().resultsDirectory("src/test/resources").build)
 
   // FIXME re-enable with fresh and SIMPLE samples
@@ -100,7 +100,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(charting.indicators.Percentile2, 70)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    implicit val configuration = GatlingConfiguration.loadForTest(props)
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val lowPercentilesLogFileReader = new LogFileReader("run_single_node_with_known_stats")
     lowPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile1) shouldBe 2000
     lowPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile2) shouldBe 5000
@@ -112,7 +112,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(charting.indicators.Percentile2, 100)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    implicit val configuration = GatlingConfiguration.loadForTest(props)
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val highPercentilesLogFileReader = new LogFileReader("run_single_node_with_known_stats")
     highPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile1) shouldBe 8860
     highPercentilesLogFileReader.requestGeneralStats(None, None, None).percentile(configuration.charting.indicators.percentile2) shouldBe 9000
@@ -124,7 +124,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(charting.indicators.HigherBound, 100000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    implicit val configuration = GatlingConfiguration.loadForTest(props)
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val fileDataReader = new LogFileReader("run_single_node_with_known_stats")
     fileDataReader.numberOfRequestInResponseTimeRange(None, None).map(_._2) shouldBe List(0, 8, 0, 0)
   }
@@ -135,7 +135,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(charting.indicators.HigherBound, 5000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    implicit val configuration = GatlingConfiguration.loadForTest(props)
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new LogFileReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
     nRequestInResponseTimeRange.head shouldBe 1
   }
@@ -146,7 +146,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(charting.indicators.HigherBound, 5000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    implicit val configuration = GatlingConfiguration.loadForTest(props)
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new LogFileReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
     nRequestInResponseTimeRange(1) shouldBe 5
   }
@@ -157,7 +157,7 @@ class LogFileReaderSpec extends BaseSpec {
     props.put(charting.indicators.HigherBound, 5000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    implicit val configuration = GatlingConfiguration.loadForTest(props)
+    implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new LogFileReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange(None, None).map(_._2)
     nRequestInResponseTimeRange(2) shouldBe 2
   }

@@ -16,14 +16,15 @@
 
 package io.gatling.recorder.scenario.template
 
+import scala.collection.mutable
+
 import io.gatling.BaseSpec
 import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ RequestBodyParams, RequestElement }
-import io.netty.handler.codec.http.EmptyHttpHeaders
 
-import scala.collection.mutable
+import io.netty.handler.codec.http.EmptyHttpHeaders
 
 class RequestTemplateSpec extends BaseSpec {
 
@@ -61,7 +62,7 @@ class RequestTemplateSpec extends BaseSpec {
 
   it should "use simulation as prefix when requested" in {
     val mockedRequest1 = mockRequestElement("name", "short")
-    implicit val config = fakeConfig(mutable.Map(UseSimulationAsPrefix -> true))
+    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseSimulationAsPrefix -> true))
     val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
     res1 should include(s"${simulationClass}_0")
     res1 should not include ("request_0")
