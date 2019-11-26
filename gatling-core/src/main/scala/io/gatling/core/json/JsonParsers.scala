@@ -35,7 +35,7 @@ object JsonParsers {
     new JsonParsers(new ObjectMapper, configuration.core.charset)
 }
 
-class JsonParsers(private[gatling] val objectMapper: ObjectMapper, defaultCharset: Charset) {
+class JsonParsers(objectMapper: ObjectMapper, defaultCharset: Charset) {
 
   import JsonParsers._
 
