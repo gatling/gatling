@@ -47,12 +47,13 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
 
   // only called if !finished
   private def finishedAfterMovingToNextBatch(): Boolean = {
+    var result: Option[Boolean] = None
     do {
       thisSecond += 1
 
       if (thisSecond == durationInSeconds) {
         thisSecondIterator = Iterator.empty
-        return true
+        result = Some(true)
 
       } else {
         val users = thisSecondUsers(thisSecond)
@@ -68,11 +69,11 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
                 else
                   Iterator.empty
             }
-          return false
+          result = Some(false)
         }
       }
-    } while (!thisSecondIterator.hasNext)
-    true
+    } while (!thisSecondIterator.hasNext && result.isEmpty)
+    result.getOrElse(true)
   }
 
   override def hasNext(): Boolean =

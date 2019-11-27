@@ -87,20 +87,23 @@ class ReusableGzipOutputStream(val os: SettableOutputStream) extends DeflaterOut
   override def finish(): Unit =
     if (!`def`.finished) {
       `def`.finish()
-      while (!`def`.finished) {
+      var exit = false
+      while (!`def`.finished && !exit) {
         var len = `def`.deflate(buf, 0, buf.length)
         if (`def`.finished && len <= buf.length - TrailerSize) {
           writeTrailer(buf, len)
           len = len + TrailerSize
           os.write(buf, 0, len)
-          return
-        }
-        if (len > 0)
+          exit = true
+        } else if (len > 0) {
           out.write(buf, 0, len)
+        }
       }
-      val trailer = Array.ofDim[Byte](TrailerSize)
-      writeTrailer(trailer, 0)
-      out.write(trailer)
+      if (!exit) {
+        val trailer = Array.ofDim[Byte](TrailerSize)
+        writeTrailer(trailer, 0)
+        out.write(trailer)
+      }
     }
 
   def writeHeader(): Unit =

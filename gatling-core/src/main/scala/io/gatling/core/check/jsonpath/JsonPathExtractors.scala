@@ -16,31 +16,17 @@
 
 package io.gatling.core.check.jsonpath
 
+import io.gatling.commons.util.Collections
 import io.gatling.core.check._
 
 import com.fasterxml.jackson.databind.JsonNode
-
-object JsonPathExtractor {
-
-  def lift[T](it: Iterator[T], i: Int): Option[T] = {
-    var j = 0
-    while (it.hasNext) {
-      val value = it.next()
-      if (i == j) {
-        return Some(value)
-      }
-      j += 1
-    }
-    None
-  }
-}
 
 class JsonPathFindExtractor[X: JsonFilter](name: String, path: String, occurrence: Int, jsonPaths: JsonPaths)
     extends FindCriterionExtractor[JsonNode, String, X](
       name,
       path,
       occurrence,
-      jsonPaths.extractAll(_, path).map(JsonPathExtractor.lift(_, occurrence))
+      jsonPaths.extractAll(_, path).map(Collections.lift(_, occurrence))
     )
 
 class JsonPathFindAllExtractor[X: JsonFilter](name: String, path: String, jsonPaths: JsonPaths)

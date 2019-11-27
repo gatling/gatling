@@ -16,27 +16,15 @@
 
 package io.gatling.commons.util
 
-object Collections {
+import io.gatling.BaseSpec
 
-  implicit class PimpedTraversableOnce[A](val t: TraversableOnce[A]) extends AnyVal {
+class CollectionsSpec extends BaseSpec {
 
-    def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
-      var sum = num.zero
-      for (x <- t) sum = num.plus(sum, f(x))
-      sum
-    }
+  "lift" should "return Some if index exists" in {
+    Collections.lift((0 until 10).iterator, 9) shouldBe Some(9)
   }
 
-  def lift[T](it: Iterator[T], i: Int): Option[T] = {
-    var j = 0
-    var found: Option[T] = None
-    while (it.hasNext && found.isEmpty) {
-      val value = it.next()
-      if (i == j) {
-        found = Some(value)
-      }
-      j += 1
-    }
-    found
+  it should "return None if index doesn't exists" in {
+    Collections.lift((0 until 10).iterator, 10) shouldBe None
   }
 }

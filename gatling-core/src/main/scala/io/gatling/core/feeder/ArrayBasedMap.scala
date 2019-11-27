@@ -34,13 +34,14 @@ private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], ove
 
   override def get(key: K): Option[V] = {
     var i = 0
-    while (i < size) {
+    var found: Option[V] = None
+    while (i < size && found.isEmpty) {
       if (keys(i) == key) {
-        return Some(values(i))
+        found = Some(values(i))
       }
       i += 1
     }
-    None
+    found
   }
 
   override def iterator: Iterator[(K, V)] = new Iterator[(K, V)] {
