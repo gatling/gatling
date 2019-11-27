@@ -27,7 +27,7 @@ object FilterStrategy {
   case object BlackListFirst extends FilterStrategy("BlackList First")
   case object Disabled extends FilterStrategy("Disabled")
 
-  val AllStrategies = List(WhiteListFirst, BlackListFirst, Disabled)
+  val AllStrategies: List[FilterStrategy] = List(WhiteListFirst, BlackListFirst, Disabled)
 
   def apply(s: String): FilterStrategy =
     AllStrategies.find(_.toString.equalsIgnoreCase(s)).getOrElse {

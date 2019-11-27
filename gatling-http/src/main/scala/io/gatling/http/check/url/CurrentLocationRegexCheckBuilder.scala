@@ -29,12 +29,12 @@ trait CurrentLocationRegexCheckType
 trait CurrentLocationRegexOfType {
   self: CurrentLocationRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
+  def ofType[X: GroupExtractor]: CurrentLocationRegexCheckBuilder[X] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
 }
 
 object CurrentLocationRegexCheckBuilder {
 
-  def currentLocationRegex(pattern: Expression[String], patterns: Patterns) =
+  def currentLocationRegex(pattern: Expression[String], patterns: Patterns): CurrentLocationRegexCheckBuilder[String] with CurrentLocationRegexOfType =
     new CurrentLocationRegexCheckBuilder[String](pattern, patterns) with CurrentLocationRegexOfType
 }
 

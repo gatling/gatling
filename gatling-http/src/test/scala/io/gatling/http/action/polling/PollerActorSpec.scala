@@ -30,7 +30,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.request.{ HttpRequestConfig, HttpRequestDef }
+import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilderFactory
 
 import akka.testkit._
@@ -38,13 +38,13 @@ import akka.testkit._
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private val requestName = "foo".expressionSuccess
 
   private val clock = new DefaultClock
 
-  def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, null)
+  private def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, null)
 
   "PollerActor" should "start in Uninitalized state with NoData" in {
     val dataWriterProbe = TestProbe()
@@ -100,7 +100,7 @@ class PollerActorSpec extends AkkaSpec {
     dataWriterProbe.expectMsgType[ErrorMessage]
   }
 
-  def createPollerActor(
+  private def createPollerActor(
       period: FiniteDuration,
       requestDef: HttpRequestDef,
       httpEngine: HttpEngine,

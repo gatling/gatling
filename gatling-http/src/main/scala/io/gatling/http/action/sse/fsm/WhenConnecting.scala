@@ -28,7 +28,7 @@ import io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS
 
 object WhenConnecting {
 
-  val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
+  private val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 }
 
 trait WhenConnecting extends SslContextSupport { this: SseActor =>

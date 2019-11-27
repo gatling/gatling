@@ -23,7 +23,7 @@ import io.gatling.http.Predef._
 
 class SseCompileTest extends Simulation {
 
-  val scn = scenario(this.getClass.getSimpleName)
+  private val scn = scenario(this.getClass.getSimpleName)
     .exec(
       sse("connect")
         .sseName("sse")
@@ -38,6 +38,6 @@ class SseCompileTest extends Simulation {
       )
     )
     .pause(15)
-    .exec(sse("close").close())
+    .exec(sse("close").close)
     .exec(sse("foo", "bar").connect("url"))
 }

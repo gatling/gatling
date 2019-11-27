@@ -23,7 +23,7 @@ import io.gatling.core.action.Action
 
 class BlockSpec extends BaseSpec {
 
-  def newSession = Session("scenario", 0, System.currentTimeMillis())
+  private def newSession = Session("scenario", 0, System.currentTimeMillis())
 
   "LoopBlock.unapply" should "return the block's counter name if it is a instance of LoopBlock" in {
     LoopBlock.unapply(ExitAsapLoopBlock("counter", true.expressionSuccess, mock[Action])) shouldBe Some("counter")

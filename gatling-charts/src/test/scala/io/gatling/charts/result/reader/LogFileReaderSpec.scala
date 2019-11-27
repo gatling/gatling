@@ -77,7 +77,8 @@ class LogFileReaderSpec extends BaseSpec {
   //		}
   //	}
 
-  val singleLogFileReader = new LogFileReader("run_single_node_with_known_stats")
+  private val singleLogFileReader = new LogFileReader("run_single_node_with_known_stats")
+
   "When reading a single log file with known statistics, FileDataReder" should "return expected minResponseTime for correct request data" in {
     singleLogFileReader.requestGeneralStats(None, None, None).min shouldBe 2000
   }

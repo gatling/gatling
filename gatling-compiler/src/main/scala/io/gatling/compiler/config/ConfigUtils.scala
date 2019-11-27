@@ -27,20 +27,20 @@ private[compiler] object ConfigUtils {
 
   implicit class RichPath(val path: Path) extends AnyVal {
 
-    def /(pathString: String) = path.resolve(pathString)
+    def /(pathString: String): Path = path.resolve(pathString)
 
-    def /(other: Path) = path.resolve(other)
+    def /(other: Path): Path = path.resolve(other)
 
-    def exists = Files.exists(path)
+    def exists: Boolean = Files.exists(path)
   }
 
   // WARN copied from io.gatling.core.config.GatlingFiles
-  val GatlingHome = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
+  val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
   def resolvePath(path: Path): Path =
     (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize().toAbsolutePath
 
-  def string2option(string: String) = string.trim match {
+  def string2option(string: String): Option[String] = string.trim match {
     case "" => None
     case s  => Some(s)
   }

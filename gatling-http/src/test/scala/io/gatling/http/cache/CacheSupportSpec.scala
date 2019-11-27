@@ -110,7 +110,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   class RedirectContext {
-    var session = Session("mockSession", 0, clock.nowMillis)
+    var session: Session = Session("mockSession", 0, clock.nowMillis)
 
     def addRedirect(from: String, to: String): Unit = {
       val request = new RequestBuilder(HttpMethod.GET, Uri.create(from))

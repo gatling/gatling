@@ -25,7 +25,7 @@ object Jodd {
 
   LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
 
-  val IeVersionDroppingCc = 10.0
+  private val IeVersionDroppingCc = 10.0
 
   private def joddConfigBase =
     new LagartoDomBuilderConfig()

@@ -26,7 +26,7 @@ object RecorderMode {
   case object Proxy extends RecorderMode("HTTP Proxy")
   case object Har extends RecorderMode("HAR Converter")
 
-  val AllModes = List(Proxy, Har)
+  val AllModes: List[RecorderMode] = List(Proxy, Har)
 
   def apply(s: String): RecorderMode =
     AllModes.find(_.toString == s).getOrElse {

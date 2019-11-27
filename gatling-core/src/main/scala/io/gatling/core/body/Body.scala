@@ -46,7 +46,7 @@ object RawFileBody {
   def apply(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): RawFileBody =
     new RawFileBody(rawFileBodies.asResourceAndCachedBytes(filePath))
 
-  def unapply(b: RawFileBody) = Some(b.resourceAndCachedBytes)
+  def unapply(b: RawFileBody): Option[Expression[ResourceAndCachedBytes]] = Some(b.resourceAndCachedBytes)
 }
 
 final class RawFileBody(val resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {

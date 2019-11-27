@@ -54,7 +54,7 @@ object SseActor {
       httpProtocol: HttpProtocol,
       clock: Clock,
       configuration: GatlingConfiguration
-  ) =
+  ): Props =
     Props(
       new SseActor(
         sseName,

@@ -36,7 +36,7 @@ final case class SimulationSuccessful(
     duration: Long
 ) extends Event {
 
-  val status = Status.Success
+  override val status: Status = Status.Success
 }
 
 /**
@@ -57,7 +57,7 @@ final case class SimulationFailed(
     duration: Long
 ) extends Event {
 
-  val status = Status.Failure
+  override val status: Status = Status.Failure
 }
 
 /**
@@ -78,5 +78,5 @@ final case class InvalidArguments(
     duration: Long
 ) extends Event {
 
-  val status = Status.Error
+  override val status: Status = Status.Error
 }

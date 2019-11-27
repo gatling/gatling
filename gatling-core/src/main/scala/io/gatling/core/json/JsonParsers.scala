@@ -31,7 +31,7 @@ object JsonParsers {
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
   private val JsonSupportedEncodings = Set(UTF_8, UTF_16, UTF_32)
 
-  def apply()(implicit configuration: GatlingConfiguration) =
+  def apply()(implicit configuration: GatlingConfiguration): JsonParsers =
     new JsonParsers(new ObjectMapper, configuration.core.charset)
 }
 

@@ -24,24 +24,24 @@ import org.xml.sax.InputSource
 
 abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
-  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  val namespaces = List("foo" -> "http://foo/foo")
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private val namespaces = List("foo" -> "http://foo/foo")
 
-  val xmlParsers = new XmlParsers
+  protected val xmlParsers: XmlParsers = new XmlParsers
 
-  def dom(file: String): Option[Dom]
+  protected def dom(file: String): Option[Dom]
 
-  def testCount(expression: String, file: String, expected: Int): Unit = {
+  private def testCount(expression: String, file: String, expected: Int): Unit = {
     val extractor = new XPathCountExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe Some(expected)
   }
 
-  def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
+  private def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
     val extractor = new XPathFindExtractor(expression, namespaces, occurrence, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 
-  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+  private def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
     val extractor = new XPathFindAllExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }

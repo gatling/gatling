@@ -21,7 +21,7 @@ import io.gatling.commons.util.PathHelper._
 
 class PathHelperSpec extends BaseSpec {
 
-  val root = string2path("foo")
+  private val root = string2path("foo")
 
   "ancestor" should "throw an IllegalArgumentException when ancestor rank is negative" in {
     an[IllegalArgumentException] should be thrownBy root.ancestor(-1)

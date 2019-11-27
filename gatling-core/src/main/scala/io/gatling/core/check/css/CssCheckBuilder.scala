@@ -25,12 +25,12 @@ trait CssCheckType
 
 trait CssOfType { self: CssCheckBuilder[String] =>
 
-  def ofType[X: NodeConverter] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
+  def ofType[X: NodeConverter]: CssCheckBuilder[X] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
 }
 
 object CssCheckBuilder {
 
-  def css(expression: Expression[String], nodeAttribute: Option[String], selectors: CssSelectors) =
+  def css(expression: Expression[String], nodeAttribute: Option[String], selectors: CssSelectors): CssCheckBuilder[String] with CssOfType =
     new CssCheckBuilder[String](expression, nodeAttribute, selectors) with CssOfType
 }
 

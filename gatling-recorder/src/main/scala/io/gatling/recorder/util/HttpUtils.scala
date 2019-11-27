@@ -21,7 +21,7 @@ import io.netty.handler.codec.http.HttpHeaders
 import io.netty.util.AsciiString
 
 object HttpUtils {
-  val SupportedEncodings = Set(GZIP, DEFLATE)
+  private val SupportedEncodings = Set(GZIP, DEFLATE)
 
   def filterSupportedEncodings(acceptEncodingHeaderValue: String): String =
     acceptEncodingHeaderValue

@@ -25,7 +25,7 @@ import akka.testkit._
 
 class SingletonFeedSpec extends AkkaSpec {
 
-  def createdSingletonFeed[T](feeder: Feeder[T], controller: TestProbe) =
+  private def createdSingletonFeed[T](feeder: Feeder[T], controller: TestProbe) =
     TestActorRef(SingletonFeed.props(feeder, controller.ref))
 
   "SingletonFeed" should "force the simulation termination if the nb of records to pop can't be fetched from the session" in {

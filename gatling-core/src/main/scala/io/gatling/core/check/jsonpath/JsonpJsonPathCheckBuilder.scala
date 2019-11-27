@@ -24,12 +24,12 @@ trait JsonpJsonPathCheckType
 // so we can't make CheckType a parameter
 trait JsonpJsonPathOfType { self: JsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
+  def ofType[X: JsonFilter]: JsonpJsonPathCheckBuilder[X] = new JsonpJsonPathCheckBuilder[X](path, jsonPaths)
 }
 
 object JsonpJsonPathCheckBuilder {
 
-  def jsonpJsonPath(path: Expression[String], jsonPaths: JsonPaths) =
+  def jsonpJsonPath(path: Expression[String], jsonPaths: JsonPaths): JsonpJsonPathCheckBuilder[String] with JsonpJsonPathOfType =
     new JsonpJsonPathCheckBuilder[String](path, jsonPaths) with JsonpJsonPathOfType
 }
 

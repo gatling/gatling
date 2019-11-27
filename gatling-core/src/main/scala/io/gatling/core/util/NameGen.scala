@@ -19,7 +19,7 @@ package io.gatling.core.util
 import java.util.concurrent.atomic.AtomicLong
 
 object NameGen {
-  val IdGen = new AtomicLong
+  private val IdGen = new AtomicLong
 }
 
 trait NameGen {

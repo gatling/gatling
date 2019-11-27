@@ -19,26 +19,27 @@ package io.gatling.http.request.builder.polling
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.session._
+import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.action.polling.{ PollingStartBuilder, PollingStopBuilder }
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 object Polling {
   private val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
 
-  val Default = new Polling(DefaultPollerName)
+  val Default: Polling = new Polling(DefaultPollerName)
 }
 
 final class Polling(pollerName: String) {
 
-  def pollerName(pollerName: String) = new Polling(pollerName)
+  def pollerName(pollerName: String): Polling = new Polling(pollerName)
 
   def every(period: FiniteDuration): PollingEveryStep = new PollingEveryStep(pollerName, period)
 
-  def stop = new PollingStopBuilder(pollerName)
+  def stop: HttpActionBuilder = new PollingStopBuilder(pollerName)
 }
 
 final class PollingEveryStep(pollerName: String, period: FiniteDuration) {
 
-  def exec(requestBuilder: HttpRequestBuilder) =
+  def exec(requestBuilder: HttpRequestBuilder): HttpActionBuilder =
     new PollingStartBuilder(pollerName, period, requestBuilder)
 }

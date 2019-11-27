@@ -22,12 +22,12 @@ import io.gatling.core.session.Expression
 
 trait PauseSupport {
 
-  val disabledPauses = Disabled
-  val constantPauses = Constant
-  val exponentialPauses = Exponential
-  def normalPausesWithPercentageDuration(stdDev: Double) = NormalWithPercentageDuration(stdDev)
-  def normalPausesWithStdDevDuration(stdDev: Duration) = NormalWithStdDevDuration(stdDev)
-  def customPauses(custom: Expression[Long]) = Custom(custom)
-  def uniformPausesPlusOrMinusPercentage(plusOrMinus: Double) = UniformPercentage(plusOrMinus)
-  def uniformPausesPlusOrMinusDuration(plusOrMinus: Duration) = UniformDuration(plusOrMinus)
+  val disabledPauses: PauseType = Disabled
+  val constantPauses: PauseType = Constant
+  val exponentialPauses: PauseType = Exponential
+  def normalPausesWithPercentageDuration(stdDev: Double): PauseType = NormalWithPercentageDuration(stdDev)
+  def normalPausesWithStdDevDuration(stdDev: Duration): PauseType = NormalWithStdDevDuration(stdDev)
+  def customPauses(custom: Expression[Long]): PauseType = Custom(custom)
+  def uniformPausesPlusOrMinusPercentage(plusOrMinus: Double): PauseType = UniformPercentage(plusOrMinus)
+  def uniformPausesPlusOrMinusDuration(plusOrMinus: Duration): PauseType = UniformDuration(plusOrMinus)
 }

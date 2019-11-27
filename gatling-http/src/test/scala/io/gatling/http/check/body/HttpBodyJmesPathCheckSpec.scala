@@ -38,7 +38,7 @@ class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with Core
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJmesPathCheckMaterializer(JsonParsers())
 
-  val session = Session("mockSession", 0, System.currentTimeMillis())
+  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String): Response =
     Response(

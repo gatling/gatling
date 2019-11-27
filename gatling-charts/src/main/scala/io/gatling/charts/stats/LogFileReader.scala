@@ -128,16 +128,20 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     )
   }
 
-  val FirstPassData(runStart, runEnd, runMessage, assertions) = parseInputFiles(firstPass)
+  private val firstPassData = parseInputFiles(firstPass)
+  val runStart: Long = firstPassData.runStart
+  val runEnd: Long = firstPassData.runEnd
+  val runMessage: RunMessage = firstPassData.runMessage
+  override val assertions: List[Assertion] = firstPassData.assertions
 
-  val step = StatsHelper.step(
+  private val step = StatsHelper.step(
     math.floor(runStart / SecMillisecRatio).toInt,
     math.ceil(runEnd / SecMillisecRatio).toInt,
     configuration.charting.maxPlotsPerSeries
   ) * SecMillisecRatio
 
-  val buckets = StatsHelper.buckets(0, runEnd - runStart, step)
-  val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length)
+  private val buckets = StatsHelper.buckets(0, runEnd - runStart, step)
+  private val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length)
 
   private def secondPass(records: Iterator[String]): ResultsHolder = {
 
@@ -171,11 +175,11 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
     resultsHolder
   }
 
-  val resultsHolder = parseInputFiles(secondPass)
+  private val resultsHolder = parseInputFiles(secondPass)
 
   println("Parsing log file(s) done")
 
-  val statsPaths: List[StatsPath] =
+  override val statsPaths: List[StatsPath] =
     resultsHolder.groupAndRequestsNameBuffer.map.toList
       .map {
         case (path @ RequestStatsPath(_, group), time) => (path, (time, group.map(_.hierarchy.size + 1).getOrElse(0)))

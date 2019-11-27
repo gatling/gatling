@@ -37,7 +37,7 @@ object Cache {
       .maximumSize(maxSize)
       .build(key => f(key))
 
-  def newImmutableCache[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
+  def newImmutableCache[K, V](maxCapacity: Int): Cache[K, V] = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
 }
 
 class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {

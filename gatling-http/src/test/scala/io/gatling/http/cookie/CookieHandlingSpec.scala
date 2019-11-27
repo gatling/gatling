@@ -24,7 +24,7 @@ import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 
 class CookieHandlingSpec extends BaseSpec {
 
-  val emptySession = Session("scenarioName", 0, System.currentTimeMillis())
+  private val emptySession = Session("scenarioName", 0, System.currentTimeMillis())
 
   "getStoredCookies" should "be able to get a cookie from session" in {
     val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")

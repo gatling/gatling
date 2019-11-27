@@ -51,7 +51,7 @@ trait ProtocolComponents {
 
 class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
 
-  val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Any]
+  private val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Any]
 
   def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
     new ProtocolComponentsRegistry(
@@ -63,8 +63,8 @@ class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtoco
 
 class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey[_, _], Any]) {
 
-  val protocolCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
-  val componentsCache = mutable.Map.empty[ProtocolKey[_, _], ProtocolComponents]
+  private val protocolCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
+  private val componentsCache = mutable.Map.empty[ProtocolKey[_, _], ProtocolComponents]
 
   def components[P, C](key: ProtocolKey[P, C]): C = {
 

@@ -33,7 +33,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
     )
   )
 
-  def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
+  private def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
   "RequestMetricsBuffer" should "work when there is no measure" in {
     val buff = new HistogramRequestMetricsBuffer(configuration)

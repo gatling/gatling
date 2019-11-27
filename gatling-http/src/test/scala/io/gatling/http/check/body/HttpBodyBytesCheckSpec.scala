@@ -21,9 +21,11 @@ import java.util.{ HashMap => JHashMap }
 
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
+import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.HttpDsl
+import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.response.{ ByteArrayResponseBody, Response }
 import io.gatling.{ BaseSpec, ValidationValues }
 
@@ -31,10 +33,10 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 
 class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val materializer = HttpBodyBytesCheckMaterializer
+  override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private implicit val materializer: HttpCheckMaterializer[BodyBytesCheckType, Array[Byte]] = HttpBodyBytesCheckMaterializer
 
-  val session = Session("mockSession", 0, System.currentTimeMillis())
+  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: Array[Byte]): Response =
     Response(

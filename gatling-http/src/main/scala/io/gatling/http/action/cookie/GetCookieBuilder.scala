@@ -23,13 +23,13 @@ import io.gatling.core.util.NameGen
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.cookie.CookieSupport.getCookieValue
 
-object GetCookieValueBuilder {
+object GetCookieBuilder {
 
-  def apply(cookie: GetCookieDsl) =
-    new GetCookieValueBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
+  def apply(cookie: GetCookieDsl): GetCookieBuilder =
+    new GetCookieBuilder(cookie.name, cookie.domain, cookie.path, cookie.secure, cookie.saveAs)
 }
 
-class GetCookieValueBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
+class GetCookieBuilder(name: String, domain: Option[Expression[String]], path: Option[String], secure: Boolean, saveAs: Option[String])
     extends HttpActionBuilder
     with NameGen {
 

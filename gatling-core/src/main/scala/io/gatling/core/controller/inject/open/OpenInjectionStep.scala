@@ -125,7 +125,7 @@ final case class ConstantRateOpenInjection(rate: Double, duration: FiniteDuratio
 
   override private[inject] val users: Long = (duration.toSeconds * rate).round
 
-  def randomized = PoissonOpenInjection(duration, rate, rate)
+  def randomized: OpenInjectionStep = PoissonOpenInjection(duration, rate, rate)
 
   override private[inject] def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (rate == 0) {
@@ -191,7 +191,7 @@ final case class RampRateOpenInjection(startRate: Double, endRate: Double, durat
 
   override private[inject] val users: Long = ((startRate + (endRate - startRate) / 2) * duration.toSeconds).toLong
 
-  def randomized = PoissonOpenInjection(duration, startRate, endRate)
+  def randomized: OpenInjectionStep = PoissonOpenInjection(duration, startRate, endRate)
 
   override private[inject] def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     if (startRate == 0 && endRate == 0) {

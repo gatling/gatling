@@ -28,12 +28,12 @@ import com.typesafe.scalalogging.StrictLogging
 
 case object JmsJndiConnectionFactoryBuilderBase {
 
-  def connectionFactoryName(cfn: String) = JmsJndiConnectionFactoryBuilderUrlStep(cfn)
+  def connectionFactoryName(cfn: String): JmsJndiConnectionFactoryBuilderUrlStep = JmsJndiConnectionFactoryBuilderUrlStep(cfn)
 }
 
 final case class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String) {
 
-  def url(theUrl: String) =
+  def url(theUrl: String): JmsJndiConnectionFactoryBuilderFactoryStep =
     JmsJndiConnectionFactoryBuilderFactoryStep(connectionFactoryName, theUrl, None, Map.empty)
 }
 
@@ -50,7 +50,7 @@ final case class JmsJndiConnectionFactoryBuilderFactoryStep(
   def property(key: String, value: String): JmsJndiConnectionFactoryBuilderFactoryStep =
     copy(properties = properties.updated(key, value))
 
-  def contextFactory(cf: String) =
+  def contextFactory(cf: String): JmsJndiConnectionFactoryBuilder =
     JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
 }
 

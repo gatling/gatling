@@ -22,9 +22,9 @@ import io.netty.handler.codec.http.EmptyHttpHeaders
 
 class ExtractedUrisSpec extends BaseSpec {
 
-  def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
+  private def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
-  def extractUris(uris: Seq[String]): ExtractedUris = {
+  private def extractUris(uris: Seq[String]): ExtractedUris = {
     val requestElements = uris.map(mockRequestElement)
     new ExtractedUris(requestElements)
   }

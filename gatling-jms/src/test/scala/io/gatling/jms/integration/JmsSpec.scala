@@ -39,15 +39,8 @@ import akka.actor.ActorRef
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 
-object Replier {
-
-  val Echo: PartialFunction[(Message, JmsSession), Message] = {
-    case (m, _) => m
-  }
-}
-
 class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination, response: PartialFunction[(Message, JmsSession), Message]) {
-  val t = new Thread(() => {
+  private val t = new Thread(() => {
     val connection = connectionFactory.createConnection()
     val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
     val consumedDestination: Destination =

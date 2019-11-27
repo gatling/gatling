@@ -50,13 +50,13 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 
-  val clock = new DefaultClock
-  val mockHttpPort: Int = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
+  private val clock = new DefaultClock
+  protected val mockHttpPort: Int = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
 
-  def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
+  private def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")
 
-  def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit): Unit = {
+  protected def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit): Unit = {
     val httpServer = new HttpServer(requestHandler, mockHttpPort)
     try {
       f(httpServer)
@@ -136,6 +136,6 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   }
 
   object HttpRequest {
-    def unapply(request: FullHttpRequest) = new HttpRequest(request)
+    def unapply(request: FullHttpRequest): HttpRequest = new HttpRequest(request)
   }
 }

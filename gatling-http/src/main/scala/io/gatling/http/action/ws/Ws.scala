@@ -31,9 +31,9 @@ object Ws {
   // binary compat
   def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws = new Ws(requestName, wsName)
 
-  def checkTextMessage(name: String) = WsTextFrameCheck(name, Nil, Nil)
+  def checkTextMessage(name: String): WsTextFrameCheck = WsTextFrameCheck(name, Nil, Nil)
 
-  def checkBinaryMessage(name: String) = WsBinaryFrameCheck(name, Nil, Nil)
+  def checkBinaryMessage(name: String): WsBinaryFrameCheck = WsBinaryFrameCheck(name, Nil, Nil)
 }
 
 /**
@@ -42,7 +42,7 @@ object Ws {
  */
 class Ws(requestName: Expression[String], wsName: String) {
 
-  def wsName(wsName: String) = new Ws(requestName, wsName)
+  def wsName(wsName: String): Ws = new Ws(requestName, wsName)
 
   /**
    * Opens a WebSocket and stores it in the session.
@@ -50,24 +50,25 @@ class Ws(requestName: Expression[String], wsName: String) {
    * @param url The socket URL
    *
    */
-  def connect(url: Expression[String]) = WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None)
+  def connect(url: Expression[String]): WsConnectRequestBuilder =
+    WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None)
 
   /**
    * Sends a text frame on the given WebSocket.
    *
    * @param text The message
    */
-  def sendText(text: Expression[String]) = WsSendTextFrameBuilder(requestName, wsName, text, Nil)
+  def sendText(text: Expression[String]): WsSendTextFrameBuilder = WsSendTextFrameBuilder(requestName, wsName, text, Nil)
 
   /**
    * Sends a binary frame on the given WebSocket.
    *
    * @param bytes The message
    */
-  def sendBytes(bytes: Expression[Array[Byte]]) = WsSendBinaryFrameBuilder(requestName, wsName, bytes, Nil)
+  def sendBytes(bytes: Expression[Array[Byte]]): WsSendBinaryFrameBuilder = WsSendBinaryFrameBuilder(requestName, wsName, bytes, Nil)
 
   /**
    * Closes a WebSocket.
    */
-  def close = new WsCloseBuilder(requestName, wsName)
+  def close: WsCloseBuilder = new WsCloseBuilder(requestName, wsName)
 }

@@ -20,7 +20,7 @@ import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.cache.FlushCacheBuilder
-import io.gatling.http.action.cookie.{ AddCookieBuilder, AddCookieDsl, GetCookieDsl, GetCookieValueBuilder }
+import io.gatling.http.action.cookie.{ AddCookieBuilder, AddCookieDsl, GetCookieBuilder, GetCookieDsl }
 import io.gatling.http.action.sse.Sse
 import io.gatling.http.action.ws.Ws
 import io.gatling.http.check.HttpCheckSupport
@@ -41,7 +41,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport 
 
   def http(requestName: Expression[String]): Http = Http(requestName)
   def addCookie(cookie: AddCookieDsl): AddCookieBuilder = AddCookieBuilder(cookie)
-  def getCookieValue(cookie: GetCookieDsl): GetCookieValueBuilder = GetCookieValueBuilder(cookie)
+  def getCookieValue(cookie: GetCookieDsl): GetCookieBuilder = GetCookieBuilder(cookie)
   def flushSessionCookies: Expression[Session] = CookieSupport.FlushSessionCookies
   def flushCookieJar: Expression[Session] = CookieSupport.FlushCookieJar
   def flushHttpCache: FlushCacheBuilder.type = FlushCacheBuilder

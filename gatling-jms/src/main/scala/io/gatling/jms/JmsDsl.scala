@@ -28,9 +28,9 @@ import io.gatling.jms.request._
 
 trait JmsDsl extends JmsCheckSupport {
 
-  def jms(implicit configuration: GatlingConfiguration) = JmsProtocolBuilderBase
+  def jms(implicit configuration: GatlingConfiguration): JmsProtocolBuilderBase.type = JmsProtocolBuilderBase
 
-  val jmsJndiConnectionFactory = JmsJndiConnectionFactoryBuilderBase
+  val jmsJndiConnectionFactory: JmsJndiConnectionFactoryBuilderBase.type = JmsJndiConnectionFactoryBuilderBase
 
   /**
    * DSL text to start the jms builder
@@ -38,7 +38,7 @@ trait JmsDsl extends JmsCheckSupport {
    * @param requestName human readable name of request
    * @return a JmsDslBuilderBase instance which can be used to build up a JMS action
    */
-  def jms(requestName: Expression[String]) = JmsDslBuilderBase(requestName)
+  def jms(requestName: Expression[String]): JmsDslBuilderBase = JmsDslBuilderBase(requestName)
 
   /**
    * Convert a JmsProtocolBuilder to a JmsProtocol
@@ -53,6 +53,6 @@ trait JmsDsl extends JmsCheckSupport {
 
   implicit def jmsJndiConnectionFactory2ActionBuilder(builder: JmsJndiConnectionFactoryBuilder): ConnectionFactory = builder.build()
 
-  def topic(name: Expression[String]) = JmsTopic(name)
-  def queue(name: Expression[String]) = JmsQueue(name)
+  def topic(name: Expression[String]): JmsDestination = JmsTopic(name)
+  def queue(name: Expression[String]): JmsDestination = JmsQueue(name)
 }

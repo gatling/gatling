@@ -24,11 +24,11 @@ import sbt.testing.{ Fingerprint, Framework }
  */
 class GatlingFramework extends Framework {
 
-  val name = "gatling"
+  override val name: String = "gatling"
 
-  val fingerprints = Array[Fingerprint](new GatlingFingerprint)
+  override val fingerprints: Array[Fingerprint] = Array[Fingerprint](new GatlingFingerprint)
 
-  def runner(args: Array[String], remoteArgs: Array[String], testClassLoader: ClassLoader) =
+  override def runner(args: Array[String], remoteArgs: Array[String], testClassLoader: ClassLoader): GatlingRunner =
     new GatlingRunner(args, remoteArgs, testClassLoader)
 
 }

@@ -23,7 +23,6 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.HttpSpec
 import io.gatling.core.CoreDsl
 import io.gatling.http.HttpDsl
-import io.gatling.http.check.HttpCheckSupport
 
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelFutureListener
@@ -32,9 +31,9 @@ import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
-  val regexCheck = super[CoreDsl].regex(_)
+  private val regexCheck = super[CoreDsl].regex(_)
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   ignore should "send cookies returned in redirects in subsequent requests" in {
 

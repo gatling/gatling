@@ -27,10 +27,10 @@ import io.gatling.jms.{ JmsCheck, MockMessage }
 
 class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport {
 
-  val configuration = GatlingConfiguration.loadForTest()
+  override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
-  val session = Session("mockSession", 0, System.currentTimeMillis())
-  val check: JmsCheck = xpath("/ok").find
+  private val session = Session("mockSession", 0, System.currentTimeMillis())
+  private val check: JmsCheck = xpath("/ok").find
 
   "xpath check" should "return success if condition is true" in {
     check.check(textMessage("<ok></ok>"), session, new JHashMap[Any, Any]) shouldBe a[Success[_]]

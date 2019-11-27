@@ -16,7 +16,7 @@
 
 package io.gatling.http.feeder
 
-import java.io.{ File, IOException, InputStream }
+import java.io.{ IOException, InputStream }
 import java.nio.file.Paths
 
 import io.gatling.{ BaseSpec, ValidationValues }
@@ -29,9 +29,7 @@ import org.mockito.ArgumentMatchers._
 
 class SitemapParserSpec extends BaseSpec with ValidationValues {
 
-  def getFile(filePath: String) = new File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
-
-  def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
+  private def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
   "sitemap parser" should "parse valid sitemap input stream" in {
     withCloseable(getIs("sitemap.xml")) { is =>
@@ -65,7 +63,7 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
     a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_no_value.xml")))
   }
 
-  def verifySitemapRecords(records: Array[Record[String]]) = {
+  private def verifySitemapRecords(records: Array[Record[String]]) = {
     records should have size 5
 
     records(0) shouldBe Map(

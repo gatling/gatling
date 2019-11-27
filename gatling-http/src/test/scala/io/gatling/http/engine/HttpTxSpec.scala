@@ -33,7 +33,7 @@ import org.mockito.Mockito._
 
 class HttpTxSpec extends BaseSpec {
 
-  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   trait Context {
     val coreComponents = CoreComponents(null, null, null, null, new DefaultClock, null, configuration)
@@ -52,7 +52,7 @@ class HttpTxSpec extends BaseSpec {
     )
   }
 
-  def tx(clientRequest: Request, requestConfig: HttpRequestConfig, root: Boolean) =
+  private def tx(clientRequest: Request, requestConfig: HttpRequestConfig, root: Boolean) =
     HttpTx(
       null,
       request = HttpRequest(

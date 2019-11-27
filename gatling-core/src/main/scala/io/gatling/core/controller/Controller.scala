@@ -30,7 +30,13 @@ object Controller {
 
   val ControllerActorName = "gatling-controller"
 
-  def props(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration) =
+  def props(
+      statsEngine: StatsEngine,
+      injector: ActorRef,
+      throttler: Throttler,
+      simulationParams: SimulationParams,
+      configuration: GatlingConfiguration
+  ): Props =
     Props(new Controller(statsEngine, injector, throttler, simulationParams, configuration))
 
   def controllerSelection(system: ActorSystem): ActorSelection =

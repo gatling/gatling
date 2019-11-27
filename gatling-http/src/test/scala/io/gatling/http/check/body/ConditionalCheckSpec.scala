@@ -33,9 +33,9 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 
 class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
-  val session = Session("mockSession", 0, System.currentTimeMillis())
+  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String): Response =
     Response(

@@ -20,7 +20,8 @@ trait Exclude[Scope, X]
 
 object Exclude {
   implicit def NOT_FOR_USER_CODE[X, A]: Exclude[X, A] = new Exclude[X, A] {}
+  @SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
   def list[X] = new {
-    def apply[A] = NOT_FOR_USER_CODE[X, A]
+    def apply[A]: Exclude[X, A] = NOT_FOR_USER_CODE[X, A]
   }
 }

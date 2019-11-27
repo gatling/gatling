@@ -86,7 +86,7 @@ object WsActor {
       httpProtocol: HttpProtocol,
       clock: Clock,
       configuration: GatlingConfiguration
-  ) =
+  ): Props =
     Props(
       new WsActor(
         wsName,

@@ -5,6 +5,11 @@ import wartremover.Wart
 
 object CodeAnalysis {
 
+  lazy val disable = Seq(
+    wartremoverErrors in (Compile, compile) := Seq.empty,
+    wartremoverErrors in (Test, compile) := Seq.empty
+  )
+
   lazy val settings = Seq(
     wartremoverErrors in (Compile, compile) := Warts.allBut(disabledWarts: _*),
     wartremoverErrors in (Test, compile) := (wartremoverErrors in (Compile, compile)).value
@@ -34,7 +39,6 @@ object CodeAnalysis {
   private def toFix =
     List(
       Wart.JavaSerializable,
-      Wart.PublicInference,
       Wart.Return,
       Wart.StringPlusAny,
       Wart.TryPartial

@@ -84,13 +84,13 @@ final case class SourceFeederBuilder[T](
 private[feeder] trait FeederLoadingMode
 private[feeder] case object Eager extends FeederLoadingMode
 private[feeder] object Batch {
-  val DefaultBufferSize = 2000
+  val DefaultBufferSize: Int = 2000
 }
 private[feeder] final case class Batch(bufferSize: Int) extends FeederLoadingMode
 private[feeder] case object Adaptive extends FeederLoadingMode
 
 object FeederOptions {
-  def default[T] = new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = Queue, loadingMode = Adaptive)
+  def default[T]: FeederOptions[T] = new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = Queue, loadingMode = Adaptive)
 }
 
 final case class FeederOptions[T](

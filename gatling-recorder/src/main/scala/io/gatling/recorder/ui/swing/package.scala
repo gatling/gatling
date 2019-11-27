@@ -17,9 +17,9 @@
 package io.gatling.recorder.ui
 
 import scala.swing.Component
-import scala.swing.event.KeyReleased
+import scala.swing.event.{ KeyEvent, KeyReleased }
 
 package object swing {
 
-  def keyReleased(c: Component) = KeyReleased(c, null, 0, null)(null)
+  def keyReleased(c: Component): KeyEvent = KeyReleased(c, null, 0, null)(null)
 }

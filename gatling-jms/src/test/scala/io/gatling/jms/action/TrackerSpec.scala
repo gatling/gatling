@@ -32,15 +32,15 @@ import akka.testkit.TestActorRef
 
 class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
-  override val configuration = GatlingConfiguration.loadForTest()
+  override val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
-  private def ignoreDrift(actual: Session) = {
+  private def ignoreDrift(actual: Session): Session = {
     actual.drift shouldBe >(0L)
     actual.setDrift(0)
   }
 
   private val clock = new DefaultClock
-  val session = Session("mockSession", 0, clock.nowMillis)
+  private val session = Session("mockSession", 0, clock.nowMillis)
 
   "JmsRequestTrackerActor" should "pass to next to next actor when matching message is received" in {
     val statsEngine = new MockStatsEngine

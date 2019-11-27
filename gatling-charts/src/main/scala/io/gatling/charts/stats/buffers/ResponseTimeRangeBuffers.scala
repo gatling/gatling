@@ -24,7 +24,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 private[stats] trait ResponseTimeRangeBuffers {
 
-  val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
+  val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.Map.empty
 
   def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group])(implicit configuration: GatlingConfiguration): ResponseTimeRangeBuffer =
     responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
@@ -40,10 +40,10 @@ private[stats] trait ResponseTimeRangeBuffers {
 
   class ResponseTimeRangeBuffer(implicit configuration: GatlingConfiguration) {
 
-    var low = 0
-    var middle = 0
-    var high = 0
-    var ko = 0
+    var low: Int = 0
+    var middle: Int = 0
+    var high: Int = 0
+    var ko: Int = 0
 
     def update(time: Int, status: Status): Unit = {
 

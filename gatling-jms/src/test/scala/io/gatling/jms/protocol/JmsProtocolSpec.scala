@@ -26,8 +26,8 @@ import io.gatling.jms.Predef._
 
 class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  val cf = mock[ConnectionFactory]
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private val cf = mock[ConnectionFactory]
 
   "jms protocol" should "pass defined credentials" in {
 

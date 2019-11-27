@@ -36,8 +36,8 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 
 import io.netty.handler.codec.http.HttpHeaders
 
-@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed"))
-// error is in scala-swing
+@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
+// LeakingSealed error is in scala-swing
 private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
 
   /************************************/

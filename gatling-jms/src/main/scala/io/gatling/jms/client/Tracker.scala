@@ -60,7 +60,7 @@ final case class MessageReceived(
 case object TimeoutScan
 
 object Tracker {
-  def props(statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration) =
+  def props(statsEngine: StatsEngine, clock: Clock, configuration: GatlingConfiguration): Props =
     Props(new Tracker(statsEngine, clock, configuration.jms.replyTimeoutScanPeriod))
 }
 
@@ -74,7 +74,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
   private val timedOutMessages = mutable.ArrayBuffer.empty[MessageSent]
   private var periodicTimeoutScanTriggered = false
 
-  def triggerPeriodicTimeoutScan(): Unit =
+  private def triggerPeriodicTimeoutScan(): Unit =
     if (!periodicTimeoutScanTriggered) {
       periodicTimeoutScanTriggered = true
       timers.startTimerWithFixedDelay("timeoutTimer", TimeoutScan, replyTimeoutScanPeriod)

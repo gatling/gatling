@@ -27,8 +27,8 @@ import io.gatling.jms._
 
 class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
 
-  val session = Session("mockSession", 0, System.currentTimeMillis())
-  val check = simpleCheck {
+  private val session = Session("mockSession", 0, System.currentTimeMillis())
+  private val check = simpleCheck {
     case tm: TextMessage => tm.getText == "OK"
     case _               => false
   }

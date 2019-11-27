@@ -29,7 +29,7 @@ class SseSample {
   //#sseConnect
 
   //#sseClose
-  exec(sse("Close").close())
+  exec(sse("Close").close)
   //#sseClose
 
   //#create-single-check
@@ -62,8 +62,8 @@ class SseSample {
   )
   //#check-from-flow
 
-  val myCheck1 = myCheck
-  val myCheck2 = myCheck
+  private val myCheck1 = myCheck
+  private val myCheck2 = myCheck
 
   //#check-single-sequence
   // expecting 2 messages
@@ -114,6 +114,6 @@ class SseSample {
         )
     )
     .pause(15)
-    .exec(sse("Close").close())
+    .exec(sse("Close").close)
   //#stock-market-sample
 }

@@ -29,6 +29,7 @@ import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
 
 sealed trait NonValidable
 
+@SuppressWarnings(Array("org.wartremover.warts.PublicInference"))
 object NonValidable {
   private val exclude = Exclude.list[NonValidable]
   implicit val a1, a2 = exclude[SessionAttribute]

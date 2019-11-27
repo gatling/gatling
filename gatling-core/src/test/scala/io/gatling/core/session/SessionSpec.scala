@@ -25,7 +25,7 @@ class SessionSpec extends BaseSpec {
 
   private val nextAction = mock[Action]
 
-  def newSession = Session("scenario", 0, System.currentTimeMillis())
+  private def newSession = Session("scenario", 0, System.currentTimeMillis())
 
   "setAll" should "set all give key/values pairs in session" in {
     val session = newSession.setAll("key" -> 1, "otherKey" -> 2)

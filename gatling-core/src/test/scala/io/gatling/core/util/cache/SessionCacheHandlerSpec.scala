@@ -22,8 +22,8 @@ import org.scalatest.OptionValues
 
 class SessionCacheHandlerSpec extends BaseSpec with OptionValues {
 
-  val sessionCacheHandler = new SessionCacheHandler[String, String]("stringCache", 1)
-  val defaultSession = Session("scenarioName", 0, System.currentTimeMillis())
+  private val sessionCacheHandler = new SessionCacheHandler[String, String]("stringCache", 1)
+  private val defaultSession = Session("scenarioName", 0, System.currentTimeMillis())
 
   "getCache" should "return None if the cache does not exist" in {
     sessionCacheHandler.getCache(defaultSession) shouldBe empty

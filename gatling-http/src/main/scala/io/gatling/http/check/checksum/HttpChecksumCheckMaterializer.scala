@@ -25,8 +25,8 @@ import io.gatling.http.response.Response
 
 object HttpChecksumCheckMaterializer {
 
-  val Md5 = new HttpChecksumCheckMaterializer[Md5CheckType]("MD5")
-  val Sha1 = new HttpChecksumCheckMaterializer[Sha1CheckType]("SHA1")
+  val Md5: HttpChecksumCheckMaterializer[Md5CheckType] = new HttpChecksumCheckMaterializer[Md5CheckType]("MD5")
+  val Sha1: HttpChecksumCheckMaterializer[Sha1CheckType] = new HttpChecksumCheckMaterializer[Sha1CheckType]("SHA1")
 }
 
 class HttpChecksumCheckMaterializer[T](algorithm: String)

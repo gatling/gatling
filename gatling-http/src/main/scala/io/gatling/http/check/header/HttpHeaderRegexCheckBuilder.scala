@@ -28,12 +28,16 @@ trait HttpHeaderRegexCheckType
 trait HttpHeaderRegexOfType {
   self: HttpHeaderRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new HttpHeaderRegexCheckBuilder[X](headerName, pattern, patterns)
+  def ofType[X: GroupExtractor]: HttpHeaderRegexCheckBuilder[X] = new HttpHeaderRegexCheckBuilder[X](headerName, pattern, patterns)
 }
 
 object HttpHeaderRegexCheckBuilder {
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String], patterns: Patterns) =
+  def headerRegex(
+      headerName: Expression[String],
+      pattern: Expression[String],
+      patterns: Patterns
+  ): HttpHeaderRegexCheckBuilder[String] with HttpHeaderRegexOfType =
     new HttpHeaderRegexCheckBuilder[String](headerName, pattern, patterns) with HttpHeaderRegexOfType
 }
 

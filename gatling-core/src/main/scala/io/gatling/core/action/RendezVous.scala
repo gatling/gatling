@@ -35,7 +35,7 @@ object RendezVous extends NameGen {
 }
 
 object RendezVousActor {
-  def props(users: Int, next: Action) =
+  def props(users: Int, next: Action): Props =
     Props(new RendezVousActor(users: Int, next))
 }
 

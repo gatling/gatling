@@ -38,7 +38,7 @@ import io.gatling.core.scenario.Simulation
  */
 class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Array[String], remoteArgs: Array[String]) extends Task {
 
-  val tags = Array.empty[String]
+  override val tags: Array[String] = Array.empty
 
   def execute(eventHandler: EventHandler, loggers: Array[Logger]): Array[Task] = {
     // Load class
@@ -88,5 +88,4 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
     // No new task to launch
     Array.empty[Task]
   }
-
 }

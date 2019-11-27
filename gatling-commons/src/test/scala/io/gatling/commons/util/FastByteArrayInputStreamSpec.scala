@@ -22,7 +22,7 @@ import io.gatling.BaseSpec
 
 class FastByteArrayInputStreamSpec extends BaseSpec {
 
-  val bytes = "test string".getBytes(StandardCharsets.UTF_8)
+  private val bytes = "test string".getBytes(StandardCharsets.UTF_8)
 
   "FastByteArrayInputStream" should "signal eof when all bytes are read" in {
     val byteStream = new FastByteArrayInputStream(bytes)

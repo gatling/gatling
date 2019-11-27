@@ -35,12 +35,12 @@ trait JmesPathCheckType
 
 trait JmesPathOfType { self: JmesPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new JmesPathCheckBuilder[X](path, jmesPaths)
+  def ofType[X: JsonFilter]: JmesPathCheckBuilder[X] = new JmesPathCheckBuilder[X](path, jmesPaths)
 }
 
 object JmesPathCheckBuilder {
 
-  def jmesPath(path: Expression[String], jmesPaths: JmesPaths) =
+  def jmesPath(path: Expression[String], jmesPaths: JmesPaths): JmesPathCheckBuilder[String] with JmesPathOfType =
     new JmesPathCheckBuilder[String](path, jmesPaths) with JmesPathOfType
 }
 

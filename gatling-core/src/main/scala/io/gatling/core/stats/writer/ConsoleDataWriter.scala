@@ -38,7 +38,7 @@ class UserCounters(val totalUserCount: Option[Long]) {
 }
 
 object RequestCounters {
-  def empty = new RequestCounters(0, 0)
+  def empty: RequestCounters = new RequestCounters(0, 0)
 }
 
 class RequestCounters(var successfulCount: Int, var failedCount: Int)

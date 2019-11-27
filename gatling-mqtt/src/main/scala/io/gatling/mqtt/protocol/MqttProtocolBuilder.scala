@@ -103,5 +103,5 @@ object MqttProtocolBuilder {
 
   implicit def toMqttProtocol(builder: MqttProtocolBuilder): MqttProtocol = builder.build
 
-  val Default = MqttProtocolBuilder(MqttProtocol.Default)
+  val Default: MqttProtocolBuilder = MqttProtocolBuilder(MqttProtocol.Default)
 }

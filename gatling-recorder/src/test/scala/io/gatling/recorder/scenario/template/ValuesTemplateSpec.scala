@@ -20,7 +20,7 @@ import io.gatling.BaseSpec
 
 class ValuesTemplateSpec extends BaseSpec {
 
-  def str(s: String) = s.replaceAll("""\r\n""", "\n")
+  private def str(s: String) = s.replaceAll("""\r\n""", "\n")
 
   "values template" should "generate empty string if no variables" in {
     val res = ValuesTemplate.render(Seq.empty)

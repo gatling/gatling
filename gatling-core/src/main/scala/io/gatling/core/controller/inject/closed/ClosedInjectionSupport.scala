@@ -22,25 +22,26 @@ import io.gatling.core.controller.inject.InjectionProfileFactory
 
 final case class ConstantConcurrentNumberBuilder(number: Int) {
 
-  def during(d: FiniteDuration) = ConstantConcurrentNumberInjection(number, d)
+  def during(d: FiniteDuration): ClosedInjectionStep = ConstantConcurrentNumberInjection(number, d)
 }
 
 final case class RampConcurrentNumberInjectionFrom(from: Int) {
 
-  def to(t: Int) = RampConcurrentNumberInjectionTo(from, t)
+  def to(t: Int): RampConcurrentNumberInjectionTo = RampConcurrentNumberInjectionTo(from, t)
 }
 
 final case class RampConcurrentNumberInjectionTo(from: Int, to: Int) {
 
-  def during(d: FiniteDuration) = RampConcurrentNumberInjection(from, to, d)
+  def during(d: FiniteDuration): ClosedInjectionStep = RampConcurrentNumberInjection(from, to, d)
 }
 
 final case class IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers: Int, nbOfSteps: Int) {
-  def eachLevelLasting(levelDuration: FiniteDuration) = IncreasingConcurrentUsersCompositeStep(concurrentUsers, nbOfSteps, levelDuration, 0, Duration.Zero)
+  def eachLevelLasting(levelDuration: FiniteDuration): IncreasingConcurrentUsersCompositeStep =
+    IncreasingConcurrentUsersCompositeStep(concurrentUsers, nbOfSteps, levelDuration, 0, Duration.Zero)
 }
 
 final case class IncreasingConcurrentUsersProfileBuilder(concurrentUsers: Int) {
-  def times(nbOfSteps: Int) = IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps)
+  def times(nbOfSteps: Int): IncreasingConcurrentUsersProfileBuilderWithTime = IncreasingConcurrentUsersProfileBuilderWithTime(concurrentUsers, nbOfSteps)
 }
 
 object ClosedInjectionSupport {
@@ -54,9 +55,9 @@ trait ClosedInjectionSupport {
   implicit def closedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
     ClosedInjectionSupport.ClosedInjectionProfileFactory
 
-  def constantConcurrentUsers(number: Int) = ConstantConcurrentNumberBuilder(number)
+  def constantConcurrentUsers(number: Int): ConstantConcurrentNumberBuilder = ConstantConcurrentNumberBuilder(number)
 
-  def rampConcurrentUsers(from: Int) = RampConcurrentNumberInjectionFrom(from)
+  def rampConcurrentUsers(from: Int): RampConcurrentNumberInjectionFrom = RampConcurrentNumberInjectionFrom(from)
 
-  def incrementConcurrentUsers(concurrentUsers: Int) = IncreasingConcurrentUsersProfileBuilder(concurrentUsers)
+  def incrementConcurrentUsers(concurrentUsers: Int): IncreasingConcurrentUsersProfileBuilder = IncreasingConcurrentUsersProfileBuilder(concurrentUsers)
 }

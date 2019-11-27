@@ -28,7 +28,7 @@ trait RegexOfType { self: RegexCheckBuilder[String] =>
 
 object RegexCheckBuilder {
 
-  def regex(pattern: Expression[String], patterns: Patterns) =
+  def regex(pattern: Expression[String], patterns: Patterns): RegexCheckBuilder[String] with RegexOfType =
     new RegexCheckBuilder[String](pattern, patterns) with RegexOfType
 }
 

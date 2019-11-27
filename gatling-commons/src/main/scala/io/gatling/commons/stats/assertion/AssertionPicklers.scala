@@ -20,20 +20,20 @@ import boopickle.Default._
 
 object AssertionPicklers {
 
-  private implicit val AssertionPathPickler =
+  private implicit val AssertionPathPickler: Pickler[AssertionPath] =
     compositePickler[AssertionPath]
       .addConcreteType[Global.type]
       .addConcreteType[ForAll.type]
       .addConcreteType[Details]
 
-  private implicit val TargetPickler =
+  private implicit val TargetPickler: Pickler[Target] =
     compositePickler[Target]
       .addConcreteType[CountTarget]
       .addConcreteType[PercentTarget]
       .addConcreteType[TimeTarget]
       .addConcreteType[MeanRequestsPerSecondTarget.type]
 
-  private implicit val ConditionPickler =
+  private implicit val ConditionPickler: Pickler[Condition] =
     compositePickler[Condition]
       .addConcreteType[Lte]
       .addConcreteType[Gte]
@@ -43,5 +43,5 @@ object AssertionPicklers {
       .addConcreteType[Between]
       .addConcreteType[In]
 
-  implicit val AssertionPickler = implicitly[Pickler[Assertion]]
+  implicit val AssertionPickler: Pickler[Assertion] = implicitly[Pickler[Assertion]]
 }

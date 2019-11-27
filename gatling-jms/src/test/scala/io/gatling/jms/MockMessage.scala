@@ -23,11 +23,11 @@ import org.scalatestplus.mockito.MockitoSugar
 
 trait MockMessage extends MockitoSugar {
 
-  def textMessage(text: String) = {
+  def textMessage(text: String): TextMessage = {
     val msg = mock[TextMessage]
     when(msg.getText) thenReturn text
     msg
   }
 
-  def message = mock[Message]
+  def message: Message = mock[Message]
 }

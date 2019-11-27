@@ -28,11 +28,11 @@ import io.gatling.core.scenario.Simulation
 class GatlingFingerprint extends SubclassFingerprint {
 
   /** Matches only Scala classes, as simulation objects are not supported. */
-  val isModule = false
+  override val isModule: Boolean = false
 
   /** All classes that are to be picked up must extend ''Simulation'' */
-  override val superclassName = classOf[Simulation].getName
+  override val superclassName: String = classOf[Simulation].getName
 
   /** Gatling simulations does not take constructor arguments. */
-  override val requireNoArgConstructor = true
+  override val requireNoArgConstructor: Boolean = true
 }

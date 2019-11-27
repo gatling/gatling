@@ -26,35 +26,35 @@ import org.scalatest.BeforeAndAfter
 
 class RecorderConfigurationSpec extends BaseSpec with BeforeAndAfter {
 
-  val NON_EXISTING_DIR = "nonExistingDir"
-  val EXISTING_DIR = "existingDir"
-  val FILE_NAME = "file"
+  private val nonExistingDir = "nonExistingDir"
+  private val existingDir = "existingDir"
+  private val fileName = "file"
 
-  def removeAll(): Unit = {
-    new File(EXISTING_DIR, FILE_NAME).delete()
-    new File(EXISTING_DIR).delete()
-    new File(FILE_NAME).delete()
+  private def removeAll(): Unit = {
+    new File(existingDir, fileName).delete()
+    new File(existingDir).delete()
+    new File(fileName).delete()
   }
 
-  def file2path(file: File) = Paths.get(file.toURI)
+  private def file2path(file: File) = Paths.get(file.toURI)
 
   before(removeAll())
   after(removeAll())
 
   "Recorder Configuration" should "create file if directory exists" in {
-    val resFile = RecorderConfiguration.createAndOpen(file2path(new File(FILE_NAME)))
+    val resFile = RecorderConfiguration.createAndOpen(file2path(new File(fileName)))
     resFile.exists shouldBe true
   }
 
   it should "create if parent directory exists" in {
-    new File(EXISTING_DIR).mkdir()
-    val testFile = new File(EXISTING_DIR, FILE_NAME)
+    new File(existingDir).mkdir()
+    val testFile = new File(existingDir, fileName)
     val resFile = RecorderConfiguration.createAndOpen(file2path(testFile))
     resFile.exists shouldBe true
   }
 
   it should "throw exception if parent directory is missing" in {
-    val testFile = new File(NON_EXISTING_DIR, FILE_NAME)
+    val testFile = new File(nonExistingDir, fileName)
     a[FileNotFoundException] should be thrownBy RecorderConfiguration.createAndOpen(file2path(testFile))
   }
 }

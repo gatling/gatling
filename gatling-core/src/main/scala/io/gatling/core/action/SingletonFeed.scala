@@ -25,7 +25,7 @@ import io.gatling.core.session.{ Expression, Session }
 import akka.actor.{ ActorRef, Props }
 
 object SingletonFeed {
-  def props[T](feeder: Feeder[T], controller: ActorRef) = Props(new SingletonFeed(feeder, controller))
+  def props[T](feeder: Feeder[T], controller: ActorRef): Props = Props(new SingletonFeed(feeder, controller))
 }
 
 class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {

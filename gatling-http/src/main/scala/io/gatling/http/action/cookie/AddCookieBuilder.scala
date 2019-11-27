@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.cookie.{ Cookie, DefaultCookie }
 
 object AddCookieBuilder {
 
-  def apply(cookie: AddCookieDsl) =
+  def apply(cookie: AddCookieDsl): AddCookieBuilder =
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
 }
 

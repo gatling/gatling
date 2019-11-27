@@ -41,7 +41,7 @@ trait JsonPathOfType { self: JsonPathCheckBuilder[String] =>
 
 object JsonPathCheckBuilder {
 
-  def jsonPath(path: Expression[String], jsonPaths: JsonPaths) =
+  def jsonPath(path: Expression[String], jsonPaths: JsonPaths): JsonPathCheckBuilder[String] with JsonPathOfType =
     new JsonPathCheckBuilder[String](path, jsonPaths) with JsonPathOfType
 }
 

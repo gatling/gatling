@@ -22,10 +22,10 @@ import io.gatling.commons.util.Io.withCloseable
 
 trait JdbcSpec {
 
-  val Username = "sa"
-  val Password = ""
+  protected val Username: String = "sa"
+  protected val Password: String = ""
 
-  def withDatabase(dbName: String, initScriptName: String)(block: String => Unit) = {
+  protected def withDatabase(dbName: String, initScriptName: String)(block: String => Unit): Unit = {
     val jdbcUrl = s"jdbc:h2:mem:$dbName"
     val fullUrl = s"$jdbcUrl;INIT=RUNSCRIPT FROM 'classpath:$initScriptName'"
     Class.forName("org.h2.Driver")

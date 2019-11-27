@@ -22,7 +22,7 @@ import scala.util.{ Failure, Success, Try }
 import com.typesafe.scalalogging.StrictLogging
 
 object Filters {
-  val BrowserNoiseFilters =
+  val BrowserNoiseFilters: Filters =
     Filters(
       BlackList(
         Seq(

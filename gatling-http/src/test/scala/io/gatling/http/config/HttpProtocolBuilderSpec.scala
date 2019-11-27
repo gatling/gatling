@@ -28,11 +28,11 @@ import org.mockito.Mockito.when
 
 class HttpProtocolBuilderSpec extends BaseSpec {
 
-  val configuration = GatlingConfiguration.loadForTest()
-  val coreComponents = CoreComponents(null, null, null, null, new DefaultClock, null, configuration)
-  val httpCaches = new HttpCaches(coreComponents)
-  val httpEngine = mock[HttpEngine]
-  val httpProtocolBuilder = HttpProtocolBuilder(configuration)
+  private val configuration = GatlingConfiguration.loadForTest()
+  private val coreComponents = CoreComponents(null, null, null, null, new DefaultClock, null, configuration)
+  private val httpCaches = new HttpCaches(coreComponents)
+  private val httpEngine = mock[HttpEngine]
+  private val httpProtocolBuilder = HttpProtocolBuilder(configuration)
 
   "http protocol configuration builder" should "set a silent URI regex" in {
     val builder = httpProtocolBuilder
