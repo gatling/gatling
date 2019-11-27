@@ -124,7 +124,12 @@ trait WhenPerformingCheck { this: WsActor =>
     val preparedCache: JHashMap[Any, Any] = new JHashMap(2)
 
     // if matchConditions isEmpty, all messages are considered to be matching
-    val messageMatches = matchConditions.forall(_.check(message, session, preparedCache).isInstanceOf[Success[_]])
+    val messageMatches = matchConditions.forall {
+      _.check(message, session, preparedCache) match {
+        case _: Success[_] => true
+        case _             => false
+      }
+    }
     if (messageMatches) {
       logger.debug(s"Received matching message $message")
       cancelTimeout() // note, we might already have a Timeout in the mailbox, hence the currentTimeoutId check

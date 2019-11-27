@@ -33,7 +33,6 @@ object CodeAnalysis {
 
   private def toFix =
     List(
-      Wart.IsInstanceOf,
       Wart.JavaSerializable,
       Wart.Option2Iterable,
       Wart.PublicInference,

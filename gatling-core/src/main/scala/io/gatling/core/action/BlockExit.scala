@@ -57,7 +57,7 @@ object BlockExit {
     case head :: tail =>
       head match {
         case `until`           => BlockExit(exitAction, session, groupsToClose)
-        case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup, group :: groupsToClose)
+        case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup(tail), group :: groupsToClose)
         case _: TryMaxBlock    => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
         case _: CounterBlock   => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
       }

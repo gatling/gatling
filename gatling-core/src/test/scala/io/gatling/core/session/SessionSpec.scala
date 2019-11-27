@@ -134,14 +134,8 @@ class SessionSpec extends BaseSpec {
 
   "exitGroup" should "remove the GroupBlock from the stack if it's on top of the stack" in {
     val session = newSession.enterGroup("root group", System.currentTimeMillis())
-    val sessionWithoutGroup = session.exitGroup
+    val sessionWithoutGroup = session.exitGroup(session.blockStack.tail)
     sessionWithoutGroup.blockStack shouldBe empty
-  }
-
-  it should "leave the stack unmodified if there's no GroupBlock on top of the stack" in {
-    val session = newSession
-    val unModifiedSession = session.exitGroup
-    session should be theSameInstanceAs unModifiedSession
   }
 
   "logGroupRequestTimings" should "update stats in all parent groups" in {

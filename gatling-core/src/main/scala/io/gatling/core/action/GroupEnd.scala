@@ -27,9 +27,9 @@ class GroupEnd(statsEngine: StatsEngine, clock: Clock, val next: Action) extends
 
   def execute(session: Session): Unit =
     session.blockStack match {
-      case (group: GroupBlock) :: _ =>
+      case (group: GroupBlock) :: tail =>
         statsEngine.logGroupEnd(session, group, clock.nowMillis)
-        next ! session.exitGroup
+        next ! session.exitGroup(tail)
 
       case _ =>
         logger.error(s"GroupEnd called but head of stack ${session.blockStack} isn't a GroupBlock, please report.")

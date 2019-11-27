@@ -155,12 +155,7 @@ final case class Session(
     copy(blockStack = GroupBlock(groupHierarchy, nowMillis, 0, OK) :: blockStack)
   }
 
-  private[gatling] def exitGroup = blockStack match {
-    case head :: tail if head.isInstanceOf[GroupBlock] => copy(blockStack = tail)
-    case _ => // Nil
-      logger.error(s"exitGroup called but stack head $blockStack isn't a GroupBlock, please report.")
-      this
-  }
+  private[gatling] def exitGroup(tail: List[Block]): Session = copy(blockStack = tail)
 
   def logGroupRequestTimings(startTimestamp: Long, endTimestamp: Long): Session =
     if (blockStack.isEmpty) {
