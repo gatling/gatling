@@ -49,7 +49,7 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
       .select(selectors)
       .asScala
       .flatMap { node =>
-        NodeConverter[X].convert(node, nodeAttribute)
+        NodeConverter[X].convert(node, nodeAttribute).toList
       }(breakOut)
   }
 }

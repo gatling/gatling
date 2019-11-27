@@ -38,7 +38,7 @@ private[fetch] object CssParser extends StrictLogging {
   private def extractUrls(string: CharSequence, regex: Regex): Iterator[String] =
     regex.findAllIn(string).matchData.flatMap { m =>
       val raw = m.group(1)
-      extractUrl(raw, 0, raw.length)
+      extractUrl(raw, 0, raw.length).toList
     }
 
   private val SingleQuoteEscapeChar = Some('\'')

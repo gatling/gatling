@@ -94,11 +94,11 @@ class JdkXmlParsers(configuration: GatlingConfiguration) {
         case Node.ELEMENT_NODE if item.getChildNodes.getLength > 0 =>
           val firstChild = item.getChildNodes.item(0)
           if (firstChild.getNodeType == Node.TEXT_NODE)
-            Some(firstChild.getNodeValue)
-          else None
+            List(firstChild.getNodeValue)
+          else Nil
 
         case _ =>
-          Option(item.getNodeValue)
+          Option(item.getNodeValue).toList
       }
     }).flatten
   }

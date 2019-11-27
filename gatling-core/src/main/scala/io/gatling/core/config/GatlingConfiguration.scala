@@ -219,7 +219,7 @@ object GatlingConfiguration extends StrictLogging {
         replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod) millis
       ),
       data = DataConfiguration(
-        dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
+        dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName(_).toList),
         console = ConsoleDataWriterConfiguration(
           light = config.getBoolean(data.console.Light),
           writePeriod = config.getInt(data.console.WritePeriod) seconds

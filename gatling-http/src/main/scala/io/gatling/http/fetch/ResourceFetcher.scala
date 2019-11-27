@@ -150,16 +150,16 @@ private[http] class ResourceFetcher(
       case Success(requestName) =>
         resource.build(requestName, session) match {
           case Success(httpRequest) =>
-            Some(httpRequest)
+            List(httpRequest)
 
           case Failure(m) =>
             coreComponents.statsEngine.reportUnbuildableRequest(session, requestName, m)
-            None
+            Nil
         }
 
       case Failure(m) =>
         logger.error("Could build request name for explicitResource: " + m)
-        None
+        Nil
     }
   }
 

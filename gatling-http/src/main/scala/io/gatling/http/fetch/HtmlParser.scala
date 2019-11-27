@@ -225,6 +225,6 @@ class HtmlParser extends StrictLogging {
 
     htmlResources.rawResources.distinct
       .filterNot(res => res.rawUrl.isEmpty || res.rawUrl.charAt(0) == '#' || res.rawUrl.startsWith("data:"))
-      .flatMap(_.toEmbeddedResource(rootURI))(breakOut)
+      .flatMap(_.toEmbeddedResource(rootURI).toList)(breakOut)
   }
 }

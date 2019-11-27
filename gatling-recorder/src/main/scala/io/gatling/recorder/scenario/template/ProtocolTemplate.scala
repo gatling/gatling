@@ -80,7 +80,9 @@ private[scenario] object ProtocolTemplate {
       protocol.headers
         .entries()
         .asScala
-        .map { case entry => entry.getKey -> entry.getValue }
+        .map { entry =>
+          entry.getKey -> entry.getValue
+        }
         .sorted
         .flatMap {
           case (headerName, headerValue) =>
@@ -91,7 +93,7 @@ private[scenario] object ProtocolTemplate {
                 headerValue
               }
 
-            Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue))
+            Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue)).toList
         }
         .mkString
     }

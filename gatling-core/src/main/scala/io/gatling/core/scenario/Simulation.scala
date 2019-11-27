@@ -152,9 +152,9 @@ abstract class Simulation {
       val steps = resolveThrottleSteps(scn.scenarioThrottleSteps, configuration)
 
       if (steps.isEmpty) {
-        None
+        Nil
       } else {
-        Some(scn.scenarioBuilder.name -> Throttling(steps))
+        List(scn.scenarioBuilder.name -> Throttling(steps))
       }
     }.toMap
 
