@@ -32,7 +32,7 @@ class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends Base
 
   def receive: Receive = {
     case FeedMessage(session, number, next) =>
-      def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
+      def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix.toString) -> value }
 
       def pollRecord(): Validation[Record[T]] =
         if (!feeder.hasNext) {

@@ -16,9 +16,6 @@
 
 package io.gatling.recorder.http.flows
 
-import java.nio.charset.StandardCharsets._
-import java.util.Base64
-
 import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, Mitm, OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.Mitm._
@@ -26,6 +23,7 @@ import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM.{ WaitingForProxyConnectResponse, _ }
 import io.gatling.recorder.http.flows.MitmMessage._
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
+import io.gatling.recorder.util.HttpUtils
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.{ Channel, ChannelFutureListener }
@@ -64,8 +62,7 @@ class SecuredWithProxyMitmActor(
 ) extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
-  private val proxyBasicAuthHeader =
-    proxy.credentials.map(credentials => "Basic " + Base64.getEncoder.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
+  private val proxyBasicAuthHeader = proxy.credentials.map(HttpUtils.basicAuth)
 
   override protected def connectedRemote(requestRemote: Remote): Remote = proxyRemote
 

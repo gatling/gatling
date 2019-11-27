@@ -45,7 +45,7 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
     findPath(name).map { path =>
       new URL(
         null,
-        "repldir:" + path,
+        "repldir:" + path.toString,
         (url: URL) =>
           new URLConnection(url) {
             override def connect(): Unit = ()

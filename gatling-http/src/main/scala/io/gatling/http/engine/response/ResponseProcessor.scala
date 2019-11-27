@@ -114,7 +114,7 @@ class DefaultResponseProcessor(
     try {
       if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
         if (tx.redirectCount >= tx.request.requestConfig.maxRedirects) {
-          Crash("Too many redirects, max is " + tx.request.requestConfig.maxRedirects)
+          Crash(s"Too many redirects, max is ${tx.request.requestConfig.maxRedirects}")
 
         } else {
           response.header(HeaderNames.Location) match {

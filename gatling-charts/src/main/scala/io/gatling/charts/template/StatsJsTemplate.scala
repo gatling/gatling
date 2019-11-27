@@ -28,7 +28,7 @@ import io.gatling.charts.report.Container.{ Group, Request }
 
 private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean) {
 
-  private def fieldName(field: String) = if (outputJson) '"' + field + '"' else field
+  private def fieldName(field: String): String = if (outputJson) s""""$field"""" else field
 
   def getOutput(charset: Charset): String = {
 

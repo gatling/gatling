@@ -28,7 +28,7 @@ import org.xml.sax.InputSource
 
 class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]](identity) {
 
-  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
+  private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
   override val preparer: Preparer[Message, Option[Dom]] =
     message =>

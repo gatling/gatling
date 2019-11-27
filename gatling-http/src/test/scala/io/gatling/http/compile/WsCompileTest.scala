@@ -31,7 +31,7 @@ class WsCompileTest extends Simulation {
   private val scn = scenario("WebSocket")
     .exec(http("Home").get("/"))
     .pause(1)
-    .exec(session => session.set("id", "Steph" + session.userId))
+    .exec(session => session.set("id", s"Steph ${session.userId}"))
     .exec(http("Login").get("/room?username=${id}"))
     .pause(1)
     .exec(

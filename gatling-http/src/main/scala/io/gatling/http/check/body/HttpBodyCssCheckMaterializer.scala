@@ -27,7 +27,7 @@ import jodd.lagarto.dom.NodeSelector
 
 class HttpBodyCssCheckMaterializer(selectors: CssSelectors) extends HttpCheckMaterializer[CssCheckType, NodeSelector](Body) {
 
-  private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
+  private val ErrorMapper: String => String = "Could not parse response into a Jodd NodeSelector: " + _
 
   override val preparer: Preparer[Response, NodeSelector] = response => safely(ErrorMapper)(selectors.parse(response.body.chars).success)
 }

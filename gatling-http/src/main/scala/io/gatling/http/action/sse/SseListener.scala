@@ -30,7 +30,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
-class SseException(statusCode: Int) extends IOException("Server returned http response with code " + statusCode) {
+class SseException(statusCode: Int) extends IOException(s"Server returned http response with code $statusCode") {
   override def fillInStackTrace(): Throwable = this
 }
 

@@ -27,7 +27,7 @@ import org.xml.sax.InputSource
 
 class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends HttpCheckMaterializer[XPathCheckType, Option[Dom]](Body) {
 
-  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
+  private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
   private def xpathPreparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
     safely(ErrorMapper) {

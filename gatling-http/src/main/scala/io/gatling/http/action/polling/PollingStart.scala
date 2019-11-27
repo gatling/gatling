@@ -75,7 +75,7 @@ class PollingStart(
           clock,
           coreComponents.configuration.core.charset
         ),
-        name + "-actor-" + session.userId
+        s"$name-actor-${session.userId}"
       )
 
       val newSession = session.set(pollerName, pollingActor)

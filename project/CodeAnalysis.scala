@@ -40,7 +40,6 @@ object CodeAnalysis {
     List(
       Wart.JavaSerializable,
       Wart.Return,
-      Wart.StringPlusAny,
       Wart.TryPartial
     )
 }
