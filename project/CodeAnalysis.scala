@@ -39,7 +39,6 @@ object CodeAnalysis {
   private def toFix =
     List(
       Wart.JavaSerializable,
-      Wart.Return,
-      Wart.TryPartial
+      Wart.Return
     )
 }
