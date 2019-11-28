@@ -22,6 +22,7 @@ object CodeAnalysis {
       Wart.Equals,
       Wart.ImplicitConversion,
       Wart.ImplicitParameter,
+      Wart.JavaSerializable,
       Wart.MutableDataStructures,
       Wart.NonUnitStatements,
       Wart.Nothing,
@@ -33,10 +34,5 @@ object CodeAnalysis {
       Wart.TraversableOps,
       Wart.Var,
       Wart.While
-    ) ++ toFix
-
-  private def toFix =
-    List(
-      Wart.JavaSerializable
     )
 }
