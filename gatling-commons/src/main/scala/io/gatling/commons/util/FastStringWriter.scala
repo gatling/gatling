@@ -23,7 +23,7 @@ final class FastStringWriter(initialSize: Int) extends Writer {
 
   private val buf: JStringBuilder = new JStringBuilder(initialSize)
 
-  override def write(c: Int): Unit = buf.append(c.asInstanceOf[Char])
+  override def write(c: Int): Unit = buf.append(c.toChar)
 
   def write(cbuf: Array[Char], off: Int, len: Int): Unit =
     if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0))

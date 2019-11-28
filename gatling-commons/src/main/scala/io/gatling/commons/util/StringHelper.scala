@@ -20,11 +20,7 @@ import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
 import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
 
-import io.gatling.commons.util.UnsafeHelper._
-
 object StringHelper {
-
-  private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
 
   val Eol: String = System.lineSeparator
   val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
@@ -74,13 +70,6 @@ object StringHelper {
       else
         string
     }
-
-    def unsafeChars: Array[Char] =
-      if (JavaRuntime.JavaMajorVersion == 8) {
-        TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
-      } else {
-        string.toCharArray
-      }
   }
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {

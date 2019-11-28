@@ -21,9 +21,9 @@ import java.io.InputStream
 import scala.annotation.switch
 
 private[feeder] object Utf8BomSkipInputStream {
-  val Utf8BomByte1: Byte = 0xEF.asInstanceOf[Byte]
-  val Utf8BomByte2: Byte = 0xBB.asInstanceOf[Byte]
-  val Utf8BomByte3: Byte = 0xBF.asInstanceOf[Byte]
+  val Utf8BomByte1: Byte = 0xEF.toByte
+  val Utf8BomByte2: Byte = 0xBB.toByte
+  val Utf8BomByte3: Byte = 0xBF.toByte
 }
 
 private[feeder] class Utf8BomSkipInputStream(is: InputStream) extends InputStream {
@@ -36,9 +36,9 @@ private[feeder] class Utf8BomSkipInputStream(is: InputStream) extends InputStrea
   override def read(): Int =
     (bufferPos: @switch) match {
       case 0 =>
-        val b1 = is.read().asInstanceOf[Byte]
-        val b2 = is.read().asInstanceOf[Byte]
-        val b3 = is.read().asInstanceOf[Byte]
+        val b1 = is.read().toByte
+        val b2 = is.read().toByte
+        val b3 = is.read().toByte
 
         if (b1 == Utf8BomByte1 && b2 == Utf8BomByte2 && b3 == Utf8BomByte3) {
           bufferPos = 3

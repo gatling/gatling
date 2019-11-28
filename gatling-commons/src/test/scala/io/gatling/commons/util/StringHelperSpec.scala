@@ -64,10 +64,6 @@ class StringHelperSpec extends BaseSpec {
     "123456".rightPad(4) shouldBe "123456"
   }
 
-  "unsafeChars" should "correctly get the char array corresponding to the string" in {
-    "foo".unsafeChars shouldBe Array('f', 'o', 'o')
-  }
-
   "RichCharSequence.indexOf" should "find target when placed at the beginning" in {
     StringHelper.RichCharSequence("${foobar}").indexOf("${".toCharArray, 0) shouldBe 0
   }
