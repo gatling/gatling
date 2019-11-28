@@ -55,19 +55,21 @@ private[css] object FormExtractor {
 
   private def extractSelect(node: Node): Option[SelectInput] = {
 
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def extractOptions(currentNode: Node, values: List[SelectOption]): List[SelectOption] =
       (for {
         i <- 0 until currentNode.getChildNodesCount
         child = currentNode.getChild(i)
-      } yield child.getNodeName match {
-        case "option" =>
-          Option(child.getAttribute("value")) match {
-            case Some(value) if value.nonEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
-            case _                             => values
-          }
-        case _ =>
-          extractOptions(child, values)
-      }).toList.flatten
+        option <- child.getNodeName match {
+          case "option" =>
+            Option(child.getAttribute("value")) match {
+              case Some(value) if value.nonEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
+              case _                             => values
+            }
+          case _ =>
+            extractOptions(child, values)
+        }
+      } yield option).toList
 
     for {
       name <- Option(node.getAttribute("name"))
@@ -96,22 +98,21 @@ private[css] object FormExtractor {
     } yield RegularInput(name, Option(node.getTextContent).getOrElse(""))
 
   private def processForm(formNode: Node): Seq[Input] = {
-
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def processFormRec(currentNode: Node, inputs: Seq[Input]): Seq[Input] = {
       val childInputs =
         for {
           i <- 0 until currentNode.getChildNodesCount
-        } yield {
-          val childNode = currentNode.getChild(i)
-          childNode.getNodeName match {
+          childNode = currentNode.getChild(i)
+          child <- childNode.getNodeName match {
             case "input"    => extractInput(childNode).toList
             case "select"   => extractSelect(childNode).toList
             case "textarea" => extractTextArea(childNode).toList
             case _          => processFormRec(childNode, inputs)
           }
-        }
+        } yield child
 
-      inputs ++ childInputs.flatten
+      inputs ++ childInputs
     }
 
     processFormRec(formNode, Nil)

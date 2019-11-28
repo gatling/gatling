@@ -32,6 +32,7 @@ import com.typesafe.scalalogging.LazyLogging
 object PopulationBuilder {
 
   def groupChildrenByParent(populationBuilders: List[PopulationBuilder]): Map[String, List[PopulationBuilder]] = {
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def groupChildrenByParentRec(ancestorName: String, populationBuilders: List[PopulationBuilder]): Map[String, List[PopulationBuilder]] =
       if (populationBuilders.isEmpty) {
         Map.empty
@@ -74,6 +75,7 @@ final case class PopulationBuilder(
     copy(scenarioThrottleSteps = throttleSteps)
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private[core] def build(
       coreComponents: CoreComponents,
       protocolComponentsRegistries: ProtocolComponentsRegistries,

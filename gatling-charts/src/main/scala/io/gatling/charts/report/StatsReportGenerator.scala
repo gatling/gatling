@@ -152,6 +152,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def addGroupsRec(hierarchy: List[String]): Unit = {
 
       if (!seenGroups.contains(hierarchy)) {

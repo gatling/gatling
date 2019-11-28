@@ -34,6 +34,7 @@ object ClassHelper {
   implicit class PimpedClass(val clazz: Class[_]) extends AnyVal {
     def getShortName: String = toClassShortName(clazz.getName)
 
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def nonAnonSuperclass: Class[_] =
       if (clazz.isAnonymousClass || clazz.getName.contains("$anon$")) {
         clazz.getSuperclass.nonAnonSuperclass

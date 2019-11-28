@@ -27,6 +27,7 @@ object AssertionValidator {
   def validateAssertions(dataReader: GeneralStatsSource): List[AssertionResult] =
     dataReader.assertions.flatMap(validateAssertion(_, dataReader))
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def validateAssertion(assertion: Assertion, source: GeneralStatsSource): List[AssertionResult] = {
 
     val printablePath = assertion.path.printable

@@ -30,6 +30,7 @@ private[scenario] object RequestTemplate {
 
   def headersBlockName(id: Int) = s"headers_$id"
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): String = {
     def renderMethod: String =
       if (BuiltInHttpMethods.contains(request.method)) {

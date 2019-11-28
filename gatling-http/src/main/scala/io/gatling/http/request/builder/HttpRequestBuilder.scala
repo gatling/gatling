@@ -132,6 +132,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): HttpRequestBuilder =
     bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath))
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def build(httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): HttpRequestDef = {
 
     val checks =

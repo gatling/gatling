@@ -203,6 +203,7 @@ private[gatling] object Json {
     appendStringified(value, isRootObject).toString
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def asScala(node: JsonNode): Any =
     node.getNodeType match {
       case ARRAY =>
