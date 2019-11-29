@@ -46,7 +46,6 @@ trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
   def findRandom: ValidatorCheckBuilder[T, P, X]
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def findRandom(num: Int, failIfLess: Boolean = false): ValidatorCheckBuilder[T, P, Seq[X]]
 
   def count: ValidatorCheckBuilder[T, P, Int]

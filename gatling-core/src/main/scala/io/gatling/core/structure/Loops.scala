@@ -29,7 +29,6 @@ import com.eatthepath.uuid.FastUUID
 private[structure] trait Loops[B] extends Execs[B] {
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def repeat(times: Expression[Int], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
     val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
@@ -38,7 +37,6 @@ private[structure] trait Loops[B] extends Execs[B] {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B = {
 
     val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
@@ -54,7 +52,6 @@ private[structure] trait Loops[B] extends Execs[B] {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def during(duration: Duration, counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = true)(
       chain: ChainBuilder
   )(implicit clock: Clock): B =
@@ -70,17 +67,14 @@ private[structure] trait Loops[B] extends Execs[B] {
   def forever(chain: ChainBuilder): B = forever(FastUUID.toString(UUID.randomUUID))(chain)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def forever(counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = false)(chain: ChainBuilder): B =
     loop(TrueExpressionSuccess, chain, counterName, exitASAP, ForeachLoopType)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def asLongAs(condition: Expression[Boolean], counterName: String = FastUUID.toString(UUID.randomUUID), exitASAP: Boolean = false)(chain: ChainBuilder): B =
     loop(condition, chain, counterName, exitASAP, AsLongAsLoopType)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def doWhile(condition: Expression[Boolean], counterName: String = FastUUID.toString(UUID.randomUUID))(chain: ChainBuilder): B =
     loop(condition, chain, counterName, exitASAP = false, DoWhileType)
 
@@ -101,7 +95,6 @@ private[structure] trait Loops[B] extends Execs[B] {
       } yield clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis && conditionValue
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def asLongAsDuring(
       condition: Expression[Boolean],
       duration: Expression[Duration],
@@ -111,7 +104,6 @@ private[structure] trait Loops[B] extends Execs[B] {
     loop(continueCondition(condition, duration, counterName, clock), chain, counterName, exitASAP, AsLongAsDuringLoopType)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def doWhileDuring(
       condition: Expression[Boolean],
       duration: Expression[Duration],

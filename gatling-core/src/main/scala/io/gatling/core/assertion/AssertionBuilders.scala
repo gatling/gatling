@@ -62,7 +62,6 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
   def gt(threshold: T): Assertion = next(Gt(numeric.toDouble(threshold)))
   def gte(threshold: T): Assertion = next(Gte(numeric.toDouble(threshold)))
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def between(min: T, max: T, inclusive: Boolean = true): Assertion = next(Between(numeric.toDouble(min), numeric.toDouble(max), inclusive))
   def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
   def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))

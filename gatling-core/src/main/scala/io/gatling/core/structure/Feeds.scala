@@ -34,7 +34,6 @@ private[structure] trait Feeds[B] extends Execs[B] {
    * @param number the number of records to be polled (default 1)
    */
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def feed(feederBuilder: FeederBuilder, number: Expression[Int] = Feeds.OneExpression): B =
     exec(new FeedBuilder(feederBuilder, number))
 }

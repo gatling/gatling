@@ -64,7 +64,6 @@ trait CheckSupport {
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(
       implicit xmlParsers: XmlParsers
   ): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =

@@ -31,22 +31,18 @@ trait FeederSupport extends ResourceCache {
   implicit def feeder2FeederBuilder(feeder: Feeder[Any]): FeederBuilder = () => feeder
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def csv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, CommaSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def ssv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, SemicolonSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def tsv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
     separatedValues(fileName, TabulationSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  // binary compat
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(
       implicit configuration: GatlingConfiguration
   ): BatchableFeederBuilder[String] =
