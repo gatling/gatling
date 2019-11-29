@@ -51,7 +51,7 @@ class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: Act
    * @return nothing
    */
   override def execute(session: Session): Unit = recover(session) {
-    intervalExpr(session) map { interval =>
+    intervalExpr(session).map { interval =>
       val now = clock.nowMillis
       val intervalMillis = interval.toMillis
       session(counter).asOption[Long] match {
