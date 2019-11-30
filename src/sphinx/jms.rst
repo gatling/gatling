@@ -109,6 +109,8 @@ There is ``simpleCheck`` that accepts just ``javax.jms.Message => Boolean`` func
 
 There is also ``xpath`` check for ``javax.jms.TextMessage`` that carries XML content.
 
+And there is ``bodyString``, ``jsonPath``, ``substring`` checks for ``java.jms.TextMessage`` that carries JSON content and ``java.jms.BytesMessage`` that carries json content in utf-8 encoding. And You may use ``checkIf`` for conditional checks.
+
 Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
 
 Example

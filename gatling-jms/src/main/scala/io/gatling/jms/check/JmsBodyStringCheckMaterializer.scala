@@ -14,21 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.jms
+package io.gatling.jms.check
 
-import javax.jms.{ BytesMessage, Message, TextMessage }
-import org.mockito.Mockito._
-import org.scalatestplus.mockito.MockitoSugar
+import io.gatling.core.check.string.BodyStringCheckType
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.jms.JmsCheck
+import javax.jms.Message
 
-trait MockMessage extends MockitoSugar {
-  def textMessage(text: String): TextMessage = {
-    val msg = mock[TextMessage]
-    when(msg.getText) thenReturn text
-    msg
-  }
-
-  def bytesMessage(bytes: Array[Byte]): BytesMessage =
-    mock[BytesMessage](new BytesMessageAnswer(bytes))
-
-  def message: Message = mock[Message]
+object JmsBodyStringCheckMaterializer {
+  def apply(config: GatlingConfiguration): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =
+    new CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String](identity) {
+      override protected def preparer: Preparer[Message, String] = JmsMessageBodyPreparers.jmsStringBodyPreparer(config)
+    }
 }
