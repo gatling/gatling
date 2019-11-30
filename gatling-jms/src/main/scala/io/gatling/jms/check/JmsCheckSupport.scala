@@ -16,16 +16,23 @@
 
 package io.gatling.jms.check
 
-import javax.jms.Message
+import java.util.{ Map => JMap }
 
 import scala.annotation.implicitNotFound
 
-import io.gatling.core.check.{ CheckBuilder, CheckMaterializer, FindCheckBuilder, ValidatorCheckBuilder }
-import io.gatling.core.check.xpath.{ Dom, XPathCheckType, XmlParsers }
+import io.gatling.commons.validation.Validation
+import io.gatling.core.check.string.BodyStringCheckType
+import io.gatling.core.check.substring.SubstringCheckType
+import io.gatling.core.check.xpath._
+import io.gatling.core.check._
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.JsonParsers
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.jms.JmsCheck
 
-trait JmsCheckSupport {
+import javax.jms.Message
 
+trait JmsCheckSupport {
   def simpleCheck: JmsSimpleCheck.type = JmsSimpleCheck
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
@@ -46,6 +53,33 @@ trait JmsCheckSupport {
   )(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
     findCheckBuilder.find.exists
 
+  implicit def jmsBodyStringCheckMaterializer(
+      implicit gatlingConfiguration: GatlingConfiguration
+  ): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =
+    JmsBodyStringCheckMaterializer(gatlingConfiguration)
+
+  implicit def jmsBodySubstringCheckMaterializer(
+      implicit gatlingConfiguration: GatlingConfiguration
+  ): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
+    JmsBodySubstringCheckMaterializer(gatlingConfiguration)
+
   implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] =
     new JmsXPathCheckMaterializer(xmlParsers)
+
+  implicit def jmsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers, gatlingConfiguration: GatlingConfiguration): JmsJsonPathCheckMaterializer =
+    new JmsJsonPathCheckMaterializer(jsonParsers, gatlingConfiguration)
+
+  implicit val jmsUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[JmsCheck] =
+    (condition: Expression[Boolean], thenCheck: JmsCheck) =>
+      new Check[Message] {
+        private val typedCondition = (_: Message, ses: Session) => condition(ses)
+
+        override def check(response: Message, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+          ConditionalCheck(typedCondition, thenCheck).check(response, session, preparedCache)
+      }
+
+  implicit val jmsTypedConditionalCheckWrapper: TypedConditionalCheckWrapper[Message, JmsCheck] =
+    (condition: (Message, Session) => Validation[Boolean], thenCheck: JmsCheck) =>
+      (response: Message, session: Session, preparedCache: JMap[Any, Any]) => ConditionalCheck(condition, thenCheck).check(response, session, preparedCache)
+
 }
