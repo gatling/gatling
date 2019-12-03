@@ -43,4 +43,9 @@ public class BasicRealm implements Realm {
   public String getAuthorizationHeader() {
     return authorizationHeader;
   }
+
+  @Override
+  public String toString() {
+    return "BasicRealm{username='" + username + "', password='*******'}";
+  }
 }
