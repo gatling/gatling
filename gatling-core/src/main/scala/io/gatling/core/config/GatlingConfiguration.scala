@@ -184,7 +184,6 @@ object GatlingConfiguration extends StrictLogging {
           connectTimeout = config.getInt(http.ahc.ConnectTimeout) millis,
           handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout) millis,
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout) millis,
-          maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeout = config.getInt(http.ahc.RequestTimeout) millis,
           enableSni = config.getBoolean(http.ahc.EnableSni),
           enableHostnameVerification = {
@@ -360,7 +359,6 @@ final case class AdvancedConfiguration(
     connectTimeout: FiniteDuration,
     handshakeTimeout: FiniteDuration,
     pooledConnectionIdleTimeout: FiniteDuration,
-    maxRetry: Int,
     requestTimeout: FiniteDuration,
     enableSni: Boolean,
     enableHostnameVerification: Boolean,

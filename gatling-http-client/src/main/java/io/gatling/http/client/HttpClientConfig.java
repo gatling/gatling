@@ -56,8 +56,6 @@ public class HttpClientConfig {
 
   private boolean soReuseAddress;
 
-  private int maxRetry;
-
   private String threadPoolName = "gatling-http-client";
 
   public long getConnectTimeout() {
@@ -174,15 +172,6 @@ public class HttpClientConfig {
 
   public HttpClientConfig setSoReuseAddress(boolean soReuseAddress) {
     this.soReuseAddress = soReuseAddress;
-    return this;
-  }
-
-  public int getMaxRetry() {
-    return maxRetry;
-  }
-
-  public HttpClientConfig setMaxRetry(int maxRetry) {
-    this.maxRetry = maxRetry;
     return this;
   }
 

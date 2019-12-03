@@ -320,13 +320,13 @@ public class DefaultHttpClient implements HttpClient {
   private HttpTx buildTx(Request request, long clientId, boolean shared, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
     RequestTimeout requestTimeout = RequestTimeout.requestTimeout(request.getRequestTimeout(), listener);
     ChannelPoolKey key = new ChannelPoolKey(shared ? -1 : clientId, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
-    return new HttpTx(request, listener, requestTimeout, key, config.getMaxRetry(), sslContext, alpnSslContext);
+    return new HttpTx(request, listener, requestTimeout, key, sslContext, alpnSslContext);
   }
 
   boolean canRetry(HttpTx tx, Channel channel) {
     return ChannelPool.isReused(channel) // only retry polled keep-alive connections = when keep-alive timeout triggered server side while we were writing
       && !(tx.request.getBody() instanceof InputStreamRequestBody) // InputStreamRequestBody can't be replayed
-      && tx.remainingTries > 0;
+      && tx.channelState == HttpTx.ChannelState.POOLED;
   }
 
   void retry(HttpTx tx, EventLoop eventLoop) {
@@ -334,8 +334,8 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
-    tx.remainingTries = tx.remainingTries - 1;
-    LOGGER.debug("Retrying, remaining {}", tx.remainingTries);
+    tx.channelState = HttpTx.ChannelState.RETRY;
+    LOGGER.debug("Retrying with new connection");
     sendTx(tx, eventLoop);
   }
 
@@ -352,7 +352,7 @@ public class DefaultHttpClient implements HttpClient {
     // use a fresh channel for WebSocket
     Channel pooledChannel = request.getUri().isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
-    if (pooledChannel != null) {
+    if (pooledChannel != null && tx.channelState != HttpTx.ChannelState.RETRY) {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
@@ -365,7 +365,7 @@ public class DefaultHttpClient implements HttpClient {
           if (whenRemoteAddresses.isSuccess()) {
             List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-            if (request.isHttp2Enabled()) {
+            if (request.isHttp2Enabled() && tx.channelState != HttpTx.ChannelState.RETRY) {
               String domain = tx.request.getUri().getHost();
               Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
               if (coalescedChannel != null) {
@@ -490,6 +490,7 @@ public class DefaultHttpClient implements HttpClient {
                                     EventLoopResources resources,
                                     EventLoop eventLoop,
                                     List<InetSocketAddress> addresses) {
+    tx.channelState = HttpTx.ChannelState.NEW;
     openNewChannel(tx.request, eventLoop, resources, addresses, tx.listener, tx.requestTimeout)
       .addListener((Future<Channel> whenNewChannel) -> {
         if (whenNewChannel.isSuccess()) {

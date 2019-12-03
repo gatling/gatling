@@ -61,7 +61,6 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
       .setConnectTimeout(httpConfig.advanced.connectTimeout.toMillis)
       .setHandshakeTimeout(httpConfig.advanced.handshakeTimeout.toMillis)
       .setChannelPoolIdleTimeout(httpConfig.advanced.pooledConnectionIdleTimeout.toMillis)
-      .setMaxRetry(httpConfig.advanced.maxRetry)
       .setEnableSni(httpConfig.advanced.enableSni)
       .setEnableHostnameVerification(httpConfig.advanced.enableHostnameVerification)
       .setDefaultCharset(coreComponents.configuration.core.charset)
