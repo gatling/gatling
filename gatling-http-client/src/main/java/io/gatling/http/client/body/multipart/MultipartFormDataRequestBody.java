@@ -21,7 +21,6 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.gatling.http.client.body.multipart.impl.MessageEndPartImpl;
 import io.gatling.http.client.body.multipart.impl.MultipartChunkedInput;
-import io.gatling.http.client.body.multipart.impl.MultipartFileRegion;
 import io.gatling.http.client.body.multipart.impl.PartImpl;
 import io.netty.buffer.ByteBufAllocator;
 import org.slf4j.Logger;
@@ -44,7 +43,7 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
   }
 
   @Override
-  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(ByteBufAllocator alloc) {
 
     List<PartImpl> partImpls = new ArrayList<>(content.size() + 1);
     for (Part<?> part: content) {
@@ -54,7 +53,7 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
     long contentLength = computeContentLength(partImpls);
 
-    Object content = zeroCopy ? new MultipartFileRegion(partImpls, contentLength): new MultipartChunkedInput(partImpls, contentLength);
+    Object content = new MultipartChunkedInput(partImpls, contentLength);
 
     return new WritableContent(content, contentLength);
   }

@@ -61,7 +61,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
   public MultipartChunkedInput(List<PartImpl> parts, long contentLength) {
     this.parts = parts;
     this.contentLength = contentLength;
-    this.chunkSize = contentLength > 0 ? (int) Math.min(contentLength, (long) DEFAULT_CHUNK_SIZE) : DEFAULT_CHUNK_SIZE;
+    this.chunkSize = contentLength > 0 ? (int) Math.min(contentLength, DEFAULT_CHUNK_SIZE) : DEFAULT_CHUNK_SIZE;
   }
 
   @Override

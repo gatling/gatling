@@ -30,8 +30,6 @@ public class HttpClientConfig {
 
   private Charset defaultCharset = UTF_8;
 
-  private boolean enableZeroCopy = true;
-
   private long handshakeTimeout = 10_000;
 
   private SslContext defaultSslContext;
@@ -73,15 +71,6 @@ public class HttpClientConfig {
 
   public HttpClientConfig setDefaultCharset(Charset defaultCharset) {
     this.defaultCharset = defaultCharset;
-    return this;
-  }
-
-  public boolean isEnableZeroCopy() {
-    return enableZeroCopy;
-  }
-
-  public HttpClientConfig setEnableZeroCopy(boolean enableZeroCopy) {
-    this.enableZeroCopy = enableZeroCopy;
     return this;
   }
 

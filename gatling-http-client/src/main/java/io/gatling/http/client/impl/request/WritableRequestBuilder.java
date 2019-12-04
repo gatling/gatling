@@ -57,15 +57,12 @@ public class WritableRequestBuilder {
   }
 
   private static WritableRequest buildRequestWithBody(String url,
-                                                      Uri uri,
                                                       HttpMethod method,
                                                       HttpHeaders headers,
                                                       RequestBody<?> requestBody,
-                                                      ByteBufAllocator alloc,
-                                                      HttpClientConfig config) throws IOException {
+                                                      ByteBufAllocator alloc) throws IOException {
 
-    boolean zeroCopy = !uri.isSecured() && config.isEnableZeroCopy();
-    WritableContent writableContent = requestBody.build(zeroCopy, alloc);
+    WritableContent writableContent = requestBody.build(alloc);
 
     Object content = writableContent.getContent();
 
@@ -115,7 +112,7 @@ public class WritableRequestBuilder {
     WritableRequest writableRequest =
       requestBody == null ?
             buildRequestWithoutBody(url, request.getMethod(), headers) :
-            buildRequestWithBody(url, uri, request.getMethod(), headers, requestBody, alloc, config);
+            buildRequestWithBody(url, request.getMethod(), headers, requestBody, alloc);
 
     SignatureCalculator signatureCalculator = request.getSignatureCalculator();
     if (signatureCalculator != null) {

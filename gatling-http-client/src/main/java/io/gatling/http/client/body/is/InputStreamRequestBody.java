@@ -32,7 +32,7 @@ public class InputStreamRequestBody extends RequestBody<InputStream> {
   }
 
   @Override
-  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(ByteBufAllocator alloc) {
 
     ChunkedStream chunkedStream = new ChunkedStream(content);
 

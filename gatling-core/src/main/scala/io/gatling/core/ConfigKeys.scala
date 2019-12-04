@@ -107,7 +107,6 @@ object ConfigKeys {
       val UseOpenSsl = "gatling.http.ahc.useOpenSsl"
       val UseOpenSslFinalizers = "gatling.http.ahc.useOpenSslFinalizers"
       val UseNativeTransport = "gatling.http.ahc.useNativeTransport"
-      val EnableZeroCopy = "gatling.http.ahc.enableZeroCopy"
       val TcpNoDelay = "gatling.http.ahc.tcpNoDelay"
       val SoKeepAlive = "gatling.http.ahc.soKeepAlive"
       val SoReuseAddress = "gatling.http.ahc.soReuseAddress"

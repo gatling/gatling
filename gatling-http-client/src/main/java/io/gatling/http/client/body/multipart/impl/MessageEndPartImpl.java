@@ -20,9 +20,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
-import java.io.IOException;
-import java.nio.channels.WritableByteChannel;
-
 public class MessageEndPartImpl extends PartImpl {
 
   // lazy
@@ -36,12 +33,6 @@ public class MessageEndPartImpl extends PartImpl {
   @Override
   public void copyInto(ByteBuf target) {
     copyInto(lazyLoadContentBuffer(target.alloc()), target, PartImplState.DONE);
-  }
-
-  @Override
-  public long transferTo(WritableByteChannel target) throws IOException {
-    slowTarget = false;
-    return transferTo(lazyLoadContentBuffer(ByteBufAllocator.DEFAULT), target, PartImplState.DONE);
   }
 
   private ByteBuf lazyLoadContentBuffer(ByteBufAllocator alloc) {
@@ -79,11 +70,6 @@ public class MessageEndPartImpl extends PartImpl {
 
   @Override
   protected void copyContentInto(ByteBuf target) {
-    throw new UnsupportedOperationException("Not supposed to be called");
-  }
-
-  @Override
-  protected long transferContentTo(WritableByteChannel target) {
     throw new UnsupportedOperationException("Not supposed to be called");
   }
 

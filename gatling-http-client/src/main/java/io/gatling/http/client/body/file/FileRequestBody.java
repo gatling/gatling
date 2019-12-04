@@ -20,7 +20,6 @@ import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.DefaultFileRegion;
 import io.netty.handler.stream.ChunkedFile;
 
 import java.io.*;
@@ -33,13 +32,11 @@ public class FileRequestBody extends RequestBody<File> {
   }
 
   @Override
-  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) throws IOException {
+  public WritableContent build(ByteBufAllocator alloc) throws IOException {
 
     long contentLength = content.length();
 
-    Object file = zeroCopy ?
-            new DefaultFileRegion(content, 0, contentLength) :
-            new ChunkedFile(content);
+    Object file = new ChunkedFile(content);
 
     return new WritableContent(file, contentLength);
   }

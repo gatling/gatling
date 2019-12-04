@@ -34,7 +34,7 @@ public class StringRequestBody extends RequestBody<String> {
   }
 
   @Override
-  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(ByteBufAllocator alloc) {
     ByteBuf bb =
             charset.equals(StandardCharsets.UTF_8) ?
                     ByteBufUtil.writeUtf8(alloc, content) :

@@ -40,7 +40,7 @@ public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
   }
 
   @Override
-  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(ByteBufAllocator alloc) {
 
     StringBuilder sb = encode();
 

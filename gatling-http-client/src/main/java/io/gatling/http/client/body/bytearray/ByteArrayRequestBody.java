@@ -31,7 +31,7 @@ public class ByteArrayRequestBody extends RequestBody<byte[]> {
   }
 
   @Override
-  public WritableContent build(boolean zeroCopy, ByteBufAllocator alloc) {
+  public WritableContent build(ByteBufAllocator alloc) {
     return new WritableContent(Unpooled.wrappedBuffer(content), content.length);
   }
 

@@ -68,7 +68,6 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
       .setTcpNoDelay(httpConfig.advanced.tcpNoDelay)
       .setSoKeepAlive(httpConfig.advanced.soKeepAlive)
       .setSoReuseAddress(httpConfig.advanced.soReuseAddress)
-      .setEnableZeroCopy(httpConfig.advanced.enableZeroCopy)
       .setThreadPoolName("gatling-http")
   }
 

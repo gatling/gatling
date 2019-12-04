@@ -39,7 +39,7 @@ class FormUrlEncodedRequestBodyTest {
     String value = "中文";
     List<Param> params = new ArrayList<>();
     params.add(new Param(key, value));
-    ByteBuf bb = (ByteBuf) new FormUrlEncodedRequestBody(params, TEXT_PLAIN.toString(), charset).build( false, ByteBufAllocator.DEFAULT).getContent();
+    ByteBuf bb = (ByteBuf) new FormUrlEncodedRequestBody(params, TEXT_PLAIN.toString(), charset).build(ByteBufAllocator.DEFAULT).getContent();
     try {
       String ahcString = ByteBufUtils.byteBuf2String(US_ASCII, bb);
       String jdkString = key + "=" + URLEncoder.encode(value, charset.name());

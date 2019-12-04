@@ -25,19 +25,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.nio.channels.WritableByteChannel;
 
 public class FilePartImpl extends FileLikePartImpl<FilePart> {
 
   private final File file;
-  private final long length;
   private FileChannel channel;
   private long position = 0L;
 
   public FilePartImpl(FilePart part, byte[] boundary) {
     super(part, boundary);
     file = part.getContent();
-    length = file.length();
   }
 
   private FileChannel getChannel() throws IOException {
@@ -65,26 +62,6 @@ public class FilePartImpl extends FileLikePartImpl<FilePart> {
         channel.close();
       }
     }
-  }
-
-  @Override
-  protected long transferContentTo(WritableByteChannel target) throws IOException {
-    // WARN: don't use channel.position(), it's always 0 here
-    // from FileChannel javadoc: "This method does not modify this channel's
-    // position."
-    long transferred = getChannel().transferTo(position, MultipartChunkedInput.DEFAULT_CHUNK_SIZE, target);
-    if (transferred > 0) {
-      position += transferred;
-    }
-    if (position == length || transferred < 0) {
-      state = PartImplState.POST_CONTENT;
-      if (channel.isOpen()) {
-        channel.close();
-      }
-    } else {
-      slowTarget = true;
-    }
-    return transferred;
   }
 
   @Override

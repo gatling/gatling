@@ -21,7 +21,7 @@ import io.gatling.http.client.body.multipart.FileLikePart;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public abstract class FileLikePartImpl<T extends FileLikePart> extends PartImpl {
+public abstract class FileLikePartImpl<T extends FileLikePart<?>> extends PartImpl {
 
   /**
    * Attachment's file name as a byte array
@@ -34,7 +34,7 @@ public abstract class FileLikePartImpl<T extends FileLikePart> extends PartImpl 
 
   protected void visitContentDispositionHeader(PartVisitor visitor) {
     super.visitContentDispositionHeader(visitor);
-    String fileName = ((FileLikePart) part).getFileName();
+    String fileName = ((FileLikePart<?>) part).getFileName();
     if (fileName != null) {
       visitor.withBytes(FILE_NAME_BYTES);
       visitor.withByte(QUOTE_BYTE);

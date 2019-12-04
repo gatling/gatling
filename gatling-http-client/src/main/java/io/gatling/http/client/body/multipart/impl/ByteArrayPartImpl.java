@@ -20,9 +20,6 @@ import io.gatling.http.client.body.multipart.ByteArrayPart;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
-import java.io.IOException;
-import java.nio.channels.WritableByteChannel;
-
 public class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
 
   private final ByteBuf contentBuffer;
@@ -40,11 +37,6 @@ public class ByteArrayPartImpl extends FileLikePartImpl<ByteArrayPart> {
   @Override
   protected void copyContentInto(ByteBuf target) {
     copyInto(contentBuffer, target, PartImplState.POST_CONTENT);
-  }
-
-  @Override
-  protected long transferContentTo(WritableByteChannel target) throws IOException {
-    return transferTo(contentBuffer, target, PartImplState.POST_CONTENT);
   }
 
   @Override
