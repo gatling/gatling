@@ -35,7 +35,6 @@ object Dependencies {
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.2.1")
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.7"
-  private val jsonpath                       = "io.gatling"                          %% "jsonpath"                        % "0.7.0"
   private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.0.13"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.4.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.1"
@@ -82,7 +81,7 @@ object Dependencies {
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
-  private val parserDeps = Seq(jsonpath, jackson, saxon, joddLagarto, jmespath)
+  private val parserDeps = Seq(jackson, saxon, joddLagarto, jmespath)
 
   // Dependencies by module
 
@@ -91,6 +90,9 @@ object Dependencies {
 
   def commonsDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, boopickle, spire, quicklens, java8Compat, fastUuid) ++ loggingDeps ++ testDeps
+
+  val jsonpathDependencies =
+    Seq(scalaParserCombinators, jackson) ++ testDeps
 
   val coreDependencies =
     Seq(akka, akkaSlf4j, sfm, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler) ++

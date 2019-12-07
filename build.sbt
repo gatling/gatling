@@ -13,8 +13,8 @@ ThisBuild / Keys.useCoursier := false
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
-  .dependsOn(Seq(commons, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-  .aggregate(nettyUtil, commons, core, jdbc, redis, httpClient, http, jms, mqtt, charts, graphite, app, recorder, testFramework, bundle, compiler)
+  .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+  .aggregate(nettyUtil, commons, jsonpath, core, jdbc, redis, httpClient, http, jms, mqtt, charts, graphite, app, recorder, testFramework, bundle, compiler)
   .settings(basicSettings)
   .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
@@ -35,8 +35,12 @@ lazy val commons = gatlingModule("gatling-commons")
   .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
   .settings(generateVersionFileSettings)
 
+lazy val jsonpath = gatlingModule("gatling-jsonpath")
+  .settings(libraryDependencies ++= jsonpathDependencies)
+
 lazy val core = gatlingModule("gatling-core")
   .dependsOn(commons % "compile->compile;test->test")
+  .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)
   .settings(copyGatlingDefaults(compiler))
 
