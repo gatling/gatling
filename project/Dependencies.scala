@@ -64,7 +64,9 @@ object Dependencies {
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.1"
 
   // Test dependencies
-  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.0.8"             % "test"
+  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.1.0"             % "test"
+  private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-14"                 % "3.1.0.0"           % "test"
+  private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-1-10"                    % "3.1.0.0"           % "test"
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.14.2"            % "test"
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "3.0.0"             % "test"
@@ -80,7 +82,7 @@ object Dependencies {
   // format: ON
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
-  private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
+  private val testDeps = Seq(scalaTest, scalaTestScalacheck, scalaTestMockito, scalaCheck, akkaTestKit, mockitoCore)
   private val parserDeps = Seq(jackson, saxon, joddLagarto, jmespath)
 
   // Dependencies by module

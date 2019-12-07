@@ -22,10 +22,11 @@ import io.gatling.core.session.el.El
 import io.gatling.core.stats.StatsEngine
 
 import org.mockito.Mockito._
-import org.scalatest.{ FlatSpec, GivenWhenThen }
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatestplus.mockito.MockitoSugar
 
-class IfSpec extends FlatSpec with MockitoSugar with GivenWhenThen {
+class IfSpec extends AnyFlatSpec with MockitoSugar with GivenWhenThen {
 
   private val clock = new DefaultClock
   private val condition = "${condition}".el[Boolean]

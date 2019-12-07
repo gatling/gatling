@@ -22,10 +22,12 @@ import io.gatling.core.stats.StatsEngine
 
 import org.mockito.{ ArgumentCaptor, ArgumentMatchers }
 import org.mockito.Mockito._
-import org.scalatest.{ FlatSpec, GivenWhenThen, Matchers }
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
-class GroupEndSpec extends FlatSpec with Matchers with MockitoSugar with GivenWhenThen {
+class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen {
 
   private val clock = new DefaultClock
 

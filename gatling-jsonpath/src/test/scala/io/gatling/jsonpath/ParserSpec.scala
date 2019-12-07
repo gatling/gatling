@@ -16,14 +16,14 @@
 
 package io.gatling.jsonpath
 
-import io.gatling.jsonpath.Parser._
 import io.gatling.jsonpath.AST._
+import io.gatling.jsonpath.Parser._
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.{ MatchResult, Matcher }
-import org.scalatest.Matchers
+import org.scalatest.matchers.should.Matchers
 
-class StringSpec extends FlatSpec with Matchers {
+class StringSpec extends AnyFlatSpec with Matchers {
   "Fast string replacement" should "work as expected" in {
     fastReplaceAll("foo", "f", "b") shouldBe "boo"
     fastReplaceAll("foobarqix", "bar", "B") shouldBe "fooBqix"
@@ -31,7 +31,7 @@ class StringSpec extends FlatSpec with Matchers {
   }
 }
 
-class ParserSpec extends FlatSpec with Matchers with ParsingMatchers {
+class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
 
   "Field parsing" should "work with standard names" in {
     def shouldParseField(name: String) = {

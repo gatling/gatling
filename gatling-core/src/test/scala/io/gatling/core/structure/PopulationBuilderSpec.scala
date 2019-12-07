@@ -16,9 +16,10 @@
 
 package io.gatling.core.structure
 
-import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class PopulationBuilderSpec extends FlatSpec with Matchers {
+class PopulationBuilderSpec extends AnyFlatSpec with Matchers {
 
   private def newPopulationBuilder(name: String, children: List[PopulationBuilder]): PopulationBuilder =
     PopulationBuilder(

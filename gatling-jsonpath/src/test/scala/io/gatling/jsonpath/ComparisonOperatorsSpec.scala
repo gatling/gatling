@@ -18,10 +18,11 @@ package io.gatling.jsonpath
 
 import com.fasterxml.jackson.databind.node.{ BooleanNode, DoubleNode, FloatNode, IntNode, LongNode, TextNode }
 import org.scalacheck.Arbitrary._
-import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.scalacheck.ScalaCheckDrivenPropertyChecks
 
-class ComparisonOperatorsSpec extends FlatSpec with Matchers with ScalaCheckDrivenPropertyChecks {
+class ComparisonOperatorsSpec extends AnyFlatSpec with Matchers with ScalaCheckDrivenPropertyChecks {
 
   "comparison operators" should "return false if types aren't compatible" in {
     forAll(arbitrary[String], arbitrary[Int]) { (string, int) =>

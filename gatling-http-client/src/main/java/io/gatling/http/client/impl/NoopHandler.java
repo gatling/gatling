@@ -30,16 +30,13 @@ public class NoopHandler implements ChannelHandler {
   
   @Override
   public void handlerAdded(ChannelHandlerContext ctx) {
-    
   }
 
   @Override
   public void handlerRemoved(ChannelHandlerContext ctx) {
-
   }
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-
   }
 }
