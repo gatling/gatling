@@ -35,7 +35,7 @@ object DnsNameResolverFactory {
   }
 }
 
-class DnsNameResolverFactory(eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration) extends EventLoopGroups {
+class DnsNameResolverFactory(eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration) {
 
   def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     new ExtendedDnsNameResolver(
