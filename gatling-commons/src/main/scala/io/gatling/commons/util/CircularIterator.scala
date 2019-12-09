@@ -16,18 +16,20 @@
 
 package io.gatling.commons.util
 
+import scala.collection.AbstractIterator
+
 object CircularIterator {
 
   def apply[T](values: IndexedSeq[T], threadSafe: Boolean): Iterator[T] = values.length match {
     case 0 => Iterator.empty
     case 1 =>
-      new Iterator[T] {
+      new AbstractIterator[T] {
         override val hasNext: Boolean = true
         override val next: T = values(0)
       }
     case _ =>
       val counter = if (threadSafe) new CyclicCounter.ThreadSafe(values.length) else new CyclicCounter.NonThreadSafe(values.length)
-      new Iterator[T] {
+      new AbstractIterator[T] {
         override val hasNext: Boolean = true
         override def next(): T = values(counter.nextVal)
       }

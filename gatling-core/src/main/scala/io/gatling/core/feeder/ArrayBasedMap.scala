@@ -16,6 +16,7 @@
 
 package io.gatling.core.feeder
 
+import scala.collection.AbstractIterator
 import scala.collection.immutable.{ AbstractMap, Map }
 
 private[feeder] object ArrayBasedMap {
@@ -44,7 +45,7 @@ private[feeder] class ArrayBasedMap[K, +V](keys: Array[K], values: Array[V], ove
     found
   }
 
-  override def iterator: Iterator[(K, V)] = new Iterator[(K, V)] {
+  override def iterator: Iterator[(K, V)] = new AbstractIterator[(K, V)] {
 
     private var i = 0
 

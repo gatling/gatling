@@ -164,7 +164,7 @@ final case class AtOnceOpenInjection(users: Long) extends OpenInjectionStep {
     if (users == 0) {
       chained
     } else {
-      new Iterator[FiniteDuration] {
+      new AbstractIterator[FiniteDuration] {
 
         private var i: Long = 0L
 
@@ -248,7 +248,7 @@ final case class HeavisideOpenInjection(private[inject] val users: Long, duratio
       val d = t0 * 2
       val k = duration.toMillis / d
 
-      new Iterator[FiniteDuration] {
+      new AbstractIterator[FiniteDuration] {
 
         private var i: Long = 0L
 

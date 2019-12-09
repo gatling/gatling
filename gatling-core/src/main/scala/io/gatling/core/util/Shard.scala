@@ -16,6 +16,8 @@
 
 package io.gatling.core.util
 
+import scala.collection.AbstractIterator
+
 object Shard {
 
   private[this] def sumFromZero(total: Long, buckets: Int, bucketNumber: Int): Long =
@@ -37,7 +39,7 @@ object Shard {
   }
 
   def shards(total: Long, buckets: Int): Iterator[Long] =
-    new Iterator[Long] {
+    new AbstractIterator[Long] {
       private[this] var currentIndex = 0
       private[this] var previousSumFromZero = 0L
 
