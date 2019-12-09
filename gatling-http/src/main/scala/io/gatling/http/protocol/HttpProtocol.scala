@@ -19,8 +19,6 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import io.gatling.commons.util.CircularIterator
-import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
@@ -37,7 +35,6 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.response.DefaultStatsProcessor
 import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.fetch.InferredResourceNaming
-import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
 import javax.net.ssl.KeyManagerFactory
@@ -183,28 +180,7 @@ final case class HttpProtocolWsPart(
     wsBaseUrls: List[String],
     reconnect: Boolean,
     maxReconnects: Option[Int]
-) {
-
-  private val wsBaseUrlIterator: Option[Iterator[String]] = wsBaseUrls match {
-    case Nil => None
-    case _   => Some(CircularIterator(wsBaseUrls.toVector, threadSafe = true))
-  }
-
-  private val doMakeAbsoluteWsUri: String => Validation[Uri] =
-    wsBaseUrls match {
-      case Nil              => url => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
-      case wsBaseUrl :: Nil => url => Uri.create(wsBaseUrl + url).success
-      case _ =>
-        val it = wsBaseUrlIterator.get
-        url => Uri.create(it.next() + url).success
-    }
-
-  def makeAbsoluteWsUri(url: String): Validation[Uri] =
-    if (HttpHelper.isAbsoluteWsUrl(url))
-      Uri.create(url).success
-    else
-      doMakeAbsoluteWsUri(url)
-}
+)
 
 final case class HttpProtocolProxyPart(
     proxy: Option[ProxyServer],
