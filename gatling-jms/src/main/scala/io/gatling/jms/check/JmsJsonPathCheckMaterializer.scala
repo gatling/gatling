@@ -16,17 +16,18 @@
 
 package io.gatling.jms.check
 
+import java.nio.charset.Charset
+
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.jms.JmsCheck
 
 import com.fasterxml.jackson.databind.JsonNode
 import javax.jms.Message
 
-class JmsJsonPathCheckMaterializer(jsonParsers: JsonParsers, config: GatlingConfiguration)
+class JmsJsonPathCheckMaterializer(jsonParsers: JsonParsers, charset: Charset)
     extends CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode](identity) {
-  override protected val preparer: Preparer[Message, JsonNode] =
-    JmsMessageBodyPreparers.jmsJsonPreparer(jsonParsers, config)
+
+  override protected val preparer: Preparer[Message, JsonNode] = JmsMessageBodyPreparers.jmsJsonPreparer(jsonParsers, charset)
 }

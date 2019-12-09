@@ -16,16 +16,14 @@
 
 package io.gatling.jms.check
 
+import java.nio.charset.Charset
+
 import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms.JmsCheck
 
 import javax.jms.Message
 
-object JmsBodySubstringCheckMaterializer {
-  def apply(config: GatlingConfiguration): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
-    new CheckMaterializer[SubstringCheckType, JmsCheck, Message, String](identity) {
-      override protected def preparer: Preparer[Message, String] = JmsMessageBodyPreparers.jmsStringBodyPreparer(config)
-    }
+class JmsBodySubstringCheckMaterializer(charset: Charset) extends CheckMaterializer[SubstringCheckType, JmsCheck, Message, String](identity) {
+  override protected def preparer: Preparer[Message, String] = JmsMessageBodyPreparers.jmsStringBodyPreparer(charset)
 }

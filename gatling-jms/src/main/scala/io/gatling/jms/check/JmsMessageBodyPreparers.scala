@@ -16,11 +16,10 @@
 
 package io.gatling.jms.check
 
-import java.nio.charset.StandardCharsets
+import java.nio.charset.{ Charset, StandardCharsets }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.Preparer
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -34,32 +33,32 @@ object JmsMessageBodyPreparers {
     buffer
   }
 
-  private def getBodyAsString(bytesMessage: BytesMessage, config: GatlingConfiguration): String =
-    if (config.core.charset == StandardCharsets.UTF_8)
+  private def getBodyAsString(bytesMessage: BytesMessage, charset: Charset): String =
+    if (charset == StandardCharsets.UTF_8)
       bytesMessage.readUTF()
     else
-      new String(toBytes(bytesMessage), config.core.charset)
+      new String(toBytes(bytesMessage), charset)
 
-  private[check] def jmsStringBodyPreparer(config: GatlingConfiguration): Preparer[Message, String] = {
+  private[check] def jmsStringBodyPreparer(charset: Charset): Preparer[Message, String] = {
     case tm: TextMessage  => tm.getText.success
-    case bm: BytesMessage => getBodyAsString(bm, config).success
+    case bm: BytesMessage => getBodyAsString(bm, charset).success
     case _                => "Unsupported message type".failure
   }
 
-  private[check] def jmsBytesBodyPreparer(config: GatlingConfiguration): Preparer[Message, Array[Byte]] = {
-    case tm: TextMessage  => tm.getText.getBytes(config.core.charset).success
+  private[check] def jmsBytesBodyPreparer(charset: Charset): Preparer[Message, Array[Byte]] = {
+    case tm: TextMessage  => tm.getText.getBytes(charset).success
     case bm: BytesMessage => toBytes(bm).success
     case _                => "Unsupported message type".failure
   }
 
   private val JmsJsonPreparerErrorMapper: String => String = "Could not parse response into a JSON: " + _
 
-  private[check] def jmsJsonPreparer(jsonParsers: JsonParsers, config: GatlingConfiguration): Preparer[Message, JsonNode] =
+  private[check] def jmsJsonPreparer(jsonParsers: JsonParsers, charset: Charset): Preparer[Message, JsonNode] =
     replyMessage =>
       safely(JmsJsonPreparerErrorMapper) {
         replyMessage match {
           case tm: TextMessage  => jsonParsers.safeParse(tm.getText)
-          case bm: BytesMessage => jsonParsers.safeParse(getBodyAsString(bm, config))
+          case bm: BytesMessage => jsonParsers.safeParse(getBodyAsString(bm, charset))
           case _                => "Unsupported message type".failure
         }
       }

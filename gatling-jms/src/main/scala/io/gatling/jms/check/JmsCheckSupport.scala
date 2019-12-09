@@ -57,29 +57,29 @@ trait JmsCheckSupport {
     findCheckBuilder.find.exists
 
   implicit def jmsBodyStringCheckMaterializer(
-      implicit gatlingConfiguration: GatlingConfiguration
+      implicit configuration: GatlingConfiguration
   ): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =
-    JmsBodyStringCheckMaterializer(gatlingConfiguration)
+    new JmsBodyStringCheckMaterializer(configuration.core.charset)
 
   implicit def jmsBodySubstringCheckMaterializer(
-      implicit gatlingConfiguration: GatlingConfiguration
+      implicit configuration: GatlingConfiguration
   ): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
-    JmsBodySubstringCheckMaterializer(gatlingConfiguration)
+    new JmsBodySubstringCheckMaterializer(configuration.core.charset)
 
   implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] =
     new JmsXPathCheckMaterializer(xmlParsers)
 
   implicit def jmsJsonPathCheckMaterializer(
       implicit jsonParsers: JsonParsers,
-      gatlingConfiguration: GatlingConfiguration
+      configuration: GatlingConfiguration
   ): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
-    new JmsJsonPathCheckMaterializer(jsonParsers, gatlingConfiguration)
+    new JmsJsonPathCheckMaterializer(jsonParsers, configuration.core.charset)
 
   implicit def jmsJmesPathCheckMaterializer(
       implicit jsonParsers: JsonParsers,
-      gatlingConfiguration: GatlingConfiguration
+      configuration: GatlingConfiguration
   ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
-    new JmsJmesPathCheckMaterializer(jsonParsers, gatlingConfiguration)
+    new JmsJmesPathCheckMaterializer(jsonParsers, configuration.core.charset)
 
   implicit val jmsUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[JmsCheck] =
     (condition: Expression[Boolean], thenCheck: JmsCheck) =>
