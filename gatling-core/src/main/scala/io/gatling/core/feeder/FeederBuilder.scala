@@ -74,8 +74,8 @@ final case class SourceFeederBuilder[T](
 
   override def unzip: F = this.modify(_.options.unzip).setTo(true)
 
-  override def eager: F = copy(options = options.copy(loadingMode = Eager))
-  override def batch(bufferSize: Int): F = copy(options = options.copy(loadingMode = Batch(bufferSize)))
+  override def eager: F = this.modify(_.options.loadingMode).setTo(Eager)
+  override def batch(bufferSize: Int): F = this.modify(_.options.loadingMode).setTo(Batch(bufferSize))
   override def shard: F = this.modify(_.options.shard).setTo(true)
 
   override def apply(): Feeder[Any] = source.feeder(options, configuration)
