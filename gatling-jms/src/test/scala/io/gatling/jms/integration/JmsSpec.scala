@@ -28,7 +28,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
-import io.gatling.core.session.{ Session, StaticStringExpression }
+import io.gatling.core.session.{ Session, StaticValueExpression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
@@ -45,11 +45,11 @@ class Replier(connectionFactory: ConnectionFactory, destination: JmsDestination,
     val jmsSession = connection.createSession(false, JmsSession.AUTO_ACKNOWLEDGE)
     val consumedDestination: Destination =
       destination match {
-        case JmsTemporaryQueue                      => jmsSession.createTemporaryQueue()
-        case JmsTemporaryTopic                      => jmsSession.createTemporaryTopic()
-        case JmsQueue(StaticStringExpression(name)) => jmsSession.createQueue(name)
-        case JmsTopic(StaticStringExpression(name)) => jmsSession.createTopic(name)
-        case _                                      => throw new UnsupportedOperationException("Support not implemented in this test yet")
+        case JmsTemporaryQueue                     => jmsSession.createTemporaryQueue()
+        case JmsTemporaryTopic                     => jmsSession.createTemporaryTopic()
+        case JmsQueue(StaticValueExpression(name)) => jmsSession.createQueue(name)
+        case JmsTopic(StaticValueExpression(name)) => jmsSession.createTopic(name)
+        case _                                     => throw new UnsupportedOperationException("Support not implemented in this test yet")
       }
 
     val consumer = jmsSession.createConsumer(consumedDestination)

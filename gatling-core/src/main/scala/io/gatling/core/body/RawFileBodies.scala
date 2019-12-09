@@ -17,7 +17,7 @@
 package io.gatling.core.body
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.{ Expression, StaticStringExpression }
+import io.gatling.core.session.{ Expression, StaticValueExpression }
 import io.gatling.core.util.{ Resource, ResourceCache }
 import io.gatling.core.util.cache.Cache
 
@@ -41,7 +41,7 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) extends Resour
   // FIXME cache ResourceAndCachedBytes
   def asResourceAndCachedBytes(filePath: Expression[String]): Expression[ResourceAndCachedBytes] =
     filePath match {
-      case StaticStringExpression(path) =>
+      case StaticValueExpression(path) =>
         val resourceAndCachedBytes =
           for {
             resource <- cachedResource(path)

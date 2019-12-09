@@ -98,7 +98,7 @@ abstract class RequestExpressionBuilder(
 
   private val buildURI: Expression[Uri] =
     commonAttributes.urlOrURI match {
-      case Left(StaticStringExpression(staticUrl)) if protocolBaseUrls.size <= 1 =>
+      case Left(StaticValueExpression(staticUrl)) if protocolBaseUrls.size <= 1 =>
         if (isAbsoluteUrl(staticUrl)) {
           Uri.create(staticUrl).expressionSuccess
         } else {
@@ -164,7 +164,7 @@ abstract class RequestExpressionBuilder(
     if (headers.isEmpty)
       session => addDefaultHeaders(session)(_).success
     else {
-      val staticHeaders = headers.collect { case (key, StaticStringExpression(value)) => key -> value }
+      val staticHeaders = headers.collect { case (key, StaticValueExpression(value)) => key -> value }
 
       if (staticHeaders.size == headers.size)
         configureStaticHeaders(staticHeaders)

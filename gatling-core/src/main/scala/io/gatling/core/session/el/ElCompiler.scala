@@ -185,7 +185,7 @@ object ElCompiler {
       case List(StaticPart(staticStr)) =>
         val runtimeClass = implicitly[ClassTag[T]].runtimeClass
         if (runtimeClass == classOf[String] || runtimeClass == classOf[Any] || runtimeClass == classOf[Object]) {
-          StaticStringExpression(staticStr).asInstanceOf[Expression[T]]
+          StaticValueExpression(staticStr).asInstanceOf[Expression[T]]
         } else {
           val stringV = staticStr.asValidation[T]
           _ => stringV

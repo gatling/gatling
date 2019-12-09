@@ -18,7 +18,7 @@ package io.gatling.core.body
 
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session._
+import io.gatling.core.session.{ Expression, StaticValueExpression }
 import io.gatling.core.util.{ Resource, ResourceCache }
 import io.gatling.core.util.cache.Cache
 
@@ -32,7 +32,7 @@ class PebbleFileBodies(implicit configuration: GatlingConfiguration) extends Res
 
   def asTemplate(filePath: Expression[String]): Expression[PebbleTemplate] =
     filePath match {
-      case StaticStringExpression(path) =>
+      case StaticValueExpression(path) =>
         val template =
           for {
             resource <- cachedResource(path)

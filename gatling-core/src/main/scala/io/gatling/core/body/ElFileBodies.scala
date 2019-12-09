@@ -43,7 +43,7 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) extends Resourc
 
   def asString(filePath: Expression[String]): Expression[String] =
     filePath match {
-      case StaticStringExpression(path) =>
+      case StaticValueExpression(path) =>
         elFileBodyStringCache.get(path) match {
           case Success(expression) => expression
           case Failure(error)      => error.expressionFailure
@@ -60,7 +60,7 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) extends Resourc
 
   def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] =
     filePath match {
-      case StaticStringExpression(path) =>
+      case StaticValueExpression(path) =>
         elFileBodyBytesCache.get(path) match {
           case Success(expression) => expression
           case Failure(error)      => error.expressionFailure
