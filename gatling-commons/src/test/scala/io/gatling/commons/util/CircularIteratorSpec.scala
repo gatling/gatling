@@ -18,11 +18,11 @@ package io.gatling.commons.util
 
 import io.gatling.BaseSpec
 
-class RoundRobinSpec extends BaseSpec {
+class CircularIteratorSpec extends BaseSpec {
 
   "round robin" should "work fine with non empty Iterable" in {
 
-    val rr = RoundRobin(Array(1, 2, 3))
+    val rr = CircularIterator(Array(1, 2, 3))
 
     rr.next shouldBe 1
     rr.next shouldBe 2
@@ -33,7 +33,7 @@ class RoundRobinSpec extends BaseSpec {
   }
 
   it should "always return the same value when iterating a single value Iterable" in {
-    val rr = RoundRobin(Array(1))
+    val rr = CircularIterator(Array(1))
 
     rr.next shouldBe 1
     rr.next shouldBe 1
@@ -45,7 +45,7 @@ class RoundRobinSpec extends BaseSpec {
 
   it should "throw NoSuchElementException when iterating on an empty Iterable" in {
 
-    val rr = RoundRobin(Array.empty[Int])
+    val rr = CircularIterator(Array.empty[Int])
 
     a[NoSuchElementException] should be thrownBy rr.next
   }

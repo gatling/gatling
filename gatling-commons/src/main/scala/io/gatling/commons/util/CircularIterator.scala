@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-object RoundRobin {
+object CircularIterator {
 
   def apply[T](values: IndexedSeq[T]): Iterator[T] = values.length match {
     case 0 => Iterator.empty

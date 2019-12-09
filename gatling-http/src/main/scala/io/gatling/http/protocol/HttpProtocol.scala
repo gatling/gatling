@@ -19,7 +19,7 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.util.CircularIterator
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -187,7 +187,7 @@ final case class HttpProtocolWsPart(
 
   private val wsBaseUrlIterator: Option[Iterator[String]] = wsBaseUrls match {
     case Nil => None
-    case _   => Some(RoundRobin(wsBaseUrls.toVector))
+    case _   => Some(CircularIterator(wsBaseUrls.toVector))
   }
 
   private val doMakeAbsoluteWsUri: String => Validation[Uri] =

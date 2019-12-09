@@ -16,7 +16,7 @@
 
 package io.gatling.http.cache
 
-import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.util.CircularIterator
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 
@@ -36,7 +36,7 @@ private[cache] trait BaseUrlSupport {
       case Nil        => identity
       case url :: Nil => _.set(BaseUrlAttributeName, url)
       case urls =>
-        val it = RoundRobin(urls.toVector)
+        val it = CircularIterator(urls.toVector)
         _.set(BaseUrlAttributeName, it.next())
     }
 
@@ -45,7 +45,7 @@ private[cache] trait BaseUrlSupport {
       case Nil        => identity
       case url :: Nil => _.set(WsBaseUrlAttributeName, url)
       case urls =>
-        val it = RoundRobin(urls.toVector)
+        val it = CircularIterator(urls.toVector)
         _.set(WsBaseUrlAttributeName, it.next())
     }
   }

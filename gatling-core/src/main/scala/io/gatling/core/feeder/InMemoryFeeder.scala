@@ -18,7 +18,7 @@ package io.gatling.core.feeder
 
 import java.util.concurrent.ThreadLocalRandom
 
-import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.util.CircularIterator
 
 object InMemoryFeeder {
 
@@ -32,7 +32,7 @@ object InMemoryFeeder {
       case Queue    => convertedRecords.iterator
       case Random   => Iterator.continually(convertedRecords(ThreadLocalRandom.current.nextInt(records.length)))
       case Shuffle  => scala.util.Random.shuffle(convertedRecords).iterator
-      case Circular => RoundRobin(convertedRecords)
+      case Circular => CircularIterator(convertedRecords)
     }
   }
 }

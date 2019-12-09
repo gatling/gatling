@@ -18,7 +18,7 @@ package io.gatling.http.cache
 
 import java.net.InetAddress
 
-import io.gatling.commons.util.RoundRobin
+import io.gatling.commons.util.CircularIterator
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpTypeCaster
@@ -37,7 +37,7 @@ private[cache] trait LocalAddressSupport {
       case Nil            => identity
       case address :: Nil => _.set(LocalAddressAttributeName, address)
       case address =>
-        val it = RoundRobin(address.toVector)
+        val it = CircularIterator(address.toVector)
         _.set(LocalAddressAttributeName, it.next())
     }
   }
