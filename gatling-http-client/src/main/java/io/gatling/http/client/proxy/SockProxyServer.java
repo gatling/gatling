@@ -16,7 +16,10 @@
 
 package io.gatling.http.client.proxy;
 
-public enum ProxyServerType {
+import java.net.UnknownHostException;
 
-  HTTP, SOCKS4, SOCK5
+public abstract class SockProxyServer extends ProxyServer {
+  public SockProxyServer(String host, int port) throws UnknownHostException {
+    super(host, port);
+  }
 }

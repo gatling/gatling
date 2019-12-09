@@ -44,5 +44,9 @@ public abstract class ProxyServer {
     return port;
   }
 
+  public InetSocketAddress getAddress() {
+    return address;
+  }
+
   public abstract ProxyHandler newHandler();
 }

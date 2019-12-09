@@ -22,7 +22,7 @@ import io.netty.handler.proxy.Socks4ProxyHandler;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
-public class Socks4ProxyServer extends ProxyServer {
+public class Socks4ProxyServer extends SockProxyServer {
 
   private final InetSocketAddress address;
   private final String username;

@@ -37,10 +37,6 @@ public class HttpProxyServer extends ProxyServer {
     this.securedAddress = new InetSocketAddress(inetAddress, securedPort);
   }
 
-  public InetSocketAddress getAddress() {
-    return address;
-  }
-
   public int getSecuredPort() {
     return securedPort;
   }

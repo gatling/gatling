@@ -20,17 +20,17 @@ import io.gatling.http.client.HttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
-import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
 import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
-import io.gatling.http.client.proxy.HttpProxyServer;
 import io.gatling.http.client.proxy.ProxyServer;
+import io.gatling.http.client.proxy.SockProxyServer;
 import io.gatling.http.client.realm.DigestRealm;
 import io.gatling.http.client.realm.Realm;
 import io.gatling.http.client.ssl.Tls;
 import io.gatling.http.client.util.Pair;
+import io.gatling.http.client.uri.Uri;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.EpollEventLoopGroup;
@@ -452,13 +452,15 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, HttpListener listener, RequestTimeout requestTimeout) {
-    if (request.getProxyServer() instanceof HttpProxyServer) {
+    if (request.getProxyServer() != null) {
+      ProxyServer proxyServer = request.getProxyServer();
+      Uri uri = request.getUri();
       InetSocketAddress remoteAddress =
-              request.getUri().isSecured() || request.getUri().isWebSocket() ?
-                      // HttpProxyHandler will take care of the connect logic
-                      InetSocketAddress.createUnresolved(request.getUri().getHost(), request.getUri().getExplicitPort()) :
-                      // directly connect to proxy over clear HTTP
-                      ((HttpProxyServer) request.getProxyServer()).getAddress();
+        proxyServer instanceof SockProxyServer || uri.isSecured() || uri.isWebSocket() ?
+          // ProxyHandler will take care of the connect logic
+          InetSocketAddress.createUnresolved(request.getUri().getHost(), request.getUri().getExplicitPort()) :
+          // directly connect to proxy over clear HTTP
+          request.getProxyServer().getAddress();
 
       return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
 
@@ -572,20 +574,19 @@ public class DefaultHttpClient implements HttpClient {
     Uri uri = request.getUri();
     ProxyServer proxyServer = request.getProxyServer();
 
-    if (uri.isWebSocket()) {
-      if (proxyServer != null) {
+    if (proxyServer != null) {
+      if (uri.isWebSocket()) {
         return resources.getWsBootstrapWithProxy(proxyServer);
-
-      } else {
-        return resources.wsBootstrap;
+      } else if (proxyServer instanceof SockProxyServer || uri.isSecured()) {
+        // FIXME HTTP/2 with proxy
+        return resources.getHttp1BootstrapWithProxy(proxyServer);
       }
+    }
 
-    } else if (uri.isSecured() && proxyServer != null) {
-      return resources.getHttp1BootstrapWithProxy(proxyServer);
-
+    if (uri.isWebSocket()) {
+      return resources.wsBootstrap;
     } else if (request.isAlpnRequired() && request.getUri().isSecured()) {
       return resources.http2Bootstrap;
-
     } else {
       return resources.http1Bootstrap;
     }

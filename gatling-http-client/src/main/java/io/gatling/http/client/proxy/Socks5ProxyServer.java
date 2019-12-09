@@ -22,7 +22,7 @@ import io.netty.handler.proxy.Socks5ProxyHandler;
 
 import java.net.UnknownHostException;
 
-public class Socks5ProxyServer extends ProxyServer {
+public class Socks5ProxyServer extends SockProxyServer {
 
   private final BasicRealm realm;
 
