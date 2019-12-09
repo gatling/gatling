@@ -36,7 +36,7 @@ private[cache] trait BaseUrlSupport {
       case Nil        => identity
       case url :: Nil => _.set(BaseUrlAttributeName, url)
       case urls =>
-        val it = CircularIterator(urls.toVector)
+        val it = CircularIterator(urls.toVector, threadSafe = true)
         _.set(BaseUrlAttributeName, it.next())
     }
 
@@ -45,7 +45,7 @@ private[cache] trait BaseUrlSupport {
       case Nil        => identity
       case url :: Nil => _.set(WsBaseUrlAttributeName, url)
       case urls =>
-        val it = CircularIterator(urls.toVector)
+        val it = CircularIterator(urls.toVector, threadSafe = true)
         _.set(WsBaseUrlAttributeName, it.next())
     }
   }

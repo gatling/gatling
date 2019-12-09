@@ -32,7 +32,7 @@ object InMemoryFeeder {
       case Queue    => convertedRecords.iterator
       case Random   => Iterator.continually(convertedRecords(ThreadLocalRandom.current.nextInt(records.length)))
       case Shuffle  => scala.util.Random.shuffle(convertedRecords).iterator
-      case Circular => CircularIterator(convertedRecords)
+      case Circular => CircularIterator(convertedRecords, threadSafe = false)
     }
   }
 }

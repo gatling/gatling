@@ -18,7 +18,25 @@ package io.gatling.commons.util
 
 import java.util.concurrent.atomic.AtomicInteger
 
-class CyclicCounter(max: Int) {
-  private val counter = new AtomicInteger
-  def nextVal: Int = counter.getAndIncrement % max
+sealed trait CyclicCounter {
+  def nextVal: Int
+}
+
+object CyclicCounter {
+  final class ThreadSafe(max: Int) extends CyclicCounter {
+    private val counter = new AtomicInteger
+    def nextVal: Int = counter.getAndIncrement % max
+  }
+
+  final class NonThreadSafe(max: Int) extends CyclicCounter {
+    private var counter = 0
+    def nextVal: Int = {
+      val current = counter
+      counter += 1
+      if (counter == max) {
+        counter = 0
+      }
+      current
+    }
+  }
 }

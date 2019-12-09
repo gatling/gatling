@@ -187,7 +187,7 @@ final case class HttpProtocolWsPart(
 
   private val wsBaseUrlIterator: Option[Iterator[String]] = wsBaseUrls match {
     case Nil => None
-    case _   => Some(CircularIterator(wsBaseUrls.toVector))
+    case _   => Some(CircularIterator(wsBaseUrls.toVector, threadSafe = true))
   }
 
   private val doMakeAbsoluteWsUri: String => Validation[Uri] =

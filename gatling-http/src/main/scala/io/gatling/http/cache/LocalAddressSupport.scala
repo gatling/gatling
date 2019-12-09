@@ -37,7 +37,7 @@ private[cache] trait LocalAddressSupport {
       case Nil            => identity
       case address :: Nil => _.set(LocalAddressAttributeName, address)
       case address =>
-        val it = CircularIterator(address.toVector)
+        val it = CircularIterator(address.toVector, threadSafe = true)
         _.set(LocalAddressAttributeName, it.next())
     }
   }
