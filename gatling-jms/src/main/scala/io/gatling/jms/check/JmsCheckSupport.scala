@@ -25,11 +25,14 @@ import io.gatling.core.check.string.BodyStringCheckType
 import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.check.xpath._
 import io.gatling.core.check._
+import io.gatling.core.check.jmespath.JmesPathCheckType
+import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.jms.JmsCheck
 
+import com.fasterxml.jackson.databind.JsonNode
 import javax.jms.Message
 
 trait JmsCheckSupport {
@@ -66,8 +69,17 @@ trait JmsCheckSupport {
   implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] =
     new JmsXPathCheckMaterializer(xmlParsers)
 
-  implicit def jmsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers, gatlingConfiguration: GatlingConfiguration): JmsJsonPathCheckMaterializer =
+  implicit def jmsJsonPathCheckMaterializer(
+      implicit jsonParsers: JsonParsers,
+      gatlingConfiguration: GatlingConfiguration
+  ): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
     new JmsJsonPathCheckMaterializer(jsonParsers, gatlingConfiguration)
+
+  implicit def jmsJmesPathCheckMaterializer(
+      implicit jsonParsers: JsonParsers,
+      gatlingConfiguration: GatlingConfiguration
+  ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
+    new JmsJmesPathCheckMaterializer(jsonParsers, gatlingConfiguration)
 
   implicit val jmsUntypedConditionalCheckWrapper: UntypedConditionalCheckWrapper[JmsCheck] =
     (condition: Expression[Boolean], thenCheck: JmsCheck) =>
@@ -81,5 +93,4 @@ trait JmsCheckSupport {
   implicit val jmsTypedConditionalCheckWrapper: TypedConditionalCheckWrapper[Message, JmsCheck] =
     (condition: (Message, Session) => Validation[Boolean], thenCheck: JmsCheck) =>
       (response: Message, session: Session, preparedCache: JMap[Any, Any]) => ConditionalCheck(condition, thenCheck).check(response, session, preparedCache)
-
 }

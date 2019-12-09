@@ -21,7 +21,9 @@ import java.nio.charset.StandardCharsets
 import io.gatling.commons.validation._
 import io.gatling.core.check.Preparer
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.JsonParsers
 
+import com.fasterxml.jackson.databind.JsonNode
 import javax.jms.{ BytesMessage, Message, TextMessage }
 
 object JmsMessageBodyPreparers {
@@ -32,22 +34,33 @@ object JmsMessageBodyPreparers {
     buffer
   }
 
-  protected[check] def getBodyAsString(bytesMessage: BytesMessage, config: GatlingConfiguration): String =
+  private def getBodyAsString(bytesMessage: BytesMessage, config: GatlingConfiguration): String =
     if (config.core.charset == StandardCharsets.UTF_8)
       bytesMessage.readUTF()
     else
       new String(toBytes(bytesMessage), config.core.charset)
 
-  def jmsStringBodyPreparer(config: GatlingConfiguration): Preparer[Message, String] = {
+  private[check] def jmsStringBodyPreparer(config: GatlingConfiguration): Preparer[Message, String] = {
     case tm: TextMessage  => tm.getText.success
     case bm: BytesMessage => getBodyAsString(bm, config).success
     case _                => "Unsupported message type".failure
   }
 
-  def jmsBytesBodyPreparer(config: GatlingConfiguration): Preparer[Message, Array[Byte]] = {
+  private[check] def jmsBytesBodyPreparer(config: GatlingConfiguration): Preparer[Message, Array[Byte]] = {
     case tm: TextMessage  => tm.getText.getBytes(config.core.charset).success
     case bm: BytesMessage => toBytes(bm).success
     case _                => "Unsupported message type".failure
   }
 
+  private val JmsJsonPreparerErrorMapper: String => String = "Could not parse response into a JSON: " + _
+
+  private[check] def jmsJsonPreparer(jsonParsers: JsonParsers, config: GatlingConfiguration): Preparer[Message, JsonNode] =
+    replyMessage =>
+      safely(JmsJsonPreparerErrorMapper) {
+        replyMessage match {
+          case tm: TextMessage  => jsonParsers.safeParse(tm.getText)
+          case bm: BytesMessage => jsonParsers.safeParse(getBodyAsString(bm, config))
+          case _                => "Unsupported message type".failure
+        }
+      }
 }

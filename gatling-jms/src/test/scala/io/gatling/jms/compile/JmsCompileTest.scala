@@ -109,6 +109,10 @@ class JmsCompileTest extends Simulation {
         .textMessage("hello")
         .check(checkBodyTextCorrect)
         .check(xpath("//TEST").saveAs("name"))
+        .check(jsonPath("$.foo"))
+        .check(jmesPath("[].foo"))
+        .check(substring("foo"))
+        .check(bodyString)
         .check(
           bodyString.is("hello"),
           substring("he").count.is(1),
