@@ -52,5 +52,4 @@ object Ssl {
       kmf.init(keyStore, passwordCharArray)
       kmf
     }
-
 }

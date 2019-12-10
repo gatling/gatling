@@ -21,7 +21,6 @@ import java.util.{ Arrays => JArrays }
 trait LowPriorityEqualityImplicits {
 
   implicit def default[T]: Equality[T] = (left: T, right: T) => left == right
-  //implicit val AnyArrayEquality: Equality[Array[Any]] = (left: Array[Any], right: Array[Any]) => JArrays.equals(left, right)
 }
 
 object Equality extends LowPriorityEqualityImplicits {

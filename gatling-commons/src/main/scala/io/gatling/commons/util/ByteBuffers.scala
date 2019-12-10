@@ -50,15 +50,4 @@ object ByteBuffers {
 
     bytes
   }
-
-  def sumByteBuffers(buffers: Iterable[ByteBuffer]): ByteBuffer = {
-    val comb = ByteBuffer.allocate(buffers.sumBy(_.remaining))
-    copyInto(buffers, comb)
-  }
-
-  def copyInto(sources: Iterable[ByteBuffer], target: ByteBuffer): ByteBuffer = {
-    sources.foreach(target.put)
-    target.flip()
-    target
-  }
 }

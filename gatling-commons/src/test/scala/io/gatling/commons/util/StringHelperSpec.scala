@@ -87,4 +87,8 @@ class StringHelperSpec extends BaseSpec {
   it should "not find target when target is longer" in {
     StringHelper.RichCharSequence("$").indexOf("${".toCharArray, 0) shouldBe -1
   }
+
+  "replace" should "replace all occurrences" in {
+    "1234foo5678foo9012foo".replaceIf(char => Character.isAlphabetic(char), '_') shouldBe "1234___5678___9012___"
+  }
 }

@@ -20,16 +20,7 @@ import java.nio.file.Path
 
 final case class CachingPath(path: Path) {
 
-  private var _fileName: Path = _
-
-  def getFileName: Path = {
-    if (_fileName == null) {
-      _fileName = path.getFileName
-    }
-    _fileName
-  }
-
   override def toString: String = path.toString
 
-  def filename: String = getFileName.toString
+  lazy val filename: String = path.getFileName.toString
 }

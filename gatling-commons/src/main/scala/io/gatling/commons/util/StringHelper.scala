@@ -20,6 +20,9 @@ import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
 import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
 
+import io.gatling.commons.util.Spire.cfor
+import io.gatling.netty.util.StringBuilderPool
+
 object StringHelper {
 
   val Eol: String = System.lineSeparator
@@ -32,10 +35,14 @@ object StringHelper {
       .foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
         val shifted = b & 0xff
         if (shifted < 0x10)
-          buff.append("0")
+          buff.append('0')
         buff.append(JLong.toString(shifted.toLong, 16))
       }
       .toString
+
+  object RichString {
+    private val SbPool = new StringBuilderPool
+  }
 
   implicit class RichString(val string: String) extends AnyVal {
 
@@ -70,6 +77,35 @@ object StringHelper {
       else
         string
     }
+
+    def replaceIf(replaced: Char => Boolean, replacement: Char): String =
+      if (string.isEmpty) {
+        string
+      } else {
+        var matchFound = false
+        var sb: JStringBuilder = null
+
+        cfor(0)(_ < string.length, _ + 1) { i =>
+          val c = string.charAt(i)
+          if (replaced(c)) {
+            if (!matchFound) {
+              // first match
+              sb = RichString.SbPool.get()
+              sb.append(string, 0, i)
+              matchFound = true
+            }
+            sb.append(replacement)
+          } else if (matchFound) {
+            sb.append(c)
+          }
+        }
+
+        if (matchFound) {
+          sb.toString
+        } else {
+          string
+        }
+      }
   }
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {

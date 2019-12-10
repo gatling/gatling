@@ -26,8 +26,9 @@ import java.util.Base64
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.StringHelper.EolBytes
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.{ Clock, StringReplace }
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.util.{ Integers, Longs }
@@ -114,7 +115,7 @@ object DataWriterMessageSerializer {
    * Converts whitespace characters that would break the simulation log format into spaces.
    */
   def sanitize(text: String): String =
-    StringReplace.replace(text, c => c == '\n' || c == '\r' || c == '\t', ' ')
+    text.replaceIf(c => c == '\n' || c == '\r' || c == '\t', ' ')
 }
 
 abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter, header: String) {
@@ -136,7 +137,7 @@ abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter,
   def writeGroups(groupHierarchy: List[String]): Unit = {
     var i = groupHierarchy.length
     groupHierarchy.foreach { group =>
-      writer.writeString(StringReplace.replace(group, _ == GroupSeparatorChar, ' '))
+      writer.writeString(group.replaceIf(_ == GroupSeparatorChar, ' '))
       i -= 1
       if (i > 0) {
         writeGroupSeparator()

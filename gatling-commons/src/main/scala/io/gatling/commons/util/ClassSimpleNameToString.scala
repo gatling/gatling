@@ -20,5 +20,6 @@ package io.gatling.commons.util
  * This trait overrides the toString method
  */
 trait ClassSimpleNameToString {
-  override lazy val toString: String = StringReplace.replace(this.getClass.getSimpleName, "$", "") // Drop the $ from objects' name
+  // Drop the $ from object's name
+  override lazy val toString: String = this.getClass.getSimpleName.replace("$", "")
 }
