@@ -45,8 +45,9 @@ object GatlingFiles {
 
   def simulationLogDirectory(runUuid: String, create: Boolean)(implicit configuration: GatlingConfiguration): Path = {
     val dir = resultDirectory(runUuid)
-    if (create) dir.mkdirs
-    else {
+    if (create) {
+      dir.mkdirs()
+    } else {
       require(dir.toFile.exists, s"simulation directory '$dir' doesn't exist")
       require(dir.toFile.isDirectory, s"simulation directory '$dir' is not a directory")
       dir

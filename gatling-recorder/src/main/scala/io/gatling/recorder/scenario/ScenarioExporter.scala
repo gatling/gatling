@@ -242,5 +242,5 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       }
     }
   }
-  private def getFolder(folderPath: String): Path = Paths.get(folderPath).mkdirs
+  private def getFolder(folderPath: String): Path = Paths.get(folderPath).mkdirs()
 }

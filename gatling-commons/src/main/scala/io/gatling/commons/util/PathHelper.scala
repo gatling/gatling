@@ -36,7 +36,7 @@ object PathHelper {
 
     def exists: Boolean = Files.exists(path)
 
-    def mkdirs: Path = Files.createDirectories(path)
+    def mkdirs(): Path = Files.createDirectories(path)
 
     def touch: Path = Files.createFile(path)
 

@@ -42,7 +42,7 @@ object ScanHelper {
     private val file = path.toFile
 
     override def copyTo(target: Path): Unit = {
-      target.getParent.mkdirs
+      target.getParent.mkdirs()
       path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
@@ -56,8 +56,7 @@ object ScanHelper {
     override def path: Path = Paths.get(jarEntry.getName)
 
     override def copyTo(target: Path): Unit = {
-      target.getParent.mkdirs
-
+      target.getParent.mkdirs()
       withCloseable(jar.getInputStream(jarEntry)) { input =>
         withCloseable(target.outputStream) { output =>
           input.copyTo(output)
