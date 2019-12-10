@@ -81,7 +81,7 @@ object PathHelper {
     def hasExtension(ext: String): Boolean =
       extension.equalsIgnoreCase(ext)
 
-    def stripExtension: String = filename stripSuffix ("." + extension)
+    def stripExtension: String = filename.stripSuffix("." + extension)
 
     def deepFiles(f: CachingPath => Boolean): Seq[CachingPath] = deepFiles(f, Int.MaxValue)
     def deepFiles(f: CachingPath => Boolean, maxDepth: Int): Seq[CachingPath] =
