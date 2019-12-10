@@ -48,7 +48,6 @@ class PathHelperSpec extends BaseSpec {
   "hasExtension" should "return true if the file has one of the specified extension, ignoring case" in {
     (root / "foo.json").hasExtension("json") shouldBe true
     (root / "foo.json").hasExtension("JSON") shouldBe true
-    (root / "foo.json").hasExtension("sql", "mp3", "JSON") shouldBe true
   }
 
   it should "return false if the file has none of the specified extensions" in {

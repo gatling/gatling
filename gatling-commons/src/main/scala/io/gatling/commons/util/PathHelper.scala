@@ -78,10 +78,8 @@ object PathHelper {
       if (dotIndex == -1) "" else pathString.substring(dotIndex + 1)
     }
 
-    def hasExtension(ext: String, exts: String*): Boolean = {
-      val lower = extension.toLowerCase
-      ext.toLowerCase == lower || exts.exists(_.toLowerCase == lower)
-    }
+    def hasExtension(ext: String): Boolean =
+      extension.equalsIgnoreCase(ext)
 
     def stripExtension: String = filename stripSuffix ("." + extension)
 
