@@ -17,7 +17,7 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ File, IOException }
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 import java.util.Locale
 
 import scala.annotation.tailrec
@@ -59,13 +59,13 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   private def requestBodyFileName(request: RequestElement) =
     s"${request.id.toString.leftPad(4, "0")}_request.${request.fileExtension}"
 
-  def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
+  def requestBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration): String =
     packageAsFolderPath("/") + "/" + classNameToFolderName(config) + "/" + requestBodyFileName(request)
 
   private def responseBodyFileName(request: RequestElement) =
     s"${request.id.toString.leftPad(4, "0")}_response.${request.responseFileExtension}"
 
-  def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration) =
+  def responseBodyRelativeFilePath(request: RequestElement)(implicit config: RecorderConfiguration): String =
     packageAsFolderPath("/") + "/" + classNameToFolderName(config) + "/" + responseBodyFileName(request)
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
@@ -242,5 +242,5 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       }
     }
   }
-  private def getFolder(folderPath: String) = string2path(folderPath).mkdirs
+  private def getFolder(folderPath: String): Path = Paths.get(folderPath).mkdirs
 }

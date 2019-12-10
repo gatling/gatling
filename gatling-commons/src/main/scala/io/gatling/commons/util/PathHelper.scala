@@ -17,7 +17,6 @@
 package io.gatling.commons.util
 
 import java.io._
-import java.net.{ URI, URL }
 import java.nio.charset.Charset
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
@@ -26,14 +25,6 @@ import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 object PathHelper {
-
-  implicit def string2path(pathString: String): Path = Paths.get(pathString)
-
-  implicit def uri2path(uri: URI): Path = Paths.get(uri)
-
-  implicit def url2path(url: URL): Path = Paths.get(url.toURI)
-
-  implicit def segments2path(segments: Seq[String]): Path = Paths.get(segments.head, segments.tail: _*)
 
   implicit class RichPath(val path: Path) extends AnyVal {
 

@@ -18,7 +18,7 @@ package io.gatling.commons.util
 
 import java.io.{ FileInputStream, InputStream }
 import java.net.JarURLConnection
-import java.nio.file.{ Path, StandardCopyOption }
+import java.nio.file.{ Path, Paths, StandardCopyOption }
 import java.util.jar.{ JarEntry, JarFile }
 
 import scala.collection.JavaConverters._
@@ -53,7 +53,7 @@ object ScanHelper {
 
   private final case class JarResource(jar: JarFile, jarEntry: JarEntry) extends Resource {
 
-    override def path: Path = jarEntry.getName
+    override def path: Path = Paths.get(jarEntry.getName)
 
     override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs
@@ -80,16 +80,16 @@ object ScanHelper {
     getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).asScala.flatMap { pkgURL =>
       pkgURL.getProtocol match {
         case "file" =>
-          val rootDir: Path = pkgURL
+          val rootDir = Paths.get(pkgURL.toURI)
           val files = if (deep) rootDir.deepFiles(_ => true) else rootDir.files
           files.map(f => FileResource(f.path))
 
         case "jar" =>
           val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
-          val rootDir: Path = connection.getJarEntry.getName
-          val jar = new JarFile(connection.getJarFileURL.toFile)
+          val rootDir = Paths.get(connection.getJarEntry.getName)
+          val jar = new JarFile(Paths.get(connection.getJarFileURL.toURI).toFile)
           jar.entries.asScala.collect {
-            case jarEntry if isResourceInRootDir(jarEntry.getName, rootDir) =>
+            case jarEntry if isResourceInRootDir(Paths.get(jarEntry.getName), rootDir) =>
               JarResource(jar, jarEntry)
           }
 
@@ -103,7 +103,8 @@ object ScanHelper {
     def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
       val pathString = path.segments.mkString(Separator)
       val pkgString = pkg.segments.mkString(Separator)
-      segments2path(pathString.split(pkgString).last.split(Separator))
+      val segments = pathString.split(pkgString).last.split(Separator)
+      Paths.get(segments.head, segments.tail: _*)
     }
 
     getPackageResources(pkg, deep = true).foreach { resource =>

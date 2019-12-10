@@ -16,12 +16,14 @@
 
 package io.gatling.commons.util
 
+import java.nio.file.Paths
+
 import io.gatling.BaseSpec
 import io.gatling.commons.util.PathHelper._
 
 class PathHelperSpec extends BaseSpec {
 
-  private val root = string2path("foo")
+  private val root = Paths.get("foo")
 
   "ancestor" should "throw an IllegalArgumentException when ancestor rank is negative" in {
     an[IllegalArgumentException] should be thrownBy root.ancestor(-1)
@@ -58,6 +60,6 @@ class PathHelperSpec extends BaseSpec {
   }
 
   it should "remove the file extension if the specified path has one" in {
-    string2path("foo.json").stripExtension shouldBe "foo"
+    Paths.get("foo.json").stripExtension shouldBe "foo"
   }
 }

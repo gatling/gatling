@@ -16,6 +16,7 @@
 
 package io.gatling.recorder.controller
 
+import java.nio.file.Paths
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import scala.collection.JavaConverters._
@@ -49,7 +50,7 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
   def startRecording(): Unit = {
     val selectedMode = frontEnd.selectedRecorderMode
     val harFilePath = frontEnd.harFilePath
-    if (selectedMode == Har && !string2path(harFilePath).exists) {
+    if (selectedMode == Har && !Paths.get(harFilePath).exists) {
       frontEnd.handleMissingHarFile(harFilePath)
     } else {
       val simulationFile = ScenarioExporter.simulationFilePath

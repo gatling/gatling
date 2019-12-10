@@ -19,7 +19,7 @@ package io.gatling.core.util
 import java.io.{ File, FileInputStream, FileOutputStream, InputStream }
 import java.net.URL
 import java.nio.charset.Charset
-import java.nio.file.{ Files, Path }
+import java.nio.file.{ Files, Path, Paths }
 import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.commons.util.Io._
@@ -56,7 +56,7 @@ object Resource {
 
   private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      string2path(location.path).ifFile(FilesystemResource(_).success)
+      Paths.get(location.path).ifFile(FilesystemResource(_).success)
   }
 
   private[gatling] def resolveResource(directory: Path, path: String): Validation[Resource] =
@@ -80,7 +80,7 @@ sealed trait Resource {
 }
 
 final case class ClasspathPackagedResource(path: String, url: URL) extends Resource {
-  override val name = {
+  override val name: String = {
     val urlString = url.toString
     urlString.lastIndexOf(File.separatorChar) match {
       case -1 => urlString
@@ -88,7 +88,7 @@ final case class ClasspathPackagedResource(path: String, url: URL) extends Resou
     }
   }
 
-  override lazy val file = {
+  override lazy val file: File = {
     val tempFile = File.createTempFile("gatling-" + name, null)
     tempFile.deleteOnExit()
 

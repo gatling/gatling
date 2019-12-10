@@ -17,6 +17,8 @@
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
+import java.nio.file.Paths
+
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import scala.collection.JavaConverters._
@@ -26,7 +28,6 @@ import scala.swing.FileChooser.SelectionMode._
 import scala.swing.event._
 import scala.util.Try
 
-import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlackListFirst
@@ -465,9 +466,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
 
   def updateHarFilePath(path: Option[String]): Unit = path.foreach(p => harPathChooser.setPath(p))
 
-  def generateCAFiles(directory: String): Unit = {
+  private def generateCAFiles(directory: String): Unit = {
     SslUtil.generateGatlingCAPEMFiles(
-      directory,
+      Paths.get(directory),
       OnTheFly.GatlingCAKeyFile,
       OnTheFly.GatlingCACrtFile
     )
@@ -501,8 +502,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     keyStorePassword.text = configuration.proxy.https.keyStore.password
     keyStoreTypes.selection.item = configuration.proxy.https.keyStore.keyStoreType
 
-    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath)
-    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath)
+    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath.toString)
+    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath.toString)
 
     configuration.proxy.outgoing.host.foreach { proxyHost =>
       outgoingProxyHost.text = proxyHost

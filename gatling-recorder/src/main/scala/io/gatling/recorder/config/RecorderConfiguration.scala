@@ -17,12 +17,13 @@
 package io.gatling.recorder.config
 
 import java.io.FileNotFoundException
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.util.Properties.userHome
+import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ConfigHelper.configChain
 import io.gatling.commons.util.Io._
@@ -36,7 +37,6 @@ import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType }
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.StrictLogging
-import scala.util.control.NonFatal
 
 private[recorder] object RecorderConfiguration extends StrictLogging {
 
@@ -64,7 +64,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[Path]): Unit = {
     val classLoader = getClassLoader
     val defaultConfig = getDefaultConfig(classLoader)
-    configFile = recorderConfigFile.orElse(Option(classLoader.getResource("recorder.conf")).map(url => url.toURI))
+    configFile = recorderConfigFile.orElse(Option(classLoader.getResource("recorder.conf")).map(url => Paths.get(url.toURI)))
 
     val customConfig = configFile.map(path => ConfigFactory.parseFile(path.toFile)).getOrElse {
       // Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
@@ -153,8 +153,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
             keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))
           ),
           certificateAuthority = CertificateAuthorityConfiguration(
-            certificatePath = config.getString(proxy.https.certificateAuthority.CertificatePath),
-            privateKeyPath = config.getString(proxy.https.certificateAuthority.PrivateKeyPath)
+            certificatePath = Paths.get(config.getString(proxy.https.certificateAuthority.CertificatePath)),
+            privateKeyPath = Paths.get(config.getString(proxy.https.certificateAuthority.PrivateKeyPath))
           )
         ),
         outgoing = OutgoingProxyConfiguration(
@@ -218,8 +218,8 @@ private[recorder] final case class KeyStoreConfiguration(
 )
 
 private[recorder] final case class CertificateAuthorityConfiguration(
-    certificatePath: String,
-    privateKeyPath: String
+    certificatePath: Path,
+    privateKeyPath: Path
 )
 
 private[recorder] final case class HttpsModeConfiguration(

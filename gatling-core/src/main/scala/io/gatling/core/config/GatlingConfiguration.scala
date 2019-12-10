@@ -17,6 +17,7 @@
 package io.gatling.core.config
 
 import java.nio.charset.Charset
+import java.nio.file.{ Path, Paths }
 import java.util.ResourceBundle
 
 import scala.collection.JavaConverters._
@@ -136,11 +137,11 @@ object GatlingConfiguration extends StrictLogging {
           )
         ),
         directory = DirectoryConfiguration(
-          simulations = config.getString(core.directory.Simulations),
-          resources = config.getString(core.directory.Resources),
-          binaries = config.getString(core.directory.Binaries).trimToOption,
+          simulations = Paths.get(config.getString(core.directory.Simulations)),
+          resources = Paths.get(config.getString(core.directory.Resources)),
+          binaries = config.getString(core.directory.Binaries).trimToOption.map(Paths.get(_)),
           reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
-          results = config.getString(core.directory.Results)
+          results = Paths.get(config.getString(core.directory.Results))
         )
       ),
       charting = ChartingConfiguration(
@@ -316,11 +317,11 @@ final case class CssConfiguration(
 )
 
 final case class DirectoryConfiguration(
-    simulations: String,
-    resources: String,
-    binaries: Option[String],
+    simulations: Path,
+    resources: Path,
+    binaries: Option[Path],
     reportsOnly: Option[String],
-    results: String
+    results: Path
 )
 
 final case class ChartingConfiguration(

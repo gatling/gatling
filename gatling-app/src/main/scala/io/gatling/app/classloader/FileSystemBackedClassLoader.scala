@@ -18,7 +18,7 @@ package io.gatling.app.classloader
 
 import java.io.InputStream
 import java.net.{ URL, URLConnection }
-import java.nio.file.{ Files, Path }
+import java.nio.file.{ Files, Path, Paths }
 import java.security.cert.Certificate
 import java.security.{ CodeSource, ProtectionDomain }
 
@@ -29,20 +29,20 @@ import io.gatling.commons.util.PathHelper._
 
 private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
 
-  def classNameToPath(name: String): Path =
-    if (name endsWith ".class") name
-    else name.replace('.', '/') + ".class"
+  private def classNameToPath(name: String): Path =
+    if (name.endsWith(".class")) Paths.get(name)
+    else Paths.get(name.replace('.', '/') + ".class")
 
-  def dirNameToPath(name: String): Path =
-    name.replace('.', '/')
+  private def dirNameToPath(name: String): Path =
+    Paths.get(name.replace('.', '/'))
 
-  def findPath(path: Path): Option[Path] = {
+  private def findPath(path: Path): Option[Path] = {
     val fullPath = root / path
     if (fullPath.exists) Some(fullPath) else None
   }
 
   override def findResource(name: String): URL =
-    findPath(name).map { path =>
+    findPath(Paths.get(name)).map { path =>
       new URL(
         null,
         "repldir:" + path.toString,
@@ -54,7 +54,7 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
       )
     }.orNull
 
-  override def getResourceAsStream(name: String): InputStream = findPath(name) match {
+  override def getResourceAsStream(name: String): InputStream = findPath(Paths.get(name)) match {
     case Some(path) => path.inputStream
     case _          => super.getResourceAsStream(name)
   }
