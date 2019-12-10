@@ -99,9 +99,13 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   private[config] def createAndOpen(path: Path): Path =
     if (!path.exists) {
       val parent = path.getParent
-      if (parent.exists) path.touch
-      else throw new FileNotFoundException(s"Directory '${parent.toString}' for recorder configuration does not exist")
-    } else path
+      if (!parent.exists) {
+        throw new FileNotFoundException(s"Directory '${parent.toString}' for recorder configuration does not exist")
+      }
+      path.createFile()
+    } else {
+      path
+    }
 
   private def buildConfig(config: Config): RecorderConfiguration = {
     import ConfigKeys._

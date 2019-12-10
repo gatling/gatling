@@ -38,7 +38,7 @@ object PathHelper {
 
     def mkdirs(): Path = Files.createDirectories(path)
 
-    def touch: Path = Files.createFile(path)
+    def createFile(): Path = Files.createFile(path)
 
     def delete(): Unit = Files.delete(path)
 
