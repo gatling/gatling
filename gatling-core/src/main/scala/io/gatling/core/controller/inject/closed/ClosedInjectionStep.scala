@@ -39,7 +39,7 @@ final case class ConstantConcurrentNumberInjection(number: Int, private[inject] 
 
 final case class RampConcurrentNumberInjection(from: Int, to: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
 
-  private val durationSeconds = duration.toSeconds
+  private val slope = (to - from).toDouble / duration.toSeconds
 
   require(from >= 0, s"Concurrent users ramp from $from must be >= 0")
   require(to >= 0, s"Concurrent users ramp to $to must be >= 0")
@@ -47,7 +47,7 @@ final case class RampConcurrentNumberInjection(from: Int, to: Int, private[injec
 
   override private[inject] def valueAt(t: FiniteDuration): Int = {
     require(t <= duration, s"$t must be <= $duration")
-    from + math.round((to - from).toDouble / durationSeconds * t.toSeconds).toInt
+    from + (slope * t.toSeconds).toInt
   }
 }
 

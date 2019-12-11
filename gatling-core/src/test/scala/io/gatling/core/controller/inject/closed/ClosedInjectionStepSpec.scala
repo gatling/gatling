@@ -39,6 +39,13 @@ class ClosedInjectionStepSpec extends BaseSpec {
     step.valueAt(5 seconds) shouldBe 10
   }
 
+  it should "inject once a full user is reached" in {
+    val step = RampConcurrentNumberInjection(1, 100, 60 * 99 second)
+    step.valueAt(0 seconds) shouldBe 1
+    step.valueAt(30 seconds) shouldBe 1
+    step.valueAt(60 seconds) shouldBe 2
+  }
+
   "composite.injectionSteps" should "produce the expected injection profile with ramps and starting users" in {
     val steps = IncreasingConcurrentUsersCompositeStep(
       concurrentUsers = 10,
