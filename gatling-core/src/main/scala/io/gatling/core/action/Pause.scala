@@ -37,32 +37,15 @@ class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val stats
    */
   override def execute(session: Session): Unit = recover(session) {
 
-    def schedule(durationInMillis: Long): Unit = {
-      val drift = session.drift
-
-      if (durationInMillis > drift) {
-        // can make pause
-        val durationMinusDrift = durationInMillis - drift
-        logger.debug(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
-
-        val pauseStart = clock.nowMillis
-
-        try {
-          scheduler.scheduleOnce(durationMinusDrift milliseconds) {
-            val newDrift = clock.nowMillis - pauseStart - durationMinusDrift
-            next ! session.setDrift(newDrift)
-          }
-        } catch {
-          case _: IllegalStateException => // engine was shutdown
+    def schedule(durationInMillis: Long): Unit =
+      try {
+        logger.debug(s"Pausing for ${durationInMillis}ms")
+        scheduler.scheduleOnce(durationInMillis milliseconds) {
+          next ! session
         }
-
-      } else {
-        // drift is too big
-        val remainingDrift = drift - durationInMillis
-        logger.debug(s"Can't pause (remaining drift=${remainingDrift}ms)")
-        dispatcher.execute(() => next ! session.setDrift(remainingDrift))
+      } catch {
+        case _: IllegalStateException => // engine was shutdown
       }
-    }
 
     pauseDuration(session).map(schedule)
   }

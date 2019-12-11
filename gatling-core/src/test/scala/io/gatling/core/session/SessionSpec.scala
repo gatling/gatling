@@ -96,15 +96,6 @@ class SessionSpec extends BaseSpec {
     newSession.contains("foo") shouldBe false
   }
 
-  "setDrift" should "set the drift" in {
-    newSession.setDrift(10).drift shouldBe 10
-  }
-
-  "increaseDrift" should "increase drift by the specified amount" in {
-    val session = newSession.setDrift(10)
-    session.increaseDrift(10).drift shouldBe 20
-  }
-
   "loopCounterValue" should "return a counter stored in the session as an Int" in {
     val session = newSession.set("counter", 1)
     session.loopCounterValue("counter") shouldBe 1
@@ -338,7 +329,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "enterTimeBasedLoop" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
-    val session = newSession.enterTimeBasedLoop("counter", _ => Success(true), null, false, System.currentTimeMillis())
+    val session = newSession.enterTimeBasedLoop("counter", _ => Success(true), null, exitASAP = false, System.currentTimeMillis())
 
     session.contains("counter") shouldBe true
     session.attributes("counter") shouldBe 0
@@ -346,7 +337,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "incrementCounter" should "increment a counter in session" in {
-    val session = newSession.enterLoop("counter", _ => Success(true), null, false)
+    val session = newSession.enterLoop("counter", _ => Success(true), null, exitASAP = false)
     val sessionWithUpdatedCounter = session.incrementCounter("counter")
 
     sessionWithUpdatedCounter.attributes("counter") shouldBe 1
@@ -359,7 +350,7 @@ class SessionSpec extends BaseSpec {
   }
 
   "removeCounter" should "remove a counter and its associated timestamp from the session" in {
-    val session = newSession.enterTimeBasedLoop("counter", _ => Success(true), null, false, System.currentTimeMillis())
+    val session = newSession.enterTimeBasedLoop("counter", _ => Success(true), null, exitASAP = false, System.currentTimeMillis())
     val sessionWithRemovedCounter = session.removeCounter("counter")
 
     sessionWithRemovedCounter.contains("counter") shouldBe false
@@ -381,7 +372,7 @@ class SessionSpec extends BaseSpec {
 
   "terminate" should "call the userEnd function" in {
     var i = 0
-    val session = newSession.copy(onExit = (s: Session) => i += 1)
+    val session = newSession.copy(onExit = _ => i += 1)
     session.exit()
 
     i shouldBe 1

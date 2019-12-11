@@ -140,9 +140,6 @@ final case class Session(
     copy(attributes = newAttributes)
   }
 
-  private[gatling] def setDrift(drift: Long) = copy(drift = drift)
-  private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
-
   def loopCounterValue(counterName: String): Int = attributes(counterName).asInstanceOf[Int]
 
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]

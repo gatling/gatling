@@ -122,7 +122,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
       message: Option[String]
   ): Unit = {
     statsEngine.logResponse(session, requestName, sent, received, status, None, message)
-    next ! session.logGroupRequestTimings(sent, received).increaseDrift(clock.nowMillis - received)
+    next ! session.logGroupRequestTimings(sent, received)
   }
 
   /**

@@ -43,11 +43,11 @@ class RootNextExecutor(
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     resourceFetcher.newResourceAggregatorForFetchedPage(response, tx.copy(session = session), status) match {
       case Some(resourceFetcherActor) => resourceFetcherActor.start(session)
-      case _                          => tx.next ! session.increaseDrift(clock.nowMillis - response.endTimestamp)
+      case _                          => tx.next ! session
     }
 
   override def executeNextOnCrash(session: Session, endTimestamp: Long): Unit =
-    tx.next ! session.increaseDrift(clock.nowMillis - endTimestamp)
+    tx.next ! session
 
   override def executeRedirect(redirectTx: HttpTx): Unit =
     httpTxExecutor.execute(redirectTx)
