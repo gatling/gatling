@@ -53,9 +53,8 @@ object OpenInjectionProfileSpec {
       clock = new FakeClock
     ) {
 
-      override protected def injectUser(delay: FiniteDuration): Unit = {
+      override protected def injectUser(delay: FiniteDuration): Unit =
         count += 1
-      }
     }
 
     while (!workload.isAllUsersScheduled) {
