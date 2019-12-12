@@ -27,7 +27,7 @@ private[charts] object ChartsFiles {
   val JQueryFile = "jquery-3.4.1.min.js"
   val BootstrapFile = "bootstrap.min.js"
   val GatlingJsFile = "gatling.js"
-  val MomentJsFile = "moment.min.js"
+  val MomentJsFile = "moment-2.2.40.min.js"
   val MenuFile = "menu.js"
   val AllSessionsFile = "all_sessions.js"
   val StatsJsFile = "stats.js"
