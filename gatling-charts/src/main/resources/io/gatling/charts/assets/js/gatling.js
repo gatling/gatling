@@ -17,7 +17,7 @@
 	$.fn.expandable = function () {
 		var scope = this;
 
-		this.find('.expand-button:not([class*=hidden])').addClass('collapse').click(function () {
+		this.find('.expand-button:not([class*=hidden])').addClass('collapse').on('click', function () {
 			var $this = $(this);
 
 			if ($this.hasClass('expand'))
@@ -26,11 +26,11 @@
 				$this.collapse(scope);
 		});
 
-		this.find('.expand-all-button').click(function () {
+		this.find('.expand-all-button').on('click', function () {
 			$(this).expandAll(scope);
 		});
 
-		this.find('.collapse-all-button').click(function () {
+		this.find('.collapse-all-button').on('click', function () {
 			$(this).collapseAll(scope);
 		});
 
@@ -77,7 +77,7 @@
 	$.fn.sortable = function (target) {
 		var table = this;
 
-		this.find('thead .sortable').click( function () {
+		this.find('thead .sortable').on('click',  function () {
 			var $this = $(this);
 
 			if ($this.hasClass('sorted-down')) {

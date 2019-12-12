@@ -24,7 +24,7 @@ import io.gatling.core.config.GatlingFiles._
 import io.gatling.charts.FileNamingConventions
 
 private[charts] object ChartsFiles {
-  val JQueryFile = "jquery.min.js"
+  val JQueryFile = "jquery-3.4.1.min.js"
   val BootstrapFile = "bootstrap.min.js"
   val GatlingJsFile = "gatling.js"
   val MomentJsFile = "moment.min.js"
