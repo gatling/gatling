@@ -16,11 +16,7 @@
 
 package io.gatling.core.check.xpath
 
-import java.util.concurrent.ConcurrentMap
-import java.util.function.{ Function => JFunction }
 import javax.xml.transform.sax.SAXSource
-
-import scala.compat.java8.FunctionConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache._
@@ -29,42 +25,48 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 import net.sf.saxon.s9api._
 import org.xml.sax.InputSource
 
-class Saxon(configuration: GatlingConfiguration) {
-
+final class Saxon(configuration: GatlingConfiguration) {
   private val processor = new Processor(false)
   private val documentBuilder = processor.newDocumentBuilder
+  private val scopesByNamespacesCache: LoadingCache[Map[String, String], NamespacesScope] =
+    Cache.newConcurrentLoadingCache(
+      configuration.core.extract.xpath.cacheMaxCapacity,
+      namespaces => {
+        val compiler = processor.newXPathCompiler
+        for {
+          (prefix, uri) <- namespaces
+        } compiler.declareNamespace(prefix, uri)
+        new NamespacesScope(compiler)
+      }
+    )
 
-  private val expressionToExecutableByNamespacesCache: LoadingCache[List[(String, String)], JFunction[String, XPathExecutable]] = {
+  private class NamespacesScope(compiler: XPathCompiler) {
 
-    def computer(namespaces: List[(String, String)]): JFunction[String, XPathExecutable] = {
-      val compiler = processor.newXPathCompiler
-      for {
-        (prefix, uri) <- namespaces
-      } compiler.declareNamespace(prefix, uri)
-      (compiler.compile _).asJava
+    private val selectorCache: LoadingCache[String, ThreadLocal[XPathSelector]] =
+      Cache.newConcurrentLoadingCache(
+        configuration.core.extract.xpath.cacheMaxCapacity,
+        expression => {
+          val executable = compiler.compile(expression)
+          ThreadLocal.withInitial(() => executable.load)
+        }
+      )
+
+    def evaluateXPath(expression: String, xdmNode: XdmNode): XdmValue = {
+      val xPathSelector = selectorCache.get(expression).get()
+      try {
+        xPathSelector.setContextItem(xdmNode)
+        xPathSelector.evaluate
+      } finally {
+        xPathSelector.getUnderlyingXPathContext.setContextItem(null)
+      }
     }
-
-    Cache.newConcurrentLoadingCache(configuration.core.extract.xpath.cacheMaxCapacity, computer)
   }
-
-  private val cachedExecutables: ConcurrentMap[String, XPathExecutable] =
-    Cache.newConcurrentCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def parse(inputSource: InputSource): XdmNode = {
     val source = new SAXSource(inputSource)
     documentBuilder.build(source)
   }
 
-  def evaluateXPath(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {
-    val xPathSelector = compileXPath(criterion, namespaces).load
-    try {
-      xPathSelector.setContextItem(xdmNode)
-      xPathSelector.evaluate
-    } finally {
-      xPathSelector.getUnderlyingXPathContext.setContextItem(null)
-    }
-  }
-
-  private def compileXPath(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-    cachedExecutables.computeIfAbsent(expression, expressionToExecutableByNamespacesCache.get(namespaces))
+  def evaluateXPath(criterion: String, namespaces: Map[String, String], xdmNode: XdmNode): XdmValue =
+    scopesByNamespacesCache.get(namespaces).evaluateXPath(criterion, xdmNode)
 }

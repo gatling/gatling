@@ -63,11 +63,17 @@ trait CheckSupport {
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(
+  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
+    xpath(path, Map.empty[String, String])
+  def xpath(path: Expression[String], namespaces: Map[String, String])(
       implicit xmlParsers: XmlParsers
   ): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
+  @deprecated(message = "Pass namespaces as a Map instead of a List, will be removed soon", since = "3.4.0")
+  def xpath(path: Expression[String], namespaces: List[(String, String)])(
+      implicit xmlParsers: XmlParsers
+  ): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
+    new XPathCheckBuilder(path, namespaces.toMap, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)

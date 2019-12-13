@@ -70,7 +70,7 @@ class CheckSample {
 
     //#xpath
     xpath("//input[@id='text1']/@value")
-    xpath("//foo:input[@id='text1']/@value", List("foo" -> "http://foo.com"))
+    xpath("//foo:input[@id='text1']/@value", Map("foo" -> "http://foo.com"))
     //#xpath
 
     //#jsonPath

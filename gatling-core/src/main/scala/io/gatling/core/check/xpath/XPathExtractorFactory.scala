@@ -21,8 +21,8 @@ import scala.collection.JavaConverters._
 import io.gatling.commons.validation._
 import io.gatling.core.check._
 
-class XPathFindExtractor(path: String, namespaces: List[(String, String)], occurrence: Int, xmlParsers: XmlParsers)
-    extends FindCriterionExtractor[Option[Dom], (String, List[(String, String)]), String](
+class XPathFindExtractor(path: String, namespaces: Map[String, String], occurrence: Int, xmlParsers: XmlParsers)
+    extends FindCriterionExtractor[Option[Dom], (String, Map[String, String]), String](
       "xpath",
       (path, namespaces),
       occurrence,
@@ -38,8 +38,8 @@ class XPathFindExtractor(path: String, namespaces: List[(String, String)], occur
       }.success
     )
 
-class XPathFindAllExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers)
-    extends FindAllCriterionExtractor[Option[Dom], (String, List[(String, String)]), String](
+class XPathFindAllExtractor(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers)
+    extends FindAllCriterionExtractor[Option[Dom], (String, Map[String, String]), String](
       "xpath",
       (path, namespaces),
       _.flatMap {
@@ -57,8 +57,8 @@ class XPathFindAllExtractor(path: String, namespaces: List[(String, String)], xm
       }.success
     )
 
-class XPathCountExtractor(path: String, namespaces: List[(String, String)], xmlParsers: XmlParsers)
-    extends CountCriterionExtractor[Option[Dom], (String, List[(String, String)])](
+class XPathCountExtractor(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers)
+    extends CountCriterionExtractor[Option[Dom], (String, Map[String, String])](
       "xpath",
       (path, namespaces),
       _.map {

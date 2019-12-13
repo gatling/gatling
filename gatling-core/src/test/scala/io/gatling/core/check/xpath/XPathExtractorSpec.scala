@@ -25,7 +25,7 @@ import org.xml.sax.InputSource
 abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private val namespaces = List("foo" -> "http://foo/foo")
+  private val namespaces = Map("foo" -> "http://foo/foo")
 
   protected val xmlParsers: XmlParsers = new XmlParsers
 
@@ -36,12 +36,12 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
     extractor(dom(file)).succeeded shouldBe Some(expected)
   }
 
-  private def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
+  private def testSingle(expression: String, namespaces: Map[String, String], occurrence: Int, file: String, expected: Option[String]): Unit = {
     val extractor = new XPathFindExtractor(expression, namespaces, occurrence, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 
-  private def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+  private def testMultiple(expression: String, namespaces: Map[String, String], file: String, expected: Option[List[String]]): Unit = {
     val extractor = new XPathFindAllExtractor(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
@@ -87,7 +87,7 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
   }
 
   it should "support default namespace" in {
-    testSingle("//pre:name", List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0, "/test2.xml", Some("HR"))
+    testSingle("//pre:name", Map("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0, "/test2.xml", Some("HR"))
   }
 
   "extractMultiple" should "return expected result with anywhere expression" in {

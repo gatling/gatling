@@ -30,7 +30,7 @@ final case class JdkDom(document: Document) extends Dom
 
 class XPathCheckBuilder(
     path: Expression[String],
-    namespaces: List[(String, String)],
+    namespaces: Map[String, String],
     xmlParsers: XmlParsers
 ) extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[Dom], String](displayActualValue = true) {
 

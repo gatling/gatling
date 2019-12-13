@@ -63,15 +63,13 @@ class JdkXmlParsers(configuration: GatlingConfiguration) {
   def parse(inputSource: InputSource): Document =
     documentBuilderTL.get.parse(inputSource)
 
-  def nodeList(document: Document, expression: String, namespaces: List[(String, String)]): NodeList = {
+  def nodeList(document: Document, expression: String, namespaces: Map[String, String]): NodeList = {
     val path = xpathFactoryTL.get.newXPath
 
     if (namespaces.nonEmpty) {
       path.setNamespaceContext(new NamespaceContext {
 
-        val map: Map[String, String] = namespaces.toMap
-
-        override def getNamespaceURI(prefix: String): String = map(prefix)
+        override def getNamespaceURI(prefix: String): String = namespaces(prefix)
 
         override def getPrefix(uri: String): String = throw new UnsupportedOperationException
 
@@ -84,7 +82,7 @@ class JdkXmlParsers(configuration: GatlingConfiguration) {
     xpathExpression.evaluate(document, NODESET).asInstanceOf[NodeList]
   }
 
-  def extractAll(document: Document, expression: String, namespaces: List[(String, String)]): Seq[String] = {
+  def extractAll(document: Document, expression: String, namespaces: Map[String, String]): Seq[String] = {
 
     val nodes = nodeList(document, expression, namespaces)
 

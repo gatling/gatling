@@ -931,7 +931,7 @@
             - signature: (expression)
               description: Extraction will use an XPath expression defined by <i>expression</i>
             - signature: (expression, namespaces)
-              description: If you want to use namespaces in your XPATH expression, you should specify them. The <i>namespaces</i> are specified thanks to a List[(prefix,uri)]:<br>List(('c','http://core'), ('f','http://format')).
+              description: If you want to use namespaces in your XPATH expression, you should specify them. The <i>namespaces</i> are specified thanks to a Map[prefix,uri]:<br>Map('c' -> 'http://core', 'f' -> 'http://format').
             - signature: (Session => String)
               description: The expression can be expressed as a <i>Session => String</i> function (with namespaces also)
 
