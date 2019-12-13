@@ -58,7 +58,7 @@ private[recorder] object HarReader {
       // filter out all non-HTTP protocols (eg: ws://)
       .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))
       // filter out CONNECT (if HAR was generated with a proxy such as Charles) and Upgrade requests (WebSockets)
-      .filter(entry => entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.contains(HttpHeaderValues.UPGRADE))
+      .filter(entry => entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.exists(_.name.equalsIgnoreCase(HttpHeaderValues.UPGRADE.toString)))
       .filter(entry => isValidURL(entry.request.url))
       .map(buildHttpTransaction)
       .toVector
