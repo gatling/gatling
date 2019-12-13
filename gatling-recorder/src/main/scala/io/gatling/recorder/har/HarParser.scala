@@ -18,12 +18,12 @@ package io.gatling.recorder.har
 
 import java.io.InputStream
 
-import org.json4s.DefaultFormats
+import org.json4s.{ DefaultFormats, Formats }
 import org.json4s.jackson.JsonMethods._
 
 object HarParser {
 
-  private implicit val formats = DefaultFormats
+  private implicit val formats: Formats = DefaultFormats
 
   final case class HarHttpArchive(log: HarLog)
 
