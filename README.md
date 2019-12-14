@@ -7,7 +7,7 @@ Development is currently focusing on HTTP support.
 
 ## Motivation
 
-* Finding fancy GUIs not that convenient for describing stress tests, what you want is a friendly expressive DSL?
+* Finding fancy GUIs not that convenient for describing load tests, what you want is a friendly expressive DSL?
 * Wanting something more convenient than huge XML dumps to store in your source version control system?
 * Fed up with having to host a farm of injecting servers because your tool uses blocking IO and one-thread-per-user architecture?
 
@@ -18,22 +18,16 @@ Gatling is for you!
 Gatling is developed in Scala and built upon :
 
 * [Netty](https://netty.io) for non blocking HTTP
-* [Akka](https://akka.io) for actions (requests, pauses, assertions, etc...) modeling and orchestration
+* [Akka](https://akka.io) for virtual users orchestration
 ...
-
-
-## Snapshots
-
-For people wanting to use the latest evolutions, the SNAPSHOT versions are available from the Sonatype OSS [repository](https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts/).
-
 
 ## Questions, help?
 
 Read the [documentation](https://gatling.io/docs/current/).
 
-Join the [Gatling User Group](https://groups.google.com/group/gatling).
+Join the [Gatling User Group](https://groups.google.com/forum/#!forum/gatling).
 
-Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues?sort=created&direction=desc&state=open).
+Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues).
 
 ## Partners
 
