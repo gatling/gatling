@@ -2,8 +2,8 @@
 
 ## What is Gatling ?
 
-Gatling is a stress tool.
-Development is currently focusing on HTTP support.
+Gatling is a load test tool.
+It officially supports HTTP, WebSocket, Server-Sent-Events and JMS.
 
 ## Motivation
 
