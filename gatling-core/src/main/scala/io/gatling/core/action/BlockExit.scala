@@ -19,7 +19,6 @@ package io.gatling.core.action
 import scala.annotation.tailrec
 
 import io.gatling.commons.stats.KO
-import io.gatling.commons.util.Clock
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 
@@ -125,19 +124,5 @@ object BlockExit {
       case Some(blockExit) =>
         blockExit.exitBlock(statsEngine, nowMillis)
         false
-    }
-}
-
-/**
- * An Action that can trigger a forced exit and bypass regular workflow.
- */
-trait ExitableAction extends ChainableAction {
-
-  def statsEngine: StatsEngine
-  def clock: Clock
-
-  override abstract def !(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
-      super.!(session)
     }
 }

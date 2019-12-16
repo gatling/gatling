@@ -83,6 +83,20 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
   def execute(session: Session): Unit = actor ! session
 }
 
+/**
+ * An Action that can trigger a forced exit and bypass regular workflow.
+ */
+trait ExitableAction extends ChainableAction {
+
+  def statsEngine: StatsEngine
+  def clock: Clock
+
+  override abstract def !(session: Session): Unit =
+    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
+      super.!(session)
+    }
+}
+
 class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action, actor: ActorRef)
     extends ActorDelegatingAction(name, actor)
     with ExitableAction
@@ -100,7 +114,7 @@ trait RequestAction extends ExitableAction {
         } catch {
           case NonFatal(e) =>
             statsEngine.reportUnbuildableRequest(session, resolvedRequestName, e.detailedMessage)
-            // rethrow so we trigger exception handling in "!"
+            // rethrow so we trigger exception handling in "Cha!"
             throw e
         }
       outcome.onFailure { errorMessage =>
