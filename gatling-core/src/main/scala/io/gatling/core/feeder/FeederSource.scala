@@ -16,8 +16,10 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ File, FileOutputStream }
+import java.io.{ File, FileOutputStream, InputStream }
 import java.util.zip.{ GZIPInputStream, ZipInputStream }
+
+import scala.annotation.switch
 
 import io.gatling.commons.util.Io._
 import io.gatling.core.util._
@@ -61,45 +63,59 @@ final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends
   }
 }
 
+private object TwoBytesMagicValueInputStream {
+  val PkZipMagicValue: (Int, Int) = ('P', 'K')
+  val GzipMagicValue: (Int, Int) = (31, 139)
+}
+
+private class TwoBytesMagicValueInputStream(is: InputStream) extends InputStream {
+  val magicValue: (Int, Int) = (is.read(), is.read())
+  private var pos: Int = 0
+
+  override def read(): Int =
+    (pos: @switch) match {
+      case 0 =>
+        pos += 1
+        magicValue._1
+      case 1 =>
+        pos += 1
+        magicValue._2
+      case _ => is.read()
+    }
+}
+
 object SeparatedValuesFeederSource {
 
   private def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
     tempFile.deleteOnExit()
 
-    val magicNumber: (Int, Int) = withCloseable(resource.inputStream) { os =>
-      (os.read(), os.read())
-    }
+    withCloseable(new FileOutputStream(tempFile)) { os =>
+      withCloseable(new TwoBytesMagicValueInputStream(resource.inputStream)) { is =>
+        is.magicValue match {
+          case TwoBytesMagicValueInputStream.PkZipMagicValue =>
+            val zis = new ZipInputStream(is)
+            val zipEntry = zis.getNextEntry()
+            if (zipEntry == null) {
+              throw new IllegalArgumentException("ZIP Archive is empty")
+            }
 
-    magicNumber match {
-      case ('P', 'K') => // PK: zip
-        withCloseable(new ZipInputStream(resource.inputStream)) { zis =>
-          val zipEntry = zis.getNextEntry()
-          if (zipEntry == null) {
-            throw new IllegalArgumentException("ZIP Archive is empty")
-          }
-
-          withCloseable(new FileOutputStream(tempFile)) { os =>
             zis.copyTo(os)
-          }
 
-          val nextZipEntry = zis.getNextEntry()
-          if (nextZipEntry != null) {
-            throw new IllegalArgumentException(s"ZIP Archive contains more than one file (at least ${zipEntry.getName} and ${nextZipEntry.getName})")
-          }
+            val nextZipEntry = zis.getNextEntry()
+            if (nextZipEntry != null) {
+              throw new IllegalArgumentException(s"ZIP Archive contains more than one file (at least ${zipEntry.getName} and ${nextZipEntry.getName})")
+            }
+
+          case TwoBytesMagicValueInputStream.GzipMagicValue =>
+            new GZIPInputStream(is).copyTo(os): Unit
+
+          case _ => throw new IllegalArgumentException("Archive format not supported, couldn't find neither ZIP nor GZIP magic number")
         }
+      }
 
-      case (31, 139) => // gzip
-        withCloseable(new GZIPInputStream(resource.inputStream)) { is =>
-          withCloseable(new FileOutputStream(tempFile)) { os =>
-            is.copyTo(os)
-          }
-        }
-
-      case _ => throw new IllegalArgumentException("Archive format not supported, couldn't find neither ZIP nor GZIP magic number")
+      FilesystemResource(tempFile)
     }
-
-    FilesystemResource(tempFile)
   }
 }
 
