@@ -63,7 +63,7 @@ final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends
 
 object SeparatedValuesFeederSource {
 
-  def unzip(resource: Resource): Resource = {
+  private def unzip(resource: Resource): Resource = {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
     tempFile.deleteOnExit()
 

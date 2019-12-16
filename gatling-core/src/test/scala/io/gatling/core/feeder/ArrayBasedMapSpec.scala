@@ -53,10 +53,10 @@ class ArrayBasedMapSpec extends BaseSpec {
   }
 
   it should "generate map with an existing key deleted" in {
-    ArrayBasedMap(Array("col1", "col2"), Array("val1", "val2")) - ("col1") shouldBe Map("col2" -> "val2")
+    ArrayBasedMap(Array("col1", "col2"), Array("val1", "val2")) - "col1" shouldBe Map("col2" -> "val2")
   }
 
   it should "generate map without any key deleted" in {
-    ArrayBasedMap(Array("col1", "col2"), Array("val1", "val2")) - ("col3") shouldBe Map("col1" -> "val1", "col2" -> "val2")
+    ArrayBasedMap(Array("col1", "col2"), Array("val1", "val2")) - "col3" shouldBe Map("col1" -> "val1", "col2" -> "val2")
   }
 }

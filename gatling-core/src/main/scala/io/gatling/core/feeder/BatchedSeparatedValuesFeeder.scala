@@ -35,11 +35,12 @@ object BatchedSeparatedValuesFeeder {
 
     val streamer: InputStream => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
 
+    val is = new FileInputStream(file)
     val rawFeeder = strategy match {
-      case Queue    => new QueueBatchedSeparatedValuesFeeder(new FileInputStream(file), streamer)
-      case Random   => new RandomBatchedSeparatedValuesFeeder(new FileInputStream(file), streamer, bufferSize)
-      case Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(new FileInputStream(file), streamer, bufferSize)
-      case Circular => new CircularBatchedSeparatedValuesFeeder(new FileInputStream(file), streamer)
+      case Queue    => new QueueBatchedSeparatedValuesFeeder(is, streamer)
+      case Random   => new RandomBatchedSeparatedValuesFeeder(is, streamer, bufferSize)
+      case Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(is, streamer, bufferSize)
+      case Circular => new CircularBatchedSeparatedValuesFeeder(is, streamer)
     }
 
     conversion match {

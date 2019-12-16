@@ -22,20 +22,20 @@ import io.gatling.core.json.JsonParsers
 
 class JsonFeederSpec extends BaseSpec with FeederSupport {
 
-  private implicit val configuration = GatlingConfiguration.loadForTest()
-  private implicit val jsonParsers = JsonParsers()
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private implicit val jsonParsers: JsonParsers = JsonParsers()
 
   "jsonFile" should "handle proper JSON file" in {
     val data = jsonFile("test.json").readRecords
 
     data.length shouldBe 2
-    data(0)("id") shouldBe 19434
+    data.head("id") shouldBe 19434
   }
 
   "jsonUrl" should "retrieve and handle proper JSON file" in {
     val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).readRecords
     data.length shouldBe 2
-    data(0)("id") shouldBe 19434
+    data.head("id") shouldBe 19434
   }
 
   "JsonFeederFileParser" should "throw an exception when provided with bad resource" in {
