@@ -21,23 +21,15 @@ import java.nio.charset.Charset
 
 import scala.collection.JavaConverters._
 
-import io.gatling.commons.util.Io._
-import io.gatling.core.util.Resource
-
 import org.simpleflatmapper.lightningcsv.CsvParser
 
 object SeparatedValuesParser {
 
   val DefaultQuoteChar: Char = '"'
 
-  val CommaSeparator = ','
-  val SemicolonSeparator = ';'
-  val TabulationSeparator = '\t'
-
-  def parse(resource: Resource, columnSeparator: Char, quoteChar: Char, charset: Charset): IndexedSeq[Record[String]] =
-    withCloseable(resource.inputStream) { is =>
-      stream(columnSeparator, quoteChar, charset)(is).toVector
-    }
+  val CommaSeparator: Char = ','
+  val SemicolonSeparator: Char = ';'
+  val TabulationSeparator: Char = '\t'
 
   def stream(columnSeparator: Char, quoteChar: Char, charset: Charset): InputStream => Feeder[String] = {
     val parser = CsvParser

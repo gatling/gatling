@@ -122,7 +122,10 @@ final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quo
         case Adaptive if resource.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
           BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferSize, charset)
         case _ =>
-          val records = SeparatedValuesParser.parse(resource, separator, quoteChar, charset)
+          val records = withCloseable(resource.inputStream) { is =>
+            SeparatedValuesParser.stream(separator, quoteChar, charset)(is).toVector
+          }
+
           InMemoryFeeder(records, options.conversion, options.strategy)
       }
 
