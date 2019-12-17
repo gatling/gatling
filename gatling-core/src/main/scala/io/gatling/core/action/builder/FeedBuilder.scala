@@ -20,7 +20,7 @@ import java.util.{ IdentityHashMap => JIdentityHashMap }
 
 import scala.collection.JavaConverters._
 
-import io.gatling.core.action.{ Action, Feed, SingletonFeed }
+import io.gatling.core.action.{ Action, Feed, FeedActor }
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
@@ -34,13 +34,13 @@ object FeedBuilder {
 
 class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
 
-  private[this] def newSingletonFeed(ctx: ScenarioContext): ActorRef = {
-    val props = SingletonFeed.props(feederBuilder.apply, ctx.coreComponents.controller)
+  private[this] def newFeedActor(ctx: ScenarioContext): ActorRef = {
+    val props = FeedActor.props(feederBuilder.apply, ctx.coreComponents.controller)
     ctx.coreComponents.actorSystem.actorOf(props, genName("singletonFeed"))
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-    val feederSingleton = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, newSingletonFeed(ctx))
-    new Feed(feederSingleton, number, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+    val feedActor = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, newFeedActor(ctx))
+    new Feed(feedActor, number, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
   }
 }

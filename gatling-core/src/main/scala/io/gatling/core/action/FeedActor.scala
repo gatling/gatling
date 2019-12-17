@@ -24,11 +24,11 @@ import io.gatling.core.session.{ Expression, Session }
 
 import akka.actor.{ ActorRef, Props }
 
-object SingletonFeed {
-  def props[T](feeder: Feeder[T], controller: ActorRef): Props = Props(new SingletonFeed(feeder, controller))
+object FeedActor {
+  def props[T](feeder: Feeder[T], controller: ActorRef): Props = Props(new FeedActor(feeder, controller))
 }
 
-class SingletonFeed[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
+class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
 
   def receive: Receive = {
     case FeedMessage(session, number, next) =>
