@@ -70,7 +70,6 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
   }
 
   it should "skip UTF-8 BOM" in {
-
     val bytes =
       Io.withCloseable(new ByteArrayOutputStream) { os =>
         os.write(Array(Utf8BomByte1, Utf8BomByte2, Utf8BomByte3))

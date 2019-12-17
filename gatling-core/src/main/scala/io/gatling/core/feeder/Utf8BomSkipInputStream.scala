@@ -20,43 +20,32 @@ import java.io.InputStream
 
 import scala.annotation.switch
 
-private[feeder] object Utf8BomSkipInputStream {
+private object Utf8BomSkipInputStream {
   val Utf8BomByte1: Byte = 0xEF.toByte
   val Utf8BomByte2: Byte = 0xBB.toByte
   val Utf8BomByte3: Byte = 0xBF.toByte
 }
 
-private[feeder] class Utf8BomSkipInputStream(is: InputStream) extends InputStream {
+private class Utf8BomSkipInputStream(is: InputStream) extends InputStream {
 
   import Utf8BomSkipInputStream._
 
-  private val buffer = new Array[Byte](2)
-  private var bufferPos = 0
+  private val b1 = is.read().toByte
+  private val b2 = is.read().toByte
+  private val b3 = is.read().toByte
+  private var bufferPos = if (b1 == Utf8BomByte1 && b2 == Utf8BomByte2 && b3 == Utf8BomByte3) 3 else 0
 
   override def read(): Int =
     (bufferPos: @switch) match {
       case 0 =>
-        val b1 = is.read().toByte
-        val b2 = is.read().toByte
-        val b3 = is.read().toByte
-
-        if (b1 == Utf8BomByte1 && b2 == Utf8BomByte2 && b3 == Utf8BomByte3) {
-          bufferPos = 3
-          is.read()
-        } else {
-          buffer(0) = b2
-          buffer(1) = b3
-          bufferPos = 1
-          b1
-        }
+        bufferPos += 1
+        b1
       case 1 =>
-        bufferPos = 2
-        buffer(0)
-
+        bufferPos += 1
+        b2
       case 2 =>
-        bufferPos = 3
-        buffer(1)
-
+        bufferPos += 1
+        b3
       case _ =>
         is.read()
     }
