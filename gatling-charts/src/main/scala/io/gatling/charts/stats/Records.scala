@@ -22,7 +22,7 @@ import io.gatling.commons.stats.{ Group, KO, Status }
 import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer.{ RawErrorRecord, RawGroupRecord, RawRequestRecord, RawUserRecord }
 
-private[stats] object UserRecordParser {
+private object UserRecordParser {
 
   def unapply(array: Array[String]): Option[UserRecord] = RawUserRecord.unapply(array).map(parseUserRecord)
 
@@ -38,7 +38,7 @@ private[stats] object UserRecordParser {
   }
 }
 
-private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
+private class RequestRecordParser(bucketFunction: Long => Int) {
 
   def unapply(array: Array[String]): Option[RequestRecord] = RawRequestRecord.unapply(array).map(parseRequestRecord)
 
@@ -66,14 +66,14 @@ private[stats] class RequestRecordParser(bucketFunction: Long => Int) {
   }
 }
 
-private[stats] object GroupRecordParser {
+private object GroupRecordParser {
 
   val GroupCache = mutable.Map.empty[String, Group]
 
   def parseGroup(string: String): Group = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
 }
 
-private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
+private class GroupRecordParser(bucketFunction: Long => Int) {
 
   def unapply(array: Array[String]): Option[GroupRecord] = RawGroupRecord.unapply(array).map(parseGroupRecord)
 
@@ -89,7 +89,7 @@ private[stats] class GroupRecordParser(bucketFunction: Long => Int) {
   }
 }
 
-private[stats] object ErrorRecordParser {
+private object ErrorRecordParser {
 
   def unapply(array: Array[String]): Option[ErrorRecord] = RawErrorRecord.unapply(array).map(parseErrorRecord)
 
@@ -102,7 +102,7 @@ private[stats] object ErrorRecordParser {
   }
 }
 
-private[stats] final case class RequestRecord(
+private final case class RequestRecord(
     group: Option[Group],
     name: String,
     status: Status,
@@ -113,6 +113,6 @@ private[stats] final case class RequestRecord(
     errorMessage: Option[String],
     incoming: Boolean
 )
-private[stats] final case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
-private[stats] final case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
-private[stats] final case class ErrorRecord(message: String, timestamp: Long)
+private final case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
+private final case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
+private final case class ErrorRecord(message: String, timestamp: Long)

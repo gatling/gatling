@@ -21,7 +21,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.pause.PauseType
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 
-private[structure] trait BuildAction { this: Execs[_] =>
+trait BuildAction { this: Execs[_] =>
 
   private[gatling] def build(ctx: ScenarioContext, chainNext: Action): Action =
     actionBuilders.foldLeft(chainNext) { (next, actionBuilder) =>

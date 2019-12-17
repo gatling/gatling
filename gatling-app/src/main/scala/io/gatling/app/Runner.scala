@@ -35,7 +35,7 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
 
-private[app] object Runner {
+private object Runner {
 
   def apply(system: ActorSystem, configuration: GatlingConfiguration): Runner = {
     configuration.resolve(

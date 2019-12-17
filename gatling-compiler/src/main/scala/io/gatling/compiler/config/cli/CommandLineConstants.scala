@@ -16,9 +16,9 @@
 
 package io.gatling.compiler.config.cli
 
-private[cli] final case class CommandLineConstant(full: String, abbr: String)
+private final case class CommandLineConstant(full: String, abbr: String)
 
-private[cli] object CommandLineConstants {
+private object CommandLineConstants {
   val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
   val BinariesFolder = CommandLineConstant("binaries-folder", "bf")
   val ExtraScalacOptions = CommandLineConstant("extra-scalac-options", "eso")

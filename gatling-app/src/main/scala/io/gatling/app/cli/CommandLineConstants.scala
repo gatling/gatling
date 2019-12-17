@@ -18,7 +18,7 @@ package io.gatling.app.cli
 
 import io.gatling.core.cli.CommandLineConstant
 
-private[cli] object CommandLineConstants {
+private object CommandLineConstants {
   val Help = CommandLineConstant("help", "h")
   val NoReports = CommandLineConstant("no-reports", "nr")
   val ReportsOnly = CommandLineConstant("reports-only", "ro")
