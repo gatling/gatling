@@ -29,16 +29,16 @@ class FeedSpec extends AkkaSpec with MockitoSugar {
   private val clock = new DefaultClock
 
   "Feed" should "send a FeedMessage to the SingletonFeed actor" in {
-    val singleton = TestProbe()
+    val feedActor = TestProbe()
     val next = new ActorDelegatingAction("next", self)
 
-    val feed = new Feed(singleton.ref, 1.expressionSuccess, mock[StatsEngine], clock, next)
+    val feed = new Feed(feedActor.ref, 1.expressionSuccess, mock[StatsEngine], clock, next)
 
     val session = Session("scenario", 0, clock.nowMillis)
 
     feed ! session
 
-    val feedMessage = singleton.expectMsgType[FeedMessage]
+    val feedMessage = feedActor.expectMsgType[FeedMessage]
     feedMessage.session shouldBe session
     feedMessage.next shouldBe next
   }
