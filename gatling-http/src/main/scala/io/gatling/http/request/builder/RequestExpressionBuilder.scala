@@ -231,7 +231,7 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri)
-            .setDefaultCharset(configuration.core.charset)
+            .setDefaultCharset(charset)
             .setFixUrlEncoding(!disableUrlEncoding)
             .setRequestTimeout(configuration.http.advanced.requestTimeout.toMillis)
           rb <- configureRequestBuilder(session, requestBuilder)
