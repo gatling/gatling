@@ -41,6 +41,6 @@ final case class SseConnectBuilder(
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
     val request = requestBuilder.build(httpComponents, coreComponents.configuration)
-    new SseConnect(requestName, sseName, request, checkSequences, ctx.coreComponents, httpComponents, next)
+    new SseConnect(requestName, sseName, request, checkSequences, coreComponents, httpComponents, next)
   }
 }
