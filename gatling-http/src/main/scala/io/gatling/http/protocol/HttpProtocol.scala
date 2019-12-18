@@ -48,8 +48,8 @@ object HttpProtocol extends StrictLogging {
     override def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
     override def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
-
       val httpEngine = HttpEngine(coreComponents)
+      coreComponents.actorSystem.registerOnTermination(httpEngine.close())
       val httpCaches = new HttpCaches(coreComponents)
       val defaultStatsProcessor = new DefaultStatsProcessor(coreComponents.configuration.core.charset, coreComponents.statsEngine)
 

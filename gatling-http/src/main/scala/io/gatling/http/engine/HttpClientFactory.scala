@@ -18,6 +18,7 @@ package io.gatling.http.engine
 
 import io.gatling.commons.util.SystemProps._
 import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.client.{ HttpClient, HttpClientConfig }
 import io.gatling.http.client.impl.DefaultHttpClient
 import io.gatling.http.util._
@@ -34,7 +35,7 @@ private[gatling] object HttpClientFactory {
       //
       //
       // [fl]
-      new DefaultHttpClientFactory(coreComponents, sslContextsFactory)
+      new DefaultHttpClientFactory(sslContextsFactory, coreComponents.configuration)
     )
 }
 
@@ -43,11 +44,11 @@ private[gatling] trait HttpClientFactory {
   def newClient: HttpClient
 }
 
-private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, sslContextsFactory: SslContextsFactory)
+private[gatling] class DefaultHttpClientFactory(sslContextsFactory: SslContextsFactory, configuration: GatlingConfiguration)
     extends HttpClientFactory
     with StrictLogging {
 
-  private val httpConfig = coreComponents.configuration.http
+  private val httpConfig = configuration.http
   setSystemPropertyIfUndefined("io.netty.allocator.type", httpConfig.advanced.allocator)
   setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", httpConfig.advanced.maxThreadLocalCharBufferSize)
 
@@ -62,7 +63,7 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
       .setChannelPoolIdleTimeout(httpConfig.advanced.pooledConnectionIdleTimeout.toMillis)
       .setEnableSni(httpConfig.advanced.enableSni)
       .setEnableHostnameVerification(httpConfig.advanced.enableHostnameVerification)
-      .setDefaultCharset(coreComponents.configuration.core.charset)
+      .setDefaultCharset(configuration.core.charset)
       .setUseNativeTransport(httpConfig.advanced.useNativeTransport)
       .setTcpNoDelay(httpConfig.advanced.tcpNoDelay)
       .setSoKeepAlive(httpConfig.advanced.soKeepAlive)
@@ -70,9 +71,5 @@ private[gatling] class DefaultHttpClientFactory(coreComponents: CoreComponents, 
       .setThreadPoolName("gatling-http")
   }
 
-  override def newClient: HttpClient = {
-    val client = new DefaultHttpClient(newClientConfig())
-    coreComponents.actorSystem.registerOnTermination(client.close())
-    client
-  }
+  override def newClient: HttpClient = new DefaultHttpClient(newClientConfig())
 }
