@@ -137,9 +137,12 @@ class HttpTxExecutor(
       val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
       if (tx.request.requestConfig.throttled) {
-        throttler.throttle(tx.session.scenario, () => httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alpnSslContext))
+        throttler.throttle(
+          tx.session.scenario,
+          () => httpEngine.executeRequest(ahcRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+        )
       } else {
-        httpEngine.executeRequest(ahcRequest, clientId, shared, listener, sslContext, alpnSslContext)
+        httpEngine.executeRequest(ahcRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
       }
     }
 
@@ -163,9 +166,12 @@ class HttpTxExecutor(
       val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
       if (txs.head.request.requestConfig.throttled) {
-        throttler.throttle(headTx.session.scenario, () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alpnSslContext))
+        throttler.throttle(
+          headTx.session.scenario,
+          () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
+        )
       } else {
-        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, sslContext, alpnSslContext)
+        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
       }
     }
   }

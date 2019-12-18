@@ -21,7 +21,7 @@ import java.util.{ HashMap => JHashMap }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.jms.MockMessage
 import io.gatling.{ BaseSpec, ValidationValues }
 
@@ -33,8 +33,6 @@ class JmsStringBodyCheckSpec extends BaseSpec with ValidationValues with MockMes
 
   private def jmap[K, V] = new JHashMap[K, V]
 
-  private val session = Session("mockSession", 0, System.currentTimeMillis())
-
   private val testResponses = Table(
     ("msg", "msgType"),
     (textMessage("""[{"id":"1072920417"},"id":"1072920418"]"""), "TextMessage"),
@@ -44,19 +42,19 @@ class JmsStringBodyCheckSpec extends BaseSpec with ValidationValues with MockMes
   forAll(testResponses) { (response: Message, msgType: String) =>
     s"bodyString.find.exists for $msgType" should "extract response body correctly" in {
       bodyString.find.exists
-        .check(response, session, jmap[Any, Any])
+        .check(response, EmptySession, jmap[Any, Any])
         .succeeded shouldBe CheckResult(Some("""[{"id":"1072920417"},"id":"1072920418"]"""), None)
     }
 
     s"bodyString.notNull for $msgType" should "pass when response not empty" in {
       bodyString.find.notNull
-        .check(response, session, jmap[Any, Any])
+        .check(response, EmptySession, jmap[Any, Any])
         .succeeded shouldBe CheckResult(Some("""[{"id":"1072920417"},"id":"1072920418"]"""), None)
     }
 
     s"bodyString.isNull for $msgType" should "fail when response not empty" in {
       bodyString.isNull
-        .check(response, session, jmap[Any, Any])
+        .check(response, EmptySession, jmap[Any, Any])
         .failed shouldBe """bodyString.find.isNull, found [{"id":"1072920417"},"id":"1072920418"]"""
     }
   }

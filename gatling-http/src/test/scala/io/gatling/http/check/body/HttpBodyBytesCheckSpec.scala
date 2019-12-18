@@ -23,7 +23,7 @@ import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.response.{ ByteArrayResponseBody, Response }
@@ -35,8 +35,6 @@ class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: HttpCheckMaterializer[BodyBytesCheckType, Array[Byte]] = HttpBodyBytesCheckMaterializer
-
-  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: Array[Byte]): Response =
     Response(
@@ -57,13 +55,13 @@ class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl
     val string = "Hello World"
     val responseBytes = string.getBytes(UTF_8)
     val response = mockResponse(responseBytes)
-    bodyBytes.find.is(string.getBytes(UTF_8)).check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(responseBytes), None)
+    bodyBytes.find.is(string.getBytes(UTF_8)).check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(responseBytes), None)
   }
 
   it should "fail when byte arrays are different" in {
     val string = "Hello World"
     val responseBytes = string.getBytes(UTF_8)
     val response = mockResponse(responseBytes)
-    bodyBytes.find.is("HELLO WORLD".getBytes(UTF_8)).check(response, session, new JHashMap[Any, Any]).failed shouldBe a[String]
+    bodyBytes.find.is("HELLO WORLD".getBytes(UTF_8)).check(response, EmptySession, new JHashMap[Any, Any]).failed shouldBe a[String]
   }
 }

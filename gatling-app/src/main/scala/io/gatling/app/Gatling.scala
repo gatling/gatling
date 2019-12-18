@@ -17,6 +17,7 @@
 package io.gatling.app
 
 import java.nio.file.FileSystems
+import java.util.concurrent.TimeUnit
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -24,6 +25,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.app.cli.ArgsParser
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.util.EventLoops
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -72,10 +74,11 @@ object Gatling extends StrictLogging {
       logger.trace("Configuration loaded")
       // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
       val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
+      val eventLoopGroup = EventLoops.newEventLoopGroup(configuration.http.advanced.useNativeTransport, 0, "gatling")
       logger.trace("ActorSystem instantiated")
       val runResult =
         try {
-          val runner = Runner(system, configuration)
+          val runner = Runner(system, eventLoopGroup, configuration)
           logger.trace("Runner instantiated")
           runner.run(selectedSimulationClass)
         } catch {
@@ -83,6 +86,7 @@ object Gatling extends StrictLogging {
             logger.error("Run crashed", e)
             throw e
         } finally {
+          eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
           terminateActorSystem(system, configuration.core.shutdownTimeout milliseconds)
         }
       new RunResultProcessor(configuration).processRunResult(runResult).code

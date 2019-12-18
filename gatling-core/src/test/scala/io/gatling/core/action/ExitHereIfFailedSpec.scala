@@ -18,7 +18,7 @@ package io.gatling.core.action
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.{ GroupMessage, Init, RunMessage }
 
@@ -56,11 +56,9 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", 0, clock.nowMillis, Session.NothingOnExit)
+    exitHereIfFailed ! EmptySession
 
-    exitHereIfFailed ! session
-
-    expectMsg(session)
+    expectMsg(EmptySession)
     exitProbe.expectNoMessage(remainingOrDefault)
   }
 
@@ -69,12 +67,12 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", 0, clock.nowMillis, Session.NothingOnExit).enterTryMax("loop", nextAction).markAsFailed
+    val sessionWithTryMax = EmptySession.enterTryMax("loop", nextAction).markAsFailed
 
-    exitHereIfFailed ! session
+    exitHereIfFailed ! sessionWithTryMax
 
     expectNoMessage(remainingOrDefault)
-    exitProbe.expectMsg(session)
+    exitProbe.expectMsg(sessionWithTryMax)
   }
 
   it should "also log a group end if the user was inside a group" in {
@@ -82,12 +80,12 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", 0, clock.nowMillis, Session.NothingOnExit).enterGroup("group", clock.nowMillis).markAsFailed
+    val sessionWithGroup = EmptySession.enterGroup("group", clock.nowMillis).markAsFailed
 
-    exitHereIfFailed ! session
+    exitHereIfFailed ! sessionWithGroup
 
     expectNoMessage(remainingOrDefault)
-    exitProbe.expectMsg(session)
+    exitProbe.expectMsg(sessionWithGroup)
     dataWriterProbe.expectMsgType[GroupMessage]
   }
 }

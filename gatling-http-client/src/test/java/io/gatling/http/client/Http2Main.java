@@ -43,7 +43,7 @@ public class Http2Main {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
+          LOGGER.info(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch.countDown();
         }
 
@@ -59,7 +59,7 @@ public class Http2Main {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
+          LOGGER.info(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch2.countDown();
         }
 

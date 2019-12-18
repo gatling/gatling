@@ -23,6 +23,7 @@ import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.jms.{ JmsCheck, MockMessage }
 import io.gatling.{ BaseSpec, ValidationValues }
 
@@ -34,8 +35,6 @@ class JmsConditionalCheckSpec extends BaseSpec with ValidationValues with MockMe
 
   private def jmap[K, V] = new JHashMap[K, V]
 
-  private val session = Session("mockSession", 0, System.currentTimeMillis())
-
   private val testResponses = Table(
     ("msg", "msgType"),
     (textMessage("""[{"id":"1072920417"},"id":"1072920418"]"""), "TextMessage"),
@@ -45,28 +44,28 @@ class JmsConditionalCheckSpec extends BaseSpec with ValidationValues with MockMe
   forAll(testResponses) { (response: Message, msgType: String) =>
     s"checkIf.true.succeed for $msgType" should "perform the succeed nested check" in {
       val thenCheck: JmsCheck = substring(""""id":"""").count
-      val check: JmsCheck = checkIf((r: Message, s: Session) => Success(true))(thenCheck)
-      check.check(response, session, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
+      val check: JmsCheck = checkIf((_: Message, _: Session) => Success(true))(thenCheck)
+      check.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
     }
 
     s"checkIf.true.failed for $msgType" should "perform the failed nested check" in {
       val substringValue = """"foo":""""
       val thenCheck: JmsCheck = substring(substringValue).findAll.exists
-      val check: JmsCheck = checkIf((r: Message, s: Session) => Success(true))(thenCheck)
-      check.check(response, session, jmap[Any, Any]).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
+      val check: JmsCheck = checkIf((_: Message, _: Session) => Success(true))(thenCheck)
+      check.check(response, EmptySession, jmap[Any, Any]).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
     }
 
     s"checkIf.false.succeed for $msgType" should "not perform the succeed nested check" in {
       val thenCheck: JmsCheck = substring(""""id":"""").count
-      val check: JmsCheck = checkIf((r: Message, s: Session) => Success(false))(thenCheck)
-      check.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(None, None)
+      val check: JmsCheck = checkIf((_: Message, _: Session) => Success(false))(thenCheck)
+      check.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(None, None)
     }
 
     s"checkIf.false.failed for $msgType" should "not perform the failed nested check" in {
       val substringValue = """"foo":""""
       val thenCheck: JmsCheck = substring(substringValue).findAll.exists
-      val check: JmsCheck = checkIf((r: Message, s: Session) => Success(false))(thenCheck)
-      check.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(None, None)
+      val check: JmsCheck = checkIf((_: Message, _: Session) => Success(false))(thenCheck)
+      check.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(None, None)
     }
   }
 }

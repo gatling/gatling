@@ -16,6 +16,7 @@
 
 package io.gatling.core.controller.inject
 
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
@@ -26,13 +27,13 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.{ EventLoop, EventLoopGroup }
 
 abstract class Workload(
     scenario: Scenario,
     userIdGen: AtomicLong,
-    system: ActorSystem,
+    eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine,
     clock: Clock
 ) extends StrictLogging {
@@ -47,8 +48,8 @@ abstract class Workload(
 
   protected def incrementStoppedUsers(): Unit = stopped += 1
 
-  private def startUser(userId: Long): Unit = {
-    val rawSession = Session(scenario.name, userId, clock.nowMillis, scenario.onExit)
+  private def startUser(userId: Long, eventLoop: EventLoop): Unit = {
+    val rawSession = Session(scenario.name, userId, clock.nowMillis, scenario.onExit, eventLoop)
     val session = scenario.onStart(rawSession)
     scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")
@@ -58,10 +59,11 @@ abstract class Workload(
   protected def injectUser(delay: FiniteDuration): Unit = {
     incrementScheduledUsers()
     val userId = userIdGen.incrementAndGet()
+    val eventLoop = eventLoopGroup.next()
     if (delay <= Duration.Zero) {
-      system.dispatcher.execute(() => startUser(userId))
+      eventLoop.execute(() => startUser(userId, eventLoop))
     } else {
-      system.scheduler.scheduleOnce(delay)(startUser(userId))(system.dispatcher)
+      eventLoop.schedule((() => startUser(userId, eventLoop)): Runnable, delay.toMillis, TimeUnit.MILLISECONDS)
     }
   }
 

@@ -26,6 +26,7 @@ import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, Htt
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
 import io.gatling.http.util.HttpTypeCaster
 
+import io.netty.channel.EventLoop
 import io.netty.resolver.NameResolver
 import io.netty.util.concurrent.{ Future, Promise }
 
@@ -57,6 +58,7 @@ private[http] trait DnsCacheSupport {
   def coreComponents: CoreComponents
 
   private def newNameResolver(
+      eventLoop: => EventLoop,
       dnsNameResolution: DnsNameResolution,
       hostNameAliases: Map[String, InetAddress],
       httpEngine: HttpEngine
@@ -79,7 +81,7 @@ private[http] trait DnsCacheSupport {
         // [fl]
         dnsNameResolution match {
           case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
-          case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(dnsServers)
+          case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(eventLoop, dnsServers)
         }
       )
 
@@ -94,13 +96,14 @@ private[http] trait DnsCacheSupport {
 
     import httpProtocol.dnsPart._
 
-    if (perUserNameResolution) {
-      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine))
+    if (perUserNameResolution) { session =>
+      session.set(DnsNameResolverAttributeName, newNameResolver(session.eventLoop, dnsNameResolution, hostNameAliases, httpEngine))
 
     } else {
       // create shared name resolver for all the users with this protocol
-      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine)
-      coreComponents.actorSystem.registerOnTermination(nameResolver.close())
+      val nameResolver = newNameResolver(coreComponents.eventLoopGroup.next(), dnsNameResolution, hostNameAliases, httpEngine)
+      coreComponents.actorSystem.registerOnTermination(() => nameResolver.close())
+
       // perform close on system shutdown instead of virtual user termination as its shared
       val noopCloseNameResolver = new NoopCloseNameResolver(nameResolver)
 

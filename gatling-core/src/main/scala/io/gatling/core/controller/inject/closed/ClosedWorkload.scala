@@ -27,16 +27,16 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 import io.gatling.core.util.Shard
 
-import akka.actor.ActorSystem
+import io.netty.channel.EventLoopGroup
 
 class ClosedWorkload(
     scenario: Scenario,
     steps: Iterable[ClosedInjectionStep],
     userIdGen: AtomicLong,
-    system: ActorSystem,
+    eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine,
     clock: Clock
-) extends Workload(scenario, userIdGen, system, statsEngine, clock) {
+) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine, clock) {
 
   private val offsetedSteps: Array[(FiniteDuration, ClosedInjectionStep)] = {
     var offset: FiniteDuration = Duration.Zero

@@ -23,9 +23,11 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.stats.StatsEngine
 
 import _root_.akka.actor.{ ActorRef, ActorSystem }
+import io.netty.channel.EventLoopGroup
 
 final case class CoreComponents(
     actorSystem: ActorSystem,
+    eventLoopGroup: EventLoopGroup,
     controller: ActorRef,
     throttler: Throttler,
     statsEngine: StatsEngine,

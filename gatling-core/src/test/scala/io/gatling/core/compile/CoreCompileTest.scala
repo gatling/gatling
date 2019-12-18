@@ -25,15 +25,9 @@ import io.gatling.core.structure.ChainBuilder
 class CoreCompileTest extends Simulation {
 
   private val iterations = 10
-  private val pause1 = 1
-  private val pause2 = 2
-  private val pause3 = 3
-  private val pause4 = Integer.getInteger("testProperty")
-
-  private val pause5 = pause4 milliseconds
-  private val pause6 = pause4 seconds
-  private val pause7 = pause4 nanoseconds
-
+  private val pause1 = 2
+  private val pause2 = Integer.getInteger("testProperty")
+  private val pause3 = pause2 milliseconds
   private val baseUrl = "http://localhost:3000"
 
   private val noop: ChainBuilder = ???

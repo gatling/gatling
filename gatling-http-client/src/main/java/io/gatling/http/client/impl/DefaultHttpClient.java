@@ -33,11 +33,9 @@ import io.gatling.http.client.util.Pair;
 import io.gatling.http.client.uri.Uri;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
@@ -215,31 +213,28 @@ public class DefaultHttpClient implements HttpClient {
 
   private final AtomicBoolean closed = new AtomicBoolean();
   private final HttpClientConfig config;
-  private final MultithreadEventExecutorGroup eventLoopGroup;
-  private final AffinityEventLoopPicker eventLoopPicker;
+  private final EventExecutor channelGroupEventExecutor;
   private final ChannelGroup channelGroup;
-  private final ThreadLocal<EventLoopResources> eventLoopResources = new ThreadLocal<>();
+  private final FastThreadLocal<EventLoopResources> eventLoopResources = new FastThreadLocal<>();
 
   public DefaultHttpClient(HttpClientConfig config) {
     this.config = config;
-    DefaultThreadFactory threadFactory = new DefaultThreadFactory(config.getThreadPoolName());
-    eventLoopGroup = config.isUseNativeTransport() ? new EpollEventLoopGroup(0, threadFactory) : new NioEventLoopGroup(0, threadFactory);
-    eventLoopPicker = new AffinityEventLoopPicker(eventLoopGroup);
-    channelGroup = new DefaultChannelGroup(eventLoopGroup.next());
+    channelGroupEventExecutor = new DefaultEventExecutor();
+    channelGroup = new DefaultChannelGroup(channelGroupEventExecutor);
   }
 
   @Override
   public void close() {
     if (closed.compareAndSet(false, true)) {
       channelGroup.close().awaitUninterruptibly();
-      eventLoopGroup.shutdownGracefully();
+      channelGroupEventExecutor.shutdownGracefully(0, 1, TimeUnit.SECONDS);
       ReferenceCountUtil.release(config.getDefaultSslContext());
       ReferenceCountUtil.release(config.getDefaultAlpnSslContext());
     }
   }
 
   @Override
-  public void sendRequest(Request request, long clientId, boolean shared, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
+  public void sendRequest(Request request, long clientId, EventLoop eventLoop, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
     if (isClosed()) {
       return;
     }
@@ -250,14 +245,12 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
-    EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
-
     if (sslContext == null) {
       sslContext = config.getDefaultSslContext();
       alpnSslContext = config.getDefaultAlpnSslContext();
     }
 
-    HttpTx tx = buildTx(request, clientId, shared, listener, sslContext, alpnSslContext);
+    HttpTx tx = buildTx(request, clientId, listener, sslContext, alpnSslContext);
 
     if (eventLoop.inEventLoop()) {
       sendTx(tx, eventLoop);
@@ -267,7 +260,7 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   @Override
-  public void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, boolean shared, SslContext sslContext, SslContext alpnSslContext) {
+  public void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, EventLoop eventLoop, SslContext sslContext, SslContext alpnSslContext) {
     if (isClosed()) {
       return;
     }
@@ -285,8 +278,6 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
-    EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
-
     if (sslContext == null) {
       sslContext = config.getDefaultSslContext();
       alpnSslContext = config.getDefaultAlpnSslContext();
@@ -296,7 +287,7 @@ public class DefaultHttpClient implements HttpClient {
     for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
       Request request = requestAndListener.getLeft();
       HttpListener listener = requestAndListener.getRight();
-      txs.add(buildTx(request, clientId, shared, listener, sslContext, alpnSslContext));
+      txs.add(buildTx(request, clientId, listener, sslContext, alpnSslContext));
     }
 
     if (eventLoop.inEventLoop()) {
@@ -317,9 +308,9 @@ public class DefaultHttpClient implements HttpClient {
     return resources;
   }
 
-  private HttpTx buildTx(Request request, long clientId, boolean shared, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
+  private HttpTx buildTx(Request request, long clientId, HttpListener listener, SslContext sslContext, SslContext alpnSslContext) {
     RequestTimeout requestTimeout = RequestTimeout.requestTimeout(request.getRequestTimeout(), listener);
-    ChannelPoolKey key = new ChannelPoolKey(shared ? -1 : clientId, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
+    ChannelPoolKey key = new ChannelPoolKey(clientId, RemoteKey.newKey(request.getUri(), request.getVirtualHost(), request.getProxyServer()));
     return new HttpTx(request, listener, requestTimeout, key, sslContext, alpnSslContext);
   }
 
@@ -762,8 +753,7 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   @Override
-  public void flushClientIdChannels(long clientId) {
-    EventLoop eventLoop = eventLoopPicker.eventLoopWithAffinity(clientId);
+  public void flushClientIdChannels(long clientId, EventLoop eventLoop) {
     if (eventLoop.inEventLoop()) {
       eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId);
     } else {

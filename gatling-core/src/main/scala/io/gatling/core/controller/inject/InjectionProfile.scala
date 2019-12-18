@@ -22,7 +22,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorSystem
+import io.netty.channel.EventLoopGroup
 
 trait InjectionProfileFactory[-InjectionStep] {
 
@@ -33,7 +33,14 @@ trait InjectionProfile {
 
   def totalUserCount: Option[Long]
 
-  def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock): Workload
+  def workload(
+      scenario: Scenario,
+      userIdGen: AtomicLong,
+      startTime: Long,
+      eventLoopGroup: EventLoopGroup,
+      statsEngine: StatsEngine,
+      clock: Clock
+  ): Workload
 
   //[fl]
   //

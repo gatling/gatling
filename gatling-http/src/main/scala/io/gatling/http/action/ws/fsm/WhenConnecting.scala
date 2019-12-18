@@ -49,6 +49,7 @@ trait WhenConnecting extends SslContextSupport { this: WsActor =>
       connectRequest,
       session.userId,
       httpProtocol.enginePart.shareConnections,
+      session.eventLoop,
       listener,
       userSslContexts.map(_.sslContext).orNull,
       userSslContexts.flatMap(_.alpnSslContext).orNull

@@ -19,6 +19,7 @@ package io.gatling.core.action
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session.el.El
 import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.StatsEngine
 
 import org.mockito.ArgumentCaptor
@@ -39,7 +40,7 @@ class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with Gi
     val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)
 
     When("being sent a Session that resolves the group name")
-    val session = Session("scenario", 0, clock.nowMillis).copy(attributes = Map("theGroupName" -> "foo"))
+    val session = EmptySession.copy(attributes = Map("theGroupName" -> "foo"))
     groupStart ! session
 
     Then("next Action should receive a Session")

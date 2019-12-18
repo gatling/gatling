@@ -48,7 +48,7 @@ object OpenInjectionProfileSpec {
       stream = UserStream(profile.steps),
       userIdGen = new AtomicLong,
       startTime = System.currentTimeMillis(),
-      system = null,
+      eventLoopGroup = null,
       statsEngine = null,
       clock = new FakeClock
     ) {

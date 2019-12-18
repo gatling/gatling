@@ -21,7 +21,7 @@ import java.util.{ HashMap => JHashMap }
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.jms.MockMessage
 import io.gatling.{ BaseSpec, ValidationValues }
 
@@ -31,8 +31,6 @@ import org.scalatest.prop.{ TableDrivenPropertyChecks, TableFor2 }
 
 class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport with TableDrivenPropertyChecks {
   override implicit def configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-
-  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def beIn[T](seq: Seq[T]) =
     new Matcher[T] {
@@ -64,54 +62,57 @@ class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessa
 
   forAll(jsons) { (response, messageType) =>
     s"jsonPath.find for $messageType" should "support long values" in {
-      jsonPath("$.long_value").ofType[Long].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.long_value").ofType[Long].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Long.MaxValue),
         None
       )
     }
 
     s"jsonPath.find.exists for $messageType" should "find single result into JSON serialized form" in {
-      jsonPath("$.street").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.street").find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some("""{"book":"On the street"}"""),
         None
       )
     }
 
     it should "find single result into Map object form" in {
-      jsonPath("$.street").ofType[Map[String, Any]].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.street").ofType[Map[String, Any]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Map("book" -> "On the street")),
         None
       )
     }
 
     it should "find a null attribute value when expected type is String" in {
-      jsonPath("$.null_value").ofType[String].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+      jsonPath("$.null_value").ofType[String].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
     }
 
     it should "find a null attribute value when expected type is Any" in {
-      jsonPath("$.null_value").ofType[Any].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+      jsonPath("$.null_value").ofType[Any].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
     }
 
     it should "find a null attribute value when expected type is Int" in {
-      jsonPath("$.null_value").ofType[Int].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.null_value").ofType[Int].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(null.asInstanceOf[Int]),
         None
       )
     }
 
     it should "find a null attribute value when expected type is Seq" in {
-      jsonPath("$.null_value").ofType[Seq[Any]].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+      jsonPath("$.null_value").ofType[Seq[Any]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+        Some(null),
+        None
+      )
     }
 
     it should "find a null attribute value when expected type is Map" in {
-      jsonPath("$.null_value").ofType[Map[String, Any]].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.null_value").ofType[Map[String, Any]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(null),
         None
       )
     }
 
     it should "succeed when expecting a null value and getting a null one" in {
-      jsonPath("$.null_value").ofType[Any].find.isNull.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+      jsonPath("$.null_value").ofType[Any].find.isNull.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
     }
 
     it should "fail when expecting a null value and getting a non-null one" in {
@@ -119,12 +120,15 @@ class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessa
         .ofType[Any]
         .find
         .isNull
-        .check(response, session, new JHashMap[Any, Any])
+        .check(response, EmptySession, new JHashMap[Any, Any])
         .failed shouldBe "jsonPath($.not_null_value).find.isNull, but actually found bar"
     }
 
     it should "succeed when expecting a non-null value and getting a non-null one" in {
-      jsonPath("$.not_null_value").ofType[Any].find.notNull.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("bar"), None)
+      jsonPath("$.not_null_value").ofType[Any].find.notNull.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+        Some("bar"),
+        None
+      )
     }
 
     it should "fail when expecting a non-null value and getting a null one" in {
@@ -132,12 +136,12 @@ class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessa
         .ofType[Any]
         .find
         .notNull
-        .check(response, session, new JHashMap[Any, Any])
+        .check(response, EmptySession, new JHashMap[Any, Any])
         .failed shouldBe "jsonPath($.null_value).find.notNull, but actually found null"
     }
 
     it should "not fail on empty array" in {
-      jsonPath("$.documents").ofType[Seq[_]].find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.documents").ofType[Seq[_]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Vector.empty),
         None
       )
@@ -145,21 +149,21 @@ class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessa
 
     s"jsonPath.findAll.exists for $messageType" should "fetch all matches" in {
 
-      jsonPath("$..book").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$..book").findAll.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Seq("In store", "On the street")),
         None
       )
     }
 
     it should "find all by wildcard" in {
-      jsonPath("$.*.book").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$.*.book").findAll.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Vector("In store", "On the street")),
         None
       )
     }
 
     s"jsonPath.findRandom.exists for $messageType" should "fetch a single random match" in {
-      jsonPath("$..book").findRandom.exists.check(response, session, new JHashMap[Any, Any]).succeeded.extractedValue.get.asInstanceOf[String] should beIn(
+      jsonPath("$..book").findRandom.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded.extractedValue.get.asInstanceOf[String] should beIn(
         Seq("In store", "On the street")
       )
     }
@@ -168,7 +172,7 @@ class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessa
       jsonPath("$..book")
         .findRandom(1)
         .exists
-        .check(response, session, new JHashMap[Any, Any])
+        .check(response, EmptySession, new JHashMap[Any, Any])
         .succeeded
         .extractedValue
         .get
@@ -176,14 +180,14 @@ class JmsJsonPathCheckSpec extends BaseSpec with ValidationValues with MockMessa
     }
 
     it should "fetch all the matches when expected number is greater" in {
-      jsonPath("$..book").findRandom(3).exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+      jsonPath("$..book").findRandom(3).exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
         Some(Seq("In store", "On the street")),
         None
       )
     }
 
     it should "fail when failIfLess is enabled and expected number is greater" in {
-      jsonPath("$..book").findRandom(3, failIfLess = true).exists.check(response, session, new JHashMap[Any, Any]).failed
+      jsonPath("$..book").findRandom(3, failIfLess = true).exists.check(response, EmptySession, new JHashMap[Any, Any]).failed
     }
   }
 }

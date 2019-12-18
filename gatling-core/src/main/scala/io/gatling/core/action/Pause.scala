@@ -16,18 +16,13 @@
 
 package io.gatling.core.action
 
-import scala.concurrent.duration.DurationLong
+import java.util.concurrent.TimeUnit
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorSystem
-
-class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action)
-    extends ExitableAction {
-
-  import actorSystem._
+class Pause(pauseDuration: Expression[Long], val statsEngine: StatsEngine, val clock: Clock, val name: String, val next: Action) extends ExitableAction {
 
   /**
    * Generates a duration if required or use the one given and defer
@@ -37,15 +32,14 @@ class Pause(pauseDuration: Expression[Long], actorSystem: ActorSystem, val stats
    */
   override def execute(session: Session): Unit = recover(session) {
 
-    def schedule(durationInMillis: Long): Unit =
-      try {
-        logger.debug(s"Pausing for ${durationInMillis}ms")
-        scheduler.scheduleOnce(durationInMillis milliseconds) {
-          next ! session
-        }
-      } catch {
-        case _: IllegalStateException => // engine was shutdown
-      }
+    def schedule(durationInMillis: Long): Unit = {
+      // can make pause
+      logger.debug(s"Pausing for ${durationInMillis}ms")
+
+      session.eventLoop.schedule((() => {
+        next ! session
+      }): Runnable, durationInMillis, TimeUnit.MILLISECONDS)
+    }
 
     pauseDuration(session).map(schedule)
   }

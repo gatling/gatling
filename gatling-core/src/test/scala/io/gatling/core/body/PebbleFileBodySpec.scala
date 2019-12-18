@@ -18,17 +18,15 @@ package io.gatling.core.body
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.session._
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.{ BaseSpec, ValidationValues }
 
 class PebbleFileBodySpec extends BaseSpec with ValidationValues {
 
   private val pebbleFileBodies: PebbleFileBodies = new PebbleFileBodies(GatlingFiles.resourcesDirectory(GatlingConfiguration.loadForTest()), Long.MaxValue)
 
-  private def newSession(attributes: Map[String, Any]) =
-    Session("scenario", 0, System.currentTimeMillis()).copy(attributes = attributes)
-
   "PebbleFileBody" should "support templates inheritance" in {
-    val session = newSession(Map("name" -> "Mitchell"))
+    val session = EmptySession.set("name", "Mitchell")
     val body = PebbleFileBody("pebble/home.html".expressionSuccess, pebbleFileBodies)
     body(session).succeeded shouldBe """<html>
                                        |<head>

@@ -22,6 +22,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.test._
 
 class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
@@ -33,8 +34,6 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
       val message1 = "Message 1"
       val message2 = "Message 2"
       val message3 = "Message 3"
-
-      val session = Session("Actual Scenario", 0, System.currentTimeMillis())
 
       val chain = buildChain {
         exec { session =>
@@ -53,7 +52,7 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
           }
       }
 
-      chain ! session
+      chain ! EmptySession
 
       expectMsg(message1)
       expectMsg(message2)
@@ -73,7 +72,7 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
         }
       }
 
-      chain ! Session("Scenario", 0, System.currentTimeMillis())
+      chain ! EmptySession
 
       expectMsgPF {
         case session: Session => session.status shouldBe KO
@@ -125,7 +124,7 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
         }
       }
 
-      chain ! Session("Scenario", 0, System.currentTimeMillis())
+      chain ! EmptySession
       expectMsg(message(1, 0, 0))
       expectMsgPF {
         case LogGroupEnd(session, group, _) =>

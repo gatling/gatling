@@ -26,10 +26,17 @@ import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 
-import akka.actor.ActorSystem
+import io.netty.channel.EventLoopGroup
 
-class OpenWorkload(scenario: Scenario, stream: UserStream, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock)
-    extends Workload(scenario, userIdGen, system, statsEngine, clock) {
+class OpenWorkload(
+    scenario: Scenario,
+    stream: UserStream,
+    userIdGen: AtomicLong,
+    startTime: Long,
+    eventLoopGroup: EventLoopGroup,
+    statsEngine: StatsEngine,
+    clock: Clock
+) extends Workload(scenario, userIdGen, eventLoopGroup, statsEngine, clock) {
 
   override def injectBatch(batchWindow: FiniteDuration): Unit = {
     val result = stream.withStream(batchWindow, clock.nowMillis, startTime)(injectUser)

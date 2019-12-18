@@ -41,6 +41,6 @@ final case class HttpComponents(
     session => {
       httpCaches.nameResolver(session).foreach(_.close())
       httpCaches.sslContexts(session).foreach(_.close())
-      httpEngine.flushClientIdChannels(session.userId)
+      httpEngine.flushClientIdChannels(session.userId, session.eventLoop)
     }
 }

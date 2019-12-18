@@ -30,6 +30,7 @@ import io.gatling.core.session.el.ElMessages
 import io.gatling.core.stats.message.ResponseTimings
 
 import com.typesafe.scalalogging.LazyLogging
+import io.netty.channel.EventLoop
 
 /**
  * Private Gatling Session attributes
@@ -62,15 +63,17 @@ object Session {
   def apply(
       scenario: String,
       userId: Long,
-      startDate: Long
+      startDate: Long,
+      eventLoop: EventLoop
   ): Session =
-    apply(scenario, userId, startDate, Session.NothingOnExit)
+    apply(scenario, userId, startDate, Session.NothingOnExit, eventLoop)
 
   private[core] def apply(
       scenario: String,
       userId: Long,
       startDate: Long,
-      onExit: Session => Unit
+      onExit: Session => Unit,
+      eventLoop: EventLoop
   ): Session =
     Session(
       scenario = scenario,
@@ -80,7 +83,8 @@ object Session {
       drift = 0L,
       baseStatus = OK,
       blockStack = Nil,
-      onExit = onExit
+      onExit = onExit,
+      eventLoop: EventLoop
     )
 }
 
@@ -107,7 +111,8 @@ final case class Session(
     drift: Long,
     baseStatus: Status,
     blockStack: List[Block],
-    onExit: Session => Unit
+    onExit: Session => Unit,
+    eventLoop: EventLoop
 ) extends LazyLogging {
 
   import Session._

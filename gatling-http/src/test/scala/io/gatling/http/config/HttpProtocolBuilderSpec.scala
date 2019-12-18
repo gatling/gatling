@@ -17,22 +17,12 @@
 package io.gatling.http.config
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.DefaultClock
-import io.gatling.core.CoreComponents
-import io.gatling.http.cache.HttpCaches
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolBuilder }
-
-import org.mockito.Mockito.when
 
 class HttpProtocolBuilderSpec extends BaseSpec {
 
-  private val configuration = GatlingConfiguration.loadForTest()
-  private val coreComponents = CoreComponents(null, null, null, null, new DefaultClock, null, configuration)
-  private val httpCaches = new HttpCaches(coreComponents)
-  private val httpEngine = mock[HttpEngine]
-  private val httpProtocolBuilder = HttpProtocolBuilder(configuration)
+  private val httpProtocolBuilder = HttpProtocolBuilder(GatlingConfiguration.loadForTest())
 
   "http protocol configuration builder" should "set a silent URI regex" in {
     val builder = httpProtocolBuilder

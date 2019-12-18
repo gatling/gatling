@@ -34,10 +34,11 @@ import io.gatling.core.stats.writer.RunMessage
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import com.typesafe.scalalogging.StrictLogging
+import io.netty.channel.EventLoopGroup
 
 private object Runner {
 
-  def apply(system: ActorSystem, configuration: GatlingConfiguration): Runner = {
+  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration): Runner = {
     configuration.resolve(
       // [fl]
       //
@@ -45,12 +46,12 @@ private object Runner {
       //
       //
       // [fl]
-      new Runner(system, new DefaultClock, configuration)
+      new Runner(system, eventLoopGroup, new DefaultClock, configuration)
     )
   }
 }
 
-private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
+private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
 
   private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult =
     configuration.core.directory.reportsOnly match {
@@ -81,10 +82,10 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
     val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, configuration.core.version)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
     val throttler = Throttler(system, simulationParams)
-    val injector = Injector(system, statsEngine, clock)
+    val injector = Injector(system, eventLoopGroup, statsEngine, clock)
     val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
     val exit = new Exit(injector, clock)
-    val coreComponents = CoreComponents(system, controller, throttler, statsEngine, clock, exit, configuration)
+    val coreComponents = CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
     logger.trace("CoreComponents instantiated")
 
     val scenarios = simulationParams.scenarios(coreComponents)

@@ -21,8 +21,9 @@ import java.nio.charset.StandardCharsets.UTF_8
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
-import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session.Session
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.engine.HttpEngine
@@ -38,10 +39,9 @@ import org.mockito.Mockito.when
 
 class CacheSupportSpec extends BaseSpec {
 
-  // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val coreComponents = CoreComponents(null, null, null, null, new DefaultClock, null, configuration)
+  private val coreComponents = CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
   class CacheContext {
@@ -110,7 +110,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   class RedirectContext {
-    var session: Session = Session("mockSession", 0, clock.nowMillis)
+    var session: Session = EmptySession
 
     def addRedirect(from: String, to: String): Unit = {
       val request = new RequestBuilder(HttpMethod.GET, Uri.create(from))

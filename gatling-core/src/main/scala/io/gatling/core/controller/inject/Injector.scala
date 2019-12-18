@@ -29,6 +29,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
+import io.netty.channel.EventLoopGroup
 
 sealed trait InjectorCommand
 object InjectorCommand {
@@ -41,11 +42,11 @@ object Injector {
   private val InjectorActorName = "gatling-injector"
   val TickPeriod: FiniteDuration = 1 second
 
-  def apply(system: ActorSystem, statsEngine: StatsEngine, clock: Clock): ActorRef =
-    system.actorOf(Props(new Injector(statsEngine, clock)), InjectorActorName)
+  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock): ActorRef =
+    system.actorOf(Props(new Injector(eventLoopGroup, statsEngine, clock)), InjectorActorName)
 }
 
-private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
+private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
 
   import Injector._
   import InjectorState._
@@ -59,7 +60,7 @@ private[inject] class Injector(statsEngine: StatsEngine, clock: Clock) extends I
   private def buildWorkloads(scenarios: List[Scenario]): Map[String, Workload] = {
     val startTime = clock.nowMillis
     scenarios.map { scenario =>
-      scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, system, statsEngine, clock)
+      scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
     }(breakOut)
   }
 

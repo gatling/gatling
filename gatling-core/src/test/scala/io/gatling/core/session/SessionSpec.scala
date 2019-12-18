@@ -16,16 +16,69 @@
 
 package io.gatling.core.session
 
+import java.util.{ Collection => JCollection, Iterator => JIterator, List => JList }
+import java.util.concurrent.{ Callable, Future => JFuture, TimeUnit }
+
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 
+import io.netty.channel.{ Channel, ChannelFuture, ChannelPromise, EventLoop, EventLoopGroup }
+import io.netty.util.concurrent.{ EventExecutor, Future => NFuture, ProgressivePromise, Promise, ScheduledFuture }
+
+object SessionSpec {
+  private val FakeEventLoop: EventLoop = new EventLoop {
+    override def inEventLoop(): Boolean = true
+    override def schedule(command: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture[_] = {
+      command.run()
+      null
+    }
+    override def execute(command: Runnable): Unit = command.run()
+
+    override def parent(): EventLoopGroup = throw new UnsupportedOperationException
+    override def next(): EventLoop = throw new UnsupportedOperationException
+    override def register(channel: Channel): ChannelFuture = throw new UnsupportedOperationException
+    override def register(promise: ChannelPromise): ChannelFuture = throw new UnsupportedOperationException
+    override def register(channel: Channel, promise: ChannelPromise): ChannelFuture = throw new UnsupportedOperationException
+    override def inEventLoop(thread: Thread): Boolean = throw new UnsupportedOperationException
+    override def newPromise[V](): Promise[V] = throw new UnsupportedOperationException
+    override def newProgressivePromise[V](): ProgressivePromise[V] = throw new UnsupportedOperationException
+    override def newSucceededFuture[V](result: V): NFuture[V] = throw new UnsupportedOperationException
+    override def newFailedFuture[V](cause: Throwable): NFuture[V] = throw new UnsupportedOperationException
+    override def isShuttingDown: Boolean = throw new UnsupportedOperationException
+    override def shutdownGracefully(): NFuture[_] = throw new UnsupportedOperationException
+    override def shutdownGracefully(quietPeriod: Long, timeout: Long, unit: TimeUnit): NFuture[_] = throw new UnsupportedOperationException
+    override def terminationFuture(): NFuture[_] = throw new UnsupportedOperationException
+    override def shutdown(): Unit = throw new UnsupportedOperationException
+    override def shutdownNow(): JList[Runnable] = throw new UnsupportedOperationException
+    override def iterator(): JIterator[EventExecutor] = throw new UnsupportedOperationException
+    override def submit(task: Runnable): NFuture[_] = throw new UnsupportedOperationException
+    override def submit[T](task: Runnable, result: T): NFuture[T] = throw new UnsupportedOperationException
+    override def submit[T](task: Callable[T]): NFuture[T] = throw new UnsupportedOperationException
+    override def schedule[V](callable: Callable[V], delay: Long, unit: TimeUnit): ScheduledFuture[V] = throw new UnsupportedOperationException
+    override def scheduleAtFixedRate(command: Runnable, initialDelay: Long, period: Long, unit: TimeUnit): ScheduledFuture[_] =
+      throw new UnsupportedOperationException
+    override def scheduleWithFixedDelay(command: Runnable, initialDelay: Long, delay: Long, unit: TimeUnit): ScheduledFuture[_] =
+      throw new UnsupportedOperationException
+    override def isShutdown: Boolean = throw new UnsupportedOperationException
+    override def isTerminated: Boolean = throw new UnsupportedOperationException
+    override def awaitTermination(timeout: Long, unit: TimeUnit): Boolean = throw new UnsupportedOperationException
+    override def invokeAll[T](tasks: JCollection[_ <: Callable[T]]): JList[JFuture[T]] = throw new UnsupportedOperationException
+    override def invokeAll[T](tasks: JCollection[_ <: Callable[T]], timeout: Long, unit: TimeUnit): JList[JFuture[T]] =
+      throw new UnsupportedOperationException
+    override def invokeAny[T](tasks: JCollection[_ <: Callable[T]]): T = throw new UnsupportedOperationException
+    override def invokeAny[T](tasks: JCollection[_ <: Callable[T]], timeout: Long, unit: TimeUnit): T = throw new UnsupportedOperationException
+  }
+
+  val EmptySession: Session = Session("Scenario", 0, 0L, SessionSpec.FakeEventLoop)
+}
+
 class SessionSpec extends BaseSpec {
 
   private val nextAction = mock[Action]
 
-  private def newSession = Session("scenario", 0, System.currentTimeMillis())
+  private def newSession = Session("scenario", 0, System.currentTimeMillis(), SessionSpec.FakeEventLoop)
 
   "setAll" should "set all give key/values pairs in session" in {
     val session = newSession.setAll("key" -> 1, "otherKey" -> 2)

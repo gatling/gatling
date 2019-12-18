@@ -34,6 +34,7 @@ import io.gatling.core.protocol.ProtocolComponentsRegistries
 import io.gatling.core.structure._
 
 import akka.actor.{ ActorRef, ActorSystem }
+import io.netty.channel.EventLoopGroup
 
 final case class ScenarioTestContext(scenarioContext: ScenarioContext, statsEngine: LoggingStatsEngine, exitAction: BlockingExitAction) {
 
@@ -70,7 +71,8 @@ trait ScenarioTestFixture extends BaseSpec {
 
     try {
       val statsEngine = new LoggingStatsEngine
-      val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], statsEngine, new DefaultClock, mock[Action], configuration)
+      val coreComponents =
+        CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], statsEngine, new DefaultClock, mock[Action], configuration)
       val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, Map.empty).scenarioRegistry(Map.empty)
       val scenarioContext = ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false)
       val exitAction = new BlockingExitAction(1)

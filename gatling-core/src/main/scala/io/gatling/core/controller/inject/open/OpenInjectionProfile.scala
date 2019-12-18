@@ -24,7 +24,7 @@ import io.gatling.core.controller.inject.{ InjectionProfile, Workload }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorSystem
+import io.netty.channel.EventLoopGroup
 
 /**
  * This class represents the configuration of a scenario
@@ -35,8 +35,15 @@ final case class OpenInjectionProfile(steps: Iterable[OpenInjectionStep]) extend
 
   override def totalUserCount: Option[Long] = Some(steps.sumBy(_.users))
 
-  override def workload(scenario: Scenario, userIdGen: AtomicLong, startTime: Long, system: ActorSystem, statsEngine: StatsEngine, clock: Clock): Workload =
-    new OpenWorkload(scenario: Scenario, UserStream(steps), userIdGen, startTime, system, statsEngine, clock)
+  override def workload(
+      scenario: Scenario,
+      userIdGen: AtomicLong,
+      startTime: Long,
+      eventLoopGroup: EventLoopGroup,
+      statsEngine: StatsEngine,
+      clock: Clock
+  ): Workload =
+    new OpenWorkload(scenario: Scenario, UserStream(steps), userIdGen, startTime, eventLoopGroup, statsEngine, clock)
 
   //[fl]
   //

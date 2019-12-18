@@ -21,6 +21,7 @@ import scala.util.control.NoStackTrace
 import io.gatling.BaseSpec
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 
 class ChainableActionSpec extends BaseSpec {
 
@@ -43,9 +44,10 @@ class ChainableActionSpec extends BaseSpec {
     var hasRun = false
 
     override val name = "test"
-    override def execute(session: Session) = recover(session) {
-      if (fail) "woops".failure
-      else {
+    override def execute(session: Session): Unit = recover(session) {
+      if (fail) {
+        "woops".failure
+      } else {
         hasRun = true
         "".success
       }
@@ -57,17 +59,16 @@ class ChainableActionSpec extends BaseSpec {
     val testAction = new ChainableTestAction(next, fail = false)
 
     testAction.hasRun shouldBe false
-    testAction ! Session("scenario", 0, System.currentTimeMillis())
+    testAction ! EmptySession
     testAction.hasRun shouldBe true
   }
 
   it should "send the session, failed, to the next actor when crashing" in {
     val next = new NextTestAction
     val testAction = new ChainableTestAction(next, fail = true)
-    val session = Session("scenario", 0, System.currentTimeMillis())
 
-    testAction ! session
-    next.message shouldBe session.markAsFailed
+    testAction ! EmptySession
+    next.message shouldBe EmptySession.markAsFailed
   }
 
   "A Failable Action" should "call the execute method when receiving a Session" in {
@@ -76,16 +77,15 @@ class ChainableActionSpec extends BaseSpec {
 
     testAction.hasRun shouldBe false
 
-    testAction ! Session("scenario", 0, System.currentTimeMillis())
+    testAction ! EmptySession
     testAction.hasRun shouldBe true
   }
 
   it should "send the session, failed, to the next actor when recovering a Failure" in {
     val next = new NextTestAction
     val testAction = new FailableTestAction(next, fail = true)
-    val session = Session("scenario", 0, System.currentTimeMillis())
 
-    testAction ! session
-    next.message shouldBe session.markAsFailed
+    testAction ! EmptySession
+    next.message shouldBe EmptySession.markAsFailed
   }
 }

@@ -24,7 +24,7 @@ import io.gatling.core.check.CheckResult
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session._
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheckMaterializer
 import io.gatling.http.response.{ Response, StringResponseBody }
@@ -37,8 +37,6 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
 
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   implicit val materializer: HttpCheckMaterializer[JsonPathCheckType, JsonNode] = new HttpBodyJsonPathCheckMaterializer(new JsonParsers)
-
-  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private def mockResponse(body: String): Response =
     Response(
@@ -65,7 +63,7 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
 
   "jsonpJsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonpJsonPath("$.street").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonpJsonPath("$.street").find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
       Some("""{"book":"On the street"}"""),
       None
     )

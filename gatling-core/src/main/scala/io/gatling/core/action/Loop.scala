@@ -20,8 +20,6 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorSystem
-
 class Loop(
     continueCondition: Expression[Boolean],
     counterName: String,
@@ -35,7 +33,7 @@ class Loop(
 
   private[this] var innerLoop: Action = _
 
-  private[core] def initialize(loopNext: Action, actorSystem: ActorSystem): Unit = {
+  private[core] def initialize(loopNext: Action): Unit = {
 
     val counterIncrement = (session: Session) =>
       if (session.contains(counterName)) {
@@ -46,7 +44,7 @@ class Loop(
         session.enterLoop(counterName, continueCondition, next, exitASAP)
       }
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, actorSystem, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
@@ -60,7 +58,6 @@ class InnerLoop(
     loopNext: Action,
     counterIncrement: Session => Session,
     counterName: String,
-    actorSystem: ActorSystem,
     val name: String,
     val next: Action
 ) extends ChainableAction {
@@ -86,9 +83,9 @@ class InnerLoop(
     if (LoopBlock.continue(continueCondition, incrementedSession)) {
 
       if (incrementedSession.userId == lastUserId) {
-        // except if we're running only one user, it's very likely we're hitting an empty loop
+        // except if we're running only one user per core, it's very likely we're hitting an empty loop
         // let's dispatch so we don't spin
-        actorSystem.dispatcher.execute(() => loopNext ! incrementedSession)
+        session.eventLoop.execute(() => loopNext ! incrementedSession)
 
       } else {
         loopNext ! incrementedSession

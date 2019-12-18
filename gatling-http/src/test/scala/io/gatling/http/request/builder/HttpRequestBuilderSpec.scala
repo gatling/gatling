@@ -23,6 +23,7 @@ import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
@@ -39,7 +40,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val coreComponents = CoreComponents(mock[ActorSystem], null, null, null, clock, null, configuration)
+  private val coreComponents = CoreComponents(mock[ActorSystem], null, null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
   private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
@@ -52,7 +53,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     httpRequestDef(_.sign(new SignatureCalculator {
       override def sign(request: Request): Unit = request.getHeaders.add("X-Token", "foo")
     }.expressionSuccess))
-      .build("requestName", Session("scenarioName", 0, clock.nowMillis))
+      .build("requestName", EmptySession)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
         writableRequest.getRequest.headers.get("X-Token")
@@ -63,7 +64,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   "form" should "work when overriding a value" in {
 
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
-    val session = Session("scenarioName", 0, clock.nowMillis).set("form", form).set("formParamToOverride", "bar")
+    val session = EmptySession.set("form", form).set("formParamToOverride", "bar")
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
@@ -75,7 +76,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   it should "work when passing only formParams" in {
 
-    val session = Session("scenarioName", 0, clock.nowMillis).set("formParam", "bar")
+    val session = EmptySession.set("formParam", "bar")
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
@@ -88,7 +89,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   it should "work when passing only a form" in {
 
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
-    val session = Session("scenarioName", 0, clock.nowMillis).set("form", form)
+    val session = EmptySession.set("form", form)
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)

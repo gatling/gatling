@@ -17,12 +17,11 @@
 package io.gatling.http.action.polling
 
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.commons.validation.Failure
 import io.gatling.core.session._
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.DataWritersStatsEngine
 import io.gatling.core.stats.writer.{ ErrorMessage, Init, RunMessage }
@@ -39,9 +38,7 @@ import akka.testkit._
 class PollerActorSpec extends AkkaSpec {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-
   private val requestName = "foo".expressionSuccess
-
   private val clock = new DefaultClock
 
   private def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, null)
@@ -58,23 +55,20 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val poller = createPollerActor(1.second, newHttpRequestDef, mock[HttpEngine], dataWriterProbe)
 
-    val session = Session("scenario", 0, System.currentTimeMillis())
-
-    poller ! StartPolling(session)
+    poller ! StartPolling(EmptySession)
 
     poller.isTimerActive(PollerActor.PollTimerName) shouldBe true
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
-    poller.stateData shouldBe PollingData(session)
+    poller.stateData shouldBe PollingData(EmptySession)
   }
 
   it should "do nothing if the request name could not be resolved and fail the session" in {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, newHttpRequestDef, mockHttpEngine, dataWriterProbe)
-    val session = Session("scenario", 0, System.currentTimeMillis())
 
-    poller ! StartPolling(session)
+    poller ! StartPolling(EmptySession)
     Thread.sleep(2.seconds.toMillis)
 
     poller.stateName shouldBe Polling
@@ -87,9 +81,8 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, newHttpRequestDef, mockHttpEngine, dataWriterProbe)
-    val session = Session("scenario", 0, System.currentTimeMillis())
 
-    poller ! StartPolling(session)
+    poller ! StartPolling(EmptySession)
     Thread.sleep(2.seconds.toMillis)
 
     poller.stateName shouldBe Polling
@@ -136,6 +129,5 @@ class PollerActorSpec extends AkkaSpec {
       )
     )
 
-  def failedExpr[T: ClassTag]: Expression[T] =
-    session => Failure("Failed expression")
+  def failedExpr[T]: Expression[T] = "Failed expression".expressionFailure
 }

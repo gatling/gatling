@@ -29,6 +29,7 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries, Protocols }
 import io.gatling.core.session.{ Session, StaticValueExpression }
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.jms._
@@ -36,6 +37,7 @@ import io.gatling.jms.protocol.JmsProtocolBuilder
 import io.gatling.jms.request._
 
 import akka.actor.ActorRef
+import io.netty.channel.EventLoopGroup
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
 
@@ -114,11 +116,11 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
       implicit configuration: GatlingConfiguration
   ): Session = {
     val clock = new DefaultClock
-    val coreComponents = CoreComponents(system, mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
+    val coreComponents = CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val next = new ActorDelegatingAction("next", self)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    actor ! Session("TestSession", 0, clock.nowMillis)
+    actor ! EmptySession
     val session = expectMsgClass(timeout, classOf[Session])
 
     session

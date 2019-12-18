@@ -42,7 +42,7 @@ public class MultipleRequestsMain {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
+          LOGGER.info(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch1.countDown();
         }
 
@@ -58,7 +58,7 @@ public class MultipleRequestsMain {
       client.execute(request, 0, true, new ResponseAsStringListener() {
         @Override
         public void onComplete() {
-          LOGGER.debug(new DefaultResponse<>(status, headers, responseBody()).toString());
+          LOGGER.info(new DefaultResponse<>(status, headers, responseBody()).toString());
           latch2.countDown();
         }
 

@@ -24,7 +24,7 @@ import io.gatling.core.CoreDsl
 import io.gatling.core.check.CheckResult
 import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session._
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.{ HttpCheckMaterializer, HttpCheckSupport }
 import io.gatling.http.response.{ Response, StringResponseBody }
@@ -37,8 +37,6 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: HttpCheckMaterializer[RegexCheckType, CharSequence] = HttpBodyRegexCheckMaterializer
-
-  private val session = Session("mockSession", 0, System.currentTimeMillis())
 
   private val regexCheck = super[CoreDsl].regex(_)
 
@@ -59,17 +57,17 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   "regex.find.exists" should "find single result" in {
     val response = mockResponse("""{"id":"1072920417"}""")
-    regexCheck(""""id":"(.+?)"""").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regexCheck(""""id":"(.+?)"""").find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").find.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regexCheck(""""id":"(.+?)"""").find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "regex.findAll.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").findAll.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    regexCheck(""""id":"(.+?)"""").findAll.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
       Some(Seq("1072920417", "1072920418")),
       None
     )
@@ -78,7 +76,9 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   it should "fail when finding nothing instead of returning an empty Seq" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regexCheck(regexValue).findAll.exists.check(response, session, new JHashMap[Any, Any]).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
+    regexCheck(regexValue).findAll.exists
+      .check(response, EmptySession, new JHashMap[Any, Any])
+      .failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
   it should "fail with expected message when transforming" in {
@@ -87,18 +87,18 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
     regexCheck(regexValue).findAll
       .transform(_.map(_ + "foo"))
       .exists
-      .check(response, session, new JHashMap[Any, Any])
+      .check(response, EmptySession, new JHashMap[Any, Any])
       .failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regexCheck(""""id":"(.+?)"""").count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
+    regexCheck(""""id":"(.+?)"""").count.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regexCheck(regexValue).count.exists.check(response, session, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
+    regexCheck(regexValue).count.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

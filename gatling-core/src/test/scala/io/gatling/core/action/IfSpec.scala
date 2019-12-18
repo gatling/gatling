@@ -17,7 +17,7 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.session.Session
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el.El
 import io.gatling.core.stats.StatsEngine
 
@@ -30,7 +30,6 @@ class IfSpec extends AnyFlatSpec with MockitoSugar with GivenWhenThen {
 
   private val clock = new DefaultClock
   private val condition = "${condition}".el[Boolean]
-  private val baseSession = Session("scenario", 0, clock.nowMillis)
 
   "If" should "send the session to thenNext when condition evaluates to true" in {
 
@@ -40,7 +39,7 @@ class IfSpec extends AnyFlatSpec with MockitoSugar with GivenWhenThen {
     val ifAction = new If(condition, thenNext, elseNext, mock[StatsEngine], clock, mock[Action])
 
     When("being sent a Session that causes condition to be evaluated as true")
-    val session = baseSession.set("condition", true)
+    val session = EmptySession.set("condition", true)
     ifAction ! session
 
     Then("Session should be propagated to thenNext")
@@ -58,7 +57,7 @@ class IfSpec extends AnyFlatSpec with MockitoSugar with GivenWhenThen {
     val ifAction = new If(condition, thenNext, elseNext, mock[StatsEngine], clock, mock[Action])
 
     When("being sent a Session that causes condition to be evaluated as false")
-    val session = baseSession.set("condition", false)
+    val session = EmptySession.set("condition", false)
     ifAction ! session
 
     Then("Session should be propagated to elseNext")

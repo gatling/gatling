@@ -17,15 +17,16 @@
 package io.gatling.http.client;
 
 import io.gatling.http.client.util.Pair;
+import io.netty.channel.EventLoop;
 import io.netty.handler.ssl.SslContext;
 
 public interface HttpClient extends AutoCloseable {
 
-  void sendRequest(Request request, long clientId, boolean shared, HttpListener listener, SslContext sslContext, SslContext alpnSslContext);
+  void sendRequest(Request request, long clientId, EventLoop eventLoop, HttpListener listener, SslContext sslContext, SslContext alpnSslContext);
 
-  void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, boolean shared, SslContext sslContext, SslContext alpnSslContext);
+  void sendHttp2Requests(Pair<Request, HttpListener>[] requestsAndListeners, long clientId, EventLoop eventLoop, SslContext sslContext, SslContext alpnSslContext);
 
   boolean isClosed();
 
-  void flushClientIdChannels(long clientId);
+  void flushClientIdChannels(long clientId, EventLoop eventLoop);
 }

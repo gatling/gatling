@@ -34,7 +34,14 @@ trait Action extends StrictLogging {
 
   def name: String
 
-  def !(session: Session): Unit = execute(session)
+  def !(session: Session): Unit = {
+    val evenLoop = session.eventLoop
+    if (evenLoop.inEventLoop) {
+      execute(session)
+    } else {
+      evenLoop.execute(() => execute(session))
+    }
+  }
 
   /**
    * Core method executed when the Action received a Session message

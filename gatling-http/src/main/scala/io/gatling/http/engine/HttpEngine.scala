@@ -17,7 +17,6 @@
 package io.gatling.http.engine
 
 import java.net.InetSocketAddress
-import java.util.concurrent.TimeUnit
 
 import scala.concurrent.{ Await, Promise }
 import scala.concurrent.duration._
@@ -36,11 +35,11 @@ import io.gatling.http.request.builder.Http
 import io.gatling.http.resolver.ExtendedDnsNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.{ Pair => JavaPair }
-import io.gatling.http.util.{ EventLoops, SslContexts, SslContextsFactory }
+import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
-import io.netty.channel.EventLoopGroup
+import io.netty.channel.{ EventLoop, EventLoopGroup }
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod, HttpResponseStatus }
 import io.netty.handler.ssl.SslContext
 import javax.net.ssl.KeyManagerFactory
@@ -49,15 +48,14 @@ object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {
     val sslContextsFactory = new SslContextsFactory(coreComponents.configuration.http)
     val httpClient = HttpClientFactory(coreComponents, sslContextsFactory).newClient
-    val dnsEventLoopGroup = EventLoops.newEventLoopGroup(coreComponents.configuration.http.advanced.useNativeTransport, 0, "gatling-dns")
-    new HttpEngine(sslContextsFactory, httpClient, dnsEventLoopGroup, coreComponents.configuration)
+    new HttpEngine(sslContextsFactory, httpClient, coreComponents.eventLoopGroup, coreComponents.configuration)
   }
 }
 
 class HttpEngine(
     sslContextsFactory: SslContextsFactory,
     httpClient: HttpClient,
-    dnsEventLoopGroup: EventLoopGroup,
+    eventLoopGroup: EventLoopGroup,
     configuration: GatlingConfiguration
 ) extends AutoCloseable
     with NameGen
@@ -87,13 +85,14 @@ class HttpEngine(
             .setDefaultCharset(configuration.core.charset)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
+          val eventLoop = eventLoopGroup.next()
 
           try {
             val p = Promise[Unit]
             httpClient.sendRequest(
               requestBuilder.build,
               0,
-              true,
+              eventLoop,
               new HttpListener {
                 override def onHttpResponse(httpResponseStatus: HttpResponseStatus, httpHeaders: HttpHeaders): Unit = {}
 
@@ -116,7 +115,7 @@ class HttpEngine(
               else
                 logger.info(s"Couldn't execute warm up request $url: ${e.rootMessage}")
           } finally {
-            httpClient.flushClientIdChannels(0)
+            httpClient.flushClientIdChannels(0, eventLoop)
           }
 
         case _ =>
@@ -138,25 +137,34 @@ class HttpEngine(
       logger.info("Warm up done")
     }
 
-  def executeHttp2Requests(
-      requestsAndListeners: Iterable[JavaPair[Request, HttpListener]],
+  def executeRequest(
+      clientRequest: Request,
       clientId: Long,
       shared: Boolean,
+      eventLoop: EventLoop,
+      listener: HttpListener,
       sslContext: SslContext,
       alpnSslContext: SslContext
   ): Unit =
     if (!httpClient.isClosed) {
-      httpClient.sendHttp2Requests(requestsAndListeners.toArray, clientId, shared, sslContext, alpnSslContext)
+      httpClient.sendRequest(clientRequest, if (shared) -1 else clientId, eventLoop, listener, sslContext, alpnSslContext)
     }
 
-  def executeRequest(ahcRequest: Request, clientId: Long, shared: Boolean, listener: HttpListener, sslContext: SslContext, alpnSslContext: SslContext): Unit =
+  def executeHttp2Requests(
+      requestsAndListeners: Iterable[JavaPair[Request, HttpListener]],
+      clientId: Long,
+      shared: Boolean,
+      eventLoop: EventLoop,
+      sslContext: SslContext,
+      alpnSslContext: SslContext
+  ): Unit =
     if (!httpClient.isClosed) {
-      httpClient.sendRequest(ahcRequest, clientId, shared, listener, sslContext, alpnSslContext)
+      httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, sslContext, alpnSslContext)
     }
 
-  def newAsyncDnsNameResolver(dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
+  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
     new ExtendedDnsNameResolver(
-      dnsEventLoopGroup.next(),
+      eventLoop,
       configuration.http.dns.queryTimeout.toMillis.toInt,
       configuration.http.dns.maxQueriesPerResolve,
       dnsServers
@@ -165,13 +173,11 @@ class HttpEngine(
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts =
     sslContextsFactory.newSslContexts(http2Enabled, perUserKeyManagerFactory)
 
-  def flushClientIdChannels(clientId: Long): Unit =
+  def flushClientIdChannels(clientId: Long, eventLoop: EventLoop): Unit =
     if (!httpClient.isClosed) {
-      httpClient.flushClientIdChannels(clientId)
+      httpClient.flushClientIdChannels(clientId, eventLoop)
     }
 
-  override def close(): Unit = {
+  override def close(): Unit =
     httpClient.close()
-    dnsEventLoopGroup.shutdownGracefully(0, 5, TimeUnit.SECONDS)
-  }
 }

@@ -54,7 +54,7 @@ abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP
     val loopAction =
       new Loop(actualCondition, counterName, exitASAP, loopType.timeBased, coreComponents.statsEngine, ctx.coreComponents.clock, genName(loopType.name), next)
     val loopNextAction = loopNext.build(ctx, loopAction)
-    loopAction.initialize(loopNextAction, ctx.coreComponents.actorSystem)
+    loopAction.initialize(loopNextAction)
     loopAction
   }
 }

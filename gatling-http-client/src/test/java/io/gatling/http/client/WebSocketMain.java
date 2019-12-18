@@ -46,35 +46,35 @@ public class WebSocketMain {
       client.execute(request, 0, true, new WebSocketListener() {
           @Override
           public void onWebSocketOpen() {
-            LOGGER.debug(">>>>>>onWebSocketOpen");
+            LOGGER.info(">>>>>>onWebSocketOpen");
             sendFrame(new TextWebSocketFrame("HELLO!!!"));
           }
 
           @Override
           public void onTextFrame(TextWebSocketFrame frame) {
-            LOGGER.debug(">>>>>>onTextFrame " + frame.text());
+            LOGGER.info(">>>>>>onTextFrame " + frame.text());
             sendFrame(new CloseWebSocketFrame());
             latch.countDown();
           }
 
           @Override
           public void onBinaryFrame(BinaryWebSocketFrame frame) {
-            LOGGER.debug(">>>>>>onBinaryFrame");
+            LOGGER.info(">>>>>>onBinaryFrame");
           }
 
           @Override
           public void onPongFrame(PongWebSocketFrame frame) {
-            LOGGER.debug(">>>>>>onPongFrame");
+            LOGGER.info(">>>>>>onPongFrame");
           }
 
           @Override
           public void onCloseFrame(CloseWebSocketFrame frame) {
-            LOGGER.debug(">>>>>>onCloseFrame");
+            LOGGER.info(">>>>>>onCloseFrame");
           }
 
           @Override
           public void onHttpResponse(HttpResponseStatus status, HttpHeaders headers) {
-            LOGGER.debug(">>>>>>onHttpResponse " + status);
+            LOGGER.info(">>>>>>onHttpResponse " + status);
           }
 
           @Override
@@ -83,7 +83,7 @@ public class WebSocketMain {
 
           @Override
           public void onThrowable(Throwable e) {
-            LOGGER.debug(">>>>>>onThrowable");
+            LOGGER.info(">>>>>>onThrowable");
             e.printStackTrace();
             latch.countDown();
           }
