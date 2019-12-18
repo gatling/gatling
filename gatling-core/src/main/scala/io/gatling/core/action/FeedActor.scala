@@ -41,10 +41,10 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
           safely(error => s"Feeder crashed: $error")(feeder.next().success)
         }
 
-      def feedRecords(numberOfRecords: Int): Validation[Session] =
+      def pollNewAttributes(numberOfRecords: Int): Validation[Record[T]] =
         numberOfRecords match {
           case 1 =>
-            pollRecord().map(session.setAll)
+            pollRecord()
           case n if n > 0 =>
             val translatedRecords = Iterator
               .tabulate(n) { i =>
@@ -56,19 +56,20 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
                   record2 <- record2V
                 } yield record1 ++ record2
               }
-            translatedRecords.map(session.setAll)
+            translatedRecords
           case _ => s"$numberOfRecords is not a valid number of records".failure
         }
 
-      val newSession = number(session).flatMap(feedRecords) match {
-        case Success(s) => s
-        case Failure(message) =>
-          logger.error(s"Feed failed: $message, please report.")
-          controller ! ControllerCommand.Crash(new IllegalStateException(message))
-          session
-      }
+      val newAttributesV =
+        for {
+          num <- number(session)
+          newAttributes <- pollNewAttributes(num)
+        } yield newAttributes
 
-      next ! newSession
+      newAttributesV match {
+        case Success(newAttributes) => next ! session.setAll(newAttributes)
+        case Failure(message)       => controller ! ControllerCommand.Crash(new IllegalStateException(message))
+      }
   }
 
   override def postStop(): Unit =

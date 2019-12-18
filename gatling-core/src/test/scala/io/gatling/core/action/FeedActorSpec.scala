@@ -36,7 +36,6 @@ class FeedActorSpec extends AkkaSpec {
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
     feedActor ! FeedMessage(session, failingExpr, new ActorDelegatingAction("next", self))
-    expectMsg(session)
     controller.expectMsgType[Crash]
   }
 
@@ -45,11 +44,9 @@ class FeedActorSpec extends AkkaSpec {
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
     feedActor ! FeedMessage(session, 0.expressionSuccess, new ActorDelegatingAction("next", self))
-    expectMsg(session)
     controller.expectMsgType[Crash]
 
     feedActor ! FeedMessage(session, (-1).expressionSuccess, new ActorDelegatingAction("next", self))
-    expectMsg(session)
     controller.expectMsgType[Crash]
   }
 
@@ -58,7 +55,6 @@ class FeedActorSpec extends AkkaSpec {
     val feedActor = createFeedActor(Iterator.empty, controller)
 
     feedActor ! FeedMessage(session, 1.expressionSuccess, new ActorDelegatingAction("next", self))
-    expectMsg(session)
     controller.expectMsgType[Crash]
   }
 
