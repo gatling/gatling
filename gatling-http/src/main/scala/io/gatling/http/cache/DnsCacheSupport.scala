@@ -29,100 +29,80 @@ import io.gatling.http.util.HttpTypeCaster
 import io.netty.resolver.NameResolver
 import io.netty.util.concurrent.{ Future, Promise }
 
-private[cache] object DnsCacheSupport {
+private object DnsCacheSupport {
 
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
-
-  private def newNameResolver(
-      dnsNameResolution: DnsNameResolution,
-      hostNameAliases: Map[String, InetAddress],
-      httpEngine: HttpEngine,
-      coreComponents: CoreComponents
-  ) =
-    coreComponents.configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      dnsNameResolution match {
-        case JavaDnsNameResolution =>
-          val shuffleJdkNameResolver = new ShuffleJdkNameResolver
-          if (hostNameAliases.isEmpty) {
-            shuffleJdkNameResolver
-          } else {
-            new AliasesAwareNameResolver(hostNameAliases, shuffleJdkNameResolver)
-          }
-
-        case AsyncDnsNameResolution(dnsServers) =>
-          val nameResolver = httpEngine.newAsyncDnsNameResolver(dnsServers)
-          if (hostNameAliases.isEmpty) {
-            nameResolver
-          } else {
-            new AliasesAwareNameResolver(hostNameAliases, nameResolver)
-          }
-      }
-    )
 }
 
-private[cache] trait DnsCacheSupport {
+private class NoopCloseNameResolver(wrapped: NameResolver[InetAddress]) extends NameResolver[InetAddress] {
+  override def resolve(inetHost: String): Future[InetAddress] =
+    wrapped.resolve(inetHost)
+
+  override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] =
+    wrapped.resolve(inetHost, promise)
+
+  override def resolveAll(inetHost: String): Future[JList[InetAddress]] =
+    wrapped.resolveAll(inetHost)
+
+  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] =
+    wrapped.resolveAll(inetHost, promise)
+
+  override def close(): Unit = {}
+}
+
+private[http] trait DnsCacheSupport {
 
   import DnsCacheSupport._
 
   def coreComponents: CoreComponents
+
+  private def newNameResolver(
+      dnsNameResolution: DnsNameResolution,
+      hostNameAliases: Map[String, InetAddress],
+      httpEngine: HttpEngine
+  ): NameResolver[InetAddress] = {
+    val resolver: NameResolver[InetAddress] =
+      coreComponents.configuration.resolve(
+        // [fl]
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        //
+        // [fl]
+        dnsNameResolution match {
+          case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
+          case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(dnsServers)
+        }
+      )
+
+    if (hostNameAliases.isEmpty) {
+      resolver
+    } else {
+      new AliasesAwareNameResolver(hostNameAliases, resolver)
+    }
+  }
 
   def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
 
     import httpProtocol.dnsPart._
 
     if (perUserNameResolution) {
-      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, coreComponents))
+      _.set(DnsNameResolverAttributeName, newNameResolver(dnsNameResolution, hostNameAliases, httpEngine))
 
     } else {
       // create shared name resolver for all the users with this protocol
-      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine, coreComponents)
-      coreComponents.actorSystem.registerOnTermination(() => nameResolver.close())
-
+      val nameResolver = newNameResolver(dnsNameResolution, hostNameAliases, httpEngine)
+      coreComponents.actorSystem.registerOnTermination(nameResolver.close())
       // perform close on system shutdown instead of virtual user termination as its shared
-      val noopCloseNameResolver = new NameResolver[InetAddress] {
-        override def resolve(inetHost: String): Future[InetAddress] =
-          nameResolver.resolve(inetHost)
-
-        override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] =
-          nameResolver.resolve(inetHost, promise)
-
-        override def resolveAll(inetHost: String): Future[JList[InetAddress]] =
-          nameResolver.resolveAll(inetHost)
-
-        override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] =
-          nameResolver.resolveAll(inetHost, promise)
-
-        override def close(): Unit = {}
-      }
+      val noopCloseNameResolver = new NoopCloseNameResolver(nameResolver)
 
       _.set(DnsNameResolverAttributeName, noopCloseNameResolver)
     }
