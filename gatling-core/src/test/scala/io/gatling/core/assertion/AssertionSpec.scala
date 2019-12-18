@@ -88,15 +88,15 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
 
   "AssertionValidator" should "fail the assertion when the request path does not exist" in {
     val requestStats = Stats(GeneralStats.NoPlot, requestName = "bar")
-    val source1 = generalStatsSource[Int](details("foo").requestsPerSec, List(_.is(100)), requestStats)
+    val source1 = generalStatsSource[Double](details("foo").requestsPerSec, List(_.is(100)), requestStats)
     validateAssertions(source1) shouldBe false
 
     val groupStats = Stats(GeneralStats.NoPlot, groupPath = List("bar"))
-    val source2 = generalStatsSource[Int](details("foo").requestsPerSec, List(_.is(100)), groupStats)
+    val source2 = generalStatsSource[Double](details("foo").requestsPerSec, List(_.is(100)), groupStats)
     validateAssertions(source2) shouldBe false
 
     val requestAndGroupStats = Stats(GeneralStats.NoPlot, requestName = "baz", groupPath = List("bar"))
-    val source3 = generalStatsSource[Int](details("baz").requestsPerSec, List(_.is(100)), requestAndGroupStats)
+    val source3 = generalStatsSource[Double](details("baz").requestsPerSec, List(_.is(100)), requestAndGroupStats)
     validateAssertions(source3) shouldBe false
   }
 
@@ -104,7 +104,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   it should "be able to validate a meanRequestsPerSec assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
       val requestAndGroupStats = modifier(Stats(GeneralStats.NoPlot.copy(meanRequestsPerSec = 5)))
-      val conditions: Conditions[Int] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
+      val conditions: Conditions[Double] = List(_.lte(10), _.gte(3), _.is(5), _.between(4, 6), _.in(1, 3, 5, 7))
       val source3 = generalStatsSource(details("foo").requestsPerSec, conditions, requestAndGroupStats)
       validateAssertions(source3) shouldBe true
     }

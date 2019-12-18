@@ -25,7 +25,7 @@ class AssertionWithPath(path: AssertionPath)(implicit configuration: GatlingConf
   def allRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, AllRequests)
   def failedRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, FailedRequests)
   def successfulRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, SuccessfulRequests)
-  def requestsPerSec: AssertionWithPathAndTarget[Int] = new AssertionWithPathAndTarget[Int](path, MeanRequestsPerSecondTarget)
+  def requestsPerSec: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, MeanRequestsPerSecondTarget)
 }
 
 class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric)(implicit configuration: GatlingConfiguration) {
