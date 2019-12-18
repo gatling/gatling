@@ -236,6 +236,7 @@ class CoreCompileTest extends Simulation {
     .assertions(
       global.responseTime.mean.lte(50),
       global.responseTime.max.between(50, 500),
+      global.responseTime.max.around(50, 5),
       global.successfulRequests.count.gte(1500),
       global.responseTime.percentile1.lt(100),
       global.responseTime.percentile(99.999).lt(100),

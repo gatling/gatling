@@ -63,6 +63,9 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
   def gte(threshold: T): Assertion = next(Gte(numeric.toDouble(threshold)))
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def between(min: T, max: T, inclusive: Boolean = true): Assertion = next(Between(numeric.toDouble(min), numeric.toDouble(max), inclusive))
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def around(mean: T, plusOrMinus: T, inclusive: Boolean = true): Assertion =
+    between(numeric.minus(mean, plusOrMinus), numeric.plus(mean, plusOrMinus), inclusive)
   def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
   def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))
   def in(values: T*): Assertion = in(values.toSet)

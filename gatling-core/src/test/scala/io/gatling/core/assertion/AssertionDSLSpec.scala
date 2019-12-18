@@ -49,6 +49,6 @@ class AssertionDSLSpec extends BaseSpec with AssertionSupport {
     global.successfulRequests.percent.is(6) shouldBe Assertion(Global, PercentTarget(SuccessfulRequests), Is(6))
 
     global.requestsPerSec.is(35) shouldBe Assertion(Global, MeanRequestsPerSecondTarget, Is(35))
-
+    global.requestsPerSec.around(35, 3) shouldBe Assertion(Global, MeanRequestsPerSecondTarget, Between(32, 38, inclusive = true))
   }
 }

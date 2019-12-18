@@ -111,6 +111,10 @@ Conditions can be chained to apply several conditions on the same metric.
 
 * ``between(thresholdMin, thresholdMax, inclusive = false)``: same as above but doesn't include bounds
 
+* ``around(value, plusOrMinus)``: check that the value of the metric is around a target value plus or minus a given margin.
+
+* ``around(value, plusOrMinus, inclusive = false)``: same as above but doesn't include bounds
+
 * ``is(value)``: check that the value of the metric is equal to the given value.
 
 * ``in(sequence)``: check that the value of metric is in a sequence.
