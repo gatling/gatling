@@ -55,7 +55,6 @@ object HttpProtocol extends StrictLogging {
 
       httpProtocol => {
         val httpComponents = HttpComponents(
-          coreComponents,
           httpProtocol,
           httpEngine,
           httpCaches,

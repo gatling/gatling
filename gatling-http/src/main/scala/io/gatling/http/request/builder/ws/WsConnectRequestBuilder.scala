@@ -16,6 +16,7 @@
 
 package io.gatling.http.request.builder.ws
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 import io.gatling.http.action.ws.WsConnectBuilder
 import io.gatling.http.client.Request
@@ -35,12 +36,12 @@ final case class WsConnectRequestBuilder(commonAttributes: CommonAttributes, wsN
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new WsConnectRequestBuilder(commonAttributes, wsName, subprotocol)
 
-  def build(httpComponents: HttpComponents): Expression[Request] =
+  def build(httpComponents: HttpComponents, configuration: GatlingConfiguration): Expression[Request] =
     new WsRequestExpressionBuilder(
       commonAttributes,
       httpComponents.httpCaches,
       httpComponents.httpProtocol,
-      httpComponents.coreComponents.configuration,
+      configuration,
       subprotocol
     ).build
 }

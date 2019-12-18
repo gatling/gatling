@@ -18,6 +18,7 @@ package io.gatling.http.action.ws
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
+import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
@@ -34,6 +35,7 @@ class WsConnect(
     request: Expression[Request],
     connectCheckSequences: List[WsFrameCheckSequence[WsFrameCheck]],
     onConnected: Option[Action],
+    coreComponents: CoreComponents,
     httpComponents: HttpComponents,
     val next: Action
 ) extends RequestAction
@@ -42,9 +44,9 @@ class WsConnect(
 
   override val name: String = genName("wsConnect")
 
-  override def clock: Clock = httpComponents.coreComponents.clock
+  override def clock: Clock = coreComponents.clock
 
-  override def statsEngine: StatsEngine = httpComponents.coreComponents.statsEngine
+  override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     fetchActor(wsName, session) match {
@@ -54,7 +56,7 @@ class WsConnect(
         } yield {
           logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsActor = httpComponents.coreComponents.actorSystem.actorOf(
+          val wsActor = coreComponents.actorSystem.actorOf(
             WsActor.props(
               wsName,
               request,
@@ -66,7 +68,7 @@ class WsConnect(
               httpComponents.httpEngine,
               httpComponents.httpProtocol,
               clock,
-              httpComponents.coreComponents.configuration
+              coreComponents.configuration
             ),
             genName("wsActor")
           )

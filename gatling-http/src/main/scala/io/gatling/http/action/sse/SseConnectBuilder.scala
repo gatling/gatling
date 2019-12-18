@@ -40,7 +40,7 @@ final case class SseConnectBuilder(
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
     val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
-    val request = requestBuilder.build(httpComponents)
-    new SseConnect(requestName, sseName, request, checkSequences, httpComponents, next)
+    val request = requestBuilder.build(httpComponents, coreComponents.configuration)
+    new SseConnect(requestName, sseName, request, checkSequences, ctx.coreComponents, httpComponents, next)
   }
 }

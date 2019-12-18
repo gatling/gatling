@@ -24,6 +24,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
 import io.gatling.http.HeaderNames._
@@ -47,14 +48,15 @@ object HttpEngine {
     val sslContextsFactory = new SslContextsFactory(coreComponents.configuration.http)
     val httpClient = HttpClientFactory(coreComponents, sslContextsFactory).newClient
     val dnsNameResolverFactory = DnsNameResolverFactory(coreComponents)
-    new HttpEngine(sslContextsFactory, httpClient, dnsNameResolverFactory)
+    new HttpEngine(sslContextsFactory, httpClient, dnsNameResolverFactory, coreComponents.configuration)
   }
 }
 
 class HttpEngine(
     sslContextsFactory: SslContextsFactory,
     httpClient: HttpClient,
-    dnsNameResolverFactory: DnsNameResolverFactory
+    dnsNameResolverFactory: DnsNameResolverFactory,
+    configuration: GatlingConfiguration
 ) extends NameGen
     with StrictLogging {
 
@@ -79,7 +81,7 @@ class HttpEngine(
                 .add(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
             )
             .setRequestTimeout(1000)
-            .setDefaultCharset(coreComponents.configuration.core.charset)
+            .setDefaultCharset(configuration.core.charset)
 
           httpProtocol.proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 
@@ -121,13 +123,13 @@ class HttpEngine(
             .get(expression)
             .header("bar", expression)
             .queryParam(expression, expression)
-            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, coreComponents.configuration)
+            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
 
           Http(expression)
             .post(expression)
             .header("bar", expression)
             .formParam(expression, expression)
-            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, coreComponents.configuration)
+            .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
       }
 
       logger.info("Warm up done")

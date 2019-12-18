@@ -18,6 +18,7 @@ package io.gatling.http.action.sse
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.{ Failure, Validation }
+import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
@@ -32,6 +33,7 @@ class SseConnect(
     sseName: String,
     request: Expression[Request],
     connectCheckSequences: List[SseMessageCheckSequence],
+    coreComponents: CoreComponents,
     httpComponents: HttpComponents,
     val next: Action
 ) extends RequestAction
@@ -40,9 +42,9 @@ class SseConnect(
 
   override val name: String = genName("sseConnect")
 
-  override def clock: Clock = httpComponents.coreComponents.clock
+  override def clock: Clock = coreComponents.clock
 
-  override def statsEngine: StatsEngine = httpComponents.coreComponents.statsEngine
+  override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     fetchActor(sseName, session) match {
@@ -52,7 +54,7 @@ class SseConnect(
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val sseActor = httpComponents.coreComponents.actorSystem.actorOf(
+          val sseActor = coreComponents.actorSystem.actorOf(
             SseActor.props(
               sseName,
               request,
@@ -62,7 +64,7 @@ class SseConnect(
               httpComponents.httpEngine,
               httpComponents.httpProtocol,
               clock,
-              httpComponents.coreComponents.configuration
+              coreComponents.configuration
             ),
             genName("sseActor")
           )

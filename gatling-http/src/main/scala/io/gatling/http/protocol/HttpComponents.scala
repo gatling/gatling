@@ -16,7 +16,6 @@
 
 package io.gatling.http.protocol
 
-import io.gatling.core.CoreComponents
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
@@ -24,7 +23,6 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
 
 final case class HttpComponents(
-    coreComponents: CoreComponents,
     httpProtocol: HttpProtocol,
     httpEngine: HttpEngine,
     httpCaches: HttpCaches,
