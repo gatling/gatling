@@ -24,7 +24,7 @@ import io.gatling.commons.validation._
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.feeder.{ Feeder, Record }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Session
 
 import akka.actor.{ ActorRef, Props }
 
@@ -42,8 +42,9 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
         case n if n > 0 =>
           (1 to n)
             .foldLeft(Map.empty[String, T]) { (acc, i) =>
-              feeder.next().foldLeft(acc) { case (acc2, (key, value)) =>
-                acc2 + (key + Integer.toString(i) -> value)
+              feeder.next().foldLeft(acc) {
+                case (acc2, (key, value)) =>
+                  acc2 + (key + Integer.toString(i) -> value)
               }
             }
             .success
@@ -56,13 +57,7 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
 
   def receive: Receive = {
     case FeedMessage(session, number, next) =>
-      val newAttributesV =
-        for {
-          num <- number(session)
-          newAttributes <- pollNewAttributes(num)
-        } yield newAttributes
-
-      newAttributesV match {
+      pollNewAttributes(number) match {
         case Success(newAttributes) => next ! session.setAll(newAttributes)
         case Failure(message)       => controller ! ControllerCommand.Crash(new IllegalStateException(message))
       }
@@ -75,4 +70,4 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
     }
 }
 
-final case class FeedMessage(session: Session, number: Expression[Int], next: Action)
+final case class FeedMessage(session: Session, number: Int, next: Action)

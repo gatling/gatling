@@ -27,5 +27,7 @@ class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsE
 
   override val name: String = genName("feed")
 
-  override def execute(session: Session): Unit = feedActor ! FeedMessage(session, number, next)
+  override def execute(session: Session): Unit = recover(session) {
+    number(session).map(num => feedActor ! FeedMessage(session, num, next))
+  }
 }
