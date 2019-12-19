@@ -16,6 +16,10 @@
 
 package io.gatling.core.action
 
+import scala.annotation.switch
+import scala.util.control.NonFatal
+
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.controller.ControllerCommand
@@ -30,36 +34,28 @@ object FeedActor {
 
 class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActor {
 
+  private def pollNewAttributes(numberOfRecords: Int): Validation[Record[T]] =
+    try {
+      (numberOfRecords: @switch) match {
+        case 1 =>
+          feeder.next().success
+        case n if n > 0 =>
+          (1 to n)
+            .foldLeft(Map.empty[String, T]) { (acc, i) =>
+              feeder.next().foldLeft(acc) { case (acc2, (key, value)) =>
+                acc2 + (key + Integer.toString(i) -> value)
+              }
+            }
+            .success
+        case _ => s"$numberOfRecords is not a valid number of records".failure
+      }
+    } catch {
+      case _: NoSuchElementException => "Feeder is now empty, stopping engine".failure
+      case NonFatal(e)               => s"Feeder crashed: ${e.detailedMessage}".failure
+    }
+
   def receive: Receive = {
     case FeedMessage(session, number, next) =>
-      def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix.toString) -> value }
-
-      def pollRecord(): Validation[Record[T]] =
-        if (!feeder.hasNext) {
-          "Feeder is now empty, stopping engine".failure
-        } else {
-          safely(error => s"Feeder crashed: $error")(feeder.next().success)
-        }
-
-      def pollNewAttributes(numberOfRecords: Int): Validation[Record[T]] =
-        numberOfRecords match {
-          case 1 =>
-            pollRecord()
-          case n if n > 0 =>
-            val translatedRecords = Iterator
-              .tabulate(n) { i =>
-                pollRecord().map(translateRecord(_, i + 1))
-              }
-              .reduce { (record1V, record2V) =>
-                for {
-                  record1 <- record1V
-                  record2 <- record2V
-                } yield record1 ++ record2
-              }
-            translatedRecords
-          case _ => s"$numberOfRecords is not a valid number of records".failure
-        }
-
       val newAttributesV =
         for {
           num <- number(session)
