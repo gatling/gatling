@@ -30,7 +30,6 @@ import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 
 import com.typesafe.scalalogging.StrictLogging
-import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpResponseStatus
 
 private[http] trait ResourceAggregator {
@@ -104,7 +103,9 @@ private[fetch] class DefaultResourceAggregator(
 
     val resourceTx = rootTx.copy(
       session = this.session,
-      request = resource.modify(_.clientRequest).using(_.copyWithAlpnRequiredAndPriorKnowledge(isAlpnRequired, isHttp2PriorKnowledge.contains(true))),
+      request = resource.copy(
+        clientRequest = resource.clientRequest.copyWithAlpnRequiredAndPriorKnowledge(isAlpnRequired, isHttp2PriorKnowledge.contains(true))
+      ),
       responseBuilderFactory = responseBuilderFactory,
       resourceTx = Some(ResourceTx(this, resource.clientRequest.getUri)),
       redirectCount = 0

@@ -31,7 +31,6 @@ import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.resolveFromUri
 
-import com.softwaremill.quicklens._
 import com.typesafe.scalalogging.StrictLogging
 
 sealed trait ProcessorResult
@@ -131,12 +130,11 @@ class DefaultResponseProcessor(
               ) match {
                 case Success(redirectRequest) =>
                   Redirect(
-                    tx.modify(_.session)
-                      .setTo(newSession)
-                      .modify(_.request.clientRequest)
-                      .setTo(redirectRequest)
-                      .modify(_.redirectCount)
-                      .using(_ + 1)
+                    tx.copy(
+                      session = newSession,
+                      request = tx.request.copy(clientRequest = redirectRequest),
+                      redirectCount = tx.redirectCount + 1
+                    )
                   )
 
                 case Failure(message) =>
