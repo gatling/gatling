@@ -19,7 +19,7 @@ package io.gatling.http.action.polling
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
-import io.gatling.commons.validation.{ Failure, Success, Validation }
+import io.gatling.commons.validation.{ Failure, Validation }
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ExitableAction }
 import io.gatling.core.session._
@@ -41,7 +41,6 @@ class PollingStart(
     httpTxExecutor: HttpTxExecutor,
     val next: Action
 ) extends ExitableAction
-    with PollingAction
     with NameGen {
 
   import httpRequestDef._
@@ -58,38 +57,34 @@ class PollingStart(
     coreComponents.configuration
   )
 
-  override def execute(session: Session): Unit = recover(session) {
+  private def startPoller(session: Session): Session = {
+    logger.info(s"Starting poller $pollerName")
+    val poller = new Poller(
+      pollerName,
+      period,
+      httpRequestDef,
+      responseBuilderFactory,
+      httpTxExecutor,
+      httpCaches,
+      httpProtocol,
+      statsEngine,
+      clock,
+      coreComponents.configuration.core.charset
+    )
 
-    def startPolling(): Unit = {
-      logger.info(s"Starting poller $pollerName")
-      val pollingActor = coreComponents.actorSystem.actorOf(
-        PollerActor.props(
-          pollerName,
-          period,
-          httpRequestDef,
-          responseBuilderFactory,
-          httpTxExecutor,
-          httpCaches,
-          httpProtocol,
-          statsEngine,
-          clock,
-          coreComponents.configuration.core.charset
-        ),
-        s"$name-actor-${session.userId}"
-      )
-
-      val newSession = session.set(pollerName, pollingActor)
-
-      pollingActor ! StartPolling(newSession)
-      next ! newSession
-    }
-
-    fetchActor(pollerName, session) match {
-      case _: Success[_] =>
-        Failure(s"Unable to create a new poller with name $pollerName: already exists")
-      case _ =>
-        startPolling()
-        Validation.unit
-    }
+    val newSession = session.set(pollerName, poller)
+    poller.start(newSession)
+    newSession
   }
+
+  override def execute(session: Session): Unit =
+    recover(session) {
+      if (session.contains(pollerName)) {
+        Failure(s"Unable to create a new poller with name $pollerName: already exists")
+      } else {
+        val newSession = startPoller(session)
+        next ! newSession
+        Validation.unit
+      }
+    }
 }
