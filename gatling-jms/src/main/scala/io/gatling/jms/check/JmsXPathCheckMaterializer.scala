@@ -17,20 +17,21 @@
 package io.gatling.jms.check
 
 import java.io.StringReader
-import javax.jms.{ Message, TextMessage }
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.xpath.{ Dom, XPathCheckType, XmlParsers }
+import io.gatling.core.check.xpath.{ XPathCheckType, XmlParsers }
 import io.gatling.jms.JmsCheck
 
+import javax.jms.{ Message, TextMessage }
+import net.sf.saxon.s9api.XdmNode
 import org.xml.sax.InputSource
 
-class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]](identity) {
+class JmsXPathCheckMaterializer(xmlParsers: XmlParsers) extends CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[XdmNode]](identity) {
 
   private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
-  override val preparer: Preparer[Message, Option[Dom]] =
+  override val preparer: Preparer[Message, Option[XdmNode]] =
     message =>
       safely(ErrorMapper) {
         message match {

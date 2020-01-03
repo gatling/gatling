@@ -46,6 +46,7 @@ import io.gatling.http.response.Response
 
 import com.fasterxml.jackson.databind.JsonNode
 import jodd.lagarto.dom.NodeSelector
+import net.sf.saxon.s9api.XdmNode
 
 trait HttpCheckSupport {
 
@@ -95,7 +96,7 @@ trait HttpCheckSupport {
 
   implicit val httpBodyRegexCheckMaterializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence] = HttpBodyRegexCheckMaterializer
   implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] = HttpBodySubstringCheckMaterializer
-  implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[Dom]] =
+  implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
     new HttpBodyXPathCheckMaterializer(xmlParsers)
   implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] =
     new HttpBodyCssCheckMaterializer(selectors)

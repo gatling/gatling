@@ -36,6 +36,7 @@ import io.gatling.core.check.xpath._
 import com.fasterxml.jackson.databind.JsonNode
 import io.burt.jmespath.function.{ Function => JmesPathFunction }
 import jodd.lagarto.dom.NodeSelector
+import net.sf.saxon.s9api.XdmNode
 
 trait CheckSupport {
 
@@ -63,16 +64,16 @@ trait CheckSupport {
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
 
-  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
+  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     xpath(path, Map.empty[String, String])
   def xpath(path: Expression[String], namespaces: Map[String, String])(
       implicit xmlParsers: XmlParsers
-  ): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
+  ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
   @deprecated(message = "Pass namespaces as a Map instead of a List, will be removed soon", since = "3.4.0")
   def xpath(path: Expression[String], namespaces: List[(String, String)])(
       implicit xmlParsers: XmlParsers
-  ): MultipleFindCheckBuilder[XPathCheckType, Option[Dom], String] =
+  ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     new XPathCheckBuilder(path, namespaces.toMap, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =

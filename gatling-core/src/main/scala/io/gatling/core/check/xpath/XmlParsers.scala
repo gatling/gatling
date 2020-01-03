@@ -17,18 +17,65 @@
 package io.gatling.core.check.xpath
 
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.util.cache.Cache
 
+import com.github.benmanes.caffeine.cache.LoadingCache
+import javax.xml.transform.sax.SAXSource
+import net.sf.saxon.Configuration
+import net.sf.saxon.lib.{ ParseOptions, Validation }
+import net.sf.saxon.om.TreeModel
+import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmNode, XdmValue }
 import org.xml.sax.InputSource
 
-class XmlParsers(implicit configuration: GatlingConfiguration) {
+private class NamespacesScope(compiler: XPathCompiler, cacheMaxCapacity: Long) {
 
-  val saxon: Saxon = new Saxon(configuration)
-  val jdk: JdkXmlParsers = new JdkXmlParsers(configuration)
+  private val selectorCache: LoadingCache[String, ThreadLocal[XPathSelector]] =
+    Cache.newConcurrentLoadingCache(
+      cacheMaxCapacity,
+      expression => {
+        val executable = compiler.compile(expression)
+        ThreadLocal.withInitial(() => executable.load)
+      }
+    )
 
-  val parse: InputSource => Dom =
-    if (jdk.preferred) { is =>
-      JdkDom(jdk.parse(is))
-    } else { is =>
-      SaxonDom(saxon.parse(is))
+  def evaluateXPath(expression: String, xdmNode: XdmNode): XdmValue = {
+    val xPathSelector = selectorCache.get(expression).get()
+    try {
+      xPathSelector.setContextItem(xdmNode)
+      xPathSelector.evaluate
+    } finally {
+      xPathSelector.getUnderlyingXPathContext.setContextItem(null)
     }
+  }
+}
+
+final class XmlParsers(implicit configuration: GatlingConfiguration) {
+
+  private val config = new Configuration
+  private val processor = new Processor(config)
+  private val options = {
+    val opt = new ParseOptions(config.getParseOptions)
+    opt.setDTDValidationMode(Validation.STRIP)
+    opt.setModel(TreeModel.TINY_TREE)
+    opt
+  }
+  private val scopesByNamespacesCache: LoadingCache[Map[String, String], NamespacesScope] =
+    Cache.newConcurrentLoadingCache(
+      configuration.core.extract.xpath.cacheMaxCapacity,
+      namespaces => {
+        val compiler = processor.newXPathCompiler
+        for {
+          (prefix, uri) <- namespaces
+        } compiler.declareNamespace(prefix, uri)
+        new NamespacesScope(compiler, configuration.core.extract.xpath.cacheMaxCapacity)
+      }
+    )
+
+  def parse(inputSource: InputSource): XdmNode = {
+    val doc = config.buildDocumentTree(new SAXSource(inputSource), options)
+    new XdmNode(doc.getRootNode)
+  }
+
+  def evaluateXPath(criterion: String, namespaces: Map[String, String], xdmNode: XdmNode): XdmValue =
+    scopesByNamespacesCache.get(namespaces).evaluateXPath(criterion, xdmNode)
 }

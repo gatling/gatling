@@ -36,7 +36,6 @@ object ConfigKeys {
       }
       object xpath {
         val CacheMaxCapacity = "gatling.core.extract.xpath.cacheMaxCapacity"
-        val PreferJdk = "gatling.core.extract.xpath.preferJdk"
       }
       object jsonPath {
         val CacheMaxCapacity = "gatling.core.extract.jsonPath.cacheMaxCapacity"

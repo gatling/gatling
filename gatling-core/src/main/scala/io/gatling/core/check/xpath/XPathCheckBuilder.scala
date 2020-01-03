@@ -20,22 +20,17 @@ import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extractor }
 import io.gatling.core.session._
 
 import net.sf.saxon.s9api.XdmNode
-import org.w3c.dom.Document
 
 trait XPathCheckType
-
-sealed trait Dom
-final case class SaxonDom(document: XdmNode) extends Dom
-final case class JdkDom(document: Document) extends Dom
 
 class XPathCheckBuilder(
     path: Expression[String],
     namespaces: Map[String, String],
     xmlParsers: XmlParsers
-) extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[Dom], String](displayActualValue = true) {
+) extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[Option[Dom], String]] =
+  override def findExtractor(occurrence: Int): Expression[Extractor[Option[XdmNode], String]] =
     path.map(new XPathFindExtractor(_, namespaces, occurrence, xmlParsers))
-  override def findAllExtractor: Expression[Extractor[Option[Dom], Seq[String]]] = path.map(new XPathFindAllExtractor(_, namespaces, xmlParsers))
-  override def countExtractor: Expression[Extractor[Option[Dom], Int]] = path.map(new XPathCountExtractor(_, namespaces, xmlParsers))
+  override def findAllExtractor: Expression[Extractor[Option[XdmNode], Seq[String]]] = path.map(new XPathFindAllExtractor(_, namespaces, xmlParsers))
+  override def countExtractor: Expression[Extractor[Option[XdmNode], Int]] = path.map(new XPathCountExtractor(_, namespaces, xmlParsers))
 }

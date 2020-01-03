@@ -20,16 +20,20 @@ import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
 
+import net.sf.saxon.s9api.XdmNode
 import org.xml.sax.InputSource
 
-abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
+class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private val namespaces = Map("foo" -> "http://foo/foo")
 
-  protected val xmlParsers: XmlParsers = new XmlParsers
+  private val xmlParsers: XmlParsers = new XmlParsers
 
-  protected def dom(file: String): Option[Dom]
+  private def dom(file: String): Option[XdmNode] =
+    withCloseable(getClass.getResourceAsStream(file)) { is =>
+      Some(xmlParsers.parse(new InputSource(is)))
+    }
 
   private def testCount(expression: String, file: String, expected: Int): Unit = {
     val extractor = new XPathCountExtractor(expression, namespaces, xmlParsers)
@@ -101,20 +105,4 @@ abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
   it should "return expected result with anywhere namespaced element" in {
     testMultiple("//foo:bar", namespaces, "/test.xml", Some(List("fooBar")))
   }
-}
-
-class SaxonXPathExtractorSpec extends XPathExtractorSpec {
-
-  def dom(file: String): Option[Dom] =
-    withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(SaxonDom(xmlParsers.saxon.parse(new InputSource(is))))
-    }
-}
-
-class JdkXPathExtractorSpec extends XPathExtractorSpec {
-
-  def dom(file: String): Option[Dom] =
-    withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(JdkDom(xmlParsers.jdk.parse(new InputSource(is))))
-    }
 }

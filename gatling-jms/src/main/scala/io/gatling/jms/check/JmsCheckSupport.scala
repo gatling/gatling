@@ -34,6 +34,7 @@ import io.gatling.jms.JmsCheck
 
 import com.fasterxml.jackson.databind.JsonNode
 import javax.jms.Message
+import net.sf.saxon.s9api.XdmNode
 
 trait JmsCheckSupport {
   def simpleCheck: JmsSimpleCheck.type = JmsSimpleCheck
@@ -66,7 +67,7 @@ trait JmsCheckSupport {
   ): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
     new JmsBodySubstringCheckMaterializer(configuration.core.charset)
 
-  implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[Dom]] =
+  implicit def jmsXPathmaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[XdmNode]] =
     new JmsXPathCheckMaterializer(xmlParsers)
 
   implicit def jmsJsonPathCheckMaterializer(
