@@ -121,9 +121,9 @@ Chaining Sequences of Scenarios
 
 Scenarios defined in the same ``setUp`` block will be started at the same time and executed concurrently.
 
-However, it's possible with ``followedBy`` to chain scenarios so that children scenarios starts once all the users in the parent ones terminate.
+However, it's possible with ``andThen`` to chain scenarios so that children scenarios starts once all the users in the parent ones terminate.
 
-.. includecode:: code/SimulationSetupSample.scala#followedBy
+.. includecode:: code/SimulationSetupSample.scala#andThen
 
 .. _simulation-setup-pause:
 

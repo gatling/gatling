@@ -58,8 +58,8 @@ final case class PopulationBuilder(
   def protocols(ps: Protocol*): PopulationBuilder = protocols(ps.toIterable)
   def protocols(ps: Iterable[Protocol]): PopulationBuilder = copy(scenarioProtocols = this.scenarioProtocols ++ Protocol.indexByType(ps))
 
-  def followedBy(children: PopulationBuilder*): PopulationBuilder = followedBy(children.toIterable)
-  def followedBy(children: Iterable[PopulationBuilder]): PopulationBuilder = this.modify(_.children).using(_ ++ children)
+  def andThen(children: PopulationBuilder*): PopulationBuilder = andThen(children.toIterable)
+  def andThen(children: Iterable[PopulationBuilder]): PopulationBuilder = this.modify(_.children).using(_ ++ children)
 
   def disablePauses: PopulationBuilder = pauses(Disabled)
   def constantPauses: PopulationBuilder = pauses(Constant)

@@ -225,7 +225,7 @@ class CoreCompileTest extends Simulation {
     lambdaUser.inject(closedSeq),
     lambdaUser.inject(openMeta, inject1),
     lambdaUser.inject(closedMeta, closedInject1),
-    lambdaUser.inject(inject1).followedBy(lambdaUser.inject(inject2))
+    lambdaUser.inject(inject1).andThen(lambdaUser.inject(inject2))
   ).protocols(protocol)
     .pauses(uniformPausesPlusOrMinusPercentage(1))
     .disablePauses

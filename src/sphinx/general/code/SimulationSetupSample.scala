@@ -100,18 +100,17 @@ class SimulationSetupSample extends Simulation {
   private val grandChild = scenario("grandChild")
   private val injectionProfile = constantConcurrentUsers(5) during (5)
 
-  //#followedBy
+  //#andThen
   setUp(
     parent
       .inject(injectionProfile)
       // child1 and child2 will start at the same time when last parent user will terminate
-      .followedBy(
-        child1
-          .inject(injectionProfile)
+      .andThen(
+        child1.inject(injectionProfile)
           // grandChild will start when last child1 user will terminate
-          .followedBy(grandChild.inject(injectionProfile)),
+          .andThen(grandChild.inject(injectionProfile)),
         child2.inject(injectionProfile)
       )
   )
-  //#followedBy
+  //#andThen
 }
