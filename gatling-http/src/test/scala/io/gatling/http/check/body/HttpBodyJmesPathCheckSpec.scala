@@ -36,7 +36,9 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJmesPathCheckMaterializer(JsonParsers())
+  private implicit val materializer: CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJmesPathCheckMaterializer(
+    new JsonParsers
+  )
 
   private val session = Session("mockSession", 0, System.currentTimeMillis())
 

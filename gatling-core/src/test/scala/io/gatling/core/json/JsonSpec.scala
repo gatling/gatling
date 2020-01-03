@@ -16,6 +16,7 @@
 
 package io.gatling.core.json
 
+import java.nio.charset.StandardCharsets.UTF_8
 import java.util.{ Collection => JCollection, Map => JMap }
 
 import scala.collection.mutable
@@ -23,7 +24,6 @@ import scala.collection.JavaConverters._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Io
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.Json._
 
 class JsonSpec extends BaseSpec {
@@ -96,9 +96,8 @@ class JsonSpec extends BaseSpec {
   }
 
   "asScala" should "deep convert into Scala structures" in {
-    implicit val config: GatlingConfiguration = GatlingConfiguration.loadForTest()
     val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
-      JsonParsers().parse(is)
+      new JsonParsers().parse(is, UTF_8)
     }
 
     asScala(input) shouldBe Seq(

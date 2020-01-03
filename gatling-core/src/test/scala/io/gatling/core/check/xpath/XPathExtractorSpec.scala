@@ -18,17 +18,15 @@ package io.gatling.core.check.xpath
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
-import io.gatling.core.config.GatlingConfiguration
 
 import net.sf.saxon.s9api.XdmNode
 import org.xml.sax.InputSource
 
 class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private val namespaces = Map("foo" -> "http://foo/foo")
 
-  private val xmlParsers: XmlParsers = new XmlParsers
+  private val xmlParsers = new XmlParsers(Long.MaxValue)
 
   private def dom(file: String): Option[XdmNode] =
     withCloseable(getClass.getResourceAsStream(file)) { is =>

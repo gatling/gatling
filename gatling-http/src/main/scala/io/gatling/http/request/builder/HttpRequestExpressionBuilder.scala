@@ -54,7 +54,7 @@ class HttpRequestExpressionBuilder(
 
   private def setBody(session: Session, requestBuilder: ClientRequestBuilder, body: Body): Validation[ClientRequestBuilder] =
     body match {
-      case StringBody(string) => string(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
+      case StringBody(string, _) => string(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
       case RawFileBody(resourceWithCachedBytes) =>
         resourceWithCachedBytes(session).map {
           case ResourceAndCachedBytes(resource, cachedBytes) =>

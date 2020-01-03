@@ -50,7 +50,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
   implicit var configuration: RecorderConfiguration = _
 
-  implicit val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load(mutable.Map.empty)
+  private[this] val gatlingConfiguration: GatlingConfiguration = GatlingConfiguration.load(mutable.Map.empty)
 
   private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
   private[this] def getDefaultConfig(classLoader: ClassLoader) =
@@ -113,13 +113,13 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
     def getSimulationsFolder(folder: String) =
       folder.trimToOption match {
         case Some(f)                               => f
-        case _ if sys.env.contains("GATLING_HOME") => simulationsDirectory.toFile.toString
+        case _ if sys.env.contains("GATLING_HOME") => simulationsDirectory(gatlingConfiguration).toFile.toString
         case _                                     => userHome
       }
 
     def getResourcesFolder =
       if (config.hasPath(core.ResourcesFolder)) config.getString(core.ResourcesFolder)
-      else resourcesDirectory.toFile.toString
+      else resourcesDirectory(gatlingConfiguration).toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(

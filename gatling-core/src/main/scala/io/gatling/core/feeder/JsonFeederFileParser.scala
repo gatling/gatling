@@ -18,6 +18,7 @@ package io.gatling.core.feeder
 
 import java.io.InputStream
 import java.net.URL
+import java.nio.charset.Charset
 
 import scala.collection._
 import scala.collection.JavaConverters._
@@ -26,20 +27,20 @@ import io.gatling.commons.util.Io._
 import io.gatling.core.json.{ Json, JsonParsers }
 import io.gatling.core.util.Resource
 
-class JsonFeederFileParser(implicit jsonParsers: JsonParsers) {
+class JsonFeederFileParser(jsonParsers: JsonParsers) {
 
-  def parse(resource: Resource): IndexedSeq[Record[Any]] =
+  def parse(resource: Resource, charset: Charset): IndexedSeq[Record[Any]] =
     withCloseable(resource.inputStream) { is =>
-      stream(is).toVector
+      stream(is, charset).toVector
     }
 
-  def url(url: String): IndexedSeq[Record[Any]] =
+  def url(url: String, charset: Charset): IndexedSeq[Record[Any]] =
     withCloseable(new URL(url).openStream) { is =>
-      stream(is).toVector
+      stream(is, charset).toVector
     }
 
-  def stream(is: InputStream): Iterator[Record[Any]] = {
-    val node = jsonParsers.parse(is)
+  def stream(is: InputStream, charset: Charset): Iterator[Record[Any]] = {
+    val node = jsonParsers.parse(is, charset)
     if (node.isArray) {
       node.elements.asScala.collect {
         case node if node.isObject => Json.asScala(node).asInstanceOf[collection.immutable.Map[String, Any]]

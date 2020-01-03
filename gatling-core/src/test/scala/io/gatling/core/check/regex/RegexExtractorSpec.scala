@@ -17,12 +17,10 @@
 package io.gatling.core.check.regex
 
 import io.gatling.{ BaseSpec, ValidationValues }
-import io.gatling.core.config.GatlingConfiguration
 
 class RegexExtractorSpec extends BaseSpec with ValidationValues {
 
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private val patterns = new Patterns()
+  private val patterns = new Patterns(Long.MaxValue)
 
   "count" should "return Some(0) when no results" in {
     val stringRegexExtractor = new RegexCountExtractor("regex", """foo""", patterns)

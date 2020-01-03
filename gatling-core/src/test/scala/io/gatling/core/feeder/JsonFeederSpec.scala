@@ -16,6 +16,8 @@
 
 package io.gatling.core.feeder
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
@@ -23,7 +25,7 @@ import io.gatling.core.json.JsonParsers
 class JsonFeederSpec extends BaseSpec with FeederSupport {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val jsonParsers: JsonParsers = JsonParsers()
+  private implicit val jsonParsers: JsonParsers = new JsonParsers
 
   "jsonFile" should "handle proper JSON file" in {
     val data = jsonFile("test.json").readRecords
@@ -40,6 +42,6 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
 
   "JsonFeederFileParser" should "throw an exception when provided with bad resource" in {
     an[IllegalArgumentException] should be thrownBy
-      new JsonFeederFileParser().stream(this.getClass.getClassLoader.getResourceAsStream("empty.json"))
+      new JsonFeederFileParser(jsonParsers).stream(this.getClass.getClassLoader.getResourceAsStream("empty.json"), UTF_8)
   }
 }

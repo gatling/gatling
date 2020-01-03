@@ -17,13 +17,12 @@
 package io.gatling.core.check.jsonpath
 
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 import io.gatling.jsonpath.JsonPath
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class JsonPaths(implicit configuration: GatlingConfiguration) {
+class JsonPaths(cacheMaxCapacity: Long) {
 
   private val jsonPathCache = {
     def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
@@ -31,7 +30,7 @@ class JsonPaths(implicit configuration: GatlingConfiguration) {
       case Right(path) => path.success
     }
 
-    Cache.newConcurrentLoadingCache(configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
+    Cache.newConcurrentLoadingCache(cacheMaxCapacity, compile)
   }
 
   def extractAll[X: JsonFilter](json: JsonNode, expression: String): Validation[Iterator[X]] =

@@ -17,7 +17,7 @@
 package io.gatling.core.feeder
 
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.util.ResourceCache
@@ -46,22 +46,22 @@ trait FeederSupport extends ResourceCache {
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(
       implicit configuration: GatlingConfiguration
   ): BatchableFeederBuilder[String] =
-    cachedResource(fileName) match {
+    cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
   def jsonFile(fileName: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
-    cachedResource(fileName) match {
+    cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
       case Success(resource) =>
-        val data = new JsonFeederFileParser().parse(resource)
+        val data = new JsonFeederFileParser(jsonParsers).parse(resource, configuration.core.charset)
         SourceFeederBuilder(InMemoryFeederSource(data), configuration)
 
       case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
   def jsonUrl(url: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FeederBuilderBase[Any] = {
-    val data = new JsonFeederFileParser().url(url)
+    val data = new JsonFeederFileParser(jsonParsers).url(url, configuration.core.charset)
     SourceFeederBuilder(InMemoryFeederSource(data), configuration)
   }
 }

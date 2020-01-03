@@ -22,7 +22,6 @@ import java.nio.charset.StandardCharsets.{ UTF_16, UTF_8 }
 
 import io.gatling.commons.util.NonStandardCharsets.UTF_32
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
 
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 
@@ -30,18 +29,15 @@ object JsonParsers {
 
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
   private val JsonSupportedEncodings = Set(UTF_8, UTF_16, UTF_32)
-
-  def apply()(implicit configuration: GatlingConfiguration): JsonParsers =
-    new JsonParsers(new ObjectMapper, configuration.core.charset)
 }
 
-class JsonParsers(objectMapper: ObjectMapper, defaultCharset: Charset) {
+class JsonParsers {
 
   import JsonParsers._
 
-  def parse(is: InputStream): JsonNode = parse(is, defaultCharset)
+  private val objectMapper = new ObjectMapper
 
-  private def parse(is: InputStream, charset: Charset): JsonNode =
+  def parse(is: InputStream, charset: Charset): JsonNode =
     if (JsonParsers.JsonSupportedEncodings.contains(charset)) {
       objectMapper.readValue(is, classOf[JsonNode])
     } else {

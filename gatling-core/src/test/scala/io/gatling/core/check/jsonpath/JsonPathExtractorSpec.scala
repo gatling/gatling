@@ -17,14 +17,12 @@
 package io.gatling.core.check.jsonpath
 
 import io.gatling.{ BaseSpec, ValidationValues }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
 class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private val jsonPaths = new JsonPaths
-  private val jsonParsers = JsonParsers()
+  private val jsonPaths = new JsonPaths(Long.MaxValue)
+  private val jsonParsers = new JsonParsers
 
   def testCount(path: String, sample: JsonSample, expected: Int): Unit = {
     val extractor = new JsonPathCountExtractor("jsonPath", path, jsonPaths)

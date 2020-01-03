@@ -18,7 +18,6 @@ package io.gatling.core.check.jmespath
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.jsonpath.JsonFilter
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -38,7 +37,7 @@ private[gatling] object JmesPathFunctions {
   }
 }
 
-private[gatling] class JmesPaths(implicit configuration: GatlingConfiguration) {
+private[gatling] class JmesPaths(cacheMaxCapacity: Long) {
 
   private val runtime = new JacksonRuntime(
     new RuntimeConfiguration.Builder().withFunctionRegistry(FunctionRegistry.defaultRegistry.extend(JmesPathFunctions.functions: _*)).build
@@ -48,7 +47,7 @@ private[gatling] class JmesPaths(implicit configuration: GatlingConfiguration) {
     def compile(expression: String): Validation[Expression[JsonNode]] =
       safely()(runtime.compile(expression).success)
 
-    Cache.newConcurrentLoadingCache(configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
+    Cache.newConcurrentLoadingCache(cacheMaxCapacity, compile)
   }
 
   def extract[X: JsonFilter](json: JsonNode, expression: String): Validation[Option[X]] =

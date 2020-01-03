@@ -21,7 +21,6 @@ import java.util.{ List => JList }
 import scala.collection._
 import scala.collection.JavaConverters._
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
@@ -30,13 +29,13 @@ import jodd.lagarto.dom.NodeSelector
 import jodd.log.LoggerFactory
 import jodd.log.impl.Slf4jLogger
 
-class CssSelectors(implicit configuration: GatlingConfiguration) {
+class CssSelectors(cacheMaxCapacity: Long) {
 
   LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
 
   private val domBuilder = Jodd.newLagartoDomBuilder
   private val selectorCache: LoadingCache[String, JList[JList[CssSelector]]] =
-    Cache.newConcurrentLoadingCache(configuration.core.extract.css.cacheMaxCapacity, CSSelly.parse)
+    Cache.newConcurrentLoadingCache(cacheMaxCapacity, CSSelly.parse)
 
   def parse(chars: Array[Char]): NodeSelector = new NodeSelector(domBuilder.parse(chars))
 

@@ -21,7 +21,6 @@ import java.nio.charset.Charset
 
 import io.gatling.commons.util.CompositeByteArrayInputStream
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.el.ElCompiler
 import io.gatling.netty.util.StringBuilderPool
@@ -29,21 +28,21 @@ import io.gatling.netty.util.StringBuilderPool
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 
 object ElFileBody {
-  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): CompositeByteArrayBody =
-    CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath), configuration.core.charset)
+  def apply(filePath: Expression[String], charset: Charset, elFileBodies: ElFileBodies): CompositeByteArrayBody =
+    CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath), charset)
 }
 
 sealed trait Body
 
-final case class StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
+final case class StringBody(string: Expression[String], charset: Charset) extends Body with Expression[String] {
 
   override def apply(session: Session): Validation[String] = string(session)
 
-  def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
+  def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(charset)))
 }
 
 object RawFileBody {
-  def apply(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): RawFileBody =
+  def apply(filePath: Expression[String], rawFileBodies: RawFileBodies): RawFileBody =
     new RawFileBody(rawFileBodies.asResourceAndCachedBytes(filePath))
 
   def unapply(b: RawFileBody): Option[Expression[ResourceAndCachedBytes]] = Some(b.resourceAndCachedBytes)
@@ -60,8 +59,7 @@ final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with
 }
 
 object CompositeByteArrayBody {
-  def apply(string: String)(implicit configuration: GatlingConfiguration): CompositeByteArrayBody = {
-    val charset = configuration.core.charset
+  def apply(string: String, charset: Charset): CompositeByteArrayBody = {
     new CompositeByteArrayBody(ElCompiler.compile2BytesSeq(string, charset), charset)
   }
 }
@@ -80,14 +78,14 @@ final case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], cha
 final case class InputStreamBody(is: Expression[InputStream]) extends Body
 
 object PebbleStringBody {
-  def apply(string: String)(implicit configuration: GatlingConfiguration): PebbleBody = {
+  def apply(string: String): PebbleBody = {
     val template = Pebble.getStringTemplate(string)
     PebbleBody(_ => template)
   }
 }
 
 object PebbleFileBody {
-  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): PebbleBody =
+  def apply(filePath: Expression[String], pebbleFileBodies: PebbleFileBodies): PebbleBody =
     PebbleBody(pebbleFileBodies.asTemplate(filePath))
 }
 

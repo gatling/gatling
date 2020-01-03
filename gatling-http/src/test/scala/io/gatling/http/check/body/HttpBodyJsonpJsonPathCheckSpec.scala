@@ -36,7 +36,7 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  implicit val materializer: HttpCheckMaterializer[JsonPathCheckType, JsonNode] = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
+  implicit val materializer: HttpCheckMaterializer[JsonPathCheckType, JsonNode] = new HttpBodyJsonPathCheckMaterializer(new JsonParsers)
 
   private val session = Session("mockSession", 0, System.currentTimeMillis())
 

@@ -16,7 +16,8 @@
 
 package io.gatling.core.body
 
-import io.gatling.core.config.GatlingConfiguration
+import java.nio.file.Path
+
 import io.gatling.core.session.{ Expression, StaticValueExpression }
 import io.gatling.core.util.{ Resource, ResourceCache }
 import io.gatling.core.util.cache.Cache
@@ -25,26 +26,25 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 
 final case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
 
-class RawFileBodies(implicit configuration: GatlingConfiguration) extends ResourceCache {
+class RawFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends ResourceCache {
 
   private val bytesCache: LoadingCache[Resource, Option[Array[Byte]]] = {
     val resourceToBytes: Resource => Option[Array[Byte]] = resource =>
-      if (resource.file.length > configuration.core.rawFileBodiesInMemoryMaxSize) {
+      if (resource.file.length > cacheMaxCapacity) {
         None
       } else {
         Some(resource.bytes)
       }
 
-    Cache.newConcurrentLoadingCache(configuration.core.rawFileBodiesCacheMaxCapacity, resourceToBytes)
+    Cache.newConcurrentLoadingCache(cacheMaxCapacity, resourceToBytes)
   }
 
-  // FIXME cache ResourceAndCachedBytes
   def asResourceAndCachedBytes(filePath: Expression[String]): Expression[ResourceAndCachedBytes] =
     filePath match {
       case StaticValueExpression(path) =>
         val resourceAndCachedBytes =
           for {
-            resource <- cachedResource(path)
+            resource <- cachedResource(resourcesDirectory, path)
           } yield ResourceAndCachedBytes(resource, Some(resource.bytes))
 
         _ => resourceAndCachedBytes
@@ -53,7 +53,7 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) extends Resour
         session =>
           for {
             path <- filePath(session)
-            resource <- cachedResource(path)
+            resource <- cachedResource(resourcesDirectory, path)
           } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
     }
 }

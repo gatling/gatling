@@ -25,28 +25,28 @@ import com.mitchellbosecke.pebble.extension.Extension
 
 trait BodySupport {
 
-  def gzipBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.gzip
-  def streamBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.stream
+  def gzipBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.gzip(configuration)
+  def streamBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.stream(configuration)
 
   def StringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
-    io.gatling.core.body.CompositeByteArrayBody(string)
+    io.gatling.core.body.CompositeByteArrayBody(string, configuration.core.charset)
 
   def StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration): Body with Expression[String] =
-    io.gatling.core.body.StringBody(string)
+    io.gatling.core.body.StringBody(string, configuration.core.charset)
 
   def RawFileBody(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): Body with Expression[Array[Byte]] =
-    io.gatling.core.body.RawFileBody(filePath)
+    io.gatling.core.body.RawFileBody(filePath, rawFileBodies)
 
   def ElFileBody(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): Body with Expression[String] =
-    io.gatling.core.body.ElFileBody(filePath)
+    io.gatling.core.body.ElFileBody(filePath, configuration.core.charset, elFileBodies)
 
-  def PebbleStringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
+  def PebbleStringBody(string: String): Body with Expression[String] =
     io.gatling.core.body.PebbleStringBody(string)
 
   def PebbleFileBody(
       filePath: Expression[String]
-  )(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): Body with Expression[String] =
-    io.gatling.core.body.PebbleFileBody(filePath)
+  )(implicit pebbleFileBodies: PebbleFileBodies): Body with Expression[String] =
+    io.gatling.core.body.PebbleFileBody(filePath, pebbleFileBodies)
 
   def ByteArrayBody(bytes: Expression[Array[Byte]]): Body with Expression[Array[Byte]] =
     io.gatling.core.body.ByteArrayBody(bytes)

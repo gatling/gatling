@@ -17,14 +17,12 @@
 package io.gatling.core.check.css
 
 import io.gatling.BaseSpec
-import io.gatling.core.config.GatlingConfiguration
 
 import jodd.lagarto.dom.Node
 
 class FormExtractorSpec extends BaseSpec {
 
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private val cssSelectors = new CssSelectors
+  private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def formInputs(html: String): Map[String, Any] = {
     val nodeSelector = cssSelectors.parse(html.toCharArray)

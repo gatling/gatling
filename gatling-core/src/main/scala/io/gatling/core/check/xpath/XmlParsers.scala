@@ -16,7 +16,6 @@
 
 package io.gatling.core.check.xpath
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
@@ -49,7 +48,7 @@ private class NamespacesScope(compiler: XPathCompiler, cacheMaxCapacity: Long) {
   }
 }
 
-final class XmlParsers(implicit configuration: GatlingConfiguration) {
+final class XmlParsers(cacheMaxCapacity: Long) {
 
   private val config = new Configuration
   private val processor = new Processor(config)
@@ -61,13 +60,13 @@ final class XmlParsers(implicit configuration: GatlingConfiguration) {
   }
   private val scopesByNamespacesCache: LoadingCache[Map[String, String], NamespacesScope] =
     Cache.newConcurrentLoadingCache(
-      configuration.core.extract.xpath.cacheMaxCapacity,
+      cacheMaxCapacity,
       namespaces => {
         val compiler = processor.newXPathCompiler
         for {
           (prefix, uri) <- namespaces
         } compiler.declareNamespace(prefix, uri)
-        new NamespacesScope(compiler, configuration.core.extract.xpath.cacheMaxCapacity)
+        new NamespacesScope(compiler, cacheMaxCapacity)
       }
     )
 

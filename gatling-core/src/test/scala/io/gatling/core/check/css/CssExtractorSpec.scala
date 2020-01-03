@@ -20,13 +20,11 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
-import io.gatling.core.config.GatlingConfiguration
 import jodd.lagarto.dom.NodeSelector
 
 class CssExtractorSpec extends BaseSpec with ValidationValues {
 
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private val cssSelectors = new CssSelectors
+  private val cssSelectors = new CssSelectors(Long.MaxValue)
 
   private def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(UTF_8)

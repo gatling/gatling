@@ -37,7 +37,9 @@ import org.scalatest.matchers.{ MatchResult, Matcher }
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonPathCheckMaterializer(JsonParsers())
+  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonPathCheckMaterializer(
+    new JsonParsers
+  )
 
   private val session = Session("mockSession", 0, System.currentTimeMillis())
 
@@ -161,15 +163,13 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     )
   }
 
-  private def beIn[T](seq: Seq[T]) =
-    new Matcher[T] {
-      def apply(left: T) =
-        MatchResult(
-          seq.contains(left),
-          s"$left was not in $seq",
-          s"$left was in $seq"
-        )
-    }
+  private def beIn[T](seq: Seq[T]): Matcher[T] =
+    left =>
+      MatchResult(
+        seq.contains(left),
+        s"$left was not in $seq",
+        s"$left was in $seq"
+      )
 
   "jsonPath.findRandom.exists" should "fetch a single random match" in {
     val response = mockResponse(storeJson)

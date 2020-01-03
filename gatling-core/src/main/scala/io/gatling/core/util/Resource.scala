@@ -25,7 +25,6 @@ import java.util.concurrent.ConcurrentHashMap
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 
 object Resource {
 
@@ -66,9 +65,6 @@ object Resource {
       case AbsoluteFileResource(res)   => res
       case _                           => s"Resource $path not found".failure
     }
-
-  def resolveResource(path: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    resolveResource(GatlingFiles.resourcesDirectory, path)
 }
 
 sealed trait Resource {
@@ -112,6 +108,6 @@ final case class FilesystemResource(file: File) extends Resource {
 trait ResourceCache {
   private val resourceCache = new ConcurrentHashMap[String, Validation[Resource]]()
 
-  protected def cachedResource(path: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
-    resourceCache.computeIfAbsent(path, Resource.resolveResource)
+  protected def cachedResource(resourcesDirectory: Path, path: String): Validation[Resource] =
+    resourceCache.computeIfAbsent(path, Resource.resolveResource(resourcesDirectory, _))
 }

@@ -23,10 +23,10 @@ import io.gatling.core.config.GatlingConfiguration
 
 object BodyProcessors {
 
-  def gzip(implicit configuration: GatlingConfiguration): Body => ByteArrayBody =
+  def gzip(configuration: GatlingConfiguration): Body => ByteArrayBody =
     (body: Body) => {
       val gzippedBytes = body match {
-        case StringBody(string)       => string.map(GzipHelper.gzip)
+        case StringBody(string, _)    => string.map(GzipHelper.gzip)
         case pebbleBody: PebbleBody   => pebbleBody.map(GzipHelper.gzip)
         case ByteArrayBody(byteArray) => byteArray.map(GzipHelper.gzip)
         case RawFileBody(resourceAndCachedBytes) =>
@@ -44,7 +44,7 @@ object BodyProcessors {
       ByteArrayBody(gzippedBytes)
     }
 
-  def stream(implicit configuration: GatlingConfiguration): Body => InputStreamBody =
+  def stream(configuration: GatlingConfiguration): Body => InputStreamBody =
     (body: Body) => {
       val stream = body match {
         case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))

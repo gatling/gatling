@@ -18,14 +18,12 @@ package io.gatling.core.check.jmespath
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.check.jsonpath.JsonFilter
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
 class JmesPathExtractorSpec extends BaseSpec with ValidationValues {
 
-  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val jsonParsers: JsonParsers = JsonParsers()
-  private val jmesPaths = new JmesPaths
+  private val jsonParsers = new JsonParsers
+  private val jmesPaths = new JmesPaths(Long.MaxValue)
 
   private val json = """{
                        |  "locations": [
