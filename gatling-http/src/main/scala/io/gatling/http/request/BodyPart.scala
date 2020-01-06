@@ -21,7 +21,6 @@ import java.util.{ Collections, ArrayList => JArrayList, List => JList }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.client.Param
 import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, Part, StringPart }
@@ -30,17 +29,23 @@ import com.softwaremill.quicklens._
 
 object BodyPart {
 
-  def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
+  def rawFileBodyPart(
+      name: Option[Expression[String]],
+      filePath: Expression[String],
+      rawFileBodies: RawFileBodies
+  ): BodyPart =
     BodyPart(name, fileBodyPartBuilder(rawFileBodies.asResourceAndCachedBytes(filePath)), BodyPartAttributes.Empty)
 
   def elFileBodyPart(
       name: Option[Expression[String]],
-      filePath: Expression[String]
-  )(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
-    stringBodyPart(name, elFileBodies.asString(filePath))
+      filePath: Expression[String],
+      defaultCharset: Charset,
+      elFileBodies: ElFileBodies
+  ): BodyPart =
+    stringBodyPart(name, elFileBodies.asString(filePath), defaultCharset)
 
-  def stringBodyPart(name: Option[Expression[String]], string: Expression[String])(implicit configuration: GatlingConfiguration): BodyPart =
-    BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes.Empty.copy(charset = Some(configuration.core.charset)))
+  def stringBodyPart(name: Option[Expression[String]], string: Expression[String], defaultCharset: Charset): BodyPart =
+    BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes.Empty.copy(charset = Some(defaultCharset)))
 
   def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart =
     BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes.Empty)

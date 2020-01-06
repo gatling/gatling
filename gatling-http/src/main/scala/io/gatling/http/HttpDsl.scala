@@ -57,22 +57,22 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport 
   def CookieKey(name: String): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
 
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
-    BodyPart.elFileBodyPart(None, filePath)
+    BodyPart.elFileBodyPart(None, filePath, configuration.core.charset, elFileBodies)
   def ElFileBodyPart(
       name: Expression[String],
       filePath: Expression[String]
   )(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
-    BodyPart.elFileBodyPart(Some(name), filePath)
+    BodyPart.elFileBodyPart(Some(name), filePath, configuration.core.charset, elFileBodies)
 
   def StringBodyPart(string: Expression[String])(implicit configuration: GatlingConfiguration): BodyPart =
-    BodyPart.stringBodyPart(None, string)
+    BodyPart.stringBodyPart(None, string, configuration.core.charset)
   def StringBodyPart(name: Expression[String], string: Expression[String])(implicit configuration: GatlingConfiguration): BodyPart =
-    BodyPart.stringBodyPart(Some(name), string)
+    BodyPart.stringBodyPart(Some(name), string, configuration.core.charset)
 
   def RawFileBodyPart(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
-    BodyPart.rawFileBodyPart(None, filePath)
+    BodyPart.rawFileBodyPart(None, filePath, rawFileBodies)
   def RawFileBodyPart(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
-    BodyPart.rawFileBodyPart(Some(name), filePath)
+    BodyPart.rawFileBodyPart(Some(name), filePath, rawFileBodies)
 
   def ByteArrayBodyPart(bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(None, bytes)
   def ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(Some(name), bytes)
