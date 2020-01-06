@@ -315,5 +315,5 @@ final case class Session(
     update(session)
   }
 
-  def exit(): Unit = onExit(this)
+  private[core] def exit(): Unit = onExit(this)
 }
