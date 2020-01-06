@@ -17,12 +17,12 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.component.ComponentLibrary
-import io.gatling.charts.config.ChartsFiles.allSessionsFile
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.util.Colors.Orange
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.{ IntVsTimePlot, Series }
 
-private[charts] class AllSessionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+private[charts] class AllSessionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
     implicit configuration: GatlingConfiguration
 ) extends ReportGenerator {
 
@@ -33,6 +33,6 @@ private[charts] class AllSessionsReportGenerator(reportsGenerationInputs: Report
 
     val javascript = componentLibrary.getAllUsersJs(logFileReader.runStart, series)
 
-    new TemplateWriter(allSessionsFile(reportFolderName)).writeToFile(javascript)
+    new TemplateWriter(chartsFiles.allSessionsFile).writeToFile(javascript)
   }
 }

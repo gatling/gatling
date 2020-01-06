@@ -19,15 +19,16 @@ package io.gatling.charts.report
 import scala.collection.breakOut
 
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
-import io.gatling.charts.config.ChartsFiles._
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
 import io.gatling.commons.stats._
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
+
 import com.typesafe.scalalogging.StrictLogging
 
-private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
     implicit configuration: GatlingConfiguration
 ) extends StrictLogging {
 
@@ -139,7 +140,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       )
     }
 
-    val rootContainer = GroupContainer.root(computeRequestStats(GlobalPageName, None, None))
+    val rootContainer = GroupContainer.root(computeRequestStats(ChartsFiles.GlobalPageName, None, None))
 
     val statsPaths = logFileReader.statsPaths
 
@@ -179,9 +180,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(statsJsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
-    new TemplateWriter(statsJsonFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
-    new TemplateWriter(globalStatsJsonFile(reportFolderName)).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
+    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
+    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
+    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
     println(ConsoleTemplate.println(rootContainer.stats, logFileReader.errors(None, None)))
   }
 }

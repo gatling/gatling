@@ -17,7 +17,7 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorsTableComponent, StatisticsTextComponent }
-import io.gatling.charts.config.ChartsFiles.groupFile
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors._
@@ -25,7 +25,11 @@ import io.gatling.commons.stats.{ Group, GroupStatsPath, OK }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.{ PercentilesVsTimePlot, Series }
 
-private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+private[charts] class GroupDetailsReportGenerator(
+    reportsGenerationInputs: ReportsGenerationInputs,
+    chartsFiles: ChartsFiles,
+    componentLibrary: ComponentLibrary
+)(
     implicit configuration: GatlingConfiguration
 ) extends ReportGenerator {
 
@@ -94,7 +98,7 @@ private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: Repor
         durationDistributionChartComponent
       )
 
-      new TemplateWriter(groupFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
+      new TemplateWriter(chartsFiles.groupFile(path)).writeToFile(template.getOutput(configuration.core.charset))
     }
 
     logFileReader.statsPaths.foreach {

@@ -50,7 +50,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
   println("Parsing log file(s)...")
 
-  private val inputFiles = simulationLogDirectory(runUuid, create = false).files
+  private val inputFiles = simulationLogDirectory(runUuid, create = false, configuration).files
     .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
 
   logger.info(s"Collected $inputFiles from $runUuid")

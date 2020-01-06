@@ -17,19 +17,19 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.component.ComponentLibrary
-import io.gatling.charts.config.ChartsFiles._
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.template.{ AssertionsJUnitTemplate, AssertionsJsonTemplate }
 import io.gatling.core.config.GatlingConfiguration
 
-private[charts] class AssertionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+private[charts] class AssertionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
     implicit configuration: GatlingConfiguration
 ) {
 
   import reportsGenerationInputs._
 
   def generate(): Unit = {
-    new TemplateWriter(assertionsJUnitFile(reportFolderName)).writeToFile(new AssertionsJUnitTemplate(logFileReader.runMessage, assertionResults).getOutput)
-    new TemplateWriter(assertionsJsonFile(reportFolderName))
+    new TemplateWriter(chartsFiles.assertionsJUnitFile).writeToFile(new AssertionsJUnitTemplate(logFileReader.runMessage, assertionResults).getOutput)
+    new TemplateWriter(chartsFiles.assertionsJsonFile)
       .writeToFile(new AssertionsJsonTemplate(logFileReader.runMessage, logFileReader.scenarioNames, assertionResults).getOutput)
   }
 }

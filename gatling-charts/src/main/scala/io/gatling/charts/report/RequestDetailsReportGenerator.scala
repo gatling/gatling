@@ -17,7 +17,7 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.component._
-import io.gatling.charts.config.ChartsFiles.requestFile
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Colors._
@@ -25,7 +25,11 @@ import io.gatling.commons.stats._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
-private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+private[charts] class RequestDetailsReportGenerator(
+    reportsGenerationInputs: ReportsGenerationInputs,
+    chartsFiles: ChartsFiles,
+    componentLibrary: ComponentLibrary
+)(
     implicit configuration: GatlingConfiguration
 ) extends ReportGenerator {
 
@@ -115,7 +119,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           responseTimeScatterChartComponent
         )
 
-      new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
+      new TemplateWriter(chartsFiles.requestFile(path)).writeToFile(template.getOutput(configuration.core.charset))
     }
 
     logFileReader.statsPaths.foreach {

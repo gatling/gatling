@@ -17,14 +17,14 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.component._
-import io.gatling.charts.config.ChartsFiles.globalFile
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.commons.stats.{ Group, KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats._
 
-private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(
+private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
     implicit configuration: GatlingConfiguration
 ) extends ReportGenerator {
 
@@ -106,6 +106,6 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       responsesChartComponent
     )
 
-    new TemplateWriter(globalFile(reportFolderName)).writeToFile(template.getOutput(configuration.core.charset))
+    new TemplateWriter(chartsFiles.globalFile).writeToFile(template.getOutput(configuration.core.charset))
   }
 }
