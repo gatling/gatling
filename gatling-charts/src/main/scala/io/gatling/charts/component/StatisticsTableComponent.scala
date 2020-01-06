@@ -28,7 +28,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
   private val NumberOfCharsBeforeDots = 8
   private val NumberOfCharsAfterDots = 8
 
-  val html = {
+  override val html: String = {
 
     def pctTitle(pct: Double) = pct.toRank + " pct"
 

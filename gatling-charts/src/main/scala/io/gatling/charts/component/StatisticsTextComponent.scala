@@ -21,16 +21,17 @@ import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] object Statistics {
-  def printable[T: Numeric](value: T) =
+
+  def printable[T: Numeric](value: T): String =
     value match {
       case GeneralStats.NoPlotMagicValue => "-"
-      case (_: Int) | (_: Long)          => value.toString
+      case _: Int | _: Long              => value.toString
       case _                             => implicitly[Numeric[T]].toDouble(value).toPrintableString
     }
 }
 
 private[charts] final case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
-  def all = List(total, success, failure)
+  def all: List[T] = List(total, success, failure)
 }
 
 private[charts] final case class GroupedCount(name: String, count: Long, total: Long) {
@@ -55,7 +56,7 @@ private[charts] final case class RequestStatistics(
 
 private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {
 
-  def html = s"""
+  override def html: String = s"""
                         <div class="infos">
                             <div class="infos-in">
 	                        <div class="infos-title">STATISTICS</div>
