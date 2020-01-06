@@ -17,13 +17,13 @@
 package io.gatling.core.body
 
 import java.io.FileInputStream
+import java.nio.charset.Charset
 
 import io.gatling.commons.util.{ FastByteArrayInputStream, GzipHelper }
-import io.gatling.core.config.GatlingConfiguration
 
 object BodyProcessors {
 
-  def gzip(configuration: GatlingConfiguration): Body => ByteArrayBody =
+  def gzip: Body => ByteArrayBody =
     (body: Body) => {
       val gzippedBytes = body match {
         case StringBody(string, _)    => string.map(GzipHelper.gzip)
@@ -44,11 +44,11 @@ object BodyProcessors {
       ByteArrayBody(gzippedBytes)
     }
 
-  def stream(configuration: GatlingConfiguration): Body => InputStreamBody =
+  def stream(charset: Charset): Body => InputStreamBody =
     (body: Body) => {
       val stream = body match {
         case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
-        case pebbleBody: PebbleBody   => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(configuration.core.charset)))
+        case pebbleBody: PebbleBody   => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(charset)))
         case ByteArrayBody(byteArray) => byteArray.map(new FastByteArrayInputStream(_))
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map {

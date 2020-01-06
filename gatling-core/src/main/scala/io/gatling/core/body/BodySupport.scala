@@ -25,8 +25,8 @@ import com.mitchellbosecke.pebble.extension.Extension
 
 trait BodySupport {
 
-  def gzipBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.gzip(configuration)
-  def streamBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.stream(configuration)
+  def gzipBody: Body => Body = BodyProcessors.gzip
+  def streamBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.stream(configuration.core.charset)
 
   def StringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
     io.gatling.core.body.CompositeByteArrayBody(string, configuration.core.charset)
