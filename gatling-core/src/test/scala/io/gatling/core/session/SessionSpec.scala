@@ -363,13 +363,6 @@ class SessionSpec extends BaseSpec {
     session should be theSameInstanceAs unModifiedSession
   }
 
-  "update" should "apply sequentially all updates functions on the session" in {
-    val session = newSession.update(List(_.set("foo", "bar"), _.set("quz", "qiz"), _.remove("foo")))
-
-    session.contains("foo") shouldBe false
-    session.contains("quz") shouldBe true
-  }
-
   "terminate" should "call the userEnd function" in {
     var i = 0
     val session = newSession.copy(onExit = _ => i += 1)

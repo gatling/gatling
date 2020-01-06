@@ -152,7 +152,7 @@ final case class Session(
     copy(blockStack = GroupBlock(groupHierarchy, nowMillis, 0, OK) :: blockStack)
   }
 
-  private[gatling] def exitGroup(tail: List[Block]): Session = copy(blockStack = tail)
+  private[core] def exitGroup(tail: List[Block]): Session = copy(blockStack = tail)
 
   def logGroupRequestTimings(startTimestamp: Long, endTimestamp: Long): Session =
     if (blockStack.isEmpty) {
@@ -180,13 +180,13 @@ final case class Session(
     gh(blockStack)
   }
 
-  private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
+  private[core] def enterTryMax(counterName: String, loopAction: Action) =
     copy(
       blockStack = TryMaxBlock(counterName, loopAction, OK) :: blockStack,
       attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
     )
 
-  private[gatling] def exitTryMax: Session = blockStack match {
+  private[core] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
       copy(blockStack = tail).updateStatus(status).removeCounter(counterName)
 
@@ -260,13 +260,13 @@ final case class Session(
     newBlock :: blockStack
   }
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): Session =
+  private[core] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): Session =
     copy(
       blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
       attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
     )
 
-  private[gatling] def enterTimeBasedLoop(
+  private[core] def enterTimeBasedLoop(
       counterName: String,
       condition: Expression[Boolean],
       exitAction: Action,
@@ -278,7 +278,7 @@ final case class Session(
       attributes = newAttributesWithCounter(counterName, withTimestamp = true, nowMillis)
     )
 
-  private[gatling] def exitLoop: Session = blockStack match {
+  private[core] def exitLoop: Session = blockStack match {
     case LoopBlock(counterName) :: tail => copy(blockStack = tail).removeCounter(counterName)
     case _ =>
       logger.error(s"exitLoop called but stack head $blockStack isn't a Loop Block, please report.")
@@ -294,7 +294,7 @@ final case class Session(
     }
   }
 
-  private[gatling] def incrementCounter(counterName: String): Session =
+  private[core] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case Some(counterValue: Int) => copy(attributes = attributes.updated(counterName, counterValue + 1))
       case _ =>
@@ -302,7 +302,7 @@ final case class Session(
         this
     }
 
-  private[gatling] def removeCounter(counterName: String): Session =
+  private[core] def removeCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case None =>
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
@@ -310,10 +310,6 @@ final case class Session(
       case _ =>
         copy(attributes = attributes - counterName - timestampName(counterName))
     }
-
-  def update(updates: Iterable[Session => Session]): Session = updates.foldLeft(this) { (session, update) =>
-    update(session)
-  }
 
   private[core] def exit(): Unit = onExit(this)
 }
