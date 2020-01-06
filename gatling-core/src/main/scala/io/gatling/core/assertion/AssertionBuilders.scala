@@ -19,16 +19,16 @@ package io.gatling.core.assertion
 import io.gatling.commons.stats.assertion._
 import io.gatling.core.config.GatlingConfiguration
 
-class AssertionWithPath(path: AssertionPath)(implicit configuration: GatlingConfiguration) {
+class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration) {
 
-  def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, ResponseTime)
+  def responseTime: AssertionWithPathAndTimeMetric = new AssertionWithPathAndTimeMetric(path, ResponseTime, configuration)
   def allRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, AllRequests)
   def failedRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, FailedRequests)
   def successfulRequests: AssertionWithPathAndCountMetric = new AssertionWithPathAndCountMetric(path, SuccessfulRequests)
   def requestsPerSec: AssertionWithPathAndTarget[Double] = new AssertionWithPathAndTarget[Double](path, MeanRequestsPerSecondTarget)
 }
 
-class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric)(implicit configuration: GatlingConfiguration) {
+class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, configuration: GatlingConfiguration) {
 
   private def next(selection: TimeSelection) =
     new AssertionWithPathAndTarget[Int](path, TimeTarget(metric, selection))
