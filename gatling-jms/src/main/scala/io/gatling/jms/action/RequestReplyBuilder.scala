@@ -18,7 +18,6 @@ package io.gatling.jms.action
 
 import io.gatling.core.action.Action
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
@@ -28,8 +27,7 @@ final case class RequestReplyBuilder(
     attributes: JmsAttributes,
     replyDestination: JmsDestination,
     setJmsReplyTo: Boolean,
-    trackerDestination: Option[JmsDestination],
-    configuration: GatlingConfiguration
+    trackerDestination: Option[JmsDestination]
 ) extends ActionBuilder {
 
   private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =

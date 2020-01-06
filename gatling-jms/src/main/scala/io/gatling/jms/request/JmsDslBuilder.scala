@@ -19,46 +19,42 @@ package io.gatling.jms.request
 import java.io.{ Serializable => JSerializable }
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper }
 import io.gatling.jms.JmsCheck
 import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
 import com.softwaremill.quicklens._
 
-final case class JmsDslBuilderBase(requestName: Expression[String]) {
+final class JmsDslBuilderBase(requestName: Expression[String]) {
 
-  def send(implicit configuration: GatlingConfiguration): SendDslBuilderQueue = SendDslBuilderQueue(requestName, configuration)
+  def send: SendDslBuilderQueue = new SendDslBuilderQueue(requestName)
 
-  def requestReply(implicit configuration: GatlingConfiguration): RequestReplyDslBuilderQueue = RequestReplyDslBuilderQueue(requestName, configuration)
+  def requestReply: RequestReplyDslBuilderQueue = new RequestReplyDslBuilderQueue(requestName)
 }
 
-final case class SendDslBuilderQueue(
-    requestName: Expression[String],
-    configuration: GatlingConfiguration
+final class SendDslBuilderQueue(
+    requestName: Expression[String]
 ) {
 
   def queue(name: Expression[String]): SendDslDslBuilderMessage = destination(JmsQueue(name))
 
   def destination(destination: JmsDestination): SendDslDslBuilderMessage =
-    SendDslDslBuilderMessage(requestName, destination, configuration)
+    new SendDslDslBuilderMessage(requestName, destination)
 }
 
-final case class RequestReplyDslBuilderQueue(
-    requestName: Expression[String],
-    configuration: GatlingConfiguration
+final class RequestReplyDslBuilderQueue(
+    requestName: Expression[String]
 ) {
 
   def queue(name: Expression[String]): RequestReplyDslBuilderMessage = destination(JmsQueue(name))
 
   def destination(destination: JmsDestination): RequestReplyDslBuilderMessage =
-    RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, setJmsReplyTo = true, None, None, configuration)
+    RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, setJmsReplyTo = true, None, None)
 }
 
-final case class SendDslDslBuilderMessage(
+final class SendDslDslBuilderMessage(
     requestName: Expression[String],
-    destination: JmsDestination,
-    configuration: GatlingConfiguration
+    destination: JmsDestination
 ) {
 
   def textMessage(text: Expression[String]): SendDslBuilder = message(TextJmsMessage(text))
@@ -68,7 +64,7 @@ final case class SendDslDslBuilderMessage(
   def objectMessage(o: Expression[JSerializable]): SendDslBuilder = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), SendBuilder.apply(_, configuration))
+    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), SendBuilder.apply)
 }
 
 final case class RequestReplyDslBuilderMessage(
@@ -77,8 +73,7 @@ final case class RequestReplyDslBuilderMessage(
     replyDest: JmsDestination,
     setJmsReplyTo: Boolean,
     trackerDest: Option[JmsDestination],
-    selector: Option[Expression[String]],
-    configuration: GatlingConfiguration
+    selector: Option[Expression[String]]
 ) {
 
   /**
@@ -104,7 +99,7 @@ final case class RequestReplyDslBuilderMessage(
   private def message(mess: JmsMessage) =
     RequestReplyDslBuilder(
       JmsAttributes(requestName, destination, selector, mess),
-      RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest, configuration)
+      RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest)
     )
 }
 
@@ -117,7 +112,7 @@ final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttribute
 
   def jmsType(jmsType: Expression[String]): SendDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
-  def build(): ActionBuilder = factory(attributes)
+  def build: ActionBuilder = factory(attributes)
 }
 
 final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
@@ -134,5 +129,5 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
    */
   def check(checks: JmsCheck*): RequestReplyDslBuilder = this.modify(_.attributes.checks).using(_ ::: checks.toList)
 
-  def build(): ActionBuilder = factory(attributes)
+  def build: ActionBuilder = factory(attributes)
 }

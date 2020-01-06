@@ -38,7 +38,7 @@ trait JmsDsl extends JmsCheckSupport {
    * @param requestName human readable name of request
    * @return a JmsDslBuilderBase instance which can be used to build up a JMS action
    */
-  def jms(requestName: Expression[String]): JmsDslBuilderBase = JmsDslBuilderBase(requestName)
+  def jms(requestName: Expression[String]): JmsDslBuilderBase = new JmsDslBuilderBase(requestName)
 
   /**
    * Convert a JmsProtocolBuilder to a JmsProtocol
@@ -47,9 +47,9 @@ trait JmsDsl extends JmsCheckSupport {
    */
   implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 
-  implicit def jmsDslBuilder2ActionBuilder(builder: SendDslBuilder): ActionBuilder = builder.build()
+  implicit def jmsDslBuilder2ActionBuilder(builder: SendDslBuilder): ActionBuilder = builder.build
 
-  implicit def jmsDslBuilder2ActionBuilder(builder: RequestReplyDslBuilder): ActionBuilder = builder.build()
+  implicit def jmsDslBuilder2ActionBuilder(builder: RequestReplyDslBuilder): ActionBuilder = builder.build
 
   implicit def jmsJndiConnectionFactory2ActionBuilder(builder: JmsJndiConnectionFactoryBuilder): ConnectionFactory = builder.build()
 

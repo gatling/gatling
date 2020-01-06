@@ -18,13 +18,12 @@ package io.gatling.jms.action
 
 import io.gatling.core.action.Action
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 import io.gatling.jms.request.JmsAttributes
 
-final case class SendBuilder(attributes: JmsAttributes, configuration: GatlingConfiguration) extends ActionBuilder {
+final case class SendBuilder(attributes: JmsAttributes) extends ActionBuilder {
 
   private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
