@@ -19,11 +19,8 @@ package io.gatling.core
 import io.gatling.core.config.GatlingConfiguration
 import scala.concurrent.duration._
 
-import io.gatling.commons.util.Clock
-
 object Predef extends CoreDsl {
 
-  implicit var clock: Clock = _
   private[gatling] var _configuration: GatlingConfiguration = _
   implicit def configuration: GatlingConfiguration = {
     if (_configuration == null) {

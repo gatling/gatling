@@ -16,6 +16,7 @@
 
 package io.gatling.core.action.builder
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action.{ Action, Loop }
 import io.gatling.core.session.{ Expression, Session }
@@ -32,21 +33,13 @@ case object DoWhileType extends LoopType("doWhile", false, true)
 case object AsLongAsDuringLoopType extends LoopType("asLongAsDuring", true, false)
 case object DoWhileDuringType extends LoopType("doWhileDuring", true, true)
 
-/**
- * @constructor create a new Loop
- * @param condition the function that determine the condition
- * @param loopNext chain that will be executed if condition evaluates to true
- * @param counterName the name of the loop counter
- * @param exitASAP if the loop is to be exited as soon as the condition no longer holds
- * @param loopType the loop type
- */
-class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType)
-    extends ActionBuilder
-    with NameGen {
+abstract class LoopBuilder(loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder with NameGen {
+
+  def continueCondition(ctx: ScenarioContext): Expression[Boolean]
 
   def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
-    val safeCondition = condition.safe
+    val safeCondition = continueCondition(ctx).safe
     val actualCondition =
       if (loopType.evaluateConditionAfterLoop) { session: Session =>
         if (session.attributes(counterName) == 0) {
@@ -63,5 +56,28 @@ class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counte
     val loopNextAction = loopNext.build(ctx, loopAction)
     loopAction.initialize(loopNextAction, ctx.coreComponents.actorSystem)
     loopAction
+  }
+}
+
+final class SimpleBooleanConditionLoopBuilder(
+    condition: Expression[Boolean],
+    loopNext: ChainBuilder,
+    counterName: String,
+    exitASAP: Boolean,
+    loopType: LoopType
+) extends LoopBuilder(loopNext, counterName, exitASAP, loopType) {
+  override def continueCondition(ctx: ScenarioContext): Expression[Boolean] = condition
+}
+
+final class ClockBasedConditionLoopBuilder(
+    clockBasedCondition: Clock => Expression[Boolean],
+    loopNext: ChainBuilder,
+    counterName: String,
+    exitASAP: Boolean,
+    loopType: LoopType
+) extends LoopBuilder(loopNext, counterName, exitASAP, loopType) {
+  override def continueCondition(ctx: ScenarioContext): Expression[Boolean] = {
+    val clock = ctx.coreComponents.clock
+    clockBasedCondition(clock)
   }
 }

@@ -66,8 +66,7 @@ private[gatling] class Runner(system: ActorSystem, clock: Clock, configuration: 
   private def run0(selectedSimulationClass: SelectedSimulationClass): RunResult = {
     logger.trace("Running")
 
-    // ugly way to pass the clock and the configuration to the DSL
-    io.gatling.core.Predef.clock = clock
+    // ugly way to pass the configuration to the DSL
     io.gatling.core.Predef._configuration = configuration
 
     val selection = Selection(selectedSimulationClass, configuration)
