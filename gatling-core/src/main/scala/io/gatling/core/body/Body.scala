@@ -19,18 +19,13 @@ package io.gatling.core.body
 import java.io.InputStream
 import java.nio.charset.Charset
 
-import io.gatling.commons.util.CompositeByteArrayInputStream
 import io.gatling.commons.validation._
+import io.gatling.commons.util.CompositeByteArrayInputStream
 import io.gatling.core.session._
-import io.gatling.core.session.el.ElCompiler
+import io.gatling.core.session.el.{ ElCompiler, ElParserException, StaticPart }
 import io.gatling.netty.util.StringBuilderPool
 
 import com.mitchellbosecke.pebble.template.PebbleTemplate
-
-object ElFileBody {
-  def apply(filePath: Expression[String], charset: Charset, elFileBodies: ElFileBodies): CompositeByteArrayBody =
-    CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath), charset)
-}
 
 sealed trait Body
 
@@ -58,21 +53,58 @@ final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with
     bytes(session)
 }
 
-object CompositeByteArrayBody {
-  def apply(string: String, charset: Charset): CompositeByteArrayBody = {
-    new CompositeByteArrayBody(ElCompiler.compile2BytesSeq(string, charset), charset)
-  }
+object ElBody {
+  sealed trait ElBodyPart extends Product with Serializable
+  @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
+  final case class StaticElBodyPart(string: String, bytes: Array[Byte]) extends ElBodyPart
+  final case class DynamicBytes(string: Expression[String], bytes: Expression[Array[Byte]]) extends ElBodyPart
+
+  @throws[ElParserException]
+  private[body] def toParts(string: String, charset: Charset): List[ElBody.ElBodyPart] =
+    ElCompiler.parse(string).map {
+      case StaticPart(string) => ElBody.StaticElBodyPart(string, string.getBytes(charset))
+      case part               => DynamicBytes(part.map(_.toString), part.map(_.toString.getBytes(charset)))
+    }
+
+  def apply(string: String, charset: Charset): ElBody =
+    ElBody(toParts(string, charset).expressionSuccess)
 }
 
-final case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]], charset: Charset) extends Body with Expression[String] {
+final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends Body with Expression[String] {
 
-  override def apply(session: Session): Validation[String] = bytes(session).map { bs =>
-    val sb = StringBuilderPool.DEFAULT.get()
-    bs.foreach(b => sb.append(new String(b, charset)))
-    sb.toString
-  }
+  override def apply(session: Session): Validation[String] =
+    for {
+      parts <- partsE(session)
+      stringBuilder <- parts.foldLeft(StringBuilderPool.DEFAULT.get().success) { (sbV, elPart) =>
+        elPart match {
+          case ElBody.StaticElBodyPart(string, _) => sbV.map(_.append(string))
+          case ElBody.DynamicBytes(stringE, _) =>
+            for {
+              sb <- sbV
+              string <- stringE(session)
+            } yield sb.append(string)
+        }
+      }
+    } yield stringBuilder.toString
 
-  def asStream: Expression[InputStream] = bytes.map(new CompositeByteArrayInputStream(_))
+  def asBytes: Expression[Seq[Array[Byte]]] =
+    session =>
+      for {
+        parts <- partsE(session)
+        reversedBytes <- parts.foldLeft(List.empty[Array[Byte]].success) { (accV, elPart) =>
+          elPart match {
+            case ElBody.StaticElBodyPart(_, bytes) => accV.map(bytes :: _)
+            case ElBody.DynamicBytes(_, bytesE) =>
+              for {
+                acc <- accV
+                bytes <- bytesE(session)
+              } yield bytes :: acc
+          }
+        }
+      } yield reversedBytes.reverse
+
+  def asStream: Expression[InputStream] =
+    asBytes.map(new CompositeByteArrayInputStream(_))
 }
 
 final case class InputStreamBody(is: Expression[InputStream]) extends Body

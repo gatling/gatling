@@ -64,10 +64,10 @@ class HttpRequestExpressionBuilder(
             }
             requestBuilder.setBodyBuilder(requestBodyBuilder)
         }
-      case ByteArrayBody(bytes)                  => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b)))
-      case CompositeByteArrayBody(byteArrays, _) => byteArrays(session).map(bs => requestBuilder.setBodyBuilder(new ByteArraysRequestBodyBuilder(bs.toArray)))
-      case InputStreamBody(is)                   => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
-      case body: PebbleBody                      => body.apply(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
+      case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b)))
+      case body: ElBody         => body.asBytes(session).map(bs => requestBuilder.setBodyBuilder(new ByteArraysRequestBodyBuilder(bs.toArray)))
+      case InputStreamBody(is)  => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
+      case body: PebbleBody     => body.apply(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
     }
 
   private val configureBody: RequestBuilderConfigure = {

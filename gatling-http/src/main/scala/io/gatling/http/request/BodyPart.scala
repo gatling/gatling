@@ -20,7 +20,7 @@ import java.nio.charset.Charset
 import java.util.{ Collections, ArrayList => JArrayList, List => JList }
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.body.{ ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
+import io.gatling.core.body.{ ElBody, ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
 import io.gatling.core.session._
 import io.gatling.http.client.Param
 import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, Part, StringPart }
@@ -42,7 +42,7 @@ object BodyPart {
       defaultCharset: Charset,
       elFileBodies: ElFileBodies
   ): BodyPart =
-    stringBodyPart(name, elFileBodies.asString(filePath), defaultCharset)
+    stringBodyPart(name, new ElBody(elFileBodies.parse(filePath)), defaultCharset)
 
   def stringBodyPart(name: Option[Expression[String]], string: Expression[String], defaultCharset: Charset): BodyPart =
     BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes.Empty.copy(charset = Some(defaultCharset)))

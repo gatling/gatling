@@ -38,7 +38,7 @@ object BodyProcessors {
               }
           }
         case InputStreamBody(inputStream) => inputStream.map(GzipHelper.gzip)
-        case b: CompositeByteArrayBody    => b.asStream.map(GzipHelper.gzip)
+        case b: ElBody                    => b.asStream.map(GzipHelper.gzip)
       }
 
       ByteArrayBody(gzippedBytes)
@@ -59,7 +59,7 @@ object BodyProcessors {
               }
           }
         case InputStreamBody(inputStream) => inputStream
-        case b: CompositeByteArrayBody    => b.asStream
+        case b: ElBody                    => b.asStream
       }
 
       InputStreamBody(stream)

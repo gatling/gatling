@@ -29,7 +29,7 @@ trait BodySupport {
   def streamBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.stream(configuration.core.charset)
 
   def StringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
-    io.gatling.core.body.CompositeByteArrayBody(string, configuration.core.charset)
+    io.gatling.core.body.ElBody(string, configuration.core.charset)
 
   def StringBody(string: Expression[String])(implicit configuration: GatlingConfiguration): Body with Expression[String] =
     io.gatling.core.body.StringBody(string, configuration.core.charset)
@@ -37,8 +37,8 @@ trait BodySupport {
   def RawFileBody(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): Body with Expression[Array[Byte]] =
     io.gatling.core.body.RawFileBody(filePath, rawFileBodies)
 
-  def ElFileBody(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): Body with Expression[String] =
-    io.gatling.core.body.ElFileBody(filePath, configuration.core.charset, elFileBodies)
+  def ElFileBody(filePath: Expression[String])(implicit elFileBodies: ElFileBodies): Body with Expression[String] =
+    new io.gatling.core.body.ElBody(elFileBodies.parse(filePath))
 
   def PebbleStringBody(string: String): Body with Expression[String] =
     io.gatling.core.body.PebbleStringBody(string)
