@@ -26,7 +26,7 @@ object GatlingFiles {
 
   private val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
   private val GatlingAssetsPackage: Path = Paths.get("io", "gatling", "charts", "assets")
-  val GatlingJsFolder: Path = Paths.get("js")
+  private val GatlingJsFolder: Path = Paths.get("js")
   val GatlingStyleFolder: Path = Paths.get("style")
   val GatlingAssetsJsPackage: Path = GatlingAssetsPackage / GatlingJsFolder
   val GatlingAssetsStylePackage: Path = GatlingAssetsPackage / GatlingStyleFolder

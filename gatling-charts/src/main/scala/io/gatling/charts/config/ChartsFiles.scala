@@ -47,25 +47,25 @@ private[charts] object ChartsFiles {
     StatsJsFile
   )
 
-  def menuFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
+  def menuFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / MenuFile
 
-  def allSessionsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AllSessionsFile
+  def allSessionsFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / AllSessionsFile
 
-  def globalFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / "index.html"
+  def globalFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runUuid) / "index.html"
 
-  def requestFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
-    resultDirectory(runOn) / (requestName.toRequestFileName(configuration.core.charset) + ".html")
+  def requestFile(runUuid: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
+    resultDirectory(runUuid) / (requestName.toRequestFileName(configuration.core.charset) + ".html")
 
-  def groupFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
-    resultDirectory(runOn) / (requestName.toGroupFileName(configuration.core.charset) + ".html")
+  def groupFile(runUuid: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
+    resultDirectory(runUuid) / (requestName.toGroupFileName(configuration.core.charset) + ".html")
 
-  def statsJsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
+  def statsJsFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / StatsJsFile
 
-  def statsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsonFile
+  def statsJsonFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / StatsJsonFile
 
-  def globalStatsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / GlobalStatsJsonFile
+  def globalStatsJsonFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / GlobalStatsJsonFile
 
-  def assertionsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJsonFile
+  def assertionsJsonFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / AssertionsJsonFile
 
-  def assertionsJUnitFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJUnitFile
+  def assertionsJUnitFile(runUuid: String)(implicit configuration: GatlingConfiguration): Path = jsDirectory(runUuid) / AssertionsJUnitFile
 }
