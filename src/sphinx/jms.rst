@@ -15,10 +15,10 @@ One has to manually add the following imports:
 
 .. includecode:: code/JmsSample.scala#imports
 
-JMS Protocol
+JMS API
 ============
 
-.. _jms-protocol:
+.. _jms-api:
 
 Use the ``jms`` object in order to create a JMS protocol.
 
