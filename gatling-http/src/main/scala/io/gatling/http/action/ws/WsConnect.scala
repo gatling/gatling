@@ -56,7 +56,7 @@ class WsConnect(
         } yield {
           logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsFsm = WsFsm(
+          val wsFsm = new WsFsm(
             wsName,
             connectRequest,
             subprotocol,
@@ -67,8 +67,7 @@ class WsConnect(
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
             session.eventLoop,
-            clock,
-            coreComponents.configuration
+            clock
           )
 
           wsFsm.onPerformInitialConnect(session, next)

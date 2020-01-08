@@ -24,8 +24,9 @@ sealed trait SendFrame {
   def actionName: String
   def session: Session
   def next: Action
-  def copyWithSession(newSession: Session): SendFrame
+  def copyWithSession(session: Session): SendFrame
 }
+
 final case class SendTextFrame(
     actionName: String,
     message: String,
@@ -33,8 +34,9 @@ final case class SendTextFrame(
     session: Session,
     next: Action
 ) extends SendFrame {
-  override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
+  override def copyWithSession(session: Session): SendFrame = copy(session = session)
 }
+
 @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 final case class SendBinaryFrame(
     actionName: String,
@@ -43,5 +45,5 @@ final case class SendBinaryFrame(
     session: Session,
     next: Action
 ) extends SendFrame {
-  override def copyWithSession(newSession: Session): SendFrame = copy(session = newSession)
+  override def copyWithSession(session: Session): SendFrame = copy(session = session)
 }

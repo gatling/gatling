@@ -89,13 +89,4 @@ abstract class WsState(fsm: WsFsm) {
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
     fsm.statsEngine.logResponse(session, fsm.wsName, fsm.clock.nowMillis, Long.MinValue, OK, None, None)
-
-  protected def registerSendFramePostAction(sendFrame: SendFrame, session: Session): Unit = {
-    sendFrame match {
-      case SendTextFrame(actionName, message, checkSequences, _, next) =>
-        fsm.registerPostAction(_.onSendTextFrame(actionName, message, checkSequences, session, next))
-      case SendBinaryFrame(actionName, message, checkSequences, _, next) =>
-        fsm.registerPostAction(_.onSendBinaryFrame(actionName, message, checkSequences, session, next))
-    }
-  }
 }

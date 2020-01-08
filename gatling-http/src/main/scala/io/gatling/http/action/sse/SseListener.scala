@@ -21,10 +21,8 @@ import java.io.IOException
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.sse.fsm._
+import io.gatling.http.action.sse.fsm.{ SseFsm, _ }
 import io.gatling.http.client.HttpListener
-
-import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
@@ -34,11 +32,7 @@ class SseException(statusCode: Int) extends IOException(s"Server returned http r
   override def fillInStackTrace(): Throwable = this
 }
 
-class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock)
-    extends HttpListener
-    with SseStream
-    with EventStreamDispatcher
-    with StrictLogging {
+class SseListener(fsm: SseFsm, statsEngine: StatsEngine, clock: Clock) extends HttpListener with SseStream with EventStreamDispatcher with StrictLogging {
 
   private var state: SseState = Connecting
   private val decoder = new SseStreamDecoder
@@ -53,7 +47,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock)
 
     if (status == HttpResponseStatus.OK) {
       state = Connected
-      sseActor ! SseStreamConnected(this, clock.nowMillis)
+      fsm.onSseStreamConnected(this, clock.nowMillis)
 
     } else {
       val ex = new SseException(status.code)
@@ -88,7 +82,7 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock)
 
     state match {
       case Connecting | Connected =>
-        sseActor ! SseStreamCrashed(throwable, clock.nowMillis)
+        fsm.onSseStreamCrashed(throwable, clock.nowMillis)
 
       case Closed =>
         logger.error(s"unexpected state closed with error message: $errorMessage")
@@ -102,10 +96,10 @@ class SseListener(sseActor: ActorRef, statsEngine: StatsEngine, clock: Clock)
         channel.close()
         channel = null
       }
-      sseActor ! SseStreamClosed(clock.nowMillis)
+      fsm.onSseStreamClosed(clock.nowMillis)
     }
 
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! SseReceived(sse.asJsonString, clock.nowMillis)
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = fsm.onSseReceived(sse.asJsonString, clock.nowMillis)
 }
 
 private sealed trait SseState

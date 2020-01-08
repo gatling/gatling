@@ -18,11 +18,10 @@ package io.gatling.http.action.sse
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
-import io.gatling.core.action.{ Action, ActorBasedAction, RequestAction }
+import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.sse.fsm.SetCheck
 import io.gatling.http.check.sse.SseMessageCheckSequence
 
 class SseSetCheck(
@@ -33,7 +32,6 @@ class SseSetCheck(
     val clock: Clock,
     val next: Action
 ) extends RequestAction
-    with ActorBasedAction
     with SseAction
     with NameGen {
 
@@ -41,11 +39,11 @@ class SseSetCheck(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      sseActor <- fetchActor(sseName, session)
+      fsm <- fetchFsm(sseName, session)
     } yield {
       // [fl]
       //
       // [fl]
-      sseActor ! SetCheck(requestName, checkSequences, session, next)
+      fsm.onSetCheck(requestName, checkSequences, session, next)
     }
 }

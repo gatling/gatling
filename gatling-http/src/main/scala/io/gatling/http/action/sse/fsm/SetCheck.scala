@@ -16,10 +16,8 @@
 
 package io.gatling.http.action.sse.fsm
 
-trait WhenInit { this: SseActor =>
+import io.gatling.core.action.Action
+import io.gatling.core.session.Session
+import io.gatling.http.check.sse.SseMessageCheckSequence
 
-  when(Init) {
-    case Event(PerformInitialConnect(session, initialConnectNext), InitData) =>
-      gotoConnecting(session.set(wsName, self), Left(initialConnectNext))
-  }
-}
+final case class SetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action)

@@ -90,7 +90,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
                 case Right(sendFrame) =>
                   logger.debug("Connected, performing checks, setting callback to send pending message after performing onConnected action")
-                  registerSendFramePostAction(sendFrame, _)
+                  s => fsm.stashSendFrame(sendFrame.copyWithSession(s))
               }
 
               (OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback), Left(onConnectedAction))
@@ -128,7 +128,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
               case Right(sendFrame) =>
                 logger.debug("Reconnected, no checks, performing onConnected action before sending pending message")
-                registerSendFramePostAction(sendFrame, _)
+                s => fsm.stashSendFrame(sendFrame.copyWithSession(s))
             }
             val newSession = OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback)
             onConnectedAction ! newSession
@@ -143,7 +143,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
               case Right(sendFrame) =>
                 logger.debug("Reconnected, no checks, sending pending message")
-                registerSendFramePostAction(sendFrame, sessionWithGroupTimings)
+                fsm.stashSendFrame(sendFrame.copyWithSession(sessionWithGroupTimings))
             }
             new WsIdleState(fsm, sessionWithGroupTimings, webSocket)
         }

@@ -20,7 +20,6 @@ import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
@@ -32,19 +31,18 @@ import io.netty.handler.codec.http.cookie.Cookie
 
 import scala.concurrent.duration.FiniteDuration
 
-final case class WsFsm(
-    wsName: String,
-    connectRequest: Request,
-    subprotocol: Option[String],
-    connectActionName: String,
-    connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
-    onConnected: Option[Action],
-    statsEngine: StatsEngine,
-    httpEngine: HttpEngine,
-    httpProtocol: HttpProtocol,
-    eventLoop: EventLoop,
-    clock: Clock,
-    configuration: GatlingConfiguration
+class WsFsm(
+    private[fsm] val wsName: String,
+    private[fsm] val connectRequest: Request,
+    private[fsm] val subprotocol: Option[String],
+    private[fsm] val connectActionName: String,
+    private[fsm] val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
+    private[fsm] val onConnected: Option[Action],
+    private[fsm] val statsEngine: StatsEngine,
+    private[fsm] val httpEngine: HttpEngine,
+    private[fsm] val httpProtocol: HttpProtocol,
+    private[fsm] val eventLoop: EventLoop,
+    private[fsm] val clock: Clock
 ) {
 
   private var currentState: WsState = new WsInitState(this)
@@ -63,24 +61,29 @@ final case class WsFsm(
       currentTimeout = null
     }
 
-  private var postAction: WsFsm => Unit = _
-  private[fsm] def registerPostAction(f: WsFsm => Unit): Unit =
-    postAction = f
-  private def executePostAction(): Unit =
-    if (postAction != null) {
-      val ref = postAction
-      postAction = null
-      ref(this)
+  private var stashedSendFrame: SendFrame = _
+  private[fsm] def stashSendFrame(sendFrame: SendFrame): Unit =
+    stashedSendFrame = sendFrame
+  private def unstashSendFrame(): Unit =
+    if (stashedSendFrame != null) {
+      val ref = stashedSendFrame
+      stashedSendFrame = null
+      ref match {
+        case SendTextFrame(actionName, message, checkSequences, session, next) =>
+          onSendTextFrame(actionName, message, checkSequences, session, next)
+        case SendBinaryFrame(actionName, message, checkSequences, session, next) =>
+          onSendBinaryFrame(actionName, message, checkSequences, session, next)
+      }
     }
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit = {
     currentState = currentState.onPerformInitialConnect(session, initialConnectNext)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): Unit = {
     currentState = currentState.onWebSocketConnected(webSocket, cookies, timestamp)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onSendTextFrame(
@@ -91,7 +94,7 @@ final case class WsFsm(
       next: Action
   ): Unit = {
     currentState = currentState.onSendTextFrame(actionName, message, checkSequences, session, next)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onSendBinaryFrame(
@@ -102,36 +105,36 @@ final case class WsFsm(
       next: Action
   ): Unit = {
     currentState = currentState.onSendBinaryFrame(actionName, message, checkSequences, session, next)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onTextFrameReceived(message: String, timestamp: Long): Unit = {
     currentState = currentState.onTextFrameReceived(message, timestamp)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): Unit = {
     currentState = currentState.onBinaryFrameReceived(message, timestamp)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onWebSocketClosed(code: Int, reason: String, timestamp: Long): Unit = {
     currentState = currentState.onWebSocketClosed(code, reason, timestamp)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onWebSocketCrashed(t: Throwable, timestamp: Long): Unit = {
     currentState = currentState.onWebSocketCrashed(t, timestamp)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit = {
     currentState = currentState.onClientCloseRequest(actionName, session, next)
-    executePostAction()
+    unstashSendFrame()
   }
 
   def onTimeout(id: Long): Unit = {
     currentState = currentState.onTimeout(id)
-    executePostAction()
+    unstashSendFrame()
   }
 }

@@ -174,8 +174,8 @@ final case class WsPerformingCheckState(
                   // all check sequences complete
                   logger.debug("Check sequences completed successfully")
                   next match {
-                    case Left(nextAction)   => nextAction ! newSession
-                    case Right(sendMessage) => registerSendFramePostAction(sendMessage, newSession)
+                    case Left(nextAction) => nextAction ! newSession
+                    case Right(sendFrame) => fsm.stashSendFrame(sendFrame.copyWithSession(newSession))
                   }
                   new WsIdleState(fsm, newSession, webSocket)
               }

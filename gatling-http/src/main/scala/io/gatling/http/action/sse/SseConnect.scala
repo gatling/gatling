@@ -23,7 +23,7 @@ import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.sse.fsm.{ PerformInitialConnect, SseActor }
+import io.gatling.http.action.sse.fsm.SseFsm
 import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
@@ -47,29 +47,26 @@ class SseConnect(
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    fetchActor(sseName, session) match {
+    fetchFsm(sseName, session) match {
       case _: Failure =>
         for {
           request <- request(session)
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val sseActor = coreComponents.actorSystem.actorOf(
-            SseActor.props(
-              sseName,
-              request,
-              requestName,
-              connectCheckSequences,
-              statsEngine,
-              httpComponents.httpEngine,
-              httpComponents.httpProtocol,
-              clock,
-              coreComponents.configuration
-            ),
-            genName("sseActor")
+          val fsm = new SseFsm(
+            sseName,
+            request,
+            requestName,
+            connectCheckSequences,
+            statsEngine,
+            httpComponents.httpEngine,
+            httpComponents.httpProtocol,
+            session.eventLoop,
+            clock
           )
 
-          sseActor ! PerformInitialConnect(session, next)
+          fsm.onPerformInitialConnect(session, next)
         }
 
       case _ =>
