@@ -131,16 +131,3 @@ trait RequestAction extends ExitableAction {
     }
   }
 }
-
-trait ActorBasedAction {
-
-  // import optimized TypeCaster
-  import io.gatling.core.util.CoreTypeCaster._
-
-  def actorFetchErrorMessage: String
-
-  final def fetchActor(actorName: String, session: Session): Validation[ActorRef] =
-    session(actorName)
-      .validate[ActorRef]
-      .mapError(m => s"$actorFetchErrorMessage: $m")
-}
