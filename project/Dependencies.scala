@@ -34,7 +34,6 @@ object Dependencies {
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.10.1"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.2.1")
     .exclude("org.simpleflatmapper", "ow2-asm")
-  private val json4sJackson                  = "org.json4s"                          %% "json4s-jackson"                  % "3.6.7"
   private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.0.13"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.4.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.1"
@@ -134,7 +133,7 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaCompiler(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logback, zinc, compilerBridge, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, jackson, json4sJackson, bouncyCastle, netty, akka) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncyCastle, netty, akka) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
