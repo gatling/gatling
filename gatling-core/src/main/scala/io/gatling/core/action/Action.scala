@@ -118,7 +118,7 @@ trait RequestAction extends ExitableAction {
         } catch {
           case NonFatal(e) =>
             statsEngine.reportUnbuildableRequest(session, resolvedRequestName, e.detailedMessage)
-            // rethrow so we trigger exception handling in "Cha!"
+            // rethrow so we trigger exception handling in "ChainableAction!"
             throw e
         }
       outcome.onFailure { errorMessage =>
