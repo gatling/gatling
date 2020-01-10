@@ -49,7 +49,7 @@ trait Action extends StrictLogging {
    * @param session the session of the virtual user
    * @return Nothing
    */
-  def execute(session: Session): Unit
+  protected def execute(session: Session): Unit
 }
 
 /**
@@ -71,11 +71,12 @@ trait ChainableAction extends Action {
       case reason: IllegalStateException if reason.getMessage == "cannot enqueue after timer shutdown" =>
         logger.debug(s"'$name' crashed with '${reason.detailedMessage}', ignoring")
       case NonFatal(reason) =>
-        if (logger.underlying.isInfoEnabled)
+        if (logger.underlying.isInfoEnabled) {
           logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
-        else
+        } else {
           logger.error(s"'$name' crashed with '${reason.detailedMessage}', forwarding to the next one")
-        next.execute(session.markAsFailed)
+        }
+        next ! session.markAsFailed
     }
 
   def recover(session: Session)(v: Validation[_]): Unit =

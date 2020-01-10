@@ -68,7 +68,7 @@ class RendezVousActor(users: Int, val next: Action) extends BaseActor {
     message.foreach {
       case session: Session =>
         logger.error(s"'${self.path.name}' crashed on session $session, forwarding to the next one", reason)
-        next.execute(session.markAsFailed)
+        next ! session.markAsFailed
       case _ =>
         logger.error(s"'${self.path.name}' crashed on unknown message $message, dropping", reason)
     }
