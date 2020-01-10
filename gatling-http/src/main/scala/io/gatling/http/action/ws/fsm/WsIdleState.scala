@@ -47,7 +47,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
     checkSequences match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after sending text frame")
-        val timeoutId = scheduleTimeout(timeout)
+        scheduleTimeout(timeout)
         //[fl]
         //
         //[fl]
@@ -57,7 +57,6 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
           currentCheck = currentCheck,
           remainingChecks = remainingChecks,
           checkSequenceStart = now,
-          checkSequenceTimeoutId = timeoutId,
           remainingCheckSequences,
           session = session,
           next = Left(next)
@@ -85,7 +84,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
     checkSequences match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after sending binary frame")
-        val timeoutId = scheduleTimeout(timeout)
+        scheduleTimeout(timeout)
         //[fl]
         //
         //[fl]
@@ -95,7 +94,6 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
           currentCheck = currentCheck,
           remainingChecks = remainingChecks,
           checkSequenceStart = now,
-          checkSequenceTimeoutId = timeoutId,
           remainingCheckSequences,
           session = session,
           next = Left(next)

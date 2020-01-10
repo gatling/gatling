@@ -38,7 +38,7 @@ abstract class SseState(fsm: SseFsm) {
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
   def onClientCloseRequest(actionName: String, session: Session, next: Action): SseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onTimeout(id: Long): SseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+  def onTimeout(): SseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
     statsEngine.logResponse(session, wsName, clock.nowMillis, Long.MinValue, OK, None, None)

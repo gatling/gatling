@@ -34,7 +34,7 @@ class SseIdleState(fsm: SseFsm, session: Session, stream: SseStream) extends Sse
     checkSequences match {
       case SseMessageCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
         logger.debug("Trigger check after send message")
-        val timeoutId = scheduleTimeout(timeout)
+        scheduleTimeout(timeout)
         //[fl]
         //
         //[fl]
@@ -44,7 +44,6 @@ class SseIdleState(fsm: SseFsm, session: Session, stream: SseStream) extends Sse
           currentCheck = currentCheck,
           remainingChecks = remainingChecks,
           checkSequenceStart = timestamp,
-          checkSequenceTimeoutId = timeoutId,
           remainingCheckSequences,
           session = session,
           next = Left(next)

@@ -46,14 +46,12 @@ class WsFsm(
 ) {
 
   private var currentState: WsState = new WsInitState(this)
-  private var _timeoutId = 0L // FIXME do we still need this?
   private var currentTimeout: ScheduledFuture[Unit] = _
-  private[fsm] def scheduleTimeout(dur: FiniteDuration): Long = {
-    val curr = _timeoutId
-    eventLoop.schedule(() => currentState.onTimeout(curr), dur.toMillis, TimeUnit.MILLISECONDS)
-    _timeoutId += 1
-    curr
-  }
+  private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit =
+    eventLoop.schedule(() => {
+      currentTimeout = null
+      currentState.onTimeout()
+    }, dur.toMillis, TimeUnit.MILLISECONDS)
 
   private[fsm] def cancelTimeout(): Unit =
     if (currentTimeout != null) {
@@ -130,11 +128,6 @@ class WsFsm(
 
   def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit = {
     currentState = currentState.onClientCloseRequest(actionName, session, next)
-    unstashSendFrame()
-  }
-
-  def onTimeout(id: Long): Unit = {
-    currentState = currentState.onTimeout(id)
     unstashSendFrame()
   }
 }

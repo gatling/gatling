@@ -105,7 +105,7 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
         // wait for some checks before proceeding
         logger.debug("Connected, performing checks before proceeding")
 
-        val timeoutId = scheduleTimeout(timeout)
+        scheduleTimeout(timeout)
         //[fl]
         //
         //[fl]
@@ -115,7 +115,6 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
           currentCheck = currentCheck,
           remainingChecks = remainingChecks,
           checkSequenceStart = connectEnd,
-          checkSequenceTimeoutId = timeoutId,
           remainingCheckSequences = remainingCheckSequences,
           session = sessionWithGroupTimings,
           next = next

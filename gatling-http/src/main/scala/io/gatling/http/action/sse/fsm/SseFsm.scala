@@ -42,14 +42,12 @@ class SseFsm(
     private[fsm] val clock: Clock
 ) {
   private var currentState: SseState = new SseInitState(this)
-  private var _timeoutId = 0L // FIXME do we still need this?
   private var currentTimeout: ScheduledFuture[Unit] = _
-  private[fsm] def scheduleTimeout(dur: FiniteDuration): Long = {
-    val curr = _timeoutId
-    eventLoop.schedule(() => currentState.onTimeout(curr), dur.toMillis, TimeUnit.MILLISECONDS)
-    _timeoutId += 1
-    curr
-  }
+  private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit =
+    eventLoop.schedule(() => {
+      currentTimeout = null
+      currentState.onTimeout()
+    }, dur.toMillis, TimeUnit.MILLISECONDS)
 
   private[fsm] def cancelTimeout(): Unit =
     if (currentTimeout != null) {
@@ -76,6 +74,7 @@ class SseFsm(
     currentState = currentState.onSseStreamConnected(stream, timestamp)
     unstashSetCheck()
   }
+
   def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): Unit = {
     currentState = currentState.onSetCheck(actionName, checkSequences, session: Session, next)
     unstashSetCheck()
@@ -85,20 +84,19 @@ class SseFsm(
     currentState = currentState.onSseReceived(message, timestamp)
     unstashSetCheck()
   }
+
   def onSseStreamClosed(timestamp: Long): Unit = {
     currentState = currentState.onSseStreamClosed(timestamp)
     unstashSetCheck()
   }
+
   def onSseStreamCrashed(t: Throwable, timestamp: Long): Unit = {
     currentState = currentState.onSseStreamCrashed(t, timestamp)
     unstashSetCheck()
   }
+
   def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit = {
     currentState = currentState.onClientCloseRequest(actionName, session, next)
-    unstashSetCheck()
-  }
-  def onTimeout(id: Long): Unit = {
-    currentState = currentState.onTimeout(id)
     unstashSetCheck()
   }
 }

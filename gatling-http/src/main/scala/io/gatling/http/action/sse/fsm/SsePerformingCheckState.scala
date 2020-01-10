@@ -32,7 +32,6 @@ final case class SsePerformingCheckState(
     currentCheck: SseMessageCheck,
     remainingChecks: List[SseMessageCheck],
     checkSequenceStart: Long,
-    checkSequenceTimeoutId: Long,
     remainingCheckSequences: List[SseMessageCheckSequence],
     session: Session,
     next: Either[Action, SetCheck]
@@ -41,30 +40,24 @@ final case class SsePerformingCheckState(
 
   import fsm._
 
-  override def onTimeout(timeoutId: Long): SseState = {
-    if (timeoutId == checkSequenceTimeoutId) {
-      logger.debug(s"Check timeout $timeoutId")
-      // check timeout
-      // fail check, send next and goto Idle
-      val errorMessage = s"Check ${currentCheck.name} timeout"
-      val newSession = logResponse(session, currentCheck.name, checkSequenceStart, clock.nowMillis, KO, None, Some(errorMessage))
-      val nextAction = next match {
-        case Left(n) =>
-          logger.debug("Check timeout, failing it and performing next action")
-          n
-        case Right(sendFrame) =>
-          // logging crash
-          logger.debug("Check timeout while trying to reconnect, failing pending send message and performing next action")
-          statsEngine.logCrash(newSession, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
-          sendFrame.next
-      }
-      nextAction ! newSession
-      new SseIdleState(fsm, newSession, stream)
-    } else {
-      logger.debug(s"Out-of-band timeout $timeoutId")
-      // out-of-band timeoutId, ignore
-      this
+  override def onTimeout(): SseState = {
+    logger.debug(s"Check timeout")
+    // check timeout
+    // fail check, send next and goto Idle
+    val errorMessage = s"Check ${currentCheck.name} timeout"
+    val newSession = logResponse(session, currentCheck.name, checkSequenceStart, clock.nowMillis, KO, None, Some(errorMessage))
+    val nextAction = next match {
+      case Left(n) =>
+        logger.debug("Check timeout, failing it and performing next action")
+        n
+      case Right(sendFrame) =>
+        // logging crash
+        logger.debug("Check timeout while trying to reconnect, failing pending send message and performing next action")
+        statsEngine.logCrash(newSession, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
+        sendFrame.next
     }
+    nextAction ! newSession
+    new SseIdleState(fsm, newSession, stream)
   }
 
   override def onSseReceived(message: String, timestamp: Long): SseState =
@@ -98,7 +91,7 @@ final case class SsePerformingCheckState(
     }
     if (messageMatches) {
       logger.debug(s"Received matching message $message")
-      cancelTimeout() // note, we might already have a Timeout in the mailbox, hence the currentTimeoutId check
+      cancelTimeout()
       // matching message, apply checks
       val (sessionWithCheckUpdate, checkError) = Check.check(message, session, checks, preparedCache)
 
@@ -139,7 +132,7 @@ final case class SsePerformingCheckState(
                 case SseMessageCheckSequence(timeout, newCurrentCheck :: newRemainingChecks) :: nextRemainingCheckSequences =>
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
-                  val timeoutId = scheduleTimeout(timeout)
+                  scheduleTimeout(timeout)
                   //[fl]
                   //
                   //[fl]
@@ -147,7 +140,6 @@ final case class SsePerformingCheckState(
                     currentCheck = newCurrentCheck,
                     remainingChecks = newRemainingChecks,
                     checkSequenceStart = timestamp,
-                    checkSequenceTimeoutId = timeoutId,
                     remainingCheckSequences = nextRemainingCheckSequences,
                     session = newSession
                   )

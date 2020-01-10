@@ -64,7 +64,7 @@ abstract class WsState(fsm: WsFsm) {
   def onClientCloseRequest(actionName: String, session: Session, next: Action): WsState =
     throw new IllegalStateException(s"Can't call onClientCloseRequest in ${getClass.getSimpleName} state")
 
-  def onTimeout(id: Long): WsState =
+  def onTimeout(): WsState =
     throw new IllegalStateException(s"Can't call onTimeout in ${getClass.getSimpleName} state")
 
   //[fl]

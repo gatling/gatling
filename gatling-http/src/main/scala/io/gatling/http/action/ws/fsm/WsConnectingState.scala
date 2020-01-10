@@ -101,7 +101,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
               (sessionWithGroupTimings, next)
           }
 
-        val timeoutId = fsm.scheduleTimeout(timeout)
+        fsm.scheduleTimeout(timeout)
         //[fl]
         //
         //[fl]
@@ -111,7 +111,6 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
           currentCheck = currentCheck,
           remainingChecks = remainingChecks,
           checkSequenceStart = connectEnd,
-          checkSequenceTimeoutId = timeoutId,
           remainingCheckSequences = remainingCheckSequences,
           session = newSession,
           next = newNext
