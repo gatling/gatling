@@ -16,76 +16,59 @@
 
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
-import io.gatling.commons.util.DefaultClock
+import io.gatling.BaseSpec
+import io.gatling.commons.stats.KO
+import io.gatling.commons.util.Clock
+import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.session.SessionSpec.EmptySession
-import io.gatling.core.stats.DataWritersStatsEngine
-import io.gatling.core.stats.writer.{ GroupMessage, Init, RunMessage }
+import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito._
 
-class ExitHereIfFailedSpec extends AkkaSpec {
+class ExitHereIfFailedSpec extends BaseSpec {
 
-  private val clock = new DefaultClock
-  private val nextAction = mock[Action]
-
-  def newExitHereIfFailed(exitProbe: TestProbe, dataWriterProbe: TestProbe): ExitHereIfFailed = {
-    val statsEngine = new DataWritersStatsEngine(
-      Init(
-        Nil,
-        RunMessage(
-          "simulationClassName",
-          "simulationId",
-          0,
-          "runDescription",
-          "gatlingVersion"
-        ),
-        Nil
-      ),
-      List(dataWriterProbe.ref),
-      system,
-      clock
-    )
-    val exit = new ActorDelegatingAction("exit", exitProbe.ref)
-
-    new ExitHereIfFailed(exit, statsEngine, clock, new ActorDelegatingAction("next", self))
-  }
-
-  "ExitHereIfFailed" should "send the session to the next actor if the session was not failed" in {
-    val exitProbe = TestProbe()
-    val dataWriterProbe = TestProbe()
-    val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
+  "ExitHereIfFailed" should "send the session to the next action if the session was not failed" in {
+    val exit = mock[Action]
+    val next = mock[Action]
+    val statsEngine = mock[StatsEngine]
+    val clock = mock[Clock]
+    val exitHereIfFailed = new ExitHereIfFailed(exit, statsEngine, clock, next)
 
     exitHereIfFailed ! EmptySession
-
-    expectMsg(EmptySession)
-    exitProbe.expectNoMessage(remainingOrDefault)
+    verify(next) ! EmptySession
+    verify(exit, never) ! any[Session]
   }
 
   it should "end the scenario by sending the session to the user end if the session failed" in {
-    val exitProbe = TestProbe()
-    val dataWriterProbe = TestProbe()
-    val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
+    val exit = mock[Action]
+    val next = mock[Action]
+    val statsEngine = mock[StatsEngine]
+    val clock = mock[Clock]
+    val exitHereIfFailed = new ExitHereIfFailed(exit, statsEngine, clock, next)
 
-    val sessionWithTryMax = EmptySession.enterTryMax("loop", nextAction).markAsFailed
+    val sessionWithTryMax = EmptySession.enterTryMax("loop", next).markAsFailed
 
     exitHereIfFailed ! sessionWithTryMax
 
-    expectNoMessage(remainingOrDefault)
-    exitProbe.expectMsg(sessionWithTryMax)
+    verify(exit) ! sessionWithTryMax
+    verify(next, never) ! any[Session]
   }
 
   it should "also log a group end if the user was inside a group" in {
-    val exitProbe = TestProbe()
-    val dataWriterProbe = TestProbe()
-    val exitHereIfFailed = newExitHereIfFailed(exitProbe, dataWriterProbe)
+    val exit = mock[Action]
+    val next = mock[Action]
+    val statsEngine = mock[StatsEngine]
+    val clock = mock[Clock]
+    when(clock.nowMillis).thenReturn(1)
+    val exitHereIfFailed = new ExitHereIfFailed(exit, statsEngine, clock, next)
 
-    val sessionWithGroup = EmptySession.enterGroup("group", clock.nowMillis).markAsFailed
+    val sessionWithGroup = EmptySession.enterGroup("group", 0).markAsFailed
 
     exitHereIfFailed ! sessionWithGroup
 
-    expectNoMessage(remainingOrDefault)
-    exitProbe.expectMsg(sessionWithGroup)
-    dataWriterProbe.expectMsgType[GroupMessage]
+    verify(exit) ! sessionWithGroup
+    verify(next, never) ! any[Session]
+    verify(statsEngine).logGroupEnd(sessionWithGroup, GroupBlock(List("group"), 0, 0, KO), 1)
   }
 }

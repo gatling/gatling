@@ -42,6 +42,6 @@ class ExitHereIfFailed(exit: Action, statsEngine: StatsEngine, clock: Clock, val
       case _ => next
     }
 
-    nextStep.execute(session)
+    nextStep ! session
   }
 }
