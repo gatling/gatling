@@ -34,9 +34,9 @@ object FeedBuilder {
 
 class FeedBuilder(feederBuilder: FeederBuilder, number: Expression[Int]) extends ActionBuilder with NameGen {
 
-  private[this] def newFeedActor(ctx: ScenarioContext): ActorRef = {
+  private def newFeedActor(ctx: ScenarioContext): ActorRef = {
     val props = FeedActor.props(feederBuilder.apply, ctx.coreComponents.controller)
-    ctx.coreComponents.actorSystem.actorOf(props, genName("singletonFeed"))
+    ctx.coreComponents.actorSystem.actorOf(props, genName("feed"))
   }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {

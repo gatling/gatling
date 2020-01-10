@@ -19,13 +19,12 @@ package io.gatling.core.action
 import io.gatling.commons.util.Clock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.NameGen
 
 import akka.actor.ActorRef
 
-class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction with NameGen {
+class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction {
 
-  override val name: String = genName("feed")
+  override val name: String = feedActor.path.name
 
   override def execute(session: Session): Unit = recover(session) {
     number(session).map(num => feedActor ! FeedMessage(session, num, next))

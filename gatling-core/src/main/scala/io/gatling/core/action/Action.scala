@@ -105,10 +105,6 @@ trait ExitableAction extends ChainableAction {
     }
 }
 
-class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action, actor: ActorRef)
-    extends ActorDelegatingAction(name, actor)
-    with ExitableAction
-
 trait RequestAction extends ExitableAction {
 
   def requestName: Expression[String]

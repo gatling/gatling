@@ -19,25 +19,23 @@ package io.gatling.core.action
 import scala.collection.mutable
 
 import io.gatling.commons.util.Clock
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.core.akka.BaseActor
 
-import akka.actor.{ ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
 object RendezVous extends NameGen {
-
-  def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): Action = {
-    val actor = actorSystem.actorOf(RendezVousActor.props(users, next))
-    new ExitableActorDelegatingAction(genName("rendezVous"), statsEngine, clock, next, actor)
+  def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): RendezVous = {
+    val props = Props(new RendezVousActor(users: Int, next))
+    val actor = actorSystem.actorOf(props, genName("rendezVous"))
+    new RendezVous(actor, statsEngine, clock, next)
   }
 }
 
-object RendezVousActor {
-  def props(users: Int, next: Action): Props =
-    Props(new RendezVousActor(users: Int, next))
-}
+class RendezVous private (actor: ActorRef, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ActorDelegatingAction(actor.path.name, actor)
 
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
