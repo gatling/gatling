@@ -24,29 +24,27 @@ import com.typesafe.scalalogging.StrictLogging
 
 final class WsClosingState(fsm: WsFsm, actionName: String, session: Session, next: Action, closeStart: Long) extends WsState(fsm) with StrictLogging {
 
-  override def onTextFrameReceived(message: String, timestamp: Long): WsState = {
+  override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
     logUnmatchedServerMessage(session)
-    this
+    NextWsState(this)
   }
 
-  override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): WsState = {
+  override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
     logUnmatchedServerMessage(session)
-    this
+    NextWsState(this)
   }
 
-  override def onWebSocketClosed(code: Int, reason: String, closeEnd: Long): WsState = {
+  override def onWebSocketClosed(code: Int, reason: String, closeEnd: Long): NextWsState = {
     // server has acked closing
     logger.info("Server has acked closing")
-    val newSession = logResponse(session, actionName, closeStart, closeEnd, OK, None, None)
-    next ! newSession.remove(fsm.wsName)
-    new WsClosedState(fsm)
+    val newSession = logResponse(session, actionName, closeStart, closeEnd, OK, None, None).remove(fsm.wsName)
+    NextWsState(new WsClosedState(fsm), () => next ! newSession)
   }
 
-  override def onWebSocketCrashed(t: Throwable, timestamp: Long): WsState = {
+  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
     logger.info("WebSocket crashed while waiting for close ack")
     // crash, close anyway
-    val newSession = logResponse(session, actionName, closeStart, timestamp, KO, None, Some(t.getMessage))
-    next ! newSession.markAsFailed.remove(fsm.wsName)
-    new WsClosedState(fsm)
+    val newSession = logResponse(session, actionName, closeStart, timestamp, KO, None, Some(t.getMessage)).markAsFailed.remove(fsm.wsName)
+    NextWsState(new WsClosedState(fsm), () => next ! newSession)
   }
 }

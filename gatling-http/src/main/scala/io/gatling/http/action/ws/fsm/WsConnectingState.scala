@@ -32,10 +32,10 @@ import io.netty.handler.codec.http.cookie.Cookie
 object WsConnectingState extends SslContextSupport {
   private val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 
-  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame]): WsState =
+  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame]): NextWsState =
     gotoConnecting(fsm, session, next, fsm.httpProtocol.wsPart.maxReconnects.getOrElse(0))
 
-  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], remainingTries: Int): WsState = {
+  def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], remainingTries: Int): NextWsState = {
 
     import fsm._
 
@@ -55,7 +55,7 @@ object WsConnectingState extends SslContextSupport {
       userSslContexts.flatMap(_.alpnSslContext).orNull
     )
 
-    new WsConnectingState(fsm, session, next, clock.nowMillis, remainingTries)
+    NextWsState(new WsConnectingState(fsm, session, next, clock.nowMillis, remainingTries))
   }
 }
 
@@ -66,7 +66,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
   import fsm._
 
-  override def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], connectEnd: Long): WsState = {
+  override def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], connectEnd: Long): NextWsState = {
     val sessionWithCookies = CookieSupport.storeCookies(session, connectRequest.getUri, cookies, connectEnd)
     val sessionWithGroupTimings =
       logResponse(sessionWithCookies, connectActionName, connectStart, connectEnd, OK, WsConnectingState.WsConnectSuccessStatusCode, None)
@@ -90,7 +90,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
                 case Right(sendFrame) =>
                   logger.debug("Connected, performing checks, setting callback to send pending message after performing onConnected action")
-                  s => fsm.stashSendFrame(sendFrame.copyWithSession(s))
+                  s => sendFrameNextAction(sendFrame.copyWithSession(s))
               }
 
               (OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback), Left(onConnectedAction))
@@ -105,15 +105,18 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
         //[fl]
         //
         //[fl]
-        WsPerformingCheckState(
-          fsm,
-          webSocket = webSocket,
-          currentCheck = currentCheck,
-          remainingChecks = remainingChecks,
-          checkSequenceStart = connectEnd,
-          remainingCheckSequences = remainingCheckSequences,
-          session = newSession,
-          next = newNext
+
+        NextWsState(
+          WsPerformingCheckState(
+            fsm,
+            webSocket = webSocket,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
+            checkSequenceStart = connectEnd,
+            remainingCheckSequences = remainingCheckSequences,
+            session = newSession,
+            next = newNext
+          )
         )
 
       case _ => // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
@@ -127,24 +130,31 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
               case Right(sendFrame) =>
                 logger.debug("Reconnected, no checks, performing onConnected action before sending pending message")
-                s => fsm.stashSendFrame(sendFrame.copyWithSession(s))
+                s => sendFrameNextAction(sendFrame.copyWithSession(s))
             }
             val newSession = OnConnectedChainEndAction.setOnConnectedChainEndCallback(sessionWithGroupTimings, onConnectedChainEndCallback)
-            onConnectedAction ! newSession
-            new WsIdleState(fsm, newSession, webSocket)
+
+            NextWsState(
+              new WsIdleState(fsm, newSession, webSocket),
+              () => onConnectedAction ! newSession
+            )
 
           case _ =>
-            // send next
-            next match {
-              case Left(nextAction) =>
-                logger.debug("Connected, no checks, performing next action")
-                nextAction ! sessionWithGroupTimings
+            val afterStateUpdate =
+              next match {
+                case Left(nextAction) =>
+                  logger.debug("Connected, no checks, performing next action")
+                  () => nextAction ! sessionWithGroupTimings
 
-              case Right(sendFrame) =>
-                logger.debug("Reconnected, no checks, sending pending message")
-                fsm.stashSendFrame(sendFrame.copyWithSession(sessionWithGroupTimings))
-            }
-            new WsIdleState(fsm, sessionWithGroupTimings, webSocket)
+                case Right(sendFrame) =>
+                  logger.debug("Reconnected, no checks, sending pending message")
+                  sendFrameNextAction(sendFrame.copyWithSession(sessionWithGroupTimings))
+              }
+
+            NextWsState(
+              new WsIdleState(fsm, sessionWithGroupTimings, webSocket),
+              afterStateUpdate
+            )
         }
     }
   }

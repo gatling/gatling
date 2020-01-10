@@ -37,7 +37,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
       checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
       session: Session,
       next: Action
-  ): WsState = {
+  ): NextWsState = {
     logger.debug(s"Send text frame $actionName $message")
     // actually send message!
     val now = clock.nowMillis
@@ -51,20 +51,22 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
         //[fl]
         //
         //[fl]
-        WsPerformingCheckState(
-          fsm,
-          webSocket = webSocket,
-          currentCheck = currentCheck,
-          remainingChecks = remainingChecks,
-          checkSequenceStart = now,
-          remainingCheckSequences,
-          session = session,
-          next = Left(next)
+        NextWsState(
+          WsPerformingCheckState(
+            fsm,
+            webSocket = webSocket,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
+            checkSequenceStart = now,
+            remainingCheckSequences,
+            session = session,
+            next = Left(next)
+          )
         )
 
-      case _ => // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
-        next ! session
-        this
+      case _ =>
+        // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
+        NextWsState(this, () => next ! session)
     }
   }
 
@@ -74,7 +76,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
       checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
       session: Session,
       next: Action
-  ): WsState = {
+  ): NextWsState = {
     logger.debug(s"Send binary frame $actionName length=${message.length}")
     // actually send message!
     val now = clock.nowMillis
@@ -88,53 +90,54 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
         //[fl]
         //
         //[fl]
-        WsPerformingCheckState(
-          fsm,
-          webSocket = webSocket,
-          currentCheck = currentCheck,
-          remainingChecks = remainingChecks,
-          checkSequenceStart = now,
-          remainingCheckSequences,
-          session = session,
-          next = Left(next)
+        NextWsState(
+          WsPerformingCheckState(
+            fsm,
+            webSocket = webSocket,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
+            checkSequenceStart = now,
+            remainingCheckSequences,
+            session = session,
+            next = Left(next)
+          )
         )
 
       case _ => // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
-        next ! session
-        this
+        NextWsState(this, () => next ! session)
     }
   }
 
-  override def onTextFrameReceived(message: String, timestamp: Long): WsState = {
+  override def onTextFrameReceived(message: String, timestamp: Long): NextWsState = {
     // server push message, just log
     logUnmatchedServerMessage(session)
-    this
+    NextWsState(this)
   }
 
-  override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): WsState = {
+  override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState = {
     // server push message, just log
     logUnmatchedServerMessage(session)
-    this
+    NextWsState(this)
   }
 
-  override def onWebSocketClosed(code: Int, reason: String, timestamp: Long): WsState = {
+  override def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState = {
     // server issued close
     logger.info(s"WebSocket was forcefully closed ($code:$reason) by the server while in Idle state")
-    new WsCrashedState(fsm, None)
+    NextWsState(new WsCrashedState(fsm, None))
   }
 
-  override def onWebSocketCrashed(t: Throwable, timestamp: Long): WsState = {
+  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
     // crash
     logger.info("WebSocket crashed by the server while in Idle state", t)
-    new WsCrashedState(fsm, Some(t.rootMessage))
+    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
   }
 
-  override def onClientCloseRequest(actionName: String, session: Session, next: Action): WsState = {
+  override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
     logger.info("Client requested WebSocket close")
     webSocket.sendFrame(new CloseWebSocketFrame())
     //[fl]
     //
     //[fl]
-    new WsClosingState(fsm, actionName, session, next, clock.nowMillis) // TODO should we have a close timeout?
+    NextWsState(new WsClosingState(fsm, actionName, session, next, clock.nowMillis)) // TODO should we have a close timeout?
   }
 }

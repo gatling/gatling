@@ -25,7 +25,7 @@ class SseCrashedState(fsm: SseFsm, errorMessage: Option[String]) extends SseStat
 
   import fsm._
 
-  override def onClientCloseRequest(actionName: String, session: Session, next: Action): SseState = {
+  override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
     val newSession = errorMessage match {
       case Some(mess) =>
         val newSession = session.markAsFailed
@@ -36,11 +36,13 @@ class SseCrashedState(fsm: SseFsm, errorMessage: Option[String]) extends SseStat
         session
     }
 
-    next ! newSession.remove(wsName)
-    new SseClosedState(fsm)
+    NextSseState(
+      new SseClosedState(fsm),
+      () => next ! newSession.remove(wsName)
+    )
   }
 
-  override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): SseState = {
+  override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
     // FIXME sent message so be stashed until reconnect, instead of failed
     val loggedMessage = errorMessage match {
       case Some(mess) => s"Client issued message but SSE stream was already crashed: $mess"

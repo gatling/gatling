@@ -23,6 +23,6 @@ class SseInitState(fsm: SseFsm) extends SseState(fsm) {
 
   import fsm._
 
-  override def onPerformInitialConnect(session: Session, initialConnectNext: Action): SseState =
+  override def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextSseState =
     SseConnectingState.gotoConnecting(fsm, session.set(wsName, fsm), Left(initialConnectNext))
 }

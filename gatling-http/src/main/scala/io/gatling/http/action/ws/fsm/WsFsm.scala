@@ -26,6 +26,7 @@ import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheck
 import io.gatling.http.client.{ Request, WebSocket }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
+
 import io.netty.channel.EventLoop
 import io.netty.handler.codec.http.cookie.Cookie
 
@@ -59,30 +60,17 @@ class WsFsm(
       currentTimeout = null
     }
 
-  private var stashedSendFrame: SendFrame = _
-  private[fsm] def stashSendFrame(sendFrame: SendFrame): Unit =
-    stashedSendFrame = sendFrame
-  private def unstashSendFrame(): Unit =
-    if (stashedSendFrame != null) {
-      val ref = stashedSendFrame
-      stashedSendFrame = null
-      ref match {
-        case SendTextFrame(actionName, message, checkSequences, session, next) =>
-          onSendTextFrame(actionName, message, checkSequences, session, next)
-        case SendBinaryFrame(actionName, message, checkSequences, session, next) =>
-          onSendBinaryFrame(actionName, message, checkSequences, session, next)
-      }
-    }
-
-  def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit = {
-    currentState = currentState.onPerformInitialConnect(session, initialConnectNext)
-    unstashSendFrame()
+  private def execute(f: => NextWsState): Unit = {
+    val NextWsState(nextState, afterStateUpdate) = f
+    currentState = nextState
+    afterStateUpdate()
   }
 
-  def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): Unit = {
-    currentState = currentState.onWebSocketConnected(webSocket, cookies, timestamp)
-    unstashSendFrame()
-  }
+  def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit =
+    execute(currentState.onPerformInitialConnect(session, initialConnectNext))
+
+  def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): Unit =
+    execute(currentState.onWebSocketConnected(webSocket, cookies, timestamp))
 
   def onSendTextFrame(
       actionName: String,
@@ -90,10 +78,8 @@ class WsFsm(
       checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
       session: Session,
       next: Action
-  ): Unit = {
-    currentState = currentState.onSendTextFrame(actionName, message, checkSequences, session, next)
-    unstashSendFrame()
-  }
+  ): Unit =
+    execute(currentState.onSendTextFrame(actionName, message, checkSequences, session, next))
 
   def onSendBinaryFrame(
       actionName: String,
@@ -101,33 +87,21 @@ class WsFsm(
       checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
       session: Session,
       next: Action
-  ): Unit = {
-    currentState = currentState.onSendBinaryFrame(actionName, message, checkSequences, session, next)
-    unstashSendFrame()
-  }
+  ): Unit =
+    execute(currentState.onSendBinaryFrame(actionName, message, checkSequences, session, next))
 
-  def onTextFrameReceived(message: String, timestamp: Long): Unit = {
-    currentState = currentState.onTextFrameReceived(message, timestamp)
-    unstashSendFrame()
-  }
+  def onTextFrameReceived(message: String, timestamp: Long): Unit =
+    execute(currentState.onTextFrameReceived(message, timestamp))
 
-  def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): Unit = {
-    currentState = currentState.onBinaryFrameReceived(message, timestamp)
-    unstashSendFrame()
-  }
+  def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): Unit =
+    execute(currentState.onBinaryFrameReceived(message, timestamp))
 
-  def onWebSocketClosed(code: Int, reason: String, timestamp: Long): Unit = {
-    currentState = currentState.onWebSocketClosed(code, reason, timestamp)
-    unstashSendFrame()
-  }
+  def onWebSocketClosed(code: Int, reason: String, timestamp: Long): Unit =
+    execute(currentState.onWebSocketClosed(code, reason, timestamp))
 
-  def onWebSocketCrashed(t: Throwable, timestamp: Long): Unit = {
-    currentState = currentState.onWebSocketCrashed(t, timestamp)
-    unstashSendFrame()
-  }
+  def onWebSocketCrashed(t: Throwable, timestamp: Long): Unit =
+    execute(currentState.onWebSocketCrashed(t, timestamp))
 
-  def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit = {
-    currentState = currentState.onClientCloseRequest(actionName, session, next)
-    unstashSendFrame()
-  }
+  def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit =
+    execute(currentState.onClientCloseRequest(actionName, session, next))
 }

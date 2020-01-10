@@ -24,7 +24,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsState(fsm) with StrictLogging {
 
-  override def onClientCloseRequest(actionName: String, session: Session, next: Action): WsState = {
+  override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
     val newSession = errorMessage match {
       case Some(mess) =>
         val newSession = session.markAsFailed
@@ -35,8 +35,10 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
         session
     }
 
-    next ! newSession.remove(fsm.wsName)
-    new WsClosedState(fsm)
+    NextWsState(
+      new WsClosedState(fsm),
+      () => next ! newSession.remove(fsm.wsName)
+    )
   }
 
   override def onSendTextFrame(
@@ -45,7 +47,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
       checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
       session: Session,
       next: Action
-  ): WsState = {
+  ): NextWsState = {
     // FIXME sent message so be stashed until reconnect, instead of failed
     val loggedMessage = errorMessage match {
       case Some(mess) => s"Client issued message but WebSocket was already crashed: $mess"
@@ -64,7 +66,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
       checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
       session: Session,
       next: Action
-  ): WsState = {
+  ): NextWsState = {
     // FIXME sent message so be stashed until reconnect, instead of failed
     val loggedMessage = errorMessage match {
       case Some(mess) => s"Client issued message but WebSocket was already crashed: $mess"

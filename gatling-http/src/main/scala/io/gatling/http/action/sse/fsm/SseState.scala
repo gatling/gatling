@@ -21,24 +21,31 @@ import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
 
+object NextSseState {
+  val DoNothing: () => Unit = () => {}
+}
+
+@SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+final case class NextSseState(state: SseState, afterStateUpdate: () => Unit = NextSseState.DoNothing)
+
 abstract class SseState(fsm: SseFsm) {
 
   import fsm._
 
-  def onPerformInitialConnect(session: Session, initialConnectNext: Action): SseState =
+  def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextSseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSseStreamConnected(stream: SseStream, timestamp: Long): SseState =
+  def onSseStreamConnected(stream: SseStream, timestamp: Long): NextSseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): SseState =
+  def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSseReceived(message: String, timestamp: Long): SseState =
+  def onSseReceived(message: String, timestamp: Long): NextSseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSseStreamClosed(timestamp: Long): SseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSseStreamCrashed(t: Throwable, timestamp: Long): SseState =
+  def onSseStreamClosed(timestamp: Long): NextSseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+  def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onClientCloseRequest(actionName: String, session: Session, next: Action): SseState =
+  def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState =
     throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onTimeout(): SseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+  def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
     statsEngine.logResponse(session, wsName, clock.nowMillis, Long.MinValue, OK, None, None)
@@ -62,4 +69,7 @@ abstract class SseState(fsm: SseFsm) {
   //
   //
   //[fl]
+
+  protected def setCheckNextAction(setCheck: SetCheck): () => Unit =
+    () => fsm.onSetCheck(setCheck.actionName, setCheck.checkSequences, setCheck.session, setCheck.next)
 }

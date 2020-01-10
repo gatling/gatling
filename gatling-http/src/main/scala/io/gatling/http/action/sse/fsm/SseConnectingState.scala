@@ -30,10 +30,10 @@ object SseConnectingState extends SslContextSupport {
 
   private val SseConnectSuccessStatusCode = Some(Integer.toString(HttpResponseStatus.OK.code))
 
-  def gotoConnecting(fsm: SseFsm, session: Session, next: Either[Action, SetCheck]): SseState =
+  def gotoConnecting(fsm: SseFsm, session: Session, next: Either[Action, SetCheck]): NextSseState =
     gotoConnecting(fsm, session, next, fsm.httpProtocol.wsPart.maxReconnects.getOrElse(0))
 
-  def gotoConnecting(fsm: SseFsm, session: Session, next: Either[Action, SetCheck], remainingTries: Int): SseState = {
+  def gotoConnecting(fsm: SseFsm, session: Session, next: Either[Action, SetCheck], remainingTries: Int): NextSseState = {
 
     import fsm._
 
@@ -53,7 +53,7 @@ object SseConnectingState extends SslContextSupport {
       userSslContexts.flatMap(_.alpnSslContext).orNull
     )
 
-    new SseConnectingState(fsm, session, next, clock.nowMillis, remainingTries)
+    NextSseState(new SseConnectingState(fsm, session, next, clock.nowMillis, remainingTries))
   }
 }
 
@@ -71,7 +71,7 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
       code: Option[String],
       reason: String,
       remainingTries: Int
-  ): SseState = {
+  ): NextSseState = {
     // log connect failure
     val newSession = logResponse(session, connectActionName, connectStart, connectEnd, KO, code, Some(reason))
     val newRemainingTries = remainingTries - 1
@@ -92,12 +92,15 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
           statsEngine.logCrash(newSession, sendFrame.actionName, "Failed to reconnect")
           sendFrame.next
       }
-      nextAction ! newSession.markAsFailed
-      new SseCrashedState(fsm, Some(reason))
+
+      NextSseState(
+        new SseCrashedState(fsm, Some(reason)),
+        () => nextAction ! newSession.markAsFailed
+      )
     }
   }
 
-  override def onSseStreamConnected(stream: SseStream, connectEnd: Long): SseState = {
+  override def onSseStreamConnected(stream: SseStream, connectEnd: Long): NextSseState = {
     val sessionWithGroupTimings = logResponse(session, connectActionName, connectStart, connectEnd, OK, SseConnectingState.SseConnectSuccessStatusCode, None)
 
     connectCheckSequence match {
@@ -109,15 +112,17 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
         //[fl]
         //
         //[fl]
-        SsePerformingCheckState(
-          fsm,
-          stream = stream,
-          currentCheck = currentCheck,
-          remainingChecks = remainingChecks,
-          checkSequenceStart = connectEnd,
-          remainingCheckSequences = remainingCheckSequences,
-          session = sessionWithGroupTimings,
-          next = next
+        NextSseState(
+          SsePerformingCheckState(
+            fsm,
+            stream = stream,
+            currentCheck = currentCheck,
+            remainingChecks = remainingChecks,
+            checkSequenceStart = connectEnd,
+            remainingCheckSequences = remainingCheckSequences,
+            session = sessionWithGroupTimings,
+            next = next
+          )
         )
 
       case _ => // same as Nil as WsFrameCheckSequence#checks can't be Nil, but compiler complains that match may not be exhaustive
@@ -129,16 +134,17 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
 
           case Right(setCheck) =>
             logger.debug("Reconnected, no checks, sending pending message")
-            fsm.stashSetCheck(setCheck.copy(session = sessionWithGroupTimings))
+            setCheckNextAction(setCheck.copy(session = sessionWithGroupTimings))
         }
-        new SseIdleState(fsm, sessionWithGroupTimings, stream)
+        NextSseState(new SseIdleState(fsm, sessionWithGroupTimings, stream))
+
     }
   }
-  override def onSseStreamClosed(timestamp: Long): SseState =
+  override def onSseStreamClosed(timestamp: Long): NextSseState =
     // unexpected close
     handleConnectFailure(session, next, connectStart, timestamp, None, "Socket closed", remainingTries)
 
-  override def onSseStreamCrashed(t: Throwable, timestamp: Long): SseState =
+  override def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState =
     // crash
     handleConnectFailure(session, next, connectStart, timestamp, None, t.rootMessage, remainingTries)
 }

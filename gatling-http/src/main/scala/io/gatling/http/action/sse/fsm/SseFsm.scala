@@ -55,48 +55,30 @@ class SseFsm(
       currentTimeout = null
     }
 
-  private var stashedSetCheck: SetCheck = _
-  private[fsm] def stashSetCheck(setCheck: SetCheck): Unit =
-    stashedSetCheck = setCheck
-  private def unstashSetCheck(): Unit =
-    if (stashedSetCheck != null) {
-      val ref = stashedSetCheck
-      stashedSetCheck = null
-      onSetCheck(ref.actionName, ref.checkSequences, ref.session, ref.next)
-    }
-
-  def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit = {
-    currentState = currentState.onPerformInitialConnect(session, initialConnectNext)
-    unstashSetCheck()
+  private def execute(f: => NextSseState): Unit = {
+    val NextSseState(nextState, afterStateUpdate) = f
+    currentState = nextState
+    afterStateUpdate()
   }
 
-  def onSseStreamConnected(stream: SseStream, timestamp: Long): Unit = {
-    currentState = currentState.onSseStreamConnected(stream, timestamp)
-    unstashSetCheck()
-  }
+  def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit =
+    execute(currentState.onPerformInitialConnect(session, initialConnectNext))
 
-  def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): Unit = {
-    currentState = currentState.onSetCheck(actionName, checkSequences, session: Session, next)
-    unstashSetCheck()
-  }
+  def onSseStreamConnected(stream: SseStream, timestamp: Long): Unit =
+    execute(currentState.onSseStreamConnected(stream, timestamp))
 
-  def onSseReceived(message: String, timestamp: Long): Unit = {
-    currentState = currentState.onSseReceived(message, timestamp)
-    unstashSetCheck()
-  }
+  def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): Unit =
+    execute(currentState.onSetCheck(actionName, checkSequences, session: Session, next))
 
-  def onSseStreamClosed(timestamp: Long): Unit = {
-    currentState = currentState.onSseStreamClosed(timestamp)
-    unstashSetCheck()
-  }
+  def onSseReceived(message: String, timestamp: Long): Unit =
+    execute(currentState.onSseReceived(message, timestamp))
 
-  def onSseStreamCrashed(t: Throwable, timestamp: Long): Unit = {
-    currentState = currentState.onSseStreamCrashed(t, timestamp)
-    unstashSetCheck()
-  }
+  def onSseStreamClosed(timestamp: Long): Unit =
+    execute(currentState.onSseStreamClosed(timestamp))
 
-  def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit = {
-    currentState = currentState.onClientCloseRequest(actionName, session, next)
-    unstashSetCheck()
-  }
+  def onSseStreamCrashed(t: Throwable, timestamp: Long): Unit =
+    execute(currentState.onSseStreamCrashed(t, timestamp))
+
+  def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit =
+    execute(currentState.onClientCloseRequest(actionName, session, next))
 }

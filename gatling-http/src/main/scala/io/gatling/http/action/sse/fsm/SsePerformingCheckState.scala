@@ -40,7 +40,7 @@ final case class SsePerformingCheckState(
 
   import fsm._
 
-  override def onTimeout(): SseState = {
+  override def onTimeout(): NextSseState = {
     logger.debug(s"Check timeout")
     // check timeout
     // fail check, send next and goto Idle
@@ -56,28 +56,31 @@ final case class SsePerformingCheckState(
         statsEngine.logCrash(newSession, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
         sendFrame.next
     }
-    nextAction ! newSession
-    new SseIdleState(fsm, newSession, stream)
+
+    NextSseState(
+      new SseIdleState(fsm, newSession, stream),
+      () => nextAction ! newSession
+    )
   }
 
-  override def onSseReceived(message: String, timestamp: Long): SseState =
+  override def onSseReceived(message: String, timestamp: Long): NextSseState =
     tryApplyingChecks(message, timestamp, currentCheck.matchConditions, currentCheck.checks)
 
-  override def onSseStreamClosed(timestamp: Long): SseState = {
+  override def onSseStreamClosed(timestamp: Long): NextSseState = {
     // unexpected close, fail check
     logger.debug("WebSocket remotely closed while waiting for checks")
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, "Socket closed")
   }
 
-  override def onSseStreamCrashed(t: Throwable, timestamp: Long): SseState = {
+  override def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
     // crash, fail check
     logger.debug("WebSocket crashed while waiting for checks")
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, t.getMessage)
   }
 
-  private def tryApplyingChecks(message: String, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): SseState = {
+  private def tryApplyingChecks(message: String, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
 
     // cache is used for both matching and checking
     val preparedCache: JHashMap[Any, Any] = new JHashMap(2)
@@ -111,8 +114,10 @@ final case class SsePerformingCheckState(
               sendMessage.next
           }
 
-          nextAction ! newSession
-          new SseIdleState(fsm, newSession, stream)
+          NextSseState(
+            new SseIdleState(fsm, newSession, stream),
+            () => nextAction ! newSession
+          )
 
         case _ =>
           logger.debug("Current check success")
@@ -125,7 +130,13 @@ final case class SsePerformingCheckState(
               //[fl]
               //
               //[fl]
-              this.copy(currentCheck = nextCheck, remainingChecks = nextRemainingChecks, session = newSession)
+              NextSseState(
+                this.copy(
+                  currentCheck = nextCheck,
+                  remainingChecks = nextRemainingChecks,
+                  session = newSession
+                )
+              )
 
             case _ =>
               remainingCheckSequences match {
@@ -136,22 +147,28 @@ final case class SsePerformingCheckState(
                   //[fl]
                   //
                   //[fl]
-                  this.copy(
-                    currentCheck = newCurrentCheck,
-                    remainingChecks = newRemainingChecks,
-                    checkSequenceStart = timestamp,
-                    remainingCheckSequences = nextRemainingCheckSequences,
-                    session = newSession
+                  NextSseState(
+                    this.copy(
+                      currentCheck = newCurrentCheck,
+                      remainingChecks = newRemainingChecks,
+                      checkSequenceStart = timestamp,
+                      remainingCheckSequences = nextRemainingCheckSequences,
+                      session = newSession
+                    )
                   )
 
                 case _ =>
                   // all check sequences complete
                   logger.debug("Check sequences completed successfully")
-                  next match {
-                    case Left(nextAction) => nextAction ! newSession
-                    case Right(setCheck)  => fsm.stashSetCheck(setCheck.copy(session = newSession))
-                  }
-                  new SseIdleState(fsm, newSession, stream)
+                  val afterStateUpdate =
+                    next match {
+                      case Left(nextAction) => () => nextAction ! newSession
+                      case Right(setCheck)  => setCheckNextAction(setCheck.copy(session = newSession))
+                    }
+                  NextSseState(
+                    new SseIdleState(fsm, newSession, stream),
+                    afterStateUpdate
+                  )
               }
           }
       }
@@ -159,7 +176,7 @@ final case class SsePerformingCheckState(
       logger.debug(s"Received non-matching message $message")
       // server unmatched message, just log
       logUnmatchedServerMessage(session)
-      this
+      NextSseState(this)
     }
   }
 
@@ -170,7 +187,7 @@ final case class SsePerformingCheckState(
       checkSequenceStart: Long,
       code: Option[String],
       errorMessage: String
-  ): SseState = {
+  ): NextSseState = {
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
     val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))
@@ -186,7 +203,10 @@ final case class SsePerformingCheckState(
         statsEngine.logCrash(newSession, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
         sendTextMessage.next
     }
-    nextAction ! newSession
-    new SseCrashedState(fsm, Some(errorMessage))
+
+    NextSseState(
+      new SseCrashedState(fsm, Some(errorMessage)),
+      () => nextAction ! newSession
+    )
   }
 }
