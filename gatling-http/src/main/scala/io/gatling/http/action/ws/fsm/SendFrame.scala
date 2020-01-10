@@ -17,33 +17,24 @@
 package io.gatling.http.action.ws.fsm
 
 import io.gatling.core.action.Action
-import io.gatling.core.session.Session
 import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
 
 sealed trait SendFrame {
   def actionName: String
-  def session: Session
   def next: Action
-  def copyWithSession(session: Session): SendFrame
 }
 
 final case class SendTextFrame(
     actionName: String,
     message: String,
     checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
-    session: Session,
     next: Action
-) extends SendFrame {
-  override def copyWithSession(session: Session): SendFrame = copy(session = session)
-}
+) extends SendFrame
 
 @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
 final case class SendBinaryFrame(
     actionName: String,
     message: Array[Byte],
     checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
-    session: Session,
     next: Action
-) extends SendFrame {
-  override def copyWithSession(session: Session): SendFrame = copy(session = session)
-}
+) extends SendFrame

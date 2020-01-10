@@ -52,6 +52,6 @@ class SseCrashedState(fsm: SseFsm, errorMessage: Option[String]) extends SseStat
     logger.info(loggedMessage)
 
     // perform blocking reconnect
-    SseConnectingState.gotoConnecting(fsm, session, Right(SetCheck(actionName, checkSequences, session, next)))
+    SseConnectingState.gotoConnecting(fsm, session, Right(SetCheck(actionName, checkSequences, next)))
   }
 }

@@ -17,7 +17,6 @@
 package io.gatling.http.action.sse.fsm
 
 import io.gatling.core.action.Action
-import io.gatling.core.session.Session
 import io.gatling.http.check.sse.SseMessageCheckSequence
 
-final case class SetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action)
+final case class SetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], next: Action)

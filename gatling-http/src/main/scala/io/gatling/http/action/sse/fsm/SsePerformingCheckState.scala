@@ -163,7 +163,7 @@ final case class SsePerformingCheckState(
                   val afterStateUpdate =
                     next match {
                       case Left(nextAction) => () => nextAction ! newSession
-                      case Right(setCheck)  => setCheckNextAction(setCheck.copy(session = newSession))
+                      case Right(setCheck)  => setCheckNextAction(newSession, setCheck)
                     }
                   NextSseState(
                     new SseIdleState(fsm, newSession, stream),

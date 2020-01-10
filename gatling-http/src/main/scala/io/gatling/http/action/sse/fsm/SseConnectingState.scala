@@ -134,7 +134,7 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Either[Action, Set
 
           case Right(setCheck) =>
             logger.debug("Reconnected, no checks, sending pending message")
-            setCheckNextAction(setCheck.copy(session = sessionWithGroupTimings))
+            setCheckNextAction(sessionWithGroupTimings, setCheck)
         }
         NextSseState(new SseIdleState(fsm, sessionWithGroupTimings, stream))
 

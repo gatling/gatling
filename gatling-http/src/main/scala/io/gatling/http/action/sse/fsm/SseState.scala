@@ -70,6 +70,6 @@ abstract class SseState(fsm: SseFsm) {
   //
   //[fl]
 
-  protected def setCheckNextAction(setCheck: SetCheck): () => Unit =
-    () => fsm.onSetCheck(setCheck.actionName, setCheck.checkSequences, setCheck.session, setCheck.next)
+  protected def setCheckNextAction(session: Session, setCheck: SetCheck): () => Unit =
+    () => fsm.onSetCheck(setCheck.actionName, setCheck.checkSequences, session, setCheck.next)
 }

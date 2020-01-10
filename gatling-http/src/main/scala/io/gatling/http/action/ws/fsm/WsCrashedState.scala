@@ -57,7 +57,7 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
     logger.info(loggedMessage)
 
     // perform blocking reconnect
-    WsConnectingState.gotoConnecting(fsm, session, Right(SendTextFrame(actionName, message, checkSequences, session, next)))
+    WsConnectingState.gotoConnecting(fsm, session, Right(SendTextFrame(actionName, message, checkSequences, next)))
   }
 
   override def onSendBinaryFrame(
@@ -76,6 +76,6 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
     logger.info(loggedMessage)
 
     // perform blocking reconnect
-    WsConnectingState.gotoConnecting(fsm, session, Right(SendBinaryFrame(actionName, message, checkSequences, session, next)))
+    WsConnectingState.gotoConnecting(fsm, session, Right(SendBinaryFrame(actionName, message, checkSequences, next)))
   }
 }
