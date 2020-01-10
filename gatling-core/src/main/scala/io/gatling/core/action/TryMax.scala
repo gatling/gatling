@@ -43,8 +43,9 @@ class TryMax(
     innerTryMax = new InnerTryMax(times, loopNext, counterName, system, name + "-inner", next)
 
   override def execute(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
-      innerTryMax ! session
+    BlockExit.mustExit(session) match {
+      case Some(blockExit) => blockExit.exitBlock(statsEngine, clock.nowMillis)
+      case _               => innerTryMax ! session
     }
 }
 

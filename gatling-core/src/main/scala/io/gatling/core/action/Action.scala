@@ -99,8 +99,9 @@ trait ExitableAction extends ChainableAction {
   def clock: Clock
 
   override abstract def !(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
-      super.!(session)
+    BlockExit.mustExit(session) match {
+      case Some(blockExit) => blockExit.exitBlock(statsEngine, clock.nowMillis)
+      case _               => super.!(session)
     }
 }
 

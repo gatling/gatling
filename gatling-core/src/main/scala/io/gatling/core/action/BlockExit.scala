@@ -118,11 +118,6 @@ object BlockExit {
     exitTryMaxRec(session.blockStack)
   }
 
-  def noBlockExitTriggered(session: Session, statsEngine: StatsEngine, nowMillis: Long): Boolean =
-    exitAsapLoop(session).orElse(exitTryMax(session)) match {
-      case None => true
-      case Some(blockExit) =>
-        blockExit.exitBlock(statsEngine, nowMillis)
-        false
-    }
+  def mustExit(session: Session): Option[BlockExit] =
+    exitAsapLoop(session).orElse(exitTryMax(session))
 }

@@ -48,8 +48,9 @@ class Loop(
   }
 
   override def execute(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine, clock.nowMillis)) {
-      innerLoop ! session
+    BlockExit.mustExit(session) match {
+      case Some(blockExit) => blockExit.exitBlock(statsEngine, clock.nowMillis)
+      case _               => innerLoop ! session
     }
 }
 
