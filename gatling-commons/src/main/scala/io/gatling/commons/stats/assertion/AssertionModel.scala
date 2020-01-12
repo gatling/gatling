@@ -55,12 +55,6 @@ case object ResponseTime extends TimeMetric("response time")
 
 sealed abstract class TimeSelection(val printable: String) extends Printable with Product with Serializable
 
-case object Count extends Printable {
-  override val printable: String = "count"
-}
-case object Percent extends Printable {
-  override val printable: String = "percentage"
-}
 case object Min extends TimeSelection("min")
 case object Max extends TimeSelection("max")
 case object Mean extends TimeSelection("mean")
@@ -72,8 +66,8 @@ final case class Percentiles(value: Double) extends TimeSelection(s"${value.toRa
 // ---------------- //
 
 sealed abstract class Target(val printable: String) extends Printable with Product with Serializable
-final case class CountTarget(metric: CountMetric) extends Target(s"${Count.printable} of ${metric.printable}")
-final case class PercentTarget(metric: CountMetric) extends Target(s"${Percent.printable} of ${metric.printable}")
+final case class CountTarget(metric: CountMetric) extends Target(s"count of ${metric.printable}")
+final case class PercentTarget(metric: CountMetric) extends Target(s"percentage of ${metric.printable}")
 final case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target(s"${selection.printable} of ${metric.printable}")
 case object MeanRequestsPerSecondTarget extends Target("mean requests per second")
 
