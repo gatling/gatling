@@ -17,9 +17,9 @@
 package io.gatling.http.check.url
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.{ DefaultFindCheckBuilder, FindExtractor, Preparer }
+import io.gatling.core.check.{ CheckMaterializer, DefaultFindCheckBuilder, FindExtractor }
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.check.HttpCheckScope.Url
 import io.gatling.http.response.Response
@@ -32,7 +32,8 @@ object CurrentLocationCheckBuilder
       displayActualValue = true
     )
 
-object CurrentLocationCheckMaterializer extends HttpCheckMaterializer[CurrentLocationCheckType, String](Url) {
+object CurrentLocationCheckMaterializer {
 
-  override protected val preparer: Preparer[Response, String] = UrlStringPreparer
+  val Instance: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] =
+    new HttpCheckMaterializer[CurrentLocationCheckType, String](Url, UrlStringPreparer)
 }

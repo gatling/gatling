@@ -16,14 +16,15 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.core.check.Preparer
+import io.gatling.core.check.CheckMaterializer
 import io.gatling.core.check.bytes.BodyBytesCheckType
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckBuilders.ResponseBodyBytesPreparer
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
-object HttpBodyBytesCheckMaterializer extends HttpCheckMaterializer[BodyBytesCheckType, Array[Byte]](Body) {
+object HttpBodyBytesCheckMaterializer {
 
-  override protected val preparer: Preparer[Response, Array[Byte]] = ResponseBodyBytesPreparer
+  val Instance: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] =
+    new HttpCheckMaterializer[BodyBytesCheckType, Array[Byte]](Body, ResponseBodyBytesPreparer)
 }

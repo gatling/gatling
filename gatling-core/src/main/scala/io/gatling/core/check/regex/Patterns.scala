@@ -27,7 +27,7 @@ class Patterns(cacheMaxCapacity: Long) {
   private val patternCache: LoadingCache[String, Pattern] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pattern.compile)
 
-  def extractAll[G: GroupExtractor](chars: CharSequence, pattern: String): Seq[G] = {
+  def extractAll[G: GroupExtractor](chars: String, pattern: String): Seq[G] = {
 
     val matcher = compilePattern(pattern).matcher(chars)
     matcher

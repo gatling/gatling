@@ -37,9 +37,8 @@ import org.scalatest.matchers.{ MatchResult, Matcher }
 class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonPathCheckMaterializer(
-    new JsonParsers
-  )
+  private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
+    HttpBodyJsonPathCheckMaterializer.instance(new JsonParsers)
 
   private def mockResponse(body: String): Response =
     Response(

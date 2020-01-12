@@ -34,17 +34,17 @@ class XPathExtractorSpec extends BaseSpec with ValidationValues {
     }
 
   private def testCount(expression: String, file: String, expected: Int): Unit = {
-    val extractor = new XPathCountExtractor(expression, namespaces, xmlParsers)
+    val extractor = XPathExtractors.count(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe Some(expected)
   }
 
   private def testSingle(expression: String, namespaces: Map[String, String], occurrence: Int, file: String, expected: Option[String]): Unit = {
-    val extractor = new XPathFindExtractor(expression, namespaces, occurrence, xmlParsers)
+    val extractor = XPathExtractors.find(expression, namespaces, occurrence, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 
   private def testMultiple(expression: String, namespaces: Map[String, String], file: String, expected: Option[List[String]]): Unit = {
-    val extractor = new XPathFindAllExtractor(expression, namespaces, xmlParsers)
+    val extractor = XPathExtractors.findAll(expression, namespaces, xmlParsers)
     extractor(dom(file)).succeeded shouldBe expected
   }
 

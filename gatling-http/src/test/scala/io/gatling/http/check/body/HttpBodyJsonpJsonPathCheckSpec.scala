@@ -19,16 +19,16 @@ package io.gatling.http.check.body
 import java.nio.charset.StandardCharsets._
 import java.util.{ HashMap => JHashMap }
 
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ Response, StringResponseBody }
-import io.gatling.{ BaseSpec, ValidationValues }
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
@@ -36,7 +36,8 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  implicit val materializer: HttpCheckMaterializer[JsonPathCheckType, JsonNode] = new HttpBodyJsonPathCheckMaterializer(new JsonParsers)
+  implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
+    HttpBodyJsonPathCheckMaterializer.instance(new JsonParsers)
 
   private def mockResponse(body: String): Response =
     Response(

@@ -19,7 +19,7 @@ package io.gatling.http.check.url
 import io.gatling.core.check.{ Extractor, _ }
 import io.gatling.core.check.regex._
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.check.HttpCheckScope.Url
 import io.gatling.http.response.Response
@@ -41,15 +41,16 @@ object CurrentLocationRegexCheckBuilder {
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
     private[url] val pattern: Expression[String],
     private[url] val patterns: Patterns
-) extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X](displayActualValue = true) {
+) extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, X](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[CharSequence, X]] =
-    pattern.map(new RegexFindExtractor[X]("currentLocationRegex", _, occurrence, patterns))
-  override def findAllExtractor: Expression[Extractor[CharSequence, Seq[X]]] = pattern.map(new RegexFindAllExtractor[X]("currentLocationRegex", _, patterns))
-  override def countExtractor: Expression[Extractor[CharSequence, Int]] = pattern.map(new RegexCountExtractor("currentLocationRegex", _, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
+    pattern.map(RegexExtractors.find[X]("currentLocationRegex", _, occurrence, patterns))
+  override def findAllExtractor: Expression[Extractor[String, Seq[X]]] = pattern.map(RegexExtractors.findAll[X]("currentLocationRegex", _, patterns))
+  override def countExtractor: Expression[Extractor[String, Int]] = pattern.map(RegexExtractors.count("currentLocationRegex", _, patterns))
 }
 
-object CurrentLocationRegexCheckMaterializer extends HttpCheckMaterializer[CurrentLocationRegexCheckType, CharSequence](Url) {
+object CurrentLocationRegexCheckMaterializer {
 
-  override protected val preparer: Preparer[Response, String] = UrlStringPreparer
+  val Instance: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, String] =
+    new HttpCheckMaterializer[CurrentLocationRegexCheckType, String](Url, UrlStringPreparer)
 }

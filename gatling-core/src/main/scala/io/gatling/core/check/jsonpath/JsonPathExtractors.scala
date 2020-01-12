@@ -21,24 +21,27 @@ import io.gatling.core.check._
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class JsonPathFindExtractor[X: JsonFilter](name: String, path: String, occurrence: Int, jsonPaths: JsonPaths)
-    extends FindCriterionExtractor[JsonNode, String, X](
+object JsonPathExtractors {
+
+  def find[X: JsonFilter](name: String, path: String, occurrence: Int, jsonPaths: JsonPaths): FindCriterionExtractor[JsonNode, String, X] =
+    new FindCriterionExtractor[JsonNode, String, X](
       name,
       path,
       occurrence,
       jsonPaths.extractAll(_, path).map(Collections.lift(_, occurrence))
     )
 
-class JsonPathFindAllExtractor[X: JsonFilter](name: String, path: String, jsonPaths: JsonPaths)
-    extends FindAllCriterionExtractor[JsonNode, String, X](
+  def findAll[X: JsonFilter](name: String, path: String, jsonPaths: JsonPaths): FindAllCriterionExtractor[JsonNode, String, X] =
+    new FindAllCriterionExtractor[JsonNode, String, X](
       name,
       path,
       jsonPaths.extractAll(_, path).map(_.toVector.liftSeqOption)
     )
 
-class JsonPathCountExtractor(name: String, path: String, jsonPaths: JsonPaths)
-    extends CountCriterionExtractor[JsonNode, String](
+  def count(name: String, path: String, jsonPaths: JsonPaths): CountCriterionExtractor[JsonNode, String] =
+    new CountCriterionExtractor[JsonNode, String](
       name,
       path,
       jsonPaths.extractAll[Any](_, path).map(i => Some(i.size))
     )
+}

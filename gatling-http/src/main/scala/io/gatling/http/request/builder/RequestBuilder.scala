@@ -84,7 +84,7 @@ object RequestBuilder {
       }
     }
 
-    HttpStatusCheckBuilder.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer)
+    HttpStatusCheckBuilder.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer.Instance)
   }
 
   private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess

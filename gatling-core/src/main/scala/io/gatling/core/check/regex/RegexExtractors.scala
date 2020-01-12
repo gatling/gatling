@@ -19,30 +19,39 @@ package io.gatling.core.check.regex
 import io.gatling.commons.validation._
 import io.gatling.core.check._
 
-class RegexFindExtractor[X: GroupExtractor](name: String, pattern: String, occurrence: Int, patterns: Patterns)
-    extends FindCriterionExtractor[CharSequence, String, X](
+object RegexExtractors {
+
+  def find[X: GroupExtractor](name: String, pattern: String, occurrence: Int, patterns: Patterns): FindCriterionExtractor[String, String, X] = {
+
+    val compiledPattern = patterns.compilePattern(pattern)
+
+    new FindCriterionExtractor[String, String, X](
       name,
       pattern,
       occurrence,
       prepared => {
-        val matcher = patterns.compilePattern(pattern).matcher(prepared)
+        val matcher = compiledPattern.matcher(prepared)
         matcher.findMatchN(occurrence).success
       }
     )
+  }
 
-class RegexFindAllExtractor[X: GroupExtractor](name: String, pattern: String, patterns: Patterns)
-    extends FindAllCriterionExtractor[CharSequence, String, X](
+  def findAll[X: GroupExtractor](name: String, pattern: String, patterns: Patterns): FindAllCriterionExtractor[String, String, X] =
+    new FindAllCriterionExtractor[String, String, X](
       name,
       pattern,
       patterns.extractAll(_, pattern).liftSeqOption.success
     )
 
-class RegexCountExtractor(name: String, pattern: String, patterns: Patterns)
-    extends CountCriterionExtractor[CharSequence, String](
+  def count(name: String, pattern: String, patterns: Patterns): CountCriterionExtractor[String, String] = {
+
+    val compiledPattern = patterns.compilePattern(pattern)
+
+    new CountCriterionExtractor[String, String](
       name,
       pattern,
       prepared => {
-        val matcher = patterns.compilePattern(pattern).matcher(prepared)
+        val matcher = compiledPattern.matcher(prepared)
 
         var count = 0
         while (matcher.find) count = count + 1
@@ -50,3 +59,5 @@ class RegexCountExtractor(name: String, pattern: String, patterns: Patterns)
         Some(count).success
       }
     )
+  }
+}

@@ -35,9 +35,9 @@ object RegexCheckBuilder {
 class RegexCheckBuilder[X: GroupExtractor](
     private[regex] val pattern: Expression[String],
     private[regex] val patterns: Patterns
-) extends DefaultMultipleFindCheckBuilder[RegexCheckType, CharSequence, X](displayActualValue = true) {
+) extends DefaultMultipleFindCheckBuilder[RegexCheckType, String, X](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[CharSequence, X]] = pattern.map(new RegexFindExtractor[X]("regex", _, occurrence, patterns))
-  override def findAllExtractor: Expression[Extractor[CharSequence, Seq[X]]] = pattern.map(new RegexFindAllExtractor[X]("regex", _, patterns))
-  override def countExtractor: Expression[Extractor[CharSequence, Int]] = pattern.map(new RegexCountExtractor("regex", _, patterns))
+  override def findExtractor(occurrence: Int): Expression[Extractor[String, X]] = pattern.map(RegexExtractors.find[X]("regex", _, occurrence, patterns))
+  override def findAllExtractor: Expression[Extractor[String, Seq[X]]] = pattern.map(RegexExtractors.findAll[X]("regex", _, patterns))
+  override def countExtractor: Expression[Extractor[String, Int]] = pattern.map(RegexExtractors.count("regex", _, patterns))
 }

@@ -21,24 +21,36 @@ import io.gatling.core.check._
 
 import jodd.lagarto.dom.NodeSelector
 
-class CssFindExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], occurrence: Int, selectors: CssSelectors)
-    extends FindCriterionExtractor[NodeSelector, (String, Option[String]), X](
+object CssExtractors {
+
+  def find[X: NodeConverter](
+      query: String,
+      nodeAttribute: Option[String],
+      occurrence: Int,
+      selectors: CssSelectors
+  ): FindCriterionExtractor[NodeSelector, (String, Option[String]), X] =
+    new FindCriterionExtractor[NodeSelector, (String, Option[String]), X](
       "css",
       (query, nodeAttribute),
       occurrence,
       selectors.extractAll(_, (query, nodeAttribute)).lift(occurrence).success
     )
 
-class CssFindAllExtractor[X: NodeConverter](query: String, nodeAttribute: Option[String], selectors: CssSelectors)
-    extends FindAllCriterionExtractor[NodeSelector, (String, Option[String]), X](
+  def findAll[X: NodeConverter](
+      query: String,
+      nodeAttribute: Option[String],
+      selectors: CssSelectors
+  ): FindAllCriterionExtractor[NodeSelector, (String, Option[String]), X] =
+    new FindAllCriterionExtractor[NodeSelector, (String, Option[String]), X](
       "css",
       (query, nodeAttribute),
       selectors.extractAll(_, (query, nodeAttribute)).liftSeqOption.success
     )
 
-class CssCountExtractor(query: String, nodeAttribute: Option[String], selectors: CssSelectors)
-    extends CountCriterionExtractor[NodeSelector, (String, Option[String])](
+  def count(query: String, nodeAttribute: Option[String], selectors: CssSelectors): CountCriterionExtractor[NodeSelector, (String, Option[String])] =
+    new CountCriterionExtractor[NodeSelector, (String, Option[String])](
       "css",
       (query, nodeAttribute),
       prepared => Some(selectors.extractAll[String](prepared, (query, nodeAttribute)).size).success
     )
+}

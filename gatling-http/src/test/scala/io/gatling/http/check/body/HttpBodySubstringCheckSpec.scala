@@ -21,12 +21,12 @@ import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ Response, StringResponseBody }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
@@ -34,7 +34,8 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: HttpCheckMaterializer[SubstringCheckType, String] = HttpBodySubstringCheckMaterializer
+  private implicit val materializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] =
+    HttpBodySubstringCheckMaterializer.Instance
 
   private def mockResponse(body: String): Response =
     Response(

@@ -25,9 +25,9 @@ trait ResponseTimeCheckType
 
 object ResponseTimeCheckBuilder {
 
-  val ResponseTimeInMillis: FindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int] = {
-    val extractor = new FindExtractor[ResponseTimings, Int]("responseTimeInMillis", prepared => Some(prepared.responseTime).success).expressionSuccess
-
-    new DefaultFindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int](extractor, displayActualValue = false)
-  }
+  val ResponseTimeInMillis: FindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int] =
+    new DefaultFindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int](
+      extractor = new FindExtractor[ResponseTimings, Int]("responseTimeInMillis", prepared => Some(prepared.responseTime).success).expressionSuccess,
+      displayActualValue = false
+    )
 }

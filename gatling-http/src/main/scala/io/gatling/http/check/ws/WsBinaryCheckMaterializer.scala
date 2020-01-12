@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.jms.check
+package io.gatling.http.check.ws
 
-import java.nio.charset.Charset
+import io.gatling.core.check._
+import io.gatling.core.check.bytes.BodyBytesCheckType
 
-import io.gatling.core.check.jmespath.JmesPathCheckType
-import io.gatling.core.check.{ CheckMaterializer, Preparer }
-import io.gatling.core.json.JsonParsers
-import io.gatling.jms.JmsCheck
+class WsBinaryCheckMaterializer[T, P](override val preparer: Preparer[Array[Byte], P])
+    extends CheckMaterializer[T, WsBinaryCheck, Array[Byte], P](WsBinaryCheck.apply)
 
-import com.fasterxml.jackson.databind.JsonNode
-import javax.jms.Message
+object WsBinaryCheckMaterializer {
 
-class JmsJmesPathCheckMaterializer(jsonParsers: JsonParsers, charset: Charset)
-    extends CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode](identity) {
-  override protected val preparer: Preparer[Message, JsonNode] = JmsMessageBodyPreparers.jmsJsonPreparer(jsonParsers, charset)
+  val BodyBytes: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] =
+    new WsBinaryCheckMaterializer[BodyBytesCheckType, Array[Byte]](identityPreparer)
 }

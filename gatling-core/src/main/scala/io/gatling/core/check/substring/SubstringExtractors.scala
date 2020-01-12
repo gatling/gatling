@@ -21,8 +21,8 @@ import scala.annotation.tailrec
 import io.gatling.commons.validation._
 import io.gatling.core.check._
 
-object SubstringExtractor {
-  def extractAll(prepared: String, criterion: String): List[Int] = {
+object SubstringExtractors {
+  private def extractAll(prepared: String, criterion: String): List[Int] = {
 
     @tailrec
     def loop(fromIndex: Int, is: List[Int]): List[Int] =
@@ -36,10 +36,9 @@ object SubstringExtractor {
 
     loop(0, Nil)
   }
-}
 
-class SubstringFindExtractor(substring: String, occurrence: Int)
-    extends FindCriterionExtractor[String, String, Int](
+  def find(substring: String, occurrence: Int): FindCriterionExtractor[String, String, Int] =
+    new FindCriterionExtractor[String, String, Int](
       "substring",
       substring,
       occurrence,
@@ -63,19 +62,20 @@ class SubstringFindExtractor(substring: String, occurrence: Int)
       }
     )
 
-class SubstringFindAllExtractor(substring: String)
-    extends FindAllCriterionExtractor[String, String, Int](
+  def findAll(substring: String): FindAllCriterionExtractor[String, String, Int] =
+    new FindAllCriterionExtractor[String, String, Int](
       "substring",
       substring,
-      SubstringExtractor.extractAll(_, substring) match {
+      extractAll(_, substring) match {
         case Nil => NoneSuccess
         case is  => Some(is.reverse).success
       }
     )
 
-class SubstringCountExtractor(substring: String)
-    extends CountCriterionExtractor[String, String](
+  def count(substring: String): CountCriterionExtractor[String, String] =
+    new CountCriterionExtractor[String, String](
       "substring",
       substring,
-      text => Some(SubstringExtractor.extractAll(text, substring).size).success
+      text => Some(extractAll(text, substring).size).success
     )
+}

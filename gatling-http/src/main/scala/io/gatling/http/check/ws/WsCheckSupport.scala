@@ -60,16 +60,19 @@ trait WsCheckSupport {
     findCheckBuilder.find.exists
 
   implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode] =
-    new WsJsonPathCheckMaterializer(jsonParsers)
+    WsTextCheckMaterializer.jsonPath(jsonParsers)
 
   implicit def wsJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, WsTextCheck, String, JsonNode] =
-    new WsJmesPathCheckMaterializer(jsonParsers)
+    WsTextCheckMaterializer.jmesPath(jsonParsers)
 
-  implicit val wsRegexCheckMaterializer: CheckMaterializer[RegexCheckType, WsTextCheck, String, CharSequence] = WsRegexCheckMaterializer
+  implicit val wsRegexCheckMaterializer: CheckMaterializer[RegexCheckType, WsTextCheck, String, String] = WsTextCheckMaterializer.Regex
 
-  implicit val wsBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, WsTextCheck, String, String] = WsBodyStringCheckMaterializer
+  implicit val wsBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, WsTextCheck, String, String] =
+    WsTextCheckMaterializer.BodyString
 
-  implicit val wsSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, WsTextCheck, String, String] = WsSubstringCheckMaterializer
+  implicit val wsSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, WsTextCheck, String, String] =
+    WsTextCheckMaterializer.Substring
 
-  implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] = WsBodyBytesCheckMaterializer
+  implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] =
+    WsBinaryCheckMaterializer.BodyBytes
 }

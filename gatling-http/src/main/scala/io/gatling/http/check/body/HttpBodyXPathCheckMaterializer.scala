@@ -17,30 +17,35 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.Preparer
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.check.xpath.{ XPathCheckType, XmlParsers }
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 import net.sf.saxon.s9api.XdmNode
 import org.xml.sax.InputSource
 
-class HttpBodyXPathCheckMaterializer(xmlParsers: XmlParsers) extends HttpCheckMaterializer[XPathCheckType, Option[XdmNode]](Body) {
+object HttpBodyXPathCheckMaterializer {
 
   private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
-  override val preparer: Preparer[Response, Option[XdmNode]] = response =>
-    safely(ErrorMapper) {
-      val root =
-        if (response.hasResponseBody) {
-          val inputSource = new InputSource(response.body.stream)
-          inputSource.setEncoding(response.charset.name)
-          Some(xmlParsers.parse(inputSource))
+  def instance(xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] = {
 
-        } else {
-          None
-        }
-      root.success
-    }
+    val preparer: Preparer[Response, Option[XdmNode]] = response =>
+      safely(ErrorMapper) {
+        val root =
+          if (response.hasResponseBody) {
+            val inputSource = new InputSource(response.body.stream)
+            inputSource.setEncoding(response.charset.name)
+            Some(xmlParsers.parse(inputSource))
+
+          } else {
+            None
+          }
+        root.success
+      }
+
+    new HttpCheckMaterializer[XPathCheckType, Option[XdmNode]](Body, preparer)
+  }
 }

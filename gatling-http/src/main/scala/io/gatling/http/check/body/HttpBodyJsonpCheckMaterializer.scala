@@ -17,9 +17,9 @@
 package io.gatling.http.check.body
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.Preparer
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.response.Response
 import io.gatling.http.check.HttpCheckScope.Body
 
@@ -29,15 +29,14 @@ object HttpBodyJsonpCheckMaterializer {
 
   private val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
   private val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
-}
 
-class HttpBodyJsonpCheckMaterializer[T](jsonParsers: JsonParsers) extends HttpCheckMaterializer[T, JsonNode](Body) {
+  def instance[T](jsonParsers: JsonParsers): CheckMaterializer[T, HttpCheck, Response, JsonNode] = {
+    val preparer: Preparer[Response, JsonNode] = response =>
+      response.body.string match {
+        case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
+        case _                 => JsonpRegexFailure
+      }
 
-  import HttpBodyJsonpCheckMaterializer._
-
-  override val preparer: Preparer[Response, JsonNode] = response =>
-    response.body.string match {
-      case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
-      case _                 => JsonpRegexFailure
-    }
+    new HttpCheckMaterializer[T, JsonNode](Body, preparer)
+  }
 }

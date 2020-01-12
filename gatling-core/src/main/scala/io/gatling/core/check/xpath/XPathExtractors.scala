@@ -23,8 +23,15 @@ import io.gatling.core.check._
 
 import net.sf.saxon.s9api.XdmNode
 
-class XPathFindExtractor(path: String, namespaces: Map[String, String], occurrence: Int, xmlParsers: XmlParsers)
-    extends FindCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String](
+object XPathExtractors {
+
+  def find(
+      path: String,
+      namespaces: Map[String, String],
+      occurrence: Int,
+      xmlParsers: XmlParsers
+  ): FindCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String] =
+    new FindCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String](
       "xpath",
       (path, namespaces),
       occurrence,
@@ -37,8 +44,12 @@ class XPathFindExtractor(path: String, namespaces: Map[String, String], occurren
       }.success
     )
 
-class XPathFindAllExtractor(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers)
-    extends FindAllCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String](
+  def findAll(
+      path: String,
+      namespaces: Map[String, String],
+      xmlParsers: XmlParsers
+  ): FindAllCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String] =
+    new FindAllCriterionExtractor[Option[XdmNode], (String, Map[String, String]), String](
       "xpath",
       (path, namespaces),
       _.flatMap { document =>
@@ -53,11 +64,12 @@ class XPathFindAllExtractor(path: String, namespaces: Map[String, String], xmlPa
       }.success
     )
 
-class XPathCountExtractor(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers)
-    extends CountCriterionExtractor[Option[XdmNode], (String, Map[String, String])](
+  def count(path: String, namespaces: Map[String, String], xmlParsers: XmlParsers): CountCriterionExtractor[Option[XdmNode], (String, Map[String, String])] =
+    new CountCriterionExtractor[Option[XdmNode], (String, Map[String, String])](
       "xpath",
       (path, namespaces),
       _.map { document =>
         xmlParsers.evaluateXPath(path, namespaces, document).size
       }.orElse(Some(0)).success
     )
+}

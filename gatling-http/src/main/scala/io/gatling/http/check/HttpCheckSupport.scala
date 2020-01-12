@@ -69,56 +69,60 @@ trait HttpCheckSupport {
     findCheckBuilder.find.exists
 
   val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder
-  implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] = CurrentLocationCheckMaterializer
+  implicit val currentLocationCheckMaterializer: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] =
+    CurrentLocationCheckMaterializer.Instance
 
   def currentLocationRegex(
       pattern: Expression[String]
-  )(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, String] with CurrentLocationRegexOfType =
+  )(implicit patterns: Patterns): MultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, String] with CurrentLocationRegexOfType =
     CurrentLocationRegexCheckBuilder.currentLocationRegex(pattern, patterns)
-  implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] =
-    CurrentLocationRegexCheckMaterializer
+  implicit val currentLocationRegexCheckMaterializer: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, String] =
+    CurrentLocationRegexCheckMaterializer.Instance
 
   val status: FindCheckBuilder[HttpStatusCheckType, Response, Int] = HttpStatusCheckBuilder
-  implicit val httpStatusCheckMaterializer: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] = HttpStatusCheckMaterializer
+  implicit val httpStatusCheckMaterializer: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] = HttpStatusCheckMaterializer.Instance
 
   val header: Expression[String] => MultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(_)
-  implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer
+  implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer.Instance
 
   def headerRegex(headerName: Expression[String], pattern: Expression[String])(
       implicit patterns: Patterns
   ): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
-  implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] = HttpHeaderRegexCheckMaterializer
+  implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] =
+    HttpHeaderRegexCheckMaterializer.Instance
 
-  implicit val httpBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] = HttpBodyBytesCheckMaterializer
-  implicit val httpBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, HttpCheck, Response, String] = HttpBodyStringCheckMaterializer
-  implicit val httpBodyStreamCheckMaterializer: CheckMaterializer[BodyStreamCheckType, HttpCheck, Response, () => InputStream] = HttpBodyStreamCheckMaterializer
+  implicit val httpBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] = HttpBodyBytesCheckMaterializer.Instance
+  implicit val httpBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, HttpCheck, Response, String] = HttpBodyStringCheckMaterializer.Instance
+  implicit val httpBodyStreamCheckMaterializer: CheckMaterializer[BodyStreamCheckType, HttpCheck, Response, () => InputStream] =
+    HttpBodyStreamCheckMaterializer.Instance
 
-  implicit val httpBodyRegexCheckMaterializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, CharSequence] = HttpBodyRegexCheckMaterializer
-  implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] = HttpBodySubstringCheckMaterializer
+  implicit val httpBodyRegexCheckMaterializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, String] = HttpBodyRegexCheckMaterializer.Instance
+  implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] =
+    HttpBodySubstringCheckMaterializer.Instance
   implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
-    new HttpBodyXPathCheckMaterializer(xmlParsers)
+    HttpBodyXPathCheckMaterializer.instance(xmlParsers)
   implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] =
-    new HttpBodyCssCheckMaterializer(selectors)
+    HttpBodyCssCheckMaterializer.instance(selectors)
   implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
-    new HttpBodyJsonPathCheckMaterializer(jsonParsers)
+    HttpBodyJsonPathCheckMaterializer.instance(jsonParsers)
   implicit def httpBodyJsonpJsonPathCheckMaterializer(
       implicit jsonParsers: JsonParsers
-  ): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonpCheckMaterializer(jsonParsers)
+  ): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] = HttpBodyJsonpCheckMaterializer.instance(jsonParsers)
   implicit def httpBodyJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] =
-    new HttpBodyJmesPathCheckMaterializer(jsonParsers)
+    HttpBodyJmesPathCheckMaterializer.instance(jsonParsers)
   implicit def httpBodyJsonpJmesPathCheckMaterializer(
       implicit jsonParsers: JsonParsers
-  ): CheckMaterializer[JsonpJmesPathCheckType, HttpCheck, Response, JsonNode] = new HttpBodyJsonpCheckMaterializer(jsonParsers)
+  ): CheckMaterializer[JsonpJmesPathCheckType, HttpCheck, Response, JsonNode] = HttpBodyJsonpCheckMaterializer.instance(jsonParsers)
 
   implicit val httpMd5CheckMaterializer: CheckMaterializer[Md5CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Md5
   implicit val httpSha1CheckMaterializer: CheckMaterializer[Sha1CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Sha1
 
   implicit val httpResponseTimeCheckMaterializer: CheckMaterializer[ResponseTimeCheckType, HttpCheck, Response, ResponseTimings] =
-    HttpResponseTimeCheckMaterializer
+    HttpResponseTimeCheckMaterializer.Instance
 
   implicit object HttpTypedConditionalCheckWrapper extends TypedConditionalCheckWrapper[Response, HttpCheck] {
-    override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck) =
+    override def wrap(condition: (Response, Session) => Validation[Boolean], thenCheck: HttpCheck): HttpCheck =
       HttpCheck(ConditionalCheck(condition, thenCheck), thenCheck.scope)
   }
 

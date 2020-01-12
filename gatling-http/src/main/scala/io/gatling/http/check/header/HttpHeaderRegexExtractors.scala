@@ -24,26 +24,26 @@ import io.gatling.http.response.Response
 object HttpHeaderRegexExtractors {
   def extractHeadersValues[X: GroupExtractor](response: Response, headerName: String, pattern: String, patterns: Patterns): Seq[X] =
     response.headers(headerName).flatMap(patterns.extractAll(_, pattern))
-}
 
-class HttpHeaderRegexFindExtractor[X: GroupExtractor](headerName: String, pattern: String, occurrence: Int, patterns: Patterns)
-    extends FindCriterionExtractor[Response, (String, String), X](
+  def find[X: GroupExtractor](headerName: String, pattern: String, occurrence: Int, patterns: Patterns): FindCriterionExtractor[Response, (String, String), X] =
+    new FindCriterionExtractor[Response, (String, String), X](
       "headerRegex",
       (headerName, pattern),
       occurrence,
       HttpHeaderRegexExtractors.extractHeadersValues(_, headerName, pattern, patterns).lift(occurrence).success
     )
 
-class HttpHeaderRegexFindAllExtractor[X: GroupExtractor](headerName: String, pattern: String, patterns: Patterns)
-    extends FindAllCriterionExtractor[Response, (String, String), X](
+  def findAll[X: GroupExtractor](headerName: String, pattern: String, patterns: Patterns): FindAllCriterionExtractor[Response, (String, String), X] =
+    new FindAllCriterionExtractor[Response, (String, String), X](
       "headerRegex",
       (headerName, pattern),
       HttpHeaderRegexExtractors.extractHeadersValues(_, headerName, pattern, patterns).liftSeqOption.success
     )
 
-class HttpHeaderRegexCountExtractor(headerName: String, pattern: String, patterns: Patterns)
-    extends CountCriterionExtractor[Response, (String, String)](
+  def count(headerName: String, pattern: String, patterns: Patterns): CountCriterionExtractor[Response, (String, String)] =
+    new CountCriterionExtractor[Response, (String, String)](
       "headerRegex",
       (headerName, pattern),
       HttpHeaderRegexExtractors.extractHeadersValues[String](_, headerName, pattern, patterns).liftSeqOption.map(_.size).success
     )
+}

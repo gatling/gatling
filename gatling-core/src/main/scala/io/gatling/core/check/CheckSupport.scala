@@ -53,7 +53,7 @@ trait CheckSupport {
   def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: TypedConditionalCheckWrapper[R, C]): C =
     cw.wrap(condition, thenCheck)
 
-  def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, CharSequence, String] with RegexOfType =
+  def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, String, String] with RegexOfType =
     RegexCheckBuilder.regex(pattern, patterns)
 
   val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder

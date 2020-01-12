@@ -16,16 +16,20 @@
 
 package io.gatling.http.check.body
 
-import io.gatling.core.check.Preparer
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 import io.gatling.core.check.jmespath.JmesPathCheckType
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class HttpBodyJmesPathCheckMaterializer(jsonParsers: JsonParsers) extends HttpCheckMaterializer[JmesPathCheckType, JsonNode](Body) {
+object HttpBodyJmesPathCheckMaterializer {
 
-  override val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.charset)
+  def instance(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] = {
+    val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.charset)
+
+    new HttpCheckMaterializer[JmesPathCheckType, JsonNode](Body, preparer)
+  }
 }

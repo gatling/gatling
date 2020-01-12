@@ -21,12 +21,12 @@ import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
-import io.gatling.http.check.{ HttpCheckMaterializer, HttpCheckSupport }
+import io.gatling.http.check.{ HttpCheck, HttpCheckSupport }
 import io.gatling.http.response.{ Response, StringResponseBody }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
@@ -36,7 +36,8 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   object RegexSupport extends HttpCheckSupport
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: HttpCheckMaterializer[RegexCheckType, CharSequence] = HttpBodyRegexCheckMaterializer
+  private implicit val materializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, String] =
+    HttpBodyRegexCheckMaterializer.Instance
 
   private val regexCheck = super[CoreDsl].regex(_)
 

@@ -20,11 +20,13 @@ import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.http.response.Response
 
-class HttpHeaderFindExtractor(headerName: String, occurrence: Int)
-    extends FindCriterionExtractor[Response, String, String]("header", headerName, occurrence, _.headers(headerName).lift(occurrence).success)
+object HttpHeaderExtractors {
+  def find(headerName: String, occurrence: Int): FindCriterionExtractor[Response, String, String] =
+    new FindCriterionExtractor[Response, String, String]("header", headerName, occurrence, _.headers(headerName).lift(occurrence).success)
 
-class HttpHeaderFindAllExtractor(headerName: String)
-    extends FindAllCriterionExtractor[Response, String, String]("header", headerName, _.headers(headerName).liftSeqOption.success)
+  def findAll(headerName: String): FindAllCriterionExtractor[Response, String, String] =
+    new FindAllCriterionExtractor[Response, String, String]("header", headerName, _.headers(headerName).liftSeqOption.success)
 
-class HttpHeaderCountExtractor(val headerName: String)
-    extends CountCriterionExtractor[Response, String]("header", headerName, _.headers(headerName).liftSeqOption.map(_.size).success)
+  def count(headerName: String): CountCriterionExtractor[Response, String] =
+    new CountCriterionExtractor[Response, String]("header", headerName, _.headers(headerName).liftSeqOption.map(_.size).success)
+}

@@ -30,7 +30,7 @@ class XPathCheckBuilder(
 ) extends DefaultMultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String](displayActualValue = true) {
 
   override def findExtractor(occurrence: Int): Expression[Extractor[Option[XdmNode], String]] =
-    path.map(new XPathFindExtractor(_, namespaces, occurrence, xmlParsers))
-  override def findAllExtractor: Expression[Extractor[Option[XdmNode], Seq[String]]] = path.map(new XPathFindAllExtractor(_, namespaces, xmlParsers))
-  override def countExtractor: Expression[Extractor[Option[XdmNode], Int]] = path.map(new XPathCountExtractor(_, namespaces, xmlParsers))
+    path.map(XPathExtractors.find(_, namespaces, occurrence, xmlParsers))
+  override def findAllExtractor: Expression[Extractor[Option[XdmNode], Seq[String]]] = path.map(XPathExtractors.findAll(_, namespaces, xmlParsers))
+  override def countExtractor: Expression[Extractor[Option[XdmNode], Int]] = path.map(XPathExtractors.count(_, namespaces, xmlParsers))
 }

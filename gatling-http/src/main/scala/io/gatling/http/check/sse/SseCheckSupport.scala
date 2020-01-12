@@ -42,14 +42,16 @@ trait SseCheckSupport {
     findCheckBuilder.find.exists
 
   implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] =
-    new SseJsonPathCheckMaterializer(jsonParsers)
+    SseCheckMaterializer.jsonPath(jsonParsers)
 
   implicit def sseJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, SseCheck, String, JsonNode] =
-    new SseJmesPathCheckMaterializer(jsonParsers)
+    SseCheckMaterializer.jmesPath(jsonParsers)
 
-  implicit val sseRegexCheckMaterializer: CheckMaterializer[RegexCheckType, SseCheck, String, CharSequence] = SseRegexCheckMaterializer
+  implicit val sseRegexCheckMaterializer: CheckMaterializer[RegexCheckType, SseCheck, String, String] = SseCheckMaterializer.Regex
 
-  implicit val sseSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, SseCheck, String, String] = SseSubstringCheckMaterializer
+  implicit val sseSubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, SseCheck, String, String] =
+    SseCheckMaterializer.Substring
 
-  implicit val sseBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] = SseBodyStringCheckMaterializer
+  implicit val sseBodyStringCheckMaterializer: CheckMaterializer[BodyStringCheckType, SseCheck, String, String] =
+    SseCheckMaterializer.BodyString
 }

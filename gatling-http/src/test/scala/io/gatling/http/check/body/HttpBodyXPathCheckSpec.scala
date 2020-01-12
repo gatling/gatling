@@ -23,12 +23,12 @@ import scala.xml.Elem
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ Response, StringResponseBody }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
@@ -37,7 +37,8 @@ import net.sf.saxon.s9api.XdmNode
 class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
-  private implicit val materializer: HttpCheckMaterializer[XPathCheckType, Option[XdmNode]] = new HttpBodyXPathCheckMaterializer(defaultXmlParsers)
+  private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
+    HttpBodyXPathCheckMaterializer.instance(defaultXmlParsers)
 
   private def mockResponse(xml: Elem): Response = {
     val headers = new DefaultHttpHeaders().add(HttpHeaderNames.ContentType, s"${HttpHeaderValues.ApplicationXml}; charset=$UTF_8")

@@ -19,13 +19,16 @@ package io.gatling.http.check.body
 import java.io.InputStream
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.Preparer
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.check.stream.BodyStreamCheckType
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
-object HttpBodyStreamCheckMaterializer extends HttpCheckMaterializer[BodyStreamCheckType, () => InputStream](Body) {
+object HttpBodyStreamCheckMaterializer {
 
-  override val preparer: Preparer[Response, () => InputStream] = response => (() => response.body.stream).success
+  val Instance: CheckMaterializer[BodyStreamCheckType, HttpCheck, Response, () => InputStream] = {
+    val preparer: Preparer[Response, () => InputStream] = response => (() => response.body.stream).success
+    new HttpCheckMaterializer[BodyStreamCheckType, () => InputStream](Body, preparer)
+  }
 }

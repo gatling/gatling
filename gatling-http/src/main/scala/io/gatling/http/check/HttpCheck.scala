@@ -19,7 +19,7 @@ package io.gatling.http.check
 import java.util.{ Map => JMap }
 
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
+import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult, Preparer }
 import io.gatling.core.session.Session
 import io.gatling.http.response.Response
 
@@ -34,4 +34,5 @@ final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) exte
     wrapped.check(response, session, preparedCache)
 }
 
-abstract class HttpCheckMaterializer[T, P](scope: HttpCheckScope) extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, scope))
+class HttpCheckMaterializer[T, P](scope: HttpCheckScope, override val preparer: Preparer[Response, P])
+    extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, scope))

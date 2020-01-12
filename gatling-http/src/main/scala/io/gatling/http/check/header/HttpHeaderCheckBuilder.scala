@@ -18,7 +18,7 @@ package io.gatling.http.check.header
 
 import io.gatling.core.check._
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.http.check.HttpCheckMaterializer
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckScope.Header
 import io.gatling.http.response.Response
 
@@ -26,12 +26,13 @@ trait HttpHeaderCheckType
 
 class HttpHeaderCheckBuilder(headerName: Expression[String])
     extends DefaultMultipleFindCheckBuilder[HttpHeaderCheckType, Response, String](displayActualValue = true) {
-  override def findExtractor(occurrence: Int): Expression[Extractor[Response, String]] = headerName.map(new HttpHeaderFindExtractor(_, occurrence))
-  override def findAllExtractor: Expression[Extractor[Response, Seq[String]]] = headerName.map(new HttpHeaderFindAllExtractor(_))
-  override def countExtractor: Expression[Extractor[Response, Int]] = headerName.map(new HttpHeaderCountExtractor(_))
+  override def findExtractor(occurrence: Int): Expression[Extractor[Response, String]] = headerName.map(HttpHeaderExtractors.find(_, occurrence))
+  override def findAllExtractor: Expression[Extractor[Response, Seq[String]]] = headerName.map(HttpHeaderExtractors.findAll)
+  override def countExtractor: Expression[Extractor[Response, Int]] = headerName.map(HttpHeaderExtractors.count)
 }
 
-object HttpHeaderCheckMaterializer extends HttpCheckMaterializer[HttpHeaderCheckType, Response](Header) {
+object HttpHeaderCheckMaterializer {
 
-  override val preparer: Preparer[Response, Response] = identityPreparer
+  val Instance: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] =
+    new HttpCheckMaterializer[HttpHeaderCheckType, Response](Header, identityPreparer)
 }

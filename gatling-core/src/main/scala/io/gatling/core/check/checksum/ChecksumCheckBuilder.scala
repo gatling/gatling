@@ -25,11 +25,11 @@ trait Sha1CheckType
 
 object ChecksumCheckBuilder {
 
-  private def checksum[T](algorithm: String): DefaultFindCheckBuilder[T, String, String] = {
-    val extractor = new FindExtractor[String, String](algorithm.toLowerCase, Some(_).success).expressionSuccess
-
-    new DefaultFindCheckBuilder[T, String, String](extractor, displayActualValue = false)
-  }
+  private def checksum[T](algorithm: String): DefaultFindCheckBuilder[T, String, String] =
+    new DefaultFindCheckBuilder[T, String, String](
+      extractor = new FindExtractor[String, String](algorithm.toLowerCase, Some(_).success).expressionSuccess,
+      displayActualValue = false
+    )
 
   val Md5: FindCheckBuilder[Md5CheckType, String, String] = checksum[Md5CheckType]("MD5")
 
