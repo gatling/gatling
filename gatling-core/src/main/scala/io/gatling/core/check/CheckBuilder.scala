@@ -94,7 +94,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
                 Some(randomSeq).success
               }
 
-            case None => NoneSuccess
+            case _ => NoneSuccess
           }
     }
   }
