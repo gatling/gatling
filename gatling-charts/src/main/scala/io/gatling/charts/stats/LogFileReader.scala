@@ -29,7 +29,6 @@ import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.stats._
 import io.gatling.core.stats.writer._
 
 import boopickle.Default._
@@ -205,7 +204,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
   private def countBuffer2IntVsTimePlots(buffer: CountsBuffer): Seq[CountsVsTimePlot] =
     buffer.distribution
-      .map(plot => plot.copy(oks = toNumberPerSec(plot.oks), kos = toNumberPerSec(plot.kos)))
+      .map(plot => new CountsVsTimePlot(plot.time, toNumberPerSec(plot.oks), kos = toNumberPerSec(plot.kos)))
       .toSeq
       .sortBy(_.time)
 
@@ -233,7 +232,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
     if (max - min <= maxPlots) {
       // use exact values
-      def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
+      def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => new PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
       (plotsToPercents(ok), plotsToPercents(ko))
 
     } else {
@@ -262,7 +261,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
           }(breakOut)
 
         buckets.map { bucket =>
-          PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
+          new PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
         }
       }
 
@@ -339,7 +338,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
       .collect {
         case (Some(digest), bucketNumber) =>
           val count = globalCountsByBucket(bucketNumber)
-          IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
+          new IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
       }
       .sortBy(_.time)
   }
@@ -358,6 +357,6 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
   def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {
     val buff = resultsHolder.getErrorsBuffers(requestName, group)
     val total = buff.foldLeft(0)(_ + _._2)
-    buff.toSeq.map { case (name, count) => ErrorStats(name, count, total) }.sortWith(_.count > _.count)
+    buff.toSeq.map { case (name, count) => new ErrorStats(name, count, total) }.sortWith(_.count > _.count)
   }
 }

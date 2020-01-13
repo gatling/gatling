@@ -34,20 +34,20 @@ object ConsoleErrorsWriter {
   val OneHundredPercent: String = formatPercent(100).dropRight(1)
 
   def writeError(sb: JStringBuilder, errors: ErrorStats): JStringBuilder = {
-    val ErrorStats(msg, count, _) = errors
     val percent = if (errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
-    val firstLineLen = TextLen.min(msg.length)
+    val message = errors.message
+    val firstLineLen = TextLen.min(message.length)
 
     sb.append("> ")
-      .append(msg.substring(0, firstLineLen).rightPad(TextLen))
+      .append(message.substring(0, firstLineLen).rightPad(TextLen))
       .append(' ')
-      .append(count.toString.leftPad(6))
+      .append(errors.count.toString.leftPad(6))
       .append(" (")
       .append(percent.leftPad(5))
       .append("%)")
 
-    if (msg.length > TextLen) {
-      sb.append(Eol).append(msg.substring(TextLen).truncate(TextLen))
+    if (message.length > TextLen) {
+      sb.append(Eol).append(message.substring(TextLen).truncate(TextLen))
     } else {
       sb
     }

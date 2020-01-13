@@ -19,7 +19,7 @@ package io.gatling.http.protocol
 import io.gatling.http.client.uri.Uri
 
 object Remote {
-  def apply(uri: Uri): Remote = Remote(uri.getHost, uri.getExplicitPort)
+  def apply(uri: Uri): Remote = new Remote(uri.getHost, uri.getExplicitPort)
 }
 
-final case class Remote(hostname: String, port: Int)
+final class Remote(val hostname: String, val port: Int)

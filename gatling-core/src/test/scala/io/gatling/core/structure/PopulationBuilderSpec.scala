@@ -23,7 +23,7 @@ class PopulationBuilderSpec extends AnyFlatSpec with Matchers {
 
   private def newPopulationBuilder(name: String, children: List[PopulationBuilder]): PopulationBuilder =
     PopulationBuilder(
-      scenarioBuilder = ScenarioBuilder(name, Nil),
+      scenarioBuilder = new ScenarioBuilder(name, Nil),
       injectionProfile = null,
       scenarioProtocols = Map.empty,
       scenarioThrottleSteps = Nil,

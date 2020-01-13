@@ -16,10 +16,10 @@
 
 package io.gatling.charts.report
 
+import io.gatling.charts.stats.CountsVsTimePlot
 import io.gatling.charts.util.Colors._
 import io.gatling.commons.stats.{ OK, Status }
 import io.gatling.commons.util.Collections._
-import io.gatling.core.stats.CountsVsTimePlot
 
 private[charts] object ReportGenerator {
 

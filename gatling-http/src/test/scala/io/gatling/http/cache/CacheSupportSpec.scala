@@ -41,7 +41,7 @@ class CacheSupportSpec extends BaseSpec {
 
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val coreComponents = CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
+  private val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
   class CacheContext {

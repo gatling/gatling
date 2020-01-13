@@ -26,7 +26,7 @@ object ResponseTimings {
       math.max(1, (endTimestamp - startTimestamp).toInt)
 }
 
-final case class ResponseTimings(startTimestamp: Long, endTimestamp: Long) {
+final class ResponseTimings(val startTimestamp: Long, val endTimestamp: Long) {
 
   val responseTime: Int = ResponseTimings.responseTime(startTimestamp, endTimestamp)
 }

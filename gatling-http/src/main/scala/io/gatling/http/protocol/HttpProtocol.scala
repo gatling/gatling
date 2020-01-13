@@ -54,7 +54,7 @@ object HttpProtocol extends StrictLogging {
       val defaultStatsProcessor = new DefaultStatsProcessor(coreComponents.configuration.core.charset, coreComponents.statsEngine)
 
       httpProtocol => {
-        val httpComponents = HttpComponents(
+        val httpComponents = new HttpComponents(
           httpProtocol,
           httpEngine,
           httpCaches,

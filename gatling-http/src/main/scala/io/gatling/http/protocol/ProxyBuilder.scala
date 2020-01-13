@@ -27,20 +27,20 @@ object ProxyBuilder {
   implicit def toProxy(proxyBuilder: ProxyBuilder): Proxy = proxyBuilder.proxy
 }
 
-final case class ProxyBuilder(proxy: Proxy) {
+final class ProxyBuilder(val proxy: Proxy) {
 
   def http: ProxyBuilder =
-    this.modify(_.proxy.proxyType).setTo(HttpProxy)
+    new ProxyBuilder(proxy.modify(_.proxyType).setTo(HttpProxy))
 
   def socks4: ProxyBuilder =
-    this.modify(_.proxy.proxyType).setTo(Socks4Proxy)
+    new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks4Proxy))
 
   def socks5: ProxyBuilder =
-    this.modify(_.proxy.proxyType).setTo(Socks5Proxy)
+    new ProxyBuilder(proxy.modify(_.proxyType).setTo(Socks5Proxy))
 
   def httpsPort(port: Int): ProxyBuilder =
-    this.modify(_.proxy.securePort).setTo(port)
+    new ProxyBuilder(proxy.modify(_.securePort).setTo(port))
 
   def credentials(username: String, password: String): ProxyBuilder =
-    this.modify(_.proxy.credentials).setTo(Some(Credentials(username, password)))
+    new ProxyBuilder(proxy.modify(_.credentials).setTo(Some(Credentials(username, password))))
 }

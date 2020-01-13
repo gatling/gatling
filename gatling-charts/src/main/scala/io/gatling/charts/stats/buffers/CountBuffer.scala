@@ -16,8 +16,8 @@
 
 package io.gatling.charts.stats.buffers
 
+import io.gatling.charts.stats.CountsVsTimePlot
 import io.gatling.commons.stats.{ OK, Status }
-import io.gatling.core.stats.CountsVsTimePlot
 
 @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 private[stats] class Counts(var oks: Int = 0, var kos: Int = 0) {
@@ -39,5 +39,5 @@ private[stats] class CountsBuffer(buckets: Array[Int]) {
 
   def distribution: Iterable[CountsVsTimePlot] =
     counts.view.zipWithIndex
-      .map { case (count, bucketNumber) => CountsVsTimePlot(buckets(bucketNumber), count.oks, count.kos) }
+      .map { case (count, bucketNumber) => new CountsVsTimePlot(buckets(bucketNumber), count.oks, count.kos) }
 }

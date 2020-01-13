@@ -29,7 +29,7 @@ import io.gatling.core.stats.StatsEngine
  * @param session       the new Session to be sent to exitAction
  * @param groupsToClose the groups to be closed as we bypass the regular GroupEnd from the regular flow
  */
-final case class BlockExit(exitAction: Action, session: Session, groupsToClose: List[GroupBlock]) {
+final class BlockExit(val exitAction: Action, val session: Session, val groupsToClose: List[GroupBlock]) {
 
   def exitBlock(statsEngine: StatsEngine, nowMillis: Long): Unit = {
     groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session, _, nowMillis))
@@ -51,11 +51,11 @@ object BlockExit {
    */
   @tailrec
   private def blockExit(blocks: List[Block], until: Block, exitAction: Action, session: Session, groupsToClose: List[GroupBlock]): BlockExit = blocks match {
-    case Nil => BlockExit(exitAction, session, groupsToClose)
+    case Nil => new BlockExit(exitAction, session, groupsToClose)
 
     case head :: tail =>
       head match {
-        case `until`           => BlockExit(exitAction, session, groupsToClose)
+        case `until`           => new BlockExit(exitAction, session, groupsToClose)
         case group: GroupBlock => blockExit(tail, until, exitAction, session.exitGroup(tail), group :: groupsToClose)
         case _: TryMaxBlock    => blockExit(tail, until, exitAction, session.exitTryMax, groupsToClose)
         case _: CounterBlock   => blockExit(tail, until, exitAction, session.exitLoop, groupsToClose)
@@ -81,7 +81,7 @@ object BlockExit {
           case ExitAsapLoopBlock(_, condition, exitAction) if !LoopBlock.continue(condition, session) =>
             val exit = blockExit(session.blockStack, head, exitAction, session, Nil)
             // block stack head is now the loop itself, we must exit it
-            Some(exit.copy(session = exit.session.exitLoop))
+            Some(new BlockExit(exit.exitAction, exit.session.exitLoop, exit.groupsToClose))
 
           case _ => exitAsapLoopRec(tail)
         }

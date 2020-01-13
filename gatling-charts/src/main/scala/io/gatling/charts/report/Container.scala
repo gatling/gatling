@@ -29,7 +29,7 @@ private[gatling] object Container {
 
 private[charts] trait Container
 
-private[charts] final case class RequestContainer(name: String, stats: RequestStatistics) extends Container
+private[charts] final class RequestContainer(val name: String, val stats: RequestStatistics) extends Container
 
 private[charts] object GroupContainer {
   def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
@@ -38,11 +38,11 @@ private[charts] object GroupContainer {
     new GroupContainer(name, stats, mutable.LinkedHashMap.empty, mutable.LinkedHashMap.empty)
 }
 
-private[charts] final case class GroupContainer(
-    name: String,
-    stats: RequestStatistics,
-    requests: mutable.Map[String, RequestContainer],
-    groups: mutable.Map[String, GroupContainer]
+private[charts] final class GroupContainer(
+    val name: String,
+    val stats: RequestStatistics,
+    val requests: mutable.Map[String, RequestContainer],
+    val groups: mutable.Map[String, GroupContainer]
 ) extends Container {
 
   private def findGroup(path: List[String]) = {
@@ -63,6 +63,6 @@ private[charts] final case class GroupContainer(
 
   def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics): Unit = {
     val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
-    findGroup(parentGroup).requests += (requestName -> RequestContainer(requestName, stats))
+    findGroup(parentGroup).requests += (requestName -> new RequestContainer(requestName, stats))
   }
 }

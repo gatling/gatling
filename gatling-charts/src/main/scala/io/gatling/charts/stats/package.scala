@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.core.stats
+package io.gatling.charts.stats
 
 object Series {
   val OK = "OK"
@@ -23,25 +23,25 @@ object Series {
   val Distribution = "Distribution"
 }
 
-final case class Series[X](name: String, data: Iterable[X], colors: List[String])
-final case class IntVsTimePlot(time: Int, value: Int)
-final case class CountsVsTimePlot(time: Int, oks: Int, kos: Int) {
+final class Series[X](val name: String, val data: Iterable[X], val colors: List[String])
+final class IntVsTimePlot(val time: Int, val value: Int)
+final class CountsVsTimePlot(val time: Int, val oks: Int, val kos: Int) {
   def total: Int = oks + kos
 }
-final case class PercentVsTimePlot(time: Int, value: Double) {
+final class PercentVsTimePlot(val time: Int, val value: Double) {
   def roundedUpValue: Double = (value * 100).toInt / 100.0
 }
-final case class PieSlice(name: String, value: Double)
-final case class PercentilesVsTimePlot(time: Int, percentiles: Option[Percentiles])
-final case class Percentiles(
-    percentile0: Int,
-    percentile25: Int,
-    percentile50: Int,
-    percentile75: Int,
-    percentile80: Int,
-    percentile85: Int,
-    percentile90: Int,
-    percentile95: Int,
-    percentile99: Int,
-    percentile100: Int
+final class PieSlice(val name: String, val value: Double)
+final class PercentilesVsTimePlot(val time: Int, val percentiles: Option[Percentiles])
+final class Percentiles(
+    val percentile0: Int,
+    val percentile25: Int,
+    val percentile50: Int,
+    val percentile75: Int,
+    val percentile80: Int,
+    val percentile85: Int,
+    val percentile90: Int,
+    val percentile95: Int,
+    val percentile99: Int,
+    val percentile100: Int
 )

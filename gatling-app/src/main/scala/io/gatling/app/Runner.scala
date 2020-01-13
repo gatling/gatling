@@ -55,7 +55,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
   private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult =
     configuration.core.directory.reportsOnly match {
-      case Some(runId) => RunResult(runId, hasAssertions = true)
+      case Some(runId) => new RunResult(runId, hasAssertions = true)
       case _ =>
         if (configuration.http.enableGA) Ga.send(configuration.core.version)
         run0(selectedSimulationClass)
@@ -85,7 +85,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
     val injector = Injector(system, eventLoopGroup, statsEngine, clock)
     val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams, configuration), Controller.ControllerActorName)
     val exit = new Exit(injector, clock)
-    val coreComponents = CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
+    val coreComponents = new CoreComponents(system, eventLoopGroup, controller, throttler, statsEngine, clock, exit, configuration)
     logger.trace("CoreComponents instantiated")
 
     val scenarios = simulationParams.scenarios(coreComponents)
@@ -95,7 +95,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
       case _ =>
         simulation.executeAfter()
         logger.trace("After hooks executed")
-        RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
+        new RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
     }
   }
 

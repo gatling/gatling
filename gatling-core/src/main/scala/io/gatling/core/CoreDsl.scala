@@ -40,11 +40,11 @@ trait CoreDsl
     with CoreDefaultImplicits
     with ValidationImplicits {
 
-  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "), Nil)
+  def scenario(scenarioName: String): ScenarioBuilder = new ScenarioBuilder(scenarioName.replaceAll("[\r\n\t]", " "), Nil)
 
-  def WhiteList(patterns: String*): io.gatling.core.filter.WhiteList = io.gatling.core.filter.WhiteList(patterns.toList)
+  def WhiteList(patterns: String*): io.gatling.core.filter.WhiteList = new io.gatling.core.filter.WhiteList(patterns.toList)
 
-  def BlackList(patterns: String*): io.gatling.core.filter.BlackList = io.gatling.core.filter.BlackList(patterns.toList)
+  def BlackList(patterns: String*): io.gatling.core.filter.BlackList = new io.gatling.core.filter.BlackList(patterns.toList)
 
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))

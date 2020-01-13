@@ -30,7 +30,7 @@ private[charts] object Statistics {
     }
 }
 
-private[charts] final case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
+private[charts] final class Statistics[T: Numeric](val name: String, val total: T, val success: T, val failure: T) {
   def all: List[T] = List(total, success, failure)
 }
 
@@ -38,20 +38,20 @@ private[charts] final case class GroupedCount(name: String, count: Long, total: 
   val percentage: Int = if (total == 0) 0 else (count.toDouble / total * 100).round.toInt
 }
 
-private[charts] final case class RequestStatistics(
-    name: String,
-    path: String,
-    numberOfRequestsStatistics: Statistics[Long],
-    minResponseTimeStatistics: Statistics[Int],
-    maxResponseTimeStatistics: Statistics[Int],
-    meanStatistics: Statistics[Int],
-    stdDeviationStatistics: Statistics[Int],
-    percentiles1: Statistics[Int],
-    percentiles2: Statistics[Int],
-    percentiles3: Statistics[Int],
-    percentiles4: Statistics[Int],
-    groupedCounts: Seq[GroupedCount],
-    meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
+private[charts] final class RequestStatistics(
+    val name: String,
+    val path: String,
+    val numberOfRequestsStatistics: Statistics[Long],
+    val minResponseTimeStatistics: Statistics[Int],
+    val maxResponseTimeStatistics: Statistics[Int],
+    val meanStatistics: Statistics[Int],
+    val stdDeviationStatistics: Statistics[Int],
+    val percentiles1: Statistics[Int],
+    val percentiles2: Statistics[Int],
+    val percentiles3: Statistics[Int],
+    val percentiles4: Statistics[Int],
+    val groupedCounts: Seq[GroupedCount],
+    val meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
 )
 
 private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {

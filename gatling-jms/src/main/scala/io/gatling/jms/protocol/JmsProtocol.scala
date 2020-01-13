@@ -38,7 +38,7 @@ object JmsProtocol {
       coreComponents.actorSystem.registerOnTermination {
         jmsConnectionPool.close()
       }
-      jmsProtocol => JmsComponents(jmsProtocol, jmsConnectionPool)
+      jmsProtocol => new JmsComponents(jmsProtocol, jmsConnectionPool)
     }
   }
 }

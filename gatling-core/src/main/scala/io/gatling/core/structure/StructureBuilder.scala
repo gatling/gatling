@@ -36,10 +36,10 @@ trait StructureBuilder[B <: StructureBuilder[B]]
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-final case class ChainBuilder(actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction {
+final class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] with BuildAction {
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
-    ChainBuilder(newActionBuilders.toList ::: actionBuilders)
+    new ChainBuilder(newActionBuilders.toList ::: actionBuilders)
 }
 
 /**
@@ -48,10 +48,10 @@ final case class ChainBuilder(actionBuilders: List[ActionBuilder]) extends Struc
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-final case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder]) extends StructureBuilder[ScenarioBuilder] with BuildAction {
+final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ScenarioBuilder] with BuildAction {
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ScenarioBuilder =
-    copy(actionBuilders = newActionBuilders.toList ::: actionBuilders)
+    new ScenarioBuilder(name, actionBuilders = newActionBuilders.toList ::: actionBuilders)
 
   def inject[T: InjectionProfileFactory](is: T, moreIss: T*): PopulationBuilder = inject[T](Seq(is) ++ moreIss)
 
@@ -73,5 +73,5 @@ trait StructureSupport extends StructureBuilder[ChainBuilder] {
   override protected def actionBuilders: List[ActionBuilder] = Nil
 
   override protected def chain(newActionBuilders: Seq[ActionBuilder]): ChainBuilder =
-    ChainBuilder(newActionBuilders.toList)
+    new ChainBuilder(newActionBuilders.toList)
 }

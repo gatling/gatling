@@ -50,7 +50,7 @@ object Exponential extends PauseType {
     duration.map(duration => (nextValue * duration.toMillis).round)
 }
 
-final case class NormalWithPercentageDuration(stdDev: Double) extends PauseType {
+final class NormalWithPercentageDuration(stdDev: Double) extends PauseType {
 
   private val stdDevPercent = stdDev / 100.0
 
@@ -58,16 +58,16 @@ final case class NormalWithPercentageDuration(stdDev: Double) extends PauseType 
     duration.map(d => math.max(0L, ((1 + ThreadLocalRandom.current.nextGaussian * stdDevPercent) * d.toMillis).toLong))
 }
 
-final case class NormalWithStdDevDuration(stdDev: Duration) extends PauseType {
+final class NormalWithStdDevDuration(stdDev: Duration) extends PauseType {
   override def generator(duration: Expression[Duration]): Expression[Long] =
     duration.map(d => math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDev.toMillis + d.toMillis).toLong))
 }
 
-final case class Custom(custom: Expression[Long]) extends PauseType {
+final class Custom(custom: Expression[Long]) extends PauseType {
   override def generator(duration: Expression[Duration]): Expression[Long] = custom
 }
 
-final case class UniformPercentage(plusOrMinus: Double) extends PauseType {
+final class UniformPercentage(plusOrMinus: Double) extends PauseType {
 
   private val plusOrMinusPercent = plusOrMinus / 100.0
 
@@ -81,7 +81,7 @@ final case class UniformPercentage(plusOrMinus: Double) extends PauseType {
     }
 }
 
-final case class UniformDuration(plusOrMinus: Duration) extends PauseType {
+final class UniformDuration(plusOrMinus: Duration) extends PauseType {
 
   private val halfWidth = plusOrMinus.toMillis
 

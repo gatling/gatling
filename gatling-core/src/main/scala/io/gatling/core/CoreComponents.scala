@@ -25,13 +25,13 @@ import io.gatling.core.stats.StatsEngine
 import _root_.akka.actor.{ ActorRef, ActorSystem }
 import io.netty.channel.EventLoopGroup
 
-final case class CoreComponents(
-    actorSystem: ActorSystem,
-    eventLoopGroup: EventLoopGroup,
-    controller: ActorRef,
-    throttler: Throttler,
-    statsEngine: StatsEngine,
-    clock: Clock,
-    exit: Action,
-    configuration: GatlingConfiguration
+final class CoreComponents(
+    val actorSystem: ActorSystem,
+    val eventLoopGroup: EventLoopGroup,
+    val controller: ActorRef,
+    val throttler: Throttler,
+    val statsEngine: StatsEngine,
+    val clock: Clock,
+    val exit: Action,
+    val configuration: GatlingConfiguration
 )

@@ -22,11 +22,11 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
 
-final case class HttpComponents(
-    httpProtocol: HttpProtocol,
-    httpEngine: HttpEngine,
-    httpCaches: HttpCaches,
-    httpTxExecutor: HttpTxExecutor
+final class HttpComponents(
+    val httpProtocol: HttpProtocol,
+    val httpEngine: HttpEngine,
+    val httpCaches: HttpCaches,
+    val httpTxExecutor: HttpTxExecutor
 ) extends ProtocolComponents {
 
   override lazy val onStart: Session => Session =

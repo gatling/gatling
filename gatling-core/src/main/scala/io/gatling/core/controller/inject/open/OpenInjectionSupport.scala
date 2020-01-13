@@ -47,7 +47,7 @@ final case class IncreasingUsersPerSecProfileBuilder(usersPerSec: Double) {
 object OpenInjectionSupport {
 
   val OpenInjectionProfileFactory: InjectionProfileFactory[OpenInjectionStep] =
-    (steps: Iterable[OpenInjectionStep]) => OpenInjectionProfile(steps)
+    (steps: Iterable[OpenInjectionStep]) => new OpenInjectionProfile(steps)
 }
 
 trait OpenInjectionSupport {

@@ -47,7 +47,7 @@ final case class IncreasingConcurrentUsersProfileBuilder(concurrentUsers: Int) {
 object ClosedInjectionSupport {
 
   val ClosedInjectionProfileFactory: InjectionProfileFactory[ClosedInjectionStep] =
-    (steps: Iterable[ClosedInjectionStep]) => ClosedInjectionProfile(steps)
+    (steps: Iterable[ClosedInjectionStep]) => new ClosedInjectionProfile(steps)
 }
 
 trait ClosedInjectionSupport {

@@ -36,7 +36,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
           val assertionResults = AssertionValidator.validateAssertions(reader)
 
           if (reportsGenerationEnabled) {
-            val reportsGenerationInputs = ReportsGenerationInputs(runResult.runId, reader, assertionResults)
+            val reportsGenerationInputs = new ReportsGenerationInputs(runResult.runId, reader, assertionResults)
             generateReports(reportsGenerationInputs)
           }
 

@@ -16,9 +16,8 @@
 
 package io.gatling.charts.component.impl
 
-import io.gatling.core.stats._
-
 import io.gatling.charts.component.{ Component, ComponentLibrary }
+import io.gatling.charts.stats._
 
 /**
  * Mock implementation that is removed from the binary.

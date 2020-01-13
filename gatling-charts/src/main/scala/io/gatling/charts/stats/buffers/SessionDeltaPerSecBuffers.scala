@@ -19,12 +19,11 @@ package io.gatling.charts.stats.buffers
 import scala.collection.mutable
 
 import io.gatling.commons.util.Maps._
-import io.gatling.charts.stats.UserRecord
-import io.gatling.core.stats.IntVsTimePlot
+import io.gatling.charts.stats.{ IntVsTimePlot, UserRecord }
 import io.gatling.core.stats.message.{ End, Start }
 
 private[stats] object SessionDeltas {
-  val Empty = SessionDeltas(0, 0)
+  val Empty: SessionDeltas = SessionDeltas(0, 0)
 }
 
 private[stats] final case class SessionDeltas(starts: Int, ends: Int)
@@ -61,7 +60,7 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
         case (bucket, sessionCounts) =>
           val averageSessionCount = sessionCounts.sum / sessionCounts.size
           val time = buckets(bucket)
-          IntVsTimePlot(time, averageSessionCount)
+          new IntVsTimePlot(time, averageSessionCount)
       }
       .toList
       .sortBy(_.time)

@@ -136,8 +136,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
       ),
       filters = FiltersConfiguration(
         filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
-        whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).asScala.toList),
-        blackList = BlackList(config.getStringList(filters.BlacklistPatterns).asScala.toList)
+        whiteList = new WhiteList(config.getStringList(filters.WhitelistPatterns).asScala.toList),
+        blackList = new BlackList(config.getStringList(filters.BlacklistPatterns).asScala.toList)
       ),
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),
@@ -188,8 +188,8 @@ private[recorder] final case class FiltersConfiguration(
 
   def filters: Option[Filters] = filterStrategy match {
     case FilterStrategy.Disabled       => None
-    case FilterStrategy.BlackListFirst => Some(Filters(blackList, whiteList))
-    case FilterStrategy.WhiteListFirst => Some(Filters(whiteList, blackList))
+    case FilterStrategy.BlackListFirst => Some(new Filters(blackList, whiteList))
+    case FilterStrategy.WhiteListFirst => Some(new Filters(whiteList, blackList))
   }
 }
 

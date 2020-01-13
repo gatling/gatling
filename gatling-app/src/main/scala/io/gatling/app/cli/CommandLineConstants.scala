@@ -19,13 +19,13 @@ package io.gatling.app.cli
 import io.gatling.core.cli.CommandLineConstant
 
 private object CommandLineConstants {
-  val Help = CommandLineConstant("help", "h")
-  val NoReports = CommandLineConstant("no-reports", "nr")
-  val ReportsOnly = CommandLineConstant("reports-only", "ro")
-  val ResultsFolder = CommandLineConstant("results-folder", "rf")
-  val ResourcesFolder = CommandLineConstant("resources-folder", "rsf")
-  val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
-  val BinariesFolder = CommandLineConstant("binaries-folder", "bf")
-  val Simulation = CommandLineConstant("simulation", "s")
-  val RunDescription = CommandLineConstant("run-description", "rd")
+  val Help = new CommandLineConstant("help", "h")
+  val NoReports = new CommandLineConstant("no-reports", "nr")
+  val ReportsOnly = new CommandLineConstant("reports-only", "ro")
+  val ResultsFolder = new CommandLineConstant("results-folder", "rf")
+  val ResourcesFolder = new CommandLineConstant("resources-folder", "rsf")
+  val SimulationsFolder = new CommandLineConstant("simulations-folder", "sf")
+  val BinariesFolder = new CommandLineConstant("binaries-folder", "bf")
+  val Simulation = new CommandLineConstant("simulation", "s")
+  val RunDescription = new CommandLineConstant("run-description", "rd")
 }

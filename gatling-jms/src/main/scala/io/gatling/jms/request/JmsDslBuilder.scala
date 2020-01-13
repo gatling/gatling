@@ -64,7 +64,7 @@ final class SendDslDslBuilderMessage(
   def objectMessage(o: Expression[JSerializable]): SendDslBuilder = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), SendBuilder.apply)
+    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), new SendBuilder(_))
 }
 
 final case class RequestReplyDslBuilderMessage(

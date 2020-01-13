@@ -23,7 +23,7 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 import io.gatling.jms.request.JmsAttributes
 
-final case class SendBuilder(attributes: JmsAttributes) extends ActionBuilder {
+final class SendBuilder(attributes: JmsAttributes) extends ActionBuilder {
 
   private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)

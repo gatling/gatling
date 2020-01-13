@@ -84,9 +84,9 @@ abstract class Simulation {
     def disablePauses: SetUp = pauses(Disabled)
     def constantPauses: SetUp = pauses(Constant)
     def exponentialPauses: SetUp = pauses(Exponential)
-    def customPauses(custom: Expression[Long]): SetUp = pauses(Custom(custom))
-    def uniformPauses(plusOrMinus: Double): SetUp = pauses(UniformPercentage(plusOrMinus))
-    def uniformPauses(plusOrMinus: Duration): SetUp = pauses(UniformDuration(plusOrMinus))
+    def customPauses(custom: Expression[Long]): SetUp = pauses(new Custom(custom))
+    def uniformPauses(plusOrMinus: Double): SetUp = pauses(new UniformPercentage(plusOrMinus))
+    def uniformPauses(plusOrMinus: Duration): SetUp = pauses(new UniformDuration(plusOrMinus))
     def pauses(pauseType: PauseType): SetUp = {
       _globalPauseType = pauseType
       this
@@ -176,7 +176,7 @@ abstract class Simulation {
       }
     }
 
-    SimulationParams(
+    new SimulationParams(
       getClass.getName,
       rootPopulationBuilders,
       childrenPopulationBuilders,
@@ -192,15 +192,15 @@ abstract class Simulation {
   private[gatling] def executeAfter(): Unit = _afterSteps.foreach(_.apply())
 }
 
-final case class SimulationParams(
-    name: String,
-    rootPopulationBuilders: List[PopulationBuilder],
-    childrenPopulationBuilders: Map[String, List[PopulationBuilder]],
-    globalProtocols: Protocols,
-    globalPauseType: PauseType,
-    throttlings: Throttlings,
-    maxDuration: Option[FiniteDuration],
-    assertions: Seq[Assertion]
+final class SimulationParams(
+    val name: String,
+    val rootPopulationBuilders: List[PopulationBuilder],
+    val childrenPopulationBuilders: Map[String, List[PopulationBuilder]],
+    val globalProtocols: Protocols,
+    val globalPauseType: PauseType,
+    val throttlings: Throttlings,
+    val maxDuration: Option[FiniteDuration],
+    val assertions: Seq[Assertion]
 ) {
 
   private def buildScenario(populationBuilder: PopulationBuilder, coreComponents: CoreComponents, protocolComponentsRegistries: ProtocolComponentsRegistries) =
@@ -211,6 +211,6 @@ final case class SimulationParams(
     val rootScenarios = rootPopulationBuilders.map(buildScenario(_, coreComponents, protocolComponentsRegistries))
     val childrenScenarios = childrenPopulationBuilders.mapValues(_.map(buildScenario(_, coreComponents, protocolComponentsRegistries)))
 
-    Scenarios(rootScenarios, childrenScenarios)
+    new Scenarios(rootScenarios, childrenScenarios)
   }
 }

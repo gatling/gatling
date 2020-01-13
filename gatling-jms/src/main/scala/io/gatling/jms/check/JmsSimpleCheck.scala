@@ -29,7 +29,7 @@ object JmsSimpleCheck {
   private val JmsSimpleCheckFailure = "JMS check failed".failure
 }
 
-final case class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
+final class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
   override def check(response: Message, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
     if (func(response)) {
       CheckResult.NoopCheckResultSuccess

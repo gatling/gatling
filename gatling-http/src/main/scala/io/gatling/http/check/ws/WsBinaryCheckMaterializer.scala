@@ -20,7 +20,7 @@ import io.gatling.core.check._
 import io.gatling.core.check.bytes.BodyBytesCheckType
 
 class WsBinaryCheckMaterializer[T, P](override val preparer: Preparer[Array[Byte], P])
-    extends CheckMaterializer[T, WsBinaryCheck, Array[Byte], P](WsBinaryCheck.apply)
+    extends CheckMaterializer[T, WsBinaryCheck, Array[Byte], P](new WsBinaryCheck(_))
 
 object WsBinaryCheckMaterializer {
 

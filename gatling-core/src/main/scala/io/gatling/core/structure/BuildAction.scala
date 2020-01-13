@@ -29,9 +29,9 @@ trait BuildAction { this: Execs[_] =>
     }
 }
 
-final case class ScenarioContext(
-    coreComponents: CoreComponents,
-    protocolComponentsRegistry: ProtocolComponentsRegistry,
-    pauseType: PauseType,
-    throttled: Boolean
+final class ScenarioContext(
+    val coreComponents: CoreComponents,
+    val protocolComponentsRegistry: ProtocolComponentsRegistry,
+    val pauseType: PauseType,
+    val throttled: Boolean
 )

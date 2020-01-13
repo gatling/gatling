@@ -54,10 +54,10 @@ private[gatling] class DefaultHttpClientFactory(sslContextsFactory: SslContextsF
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
 
-    val SslContexts(defaultSslContext, defaultAlpnSslContext) = sslContextsFactory.newSslContexts(http2Enabled = true, None)
+    val defaultSslContexts = sslContextsFactory.newSslContexts(http2Enabled = true, None)
     new HttpClientConfig()
-      .setDefaultSslContext(defaultSslContext)
-      .setDefaultAlpnSslContext(defaultAlpnSslContext.orNull)
+      .setDefaultSslContext(defaultSslContexts.sslContext)
+      .setDefaultAlpnSslContext(defaultSslContexts.alpnSslContext.orNull)
       .setConnectTimeout(httpConfig.advanced.connectTimeout.toMillis)
       .setHandshakeTimeout(httpConfig.advanced.handshakeTimeout.toMillis)
       .setChannelPoolIdleTimeout(httpConfig.advanced.pooledConnectionIdleTimeout.toMillis)

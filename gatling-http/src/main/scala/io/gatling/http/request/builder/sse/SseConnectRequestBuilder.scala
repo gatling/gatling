@@ -37,13 +37,10 @@ object SseConnectRequestBuilder {
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
   implicit def toActionBuilder(requestBuilder: SseConnectRequestBuilder): SseConnectBuilder =
-    SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder, Nil)
+    SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder, Nil)
 }
 
-final case class SseConnectRequestBuilder(
-    commonAttributes: CommonAttributes,
-    sseName: String
-) extends RequestBuilder[SseConnectRequestBuilder] {
+final class SseConnectRequestBuilder(val commonAttributes: CommonAttributes, val sseName: String) extends RequestBuilder[SseConnectRequestBuilder] {
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName)
 

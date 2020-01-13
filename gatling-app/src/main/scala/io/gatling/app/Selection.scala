@@ -26,7 +26,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.scenario.Simulation
 
-final case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
+final class Selection(val simulationClass: Class[Simulation], val simulationId: String, val description: String)
 
 object Selection {
 

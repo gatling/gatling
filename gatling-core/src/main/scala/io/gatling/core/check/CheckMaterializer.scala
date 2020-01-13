@@ -21,5 +21,5 @@ abstract class CheckMaterializer[T, C <: Check[R], R, P](specializer: Specialize
   protected def preparer: Preparer[R, P]
 
   def materialize[X](builder: CheckBuilder[T, P, X]): C =
-    specializer(CheckBase(preparer, builder.extractor, builder.validator, builder.displayActualValue, builder.customName, builder.saveAs))
+    specializer(new CheckBase(preparer, builder.extractor, builder.validator, builder.displayActualValue, builder.customName, builder.saveAs))
 }

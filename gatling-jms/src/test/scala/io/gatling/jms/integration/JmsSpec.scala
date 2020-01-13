@@ -116,10 +116,11 @@ trait JmsSpec extends AkkaSpec with JmsDsl {
       implicit configuration: GatlingConfiguration
   ): Session = {
     val clock = new DefaultClock
-    val coreComponents = CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
+    val coreComponents =
+      new CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val next = new ActorDelegatingAction("next", self)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
-    val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
+    val actor = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     actor ! EmptySession
     val session = expectMsgClass(timeout, classOf[Session])
 

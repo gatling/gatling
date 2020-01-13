@@ -35,7 +35,7 @@ abstract class GatlingFunSpec extends Simulation {
   private[this] val specs = new ListBuffer[ActionBuilder]
 
   private[this] lazy val testScenario = scenario(this.getClass.getSimpleName)
-    .exec(ChainBuilder(specs.reverse.toList))
+    .exec(new ChainBuilder(specs.reverse.toList))
 
   private def setupRegisteredSpecs() = {
     require(specs.nonEmpty, "At least one spec needs to be defined")

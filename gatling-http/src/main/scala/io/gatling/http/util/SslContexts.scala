@@ -105,7 +105,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
         } else {
           None
         }
-      SslContexts(sslContext, alpnSslContext)
+      new SslContexts(sslContext, alpnSslContext)
 
     } else {
       val jdkSslContext = SSLContext.getInstance("TLS")
@@ -118,7 +118,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
         } else {
           None
         }
-      SslContexts(sslContext, alpnSslContext)
+      new SslContexts(sslContext, alpnSslContext)
     }
   }
 
@@ -135,7 +135,7 @@ private[gatling] class SslContextsFactory(httpConfig: HttpConfiguration) extends
     )
 }
 
-private[http] final case class SslContexts(sslContext: SslContext, alpnSslContext: Option[SslContext]) extends Closeable {
+private[http] final class SslContexts(val sslContext: SslContext, val alpnSslContext: Option[SslContext]) extends Closeable {
   override def close(): Unit = {
     ReferenceCountUtil.release(sslContext)
     alpnSslContext.foreach(ReferenceCountUtil.release)

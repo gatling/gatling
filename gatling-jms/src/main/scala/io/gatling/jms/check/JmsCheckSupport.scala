@@ -38,7 +38,7 @@ import javax.jms.Message
 import net.sf.saxon.s9api.XdmNode
 
 trait JmsCheckSupport {
-  def simpleCheck: JmsSimpleCheck.type = JmsSimpleCheck
+  def simpleCheck(f: Message => Boolean): JmsSimpleCheck = new JmsSimpleCheck(f)
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for JMS.")
   implicit def checkBuilder2JmsCheck[A, P, X](

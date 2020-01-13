@@ -52,7 +52,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
   }
 
   it should "pass KO to next actor when check fails" in {
-    val failedCheck = JmsSimpleCheck(_ => false)
+    val failedCheck = new JmsSimpleCheck(_ => false)
     val statsEngine = new MockStatsEngine
     val tracker = TestActorRef(Tracker.props(statsEngine, clock, configuration))
 
@@ -92,7 +92,7 @@ class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
     val newSession = groupSession.logGroupRequestTimings(15, 30)
     val nextSession1 = expectMsgType[Session]
 
-    val failedCheck = JmsSimpleCheck(_ => false)
+    val failedCheck = new JmsSimpleCheck(_ => false)
     tracker ! MessageSent("2", 25, 0, List(failedCheck), newSession, new ActorDelegatingAction("next", testActor), "logGroupResponse")
     tracker ! MessageReceived("2", 50, textMessage("group"))
 

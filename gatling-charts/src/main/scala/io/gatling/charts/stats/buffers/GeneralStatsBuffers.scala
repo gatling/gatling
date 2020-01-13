@@ -18,9 +18,8 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.stats.{ GroupRecord, RequestRecord }
+import io.gatling.charts.stats.{ GroupRecord, IntVsTimePlot, RequestRecord }
 import io.gatling.commons.stats.{ GeneralStats, Group, Status }
-import io.gatling.core.stats.IntVsTimePlot
 
 import com.tdunning.math.stats.AVLTreeDigest
 
@@ -98,5 +97,5 @@ private[stats] class GeneralStatsBuffer(durationInSec: Long) {
     }
   }
 
-  def distribution: Iterable[IntVsTimePlot] = counts.map { case (time, count) => IntVsTimePlot(time, count) }
+  def distribution: Iterable[IntVsTimePlot] = counts.map { case (time, count) => new IntVsTimePlot(time, count) }
 }

@@ -73,10 +73,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
       protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
-    val coreComponents = CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
+    val coreComponents =
+      new CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val next = new ActorDelegatingAction("next", self)
-    val actor = sb.build(ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
+    val actor = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
     actor ! EmptySession
     expectMsgClass(timeout, classOf[Session])
   }

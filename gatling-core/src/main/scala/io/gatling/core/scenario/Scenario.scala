@@ -21,17 +21,17 @@ import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioContext
 
-final case class Scenario(
-    name: String,
-    entry: Action,
-    onStart: Session => Session,
-    onExit: Session => Unit,
-    injectionProfile: InjectionProfile,
-    ctx: ScenarioContext,
-    children: Iterable[Scenario]
+final class Scenario(
+    val name: String,
+    val entry: Action,
+    val onStart: Session => Session,
+    val onExit: Session => Unit,
+    val injectionProfile: InjectionProfile,
+    val ctx: ScenarioContext,
+    val children: Iterable[Scenario]
 )
 
-private[gatling] final case class Scenarios(
-    roots: List[Scenario],
-    children: Map[String, List[Scenario]]
+private[gatling] final class Scenarios(
+    val roots: List[Scenario],
+    val children: Map[String, List[Scenario]]
 )

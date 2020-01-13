@@ -115,8 +115,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
       .setTo(remotes.map {
         case (address, isHttp2) =>
           val remote = address.split(':') match {
-            case Array(hostname, port) => Remote(hostname, port.toInt)
-            case Array(hostname)       => Remote(hostname, 443)
+            case Array(hostname, port) => new Remote(hostname, port.toInt)
+            case Array(hostname)       => new Remote(hostname, 443)
             case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
           }
           remote -> isHttp2
@@ -130,10 +130,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     this.modify(_.protocol.responsePart.responseTransformer).setTo(Some(responseTransformer))
   def check(checks: HttpCheck*): HttpProtocolBuilder = this.modify(_.protocol.responsePart.checks).using(_ ::: checks.toList)
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
-  def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList.Empty)))
-  def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, black)))
-  def inferHtmlResources(black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, WhiteList.Empty)))
-  def inferHtmlResources(black: BlackList, white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, white)))
+  def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(white, BlackList.Empty)))
+  def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(white, black)))
+  def inferHtmlResources(black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(black, WhiteList.Empty)))
+  def inferHtmlResources(black: BlackList, white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(new Filters(black, white)))
   private def inferHtmlResources(filters: Option[Filters]): HttpProtocolBuilder =
     this
       .modify(_.protocol.responsePart.inferHtmlResources)

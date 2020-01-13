@@ -26,7 +26,7 @@ import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class WsTextCheckMaterializer[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, WsTextCheck, String, P](WsTextCheck.apply)
+class WsTextCheckMaterializer[T, P](override val preparer: Preparer[String, P]) extends CheckMaterializer[T, WsTextCheck, String, P](new WsTextCheck(_))
 
 object WsTextCheckMaterializer {
 

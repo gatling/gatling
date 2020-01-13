@@ -280,13 +280,13 @@ class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
   }
 }
 
-final case class FileData(
-    userStartMessageSerializer: UserStartMessageSerializer,
-    userEndMessageSerializer: UserEndMessageSerializer,
-    responseMessageSerializer: ResponseMessageSerializer,
-    groupMessageSerializer: GroupMessageSerializer,
-    errorMessageSerializer: ErrorMessageSerializer,
-    writer: BufferedFileChannelWriter
+final class FileData(
+    val userStartMessageSerializer: UserStartMessageSerializer,
+    val userEndMessageSerializer: UserEndMessageSerializer,
+    val responseMessageSerializer: ResponseMessageSerializer,
+    val groupMessageSerializer: GroupMessageSerializer,
+    val errorMessageSerializer: ErrorMessageSerializer,
+    val writer: BufferedFileChannelWriter
 ) extends DataWriterData
 
 class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
@@ -300,7 +300,7 @@ class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     assertions.foreach(assertion => assertionSerializer.serialize(assertion))
     new RunMessageSerializer(writer).serialize(runMessage)
 
-    FileData(
+    new FileData(
       new UserStartMessageSerializer(writer),
       new UserEndMessageSerializer(writer),
       new ResponseMessageSerializer(writer),

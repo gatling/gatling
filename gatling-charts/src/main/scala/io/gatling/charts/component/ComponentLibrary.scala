@@ -18,11 +18,10 @@ package io.gatling.charts.component
 
 import scala.collection.JavaConverters._
 
-import io.gatling.core.stats._
+import io.gatling.charts.component.impl.ComponentLibraryImpl
+import io.gatling.charts.stats._
 
 import com.typesafe.scalalogging.StrictLogging
-
-import io.gatling.charts.component.impl.ComponentLibraryImpl
 
 private[charts] object ComponentLibrary extends StrictLogging {
 

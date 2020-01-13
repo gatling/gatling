@@ -18,12 +18,11 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles
-import io.gatling.charts.stats.RequestPath
+import io.gatling.charts.stats._
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.commons.stats._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.stats._
 
 private[charts] class RequestDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
@@ -78,8 +77,8 @@ private[charts] class RequestDetailsReportGenerator(
         val counts = dataSource(Some(requestName), group).sortBy(_.time)
 
         val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
-        val okPieSlice = PieSlice(Series.OK, count(counts, OK))
-        val koPieSlice = PieSlice(Series.KO, count(counts, KO))
+        val okPieSlice = new PieSlice(Series.OK, count(counts, OK))
+        val koPieSlice = new PieSlice(Series.KO, count(counts, KO))
         val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
 
         componentFactory(logFileReader.runStart, countsSeries, pieRequestsSeries)

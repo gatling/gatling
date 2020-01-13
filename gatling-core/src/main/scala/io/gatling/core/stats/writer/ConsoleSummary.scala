@@ -118,7 +118,7 @@ object ConsoleSummary {
 
         errorsCounters.toSeq.sortBy(-_._2).foreach {
           case (message, count) =>
-            ConsoleErrorsWriter.writeError(sb, ErrorStats(message, count, errorsTotal)).append(Eol)
+            ConsoleErrorsWriter.writeError(sb, new ErrorStats(message, count, errorsTotal)).append(Eol)
         }
       }
       sb
@@ -157,4 +157,4 @@ object ConsoleSummary {
   }
 }
 
-final case class ConsoleSummary(text: String, complete: Boolean)
+final class ConsoleSummary(val text: String, val complete: Boolean)

@@ -19,8 +19,8 @@ package io.gatling.charts.report
 import io.gatling.charts.stats.LogFileReader
 import io.gatling.commons.stats.assertion.AssertionResult
 
-private[gatling] final case class ReportsGenerationInputs(
-    reportFolderName: String,
-    logFileReader: LogFileReader,
-    assertionResults: List[AssertionResult]
+private[gatling] final class ReportsGenerationInputs(
+    val reportFolderName: String,
+    val logFileReader: LogFileReader,
+    val assertionResults: List[AssertionResult]
 )

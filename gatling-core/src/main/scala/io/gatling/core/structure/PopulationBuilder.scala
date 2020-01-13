@@ -64,9 +64,9 @@ final case class PopulationBuilder(
   def disablePauses: PopulationBuilder = pauses(Disabled)
   def constantPauses: PopulationBuilder = pauses(Constant)
   def exponentialPauses: PopulationBuilder = pauses(Exponential)
-  def customPauses(custom: Expression[Long]): PopulationBuilder = pauses(Custom(custom))
-  def uniformPauses(plusOrMinus: Double): PopulationBuilder = pauses(UniformPercentage(plusOrMinus))
-  def uniformPauses(plusOrMinus: Duration): PopulationBuilder = pauses(UniformDuration(plusOrMinus))
+  def customPauses(custom: Expression[Long]): PopulationBuilder = pauses(new Custom(custom))
+  def uniformPauses(plusOrMinus: Double): PopulationBuilder = pauses(new UniformPercentage(plusOrMinus))
+  def uniformPauses(plusOrMinus: Duration): PopulationBuilder = pauses(new UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType): PopulationBuilder = copy(pauseType = Some(pauseType))
 
   def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toIterable)
@@ -92,12 +92,12 @@ final case class PopulationBuilder(
 
     val protocolComponentsRegistry = protocolComponentsRegistries.scenarioRegistry(scenarioProtocols)
 
-    val ctx = ScenarioContext(coreComponents, protocolComponentsRegistry, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
+    val ctx = new ScenarioContext(coreComponents, protocolComponentsRegistry, resolvedPauseType, globalThrottling.isDefined || scenarioThrottleSteps.nonEmpty)
 
     val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
     val childrenScenarios = children.map(_.build(coreComponents, protocolComponentsRegistries, globalPauseType, globalThrottling))
 
-    Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onStart, protocolComponentsRegistry.onExit, injectionProfile, ctx, childrenScenarios)
+    new Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onStart, protocolComponentsRegistry.onExit, injectionProfile, ctx, childrenScenarios)
   }
 }

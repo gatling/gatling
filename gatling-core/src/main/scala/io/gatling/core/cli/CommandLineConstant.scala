@@ -16,4 +16,4 @@
 
 package io.gatling.core.cli
 
-private[gatling] final case class CommandLineConstant(full: String, abbr: String)
+private[gatling] final class CommandLineConstant(val full: String, val abbr: String)

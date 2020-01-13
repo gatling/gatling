@@ -52,13 +52,13 @@ trait Check[R] {
   def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult]
 }
 
-final case class CheckBase[R, P, X](
-    preparer: Preparer[R, P],
-    extractorExpression: Expression[Extractor[P, X]],
-    validatorExpression: Expression[Validator[X]],
-    displayActualValue: Boolean,
-    customName: Option[String],
-    saveAs: Option[String]
+final class CheckBase[R, P, X](
+    val preparer: Preparer[R, P],
+    val extractorExpression: Expression[Extractor[P, X]],
+    val validatorExpression: Expression[Validator[X]],
+    val displayActualValue: Boolean,
+    val customName: Option[String],
+    val saveAs: Option[String]
 ) extends Check[R] {
 
   def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
@@ -78,13 +78,13 @@ final case class CheckBase[R, P, X](
       prepared <- memoizedPrepared.mapError(message => s"${builtName(extractor, validator)} preparation crashed: $message")
       actual <- extractor(prepared).mapError(message => s"${builtName(extractor, validator)} extraction crashed: $message")
       matched <- validator(actual, displayActualValue).mapError(message => s"${builtName(extractor, validator)}, $message")
-    } yield CheckResult(matched, saveAs)
+    } yield new CheckResult(matched, saveAs)
   }
 }
 
 object CheckResult {
 
-  val NoopCheckResultSuccess: Validation[CheckResult] = CheckResult(None, None).success
+  val NoopCheckResultSuccess: Validation[CheckResult] = new CheckResult(None, None).success
 }
 
 final case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
