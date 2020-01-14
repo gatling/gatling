@@ -37,7 +37,7 @@ private[charts] object ChartsFiles {
     "jquery-3.4.1.min.js",
     "bootstrap.min.js",
     "gatling.js",
-    "moment-2.2.40.min.js",
+    "moment-2.24.0.min.js",
     MenuFile,
     AllSessionsFile,
     StatsJsFile
