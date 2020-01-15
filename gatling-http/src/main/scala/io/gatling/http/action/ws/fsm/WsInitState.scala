@@ -16,10 +16,10 @@
 
 package io.gatling.http.action.ws.fsm
 
-trait WhenInit { this: WsActor =>
+import io.gatling.core.action.Action
+import io.gatling.core.session.Session
 
-  when(Init) {
-    case Event(PerformInitialConnect(session, initialConnectNext), InitData) =>
-      gotoConnecting(session.set(wsName, self), Left(initialConnectNext))
-  }
+final class WsInitState(fsm: WsFsm) extends WsState(fsm) {
+  override def onPerformInitialConnect(session: Session, initialConnectNext: Action): WsState =
+    WsConnectingState.gotoConnecting(fsm, session.set(fsm.wsName, fsm), Left(initialConnectNext))
 }

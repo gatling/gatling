@@ -22,7 +22,6 @@ import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.ws.fsm.{ SendBinaryFrame, SendTextFrame }
 import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
 
 class WsSendTextFrame(
@@ -42,11 +41,11 @@ class WsSendTextFrame(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      wsActor <- fetchActor(wsName, session)
+      fsm <- fetchFsm(wsName, session)
       message <- message(session)
     } yield {
       logger.info(s"Sending text frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      wsActor ! SendTextFrame(requestName, message, checkSequences, session, next)
+      fsm.onSendTextFrame(requestName, message, checkSequences, session, next)
     }
 }
 
@@ -67,10 +66,10 @@ class WsSendBinaryFrame(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      wsActor <- fetchActor(wsName, session)
+      fsm <- fetchFsm(wsName, session)
       message <- message(session)
     } yield {
       logger.info(s"Sending binary frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      wsActor ! SendBinaryFrame(requestName, message, checkSequences, session, next)
+      fsm.onSendBinaryFrame(requestName, message, checkSequences, session, next)
     }
 }

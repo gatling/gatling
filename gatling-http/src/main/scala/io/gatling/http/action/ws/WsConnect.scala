@@ -23,7 +23,7 @@ import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.ws.fsm.{ PerformInitialConnect, WsActor }
+import io.gatling.http.action.ws.fsm.WsFsm
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
@@ -49,31 +49,29 @@ class WsConnect(
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    fetchActor(wsName, session) match {
+    fetchFsm(wsName, session) match {
       case _: Failure =>
         for {
-          request <- request(session)
+          connectRequest <- request(session)
         } yield {
           logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsActor = coreComponents.actorSystem.actorOf(
-            WsActor.props(
-              wsName,
-              request,
-              subprotocol,
-              requestName,
-              connectCheckSequences,
-              onConnected,
-              statsEngine,
-              httpComponents.httpEngine,
-              httpComponents.httpProtocol,
-              clock,
-              coreComponents.configuration
-            ),
-            genName("wsActor")
+          val wsFsm = WsFsm(
+            wsName,
+            connectRequest,
+            subprotocol,
+            requestName,
+            connectCheckSequences,
+            onConnected,
+            statsEngine,
+            httpComponents.httpEngine,
+            httpComponents.httpProtocol,
+            session.eventLoop,
+            clock,
+            coreComponents.configuration
           )
 
-          wsActor ! PerformInitialConnect(session, next)
+          wsFsm.onPerformInitialConnect(session, next)
         }
 
       case _ =>

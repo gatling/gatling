@@ -22,7 +22,6 @@ import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.session.{ Session, _ }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.action.ws.fsm.ClientCloseRequest
 
 class WsClose(
     override val requestName: Expression[String],
@@ -39,9 +38,9 @@ class WsClose(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      wsActor <- fetchActor(wsName, session)
+      fsm <- fetchFsm(wsName, session)
     } yield {
       logger.info(s"Closing websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      wsActor ! ClientCloseRequest(requestName, session, next)
+      fsm.onClientCloseRequest(requestName, session, next)
     }
 }
