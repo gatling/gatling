@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2019 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,7 +106,8 @@ class SimulationSetupSample extends Simulation {
       .inject(injectionProfile)
       // child1 and child2 will start at the same time when last parent user will terminate
       .andThen(
-        child1.inject(injectionProfile)
+        child1
+          .inject(injectionProfile)
           // grandChild will start when last child1 user will terminate
           .andThen(grandChild.inject(injectionProfile)),
         child2.inject(injectionProfile)
