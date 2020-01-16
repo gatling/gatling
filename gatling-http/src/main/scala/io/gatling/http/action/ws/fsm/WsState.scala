@@ -19,7 +19,7 @@ package io.gatling.http.action.ws.fsm
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws._
 import io.gatling.http.client.WebSocket
 import io.netty.handler.codec.http.cookie.Cookie
 

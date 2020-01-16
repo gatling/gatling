@@ -19,7 +19,7 @@ package io.gatling.http.action.sse.fsm
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
+import io.gatling.http.check.sse._
 
 object NextSseState {
   val DoNothing: () => Unit = () => {}
