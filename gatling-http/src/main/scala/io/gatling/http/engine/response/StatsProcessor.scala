@@ -22,7 +22,6 @@ import io.gatling.commons.stats.{ KO, Status }
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.client.Request
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util._
 import io.gatling.netty.util.StringBuilderPool
@@ -32,19 +31,17 @@ import com.typesafe.scalalogging.StrictLogging
 sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
   def reportStats(
       fullRequestName: String,
-      request: Request,
       session: Session,
       status: Status,
       result: HttpResult,
       errorMessage: Option[String]
   ): Unit = {
-    logTx(fullRequestName, request, session, status, result, errorMessage)
-    reportStats0(fullRequestName, request, session, status, result, errorMessage)
+    logTx(fullRequestName, session, status, result, errorMessage)
+    reportStats0(fullRequestName, session, status, result, errorMessage)
   }
 
   protected def reportStats0(
       fullRequestName: String,
-      request: Request,
       session: Session,
       status: Status,
       result: HttpResult,
@@ -53,7 +50,6 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
 
   private def logTx(
       fullRequestName: String,
-      request: Request,
       session: Session,
       status: Status,
       result: HttpResult,
@@ -62,7 +58,7 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
     def dump = {
       // hack: pre-cache url because it would reset the StringBuilder
       // FIXME isn't this url already built when sending the request?
-      request.getUri.toUrl
+      result.request.getUri.toUrl
       StringBuilderPool.DEFAULT
         .get()
         .append(Eol)
@@ -74,7 +70,7 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
         .appendWithEol(session)
         .appendWithEol("=========================")
         .appendWithEol("HTTP request:")
-        .appendRequest(request, result, charset)
+        .appendRequest(result, charset)
         .appendWithEol("=========================")
         .appendWithEol("HTTP response:")
         .appendResponse(result)
@@ -96,7 +92,6 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
 final class NoopStatsProcessor(charset: Charset) extends StatsProcessor(charset) {
   override protected def reportStats0(
       fullRequestName: String,
-      request: Request,
       session: Session,
       status: Status,
       result: HttpResult,
@@ -112,7 +107,6 @@ final class DefaultStatsProcessor(
 
   override def reportStats0(
       fullRequestName: String,
-      request: Request,
       session: Session,
       status: Status,
       result: HttpResult,

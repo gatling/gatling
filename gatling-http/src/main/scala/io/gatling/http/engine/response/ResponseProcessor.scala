@@ -61,7 +61,7 @@ class DefaultResponseProcessor(
   private def handleFailure(failure: HttpFailure): Unit = {
     val sessionWithUpdatedStats = sessionProcessor.updateSessionCrashed(tx.currentSession, failure.startTimestamp, failure.endTimestamp)
     try {
-      statsProcessor.reportStats(tx.fullRequestName, tx.request.clientRequest, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
+      statsProcessor.reportStats(tx.fullRequestName, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
     } catch {
       case NonFatal(t) =>
         logger.error(
@@ -79,26 +79,23 @@ class DefaultResponseProcessor(
       case Success(response)     => proceed(response, processResponse(response))
     }
 
-  private def proceed(response: Response, result: ProcessorResult): Unit = {
-    val clientRequest = tx.request.clientRequest
-
+  private def proceed(response: Response, result: ProcessorResult): Unit =
     result match {
       case Proceed(newSession, errorMessage) =>
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, status, response, errorMessage)
+        statsProcessor.reportStats(tx.fullRequestName, newSession, status, response, errorMessage)
         nextExecutor.executeNext(newSession, status, response)
 
       case Redirect(redirectTx) =>
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, redirectTx.currentSession, OK, response, None)
+        statsProcessor.reportStats(tx.fullRequestName, redirectTx.currentSession, OK, response, None)
         nextExecutor.executeRedirect(redirectTx)
 
       case Crash(errorMessage) =>
         val newSession = sessionProcessor.updateSessionCrashed(tx.currentSession, response.startTimestamp, response.endTimestamp)
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, KO, response, Some(errorMessage))
+        statsProcessor.reportStats(tx.fullRequestName, newSession, KO, response, Some(errorMessage))
         nextExecutor.executeNextOnCrash(newSession, response.endTimestamp)
     }
-  }
 
   private def applyResponseTransformer(rawResponse: Response): Validation[Response] =
     tx.request.requestConfig.responseTransformer match {

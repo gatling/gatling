@@ -32,7 +32,7 @@ import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.body.is.InputStreamRequestBody
 import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, MultipartFormDataRequestBody, StringPart }
 import io.gatling.http.client.body.string.StringRequestBody
-import io.gatling.http.client.{ Param, Request }
+import io.gatling.http.client.Param
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util.HttpHelper.isTxt
 
@@ -57,8 +57,8 @@ package object util extends LazyLogging {
       buff
     }
 
-    def appendRequest(request: Request, result: HttpResult, charset: Charset): JStringBuilder = {
-
+    def appendRequest(result: HttpResult, charset: Charset): JStringBuilder = {
+      val request = result.request
       buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
 
       if (!result.wireRequestHeaders.isEmpty) {

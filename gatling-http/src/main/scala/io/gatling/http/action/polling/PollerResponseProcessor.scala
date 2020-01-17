@@ -51,7 +51,7 @@ class PollerResponseProcessor(
   private def handleFailure(failure: HttpFailure): Session = {
     val sessionWithUpdatedStats = sessionProcessor.updateSessionCrashed(tx.session, failure.startTimestamp, failure.endTimestamp)
     try {
-      statsProcessor.reportStats(tx.fullRequestName, tx.request.clientRequest, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
+      statsProcessor.reportStats(tx.fullRequestName, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
     } catch {
       case NonFatal(t) =>
         logger.error(
@@ -62,26 +62,24 @@ class PollerResponseProcessor(
     sessionWithUpdatedStats
   }
 
-  private def handleResponse(response: Response): Session = {
-    val clientRequest = tx.request.clientRequest
+  private def handleResponse(response: Response): Session =
     handleResponse0(response) match {
       case Proceed(newSession, errorMessage) =>
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, status, response, errorMessage)
+        statsProcessor.reportStats(tx.fullRequestName, newSession, status, response, errorMessage)
         newSession
 
       case Redirect(redirectTx) =>
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, redirectTx.session, OK, response, None)
+        statsProcessor.reportStats(tx.fullRequestName, redirectTx.session, OK, response, None)
         logger.error("Polling support doesn't support redirect atm")
         tx.session.markAsFailed
 
       case Crash(errorMessage) =>
         val newSession = sessionProcessor.updateSessionCrashed(tx.session, response.startTimestamp, response.endTimestamp)
-        statsProcessor.reportStats(tx.fullRequestName, clientRequest, newSession, KO, response, Some(errorMessage))
+        statsProcessor.reportStats(tx.fullRequestName, newSession, KO, response, Some(errorMessage))
         newSession
     }
-  }
 
   private def handleResponse0(response: Response): ProcessorResult =
     try {
