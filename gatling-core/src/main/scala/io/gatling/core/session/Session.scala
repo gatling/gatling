@@ -80,7 +80,6 @@ object Session {
       userId = userId,
       startDate = startDate,
       attributes = Map.empty,
-      drift = 0L,
       baseStatus = OK,
       blockStack = Nil,
       onExit = onExit,
@@ -98,7 +97,6 @@ object Session {
  * @param userId the id of the current user
  * @param attributes the map that stores all values needed
  * @param startDate when the user was started
- * @param drift the cumulated time that was spent in Gatling on computation and that wasn't compensated for
  * @param baseStatus the status when not in a TryMax blocks hierarchy
  * @param blockStack the block stack
  * @param onExit hook to execute once the user reaches the exit
@@ -108,7 +106,6 @@ final case class Session(
     userId: Long,
     startDate: Long,
     attributes: Map[String, Any],
-    drift: Long,
     baseStatus: Status,
     blockStack: List[Block],
     onExit: Session => Unit,
