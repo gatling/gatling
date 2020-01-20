@@ -22,7 +22,10 @@ import io.gatling.http.client.body.WritableContent;
 import io.gatling.http.client.body.multipart.impl.MessageEndPartImpl;
 import io.gatling.http.client.body.multipart.impl.MultipartChunkedInput;
 import io.gatling.http.client.body.multipart.impl.PartImpl;
+import io.gatling.netty.util.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.CompositeByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +36,8 @@ import java.util.List;
 
 public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
+  private static final byte[] EMPTY_BYTES = new byte[0];
+
   private static final Logger LOGGER = LoggerFactory.getLogger(MultipartFormDataRequestBody.class);
 
   private final byte[] boundary;
@@ -42,9 +47,7 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
     this.boundary = boundary;
   }
 
-  @Override
-  public WritableContent build(ByteBufAllocator alloc) {
-
+  private MultipartChunkedInput toChunkedInput() {
     List<PartImpl> partImpls = new ArrayList<>(content.size() + 1);
     for (Part<?> part: content) {
       partImpls.add(part.toImpl(boundary));
@@ -52,10 +55,13 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
     partImpls.add(new MessageEndPartImpl(boundary));
 
     long contentLength = computeContentLength(partImpls);
+    return new MultipartChunkedInput(partImpls, contentLength);
+  }
 
-    Object content = new MultipartChunkedInput(partImpls, contentLength);
-
-    return new WritableContent(content, contentLength);
+  @Override
+  public WritableContent build(ByteBufAllocator alloc) {
+    MultipartChunkedInput content = toChunkedInput();
+    return new WritableContent(content, content.length());
   }
 
   @Override
@@ -82,7 +88,25 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
   @Override
   public byte[] getBytes() {
-    throw new UnsupportedOperationException("MultipartFormDataRequestBody#getBytes isn't implemented yet. Contributions welcome.");
+    MultipartChunkedInput content = toChunkedInput();
+
+    CompositeByteBuf composite = new CompositeByteBuf(ByteBufAllocator.DEFAULT, false, Integer.MAX_VALUE);
+
+    try {
+      ByteBuf chunk;
+      do {
+        chunk = content.readChunk(ByteBufAllocator.DEFAULT);
+        composite.addComponent(chunk);
+      } while (chunk != null);
+      return ByteBufUtils.byteBuf2Bytes(composite);
+
+    } catch (Exception e) {
+      LOGGER.error("An exception occurred while getting the bytes of the parts", e);
+      return EMPTY_BYTES;
+
+    } finally {
+      composite.release();
+    }
   }
 
   @Override
