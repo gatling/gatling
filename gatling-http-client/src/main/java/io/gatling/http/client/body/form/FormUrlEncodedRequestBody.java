@@ -88,7 +88,7 @@ public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
 
   @Override
   public byte[] getBytes() {
-    return encode().toString().getBytes();
+    return encode().toString().getBytes(charset);
   }
 
   @Override
