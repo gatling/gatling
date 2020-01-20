@@ -77,7 +77,7 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
       return null;
     }
 
-    ByteBuf buffer = alloc.buffer(chunkSize);
+    ByteBuf buffer = alloc.heapBuffer(chunkSize);
     ChunkedInputState state = copyInto(buffer);
     progress += buffer.writerIndex();
     switch (state) {
