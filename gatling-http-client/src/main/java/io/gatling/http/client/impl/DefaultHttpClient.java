@@ -239,12 +239,6 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
-    listener.onSend();
-    if (request.getUri().isSecured() && request.isHttp2Enabled() && !config.isEnableSni()) {
-      listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
-      return;
-    }
-
     if (sslContext == null) {
       sslContext = config.getDefaultSslContext();
       alpnSslContext = config.getDefaultAlpnSslContext();
@@ -337,11 +331,17 @@ public class DefaultHttpClient implements HttpClient {
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
 
-    // start timeout
-    tx.requestTimeout.start(eventLoop);
-
     // use a fresh channel for WebSocket
     Channel pooledChannel = request.getUri().isWebSocket() ? null : resources.channelPool.poll(tx.key);
+
+    listener.onSend();
+    if (request.getUri().isSecured() && request.isHttp2Enabled() && !config.isEnableSni()) {
+      listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
+      return;
+    }
+
+    // start timeout
+    tx.requestTimeout.start(eventLoop);
 
     if (pooledChannel != null && tx.channelState != HttpTx.ChannelState.RETRY) {
       sendTxWithChannel(tx, pooledChannel);
