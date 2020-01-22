@@ -19,33 +19,17 @@ package io.gatling.http.resolver
 import java.net.InetAddress
 import java.util.{ Collections => JCollections, List => JList }
 
-import io.netty.resolver.NameResolver
-import io.netty.util.concurrent.{ Future, ImmediateEventExecutor, Promise }
+import io.gatling.http.client.HttpListener
+import io.gatling.http.client.resolver.InetAddressNameResolver
 
-private[http] class AliasesAwareNameResolver(aliases: Map[String, InetAddress], wrapped: NameResolver[InetAddress]) extends NameResolver[InetAddress] {
+import io.netty.util.concurrent.{ Future, Promise }
 
-  override def resolve(s: String): Future[InetAddress] =
-    aliases.get(s) match {
-      case Some(address) => ImmediateEventExecutor.INSTANCE.newPromise[InetAddress].setSuccess(address)
-      case _             => wrapped.resolve(s)
-    }
+private[http] class AliasesAwareNameResolver(aliases: Map[String, InetAddress], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
 
-  override def resolve(s: String, promise: Promise[InetAddress]): Future[InetAddress] =
-    aliases.get(s) match {
-      case Some(address) => promise.setSuccess(address)
-      case _             => wrapped.resolve(s, promise)
-    }
-
-  override def resolveAll(s: String): Future[JList[InetAddress]] =
-    aliases.get(s) match {
-      case Some(address) => ImmediateEventExecutor.INSTANCE.newPromise[JList[InetAddress]].setSuccess(JCollections.singletonList(address))
-      case _             => wrapped.resolveAll(s)
-    }
-
-  override def resolveAll(s: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] =
-    aliases.get(s) match {
+  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]], listener: HttpListener): Future[JList[InetAddress]] =
+    aliases.get(inetHost) match {
       case Some(address) => promise.setSuccess(JCollections.singletonList(address))
-      case _             => wrapped.resolveAll(s, promise)
+      case _             => wrapped.resolveAll(inetHost, promise, listener)
     }
 
   override def close(): Unit = wrapped.close()

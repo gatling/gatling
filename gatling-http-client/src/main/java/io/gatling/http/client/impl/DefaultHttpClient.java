@@ -458,7 +458,7 @@ public class DefaultHttpClient implements HttpClient {
     } else {
       Promise<List<InetSocketAddress>> p = eventLoop.newPromise();
 
-      request.getNameResolver().resolveAll(request.getUri().getHost(), eventLoop.newPromise())
+      request.getNameResolver().resolveAll(request.getUri().getHost(), eventLoop.newPromise(), listener)
         .addListener((Future<List<InetAddress>> whenAddresses) -> {
           if (whenAddresses.isSuccess()) {
             List<InetSocketAddress> remoteInetSocketAddresses = whenAddresses.getNow().stream()
@@ -618,16 +618,22 @@ public class DefaultHttpClient implements HttpClient {
 
     InetSocketAddress remoteAddress = remoteAddresses.get(i);
 
-    listener.onTcpConnectAttempt(remoteAddress);
+    //[fl]
+    //
+    //[fl]
     ChannelFuture whenChannel = bootstrap.connect(remoteAddress, localAddress);
 
     whenChannel.addListener(f -> {
       if (f.isSuccess()) {
-        listener.onTcpConnectSuccess(remoteAddress);
+        //[fl]
+        //
+        //[fl]
         channelPromise.setSuccess(whenChannel.channel());
 
       } else {
-        listener.onTcpConnectFailure(remoteAddress, f.cause());
+        //[fl]
+        //
+        //[fl]
 
         if (requestTimeout.isDone()) {
           channelPromise.setFailure(IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT);
@@ -651,7 +657,9 @@ public class DefaultHttpClient implements HttpClient {
 
     try {
       SslHandler sslHandler = SslHandlers.newSslHandler(tx.sslContext(), channel.alloc(), tx.request.getUri(), tx.request.getVirtualHost(), config);
-      tx.listener.onTlsHandshakeAttempt();
+      //[fl]
+      //
+      //[fl]
 
       ChannelPipeline pipeline = channel.pipeline();
       String after = pipeline.get(PROXY_HANDLER) != null ? PROXY_HANDLER : PINNED_HANDLER;
@@ -663,10 +671,14 @@ public class DefaultHttpClient implements HttpClient {
         }
 
         if (f.isSuccess()) {
-          tx.listener.onTlsHandshakeSuccess();
+          //[fl]
+          //
+          //[fl]
         } else {
           tx.requestTimeout.cancel();
-          tx.listener.onTlsHandshakeFailure(f.cause());
+          //[fl]
+          //
+          //[fl]
           tx.listener.onThrowable(f.cause());
         }
       });

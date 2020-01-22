@@ -20,24 +20,25 @@ import java.net.InetAddress
 
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
+import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.cookie.CookieJar
 
 import io.netty.resolver.NameResolver
 
 private[http] object HttpTypeCaster {
 
-  implicit val NameResolverTypeCaster: TypeCaster[NameResolver[InetAddress]] = new TypeCaster[NameResolver[InetAddress]] {
+  implicit val NameResolverTypeCaster: TypeCaster[InetAddressNameResolver] = new TypeCaster[InetAddressNameResolver] {
     @throws[ClassCastException]
-    override def cast(value: Any): NameResolver[InetAddress] =
+    override def cast(value: Any): InetAddressNameResolver =
       value match {
-        case v: NameResolver[_] => v.asInstanceOf[NameResolver[InetAddress]]
-        case _                  => throw new ClassCastException(cceMessage(value, classOf[NameResolver[InetAddress]]))
+        case v: InetAddressNameResolver => v.asInstanceOf[InetAddressNameResolver]
+        case _                          => throw new ClassCastException(cceMessage(value, classOf[InetAddressNameResolver]))
       }
 
-    override def validate(value: Any): Validation[NameResolver[InetAddress]] =
+    override def validate(value: Any): Validation[InetAddressNameResolver] =
       value match {
-        case v: NameResolver[_] => v.asInstanceOf[NameResolver[InetAddress]].success
-        case _                  => cceMessage(value, classOf[NameResolver[InetAddress]]).failure
+        case v: InetAddressNameResolver => v.asInstanceOf[InetAddressNameResolver].success
+        case _                          => cceMessage(value, classOf[InetAddressNameResolver]).failure
       }
   }
 

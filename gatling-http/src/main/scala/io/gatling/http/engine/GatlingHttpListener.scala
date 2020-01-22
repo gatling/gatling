@@ -33,10 +33,10 @@ import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
 
   private val responseBuilder = tx.responseBuilderFactory(tx.request.clientRequest)
-  private val clock = coreComponents.clock
   private var init = false
   private var done = false
   // [fl]
+  //
   //
   //
   //
@@ -55,6 +55,9 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
     }
 
   // [fl]
+  //
+  //
+  //
   //
   //
   //

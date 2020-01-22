@@ -19,11 +19,11 @@ package io.gatling.http.client;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.proxy.ProxyServer;
 import io.gatling.http.client.realm.Realm;
+import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.gatling.http.client.uri.Uri;
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.resolver.NameResolver;
 
 import java.net.InetAddress;
 import java.util.List;
@@ -41,7 +41,7 @@ public class Request {
   private final Realm realm;
   private final ProxyServer proxyServer;
   private final SignatureCalculator signatureCalculator;
-  private final NameResolver<InetAddress> nameResolver;
+  private final InetAddressNameResolver nameResolver;
   private final boolean http2Enabled;
   private final boolean alpnRequired;
   private final boolean http2PriorKnowledge;
@@ -58,7 +58,7 @@ public class Request {
                  Realm realm,
                  ProxyServer proxyServer,
                  SignatureCalculator signatureCalculator,
-                 NameResolver<InetAddress> nameResolver,
+                 InetAddressNameResolver nameResolver,
                  boolean http2Enabled,
                  boolean alpnRequired,
                  boolean http2PriorKnowledge,
@@ -145,7 +145,7 @@ public class Request {
     return signatureCalculator;
   }
 
-  public NameResolver<InetAddress> getNameResolver() {
+  public InetAddressNameResolver getNameResolver() {
     return nameResolver;
   }
 

@@ -16,6 +16,7 @@
 
 package io.gatling.http.client;
 
+import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.uri.UriEncoder;
 import io.gatling.http.client.body.RequestBody;
@@ -28,10 +29,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.cookie.ClientCookieEncoder;
 import io.netty.handler.codec.http.cookie.Cookie;
-import io.netty.resolver.DefaultNameResolver;
-import io.netty.resolver.NameResolver;
 import io.netty.util.AsciiString;
-import io.netty.util.concurrent.ImmediateEventExecutor;
 
 import java.net.InetAddress;
 import java.nio.charset.Charset;
@@ -48,7 +46,7 @@ public class RequestBuilder {
 
   private static final AsciiString ACCEPT_ALL_HEADER_VALUE = new AsciiString("*/*");
 
-  private static NameResolver<InetAddress> DEFAULT_NAME_RESOLVER = new DefaultNameResolver(ImmediateEventExecutor.INSTANCE);
+  private static InetAddressNameResolver DEFAULT_NAME_RESOLVER = InetAddressNameResolver.DEFAULT;
 
   private final HttpMethod method;
   private final Uri uri;
@@ -62,7 +60,7 @@ public class RequestBuilder {
   private Realm realm;
   private ProxyServer proxyServer;
   private SignatureCalculator signatureCalculator;
-  private NameResolver<InetAddress> nameResolver = DEFAULT_NAME_RESOLVER;
+  private InetAddressNameResolver nameResolver = DEFAULT_NAME_RESOLVER;
   private boolean http2Enabled;
   private boolean alpnRequired;
   private boolean http2PriorKnowledge;
@@ -153,7 +151,7 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setNameResolver(NameResolver<InetAddress> nameResolver) {
+  public RequestBuilder setNameResolver(InetAddressNameResolver nameResolver) {
     this.nameResolver = nameResolver;
     return this;
   }

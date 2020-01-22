@@ -21,13 +21,14 @@ import java.util.{ List => JList }
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.http.client.HttpListener
+import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
 import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.channel.EventLoop
-import io.netty.resolver.NameResolver
 import io.netty.util.concurrent.{ Future, Promise }
 
 private object DnsCacheSupport {
@@ -35,18 +36,10 @@ private object DnsCacheSupport {
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
 }
 
-private class NoopCloseNameResolver(wrapped: NameResolver[InetAddress]) extends NameResolver[InetAddress] {
-  override def resolve(inetHost: String): Future[InetAddress] =
-    wrapped.resolve(inetHost)
+private class NoopCloseNameResolver(wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
 
-  override def resolve(inetHost: String, promise: Promise[InetAddress]): Future[InetAddress] =
-    wrapped.resolve(inetHost, promise)
-
-  override def resolveAll(inetHost: String): Future[JList[InetAddress]] =
-    wrapped.resolveAll(inetHost)
-
-  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Future[JList[InetAddress]] =
-    wrapped.resolveAll(inetHost, promise)
+  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]], listener: HttpListener): Future[JList[InetAddress]] =
+    wrapped.resolveAll(inetHost, promise, listener)
 
   override def close(): Unit = {}
 }
@@ -62,14 +55,10 @@ private[http] trait DnsCacheSupport {
       dnsNameResolution: DnsNameResolution,
       hostNameAliases: Map[String, InetAddress],
       httpEngine: HttpEngine
-  ): NameResolver[InetAddress] = {
-    val resolver: NameResolver[InetAddress] =
+  ): InetAddressNameResolver = {
+    val resolver: InetAddressNameResolver =
       coreComponents.configuration.resolve(
         // [fl]
-        //
-        //
-        //
-        //
         //
         //
         //
@@ -111,9 +100,9 @@ private[http] trait DnsCacheSupport {
     }
   }
 
-  def nameResolver(session: Session): Option[NameResolver[InetAddress]] = {
+  def nameResolver(session: Session): Option[InetAddressNameResolver] = {
     // import optimized TypeCaster
     import HttpTypeCaster._
-    session(DnsNameResolverAttributeName).asOption[NameResolver[InetAddress]]
+    session(DnsNameResolverAttributeName).asOption[InetAddressNameResolver]
   }
 }

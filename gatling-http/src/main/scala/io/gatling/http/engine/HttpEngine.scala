@@ -32,7 +32,7 @@ import io.gatling.http.HeaderValues._
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
-import io.gatling.http.resolver.ExtendedDnsNameResolver
+import io.gatling.http.client.resolver.InetAddressNameResolverWrapper
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.{ Pair => JavaPair }
 import io.gatling.http.util.{ SslContexts, SslContextsFactory }
@@ -42,6 +42,7 @@ import io.netty.buffer.ByteBuf
 import io.netty.channel.{ EventLoop, EventLoopGroup }
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod, HttpResponseStatus }
 import io.netty.handler.ssl.SslContext
+import io.netty.resolver.dns._
 import javax.net.ssl.KeyManagerFactory
 
 object HttpEngine {
@@ -162,12 +163,16 @@ class HttpEngine(
       httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, sslContext, alpnSslContext)
     }
 
-  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): ExtendedDnsNameResolver =
-    new ExtendedDnsNameResolver(
-      eventLoop,
-      configuration.http.dns.queryTimeout.toMillis.toInt,
-      configuration.http.dns.maxQueriesPerResolve,
-      dnsServers
+  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): InetAddressNameResolverWrapper =
+    new InetAddressNameResolverWrapper(
+      new DnsNameResolverBuilder(eventLoop)
+        .nameServerProvider(
+          if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault
+          else new SequentialDnsServerAddressStreamProvider(dnsServers: _*)
+        )
+        .queryTimeoutMillis(configuration.http.dns.queryTimeout.toMillis.toInt)
+        .maxQueriesPerResolve(configuration.http.dns.maxQueriesPerResolve)
+        .build()
     )
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts =

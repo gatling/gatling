@@ -20,19 +20,18 @@ import java.net.{ InetAddress, UnknownHostException }
 import java.util.{ Arrays => JArrays, Collections => JCollections, List => JList }
 import java.util.concurrent.ThreadLocalRandom
 
-import io.netty.resolver.InetNameResolver
-import io.netty.util.concurrent.{ ImmediateEventExecutor, Promise }
+import io.gatling.http.client.HttpListener
+import io.gatling.http.client.resolver.InetAddressNameResolver
+
+import io.netty.util.concurrent.{ Future, Promise }
 
 private[http] object ShuffleJdkNameResolver {
   val Instance = new ShuffleJdkNameResolver
 }
 
-private[http] class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEventExecutor.INSTANCE) {
+private[http] class ShuffleJdkNameResolver extends InetAddressNameResolver {
 
-  override def doResolve(inetHost: String, promise: Promise[InetAddress]): Unit =
-    throw new UnsupportedOperationException
-
-  override def doResolveAll(inetHost: String, promise: Promise[JList[InetAddress]]): Unit =
+  protected def resolveAll0(inetHost: String, promise: Promise[JList[InetAddress]]): Unit =
     try {
       val addresses = InetAddress.getAllByName(inetHost) match {
         case Array(single) => JCollections.singletonList(single)
@@ -45,4 +44,11 @@ private[http] class ShuffleJdkNameResolver extends InetNameResolver(ImmediateEve
     } catch {
       case e: UnknownHostException => promise.setFailure(e)
     }
+
+  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]], listener: HttpListener): Future[JList[InetAddress]] = {
+    resolveAll0(inetHost, promise)
+    promise
+  }
+
+  override def close(): Unit = {}
 }
