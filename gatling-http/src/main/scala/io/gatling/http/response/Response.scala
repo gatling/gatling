@@ -46,14 +46,14 @@ final case class HttpFailure(
 final case class Response(
     request: Request,
     wireRequestHeaders: HttpHeaders,
+    startTimestamp: Long,
+    endTimestamp: Long,
     status: HttpResponseStatus,
     headers: HttpHeaders,
     body: ResponseBody,
     checksums: Map[String, String],
     bodyLength: Int,
     charset: Charset,
-    startTimestamp: Long,
-    endTimestamp: Long,
     isHttp2: Boolean
 ) extends HttpResult {
 

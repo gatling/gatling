@@ -154,7 +154,7 @@ class ResponseBuilder(
           val chunksOrderedByArrival = chunks.reverse
           val body: ResponseBody = ResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-          Response(request, wireRequestHeaders, s, headers, body, checksums, contentLength, resolvedCharset, startTimestamp, endTimestamp, isHttp2)
+          Response(request, wireRequestHeaders, startTimestamp, endTimestamp, s, headers, body, checksums, contentLength, resolvedCharset, isHttp2)
         } catch {
           case NonFatal(t) => buildFailure(t)
         }
