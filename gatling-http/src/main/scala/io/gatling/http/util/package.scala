@@ -34,7 +34,7 @@ import io.gatling.http.client.body.string.StringRequestBody
 import io.gatling.http.client.body.stringchunks.StringChunksRequestBody
 import io.gatling.http.client.Param
 import io.gatling.http.response.{ HttpResult, Response }
-import io.gatling.http.util.HttpHelper.isTxt
+import io.gatling.http.util.HttpHelper.isText
 
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.HttpHeaders
@@ -192,7 +192,7 @@ package object util extends LazyLogging {
 
           if (response.hasResponseBody) {
             buff.append("body=").append(Eol)
-            if (isTxt(response.headers)) {
+            if (isText(response.headers)) {
               try {
                 buff.append(response.body.string)
               } catch {

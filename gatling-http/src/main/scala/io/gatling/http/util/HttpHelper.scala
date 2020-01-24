@@ -75,22 +75,44 @@ private[gatling] object HttpHelper extends StrictLogging {
   def isHtml(headers: HttpHeaders): Boolean =
     headerExists(headers, HeaderNames.ContentType, ct => ct.startsWith(HeaderValues.TextHtml) || ct.startsWith(HeaderValues.ApplicationXhtml))
   def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _ == HeaderValues.XmlHttpRequest)
-  def isTxt(headers: HttpHeaders): Boolean =
+
+  private val ApplicationStart = "application/"
+  private val ApplicationStartOffset = ApplicationStart.length
+  private val ApplicationJavascriptEnd = HeaderValues.ApplicationJavascript.substring(ApplicationStartOffset)
+  private val ApplicationJsonEnd = HeaderValues.ApplicationJson.substring(ApplicationStartOffset)
+  private val ApplicationXmlEnd = HeaderValues.ApplicationXml.substring(ApplicationStartOffset)
+  private val ApplicationFormUrlEncodedEnd = HeaderValues.ApplicationFormUrlEncoded.substring(ApplicationStartOffset)
+  private val ApplicationXhtmlEnd = HeaderValues.ApplicationXhtml.substring(ApplicationStartOffset)
+  private val TextStart = "text/"
+  private val TextStartOffset = TextStart.length
+  private val TextCssEnd = HeaderValues.TextCss.substring(TextStartOffset)
+  private val TextCsvEnd = HeaderValues.TextCsv.substring(TextStartOffset)
+  private val TextHtmlEnd = HeaderValues.TextHtml.substring(TextStartOffset)
+  private val TextJavascriptEnd = HeaderValues.TextJavascript.substring(TextStartOffset)
+  private val TextPlainEnd = HeaderValues.TextPlain.substring(TextStartOffset)
+  private val TextXmlEnd = HeaderValues.TextXml.substring(TextStartOffset)
+
+  def isText(headers: HttpHeaders): Boolean =
     headerExists(
       headers,
       HeaderNames.ContentType,
       ct =>
-        ct.startsWith(HeaderValues.ApplicationJavascript)
-          || ct.startsWith(HeaderValues.ApplicationJson)
-          || ct.startsWith(HeaderValues.ApplicationXml)
-          || ct.startsWith(HeaderValues.ApplicationFormUrlEncoded)
-          || ct.startsWith(HeaderValues.ApplicationXhtml)
-          || ct.startsWith(HeaderValues.TextCss)
-          || ct.startsWith(HeaderValues.TextCsv)
-          || ct.startsWith(HeaderValues.TextHtml)
-          || ct.startsWith(HeaderValues.TextJavascript)
-          || ct.startsWith(HeaderValues.TextPlain)
-          || ct.startsWith(HeaderValues.TextXml)
+        ct.startsWith(ApplicationStart) && (
+          ct.startsWith(ApplicationJavascriptEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationJsonEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationXmlEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationFormUrlEncodedEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationXhtmlEnd, ApplicationStartOffset)
+        )
+          || (ct.startsWith(TextStart) && (
+            ct.startsWith(TextCssEnd, TextStartOffset)
+              || ct.startsWith(TextCsvEnd, TextStartOffset)
+              || ct.startsWith(TextHtmlEnd, TextStartOffset)
+              || ct.startsWith(TextJavascriptEnd, TextStartOffset)
+              || ct.startsWith(TextJavascriptEnd, TextStartOffset)
+              || ct.startsWith(TextPlainEnd, TextStartOffset)
+              || ct.startsWith(TextXmlEnd, TextStartOffset)
+          ))
     )
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
