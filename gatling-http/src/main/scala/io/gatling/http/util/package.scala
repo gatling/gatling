@@ -26,12 +26,12 @@ import scala.util.control.NonFatal
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.commons.util.Throwables._
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBody
-import io.gatling.http.client.body.bytearrays.ByteArraysRequestBody
 import io.gatling.http.client.body.file.FileRequestBody
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.body.is.InputStreamRequestBody
 import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, MultipartFormDataRequestBody, StringPart }
 import io.gatling.http.client.body.string.StringRequestBody
+import io.gatling.http.client.body.stringchunks.StringChunksRequestBody
 import io.gatling.http.client.Param
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util.HttpHelper.isTxt
@@ -87,9 +87,9 @@ package object util extends LazyLogging {
         case byteArrayBody: ByteArrayRequestBody =>
           buff.append("byteBody=").append(new String(byteArrayBody.getContent, charset)).append(Eol)
 
-        case byteArraysBody: ByteArraysRequestBody =>
-          buff.append("byteArraysBody=")
-          byteArraysBody.getContent.foreach(b => buff.append(new String(b, charset)))
+        case byteArraysBody: StringChunksRequestBody =>
+          buff.append("stringChunksRequestBody=")
+          byteArraysBody.getContent.asScala.foreach(chunk => buff.append(chunk.string))
           buff.append(Eol)
 
         case fileBody: FileRequestBody =>

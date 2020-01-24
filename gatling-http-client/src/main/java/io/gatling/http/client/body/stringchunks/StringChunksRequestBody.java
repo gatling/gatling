@@ -14,55 +14,56 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.bytearrays;
+package io.gatling.http.client.body.stringchunks;
 
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
+import io.gatling.netty.util.StringWithCachedBytes;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.buffer.Unpooled;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
-public final class ByteArraysRequestBody extends RequestBody<byte[][]> {
+public final class StringChunksRequestBody extends RequestBody<List<StringWithCachedBytes>> {
 
   private final long contentLength;
 
-  public ByteArraysRequestBody(byte[][] content, String contentType, Charset charset) {
+  public StringChunksRequestBody(List<StringWithCachedBytes> content, String contentType, Charset charset) {
     super(content, contentType, charset);
     long contentLength = 0;
-    for (byte[] bytes : content) {
-      contentLength += bytes.length;
+    for (StringWithCachedBytes stringWithCachedBytes : content) {
+      contentLength += stringWithCachedBytes.bytes.length;
     }
     this.contentLength = contentLength;
   }
 
   @Override
   public WritableContent build(ByteBufAllocator alloc) {
-    return new WritableContent(Unpooled.wrappedBuffer(content), contentLength);
+    return new WritableContent(StringWithCachedBytes.toByteBuf(content), contentLength);
   }
 
   @Override
-  public RequestBodyBuilder<byte[][]> newBuilder() {
-    return new ByteArraysRequestBodyBuilder(content);
+  public RequestBodyBuilder<List<StringWithCachedBytes>> newBuilder() {
+    return new StringChunksRequestBodyBuilder(content);
   }
 
   @Override
   public byte[] getBytes() {
     byte[] bytes = new byte[(int) contentLength];
     int offset = 0;
-    for (byte[] chunk: content) {
-      System.arraycopy(chunk, 0, bytes, offset, chunk.length);
-      offset += chunk.length;
+    for (StringWithCachedBytes chunk: content) {
+      System.arraycopy(chunk.bytes, 0, bytes, offset, chunk.bytes.length);
+      offset += chunk.bytes.length;
     }
     return bytes;
   }
 
   @Override
   public String toString() {
-    return "ByteArraysRequestBody{" +
-      "content=<" + contentLength + " bytes>" +
-      ", contentType=" + contentType +
+    return "ElRequestBody{" +
+      "content=" + content +
+      ", contentType='" + contentType + '\'' +
       ", charset=" + charset +
       '}';
   }
