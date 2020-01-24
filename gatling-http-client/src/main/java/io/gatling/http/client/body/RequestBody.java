@@ -41,6 +41,10 @@ public abstract class RequestBody<T> {
     return contentType;
   }
 
+  public Charset getCharset() {
+    return charset;
+  }
+
   public abstract WritableContent build(ByteBufAllocator alloc) throws IOException;
 
   public abstract RequestBodyBuilder<T> newBuilder();

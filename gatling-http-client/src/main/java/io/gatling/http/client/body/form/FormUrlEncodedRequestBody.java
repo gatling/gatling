@@ -33,7 +33,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
+public final class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
 
   public FormUrlEncodedRequestBody(List<Param> content, String contentType, Charset charset) {
     super(content, contentType, charset);

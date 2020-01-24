@@ -25,7 +25,7 @@ import io.netty.handler.stream.ChunkedStream;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-public class InputStreamRequestBody extends RequestBody<InputStream> {
+public final class InputStreamRequestBody extends RequestBody<InputStream> {
 
   public InputStreamRequestBody(InputStream stream, String contentType, Charset charset) {
     super(stream, contentType, charset);

@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
+public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
   private static final byte[] EMPTY_BYTES = new byte[0];
 

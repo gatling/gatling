@@ -25,7 +25,7 @@ import io.netty.handler.stream.ChunkedFile;
 import java.io.*;
 import java.nio.charset.Charset;
 
-public class FileRequestBody extends RequestBody<File> {
+public final class FileRequestBody extends RequestBody<File> {
 
   public FileRequestBody(File content, String contentType, Charset charset) {
     super(content, contentType, charset);

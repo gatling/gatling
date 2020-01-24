@@ -24,7 +24,7 @@ import io.netty.buffer.Unpooled;
 
 import java.nio.charset.Charset;
 
-public class ByteArraysRequestBody extends RequestBody<byte[][]> {
+public final class ByteArraysRequestBody extends RequestBody<byte[][]> {
 
   private final long contentLength;
 
