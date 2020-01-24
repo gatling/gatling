@@ -39,11 +39,9 @@ final case class StringBody(string: Expression[String], charset: Charset) extend
 object RawFileBody {
   def apply(filePath: Expression[String], rawFileBodies: RawFileBodies): RawFileBody =
     new RawFileBody(rawFileBodies.asResourceAndCachedBytes(filePath))
-
-  def unapply(b: RawFileBody): Option[Expression[ResourceAndCachedBytes]] = Some(b.resourceAndCachedBytes)
 }
 
-final class RawFileBody(val resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {
+final case class RawFileBody(resourceAndCachedBytes: Expression[ResourceAndCachedBytes]) extends Body with Expression[Array[Byte]] {
   override def apply(session: Session): Validation[Array[Byte]] =
     resourceAndCachedBytes(session).map(resourceAndCachedBytes => resourceAndCachedBytes.cachedBytes.getOrElse(resourceAndCachedBytes.resource.bytes))
 }
