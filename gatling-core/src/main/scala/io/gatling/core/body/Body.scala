@@ -55,7 +55,6 @@ final case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body with
 
 object ElBody {
   sealed trait ElBodyPart extends Product with Serializable
-  @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
   final case class StaticElBodyPart(stringWithCachedBytes: StringWithCachedBytes) extends ElBodyPart
   final case class DynamicElBodyPart(string: Expression[String], charset: Charset) extends ElBodyPart
 
