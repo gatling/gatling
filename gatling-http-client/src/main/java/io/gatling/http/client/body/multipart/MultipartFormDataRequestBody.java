@@ -53,8 +53,7 @@ public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>
     }
     partImpls.add(new MessageEndPartImpl(boundary));
 
-    long contentLength = computeContentLength(partImpls);
-    return new MultipartChunkedInput(partImpls, contentLength);
+    return new MultipartChunkedInput(partImpls);
   }
 
   @Override
@@ -66,23 +65,6 @@ public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>
   @Override
   public RequestBodyBuilder<List<Part<?>>> newBuilder() {
     return new MultipartFormDataRequestBodyBuilder(content);
-  }
-
-  private static long computeContentLength(List<PartImpl> partImpls) {
-    try {
-      long total = 0;
-      for (PartImpl part : partImpls) {
-        long l = part.length();
-        if (l < 0) {
-          return -1;
-        }
-        total += l;
-      }
-      return total;
-    } catch (Exception e) {
-      LOGGER.error("An exception occurred while getting the length of the parts", e);
-      return 0L;
-    }
   }
 
   @Override
