@@ -19,18 +19,15 @@ package io.gatling.http.client.body;
 import io.netty.buffer.ByteBufAllocator;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 public abstract class RequestBody<T> {
 
   protected final T content;
   protected final String contentType;
-  protected final Charset charset;
 
-  public RequestBody(T content, String contentType, Charset charset) {
+  public RequestBody(T content, String contentType) {
     this.content = content;
     this.contentType = contentType;
-    this.charset = charset;
   }
 
   public T getContent() {
@@ -39,10 +36,6 @@ public abstract class RequestBody<T> {
 
   public String getContentType() {
     return contentType;
-  }
-
-  public Charset getCharset() {
-    return charset;
   }
 
   public abstract WritableContent build(ByteBufAllocator alloc) throws IOException;

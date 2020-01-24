@@ -24,6 +24,8 @@ import io.netty.handler.codec.http.HttpHeaderValues;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder<List<Param>> {
 
   public FormUrlEncodedRequestBodyBuilder(List<Param> content) {
@@ -31,7 +33,7 @@ public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder<List<Pa
   }
 
   @Override
-  public RequestBody<List<Param>> build(String contentType, Charset charset) {
-    return new FormUrlEncodedRequestBody(content, contentType != null ? contentType : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(), charset);
+  public RequestBody<List<Param>> build(String contentType, Charset charset, Charset defaultCharset) {
+    return new FormUrlEncodedRequestBody(content, contentType != null ? contentType : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(), withDefault(charset, defaultCharset));
   }
 }

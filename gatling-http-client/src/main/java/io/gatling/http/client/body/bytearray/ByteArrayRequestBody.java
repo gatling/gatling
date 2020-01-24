@@ -22,12 +22,10 @@ import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
-import java.nio.charset.Charset;
-
 public final class ByteArrayRequestBody extends RequestBody<byte[]> {
 
-  public ByteArrayRequestBody(byte[] content, String contentType, Charset charset) {
-    super(content, contentType, charset);
+  public ByteArrayRequestBody(byte[] content, String contentType) {
+    super(content, contentType);
   }
 
   @Override
@@ -50,7 +48,6 @@ public final class ByteArrayRequestBody extends RequestBody<byte[]> {
     return "ByteArrayRequestBody{" +
       "content=<" + content.length + " bytes>" +
       ", contentType=" + contentType +
-      ", charset=" + charset +
       '}';
   }
 }

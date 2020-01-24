@@ -29,7 +29,7 @@ public class InputStreamRequestBodyBuilder extends RequestBodyBuilder<InputStrea
   }
 
   @Override
-  public RequestBody<InputStream> build(String contentType, Charset charset) {
-    return new InputStreamRequestBody(content, contentType, charset);
+  public RequestBody<InputStream> build(String contentType, Charset charset, Charset defaultCharset) {
+    return new InputStreamRequestBody(content, contentType);
   }
 }

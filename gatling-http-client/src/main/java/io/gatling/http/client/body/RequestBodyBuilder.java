@@ -26,5 +26,5 @@ public abstract class RequestBodyBuilder<T> {
     this.content = content;
   }
 
-  public abstract RequestBody<T> build(String contentType, Charset charset);
+  public abstract RequestBody<?> build(String contentType, Charset charset, Charset defaultCharset);
 }

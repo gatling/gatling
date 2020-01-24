@@ -23,12 +23,11 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.stream.ChunkedStream;
 
 import java.io.InputStream;
-import java.nio.charset.Charset;
 
 public final class InputStreamRequestBody extends RequestBody<InputStream> {
 
-  public InputStreamRequestBody(InputStream stream, String contentType, Charset charset) {
-    super(stream, contentType, charset);
+  public InputStreamRequestBody(InputStream stream, String contentType) {
+    super(stream, contentType);
   }
 
   @Override
@@ -54,7 +53,6 @@ public final class InputStreamRequestBody extends RequestBody<InputStream> {
     return "InputStreamRequestBody{" +
       "content=" + content +
       ", contentType=" + contentType +
-      ", charset=" + charset +
       '}';
   }
 }

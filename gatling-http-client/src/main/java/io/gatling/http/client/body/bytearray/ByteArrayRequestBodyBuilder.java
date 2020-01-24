@@ -28,7 +28,7 @@ public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder<byte[]> {
   }
 
   @Override
-  public RequestBody<byte[]> build(String contentType, Charset charset) {
-    return new ByteArrayRequestBody(content, contentType, charset);
+  public RequestBody<byte[]> build(String contentType, Charset charset, Charset defaultCharset) {
+    return new ByteArrayRequestBody(content, contentType);
   }
 }

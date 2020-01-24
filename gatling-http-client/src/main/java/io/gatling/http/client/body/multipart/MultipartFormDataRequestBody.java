@@ -29,7 +29,6 @@ import io.netty.buffer.CompositeByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,8 +41,8 @@ public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>
 
   private final byte[] boundary;
 
-  MultipartFormDataRequestBody(List<Part<?>> content, String contentType, Charset charset, byte[] boundary) {
-    super(content, contentType, charset);
+  MultipartFormDataRequestBody(List<Part<?>> content, String contentType, byte[] boundary) {
+    super(content, contentType);
     this.boundary = boundary;
   }
 
@@ -115,7 +114,6 @@ public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>
       "boundary=" + Arrays.toString(boundary) +
       ", content=" + content +
       ", contentType=" + contentType +
-      ", charset=" + charset +
       '}';
   }
 }

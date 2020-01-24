@@ -18,6 +18,8 @@ package io.gatling.http.client.body.stringchunks;
 
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.string.StringRequestBody;
+import io.gatling.netty.util.StringBuilderPool;
 import io.gatling.netty.util.StringWithCachedBytes;
 
 import java.nio.charset.Charset;
@@ -30,7 +32,16 @@ public class StringChunksRequestBodyBuilder extends RequestBodyBuilder<List<Stri
   }
 
   @Override
-  public RequestBody<List<StringWithCachedBytes>> build(String contentType, Charset charset) {
-    return new StringChunksRequestBody(content, contentType, charset);
+  public RequestBody<?> build(String contentType, Charset charset, Charset defaultCharset) {
+    if (charset == null || charset.equals(defaultCharset)) {
+      return new StringChunksRequestBody(content, contentType);
+    } else {
+      // cached bytes are not for the correct encoding
+      StringBuilder sb = StringBuilderPool.DEFAULT.get();
+      for (StringWithCachedBytes stringWithCachedBytes : content) {
+        sb.append(stringWithCachedBytes.string);
+      }
+      return new StringRequestBody(sb.toString(), contentType, charset);
+    }
   }
 }
