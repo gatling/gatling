@@ -71,12 +71,27 @@ private[gatling] object HttpHelper extends StrictLogging {
       } yield new DigestRealm(usernameValue, passwordValue)
 
   private def headerExists(headers: HttpHeaders, headerName: String, f: String => Boolean): Boolean = Option(headers.get(headerName)).exists(f)
-  def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
+  def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.startsWith(HeaderValues.TextCss))
   def isHtml(headers: HttpHeaders): Boolean =
-    headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
-  def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
+    headerExists(headers, HeaderNames.ContentType, ct => ct.startsWith(HeaderValues.TextHtml) || ct.startsWith(HeaderValues.ApplicationXhtml))
+  def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _ == HeaderValues.XmlHttpRequest)
   def isTxt(headers: HttpHeaders): Boolean =
-    headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
+    headerExists(
+      headers,
+      HeaderNames.ContentType,
+      ct =>
+        ct.startsWith(HeaderValues.ApplicationJavascript)
+          || ct.startsWith(HeaderValues.ApplicationJson)
+          || ct.startsWith(HeaderValues.ApplicationXml)
+          || ct.startsWith(HeaderValues.ApplicationFormUrlEncoded)
+          || ct.startsWith(HeaderValues.ApplicationXhtml)
+          || ct.startsWith(HeaderValues.TextCss)
+          || ct.startsWith(HeaderValues.TextCsv)
+          || ct.startsWith(HeaderValues.TextHtml)
+          || ct.startsWith(HeaderValues.TextJavascript)
+          || ct.startsWith(HeaderValues.TextPlain)
+          || ct.startsWith(HeaderValues.TextXml)
+    )
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))
