@@ -32,6 +32,7 @@ import io.gatling.core.stats.writer._
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
 import akka.pattern.ask
 import akka.util.Timeout
+import io.netty.channel.ChannelDuplexHandler
 
 trait StatsEngine {
 
@@ -93,6 +94,8 @@ trait StatsEngine {
 
   def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
     logCrash(session, requestName, s"Failed to build request: $errorMessage")
+
+  def statsChannelHandler: Option[ChannelDuplexHandler] = None
 }
 
 object DataWritersStatsEngine {
@@ -160,44 +163,6 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
   override def logUserStart(session: Session): Unit = dispatch(UserStartMessage(session))
 
   override def logUserEnd(userMessage: UserEndMessage): Unit = dispatch(userMessage)
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 
   override def logResponse(
       session: Session,

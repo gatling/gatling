@@ -53,29 +53,6 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def logUserEnd(userMessage: UserEndMessage): Unit = {}
 
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
-
   override def logResponse(
       session: Session,
       requestName: String,
