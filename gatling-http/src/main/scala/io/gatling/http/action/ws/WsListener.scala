@@ -17,7 +17,6 @@
 package io.gatling.http.action.ws
 
 import io.gatling.commons.util.Clock
-import io.gatling.core.stats.StatsEngine
 import io.gatling.http.client.WebSocketListener
 import io.gatling.http.util.HttpHelper
 import io.gatling.netty.util.{ ByteBufUtils, Utf8ByteBufCharsetDecoder }
@@ -28,7 +27,7 @@ import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
 import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
-class WsListener(fsm: WsFsm, statsEngine: StatsEngine, clock: Clock) extends WebSocketListener with LazyLogging {
+class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLogging {
 
   private var cookies: List[Cookie] = Nil
 

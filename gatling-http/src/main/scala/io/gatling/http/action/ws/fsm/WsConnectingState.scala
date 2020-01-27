@@ -39,7 +39,7 @@ object WsConnectingState extends SslContextSupport {
 
     import fsm._
 
-    val listener = new WsListener(fsm, statsEngine, clock)
+    val listener = new WsListener(fsm, clock)
 
     // [fl]
     //

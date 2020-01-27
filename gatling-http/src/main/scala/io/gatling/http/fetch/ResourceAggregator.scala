@@ -94,7 +94,6 @@ private[fetch] class DefaultResourceAggregator(
 
     val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
       resource.requestConfig,
-      clock,
       configuration
     )
 
