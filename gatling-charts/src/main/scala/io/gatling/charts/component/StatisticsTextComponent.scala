@@ -75,7 +75,7 @@ private[charts] class StatisticsTextComponent(implicit configuration: GatlingCon
                                                 <td id="numberOfRequestsKO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">Mean cnt/s</td>
+                                                <td class="title">Mean <abbr title="Count of events per second">cnt/s</abbr></td>
                                                 <td id="meanNumberOfRequestsPerSecond" class="total"></td>
                                                 <td id="meanNumberOfRequestsPerSecondOK" class="ok"></td>
                                                 <td id="meanNumberOfRequestsPerSecondKO" class="ko"></td>
