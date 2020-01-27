@@ -58,7 +58,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
                                         <th id="col-3" class="header sortable"><span>OK</span></th>
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
                                         <th id="col-5" class="header sortable"><span>% KO</span></th>
-                                        <th id="col-6" class="header sortable"><span>Cnt/s</span></th>
+                                        <th id="col-6" class="header sortable"><span><abbr title="Count of events per second">Cnt/s</abbr></span></th>
                                         ${responseTimeFields.zipWithIndex
       .map { case (header, i) => s"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }
       .mkString(Eol)}
