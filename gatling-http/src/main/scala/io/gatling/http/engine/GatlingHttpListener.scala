@@ -79,7 +79,6 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   //
   //
   //
-  //
   // [fl]
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
