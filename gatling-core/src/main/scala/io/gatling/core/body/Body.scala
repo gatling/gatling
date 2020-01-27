@@ -32,8 +32,6 @@ sealed trait Body
 final case class StringBody(string: Expression[String], charset: Charset) extends Body with Expression[String] {
 
   override def apply(session: Session): Validation[String] = string(session)
-
-  def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(charset)))
 }
 
 object RawFileBody {
