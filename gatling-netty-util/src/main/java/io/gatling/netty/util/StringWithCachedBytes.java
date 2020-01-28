@@ -41,6 +41,14 @@ public class StringWithCachedBytes {
     }
   }
 
+  public static String toString(List<StringWithCachedBytes> chunks) {
+    StringBuilder sb = StringBuilderPool.DEFAULT.get();
+    for (StringWithCachedBytes chunk: chunks) {
+      sb.append(chunk.string);
+    }
+    return sb.toString();
+  }
+
   public static StringWithCachedBytes apply(String string, Charset charset) {
     return new StringWithCachedBytes(string, string.getBytes(charset));
   }
