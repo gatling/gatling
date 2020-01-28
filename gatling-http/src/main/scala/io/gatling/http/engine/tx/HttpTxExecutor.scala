@@ -39,7 +39,7 @@ class HttpTxExecutor(
     with StrictLogging {
 
   import coreComponents._
-  private val noopStatsProcessor = new NoopStatsProcessor(coreComponents.configuration.core.charset)
+  private val noopStatsProcessor = new NoopStatsProcessor(configuration.core.charset)
 
   private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
 
