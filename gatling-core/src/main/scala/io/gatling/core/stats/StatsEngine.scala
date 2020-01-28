@@ -27,7 +27,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def start(): Unit
 
-  def stop(replyTo: ActorRef, exception: Option[Exception]): Unit
+  def stop(controller: ActorRef, exception: Option[Exception]): Unit
 
   def logUserStart(session: Session): Unit
 

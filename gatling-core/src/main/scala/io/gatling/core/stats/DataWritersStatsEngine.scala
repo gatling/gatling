@@ -84,12 +84,12 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
     Await.ready(statsEngineFuture, dataWriterTimeOut.duration)
   }
 
-  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit =
+  override def stop(controller: ActorRef, exception: Option[Exception]): Unit =
     if (active.getAndSet(false)) {
       implicit val dispatcher: ExecutionContext = system.dispatcher
       implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
       val responses = dataWriters.map(_ ? Stop)
-      Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
+      Future.sequence(responses).onComplete(_ => controller ! ControllerCommand.StatsEngineStopped)
     }
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)

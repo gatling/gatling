@@ -30,7 +30,7 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def start(): Unit = {}
 
-  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
+  override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
   override def logUserStart(session: Session): Unit = {}
 
