@@ -48,7 +48,7 @@ import javax.net.ssl.KeyManagerFactory
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {
     val sslContextsFactory = new SslContextsFactory(coreComponents.configuration.http)
-    val httpClient = HttpClientFactory(coreComponents, sslContextsFactory).newClient
+    val httpClient = new HttpClientFactory(sslContextsFactory, coreComponents.configuration).newClient
     new HttpEngine(sslContextsFactory, httpClient, coreComponents.eventLoopGroup, coreComponents.configuration)
   }
 }

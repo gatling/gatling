@@ -17,7 +17,6 @@
 package io.gatling.http.engine
 
 import io.gatling.commons.util.SystemProps._
-import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.client.{ HttpClient, HttpClientConfig }
 import io.gatling.http.client.impl.DefaultHttpClient
@@ -25,32 +24,15 @@ import io.gatling.http.util._
 
 import com.typesafe.scalalogging.StrictLogging
 
-private[gatling] object HttpClientFactory {
+private[gatling] final class HttpClientFactory(
+    sslContextsFactory: SslContextsFactory,
+    // [fl]
+    configuration: GatlingConfiguration
+) extends StrictLogging {
 
-  def apply(coreComponents: CoreComponents, sslContextsFactory: SslContextsFactory): HttpClientFactory =
-    coreComponents.configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      // [fl]
-      new DefaultHttpClientFactory(sslContextsFactory, coreComponents.configuration)
-    )
-}
-
-private[gatling] trait HttpClientFactory {
-
-  def newClient: HttpClient
-}
-
-private[gatling] class DefaultHttpClientFactory(sslContextsFactory: SslContextsFactory, configuration: GatlingConfiguration)
-    extends HttpClientFactory
-    with StrictLogging {
-
-  private val httpConfig = configuration.http
-  setSystemPropertyIfUndefined("io.netty.allocator.type", httpConfig.advanced.allocator)
-  setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", httpConfig.advanced.maxThreadLocalCharBufferSize)
+  private val advancedHttpConfig = configuration.http.advanced
+  setSystemPropertyIfUndefined("io.netty.allocator.type", advancedHttpConfig.allocator)
+  setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", advancedHttpConfig.maxThreadLocalCharBufferSize)
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
 
@@ -58,18 +40,26 @@ private[gatling] class DefaultHttpClientFactory(sslContextsFactory: SslContextsF
     new HttpClientConfig()
       .setDefaultSslContext(defaultSslContexts.sslContext)
       .setDefaultAlpnSslContext(defaultSslContexts.alpnSslContext.orNull)
-      .setConnectTimeout(httpConfig.advanced.connectTimeout.toMillis)
-      .setHandshakeTimeout(httpConfig.advanced.handshakeTimeout.toMillis)
-      .setChannelPoolIdleTimeout(httpConfig.advanced.pooledConnectionIdleTimeout.toMillis)
-      .setEnableSni(httpConfig.advanced.enableSni)
-      .setEnableHostnameVerification(httpConfig.advanced.enableHostnameVerification)
+      .setConnectTimeout(advancedHttpConfig.connectTimeout.toMillis)
+      .setHandshakeTimeout(advancedHttpConfig.handshakeTimeout.toMillis)
+      .setChannelPoolIdleTimeout(advancedHttpConfig.pooledConnectionIdleTimeout.toMillis)
+      .setEnableSni(advancedHttpConfig.enableSni)
+      .setEnableHostnameVerification(advancedHttpConfig.enableHostnameVerification)
       .setDefaultCharset(configuration.core.charset)
-      .setUseNativeTransport(httpConfig.advanced.useNativeTransport)
-      .setTcpNoDelay(httpConfig.advanced.tcpNoDelay)
-      .setSoKeepAlive(httpConfig.advanced.soKeepAlive)
-      .setSoReuseAddress(httpConfig.advanced.soReuseAddress)
+      .setUseNativeTransport(advancedHttpConfig.useNativeTransport)
+      .setTcpNoDelay(advancedHttpConfig.tcpNoDelay)
+      .setSoKeepAlive(advancedHttpConfig.soKeepAlive)
+      .setSoReuseAddress(advancedHttpConfig.soReuseAddress)
       .setThreadPoolName("gatling-http")
+    //[fl]
+    //
+    //
+    //
+    //
+    //
+    //
+    //[fl]
   }
 
-  override def newClient: HttpClient = new DefaultHttpClient(newClientConfig())
+  def newClient: HttpClient = new DefaultHttpClient(newClientConfig())
 }

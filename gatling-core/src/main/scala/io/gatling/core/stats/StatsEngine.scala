@@ -34,7 +34,7 @@ import akka.pattern.ask
 import akka.util.Timeout
 import io.netty.channel.ChannelDuplexHandler
 
-trait StatsEngine {
+trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def start(): Unit
 
@@ -45,9 +45,6 @@ trait StatsEngine {
   def logUserEnd(userMessage: UserEndMessage): Unit
 
   // [fl]
-  //
-  //
-  //
   //
   //
   //
@@ -96,6 +93,15 @@ trait StatsEngine {
     logCrash(session, requestName, s"Failed to build request: $errorMessage")
 
   def statsChannelHandler: Option[ChannelDuplexHandler] = None
+}
+
+// WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
+trait FrontLineStatsEngineExtensions {
+  final def logTcpConnectAttempt(remoteAddress: String): Unit = {}
+
+  final def logTcpConnect(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
+
+  final def logTlsHandshake(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
 }
 
 object DataWritersStatsEngine {
