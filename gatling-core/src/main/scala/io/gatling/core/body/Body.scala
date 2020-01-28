@@ -57,7 +57,7 @@ object ElBody {
   @throws[ElParserException]
   private[body] def toParts(string: String, charset: Charset): List[ElBody.ElBodyPart] =
     ElCompiler.parse(string).map {
-      case StaticPart(string) => StaticElBodyPart(StringWithCachedBytes.apply(string, charset))
+      case StaticPart(string) => StaticElBodyPart(new StringWithCachedBytes(string, charset))
       case part               => DynamicElBodyPart(part.map(_.toString), charset)
     }
 
@@ -93,7 +93,7 @@ final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends Bod
               for {
                 acc <- accV
                 string <- stringE(session)
-              } yield StringWithCachedBytes.apply(string, charset) :: acc
+              } yield new StringWithCachedBytes(string, charset) :: acc
           }
         }
       } yield reversedBytes.reverse

@@ -215,7 +215,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        RequestBodyBuilder<?> byteArraysBody = new StringChunksRequestBodyBuilder(Collections.singletonList(StringWithCachedBytes.apply("foo", UTF_8)));
+        RequestBodyBuilder<?> byteArraysBody = new StringChunksRequestBodyBuilder(Collections.singletonList(new StringWithCachedBytes("foo", UTF_8)));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(byteArraysBody).build();
         client.test(request, 0, new TestListener() {
           @Override

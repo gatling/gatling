@@ -49,15 +49,11 @@ public class StringWithCachedBytes {
     return sb.toString();
   }
 
-  public static StringWithCachedBytes apply(String string, Charset charset) {
-    return new StringWithCachedBytes(string, string.getBytes(charset));
-  }
-
   public final String string;
   public final byte[] bytes;
 
-  public StringWithCachedBytes(String string, byte[] bytes) {
+  public StringWithCachedBytes(String string, Charset charset) {
     this.string = string;
-    this.bytes = bytes;
+    this.bytes = string.getBytes(charset);
   }
 }
