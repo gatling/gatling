@@ -11,7 +11,7 @@ HTTP Helpers
 Dealing with Cookies
 ====================
 
-Cookie support is enabled by default and then Gatling handles Cookies transparently, just like a browser would.
+Gatling supports cookies out-of-the-box and transparently, just like a browser would.
 
 However, some use cases require a more fine grain control.
 
