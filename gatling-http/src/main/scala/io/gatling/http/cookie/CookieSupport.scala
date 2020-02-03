@@ -34,8 +34,6 @@ private[http] object CookieSupport {
 
   def cookieJar(session: Session): Option[CookieJar] = session(CookieJarAttributeName).asOption[CookieJar]
 
-  def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, Uri.create(url))
-
   def getStoredCookies(session: Session, uri: Uri): List[Cookie] =
     cookieJar(session) match {
       case Some(cookieJar) => cookieJar.get(uri)
