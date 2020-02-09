@@ -31,7 +31,7 @@ object AddCookieBuilder {
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Cookie.UNDEFINED_MAX_AGE), cookie.secure)
 }
 
-class AddCookieBuilder(name: String, value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[String], path: Option[String], maxAge: Long, secure: Boolean)
     extends HttpActionBuilder
     with NameGen {
 
@@ -55,6 +55,7 @@ class AddCookieBuilder(name: String, value: Expression[String], domain: Option[S
 
     val expression: Expression[Session] = session =>
       for {
+        name <- name(session)
         value <- value(session)
         resolvedRequestDomain <- requestDomain(session)
       } yield {
