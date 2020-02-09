@@ -53,7 +53,8 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport 
   val HttpHeaderNames: HeaderNames.type = HeaderNames
   val HttpHeaderValues: HeaderValues.type = HeaderValues
 
-  def Cookie(name: String, value: Expression[String]): AddCookieDsl = AddCookieDsl(name, value, domain = None, path = None, maxAge = None, secure = false)
+  def Cookie(name: Expression[String], value: Expression[String]): AddCookieDsl =
+    AddCookieDsl(name, value, domain = None, path = None, maxAge = None, secure = false)
   def CookieKey(name: String): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
 
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
