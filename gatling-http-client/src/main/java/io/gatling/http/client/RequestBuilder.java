@@ -38,7 +38,6 @@ import java.util.List;
 
 import static io.gatling.http.client.util.HttpUtils.*;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
-import static io.gatling.http.client.util.MiscUtils.withDefault;
 import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -226,8 +225,8 @@ public class RequestBuilder {
     RequestBody<?> body = null;
     if (bodyBuilder != null) {
       String contentType = headers.get(CONTENT_TYPE);
-      Charset charset = withDefault(extractContentTypeCharsetAttribute(contentType), defaultCharset);
-      body = bodyBuilder.build(contentType, charset);
+      Charset charset = extractContentTypeCharsetAttribute(contentType);
+      body = bodyBuilder.build(contentType, charset, defaultCharset);
       String bodyContentType = body.getContentType();
       if (bodyContentType != null) {
         headers.set(CONTENT_TYPE, bodyContentType);

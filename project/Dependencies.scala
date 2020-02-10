@@ -21,7 +21,7 @@ object Dependencies {
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.28.Final"
   private val activation                     = "com.sun.activation"                   % "javax.activation"                % "1.2.0"
-  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.1"
+  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.2"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.0"
   private val saxon                          = "net.sf.saxon"                         % "Saxon-HE"                        % "9.9.1-6"
@@ -34,11 +34,11 @@ object Dependencies {
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.10.1"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.2.1")
     .exclude("org.simpleflatmapper", "ow2-asm")
-  private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.0.13"
+  private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.1.0-20190624"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.4.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.1"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.10"
-  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.3.2")
+  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.3.4")
     .exclude("org.scala-lang.modules", "scala-parser-combinators_2.12")
     .exclude("org.scala-lang.modules", "scala-xml_2.12")
     .exclude("org.scala-sbt", "launcher-interface")

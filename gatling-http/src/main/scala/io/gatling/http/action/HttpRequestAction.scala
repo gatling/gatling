@@ -51,7 +51,6 @@ class HttpRequestAction(
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     requestConfig,
-    clock,
     coreComponents.configuration
   )
 

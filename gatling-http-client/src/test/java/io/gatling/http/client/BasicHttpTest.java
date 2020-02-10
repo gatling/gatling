@@ -18,7 +18,7 @@ package io.gatling.http.client;
 
 import io.gatling.http.client.body.*;
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder;
-import io.gatling.http.client.body.bytearrays.ByteArraysRequestBodyBuilder;
+import io.gatling.http.client.body.stringchunks.StringChunksRequestBodyBuilder;
 import io.gatling.http.client.body.file.FileRequestBodyBuilder;
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder;
 import io.gatling.http.client.body.is.InputStreamRequestBodyBuilder;
@@ -28,6 +28,7 @@ import io.gatling.http.client.test.TestServer;
 import io.gatling.http.client.test.HttpTest;
 import io.gatling.http.client.test.listener.TestListener;
 import io.gatling.http.client.uri.Uri;
+import io.gatling.netty.util.StringWithCachedBytes;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -193,7 +195,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        RequestBodyBuilder byteArrayBody = new ByteArrayRequestBodyBuilder("foo".getBytes(UTF_8));
+        RequestBodyBuilder<?> byteArrayBody = new ByteArrayRequestBodyBuilder("foo".getBytes(UTF_8));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl()))
           .setFixUrlEncoding(false)
           .setBodyBuilder(byteArrayBody).build();
@@ -213,7 +215,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        RequestBodyBuilder byteArraysBody = new ByteArraysRequestBodyBuilder(new byte[][]{"foo".getBytes(UTF_8)});
+        RequestBodyBuilder<?> byteArraysBody = new StringChunksRequestBodyBuilder(Collections.singletonList(new StringWithCachedBytes("foo", UTF_8)));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(byteArraysBody).build();
         client.test(request, 0, new TestListener() {
           @Override
@@ -230,7 +232,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        RequestBodyBuilder fileBody = new FileRequestBodyBuilder(getTestFile());
+        RequestBodyBuilder<?> fileBody = new FileRequestBodyBuilder(getTestFile());
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(fileBody).build();
         client.test(request, 0, new TestListener() {
           @Override
@@ -249,7 +251,7 @@ class BasicHttpTest extends HttpTest {
         server.enqueueEcho();
         List<Param> formParams = new ArrayList<>();
         formParams.add(new Param("foo", "bar"));
-        RequestBodyBuilder formUrlEncodedBody = new FormUrlEncodedRequestBodyBuilder(formParams);
+        RequestBodyBuilder<?> formUrlEncodedBody = new FormUrlEncodedRequestBodyBuilder(formParams);
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(formUrlEncodedBody).build();
         client.test(request, 0, new TestListener() {
           @Override
@@ -266,7 +268,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        RequestBodyBuilder inputStreamBody = new InputStreamRequestBodyBuilder(new ByteArrayInputStream("foo".getBytes(UTF_8)));
+        RequestBodyBuilder<?> inputStreamBody = new InputStreamRequestBodyBuilder(new ByteArrayInputStream("foo".getBytes(UTF_8)));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(inputStreamBody).build();
         client.test(request, 0, new TestListener() {
           @Override
@@ -283,7 +285,7 @@ class BasicHttpTest extends HttpTest {
     withClient().run(client ->
       withServer(server).run(server -> {
         server.enqueueEcho();
-        RequestBodyBuilder stringBody = new StringRequestBodyBuilder("foo");
+        RequestBodyBuilder<?> stringBody = new StringRequestBodyBuilder("foo");
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(stringBody).build();
         client.test(request, 0, new TestListener() {
           @Override
@@ -304,7 +306,7 @@ class BasicHttpTest extends HttpTest {
         multiparts.add(new StringPart("part1", "foo", UTF_8, null, null, null, null, null));
         multiparts.add(new FilePart("part2", getTestFile(), UTF_8, null, null, null, null, null, null));
         multiparts.add(new ByteArrayPart("part3", "foo".getBytes(), UTF_8, null, null, null, null, null, null));
-        RequestBodyBuilder multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(multiparts);
+        RequestBodyBuilder<?> multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(multiparts);
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build();
 
         long minimalLength = getTestFile().length() + 2 * "foo".length() + 3 * 30; // file + 2 * foo + 3 * multipart boundary
@@ -326,7 +328,7 @@ class BasicHttpTest extends HttpTest {
         server.enqueueEcho();
         // Charset is mandatory and will trigger a NPE
         StringPart part = new StringPart("part1", "foo", null, null, null, null, null, null);
-        RequestBodyBuilder multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(singletonList(part));
+        RequestBodyBuilder<?> multipartFormDataBody = new MultipartFormDataRequestBodyBuilder(singletonList(part));
         Request request = new RequestBuilder(HttpMethod.GET, Uri.create(getTargetUrl())).setBodyBuilder(multipartFormDataBody).build();
 
         assertThrows(NullPointerException.class, () -> {

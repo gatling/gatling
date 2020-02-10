@@ -25,12 +25,12 @@ import io.gatling.core.session._
 import io.gatling.http.HeaderNames
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
-import io.gatling.http.client.body.bytearrays.ByteArraysRequestBodyBuilder
 import io.gatling.http.client.body.file.FileRequestBodyBuilder
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder
 import io.gatling.http.client.body.is.InputStreamRequestBodyBuilder
 import io.gatling.http.client.body.multipart.{ MultipartFormDataRequestBodyBuilder, StringPart }
 import io.gatling.http.client.body.string.StringRequestBodyBuilder
+import io.gatling.http.client.body.stringchunks.StringChunksRequestBodyBuilder
 import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
@@ -65,7 +65,7 @@ class HttpRequestExpressionBuilder(
             requestBuilder.setBodyBuilder(requestBodyBuilder)
         }
       case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b)))
-      case body: ElBody         => body.asBytes(session).map(bs => requestBuilder.setBodyBuilder(new ByteArraysRequestBodyBuilder(bs.toArray)))
+      case body: ElBody         => body.asStringWithCachedBytes(session).map(chunks => requestBuilder.setBodyBuilder(new StringChunksRequestBodyBuilder(chunks.asJava)))
       case InputStreamBody(is)  => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
       case body: PebbleBody     => body.apply(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
     }

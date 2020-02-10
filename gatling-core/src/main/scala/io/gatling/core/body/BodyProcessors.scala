@@ -47,9 +47,9 @@ object BodyProcessors {
   def stream(charset: Charset): Body => InputStreamBody =
     (body: Body) => {
       val stream = body match {
-        case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
-        case pebbleBody: PebbleBody   => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(charset)))
-        case ByteArrayBody(byteArray) => byteArray.map(new FastByteArrayInputStream(_))
+        case StringBody(string, charset) => string.map(s => new FastByteArrayInputStream(s.getBytes(charset)))
+        case pebbleBody: PebbleBody      => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(charset)))
+        case ByteArrayBody(byteArray)    => byteArray.map(new FastByteArrayInputStream(_))
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map {
             case ResourceAndCachedBytes(resource, cachedBytes) =>

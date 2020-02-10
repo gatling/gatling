@@ -45,12 +45,12 @@ object BodyPart {
     stringBodyPart(name, new ElBody(elFileBodies.parse(filePath)), defaultCharset)
 
   def stringBodyPart(name: Option[Expression[String]], string: Expression[String], defaultCharset: Charset): BodyPart =
-    BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes.Empty.copy(charset = Some(defaultCharset)))
+    BodyPart(name, stringBodyPartBuilder(string, defaultCharset), BodyPartAttributes.Empty)
 
   def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart =
     BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes.Empty)
 
-  private def stringBodyPartBuilder(string: Expression[String])(
+  private def stringBodyPartBuilder(string: Expression[String], defaultCharset: Charset)(
       name: String,
       charset: Option[Charset],
       transferEncoding: Option[String],
@@ -66,7 +66,7 @@ object BodyPart {
           new StringPart(
             name,
             resolvedString,
-            charset.orNull,
+            charset.getOrElse(defaultCharset),
             transferEncoding.orNull,
             contentId.orNull,
             dispositionType.orNull,
@@ -75,7 +75,7 @@ object BodyPart {
           )
         }
       case _ =>
-        byteArrayBodyPartBuilder(string.map(_.getBytes(charset.orNull)))(
+        byteArrayBodyPartBuilder(string.map(_.getBytes(charset.getOrElse(defaultCharset))))(
           name,
           charset,
           transferEncoding,

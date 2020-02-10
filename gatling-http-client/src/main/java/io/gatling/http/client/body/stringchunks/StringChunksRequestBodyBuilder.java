@@ -14,21 +14,29 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.body.bytearrays;
+package io.gatling.http.client.body.stringchunks;
 
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
+import io.gatling.http.client.body.string.StringRequestBody;
+import io.gatling.netty.util.StringWithCachedBytes;
 
 import java.nio.charset.Charset;
+import java.util.List;
 
-public class ByteArraysRequestBodyBuilder extends RequestBodyBuilder<byte[][]> {
+public class StringChunksRequestBodyBuilder extends RequestBodyBuilder<List<StringWithCachedBytes>> {
 
-  public ByteArraysRequestBodyBuilder(byte[][] content) {
+  public StringChunksRequestBodyBuilder(List<StringWithCachedBytes> content) {
     super(content);
   }
 
   @Override
-  public RequestBody<byte[][]> build(String contentType, Charset charset) {
-    return new  ByteArraysRequestBody(content, contentType, charset);
+  public RequestBody<?> build(String contentType, Charset charset, Charset defaultCharset) {
+    if (charset == null || charset.equals(defaultCharset)) {
+      return new StringChunksRequestBody(content, contentType);
+    } else {
+      // cached bytes are not for the correct encoding
+      return new StringRequestBody(StringWithCachedBytes.toString(content), contentType, charset);
+    }
   }
 }

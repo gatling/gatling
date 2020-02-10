@@ -22,12 +22,16 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.stream.ChunkedInput;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MultipartChunkedInput.class);
 
   private enum ChunkedInputState {
 
@@ -58,10 +62,27 @@ public class MultipartChunkedInput implements ChunkedInput<ByteBuf> {
   private int currentPartIndex;
   private boolean done = false;
 
-  public MultipartChunkedInput(List<PartImpl> parts, long contentLength) {
+  public MultipartChunkedInput(List<PartImpl> parts) {
     this.parts = parts;
-    this.contentLength = contentLength;
+    this.contentLength = computeContentLength(parts);
     this.chunkSize = contentLength > 0 ? (int) Math.min(contentLength, DEFAULT_CHUNK_SIZE) : DEFAULT_CHUNK_SIZE;
+  }
+
+  private static long computeContentLength(List<PartImpl> partImpls) {
+    try {
+      long total = 0;
+      for (PartImpl part : partImpls) {
+        long l = part.length();
+        if (l < 0) {
+          return -1;
+        }
+        total += l;
+      }
+      return total;
+    } catch (Exception e) {
+      LOGGER.error("An exception occurred while getting the length of the parts", e);
+      return 0L;
+    }
   }
 
   @Override

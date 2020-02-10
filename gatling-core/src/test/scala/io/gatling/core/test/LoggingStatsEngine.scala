@@ -47,34 +47,11 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def start(): Unit = {}
 
-  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
+  override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
   override def logUserStart(session: Session): Unit = {}
 
   override def logUserEnd(userMessage: UserEndMessage): Unit = {}
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 
   override def logResponse(
       session: Session,

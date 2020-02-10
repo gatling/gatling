@@ -34,8 +34,6 @@ private[http] object CookieSupport {
 
   def cookieJar(session: Session): Option[CookieJar] = session(CookieJarAttributeName).asOption[CookieJar]
 
-  def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, Uri.create(url))
-
   def getStoredCookies(session: Session, uri: Uri): List[Cookie] =
     cookieJar(session) match {
       case Some(cookieJar) => cookieJar.get(uri)
@@ -74,10 +72,10 @@ private[http] object CookieSupport {
 
   val FlushSessionCookies: Expression[Session] = session =>
     cookieJar(session) match {
-      case None => session.success
       case Some(cookieJar) =>
         val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
         session.set(CookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies)).success
+      case _ => session.success
     }
 
   val FlushCookieJar: Expression[Session] = _.remove(CookieJarAttributeName).success

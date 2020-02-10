@@ -39,7 +39,7 @@ class HttpTxExecutor(
     with StrictLogging {
 
   import coreComponents._
-  private val noopStatsProcessor = new NoopStatsProcessor(coreComponents.configuration.core.charset)
+  private val noopStatsProcessor = new NoopStatsProcessor(configuration.core.charset)
 
   private val resourceFetcher = new ResourceFetcher(coreComponents, httpCaches, httpProtocol, httpTxExecutor = this)
 
@@ -131,7 +131,7 @@ class HttpTxExecutor(
       val ahcRequest = tx.request.clientRequest
       val clientId = tx.session.userId
       val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
-      val listener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
+      val listener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
       val userSslContexts = sslContexts(tx.session)
       val sslContext = userSslContexts.map(_.sslContext).orNull
       val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
@@ -156,7 +156,7 @@ class HttpTxExecutor(
           )
       )
       val requestsAndListeners = txs.map { tx =>
-        val listener: HttpListener = new GatlingHttpListener(tx, coreComponents, responseProcessorFactory(tx))
+        val listener: HttpListener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
         new Pair(tx.request.clientRequest, listener)
       }
       val clientId = headTx.session.userId

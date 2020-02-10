@@ -23,12 +23,11 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.stream.ChunkedFile;
 
 import java.io.*;
-import java.nio.charset.Charset;
 
-public class FileRequestBody extends RequestBody<File> {
+public final class FileRequestBody extends RequestBody<File> {
 
-  public FileRequestBody(File content, String contentType, Charset charset) {
-    super(content, contentType, charset);
+  public FileRequestBody(File content, String contentType) {
+    super(content, contentType);
   }
 
   @Override
@@ -64,7 +63,6 @@ public class FileRequestBody extends RequestBody<File> {
     return "FileRequestBody{" +
       "content=" + content +
       ", contentType=" + contentType +
-      ", charset=" + charset +
       '}';
   }
 }

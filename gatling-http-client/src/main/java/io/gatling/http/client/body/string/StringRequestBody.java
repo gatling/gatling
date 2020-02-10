@@ -27,10 +27,13 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public class StringRequestBody extends RequestBody<String> {
+public final class StringRequestBody extends RequestBody<String> {
+
+  private final Charset charset;
 
   public StringRequestBody(String content, String contentType, Charset charset) {
-    super(content, contentType, charset);
+    super(content, contentType);
+    this.charset = charset;
   }
 
   @Override

@@ -36,7 +36,7 @@ public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder<List
   }
 
   @Override
-  public RequestBody<List<Part<?>>> build(String contentType, Charset charset) {
+  public RequestBody<List<Part<?>>> build(String contentType, Charset charset, Charset defaultCharset) {
 
     byte[] boundary;
     String contentTypeBoundaryAttribute = extractContentTypeBoundaryAttribute(contentType);
@@ -47,6 +47,6 @@ public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder<List
       contentType = patchContentTypeWithBoundaryAttribute(withDefault(contentType, HttpHeaderValues.MULTIPART_FORM_DATA), boundary);
     }
 
-    return new MultipartFormDataRequestBody(content, contentType, charset, boundary);
+    return new MultipartFormDataRequestBody(content, contentType, boundary);
   }
 }

@@ -16,7 +16,7 @@
 
 package io.gatling.http.engine
 
-import io.gatling.core.CoreComponents
+import io.gatling.commons.util.Clock
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
 import io.gatling.http.engine.tx.HttpTx
@@ -30,7 +30,7 @@ import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
  *
  * It is part of the HttpRequestAction
  */
-class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
+class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
 
   private val responseBuilder = tx.responseBuilderFactory(tx.request.clientRequest)
   private var init = false
@@ -39,14 +39,13 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
   //
   //
   //
-  //
-  //
   // [fl]
 
   override def onSend(): Unit =
     if (!init) {
       init = true
-      responseBuilder.updateStartTimestamp()
+      val now = clock.nowMillis
+      responseBuilder.updateStartTimestamp(now)
       // [fl]
       //
       //
@@ -55,7 +54,6 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
     }
 
   // [fl]
-  //
   //
   //
   //
@@ -85,12 +83,12 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
     if (!done) {
-      responseBuilder.accumulate(status, headers)
+      responseBuilder.accumulate(status, headers, clock.nowMillis)
     }
 
   override def onHttpResponseBodyChunk(chunk: ByteBuf, last: Boolean): Unit =
     if (!done) {
-      responseBuilder.accumulate(chunk)
+      responseBuilder.accumulate(chunk, clock.nowMillis)
       if (last) {
         done = true
         try {
@@ -102,7 +100,7 @@ class GatlingHttpListener(tx: HttpTx, coreComponents: CoreComponents, responsePr
     }
 
   override def onThrowable(throwable: Throwable): Unit = {
-    responseBuilder.updateEndTimestamp()
+    responseBuilder.updateEndTimestamp(clock.nowMillis)
     logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
     try {
       responseProcessor.onComplete(responseBuilder.buildFailure(throwable))

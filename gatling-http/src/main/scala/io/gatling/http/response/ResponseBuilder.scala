@@ -23,7 +23,6 @@ import scala.collection.breakOut
 import scala.math.max
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringHelper.bytes2Hex
@@ -45,7 +44,6 @@ object ResponseBuilder extends StrictLogging {
 
   def newResponseBuilderFactory(
       requestConfig: HttpRequestConfig,
-      clock: Clock,
       configuration: GatlingConfiguration
   ): ResponseBuilderFactory = {
 
@@ -66,8 +64,7 @@ object ResponseBuilder extends StrictLogging {
         digests,
         storeBodyParts,
         requestConfig.httpProtocol.responsePart.inferHtmlResources,
-        configuration.core.charset,
-        clock
+        configuration.core.charset
       )
   }
 }
@@ -77,8 +74,7 @@ class ResponseBuilder(
     digests: Map[String, MessageDigest],
     storeBodyParts: Boolean,
     inferHtmlResources: Boolean,
-    defaultCharset: Charset,
-    clock: Clock
+    defaultCharset: Charset
 ) {
 
   var storeHtmlOrCss: Boolean = _
@@ -91,17 +87,17 @@ class ResponseBuilder(
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var chunks: List[ByteBuf] = Nil
 
-  def updateStartTimestamp(): Unit =
-    startTimestamp = clock.nowMillis
+  def updateStartTimestamp(startTimestamp: Long): Unit =
+    this.startTimestamp = startTimestamp
 
-  def updateEndTimestamp(): Unit =
-    endTimestamp = clock.nowMillis
+  def updateEndTimestamp(endTimestamp: Long): Unit =
+    this.endTimestamp = endTimestamp
 
   def accumulate(wireRequestHeaders: HttpHeaders): Unit =
     this.wireRequestHeaders = wireRequestHeaders
 
-  def accumulate(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
-    updateEndTimestamp()
+  def accumulate(status: HttpResponseStatus, headers: HttpHeaders, timestamp: Long): Unit = {
+    updateEndTimestamp(timestamp)
 
     this.status = Some(status)
     if (this.headers eq EmptyHttpHeaders.INSTANCE) {
@@ -113,10 +109,8 @@ class ResponseBuilder(
     }
   }
 
-  def setHttp2(isHttp2: Boolean): Unit = this.isHttp2 = isHttp2
-
-  def accumulate(byteBuf: ByteBuf): Unit = {
-    updateEndTimestamp()
+  def accumulate(byteBuf: ByteBuf, timestamp: Long): Unit = {
+    updateEndTimestamp(timestamp)
 
     if (byteBuf.isReadable) {
       if (storeBodyParts || storeHtmlOrCss) {
@@ -130,6 +124,8 @@ class ResponseBuilder(
         } digest.update(nioBuffer.duplicate)
     }
   }
+
+  def setHttp2(isHttp2: Boolean): Unit = this.isHttp2 = isHttp2
 
   private def resolveCharset: Charset =
     Option(headers.get(HeaderNames.ContentType))

@@ -21,6 +21,8 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 
 import java.nio.charset.Charset;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 public class StringRequestBodyBuilder extends RequestBodyBuilder<String> {
 
   public StringRequestBodyBuilder(String content) {
@@ -28,7 +30,7 @@ public class StringRequestBodyBuilder extends RequestBodyBuilder<String> {
   }
 
   @Override
-  public RequestBody<String> build(String contentType, Charset charset) {
-    return new StringRequestBody(content, contentType, charset);
+  public RequestBody<String> build(String contentType, Charset charset, Charset defaultCharset) {
+    return new StringRequestBody(content, contentType, withDefault(charset, defaultCharset));
   }
 }

@@ -55,7 +55,7 @@ package object builder {
             javaParams
           }
 
-        case None =>
+        case _ =>
           formParams
       }
     }

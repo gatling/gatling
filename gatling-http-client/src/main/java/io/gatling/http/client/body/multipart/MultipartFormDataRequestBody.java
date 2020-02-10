@@ -29,12 +29,11 @@ import io.netty.buffer.CompositeByteBuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
+public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
   private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -42,8 +41,8 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
 
   private final byte[] boundary;
 
-  MultipartFormDataRequestBody(List<Part<?>> content, String contentType, Charset charset, byte[] boundary) {
-    super(content, contentType, charset);
+  MultipartFormDataRequestBody(List<Part<?>> content, String contentType, byte[] boundary) {
+    super(content, contentType);
     this.boundary = boundary;
   }
 
@@ -54,8 +53,7 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
     }
     partImpls.add(new MessageEndPartImpl(boundary));
 
-    long contentLength = computeContentLength(partImpls);
-    return new MultipartChunkedInput(partImpls, contentLength);
+    return new MultipartChunkedInput(partImpls);
   }
 
   @Override
@@ -67,23 +65,6 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
   @Override
   public RequestBodyBuilder<List<Part<?>>> newBuilder() {
     return new MultipartFormDataRequestBodyBuilder(content);
-  }
-
-  private static long computeContentLength(List<PartImpl> partImpls) {
-    try {
-      long total = 0;
-      for (PartImpl part : partImpls) {
-        long l = part.length();
-        if (l < 0) {
-          return -1;
-        }
-        total += l;
-      }
-      return total;
-    } catch (Exception e) {
-      LOGGER.error("An exception occurred while getting the length of the parts", e);
-      return 0L;
-    }
   }
 
   @Override
@@ -115,7 +96,6 @@ public class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
       "boundary=" + Arrays.toString(boundary) +
       ", content=" + content +
       ", contentType=" + contentType +
-      ", charset=" + charset +
       '}';
   }
 }

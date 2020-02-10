@@ -53,7 +53,6 @@ class PollingStart(
 
   private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
     requestConfig,
-    clock,
     coreComponents.configuration
   )
 

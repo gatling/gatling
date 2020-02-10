@@ -71,12 +71,49 @@ private[gatling] object HttpHelper extends StrictLogging {
       } yield new DigestRealm(usernameValue, passwordValue)
 
   private def headerExists(headers: HttpHeaders, headerName: String, f: String => Boolean): Boolean = Option(headers.get(headerName)).exists(f)
-  def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
+  def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.ContentType, _.startsWith(HeaderValues.TextCss))
   def isHtml(headers: HttpHeaders): Boolean =
-    headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
-  def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
-  def isTxt(headers: HttpHeaders): Boolean =
-    headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
+    headerExists(headers, HeaderNames.ContentType, ct => ct.startsWith(HeaderValues.TextHtml) || ct.startsWith(HeaderValues.ApplicationXhtml))
+  def isAjax(headers: HttpHeaders): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _ == HeaderValues.XmlHttpRequest)
+
+  private val ApplicationStart = "application/"
+  private val ApplicationStartOffset = ApplicationStart.length
+  private val ApplicationJavascriptEnd = HeaderValues.ApplicationJavascript.substring(ApplicationStartOffset)
+  private val ApplicationJsonEnd = HeaderValues.ApplicationJson.substring(ApplicationStartOffset)
+  private val ApplicationXmlEnd = HeaderValues.ApplicationXml.substring(ApplicationStartOffset)
+  private val ApplicationFormUrlEncodedEnd = HeaderValues.ApplicationFormUrlEncoded.substring(ApplicationStartOffset)
+  private val ApplicationXhtmlEnd = HeaderValues.ApplicationXhtml.substring(ApplicationStartOffset)
+  private val TextStart = "text/"
+  private val TextStartOffset = TextStart.length
+  private val TextCssEnd = HeaderValues.TextCss.substring(TextStartOffset)
+  private val TextCsvEnd = HeaderValues.TextCsv.substring(TextStartOffset)
+  private val TextHtmlEnd = HeaderValues.TextHtml.substring(TextStartOffset)
+  private val TextJavascriptEnd = HeaderValues.TextJavascript.substring(TextStartOffset)
+  private val TextPlainEnd = HeaderValues.TextPlain.substring(TextStartOffset)
+  private val TextXmlEnd = HeaderValues.TextXml.substring(TextStartOffset)
+
+  def isText(headers: HttpHeaders): Boolean =
+    headerExists(
+      headers,
+      HeaderNames.ContentType,
+      ct =>
+        ct.startsWith(ApplicationStart) && (
+          ct.startsWith(ApplicationJavascriptEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationJsonEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationXmlEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationFormUrlEncodedEnd, ApplicationStartOffset)
+            || ct.startsWith(ApplicationXhtmlEnd, ApplicationStartOffset)
+        )
+          || (ct.startsWith(TextStart) && (
+            ct.startsWith(TextCssEnd, TextStartOffset)
+              || ct.startsWith(TextCsvEnd, TextStartOffset)
+              || ct.startsWith(TextHtmlEnd, TextStartOffset)
+              || ct.startsWith(TextJavascriptEnd, TextStartOffset)
+              || ct.startsWith(TextJavascriptEnd, TextStartOffset)
+              || ct.startsWith(TextPlainEnd, TextStartOffset)
+              || ct.startsWith(TextXmlEnd, TextStartOffset)
+          ))
+    )
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))
