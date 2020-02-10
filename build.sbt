@@ -13,8 +13,26 @@ ThisBuild / Keys.useCoursier := false
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
-  .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-  .aggregate(nettyUtil, commons, jsonpath, core, jdbc, redis, httpClient, http, jms, mqtt, charts, graphite, app, recorder, testFramework, bundle, compiler)
+  .dependsOn(Seq(commons, jsonpath, core, http, jms, decoupledResponse, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+  .aggregate(
+    nettyUtil,
+    commons,
+    jsonpath,
+    core,
+    jdbc,
+    redis,
+    httpClient,
+    http,
+    jms,
+    decoupledResponse,
+    mqtt,
+    graphite,
+    app,
+    recorder,
+    testFramework,
+    bundle,
+    compiler
+  )
   .settings(basicSettings)
   .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
@@ -69,6 +87,10 @@ lazy val jms = gatlingModule("gatling-jms")
   .settings(libraryDependencies ++= jmsDependencies)
   .settings(parallelExecution in Test := false)
 
+lazy val decoupledResponse = gatlingModule("gatling-decoupled-response")
+  .dependsOn(core % "compile->compile;test->test", http % "compile->compile;test->test")
+  .settings(libraryDependencies ++= httpDependencies)
+
 lazy val charts = gatlingModule("gatling-charts")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= chartsDependencies)
@@ -88,7 +110,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .settings(libraryDependencies ++= benchmarkDependencies)
 
 lazy val app = gatlingModule("gatling-app")
-  .dependsOn(core, http, jms, jdbc, redis, graphite, charts)
+  .dependsOn(core, http, jms, decoupledResponse, jdbc, redis, graphite, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)
