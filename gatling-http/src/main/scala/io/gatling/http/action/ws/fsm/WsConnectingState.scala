@@ -16,7 +16,8 @@
 
 package io.gatling.http.action.ws.fsm
 
-import io.gatling.commons.stats.OK
+import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.action.ws.{ OnConnectedChainEndAction, WsListener }
@@ -157,5 +158,20 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
             )
         }
     }
+  }
+
+  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
+    // crash
+    logger.info(s"WebSocket crashed by the server while in Connecting state", t)
+    val failedSession = session.markAsFailed
+    logResponse(failedSession, connectActionName, connectStart, timestamp, KO, Some(t.rootMessage), None)
+
+    val n = next match {
+      case Left(nextAction) => nextAction
+      case Right(sendFrame) => sendFrame.next
+    }
+    logger.debug("Connect failed, performing next action")
+
+    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)), () => n ! failedSession)
   }
 }
