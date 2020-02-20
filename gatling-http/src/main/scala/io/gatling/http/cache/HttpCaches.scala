@@ -22,7 +22,14 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 
-import com.typesafe.scalalogging.StrictLogging
+private[http] object HttpCaches {
+  val FlushCache: Expression[Session] = _.removeAll(
+    HttpContentCacheSupport.HttpContentCacheAttributeName,
+    DnsCacheSupport.DnsNameResolverAttributeName,
+    PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName,
+    Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName
+  ).success
+}
 
 private[http] class HttpCaches(val coreComponents: CoreComponents)
     extends HttpContentCacheSupport
@@ -32,17 +39,9 @@ private[http] class HttpCaches(val coreComponents: CoreComponents)
     with BaseUrlSupport
     with ResourceCacheSupport
     with Http2PriorKnowledgeSupport
-    with SslContextSupport
-    with StrictLogging {
+    with SslContextSupport {
 
   override def clock: Clock = coreComponents.clock
 
   override def configuration: GatlingConfiguration = coreComponents.configuration
-
-  val FlushCache: Expression[Session] = _.removeAll(
-    HttpContentCacheSupport.HttpContentCacheAttributeName,
-    DnsCacheSupport.DnsNameResolverAttributeName,
-    PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName,
-    Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName
-  ).success
 }
