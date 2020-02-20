@@ -30,7 +30,7 @@ private[gatling] object JmesPathFunctions {
   private[jmespath] var functions: Seq[JmesPathFunction] = Nil
 
   def register(functions: Seq[JmesPathFunction]): Unit = {
-    if (functions.nonEmpty) {
+    if (this.functions.nonEmpty) {
       throw new UnsupportedOperationException("JmesPath functions have already been registered")
     }
     this.functions = functions
