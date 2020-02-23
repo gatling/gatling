@@ -16,25 +16,12 @@
 
 package io.gatling.jms.action
 
-import io.gatling.core.action.Action
-import io.gatling.core.structure.ScenarioContext
-import io.gatling.jms.request.JmsAttributes
+import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.protocol.ProtocolComponentsRegistry
+import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 
-final class SendBuilder(attributes: JmsAttributes) extends JmsActionBuilder {
+abstract class JmsActionBuilder extends ActionBuilder {
 
-  override def build(ctx: ScenarioContext, next: Action): Action = {
-    import ctx._
-    val jmsComponents = components(protocolComponentsRegistry)
-
-    new Send(
-      attributes,
-      jmsComponents.jmsProtocol,
-      jmsComponents.jmsConnectionPool,
-      coreComponents.statsEngine,
-      coreComponents.clock,
-      next,
-      coreComponents.throttler,
-      ctx.throttled
-    )
-  }
+  protected def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
+    protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
 }
