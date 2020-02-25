@@ -54,7 +54,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       None
 
   private def reportsGenerationEnabled: Boolean =
-    !configuration.charting.noReports && (configuration.core.directory.reportsOnly.isDefined || configuration.data.fileDataWriterEnabled)
+    configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
 
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs): Unit = {
     println("Generating reports...")
