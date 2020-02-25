@@ -684,6 +684,9 @@ public class DefaultHttpClient implements HttpClient {
       });
     } catch (RuntimeException e) {
       tx.requestTimeout.cancel();
+      //[fl]
+      //
+      //[fl]
       tx.listener.onThrowable(e);
       return new DefaultPromise<Channel>(ImmediateEventExecutor.INSTANCE).setFailure(e);
     }
