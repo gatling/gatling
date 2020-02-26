@@ -16,6 +16,8 @@
 
 package io.gatling.core.stats
 
+import java.net.InetSocketAddress
+
 import io.gatling.commons.stats.Status
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.writer._
@@ -86,7 +88,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
 // WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
 trait FrontLineStatsEngineExtensions {
-  final def logTcpConnectAttempt(remoteAddress: String): Unit = {}
+  final def logTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {}
 
   final def logTcpConnect(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
 
