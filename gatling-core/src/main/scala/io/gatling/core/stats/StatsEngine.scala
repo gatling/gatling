@@ -83,7 +83,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
   def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
     logCrash(session, requestName, s"Failed to build request: $errorMessage")
 
-  def statsChannelHandler: Option[ChannelDuplexHandler] = None
+  def statsChannelHandler: ChannelDuplexHandler = null
 }
 
 // WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
