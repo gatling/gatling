@@ -82,12 +82,12 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
     logCrash(session, requestName, s"Failed to build request: $errorMessage")
-
-  def statsChannelHandler: ChannelDuplexHandler = null
 }
 
 // WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
 trait FrontLineStatsEngineExtensions {
+  final def statsChannelHandler: ChannelDuplexHandler = null
+
   final def logTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {}
 
   final def logTcpConnect(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
