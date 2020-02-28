@@ -35,8 +35,7 @@ object Ssl {
   def newTrustManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): TrustManagerFactory =
     withCloseable(storeStream(file)) { is =>
       val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
-      val passwordCharArray = if (password.nonEmpty) password.toCharArray else null
-      trustStore.load(is, passwordCharArray)
+      trustStore.load(is, password.toCharArray)
       val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
       val tmf = TrustManagerFactory.getInstance(algo)
       tmf.init(trustStore)
@@ -46,7 +45,7 @@ object Ssl {
   def newKeyManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): KeyManagerFactory =
     withCloseable(storeStream(file)) { is =>
       val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
-      val passwordCharArray = if (password.nonEmpty) password.toCharArray else null
+      val passwordCharArray = password.toCharArray
       keyStore.load(is, passwordCharArray)
       val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
       val kmf = KeyManagerFactory.getInstance(algo)
