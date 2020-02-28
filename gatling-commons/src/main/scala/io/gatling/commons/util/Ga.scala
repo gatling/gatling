@@ -27,8 +27,6 @@ import scala.util.Properties._
 
 import io.gatling.commons.util.Io._
 
-import com.eatthepath.uuid.FastUUID
-
 object Ga {
 
   private[this] def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
@@ -40,7 +38,7 @@ object Ga {
 
     val bodyBytes =
       s"""tid=$trackingId&dl=${encode("https://gatling.io/" + version)}&de=UTF-8&ul=en-US&t=pageview&v=1&dt=${encode(version)}&cid=${encode(
-        FastUUID.toString(UUID.randomUUID)
+        UUID.randomUUID.toString
       )}"""
         .getBytes(UTF_8)
 

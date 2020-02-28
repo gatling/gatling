@@ -27,8 +27,6 @@ import io.gatling.core.pause.PauseType
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 
-import com.eatthepath.uuid.FastUUID
-
 private[structure] trait Pauses[B] extends Execs[B] {
 
   private def durationExpression(duration: String, unit: Option[TimeUnit]): Expression[Duration] =
@@ -106,7 +104,7 @@ private[structure] trait Pauses[B] extends Execs[B] {
   def pace(min: Duration, max: Duration): B = pace(durationExpression(min, max))
   def pace(min: String, max: String, unit: TimeUnit): B = pace(durationExpression(min, max, Some(unit)))
   def pace(min: Expression[Duration], max: Expression[Duration]): B = pace(durationExpression(min, max))
-  def pace(duration: Expression[Duration]): B = pace(duration, FastUUID.toString(UUID.randomUUID))
+  def pace(duration: Expression[Duration]): B = pace(duration, UUID.randomUUID.toString)
   def pace(duration: Expression[Duration], counter: String): B = exec(new PaceBuilder(duration, counter))
 
   def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
