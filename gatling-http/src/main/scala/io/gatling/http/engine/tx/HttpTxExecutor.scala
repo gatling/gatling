@@ -128,7 +128,7 @@ class HttpTxExecutor(
         s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
       )
 
-      val ahcRequest = tx.request.clientRequest
+      val clientRequest = tx.request.clientRequest
       val clientId = tx.session.userId
       val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
       val listener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
@@ -139,10 +139,10 @@ class HttpTxExecutor(
       if (tx.request.requestConfig.throttled) {
         throttler.throttle(
           tx.session.scenario,
-          () => httpEngine.executeRequest(ahcRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+          () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
         )
       } else {
-        httpEngine.executeRequest(ahcRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+        httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
       }
     }
 
