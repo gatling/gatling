@@ -53,6 +53,11 @@ private[gatling] final class HttpClientFactory(
       .setThreadPoolName("gatling-http")
     //[fl]
     //
+    //
+    //
+    //
+    //
+    //
     //[fl]
   }
 
