@@ -259,7 +259,7 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
     for (Pair<Request, HttpListener> pair: requestsAndListeners) {
-      pair.getRight().onSend();
+      pair.getRight().onSend(pair.getLeft().getHeaders());
     }
 
     Request headRequest = requestsAndListeners[0].getLeft();
@@ -334,7 +334,7 @@ public class DefaultHttpClient implements HttpClient {
     // use a fresh channel for WebSocket
     Channel pooledChannel = request.getUri().isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
-    listener.onSend();
+    listener.onSend(request.getHeaders());
     if (request.getUri().isSecured() && request.isHttp2Enabled() && !config.isEnableSni()) {
       listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       return;

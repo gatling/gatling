@@ -41,11 +41,11 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   //
   // [fl]
 
-  override def onSend(): Unit =
+  override def onSend(wireRequestHeaders: HttpHeaders): Unit =
     if (!init) {
       init = true
       val now = clock.nowMillis
-      responseBuilder.updateStartTimestamp(now)
+      responseBuilder.updateStart(now, wireRequestHeaders)
       // [fl]
       //
       //

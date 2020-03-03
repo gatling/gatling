@@ -87,14 +87,13 @@ class ResponseBuilder(
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var chunks: List[ByteBuf] = Nil
 
-  def updateStartTimestamp(startTimestamp: Long): Unit =
+  def updateStart(startTimestamp: Long, wireRequestHeaders: HttpHeaders): Unit = {
     this.startTimestamp = startTimestamp
+    this.wireRequestHeaders = wireRequestHeaders
+  }
 
   def updateEndTimestamp(endTimestamp: Long): Unit =
     this.endTimestamp = endTimestamp
-
-  def accumulate(wireRequestHeaders: HttpHeaders): Unit =
-    this.wireRequestHeaders = wireRequestHeaders
 
   def accumulate(status: HttpResponseStatus, headers: HttpHeaders, timestamp: Long): Unit = {
     updateEndTimestamp(timestamp)
