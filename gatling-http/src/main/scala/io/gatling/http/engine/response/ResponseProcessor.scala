@@ -109,38 +109,35 @@ class DefaultResponseProcessor(
   private def processResponse(response: Response): ProcessorResult =
     try {
       if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
-        if (tx.redirectCount >= tx.request.requestConfig.httpProtocol.responsePart.maxRedirects) {
-          Crash(s"Too many redirects, max is ${tx.request.requestConfig.httpProtocol.responsePart.maxRedirects}")
 
-        } else {
-          response.header(HeaderNames.Location) match {
-            case Some(location) =>
-              val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
-              val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
-              RedirectProcessor.redirectRequest(
-                tx.request.clientRequest,
-                newSession,
-                response.status,
-                tx.request.requestConfig.httpProtocol,
-                redirectUri,
-                defaultCharset
-              ) match {
-                case Success(redirectRequest) =>
-                  Redirect(
-                    tx.copy(
-                      session = newSession,
-                      request = tx.request.copy(clientRequest = redirectRequest),
-                      redirectCount = tx.redirectCount + 1
-                    )
+        response.header(HeaderNames.Location) match {
+          case Some(location) =>
+            val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
+            val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
+
+            RedirectProcessor.redirectRequest(
+              tx.request.clientRequest,
+              newSession,
+              response.status,
+              tx.request.requestConfig.httpProtocol,
+              redirectUri,
+              defaultCharset
+            ) match {
+              case Success(redirectRequest) =>
+                Redirect(
+                  tx.copy(
+                    session = newSession,
+                    request = tx.request.copy(clientRequest = redirectRequest),
+                    redirectCount = tx.redirectCount + 1
                   )
+                )
 
-                case Failure(message) =>
-                  Crash(message)
-              }
+              case Failure(message) =>
+                Crash(message)
+            }
 
-            case _ =>
-              Crash("Redirect status, yet no Location header")
-          }
+          case _ =>
+            Crash("Redirect status, yet no Location header")
         }
 
       } else {

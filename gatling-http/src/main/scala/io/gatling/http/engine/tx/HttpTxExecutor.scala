@@ -25,6 +25,7 @@ import io.gatling.http.engine.response._
 import io.gatling.http.engine.{ GatlingHttpListener, HttpEngine }
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.response.HttpFailure
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -124,25 +125,38 @@ class HttpTxExecutor(
 
   def execute(origTx: HttpTx, responseProcessorFactory: HttpTx => ResponseProcessor): Unit =
     executeWithCache(origTx) { tx =>
-      logger.debug(
-        s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
-      )
-
-      val clientRequest = tx.request.clientRequest
-      val clientId = tx.session.userId
-      val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
-      val listener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
-      val userSslContexts = sslContexts(tx.session)
-      val sslContext = userSslContexts.map(_.sslContext).orNull
-      val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
-
-      if (tx.request.requestConfig.throttled) {
-        throttler.throttle(
-          tx.session.scenario,
-          () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+      if (tx.redirectCount >= tx.request.requestConfig.httpProtocol.responsePart.maxRedirects) {
+        val now = clock.nowMillis
+        responseProcessorFactory(tx).onComplete(
+          HttpFailure(
+            request = tx.request.clientRequest,
+            wireRequestHeaders = tx.request.clientRequest.getHeaders,
+            startTimestamp = now,
+            endTimestamp = now,
+            errorMessage = s"Too many redirects, max is ${tx.request.requestConfig.httpProtocol.responsePart.maxRedirects}"
+          )
         )
       } else {
-        httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+        logger.debug(
+          s"Sending request=${tx.request.requestName} uri=${tx.request.clientRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
+        )
+
+        val clientRequest = tx.request.clientRequest
+        val clientId = tx.session.userId
+        val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
+        val listener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
+        val userSslContexts = sslContexts(tx.session)
+        val sslContext = userSslContexts.map(_.sslContext).orNull
+        val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
+
+        if (tx.request.requestConfig.throttled) {
+          throttler.throttle(
+            tx.session.scenario,
+            () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+          )
+        } else {
+          httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+        }
       }
     }
 
