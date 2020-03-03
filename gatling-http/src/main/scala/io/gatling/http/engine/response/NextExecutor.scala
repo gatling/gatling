@@ -28,7 +28,7 @@ import io.gatling.http.util.HttpHelper.isCss
 trait NextExecutor {
 
   def executeNext(session: Session, status: Status, response: Response): Unit
-  def executeNextOnCrash(session: Session, endTimestamp: Long): Unit
+  def executeNextOnCrash(session: Session): Unit
   def executeRedirect(redirectTx: HttpTx): Unit
 }
 
@@ -46,7 +46,7 @@ class RootNextExecutor(
       case _                          => tx.next ! session
     }
 
-  override def executeNextOnCrash(session: Session, endTimestamp: Long): Unit =
+  override def executeNextOnCrash(session: Session): Unit =
     tx.next ! session
 
   override def executeRedirect(redirectTx: HttpTx): Unit =
@@ -73,7 +73,7 @@ class ResourceNextExecutor(
       resourceTx.aggregator.onRegularResourceFetched(resourceTx.uri, status, session, tx.silent)
     }
 
-  override def executeNextOnCrash(session: Session, endTimestamp: Long): Unit =
+  override def executeNextOnCrash(session: Session): Unit =
     resourceTx.aggregator.onRegularResourceFetched(resourceTx.uri, KO, session, tx.silent)
 
   override def executeRedirect(redirectTx: HttpTx): Unit =

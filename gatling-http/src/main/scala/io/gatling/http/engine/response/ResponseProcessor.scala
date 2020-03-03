@@ -69,7 +69,7 @@ class DefaultResponseProcessor(
           t
         )
     } finally {
-      nextExecutor.executeNextOnCrash(sessionWithUpdatedStats, failure.endTimestamp)
+      nextExecutor.executeNextOnCrash(sessionWithUpdatedStats)
     }
   }
 
@@ -94,7 +94,7 @@ class DefaultResponseProcessor(
       case Crash(errorMessage) =>
         val newSession = sessionProcessor.updateSessionCrashed(tx.currentSession, response.startTimestamp, response.endTimestamp)
         statsProcessor.reportStats(tx.fullRequestName, newSession, KO, response, Some(errorMessage))
-        nextExecutor.executeNextOnCrash(newSession, response.endTimestamp)
+        nextExecutor.executeNextOnCrash(newSession)
     }
 
   private def applyResponseTransformer(rawResponse: Response): Validation[Response] =
