@@ -26,7 +26,6 @@ import io.gatling.http.protocol.HttpProtocol
 final case class HttpRequestConfig(
     checks: List[HttpCheck],
     responseTransformer: Option[ResponseTransformer],
-    maxRedirects: Int,
     throttled: Boolean,
     silent: Option[Boolean],
     followRedirect: Boolean,

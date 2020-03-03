@@ -43,7 +43,6 @@ class HttpTxSpec extends BaseSpec {
     val configBase = HttpRequestConfig(
       checks = Nil,
       responseTransformer = None,
-      maxRedirects = 20,
       throttled = false,
       silent = None,
       followRedirect = false,

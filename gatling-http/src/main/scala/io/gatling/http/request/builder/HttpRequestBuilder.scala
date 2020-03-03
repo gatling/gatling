@@ -161,7 +161,6 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
       HttpRequestConfig(
         checks = resolvedChecks,
         responseTransformer = resolvedResponseTransformer,
-        maxRedirects = httpProtocol.responsePart.maxRedirects,
         throttled = throttled,
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
