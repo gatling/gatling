@@ -21,43 +21,26 @@ import io.gatling.core.check._
 
 object RegexExtractors {
 
-  def find[X: GroupExtractor](name: String, pattern: String, occurrence: Int, patterns: Patterns): FindCriterionExtractor[String, String, X] = {
-
-    val compiledPattern = patterns.compilePattern(pattern)
-
+  def find[X: GroupExtractor](name: String, pattern: String, occurrence: Int, patterns: Patterns): FindCriterionExtractor[String, String, X] =
     new FindCriterionExtractor[String, String, X](
       name,
       pattern,
       occurrence,
-      prepared => {
-        val matcher = compiledPattern.matcher(prepared)
-        matcher.findMatchN(occurrence).success
-      }
+      patterns.find(_, pattern, occurrence).success
     )
-  }
 
   def findAll[X: GroupExtractor](name: String, pattern: String, patterns: Patterns): FindAllCriterionExtractor[String, String, X] =
     new FindAllCriterionExtractor[String, String, X](
       name,
       pattern,
-      patterns.extractAll(_, pattern).liftSeqOption.success
+      patterns.findAll(_, pattern).liftSeqOption.success
     )
 
   def count(name: String, pattern: String, patterns: Patterns): CountCriterionExtractor[String, String] = {
-
-    val compiledPattern = patterns.compilePattern(pattern)
-
     new CountCriterionExtractor[String, String](
       name,
       pattern,
-      prepared => {
-        val matcher = compiledPattern.matcher(prepared)
-
-        var count = 0
-        while (matcher.find) count = count + 1
-
-        Some(count).success
-      }
+      prepared => Some(patterns.count(prepared, pattern)).success
     )
   }
 }

@@ -18,6 +18,8 @@ package io.gatling.core.check.regex
 
 import java.util.regex.Pattern
 
+import scala.annotation.tailrec
+
 import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
@@ -27,15 +29,37 @@ class Patterns(cacheMaxCapacity: Long) {
   private val patternCache: LoadingCache[String, Pattern] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pattern.compile)
 
-  def extractAll[G: GroupExtractor](chars: String, pattern: String): Seq[G] = {
+  private def compilePattern(pattern: String): Pattern = patternCache.get(pattern)
 
-    val matcher = compilePattern(pattern).matcher(chars)
-    matcher
-      .foldLeft(List.empty[G]) { (matcher, values) =>
-        matcher.value :: values
-      }
-      .reverse
+  def find[X: GroupExtractor](string: String, pattern: String, n: Int): Option[X] = {
+
+    val matcher = compilePattern(pattern).matcher(string)
+
+    @tailrec
+    def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
+
+    if (findRec(n))
+      Some(GroupExtractor[X].extract(matcher))
+    else
+      None
   }
 
-  def compilePattern(pattern: String): Pattern = patternCache.get(pattern)
+  def findAll[X: GroupExtractor](string: String, pattern: String): Seq[X] = {
+
+    val matcher = compilePattern(pattern).matcher(string)
+
+    var acc = List.empty[X]
+    while (matcher.find) {
+      acc = GroupExtractor[X].extract(matcher) :: acc
+    }
+    acc.reverse
+  }
+
+  def count(string: String, pattern: String): Int = {
+    val matcher = compilePattern(pattern).matcher(string)
+
+    var count = 0
+    while (matcher.find) count = count + 1
+    count
+  }
 }

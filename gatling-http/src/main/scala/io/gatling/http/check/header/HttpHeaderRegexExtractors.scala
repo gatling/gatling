@@ -23,7 +23,7 @@ import io.gatling.http.response.Response
 
 object HttpHeaderRegexExtractors {
   def extractHeadersValues[X: GroupExtractor](response: Response, headerName: String, pattern: String, patterns: Patterns): Seq[X] =
-    response.headers(headerName).flatMap(patterns.extractAll(_, pattern))
+    response.headers(headerName).flatMap(patterns.findAll(_, pattern))
 
   def find[X: GroupExtractor](headerName: String, pattern: String, occurrence: Int, patterns: Patterns): FindCriterionExtractor[Response, (String, String), X] =
     new FindCriterionExtractor[Response, (String, String), X](
