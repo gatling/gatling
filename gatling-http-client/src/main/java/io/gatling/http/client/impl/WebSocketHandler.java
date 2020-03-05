@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static io.gatling.http.client.impl.HttpAppHandler.PREMATURE_CLOSE;
+import static io.netty.handler.codec.http.websocketx.WebSocketVersion.V13;
 
 public class WebSocketHandler extends ChannelDuplexHandler {
 
@@ -39,7 +40,7 @@ public class WebSocketHandler extends ChannelDuplexHandler {
   private final HttpClientConfig config;
   private HttpTx tx;
   private WebSocketListener wsListener;
-  private WebSocketClientHandshaker handshaker;
+  private FixedWebSocketClientHandshaker13 handshaker;
   private boolean remotelyClosed;
 
   WebSocketHandler(HttpClientConfig config) {
@@ -81,19 +82,17 @@ public class WebSocketHandler extends ChannelDuplexHandler {
         WritableRequest request = WritableRequestBuilder.buildRequest(tx.request, ctx.alloc(), config, false);
 
         boolean absoluteUpgradeUrl = !tx.request.getUri().isSecured() && tx.request.getProxyServer() instanceof HttpProxyServer;
-        handshaker =
-          WebSocketClientHandshakerFactory.newHandshaker(
-            tx.request.getUri().toJavaNetURI(), // webSocketURL
-            WebSocketVersion.V13, // version
-            tx.request.getWsSubprotocol(), // subprotocol
-            true, // allowExtensions
-            request.getRequest().headers(), // customHeaders
-            Integer.MAX_VALUE, // maxFramePayloadLength
-            true, // performMasking
-            false, // allowMaskMismatch
-            -1, //forceCloseTimeoutMillis
-            absoluteUpgradeUrl
-          );
+        handshaker = new FixedWebSocketClientHandshaker13(
+          tx.request.getUri().toJavaNetURI(), // webSocketURL
+          V13,
+          tx.request.getWsSubprotocol(), // subprotocol
+          true, // allowExtensions
+          request.getRequest().headers(), // customHeaders
+          Integer.MAX_VALUE, // maxFramePayloadLength
+          true, // performMasking
+          false, // allowMaskMismatch
+          -1, //forceCloseTimeoutMillis
+          absoluteUpgradeUrl);
 
         handshaker.handshake(ctx.channel());
 

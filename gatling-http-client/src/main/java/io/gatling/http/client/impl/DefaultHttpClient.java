@@ -73,7 +73,7 @@ public class DefaultHttpClient implements HttpClient {
   private static final String PINNED_HANDLER = "pinned";
   private static final String PROXY_HANDLER = "proxy";
   private static final String SSL_HANDLER = "ssl";
-  private static final String HTTP_CLIENT_CODEC = "http";
+  public static final String HTTP_CLIENT_CODEC = "http";
   private static final String HTTP2_HANDLER = "http2";
   private static final String INFLATER_HANDLER = "inflater";
   private static final String CHUNKED_WRITER_HANDLER = "chunked-writer";
