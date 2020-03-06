@@ -17,7 +17,7 @@ object Dependencies {
   private val nettyMqtt                      = netty.organization                     % "netty-codec-mqtt"                % netty.revision
   private val nettyProxy                     = netty.organization                     % "netty-handler-proxy"             % netty.revision
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
-  private val nettyNativeTransport           = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
+  private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.29.Final"
   private val activation                     = "com.sun.activation"                   % "javax.activation"                % "1.2.0"
@@ -87,7 +87,7 @@ object Dependencies {
   // Dependencies by module
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, junit)
+    Seq(nettyBuffer, nettyEpoll, junit)
 
   def commonsDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, boopickle, spire, quicklens, java8Compat) ++ loggingDeps ++ testDeps
@@ -107,7 +107,7 @@ object Dependencies {
     nettyHandler,
     nettyProxy,
     nettyDns,
-    nettyNativeTransport,
+    nettyEpoll,
     nettyHttp2,
     nettyBoringSsl,
     activation,
@@ -122,7 +122,7 @@ object Dependencies {
 
   val jdbcDependencies = h2 +: testDeps
 
-  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyNativeTransport)
+  val mqttDependencies = Seq(nettyHandler, nettyMqtt, nettyEpoll)
 
   val chartsDependencies = tdigest +: testDeps
 

@@ -31,12 +31,11 @@ import io.gatling.http.client.realm.Realm;
 import io.gatling.http.client.ssl.Tls;
 import io.gatling.http.client.util.Pair;
 import io.gatling.http.client.uri.Uri;
+import io.gatling.netty.util.Transports;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
@@ -149,7 +148,7 @@ public class DefaultHttpClient implements HttpClient {
         TimeUnit.MILLISECONDS);
 
       http1Bootstrap = new Bootstrap()
-        .channelFactory(config.isUseNativeTransport() ? EpollSocketChannel::new : NioSocketChannel::new)
+        .channelFactory(Transports.newChannelFactory(eventLoop))
         .group(eventLoop)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
         .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())
