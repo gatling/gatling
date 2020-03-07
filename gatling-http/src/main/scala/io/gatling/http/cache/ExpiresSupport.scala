@@ -45,7 +45,9 @@ private[cache] trait ExpiresSupport {
   def extractExpiresValue(timestring: String): Option[Long] = {
 
     def removeQuote(s: String) =
-      if (!s.isEmpty) {
+      if (s.isEmpty) {
+        s
+      } else {
         var start = 0
         var end = s.length
 
@@ -56,8 +58,7 @@ private[cache] trait ExpiresSupport {
           end -= 1
 
         s.substring(start, end)
-      } else
-        s
+      }
 
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
