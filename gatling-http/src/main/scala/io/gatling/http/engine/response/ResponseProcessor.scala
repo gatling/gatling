@@ -31,7 +31,7 @@ import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.resolveFromUri
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
 sealed trait ProcessorResult
 final case class Proceed(newSession: Session, error: Option[String]) extends ProcessorResult
@@ -49,7 +49,7 @@ class DefaultResponseProcessor(
     nextExecutor: NextExecutor,
     defaultCharset: Charset
 ) extends ResponseProcessor
-    with StrictLogging
+    with LazyLogging
     with NameGen {
 
   def onComplete(result: HttpResult): Unit =
