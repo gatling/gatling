@@ -102,8 +102,7 @@ final class NoopStatsProcessor(charset: Charset) extends StatsProcessor(charset)
 final class DefaultStatsProcessor(
     charset: Charset,
     statsEngine: StatsEngine
-) extends StatsProcessor(charset)
-    with StrictLogging {
+) extends StatsProcessor(charset) {
 
   override def reportStats0(
       fullRequestName: String,
