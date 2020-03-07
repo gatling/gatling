@@ -123,6 +123,11 @@ public enum UriEncoder {
       sb.setLength(sb.length() - 1);
       return sb.toString();
     }
+
+    @Override
+    public Uri encode(Uri uri, List<Param> queryParams) {
+      return isNonEmpty(queryParams) ? super.encode(uri, queryParams) : uri;
+    }
   };
 
   public static UriEncoder uriEncoder(boolean fixUrlEncoding) {
