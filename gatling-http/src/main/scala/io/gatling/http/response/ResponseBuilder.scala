@@ -36,11 +36,10 @@ import io.gatling.http.engine.response._
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml }
 import io.gatling.http.request.HttpRequestConfig
 
-import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
-object ResponseBuilder extends StrictLogging {
+object ResponseBuilder {
 
   def newResponseBuilderFactory(
       requestConfig: HttpRequestConfig,
