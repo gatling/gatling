@@ -125,10 +125,20 @@ class ResponseBuilder(
 
   def setHttp2(isHttp2: Boolean): Unit = this.isHttp2 = isHttp2
 
-  private def resolveCharset: Charset =
-    Option(headers.get(HeaderNames.ContentType))
-      .flatMap(extractCharsetFromContentType)
-      .getOrElse(defaultCharset)
+  private def resolveCharset: Charset = {
+    val contentTypeHeader = headers.get(HeaderNames.ContentType)
+    if (contentTypeHeader == null) {
+      defaultCharset
+    } else {
+      extractCharsetFromContentType(contentTypeHeader).getOrElse(defaultCharset)
+    }
+  }
+
+  private def computeContentLength: Int = {
+    var l = 0
+    chunks.foreach(l += _.readableBytes)
+    l
+  }
 
   def buildResponse: HttpResult =
     status match {
@@ -141,14 +151,12 @@ class ResponseBuilder(
 
           val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
-          val contentLength = chunks.sumBy(_.readableBytes)
-
           val resolvedCharset = resolveCharset
 
           val chunksOrderedByArrival = chunks.reverse
           val body: ResponseBody = ResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-          Response(request, wireRequestHeaders, startTimestamp, endTimestamp, s, headers, body, checksums, contentLength, resolvedCharset, isHttp2)
+          Response(request, wireRequestHeaders, startTimestamp, endTimestamp, s, headers, body, checksums, computeContentLength, resolvedCharset, isHttp2)
         } catch {
           case NonFatal(t) => buildFailure(t)
         }
