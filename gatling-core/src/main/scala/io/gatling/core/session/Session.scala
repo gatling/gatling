@@ -43,7 +43,7 @@ final case class SessionAttribute(session: Session, key: String) {
     case Some(value) => value.as[T]
     case _           => throw new NoSuchElementException(ElMessages.undefinedSessionAttribute(key).message)
   }
-  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).flatMap(_.asOption[T])
+  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).map(_.as[T])
   def validate[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = session.attributes.get(key) match {
     case Some(value) => value.asValidation[T]
     case _           => ElMessages.undefinedSessionAttribute(key)

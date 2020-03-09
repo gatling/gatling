@@ -268,11 +268,6 @@ object TypeHelper {
       case _       => throw new ClassCastException(NullValueFailure.message)
     }
 
-    def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = Option(value) match {
-      case Some(v) => Some(implicitly[TypeCaster[T]].cast(v))
-      case _       => throw new ClassCastException(NullValueFailure.message)
-    }
-
     def asValidation[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = Option(value) match {
       case Some(v) => implicitly[TypeCaster[T]].validate(v)
       case _       => NullValueFailure
