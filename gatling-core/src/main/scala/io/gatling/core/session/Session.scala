@@ -32,9 +32,6 @@ import io.gatling.core.stats.message.ResponseTimings
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.channel.EventLoop
 
-/**
- * Private Gatling Session attributes
- */
 object SessionPrivateAttributes {
 
   val PrivateAttributePrefix = "gatling."
