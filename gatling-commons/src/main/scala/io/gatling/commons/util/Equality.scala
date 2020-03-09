@@ -25,6 +25,8 @@ trait LowPriorityEqualityImplicits {
 
 object Equality extends LowPriorityEqualityImplicits {
 
+  implicit val IntEquality: Equality[Int] = (left: Int, right: Int) => left == right
+  implicit val StringEquality: Equality[String] = (left: String, right: String) => left == right
   implicit val LongArrayEquality: Equality[Array[Long]] = (left: Array[Long], right: Array[Long]) => JArrays.equals(left, right)
   implicit val IntArrayEquality: Equality[Array[Int]] = (left: Array[Int], right: Array[Int]) => JArrays.equals(left, right)
   implicit val ShortArrayEquality: Equality[Array[Short]] = (left: Array[Short], right: Array[Short]) => JArrays.equals(left, right)
