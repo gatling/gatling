@@ -16,8 +16,6 @@
 
 package io.gatling.http.engine.response
 
-import java.util.{ HashMap => JHashMap, Map => JMap }
-
 import io.gatling.commons.validation.Failure
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
@@ -36,13 +34,6 @@ object CheckProcessor {
         checks
       }
 
-    val preparedCache: JMap[Any, Any] =
-      if (filteredChecks.size > 1) {
-        new JHashMap(2)
-      } else {
-        null
-      }
-
-    Check.check(response, session, filteredChecks, preparedCache)
+    Check.check(response, session, filteredChecks)
   }
 }

@@ -16,7 +16,6 @@
 
 package io.gatling.jms.client
 
-import java.util.{ HashMap => JHashMap }
 import javax.jms.Message
 
 import scala.collection.mutable
@@ -138,7 +137,7 @@ class Tracker(statsEngine: StatsEngine, clock: Clock, replyTimeoutScanPeriod: Fi
       requestName: String
   ): Unit = {
     // run all the checks, advise the Gatling API that it is complete and move to next
-    val (newSession, error) = Check.check(message, session, checks, new JHashMap(2))
+    val (newSession, error) = Check.check(message, session, checks)
     error match {
       case Some(Failure(errorMessage)) => executeNext(newSession.markAsFailed, sent, received, KO, next, requestName, Some(errorMessage))
       case _                           => executeNext(newSession, sent, received, OK, next, requestName, None)

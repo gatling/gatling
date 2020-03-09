@@ -16,7 +16,7 @@
 
 package io.gatling.core.check
 
-import java.util.{ Map => JMap }
+import java.util.{ HashMap => JHashMap, Map => JMap }
 
 import scala.annotation.tailrec
 
@@ -24,6 +24,18 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 
 object Check {
+
+  def check[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
+
+    val preparedCache: JMap[Any, Any] =
+      if (checks.size > 1) {
+        new JHashMap(2)
+      } else {
+        null
+      }
+
+    check(response, session, checks, preparedCache)
+  }
 
   def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: JMap[Any, Any]): (Session, Option[Failure]) = {
 
