@@ -22,6 +22,7 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.Response
 
 import io.netty.handler.codec.DateFormatter
+import io.netty.handler.codec.http.HttpHeaders
 
 private[cache] trait ExpiresSupport {
 
@@ -66,26 +67,52 @@ private[cache] trait ExpiresSupport {
     Option(DateFormatter.parseHttpDate(trimmedTimeString)).map(_.getTime)
   }
 
-  def getResponseExpires(response: Response): Option[Long] = {
-    def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
-    def cacheControlNoCache =
-      response
-        .header(HeaderNames.CacheControl)
-        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
-    def maxAgeAsExpiresValue = response.header(HeaderNames.CacheControl).flatMap(extractMaxAgeValue).map { maxAge =>
-      if (maxAge < 0)
-        maxAge
-      else
-        maxAge * 1000 + clock.nowMillis
-    }
-    def expiresValue = response.header(HeaderNames.Expires).flatMap(extractExpiresValue).filter(_ > clock.nowMillis)
+  private def cacheControlNoCache(cacheControlHeader: String): Boolean =
+    cacheControlHeader.contains(HeaderValues.NoCache) || cacheControlHeader.contains(HeaderValues.NoStore) || cacheControlHeader.contains(MaxAgeZero)
 
-    if (pragmaNoCache || cacheControlNoCache) {
+  private def maxAgeAsExpiresValue(cacheControlHeader: String): Option[Long] =
+    extractMaxAgeValue(cacheControlHeader).flatMap { maxAge =>
+      if (maxAge < 0) {
+        None
+      } else {
+        val updatedMaxAge = maxAge * 1000 + clock.nowMillis
+        if (updatedMaxAge < 0) {
+          None
+        } else {
+          Some(maxAge * 1000 + clock.nowMillis)
+        }
+      }
+    }
+
+  private def expiresValue(responseHeaders: HttpHeaders): Option[Long] = {
+    val expiresHeader = responseHeaders.get(HeaderNames.Expires)
+    if (expiresHeader != null) {
+      extractExpiresValue(expiresHeader).filter(_ > clock.nowMillis)
+    } else {
+      None
+    }
+  }
+
+  def getResponseExpires(response: Response): Option[Long] = {
+
+    val responseHeaders = response.headers
+
+    val pragmaHeader = responseHeaders.get(HeaderNames.Pragma)
+    if (pragmaHeader != null && pragmaHeader.contains(HeaderValues.NoCache)) {
       None
     } else {
-      // If a response includes both an Expires header and a max-age directive, the max-age directive overrides the Expires header,
-      // even if the Expires header is more restrictive. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3)
-      maxAgeAsExpiresValue.orElse(expiresValue).filter(_ > 0)
+      val cacheControlHeader = responseHeaders.get(HeaderNames.CacheControl)
+      if (cacheControlHeader != null && cacheControlNoCache(cacheControlHeader)) {
+        None
+      } else {
+        // If a response includes both an Expires header and a max-age directive, the max-age directive overrides the Expires header,
+        // even if the Expires header is more restrictive. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3)
+        if (cacheControlHeader != null) {
+          maxAgeAsExpiresValue(cacheControlHeader)
+        } else {
+          expiresValue(responseHeaders)
+        }
+      }
     }
   }
 }
