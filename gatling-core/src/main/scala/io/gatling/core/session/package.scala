@@ -46,7 +46,7 @@ package object session {
   }
 
   implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
-    def map[U](f: T => U): Expression[U] = expression.andThen(_.map(f))
+    def map[U](f: T => U): Expression[U] = expression(_).map(f)
     def safe: Expression[T] = session => safely()(expression(session))
   }
 
