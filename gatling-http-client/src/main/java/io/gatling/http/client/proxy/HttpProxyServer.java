@@ -41,6 +41,10 @@ public class HttpProxyServer extends ProxyServer {
     return securedPort;
   }
 
+  public BasicRealm getRealm() {
+    return realm;
+  }
+
   @Override
   public ProxyHandler newHandler() {
     return realm != null ?
