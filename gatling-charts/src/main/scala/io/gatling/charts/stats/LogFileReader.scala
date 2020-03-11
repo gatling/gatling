@@ -47,7 +47,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
   import LogFileReader._
 
-  println("Parsing log file(s)...")
+  logger.debug("Parsing log file(s)...")
 
   private val inputFiles = simulationLogDirectory(runUuid, create = false, configuration).files
     .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
@@ -176,7 +176,7 @@ class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguratio
 
   private val resultsHolder = parseInputFiles(secondPass)
 
-  println("Parsing log file(s) done")
+  logger.debug("Parsing log file(s) done")
 
   override val statsPaths: List[StatsPath] =
     resultsHolder.groupAndRequestsNameBuffer.map.toList
