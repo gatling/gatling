@@ -633,8 +633,11 @@ public class FixedWebSocketClientHandshaker13 {
 
     headers.set(HttpHeaderNames.UPGRADE, HttpHeaderValues.WEBSOCKET)
       .set(HttpHeaderNames.CONNECTION, HttpHeaderValues.UPGRADE)
-      .set(HttpHeaderNames.SEC_WEBSOCKET_KEY, key)
-      .set(HttpHeaderNames.HOST, websocketHostValue(wsURL));
+      .set(HttpHeaderNames.SEC_WEBSOCKET_KEY, key);
+
+    if (!headers.contains(HttpHeaderNames.HOST)) {
+      headers.set(HttpHeaderNames.HOST, websocketHostValue(wsURL));
+    }
 
     if (!headers.contains(HttpHeaderNames.ORIGIN)) {
       headers.set(HttpHeaderNames.ORIGIN, websocketOriginValue(wsURL));
