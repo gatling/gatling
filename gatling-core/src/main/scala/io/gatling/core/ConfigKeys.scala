@@ -54,6 +54,45 @@ object ConfigKeys {
     }
   }
 
+  object socket {
+    val ConnectTimeout = "gatling.socket.connectTimeout"
+    val TcpNoDelay = "gatling.socket.tcpNoDelay"
+    val SoKeepAlive = "gatling.socket.soKeepAlive"
+    val SoReuseAddress = "gatling.socket.soReuseAddress"
+  }
+
+  object netty {
+    val UseNativeTransport = "gatling.netty.useNativeTransport"
+    val Allocator = "gatling.netty.allocator"
+    val MaxThreadLocalCharBufferSize = "gatling.netty.maxThreadLocalCharBufferSize"
+  }
+
+  object ssl {
+    val UseOpenSsl = "gatling.ssl.useOpenSsl"
+    val UseOpenSslFinalizers = "gatling.ssl.useOpenSslFinalizers"
+    val HandshakeTimeout = "gatling.ssl.handshakeTimeout"
+    val UseInsecureTrustManager = "gatling.ssl.useInsecureTrustManager"
+    val EnabledProtocols = "gatling.ssl.enabledProtocols"
+    val EnabledCipherSuites = "gatling.ssl.enabledCipherSuites"
+    val SessionCacheSize = "gatling.ssl.sessionCacheSize"
+    val SessionTimeout = "gatling.ssl.sessionTimeout"
+    val EnableSni = "gatling.ssl.enableSni"
+
+    object keyStore {
+      val Type = "gatling.ssl.keyStore.type"
+      val File = "gatling.ssl.keyStore.file"
+      val Password = "gatling.ssl.keyStore.password"
+      val Algorithm = "gatling.ssl.keyStore.algorithm"
+    }
+
+    object trustStore {
+      val Type = "gatling.ssl.trustStore.type"
+      val File = "gatling.ssl.trustStore.file"
+      val Password = "gatling.ssl.trustStore.password"
+      val Algorithm = "gatling.ssl.trustStore.algorithm"
+    }
+  }
+
   object charting {
     val NoReports = "gatling.charting.noReports"
     val MaxPlotPerSeries = "gatling.charting.maxPlotPerSeries"
@@ -75,43 +114,9 @@ object ConfigKeys {
     val PerUserCacheMaxCapacity = "gatling.http.perUserCacheMaxCapacity"
     val WarmUpUrl = "gatling.http.warmUpUrl"
     val EnableGA = "gatling.http.enableGA"
-
-    object ssl {
-      object keyStore {
-        val Type = "gatling.http.ssl.keyStore.type"
-        val File = "gatling.http.ssl.keyStore.file"
-        val Password = "gatling.http.ssl.keyStore.password"
-        val Algorithm = "gatling.http.ssl.keyStore.algorithm"
-      }
-      object trustStore {
-        val Type = "gatling.http.ssl.trustStore.type"
-        val File = "gatling.http.ssl.trustStore.file"
-        val Password = "gatling.http.ssl.trustStore.password"
-        val Algorithm = "gatling.http.ssl.trustStore.algorithm"
-      }
-    }
-
-    object ahc {
-      val ConnectTimeout = "gatling.http.ahc.connectTimeout"
-      val HandshakeTimeout = "gatling.http.ahc.handshakeTimeout"
-      val PooledConnectionIdleTimeout = "gatling.http.ahc.pooledConnectionIdleTimeout"
-      val RequestTimeout = "gatling.http.ahc.requestTimeout"
-      val EnableSni = "gatling.http.ahc.enableSni"
-      val EnableHostnameVerification = "gatling.http.ahc.enableHostnameVerification"
-      val UseInsecureTrustManager = "gatling.http.ahc.useInsecureTrustManager"
-      val SslEnabledProtocols = "gatling.http.ahc.sslEnabledProtocols"
-      val SslEnabledCipherSuites = "gatling.http.ahc.sslEnabledCipherSuites"
-      val SslSessionCacheSize = "gatling.http.ahc.sslSessionCacheSize"
-      val SslSessionTimeout = "gatling.http.ahc.sslSessionTimeout"
-      val UseOpenSsl = "gatling.http.ahc.useOpenSsl"
-      val UseOpenSslFinalizers = "gatling.http.ahc.useOpenSslFinalizers"
-      val UseNativeTransport = "gatling.http.ahc.useNativeTransport"
-      val TcpNoDelay = "gatling.http.ahc.tcpNoDelay"
-      val SoKeepAlive = "gatling.http.ahc.soKeepAlive"
-      val SoReuseAddress = "gatling.http.ahc.soReuseAddress"
-      val Allocator = "gatling.http.ahc.allocator"
-      val MaxThreadLocalCharBufferSize = "gatling.http.ahc.maxThreadLocalCharBufferSize"
-    }
+    val PooledConnectionIdleTimeout = "gatling.http.pooledConnectionIdleTimeout"
+    val RequestTimeout = "gatling.http.requestTimeout"
+    val EnableHostnameVerification = "gatling.http.enableHostnameVerification"
 
     object dns {
       val QueryTimeout = "gatling.http.dns.queryTimeout"

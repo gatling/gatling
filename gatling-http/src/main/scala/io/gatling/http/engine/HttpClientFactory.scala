@@ -30,9 +30,12 @@ private[gatling] final class HttpClientFactory(
     configuration: GatlingConfiguration
 ) extends StrictLogging {
 
-  private val advancedHttpConfig = configuration.http.advanced
-  setSystemPropertyIfUndefined("io.netty.allocator.type", advancedHttpConfig.allocator)
-  setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", advancedHttpConfig.maxThreadLocalCharBufferSize)
+  private val httpConfig = configuration.http
+  private val socketConfig = configuration.socket
+  private val sslConfig = configuration.ssl
+  private val nettyConfig = configuration.netty
+  setSystemPropertyIfUndefined("io.netty.allocator.type", nettyConfig.allocator)
+  setSystemPropertyIfUndefined("io.netty.maxThreadLocalCharBufferSize", nettyConfig.maxThreadLocalCharBufferSize)
 
   private[gatling] def newClientConfig(): HttpClientConfig = {
 
@@ -40,16 +43,16 @@ private[gatling] final class HttpClientFactory(
     new HttpClientConfig()
       .setDefaultSslContext(defaultSslContexts.sslContext)
       .setDefaultAlpnSslContext(defaultSslContexts.alpnSslContext.orNull)
-      .setConnectTimeout(advancedHttpConfig.connectTimeout.toMillis)
-      .setHandshakeTimeout(advancedHttpConfig.handshakeTimeout.toMillis)
-      .setChannelPoolIdleTimeout(advancedHttpConfig.pooledConnectionIdleTimeout.toMillis)
-      .setEnableSni(advancedHttpConfig.enableSni)
-      .setEnableHostnameVerification(advancedHttpConfig.enableHostnameVerification)
       .setDefaultCharset(configuration.core.charset)
-      .setUseNativeTransport(advancedHttpConfig.useNativeTransport)
-      .setTcpNoDelay(advancedHttpConfig.tcpNoDelay)
-      .setSoKeepAlive(advancedHttpConfig.soKeepAlive)
-      .setSoReuseAddress(advancedHttpConfig.soReuseAddress)
+      .setEnableHostnameVerification(httpConfig.enableHostnameVerification)
+      .setChannelPoolIdleTimeout(httpConfig.pooledConnectionIdleTimeout.toMillis)
+      .setConnectTimeout(socketConfig.connectTimeout.toMillis)
+      .setTcpNoDelay(socketConfig.tcpNoDelay)
+      .setSoKeepAlive(socketConfig.soKeepAlive)
+      .setSoReuseAddress(socketConfig.soReuseAddress)
+      .setHandshakeTimeout(sslConfig.handshakeTimeout.toMillis)
+      .setEnableSni(sslConfig.enableSni)
+      .setUseNativeTransport(nettyConfig.useNativeTransport)
       .setThreadPoolName("gatling-http")
     //[fl]
     //

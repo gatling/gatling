@@ -115,37 +115,7 @@ You can use ``waitForMessages`` and block for all pending non-blocking checks::
 MQTT configuration
 ==================
 
-Just like other protocol supports such as HTTP, you can configure some options in your ``gatling.conf`` file.::
-
-    gatling {
-      io.gatling.mqtt {
-        #useNativeTransport = false
-        socket {
-          #tcpNoDelay = true
-        }
-        ssl {
-          #useOpenSsl = true
-          #useInsecureTrustManager = true
-          #sslSessionCacheSize = 0                             # SSLSession cache size, set to 0 to use JDK's default
-          #sslSessionTimeout = 0                               # SSLSession timeout in seconds, set to 0 to use JDK's default (24h)
-          keyStore {
-            #type = ""
-            #file = ""
-            #password = ""
-            #algorithm = ""
-          }
-          trustStore {
-            #type = ""
-            #file = ""
-            #password = ""
-            #algorithm = ""
-          }
-        }
-      }
-    }
-
-.. note::
-    Remember to remove leading ``#`` to uncomment line. Beware to not duplicate the ``gatling`` root entry.
+MQTT support honors the ssl and netty configurations from ``gatling.conf``.
 
 Example
 =======

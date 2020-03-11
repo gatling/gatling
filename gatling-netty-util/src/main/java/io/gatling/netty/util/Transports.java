@@ -38,7 +38,7 @@ public final class Transports {
     return useNativeTransport && Epoll.isAvailable() ? new EpollEventLoopGroup(nThreads, threadFactory) : new NioEventLoopGroup(nThreads, threadFactory);
   }
 
-  public static ChannelFactory<? extends Channel> newChannelFactory(EventLoopGroup eventLoopGroup) {
-    return eventLoopGroup instanceof EpollEventLoopGroup ? EpollSocketChannel::new : NioSocketChannel::new;
+  public static ChannelFactory<? extends Channel> newChannelFactory(boolean useNativeTransport) {
+    return useNativeTransport && Epoll.isAvailable() ? EpollSocketChannel::new : NioSocketChannel::new;
   }
 }

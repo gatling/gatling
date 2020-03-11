@@ -29,7 +29,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
     mutable.Map(
       charting.indicators.Percentile1 -> 95,
       charting.indicators.Percentile2 -> 99,
-      http.ahc.RequestTimeout -> 60000
+      http.RequestTimeout -> 60000
     )
   )
 

@@ -233,7 +233,7 @@ abstract class RequestExpressionBuilder(
           requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri)
             .setDefaultCharset(charset)
             .setFixUrlEncoding(!disableUrlEncoding)
-            .setRequestTimeout(configuration.http.advanced.requestTimeout.toMillis)
+            .setRequestTimeout(configuration.http.requestTimeout.toMillis)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build
       }

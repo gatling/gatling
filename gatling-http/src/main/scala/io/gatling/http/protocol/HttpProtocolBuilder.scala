@@ -41,7 +41,7 @@ object HttpProtocolBuilder {
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 
   def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
-    HttpProtocolBuilder(HttpProtocol(configuration), configuration.http.advanced.useOpenSsl)
+    HttpProtocolBuilder(HttpProtocol(configuration), configuration.ssl.useOpenSsl)
 }
 
 final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean) {

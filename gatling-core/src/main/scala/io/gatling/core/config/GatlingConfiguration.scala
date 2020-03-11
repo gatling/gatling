@@ -34,9 +34,11 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
-/**
- * Configuration loader of Gatling
- */
+sealed abstract class ObsoleteUsage(val message: String) extends Product with Serializable { def path: String }
+final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
+final case class Renamed(path: String, replacement: String)
+    extends ObsoleteUsage(s"'$path' was renamed into $replacement and will be removed in the next minor release. Please rename.")
+
 object GatlingConfiguration extends StrictLogging {
 
   private val GatlingDefaultsConfigFile = "gatling-defaults.conf"
@@ -65,18 +67,13 @@ object GatlingConfiguration extends StrictLogging {
   }
 
   def load(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
-    sealed abstract class ObsoleteUsage(val message: String) { def path: String }
-    final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
-    final case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
 
-    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Seq[ObsoleteUsage] = {
+    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Seq[T] = {
       val bundle = ResourceBundle.getBundle(bundleName)
       bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
     }
 
-    def warnAboutRemovedProperties(config: Config): Unit = {
-      val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
-      val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
+    def warnAboutRemovedProperties(config: Config, removedProperties: Seq[Removed], renamedProperties: Seq[Renamed]): Unit = {
 
       val obsoleteUsages =
         (removedProperties ++ renamedProperties).collect { case obs if config.hasPath(obs.path) => obs.message }
@@ -102,9 +99,12 @@ object GatlingConfiguration extends StrictLogging {
 
     val config = configChain(ConfigFactory.systemProperties, customConfig, propertiesConfig, defaultsConfig)
 
-    warnAboutRemovedProperties(config)
+    val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
+    val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
 
-    mapToGatlingConfig(config)
+    warnAboutRemovedProperties(config, removedProperties, renamedProperties)
+
+    mapToGatlingConfig(RenamedAwareConfig(config, renamedProperties))
   }
 
   private def coreConfiguration(config: Config) =
@@ -143,6 +143,48 @@ object GatlingConfiguration extends StrictLogging {
       )
     )
 
+  private def socketConfiguration(config: Config) =
+    new SocketConfiguration(
+      connectTimeout = config.getInt(socket.ConnectTimeout) millis,
+      tcpNoDelay = config.getBoolean(socket.TcpNoDelay),
+      soKeepAlive = config.getBoolean(socket.SoKeepAlive),
+      soReuseAddress = config.getBoolean(socket.SoReuseAddress)
+    )
+
+  private def sslConfiguration(config: Config) =
+    new SslConfiguration(
+      useOpenSsl = config.getBoolean(ssl.UseOpenSsl),
+      useOpenSslFinalizers = config.getBoolean(ssl.UseOpenSslFinalizers),
+      handshakeTimeout = config.getInt(ssl.HandshakeTimeout) millis,
+      useInsecureTrustManager = config.getBoolean(ssl.UseInsecureTrustManager),
+      enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList,
+      enabledCipherSuites = config.getStringList(ssl.EnabledCipherSuites).asScala.toList,
+      sessionCacheSize = config.getInt(ssl.SessionCacheSize),
+      sessionTimeout = config.getInt(ssl.SessionTimeout) seconds,
+      enableSni = config.getBoolean(ssl.EnableSni),
+      keyManagerFactory = {
+        val storeType = config.getString(ssl.keyStore.Type).trimToOption
+        val storeFile = config.getString(ssl.keyStore.File).trimToOption
+        val storePassword = config.getString(ssl.keyStore.Password)
+        val storeAlgorithm = config.getString(ssl.keyStore.Algorithm).trimToOption
+        storeFile.map(Ssl.newKeyManagerFactory(storeType, _, storePassword, storeAlgorithm))
+      },
+      trustManagerFactory = {
+        val storeType = config.getString(ssl.trustStore.Type).trimToOption
+        val storeFile = config.getString(ssl.trustStore.File).trimToOption
+        val storePassword = config.getString(ssl.trustStore.Password)
+        val storeAlgorithm = config.getString(ssl.trustStore.Algorithm).trimToOption
+        storeFile.map(Ssl.newTrustManagerFactory(storeType, _, storePassword, storeAlgorithm))
+      }
+    )
+
+  private def nettyConfiguration(config: Config) =
+    new NettyConfiguration(
+      useNativeTransport = config.getBoolean(netty.UseNativeTransport),
+      allocator = config.getString(netty.Allocator),
+      maxThreadLocalCharBufferSize = config.getInt(netty.MaxThreadLocalCharBufferSize)
+    )
+
   private def chartingConfiguration(config: Config) =
     new ChartingConfiguration(
       noReports = config.getBoolean(charting.NoReports),
@@ -165,50 +207,16 @@ object GatlingConfiguration extends StrictLogging {
       perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
       warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
       enableGA = config.getBoolean(http.EnableGA),
-      ssl = new SslConfiguration(
-        keyManagerFactory = {
-          val storeType = config.getString(http.ssl.keyStore.Type).trimToOption
-          val storeFile = config.getString(http.ssl.keyStore.File).trimToOption
-          val storePassword = config.getString(http.ssl.keyStore.Password)
-          val storeAlgorithm = config.getString(http.ssl.keyStore.Algorithm).trimToOption
-          storeFile.map(Ssl.newKeyManagerFactory(storeType, _, storePassword, storeAlgorithm))
-        },
-        trustManagerFactory = {
-          val storeType = config.getString(http.ssl.trustStore.Type).trimToOption
-          val storeFile = config.getString(http.ssl.trustStore.File).trimToOption
-          val storePassword = config.getString(http.ssl.trustStore.Password)
-          val storeAlgorithm = config.getString(http.ssl.trustStore.Algorithm).trimToOption
-          storeFile.map(Ssl.newTrustManagerFactory(storeType, _, storePassword, storeAlgorithm))
+      requestTimeout = config.getInt(http.RequestTimeout) millis,
+      pooledConnectionIdleTimeout = config.getInt(http.PooledConnectionIdleTimeout) millis,
+      enableHostnameVerification = {
+        val enable = config.getBoolean(http.EnableHostnameVerification)
+        if (!enable) {
+          System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
+          System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
         }
-      ),
-      advanced = new AdvancedConfiguration(
-        connectTimeout = config.getInt(http.ahc.ConnectTimeout) millis,
-        handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout) millis,
-        pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout) millis,
-        requestTimeout = config.getInt(http.ahc.RequestTimeout) millis,
-        enableSni = config.getBoolean(http.ahc.EnableSni),
-        enableHostnameVerification = {
-          val enable = config.getBoolean(http.ahc.EnableHostnameVerification)
-          if (!enable) {
-            System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
-            System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
-          }
-          enable
-        },
-        useInsecureTrustManager = config.getBoolean(http.ahc.UseInsecureTrustManager),
-        sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
-        sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
-        sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
-        sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout) seconds,
-        useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
-        useOpenSslFinalizers = config.getBoolean(http.ahc.UseOpenSslFinalizers),
-        useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport),
-        tcpNoDelay = config.getBoolean(http.ahc.TcpNoDelay),
-        soKeepAlive = config.getBoolean(http.ahc.SoKeepAlive),
-        soReuseAddress = config.getBoolean(http.ahc.SoReuseAddress),
-        allocator = config.getString(http.ahc.Allocator),
-        maxThreadLocalCharBufferSize = config.getInt(http.ahc.MaxThreadLocalCharBufferSize)
-      ),
+        enable
+      },
       dns = new DnsConfiguration(
         queryTimeout = config.getInt(http.dns.QueryTimeout) millis,
         maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
@@ -247,6 +255,9 @@ object GatlingConfiguration extends StrictLogging {
   private def mapToGatlingConfig(config: Config) =
     new GatlingConfiguration(
       core = coreConfiguration(config),
+      socket = socketConfiguration(config),
+      ssl = sslConfiguration(config),
+      netty = nettyConfiguration(config),
       charting = chartingConfiguration(config),
       http = httpConfiguration(config),
       jms = jmsConfiguration(config),
@@ -334,6 +345,33 @@ final class DirectoryConfiguration(
     val results: Path
 )
 
+final class SocketConfiguration(
+    val connectTimeout: FiniteDuration,
+    val tcpNoDelay: Boolean,
+    val soKeepAlive: Boolean,
+    val soReuseAddress: Boolean
+)
+
+final class SslConfiguration(
+    val useOpenSsl: Boolean,
+    val useOpenSslFinalizers: Boolean,
+    val handshakeTimeout: FiniteDuration,
+    val useInsecureTrustManager: Boolean,
+    val enabledProtocols: List[String],
+    val enabledCipherSuites: List[String],
+    val sessionCacheSize: Int,
+    val sessionTimeout: FiniteDuration,
+    val enableSni: Boolean,
+    val keyManagerFactory: Option[KeyManagerFactory],
+    val trustManagerFactory: Option[TrustManagerFactory]
+)
+
+final class NettyConfiguration(
+    val useNativeTransport: Boolean,
+    val allocator: String,
+    val maxThreadLocalCharBufferSize: Int
+)
+
 final class ChartingConfiguration(
     val noReports: Boolean,
     val maxPlotsPerSeries: Int,
@@ -356,8 +394,9 @@ final class HttpConfiguration(
     val perUserCacheMaxCapacity: Int,
     val warmUpUrl: Option[String],
     val enableGA: Boolean,
-    val ssl: SslConfiguration,
-    val advanced: AdvancedConfiguration,
+    val pooledConnectionIdleTimeout: FiniteDuration,
+    val requestTimeout: FiniteDuration,
+    val enableHostnameVerification: Boolean,
     val dns: DnsConfiguration
 )
 
@@ -365,36 +404,9 @@ final class JmsConfiguration(
     val replyTimeoutScanPeriod: FiniteDuration
 )
 
-final class AdvancedConfiguration(
-    val connectTimeout: FiniteDuration,
-    val handshakeTimeout: FiniteDuration,
-    val pooledConnectionIdleTimeout: FiniteDuration,
-    val requestTimeout: FiniteDuration,
-    val enableSni: Boolean,
-    val enableHostnameVerification: Boolean,
-    val useInsecureTrustManager: Boolean,
-    val sslEnabledProtocols: List[String],
-    val sslEnabledCipherSuites: List[String],
-    val sslSessionCacheSize: Int,
-    val sslSessionTimeout: FiniteDuration,
-    val useOpenSsl: Boolean,
-    val useOpenSslFinalizers: Boolean,
-    val useNativeTransport: Boolean,
-    val tcpNoDelay: Boolean,
-    val soKeepAlive: Boolean,
-    val soReuseAddress: Boolean,
-    val allocator: String,
-    val maxThreadLocalCharBufferSize: Int
-)
-
 final class DnsConfiguration(
     val queryTimeout: FiniteDuration,
     val maxQueriesPerResolve: Int
-)
-
-final class SslConfiguration(
-    val keyManagerFactory: Option[KeyManagerFactory],
-    val trustManagerFactory: Option[TrustManagerFactory]
 )
 
 final class DataConfiguration(
@@ -444,6 +456,9 @@ final class GraphiteDataWriterConfiguration(
 
 final class GatlingConfiguration(
     val core: CoreConfiguration,
+    val socket: SocketConfiguration,
+    val netty: NettyConfiguration,
+    val ssl: SslConfiguration,
     val charting: ChartingConfiguration,
     val http: HttpConfiguration,
     val jms: JmsConfiguration,
