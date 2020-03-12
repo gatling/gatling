@@ -629,6 +629,11 @@ public class FixedWebSocketClientHandshaker13 {
 
     if (customHeaders != null) {
       headers.add(customHeaders);
+      if (!customHeaders.contains(HttpHeaderNames.HOST)) {
+        headers.set(HttpHeaderNames.HOST, websocketHostValue(wsURL));
+      }
+    } else {
+      headers.set(HttpHeaderNames.HOST, websocketHostValue(wsURL));
     }
 
     headers.set(HttpHeaderNames.UPGRADE, HttpHeaderValues.WEBSOCKET)
