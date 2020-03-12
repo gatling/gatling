@@ -21,7 +21,9 @@ import java.security.SecureRandom
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
+
 import io.gatling.core.config.SslConfiguration
+
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl._
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
