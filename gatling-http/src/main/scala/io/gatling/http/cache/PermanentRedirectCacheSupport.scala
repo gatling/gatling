@@ -17,13 +17,17 @@
 package io.gatling.http.cache
 
 import scala.annotation.tailrec
+import scala.collection.JavaConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.{ Request, RequestBuilder }
+import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.engine.tx.HttpTx
+
+import io.netty.handler.codec.http.HttpHeaderNames
 
 private[cache] object PermanentRedirectCacheKey {
   def apply(request: Request): PermanentRedirectCacheKey =
@@ -69,14 +73,21 @@ private[cache] trait PermanentRedirectCacheSupport {
     permanentRedirectRec(PermanentRedirectCacheKey(request), redirectCount = 0)
   }
 
-  private[this] def redirectRequest(request: Request, toUri: Uri): Request =
-    new RequestBuilder(request, toUri).setFixUrlEncoding(false).setDefaultCharset(configuration.core.charset).build
+  private[this] def redirectRequest(request: Request, toUri: Uri, session: Session): Request = {
+    request.getHeaders.remove(HttpHeaderNames.COOKIE)
+    val cookies = CookieSupport.getStoredCookies(session, toUri)
+    new RequestBuilder(request, toUri)
+      .setFixUrlEncoding(false)
+      .setDefaultCharset(configuration.core.charset)
+      .setCookies(cookies.asJava)
+      .build
+  }
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.requestConfig.httpProtocol.requestPart.cache && httpPermanentRedirectCacheHandler.enabled) {
       permanentRedirect(origTx.session, origTx.request.clientRequest, origTx.request.requestConfig.httpProtocol.responsePart.maxRedirects) match {
         case Some((targetUri, redirectCount)) =>
-          val newClientRequest = redirectRequest(origTx.request.clientRequest, targetUri)
+          val newClientRequest = redirectRequest(origTx.request.clientRequest, targetUri, origTx.session)
 
           origTx.copy(
             request = origTx.request.copy(clientRequest = newClientRequest),
