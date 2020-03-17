@@ -39,15 +39,13 @@ object LogFileReader {
   private val LogStep = 100000
   private val SecMillisecRatio = 1000.0
   private val SimulationFilesNamePattern = """.*\.log"""
-}
 
-final case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage, assertions: List[Assertion])
+  private final case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage, assertions: List[Assertion])
+}
 
 private[gatling] class LogFileReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends GeneralStatsSource with StrictLogging {
 
   import LogFileReader._
-
-  println("Parsing log file(s)...")
 
   private val inputFiles = simulationLogDirectory(runUuid, create = false, configuration).files
     .collect { case file if file.filename.matches(SimulationFilesNamePattern) => file.path }
@@ -175,8 +173,6 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
   }
 
   private val resultsHolder = parseInputFiles(secondPass)
-
-  println("Parsing log file(s) done")
 
   override val statsPaths: List[StatsPath] =
     resultsHolder.groupAndRequestsNameBuffer.map.toList

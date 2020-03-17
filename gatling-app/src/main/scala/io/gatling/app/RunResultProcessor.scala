@@ -48,10 +48,14 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
     )
 
   private def initLogFileReader(runResult: RunResult): Option[LogFileReader] =
-    if (reportsGenerationEnabled || runResult.hasAssertions)
-      Some(new LogFileReader(runResult.runId))
-    else
+    if (reportsGenerationEnabled || runResult.hasAssertions) {
+      println("Parsing log file(s)...")
+      val logFileReader = new LogFileReader(runResult.runId)
+      println("Parsing log file(s) done")
+      Some(logFileReader)
+    } else {
       None
+    }
 
   private def reportsGenerationEnabled: Boolean =
     configuration.core.directory.reportsOnly.isDefined || (configuration.data.fileDataWriterEnabled && !configuration.charting.noReports)
@@ -70,7 +74,6 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       isValid && assertionResult.result
     }
 
-    if (consolidatedAssertionResult) StatusCode.Success
-    else StatusCode.AssertionsFailed
+    if (consolidatedAssertionResult) StatusCode.Success else StatusCode.AssertionsFailed
   }
 }
