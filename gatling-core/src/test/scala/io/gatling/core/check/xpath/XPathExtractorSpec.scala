@@ -16,11 +16,12 @@
 
 package io.gatling.core.check.xpath
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
 
 import net.sf.saxon.s9api.XdmNode
-import org.xml.sax.InputSource
 
 class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
@@ -30,7 +31,7 @@ class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
   private def dom(file: String): Option[XdmNode] =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(xmlParsers.parse(new InputSource(is)))
+      Some(XmlParsers.parse(is, UTF_8))
     }
 
   private def testCount(expression: String, file: String, expected: Int): Unit = {

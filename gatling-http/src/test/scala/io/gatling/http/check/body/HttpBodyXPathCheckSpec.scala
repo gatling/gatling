@@ -38,7 +38,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
-    HttpBodyXPathCheckMaterializer.instance(defaultXmlParsers)
+    HttpBodyXPathCheckMaterializer.Instance
 
   private def mockResponse(xml: Elem): Response = {
     val headers = new DefaultHttpHeaders().add(HttpHeaderNames.ContentType, s"${HttpHeaderValues.ApplicationXml}; charset=$UTF_8")

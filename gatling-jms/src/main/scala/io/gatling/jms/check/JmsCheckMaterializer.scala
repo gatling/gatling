@@ -16,10 +16,8 @@
 
 package io.gatling.jms.check
 
-import java.io.StringReader
 import java.nio.charset.{ Charset, StandardCharsets }
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.gatling.commons.validation._
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.check.jmespath.JmesPathCheckType
@@ -30,9 +28,10 @@ import io.gatling.core.check.xpath.{ XPathCheckType, XmlParsers }
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
 import io.gatling.jms.JmsCheck
+
+import com.fasterxml.jackson.databind.JsonNode
 import javax.jms.{ BytesMessage, Message, TextMessage }
 import net.sf.saxon.s9api.XdmNode
-import org.xml.sax.InputSource
 
 class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](identity)
 
@@ -89,17 +88,19 @@ object JmsCheckMaterializer {
   def jsonPath(jsonParsers: JsonParsers, charset: Charset): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
     new JmsCheckMaterializer(jsonPreparer(jsonParsers, charset))
 
-  private val XPathPreparerErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
+  val Xpath: CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[XdmNode]] = {
 
-  private def xpathPreparer(xmlParsers: XmlParsers): Preparer[Message, Option[XdmNode]] =
-    message =>
-      safely(XPathPreparerErrorMapper) {
-        message match {
-          case tm: TextMessage => Some(xmlParsers.parse(new InputSource(new StringReader(tm.getText)))).success
-          case _               => "Unsupported message type".failure
+    val errorMapper: String => String = "Could not parse response into a DOM Document: " + _
+
+    val preparer: Preparer[Message, Option[XdmNode]] =
+      message =>
+        safely(errorMapper) {
+          message match {
+            case tm: TextMessage => Some(XmlParsers.parse(tm.getText)).success
+            case _               => "Unsupported message type".failure
+          }
         }
-      }
 
-  def xpath(xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[XdmNode]] =
-    new JmsCheckMaterializer(xpathPreparer(xmlParsers))
+    new JmsCheckMaterializer(preparer)
+  }
 }

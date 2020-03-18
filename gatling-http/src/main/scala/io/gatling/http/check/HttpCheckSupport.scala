@@ -100,8 +100,8 @@ trait HttpCheckSupport {
   implicit val httpBodyRegexCheckMaterializer: CheckMaterializer[RegexCheckType, HttpCheck, Response, String] = HttpBodyRegexCheckMaterializer.Instance
   implicit val httpBodySubstringCheckMaterializer: CheckMaterializer[SubstringCheckType, HttpCheck, Response, String] =
     HttpBodySubstringCheckMaterializer.Instance
-  implicit def httpBodyXPathCheckMaterializer(implicit xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
-    HttpBodyXPathCheckMaterializer.instance(xmlParsers)
+  implicit val httpBodyXPathCheckMaterializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
+    HttpBodyXPathCheckMaterializer.Instance
   implicit def httpBodyCssCheckMaterializer(implicit selectors: CssSelectors): CheckMaterializer[CssCheckType, HttpCheck, Response, NodeSelector] =
     HttpBodyCssCheckMaterializer.instance(selectors)
   implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =

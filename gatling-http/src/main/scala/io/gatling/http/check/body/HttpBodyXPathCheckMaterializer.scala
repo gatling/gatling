@@ -24,21 +24,18 @@ import io.gatling.http.check.HttpCheckScope.Body
 import io.gatling.http.response.Response
 
 import net.sf.saxon.s9api.XdmNode
-import org.xml.sax.InputSource
 
 object HttpBodyXPathCheckMaterializer {
 
   private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
-  def instance(xmlParsers: XmlParsers): CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] = {
+  val Instance: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] = {
 
     val preparer: Preparer[Response, Option[XdmNode]] = response =>
       safely(ErrorMapper) {
         val root =
           if (response.hasResponseBody) {
-            val inputSource = new InputSource(response.body.stream)
-            inputSource.setEncoding(response.charset.name)
-            Some(xmlParsers.parse(inputSource))
+            Some(XmlParsers.parse(response.body.stream, response.charset))
 
           } else {
             None

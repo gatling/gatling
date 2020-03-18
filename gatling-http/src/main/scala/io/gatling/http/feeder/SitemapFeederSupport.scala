@@ -31,7 +31,7 @@ trait SitemapFeederSupport extends ResourceCache {
 
   def sitemap(resource: Validation[Resource])(implicit configuration: GatlingConfiguration): SourceFeederBuilder[String] =
     resource match {
-      case Success(res)     => SourceFeederBuilder(InMemoryFeederSource(SitemapParser.parse(res)), configuration)
+      case Success(res)     => SourceFeederBuilder(InMemoryFeederSource(SitemapParser.parse(res, configuration.core.charset)), configuration)
       case Failure(message) => throw new IllegalArgumentException(s"Could not locate sitemap file: $message")
     }
 }
