@@ -36,7 +36,7 @@ private[css] object FormExtractor {
   private def extractInput(node: Node): Option[SingleValueInput] =
     for {
       name <- Option(node.getAttribute("name"))
-      if name.nonEmpty && !node.hasAttribute("disabled")
+      if !name.isEmpty && !node.hasAttribute("disabled")
       typeAttr <- Option(node.getAttribute("type")).map(_.toLowerCase(Locale.ROOT))
       checked = node.hasAttribute("checked")
       if !IgnoredInputTypes.contains(typeAttr) && (typeAttr != "radio" || checked) // discard unchecked radios, but we want the information that a checkbox was multiple
@@ -63,7 +63,7 @@ private[css] object FormExtractor {
         option <- child.getNodeName match {
           case "option" =>
             Option(child.getAttribute("value")) match {
-              case Some(value) if value.nonEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
+              case Some(value) if !value.isEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
               case _                             => values
             }
           case _ =>
@@ -73,7 +73,7 @@ private[css] object FormExtractor {
 
     for {
       name <- Option(node.getAttribute("name"))
-      if name.nonEmpty && !node.hasAttribute("disabled")
+      if !name.isEmpty && !node.hasAttribute("disabled")
       options = extractOptions(node, Nil)
       if options.nonEmpty
       selectedOptionValues = options.collect { case SelectOption(value, true) => value }
@@ -94,7 +94,7 @@ private[css] object FormExtractor {
   private def extractTextArea(node: Node): Option[SingleValueInput] =
     for {
       name <- Option(node.getAttribute("name"))
-      if name.nonEmpty && !node.hasAttribute("disabled")
+      if !name.isEmpty && !node.hasAttribute("disabled")
     } yield RegularInput(name, Option(node.getTextContent).getOrElse(""))
 
   private def processForm(formNode: Node): Seq[Input] = {
