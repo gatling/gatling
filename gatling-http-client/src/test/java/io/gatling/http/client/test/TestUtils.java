@@ -90,6 +90,6 @@ public class TestUtils {
     }
 
     public static void assertContentTypesEquals(String actual, String expected) {
-        assertEquals(expected.replace("; ", "").toLowerCase(Locale.ENGLISH), actual.replace("; ", "").toLowerCase(Locale.ENGLISH), "Unexpected content-type");
+        assertEquals(expected.replace("; ", "").toLowerCase(Locale.ROOT), actual.replace("; ", "").toLowerCase(Locale.ENGLISH), "Unexpected content-type");
     }
 }

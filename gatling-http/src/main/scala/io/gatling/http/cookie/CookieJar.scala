@@ -16,6 +16,8 @@
 
 package io.gatling.http.cookie
 
+import java.util.Locale
+
 import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
@@ -26,9 +28,9 @@ private[cookie] final case class StoredCookie(cookie: Cookie, hostOnly: Boolean,
 
 private[cookie] object CookieJar {
 
-  val Empty = CookieJar(Map.empty)
+  val Empty: CookieJar = CookieJar(Map.empty)
 
-  private def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
+  private def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase(Locale.ROOT)
 
   private def requestPath(requestUri: Uri) = requestUri.getPath match {
     case "" => "/"
@@ -39,7 +41,7 @@ private[cookie] object CookieJar {
   // Let cookie-domain be the attribute-value without the leading %x2E (".") character.
   private def cookieDomain(cookieDomain: Option[String], requestDomain: String) = cookieDomain match {
     case Some(dom) =>
-      ((if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase, false)
+      ((if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase(Locale.ROOT), false)
     case None =>
       (requestDomain, true)
   }
@@ -108,11 +110,11 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
       val keyPath = cookiePath(Option(cookie.path), requestPath)
 
       if (hasExpired(cookie)) {
-        updatedStore - CookieKey(cookie.name.toLowerCase, keyDomain, keyPath)
+        updatedStore - CookieKey(cookie.name.toLowerCase(Locale.ROOT), keyDomain, keyPath)
 
       } else {
         val persistent = cookie.maxAge != Cookie.UNDEFINED_MAX_AGE
-        updatedStore + (CookieKey(cookie.name.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
+        updatedStore + (CookieKey(cookie.name.toLowerCase(Locale.ROOT), keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
       }
     }
 

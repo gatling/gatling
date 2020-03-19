@@ -37,7 +37,7 @@ private[css] object FormExtractor {
     for {
       name <- Option(node.getAttribute("name"))
       if name.nonEmpty && !node.hasAttribute("disabled")
-      typeAttr <- Option(node.getAttribute("type")).map(_.toLowerCase(Locale.ENGLISH))
+      typeAttr <- Option(node.getAttribute("type")).map(_.toLowerCase(Locale.ROOT))
       checked = node.hasAttribute("checked")
       if !IgnoredInputTypes.contains(typeAttr) && (typeAttr != "radio" || checked) // discard unchecked radios, but we want the information that a checkbox was multiple
       value <- if (typeAttr == "checkbox") {

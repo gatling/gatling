@@ -30,6 +30,8 @@
 
 package io.gatling.http.client.uri;
 
+import java.util.Locale;
+
 import static io.gatling.http.client.util.Assertions.assertNotNull;
 import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
@@ -91,7 +93,7 @@ final class UriParser {
       if (c == ':') {
         String s = originalUrl.substring(currentIndex, i);
         if (isValidProtocol(s)) {
-          scheme = s.toLowerCase();
+          scheme = s.toLowerCase(Locale.ROOT);
           currentIndex = i + 1;
         }
         break;

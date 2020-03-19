@@ -19,6 +19,7 @@ package io.gatling.commons.util
 import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
 import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
+import java.util.Locale
 
 import io.gatling.commons.util.Spire.cfor
 import io.gatling.netty.util.StringBuilderPool
@@ -48,7 +49,7 @@ object StringHelper {
 
     def clean: String = {
       val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-      normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
+      normalized.toLowerCase(Locale.ROOT).replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
     }
 
     def escapeJsIllegalChars: String = string.replace("\"", "\\\"").replace("\\", "\\\\")

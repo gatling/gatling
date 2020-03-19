@@ -16,6 +16,8 @@
 
 package io.gatling.core.check.checksum
 
+import java.util.Locale
+
 import io.gatling.commons.validation._
 import io.gatling.core.check.{ DefaultFindCheckBuilder, FindCheckBuilder, FindExtractor }
 import io.gatling.core.session._
@@ -27,7 +29,7 @@ object ChecksumCheckBuilder {
 
   private def checksum[T](algorithm: String): DefaultFindCheckBuilder[T, String, String] =
     new DefaultFindCheckBuilder[T, String, String](
-      extractor = new FindExtractor[String, String](algorithm.toLowerCase, Some(_).success).expressionSuccess,
+      extractor = new FindExtractor[String, String](algorithm.toLowerCase(Locale.ROOT), Some(_).success).expressionSuccess,
       displayActualValue = false
     )
 
