@@ -42,7 +42,7 @@ private[cookie] object CookieJar {
   private def cookieDomain(cookieDomain: Option[String], requestDomain: String) = cookieDomain match {
     case Some(dom) =>
       ((if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase(Locale.ROOT), false)
-    case None =>
+    case _ =>
       (requestDomain, true)
   }
 
