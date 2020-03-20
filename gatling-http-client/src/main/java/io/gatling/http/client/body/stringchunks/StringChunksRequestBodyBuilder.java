@@ -33,7 +33,7 @@ public class StringChunksRequestBodyBuilder extends RequestBodyBuilder<List<Stri
   @Override
   public RequestBody<?> build(String contentType, Charset charset, Charset defaultCharset) {
     if (charset == null || charset.equals(defaultCharset)) {
-      return new StringChunksRequestBody(content, contentType);
+      return new StringChunksRequestBody(content, contentType, defaultCharset);
     } else {
       // cached bytes are not for the correct encoding
       return new StringRequestBody(StringWithCachedBytes.toString(content), contentType, charset);

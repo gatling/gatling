@@ -56,4 +56,9 @@ public class StringWithCachedBytes {
     this.string = string;
     this.bytes = string.getBytes(charset);
   }
+
+  @Override
+  public String toString() {
+    return string;
+  }
 }

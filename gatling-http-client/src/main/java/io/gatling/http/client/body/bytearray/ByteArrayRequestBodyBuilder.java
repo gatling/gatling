@@ -21,14 +21,19 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 
 import java.nio.charset.Charset;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder<byte[]> {
 
-  public ByteArrayRequestBodyBuilder(byte[] content) {
+  private final String fileName;
+
+  public ByteArrayRequestBodyBuilder(byte[] content, String fileName) {
     super(content);
+    this.fileName = fileName;
   }
 
   @Override
   public RequestBody<byte[]> build(String contentType, Charset charset, Charset defaultCharset) {
-    return new ByteArrayRequestBody(content, contentType);
+    return new ByteArrayRequestBody(content, contentType, fileName, withDefault(charset, defaultCharset));
   }
 }

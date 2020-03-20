@@ -36,6 +36,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
 
   private final Charset charset;
+  private static final StringBuilderPool SB_POOL = new StringBuilderPool();
 
   public FormUrlEncodedRequestBody(List<Param> content, String contentType, Charset charset) {
     super(content, contentType);
@@ -52,7 +53,7 @@ public final class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
   }
 
   private StringBuilder encode() {
-    StringBuilder sb = StringBuilderPool.DEFAULT.get();
+    StringBuilder sb = SB_POOL.get();
 
     for (Param param : content) {
       encodeAndAppendFormParam(sb, param.getName(), param.getValue(), charset);
@@ -97,9 +98,9 @@ public final class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
   @Override
   public String toString() {
     return "FormUrlEncodedRequestBody{" +
-      "content=" + content +
-      ", contentType=" + contentType +
+      "contentType='" + contentType + '\'' +
       ", charset=" + charset +
+      ", content=" + encode() +
       '}';
   }
 }

@@ -22,19 +22,22 @@ import io.gatling.http.client.body.WritableContent;
 import io.gatling.netty.util.StringWithCachedBytes;
 import io.netty.buffer.ByteBufAllocator;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 public final class StringChunksRequestBody extends RequestBody<List<StringWithCachedBytes>> {
 
+  private final Charset charset;
   private final long contentLength;
 
-  public StringChunksRequestBody(List<StringWithCachedBytes> content, String contentType) {
+  public StringChunksRequestBody(List<StringWithCachedBytes> content, String contentType, Charset charset) {
     super(content, contentType);
     long contentLength = 0;
     for (StringWithCachedBytes stringWithCachedBytes : content) {
       contentLength += stringWithCachedBytes.bytes.length;
     }
     this.contentLength = contentLength;
+    this.charset = charset;
   }
 
   @Override
@@ -60,9 +63,10 @@ public final class StringChunksRequestBody extends RequestBody<List<StringWithCa
 
   @Override
   public String toString() {
-    return "ElRequestBody{" +
-      "content=" + content +
-      ", contentType='" + contentType + '\'' +
+    return "StringChunksRequestBody{" +
+      "contentType='" + contentType + '\'' +
+      ", charset=" + charset +
+      ", content=" + StringWithCachedBytes.toString(content) +
       '}';
   }
 }

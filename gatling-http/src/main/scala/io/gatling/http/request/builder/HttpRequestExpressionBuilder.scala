@@ -59,12 +59,12 @@ class HttpRequestExpressionBuilder(
         resourceWithCachedBytes(session).map {
           case ResourceAndCachedBytes(resource, cachedBytes) =>
             val requestBodyBuilder = cachedBytes match {
-              case Some(bytes) => new ByteArrayRequestBodyBuilder(bytes)
+              case Some(bytes) => new ByteArrayRequestBodyBuilder(bytes, resource.name)
               case _           => new FileRequestBodyBuilder(resource.file)
             }
             requestBuilder.setBodyBuilder(requestBodyBuilder)
         }
-      case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b)))
+      case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b, null)))
       case body: ElBody         => body.asStringWithCachedBytes(session).map(chunks => requestBuilder.setBodyBuilder(new StringChunksRequestBodyBuilder(chunks.asJava)))
       case InputStreamBody(is)  => is(session).map(is => requestBuilder.setBodyBuilder(new InputStreamRequestBodyBuilder(is)))
       case body: PebbleBody     => body.apply(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))

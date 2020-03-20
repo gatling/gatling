@@ -51,8 +51,8 @@ public final class InputStreamRequestBody extends RequestBody<InputStream> {
   @Override
   public String toString() {
     return "InputStreamRequestBody{" +
-      "content=" + content +
-      ", contentType=" + contentType +
+      "contentType='" + contentType + '\'' +
+      ", content=???" +
       '}';
   }
 }

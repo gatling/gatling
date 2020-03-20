@@ -22,10 +22,18 @@ import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 
+import java.nio.charset.Charset;
+import java.util.Base64;
+
 public final class ByteArrayRequestBody extends RequestBody<byte[]> {
 
-  public ByteArrayRequestBody(byte[] content, String contentType) {
+  private final String fileName;
+  private final Charset charset;
+
+  public ByteArrayRequestBody(byte[] content, String contentType, String fileName, Charset charset) {
     super(content, contentType);
+    this.fileName = fileName;
+    this.charset = charset;
   }
 
   @Override
@@ -35,7 +43,7 @@ public final class ByteArrayRequestBody extends RequestBody<byte[]> {
 
   @Override
   public RequestBodyBuilder<byte[]> newBuilder() {
-    return new ByteArrayRequestBodyBuilder(content);
+    return new ByteArrayRequestBodyBuilder(content, fileName);
   }
 
   @Override
@@ -43,11 +51,19 @@ public final class ByteArrayRequestBody extends RequestBody<byte[]> {
     return content;
   }
 
+  public String getFileName() {
+    return fileName;
+  }
+
+  public Charset getCharset() {
+    return charset;
+  }
+
   @Override
   public String toString() {
     return "ByteArrayRequestBody{" +
-      "content=<" + content.length + " bytes>" +
-      ", contentType=" + contentType +
+      "contentType='" + contentType + '\'' +
+      ", content (Base64)=" + Base64.getEncoder().encodeToString(content) +
       '}';
   }
 }

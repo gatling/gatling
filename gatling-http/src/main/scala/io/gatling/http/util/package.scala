@@ -18,21 +18,12 @@ package io.gatling.http
 
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.nio.charset.Charset
-import java.util.{ List => JList }
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.commons.util.Throwables._
-import io.gatling.http.client.body.bytearray.ByteArrayRequestBody
-import io.gatling.http.client.body.file.FileRequestBody
-import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
-import io.gatling.http.client.body.is.InputStreamRequestBody
-import io.gatling.http.client.body.multipart.{ ByteArrayPart, FilePart, MultipartFormDataRequestBody, StringPart }
-import io.gatling.http.client.body.string.StringRequestBody
-import io.gatling.http.client.body.stringchunks.StringChunksRequestBody
-import io.gatling.http.client.Param
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util.HttpHelper.isText
 
@@ -46,13 +37,6 @@ package object util extends LazyLogging {
     def appendHttpHeaders(headers: HttpHeaders): JStringBuilder = {
       headers.asScala.foreach { entry =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
-      }
-      buff
-    }
-
-    def appendParamJList(list: JList[Param]): JStringBuilder = {
-      list.asScala.foreach { param =>
-        buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
       }
       buff
     }
@@ -80,90 +64,8 @@ package object util extends LazyLogging {
         }
       }
 
-      request.getBody match {
-        case stringBody: StringRequestBody =>
-          buff.append("stringBody=").append(stringBody.getContent).append(Eol)
-
-        case byteArrayBody: ByteArrayRequestBody =>
-          buff.append("byteBody=").append(new String(byteArrayBody.getContent, charset)).append(Eol)
-
-        case byteArraysBody: StringChunksRequestBody =>
-          buff.append("stringChunksRequestBody=")
-          byteArraysBody.getContent.asScala.foreach(chunk => buff.append(chunk.string))
-          buff.append(Eol)
-
-        case fileBody: FileRequestBody =>
-          buff.append("fileBody=").append(fileBody.getContent.getCanonicalPath).append(Eol)
-
-        case formBody: FormUrlEncodedRequestBody =>
-          buff.append("formBody=").append(Eol).appendParamJList(formBody.getContent)
-
-        case _: InputStreamRequestBody =>
-          buff.append("streamBody=???")
-
-        case multipartBody: MultipartFormDataRequestBody =>
-          buff.append("multipartBody=").append(Eol)
-          multipartBody.getContent.asScala.foreach {
-            case part: StringPart =>
-              buff
-                .append("StringPart:")
-                .append(" name=")
-                .append(part.getName)
-                .append(" contentType=")
-                .append(part.getContentType)
-                .append(" dispositionType=")
-                .append(part.getDispositionType)
-                .append(" charset=")
-                .append(part.getCharset)
-                .append(" transferEncoding=")
-                .append(part.getTransferEncoding)
-                .append(" contentId=")
-                .append(part.getContentId)
-                .append(Eol)
-
-            case part: FilePart =>
-              buff
-                .append("FilePart:")
-                .append(" name=")
-                .append(part.getName)
-                .append(" contentType=")
-                .append(part.getContentType)
-                .append(" dispositionType=")
-                .append(part.getDispositionType)
-                .append(" charset=")
-                .append(part.getCharset)
-                .append(" transferEncoding=")
-                .append(part.getTransferEncoding)
-                .append(" contentId=")
-                .append(part.getContentId)
-                .append(" filename=")
-                .append(part.getFileName)
-                .append(" file=")
-                .append(part.getContent.getCanonicalPath)
-                .append(Eol)
-
-            case part: ByteArrayPart =>
-              buff
-                .append("ByteArrayPart:")
-                .append(" name=")
-                .append(part.getName)
-                .append(" contentType=")
-                .append(part.getContentType)
-                .append(" dispositionType=")
-                .append(part.getDispositionType)
-                .append(" charset=")
-                .append(part.getCharset)
-                .append(" transferEncoding=")
-                .append(part.getTransferEncoding)
-                .append(" contentId=")
-                .append(part.getContentId)
-                .append(" filename=")
-                .append(part.getFileName)
-                .append(Eol)
-
-            case _ =>
-          }
-        case _ =>
+      Option(request.getBody).foreach { requestBody =>
+        buff.append("stringBody=").append(requestBody).append(Eol)
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
@@ -175,9 +77,6 @@ package object util extends LazyLogging {
 
     def appendWithEol(s: String): JStringBuilder =
       buff.append(s).append(Eol)
-
-    def appendWithEol(o: Object): JStringBuilder =
-      buff.append(o).append(Eol)
 
     def appendResponse(result: HttpResult): JStringBuilder = {
 

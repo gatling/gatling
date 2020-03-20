@@ -59,9 +59,9 @@ public final class StringRequestBody extends RequestBody<String> {
   @Override
   public String toString() {
     return "StringRequestBody{" +
-      "content=" + content +
-      ", contentType=" + contentType +
+      "contentType='" + contentType + '\'' +
       ", charset=" + charset +
+      ", content=" + content +
       '}';
   }
 }

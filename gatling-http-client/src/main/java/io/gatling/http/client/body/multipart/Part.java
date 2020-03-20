@@ -91,4 +91,25 @@ public abstract class Part<T> {
   }
 
   public abstract PartImpl toImpl(byte[] boundary);
+
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("Part{");
+    sb.append("name='").append(name).append('\'');
+    sb.append(", charset=").append(charset);
+    sb.append(", transferEncoding='").append(transferEncoding).append('\'');
+    sb.append(", contentId='").append(contentId).append('\'');
+    sb.append(", dispositionType='").append(dispositionType).append('\'');
+    sb.append(", contentType='").append(contentType).append('\'');
+    sb.append(", customHeaders=");
+    customHeaders.forEach( customHeader ->
+      sb.append(customHeader.getName()).append(": ").append(customHeader.getValue()).append(", ")
+    );
+    if (!customHeaders.isEmpty()) {
+      sb.setLength(sb.length() - 2);
+    }
+    sb.append(", content=").append(content);
+    sb.append('}');
+    return sb.toString();
+  }
 }

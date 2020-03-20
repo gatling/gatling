@@ -92,10 +92,12 @@ public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>
 
   @Override
   public String toString() {
-    return "MultipartFormDataRequestBody{" +
-      "boundary=" + Arrays.toString(boundary) +
-      ", content=" + content +
-      ", contentType=" + contentType +
-      '}';
+    final StringBuilder sb = new StringBuilder("MultipartFormDataRequestBody{");
+    sb.append("boundary=").append(Arrays.toString(boundary));
+    sb.append(", contentType='").append(contentType).append('\'');
+    sb.append(", content=");
+    content.forEach(part -> sb.append(part).append("\n"));
+    sb.append('}');
+    return sb.toString();
   }
 }

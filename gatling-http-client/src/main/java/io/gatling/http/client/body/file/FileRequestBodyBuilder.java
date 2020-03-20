@@ -22,6 +22,8 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import java.io.File;
 import java.nio.charset.Charset;
 
+import static io.gatling.http.client.util.MiscUtils.withDefault;
+
 public class FileRequestBodyBuilder extends RequestBodyBuilder<File> {
 
   public FileRequestBodyBuilder(File content) {
@@ -30,6 +32,6 @@ public class FileRequestBodyBuilder extends RequestBodyBuilder<File> {
 
   @Override
   public RequestBody<File> build(String contentType, Charset charset, Charset defaultCharset) {
-    return new FileRequestBody(content, contentType);
+    return new FileRequestBody(content, contentType, withDefault(charset, defaultCharset));
   }
 }
