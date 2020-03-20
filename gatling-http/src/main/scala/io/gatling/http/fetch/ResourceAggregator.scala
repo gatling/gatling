@@ -27,7 +27,6 @@ import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
 import io.gatling.http.protocol.Remote
 import io.gatling.http.request.HttpRequest
-import io.gatling.http.response.ResponseBuilder
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus
@@ -80,8 +79,6 @@ private[fetch] class DefaultResourceAggregator(
   private var globalStatus: Status = OK
   private val startTimestamp = clock.nowMillis
 
-  // start fetching
-
   override def currentSession: Session = session
 
   override def start(session: Session): Unit = {
@@ -92,11 +89,6 @@ private[fetch] class DefaultResourceAggregator(
   private def createResourceTx(resource: HttpRequest, isHttp2PriorKnowledge: Option[Boolean]): HttpTx = {
     logger.debug(s"Fetching resource ${resource.clientRequest.getUri}")
 
-    val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-      resource.requestConfig,
-      configuration
-    )
-
     // ALPN is necessary only if HTTP/2 is enabled and if we know that this remote is using HTTP/2 or if we still don't know
     val isAlpnRequired = rootTx.request.clientRequest.isHttp2Enabled && isHttp2PriorKnowledge.forall(_ == true)
 
@@ -105,7 +97,6 @@ private[fetch] class DefaultResourceAggregator(
       request = resource.copy(
         clientRequest = resource.clientRequest.copyWithAlpnRequiredAndPriorKnowledge(isAlpnRequired, isHttp2PriorKnowledge.contains(true))
       ),
-      responseBuilderFactory = responseBuilderFactory,
       resourceTx = Some(ResourceTx(this, resource.clientRequest.getUri)),
       redirectCount = 0
     )

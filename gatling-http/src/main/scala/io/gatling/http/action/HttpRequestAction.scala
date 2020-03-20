@@ -25,7 +25,6 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor }
 import io.gatling.http.request.HttpRequestDef
-import io.gatling.http.response._
 
 /**
  * This is an action that sends HTTP requests
@@ -39,8 +38,6 @@ class HttpRequestAction(
 ) extends RequestAction
     with NameGen {
 
-  import httpRequestDef._
-
   override def clock: Clock = coreComponents.clock
 
   override val name: String = genName("httpRequest")
@@ -49,17 +46,11 @@ class HttpRequestAction(
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
-  private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-    requestConfig,
-    coreComponents.configuration
-  )
-
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     httpRequestDef.build(requestName, session).map { httpRequest =>
       val tx = HttpTx(
         session,
         httpRequest,
-        responseBuilderFactory,
         next,
         None,
         0

@@ -40,7 +40,6 @@ import org.mockito.Mockito.when
 class CacheSupportSpec extends BaseSpec {
 
   private val configuration = GatlingConfiguration.loadForTest()
-  private val clock = new DefaultClock
   private val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
@@ -184,11 +183,13 @@ class CacheSupportSpec extends BaseSpec {
           throttled = false,
           silent = None,
           followRedirect = true,
+          digests = Map.empty,
+          storeBodyParts = false,
+          defaultCharset = configuration.core.charset,
           httpProtocol = protocol,
           explicitResources = Nil
         )
       ),
-      responseBuilderFactory = null,
       next = null,
       resourceTx = None,
       redirectCount = redirectCount

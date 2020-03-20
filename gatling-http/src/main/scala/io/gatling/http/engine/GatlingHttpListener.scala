@@ -19,6 +19,7 @@ package io.gatling.http.engine
 import io.gatling.commons.util.Clock
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
+import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.engine.tx.HttpTx
 
 import com.typesafe.scalalogging._
@@ -32,7 +33,7 @@ import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
  */
 class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
 
-  private val responseBuilder = tx.responseBuilderFactory(tx.request.clientRequest)
+  private val responseBuilder = new ResponseBuilder(tx.request)
   private var init = false
   private var done = false
   // [fl]

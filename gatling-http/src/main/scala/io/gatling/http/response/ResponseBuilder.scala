@@ -17,64 +17,23 @@
 package io.gatling.http.response
 
 import java.nio.charset.Charset
-import java.security.MessageDigest
 
-import scala.collection.breakOut
 import scala.math.max
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.StringHelper.bytes2Hex
 import io.gatling.commons.util.Throwables._
-import io.gatling.core.check.ChecksumCheck
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames
-import io.gatling.http.check.HttpCheckScope.Body
-import io.gatling.http.client.Request
-import io.gatling.http.engine.response._
 import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml }
-import io.gatling.http.request.HttpRequestConfig
+import io.gatling.http.request.HttpRequest
 
 import io.netty.buffer.ByteBuf
 import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaders, HttpResponseStatus }
 
-object ResponseBuilder {
+class ResponseBuilder(request: HttpRequest) {
 
-  def newResponseBuilderFactory(
-      requestConfig: HttpRequestConfig,
-      configuration: GatlingConfiguration
-  ): ResponseBuilderFactory = {
-
-    val digests: Map[String, MessageDigest] =
-      requestConfig.checks
-        .map(_.wrapped)
-        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }(breakOut)
-
-    val storeBodyParts = IsHttpDebugEnabled ||
-      // we can't assume anything about if and how the response body will be used,
-      // let's force bytes so we don't risk decoding binary content
-      requestConfig.responseTransformer.isDefined ||
-      requestConfig.checks.exists(_.scope == Body)
-
-    request =>
-      new ResponseBuilder(
-        request,
-        digests,
-        storeBodyParts,
-        requestConfig.httpProtocol.responsePart.inferHtmlResources,
-        configuration.core.charset
-      )
-  }
-}
-
-class ResponseBuilder(
-    request: Request,
-    digests: Map[String, MessageDigest],
-    storeBodyParts: Boolean,
-    inferHtmlResources: Boolean,
-    defaultCharset: Charset
-) {
+  import request.requestConfig._
 
   var storeHtmlOrCss: Boolean = _
   var startTimestamp: Long = _
@@ -100,7 +59,7 @@ class ResponseBuilder(
     this.status = Some(status)
     if (this.headers eq EmptyHttpHeaders.INSTANCE) {
       this.headers = headers
-      storeHtmlOrCss = inferHtmlResources && (isHtml(headers) || isCss(headers))
+      storeHtmlOrCss = httpProtocol.responsePart.inferHtmlResources && (isHtml(headers) || isCss(headers))
     } else {
       // trailing headers, wouldn't contain ContentType
       this.headers.add(headers)
@@ -156,7 +115,19 @@ class ResponseBuilder(
           val chunksOrderedByArrival = chunks.reverse
           val body: ResponseBody = ResponseBody(chunksOrderedByArrival, resolvedCharset)
 
-          Response(request, wireRequestHeaders, startTimestamp, endTimestamp, s, headers, body, checksums, computeContentLength, resolvedCharset, isHttp2)
+          Response(
+            request.clientRequest,
+            wireRequestHeaders,
+            startTimestamp,
+            endTimestamp,
+            s,
+            headers,
+            body,
+            checksums,
+            computeContentLength,
+            resolvedCharset,
+            isHttp2
+          )
         } catch {
           case NonFatal(t) => buildFailure(t)
         }
@@ -166,7 +137,7 @@ class ResponseBuilder(
   def buildFailure(t: Throwable): HttpFailure = buildFailure(t.detailedMessage)
 
   private def buildFailure(errorMessage: String): HttpFailure =
-    HttpFailure(request, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
+    HttpFailure(request.clientRequest, wireRequestHeaders, startTimestamp, endTimestamp, errorMessage)
 
   def releaseChunks(): Unit = {
     chunks.foreach(_.release())

@@ -16,7 +16,6 @@
 
 package io.gatling.http.action.polling
 
-import java.nio.charset.Charset
 import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
 import scala.concurrent.duration.FiniteDuration
@@ -31,7 +30,7 @@ import io.gatling.http.engine.response.{ ResponseProcessor, RootSessionProcessor
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequestDef
-import io.gatling.http.response.{ HttpResult, ResponseBuilderFactory }
+import io.gatling.http.response.HttpResult
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -39,13 +38,11 @@ private[polling] class Poller(
     pollerName: String,
     period: FiniteDuration,
     requestDef: HttpRequestDef,
-    responseBuilderFactory: ResponseBuilderFactory,
     httpTxExecutor: HttpTxExecutor,
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
     statsEngine: StatsEngine,
-    clock: Clock,
-    charset: Charset
+    clock: Clock
 ) extends StrictLogging {
 
   private var session: Session = _
@@ -66,7 +63,7 @@ private[polling] class Poller(
         statsEngine.reportUnbuildableRequest(session, pollerName, errorMessage)
         errorMessage
       }
-    } yield HttpTx(session, httpRequest, responseBuilderFactory, next = null, resourceTx = None, redirectCount = 0)
+    } yield HttpTx(session, httpRequest, next = null, resourceTx = None, redirectCount = 0)
 
   private def poll(): Unit =
     buildHttpTx() match {
@@ -97,7 +94,7 @@ private[polling] class Poller(
         clock
       ),
       statsProcessor = httpTxExecutor.statsProcessor(tx),
-      charset
+      tx.request.requestConfig.defaultCharset
     ).onComplete(result)
 
   def stop(next: Action, session: Session): Unit = {

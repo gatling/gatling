@@ -29,7 +29,6 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.HttpRequestDef
-import io.gatling.http.response.ResponseBuilder
 
 class PollingStart(
     pollerName: String,
@@ -43,18 +42,11 @@ class PollingStart(
 ) extends ExitableAction
     with NameGen {
 
-  import httpRequestDef._
-
   override val name: String = genName(pollerName)
 
   override def clock: Clock = coreComponents.clock
 
   override def statsEngine: StatsEngine = coreComponents.statsEngine
-
-  private val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
-    requestConfig,
-    coreComponents.configuration
-  )
 
   private def startPoller(session: Session): Session = {
     logger.info(s"Starting poller $pollerName")
@@ -62,13 +54,11 @@ class PollingStart(
       pollerName,
       period,
       httpRequestDef,
-      responseBuilderFactory,
       httpTxExecutor,
       httpCaches,
       httpProtocol,
       statsEngine,
-      clock,
-      coreComponents.configuration.core.charset
+      clock
     )
 
     val newSession = session.set(pollerName, poller)

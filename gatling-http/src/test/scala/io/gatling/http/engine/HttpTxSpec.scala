@@ -46,8 +46,11 @@ class HttpTxSpec extends BaseSpec {
       throttled = false,
       silent = None,
       followRedirect = false,
-      httpProtocol = httpProtocol,
-      explicitResources = Nil
+      digests = Map.empty,
+      storeBodyParts = false,
+      defaultCharset = configuration.core.charset,
+      explicitResources = Nil,
+      httpProtocol = httpProtocol
     )
   }
 
@@ -59,7 +62,6 @@ class HttpTxSpec extends BaseSpec {
         clientRequest = clientRequest,
         requestConfig = requestConfig
       ),
-      responseBuilderFactory = null,
       next = mock[Action],
       resourceTx = if (root) None else Some(ResourceTx(null, null)),
       redirectCount = 0

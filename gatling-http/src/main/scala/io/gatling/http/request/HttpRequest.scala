@@ -16,6 +16,9 @@
 
 package io.gatling.http.request
 
+import java.nio.charset.Charset
+import java.security.MessageDigest
+
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session._
 import io.gatling.http.ResponseTransformer
@@ -29,6 +32,9 @@ final case class HttpRequestConfig(
     throttled: Boolean,
     silent: Option[Boolean],
     followRedirect: Boolean,
+    digests: Map[String, MessageDigest],
+    storeBodyParts: Boolean,
+    defaultCharset: Charset,
     explicitResources: List[HttpRequestDef],
     httpProtocol: HttpProtocol
 )
@@ -45,20 +51,12 @@ final case class HttpRequestDef(
 
 final case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {
 
-  def isSilent(root: Boolean): Boolean = {
-
-    val requestPart = requestConfig.httpProtocol.requestPart
-
-    def silentBecauseProtocolSilentURI: Boolean = requestPart.silentUri match {
-      case Some(silentUri) => silentUri.matcher(clientRequest.getUri.toUrl).matches
-      case _               => false
-    }
-
-    def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
-
+  def isSilent(root: Boolean): Boolean =
     requestConfig.silent match {
       case Some(silent) => silent
-      case _            => silentBecauseProtocolSilentURI || silentBecauseProtocolSilentResources
+      case _ =>
+        val requestPart = requestConfig.httpProtocol.requestPart
+        requestPart.silentUri.exists(_.matcher(clientRequest.getUri.toUrl).matches) || // silent because matches protocol's silentUri
+        (!root && requestPart.silentResources) // silent because resources are silent
     }
-  }
 }

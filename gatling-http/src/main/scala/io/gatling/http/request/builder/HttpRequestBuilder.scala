@@ -16,14 +16,20 @@
 
 package io.gatling.http.request.builder
 
+import java.security.MessageDigest
+
+import scala.collection.breakOut
+
 import io.gatling.core.body.{ Body, RawFileBodies }
+import io.gatling.core.check.ChecksumCheck
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.{ HeaderNames, HeaderValues, ResponseTransformer }
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckScope.Status
+import io.gatling.http.check.HttpCheckScope.{ Body, Status }
+import io.gatling.http.engine.response.IsHttpDebugEnabled
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
 
@@ -155,6 +161,17 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
     val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
 
+    val digests: Map[String, MessageDigest] =
+      resolvedChecks
+        .map(_.wrapped)
+        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }(breakOut)
+
+    val storeBodyParts = IsHttpDebugEnabled ||
+      // we can't assume anything about if and how the response body will be used,
+      // let's force bytes so we don't risk decoding binary content
+      resolvedResponseTransformer.isDefined ||
+      resolvedChecks.exists(_.scope == Body)
+
     HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
@@ -164,6 +181,9 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
         throttled = throttled,
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
+        digests = digests,
+        storeBodyParts = storeBodyParts,
+        defaultCharset = configuration.core.charset,
         explicitResources = resolvedResources,
         httpProtocol = httpProtocol
       )
