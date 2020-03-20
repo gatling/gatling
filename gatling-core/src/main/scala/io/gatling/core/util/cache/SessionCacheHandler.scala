@@ -46,10 +46,10 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
   val enabled: Boolean = maxCapacity > 0
 
-  def getCache(session: Session): Option[Cache[K, V]] =
+  private[cache] def getCache(session: Session): Option[Cache[K, V]] =
     session(cacheName).asOption[Cache[K, V]]
 
-  def getOrCreateCache(session: Session): Cache[K, V] =
+  private[cache] def getOrCreateCache(session: Session): Cache[K, V] =
     getCache(session) match {
       case Some(cache) => cache
       case _           => Cache.newImmutableCache[K, V](maxCapacity)

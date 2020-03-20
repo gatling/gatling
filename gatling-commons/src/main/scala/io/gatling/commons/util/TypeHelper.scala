@@ -261,7 +261,7 @@ object TypeHelper {
 
   val NullValueFailure: Failure = "Value is null".failure
 
-  implicit class TypeValidator(val value: Any) extends AnyVal {
+  implicit final class TypeValidator(val value: Any) extends AnyVal {
 
     def as[T: TypeCaster: ClassTag: NotNothing]: T =
       if (value == null) {
