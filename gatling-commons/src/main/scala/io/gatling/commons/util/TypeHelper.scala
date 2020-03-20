@@ -263,14 +263,18 @@ object TypeHelper {
 
   implicit class TypeValidator(val value: Any) extends AnyVal {
 
-    def as[T: TypeCaster: ClassTag: NotNothing]: T = Option(value) match {
-      case Some(v) => implicitly[TypeCaster[T]].cast(v)
-      case _       => throw new ClassCastException(NullValueFailure.message)
-    }
+    def as[T: TypeCaster: ClassTag: NotNothing]: T =
+      if (value == null) {
+        throw new ClassCastException(NullValueFailure.message)
+      } else {
+        implicitly[TypeCaster[T]].cast(value)
+      }
 
-    def asValidation[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = Option(value) match {
-      case Some(v) => implicitly[TypeCaster[T]].validate(v)
-      case _       => NullValueFailure
-    }
+    def asValidation[T: TypeCaster: ClassTag: NotNothing]: Validation[T] =
+      if (value == null) {
+        NullValueFailure
+      } else {
+        implicitly[TypeCaster[T]].validate(value)
+      }
   }
 }
