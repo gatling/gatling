@@ -44,8 +44,6 @@ class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl
       headers = new DefaultHttpHeaders,
       body = new ByteArrayResponseBody(body, UTF_8),
       checksums = null,
-      bodyLength = 0,
-      charset = null,
       startTimestamp = 0,
       endTimestamp = 0,
       isHttp2 = false

@@ -294,7 +294,7 @@ class HttpCompileTest extends Simulation {
     // transformResponse
     .exec(http("Request").get("/").transformResponse { (_, response) =>
       import io.gatling.http.response._
-      response.copy(body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.charset))
+      response.copy(body = new StringResponseBody(response.body.string.replace(")]}',", ""), response.body.charset))
     })
 
   setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)

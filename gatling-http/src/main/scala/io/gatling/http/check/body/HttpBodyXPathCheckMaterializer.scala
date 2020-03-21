@@ -35,7 +35,7 @@ object HttpBodyXPathCheckMaterializer {
       safely(ErrorMapper) {
         val root =
           if (response.hasResponseBody) {
-            Some(XmlParsers.parse(response.body.stream, response.charset))
+            Some(XmlParsers.parse(response.body.stream, response.body.charset))
 
           } else {
             None

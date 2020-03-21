@@ -16,8 +16,6 @@
 
 package io.gatling.http.cache
 
-import java.nio.charset.StandardCharsets.UTF_8
-
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
@@ -53,7 +51,7 @@ class CacheSupportSpec extends BaseSpec {
       val body = mock[ResponseBody]
       val headersMap = new DefaultHttpHeaders
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = Response(request, EmptyHttpHeaders.INSTANCE, -1, -1, status, headersMap, body, Map.empty, 0, UTF_8, isHttp2 = false)
+      val response = Response(request, EmptyHttpHeaders.INSTANCE, -1, -1, status, headersMap, body, Map.empty, isHttp2 = false)
 
       httpCaches.getResponseExpires(response)
     }

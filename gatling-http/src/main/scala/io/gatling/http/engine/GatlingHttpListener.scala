@@ -84,12 +84,12 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
     if (!done) {
-      responseBuilder.accumulate(status, headers, clock.nowMillis)
+      responseBuilder.recordResponse(status, headers, clock.nowMillis)
     }
 
   override def onHttpResponseBodyChunk(chunk: ByteBuf, last: Boolean): Unit =
     if (!done) {
-      responseBuilder.accumulate(chunk, clock.nowMillis)
+      responseBuilder.recordBodyChunk(chunk, clock.nowMillis)
       if (last) {
         done = true
         try {

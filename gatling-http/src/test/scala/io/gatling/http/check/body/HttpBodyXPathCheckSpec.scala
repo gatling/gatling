@@ -50,8 +50,6 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
       headers = headers,
       body = new StringResponseBody(body, UTF_8),
       checksums = Map.empty,
-      bodyLength = body.getBytes(UTF_8).length,
-      charset = UTF_8,
       startTimestamp = 0,
       endTimestamp = 0,
       isHttp2 = false

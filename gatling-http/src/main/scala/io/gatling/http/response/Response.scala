@@ -16,8 +16,6 @@
 
 package io.gatling.http.response
 
-import java.nio.charset.Charset
-
 import scala.collection.JavaConverters._
 
 import io.gatling.http.HeaderNames
@@ -52,8 +50,6 @@ final case class Response(
     headers: HttpHeaders,
     body: ResponseBody,
     checksums: Map[String, String],
-    bodyLength: Int,
-    charset: Charset,
     isHttp2: Boolean
 ) extends HttpResult {
 
@@ -64,7 +60,7 @@ final case class Response(
   val cookies: List[Cookie] = HttpHelper.responseCookies(headers)
 
   def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
-  def hasResponseBody: Boolean = bodyLength != 0
+  def hasResponseBody: Boolean = body.length != 0
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
     if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))

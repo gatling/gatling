@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.JsonNode
 object HttpBodyJmesPathCheckMaterializer {
 
   def instance(jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] = {
-    val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.charset)
+    val preparer: Preparer[Response, JsonNode] = response => jsonParsers.safeParse(response.body.stream, response.body.charset)
 
     new HttpCheckMaterializer[JmesPathCheckType, JsonNode](Body, preparer)
   }

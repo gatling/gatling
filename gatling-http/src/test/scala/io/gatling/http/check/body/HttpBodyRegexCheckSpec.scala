@@ -49,8 +49,6 @@ class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreDsl
       headers = new DefaultHttpHeaders,
       body = new StringResponseBody(body, UTF_8),
       checksums = null,
-      bodyLength = 0,
-      charset = UTF_8,
       startTimestamp = 0,
       endTimestamp = 0,
       isHttp2 = false

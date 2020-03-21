@@ -18,8 +18,8 @@ package io.gatling.http.response
 
 import java.io.{ InputStream, SequenceInputStream }
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.annotation.switch
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 
@@ -31,22 +31,27 @@ import com.typesafe.scalalogging.LazyLogging
 import io.netty.buffer.{ ByteBuf, ByteBufInputStream }
 
 object ResponseBody {
-  def apply(chunks: Seq[ByteBuf], charset: Charset): ResponseBody =
-    (chunks.size: @switch) match {
-      case 0 => NoResponseBody
-      case 1 => new ByteBufResponseBody(chunks.head, charset)
-      case _ => new ByteBufsResponseBody(chunks, charset)
+
+  def apply(chunks: List[ByteBuf], charset: Charset): ResponseBody =
+    chunks match {
+      case Nil          => NoResponseBody
+      case chunk :: Nil => new ByteBufResponseBody(chunk, charset)
+      case _            => new ByteBufsResponseBody(chunks, charset)
     }
 }
 
 sealed trait ResponseBody {
+  def length: Int
+  def charset: Charset
   def string: String
   def chars: Array[Char]
   def bytes: Array[Byte]
   def stream: InputStream
 }
 
-private[gatling] final class ByteBufResponseBody(chunk: ByteBuf, charset: Charset) extends ResponseBody with LazyLogging {
+private[gatling] final class ByteBufResponseBody(chunk: ByteBuf, override val charset: Charset) extends ResponseBody with LazyLogging {
+
+  override val length: Int = chunk.readableBytes
 
   override lazy val string: String =
     try {
@@ -67,7 +72,13 @@ private[gatling] final class ByteBufResponseBody(chunk: ByteBuf, charset: Charse
     new ByteBufInputStream(chunk.duplicate)
 }
 
-private[gatling] final class ByteBufsResponseBody(chunks: Seq[ByteBuf], charset: Charset) extends ResponseBody with LazyLogging {
+private[gatling] final class ByteBufsResponseBody(chunks: Seq[ByteBuf], override val charset: Charset) extends ResponseBody with LazyLogging {
+
+  override val length: Int = {
+    var l = 0
+    chunks.foreach(l += _.readableBytes)
+    l
+  }
 
   override lazy val string: String =
     try {
@@ -89,6 +100,8 @@ private[gatling] final class ByteBufsResponseBody(chunks: Seq[ByteBuf], charset:
 }
 
 case object NoResponseBody extends ResponseBody {
+  override val length: Int = 0
+  override val charset: Charset = UTF_8
   override val string: String = ""
   override val chars: Array[Char] = Array.emptyCharArray
   override val bytes: Array[Byte] = Array.emptyByteArray
@@ -96,7 +109,9 @@ case object NoResponseBody extends ResponseBody {
 }
 
 // for ResponseTransformer
-final class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
+final class StringResponseBody(val string: String, override val charset: Charset) extends ResponseBody {
+
+  override def length: Int = bytes.length
 
   override lazy val chars: Array[Char] = string.toCharArray
 
@@ -106,7 +121,9 @@ final class StringResponseBody(val string: String, charset: Charset) extends Res
 }
 
 // for ResponseTransformer and PollerActor
-final class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
+final class ByteArrayResponseBody(val bytes: Array[Byte], override val charset: Charset) extends ResponseBody {
+
+  override def length: Int = bytes.length
 
   override lazy val string: String = new String(bytes, charset)
 

@@ -35,11 +35,11 @@ class ResponseBuilder(request: HttpRequest) {
 
   import request.requestConfig._
 
-  var storeHtmlOrCss: Boolean = _
-  var startTimestamp: Long = _
-  var endTimestamp: Long = _
+  private var storeHtmlOrCss: Boolean = _
+  private var startTimestamp: Long = _
+  private var endTimestamp: Long = _
   private var isHttp2: Boolean = _
-  private var status: Option[HttpResponseStatus] = None
+  private var status: HttpResponseStatus = _
   private var wireRequestHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE
 
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
@@ -53,20 +53,15 @@ class ResponseBuilder(request: HttpRequest) {
   def updateEndTimestamp(endTimestamp: Long): Unit =
     this.endTimestamp = endTimestamp
 
-  def accumulate(status: HttpResponseStatus, headers: HttpHeaders, timestamp: Long): Unit = {
+  def recordResponse(status: HttpResponseStatus, headers: HttpHeaders, timestamp: Long): Unit = {
     updateEndTimestamp(timestamp)
 
-    this.status = Some(status)
-    if (this.headers eq EmptyHttpHeaders.INSTANCE) {
-      this.headers = headers
-      storeHtmlOrCss = httpProtocol.responsePart.inferHtmlResources && (isHtml(headers) || isCss(headers))
-    } else {
-      // trailing headers, wouldn't contain ContentType
-      this.headers.add(headers)
-    }
+    this.status = status
+    this.headers = headers
+    storeHtmlOrCss = httpProtocol.responsePart.inferHtmlResources && (isHtml(headers) || isCss(headers))
   }
 
-  def accumulate(byteBuf: ByteBuf, timestamp: Long): Unit = {
+  def recordBodyChunk(byteBuf: ByteBuf, timestamp: Long): Unit = {
     updateEndTimestamp(timestamp)
 
     if (byteBuf.isReadable) {
@@ -93,45 +88,35 @@ class ResponseBuilder(request: HttpRequest) {
     }
   }
 
-  private def computeContentLength: Int = {
-    var l = 0
-    chunks.foreach(l += _.readableBytes)
-    l
-  }
-
   def buildResponse: HttpResult =
-    status match {
-      case Some(s) =>
-        try {
-          // Clock source might not be monotonic.
-          // Moreover, ProgressListener might be called AFTER ChannelHandler methods
-          // ensure response doesn't end before starting
-          endTimestamp = max(endTimestamp, startTimestamp)
+    if (status == null) {
+      buildFailure("How come we're trying to build a response with no status?!")
+    } else {
+      try {
+        // Clock source might not be monotonic.
+        // Moreover, ProgressListener might be called AFTER ChannelHandler methods
+        // ensure response doesn't end before starting
+        endTimestamp = max(endTimestamp, startTimestamp)
 
-          val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+        val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
-          val resolvedCharset = resolveCharset
+        val chunksOrderedByArrival = chunks.reverse
+        val body = ResponseBody(chunksOrderedByArrival, resolveCharset)
 
-          val chunksOrderedByArrival = chunks.reverse
-          val body: ResponseBody = ResponseBody(chunksOrderedByArrival, resolvedCharset)
-
-          Response(
-            request.clientRequest,
-            wireRequestHeaders,
-            startTimestamp,
-            endTimestamp,
-            s,
-            headers,
-            body,
-            checksums,
-            computeContentLength,
-            resolvedCharset,
-            isHttp2
-          )
-        } catch {
-          case NonFatal(t) => buildFailure(t)
-        }
-      case _ => buildFailure("How come we're trying to build a response with no status?!")
+        Response(
+          request.clientRequest,
+          wireRequestHeaders,
+          startTimestamp,
+          endTimestamp,
+          status,
+          headers,
+          body,
+          checksums,
+          isHttp2
+        )
+      } catch {
+        case NonFatal(t) => buildFailure(t)
+      }
     }
 
   def buildFailure(t: Throwable): HttpFailure = buildFailure(t.detailedMessage)
