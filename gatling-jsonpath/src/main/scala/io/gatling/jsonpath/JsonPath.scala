@@ -83,7 +83,7 @@ class JsonPathWalker(rootNode: JsonNode, fullPath: List[PathToken]) {
           fieldNames.iterator.flatMap { name =>
             node.get(name) match {
               case null  => Nil
-              case child => List(child)
+              case child => child :: Nil
             }
           }
         } else {

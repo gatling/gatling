@@ -22,7 +22,7 @@ private[graphite] object GraphitePath {
   private val sanitizeStringMemo = mutable.Map.empty[String, String]
   def sanitizeString(s: String): String = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
 
-  def graphitePath(root: String) = new GraphitePath(List(root))
+  def graphitePath(root: String) = new GraphitePath(root :: Nil)
   def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
 }
 

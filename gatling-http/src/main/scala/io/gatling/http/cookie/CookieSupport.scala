@@ -56,7 +56,7 @@ private[http] object CookieSupport {
 
   def storeCookie(session: Session, domain: String, path: String, cookie: Cookie, nowMillis: Long): Session = {
     val cookieJar = getOrCreateCookieJar(session)
-    session.set(CookieJarAttributeName, cookieJar.add(domain, path, List(cookie), nowMillis))
+    session.set(CookieJarAttributeName, cookieJar.add(domain, path, cookie :: Nil, nowMillis))
   }
 
   def getCookieValue(session: Session, domain: String, path: String, name: String, secure: Boolean): Validation[String] =

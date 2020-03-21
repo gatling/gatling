@@ -51,7 +51,7 @@ private[http] object ResourceFetcher extends StrictLogging {
   ): List[HttpRequest] =
     resources.flatMap {
       _.toRequest(session, httpCaches, httpProtocol, throttled, configuration) match {
-        case Success(httpRequest) => List(httpRequest)
+        case Success(httpRequest) => httpRequest :: Nil
         case Failure(m)           =>
           // shouldn't happen, only static values
           logger.error("Couldn't build request for embedded resource: " + m)
@@ -150,7 +150,7 @@ private[http] class ResourceFetcher(
       case Success(requestName) =>
         resource.build(requestName, session) match {
           case Success(httpRequest) =>
-            List(httpRequest)
+            httpRequest :: Nil
 
           case Failure(m) =>
             coreComponents.statsEngine.reportUnbuildableRequest(session, requestName, m)

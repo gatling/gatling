@@ -146,7 +146,7 @@ final case class Session(
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
       case Some(l) => l :+ groupName
-      case _       => List(groupName)
+      case _       => groupName :: Nil
     }
     copy(blockStack = GroupBlock(groupHierarchy, nowMillis, 0, OK) :: blockStack)
   }

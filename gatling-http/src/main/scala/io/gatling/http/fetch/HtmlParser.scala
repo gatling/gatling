@@ -98,7 +98,7 @@ class HtmlParser extends StrictLogging {
     val ieVersion = userAgent.map(_.version)
 
     val visitor: EmptyTagVisitor = new EmptyTagVisitor {
-      var inHiddenCommentStack = List(false)
+      var inHiddenCommentStack = false :: Nil
 
       def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit =
         Option(tag.getAttributeValue(attributeName)).foreach { url =>
@@ -177,7 +177,7 @@ class HtmlParser extends StrictLogging {
                 val code = tag.getAttributeValue(CodeAttribute).toString
                 val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
 
-                val appletResources = archives.getOrElse(List(code)).iterator
+                val appletResources = archives.getOrElse(code :: Nil).iterator
                 val appletResourcesUrls = codeBase() match {
                   case Some(cb) => appletResources.map(prependCodeBase(cb, _))
                   case _        => appletResources
