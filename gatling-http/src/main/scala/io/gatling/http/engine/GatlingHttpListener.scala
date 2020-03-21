@@ -16,26 +16,66 @@
 
 package io.gatling.http.engine
 
+import java.nio.charset.Charset
+
+import scala.math.max
+import scala.util.control.NonFatal
+
+import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.Clock
+import io.gatling.commons.util.StringHelper.bytes2Hex
+import io.gatling.commons.util.Throwables._
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
-import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.engine.tx.HttpTx
+import io.gatling.http.response.{ HttpFailure, HttpResult, Response, ResponseBody }
+import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml }
 
-import com.typesafe.scalalogging._
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
-import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ EmptyHttpHeaders, HttpHeaderNames, HttpHeaders, HttpResponseStatus }
 
-/**
- * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
- *
- * It is part of the HttpRequestAction
- */
-class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener with LazyLogging {
+object GatlingHttpListener extends StrictLogging {
 
-  private val responseBuilder = new ResponseBuilder(tx.request)
+  private def resolveCharset(headers: HttpHeaders, defaultCharset: Charset): Charset = {
+    val contentTypeHeader = headers.get(HttpHeaderNames.CONTENT_TYPE)
+    if (contentTypeHeader == null) {
+      defaultCharset
+    } else {
+      extractCharsetFromContentType(contentTypeHeader).getOrElse(defaultCharset)
+    }
+  }
+
+  private def logRequestCrash(tx: HttpTx, throwable: Throwable): Unit =
+    logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
+
+  // [fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // [fl]
+}
+
+class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseProcessor) extends HttpListener {
+
+  import GatlingHttpListener._
+  import tx.request.requestConfig._
+
   private var init = false
   private var done = false
+  private var storeHtmlOrCss: Boolean = _
+  private var requestStartTimestamp: Long = _
+  private var requestEndTimestamp: Long = _
+  private var isHttp2: Boolean = _
+  private var status: HttpResponseStatus = _
+  private var wireRequestHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE
+  private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
+  private var chunks: List[ByteBuf] = Nil
   // [fl]
   //
   //
@@ -45,8 +85,8 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   override def onSend(wireRequestHeaders: HttpHeaders): Unit =
     if (!init) {
       init = true
-      val now = clock.nowMillis
-      responseBuilder.updateStart(now, wireRequestHeaders)
+      requestStartTimestamp = clock.nowMillis
+      this.wireRequestHeaders = wireRequestHeaders
       // [fl]
       //
       //
@@ -78,38 +118,101 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   //
   //
   //
-  //
-  //
   // [fl]
+
+  override def onProtocolAwareness(isHttp2: Boolean): Unit =
+    this.isHttp2 = isHttp2
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
     if (!done) {
-      responseBuilder.recordResponse(status, headers, clock.nowMillis)
+      requestEndTimestamp = clock.nowMillis
+      this.status = status
+      this.headers = headers
+      storeHtmlOrCss = httpProtocol.responsePart.inferHtmlResources && (isHtml(headers) || isCss(headers))
     }
 
   override def onHttpResponseBodyChunk(chunk: ByteBuf, last: Boolean): Unit =
     if (!done) {
-      responseBuilder.recordBodyChunk(chunk, clock.nowMillis)
+      requestEndTimestamp = clock.nowMillis
+
+      if (chunk.isReadable) {
+        if (storeBodyParts || storeHtmlOrCss) {
+          // beware, we have to retain!
+          chunks = chunk.retain() :: chunks
+        }
+
+        if (digests.nonEmpty)
+          for {
+            nioBuffer <- chunk.nioBuffers
+            digest <- digests.values
+          } digest.update(nioBuffer.duplicate)
+      }
+
       if (last) {
         done = true
         try {
-          responseProcessor.onComplete(responseBuilder.buildResponse)
+          responseProcessor.onComplete(buildResponse)
         } finally {
-          responseBuilder.releaseChunks()
+          releaseChunks()
         }
       }
     }
 
-  override def onThrowable(throwable: Throwable): Unit = {
-    responseBuilder.updateEndTimestamp(clock.nowMillis)
-    logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
-    try {
-      responseProcessor.onComplete(responseBuilder.buildFailure(throwable))
-    } finally {
-      responseBuilder.releaseChunks()
+  private def buildResponse: HttpResult =
+    if (status == null) {
+      buildFailure("How come we're trying to build a response with no status?!")
+    } else {
+      try {
+        // Clock source might not be monotonic.
+        // Moreover, ProgressListener might be called AFTER ChannelHandler methods
+        // ensure response doesn't end before starting
+        requestEndTimestamp = max(requestEndTimestamp, requestStartTimestamp)
+
+        val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+
+        val chunksOrderedByArrival = chunks.reverse
+        val body = ResponseBody(chunksOrderedByArrival, resolveCharset(headers, defaultCharset))
+
+        Response(
+          tx.request.clientRequest,
+          wireRequestHeaders,
+          requestStartTimestamp,
+          requestEndTimestamp,
+          status,
+          headers,
+          body,
+          checksums,
+          isHttp2
+        )
+      } catch {
+        case NonFatal(t) => buildFailure(t)
+      }
     }
+
+  private def buildFailure(t: Throwable): HttpFailure =
+    buildFailure(t.rootMessage)
+
+  private def buildFailure(errorMessage: String): HttpFailure =
+    HttpFailure(
+      tx.request.clientRequest,
+      wireRequestHeaders,
+      requestStartTimestamp,
+      requestEndTimestamp,
+      errorMessage
+    )
+
+  private def releaseChunks(): Unit = {
+    chunks.foreach(_.release())
+    chunks = Nil
   }
 
-  override def onProtocolAwareness(isHttp2: Boolean): Unit =
-    responseBuilder.setHttp2(isHttp2)
+  override def onThrowable(throwable: Throwable): Unit = {
+    requestEndTimestamp = clock.nowMillis
+    logRequestCrash(tx, throwable)
+    try {
+      responseProcessor.onComplete(buildFailure(throwable))
+    } finally {
+      releaseChunks()
+    }
+  }
 }
