@@ -180,7 +180,7 @@ object ElCompiler {
 
   def compile[T: TypeCaster: ClassTag: NotNothing](string: String): Expression[T] =
     parse(string) match {
-      case List(StaticPart(staticStr)) =>
+      case StaticPart(staticStr) :: Nil =>
         val runtimeClass = implicitly[ClassTag[T]].runtimeClass
         if (runtimeClass == classOf[String] || runtimeClass == classOf[Any] || runtimeClass == classOf[Object]) {
           StaticValueExpression(staticStr).asInstanceOf[Expression[T]]
@@ -189,7 +189,7 @@ object ElCompiler {
           _ => stringV
         }
 
-      case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
+      case dynamicPart :: Nil => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
         (session: Session) =>
@@ -238,7 +238,7 @@ class ElCompiler private extends RegexParsers {
   }
 
   private val expr: Parser[List[ElPart[Any]]] = multivaluedExpr | (elExpr ^^ { part =>
-    List(part)
+    part :: Nil
   })
 
   private def multivaluedExpr: Parser[List[ElPart[Any]]] = (elExpr | staticPart) *

@@ -48,7 +48,7 @@ private[core] object RandomDistribution {
         (sum * PercentWeightsNormalizingFactor).round.toInt - normalizedTailSum
       }
 
-    val normalizedPossibilities = List(normalizedHeadWeight -> headChain) ::: normalizedTail
+    val normalizedPossibilities = normalizedHeadWeight -> headChain :: normalizedTail
 
     new RandomDistribution(normalizedPossibilities, 100 * PercentWeightsNormalizingFactor, Some(fallback))
   }
