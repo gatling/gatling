@@ -16,7 +16,6 @@
 
 package io.gatling.http.check.body
 
-import java.nio.charset.StandardCharsets._
 import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ BaseSpec, ValidationValues }
@@ -28,9 +27,8 @@ import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.response.{ Response, StringResponseBody }
+import io.gatling.http.response.Response
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 import com.fasterxml.jackson.databind.JsonNode
 import org.scalatest.matchers.{ MatchResult, Matcher }
 
@@ -39,19 +37,6 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
     HttpBodyJsonPathCheckMaterializer.instance(new JsonParsers)
-
-  private def mockResponse(body: String): Response =
-    Response(
-      request = null,
-      wireRequestHeaders = new DefaultHttpHeaders,
-      status = HttpResponseStatus.OK,
-      headers = new DefaultHttpHeaders,
-      body = new StringResponseBody(body, UTF_8),
-      checksums = null,
-      startTimestamp = 0,
-      endTimestamp = 0,
-      isHttp2 = false
-    )
 
   private val storeJson = """{ "store": {
                             |    "book": "In store"

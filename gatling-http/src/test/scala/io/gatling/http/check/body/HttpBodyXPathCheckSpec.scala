@@ -16,10 +16,7 @@
 
 package io.gatling.http.check.body
 
-import java.nio.charset.StandardCharsets._
 import java.util.{ HashMap => JHashMap }
-
-import scala.xml.Elem
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
@@ -27,11 +24,10 @@ import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
-import io.gatling.http.{ HttpDsl, MissingNettyHttpHeaderValues }
+import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.response.{ Response, StringResponseBody }
+import io.gatling.http.response.Response
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
 import net.sf.saxon.s9api.XdmNode
 
 class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
@@ -39,22 +35,6 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
     HttpBodyXPathCheckMaterializer.Instance
-
-  private def mockResponse(xml: Elem): Response = {
-    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.ContentType, s"${MissingNettyHttpHeaderValues.ApplicationXml}; charset=$UTF_8")
-    val body = xml.toString()
-    Response(
-      request = null,
-      wireRequestHeaders = headers,
-      status = HttpResponseStatus.OK,
-      headers = headers,
-      body = new StringResponseBody(body, UTF_8),
-      checksums = Map.empty,
-      startTimestamp = 0,
-      endTimestamp = 0,
-      isHttp2 = false
-    )
-  }
 
   "xpath.find.exists" should "find single result" in {
 

@@ -27,27 +27,12 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.response.{ ByteArrayResponseBody, Response }
-
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpResponseStatus }
+import io.gatling.http.response.Response
 
 class HttpBodyBytesCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Array[Byte]] = HttpBodyBytesCheckMaterializer.Instance
-
-  private def mockResponse(body: Array[Byte]): Response =
-    Response(
-      request = null,
-      wireRequestHeaders = new DefaultHttpHeaders,
-      status = HttpResponseStatus.OK,
-      headers = new DefaultHttpHeaders,
-      body = new ByteArrayResponseBody(body, UTF_8),
-      checksums = null,
-      startTimestamp = 0,
-      endTimestamp = 0,
-      isHttp2 = false
-    )
 
   "bodyBytes.find.is" should "support byte arrays equality" in {
     val string = "Hello World"
