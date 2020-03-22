@@ -93,8 +93,8 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
 
     response.headers
-      .set(HeaderNames.ContentType, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
-      .set(HeaderNames.ContentLength, raf.length)
+      .set(HttpHeaderNames.CONTENT_TYPE, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
+      .set(HttpHeaderNames.CONTENT_LENGTH, raf.length)
 
     ctx.write(response)
     ctx.write(region)
@@ -118,7 +118,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   }
 
   def checkCookie(cookie: String, value: String)(request: FullHttpRequest): Unit = {
-    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HeaderNames.Cookie)).asScala.toList
+    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HttpHeaderNames.COOKIE)).asScala.toList
     val matchingCookies = cookies.filter(_.name == cookie)
 
     matchingCookies match {

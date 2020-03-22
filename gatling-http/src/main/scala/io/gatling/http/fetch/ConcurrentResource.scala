@@ -19,13 +19,14 @@ package io.gatling.http.fetch
 import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.HeaderNames
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._
 import io.gatling.http.request.HttpRequest
+
+import io.netty.handler.codec.http.HttpHeaderNames
 
 private[fetch] object ConcurrentResource {
 
@@ -47,7 +48,7 @@ private[gatling] sealed abstract class ConcurrentResource extends Product with S
   ): Validation[HttpRequest] = {
     val requestName = httpProtocol.responsePart.inferredHtmlResourcesNaming(uri)
     val httpRequestDef =
-      Http(requestName.expressionSuccess).get(uri).header(HeaderNames.Accept, acceptHeader).build(httpCaches, httpProtocol, throttled, configuration)
+      Http(requestName.expressionSuccess).get(uri).header(HttpHeaderNames.ACCEPT, acceptHeader).build(httpCaches, httpProtocol, throttled, configuration)
     httpRequestDef.build(requestName, session)
   }
 }

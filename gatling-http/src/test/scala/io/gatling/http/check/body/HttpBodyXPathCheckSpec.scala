@@ -27,7 +27,7 @@ import io.gatling.core.check.{ CheckMaterializer, CheckResult }
 import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
-import io.gatling.http.HttpDsl
+import io.gatling.http.{ HttpDsl, MissingNettyHttpHeaderValues }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ Response, StringResponseBody }
 
@@ -41,7 +41,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
     HttpBodyXPathCheckMaterializer.Instance
 
   private def mockResponse(xml: Elem): Response = {
-    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.ContentType, s"${HttpHeaderValues.ApplicationXml}; charset=$UTF_8")
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.ContentType, s"${MissingNettyHttpHeaderValues.ApplicationXml}; charset=$UTF_8")
     val body = xml.toString()
     Response(
       request = null,

@@ -25,12 +25,12 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
-import io.gatling.http.HeaderNames
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.resolveFromUri
 
+import io.netty.handler.codec.http.HttpHeaderNames
 import com.typesafe.scalalogging.LazyLogging
 
 sealed trait ProcessorResult
@@ -109,37 +109,34 @@ class DefaultResponseProcessor(
   private def processResponse(response: Response): ProcessorResult =
     try {
       if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
+        val location = response.headers.get(HttpHeaderNames.LOCATION)
+        if (location == null) {
+          Crash("Redirect status, yet no Location header")
+        } else {
+          val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
+          val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
 
-        response.header(HeaderNames.Location) match {
-          case Some(location) =>
-            val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
-            val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
-
-            RedirectProcessor.redirectRequest(
-              tx.request.clientRequest,
-              newSession,
-              response.status,
-              tx.request.requestConfig.httpProtocol,
-              redirectUri,
-              defaultCharset
-            ) match {
-              case Success(redirectRequest) =>
-                Redirect(
-                  tx.copy(
-                    session = newSession,
-                    request = tx.request.copy(clientRequest = redirectRequest),
-                    redirectCount = tx.redirectCount + 1
-                  )
+          RedirectProcessor.redirectRequest(
+            tx.request.clientRequest,
+            newSession,
+            response.status,
+            tx.request.requestConfig.httpProtocol,
+            redirectUri,
+            defaultCharset
+          ) match {
+            case Success(redirectRequest) =>
+              Redirect(
+                tx.copy(
+                  session = newSession,
+                  request = tx.request.copy(clientRequest = redirectRequest),
+                  redirectCount = tx.redirectCount + 1
                 )
+              )
 
-              case Failure(message) =>
-                Crash(message)
-            }
-
-          case _ =>
-            Crash("Redirect status, yet no Location header")
+            case Failure(message) =>
+              Crash(message)
+          }
         }
-
       } else {
         val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
         Proceed(newSession, errorMessage)

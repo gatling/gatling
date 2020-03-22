@@ -22,8 +22,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.http.HeaderNames._
-import io.gatling.http.ResponseTransformer
+import io.gatling.http.{ MissingNettyHttpHeaderNames, ResponseTransformer }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.realm.Realm
@@ -33,6 +32,7 @@ import io.gatling.http.request.builder.RequestBuilder
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
+import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.ssl.SslProvider
 import javax.net.ssl.KeyManagerFactory
 
@@ -75,18 +75,19 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   // requestPart
   def disableAutoReferer: HttpProtocolBuilder = this.modify(_.protocol.requestPart.autoReferer).setTo(false)
   def disableCaching: HttpProtocolBuilder = this.modify(_.protocol.requestPart.cache).setTo(false)
-  def header(name: String, value: Expression[String]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.headers).using(_ + (name -> value))
-  def headers(headers: Map[String, String]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.headers).using(_ ++ headers.mapValues(_.el[String]))
-  def acceptHeader(value: Expression[String]): HttpProtocolBuilder = header(Accept, value)
-  def acceptCharsetHeader(value: Expression[String]): HttpProtocolBuilder = header(AcceptCharset, value)
-  def acceptEncodingHeader(value: Expression[String]): HttpProtocolBuilder = header(AcceptEncoding, value)
-  def acceptLanguageHeader(value: Expression[String]): HttpProtocolBuilder = header(AcceptLanguage, value)
-  def authorizationHeader(value: Expression[String]): HttpProtocolBuilder = header(Authorization, value)
-  def connectionHeader(value: Expression[String]): HttpProtocolBuilder = header(Connection, value)
-  def contentTypeHeader(value: Expression[String]): HttpProtocolBuilder = header(ContentType, value)
-  def doNotTrackHeader(value: Expression[String]): HttpProtocolBuilder = header(DNT, value)
-  def userAgentHeader(value: Expression[String]): HttpProtocolBuilder = header(UserAgent, value)
-  def upgradeInsecureRequestsHeader(value: Expression[String]): HttpProtocolBuilder = header(UpgradeInsecureRequests, value)
+  def header(name: CharSequence, value: Expression[String]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.headers).using(_ + (name -> value))
+  def headers(headers: Map[_ <: CharSequence, String]): HttpProtocolBuilder =
+    this.modify(_.protocol.requestPart.headers).using(_ ++ headers.mapValues(_.el[String]))
+  def acceptHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT, value)
+  def acceptCharsetHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT_CHARSET, value)
+  def acceptEncodingHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT_ENCODING, value)
+  def acceptLanguageHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT_LANGUAGE, value)
+  def authorizationHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.AUTHORIZATION, value)
+  def connectionHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.CONNECTION, value)
+  def contentTypeHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.CONTENT_TYPE, value)
+  def doNotTrackHeader(value: Expression[String]): HttpProtocolBuilder = header(MissingNettyHttpHeaderNames.DNT, value)
+  def userAgentHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.USER_AGENT, value)
+  def upgradeInsecureRequestsHeader(value: Expression[String]): HttpProtocolBuilder = header(MissingNettyHttpHeaderNames.UpgradeInsecureRequests, value)
   def basicAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder =
     authRealm(HttpHelper.buildDigestAuthRealm(username, password))

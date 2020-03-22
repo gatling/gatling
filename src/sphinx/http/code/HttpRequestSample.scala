@@ -112,17 +112,11 @@ class HttpRequestSample {
     //#headers
 
     //#asJson
-    http("foo")
-      .get("bar")
-      .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationJson)
-      .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationJson)
+    http("foo").get("bar")
     //#asJson
 
     //#asXml
-    http("foo")
-      .get("bar")
-      .header(HttpHeaderNames.ContentType, HttpHeaderValues.ApplicationXml)
-      .header(HttpHeaderNames.Accept, HttpHeaderValues.ApplicationXml)
+    http("foo").get("bar")
     //#asXml
 
     //#authentication

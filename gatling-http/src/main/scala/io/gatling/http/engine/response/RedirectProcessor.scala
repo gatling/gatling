@@ -22,12 +22,12 @@ import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
-import io.gatling.http.HeaderNames
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpProtocol
 
+import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.codec.http.HttpMethod._
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.netty.handler.codec.http.HttpResponseStatus._
@@ -49,15 +49,15 @@ object RedirectProcessor {
     val keepBody = responseStatus == TEMPORARY_REDIRECT || responseStatus == PERMANENT_REDIRECT || (responseStatus == FOUND && httpProtocol.responsePart.strict302Handling)
 
     val newHeaders = originalRequest.getHeaders
-      .remove(HeaderNames.Host)
-      .remove(HeaderNames.ContentLength)
-      .remove(HeaderNames.Cookie)
-      .remove(HeaderNames.Authorization)
-      .remove(HeaderNames.Origin)
-      .set(HeaderNames.Referer, originalRequest.getUri.toString)
+      .remove(HttpHeaderNames.HOST)
+      .remove(HttpHeaderNames.CONTENT_LENGTH)
+      .remove(HttpHeaderNames.COOKIE)
+      .remove(HttpHeaderNames.AUTHORIZATION)
+      .remove(HttpHeaderNames.ORIGIN)
+      .set(HttpHeaderNames.REFERER, originalRequest.getUri.toString)
 
     if (!keepBody) {
-      newHeaders.remove(HeaderNames.ContentType)
+      newHeaders.remove(HttpHeaderNames.CONTENT_TYPE)
     }
 
     val requestBuilder = new RequestBuilder(if (switchToGet) GET else originalMethod, redirectUri)

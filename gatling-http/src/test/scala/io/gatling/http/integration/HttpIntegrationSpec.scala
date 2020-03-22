@@ -19,14 +19,13 @@ package io.gatling.http.integration
 import java.nio.charset.StandardCharsets
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.HeaderNames._
 import io.gatling.http.HttpSpec
 import io.gatling.core.CoreDsl
 import io.gatling.http.HttpDsl
 
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelFutureListener
-import io.netty.handler.codec.http.{ ServerCookieEncoder => _, DefaultCookie => _, _ }
+import io.netty.handler.codec.http.{ DefaultFullHttpResponse, HttpHeaderNames => NettyHttpHeaderName, HttpMethod, HttpResponseStatus, HttpVersion }
 import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
@@ -42,9 +41,9 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.MOVED_PERMANENTLY)
         response
           .headers()
-          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie1", "Test1")))
-          .set(Location, "/page2")
-          .set(ContentLength, 0)
+          .set(NettyHttpHeaderName.SET_COOKIE, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie1", "Test1")))
+          .set(NettyHttpHeaderName.LOCATION, "/page2")
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, 0)
 
         ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
 
@@ -54,8 +53,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
         response
           .headers()
-          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
-          .set(ContentLength, bytes.length)
+          .set(NettyHttpHeaderName.SET_COOKIE, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, bytes.length)
 
         ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
 
@@ -65,8 +64,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
         response
           .headers()
-          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
-          .set(ContentLength, bytes.length)
+          .set(NettyHttpHeaderName.SET_COOKIE, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, bytes.length)
 
         ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
     }

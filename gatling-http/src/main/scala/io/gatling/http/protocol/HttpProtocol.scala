@@ -154,7 +154,7 @@ final case class HttpProtocolEnginePart(
 )
 
 final case class HttpProtocolRequestPart(
-    headers: Map[String, Expression[String]],
+    headers: Map[CharSequence, Expression[String]],
     realm: Option[Expression[Realm]],
     autoReferer: Boolean,
     cache: Boolean,

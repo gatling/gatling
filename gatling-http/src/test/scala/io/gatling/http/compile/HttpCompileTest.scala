@@ -51,6 +51,10 @@ class HttpCompileTest extends Simulation {
     .userAgentHeader(
       "Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19"
     )
+    .header("foo", "bar")
+    .header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE, "bar")
+    .headers(Map("foo" -> "bar"))
+    .headers(Map(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE -> "bar"))
     .check(bodyString.transform(string => string.length).lt(100000))
     .check(bodyString.transform((string, session) => string.length).lte(100000))
     .check(bodyString.transformOption(stringO => stringO.map(_.length)).gt(100000))
@@ -115,6 +119,7 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get(_ => "/").header("foo", "${bar}"))
     .exec(http("Request").get(_ => "/").header("foo", _ => "bar"))
     .exec(http("Request").get(_ => "/").headers(Map("foo" -> "${bar}")))
+    .exec(http("Request").get(_ => "/").headers(Map(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE -> "${bar}")))
     // queryParam
     .exec(http("Request").get("/").queryParam("param", "one"))
     .exec(http("Request").get("/").queryParam("param1", "one").queryParam("param2", "two"))
@@ -200,7 +205,7 @@ class HttpCompileTest extends Simulation {
           responseTimeInMillis.lt(1000)
         )
     )
-    .exec(http("Request").get("/tests").check(header(HttpHeaderNames.ContentType).is("text/html; charset=utf-8")))
+    .exec(http("Request").get("/tests").check(header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE).is("text/html; charset=utf-8")))
     // form
     .exec(
       http("Request")
@@ -309,7 +314,10 @@ class HttpCompileTest extends Simulation {
         }
       )
 
-  def isJsonResponse(response: Response): Boolean = response.header(HttpHeaderNames.ContentType).exists(_.contains(HttpHeaderValues.ApplicationJson))
+  def isJsonResponse(response: Response): Boolean =
+    response
+      .header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE)
+      .exists(_.contains(io.netty.handler.codec.http.HttpHeaderValues.APPLICATION_JSON.toString))
 
   private val requestWithTypedCheckIf =
     http("typedCheckIf")

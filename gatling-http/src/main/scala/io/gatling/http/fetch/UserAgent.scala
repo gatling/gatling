@@ -16,8 +16,9 @@
 
 package io.gatling.http.fetch
 
-import io.gatling.http.HeaderNames
 import io.gatling.http.client.Request
+
+import io.netty.handler.codec.http.HttpHeaderNames
 
 private[gatling] object UserAgent {
 
@@ -25,7 +26,7 @@ private[gatling] object UserAgent {
   private val MsIeUserAgentRegex = "MSIE ([0-9]+.[0-9]+)".r
 
   def getAgent(request: Request): Option[UserAgent] =
-    Option(request.getHeaders.get(HeaderNames.UserAgent)).flatMap(parseFromHeader)
+    Option(request.getHeaders.get(HttpHeaderNames.USER_AGENT)).flatMap(parseFromHeader)
 
   def parseFromHeader(userAgent: String): Option[UserAgent] =
     MsIeUserAgentRegex.findFirstMatchIn(userAgent) match {

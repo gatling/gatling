@@ -27,12 +27,11 @@ import scala.util.Try
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.filter.Filters
-import io.gatling.http.HeaderNames.ContentType
-import io.gatling.http.HeaderValues.ApplicationFormUrlEncoded
 import io.gatling.recorder.har.HarParser._
 import io.gatling.recorder.model._
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderValues, HttpHeaders, HttpMethod }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod }
+import io.netty.util.AsciiString
 
 final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 
@@ -59,7 +58,10 @@ private[recorder] object HarReader {
       .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))
       // filter out CONNECT (if HAR was generated with a proxy such as Charles) and Upgrade requests (WebSockets)
       .filter(
-        entry => entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.exists(_.name.equalsIgnoreCase(HttpHeaderValues.UPGRADE.toString))
+        entry =>
+          entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.exists(
+            header => AsciiString.contentEqualsIgnoreCase(header.name, HttpHeaderValues.UPGRADE)
+          )
       )
       .filter(entry => isValidURL(entry.request.url))
       .map(buildHttpTransaction)
@@ -120,7 +122,8 @@ private[recorder] object HarReader {
 
       case _ =>
         // FIXME only honor params for ApplicationFormUrlEncoded for now. Charles seems utterly broken for MultipartFormData
-        if (postData.params.nonEmpty && Option(requestHeaders.get(ContentType)).exists(_.toLowerCase(Locale.ROOT).contains(ApplicationFormUrlEncoded))) {
+        if (postData.params.nonEmpty && Option(requestHeaders.get(HttpHeaderNames.CONTENT_TYPE))
+              .exists(AsciiString.contains(_, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED))) {
           Some(postData.params.map(postParam => encode(postParam.name) + "=" + encode(unwrap(postParam.value))).mkString("&").getBytes(UTF_8))
 
         } else {

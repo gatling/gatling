@@ -18,13 +18,11 @@ package io.gatling.recorder.scenario
 
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.{ Base64, Locale }
+import java.util.Base64
 
 import scala.concurrent.duration.FiniteDuration
 import scala.collection.JavaConverters._
 
-import io.gatling.http.HeaderNames._
-import io.gatling.http.HeaderValues._
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.{ ConcurrentResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
@@ -32,8 +30,8 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.model._
 import io.gatling.http.fetch.{ UserAgent => UserAgentHelper }
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpUtil }
-
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpUtil }
+import io.netty.util.AsciiString
 import jodd.net.MimeTypes
 
 private[recorder] final case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
@@ -54,7 +52,15 @@ private[recorder] final case class TagElement(text: String) extends ScenarioElem
 
 private[recorder] object RequestElement {
 
-  private val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
+  private val CacheHeaders =
+    Set(
+      HttpHeaderNames.CACHE_CONTROL.toString,
+      HttpHeaderNames.IF_MATCH.toString,
+      HttpHeaderNames.IF_MODIFIED_SINCE.toString,
+      HttpHeaderNames.IF_NONE_MATCH.toString,
+      HttpHeaderNames.IF_RANGE.toString,
+      HttpHeaderNames.IF_UNMODIFIED_SINCE.toString
+    )
 
   private val HtmlContentType = """(?i)text/html\s*;\s+charset=(.+)?""".r
 
@@ -63,7 +69,8 @@ private[recorder] object RequestElement {
 
     val requestBody =
       if (request.body.nonEmpty) {
-        val formUrlEncoded = Option(requestHeaders.get(ContentType)).exists(_.toLowerCase(Locale.ROOT).contains(ApplicationFormUrlEncoded))
+        val formUrlEncoded =
+          Option(requestHeaders.get(HttpHeaderNames.CONTENT_TYPE)).exists(AsciiString.contains(_, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED))
         if (formUrlEncoded)
           // The payload consists of a Unicode string using only characters in the range U+0000 to U+007F
           // cf: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-decoding-algorithm
@@ -81,12 +88,12 @@ private[recorder] object RequestElement {
         None
       }
 
-    val embeddedResources = Option(response.headers.get(ContentType))
+    val embeddedResources = Option(response.headers.get(HttpHeaderNames.CONTENT_TYPE))
       .collect {
         case HtmlContentType(headerCharset) if responseBody.nonEmpty =>
           val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
           val htmlChars = new String(response.body, charset).toCharArray
-          val userAgent = Option(requestHeaders.get(UserAgent)).flatMap(UserAgentHelper.parseFromHeader)
+          val userAgent = Option(requestHeaders.get(HttpHeaderNames.USER_AGENT)).flatMap(UserAgentHelper.parseFromHeader)
           new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars, userAgent)
       }
       .getOrElse(Nil)
@@ -159,12 +166,15 @@ private[recorder] final case class RequestElement(
         case _ => None
       }
 
-    Option(headers.get(Authorization)).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
+    Option(headers.get(HttpHeaderNames.AUTHORIZATION)).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
   }
 
   val (mimeType, responseMimeType) = {
     def getMimeType(headers: HttpHeaders) =
-      Option(headers.get(ContentType)).flatMap(e => Option(HttpUtil.getMimeType(e))).getOrElse(ApplicationOctetStream).toString
+      Option(headers.get(HttpHeaderNames.CONTENT_TYPE))
+        .flatMap(e => Option(HttpUtil.getMimeType(e)))
+        .getOrElse(HttpHeaderValues.APPLICATION_OCTET_STREAM)
+        .toString
 
     (getMimeType(headers), getMimeType(responseHeaders))
   }

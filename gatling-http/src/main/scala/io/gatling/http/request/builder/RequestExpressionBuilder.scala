@@ -25,7 +25,6 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.HeaderNames
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ Request, SignatureCalculator, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.client.uri.Uri
@@ -34,6 +33,8 @@ import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
+import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.util.AsciiString
 import com.typesafe.scalalogging.LazyLogging
 
 object RequestExpressionBuilder {
@@ -56,9 +57,9 @@ abstract class RequestExpressionBuilder(
   import RequestExpressionBuilder._
 
   protected val charset: Charset = configuration.core.charset
-  protected val headers: Map[String, Expression[String]] = httpProtocol.requestPart.headers ++ commonAttributes.headers
-  private val refererHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.Referer)
-  protected val contentTypeHeaderIsUndefined: Boolean = !headers.contains(HeaderNames.ContentType)
+  protected val headers: Map[CharSequence, Expression[String]] = httpProtocol.requestPart.headers ++ commonAttributes.headers
+  private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
+  protected val contentTypeHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.CONTENT_TYPE))
   private val disableUrlEncoding: Boolean = commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
   private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] =
     commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
@@ -155,7 +156,7 @@ abstract class RequestExpressionBuilder(
 
   protected def addDefaultHeaders(session: Session)(requestBuilder: ClientRequestBuilder): ClientRequestBuilder = {
     if (httpProtocol.requestPart.autoReferer && refererHeaderIsUndefined) {
-      RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HeaderNames.Referer, _))
+      RefererHandling.getStoredReferer(session).map(requestBuilder.addHeader(HttpHeaderNames.REFERER, _))
     }
     requestBuilder
   }
@@ -172,7 +173,7 @@ abstract class RequestExpressionBuilder(
         configureDynamicHeaders
     }
 
-  private def configureStaticHeaders(staticHeaders: Iterable[(String, String)]): RequestBuilderConfigure = {
+  private def configureStaticHeaders(staticHeaders: Iterable[(CharSequence, String)]): RequestBuilderConfigure = {
     val addHeaders: ClientRequestBuilder => Validation[ClientRequestBuilder] = requestBuilder => {
       staticHeaders.foreach { case (key, value) => requestBuilder.addHeader(key, value) }
       requestBuilder.success

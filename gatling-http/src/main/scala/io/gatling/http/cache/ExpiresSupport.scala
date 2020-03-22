@@ -18,11 +18,10 @@ package io.gatling.http.cache
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.NumberHelper._
-import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.response.Response
 
 import io.netty.handler.codec.DateFormatter
-import io.netty.handler.codec.http.HttpHeaders
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpHeaders }
 
 private[cache] trait ExpiresSupport {
 
@@ -68,7 +67,8 @@ private[cache] trait ExpiresSupport {
   }
 
   private def cacheControlNoCache(cacheControlHeader: String): Boolean =
-    cacheControlHeader.contains(HeaderValues.NoCache) || cacheControlHeader.contains(HeaderValues.NoStore) || cacheControlHeader.contains(MaxAgeZero)
+    cacheControlHeader.contains(HttpHeaderValues.NO_CACHE.toString) || cacheControlHeader.contains(HttpHeaderValues.NO_STORE.toString) || cacheControlHeader
+      .contains(MaxAgeZero)
 
   private def maxAgeAsExpiresValue(cacheControlHeader: String): Option[Long] =
     extractMaxAgeValue(cacheControlHeader).flatMap { maxAge =>
@@ -85,7 +85,7 @@ private[cache] trait ExpiresSupport {
     }
 
   private def expiresValue(responseHeaders: HttpHeaders): Option[Long] = {
-    val expiresHeader = responseHeaders.get(HeaderNames.Expires)
+    val expiresHeader = responseHeaders.get(HttpHeaderNames.EXPIRES)
     if (expiresHeader != null) {
       extractExpiresValue(expiresHeader).filter(_ > clock.nowMillis)
     } else {
@@ -97,11 +97,11 @@ private[cache] trait ExpiresSupport {
 
     val responseHeaders = response.headers
 
-    val pragmaHeader = responseHeaders.get(HeaderNames.Pragma)
-    if (pragmaHeader != null && pragmaHeader.contains(HeaderValues.NoCache)) {
+    val pragmaHeader = responseHeaders.get(HttpHeaderNames.PRAGMA)
+    if (pragmaHeader != null && pragmaHeader.contains(HttpHeaderValues.NO_CACHE.toString)) {
       None
     } else {
-      val cacheControlHeader = responseHeaders.get(HeaderNames.CacheControl)
+      val cacheControlHeader = responseHeaders.get(HttpHeaderNames.CACHE_CONTROL)
       if (cacheControlHeader != null && cacheControlNoCache(cacheControlHeader)) {
         None
       } else {

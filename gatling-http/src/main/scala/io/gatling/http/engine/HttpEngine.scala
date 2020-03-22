@@ -27,8 +27,6 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
-import io.gatling.http.HeaderNames._
-import io.gatling.http.HeaderValues._
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
@@ -40,7 +38,7 @@ import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.channel.{ EventLoop, EventLoopGroup }
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaders, HttpMethod, HttpResponseStatus }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod, HttpResponseStatus }
 import io.netty.handler.ssl.SslContext
 import io.netty.resolver.dns._
 import javax.net.ssl.KeyManagerFactory
@@ -76,11 +74,11 @@ class HttpEngine(
           val requestBuilder = new RequestBuilder(HttpMethod.GET, Uri.create(url))
             .setHeaders(
               new DefaultHttpHeaders()
-                .add(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-                .add(AcceptLanguage, "en-US,en;q=0.5")
-                .add(AcceptEncoding, "gzip")
-                .add(Connection, Close)
-                .add(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+                .add(HttpHeaderNames.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+                .add(HttpHeaderNames.ACCEPT_LANGUAGE, "en-US,en;q=0.5")
+                .add(HttpHeaderNames.ACCEPT_ENCODING, HttpHeaderValues.GZIP)
+                .add(HttpHeaderNames.CONNECTION, HttpHeaderValues.CLOSE)
+                .add(HttpHeaderNames.USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
             )
             .setRequestTimeout(1000)
             .setDefaultCharset(configuration.core.charset)

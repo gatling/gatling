@@ -19,11 +19,12 @@ package io.gatling.recorder.scenario.template
 import scala.collection.JavaConverters._
 
 import io.gatling.commons.util.StringHelper.Eol
-import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeadersAndProtocolMethods
 import io.gatling.recorder.util.HttpUtils
+
+import io.netty.handler.codec.http.HttpHeaderNames
 
 private[scenario] object ProtocolTemplate {
 
@@ -87,7 +88,7 @@ private[scenario] object ProtocolTemplate {
         .flatMap {
           case (headerName, headerValue) =>
             val properHeaderValue =
-              if (headerName.equalsIgnoreCase(HeaderNames.AcceptEncoding)) {
+              if (headerName.equalsIgnoreCase(HttpHeaderNames.ACCEPT_ENCODING.toString)) {
                 HttpUtils.filterSupportedEncodings(headerValue)
               } else {
                 headerValue

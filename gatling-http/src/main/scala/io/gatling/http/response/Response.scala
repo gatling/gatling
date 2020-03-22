@@ -18,13 +18,12 @@ package io.gatling.http.response
 
 import scala.collection.JavaConverters._
 
-import io.gatling.http.HeaderNames
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
 import io.netty.handler.codec.http.cookie.Cookie
-import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseStatus }
 
 sealed trait HttpResult {
   def request: Request
@@ -63,6 +62,5 @@ final case class Response(
   def hasResponseBody: Boolean = body.length != 0
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
-    if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
-    else None
+    if (protocol.requestPart.cache) header(HttpHeaderNames.LAST_MODIFIED).orElse(header(HttpHeaderNames.ETAG)) else None
 }

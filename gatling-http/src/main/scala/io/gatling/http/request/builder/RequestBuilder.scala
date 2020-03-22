@@ -22,7 +22,6 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.util.HttpHelper._
-import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
 import io.gatling.http.client.SignatureCalculator
@@ -32,10 +31,11 @@ import io.gatling.http.client.realm.Realm
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.sign.OAuthSignatureCalculator
 import io.gatling.http.protocol.Proxy
+import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.util.HttpHelper
 
 import com.softwaremill.quicklens._
-import io.netty.handler.codec.http.HttpMethod
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }
 
 object CommonAttributes {
   def apply(requestName: Expression[String], method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): CommonAttributes =
@@ -59,7 +59,7 @@ final case class CommonAttributes(
     urlOrURI: Either[Expression[String], Uri],
     disableUrlEncoding: Option[Boolean],
     queryParams: List[HttpParam],
-    headers: Map[String, Expression[String]],
+    headers: Map[CharSequence, Expression[String]],
     realm: Option[Expression[Realm]],
     virtualHost: Option[Expression[String]],
     proxy: Option[ProxyServer],
@@ -87,8 +87,8 @@ object RequestBuilder {
     HttpStatusCheckBuilder.find.validate(okStatusValidator.expressionSuccess).build(HttpStatusCheckMaterializer.Instance)
   }
 
-  private val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
-  private val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
+  private val JsonHeaderValueExpression = HttpHeaderValues.APPLICATION_JSON.toString.expressionSuccess
+  private val XmlHeaderValueExpression = MissingNettyHttpHeaderValues.ApplicationXml.toString.expressionSuccess
   val AcceptAllHeaderValueExpression: Expression[String] = "*/*".expressionSuccess
   val AcceptCssHeaderValueExpression: Expression[String] = "text/css,*/*;q=0.1".expressionSuccess
 
@@ -130,24 +130,26 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param name the name of the header
    * @param value the value of the header
    */
-  def header(name: String, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ + (name -> value)))
+  def header(name: CharSequence, value: Expression[String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ + (name -> value)))
 
   /**
    * Adds several headers to the request at the same time
    *
    * @param newHeaders a scala map containing the headers to add
    */
-  def headers(newHeaders: Map[String, String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.mapValues(_.el[String])))
+  def headers(newHeaders: Map[_ <: CharSequence, String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.mapValues(_.el[String])))
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values
    */
-  def asJson: B = header(HeaderNames.Accept, RequestBuilder.JsonHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.JsonHeaderValueExpression)
+  def asJson: B =
+    header(HttpHeaderNames.ACCEPT, RequestBuilder.JsonHeaderValueExpression).header(HttpHeaderNames.CONTENT_TYPE, RequestBuilder.JsonHeaderValueExpression)
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/xml" values
    */
-  def asXml: B = header(HeaderNames.Accept, RequestBuilder.XmlHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.XmlHeaderValueExpression)
+  def asXml: B =
+    header(HttpHeaderNames.ACCEPT, RequestBuilder.XmlHeaderValueExpression).header(HttpHeaderNames.CONTENT_TYPE, RequestBuilder.XmlHeaderValueExpression)
 
   /**
    * Adds BASIC authentication to the request

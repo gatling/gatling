@@ -22,7 +22,6 @@ import io.gatling.commons.validation._
 import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.HeaderNames
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
 import io.gatling.http.client.body.file.FileRequestBodyBuilder
@@ -34,6 +33,8 @@ import io.gatling.http.client.body.stringchunks.StringChunksRequestBodyBuilder
 import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
+
+import io.netty.handler.codec.http.HttpHeaderNames
 
 class HttpRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
@@ -112,8 +113,8 @@ class HttpRequestExpressionBuilder(
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
     httpCaches.contentCacheEntry(session, request).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
-        etag.foreach(request.getHeaders.set(HeaderNames.IfNoneMatch, _))
-        lastModified.foreach(request.getHeaders.set(HeaderNames.IfModifiedSince, _))
+        etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
+        lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
     }
     request
   }
