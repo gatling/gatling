@@ -22,9 +22,8 @@ import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.response.Response
 
-import io.netty.handler.codec.http.HttpHeaderNames
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders }
 
 object ContentCacheKey {
   def apply(request: Request): ContentCacheKey =
@@ -48,11 +47,11 @@ private[cache] trait HttpContentCacheSupport extends ExpiresSupport {
   private[this] val httpContentCacheHandler =
     new SessionCacheHandler[ContentCacheKey, ContentCacheEntry](HttpContentCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
-  def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, response: Response): Session =
+  def cacheContent(session: Session, httpProtocol: HttpProtocol, request: Request, responseHeaders: HttpHeaders): Session =
     if (httpProtocol.requestPart.cache && httpContentCacheHandler.enabled) {
-      val expires = getResponseExpires(response)
-      val etag = response.header(HttpHeaderNames.ETAG)
-      val lastModified = response.header(HttpHeaderNames.LAST_MODIFIED)
+      val expires = getResponseExpires(responseHeaders)
+      val etag = Option(responseHeaders.get(HttpHeaderNames.ETAG))
+      val lastModified = Option(responseHeaders.get(HttpHeaderNames.LAST_MODIFIED))
 
       if (expires.isDefined || etag.isDefined || lastModified.isDefined) {
         val key = ContentCacheKey(request)

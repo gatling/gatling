@@ -93,9 +93,7 @@ private[cache] trait ExpiresSupport {
     }
   }
 
-  def getResponseExpires(response: Response): Option[Long] = {
-
-    val responseHeaders = response.headers
+  def getResponseExpires(responseHeaders: HttpHeaders): Option[Long] = {
 
     val pragmaHeader = responseHeaders.get(HttpHeaderNames.PRAGMA)
     if (pragmaHeader != null && pragmaHeader.contains(HttpHeaderValues.NO_CACHE.toString)) {

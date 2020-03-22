@@ -60,7 +60,7 @@ sealed abstract class SessionProcessor(
     def updateSessionAfterChecks(s1: Session, status: Status): Session = {
       val s2 = CookieSupport.storeCookies(s1, request.getUri, response.cookies, clock.nowMillis)
       val s3 = updateReferer(s2, response)
-      val s4 = httpCaches.cacheContent(s3, httpProtocol, request, response)
+      val s4 = httpCaches.cacheContent(s3, httpProtocol, request, response.headers)
       updateSessionStats(s4, response.startTimestamp, response.endTimestamp, status)
     }
 

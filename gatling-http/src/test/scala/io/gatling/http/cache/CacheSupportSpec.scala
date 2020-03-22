@@ -28,9 +28,8 @@ import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
-import io.gatling.http.response.{ Response, ResponseBody }
 
-import io.netty.handler.codec.http.{ DefaultHttpHeaders, EmptyHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpMethod, HttpResponseStatus }
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpMethod }
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 
@@ -42,17 +41,10 @@ class CacheSupportSpec extends BaseSpec {
 
   class CacheContext {
 
-    private val request = new RequestBuilder(HttpMethod.GET, Uri.create("http://localhost"))
-      .build()
-
     def getResponseExpire(headers: Seq[(CharSequence, CharSequence)]): Option[Long] = {
-      val status = mock[HttpResponseStatus]
-      val body = mock[ResponseBody]
-      val headersMap = new DefaultHttpHeaders
-      headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = Response(request, EmptyHttpHeaders.INSTANCE, -1, -1, status, headersMap, body, Map.empty, isHttp2 = false)
-
-      httpCaches.getResponseExpires(response)
+      val httpHeaders = new DefaultHttpHeaders
+      headers.foreach { case (headerName, headerValue) => httpHeaders.add(headerName, headerValue) }
+      httpCaches.getResponseExpires(httpHeaders)
     }
   }
 
