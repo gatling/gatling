@@ -12,6 +12,7 @@ object BuildSettings {
     githubPath := "gatling/gatling",
     projectDevelopers := developers,
     parallelExecution in Test := false,
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
     licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
     // [fl]
     //
