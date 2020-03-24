@@ -37,7 +37,6 @@ public class UriEncoderTest {
     assertEquals("https://gatling.io/foo bar", encode(encoder, "https://gatling.io/foo bar"));
     assertEquals("https://gatling.io?foo=bar&F OO=B AR", encode(encoder, "https://gatling.io", new Param("foo", "bar"), new Param("F OO", "B AR")));
     assertEquals("https://gatling.io/f oo?f oo=b ar&F OO=B AR", encode(encoder, "https://gatling.io/f oo?f oo=b ar", new Param("F OO", "B AR")));
-
   }
 
   @Test
