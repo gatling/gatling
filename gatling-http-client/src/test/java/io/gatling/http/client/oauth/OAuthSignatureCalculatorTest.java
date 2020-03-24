@@ -124,36 +124,12 @@ class OAuthSignatureCalculatorTest {
     testSignatureBaseStringWithEncodableOAuthToken(request);
   }
 
-  @Test
-  void testSignatureBaseStringWithRawUri() throws NoSuchAlgorithmException {
-    // note: @ is legal so don't decode it into %40 because it won't be
-    // encoded back
-    // note: we don't know how to fix a = that should have been encoded as
-    // %3D but who would be stupid enough to do that?
-
-    List<Param> formParams = new ArrayList<>();
-    formParams.add(new Param("c2", ""));
-    formParams.add(new Param("a3", "2 q"));
-
-    Request request = new RequestBuilder(HttpMethod.POST, Uri.create("http://example.com/request?b5=%3D%253D&a3=a&c%40=&a2=r b"))
-      .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(formParams))
-      .build();
-
-    testSignatureBaseString(request);
-    testSignatureBaseStringWithEncodableOAuthToken(request);
-  }
-
   // based on the reference test case from
   // http://oauth.pbwiki.com/TestCases
   @Test
   void testGetCalculateSignature() throws NoSuchAlgorithmException, InvalidKeyException {
 
-    List<Param> queryParams = new ArrayList<>();
-    queryParams.add(new Param("file", "vacation.jpg"));
-    queryParams.add(new Param("size", "original"));
-
-    Request request = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos"))
-      .setQueryParams(queryParams)
+    Request request = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos?file=vacation.jpg&size=original"))
       .build();
 
     String signature = new OAuthSignatureCalculatorInstance()
@@ -213,12 +189,7 @@ class OAuthSignatureCalculatorTest {
         NONCE,
         TIMESTAMP);
 
-    List<Param> queryParams = new ArrayList<>();
-    queryParams.add(new Param("file", "vacation.jpg"));
-    queryParams.add(new Param("size", "original"));
-
-    final Request req = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos"))
-      .setQueryParams(queryParams)
+    final Request req = new RequestBuilder(HttpMethod.GET, Uri.create("http://photos.example.net/photos?file=vacation.jpg&size=original"))
       .build();
 
     final List<Param> params = req.getUri().getEncodedQueryParams();

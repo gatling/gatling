@@ -68,7 +68,6 @@ object RedirectProcessor {
       .setRealm(originalRequest.getRealm)
       .setRequestTimeout(originalRequest.getRequestTimeout)
       .setDefaultCharset(defaultCharset)
-      .setFixUrlEncoding(false)
 
     if (originalRequest.getUri.isSameBase(redirectUri)) {
       // we can only assume the virtual host is still valid if the baseUrl is the same

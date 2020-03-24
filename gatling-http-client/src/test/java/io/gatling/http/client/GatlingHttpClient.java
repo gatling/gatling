@@ -61,7 +61,6 @@ public class GatlingHttpClient implements AutoCloseable {
       // hack: patch request with name resolver
       request = new RequestBuilder(request, request.getUri())
         .setNameResolver(nameResolver)
-        .setFixUrlEncoding(false)
         .build();
     }
 

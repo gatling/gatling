@@ -77,7 +77,6 @@ private[cache] trait PermanentRedirectCacheSupport {
     request.getHeaders.remove(HttpHeaderNames.COOKIE)
     val cookies = CookieSupport.getStoredCookies(session, toUri)
     new RequestBuilder(request, toUri)
-      .setFixUrlEncoding(false)
       .setDefaultCharset(configuration.core.charset)
       .setCookies(cookies.asJava)
       .build

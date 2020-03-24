@@ -18,7 +18,6 @@ package io.gatling.http.client;
 
 import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.uri.Uri;
-import io.gatling.http.client.uri.UriEncoder;
 import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.proxy.ProxyServer;
@@ -49,7 +48,6 @@ public class RequestBuilder {
 
   private final HttpMethod method;
   private final Uri uri;
-  private List<Param> queryParams;
   private HttpHeaders headers = new DefaultHttpHeaders(false);
   private List<Cookie> cookies;
   private RequestBodyBuilder<?> bodyBuilder;
@@ -64,7 +62,6 @@ public class RequestBuilder {
   private boolean alpnRequired;
   private boolean http2PriorKnowledge;
   private String wsSubprotocol;
-  private boolean fixUrlEncoding = true;
   private Charset defaultCharset = UTF_8;
 
   public RequestBuilder(HttpMethod method, Uri uri) {
@@ -93,11 +90,6 @@ public class RequestBuilder {
 
   public Uri getUri() {
     return uri;
-  }
-
-  public RequestBuilder setQueryParams(List<Param> queryParams) {
-    this.queryParams = queryParams;
-    return this;
   }
 
   public RequestBuilder setHeaders(HttpHeaders headers) {
@@ -170,11 +162,6 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setFixUrlEncoding(boolean fixUrlEncoding) {
-    this.fixUrlEncoding = fixUrlEncoding;
-    return this;
-  }
-
   public RequestBuilder setDefaultCharset(Charset defaultCharset) {
     this.defaultCharset = defaultCharset;
     return this;
@@ -186,8 +173,6 @@ public class RequestBuilder {
   }
 
   public Request build() {
-
-    Uri fullUri = UriEncoder.uriEncoder(fixUrlEncoding).encode(uri, queryParams);
 
     if (!headers.contains(ACCEPT)) {
       headers.set(ACCEPT, ACCEPT_ALL_HEADER_VALUE);
@@ -235,7 +220,7 @@ public class RequestBuilder {
 
     return new Request(
       method,
-      fullUri,
+      uri,
       headers,
       cookies != null ? cookies : Collections.emptyList(),
       body,
