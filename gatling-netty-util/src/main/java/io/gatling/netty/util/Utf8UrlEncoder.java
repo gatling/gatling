@@ -142,7 +142,7 @@ public final class Utf8UrlEncoder {
   }
 
   public static void encodeAndAppendQuery(StringBuilder sb, String query) {
-    appendEncoded(sb, query, BUILT_QUERY_UNTOUCHED_CHARS, false);
+    appendEncoded(sb, query, BUILT_QUERY_UNTOUCHED_CHARS, true);
   }
 
   public static void encodeAndAppendQueryElement(StringBuilder sb, CharSequence input) {

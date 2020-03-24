@@ -30,7 +30,7 @@
 
 package io.gatling.http.client.uri;
 
-import static io.gatling.http.client.util.MiscUtils.*;
+import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 import io.gatling.http.client.Param;
 import io.gatling.netty.util.StringBuilderPool;
@@ -106,6 +106,7 @@ public enum UriEncoder {
       // concatenate raw query + raw query params
       StringBuilder sb = StringBuilderPool.DEFAULT.get();
       sb.append(query);
+      sb.append('&');
       appendRawQueryParams(sb, queryParams);
       sb.setLength(sb.length() - 1);
       return sb.toString();

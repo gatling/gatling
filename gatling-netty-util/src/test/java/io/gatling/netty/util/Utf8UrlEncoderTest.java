@@ -35,7 +35,7 @@ class Utf8UrlEncoderTest {
         assertEquals("*-._", encodeQueryElement("*-._"));
         // space should be encoded as +
         assertEquals("+", encodeQueryElement(" "));
-        // other chars shoudl be encoded
+        // other chars should be encoded
         assertEquals("%7E%26%2B", encodeQueryElement("~&+"));
     }
 
