@@ -78,10 +78,9 @@ class SseIdleState(fsm: SseFsm, session: Session, stream: SseStream) extends Sse
   }
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
     logger.info("Client requested SSE stream close")
-    stream.close()
     //[fl]
     //
     //[fl]
-    NextSseState(new SseClosingState(fsm, actionName, session, next, clock.nowMillis))
+    NextSseState(new SseClosingState(fsm, actionName, session, next, clock.nowMillis), () => stream.close())
   }
 }
