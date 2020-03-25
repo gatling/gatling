@@ -51,7 +51,8 @@ class WsFsm(
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit =
     eventLoop.schedule(() => {
       currentTimeout = null
-      currentState.onTimeout()
+      execute(currentState.onTimeout())
+      null
     }, dur.toMillis, TimeUnit.MILLISECONDS)
 
   private[fsm] def cancelTimeout(): Unit =
