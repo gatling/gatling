@@ -23,12 +23,18 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.sse.fsm._
 import io.gatling.http.client.HttpListener
+import io.gatling.http.MissingNettyHttpHeaderValues
+
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
 import io.netty.channel.Channel
-import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseStatus }
 
-class SseException(statusCode: Int) extends IOException(s"Server returned http response with code $statusCode") {
+class SseInvalidStatusException(statusCode: Int) extends IOException(s"Server returned http response with code $statusCode") {
+  override def fillInStackTrace(): Throwable = this
+}
+
+class SseInvalidContentTypeException(contentType: String) extends IOException(s"Server returned http response with content-type $contentType") {
   override def fillInStackTrace(): Throwable = this
 }
 
@@ -43,14 +49,18 @@ class SseListener(fsm: SseFsm, statsEngine: StatsEngine, clock: Clock) extends H
 
   override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
 
-    logger.debug(s"Status ${status.code} received for SSE")
+    val contentType = headers.get(HttpHeaderNames.CONTENT_TYPE)
+    logger.debug(s"Status ${status.code} Content-Type $contentType received for SSE")
 
-    if (status == HttpResponseStatus.OK) {
+    if (status != HttpResponseStatus.OK) {
+      val ex = new SseInvalidStatusException(status.code)
+      onThrowable(ex)
+      throw ex
+    } else if (contentType != null && contentType.startsWith(MissingNettyHttpHeaderValues.TextEventStream.toString)) {
       state = Connected
       fsm.onSseStreamConnected(this, clock.nowMillis)
-
     } else {
-      val ex = new SseException(status.code)
+      val ex = new SseInvalidContentTypeException(contentType)
       onThrowable(ex)
       throw ex
     }
