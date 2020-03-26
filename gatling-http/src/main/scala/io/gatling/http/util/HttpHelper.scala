@@ -17,11 +17,11 @@
 package io.gatling.http.util
 
 import java.net.URLDecoder
-import java.nio.charset.{ Charset, StandardCharsets }
+import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.collection.{ breakOut, BitSet }
 import scala.collection.JavaConverters._
-import scala.io.Codec.UTF8
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -44,7 +44,7 @@ private[gatling] object HttpHelper extends StrictLogging {
   private val RedirectStatusCodes = BitSet.empty + MOVED_PERMANENTLY.code + FOUND.code + SEE_OTHER.code + TEMPORARY_REDIRECT.code + PERMANENT_REDIRECT.code
 
   def parseFormBody(body: String): List[(String, String)] = {
-    def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
+    def utf8Decode(s: String) = URLDecoder.decode(s, UTF_8.name)
 
     body
       .split("&")
@@ -150,9 +150,9 @@ private[gatling] object HttpHelper extends StrictLogging {
       case s =>
         var start = s + "charset=".length
 
-        if (contentType.regionMatches(true, start, "UTF-8", 0, 5)) {
+        if (contentType.regionMatches(true, start, UTF_8.name, 0, 5)) {
           // minor optim, bypass lookup for most common
-          Some(StandardCharsets.UTF_8)
+          Some(UTF_8)
 
         } else {
           var end = contentType.indexOf(';', start) match {
