@@ -16,8 +16,7 @@
 
 package io.gatling.http.fetch
 
-import scala.io.Codec.UTF8
-import scala.io.Source
+import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Io._
@@ -25,8 +24,8 @@ import io.gatling.http.client.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
 
-  private val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
-    Source.fromInputStream(is)(UTF8).getLines().mkString.toCharArray
+  private val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
+    _.toString(UTF_8).toCharArray
   }
 
   private def mockHtml(body: String): Array[Char] =
