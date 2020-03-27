@@ -51,7 +51,7 @@ private[http] trait DnsCacheSupport {
   def coreComponents: CoreComponents
 
   private def newNameResolver(
-      eventLoop: => EventLoop,
+      eventLoop: EventLoop,
       dnsNameResolution: DnsNameResolution,
       hostNameAliases: Map[String, InetAddress],
       httpEngine: HttpEngine
