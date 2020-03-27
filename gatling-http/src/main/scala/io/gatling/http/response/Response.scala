@@ -27,14 +27,12 @@ import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseS
 
 sealed trait HttpResult {
   def request: Request
-  def wireRequestHeaders: HttpHeaders
   def startTimestamp: Long
   def endTimestamp: Long
 }
 
 final case class HttpFailure(
     request: Request,
-    wireRequestHeaders: HttpHeaders,
     startTimestamp: Long,
     endTimestamp: Long,
     errorMessage: String
@@ -42,7 +40,6 @@ final case class HttpFailure(
 
 final case class Response(
     request: Request,
-    wireRequestHeaders: HttpHeaders,
     startTimestamp: Long,
     endTimestamp: Long,
     status: HttpResponseStatus,

@@ -130,7 +130,6 @@ class HttpTxExecutor(
         responseProcessorFactory(tx).onComplete(
           HttpFailure(
             request = tx.request.clientRequest,
-            wireRequestHeaders = tx.request.clientRequest.getHeaders,
             startTimestamp = now,
             endTimestamp = now,
             errorMessage = s"Too many redirects, max is ${tx.request.requestConfig.httpProtocol.responsePart.maxRedirects}"

@@ -29,7 +29,7 @@ public interface HttpListener {
 
   void onThrowable(Throwable e);
 
-  default void onSend(HttpHeaders wireRequestHeaders) {}
+  default void onSend() {}
 
   //[fl]
   //

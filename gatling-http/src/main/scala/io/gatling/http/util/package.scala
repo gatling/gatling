@@ -45,22 +45,15 @@ package object util extends LazyLogging {
       val request = result.request
       buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
 
-      if (!result.wireRequestHeaders.isEmpty) {
+      if (!request.getHeaders.isEmpty) {
         buff.append("headers=").append(Eol)
-        for (header <- result.wireRequestHeaders.asScala) {
-          buff.append(header.getKey).append(": ").append(header.getValue).append(Eol)
-        }
-      } else {
-        if (!request.getHeaders.isEmpty) {
-          buff.append("headers=").append(Eol)
-          buff.appendHttpHeaders(request.getHeaders)
-        }
+        buff.appendHttpHeaders(request.getHeaders)
+      }
 
-        if (!request.getCookies.isEmpty) {
-          buff.append("cookies=").append(Eol)
-          for (cookie <- request.getCookies.asScala) {
-            buff.append(cookie).append(Eol)
-          }
+      if (!request.getCookies.isEmpty) {
+        buff.append("cookies=").append(Eol)
+        for (cookie <- request.getCookies.asScala) {
+          buff.append(cookie).append(Eol)
         }
       }
 

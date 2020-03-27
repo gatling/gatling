@@ -73,7 +73,6 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   private var requestEndTimestamp: Long = _
   private var isHttp2: Boolean = _
   private var status: HttpResponseStatus = _
-  private var wireRequestHeaders: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
   private var chunks: List[ByteBuf] = Nil
   // [fl]
@@ -82,11 +81,10 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   //
   // [fl]
 
-  override def onSend(wireRequestHeaders: HttpHeaders): Unit =
+  override def onSend(): Unit =
     if (!init) {
       init = true
       requestStartTimestamp = clock.nowMillis
-      this.wireRequestHeaders = wireRequestHeaders
       // [fl]
       //
       //
@@ -175,7 +173,6 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
 
         Response(
           tx.request.clientRequest,
-          wireRequestHeaders,
           requestStartTimestamp,
           requestEndTimestamp,
           status,
@@ -195,7 +192,6 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   private def buildFailure(errorMessage: String): HttpFailure =
     HttpFailure(
       tx.request.clientRequest,
-      wireRequestHeaders,
       requestStartTimestamp,
       requestEndTimestamp,
       errorMessage

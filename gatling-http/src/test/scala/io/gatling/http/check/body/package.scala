@@ -42,7 +42,6 @@ package object body {
   def mockResponse(body: ResponseBody): Response =
     Response(
       request = null,
-      wireRequestHeaders = new DefaultHttpHeaders,
       status = HttpResponseStatus.OK,
       headers = new DefaultHttpHeaders,
       body = body,
