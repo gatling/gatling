@@ -157,11 +157,10 @@ private[gatling] object HttpHelper extends StrictLogging {
         } else {
           var end = contentType.indexOf(';', start) match {
             case -1 => contentType.length
-
-            case e => e
+            case e  => e
           }
 
-          Try {
+          try {
             while (contentType.charAt(start) == ' ' && start < end) start += 1
 
             while (contentType.charAt(end - 1) == ' ' && end > start) end -= 1
@@ -174,8 +173,10 @@ private[gatling] object HttpHelper extends StrictLogging {
 
             val charsetString = contentType.substring(start, end)
 
-            Charset.forName(charsetString)
-          }.toOption
+            Some(Charset.forName(charsetString))
+          } catch {
+            case NonFatal(_) => None
+          }
         }
     }
 
