@@ -23,6 +23,16 @@ Scala Version
 Since 3.0, Gatling requires Scala 2.12.
 Gatling is not compatible with Scala 2.11 nor Scala 2.13.
 
+.. _gatling_version:
+
+Gatling Version
+---------------
+
+Make sure to use the latest version as documented on `our website <https://gatling.io/open-source/>`_.
+
+In particular, don't use milestones (M versions) you could find on maven central,
+those are not documented and released only for internal use or `FrontLine <https://gatling.io/gatling-frontline/>`_ customers.
+
 .. _bundle:
 
 Using the Bundle

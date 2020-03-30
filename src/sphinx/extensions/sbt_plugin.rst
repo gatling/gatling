@@ -11,7 +11,7 @@ Versions
 
 Check out available versions on `Bintray <https://bintray.com/gatling/sbt-plugins/gatling-sbt/view>`_.
 
-Beware that milestones (M versions) are undocumented and released for GatlingCorp customers.
+Beware that milestones (M versions) are not documented for OSS users and are only released for `FrontLine <https://gatling.io/gatling-frontline/>`_ customers.
 
 Setup
 =====
