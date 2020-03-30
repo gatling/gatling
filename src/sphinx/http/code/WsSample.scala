@@ -70,6 +70,12 @@ class WsSample {
     )
   //#create-multiple-checks
 
+  //#silent-check
+  ws.checkTextMessage("checkName")
+    .check(regex("hello (.*)").saveAs("name"))
+    .silent
+  //#silent-check
+
   //#matching
   ws.checkTextMessage("checkName")
     .matching(jsonPath("$.uuid").is("${correlation}"))

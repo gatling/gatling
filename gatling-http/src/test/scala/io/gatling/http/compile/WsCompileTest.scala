@@ -100,7 +100,7 @@ class WsCompileTest extends Simulation {
         .sendBytes("hello".getBytes())
         .await(30 seconds)(
           // match first message
-          ws.checkBinaryMessage("checkName").check(bodyBytes.transform(_.length).saveAs("bytesLength"))
+          ws.checkBinaryMessage("checkName").check(bodyBytes.transform(_.length).saveAs("bytesLength")).silent
         )
     )
     .exec(ws("Close WS").close)

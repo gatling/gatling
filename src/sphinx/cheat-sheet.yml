@@ -1379,6 +1379,9 @@
             - signature: (name)
               description: The <i>name</i> of the expected message to be displayed in response times and failures
 
+        - keyword: silent
+          description: Make a check silent so that it has no influence on stats
+
     - title: Configuration
       functions:
 

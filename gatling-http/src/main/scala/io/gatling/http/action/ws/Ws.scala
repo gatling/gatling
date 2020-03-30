@@ -30,9 +30,9 @@ object Ws {
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws = new Ws(requestName, wsName)
 
-  def checkTextMessage(name: String): WsTextFrameCheck = WsTextFrameCheck(name, Nil, Nil)
+  def checkTextMessage(name: String): WsTextFrameCheck = WsTextFrameCheck(name, Nil, Nil, isSilent = false)
 
-  def checkBinaryMessage(name: String): WsBinaryFrameCheck = WsBinaryFrameCheck(name, Nil, Nil)
+  def checkBinaryMessage(name: String): WsBinaryFrameCheck = WsBinaryFrameCheck(name, Nil, Nil, isSilent = false)
 }
 
 /**

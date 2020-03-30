@@ -18,7 +18,7 @@ package io.gatling.http.action.ws.fsm
 
 import java.util.{ HashMap => JHashMap }
 
-import io.gatling.commons.stats.{ KO, OK }
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
@@ -47,7 +47,7 @@ final case class WsPerformingCheckState(
     // check timeout
     // fail check, send next and goto Idle
     val errorMessage = s"Check ${currentCheck.name} timeout"
-    val newSession = logResponse(session, currentCheck.name, checkSequenceStart, clock.nowMillis, KO, None, Some(errorMessage))
+    val newSession = logCheckResult(session, clock.nowMillis, KO, None, Some(errorMessage))
     val nextAction = next match {
       case Left(n) =>
         logger.debug("Check timeout, failing it and performing next action")
@@ -71,7 +71,7 @@ final case class WsPerformingCheckState(
 
   override def onTextFrameReceived(message: String, timestamp: Long): NextWsState =
     currentCheck match {
-      case WsTextFrameCheck(_, matchConditions, checks) =>
+      case WsTextFrameCheck(_, matchConditions, checks, _) =>
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>
@@ -83,7 +83,7 @@ final case class WsPerformingCheckState(
 
   override def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState =
     currentCheck match {
-      case WsBinaryFrameCheck(_, matchConditions, checks) =>
+      case WsBinaryFrameCheck(_, matchConditions, checks, _) =>
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>
@@ -97,8 +97,15 @@ final case class WsPerformingCheckState(
     // unexpected close, fail check
     logger.debug("WebSocket remotely closed while waiting for checks")
     cancelTimeout()
-    handleWebSocketCheckCrash(currentCheck.name, session, next, checkSequenceStart, Some(Integer.toString(code)), reason)
+    handleWebSocketCheckCrash(session, next, checkSequenceStart, Some(Integer.toString(code)), reason)
   }
+
+  private def logCheckResult(sessionWithCheckUpdate: Session, end: Long, status: Status, code: Option[String], reason: Option[String]): Session =
+    if (currentCheck.isSilent) {
+      sessionWithCheckUpdate
+    } else {
+      logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, end, status, code, reason)
+    }
 
   private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]]): NextWsState = {
 
@@ -121,7 +128,7 @@ final case class WsPerformingCheckState(
       checkError match {
         case Some(Failure(errorMessage)) =>
           logger.debug("Check failure")
-          val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, KO, None, Some(errorMessage))
+          val newSession = logCheckResult(sessionWithCheckUpdate, timestamp, KO, None, Some(errorMessage))
 
           val nextAction = next match {
             case Left(n) =>
@@ -142,7 +149,7 @@ final case class WsPerformingCheckState(
         case _ =>
           logger.debug("Current check success")
           // check success
-          val newSession = logResponse(sessionWithCheckUpdate, currentCheck.name, checkSequenceStart, timestamp, OK, None, None)
+          val newSession = logCheckResult(sessionWithCheckUpdate, timestamp, OK, None, None)
           remainingChecks match {
             case nextCheck :: nextRemainingChecks =>
               // perform next check
@@ -196,7 +203,6 @@ final case class WsPerformingCheckState(
   }
 
   private def handleWebSocketCheckCrash(
-      checkName: String,
       session: Session,
       next: Either[Action, SendFrame],
       checkSequenceStart: Long,
@@ -205,7 +211,7 @@ final case class WsPerformingCheckState(
   ): NextWsState = {
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
-    val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))
+    val newSession = logCheckResult(session, clock.nowMillis, KO, code, Some(fullMessage))
     val nextAction = next match {
       case Left(n) =>
         // failed to connect

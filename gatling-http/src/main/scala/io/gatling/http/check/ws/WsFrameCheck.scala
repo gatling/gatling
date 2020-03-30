@@ -26,22 +26,29 @@ final case class WsFrameCheckSequence[+T <: WsFrameCheck](timeout: FiniteDuratio
 
 sealed trait WsFrameCheck {
   def name: String
+  def isSilent: Boolean
 }
 
-final case class WsBinaryFrameCheck(name: String, matchConditions: List[WsBinaryCheck], checks: List[WsBinaryCheck]) extends WsFrameCheck {
+final case class WsBinaryFrameCheck(name: String, matchConditions: List[WsBinaryCheck], checks: List[WsBinaryCheck], isSilent: Boolean) extends WsFrameCheck {
 
   def matching(newMatchConditions: WsBinaryCheck*): WsBinaryFrameCheck =
     this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)
 
   def check(newChecks: WsBinaryCheck*): WsBinaryFrameCheck =
     this.modify(_.checks).using(_ ::: newChecks.toList)
+
+  def silent: WsBinaryFrameCheck =
+    copy(isSilent = true)
 }
 
-final case class WsTextFrameCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck]) extends WsFrameCheck {
+final case class WsTextFrameCheck(name: String, matchConditions: List[WsTextCheck], checks: List[WsTextCheck], isSilent: Boolean) extends WsFrameCheck {
 
   def matching(newMatchConditions: WsTextCheck*): WsTextFrameCheck =
     this.modify(_.matchConditions).using(_ ::: newMatchConditions.toList)
 
   def check(newChecks: WsTextCheck*): WsTextFrameCheck =
     this.modify(_.checks).using(_ ::: newChecks.toList)
+
+  def silent: WsTextFrameCheck =
+    copy(isSilent = true)
 }

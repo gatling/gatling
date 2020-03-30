@@ -120,6 +120,11 @@ You can have multiple criteria for a given message:
 
 .. includecode:: code/WsSample.scala#create-multiple-checks
 
+checks can be marked as ``silent``.
+Silent checks won't be reported whatever their outcome.
+
+.. includecode:: code/WsSample.scala#silent-check
+
 .. _http-ws-matching:
 
 Matching messages
