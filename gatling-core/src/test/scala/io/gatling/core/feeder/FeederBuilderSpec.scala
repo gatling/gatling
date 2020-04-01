@@ -101,46 +101,4 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     cantConvert.fold(fail("Could not find key"))(_ shouldBe "Test")
   }
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 }
