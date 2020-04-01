@@ -82,7 +82,7 @@ package object util extends LazyLogging {
             buff.appendHttpHeaders(response.headers).append(Eol)
           }
 
-          if (response.hasResponseBody) {
+          if (response.body.length > 0) {
             buff.append("body=").append(Eol)
             if (isText(response.headers)) {
               try {

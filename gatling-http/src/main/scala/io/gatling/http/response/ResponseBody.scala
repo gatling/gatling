@@ -32,11 +32,11 @@ import io.netty.buffer.{ ByteBuf, ByteBufInputStream }
 
 object ResponseBody {
 
-  def apply(chunks: List[ByteBuf], charset: Charset): ResponseBody =
+  def apply(bodyLength: Int, chunks: List[ByteBuf], charset: Charset): ResponseBody =
     chunks match {
-      case Nil          => NoResponseBody
-      case chunk :: Nil => new ByteBufResponseBody(chunk, charset)
-      case _            => new ByteBufsResponseBody(chunks, charset)
+      case Nil          => NoResponseBody(bodyLength)
+      case chunk :: Nil => new ByteBufResponseBody(bodyLength, chunk, charset)
+      case _            => new ByteBufsResponseBody(bodyLength, chunks, charset)
     }
 }
 
@@ -49,9 +49,9 @@ sealed trait ResponseBody {
   def stream: InputStream
 }
 
-private[gatling] final class ByteBufResponseBody(chunk: ByteBuf, override val charset: Charset) extends ResponseBody with LazyLogging {
-
-  override val length: Int = chunk.readableBytes
+private[gatling] final class ByteBufResponseBody(override val length: Int, chunk: ByteBuf, override val charset: Charset)
+    extends ResponseBody
+    with LazyLogging {
 
   override lazy val string: String =
     try {
@@ -72,13 +72,9 @@ private[gatling] final class ByteBufResponseBody(chunk: ByteBuf, override val ch
     new ByteBufInputStream(chunk.duplicate)
 }
 
-private[gatling] final class ByteBufsResponseBody(chunks: Seq[ByteBuf], override val charset: Charset) extends ResponseBody with LazyLogging {
-
-  override val length: Int = {
-    var l = 0
-    chunks.foreach(l += _.readableBytes)
-    l
-  }
+private[gatling] final class ByteBufsResponseBody(override val length: Int, chunks: Seq[ByteBuf], override val charset: Charset)
+    extends ResponseBody
+    with LazyLogging {
 
   override lazy val string: String =
     try {
@@ -99,8 +95,14 @@ private[gatling] final class ByteBufsResponseBody(chunks: Seq[ByteBuf], override
     new SequenceInputStream(chunks.map(chunk => new ByteBufInputStream(chunk.duplicate)).iterator.asJavaEnumeration)
 }
 
-case object NoResponseBody extends ResponseBody {
-  override val length: Int = 0
+object NoResponseBody {
+  val Empty: NoResponseBody = new NoResponseBody(0)
+
+  def apply(length: Int): NoResponseBody =
+    if (length == 0) Empty else new NoResponseBody(length)
+}
+
+final class NoResponseBody(val length: Int) extends ResponseBody {
   override val charset: Charset = UTF_8
   override val string: String = ""
   override val chars: Array[Char] = Array.emptyCharArray

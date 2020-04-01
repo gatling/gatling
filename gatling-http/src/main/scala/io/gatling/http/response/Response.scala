@@ -56,7 +56,6 @@ final case class Response(
   val cookies: List[Cookie] = HttpHelper.responseCookies(headers)
 
   def checksum(algorithm: String): Option[String] = checksums.get(algorithm)
-  def hasResponseBody: Boolean = body.length != 0
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
     if (protocol.requestPart.cache) header(HttpHeaderNames.LAST_MODIFIED).orElse(header(HttpHeaderNames.ETAG)) else None

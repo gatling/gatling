@@ -74,6 +74,7 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
   private var isHttp2: Boolean = _
   private var status: HttpResponseStatus = _
   private var headers: HttpHeaders = EmptyHttpHeaders.INSTANCE
+  private var bodyLength = 0
   private var chunks: List[ByteBuf] = Nil
   // [fl]
   //
@@ -133,7 +134,9 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
     if (!done) {
       requestEndTimestamp = clock.nowMillis
 
-      if (chunk.isReadable) {
+      val chunkLength = chunk.readableBytes
+      if (chunkLength > 0) {
+        bodyLength += chunkLength
         if (storeBodyParts || storeHtmlOrCss) {
           // beware, we have to retain!
           chunks = chunk.retain() :: chunks
@@ -169,7 +172,7 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
         val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
 
         val chunksOrderedByArrival = chunks.reverse
-        val body = ResponseBody(chunksOrderedByArrival, resolveCharset(headers, defaultCharset))
+        val body = ResponseBody(bodyLength, chunksOrderedByArrival, resolveCharset(headers, defaultCharset))
 
         Response(
           tx.request.clientRequest,

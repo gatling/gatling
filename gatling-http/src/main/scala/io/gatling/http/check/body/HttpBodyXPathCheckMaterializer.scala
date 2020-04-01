@@ -34,7 +34,7 @@ object HttpBodyXPathCheckMaterializer {
     val preparer: Preparer[Response, Option[XdmNode]] = response =>
       safely(ErrorMapper) {
         val root =
-          if (response.hasResponseBody) {
+          if (response.body.length > 0) {
             Some(XmlParsers.parse(response.body.stream, response.body.charset))
 
           } else {
