@@ -47,13 +47,17 @@ class ServerHandler(
     msg match {
       case request: FullHttpRequest =>
         if (mitmActor == null) {
-          https = request.method == HttpMethod.CONNECT
-          remote = {
-            val firstRequestUriWithScheme = Remote.missingScheme(request.uri, https) match {
-              case Some(scheme) => s"$scheme://${request.uri}"
-              case _            => request.uri
-            }
-            Remote.fromAbsoluteUri(firstRequestUriWithScheme)
+          if (request.method == HttpMethod.CONNECT) {
+            assert(!request.uri.startsWith("http"), s"Invalid HTTPS Proxy request: URI '${request.uri}' shouldn't have a scheme.")
+            https = true
+            remote = Remote.fromAbsoluteUri(s"$https://${request.uri}")
+          } else {
+            assert(
+              request.uri.startsWith("http://"),
+              s"Invalid HTTP Proxy request: URI '${request.uri}' should be absolute with http scheme. You're probably confusing Recorder proxy url and target system url."
+            )
+            https = false
+            remote = Remote.fromAbsoluteUri(request.uri)
           }
           mitmActor =
             system.actorOf(Props(MitmActor(outgoingProxy, clientBootstrap, sslServerContext, trafficLogger, httpClientCodecFactory, ctx.channel, https, clock)))
