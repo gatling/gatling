@@ -17,7 +17,7 @@
 package io.gatling.http.resolver
 
 import java.net.{ InetAddress, UnknownHostException }
-import java.util.{ Arrays => JArrays, Collections => JCollections, List => JList }
+import java.{ util => ju }
 import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.http.client.HttpListener
@@ -31,13 +31,13 @@ private[http] object ShuffleJdkNameResolver {
 
 private[http] class ShuffleJdkNameResolver extends InetAddressNameResolver {
 
-  protected def resolveAll0(inetHost: String, promise: Promise[JList[InetAddress]]): Unit =
+  protected def resolveAll0(inetHost: String, promise: Promise[ju.List[InetAddress]]): Unit =
     try {
       val addresses = InetAddress.getAllByName(inetHost) match {
-        case Array(single) => JCollections.singletonList(single)
+        case Array(single) => ju.Collections.singletonList(single)
         case array =>
-          val list = JArrays.asList(array: _*)
-          JCollections.shuffle(list, ThreadLocalRandom.current)
+          val list = ju.Arrays.asList(array: _*)
+          ju.Collections.shuffle(list, ThreadLocalRandom.current)
           list
       }
       promise.setSuccess(addresses)
@@ -45,7 +45,7 @@ private[http] class ShuffleJdkNameResolver extends InetAddressNameResolver {
       case e: UnknownHostException => promise.setFailure(e)
     }
 
-  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]], listener: HttpListener): Future[JList[InetAddress]] = {
+  override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] = {
     resolveAll0(inetHost, promise)
     promise
   }

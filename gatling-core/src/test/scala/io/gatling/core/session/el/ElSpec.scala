@@ -16,7 +16,7 @@
 
 package io.gatling.core.session.el
 
-import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
+import java.{ util => ju }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.config.GatlingConfiguration
@@ -127,7 +127,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "return n-th element of JList" in {
-    val lst = new JLinkedList[Int]
+    val lst = new ju.LinkedList[Int]
     lst.add(1)
     lst.add(2)
     val session = newSession(Map("lst" -> lst))
@@ -142,7 +142,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "handle gracefully when index in an JList is out of range" in {
-    val lst = new JLinkedList[Int]
+    val lst = new ju.LinkedList[Int]
     lst.add(1)
     lst.add(2)
     val session = newSession(Map("lst" -> lst))
@@ -235,7 +235,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "return correct size for a non empty JMap" in {
-    val map = new JHashMap[Int, Int]
+    val map = new ju.HashMap[Int, Int]
     map.put(1, 1)
     map.put(2, 2)
     val session = newSession(Map("map" -> map))
@@ -257,7 +257,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "return one of elements of JList" in {
-    val list = new JArrayList[Int]
+    val list = new ju.ArrayList[Int]
     list.add(1)
     list.add(2)
     val session = newSession(Map("lst" -> list))
@@ -297,7 +297,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "return value by key from JMap" in {
-    val map = new JHashMap[String, Int]
+    val map = new ju.HashMap[String, Int]
     map.put("key1", 1)
     map.put("key2", 2)
     val session = newSession(Map("map" -> map))
@@ -325,7 +325,7 @@ class ElSpec extends BaseSpec with ValidationValues {
   }
 
   it should "handle missing value in JMap correctly" in {
-    val map = new JHashMap[String, Int]
+    val map = new ju.HashMap[String, Int]
     map.put("key1", 1)
     val session = newSession(Map("map" -> map))
     val expression = "${map.nonexisting}".el[Int]

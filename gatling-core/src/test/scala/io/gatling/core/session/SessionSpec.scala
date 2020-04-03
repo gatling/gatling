@@ -16,8 +16,8 @@
 
 package io.gatling.core.session
 
-import java.util.{ Collection => JCollection, Iterator => JIterator, List => JList }
-import java.util.concurrent.{ Callable, Future => JFuture, TimeUnit }
+import java.{ util => ju }
+import java.util.{ concurrent => juc }
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
@@ -30,7 +30,7 @@ import io.netty.util.concurrent.{ EventExecutor, Future => NFuture, ProgressiveP
 object SessionSpec {
   private val FakeEventLoop: EventLoop = new EventLoop {
     override def inEventLoop(): Boolean = true
-    override def schedule(command: Runnable, delay: Long, unit: TimeUnit): ScheduledFuture[_] = {
+    override def schedule(command: Runnable, delay: Long, unit: juc.TimeUnit): ScheduledFuture[_] = {
       command.run()
       null
     }
@@ -48,27 +48,27 @@ object SessionSpec {
     override def newFailedFuture[V](cause: Throwable): NFuture[V] = throw new UnsupportedOperationException
     override def isShuttingDown: Boolean = throw new UnsupportedOperationException
     override def shutdownGracefully(): NFuture[_] = throw new UnsupportedOperationException
-    override def shutdownGracefully(quietPeriod: Long, timeout: Long, unit: TimeUnit): NFuture[_] = throw new UnsupportedOperationException
+    override def shutdownGracefully(quietPeriod: Long, timeout: Long, unit: juc.TimeUnit): NFuture[_] = throw new UnsupportedOperationException
     override def terminationFuture(): NFuture[_] = throw new UnsupportedOperationException
     override def shutdown(): Unit = throw new UnsupportedOperationException
-    override def shutdownNow(): JList[Runnable] = throw new UnsupportedOperationException
-    override def iterator(): JIterator[EventExecutor] = throw new UnsupportedOperationException
+    override def shutdownNow(): ju.List[Runnable] = throw new UnsupportedOperationException
+    override def iterator(): ju.Iterator[EventExecutor] = throw new UnsupportedOperationException
     override def submit(task: Runnable): NFuture[_] = throw new UnsupportedOperationException
     override def submit[T](task: Runnable, result: T): NFuture[T] = throw new UnsupportedOperationException
-    override def submit[T](task: Callable[T]): NFuture[T] = throw new UnsupportedOperationException
-    override def schedule[V](callable: Callable[V], delay: Long, unit: TimeUnit): ScheduledFuture[V] = throw new UnsupportedOperationException
-    override def scheduleAtFixedRate(command: Runnable, initialDelay: Long, period: Long, unit: TimeUnit): ScheduledFuture[_] =
+    override def submit[T](task: juc.Callable[T]): NFuture[T] = throw new UnsupportedOperationException
+    override def schedule[V](callable: juc.Callable[V], delay: Long, unit: juc.TimeUnit): ScheduledFuture[V] = throw new UnsupportedOperationException
+    override def scheduleAtFixedRate(command: Runnable, initialDelay: Long, period: Long, unit: juc.TimeUnit): ScheduledFuture[_] =
       throw new UnsupportedOperationException
-    override def scheduleWithFixedDelay(command: Runnable, initialDelay: Long, delay: Long, unit: TimeUnit): ScheduledFuture[_] =
+    override def scheduleWithFixedDelay(command: Runnable, initialDelay: Long, delay: Long, unit: juc.TimeUnit): ScheduledFuture[_] =
       throw new UnsupportedOperationException
     override def isShutdown: Boolean = throw new UnsupportedOperationException
     override def isTerminated: Boolean = throw new UnsupportedOperationException
-    override def awaitTermination(timeout: Long, unit: TimeUnit): Boolean = throw new UnsupportedOperationException
-    override def invokeAll[T](tasks: JCollection[_ <: Callable[T]]): JList[JFuture[T]] = throw new UnsupportedOperationException
-    override def invokeAll[T](tasks: JCollection[_ <: Callable[T]], timeout: Long, unit: TimeUnit): JList[JFuture[T]] =
+    override def awaitTermination(timeout: Long, unit: juc.TimeUnit): Boolean = throw new UnsupportedOperationException
+    override def invokeAll[T](tasks: ju.Collection[_ <: juc.Callable[T]]): ju.List[juc.Future[T]] = throw new UnsupportedOperationException
+    override def invokeAll[T](tasks: ju.Collection[_ <: juc.Callable[T]], timeout: Long, unit: juc.TimeUnit): ju.List[juc.Future[T]] =
       throw new UnsupportedOperationException
-    override def invokeAny[T](tasks: JCollection[_ <: Callable[T]]): T = throw new UnsupportedOperationException
-    override def invokeAny[T](tasks: JCollection[_ <: Callable[T]], timeout: Long, unit: TimeUnit): T = throw new UnsupportedOperationException
+    override def invokeAny[T](tasks: ju.Collection[_ <: juc.Callable[T]]): T = throw new UnsupportedOperationException
+    override def invokeAny[T](tasks: ju.Collection[_ <: juc.Callable[T]], timeout: Long, unit: juc.TimeUnit): T = throw new UnsupportedOperationException
   }
 
   val EmptySession: Session = Session("Scenario", 0, 0L, SessionSpec.FakeEventLoop)

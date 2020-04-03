@@ -16,11 +16,9 @@
 
 package io.gatling.http.check.body
 
-import java.util.{ HashMap => JHashMap }
-
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.{ CheckMaterializer, CheckResult }
+import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
@@ -48,12 +46,12 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   "jsonPath.find" should "support long values" in {
     val response = mockResponse(s"""{"value": ${Long.MaxValue}}""")
-    jsonPath("$.value").ofType[Long].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(Long.MaxValue), None)
+    jsonPath("$.value").ofType[Long].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(Long.MaxValue), None)
   }
 
   "jsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonPath("$.street").find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$.street").find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some("""{"book":"On the street"}"""),
       None
     )
@@ -61,7 +59,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "find single result into Map object form" in {
     val response = mockResponse(storeJson)
-    jsonPath("$.street").ofType[Map[String, Any]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$.street").ofType[Map[String, Any]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Map("book" -> "On the street")),
       None
     )
@@ -69,17 +67,17 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "find a null attribute value when expected type is String" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[String].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+    jsonPath("$.foo").ofType[String].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
   }
 
   it should "find a null attribute value when expected type is Any" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[Any].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+    jsonPath("$.foo").ofType[Any].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
   }
 
   it should "find a null attribute value when expected type is Int" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[Int].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$.foo").ofType[Int].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(null.asInstanceOf[Int]),
       None
     )
@@ -87,12 +85,12 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "find a null attribute value when expected type is Seq" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[Seq[Any]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+    jsonPath("$.foo").ofType[Seq[Any]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
   }
 
   it should "find a null attribute value when expected type is Map" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[Map[String, Any]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$.foo").ofType[Map[String, Any]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(null),
       None
     )
@@ -100,7 +98,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "succeed when expecting a null value and getting a null one" in {
     val response = mockResponse("""{"foo": null}""")
-    jsonPath("$.foo").ofType[Any].find.isNull.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(null), None)
+    jsonPath("$.foo").ofType[Any].find.isNull.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
   }
 
   it should "fail when expecting a null value and getting a non-null one" in {
@@ -109,13 +107,13 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
       .ofType[Any]
       .find
       .isNull
-      .check(response, EmptySession, new JHashMap[Any, Any])
+      .check(response, EmptySession, Check.newPreparedCache)
       .failed shouldBe "jsonPath($.foo).find.isNull, but actually found bar"
   }
 
   it should "succeed when expecting a non-null value and getting a non-null one" in {
     val response = mockResponse("""{"foo": "bar"}""")
-    jsonPath("$.foo").ofType[Any].find.notNull.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some("bar"), None)
+    jsonPath("$.foo").ofType[Any].find.notNull.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("bar"), None)
   }
 
   it should "fail when expecting a non-null value and getting a null one" in {
@@ -124,13 +122,13 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
       .ofType[Any]
       .find
       .notNull
-      .check(response, EmptySession, new JHashMap[Any, Any])
+      .check(response, EmptySession, Check.newPreparedCache)
       .failed shouldBe "jsonPath($.foo).find.notNull, but actually found null"
   }
 
   it should "not fail on empty array" in {
     val response = mockResponse("""{"documents":[]}""")
-    jsonPath("$.documents").ofType[Seq[_]].find.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$.documents").ofType[Seq[_]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Vector.empty),
       None
     )
@@ -138,7 +136,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   "jsonPath.findAll.exists" should "fetch all matches" in {
     val response = mockResponse(storeJson)
-    jsonPath("$..book").findAll.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$..book").findAll.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Seq("In store", "On the street")),
       None
     )
@@ -146,7 +144,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "find all by wildcard" in {
     val response = mockResponse(storeJson)
-    jsonPath("$.*.book").findAll.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$.*.book").findAll.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Vector("In store", "On the street")),
       None
     )
@@ -162,7 +160,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   "jsonPath.findRandom.exists" should "fetch a single random match" in {
     val response = mockResponse(storeJson)
-    jsonPath("$..book").findRandom.exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded.extractedValue.get.asInstanceOf[String] should beIn(
+    jsonPath("$..book").findRandom.exists.check(response, EmptySession, Check.newPreparedCache).succeeded.extractedValue.get.asInstanceOf[String] should beIn(
       Seq("In store", "On the street")
     )
   }
@@ -172,7 +170,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
     jsonPath("$..book")
       .findRandom(1)
       .exists
-      .check(response, EmptySession, new JHashMap[Any, Any])
+      .check(response, EmptySession, Check.newPreparedCache)
       .succeeded
       .extractedValue
       .get
@@ -181,7 +179,7 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "fetch all the matches when expected number is greater" in {
     val response = mockResponse(storeJson)
-    jsonPath("$..book").findRandom(3).exists.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(
+    jsonPath("$..book").findRandom(3).exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Seq("In store", "On the street")),
       None
     )
@@ -189,6 +187,6 @@ class HttpBodyJsonPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "fail when failIfLess is enabled and expected number is greater" in {
     val response = mockResponse(storeJson)
-    jsonPath("$..book").findRandom(3, failIfLess = true).exists.check(response, EmptySession, new JHashMap[Any, Any]).failed
+    jsonPath("$..book").findRandom(3, failIfLess = true).exists.check(response, EmptySession, Check.newPreparedCache).failed
   }
 }

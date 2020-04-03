@@ -16,7 +16,7 @@
 
 package io.gatling.core.check
 
-import java.util.{ HashMap => JHashMap, Map => JMap }
+import java.{ util => ju }
 
 import scala.annotation.tailrec
 
@@ -25,11 +25,16 @@ import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
+  type PreparedCache = ju.Map[Any, Any]
+
+  def newPreparedCache: PreparedCache =
+    new ju.HashMap(2)
+
   def check[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
 
-    val preparedCache: JMap[Any, Any] =
+    val preparedCache: PreparedCache =
       if (checks.size > 1) {
-        new JHashMap(2)
+        newPreparedCache
       } else {
         null
       }
@@ -37,7 +42,7 @@ object Check {
     check(response, session, checks, preparedCache)
   }
 
-  def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: JMap[Any, Any]): (Session, Option[Failure]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: PreparedCache): (Session, Option[Failure]) = {
 
     @tailrec
     def checkRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
@@ -61,7 +66,7 @@ object Check {
 
 trait Check[R] {
 
-  def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult]
+  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult]
 }
 
 final class CheckBase[R, P, X](
@@ -73,7 +78,7 @@ final class CheckBase[R, P, X](
     val saveAs: Option[String]
 ) extends Check[R] {
 
-  def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] = {
 
     def unbuiltName: String = customName.getOrElse("Check")
     def memoizedPrepared: Validation[P] =

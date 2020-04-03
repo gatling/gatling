@@ -17,7 +17,7 @@
 package io.gatling.http.request
 
 import java.nio.charset.Charset
-import java.util.{ Collections, ArrayList => JArrayList, List => JList }
+import java.{ util => ju }
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ ElBody, ElFileBodies, RawFileBodies, ResourceAndCachedBytes }
@@ -57,7 +57,7 @@ object BodyPart {
       contentId: Option[String],
       dispositionType: Option[String],
       contentType: Option[String],
-      customHeaders: JList[Param],
+      customHeaders: ju.List[Param],
       fileName: Option[String]
   ): Expression[Part[_]] =
     fileName match {
@@ -94,7 +94,7 @@ object BodyPart {
       contentId: Option[String],
       dispositionType: Option[String],
       contentType: Option[String],
-      customHeaders: JList[Param],
+      customHeaders: ju.List[Param],
       fileName: Option[String]
   ): Expression[Part[_]] =
     bytes.map { resolvedBytes =>
@@ -118,7 +118,7 @@ object BodyPart {
       contentId: Option[String],
       dispositionType: Option[String],
       contentType: Option[String],
-      customHeaders: JList[Param],
+      customHeaders: ju.List[Param],
       fileName: Option[String]
   ): Expression[Part[_]] =
     session =>
@@ -178,7 +178,7 @@ final case class BodyPart(
         Option[String], // contentId
         Option[String], // dispositionType
         Option[String], // contentType
-        JList[Param], // customHeaders
+        ju.List[Param], // customHeaders
         Option[String] // fileName
     ) => Expression[Part[_]],
     attributes: BodyPartAttributes
@@ -207,11 +207,11 @@ final case class BodyPart(
       contentId <- resolveOptionalExpression(attributes.contentId, session)
       customHeaders <- attributes.customHeadersExpression(session)
       customHeadersAsParams = if (customHeaders.nonEmpty) {
-        val params = new JArrayList[Param](customHeaders.size)
+        val params = new ju.ArrayList[Param](customHeaders.size)
         customHeaders.foreach { case (headerName, value) => params.add(new Param(headerName, value)) }
         params
       } else {
-        Collections.emptyList[Param]
+        ju.Collections.emptyList[Param]
       }
       part <- partBuilder(
         name.orNull,

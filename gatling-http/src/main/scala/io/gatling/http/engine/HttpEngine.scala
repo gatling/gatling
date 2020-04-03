@@ -32,7 +32,7 @@ import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
 import io.gatling.http.client.resolver.InetAddressNameResolverWrapper
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.client.util.{ Pair => JavaPair }
+import io.gatling.http.client.util.Pair
 import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -150,7 +150,7 @@ class HttpEngine(
     }
 
   def executeHttp2Requests(
-      requestsAndListeners: Iterable[JavaPair[Request, HttpListener]],
+      requestsAndListeners: Iterable[Pair[Request, HttpListener]],
       clientId: Long,
       shared: Boolean,
       eventLoop: EventLoop,

@@ -16,7 +16,7 @@
 
 package io.gatling.http.request
 
-import java.util.{ ArrayList => JArrayList, Collections => JCollections, List => JList }
+import java.{ util => ju }
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -27,11 +27,11 @@ import io.gatling.http.client.Param
 
 package object builder {
 
-  val EmptyParamJListSuccess: Validation[JList[Param]] = JCollections.emptyList[Param].success
+  val EmptyParamJListSuccess: Validation[ju.List[Param]] = ju.Collections.emptyList[Param].success
 
   implicit class HttpParams(val params: List[HttpParam]) extends AnyVal {
 
-    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Any]]], session: Session): Validation[JList[Param]] = {
+    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Any]]], session: Session): Validation[ju.List[Param]] = {
 
       val formParams = params.resolveParamJList(session)
 
@@ -51,7 +51,7 @@ package object builder {
                   }
               }
             // override form with formParams
-            val javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava
+            val javaParams: ju.List[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava
             javaParams
           }
 
@@ -60,9 +60,9 @@ package object builder {
       }
     }
 
-    def resolveParamJList(session: Session): Validation[JList[Param]] = {
+    def resolveParamJList(session: Session): Validation[ju.List[Param]] = {
 
-      def update(clientParams: JList[Param], param: HttpParam): Validation[JList[Param]] = param match {
+      def update(clientParams: ju.List[Param], param: HttpParam): Validation[ju.List[Param]] = param match {
         case SimpleParam(key, value) =>
           for {
             key <- key(session)
@@ -99,7 +99,7 @@ package object builder {
       }
 
       @tailrec
-      def resolveParamJListRec(clientParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
+      def resolveParamJListRec(clientParams: ju.List[Param], currentParams: List[HttpParam]): Validation[ju.List[Param]] =
         currentParams match {
           case Nil => clientParams.success
           case head :: tail =>
@@ -112,7 +112,7 @@ package object builder {
       if (params.isEmpty)
         EmptyParamJListSuccess
       else
-        resolveParamJListRec(new JArrayList[Param](params.size), params)
+        resolveParamJListRec(new ju.ArrayList[Param](params.size), params)
     }
   }
 }

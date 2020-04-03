@@ -16,8 +16,6 @@
 
 package io.gatling.http.action.ws.fsm
 
-import java.util.{ HashMap => JHashMap }
-
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
@@ -110,7 +108,7 @@ final case class WsPerformingCheckState(
   private def tryApplyingChecks[T](message: T, timestamp: Long, matchConditions: List[Check[T]], checks: List[Check[T]]): NextWsState = {
 
     // cache is used for both matching and checking
-    val preparedCache: JHashMap[Any, Any] = new JHashMap(2)
+    val preparedCache = Check.newPreparedCache
 
     // if matchConditions isEmpty, all messages are considered to be matching
     val messageMatches = matchConditions.forall {

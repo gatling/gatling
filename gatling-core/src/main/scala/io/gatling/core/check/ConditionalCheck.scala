@@ -16,8 +16,6 @@
 
 package io.gatling.core.check
 
-import java.util.{ Map => JMap }
-
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
 
@@ -31,7 +29,7 @@ trait UntypedConditionalCheckWrapper[C <: Check[_]] {
 
 final case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
 
-  def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     condition(response, session).flatMap { boolean =>
       if (boolean) {
         thenCheck.check(response, session, preparedCache)

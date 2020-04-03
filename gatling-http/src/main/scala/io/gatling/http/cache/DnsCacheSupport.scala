@@ -17,7 +17,7 @@
 package io.gatling.http.cache
 
 import java.net.InetAddress
-import java.util.{ List => JList }
+import java.{ util => ju }
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
@@ -38,7 +38,7 @@ private object DnsCacheSupport {
 
 private class NoopCloseNameResolver(wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
 
-  override def resolveAll(inetHost: String, promise: Promise[JList[InetAddress]], listener: HttpListener): Future[JList[InetAddress]] =
+  override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] =
     wrapped.resolveAll(inetHost, promise, listener)
 
   override def close(): Unit = {}

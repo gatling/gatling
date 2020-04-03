@@ -16,8 +16,8 @@
 
 package io.gatling.core.session.el
 
+import java.{ util => ju }
 import java.util.concurrent.ThreadLocalRandom
-import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
@@ -59,12 +59,12 @@ final case class AttributePart(name: String) extends ElPart[Any] {
 final case class SizePart(seqPart: ElPart[Any], name: String) extends ElPart[Int] {
   def apply(session: Session): Validation[Int] =
     seqPart(session).flatMap {
-      case t: Traversable[_]          => t.size.success
-      case collection: JCollection[_] => collection.size.success
-      case map: JMap[_, _]            => map.size.success
-      case arr: Array[_]              => arr.length.success
-      case product: Product           => product.productArity.success
-      case other                      => ElMessages.sizeNotSupported(other, name)
+      case t: Traversable[_]            => t.size.success
+      case collection: ju.Collection[_] => collection.size.success
+      case map: ju.Map[_, _]            => map.size.success
+      case arr: Array[_]                => arr.length.success
+      case product: Product             => product.productArity.success
+      case other                        => ElMessages.sizeNotSupported(other, name)
     }
 }
 
@@ -74,7 +74,7 @@ final case class RandomPart(seq: ElPart[Any], name: String) extends ElPart[Any] 
 
     seq(session).flatMap {
       case seq: Seq[_]      => seq(random(seq.size)).success
-      case list: JList[_]   => list.get(random(list.size)).success
+      case list: ju.List[_] => list.get(random(list.size)).success
       case arr: Array[_]    => arr(random(arr.length)).success
       case product: Product => product.productElement(random(product.productArity)).success
       case other            => ElMessages.randomNotSupported(other, name)
@@ -119,7 +119,7 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
         if (index < arr.length) arr(index).success
         else ElMessages.undefinedSeqIndex(seqName, index)
 
-      case list: JList[_] =>
+      case list: ju.List[_] =>
         if (index < list.size) list.get(index).success
         else ElMessages.undefinedSeqIndex(seqName, index)
 
@@ -146,7 +146,7 @@ final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) exte
         case None        => ElMessages.undefinedMapKey(mapName, key)
       }
 
-    case map: JMap[_, _] =>
+    case map: ju.Map[_, _] =>
       if (map.containsKey(key)) map.get(key).success
       else ElMessages.undefinedMapKey(mapName, key)
 
@@ -274,7 +274,7 @@ class ElCompiler private extends RegexParsers {
 
   private def staticPart: Parser[StaticPart] =
     staticPartPattern ^? ({
-      case staticStr if !staticStr.isEmpty => StaticPart(staticStr.mkString)
+      case staticStr if staticStr.nonEmpty => StaticPart(staticStr.mkString)
     }, _ => "Not a static part")
 
   private def elExpr: Parser[ElPart[Any]] = "${" ~> sessionObject <~ "}"

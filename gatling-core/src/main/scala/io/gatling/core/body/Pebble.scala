@@ -16,7 +16,7 @@
 
 package io.gatling.core.body
 
-import java.util.{ HashMap => JHashMap, Map => JMap }
+import java.{ util => ju }
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -49,8 +49,8 @@ private[gatling] object Pebble extends StrictLogging {
   private val StringEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).loader(new StringLoader).build
   private val DelegatingEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).build
 
-  private def matchMap(map: Map[String, Any]): JMap[String, AnyRef] = {
-    val jMap: JMap[String, AnyRef] = new JHashMap(map.size)
+  private def matchMap(map: Map[String, Any]): ju.Map[String, AnyRef] = {
+    val jMap = new ju.HashMap[String, AnyRef](map.size)
     for ((k, v) <- map) {
       val javaValue = v match {
         case c: Seq[Any]      => c.asJava

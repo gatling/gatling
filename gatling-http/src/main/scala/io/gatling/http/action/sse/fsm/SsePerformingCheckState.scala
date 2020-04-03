@@ -16,15 +16,14 @@
 
 package io.gatling.http.action.sse.fsm
 
-import java.util.{ HashMap => JHashMap }
-
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 import io.gatling.http.check.sse.{ SseCheck, SseMessageCheck, SseMessageCheckSequence }
+
+import com.typesafe.scalalogging.StrictLogging
 
 final case class SsePerformingCheckState(
     fsm: SseFsm,
@@ -83,7 +82,7 @@ final case class SsePerformingCheckState(
   private def tryApplyingChecks(message: String, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
 
     // cache is used for both matching and checking
-    val preparedCache: JHashMap[Any, Any] = new JHashMap(2)
+    val preparedCache = Check.newPreparedCache
 
     // if matchConditions isEmpty, all messages are considered to be matching
     val messageMatches = matchConditions.forall {

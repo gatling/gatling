@@ -16,12 +16,10 @@
 
 package io.gatling.http.check.body
 
-import java.util.{ HashMap => JHashMap }
-
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation.Success
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.session.SessionSpec.EmptySession
@@ -37,7 +35,7 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val thenCheck: HttpCheck = substring(""""id":"""").count
     val check: HttpCheck = checkIf((_: Response, _: Session) => Success(true))(thenCheck)
-    check.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
+    check.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   "checkIf.true.failed" should "perform the failed nested check" in {
@@ -45,14 +43,14 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
     val substringValue = """"foo":""""
     val thenCheck: HttpCheck = substring(substringValue).findAll.exists
     val check: HttpCheck = checkIf((_: Response, _: Session) => Success(true))(thenCheck)
-    check.check(response, EmptySession, new JHashMap[Any, Any]).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
+    check.check(response, EmptySession, Check.newPreparedCache).failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
   }
 
   "checkIf.false.succeed" should "not perform the succeed nested check" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val thenCheck: HttpCheck = substring(""""id":"""").count
     val check: HttpCheck = checkIf((_: Response, _: Session) => Success(false))(thenCheck)
-    check.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(None, None)
+    check.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(None, None)
   }
 
   "checkIf.false.failed" should "not perform the failed nested check" in {
@@ -60,7 +58,7 @@ class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl w
     val substringValue = """"foo":""""
     val thenCheck: HttpCheck = substring(substringValue).findAll.exists
     val check: HttpCheck = checkIf((_: Response, _: Session) => Success(false))(thenCheck)
-    check.check(response, EmptySession, new JHashMap[Any, Any]).succeeded shouldBe CheckResult(None, None)
+    check.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(None, None)
   }
 
 }

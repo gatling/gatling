@@ -16,7 +16,7 @@
 
 package io.gatling.charts.template
 
-import java.lang.{ StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 
 import io.gatling.commons.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
@@ -28,7 +28,7 @@ import io.gatling.core.stats.writer.ConsoleSummary._
 
 private[charts] object ConsoleTemplate {
 
-  private[template] def writeRequestCounters[T: Numeric](sb: JStringBuilder, statistics: Statistics[T]): JStringBuilder = {
+  private[template] def writeRequestCounters[T: Numeric](sb: jl.StringBuilder, statistics: Statistics[T]): jl.StringBuilder = {
     import statistics._
     sb.append("> ")
       .append(name.rightPad(OutputLength - 32))
@@ -41,7 +41,7 @@ private[charts] object ConsoleTemplate {
       .append(')')
   }
 
-  private[template] def writeGroupedCounters(sb: JStringBuilder, groupedCount: GroupedCount): JStringBuilder = {
+  private[template] def writeGroupedCounters(sb: jl.StringBuilder, groupedCount: GroupedCount): jl.StringBuilder = {
     import groupedCount._
     sb.append("> ")
       .append(name.rightPad(OutputLength - 32))
@@ -52,7 +52,7 @@ private[charts] object ConsoleTemplate {
       .append("%)")
   }
 
-  private[template] def writeErrorsAndEndBlock(sb: JStringBuilder, errors: Seq[ErrorStats]): JStringBuilder = {
+  private[template] def writeErrorsAndEndBlock(sb: jl.StringBuilder, errors: Seq[ErrorStats]): jl.StringBuilder = {
     if (errors.nonEmpty) {
       writeSubTitle(sb, "Errors").append(Eol)
       errors.foreach(ConsoleErrorsWriter.writeError(sb, _).append(Eol))
@@ -63,7 +63,7 @@ private[charts] object ConsoleTemplate {
   def println(requestStatistics: RequestStatistics, errors: Seq[ErrorStats]): String = {
     import requestStatistics._
 
-    val sb = new JStringBuilder()
+    val sb = new jl.StringBuilder()
       .append(Eol)
       .append(NewBlock)
       .append(Eol)

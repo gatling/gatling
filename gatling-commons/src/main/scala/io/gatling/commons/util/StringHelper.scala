@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 import java.nio.charset.StandardCharsets._
 import java.text.Normalizer
 import java.util.Locale
@@ -33,11 +33,11 @@ object StringHelper {
 
   def bytes2Hex(bytes: Array[Byte]): String =
     bytes
-      .foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
+      .foldLeft(new jl.StringBuilder(bytes.length)) { (buff, b) =>
         val shifted = b & 0xff
         if (shifted < 0x10)
           buff.append('0')
-        buff.append(JLong.toString(shifted.toLong, 16))
+        buff.append(jl.Long.toString(shifted.toLong, 16))
       }
       .toString
 
@@ -84,7 +84,7 @@ object StringHelper {
         string
       } else {
         var matchFound = false
-        var sb: JStringBuilder = null
+        var sb: jl.StringBuilder = null
 
         cfor(0)(_ < string.length, _ + 1) { i =>
           val c = string.charAt(i)

@@ -16,7 +16,7 @@
 
 package io.gatling.jsonpath
 
-import java.util.{ Iterator => JIterator }
+import java.{ util => ju }
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.node.JsonNodeType.{ ARRAY, OBJECT }
@@ -27,9 +27,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeType.{ ARRAY, OBJECT }
  *
  * Originally contributed by Nicolas Rémond.
  */
-class RecursiveDataIterator(root: JsonNode) extends RecursiveIterator[JIterator[JsonNode]](root) {
+class RecursiveDataIterator(root: JsonNode) extends RecursiveIterator[ju.Iterator[JsonNode]](root) {
 
-  override protected def visit(it: JIterator[JsonNode]): Unit = {
+  override protected def visit(it: ju.Iterator[JsonNode]): Unit = {
     while (it.hasNext && !pause) {
       visitNode(it.next())
     }

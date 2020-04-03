@@ -16,7 +16,7 @@
 
 package io.gatling.http
 
-import java.lang.{ StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 import java.nio.charset.Charset
 
 import scala.collection.JavaConverters._
@@ -32,16 +32,16 @@ import io.netty.handler.codec.http.HttpHeaders
 
 package object util extends LazyLogging {
 
-  implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
+  implicit class HttpStringBuilder(val buff: jl.StringBuilder) extends AnyVal {
 
-    def appendHttpHeaders(headers: HttpHeaders): JStringBuilder = {
+    def appendHttpHeaders(headers: HttpHeaders): jl.StringBuilder = {
       headers.asScala.foreach { entry =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
       buff
     }
 
-    def appendRequest(result: HttpResult, charset: Charset): JStringBuilder = {
+    def appendRequest(result: HttpResult, charset: Charset): jl.StringBuilder = {
       val request = result.request
       buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
 
@@ -68,10 +68,10 @@ package object util extends LazyLogging {
       buff
     }
 
-    def appendWithEol(s: String): JStringBuilder =
+    def appendWithEol(s: String): jl.StringBuilder =
       buff.append(s).append(Eol)
 
-    def appendResponse(result: HttpResult): JStringBuilder = {
+    def appendResponse(result: HttpResult): jl.StringBuilder = {
 
       result match {
         case response: Response =>

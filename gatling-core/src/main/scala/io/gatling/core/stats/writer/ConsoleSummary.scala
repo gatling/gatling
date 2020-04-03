@@ -16,7 +16,7 @@
 
 package io.gatling.core.stats.writer
 
-import java.lang.{ StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -35,7 +35,7 @@ object ConsoleSummary {
   val OutputLength: Int = 80
   val NewBlock: String = "=" * OutputLength
 
-  def writeSubTitle(sb: JStringBuilder, title: String): JStringBuilder =
+  def writeSubTitle(sb: jl.StringBuilder, title: String): jl.StringBuilder =
     sb.append(("---- " + title + " ").rightPad(OutputLength, "-"))
 
   def apply(
@@ -48,7 +48,7 @@ object ConsoleSummary {
       time: Date
   ): ConsoleSummary = {
 
-    def writeUsersCounters(sb: JStringBuilder, scenarioName: String, userCounters: UserCounters): JStringBuilder = {
+    def writeUsersCounters(sb: jl.StringBuilder, scenarioName: String, userCounters: UserCounters): jl.StringBuilder = {
 
       import userCounters._
       totalUserCount match {
@@ -87,7 +87,7 @@ object ConsoleSummary {
       }
     }
 
-    def writeRequestsCounter(sb: JStringBuilder, actionName: String, requestCounters: RequestCounters): JStringBuilder = {
+    def writeRequestsCounter(sb: jl.StringBuilder, actionName: String, requestCounters: RequestCounters): jl.StringBuilder = {
 
       import requestCounters._
       val maxActionNameLength = OutputLength - 24
@@ -100,7 +100,7 @@ object ConsoleSummary {
         .append(')')
     }
 
-    def writeDetailedRequestsCounter(sb: JStringBuilder): JStringBuilder = {
+    def writeDetailedRequestsCounter(sb: jl.StringBuilder): jl.StringBuilder = {
       if (!configuration.data.console.light) {
         requestsCounters.foreach { case (actionName, requestCounters) => writeRequestsCounter(sb, actionName, requestCounters).append(Eol) }
         if (requestsCounters.nonEmpty) {
@@ -110,7 +110,7 @@ object ConsoleSummary {
       sb
     }
 
-    def writeErrors(sb: JStringBuilder): JStringBuilder = {
+    def writeErrors(sb: jl.StringBuilder): jl.StringBuilder = {
       if (errorsCounters.nonEmpty) {
         val errorsTotal = errorsCounters.values.sum
 
@@ -124,7 +124,7 @@ object ConsoleSummary {
       sb
     }
 
-    val sb = new JStringBuilder()
+    val sb = new jl.StringBuilder()
       .append(Eol)
       .append(NewBlock)
       .append(Eol)

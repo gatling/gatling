@@ -17,7 +17,7 @@
 package io.gatling.core.json
 
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.{ Collection => JCollection, Map => JMap }
+import java.{ util => ju }
 
 import scala.collection.mutable
 import scala.collection.JavaConverters._
@@ -69,7 +69,7 @@ class JsonSpec extends BaseSpec {
   }
 
   it should "be able to stringify Java collections" in {
-    val list: JCollection[Int] = Seq(1, 2, 3).asJava
+    val list: ju.Collection[Int] = Seq(1, 2, 3).asJava
     stringify(list, isRootObject = true) shouldBe "[1,2,3]"
   }
 
@@ -86,7 +86,7 @@ class JsonSpec extends BaseSpec {
   }
 
   it should "be able to stringify Java maps" in {
-    val map: JMap[Any, Any] = Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2)).asJava
+    val map: ju.Map[Any, Any] = Map(1 -> "foo", "bar" -> 4.5, "toto" -> Seq(1, 2)).asJava
     stringify(map, isRootObject = true) shouldBe """{"1":"foo","bar":4.5,"toto":[1,2]}"""
   }
 

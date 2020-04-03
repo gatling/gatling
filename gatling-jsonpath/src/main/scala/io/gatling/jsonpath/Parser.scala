@@ -16,17 +16,17 @@
 
 package io.gatling.jsonpath
 
-import java.lang.{ StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.jsonpath.AST._
 
-class StringBuilderPool extends ThreadLocal[JStringBuilder] {
+class StringBuilderPool extends ThreadLocal[jl.StringBuilder] {
 
-  override def initialValue() = new JStringBuilder(512)
+  override def initialValue() = new jl.StringBuilder(512)
 
-  override def get(): JStringBuilder = {
+  override def get(): jl.StringBuilder = {
     val sb = super.get()
     sb.setLength(0)
     sb

@@ -16,7 +16,7 @@
 
 package io.gatling.http
 
-import java.util.{ Collection => JCollection }
+import java.{ util => ju }
 
 import scala.collection.breakOut
 import scala.collection.JavaConverters._
@@ -28,7 +28,7 @@ package object cache {
   type Cookies = Map[String, String]
 
   object Cookies {
-    def apply(cookies: JCollection[Cookie]): Cookies =
+    def apply(cookies: ju.Collection[Cookie]): Cookies =
       cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
   }
 }

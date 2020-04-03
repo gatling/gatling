@@ -16,12 +16,12 @@
 
 package io.gatling.commons.util
 
+import java.{ lang => jl }
 import java.io.Writer
-import java.lang.{ StringBuilder => JStringBuilder }
 
 final class FastStringWriter(initialSize: Int) extends Writer {
 
-  private val buf: JStringBuilder = new JStringBuilder(initialSize)
+  private val buf: jl.StringBuilder = new jl.StringBuilder(initialSize)
 
   override def write(c: Int): Unit = buf.append(c.toChar)
 
@@ -54,7 +54,7 @@ final class FastStringWriter(initialSize: Int) extends Writer {
 
   override def toString: String = buf.toString
 
-  def getBuffer: JStringBuilder = buf
+  def getBuffer: jl.StringBuilder = buf
 
   def flush(): Unit = {}
 

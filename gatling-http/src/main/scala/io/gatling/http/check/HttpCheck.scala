@@ -16,8 +16,6 @@
 
 package io.gatling.http.check
 
-import java.util.{ Map => JMap }
-
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult, Preparer }
 import io.gatling.core.session.Session
@@ -30,7 +28,7 @@ import io.gatling.http.response.Response
  * @param scope the part of the response this check targets
  */
 final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) extends Check[Response] {
-  override def check(response: Response, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+  override def check(response: Response, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(response, session, preparedCache)
 }
 

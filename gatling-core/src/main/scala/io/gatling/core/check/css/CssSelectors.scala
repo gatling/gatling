@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.css
 
-import java.util.{ List => JList }
+import java.{ util => ju }
 
 import scala.collection._
 import scala.collection.JavaConverters._
@@ -34,7 +34,7 @@ class CssSelectors(cacheMaxCapacity: Long) {
   LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
 
   private val domBuilder = Jodd.newLagartoDomBuilder
-  private val selectorCache: LoadingCache[String, JList[JList[CssSelector]]] =
+  private val selectorCache: LoadingCache[String, ju.List[ju.List[CssSelector]]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, CSSelly.parse)
 
   def parse(chars: Array[Char]): NodeSelector = new NodeSelector(domBuilder.parse(chars))

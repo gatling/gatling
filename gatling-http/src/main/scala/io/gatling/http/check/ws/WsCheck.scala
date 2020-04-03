@@ -16,18 +16,16 @@
 
 package io.gatling.http.check.ws
 
-import java.util.{ Map => JMap }
-
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.Session
 
 sealed trait WsCheck
 final class WsTextCheck(wrapped: Check[String]) extends WsCheck with Check[String] {
-  override def check(message: String, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+  override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 }
 final class WsBinaryCheck(wrapped: Check[Array[Byte]]) extends WsCheck with Check[Array[Byte]] {
-  override def check(message: Array[Byte], session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+  override def check(message: Array[Byte], session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 }

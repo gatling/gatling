@@ -16,12 +16,10 @@
 
 package io.gatling.core.check
 
-import java.util.{ Map => JMap }
-
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.Session
 
 class ChecksumCheck[R](wrapped: Check[R], val algorithm: String) extends Check[R] {
-  override def check(response: R, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+  override def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(response, session, preparedCache)
 }

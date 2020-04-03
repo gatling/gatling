@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.config
 
-import java.util.{ List => JList }
+import java.{ util => ju }
 
 import scala.collection.mutable
 
@@ -81,12 +81,12 @@ class RecorderPropertiesBuilder {
     this
   }
 
-  def whitelist(patterns: JList[String]): RecorderPropertiesBuilder = {
+  def whitelist(patterns: ju.List[String]): RecorderPropertiesBuilder = {
     props += filters.WhitelistPatterns -> patterns
     this
   }
 
-  def blacklist(patterns: JList[String]): RecorderPropertiesBuilder = {
+  def blacklist(patterns: ju.List[String]): RecorderPropertiesBuilder = {
     props += filters.BlacklistPatterns -> patterns
     this
   }

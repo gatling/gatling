@@ -16,13 +16,11 @@
 
 package io.gatling.http.check.sse
 
-import java.util.{ Map => JMap }
-
 import io.gatling.commons.validation.Validation
 import io.gatling.core.check.{ Check, CheckResult }
 import io.gatling.core.session.Session
 
 final case class SseCheck(wrapped: Check[String]) extends Check[String] {
-  override def check(message: String, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+  override def check(message: String, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
     wrapped.check(message, session, preparedCache)
 }

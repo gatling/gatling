@@ -16,8 +16,7 @@
 
 package io.gatling.core.json
 
-import java.lang.{ StringBuilder => JStringBuilder }
-import java.util.{ Collection => JCollection, Map => JMap }
+import java.{ lang => jl, util => ju }
 
 import scala.annotation.switch
 import scala.collection.JavaConverters._
@@ -39,7 +38,7 @@ private[gatling] object Json {
 
     val sb = stringBuilders.get()
 
-    def appendStringified(node: JsonNode, rootLevel: Boolean): JStringBuilder = node.getNodeType match {
+    def appendStringified(node: JsonNode, rootLevel: Boolean): jl.StringBuilder = node.getNodeType match {
       case NUMBER =>
         node.numberType match {
           case INT         => sb.append(node.intValue)
@@ -56,7 +55,7 @@ private[gatling] object Json {
       case _             => appendString(node.toString, rootLevel)
     }
 
-    def appendString(s: String, rootLevel: Boolean): JStringBuilder =
+    def appendString(s: String, rootLevel: Boolean): jl.StringBuilder =
       if (rootLevel) {
         appendString0(s)
       } else {
@@ -64,7 +63,7 @@ private[gatling] object Json {
         appendString0(s).append('"')
       }
 
-    def appendString0(s: String): JStringBuilder = {
+    def appendString0(s: String): jl.StringBuilder = {
       cfor(0)(_ < s.length, _ + 1) { i =>
         val c = s.charAt(i)
         c match {
@@ -92,7 +91,7 @@ private[gatling] object Json {
       sb
     }
 
-    def appendArray(node: JsonNode): JStringBuilder = {
+    def appendArray(node: JsonNode): jl.StringBuilder = {
       sb.append('[')
       node.elements.asScala.foreach { elem =>
         appendStringified(elem, rootLevel = false).append(',')
@@ -103,7 +102,7 @@ private[gatling] object Json {
       sb.append(']')
     }
 
-    def appendMap(node: JsonNode): JStringBuilder = {
+    def appendMap(node: JsonNode): jl.StringBuilder = {
       sb.append('{')
       node.fields.asScala.foreach { e =>
         sb.append('"').append(e.getKey).append("\":")
@@ -122,7 +121,7 @@ private[gatling] object Json {
 
     val sb = stringBuilders.get()
 
-    def appendStringified(value: Any, rootLevel: Boolean): JStringBuilder = value match {
+    def appendStringified(value: Any, rootLevel: Boolean): jl.StringBuilder = value match {
       case b: Byte                   => sb.append(b)
       case s: Short                  => sb.append(s)
       case i: Int                    => sb.append(i)
@@ -133,14 +132,14 @@ private[gatling] object Json {
       case s: String                 => appendString(s, rootLevel)
       case null                      => sb.append("null")
       case map: collection.Map[_, _] => appendMap(map)
-      case jMap: JMap[_, _]          => appendMap(jMap.asScala)
+      case jMap: ju.Map[_, _]        => appendMap(jMap.asScala)
       case array: Array[_]           => appendArray(array)
       case seq: Seq[_]               => appendArray(seq)
-      case coll: JCollection[_]      => appendArray(coll.asScala)
+      case coll: ju.Collection[_]    => appendArray(coll.asScala)
       case _                         => appendString(value.toString, rootLevel)
     }
 
-    def appendString(s: String, rootLevel: Boolean): JStringBuilder =
+    def appendString(s: String, rootLevel: Boolean): jl.StringBuilder =
       if (rootLevel) {
         appendString0(s)
       } else {
@@ -148,7 +147,7 @@ private[gatling] object Json {
         appendString0(s).append('"')
       }
 
-    def appendString0(s: String): JStringBuilder = {
+    def appendString0(s: String): jl.StringBuilder = {
       cfor(0)(_ < s.length, _ + 1) { i =>
         val c = s.charAt(i)
         c match {
@@ -176,7 +175,7 @@ private[gatling] object Json {
       sb
     }
 
-    def appendArray(iterable: Traversable[_]): JStringBuilder = {
+    def appendArray(iterable: Traversable[_]): jl.StringBuilder = {
       sb.append('[')
       iterable.foreach { elem =>
         appendStringified(elem, rootLevel = false).append(',')
@@ -187,7 +186,7 @@ private[gatling] object Json {
       sb.append(']')
     }
 
-    def appendMap(map: collection.Map[_, _]): JStringBuilder = {
+    def appendMap(map: collection.Map[_, _]): jl.StringBuilder = {
       sb.append('{')
       map.foreach {
         case (k, v) =>

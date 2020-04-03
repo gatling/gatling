@@ -16,7 +16,7 @@
 
 package io.gatling.core.stats.writer
 
-import java.lang.{ StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 
 import io.gatling.commons.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
@@ -33,7 +33,7 @@ object ConsoleErrorsWriter {
 
   val OneHundredPercent: String = formatPercent(100).dropRight(1)
 
-  def writeError(sb: JStringBuilder, errors: ErrorStats): JStringBuilder = {
+  def writeError(sb: jl.StringBuilder, errors: ErrorStats): jl.StringBuilder = {
     val percent = if (errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
     val message = errors.message
     val firstLineLen = TextLen.min(message.length)
