@@ -78,6 +78,13 @@ For example:
 
 .. includecode:: code/WsSample.scala#sendText
 
+Note that:
+
+* ``ElFileBody``, ``PebbleStringBody`` and ``PebbleFileBody`` implement ``Expression[String]`` so they can be passed to ``sendText``
+* ``RawFileBody`` and ``ByteArrayBody`` implement ``Expression[Array[Byte]]`` so they can be passed to ``sendBytes``.
+
+See :ref:`http-request-body <HTTP request body for more information>`.
+
 .. _http-ws-checks:
 
 Server Messages: Checks

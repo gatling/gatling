@@ -106,7 +106,23 @@ class WsCompileTest extends Simulation {
     .exec(ws("Close WS").close)
     .exec(ws("Open Named", "foo").connect("/bar"))
     .exec(
-      ws("Message1")
-        .sendText(ElFileBody("path"))
+      ws("SendTextMessageWithElFileBody")
+        .sendText(ElFileBody("pathToSomeFile"))
+    )
+    .exec(
+      ws("SendTextMessageWithPebbleStringBody")
+        .sendText(PebbleStringBody("somePebbleString"))
+    )
+    .exec(
+      ws("SendTextMessageWithPebbleFileBody")
+        .sendText(PebbleFileBody("pathToSomeFile"))
+    )
+    .exec(
+      ws("SendBytesMessageWithRawFileBody")
+        .sendBytes(RawFileBody("pathToSomeFile"))
+    )
+    .exec(
+      ws("SendBytesMessageWithByteArrayBody")
+        .sendBytes(ByteArrayBody("${someByteArray}"))
     )
 }
