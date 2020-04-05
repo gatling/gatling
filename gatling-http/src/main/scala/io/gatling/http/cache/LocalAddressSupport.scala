@@ -21,7 +21,6 @@ import java.net.InetAddress
 import io.gatling.commons.util.CircularIterator
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.HttpTypeCaster
 
 private[cache] object LocalAddressSupport {
 
@@ -42,9 +41,6 @@ private[cache] trait LocalAddressSupport {
     }
   }
 
-  val localAddress: Session => Option[InetAddress] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
-    _(LocalAddressAttributeName).asOption[InetAddress]
-  }
+  val localAddress: Session => Option[InetAddress] =
+    _.attributes.get(LocalAddressAttributeName).map(_.asInstanceOf[InetAddress])
 }

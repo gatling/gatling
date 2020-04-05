@@ -16,7 +16,7 @@
 
 package io.gatling.http.action.polling
 
-import io.gatling.commons.util.{ Clock, TypeCaster }
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 import io.gatling.core.session._
@@ -24,34 +24,15 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.UnnamedRequestAction
 
-object PollingStop {
-  private implicit val PollerTypeCaster: TypeCaster[Poller] = new TypeCaster[Poller] {
-    @throws[ClassCastException]
-    override def cast(value: Any): Poller =
-      value match {
-        case v: Poller => v
-        case _         => throw new ClassCastException(cceMessage(value, classOf[Poller]))
-      }
-
-    override def validate(value: Any): Validation[Poller] =
-      value match {
-        case v: Poller => v.success
-        case _         => cceMessage(value, classOf[Poller]).failure
-      }
-  }
-
-  private def fetchPoller(pollerName: String, session: Session): Validation[Poller] =
-    session(pollerName)
-      .validate[Poller]
-      .mapError(m => s"Couldn't fetch poller actor: $m")
-}
-
 class PollingStop(pollerName: String, statsEngine: StatsEngine, val clock: Clock, val next: Action) extends UnnamedRequestAction(statsEngine) with NameGen {
 
   override val name: String = genName("pollingStop")
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for {
-      poller <- PollingStop.fetchPoller(pollerName, session)
-    } yield poller.stop(next, session)
+    session.attributes.get(pollerName) match {
+      case Some(poller) =>
+        poller.asInstanceOf[Poller].stop(next, session)
+        Validation.unit
+      case _ => "Couldn't fetch poller".failure
+    }
 }

@@ -26,7 +26,6 @@ import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
-import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.channel.EventLoop
 import io.netty.util.concurrent.{ Future, Promise }
@@ -100,9 +99,6 @@ private[http] trait DnsCacheSupport {
     }
   }
 
-  def nameResolver(session: Session): Option[InetAddressNameResolver] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
-    session(DnsNameResolverAttributeName).asOption[InetAddressNameResolver]
-  }
+  def nameResolver(session: Session): Option[InetAddressNameResolver] =
+    session.attributes.get(DnsNameResolverAttributeName).map(_.asInstanceOf[InetAddressNameResolver])
 }

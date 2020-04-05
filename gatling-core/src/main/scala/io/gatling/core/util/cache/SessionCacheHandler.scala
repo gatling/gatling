@@ -16,38 +16,14 @@
 
 package io.gatling.core.util.cache
 
-import io.gatling.commons.util.TypeCaster
-import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 
-object SessionCacheHandler {
-
-  private[this] val CacheTypeCaster = new TypeCaster[Cache[_, _]] {
-    @throws[ClassCastException]
-    override def cast(value: Any): Cache[_, _] =
-      value match {
-        case v: Cache[_, _] => v
-        case _              => throw new ClassCastException(cceMessage(value, classOf[Cache[_, _]]))
-      }
-
-    override def validate(value: Any): Validation[Cache[_, _]] =
-      value match {
-        case v: Cache[_, _] => v.success
-        case _              => cceMessage(value, classOf[Cache[_, _]]).failure
-      }
-  }
-
-  implicit def cacheTypeCaster[K, V]: TypeCaster[Cache[K, V]] = CacheTypeCaster.asInstanceOf[TypeCaster[Cache[K, V]]]
-}
-
 class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
-
-  import SessionCacheHandler._
 
   val enabled: Boolean = maxCapacity > 0
 
   private[cache] def getCache(session: Session): Option[Cache[K, V]] =
-    session(cacheName).asOption[Cache[K, V]]
+    session.attributes.get(cacheName).map(_.asInstanceOf[Cache[K, V]])
 
   private[cache] def getOrCreateCache(session: Session): Cache[K, V] =
     getCache(session) match {

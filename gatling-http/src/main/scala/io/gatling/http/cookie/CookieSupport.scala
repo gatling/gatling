@@ -20,19 +20,15 @@ import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.session.Expression
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.util.HttpTypeCaster
 
 import io.netty.handler.codec.http.cookie.Cookie
 
 private[http] object CookieSupport {
 
-  // import optimized TypeCaster
-  import HttpTypeCaster._
-
   val CookieJarAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
   private val NoCookieJarFailure = "No CookieJar in session".failure
 
-  def cookieJar(session: Session): Option[CookieJar] = session(CookieJarAttributeName).asOption[CookieJar]
+  def cookieJar(session: Session): Option[CookieJar] = session.attributes.get(CookieJarAttributeName).map(_.asInstanceOf[CookieJar])
 
   def getStoredCookies(session: Session, uri: Uri): List[Cookie] =
     cookieJar(session) match {

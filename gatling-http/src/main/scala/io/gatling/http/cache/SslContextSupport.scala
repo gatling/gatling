@@ -20,7 +20,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.{ HttpTypeCaster, SslContexts }
+import io.gatling.http.util.SslContexts
 
 import com.typesafe.scalalogging.StrictLogging
 import javax.net.ssl.KeyManagerFactory
@@ -59,9 +59,6 @@ private[http] trait SslContextSupport {
       }
     }
 
-  def sslContexts(session: Session): Option[SslContexts] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
-    session(HttpSslContextsAttributeName).asOption[SslContexts]
-  }
+  def sslContexts(session: Session): Option[SslContexts] =
+    session.attributes.get(HttpSslContextsAttributeName).map(_.asInstanceOf[SslContexts])
 }

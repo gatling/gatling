@@ -16,35 +16,15 @@
 
 package io.gatling.http.action.ws
 
-import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.http.action.ws.fsm.WsFsm
 
-object WsAction {
-  implicit val WsFsmTypeCaster: TypeCaster[WsFsm] = new TypeCaster[WsFsm] {
-    @throws[ClassCastException]
-    override def cast(value: Any): WsFsm =
-      value match {
-        case v: WsFsm => v
-        case _        => throw new ClassCastException(cceMessage(value, classOf[WsFsm]))
-      }
-
-    override def validate(value: Any): Validation[WsFsm] =
-      value match {
-        case v: WsFsm => v.success
-        case _        => cceMessage(value, classOf[WsFsm]).failure
-      }
-  }
-}
-
 trait WsAction {
 
-  // import optimized TypeCaster
-  import WsAction._
-
   final def fetchFsm(actorName: String, session: Session): Validation[WsFsm] =
-    session(actorName)
-      .validate[WsFsm]
-      .mapError(m => s"Couldn't fetch open webSocket: $m")
+    session.attributes.get(actorName) match {
+      case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
+      case _           => s"Couldn't fetch open webSocket".failure
+    }
 }
