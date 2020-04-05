@@ -51,7 +51,7 @@ private[http] trait SslContextSupport {
 
   def setSslContexts(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session =
     if (httpProtocol.enginePart.shareConnections) {
-      identity
+      Session.Identity
     } else { session =>
       {
         val kmf = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)

@@ -52,7 +52,7 @@ final case class SessionAttribute(session: Session, key: String) {
 
 object Session {
   val MarkAsFailedUpdate: Session => Session = _.markAsFailed
-  val Identity: Session => Session = identity[Session]
+  val Identity: Session => Session = identity
   val NothingOnExit: Session => Unit = _ => ()
 
   private[session] def timestampName(counterName: String) = "timestamp." + counterName

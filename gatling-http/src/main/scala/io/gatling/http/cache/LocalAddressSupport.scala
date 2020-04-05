@@ -33,7 +33,7 @@ private[cache] trait LocalAddressSupport {
 
   def setLocalAddress(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.enginePart.localAddresses match {
-      case Nil            => identity
+      case Nil            => Session.Identity
       case address :: Nil => _.set(LocalAddressAttributeName, address)
       case address =>
         val it = CircularIterator(address.toVector, threadSafe = true)

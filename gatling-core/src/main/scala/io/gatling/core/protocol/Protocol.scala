@@ -39,8 +39,6 @@ trait ProtocolKey[P, C] {
 
 object ProtocolComponents {
 
-  val NoopOnStart: Session => Session = identity
-
   val NoopOnExit: Session => Unit = _ => ()
 }
 
@@ -80,7 +78,7 @@ class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Prot
     if (componentsCache.values.nonEmpty) {
       componentsCache.values.map(_.onStart).reduceLeft(_ andThen _)
     } else {
-      ProtocolComponents.NoopOnStart
+      Session.Identity
     }
 
   def onExit: Session => Unit =

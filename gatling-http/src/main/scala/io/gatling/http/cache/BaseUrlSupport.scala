@@ -33,7 +33,7 @@ private[cache] trait BaseUrlSupport {
 
   def setBaseUrl(httpProtocol: HttpProtocol): Session => Session =
     httpProtocol.baseUrls match {
-      case Nil        => identity
+      case Nil        => Session.Identity
       case url :: Nil => _.set(BaseUrlAttributeName, url)
       case urls =>
         val it = CircularIterator(urls.toVector, threadSafe = true)
@@ -42,7 +42,7 @@ private[cache] trait BaseUrlSupport {
 
   def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
     httpProtocol.wsPart.wsBaseUrls match {
-      case Nil        => identity
+      case Nil        => Session.Identity
       case url :: Nil => _.set(WsBaseUrlAttributeName, url)
       case urls =>
         val it = CircularIterator(urls.toVector, threadSafe = true)
