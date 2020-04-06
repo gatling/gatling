@@ -35,8 +35,7 @@ class HttpTxExecutor(
     httpCaches: HttpCaches,
     defaultStatsProcessor: DefaultStatsProcessor,
     httpProtocol: HttpProtocol
-) extends SslContextSupport
-    with NameGen
+) extends NameGen
     with StrictLogging {
 
   import coreComponents._
@@ -144,7 +143,7 @@ class HttpTxExecutor(
         val clientId = tx.session.userId
         val shared = tx.request.requestConfig.httpProtocol.enginePart.shareConnections
         val listener = new GatlingHttpListener(tx, coreComponents.clock, responseProcessorFactory(tx))
-        val userSslContexts = sslContexts(tx.session)
+        val userSslContexts = SslContextSupport.sslContexts(tx.session)
         val sslContext = userSslContexts.map(_.sslContext).orNull
         val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
@@ -174,7 +173,7 @@ class HttpTxExecutor(
       }
       val clientId = headTx.session.userId
       val shared = headTx.request.requestConfig.httpProtocol.enginePart.shareConnections
-      val userSslContexts = sslContexts(headTx.session)
+      val userSslContexts = SslContextSupport.sslContexts(headTx.session)
       val sslContext = userSslContexts.map(_.sslContext).orNull
       val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 

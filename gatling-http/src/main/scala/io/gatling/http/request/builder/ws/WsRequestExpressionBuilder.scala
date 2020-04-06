@@ -19,7 +19,7 @@ package io.gatling.http.request.builder.ws
 import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches }
 import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
@@ -33,7 +33,8 @@ class WsRequestExpressionBuilder(
     subprotocol: Option[String]
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
-  override protected def baseUrl: Session => Option[String] = httpCaches.wsBaseUrl
+  override protected def protocolBaseUrl: Session => Option[String] =
+    BaseUrlSupport.wsBaseUrl(httpProtocol)
 
   override protected def protocolBaseUrls: List[String] =
     httpProtocol.wsPart.wsBaseUrls

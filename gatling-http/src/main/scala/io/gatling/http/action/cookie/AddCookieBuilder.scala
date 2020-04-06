@@ -42,12 +42,12 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
     import ctx._
 
     val clock = ctx.coreComponents.clock
-    val httpComponents = lookUpHttpComponents(protocolComponentsRegistry)
+    val httpProtocol = lookUpHttpComponents(protocolComponentsRegistry).httpProtocol
 
     val requestDomain = domain match {
       case None =>
         // no cookie domain defined, we absolutely need one from the baseUrl
-        defaultDomain(httpComponents.httpCaches)
+        defaultDomain(httpProtocol)
       case _ =>
         // use a mock as requestDomain will be ignored in favor of cookie's one
         EmptyStringExpressionSuccess

@@ -35,11 +35,7 @@ private[http] class HttpCaches(val coreComponents: CoreComponents)
     extends HttpContentCacheSupport
     with PermanentRedirectCacheSupport
     with DnsCacheSupport
-    with LocalAddressSupport
-    with BaseUrlSupport
-    with ResourceCacheSupport
-    with Http2PriorKnowledgeSupport
-    with SslContextSupport {
+    with ResourceCacheSupport {
 
   override def clock: Clock = coreComponents.clock
 

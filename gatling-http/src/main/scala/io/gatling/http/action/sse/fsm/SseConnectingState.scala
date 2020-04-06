@@ -26,7 +26,7 @@ import io.gatling.http.cache.SslContextSupport
 import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.netty.handler.codec.http.HttpResponseStatus
 
-object SseConnectingState extends SslContextSupport {
+object SseConnectingState {
 
   private val SseConnectSuccessStatusCode = Some(Integer.toString(HttpResponseStatus.OK.code))
 
@@ -42,7 +42,7 @@ object SseConnectingState extends SslContextSupport {
     // [fl]
     //
     // [fl]
-    val userSslContexts = sslContexts(session)
+    val userSslContexts = SslContextSupport.sslContexts(session)
     httpEngine.executeRequest(
       connectRequest,
       session.userId,

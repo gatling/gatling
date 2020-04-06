@@ -18,7 +18,7 @@ package io.gatling.http.protocol
 
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache._
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTxExecutor
 
@@ -30,17 +30,17 @@ final class HttpComponents(
 ) extends ProtocolComponents {
 
   override lazy val onStart: Session => Session =
-    (httpCaches.setSslContexts(httpProtocol, httpEngine)
+    (SslContextSupport.setSslContexts(httpProtocol, httpEngine)
       andThen httpCaches.setNameResolver(httpProtocol, httpEngine)
-      andThen httpCaches.setLocalAddress(httpProtocol)
-      andThen httpCaches.setBaseUrl(httpProtocol)
-      andThen httpCaches.setWsBaseUrl(httpProtocol)
-      andThen httpCaches.setHttp2PriorKnowledge(httpProtocol))
+      andThen LocalAddressSupport.setLocalAddress(httpProtocol)
+      andThen BaseUrlSupport.setHttpBaseUrl(httpProtocol)
+      andThen BaseUrlSupport.setWsBaseUrl(httpProtocol)
+      andThen Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol))
 
   override lazy val onExit: Session => Unit =
     session => {
       httpCaches.nameResolver(session).foreach(_.close())
-      httpCaches.sslContexts(session).foreach(_.close())
+      SslContextSupport.sslContexts(session).foreach(_.close())
       httpEngine.flushClientIdChannels(session.userId, session.eventLoop)
     }
 }

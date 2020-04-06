@@ -25,7 +25,7 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches, LocalAddressSupport }
 import io.gatling.http.client.{ Request, SignatureCalculator, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.client.uri.{ Uri, UriEncoder }
 import io.gatling.http.cookie.CookieSupport
@@ -64,14 +64,10 @@ abstract class RequestExpressionBuilder(
   private val signatureCalculatorExpression: Option[Expression[SignatureCalculator]] =
     commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
-  protected def baseUrl: Session => Option[String] =
-    httpProtocol.baseUrls match {
-      case Nil => _ => None
-      case single :: Nil =>
-        val s = Some(single)
-        _ => s
-      case _ => httpCaches.baseUrl
-    }
+  private val baseUrl: Session => Option[String] = protocolBaseUrl
+
+  protected def protocolBaseUrl: Session => Option[String] =
+    BaseUrlSupport.httpBaseUrl(httpProtocol)
 
   protected def protocolBaseUrls: List[String] =
     httpProtocol.baseUrls
@@ -201,7 +197,7 @@ abstract class RequestExpressionBuilder(
 
   private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit =
     if (httpProtocol.enginePart.localAddresses.nonEmpty) {
-      httpCaches.localAddress(session).foreach(requestBuilder.setLocalAddress)
+      LocalAddressSupport.localAddress(session).foreach(requestBuilder.setLocalAddress)
     }
 
   private val configureSignatureCalculator: RequestBuilderConfigure =

@@ -38,8 +38,9 @@ class GetCookieBuilder(name: String, domain: Option[Expression[String]], path: O
   override def build(ctx: ScenarioContext, next: Action): Action = {
 
     import ctx._
+    val httpProtocol = lookUpHttpComponents(protocolComponentsRegistry).httpProtocol
 
-    val resolvedDomain = domain.getOrElse(defaultDomain(lookUpHttpComponents(protocolComponentsRegistry).httpCaches))
+    val resolvedDomain = domain.getOrElse(defaultDomain(httpProtocol))
     val resolvedPath = path.getOrElse(DefaultPath)
     val resolvedSaveAs = saveAs.getOrElse(name)
 

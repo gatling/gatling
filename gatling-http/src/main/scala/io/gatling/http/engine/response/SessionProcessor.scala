@@ -19,7 +19,7 @@ package io.gatling.http.engine.response
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.client.Request
 import io.gatling.http.client.uri.Uri
@@ -67,7 +67,7 @@ sealed abstract class SessionProcessor(
     val (sessionWithCheckSavedValues, checkError) = CheckProcessor.check(session, response, checks)
     val sessionWithHttp2PriorKnowledge =
       if (httpProtocol.enginePart.enableHttp2) {
-        httpCaches.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, response)
+        Http2PriorKnowledgeSupport.updateSessionHttp2PriorKnowledge(sessionWithCheckSavedValues, response)
       } else {
         sessionWithCheckSavedValues
       }

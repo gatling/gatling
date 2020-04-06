@@ -27,7 +27,7 @@ import javax.net.ssl.KeyManagerFactory
 
 import scala.util.control.NonFatal
 
-private[cache] object SslContextSupport extends StrictLogging {
+private[http] object SslContextSupport extends StrictLogging {
 
   private val HttpSslContextsAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.ssl.sslContexts"
 
@@ -43,11 +43,6 @@ private[cache] object SslContextSupport extends StrictLogging {
         }
       case _ => None
     }
-}
-
-private[http] trait SslContextSupport {
-
-  import SslContextSupport._
 
   def setSslContexts(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session =
     if (httpProtocol.enginePart.shareConnections) {

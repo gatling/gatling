@@ -30,7 +30,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpResponseStatus.SWITCHING_PROTOCOLS
 import io.netty.handler.codec.http.cookie.Cookie
 
-object WsConnectingState extends SslContextSupport {
+object WsConnectingState {
   private val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 
   def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame]): NextWsState =
@@ -45,7 +45,7 @@ object WsConnectingState extends SslContextSupport {
     // [fl]
     //
     // [fl]
-    val userSslContexts = sslContexts(session)
+    val userSslContexts = SslContextSupport.sslContexts(session)
     httpEngine.executeRequest(
       connectRequest,
       session.userId,
@@ -62,7 +62,6 @@ object WsConnectingState extends SslContextSupport {
 
 final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], connectStart: Long, remainingTries: Int)
     extends WsState(fsm)
-    with SslContextSupport
     with StrictLogging {
 
   import fsm._
