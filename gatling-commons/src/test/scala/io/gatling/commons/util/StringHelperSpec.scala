@@ -16,29 +16,10 @@
 
 package io.gatling.commons.util
 
-import java.security.MessageDigest
-
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io._
 import io.gatling.commons.util.StringHelper.RichString
 
 class StringHelperSpec extends BaseSpec {
-
-  private val fileBytes = withCloseable(getClass.getResourceAsStream("/emoticon.png"))(_.toByteArray())
-
-  "bytes2Hex" should "correctly compute file sha-1" in {
-    val md = MessageDigest.getInstance("SHA-1")
-    md.update(fileBytes)
-    val digestBytes = md.digest
-    StringHelper.bytes2Hex(digestBytes) shouldBe "665a5bf97191eb3d8b2a20d833182313343af073"
-  }
-
-  it should "correctly compute file md5" in {
-    val md = MessageDigest.getInstance("MD5")
-    md.update(fileBytes)
-    val digestBytes = md.digest
-    StringHelper.bytes2Hex(digestBytes) shouldBe "08f6575e7712febe2f529e1ea2c0179e"
-  }
 
   "truncate" should "truncate the string when its length exceeds the max length" in {
     "hello".truncate(2) shouldBe "he..."

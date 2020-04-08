@@ -16,15 +16,21 @@
 
 package io.gatling.commons.util
 
-object HexUtils {
+import java.{ lang => jl }
+
+object Hex {
 
   def fromHexString(hexString: String): Array[Byte] =
     hexString.grouped(2).map(Integer.parseInt(_, 16).toByte).toArray
 
   def toHexString(bytes: Array[Byte]): String = {
-    val sb = new StringBuilder
+    val sb = new jl.StringBuilder(bytes.length)
     bytes.foreach { byte =>
-      sb.append(f"$byte%02X")
+      val shifted = byte & 0xff
+      if (shifted < 0x10) {
+        sb.append('0')
+      }
+      sb.append(jl.Long.toString(shifted.toLong, 16))
     }
     sb.toString
   }

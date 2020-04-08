@@ -23,7 +23,7 @@ import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.Clock
-import io.gatling.commons.util.StringHelper.bytes2Hex
+import io.gatling.commons.util.Hex.toHexString
 import io.gatling.commons.util.Throwables._
 import io.gatling.http.client.HttpListener
 import io.gatling.http.engine.response.ResponseProcessor
@@ -169,7 +169,7 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
         // ensure response doesn't end before starting
         requestEndTimestamp = max(requestEndTimestamp, requestStartTimestamp)
 
-        val checksums = digests.forceMapValues(md => bytes2Hex(md.digest))
+        val checksums = digests.forceMapValues(md => toHexString(md.digest))
 
         val chunksOrderedByArrival = chunks.reverse
         val body = ResponseBody(bodyLength, chunksOrderedByArrival, resolveCharset(headers, defaultCharset))

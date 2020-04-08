@@ -21,7 +21,7 @@ import java.{ lang => jl, util => ju }
 import scala.annotation.switch
 import scala.collection.JavaConverters._
 
-import io.gatling.commons.util.HexUtils
+import io.gatling.commons.util.Hex
 import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.Spire._
 import io.gatling.netty.util.StringBuilderPool
@@ -80,7 +80,7 @@ private[gatling] object Json {
               var n: Int = c
               cfor(0)(_ < 4, _ + 1) { _ =>
                 val digit = (n & 0xf000) >> 12
-                sb.append(HexUtils.toHexChar(digit))
+                sb.append(Hex.toHexChar(digit))
                 n <<= 4
               }
             } else {
@@ -164,7 +164,7 @@ private[gatling] object Json {
               var n: Int = c
               cfor(0)(_ < 4, _ + 1) { _ =>
                 val digit = (n & 0xf000) >> 12
-                sb.append(HexUtils.toHexChar(digit))
+                sb.append(Hex.toHexChar(digit))
                 n <<= 4
               }
             } else {
