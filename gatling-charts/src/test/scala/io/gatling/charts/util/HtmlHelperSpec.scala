@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.charts.util
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.HtmlHelper.HtmlRichString
+import io.gatling.charts.util.HtmlHelper._
 
 class HtmlHelperSpec extends BaseSpec {
 

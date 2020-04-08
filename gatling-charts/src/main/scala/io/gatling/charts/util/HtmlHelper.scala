@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.charts.util
 
 import java.util.ResourceBundle
 

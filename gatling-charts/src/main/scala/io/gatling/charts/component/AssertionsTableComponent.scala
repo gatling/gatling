@@ -17,7 +17,7 @@
 package io.gatling.charts.component
 
 import io.gatling.commons.stats.assertion.AssertionResult
-import io.gatling.commons.util.HtmlHelper.HtmlRichString
+import io.gatling.charts.util.HtmlHelper.HtmlRichString
 
 private[charts] class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
 

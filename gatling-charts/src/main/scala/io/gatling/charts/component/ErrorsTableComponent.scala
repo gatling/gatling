@@ -17,7 +17,7 @@
 package io.gatling.charts.component
 
 import io.gatling.commons.stats.ErrorStats
-import io.gatling.commons.util.HtmlHelper.HtmlRichString
+import io.gatling.charts.util.HtmlHelper.HtmlRichString
 import io.gatling.commons.util.NumberHelper._
 
 private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
