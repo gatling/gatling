@@ -90,13 +90,13 @@ object Dependencies {
     Seq(nettyBuffer, nettyEpoll, junit)
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, boopickle, spire, quicklens, java8Compat) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, boopickle, spire, java8Compat) ++ loggingDeps ++ testDeps
 
   val jsonpathDependencies =
     Seq(scalaParserCombinators, jackson) ++ testDeps
 
   val coreDependencies =
-    Seq(akka, akkaSlf4j, sfm, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler) ++
+    Seq(akka, akkaSlf4j, sfm, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler, quicklens) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
