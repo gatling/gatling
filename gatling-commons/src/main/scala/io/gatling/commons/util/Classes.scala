@@ -16,30 +16,47 @@
 
 package io.gatling.commons.util
 
+import java.{ lang => jl }
+
 import io.gatling.netty.util.StringBuilderPool
 
-object ClassHelper {
+object Classes {
+
+  private[util] def appendClassShortName(className: String, sb: jl.StringBuilder): Unit = {
+    var bufferedChar: Char = className.charAt(0)
+    var off = 0
+    var next = 0
+    while ({
+      next = className.indexOf('.', off)
+      next != -1
+    }) {
+      sb.append(bufferedChar).append('.')
+      bufferedChar = className.charAt(next + 1)
+      off = next + 2
+    }
+
+    if (off > 0) {
+      sb.append(bufferedChar)
+    }
+
+    sb.append(className, off, className.length)
+  }
 
   def toClassShortName(className: String): String = {
-    val parts = className.split("\\.")
     val sb = StringBuilderPool.DEFAULT.get()
-    var i = 0
-    while (i < parts.length - 1) {
-      sb.append(parts(i).charAt(0)).append('.')
-      i += 1
-    }
-    sb.append(parts(i)).toString
+    appendClassShortName(className, sb)
+    sb.toString
   }
 
   implicit class PimpedClass(val clazz: Class[_]) extends AnyVal {
     def getShortName: String = toClassShortName(clazz.getName)
 
-    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
-    def nonAnonSuperclass: Class[_] =
-      if (clazz.isAnonymousClass || clazz.getName.contains("$anon$")) {
-        clazz.getSuperclass.nonAnonSuperclass
-      } else {
-        clazz
+    def nonAnonSuperclass: Class[_] = {
+      var res: Class[_] = clazz
+      while (res.isAnonymousClass || res.getName.contains("$anon$")) {
+        res = clazz.getSuperclass
       }
+      res
+    }
   }
 }

@@ -18,9 +18,9 @@ package io.gatling.commons.util
 
 import io.gatling.BaseSpec
 
-import io.gatling.commons.util.ClassHelper._
+import io.gatling.commons.util.Classes._
 
-class ClassHelperSpec extends BaseSpec {
+class ClassesSpec extends BaseSpec {
 
   "getShortName" should "shorten Class name" in {
     classOf[java.util.concurrent.TimeoutException].getShortName shouldBe "j.u.c.TimeoutException"

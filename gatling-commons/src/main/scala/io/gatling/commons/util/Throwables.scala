@@ -18,7 +18,8 @@ package io.gatling.commons.util
 
 import java.io.PrintWriter
 
-import io.gatling.commons.util.ClassHelper._
+import io.gatling.commons.util.Classes._
+import io.gatling.netty.util.StringBuilderPool
 
 object Throwables {
 
@@ -36,12 +37,12 @@ object Throwables {
       rootCause.detailedMessage
 
     def detailedMessage: String = {
-      val nonAnon = e.getClass.nonAnonSuperclass
-      if (e.getMessage == null) {
-        nonAnon.getShortName
-      } else {
-        s"${nonAnon.getShortName}: ${e.getMessage}"
+      val sb = StringBuilderPool.DEFAULT.get()
+      appendClassShortName(e.getClass.nonAnonSuperclass.getName, sb)
+      if (e.getMessage != null) {
+        sb.append(": ").append(e.getMessage)
       }
+      sb.toString
     }
 
     def stackTraceString: String = {
