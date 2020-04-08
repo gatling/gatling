@@ -24,6 +24,13 @@ import java.nio.file.attribute.BasicFileAttributes
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
+final case class CachingPath(path: Path) {
+
+  override def toString: String = path.toString
+
+  lazy val filename: String = path.getFileName.toString
+}
+
 object PathHelper {
 
   implicit class RichPath(val path: Path) extends AnyVal {

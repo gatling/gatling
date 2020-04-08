@@ -22,14 +22,16 @@ import io.netty.buffer.ByteBuf
 
 object ByteBufs {
 
-  def byteBufToByteArray(buffer: ByteBuf): Array[Byte] =
-    if (buffer.isReadable) {
-      val byteArray = new Array[Byte](buffer.readableBytes)
+  def byteBufToByteArray(buffer: ByteBuf): Array[Byte] = {
+    val readableBytes = buffer.readableBytes
+    if (readableBytes > 0) {
+      val byteArray = new Array[Byte](readableBytes)
       buffer.getBytes(buffer.readerIndex, byteArray)
       byteArray
     } else {
       Array.emptyByteArray
     }
+  }
 
   def byteBufsToByteArray(bufs: Seq[ByteBuf]): Array[Byte] =
     if (bufs.nonEmpty) {
