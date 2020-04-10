@@ -29,8 +29,8 @@ import io.gatling.http.client.proxy.SockProxyServer;
 import io.gatling.http.client.realm.DigestRealm;
 import io.gatling.http.client.realm.Realm;
 import io.gatling.http.client.ssl.Tls;
-import io.gatling.http.client.util.Pair;
 import io.gatling.http.client.uri.Uri;
+import io.gatling.http.client.util.Pair;
 import io.gatling.netty.util.Transports;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -670,6 +670,10 @@ public class DefaultHttpClient implements HttpClient {
         }
 
         if (f.isSuccess()) {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("TLS handshake successful: protocol={} cipher suite={}", sslHandler.engine().getSession().getProtocol(), sslHandler.engine().getSession().getCipherSuite());
+          }
+
           //[fl]
           //
           //[fl]
@@ -722,6 +726,9 @@ public class DefaultHttpClient implements HttpClient {
 
             SslHandler sslHandler = (SslHandler) ctx.pipeline().get(SSL_HANDLER);
             Set<String> subjectAlternativeNames = Tls.extractSubjectAlternativeNames(sslHandler.engine());
+            if (LOGGER.isDebugEnabled()) {
+              LOGGER.debug("TLS handshake successful: protocol={} cipher suite={}", sslHandler.engine().getSession().getProtocol(), sslHandler.engine().getSession().getCipherSuite());
+            }
             if (!subjectAlternativeNames.isEmpty()) {
               channelPool.addCoalescedChannel(subjectAlternativeNames, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
             }
