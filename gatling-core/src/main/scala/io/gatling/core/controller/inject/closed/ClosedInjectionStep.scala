@@ -68,22 +68,34 @@ final case class IncreasingConcurrentUsersCompositeStep private[inject] (
   def separatedByRampsLasting(duration: FiniteDuration): IncreasingConcurrentUsersCompositeStep = this.copy(rampDuration = duration)
 
   override private[inject] lazy val composite: CompositeClosedInjectionStep = {
-    val parts = (1 to nbOfSteps).foldLeft(List.empty[ClosedInjectionStep]) { (acc, currentStep) =>
-      val step = if (startingUsers > 0) currentStep - 1 else currentStep
-      val newConcurrentUsers = startingUsers + step * concurrentUsers
-      val newInjectionSteps: List[ClosedInjectionStep] =
-        if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
-          val nextConcurrentUsers = newConcurrentUsers + concurrentUsers
-          List(
-            ConstantConcurrentNumberInjection(newConcurrentUsers, levelDuration),
-            RampConcurrentNumberInjection(newConcurrentUsers, nextConcurrentUsers, rampDuration)
-          )
+    val injectionSteps =
+      List.range(0, nbOfSteps).flatMap { stepIdx =>
+        if (rampDuration > Duration.Zero) {
+          if (startingUsers == 0) {
+            // (ramp, level)*
+            val rampStartRate = stepIdx * concurrentUsers
+            val levelRate = (stepIdx + 1) * concurrentUsers
+            RampConcurrentNumberInjection(rampStartRate, levelRate, rampDuration) :: ConstantConcurrentNumberInjection(levelRate, levelDuration) :: Nil
+
+          } else {
+            // (level, ramp)* + level
+            val levelRate = stepIdx * concurrentUsers + startingUsers
+            val level = ConstantConcurrentNumberInjection(levelRate, levelDuration)
+            if (stepIdx == nbOfSteps - 1) {
+              level :: Nil
+            } else {
+              val rampEndRate = (stepIdx + 1) * concurrentUsers + startingUsers
+              level :: RampConcurrentNumberInjection(levelRate, rampEndRate, rampDuration) :: Nil
+            }
+          }
         } else {
-          List(ConstantConcurrentNumberInjection(newConcurrentUsers, levelDuration))
+          // only levels
+          val levelRate = stepIdx * concurrentUsers + startingUsers
+          ConstantConcurrentNumberInjection(levelRate, levelDuration) :: Nil
         }
-      acc ++ newInjectionSteps
-    }
-    CompositeClosedInjectionStep(parts)
+      }
+
+    CompositeClosedInjectionStep(injectionSteps)
   }
 
   override private[inject] def valueAt(t: FiniteDuration): Int = composite.valueAt(t)

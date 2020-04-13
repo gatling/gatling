@@ -46,7 +46,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
     step.valueAt(60 seconds) shouldBe 2
   }
 
-  "composite.injectionSteps" should "produce the expected injection profile with ramps and starting users" in {
+  "composite.injectionSteps" should "produce the expected injection profile with starting users and with ramps" in {
     val steps = IncreasingConcurrentUsersCompositeStep(
       concurrentUsers = 10,
       nbOfSteps = 5,
@@ -70,7 +70,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
     steps.shouldBe(expected)
   }
 
-  it should "produce the expected injection profile without starting users and ramp" in {
+  it should "produce the expected injection profile without starting users and without ramps" in {
     val steps = IncreasingConcurrentUsersCompositeStep(
       concurrentUsers = 10,
       nbOfSteps = 5,
@@ -80,17 +80,17 @@ class ClosedInjectionStepSpec extends BaseSpec {
     ).composite.injectionSteps
 
     val expected = List(
+      ConstantConcurrentNumberInjection(0, 10 seconds),
       ConstantConcurrentNumberInjection(10, 10 seconds),
       ConstantConcurrentNumberInjection(20, 10 seconds),
       ConstantConcurrentNumberInjection(30, 10 seconds),
-      ConstantConcurrentNumberInjection(40, 10 seconds),
-      ConstantConcurrentNumberInjection(50, 10 seconds)
+      ConstantConcurrentNumberInjection(40, 10 seconds)
     )
 
     steps.shouldBe(expected)
   }
 
-  it should "produce the expected injection profile with starting users and without ramp" in {
+  it should "produce the expected injection profile with starting users and without ramps" in {
     val steps = IncreasingConcurrentUsersCompositeStep(
       concurrentUsers = 10,
       nbOfSteps = 5,
@@ -120,6 +120,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
     ).composite.injectionSteps
 
     val expected = Seq(
+      RampConcurrentNumberInjection(0, 10, 80 seconds),
       ConstantConcurrentNumberInjection(10, 10 seconds),
       RampConcurrentNumberInjection(10, 20, 80 seconds),
       ConstantConcurrentNumberInjection(20, 10 seconds),
