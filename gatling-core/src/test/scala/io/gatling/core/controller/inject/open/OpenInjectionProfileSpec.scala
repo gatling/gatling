@@ -141,7 +141,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     }
   }
 
-  "composite.injectionSteps" should "produce the expected injection profile with ramps and starting users" in {
+  "composite.injectionSteps" should "produce the expected injection profile with starting users and with ramps" in {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
@@ -165,7 +165,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     steps.shouldBe(expected)
   }
 
-  it should "produce the expected injection profile without starting users and ramp" in {
+  it should "produce the expected injection profile without starting users and without ramps" in {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
@@ -175,17 +175,17 @@ class OpenInjectionProfileSpec extends BaseSpec {
     ).composite.injectionSteps
 
     val expected = List(
+      ConstantRateOpenInjection(0, 10 seconds),
       ConstantRateOpenInjection(10, 10 seconds),
       ConstantRateOpenInjection(20, 10 seconds),
       ConstantRateOpenInjection(30, 10 seconds),
-      ConstantRateOpenInjection(40, 10 seconds),
-      ConstantRateOpenInjection(50, 10 seconds)
+      ConstantRateOpenInjection(40, 10 seconds)
     )
 
     steps.shouldBe(expected)
   }
 
-  it should "produce the expected injection profile with starting users and without ramp" in {
+  it should "produce the expected injection profile with starting users and without ramps" in {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
@@ -215,6 +215,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     ).composite.injectionSteps
 
     val expected = List(
+      RampRateOpenInjection(0, 10, 80 seconds),
       ConstantRateOpenInjection(10, 10 seconds),
       RampRateOpenInjection(10, 20, 80 seconds),
       ConstantRateOpenInjection(20, 10 seconds),

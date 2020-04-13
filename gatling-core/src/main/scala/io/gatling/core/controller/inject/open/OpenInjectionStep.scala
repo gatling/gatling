@@ -333,16 +333,30 @@ final case class IncreasingUsersPerSecCompositeStep private[inject] (
 
   override private[inject] lazy val composite = {
     val injectionSteps =
-      (1 to nbOfSteps).foldLeft(List.empty[OpenInjectionStep]) { (acc, currentStep) =>
-        val step = if (startingUsers > 0) currentStep - 1 else currentStep
-        val newRate = startingUsers + step * usersPerSec
+      List.range(0, nbOfSteps).flatMap { stepIdx =>
+        if (rampDuration > Duration.Zero) {
+          if (startingUsers == 0) {
+            // (ramp, level)*
+            val rampStartRate = stepIdx * usersPerSec
+            val levelRate = (stepIdx + 1) * usersPerSec
+            RampRateOpenInjection(rampStartRate, levelRate, rampDuration) :: ConstantRateOpenInjection(levelRate, duration) :: Nil
 
-        val newInjectionsSteps = if (currentStep < nbOfSteps && rampDuration > Duration.Zero) {
-          List(ConstantRateOpenInjection(newRate, duration), RampRateOpenInjection(newRate, newRate + usersPerSec, rampDuration))
+          } else {
+            // (level, ramp)* + level
+            val levelRate = stepIdx * usersPerSec + startingUsers
+            val level = ConstantRateOpenInjection(levelRate, duration)
+            if (stepIdx == nbOfSteps - 1) {
+              level :: Nil
+            } else {
+              val rampEndRate = (stepIdx + 1) * usersPerSec + startingUsers
+              level :: RampRateOpenInjection(levelRate, rampEndRate, rampDuration) :: Nil
+            }
+          }
         } else {
-          List(ConstantRateOpenInjection(newRate, duration))
+          // only levels
+          val levelRate = stepIdx * usersPerSec + startingUsers
+          ConstantRateOpenInjection(levelRate, duration) :: Nil
         }
-        acc ++ newInjectionsSteps
       }
 
     CompositeOpenInjectionStep(injectionSteps)
