@@ -26,7 +26,7 @@ sealed trait ClosedInjectionStep extends Product with Serializable {
   private[inject] def duration: FiniteDuration
 }
 
-final case class ConstantConcurrentNumberInjection(number: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
+final case class ConstantConcurrentNumberInjection private[inject] (number: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
 
   require(number >= 0, s"Constant number of concurrent users $number must be >= 0")
   require(duration >= Duration.Zero, s"duration ($duration) must be > 0")
@@ -37,7 +37,7 @@ final case class ConstantConcurrentNumberInjection(number: Int, private[inject] 
   }
 }
 
-final case class RampConcurrentNumberInjection(from: Int, to: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
+final case class RampConcurrentNumberInjection private[inject] (from: Int, to: Int, private[inject] val duration: FiniteDuration) extends ClosedInjectionStep {
 
   private val slope = (to - from).toDouble / duration.toSeconds
 
@@ -55,7 +55,7 @@ sealed trait CompositeClosedInjectionStepLike extends ClosedInjectionStep {
   private[inject] def composite: CompositeClosedInjectionStep
 }
 
-final case class IncreasingConcurrentUsersCompositeStep(
+final case class IncreasingConcurrentUsersCompositeStep private[inject] (
     concurrentUsers: Int,
     nbOfSteps: Int,
     levelDuration: FiniteDuration,
@@ -91,7 +91,7 @@ final case class IncreasingConcurrentUsersCompositeStep(
   override private[inject] def duration: FiniteDuration = composite.duration
 }
 
-private[inject] final case class CompositeClosedInjectionStep(injectionSteps: List[ClosedInjectionStep]) extends ClosedInjectionStep {
+private[inject] final case class CompositeClosedInjectionStep private[inject] (injectionSteps: List[ClosedInjectionStep]) extends ClosedInjectionStep {
 
   override private[inject] def valueAt(t: FiniteDuration): Int = {
 
