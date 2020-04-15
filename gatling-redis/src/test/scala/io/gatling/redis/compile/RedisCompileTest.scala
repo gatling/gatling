@@ -16,10 +16,17 @@
 
 package io.gatling.redis.compile
 
+import com.redis.RedisClientPool
 import io.gatling.core.Predef._
 import io.gatling.redis.Predef._
 
-class JdbcCompileTest extends Simulation {
+class RedisCompileTest extends Simulation {
+
+  private val redisPool = new RedisClientPool("localhost", 6379)
 
   redisFeeder(???, "key")
+
+  after {
+    redisPool.close
+  }
 }
