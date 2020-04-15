@@ -54,7 +54,7 @@ object Selection {
             .getOrElse(interactiveSelect(simulationClasses))
         }
 
-      // -- Ask for simulation ID and run description if required -- //
+      // ask for simulation ID and run description if required
       val simulationId = defaultOutputDirectoryBaseName(simulation, configuration)
       val runDescription =
         configuration.core.runDescription.getOrElse(if (userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined) "" else askRunDescription())
