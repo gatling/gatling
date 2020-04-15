@@ -17,25 +17,13 @@
 package io.gatling.http.client.body.multipart;
 
 import io.gatling.http.client.Param;
+import io.gatling.http.client.util.MimeTypes;
 import io.gatling.http.client.util.MiscUtils;
 
-import javax.activation.MimetypesFileTypeMap;
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
 public abstract class FileLikePart<T> extends Part<T> {
-
-  private static final MimetypesFileTypeMap MIME_TYPES_FILE_TYPE_MAP;
-
-  static {
-    try (InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("gatling-mime.types")) {
-      MIME_TYPES_FILE_TYPE_MAP = new MimetypesFileTypeMap(is);
-    } catch (IOException e) {
-      throw new ExceptionInInitializerError(e);
-    }
-  }
 
   private final String fileName;
 
@@ -53,7 +41,7 @@ public abstract class FileLikePart<T> extends Part<T> {
   }
 
   private static String computeContentType(String contentType, String fileName) {
-    return contentType != null ? contentType : MIME_TYPES_FILE_TYPE_MAP.getContentType(MiscUtils.withDefault(fileName, ""));
+    return contentType != null ? contentType : MimeTypes.getMimeType(MiscUtils.withDefault(fileName, ""));
   }
 
   public String getFileName() {

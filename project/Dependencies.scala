@@ -19,7 +19,6 @@ object Dependencies {
   private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.30.Final"
-  private val activation                     = "com.sun.activation"                   % "javax.activation"                % "1.2.0"
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.4"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.0"
@@ -110,7 +109,6 @@ object Dependencies {
     nettyEpoll,
     nettyHttp2,
     nettyBoringSsl,
-    activation,
     junit,
     jetty,
     jettyProxy
