@@ -416,7 +416,7 @@ final class DataConfiguration(
     val console: ConsoleDataWriterConfiguration,
     val graphite: GraphiteDataWriterConfiguration
 ) {
-  def fileDataWriterEnabled: Boolean = dataWriters.contains(FileDataWriterType)
+  def fileDataWriterEnabled: Boolean = dataWriters.contains(DataWriterType.File)
 }
 
 final class FileDataWriterConfiguration(

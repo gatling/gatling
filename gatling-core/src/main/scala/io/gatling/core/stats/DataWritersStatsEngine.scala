@@ -42,11 +42,16 @@ object DataWritersStatsEngine {
       clock: Clock,
       configuration: GatlingConfiguration
   ): DataWritersStatsEngine = {
-
-    val dataWriters = configuration.data.dataWriters.map { dw =>
-      val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz, clock, configuration), clazz.getName)
-    }
+    val dataWriters = configuration.data.dataWriters
+      .map {
+        case DataWriterType.Console  => "io.gatling.core.stats.writer.ConsoleDataWriter"
+        case DataWriterType.File     => "io.gatling.core.stats.writer.LogFileDataWriter"
+        case DataWriterType.Graphite => "io.gatling.graphite.GraphiteDataWriter"
+      }
+      .map { className =>
+        val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
+        system.actorOf(Props(clazz, clock, configuration), className)
+      }
 
     val allPopulationBuilders = simulationParams.rootPopulationBuilders ++ simulationParams.childrenPopulationBuilders.values.flatten
 
