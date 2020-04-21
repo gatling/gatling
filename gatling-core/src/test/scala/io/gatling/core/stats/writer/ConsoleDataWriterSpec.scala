@@ -117,7 +117,7 @@ class ConsoleDataWriterSpec extends BaseSpec {
     output shouldBe s"""|---- Errors --------------------------------------------------------------------
                         |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
                         |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)""".stripMargin
-    all(output.lines.map(_.length).toSet) shouldBe <=(80)
+    all(output.linesIterator.map(_.length).toSet) shouldBe <=(80)
   }
 
   it should "display requests with high number of errors" in {
@@ -140,6 +140,6 @@ class ConsoleDataWriterSpec extends BaseSpec {
     output shouldBe s"""|---- Errors --------------------------------------------------------------------
                         |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
                         |do eiusmod tempor incididunt ut labore et dolore magna aliqua....""".stripMargin
-    all(output.lines.map(_.length).toSet) shouldBe <=(80)
+    all(output.linesIterator.map(_.length).toSet) shouldBe <=(80)
   }
 }
