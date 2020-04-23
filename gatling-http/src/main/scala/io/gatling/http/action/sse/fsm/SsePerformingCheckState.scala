@@ -69,14 +69,14 @@ final case class SsePerformingCheckState(
     // unexpected close, fail check
     logger.debug("WebSocket remotely closed while waiting for checks")
     cancelTimeout()
-    handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, "Socket closed")
+    handleSseCheckCrash(currentCheck.name, session, next, None, "Socket closed")
   }
 
   override def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
     // crash, fail check
     logger.debug("WebSocket crashed while waiting for checks")
     cancelTimeout()
-    handleSseCheckCrash(currentCheck.name, session, next, checkSequenceStart, None, t.getMessage)
+    handleSseCheckCrash(currentCheck.name, session, next, None, t.getMessage)
   }
 
   private def tryApplyingChecks(message: String, timestamp: Long, matchConditions: List[SseCheck], checks: List[SseCheck]): NextSseState = {
@@ -183,7 +183,6 @@ final case class SsePerformingCheckState(
       checkName: String,
       session: Session,
       next: Either[Action, SetCheck],
-      checkSequenceStart: Long,
       code: Option[String],
       errorMessage: String
   ): NextSseState = {
