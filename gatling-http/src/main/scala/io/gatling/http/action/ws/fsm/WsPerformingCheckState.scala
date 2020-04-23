@@ -95,7 +95,7 @@ final case class WsPerformingCheckState(
     // unexpected close, fail check
     logger.debug("WebSocket remotely closed while waiting for checks")
     cancelTimeout()
-    handleWebSocketCheckCrash(session, next, checkSequenceStart, Some(Integer.toString(code)), reason)
+    handleWebSocketCheckCrash(session, next, Some(Integer.toString(code)), reason)
   }
 
   private def logCheckResult(sessionWithCheckUpdate: Session, end: Long, status: Status, code: Option[String], reason: Option[String]): Session =
@@ -203,7 +203,6 @@ final case class WsPerformingCheckState(
   private def handleWebSocketCheckCrash(
       session: Session,
       next: Either[Action, SendFrame],
-      checkSequenceStart: Long,
       code: Option[String],
       errorMessage: String
   ): NextWsState = {
