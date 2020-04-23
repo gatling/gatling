@@ -18,7 +18,7 @@ package io.gatling.compiler
 
 import java.io.{ File => JFile }
 import java.net.{ URL, URLClassLoader }
-import java.nio.file.Files
+import java.nio.file.{ Files, Path }
 import java.util.Optional
 import java.util.jar.{ Attributes, Manifest => JManifest }
 
@@ -29,12 +29,13 @@ import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
-import sbt.internal.inc.classpath.ClasspathUtilities
+import sbt.internal.inc.classpath.ClasspathUtil
 import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
 import sbt.util.ShowLines._
 import sbt.util.{ Level, Logger => SbtLogger }
-import xsbti.Problem
+import xsbti.{ FileConverter, Position, Problem, Reporter, T2, VirtualFile }
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
+import xsbti.compile.analysis.ReadStamps
 
 object ZincCompiler extends App with ProblemStringFormats {
 
@@ -101,7 +102,7 @@ object ZincCompiler extends App with ProblemStringFormats {
       new ScalaInstance(
         version = scalaVersion,
         loader = new URLClassLoader(allScalaJars.map(_.toURI.toURL)),
-        loaderLibraryOnly = ClasspathUtilities.rootLoader,
+        loaderLibraryOnly = ClasspathUtil.rootLoader,
         libraryJar = scalaLibraryJar,
         compilerJar = scalaCompilerJar,
         allJars = allScalaJars,
@@ -142,9 +143,9 @@ object ZincCompiler extends App with ProblemStringFormats {
     val compilers = ZincUtil.compilers(scalaInstance, ClasspathOptionsUtil.boot, None, scalaCompiler)
 
     val lookup = new PerClasspathEntryLookup {
-      override def analysis(classpathEntry: JFile): Optional[CompileAnalysis] = Optional.empty[CompileAnalysis]
+      override def analysis(classpathEntry: VirtualFile): Optional[CompileAnalysis] = Optional.empty[CompileAnalysis]
 
-      override def definesClass(classpathEntry: JFile): DefinesClass = Locate.definesClass(classpathEntry)
+      override def definesClass(classpathEntry: VirtualFile): DefinesClass = Locate.definesClass(classpathEntry)
     }
 
     val maxErrors = 100
@@ -157,14 +158,14 @@ object ZincCompiler extends App with ProblemStringFormats {
 
     val setup =
       Setup.of(
-        lookup, // lookup
-        false, // skip
-        cacheFile, // cacheFile
-        CompilerCache.fresh, // cache
-        IncOptions.of(), // incOptions
-        reporter, // reporter
-        Optional.empty[CompileProgress], // optionProgress
-        Array.empty // extra
+        lookup, // _perClasspathEntryLookup
+        false, // _skip
+        cacheFile, // _cacheFile
+        CompilerCache.fresh, // _cache
+        IncOptions.of(), // _incrementalCompilerOptions
+        reporter, // _reporter
+        Optional.empty[CompileProgress], // _progress
+        Array.empty[T2[String, String]] // _extra
       )
 
     val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString).deepFiles.collect {
@@ -186,9 +187,9 @@ object ZincCompiler extends App with ProblemStringFormats {
     }
 
     val options = CompileOptions.of(
-      classpath :+ configuration.binariesDirectory.toFile, // classpath
-      sources, // sources
-      configuration.binariesDirectory.toFile, // classesDirectory
+      (classpath :+ configuration.binariesDirectory.toFile).map(file => new PlainVirtualFile(file.toPath): VirtualFile), // _classpath
+      sources.map(file => new PlainVirtualFile(file.toPath): VirtualFile), // _sources
+      configuration.binariesDirectory, // _classesDirectory
       Array(
         "-encoding",
         configuration.encoding,
@@ -198,12 +199,14 @@ object ZincCompiler extends App with ProblemStringFormats {
         "-unchecked",
         "-language:implicitConversions",
         "-language:postfixOps"
-      ) ++ configuration.extraScalacOptions, // scalacOptions
-      Array.empty, // javacOptions
-      100, // maxErrors
-      identity, // sourcePositionMappers
-      CompileOrder.Mixed, // order
-      Optional.empty[JFile] // temporaryClassesDirectory
+      ) ++ configuration.extraScalacOptions, // _scalacOptions
+      Array.empty[String], // _javacOptions
+      100, // _maxErrors
+      (position: Position) => position, // _sourcePositionMapper
+      CompileOrder.Mixed, // _order
+      Optional.empty[Path], // _temporaryClassesDirectory
+      Optional.of(PlainVirtualFileConverter.converter: FileConverter), // _converter
+      Optional.empty[ReadStamps] // _stamper
     )
 
     val inputs = Inputs.of(compilers, options, setup, previousResult)
