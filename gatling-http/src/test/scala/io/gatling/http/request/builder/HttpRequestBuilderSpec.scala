@@ -32,7 +32,6 @@ import io.gatling.http.client.impl.request.WritableRequestBuilder
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 
-import akka.actor.ActorSystem
 import io.netty.handler.codec.http.HttpMethod
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
@@ -40,7 +39,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
-  private val coreComponents = new CoreComponents(mock[ActorSystem], null, null, null, null, clock, null, configuration)
+  private val coreComponents = new CoreComponents(null, null, null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
   private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {

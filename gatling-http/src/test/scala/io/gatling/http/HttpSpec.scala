@@ -40,7 +40,6 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.http.protocol.HttpProtocolBuilder
 
-import akka.actor.ActorRef
 import org.scalatest.BeforeAndAfter
 import io.netty.channel._
 import io.netty.handler.codec.http._
@@ -74,11 +73,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   )(implicit configuration: GatlingConfiguration): Session = {
     val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
     val coreComponents =
-      new CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
+      new CoreComponents(system, mock[EventLoopGroup], null, mock[Throttler], mock[StatsEngine], clock, mock[Action], configuration)
     val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val next = new ActorDelegatingAction("next", self)
-    val actor = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    actor ! EmptySession
+    val action = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
+    action ! EmptySession
     expectMsgClass(timeout, classOf[Session])
   }
 
