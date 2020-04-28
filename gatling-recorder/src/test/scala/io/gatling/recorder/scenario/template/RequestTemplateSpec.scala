@@ -20,6 +20,7 @@ import scala.collection.mutable
 
 import io.gatling.BaseSpec
 import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
+import io.gatling.recorder.config.ConfigKeys.http.UseMethodAndUriAsPostfix
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ RequestBodyParams, RequestElement }
@@ -66,5 +67,12 @@ class RequestTemplateSpec extends BaseSpec {
     val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
     res1 should include(s"${simulationClass}_0")
     res1 should not include ("request_0")
+  }
+
+  it should "use method and URI as postfix when requested" in {
+    val mockedRequest1 = mockRequestElement("name", "short")
+    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseMethodAndUriAsPostfix -> true))
+    val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
+    res1 should include (s"request_0:post_http://gatling.io/path1/file1")
   }
 }

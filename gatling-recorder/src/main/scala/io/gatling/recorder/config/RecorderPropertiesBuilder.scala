@@ -121,6 +121,11 @@ class RecorderPropertiesBuilder {
     this
   }
 
+  def useMethodAndUriAsPostfix(status: Boolean): RecorderPropertiesBuilder = {
+    props += http.UseMethodAndUriAsPostfix -> status
+    this
+  }
+
   def localPort(port: Int): RecorderPropertiesBuilder = {
     props += proxy.Port -> port
     this

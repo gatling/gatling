@@ -107,7 +107,8 @@ private[scenario] object RequestTemplate {
       else
         ""
     val prefix = if (config.http.useSimulationAsPrefix) simulationClass else "request"
-    s"""http("${prefix}_${request.id}")
+    val postfix = if (config.http.useMethodAndUriAsPostfix) s""":${request.method}_${request.uri}""" else ""
+    s"""http("${prefix}_${request.id}${postfix}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""
   }
 

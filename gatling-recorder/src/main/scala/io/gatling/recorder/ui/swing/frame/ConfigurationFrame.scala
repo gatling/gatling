@@ -90,6 +90,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   private val checkResponseBodies = new CheckBox("Save & check response bodies?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
   private val useSimulationAsPrefix = new CheckBox("Use Class Name as request prefix?")
+  private val useMethodAndUriAsPostfix = new CheckBox("Use HTTP method and URI as request postfix?")
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
@@ -222,6 +223,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
           contents += automaticReferers
           contents += removeCacheHeaders
           contents += useSimulationAsPrefix
+          contents += useMethodAndUriAsPostfix
           contents += checkResponseBodies
         }
 
@@ -529,6 +531,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     simulationsFolderChooser.setPath(configuration.core.simulationsFolder)
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
     useSimulationAsPrefix.selected = configuration.http.useSimulationAsPrefix
+    useMethodAndUriAsPostfix.selected = configuration.http.useMethodAndUriAsPostfix
     savePreferences.selected = configuration.core.saveConfig
 
   }
@@ -603,6 +606,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
       props.simulationsFolder(simulationsFolderChooser.selection.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
       props.useSimulationAsPrefix(useSimulationAsPrefix.selected)
+      props.useMethodAndUriAsPostfix(useMethodAndUriAsPostfix.selected)
       props.saveConfig(savePreferences.selected)
 
       RecorderConfiguration.reload(props.build)
