@@ -16,16 +16,12 @@
 
 package io.gatling.core.action
 
-import scala.concurrent.duration._
-
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session, TryMaxBlock }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-
-import akka.actor.ActorSystem
 
 class TryMax(
     times: Expression[Int],
@@ -39,8 +35,8 @@ class TryMax(
   override val name: String = genName("tryMax")
 
   private[this] var innerTryMax: Action = _
-  private[core] def initialize(loopNext: Action, system: ActorSystem): Unit =
-    innerTryMax = new InnerTryMax(times, loopNext, counterName, system, name + "-inner", next)
+  private[core] def initialize(loopNext: Action): Unit =
+    innerTryMax = new InnerTryMax(times, loopNext, counterName, name + "-inner", next)
 
   override def execute(session: Session): Unit =
     BlockExit.mustExit(session) match {
@@ -53,7 +49,6 @@ class InnerTryMax(
     times: Expression[Int],
     loopNext: Action,
     counterName: String,
-    actorSystem: ActorSystem,
     val name: String,
     val next: Action
 ) extends ChainableAction {
@@ -108,12 +103,9 @@ class InnerTryMax(
         val resetSession = incrementedSession.markAsSucceeded
 
         if (session.userId == lastUserId) {
-          // except if we're running only one user, it's very likely we're hitting an empty loop
-          // let's schedule so we don't spin
-          import actorSystem.dispatcher
-          actorSystem.scheduler.scheduleOnce(1 millisecond) { // actual delay is tick (10 ms by default)
-            loopNext ! resetSession
-          }
+          // except if we're running only one user per core, it's very likely we're hitting an empty loop
+          // let's dispatch so we don't spin
+          session.eventLoop.execute(() => loopNext ! resetSession)
 
         } else {
           loopNext ! resetSession
