@@ -107,9 +107,12 @@ private[scenario] object RequestTemplate {
       else
         ""
     val prefix = if (config.http.useSimulationAsPrefix) simulationClass else "request"
-    s"""http("${prefix}_${request.id}")
+    val postfix = if (config.http.useMethodAndUriAsPostfix) ":" + sanitizeRequestPostfix(s"${request.method}_${request.uri}") else ""
+    s"""http("${prefix}_${request.id}${postfix}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""
   }
+
+  def sanitizeRequestPostfix(postfix: String): String = postfix.replaceAll("[^-._=:/?&A-Za-z0-9]", "_")
 
   def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): String =
     s"exec(${renderRequest(simulationClass, request, extractedUri)})".toString

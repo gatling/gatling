@@ -19,6 +19,7 @@ package io.gatling.recorder.scenario.template
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
+import io.gatling.recorder.config.ConfigKeys.http.UseMethodAndUriAsPostfix
 import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
@@ -66,5 +67,17 @@ class RequestTemplateSpec extends BaseSpec {
     val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
     res1 should include(s"${simulationClass}_0")
     res1 should not include ("request_0")
+  }
+
+  it should "use method and URI as postfix when requested" in {
+    val mockedRequest1 = mockRequestElement("name", "short")
+    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseMethodAndUriAsPostfix -> true))
+    val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
+    res1 should include(s"request_0:post_http://gatling.io/path1/file1")
+  }
+
+  it should "escape bad characters in request postfix" in {
+    val postfix = RequestTemplate.sanitizeRequestPostfix("POST_https://gatling.io/hello?to=\"john\\doe\"&hobbies={a,b;c\\d}")
+    postfix should equal(s"POST_https://gatling.io/hello?to=_john_doe_&hobbies=_a_b_c_d_")
   }
 }
