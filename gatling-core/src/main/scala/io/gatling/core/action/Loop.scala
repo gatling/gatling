@@ -44,7 +44,7 @@ class Loop(
         session.enterLoop(counterName, continueCondition, next, exitASAP)
       }
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
@@ -58,7 +58,6 @@ class InnerLoop(
     continueCondition: Expression[Boolean],
     loopNext: Action,
     counterIncrement: Session => Session,
-    counterName: String,
     val name: String,
     val next: Action
 ) extends ChainableAction {
