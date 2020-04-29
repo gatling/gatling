@@ -20,11 +20,10 @@ import javax.net.ssl.SSLEngine
 
 import io.gatling.recorder.http.flows.Remote
 
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBufAllocator
 import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
-
-import com.typesafe.scalalogging.StrictLogging
 
 private[http] object SslClientContext extends StrictLogging {
 

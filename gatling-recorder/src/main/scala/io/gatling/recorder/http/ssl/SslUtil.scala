@@ -23,11 +23,10 @@ import java.security._
 import java.security.cert.X509Certificate
 import java.util.Date
 import java.util.concurrent.ThreadLocalRandom
-
 import javax.security.auth.x500.X500Principal
 
-import scala.util.Try
 import scala.concurrent.duration._
+import scala.util.Try
 
 import io.gatling.commons.util.Io.withCloseable
 import io.gatling.commons.util.PathHelper._

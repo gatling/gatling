@@ -22,9 +22,9 @@ import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.request.HttpRequest
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._
-import io.gatling.http.request.HttpRequest
 
 import io.netty.handler.codec.http.HttpHeaderNames
 

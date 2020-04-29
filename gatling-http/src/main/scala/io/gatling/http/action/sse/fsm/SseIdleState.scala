@@ -16,11 +16,12 @@
 
 package io.gatling.http.action.sse.fsm
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.sse.SseMessageCheckSequence
+
+import com.typesafe.scalalogging.StrictLogging
 
 class SseIdleState(fsm: SseFsm, session: Session, stream: SseStream) extends SseState(fsm) with StrictLogging {
 

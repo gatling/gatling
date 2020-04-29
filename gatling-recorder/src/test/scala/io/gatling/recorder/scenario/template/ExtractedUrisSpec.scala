@@ -18,6 +18,7 @@ package io.gatling.recorder.scenario.template
 
 import io.gatling.BaseSpec
 import io.gatling.recorder.scenario.RequestElement
+
 import io.netty.handler.codec.http.EmptyHttpHeaders
 
 class ExtractedUrisSpec extends BaseSpec {

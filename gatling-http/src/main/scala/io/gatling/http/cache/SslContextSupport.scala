@@ -16,6 +16,10 @@
 
 package io.gatling.http.cache
 
+import javax.net.ssl.KeyManagerFactory
+
+import scala.util.control.NonFatal
+
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.engine.HttpEngine
@@ -23,9 +27,6 @@ import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.SslContexts
 
 import com.typesafe.scalalogging.StrictLogging
-import javax.net.ssl.KeyManagerFactory
-
-import scala.util.control.NonFatal
 
 private[http] object SslContextSupport extends StrictLogging {
 

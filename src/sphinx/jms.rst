@@ -13,7 +13,7 @@ Gatling JMS DSL is not imported by default.
 
 One has to manually add the following imports:
 
-.. includecode:: code/JmsSample.scala#imports
+.. includecode:: code/JmsSample.scala#imprts
 
 JMS Protocol
 ============

@@ -18,6 +18,8 @@ package io.gatling.http.action.ws.fsm
 
 import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
@@ -29,8 +31,6 @@ import io.gatling.http.protocol.HttpProtocol
 
 import io.netty.channel.EventLoop
 import io.netty.handler.codec.http.cookie.Cookie
-
-import scala.concurrent.duration.FiniteDuration
 
 class WsFsm(
     private[fsm] val wsName: String,

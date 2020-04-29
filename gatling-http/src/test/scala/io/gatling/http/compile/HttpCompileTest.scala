@@ -17,12 +17,12 @@
 package io.gatling.http.compile
 
 import java.net.InetSocketAddress
+import javax.net.ssl.KeyManagerFactory
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
 import io.netty.handler.codec.http.HttpMethod
-import javax.net.ssl.KeyManagerFactory
 
 class HttpCompileTest extends Simulation {
 

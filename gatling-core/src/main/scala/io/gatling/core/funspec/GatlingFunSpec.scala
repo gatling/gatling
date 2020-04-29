@@ -16,13 +16,13 @@
 
 package io.gatling.core.funspec
 
+import scala.collection.mutable.ListBuffer
+
 import io.gatling.core.Predef._
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.Protocol
 import io.gatling.core.structure.ChainBuilder
-
-import scala.collection.mutable.ListBuffer
 
 abstract class GatlingFunSpec extends Simulation {
 

@@ -21,9 +21,9 @@ import java.io.IOException
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.stats.StatsEngine
+import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.action.sse.fsm._
 import io.gatling.http.client.HttpListener
-import io.gatling.http.MissingNettyHttpHeaderValues
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf

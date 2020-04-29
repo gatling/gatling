@@ -16,11 +16,11 @@
 
 package io.gatling.jsonpath
 
+import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
+import com.fasterxml.jackson.databind.node.{ BooleanNode, DoubleNode, IntNode, NullNode, TextNode }
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.{ MatchResult, Matcher }
 import org.scalatest.matchers.should.Matchers
-import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
-import com.fasterxml.jackson.databind.node.{ BooleanNode, DoubleNode, IntNode, NullNode, TextNode }
 
 class JsonPathSpec extends AnyFlatSpec with Matchers with JsonPathMatchers {
 

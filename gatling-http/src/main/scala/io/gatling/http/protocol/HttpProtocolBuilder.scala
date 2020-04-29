@@ -17,6 +17,7 @@
 package io.gatling.http.protocol
 
 import java.net.{ InetAddress, InetSocketAddress }
+import javax.net.ssl.KeyManagerFactory
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
@@ -34,7 +35,6 @@ import io.gatling.http.util.HttpHelper
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.handler.ssl.SslProvider
-import javax.net.ssl.KeyManagerFactory
 
 object HttpProtocolBuilder {
 

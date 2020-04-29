@@ -16,8 +16,9 @@
 
 package io.gatling.core.check.jsonpath
 
-import com.fasterxml.jackson.databind.JsonNode
 import io.gatling.core.json.JsonParsers
+
+import com.fasterxml.jackson.databind.JsonNode
 
 trait JsonSample {
 

@@ -17,20 +17,20 @@
 package io.gatling.jms.check
 
 import java.nio.charset.{ Charset, StandardCharsets }
+import javax.jms.{ BytesMessage, Message, TextMessage }
 
 import io.gatling.commons.validation._
+import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.check.bytes.BodyBytesCheckType
 import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.check.string.BodyStringCheckType
 import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.check.xpath.{ XPathCheckType, XmlParsers }
-import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
 import io.gatling.jms.JmsCheck
 
 import com.fasterxml.jackson.databind.JsonNode
-import javax.jms.{ BytesMessage, Message, TextMessage }
 import net.sf.saxon.s9api.XdmNode
 
 class JmsCheckMaterializer[T, P](override val preparer: Preparer[Message, P]) extends CheckMaterializer[T, JmsCheck, Message, P](identity)

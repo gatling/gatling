@@ -22,6 +22,7 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreDsl
 import io.gatling.core.action.ActorDelegatingAction
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session.Session
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.writer.ResponseMessage
 import io.gatling.jms._
@@ -29,7 +30,6 @@ import io.gatling.jms.check.JmsSimpleCheck
 import io.gatling.jms.client.{ MessageReceived, MessageSent, Tracker }
 
 import akka.testkit.TestActorRef
-import io.gatling.core.session.Session
 
 class TrackerSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 

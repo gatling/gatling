@@ -16,9 +16,10 @@
 
 package io.gatling.recorder.ui.swing.util
 
-import scala.swing._
 import javax.swing.JComponent
 import javax.swing.border.TitledBorder
+
+import scala.swing._
 
 private[swing] object UIHelper {
 

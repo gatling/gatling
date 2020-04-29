@@ -16,9 +16,9 @@
 
 package io.gatling.core.controller.inject.closed
 
-import io.gatling.BaseSpec
-
 import scala.concurrent.duration._
+
+import io.gatling.BaseSpec
 
 class ClosedInjectionStepSpec extends BaseSpec {
 

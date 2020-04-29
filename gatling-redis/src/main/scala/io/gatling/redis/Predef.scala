@@ -17,6 +17,7 @@
 package io.gatling.redis
 
 import io.gatling.redis.feeder.RedisFeederBuilder
+
 import com.redis.RedisClientPool
 
 object Predef {

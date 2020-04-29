@@ -22,8 +22,8 @@ import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
-import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseStatus }
+import io.netty.handler.codec.http.cookie.Cookie
 
 sealed trait HttpResult {
   def request: Request

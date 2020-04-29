@@ -19,9 +19,9 @@ package io.gatling.charts.template
 import java.{ lang => jl }
 
 import io.gatling.BaseSpec
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.GroupedCount
+import io.gatling.charts.component.Statistics
+import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleTemplateSpec extends BaseSpec {
 

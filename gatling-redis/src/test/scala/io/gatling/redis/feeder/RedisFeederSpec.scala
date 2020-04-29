@@ -21,8 +21,8 @@ import io.gatling.core.feeder.Record
 import io.gatling.redis.Predef._
 
 import com.redis._
-import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito._
 
 class RedisFeederSpec extends BaseSpec {
 

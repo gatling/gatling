@@ -30,8 +30,8 @@ import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.resolveFromUri
 
-import io.netty.handler.codec.http.HttpHeaderNames
 import com.typesafe.scalalogging.LazyLogging
+import io.netty.handler.codec.http.HttpHeaderNames
 
 sealed trait ProcessorResult
 final case class Proceed(newSession: Session, error: Option[String]) extends ProcessorResult

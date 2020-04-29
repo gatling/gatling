@@ -31,10 +31,10 @@ import io.gatling.recorder.http.ssl.SslServerContext
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.{ Bootstrap, ServerBootstrap }
+import io.netty.channel.{ Channel, ChannelInitializer, ChannelOption, EventLoopGroup }
 import io.netty.channel.group.{ ChannelGroup, DefaultChannelGroup }
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.{ NioServerSocketChannel, NioSocketChannel }
-import io.netty.channel.{ Channel, ChannelInitializer, ChannelOption, EventLoopGroup }
 import io.netty.handler.codec.http._
 import io.netty.util.concurrent.GlobalEventExecutor
 

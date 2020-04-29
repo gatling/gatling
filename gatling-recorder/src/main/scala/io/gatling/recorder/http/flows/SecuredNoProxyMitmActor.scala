@@ -18,10 +18,10 @@ package io.gatling.recorder.http.flows
 
 import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, Mitm, TrafficLogger }
-import io.gatling.recorder.http.Netty._
-import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import io.gatling.recorder.http.Mitm._
+import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM._
+import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel

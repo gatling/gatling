@@ -16,9 +16,9 @@
 
 package io.gatling
 
-import io.gatling.core.scenario.Simulation
-
 import scala.collection.mutable
+
+import io.gatling.core.scenario.Simulation
 
 package object app {
 

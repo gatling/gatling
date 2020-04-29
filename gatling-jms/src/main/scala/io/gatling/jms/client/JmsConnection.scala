@@ -17,8 +17,8 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-
 import javax.jms.{ Connection, Destination }
+
 import io.gatling.commons.model.Credentials
 import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration

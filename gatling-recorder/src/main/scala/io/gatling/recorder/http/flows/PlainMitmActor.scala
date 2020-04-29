@@ -18,8 +18,8 @@ package io.gatling.recorder.http.flows
 
 import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, TrafficLogger }
-import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.Mitm._
+import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM._
 import io.gatling.recorder.http.flows.MitmMessage._
 

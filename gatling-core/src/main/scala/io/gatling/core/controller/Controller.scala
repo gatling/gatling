@@ -46,9 +46,9 @@ object Controller {
 class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
     extends ControllerFSM {
 
-  import ControllerState._
-  import ControllerData._
   import ControllerCommand._
+  import ControllerData._
+  import ControllerState._
 
   val maxDurationTimer = "maxDurationTimer"
 

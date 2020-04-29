@@ -19,6 +19,7 @@ package io.gatling.core.config
 import java.nio.charset.Charset
 import java.nio.file.{ Path, Paths }
 import java.util.ResourceBundle
+import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -32,7 +33,6 @@ import io.gatling.core.stats.writer._
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
-import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
 sealed abstract class ObsoleteUsage(val message: String) extends Product with Serializable { def path: String }
 final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")

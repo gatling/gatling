@@ -18,7 +18,6 @@ package io.gatling.http
 
 import java.io.RandomAccessFile
 import java.net.ServerSocket
-
 import javax.activation.FileTypeMap
 
 import scala.collection.JavaConverters._
@@ -30,8 +29,8 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.util.Io._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
-import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
@@ -40,10 +39,10 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.http.protocol.HttpProtocolBuilder
 
-import org.scalatest.BeforeAndAfter
 import io.netty.channel._
 import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
+import org.scalatest.BeforeAndAfter
 
 abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
 

@@ -17,15 +17,14 @@
 package io.gatling.recorder.ui.swing.component
 
 import java.awt.Color
+import javax.swing.{ JMenuItem, JPopupMenu }
+import javax.swing.table.DefaultTableModel
 
 import scala.swing.{ Component, Dimension, ScrollPane, Table }
 import scala.swing.event.{ MouseButtonEvent, MouseEvent }
 import scala.util.{ Failure, Try }
 
 import io.gatling.commons.util.Throwables._
-
-import javax.swing.{ JMenuItem, JPopupMenu }
-import javax.swing.table.DefaultTableModel
 
 private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
 

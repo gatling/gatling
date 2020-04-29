@@ -17,12 +17,12 @@
 package io.gatling.sbt
 
 import java.io.{ PrintWriter, StringWriter }
-import io.gatling.app.cli.StatusCode
-
-import sbt.testing.{ EventHandler, Logger, OptionalThrowable, Task, TaskDef, TestSelector }
 
 import io.gatling.app.Gatling
+import io.gatling.app.cli.StatusCode
 import io.gatling.core.scenario.Simulation
+
+import sbt.testing.{ EventHandler, Logger, OptionalThrowable, Task, TaskDef, TestSelector }
 
 /**
  * The main worker of the test framework :

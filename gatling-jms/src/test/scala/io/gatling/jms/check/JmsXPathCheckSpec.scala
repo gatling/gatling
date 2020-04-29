@@ -20,8 +20,8 @@ import java.util.{ HashMap => JHashMap }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.CoreDsl
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.jms.{ JmsCheck, MockMessage }
 

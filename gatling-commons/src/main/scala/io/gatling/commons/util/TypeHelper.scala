@@ -16,13 +16,13 @@
 
 package io.gatling.commons.util
 
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
-import scala.concurrent.duration._
 
 import io.gatling.commons.NotNothing
-import io.gatling.commons.validation._
 import io.gatling.commons.util.Throwables._
+import io.gatling.commons.validation._
 
 trait TypeCaster[T] {
 

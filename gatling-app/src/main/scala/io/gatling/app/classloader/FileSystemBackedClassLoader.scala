@@ -19,8 +19,8 @@ package io.gatling.app.classloader
 import java.io.InputStream
 import java.net.{ URL, URLConnection }
 import java.nio.file.{ Files, Path, Paths }
-import java.security.cert.Certificate
 import java.security.{ CodeSource, ProtectionDomain }
+import java.security.cert.Certificate
 
 import scala.collection.mutable
 

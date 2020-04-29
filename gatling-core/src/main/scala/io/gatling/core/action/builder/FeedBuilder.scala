@@ -22,8 +22,8 @@ import scala.collection.JavaConverters._
 
 import io.gatling.core.action.{ Action, Feed, FeedActor }
 import io.gatling.core.feeder.FeederBuilder
-import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
+import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.util.NameGen
 
 import akka.actor.ActorRef

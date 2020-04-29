@@ -16,9 +16,9 @@
 
 package io.gatling.core.body
 
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
-import io.gatling.{ BaseSpec, ValidationValues }
 
 class PebbleStringBodySpec extends BaseSpec with ValidationValues {
 

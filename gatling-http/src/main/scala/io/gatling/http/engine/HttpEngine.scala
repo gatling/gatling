@@ -17,6 +17,7 @@
 package io.gatling.http.engine
 
 import java.net.InetSocketAddress
+import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.{ Await, Promise }
 import scala.concurrent.duration._
@@ -28,11 +29,11 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
-import io.gatling.http.protocol.HttpComponents
-import io.gatling.http.request.builder.Http
 import io.gatling.http.client.resolver.InetAddressNameResolverWrapper
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.Pair
+import io.gatling.http.protocol.HttpComponents
+import io.gatling.http.request.builder.Http
 import io.gatling.http.util.{ SslContexts, SslContextsFactory }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -41,7 +42,6 @@ import io.netty.channel.{ EventLoop, EventLoopGroup }
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod, HttpResponseStatus }
 import io.netty.handler.ssl.SslContext
 import io.netty.resolver.dns._
-import javax.net.ssl.KeyManagerFactory
 
 object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {

@@ -20,9 +20,9 @@ import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
-import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 
 class SseRequestExpressionBuilder(
     commonAttributes: CommonAttributes,

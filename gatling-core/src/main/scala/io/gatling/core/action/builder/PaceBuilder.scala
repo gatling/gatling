@@ -19,8 +19,8 @@ package io.gatling.core.action.builder
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.{ Action, Pace }
-import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
+import io.gatling.core.structure.ScenarioContext
 
 /**
  * Builder for the Pace action

@@ -21,8 +21,8 @@ import java.nio.charset.Charset
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
-import io.gatling.commons.stats.Group
 import io.gatling.charts.util.HtmlHelper._
+import io.gatling.commons.stats.Group
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.stats.writer.RunMessage
 

@@ -18,10 +18,11 @@ package io.gatling.core.check.xpath
 
 import java.io.{ InputStream, StringReader }
 import java.nio.charset.Charset
+import javax.xml.transform.sax.SAXSource
 
 import io.gatling.core.util.cache.Cache
+
 import com.github.benmanes.caffeine.cache.LoadingCache
-import javax.xml.transform.sax.SAXSource
 import net.sf.saxon.Configuration
 import net.sf.saxon.lib.{ ParseOptions, Validation }
 import net.sf.saxon.om.TreeModel

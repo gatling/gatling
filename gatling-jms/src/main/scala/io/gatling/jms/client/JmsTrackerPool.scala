@@ -17,7 +17,6 @@
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
-
 import javax.jms.Destination
 
 import io.gatling.commons.util.Clock

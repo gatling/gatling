@@ -17,8 +17,8 @@
 package io.gatling.recorder.scenario.template
 
 import io.gatling.http.client.uri.Uri
-import io.gatling.recorder.scenario.{ PauseElement, ProtocolDefinition, RequestElement, ScenarioElement, TagElement }
 import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.scenario.{ PauseElement, ProtocolDefinition, RequestElement, ScenarioElement, TagElement }
 
 private[scenario] object SimulationTemplate {
 

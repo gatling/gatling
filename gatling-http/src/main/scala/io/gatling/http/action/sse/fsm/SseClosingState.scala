@@ -16,10 +16,11 @@
 
 package io.gatling.http.action.sse.fsm
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.commons.stats.{ KO, OK }
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+
+import com.typesafe.scalalogging.StrictLogging
 
 class SseClosingState(fsm: SseFsm, actionName: String, session: Session, next: Action, timestamp: Long) extends SseState(fsm) with StrictLogging {
 

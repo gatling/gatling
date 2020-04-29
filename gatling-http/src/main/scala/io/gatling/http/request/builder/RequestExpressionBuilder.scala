@@ -33,9 +33,9 @@ import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
+import com.typesafe.scalalogging.LazyLogging
 import io.netty.handler.codec.http.HttpHeaderNames
 import io.netty.util.AsciiString
-import com.typesafe.scalalogging.LazyLogging
 
 object RequestExpressionBuilder {
   val BuildRequestErrorMapper: String => String = "Failed to build request: " + _

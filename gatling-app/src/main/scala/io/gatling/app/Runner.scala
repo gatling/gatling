@@ -24,8 +24,8 @@ import io.gatling.commons.util._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.{ Controller, ControllerCommand }
+import io.gatling.core.controller.inject.Injector
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.{ Scenarios, SimulationParams }
 import io.gatling.core.stats.{ DataWritersStatsEngine, StatsEngine }

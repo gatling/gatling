@@ -19,8 +19,8 @@ package io.gatling.recorder.http.flows
 import scala.util.{ Failure, Success }
 
 import io.gatling.commons.util.Clock
-import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
+import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM.{ WaitingForClientChannelConnect, WaitingForClientChannelConnectData }
 import io.gatling.recorder.http.flows.MitmMessage.{ ClientChannelActive, ClientChannelException }
 import io.gatling.recorder.http.ssl.SslServerContext

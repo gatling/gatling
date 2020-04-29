@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
+
 import jodd.lagarto.dom.NodeSelector
 
 class CssExtractorSpec extends BaseSpec with ValidationValues {

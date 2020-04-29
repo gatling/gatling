@@ -20,19 +20,19 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.Validator
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.http.check.status.HttpStatusCheckBuilder
-import io.gatling.http.util.HttpHelper._
+import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.status.HttpStatusCheckMaterializer
 import io.gatling.http.client.SignatureCalculator
 import io.gatling.http.client.oauth.{ ConsumerKey, RequestToken }
 import io.gatling.http.client.proxy.ProxyServer
 import io.gatling.http.client.realm.Realm
-import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.sign.OAuthSignatureCalculator
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.Proxy
-import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.util.HttpHelper
+import io.gatling.http.util.HttpHelper._
 
 import com.softwaremill.quicklens._
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues, HttpMethod }

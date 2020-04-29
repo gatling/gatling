@@ -20,8 +20,8 @@ import java.{ util => ju }
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.el
 import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.session.el
 
 class ElSpec extends BaseSpec with ValidationValues {
 

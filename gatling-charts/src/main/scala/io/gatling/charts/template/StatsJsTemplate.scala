@@ -18,12 +18,11 @@ package io.gatling.charts.template
 
 import java.nio.charset.Charset
 
-import io.gatling.commons.util.StringHelper._
-
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.report.GroupContainer
 import io.gatling.charts.report.Container.{ Group, Request }
+import io.gatling.charts.report.GroupContainer
+import io.gatling.commons.util.StringHelper._
 
 private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean) {
 

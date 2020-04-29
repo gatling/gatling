@@ -49,9 +49,9 @@ object Injector {
 private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
 
   import Injector._
-  import InjectorState._
-  import InjectorData._
   import InjectorCommand._
+  import InjectorData._
+  import InjectorState._
 
   startWith(WaitingToStart, NoData)
 

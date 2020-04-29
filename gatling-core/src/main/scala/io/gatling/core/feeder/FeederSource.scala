@@ -22,9 +22,9 @@ import java.util.zip.{ GZIPInputStream, ZipInputStream }
 import scala.annotation.switch
 
 import io.gatling.commons.util.Io._
-import io.gatling.core.util._
 import io.gatling.commons.util.Io.withCloseable
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.util._
 import io.gatling.core.util.Resource
 
 import com.typesafe.scalalogging.LazyLogging

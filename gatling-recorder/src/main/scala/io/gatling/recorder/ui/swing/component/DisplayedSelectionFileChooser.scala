@@ -22,8 +22,8 @@ import javax.swing.filechooser.FileFilter
 import scala.swing._
 import scala.swing.FileChooser.SelectionMode
 
-import io.gatling.recorder.ui.swing.util.UIHelper._
 import io.gatling.recorder.ui.swing.keyReleased
+import io.gatling.recorder.ui.swing.util.UIHelper._
 
 private[component] class AcceptAllFileFilter extends FileFilter {
   override def accept(f: File) = true

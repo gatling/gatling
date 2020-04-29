@@ -18,9 +18,9 @@ package io.gatling.jms.protocol
 
 import javax.jms.ConnectionFactory
 
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.model.Credentials
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 

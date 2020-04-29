@@ -22,10 +22,9 @@ import java.util.concurrent.{ ConcurrentLinkedQueue, TimeUnit }
 import scala.collection.JavaConverters._
 
 import com.typesafe.scalalogging.LazyLogging
-
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel._
+import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http._

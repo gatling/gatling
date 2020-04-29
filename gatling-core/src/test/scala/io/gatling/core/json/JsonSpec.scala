@@ -16,11 +16,11 @@
 
 package io.gatling.core.json
 
-import java.nio.charset.StandardCharsets.UTF_8
 import java.{ util => ju }
+import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.collection.mutable
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Io

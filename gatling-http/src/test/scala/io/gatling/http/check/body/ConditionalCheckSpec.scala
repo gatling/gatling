@@ -24,8 +24,8 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
-import io.gatling.http.response.Response
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.response.Response
 
 class ConditionalCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
 

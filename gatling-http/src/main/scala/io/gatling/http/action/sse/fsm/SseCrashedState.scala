@@ -16,10 +16,11 @@
 
 package io.gatling.http.action.sse.fsm
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.sse.SseMessageCheckSequence
+
+import com.typesafe.scalalogging.StrictLogging
 
 class SseCrashedState(fsm: SseFsm, errorMessage: Option[String]) extends SseState(fsm) with StrictLogging {
 

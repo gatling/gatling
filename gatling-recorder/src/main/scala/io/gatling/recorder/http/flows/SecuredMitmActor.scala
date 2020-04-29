@@ -16,10 +16,10 @@
 
 package io.gatling.recorder.http.flows
 
-import io.gatling.recorder.http.ssl.SslServerContext
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM._
 import io.gatling.recorder.http.flows.MitmMessage._
+import io.gatling.recorder.http.ssl.SslServerContext
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel

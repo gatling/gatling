@@ -16,10 +16,12 @@
 
 package computerdatabase.advanced
 
+import java.util.concurrent.ThreadLocalRandom
+
+import scala.concurrent.duration._
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import scala.concurrent.duration._
-import java.util.concurrent.ThreadLocalRandom
 
 class AdvancedSimulationStep05 extends Simulation {
 

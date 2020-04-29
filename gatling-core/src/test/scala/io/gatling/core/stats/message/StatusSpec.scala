@@ -16,11 +16,10 @@
 
 package io.gatling.core.stats.message
 
+import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK, Status }
 
 import org.scalacheck.Gen.alphaStr
-
-import io.gatling.BaseSpec
 
 class StatusSpec extends BaseSpec {
 

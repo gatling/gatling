@@ -16,8 +16,8 @@
 
 package io.gatling.core.filter
 
-import scala.util.matching.Regex
 import scala.util.{ Failure, Success, Try }
+import scala.util.matching.Regex
 
 import com.typesafe.scalalogging.StrictLogging
 

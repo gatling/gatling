@@ -18,7 +18,6 @@ package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
 import java.nio.file.Paths
-
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import scala.collection.JavaConverters._
@@ -36,10 +35,10 @@ import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
 import io.gatling.recorder.ui.RecorderFrontEnd
-import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component._
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
+import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 

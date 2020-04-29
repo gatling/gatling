@@ -17,8 +17,8 @@
 package io.gatling.recorder.http
 
 import io.gatling.commons.util.Clock
-import io.gatling.recorder.http.flows.MitmMessage.{ RequestReceived, ServerChannelInactive }
 import io.gatling.recorder.http.flows._
+import io.gatling.recorder.http.flows.MitmMessage.{ RequestReceived, ServerChannelInactive }
 import io.gatling.recorder.http.ssl.SslServerContext
 
 import akka.actor.{ ActorRef, ActorSystem, Props }

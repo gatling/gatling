@@ -18,6 +18,8 @@ package io.gatling.http.action.sse.fsm
 
 import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
+import scala.concurrent.duration.FiniteDuration
+
 import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
@@ -26,9 +28,8 @@ import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.protocol.HttpProtocol
-import io.netty.channel.EventLoop
 
-import scala.concurrent.duration.FiniteDuration
+import io.netty.channel.EventLoop
 
 class SseFsm(
     private[fsm] val wsName: String,

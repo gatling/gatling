@@ -27,8 +27,8 @@ import scala.util.parsing.combinator.RegexParsers
 import io.gatling.commons.NotNothing
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
-import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.util.TypeCaster
+import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._

@@ -16,8 +16,8 @@
 
 package io.gatling.core.stats.writer
 
-import java.time.format.DateTimeFormatter
 import java.time.{ Instant, ZoneOffset, ZonedDateTime }
+import java.time.format.DateTimeFormatter
 
 import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion

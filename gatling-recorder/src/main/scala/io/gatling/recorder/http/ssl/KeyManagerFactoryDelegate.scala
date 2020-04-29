@@ -17,7 +17,6 @@
 package io.gatling.recorder.http.ssl
 
 import java.security.{ KeyStore, Provider }
-
 import javax.net.ssl._
 
 object KeyManagerFactoryDelegate {

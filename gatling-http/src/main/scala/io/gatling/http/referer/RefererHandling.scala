@@ -18,9 +18,9 @@ package io.gatling.http.referer
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.client.Request
-import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
+import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 
 private[http] object RefererHandling {
 

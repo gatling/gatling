@@ -16,9 +16,10 @@
 
 package io.gatling.redis.compile
 
-import com.redis.RedisClientPool
 import io.gatling.core.Predef._
 import io.gatling.redis.Predef._
+
+import com.redis.RedisClientPool
 
 class RedisCompileTest extends Simulation {
 

@@ -17,9 +17,10 @@
 //#quickstart-recorder-output
 package computerdatabase // 1
 
+import scala.concurrent.duration._
+
 import io.gatling.core.Predef._ // 2
 import io.gatling.http.Predef._
-import scala.concurrent.duration._
 
 class BasicSimulation extends Simulation { // 3
 

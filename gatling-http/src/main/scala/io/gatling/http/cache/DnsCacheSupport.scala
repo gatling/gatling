@@ -16,8 +16,8 @@
 
 package io.gatling.http.cache
 
-import java.net.InetAddress
 import java.{ util => ju }
+import java.net.InetAddress
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }

@@ -19,8 +19,8 @@ package io.gatling.core.body
 import java.io.InputStream
 import java.nio.charset.Charset
 
-import io.gatling.commons.validation._
 import io.gatling.commons.util.CompositeByteArrayInputStream
+import io.gatling.commons.validation._
 import io.gatling.core.session._
 import io.gatling.core.session.el.{ ElCompiler, ElParserException, StaticPart }
 import io.gatling.netty.util.{ StringBuilderPool, StringWithCachedBytes }

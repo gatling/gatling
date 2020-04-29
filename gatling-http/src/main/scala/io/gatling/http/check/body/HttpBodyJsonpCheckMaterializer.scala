@@ -20,8 +20,8 @@ import io.gatling.commons.validation._
 import io.gatling.core.check.{ CheckMaterializer, Preparer }
 import io.gatling.core.json.JsonParsers
 import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
-import io.gatling.http.response.Response
 import io.gatling.http.check.HttpCheckScope.Body
+import io.gatling.http.response.Response
 
 import com.fasterxml.jackson.databind.JsonNode
 

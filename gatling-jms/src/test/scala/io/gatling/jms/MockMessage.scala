@@ -17,6 +17,7 @@
 package io.gatling.jms
 
 import javax.jms.{ BytesMessage, Message, TextMessage }
+
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 

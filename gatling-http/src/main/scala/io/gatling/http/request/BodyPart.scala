@@ -16,8 +16,8 @@
 
 package io.gatling.http.request
 
-import java.nio.charset.Charset
 import java.{ util => ju }
+import java.nio.charset.Charset
 
 import io.gatling.commons.validation.Validation
 import io.gatling.core.body.{ ElBody, ElFileBodies, RawFileBodies, ResourceAndCachedBytes }

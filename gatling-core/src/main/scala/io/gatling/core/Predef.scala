@@ -16,8 +16,9 @@
 
 package io.gatling.core
 
-import io.gatling.core.config.GatlingConfiguration
 import scala.concurrent.duration._
+
+import io.gatling.core.config.GatlingConfiguration
 
 object Predef extends CoreDsl {
 

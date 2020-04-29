@@ -27,13 +27,12 @@ import scala.swing.event.ListSelectionChanged
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.recorder.model._
-
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.ui._
-import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
+import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.HttpHeaders
 
 @SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))

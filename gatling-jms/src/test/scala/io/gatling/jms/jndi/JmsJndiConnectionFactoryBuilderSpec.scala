@@ -18,10 +18,10 @@ package io.gatling.jms.jndi
 
 import javax.naming.Context
 
+import scala.collection.JavaConverters.dictionaryAsScalaMapConverter
+
 import io.gatling.BaseSpec
 import io.gatling.jms.Predef.jmsJndiConnectionFactory
-
-import scala.collection.JavaConverters.dictionaryAsScalaMapConverter
 
 class JmsJndiConnectionFactoryBuilderSpec extends BaseSpec {
 

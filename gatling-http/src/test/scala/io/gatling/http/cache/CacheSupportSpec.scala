@@ -19,11 +19,11 @@ package io.gatling.http.cache
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.http.client.uri.Uri
+import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.client.{ Request, RequestBuilder }
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.protocol.HttpProtocol

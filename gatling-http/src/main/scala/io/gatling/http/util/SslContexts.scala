@@ -18,6 +18,7 @@ package io.gatling.http.util
 
 import java.io.Closeable
 import java.security.SecureRandom
+import javax.net.ssl._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
@@ -28,7 +29,6 @@ import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl._
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 import io.netty.util.ReferenceCountUtil
-import javax.net.ssl._
 
 private[http] object SslContextsFactory {
   private val DefaultSslSecureRandom = new SecureRandom

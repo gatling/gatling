@@ -18,6 +18,7 @@ package io.gatling.http.protocol
 
 import java.net.InetAddress
 import java.util.regex.Pattern
+import javax.net.ssl.KeyManagerFactory
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
@@ -37,7 +38,6 @@ import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.fetch.InferredResourceNaming
 
 import com.typesafe.scalalogging.StrictLogging
-import javax.net.ssl.KeyManagerFactory
 
 object HttpProtocol extends StrictLogging {
 

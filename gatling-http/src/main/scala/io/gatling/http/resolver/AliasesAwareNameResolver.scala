@@ -16,8 +16,8 @@
 
 package io.gatling.http.resolver
 
-import java.net.InetAddress
 import java.{ util => ju }
+import java.net.InetAddress
 
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver

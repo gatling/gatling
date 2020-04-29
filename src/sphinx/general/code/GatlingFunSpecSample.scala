@@ -17,6 +17,7 @@
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.http.funspec.GatlingHttpFunSpec
+
 import GatlingFunSpecExample._
 
 //#example-test

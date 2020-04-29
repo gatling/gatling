@@ -112,8 +112,9 @@ class FeederSample {
 
   {
     //#redis-LPOP
-    import com.redis._
     import io.gatling.redis.Predef._
+
+    import com.redis._
 
     val redisPool = new RedisClientPool("localhost", 6379)
 
@@ -124,8 +125,9 @@ class FeederSample {
   }
 
   {
-    import com.redis._
     import io.gatling.redis.Predef._
+
+    import com.redis._
 
     val redisPool = new RedisClientPool("localhost", 6379)
 
@@ -136,8 +138,9 @@ class FeederSample {
   }
 
   {
-    import com.redis._
     import io.gatling.redis.Predef._
+
+    import com.redis._
 
     val redisPool = new RedisClientPool("localhost", 6379)
 
@@ -150,6 +153,7 @@ class FeederSample {
   {
     //#redis-1million
     import java.io.{ File, PrintWriter }
+
     import io.gatling.redis.util.RedisHelper._
 
     def generateOneMillionUrls(): Unit = {
@@ -195,8 +199,9 @@ class FeederSample {
 
   {
     //#user-dependent-data
-    import io.gatling.core.feeder._
     import java.util.concurrent.ThreadLocalRandom
+
+    import io.gatling.core.feeder._
 
     // index records by project
     val recordsByProject: Map[String, Seq[Record[Any]]] =

@@ -18,9 +18,9 @@ package io.gatling.charts.component
 
 import io.gatling.charts.config.ChartsFiles.GlobalPageName
 import io.gatling.charts.report.Container.{ Group, Request }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
+import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class StatisticsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 

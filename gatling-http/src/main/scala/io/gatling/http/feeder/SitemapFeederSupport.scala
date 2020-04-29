@@ -17,8 +17,8 @@
 package io.gatling.http.feeder
 
 import io.gatling.commons.validation._
-import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.feeder.{ InMemoryFeederSource, SourceFeederBuilder }
 import io.gatling.core.util.{ Resource, ResourceCache }
 
 /**

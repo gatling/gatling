@@ -27,8 +27,8 @@ import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.filter.Filters
 import io.gatling.http.client.uri.Uri
-import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.http.Mitm
 import io.gatling.recorder.model._
 import io.gatling.recorder.scenario._

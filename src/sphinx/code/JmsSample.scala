@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-//#imports
-import io.gatling.jms.Predef._
+//#imprts
 import javax.jms._
-//#imports
+
+import io.gatling.jms.Predef._
+//#imprts
 
 //#example-simulation
+import javax.jms._
+
+import scala.concurrent.duration._
+
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
-import javax.jms._
-import scala.concurrent.duration._
 
 class TestJmsDsl extends Simulation {
 

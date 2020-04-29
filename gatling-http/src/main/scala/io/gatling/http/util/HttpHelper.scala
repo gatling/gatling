@@ -26,9 +26,9 @@ import scala.util.Try
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
+import io.gatling.http.{ MissingNettyHttpHeaderNames, MissingNettyHttpHeaderValues }
 import io.gatling.http.client.realm.{ BasicRealm, DigestRealm, Realm }
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.{ MissingNettyHttpHeaderNames, MissingNettyHttpHeaderValues }
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaders, HttpResponseStatus }

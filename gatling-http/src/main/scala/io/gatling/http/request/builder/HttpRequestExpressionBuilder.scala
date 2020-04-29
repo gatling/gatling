@@ -23,6 +23,7 @@ import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
+import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.client.body.bytearray.ByteArrayRequestBodyBuilder
 import io.gatling.http.client.body.file.FileRequestBodyBuilder
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBodyBuilder
@@ -30,7 +31,6 @@ import io.gatling.http.client.body.is.InputStreamRequestBodyBuilder
 import io.gatling.http.client.body.multipart.{ MultipartFormDataRequestBodyBuilder, Part, StringPart }
 import io.gatling.http.client.body.string.StringRequestBodyBuilder
 import io.gatling.http.client.body.stringchunks.StringChunksRequestBodyBuilder
-import io.gatling.http.client.{ Request, RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.{ HttpProtocol, Remote }
 import io.gatling.http.request.BodyPart
 

@@ -16,8 +16,9 @@
 
 package io.gatling.mqtt.config
 
-import io.netty.channel.WriteBufferWaterMark
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
+
+import io.netty.channel.WriteBufferWaterMark
 
 final case class MqttConfiguration(
     useNativeTransport: Boolean,

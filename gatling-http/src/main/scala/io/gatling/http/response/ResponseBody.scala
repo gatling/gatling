@@ -20,11 +20,11 @@ import java.io.{ InputStream, SequenceInputStream }
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
+import scala.util.control.NonFatal
 
-import io.gatling.commons.util.FastByteArrayInputStream
 import io.gatling.commons.util.ByteBufs._
+import io.gatling.commons.util.FastByteArrayInputStream
 import io.gatling.netty.util.ByteBufUtils._
 
 import com.typesafe.scalalogging.LazyLogging

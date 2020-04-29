@@ -18,6 +18,7 @@ package io.gatling.jdbc.feeder
 
 import java.sql.DriverManager
 import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
+
 import scala.annotation.tailrec
 import scala.collection.breakOut
 

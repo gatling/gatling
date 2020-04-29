@@ -19,8 +19,8 @@ package io.gatling.recorder.ui.swing.component
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 
-import io.gatling.recorder.ui.swing.util.UIHelper._
 import io.gatling.recorder.ui.swing.frame.ConfigurationFrame
+import io.gatling.recorder.ui.swing.util.UIHelper._
 
 private[swing] object DialogFileSelector {
   val message = """|A Swing bug on Mac OS X prevents the Recorder from getting

@@ -16,9 +16,9 @@
 
 package io.gatling.sbt
 
-import sbt.testing.SubclassFingerprint
-
 import io.gatling.core.scenario.Simulation
+
+import sbt.testing.SubclassFingerprint
 
 /**
  * Gatling's specific fingerprint, which defines which classes are to be

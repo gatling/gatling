@@ -21,9 +21,9 @@ import io.gatling.core.check.jsonpath.JsonFilter
 import io.gatling.core.util.cache.Cache
 
 import com.fasterxml.jackson.databind.JsonNode
+import io.burt.jmespath.{ Expression, RuntimeConfiguration }
 import io.burt.jmespath.function.{ FunctionRegistry, Function => JmesPathFunction }
 import io.burt.jmespath.jackson.JacksonRuntime
-import io.burt.jmespath.{ Expression, RuntimeConfiguration }
 
 private[gatling] object JmesPathFunctions {
 

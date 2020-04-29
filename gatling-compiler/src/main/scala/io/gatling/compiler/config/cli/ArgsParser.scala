@@ -16,9 +16,9 @@
 
 package io.gatling.compiler.config.cli
 
-import scopt.{ OptionDef, OptionParser, Read }
-
 import io.gatling.compiler.config.cli.CommandLineConstants._
+
+import scopt.{ OptionDef, OptionParser, Read }
 
 private[config] object CommandLineOverrides {
   val Empty = CommandLineOverrides("", "", "")

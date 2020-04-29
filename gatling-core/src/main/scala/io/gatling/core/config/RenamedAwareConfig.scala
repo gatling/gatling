@@ -16,9 +16,9 @@
 
 package io.gatling.core.config
 
+import java.{ lang => jl, util => ju }
 import java.time.{ Duration, Period }
 import java.time.temporal.TemporalAmount
-import java.{ lang => jl, util => ju }
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.config.{ Config, ConfigList, ConfigMemorySize, ConfigMergeable, ConfigObject, ConfigOrigin, ConfigResolveOptions, ConfigValue }

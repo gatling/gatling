@@ -16,9 +16,9 @@
 
 package io.gatling.core.stats.message
 
-import org.scalacheck.Gen.alphaStr
-
 import io.gatling.BaseSpec
+
+import org.scalacheck.Gen.alphaStr
 
 class MessageEventSpec extends BaseSpec {
 

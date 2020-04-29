@@ -16,6 +16,8 @@
 
 package io.gatling.jms.action
 
+import javax.jms.Message
+
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.Validation
@@ -26,8 +28,6 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.jms.client.JmsConnectionPool
 import io.gatling.jms.protocol.JmsProtocol
 import io.gatling.jms.request._
-
-import javax.jms.Message
 
 /**
  * Core JMS Action to handle Request-Reply semantics

@@ -16,8 +16,8 @@
 
 package io.gatling.http.resolver
 
-import java.net.{ InetAddress, UnknownHostException }
 import java.{ util => ju }
+import java.net.{ InetAddress, UnknownHostException }
 import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.http.client.HttpListener

@@ -18,9 +18,7 @@ package io.gatling.core.check
 
 import java.io.InputStream
 
-import io.gatling.core.session.{ Expression, Session }
 import io.gatling.commons.validation.Validation
-import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.core.check.bytes._
 import io.gatling.core.check.checksum._
 import io.gatling.core.check.css._
@@ -32,6 +30,8 @@ import io.gatling.core.check.string._
 import io.gatling.core.check.substring._
 import io.gatling.core.check.time._
 import io.gatling.core.check.xpath._
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.stats.message.ResponseTimings
 
 import com.fasterxml.jackson.databind.JsonNode
 import io.burt.jmespath.function.{ Function => JmesPathFunction }

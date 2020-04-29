@@ -17,16 +17,17 @@
 package io.gatling.mqtt.check
 
 import scala.annotation.implicitNotFound
+
 import io.gatling.core.check._
 import io.gatling.core.check.bytes.BodyBytesCheckType
+import io.gatling.core.check.jmespath.JmesPathCheckType
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.check.regex.RegexCheckType
 import io.gatling.core.check.string.BodyStringCheckType
+import io.gatling.core.check.substring.SubstringCheckType
 import io.gatling.core.json.JsonParsers
 
 import com.fasterxml.jackson.databind.JsonNode
-import io.gatling.core.check.jmespath.JmesPathCheckType
-import io.gatling.core.check.substring.SubstringCheckType
 import io.netty.buffer.ByteBuf
 
 trait MqttCheckSupport {

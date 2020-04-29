@@ -16,8 +16,8 @@
 
 package io.gatling.jms.check
 
-import javax.jms.Message
 import java.util.{ Map => JMap }
+import javax.jms.Message
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.CheckResult

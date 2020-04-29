@@ -18,8 +18,8 @@ package io.gatling.core.controller
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.scenario.Scenarios
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.scenario.Scenarios
 
 import akka.actor.{ ActorRef, FSM }
 

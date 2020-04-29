@@ -29,8 +29,8 @@ import io.gatling.commons.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 
 import io.netty.buffer.ByteBufAllocator
-import io.netty.handler.ssl.util.{ InsecureTrustManagerFactory, SelfSignedCertificate }
 import io.netty.handler.ssl.{ SslContext, SslContextBuilder }
+import io.netty.handler.ssl.util.{ InsecureTrustManagerFactory, SelfSignedCertificate }
 
 private[http] sealed trait SslServerContext {
 

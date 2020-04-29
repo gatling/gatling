@@ -18,8 +18,8 @@ package io.gatling.core.session
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation._
-import io.gatling.core.session.el._
 import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.session.el._
 
 class ExpressionUtilsSpec extends BaseSpec with ValidationValues {
 

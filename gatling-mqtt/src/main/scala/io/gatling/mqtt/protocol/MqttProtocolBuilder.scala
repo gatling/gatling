@@ -24,8 +24,8 @@ import io.gatling.commons.model.Credentials
 import io.gatling.core.session.Expression
 import io.gatling.mqtt.check.MessageCorrelator
 
-import io.netty.handler.codec.mqtt.{ MqttQoS, MqttVersion }
 import com.softwaremill.quicklens._
+import io.netty.handler.codec.mqtt.{ MqttQoS, MqttVersion }
 
 final case class MqttProtocolBuilder(mqttProtocol: MqttProtocol) {
 

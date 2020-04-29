@@ -17,15 +17,15 @@
 package io.gatling.http.action.ws
 
 import io.gatling.commons.util.Clock
+import io.gatling.http.action.ws.fsm.WsFsm
 import io.gatling.http.client.WebSocketListener
 import io.gatling.http.util.HttpHelper
 import io.gatling.netty.util.{ ByteBufUtils, Utf8ByteBufCharsetDecoder }
-import io.gatling.http.action.ws.fsm.WsFsm
 
 import com.typesafe.scalalogging.LazyLogging
+import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 import io.netty.handler.codec.http.cookie.Cookie
 import io.netty.handler.codec.http.websocketx.{ BinaryWebSocketFrame, CloseWebSocketFrame, PongWebSocketFrame, TextWebSocketFrame }
-import io.netty.handler.codec.http.{ HttpHeaders, HttpResponseStatus }
 
 class WsListener(fsm: WsFsm, clock: Clock) extends WebSocketListener with LazyLogging {
 

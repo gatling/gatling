@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import io.gatling.core.session.Session
-
 import scala.concurrent.duration._
+
 import io.gatling.core.Predef._
+import io.gatling.core.session.Session
 import io.gatling.http.Predef._
 
 class ScenarioSample {

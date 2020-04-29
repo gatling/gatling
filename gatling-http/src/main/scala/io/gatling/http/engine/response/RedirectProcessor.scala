@@ -22,8 +22,8 @@ import scala.collection.JavaConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.Session
-import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.{ Request, RequestBuilder }
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpProtocol
 

@@ -29,10 +29,10 @@ import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
-import sbt.internal.inc.classpath.ClasspathUtil
 import sbt.internal.inc.{ AnalysisStore => _, CompilerCache => _, _ }
-import sbt.util.ShowLines._
+import sbt.internal.inc.classpath.ClasspathUtil
 import sbt.util.{ Level, Logger => SbtLogger }
+import sbt.util.ShowLines._
 import xsbti.{ FileConverter, Position, Problem, Reporter, T2, VirtualFile }
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 import xsbti.compile.analysis.ReadStamps

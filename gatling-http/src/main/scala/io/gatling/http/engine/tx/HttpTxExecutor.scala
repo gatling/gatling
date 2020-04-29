@@ -21,8 +21,8 @@ import io.gatling.core.util.NameGen
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches, SslContextSupport }
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.util.Pair
-import io.gatling.http.engine.response._
 import io.gatling.http.engine.{ GatlingHttpListener, HttpEngine }
+import io.gatling.http.engine.response._
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.HttpFailure

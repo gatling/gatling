@@ -33,9 +33,9 @@ object ThrottlerControllerCommand {
 
 private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throttlings) extends ThrottlerControllerFSM {
 
-  import ThrottlerControllerState._
-  import ThrottlerControllerData._
   import ThrottlerControllerCommand._
+  import ThrottlerControllerData._
+  import ThrottlerControllerState._
 
   def notifyThrottler(throttlings: Throttlings, tick: Int): Unit = {
 

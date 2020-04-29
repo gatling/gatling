@@ -260,9 +260,10 @@ class HttpRequestSample {
 
   {
     //#resp-processors-imports
-    import java.util.Base64
-    import io.gatling.http.response._
     import java.nio.charset.StandardCharsets.UTF_8
+    import java.util.Base64
+
+    import io.gatling.http.response._
     //#resp-processors-imports
 
     http("foo")

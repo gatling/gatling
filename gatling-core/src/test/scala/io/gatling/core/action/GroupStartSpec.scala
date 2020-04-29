@@ -17,9 +17,9 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.session.el.El
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.session.el.El
 import io.gatling.core.stats.StatsEngine
 
 import org.mockito.ArgumentCaptor

@@ -18,8 +18,8 @@ package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
-import io.gatling.commons.util.Maps._
 import io.gatling.charts.stats.{ IntVsTimePlot, UserRecord }
+import io.gatling.commons.util.Maps._
 import io.gatling.core.stats.message.{ End, Start }
 
 private[stats] object SessionDeltas {

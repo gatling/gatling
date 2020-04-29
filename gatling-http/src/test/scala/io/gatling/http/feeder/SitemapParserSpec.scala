@@ -22,12 +22,12 @@ import java.nio.file.Paths
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
-import io.gatling.core.util.Resource
 import io.gatling.core.feeder.Record
+import io.gatling.core.util.Resource
 
 import net.sf.saxon.trans.XPathException
-import org.mockito.Mockito._
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito._
 
 class SitemapParserSpec extends BaseSpec with ValidationValues {
 

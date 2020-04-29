@@ -20,10 +20,10 @@ import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 import io.gatling.http.client.uri.Uri
+import io.gatling.netty.util.ByteBufUtils
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.flows.Remote
 import io.gatling.recorder.model._
-import io.gatling.netty.util.ByteBufUtils
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.channel.ChannelId
