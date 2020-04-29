@@ -18,9 +18,8 @@ package io.gatling.charts.template
 
 import java.nio.charset.Charset
 
-import io.gatling.commons.util.StringHelper
+import io.gatling.commons.util.StringHelper._
 
-import StringHelper.RichString
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.GroupContainer
