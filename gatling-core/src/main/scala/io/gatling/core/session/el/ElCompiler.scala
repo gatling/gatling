@@ -169,6 +169,7 @@ class ElParserException(string: String, msg: String) extends Exception(s"Failed 
 object ElCompiler {
 
   private val NameRegex = "[^.${}()]+".r
+  private val NumberRegex = "[0-9]+".r
   private val DynamicPartStart = "${".toCharArray
 
   private val ElCompilers = new ThreadLocal[ElCompiler] {
@@ -237,9 +238,7 @@ class ElCompiler private extends RegexParsers {
     }
   }
 
-  private val expr: Parser[List[ElPart[Any]]] = multivaluedExpr | (elExpr ^^ { part =>
-    part :: Nil
-  })
+  private val expr: Parser[List[ElPart[Any]]] = multivaluedExpr | (elExpr ^^ (_ :: Nil))
 
   private def multivaluedExpr: Parser[List[ElPart[Any]]] = (elExpr | staticPart) *
 
@@ -306,13 +305,9 @@ class ElCompiler private extends RegexParsers {
     (objectName ~ (valueAccess *) ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }) | emptyAttribute
   }
 
-  private def objectName: Parser[AttributePart] = NameRegex ^^ { name =>
-    AttributePart(name)
-  }
+  private def objectName: Parser[AttributePart] = NameRegex ^^ (AttributePart(_))
 
-  private def functionAccess(access: AccessFunction) = access.token ^^ { _ =>
-    access
-  }
+  private def functionAccess(access: AccessFunction): Parser[AccessFunction] = access.token ^^ (_ => access)
 
   private def valueAccess =
     tupleAccess |
@@ -323,23 +318,13 @@ class ElCompiler private extends RegexParsers {
       functionAccess(AccessIsUndefined) |
       functionAccess(AccessJsonStringify) |
       keyAccess |
-      (elExpr ^^ { _ =>
-        throw new Exception("nested attribute definition is not allowed")
-      })
+      (elExpr ^^ (_ => throw new Exception("nested attribute definition is not allowed")))
 
-  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { posStr =>
-    AccessIndex(posStr, s"($posStr)")
-  }
+  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
 
-  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { keyName =>
-    AccessKey(keyName, "." + keyName)
-  }
+  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ (keyName => AccessKey(keyName, "." + keyName))
 
-  private def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { indexPart =>
-    AccessTuple(indexPart, "._" + indexPart)
-  }
+  private def tupleAccess: Parser[AccessTuple] = "._" ~> NumberRegex ^^ (indexPart => AccessTuple(indexPart, "._" + indexPart))
 
-  private def emptyAttribute: Parser[ElPart[Any]] = "" ^^ { _ =>
-    throw new Exception("attribute name is missing")
-  }
+  private def emptyAttribute: Parser[ElPart[Any]] = "" ^^ (_ => throw new Exception("attribute name is missing"))
 }
