@@ -560,6 +560,19 @@ class ElSpec extends BaseSpec with ValidationValues {
     failedJsonStringifyExpression(session).failed shouldBe failedKeyAccessExpression(session).failed
   }
 
+  "currentTimeMillis" should "generate a long" in {
+    val session = newSession(Map("foo" -> "bar"))
+    val currentTimeMillisExpression = "${currentTimeMillis()}".el[Long]
+    currentTimeMillisExpression(session).succeeded shouldBe a[Long]
+  }
+
+  "currentDate" should "generate a String" in {
+    val session = newSession(Map("foo" -> "bar"))
+    val pattern = "yyyy-MM-dd HH:mm:ss"
+    val currentDateExpression = s"$${currentDate($pattern)}".el[String]
+    currentDateExpression(session).succeeded.length shouldBe pattern.length
+  }
+
   "Escaping" should "turn $${ into ${" in {
     val session = newSession(Map("foo" -> "FOO"))
     val expression = "$${foo}".el[String]

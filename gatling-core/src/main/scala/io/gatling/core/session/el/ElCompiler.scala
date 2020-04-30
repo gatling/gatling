@@ -17,6 +17,8 @@
 package io.gatling.core.session.el
 
 import java.{ util => ju }
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.ThreadLocalRandom
 
 import scala.annotation.tailrec
@@ -164,6 +166,14 @@ final case class TupleAccessPart(tuple: ElPart[Any], tupleName: String, index: I
   }
 }
 
+case object CurrentTimeMillisPart extends ElPart[Long] {
+  def apply(session: Session): Validation[Long] = System.currentTimeMillis().success
+}
+
+final case class CurrentDateTimePart(format: SimpleDateFormat) extends ElPart[String] {
+  def apply(session: Session): Validation[String] = format.format(new Date()).success
+}
+
 class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
 object ElCompiler {
@@ -276,10 +286,23 @@ class ElCompiler private extends RegexParsers {
       case staticStr if staticStr.nonEmpty => StaticPart(staticStr.mkString)
     }, _ => "Not a static part")
 
-  private def elExpr: Parser[ElPart[Any]] = "${" ~> sessionObject <~ "}"
+  private def elExpr: Parser[ElPart[Any]] = "${" ~> (nonSessionObject | sessionObject | emptyAttribute) <~ "}"
+
+  private def currentTimeMillis: Parser[ElPart[Any]] = "currentTimeMillis()" ^^ (_ => CurrentTimeMillisPart)
+
+  private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> NameRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
+
+  private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate
+
+  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
+
+  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ (keyName => AccessKey(keyName, "." + keyName))
+
+  private def tupleAccess: Parser[AccessTuple] = "._" ~> NumberRegex ^^ (indexPart => AccessTuple(indexPart, "._" + indexPart))
+
+  private def emptyAttribute: Parser[ElPart[Any]] = "" ^^ (_ => throw new Exception("attribute name is missing"))
 
   private def sessionObject: Parser[ElPart[Any]] = {
-
     @tailrec
     def sessionObjectRec(accessTokens: List[AccessToken], currentPart: ElPart[Any], currentPartName: String): ElPart[Any] = {
       accessTokens match {
@@ -302,14 +325,14 @@ class ElCompiler private extends RegexParsers {
       }
     }
 
-    (objectName ~ (valueAccess *) ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }) | emptyAttribute
+    objectName ~ (valueAccess *) ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }
   }
 
   private def objectName: Parser[AttributePart] = NameRegex ^^ (AttributePart(_))
 
   private def functionAccess(access: AccessFunction): Parser[AccessFunction] = access.token ^^ (_ => access)
 
-  private def valueAccess =
+  private def valueAccess: Parser[AccessToken] =
     tupleAccess |
       indexAccess |
       functionAccess(AccessRandom) |
@@ -319,12 +342,4 @@ class ElCompiler private extends RegexParsers {
       functionAccess(AccessJsonStringify) |
       keyAccess |
       (elExpr ^^ (_ => throw new Exception("nested attribute definition is not allowed")))
-
-  private def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ (posStr => AccessIndex(posStr, s"($posStr)"))
-
-  private def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ (keyName => AccessKey(keyName, "." + keyName))
-
-  private def tupleAccess: Parser[AccessTuple] = "._" ~> NumberRegex ^^ (indexPart => AccessTuple(indexPart, "._" + indexPart))
-
-  private def emptyAttribute: Parser[ElPart[Any]] = "" ^^ (_ => throw new Exception("attribute name is missing"))
 }
