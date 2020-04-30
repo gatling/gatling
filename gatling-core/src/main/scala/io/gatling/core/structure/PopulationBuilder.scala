@@ -16,7 +16,7 @@
 
 package io.gatling.core.structure
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.CoreComponents
 import io.gatling.core.controller.inject.InjectionProfile
@@ -66,7 +66,7 @@ final case class PopulationBuilder(
   def exponentialPauses: PopulationBuilder = pauses(Exponential)
   def customPauses(custom: Expression[Long]): PopulationBuilder = pauses(new Custom(custom))
   def uniformPauses(plusOrMinus: Double): PopulationBuilder = pauses(new UniformPercentage(plusOrMinus))
-  def uniformPauses(plusOrMinus: Duration): PopulationBuilder = pauses(new UniformDuration(plusOrMinus))
+  def uniformPauses(plusOrMinus: FiniteDuration): PopulationBuilder = pauses(new UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType): PopulationBuilder = copy(pauseType = Some(pauseType))
 
   def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toIterable)

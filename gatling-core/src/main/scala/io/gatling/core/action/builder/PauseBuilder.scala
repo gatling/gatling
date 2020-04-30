@@ -16,7 +16,7 @@
 
 package io.gatling.core.action.builder
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.action.{ Action, Pause }
 import io.gatling.core.pause.{ Disabled, PauseType }
@@ -31,7 +31,7 @@ import io.gatling.core.util.NameGen
  * @param duration mean duration of the generated pause
  * @param force if the global pause type has to be overridden
  */
-class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder with NameGen {
+class PauseBuilder(duration: Expression[FiniteDuration], force: Option[PauseType]) extends ActionBuilder with NameGen {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     force.getOrElse(ctx.pauseType) match {

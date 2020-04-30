@@ -228,24 +228,24 @@ object TypeCaster extends LowPriorityTypeCaster {
       value.toString.success
   }
 
-  implicit val DurationCaster: TypeCaster[Duration] = new TypeCaster[Duration] {
+  implicit val FiniteDurationCaster: TypeCaster[FiniteDuration] = new TypeCaster[FiniteDuration] {
     @throws[ClassCastException]
-    override def cast(value: Any): Duration =
+    override def cast(value: Any): FiniteDuration =
       value match {
         case v: Long           => v seconds
         case v: java.lang.Long => v.longValue seconds
         case v: String         => v.toLong seconds
-        case v: Duration       => v
-        case _                 => throw new ClassCastException(cceMessage(value, classOf[Duration]))
+        case v: FiniteDuration => v
+        case _                 => throw new ClassCastException(cceMessage(value, classOf[FiniteDuration]))
       }
 
-    override def validate(value: Any): Validation[Duration] =
+    override def validate(value: Any): Validation[FiniteDuration] =
       value match {
         case v: Long           => (v seconds).success
         case v: java.lang.Long => (v.longValue seconds).success
         case v: String         => safely(v.toLong seconds)
-        case v: Duration       => v.success
-        case _                 => cceMessage(value, classOf[Duration]).failure
+        case v: FiniteDuration => v.success
+        case _                 => cceMessage(value, classOf[FiniteDuration]).failure
       }
   }
 
