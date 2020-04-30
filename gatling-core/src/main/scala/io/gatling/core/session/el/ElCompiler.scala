@@ -216,7 +216,7 @@ private[el] case object AccessRandom extends AccessFunction { val token: String 
 private[el] case object AccessSize extends AccessFunction { val token: String = functionToken("size") }
 private[el] case object AccessExists extends AccessFunction { val token: String = functionToken("exists") }
 private[el] case object AccessIsUndefined extends AccessFunction { val token: String = functionToken("isUndefined") }
-private[el] case object AccessJSONStringify extends AccessFunction { val token: String = functionToken("jsonStringify") }
+private[el] case object AccessJsonStringify extends AccessFunction { val token: String = functionToken("jsonStringify") }
 private[el] final case class AccessTuple(index: String, token: String) extends AccessToken
 
 class ElCompiler private extends RegexParsers {
@@ -294,7 +294,7 @@ class ElCompiler private extends RegexParsers {
               case AccessSize            => SizePart(currentPart, currentPartName)
               case AccessExists          => ExistsPart(currentPart, currentPartName)
               case AccessIsUndefined     => IsUndefinedPart(currentPart, currentPartName)
-              case AccessJSONStringify   => JsonStringify(currentPart, currentPartName)
+              case AccessJsonStringify   => JsonStringify(currentPart, currentPartName)
               case AccessTuple(index, _) => TupleAccessPart(currentPart, currentPartName, index.toInt)
             }
 
@@ -321,7 +321,7 @@ class ElCompiler private extends RegexParsers {
       functionAccess(AccessSize) |
       functionAccess(AccessExists) |
       functionAccess(AccessIsUndefined) |
-      functionAccess(AccessJSONStringify) |
+      functionAccess(AccessJsonStringify) |
       keyAccess |
       (elExpr ^^ { _ =>
         throw new Exception("nested attribute definition is not allowed")
