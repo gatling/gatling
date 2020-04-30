@@ -110,6 +110,8 @@ which correspond to:
 Hooks
 =====
 
+.. warning:: Hooks are deprecated and planned for removal in 3.5.0. Use :ref:`simulation-inject-seq <sequential scenarios>` instead.
+
 Gatling provides two hooks:
 
 * ``before`` for executing some code before the simulation actually runs
