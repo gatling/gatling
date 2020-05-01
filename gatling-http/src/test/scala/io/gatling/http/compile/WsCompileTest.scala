@@ -50,6 +50,12 @@ class WsCompileTest extends Simulation {
         .await(1) { // simple int
           ws.checkTextMessage("checkName")
         }
+        .await("${someLongOrFiniteDurationAttribute}") { // EL string
+          ws.checkTextMessage("checkName")
+        }
+        .await(_ => 1 second) { // expression
+          ws.checkTextMessage("checkName")
+        }
         .onConnected(
           exec(
             ws("Perform auth")
@@ -71,7 +77,13 @@ class WsCompileTest extends Simulation {
         .await(30 seconds)(
           ws.checkTextMessage("checkName1").check(jsonPath("$.message").findAll.saveAs("message1"))
         )
-        .await(30 seconds)(
+        .await(30)( // simple int
+          ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
+        )
+        .await("${someLongOrFiniteDurationAttribute}") { // EL string
+          ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
+        }
+        .await(_ => 30 seconds)( // expression
           ws.checkTextMessage("checkName2").check(jsonPath("$.message").findAll.saveAs("message2"))
         )
     )

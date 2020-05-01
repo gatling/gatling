@@ -19,6 +19,7 @@ package io.gatling.http.action.ws
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.action.Action
+import io.gatling.core.session._
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
@@ -28,12 +29,15 @@ import com.softwaremill.quicklens._
 
 final case class WsConnectBuilder(
     requestBuilder: WsConnectRequestBuilder,
-    checkSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     onConnectedChain: Option[ChainBuilder]
 ) extends HttpActionBuilder {
 
   def await(timeout: FiniteDuration)(checks: WsFrameCheck*): WsConnectBuilder =
-    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
+    await(timeout.expressionSuccess)(checks: _*)
+
+  def await(timeout: Expression[FiniteDuration])(checks: WsFrameCheck*): WsConnectBuilder =
+    this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
 
   def onConnected(chain: ChainBuilder): WsConnectBuilder = copy(onConnectedChain = Some(chain))
 

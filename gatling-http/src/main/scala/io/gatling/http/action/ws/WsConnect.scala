@@ -24,7 +24,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.ws.fsm.WsFsm
-import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
+import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
@@ -33,7 +33,7 @@ class WsConnect(
     wsName: String,
     subprotocol: Option[String],
     request: Expression[Request],
-    connectCheckSequences: List[WsFrameCheckSequence[WsFrameCheck]],
+    connectCheckSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     onConnected: Option[Action],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
@@ -53,6 +53,7 @@ class WsConnect(
       case _: Failure =>
         for {
           connectRequest <- request(session)
+          resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(connectCheckSequences, session)
         } yield {
           logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
@@ -61,7 +62,7 @@ class WsConnect(
             connectRequest,
             subprotocol,
             requestName,
-            connectCheckSequences,
+            resolvedCheckSequences,
             onConnected,
             statsEngine,
             httpComponents.httpEngine,

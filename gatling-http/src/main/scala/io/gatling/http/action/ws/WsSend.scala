@@ -22,13 +22,13 @@ import io.gatling.core.action.{ Action, ExitableAction, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
 
 class WsSendTextFrame(
     override val requestName: Expression[String],
     wsName: String,
     message: Expression[String],
-    checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     override val next: Action
@@ -43,9 +43,10 @@ class WsSendTextFrame(
     for {
       fsm <- fetchFsm(wsName, session)
       message <- message(session)
+      resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
       logger.info(s"Sending text frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      fsm.onSendTextFrame(requestName, message, checkSequences, session, next)
+      fsm.onSendTextFrame(requestName, message, resolvedCheckSequences, session, next)
     }
 }
 
@@ -53,7 +54,7 @@ class WsSendBinaryFrame(
     override val requestName: Expression[String],
     wsName: String,
     message: Expression[Array[Byte]],
-    checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]],
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     override val next: Action
@@ -68,8 +69,9 @@ class WsSendBinaryFrame(
     for {
       fsm <- fetchFsm(wsName, session)
       message <- message(session)
+      resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
       logger.info(s"Sending binary frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-      fsm.onSendBinaryFrame(requestName, message, checkSequences, session, next)
+      fsm.onSendBinaryFrame(requestName, message, resolvedCheckSequences, session, next)
     }
 }

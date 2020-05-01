@@ -19,10 +19,10 @@ package io.gatling.http.action.ws
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.action.Action
-import io.gatling.core.session.Expression
+import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsFrameCheckSequence, WsTextFrameCheck }
+import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
 
 import com.softwaremill.quicklens._
 
@@ -30,11 +30,14 @@ final case class WsSendTextFrameBuilder(
     requestName: Expression[String],
     wsName: String,
     message: Expression[String],
-    checkSequences: List[WsFrameCheckSequence[WsTextFrameCheck]]
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]]
 ) extends HttpActionBuilder {
 
   def await(timeout: FiniteDuration)(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
-    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
+    await(timeout.expressionSuccess)(checks: _*)
+
+  def await(timeout: Expression[FiniteDuration])(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
+    this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSendTextFrame(
@@ -52,11 +55,11 @@ final case class WsSendBinaryFrameBuilder(
     requestName: Expression[String],
     wsName: String,
     message: Expression[Array[Byte]],
-    checkSequences: List[WsFrameCheckSequence[WsBinaryFrameCheck]]
+    checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]]
 ) extends HttpActionBuilder {
 
-  def await(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
-    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequence(timeout, checks.toList)))
+  def await(timeout: Expression[FiniteDuration])(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
+    this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequenceBuilder(timeout, checks.toList)))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSendBinaryFrame(
