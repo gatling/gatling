@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-//#imprts
-import javax.jms._
+{
+  //#imprts
+  import javax.jms._
 
-import io.gatling.jms.Predef._
-//#imprts
+  import io.gatling.jms.Predef._
+  //#imprts
+}
 
 //#example-simulation
 import javax.jms._
