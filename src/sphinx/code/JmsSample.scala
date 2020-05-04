@@ -14,14 +14,6 @@
  * limitations under the License.
  */
 
-{
-  //#imprts
-  import javax.jms._
-
-  import io.gatling.jms.Predef._
-  //#imprts
-}
-
 //#example-simulation
 import javax.jms._
 
@@ -71,3 +63,11 @@ class TestJmsDsl extends Simulation {
   }
 }
 //#example-simulation
+
+class Imports {
+  //#imprts
+  import javax.jms._
+
+  import io.gatling.jms.Predef._
+  //#imprts
+}
