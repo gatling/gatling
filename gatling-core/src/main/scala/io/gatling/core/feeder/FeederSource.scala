@@ -21,9 +21,9 @@ import java.util.zip.{ GZIPInputStream, ZipInputStream }
 
 import scala.annotation.switch
 
-import io.gatling.commons.util.Io.{ withCloseable, _ }
+import io.gatling.commons.util.Io._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.{ Resource, _ }
+import io.gatling.core.util._
 
 import com.typesafe.scalalogging.LazyLogging
 
