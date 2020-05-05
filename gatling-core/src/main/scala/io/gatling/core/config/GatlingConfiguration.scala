@@ -467,12 +467,4 @@ final class GatlingConfiguration(
     //
     // [fl]
     val config: Config
-) {
-  def resolve[T](value: T): T = value
-
-  // [fl]
-  //
-  //
-  //
-  // [fl]
-}
+)

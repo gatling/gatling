@@ -24,33 +24,27 @@ import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
-  private implicit val config: GatlingConfiguration = configuration
+  def processRunResult(runResult: RunResult): StatusCode = {
+    initLogFileReader(runResult) match {
+      case Some(reader) =>
+        val assertionResults = AssertionValidator.validateAssertions(reader)
 
-  def processRunResult(runResult: RunResult): StatusCode =
-    config.resolve(
-      // [fl]
-      //
-      // [fl]
-      initLogFileReader(runResult) match {
-        case Some(reader) =>
-          val assertionResults = AssertionValidator.validateAssertions(reader)
+        if (reportsGenerationEnabled) {
+          val reportsGenerationInputs = new ReportsGenerationInputs(runResult.runId, reader, assertionResults)
+          generateReports(reportsGenerationInputs)
+        }
 
-          if (reportsGenerationEnabled) {
-            val reportsGenerationInputs = new ReportsGenerationInputs(runResult.runId, reader, assertionResults)
-            generateReports(reportsGenerationInputs)
-          }
+        runStatus(assertionResults)
 
-          runStatus(assertionResults)
-
-        case _ =>
-          StatusCode.Success
-      }
-    )
+      case _ =>
+        StatusCode.Success
+    }
+  }
 
   private def initLogFileReader(runResult: RunResult): Option[LogFileReader] =
     if (reportsGenerationEnabled || runResult.hasAssertions) {
       println("Parsing log file(s)...")
-      val logFileReader = new LogFileReader(runResult.runId)
+      val logFileReader = new LogFileReader(runResult.runId)(configuration)
       println("Parsing log file(s) done")
       Some(logFileReader)
     } else {
@@ -63,7 +57,7 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs): Unit = {
     println("Generating reports...")
     val start = System.currentTimeMillis()
-    val indexFile = new ReportsGenerator().generateFor(reportsGenerationInputs)
+    val indexFile = new ReportsGenerator()(configuration).generateFor(reportsGenerationInputs)
     println(s"Reports generated in ${(System.currentTimeMillis() - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }

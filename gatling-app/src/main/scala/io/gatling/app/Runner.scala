@@ -38,17 +38,8 @@ import io.netty.channel.EventLoopGroup
 
 private object Runner {
 
-  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration): Runner = {
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      // [fl]
-      new Runner(system, eventLoopGroup, new DefaultClock, configuration)
-    )
-  }
+  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, configuration: GatlingConfiguration): Runner =
+   new Runner(system, eventLoopGroup, new DefaultClock, configuration)
 }
 
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {

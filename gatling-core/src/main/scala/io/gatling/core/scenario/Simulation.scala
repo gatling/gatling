@@ -16,7 +16,7 @@
 
 package io.gatling.core.scenario
 
-import scala.concurrent.duration.{ Duration, FiniteDuration }
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.core.CoreComponents
@@ -95,49 +95,9 @@ abstract class Simulation {
     }
   }
 
-  private def resolvePopulationBuilders(populationBuilders: List[PopulationBuilder], configuration: GatlingConfiguration): List[PopulationBuilder] =
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      _populationBuilders
-    )
-
-  private def resolveThrottleSteps(steps: Iterable[ThrottleStep], configuration: GatlingConfiguration): Iterable[ThrottleStep] =
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      steps
-    )
-
   private[gatling] def params(configuration: GatlingConfiguration): SimulationParams = {
 
-    val rootPopulationBuilders = resolvePopulationBuilders(_populationBuilders, configuration)
+    val rootPopulationBuilders = _populationBuilders
     require(rootPopulationBuilders.nonEmpty, "No scenario set up")
 
     val childrenPopulationBuilders = PopulationBuilder.groupChildrenByParent(rootPopulationBuilders)
@@ -152,7 +112,7 @@ abstract class Simulation {
     allPopulationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
     val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { scn =>
-      val steps = resolveThrottleSteps(scn.scenarioThrottleSteps, configuration)
+      val steps = scn.scenarioThrottleSteps
 
       if (steps.isEmpty) {
         Nil
@@ -165,7 +125,7 @@ abstract class Simulation {
       if (_globalThrottleSteps.isEmpty) {
         None
       } else {
-        Some(Throttling(resolveThrottleSteps(_globalThrottleSteps, configuration)))
+        Some(Throttling(_globalThrottleSteps))
       }
 
     val maxDuration = {

@@ -21,11 +21,9 @@ import java.util.zip.{ GZIPInputStream, ZipInputStream }
 
 import scala.annotation.switch
 
-import io.gatling.commons.util.Io._
-import io.gatling.commons.util.Io.withCloseable
+import io.gatling.commons.util.Io.{ withCloseable, _ }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util._
-import io.gatling.core.util.Resource
+import io.gatling.core.util.{ Resource, _ }
 
 import com.typesafe.scalalogging.LazyLogging
 
@@ -37,30 +35,8 @@ final case class InMemoryFeederSource[T](records: IndexedSeq[Record[T]]) extends
 
   require(records.nonEmpty, "Feeder must not be empty")
 
-  override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] = {
-
-    val rawRecords: IndexedSeq[Record[T]] =
-      configuration.resolve(
-        // [fl]
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        // [fl]
-        {
-          if (options.shard) {
-            logger.warn("shard is an option that's only supported in FrontLine")
-          }
-          records
-        }
-      )
-
-    InMemoryFeeder(rawRecords, options.conversion, options.strategy)
-  }
+  override def feeder(options: FeederOptions[T], configuration: GatlingConfiguration): Feeder[Any] =
+    InMemoryFeeder(records, options.conversion, options.strategy)
 }
 
 private object TwoBytesMagicValueInputStream {
@@ -122,7 +98,6 @@ object SeparatedValuesFeederSource {
 final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quoteChar: Char) extends FeederSource[String] {
 
   override def feeder(options: FeederOptions[String], configuration: GatlingConfiguration): Feeder[Any] = {
-    val charset = configuration.core.charset
 
     val uncompressedResource =
       if (options.unzip) {
@@ -131,46 +106,22 @@ final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quo
         resource
       }
 
-    def applyBatch(resource: Resource): Feeder[Any] =
+    def applyBatch(res: Resource): Feeder[Any] = {
+      val charset = configuration.core.charset
       options.loadingMode match {
         case Batch(bufferSize) =>
-          BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, bufferSize, charset)
-        case Adaptive if resource.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
-          BatchedSeparatedValuesFeeder(resource.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferSize, charset)
+          BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, bufferSize, charset)
+        case Adaptive if res.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
+          BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferSize, charset)
         case _ =>
-          val records = withCloseable(resource.inputStream) { is =>
+          val records = withCloseable(res.inputStream) { is =>
             SeparatedValuesParser.stream(separator, quoteChar, charset)(is).toVector
           }
 
           InMemoryFeeder(records, options.conversion, options.strategy)
       }
+    }
 
-    configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      applyBatch(uncompressedResource)
-    )
+    applyBatch(uncompressedResource)
   }
 }

@@ -55,23 +55,12 @@ private[http] trait DnsCacheSupport {
       hostNameAliases: Map[String, InetAddress],
       httpEngine: HttpEngine
   ): InetAddressNameResolver = {
-    val resolver: InetAddressNameResolver =
-      coreComponents.configuration.resolve(
-        // [fl]
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-        // [fl]
-        dnsNameResolution match {
-          case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
-          case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(eventLoop, dnsServers)
-        }
-      )
+    val resolver = {
+      dnsNameResolution match {
+        case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
+        case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(eventLoop, dnsServers)
+      }
+    }
 
     if (hostNameAliases.isEmpty) {
       resolver
