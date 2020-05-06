@@ -83,16 +83,8 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 
-  /**
-   * Stops defining the request and adds checks on the response
-   *
-   * @param checks the checks that will be performed on the response
-   */
   def check(checks: HttpCheck*): HttpRequestBuilder = this.modify(_.httpAttributes.checks).using(_ ::: checks.toList)
 
-  /**
-   * Ignore the default checks configured on HttpProtocol
-   */
   def ignoreDefaultChecks: HttpRequestBuilder = this.modify(_.httpAttributes.ignoreDefaultChecks).setTo(true)
 
   def silent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(true))

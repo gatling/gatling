@@ -679,6 +679,9 @@
             - signature: (Map[key, value])
               description: "Adds every tuple <i>key: value</i> of the map as header"
 
+        - keyword: ignoreDefaultHeaders
+          description: Ignore default headers that were defined on the HttpProtocol
+
         - keyword: sign
           description: Pass a `SignatureCalculator` to sign the request.
           syntax:

@@ -119,6 +119,12 @@ class HttpRequestSample {
     http("foo").get("bar")
     //#asXml
 
+    //#ignoreDefaultHeaders
+    http("Getting issues")
+      .get("https://www.github.com/gatling/gatling/issues")
+      .ignoreDefaultHeaders
+    //#ignoreDefaultHeaders
+
     //#authentication
     http("My BASIC secured request").get("http://my.secured.uri").basicAuth("myUser", "myPassword")
 

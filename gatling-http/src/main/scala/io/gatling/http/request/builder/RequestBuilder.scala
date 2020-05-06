@@ -49,7 +49,8 @@ object CommonAttributes {
       realm = None,
       virtualHost = None,
       proxy = None,
-      signatureCalculator = None
+      signatureCalculator = None,
+      ignoreDefaultHeaders = false
     )
 }
 
@@ -63,7 +64,8 @@ final case class CommonAttributes(
     realm: Option[Expression[Realm]],
     virtualHost: Option[Expression[String]],
     proxy: Option[ProxyServer],
-    signatureCalculator: Option[Expression[SignatureCalculator]]
+    signatureCalculator: Option[Expression[SignatureCalculator]],
+    ignoreDefaultHeaders: Boolean
 )
 
 object RequestBuilder {
@@ -138,6 +140,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    * @param newHeaders a scala map containing the headers to add
    */
   def headers(newHeaders: Map[_ <: CharSequence, String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.mapValues(_.el[String])))
+
+  def ignoreDefaultHeaders: B = newInstance(modify(commonAttributes)(_.ignoreDefaultHeaders).setTo(true))
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values

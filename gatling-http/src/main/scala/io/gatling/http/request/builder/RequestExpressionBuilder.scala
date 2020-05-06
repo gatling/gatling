@@ -57,7 +57,12 @@ abstract class RequestExpressionBuilder(
   import RequestExpressionBuilder._
 
   protected val charset: Charset = configuration.core.charset
-  protected val headers: Map[CharSequence, Expression[String]] = httpProtocol.requestPart.headers ++ commonAttributes.headers
+  protected val headers: Map[CharSequence, Expression[String]] =
+    if (commonAttributes.ignoreDefaultHeaders) {
+      commonAttributes.headers
+    } else {
+      httpProtocol.requestPart.headers ++ commonAttributes.headers
+    }
   private val refererHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.REFERER))
   protected val contentTypeHeaderIsUndefined: Boolean = !headers.keys.exists(AsciiString.contentEqualsIgnoreCase(_, HttpHeaderNames.CONTENT_TYPE))
   private val fixUrlEncoding: Boolean = !commonAttributes.disableUrlEncoding.getOrElse(httpProtocol.requestPart.disableUrlEncoding)
