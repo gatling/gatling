@@ -75,7 +75,10 @@ if there are 2n ``$`` before ``${`` -- an odd number totally -- there will be n 
 Expression
 ==========
 
-Most Gatling DSL methods actually takes ``Expression[T]`` parameters, which is a type alias for ``Session => Validation[T]``.
+Most Gatling DSL methods actually take ``Expression[T]`` parameters, which is a type alias for ``Session => Validation[T]``.
+This way, one can pass functions to generate parameters, possibly based on the Session's content.
+
+.. includecode:: code/ExpressionSample.scala#inline-expression
 
 How is it that one can also pass Strings and other values then?
 
