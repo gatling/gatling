@@ -35,7 +35,7 @@ public class StringWithCachedBytes {
       default:
         CompositeByteBuf comp = new CompositeByteBuf(ByteBufAllocator.DEFAULT, false, chunks.size());
         for (StringWithCachedBytes chunk : chunks) {
-          comp.addComponent(Unpooled.wrappedBuffer(chunk.bytes));
+          comp.addComponent(true, Unpooled.wrappedBuffer(chunk.bytes));
         }
         return comp;
     }
