@@ -4,7 +4,7 @@ jdk:
 sbt_args: -Xmx2048M
 before_script: ./make_credentials.sh
 script: 
-  - sbt test
+  - sbt ci-checks
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
   - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publishLocal || true"
