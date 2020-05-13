@@ -108,4 +108,11 @@ lazy val bundle = gatlingModule("gatling-bundle")
   .settings(exportJars := false, noArtifactToPublish)
   .settings(CodeAnalysis.disable)
 
-ThisBuild / scalafixDependencies += "com.nequissimus" %% "sort-imports" % "0.5.0"
+addCommandAlias(
+  "ci-checks",
+  List(
+    "all clean scalafmtSbtCheck scalafmtCheckAll",
+    "all compile:scalafixCheck test:scalafixCheck",
+    "test"
+  ).mkString(";", ";", "")
+)
