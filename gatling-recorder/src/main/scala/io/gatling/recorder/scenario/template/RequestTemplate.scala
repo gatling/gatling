@@ -112,8 +112,8 @@ private[scenario] object RequestTemplate {
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""
   }
 
-  def sanitizeRequestPostfix(name: String): String = {
-    s"""${name.replaceAll("[^-._=:/?&A-Za-z0-9]", "_")}"""
+  def sanitizeRequestPostfix(postfix: String): String = {
+    postfix.replaceAll("[^-._=:/?&A-Za-z0-9]", "_")
   }
 
   def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): String =

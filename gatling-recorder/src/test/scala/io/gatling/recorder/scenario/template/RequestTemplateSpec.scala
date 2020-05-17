@@ -19,8 +19,8 @@ package io.gatling.recorder.scenario.template
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
-import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
 import io.gatling.recorder.config.ConfigKeys.http.UseMethodAndUriAsPostfix
+import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ RequestBodyParams, RequestElement }
