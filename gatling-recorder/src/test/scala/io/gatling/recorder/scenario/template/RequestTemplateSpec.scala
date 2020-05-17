@@ -73,7 +73,7 @@ class RequestTemplateSpec extends BaseSpec {
     val mockedRequest1 = mockRequestElement("name", "short")
     implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseMethodAndUriAsPostfix -> true))
     val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
-    res1 should include (s"request_0:post_http://gatling.io/path1/file1")
+    res1 should include(s"request_0:post_http://gatling.io/path1/file1")
   }
 
   it should "escape bad characters in request postfix" in {
