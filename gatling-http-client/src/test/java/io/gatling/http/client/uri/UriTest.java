@@ -343,25 +343,25 @@ class UriTest {
   @Test
   void testGetPathWhenPathIsNonEmpty() {
     Uri uri = Uri.create("http://stackoverflow.com:8443/questions/17814461/jacoco-maven-testng-0-test-coverage");
-    assertEquals(uri.getNonEmptyPath(), "/questions/17814461/jacoco-maven-testng-0-test-coverage", "Incorrect path returned from getNonEmptyPath");
+    assertEquals("/questions/17814461/jacoco-maven-testng-0-test-coverage", uri.getNonEmptyPath(), "Incorrect path returned from getNonEmptyPath");
   }
 
   @Test
   void testGetPathWhenPathIsEmpty() {
     Uri uri = Uri.create("http://stackoverflow.com");
-    assertEquals(uri.getNonEmptyPath(), "/", "getNonEmptyPath should return / for host root");
+    assertEquals("/", uri.getNonEmptyPath(), "getNonEmptyPath should return / for host root");
   }
 
   @Test
   void removeDoubleTrailingSlashes() {
     Uri uri = Uri.create("https://gatling.io//");
-    assertEquals(uri.getNonEmptyPath(), "/", "getNonEmptyPath should normalize double trailing slashes");
+    assertEquals("/", uri.getNonEmptyPath(), "getNonEmptyPath should normalize double trailing slashes");
   }
 
   @Test
   void removeMultipleConsecutiveSlashes() {
     Uri uri = Uri.create("https://gatling.io//foo///bar//");
-    assertEquals(uri.getNonEmptyPath(), "/foo/bar/", "getNonEmptyPath should normalize consecutive slashes anywhere in the path");
+    assertEquals("/foo/bar/", uri.getNonEmptyPath(), "getNonEmptyPath should normalize consecutive slashes anywhere in the path");
   }
 
   @Test
