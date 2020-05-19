@@ -363,4 +363,17 @@ class UriTest {
     Uri uri = Uri.create("https://gatling.io//foo///bar//");
     assertEquals(uri.getNonEmptyPath(), "/foo/bar/", "getNonEmptyPath should normalize consecutive slashes anywhere in the path");
   }
+
+  @Test
+  void generateValidIPv6Url() {
+    String url = "http://[0:0:0:0:0:0:0:1]:61584";
+    assertEquals(url, Uri.create(url).toUrl());
+  }
+
+  @Test
+  void generateValidIPv6UrlFromContext() {
+    String url = "http://[0:0:0:0:0:0:0:1]:61584";
+    Uri context = Uri.create(url);
+    assertEquals(url + "/foo", Uri.create(context, "/foo").toUrl());
+  }
 }
