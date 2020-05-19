@@ -37,14 +37,14 @@ import static io.gatling.http.client.util.MiscUtils.isNonEmpty;
 
 final class UriParser {
 
-  public String scheme;
-  public String host;
-  public int port = -1;
-  public String query;
-  public String fragment;
+  String scheme;
+  String host;
+  int port = -1;
+  String query;
+  String fragment;
   private String authority;
-  public String path;
-  public String userInfo;
+  String path;
+  String userInfo;
 
   private String originalUrl;
   private int start, end, currentIndex = 0;
@@ -204,7 +204,6 @@ final class UriParser {
   private void computeIPV6() {
     int positionAfterClosingSquareBrace = host.indexOf(']') + 1;
     if (positionAfterClosingSquareBrace > 1) {
-
       port = -1;
 
       if (host.length() > positionAfterClosingSquareBrace) {
