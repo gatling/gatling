@@ -34,7 +34,7 @@ private[charts] object ChartsFiles {
   val GlobalPageName: String = "Global Information"
 
   val CommonJsFiles = Seq(
-    "jquery-3.4.1.min.js",
+    "jquery-3.5.1.min.js",
     "bootstrap.min.js",
     "gatling.js",
     "moment-2.24.0.min.js",
