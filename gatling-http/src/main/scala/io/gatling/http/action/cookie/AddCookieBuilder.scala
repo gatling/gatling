@@ -55,11 +55,11 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
     val expression: Expression[Session] = session =>
       for {
-        name <- name(session)
-        value <- value(session)
+        resolvedName <- name(session)
+        resoledValue <- value(session)
         resolvedRequestDomain <- requestDomain(session)
       } yield {
-        val cookie = new DefaultCookie(name, value)
+        val cookie = new DefaultCookie(resolvedName, resoledValue)
         domain.foreach(cookie.setDomain)
         path.foreach(cookie.setPath)
         cookie.setSecure(secure)
