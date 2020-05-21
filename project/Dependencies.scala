@@ -55,7 +55,7 @@ object Dependencies {
   private val logback                        = "ch.qos.logback"                       % "logback-classic"                 % "1.2.3"
   private val tdigest                        = "com.tdunning"                         % "t-digest"                        % "3.1"
   private val hdrHistogram                   = "org.hdrhistogram"                     % "HdrHistogram"                    % "2.1.12"
-  private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.8.3"
+  private val caffeine                       = "com.github.ben-manes.caffeine"        % "caffeine"                        % "2.8.4"
   private val bouncyCastle                   = "org.bouncycastle"                     % "bcpkix-jdk15on"                  % "1.65"
   private val quicklens                      = "com.softwaremill.quicklens"          %% "quicklens"                       % "1.5.0"
   private val fastUuid                       = "com.eatthepath"                       % "fast-uuid"                       % "0.1"
