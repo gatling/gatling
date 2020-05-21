@@ -16,21 +16,41 @@
 
 package io.gatling.charts.util
 
-import java.util.ResourceBundle
+import java.{ lang => jl }
 
-import scala.collection.JavaConverters._
+import scala.io.{ Codec, Source }
+
+import io.gatling.commons.util.Io
+import io.gatling.commons.util.Spire._
 
 object HtmlHelper {
 
-  private val entities = ResourceBundle.getBundle("html-entities")
-
-  private val charToHtmlEntities: Map[Char, String] = entities.getKeys.asScala.map { entityName =>
-    (entities.getString(entityName).toInt.toChar, s"&$entityName;")
-  }.toMap
+  private val charToHtml: Map[Char, String] =
+    Io.withSource(Source.fromResource("html-entities.properties")(Codec.UTF8)) { source =>
+      source
+        .getLines()
+        .collect {
+          case line if !line.startsWith("#") && !line.isEmpty =>
+            val Array(entityName, code) = line.split("=", 2)
+            val entity = s"&$entityName;"
+            val char = code.toInt.toChar
+            char -> entity
+        }
+        .toMap
+    }
 
   implicit class HtmlRichString(val string: String) extends AnyVal {
 
-    def htmlEscape: String =
-      string.map(char => charToHtmlEntities.getOrElse(char, char.toString)).mkString
+    def htmlEscape: String = {
+      val sb = new jl.StringBuilder(string.length)
+      cfor(0)(_ < string.length, _ + 1) { i =>
+        val char = string.charAt(i)
+        charToHtml.get(char) match {
+          case Some(entity) => sb.append(entity)
+          case _            => sb.append(char)
+        }
+      }
+      sb.toString
+    }
   }
 }
