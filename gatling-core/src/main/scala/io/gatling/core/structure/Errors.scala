@@ -18,7 +18,8 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
+import io.gatling.core.action.ExitHere
+import io.gatling.core.action.builder.{ ExitHereBuilder, TryMaxBuilder }
 import io.gatling.core.session._
 
 private[structure] trait Errors[B] extends Execs[B] {
@@ -29,5 +30,9 @@ private[structure] trait Errors[B] extends Execs[B] {
   def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
     exec(new TryMaxBuilder(times, counterName, chain))
 
-  def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)
+  def exitHereIf(condition: Expression[Boolean]): B = exec(new ExitHereBuilder(condition))
+
+  def exitHere: B = exitHereIf(TrueExpressionSuccess)
+
+  def exitHereIfFailed: B = exitHereIf(ExitHere.ExitHereOnFailedCondition)
 }

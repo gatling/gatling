@@ -16,11 +16,12 @@
 
 package io.gatling.core.action.builder
 
-import io.gatling.core.action.{ Action, ExitHereIfFailed }
+import io.gatling.core.action.{ Action, ExitHere }
+import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 
-object ExitHereIfFailedBuilder extends ActionBuilder {
+class ExitHereBuilder(condition: Expression[Boolean]) extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new ExitHereIfFailed(ctx.coreComponents.exit, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+    new ExitHere(condition, ctx.coreComponents.exit, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

@@ -240,6 +240,15 @@ class ScenarioSample {
   }
   //#exitBlockOnFail
 
+  //#exitHereIf
+  exitHere
+  //#exitHereIf
+
+  //#exitHereIf
+  exitHereIf("${myBoolean}")
+  exitHereIf(session => true)
+  //#exitHereIf
+
   //#exitHereIfFailed
   exitHereIfFailed
   //#exitHereIfFailed

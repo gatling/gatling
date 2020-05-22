@@ -26,26 +26,26 @@ import io.gatling.core.stats.StatsEngine
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 
-class ExitHereIfFailedSpec extends BaseSpec {
+class ExitHereSpec extends BaseSpec {
 
   "ExitHereIfFailed" should "send the session to the next action if the session was not failed" in {
     val exit = mock[Action]
     val next = mock[Action]
     val statsEngine = mock[StatsEngine]
     val clock = mock[Clock]
-    val exitHereIfFailed = new ExitHereIfFailed(exit, statsEngine, clock, next)
+    val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
     exitHereIfFailed ! EmptySession
     verify(next) ! EmptySession
     verify(exit, never) ! any[Session]
   }
 
-  it should "end the scenario by sending the session to the user end if the session failed" in {
+  it should "trigger with higher precedence than tryMax" in {
     val exit = mock[Action]
     val next = mock[Action]
     val statsEngine = mock[StatsEngine]
     val clock = mock[Clock]
-    val exitHereIfFailed = new ExitHereIfFailed(exit, statsEngine, clock, next)
+    val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
     val sessionWithTryMax = EmptySession.enterTryMax("loop", next).markAsFailed
 
@@ -61,7 +61,7 @@ class ExitHereIfFailedSpec extends BaseSpec {
     val statsEngine = mock[StatsEngine]
     val clock = mock[Clock]
     when(clock.nowMillis).thenReturn(1)
-    val exitHereIfFailed = new ExitHereIfFailed(exit, statsEngine, clock, next)
+    val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
     val sessionWithGroup = EmptySession.enterGroup("group", 0).markAsFailed
 

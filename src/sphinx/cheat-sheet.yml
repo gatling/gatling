@@ -214,8 +214,17 @@
         - signature: "{chain}"
           description: If a check in <i>chain</i> fails, its execution is stopped and the scenario continues.
 
+      - keyword: exitHere
+        description: Exit the scenario at this point.
+
+      - keyword: exitHereIf
+        description: Exit the scenario at this point if the condition holds.
+        syntax:
+          - signature: "(condition: Expression[Boolean])"
+            description: Exit if the condition evaluates to true
+
       - keyword: exitHereIfFailed
-        description: If there were an error during execution, the scenario should stop at this point.
+        description: Exit the scenario at this point if this virtual user encountered an error during execution.
 
 - title: Simulation configuration
   description: Tune your simulation
