@@ -55,7 +55,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SseCheckSupport 
 
   def Cookie(name: Expression[String], value: Expression[String]): AddCookieDsl =
     AddCookieDsl(name, value, domain = None, path = None, maxAge = None, secure = false)
-  def CookieKey(name: String): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
+  def CookieKey(name: Expression[String]): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
 
   def ElFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     BodyPart.elFileBodyPart(None, filePath, configuration.core.charset, elFileBodies)

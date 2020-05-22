@@ -19,7 +19,7 @@ package io.gatling.http.action.cookie
 import io.gatling.core.session.Expression
 
 final case class GetCookieDsl(
-    name: String,
+    name: Expression[String],
     domain: Option[Expression[String]],
     path: Option[String],
     secure: Boolean,
