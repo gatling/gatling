@@ -25,7 +25,7 @@ import io.gatling.core.session.SessionSpec.EmptySession
 
 class ChainableActionSpec extends BaseSpec {
 
-  class ChainableTestAction(val next: Action, fail: Boolean) extends Action with ChainableAction {
+  class ChainableTestAction(val next: Action, fail: Boolean) extends ChainableAction {
     var hasRun = false
 
     override val name = "chainable"
@@ -40,7 +40,7 @@ class ChainableActionSpec extends BaseSpec {
     override def execute(session: Session): Unit = message = session
   }
 
-  class FailableTestAction(val next: Action, fail: Boolean) extends Action with ChainableAction {
+  class FailableTestAction(val next: Action, fail: Boolean) extends ChainableAction {
     var hasRun = false
 
     override val name = "test"
