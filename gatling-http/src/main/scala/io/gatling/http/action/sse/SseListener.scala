@@ -109,7 +109,11 @@ class SseListener(fsm: SseFsm, statsEngine: StatsEngine, clock: Clock) extends H
       fsm.onSseStreamClosed(clock.nowMillis)
     }
 
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = fsm.onSseReceived(sse.asJsonString, clock.nowMillis)
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = {
+    val json = sse.asJsonString
+    logger.debug(s"Received SSE event $json")
+    fsm.onSseReceived(json, clock.nowMillis)
+  }
 }
 
 private sealed trait SseState
