@@ -67,14 +67,14 @@ final case class SsePerformingCheckState(
 
   override def onSseStreamClosed(timestamp: Long): NextSseState = {
     // unexpected close, fail check
-    logger.debug("WebSocket remotely closed while waiting for checks")
+    logger.debug("SSE remotely closed while waiting for checks")
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, None, "Socket closed")
   }
 
   override def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
     // crash, fail check
-    logger.debug("WebSocket crashed while waiting for checks")
+    logger.debug("SSE crashed while waiting for checks")
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, None, t.getMessage)
   }
@@ -186,18 +186,18 @@ final case class SsePerformingCheckState(
       code: Option[String],
       errorMessage: String
   ): NextSseState = {
-    val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
+    val fullMessage = s"SSE crashed while waiting for check: $errorMessage"
 
     val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))
     val nextAction = next match {
       case Left(n) =>
         // failed to connect
-        logger.debug("WebSocket crashed, performing next action")
+        logger.debug("SSE crashed, performing next action")
         n
 
       case Right(sendTextMessage) =>
         // failed to reconnect, logging crash
-        logger.debug("WebSocket crashed while trying to reconnect, failing pending send message and performing next action")
+        logger.debug("SSE crashed while trying to reconnect, failing pending send message and performing next action")
         statsEngine.logCrash(newSession, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
         sendTextMessage.next
     }
