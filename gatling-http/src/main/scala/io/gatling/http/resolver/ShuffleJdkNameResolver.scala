@@ -18,8 +18,8 @@ package io.gatling.http.resolver
 
 import java.{ util => ju }
 import java.net.{ InetAddress, UnknownHostException }
-import java.util.concurrent.ThreadLocalRandom
 
+import io.gatling.commons.util.Arrays
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
 
@@ -33,12 +33,9 @@ private[http] class ShuffleJdkNameResolver extends InetAddressNameResolver {
 
   protected def resolveAll0(inetHost: String, promise: Promise[ju.List[InetAddress]]): Unit =
     try {
-      val addresses = InetAddress.getAllByName(inetHost) match {
+      val addresses: ju.List[InetAddress] = InetAddress.getAllByName(inetHost) match {
         case Array(single) => ju.Collections.singletonList(single)
-        case array =>
-          val list = ju.Arrays.asList(array: _*)
-          ju.Collections.shuffle(list, ThreadLocalRandom.current)
-          list
+        case array         => ju.Arrays.asList(Arrays.shuffle(array): _*)
       }
       promise.setSuccess(addresses)
     } catch {
