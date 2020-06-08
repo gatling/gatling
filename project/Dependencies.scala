@@ -35,7 +35,7 @@ object Dependencies {
     .exclude("org.simpleflatmapper", "ow2-asm")
   private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "5.1.4"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.0"
-  private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.1"
+  private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.30"
   private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.4.0-M5")
     .exclude("org.scala-lang.modules", "scala-parser-combinators_2.12")
