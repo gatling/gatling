@@ -33,7 +33,10 @@ class UserCounters(val totalUserCount: Option[Long]) {
   def doneCount: Long = _doneCount
 
   def userStart(): Unit = _activeCount += 1
-  def userDone(): Unit = { _activeCount -= 1; _doneCount += 1 }
+  def userDone(): Unit = {
+    _activeCount -= 1
+    _doneCount += 1
+  }
   def waitingCount: Long = totalUserCount.map(c => math.max(c - _activeCount - _doneCount, 0)).getOrElse(0L)
 }
 

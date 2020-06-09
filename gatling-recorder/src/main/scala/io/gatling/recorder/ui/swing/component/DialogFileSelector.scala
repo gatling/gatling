@@ -39,7 +39,11 @@ private[swing] class DialogFileSelector(configurationFrame: ConfigurationFrame, 
   val radioButtons = possibleFiles.map(new RadioButton(_))
   val radiosGroup = new ButtonGroup(radioButtons: _*)
   val cancelButton = Button("Cancel")(close())
-  val okButton = Button("OK") { radiosGroup.selected.foreach(button => selectedFile = Some(button.text)); close() }
+  val okButton =
+    Button("OK") {
+      radiosGroup.selected.foreach(button => selectedFile = Some(button.text))
+      close()
+    }
   val defaultBackground = background
 
   contents = new BorderPanel {

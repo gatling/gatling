@@ -45,7 +45,11 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   /* Top panel components */
   private val tagField = new TextField(15)
   private val tagButton = Button("Add")(addTag())
-  private val clearButton = Button("Clear") { clearState(); frontend.clearRecorderState() }
+  private val clearButton =
+    Button("Clear") {
+      clearState()
+      frontend.clearRecorderState()
+    }
   private val cancelButton = Button("Cancel")(frontend.stopRecording(save = false))
   private val stopButton = Button("Stop & Save")(frontend.stopRecording(save = true))
 

@@ -84,8 +84,11 @@ $mapContent)"""
                       case TagElement(_) => ""
                       case _ =>
                         if (firstNonTagElement) {
-                          firstNonTagElement = false; ""
-                        } else "."
+                          firstNonTagElement = false
+                          ""
+                        } else {
+                          "."
+                        }
                     }
                     s"$prefix${renderScenarioElement(element, extractedUris)}"
                   }
@@ -140,6 +143,6 @@ ${ValuesTemplate.render(nonBaseUrls)}
 	${renderScenario(extractedUris)}
 
 	setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
-}""".toString()
+}"""
   }
 }

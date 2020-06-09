@@ -45,7 +45,11 @@ private[swing] class DisplayedSelectionFileChooser(
 ) extends BoxPanel(Orientation.Horizontal) {
 
   val selectionDisplay = new TextField(textFieldLength)
-  private val fileChooser = new FileChooser { fileSelectionMode = selectionMode; fileFilter = fileFilter }
+  private val fileChooser =
+    new FileChooser {
+      fileSelectionMode = selectionMode
+      fileFilter = fileFilter
+    }
   private val openChooserButton = Button(buttonText)(fileChooserSelection().foreach(setAndPublish))
 
   def selection = selectionDisplay.text
