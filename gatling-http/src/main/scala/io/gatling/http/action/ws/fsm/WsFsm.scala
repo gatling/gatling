@@ -35,14 +35,13 @@ import io.netty.handler.codec.http.cookie.Cookie
 class WsFsm(
     private[fsm] val wsName: String,
     private[fsm] val connectRequest: Request,
-    private[fsm] val subprotocol: Option[String],
     private[fsm] val connectActionName: String,
     private[fsm] val connectCheckSequence: List[WsFrameCheckSequence[WsFrameCheck]],
     private[fsm] val onConnected: Option[Action],
     private[fsm] val statsEngine: StatsEngine,
     private[fsm] val httpEngine: HttpEngine,
     private[fsm] val httpProtocol: HttpProtocol,
-    private[fsm] val eventLoop: EventLoop,
+    eventLoop: EventLoop,
     private[fsm] val clock: Clock
 ) {
 
