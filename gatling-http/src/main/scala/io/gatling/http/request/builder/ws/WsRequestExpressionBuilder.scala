@@ -43,6 +43,6 @@ class WsRequestExpressionBuilder(
     HttpHelper.isAbsoluteWsUrl(url)
 
   override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
-    // pass sbuprotocol
+    // pass subprotocol
     super.configureRequestBuilder(session, requestBuilder.setWsSubprotocol(subprotocol.orNull))
 }

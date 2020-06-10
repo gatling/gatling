@@ -44,7 +44,7 @@ public class RequestBuilder {
 
   private static final AsciiString ACCEPT_ALL_HEADER_VALUE = new AsciiString("*/*");
 
-  private static InetAddressNameResolver DEFAULT_NAME_RESOLVER = InetAddressNameResolver.DEFAULT;
+  private final static InetAddressNameResolver DEFAULT_NAME_RESOLVER = InetAddressNameResolver.DEFAULT;
 
   private final HttpMethod method;
   private final Uri uri;
