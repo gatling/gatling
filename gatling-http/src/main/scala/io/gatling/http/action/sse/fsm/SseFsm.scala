@@ -24,6 +24,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
+import io.gatling.http.cache.SslContextSupport
 import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.engine.HttpEngine
@@ -31,18 +32,55 @@ import io.gatling.http.protocol.HttpProtocol
 
 import io.netty.channel.EventLoop
 
+object SseFsm {
+
+  def apply(
+      session: Session,
+      sseName: String,
+      connectActionName: String,
+      connectRequest: Request,
+      connectCheckSequence: List[SseMessageCheckSequence],
+      statsEngine: StatsEngine,
+      httpEngine: HttpEngine,
+      httpProtocol: HttpProtocol,
+      clock: Clock
+  ): SseFsm = {
+    val stream = new SseStream(
+      session,
+      connectRequest,
+      connectActionName,
+      SslContextSupport.sslContexts(session),
+      httpProtocol.enginePart.shareConnections,
+      httpEngine: HttpEngine,
+      statsEngine: StatsEngine,
+      clock: Clock
+    )
+
+    val fsm = new SseFsm(
+      sseName,
+      connectActionName,
+      connectCheckSequence,
+      statsEngine,
+      session.eventLoop,
+      clock,
+      stream
+    )
+
+    stream.fsm = fsm
+    fsm
+  }
+}
+
 class SseFsm(
-    private[fsm] val wsName: String,
-    private[fsm] val connectRequest: Request,
+    private[fsm] val sseName: String,
     private[fsm] val connectActionName: String,
     private[fsm] val connectCheckSequence: List[SseMessageCheckSequence],
     private[fsm] val statsEngine: StatsEngine,
-    private[fsm] val httpEngine: HttpEngine,
-    private[fsm] val httpProtocol: HttpProtocol,
-    private[fsm] val eventLoop: EventLoop,
-    private[fsm] val clock: Clock
+    eventLoop: EventLoop,
+    private[fsm] val clock: Clock,
+    private[fsm] val stream: SseStream
 ) {
-  private var currentState: SseState = new SseInitState(this)
+  private var currentState: SseState = _
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit =
     eventLoop.schedule(new Runnable {
@@ -65,22 +103,25 @@ class SseFsm(
   }
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): Unit =
-    execute(currentState.onPerformInitialConnect(session, initialConnectNext))
+    execute(SseConnectingState.gotoConnecting(this, session, initialConnectNext))
 
-  def onSseStreamConnected(stream: SseStream, timestamp: Long): Unit =
-    execute(currentState.onSseStreamConnected(stream, timestamp))
+  def onSseStreamConnected(): Unit =
+    execute(currentState.onSseStreamConnected(clock.nowMillis))
 
   def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): Unit =
     execute(currentState.onSetCheck(actionName, checkSequences, session: Session, next))
 
-  def onSseReceived(message: String, timestamp: Long): Unit =
-    execute(currentState.onSseReceived(message, timestamp))
+  def onSseReceived(message: String): Unit =
+    execute(currentState.onSseReceived(message, clock.nowMillis))
 
-  def onSseStreamClosed(timestamp: Long): Unit =
-    execute(currentState.onSseStreamClosed(timestamp))
+  def onSseEndOfStream(): Unit =
+    execute(currentState.onSseStreamClosed(clock.nowMillis))
 
-  def onSseStreamCrashed(t: Throwable, timestamp: Long): Unit =
-    execute(currentState.onSseStreamCrashed(t, timestamp))
+  def onSseStreamClosed(): Unit =
+    execute(currentState.onSseStreamClosed(clock.nowMillis))
+
+  def onSseStreamCrashed(t: Throwable): Unit =
+    execute(currentState.onSseStreamCrashed(t, clock.nowMillis))
 
   def onClientCloseRequest(actionName: String, session: Session, next: Action): Unit =
     execute(currentState.onClientCloseRequest(actionName, session, next))

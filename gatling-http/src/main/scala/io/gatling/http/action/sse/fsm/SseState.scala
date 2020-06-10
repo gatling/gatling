@@ -32,23 +32,24 @@ abstract class SseState(fsm: SseFsm) {
 
   import fsm._
 
-  def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSseStreamConnected(stream: SseStream, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+  def onSseStreamConnected(timestamp: Long): NextSseState =
+    throw new IllegalStateException(s"Can't call onSseStreamConnected in ${getClass.getSimpleName} state")
   def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSetCheck in ${getClass.getSimpleName} state")
   def onSseReceived(message: String, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onSseStreamClosed(timestamp: Long): NextSseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseReceived in ${getClass.getSimpleName} state")
+  def onSseEndOfStream(timestamp: Long): NextSseState =
+    throw new IllegalStateException(s"Can't call onSseEndOfStream in ${getClass.getSimpleName} state")
+  def onSseStreamClosed(timestamp: Long): NextSseState =
+    throw new IllegalStateException(s"Can't call onSseStreamClosed in ${getClass.getSimpleName} state")
   def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseStreamCrashed in ${getClass.getSimpleName} state")
   def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
-  def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onClientCloseRequest in ${getClass.getSimpleName} state")
+  def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onTimeout in ${getClass.getSimpleName} state")
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
-    statsEngine.logResponse(session, wsName, clock.nowMillis, Long.MinValue, OK, None, None)
+    statsEngine.logResponse(session, sseName, clock.nowMillis, Long.MinValue, OK, None, None)
 
   protected def logResponse(
       session: Session,

@@ -54,19 +54,20 @@ class SseConnect(
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val fsm = new SseFsm(
+          val fsm = SseFsm(
+            session,
             sseName,
-            request,
             requestName,
+            request,
             connectCheckSequences,
             statsEngine,
             httpComponents.httpEngine,
             httpComponents.httpProtocol,
-            session.eventLoop,
             clock
           )
 
-          fsm.onPerformInitialConnect(session, next)
+          val sessionWithFsm = session.set(sseName, fsm)
+          fsm.onPerformInitialConnect(sessionWithFsm, next)
         }
 
       case _ =>

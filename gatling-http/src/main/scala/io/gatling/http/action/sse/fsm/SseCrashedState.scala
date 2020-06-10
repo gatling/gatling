@@ -18,41 +18,23 @@ package io.gatling.http.action.sse.fsm
 
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
+import io.gatling.core.stats.StatsEngine
 import io.gatling.http.check.sse.SseMessageCheckSequence
 
 import com.typesafe.scalalogging.StrictLogging
 
-class SseCrashedState(fsm: SseFsm, errorMessage: Option[String]) extends SseState(fsm) with StrictLogging {
-
-  import fsm._
+class SseCrashedState(statsEngine: StatsEngine, errorMessage: String) extends SseState(null) with StrictLogging {
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
-    val newSession = errorMessage match {
-      case Some(mess) =>
-        val newSession = session.markAsFailed
-        statsEngine.logCrash(newSession, actionName, s"Client issued close order but SSE stream was already crashed: $mess")
-        newSession
-      case _ =>
-        logger.info("Client issued close order but SSE stream was already closed")
-        session
-    }
-
-    NextSseState(
-      new SseClosedState(fsm),
-      () => next ! newSession.remove(wsName)
-    )
+    val newSession = session.markAsFailed
+    statsEngine.logCrash(newSession, actionName, s"Client issued close order but SSE stream was already crashed: $errorMessage")
+    NextSseState(this)
   }
 
   override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
-    // FIXME sent message so be stashed until reconnect, instead of failed
-    val loggedMessage = errorMessage match {
-      case Some(mess) => s"Client issued message but SSE stream was already crashed: $mess"
-      case _          => "Client issued message but SSE stream was already closed"
-    }
-
-    logger.info(loggedMessage)
-
-    // perform blocking reconnect
-    SseConnectingState.gotoConnecting(fsm, session, Right(SetCheck(actionName, checkSequences, next)))
+    logger.info(s"Client set checks but SSE stream was already crashed: $errorMessage")
+    val newSession = session.markAsFailed
+    statsEngine.logCrash(newSession, actionName, errorMessage)
+    NextSseState(this, () => next ! newSession)
   }
 }

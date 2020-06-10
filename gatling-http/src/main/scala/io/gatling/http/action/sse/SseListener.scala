@@ -18,9 +18,6 @@ package io.gatling.http.action.sse
 
 import java.io.IOException
 
-import io.gatling.commons.util.Clock
-import io.gatling.commons.util.Throwables._
-import io.gatling.core.stats.StatsEngine
 import io.gatling.http.MissingNettyHttpHeaderValues
 import io.gatling.http.action.sse.fsm._
 import io.gatling.http.client.HttpListener
@@ -38,85 +35,56 @@ class SseInvalidContentTypeException(contentType: String) extends IOException(s"
   override def fillInStackTrace(): Throwable = this
 }
 
-class SseListener(fsm: SseFsm, statsEngine: StatsEngine, clock: Clock) extends HttpListener with SseStream with EventStreamDispatcher with StrictLogging {
+class SseListener(stream: SseStream) extends HttpListener with StrictLogging {
 
-  private var state: SseState = Connecting
   private val decoder = new SseStreamDecoder
   private var channel: Channel = _
+  private var closed = false
 
   override def onWrite(channel: Channel): Unit =
     this.channel = channel
 
-  override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit = {
-
-    val contentType = headers.get(HttpHeaderNames.CONTENT_TYPE)
-    logger.debug(s"Status ${status.code} Content-Type $contentType received for SSE")
-
-    if (status != HttpResponseStatus.OK) {
-      val ex = new SseInvalidStatusException(status.code)
-      onThrowable(ex)
-      throw ex
-    } else if (contentType != null && contentType.startsWith(MissingNettyHttpHeaderValues.TextEventStream.toString)) {
-      state = Connected
-      fsm.onSseStreamConnected(this, clock.nowMillis)
-    } else {
-      val ex = new SseInvalidContentTypeException(contentType)
-      onThrowable(ex)
-      throw ex
+  def closeChannel(): Unit =
+    if (channel != null) {
+      closed = true
+      channel.close()
+      channel == null
     }
-  }
+
+  override def onHttpResponse(status: HttpResponseStatus, headers: HttpHeaders): Unit =
+    if (!closed) {
+      val contentType = headers.get(HttpHeaderNames.CONTENT_TYPE)
+      logger.debug(s"Status ${status.code} Content-Type $contentType received for SSE")
+
+      status match {
+        case HttpResponseStatus.OK =>
+          if (contentType != null && contentType.startsWith(MissingNettyHttpHeaderValues.TextEventStream.toString)) {
+            stream.connected()
+
+          } else {
+            onThrowable(new SseInvalidContentTypeException(contentType))
+          }
+
+        case HttpResponseStatus.NO_CONTENT =>
+          stream.endOfStream()
+          closeChannel()
+
+        case _ => onThrowable(new SseInvalidStatusException(status.code))
+      }
+    }
 
   override def onHttpResponseBodyChunk(chunk: ByteBuf, last: Boolean): Unit =
-    if (state != Closed) {
+    if (!closed) {
       val events = decoder.decodeStream(chunk)
-      events.foreach(dispatchEventStream)
+      events.foreach(stream.eventReceived)
       if (last) {
-        close()
+        stream.closedByServer()
       }
     }
 
   override def onThrowable(throwable: Throwable): Unit =
-    if (state != Closed) {
-      close()
-      sendOnThrowable(throwable)
+    if (!closed) {
+      closeChannel()
+      stream.crash(throwable)
     }
-
-  def sendOnThrowable(throwable: Throwable): Unit = {
-    val errorMessage = throwable.rootMessage
-
-    if (logger.underlying.isDebugEnabled) {
-      logger.debug("Request failed", throwable)
-    } else {
-      logger.info(s"Request failed: $errorMessage")
-    }
-
-    state match {
-      case Connecting | Connected =>
-        fsm.onSseStreamCrashed(throwable, clock.nowMillis)
-
-      case Closed =>
-        logger.error(s"unexpected state closed with error message: $errorMessage")
-    }
-  }
-
-  override def close(): Unit =
-    if (state != Closed) {
-      state = Closed
-      if (channel != null) {
-        channel.close()
-        channel = null
-      }
-      fsm.onSseStreamClosed(clock.nowMillis)
-    }
-
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = {
-    val json = sse.asJsonString
-    logger.debug(s"Received SSE event $json")
-    fsm.onSseReceived(json, clock.nowMillis)
-  }
 }
-
-private sealed trait SseState
-private case object Connecting extends SseState
-private case object Connected extends SseState
-private case object Closed extends SseState
