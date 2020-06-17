@@ -309,7 +309,7 @@ public class DefaultHttpClient implements HttpClient {
 
   boolean canRetry(HttpTx tx, Channel channel) {
     return ChannelPool.isReused(channel) // only retry polled keep-alive connections = when keep-alive timeout triggered server side while we were writing
-      && !(tx.request.getBody() instanceof InputStreamRequestBody) // InputStreamRequestBody can't be replayed
+      && !(tx.request.getBody() instanceof InputStreamRequestBody && ((InputStreamRequestBody) tx.request.getBody()).isConsumed()) // InputStreamRequestBody can't be replayed
       && tx.channelState == HttpTx.ChannelState.POOLED;
   }
 

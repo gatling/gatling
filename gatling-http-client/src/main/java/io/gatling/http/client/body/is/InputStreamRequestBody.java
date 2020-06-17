@@ -22,19 +22,33 @@ import io.gatling.http.client.body.WritableContent;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.stream.ChunkedStream;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public final class InputStreamRequestBody extends RequestBody<InputStream> {
 
+  private static class ConsumableInputStream extends InputStream {
+    private final InputStream is;
+
+    ConsumableInputStream(InputStream is)  {
+      this.is = is;
+    }
+
+    boolean consumed = false;
+
+    public int read() throws IOException {
+      consumed = true;
+      return is.read();
+    }
+  }
+
   public InputStreamRequestBody(InputStream stream, String contentType) {
-    super(stream, contentType);
+    super(new ConsumableInputStream(stream), contentType);
   }
 
   @Override
   public WritableContent build(ByteBufAllocator alloc) {
-
     ChunkedStream chunkedStream = new ChunkedStream(content);
-
     return new WritableContent(chunkedStream, -1);
   }
 
@@ -46,6 +60,10 @@ public final class InputStreamRequestBody extends RequestBody<InputStream> {
   @Override
   public byte[] getBytes() {
     throw new UnsupportedOperationException("Can't read InputStream bytes without consuming it");
+  }
+
+  public boolean isConsumed() {
+    return ((ConsumableInputStream) content).consumed;
   }
 
   @Override
