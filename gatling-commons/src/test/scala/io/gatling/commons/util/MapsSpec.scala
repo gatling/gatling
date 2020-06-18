@@ -37,53 +37,23 @@ class MapsSpec extends BaseSpec {
     computed shouldBe result
   }
 
-  "seqMerger copy" should "return the sequence that is copied" in {
-    val sequence, result = Seq(1, 2, 3, 4, 5)
-    val computed = seqMerger[Int].copy(sequence)
-    computed shouldBe result
-  }
-
-  "seqMerger merge" should "concatenate the sequence with the one we merge" in {
-    val sequence1 = Seq(1, 2, 3, 4, 5, 6)
-    val sequence2 = Seq(1, 8, 9)
-    val result = Seq(1, 2, 3, 4, 5, 6, 1, 8, 9)
-    val computed = seqMerger[Int].merge(sequence1, sequence2)
-    computed shouldBe result
-  }
-
-  "mapMerge merge" should "concatenate map when there is no duplicate key with long values" in {
-    val mapTest1 = Map(Seq(12, 12) -> 1L, Seq(12, 1) -> 2L, Seq(12, 3) -> 3L)
-    val mapTest2 = Map(Seq(3, 9) -> 4L, Seq(23) -> 5L)
-    val mapResult = Map(Seq(12, 12) -> 1L, Seq(12, 1) -> 2L, Seq(12, 3) -> 3L, Seq(3, 9) -> 4L, Seq(23) -> 5L)
-    val mapComputed = mapMerger[Seq[Int], Long].merge(mapTest1, mapTest2)
+  "mapMerge merge" should "concatenate map when there is no key in common" in {
+    val mapTest1 = Map("a" -> 1L, "b" -> 2L, "c" -> 3L)
+    val mapTest2 = Map("d" -> 4L, "e" -> 5L)
+    val mapResult = Map("a" -> 1L, "b" -> 2L, "c" -> 3L, "d" -> 4L, "e" -> 5L)
+    val mapComputed = mapMerger[String, Long].merge(mapTest1, mapTest2)
     mapComputed shouldBe mapResult
   }
 
-  it should "concatenate map when there is no duplicate key with Seq values" in {
-    val mapTest1 = Map(Seq("one", "two") -> Seq(1, 2), Seq("three", "four") -> Seq(8))
-    val mapTest2 = Map(Seq("five") -> Seq(3))
-    val mapResult = Map(Seq("one", "two") -> Seq(1, 2), Seq("three", "four") -> Seq(8), Seq("five") -> Seq(3))
+  it should "add long values when there are keys in common" in {
+    val mapTest1 = Map("a" -> 10L, "b" -> 2L, "c" -> 6L)
+    val mapTest2 = Map("a" -> 4L, "b" -> 8L, "d" -> 90L)
+    val mapResult = Map("a" -> 14L, "b" -> 10L, "c" -> 6L, "d" -> 90L)
     val mapComputed = mapTest1.mergeWith(mapTest2)
     mapComputed shouldBe mapResult
   }
 
-  it should "add long values when there are duplicate keys" in {
-    val mapTest1 = Map("one" -> 10L, "two" -> 2L, "three" -> 6L)
-    val mapTest2 = Map("one" -> 4L, "two" -> 8L, "four" -> 90L)
-    val mapResult = Map("one" -> 14L, "two" -> 10L, "three" -> 6L, "four" -> 90L)
-    val mapComputed = mapTest1.mergeWith(mapTest2)
-    mapComputed shouldBe mapResult
-  }
-
-  it should "concatenate sequence values when there are duplicate keys" in {
-    val mapTest1 = Map("one" -> Seq(1, 2, 3), "two" -> Seq(8), "three" -> Seq(4, 7))
-    val mapTest2 = Map("one" -> Seq(1, 2, 3), "two" -> Seq(10, 11), "four" -> Seq(8))
-    val mapResult = Map("one" -> Seq(1, 2, 3, 1, 2, 3), "two" -> Seq(8, 10, 11), "three" -> Seq(4, 7), "four" -> Seq(8))
-    val mapComputed = mapTest1.mergeWith(mapTest2)
-    mapComputed shouldBe mapResult
-  }
-
-  "mergeWith" should "concatenate map when there is no duplicate key with long values" in {
+  "mergeWith" should "concatenate map when there is no key in common" in {
     val mapTest1 = Map(Seq(1, 2) -> 1L, Seq(3, 4) -> 2L, Seq(5, 6) -> 3L)
     val mapTest2 = Map(Seq(7, 8) -> 4L, Seq(10) -> 5L)
     val mapResult = Map(Seq(1, 2) -> 1L, Seq(3, 4) -> 2L, Seq(5, 6) -> 3L, Seq(7, 8) -> 4L, Seq(10) -> 5L)
@@ -91,26 +61,10 @@ class MapsSpec extends BaseSpec {
     mapComputed shouldBe mapResult
   }
 
-  it should "concatenate map when there is no duplicate key with Seq values" in {
-    val mapTest1 = Map(Seq("one", "two") -> Seq(1, 2), Seq("three", "four") -> Seq(8))
-    val mapTest2 = Map(Seq("five") -> Seq(3))
-    val mapResult = Map(Seq("one", "two") -> Seq(1, 2), Seq("three", "four") -> Seq(8), Seq("five") -> Seq(3))
-    val mapComputed = mapTest1.mergeWith(mapTest2)
-    mapComputed shouldBe mapResult
-  }
-
-  it should "add long values when there are duplicate keys" in {
+  it should "add long values when there are keys in common" in {
     val mapTest1 = Map("one" -> 1L, "two" -> 2L, "three" -> 3L)
     val mapTest2 = Map("one" -> 4L, "two" -> 5L, "four" -> 8L)
     val mapResult = Map("one" -> 5L, "two" -> 7L, "three" -> 3L, "four" -> 8L)
-    val mapComputed = mapTest1.mergeWith(mapTest2)
-    mapComputed shouldBe mapResult
-  }
-
-  it should "concatenate sequence values when there are duplicate keys" in {
-    val mapTest1 = Map("one" -> Seq(1, 2, 3), "two" -> Seq(8), "three" -> Seq(4, 7))
-    val mapTest2 = Map("one" -> Seq(1, 2, 3), "two" -> Seq(10, 11), "four" -> Seq(8))
-    val mapResult = Map("one" -> Seq(1, 2, 3, 1, 2, 3), "two" -> Seq(8, 10, 11), "three" -> Seq(4, 7), "four" -> Seq(8))
     val mapComputed = mapTest1.mergeWith(mapTest2)
     mapComputed shouldBe mapResult
   }
