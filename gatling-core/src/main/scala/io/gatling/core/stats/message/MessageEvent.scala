@@ -22,8 +22,9 @@ object MessageEvent {
     case End.name   => End
     case _          => throw new IllegalArgumentException(s"Illegal MessageEvent value $name")
   }
+
+  case object Start extends MessageEvent("START")
+  case object End extends MessageEvent("END")
 }
 
 sealed abstract class MessageEvent(val name: String)
-case object Start extends MessageEvent("START")
-case object End extends MessageEvent("END")

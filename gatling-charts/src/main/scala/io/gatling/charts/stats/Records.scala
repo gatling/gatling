@@ -32,7 +32,7 @@ private object UserRecordParser {
     val userId = strings(2)
     val event = MessageEvent(strings(3))
     val start = strings(4).toLong
-    val end = strings(5).toLong
+    val end = if (event == MessageEvent.End) strings(5).toLong else 0
 
     UserRecord(scenario, userId, event, start, end)
   }

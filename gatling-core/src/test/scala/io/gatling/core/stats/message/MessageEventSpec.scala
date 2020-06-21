@@ -23,11 +23,11 @@ import org.scalacheck.Gen.alphaStr
 class MessageEventSpec extends BaseSpec {
 
   "MessageEvent.apply" should "return Start when passing 'START'" in {
-    MessageEvent("START") shouldBe Start
+    MessageEvent("START") shouldBe MessageEvent.Start
   }
 
   it should "return End when passing 'END'" in {
-    MessageEvent("END") shouldBe End
+    MessageEvent("END") shouldBe MessageEvent.End
   }
 
   it should "throw an IllegalArgumentException on any other string" in {

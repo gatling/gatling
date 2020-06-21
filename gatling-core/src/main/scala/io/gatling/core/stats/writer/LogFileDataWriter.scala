@@ -30,7 +30,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.StringHelper.EolBytes
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.stats.message.{ End, Start }
+import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.util.{ Integers, Longs }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -188,11 +188,9 @@ class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends Data
     writeSeparator()
     writer.writePositiveLong(session.userId)
     writeSeparator()
-    writer.writeString(Start.name)
+    writer.writeString(MessageEvent.Start.name)
     writeSeparator()
     writer.writePositiveLong(session.startDate)
-    writeSeparator()
-    writer.writePositiveLong(session.startDate) // FIXME remove?
   }
 }
 
@@ -204,7 +202,7 @@ class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWr
     writeSeparator()
     writer.writePositiveLong(session.userId)
     writeSeparator()
-    writer.writeString(End.name)
+    writer.writeString(MessageEvent.End.name)
     writeSeparator()
     writer.writePositiveLong(session.startDate)
     writeSeparator()

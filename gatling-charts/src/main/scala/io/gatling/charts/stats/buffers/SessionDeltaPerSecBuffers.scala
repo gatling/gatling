@@ -20,7 +20,7 @@ import scala.collection.mutable
 
 import io.gatling.charts.stats.{ IntVsTimePlot, UserRecord }
 import io.gatling.commons.util.Maps._
-import io.gatling.core.stats.message.{ End, Start }
+import io.gatling.core.stats.message.MessageEvent
 
 private[stats] object SessionDeltas {
   val Empty: SessionDeltas = SessionDeltas(0, 0)
@@ -91,13 +91,13 @@ private[stats] trait SessionDeltaPerSecBuffers {
 
   def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {
-      case Start =>
+      case MessageEvent.Start =>
         val startSecond = timestamp2SecondOffset(record.start)
         getSessionDeltaPerSecBuffers(None).addStart(startSecond)
         getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(startSecond)
         orphanStartRecords += record.userId -> record
 
-      case End =>
+      case MessageEvent.End =>
         val endSecond = timestamp2SecondOffset(record.end)
         getSessionDeltaPerSecBuffers(None).addEnd(endSecond)
         getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(endSecond)
