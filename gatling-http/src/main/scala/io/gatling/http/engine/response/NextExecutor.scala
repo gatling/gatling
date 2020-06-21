@@ -17,7 +17,6 @@
 package io.gatling.http.engine.response
 
 import io.gatling.commons.stats.{ KO, Status }
-import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
 import io.gatling.http.engine.tx.{ HttpTx, HttpTxExecutor, ResourceTx }
@@ -34,7 +33,6 @@ trait NextExecutor {
 
 class RootNextExecutor(
     tx: HttpTx,
-    clock: Clock,
     resourceFetcher: ResourceFetcher,
     httpTxExecutor: HttpTxExecutor
 ) extends NextExecutor

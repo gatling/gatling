@@ -206,7 +206,7 @@ class HttpTxExecutor(
         clock
       ),
       statsProcessor = statsProcessor(tx),
-      nextExecutor = new RootNextExecutor(tx, clock, resourceFetcher, this),
+      nextExecutor = new RootNextExecutor(tx, resourceFetcher, this),
       configuration.core.charset
     )
 
