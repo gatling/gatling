@@ -26,15 +26,13 @@ import com.typesafe.scalalogging.StrictLogging
 class SseCrashedState(statsEngine: StatsEngine, errorMessage: String) extends SseState(null) with StrictLogging {
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
-    val newSession = session.markAsFailed
-    statsEngine.logCrash(newSession, actionName, s"Client issued close order but SSE stream was already crashed: $errorMessage")
+    statsEngine.logCrash(session.scenario, session.groups, actionName, s"Client issued close order but SSE stream was already crashed: $errorMessage")
     NextSseState(this)
   }
 
   override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
     logger.info(s"Client set checks but SSE stream was already crashed: $errorMessage")
-    val newSession = session.markAsFailed
-    statsEngine.logCrash(newSession, actionName, errorMessage)
-    NextSseState(this, () => next ! newSession)
+    statsEngine.logCrash(session.scenario, session.groups, actionName, errorMessage)
+    NextSseState(this, () => next ! session.markAsFailed)
   }
 }

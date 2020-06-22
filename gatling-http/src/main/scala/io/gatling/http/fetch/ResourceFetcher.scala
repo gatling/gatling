@@ -153,7 +153,7 @@ private[http] class ResourceFetcher(
             httpRequest :: Nil
 
           case Failure(m) =>
-            coreComponents.statsEngine.reportUnbuildableRequest(session, requestName, m)
+            coreComponents.statsEngine.reportUnbuildableRequest(session.scenario, session.groups, requestName, m)
             Nil
         }
 

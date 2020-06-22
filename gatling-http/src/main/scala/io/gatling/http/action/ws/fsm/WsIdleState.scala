@@ -42,7 +42,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new TextWebSocketFrame(message))
-    statsEngine.logResponse(session, actionName, now, now, OK, None, None)
+    statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>
@@ -81,7 +81,7 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
     // actually send message!
     val now = clock.nowMillis
     webSocket.sendFrame(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(message)))
-    statsEngine.logResponse(session, actionName, now, now, OK, None, None)
+    statsEngine.logResponse(session.scenario, session.groups, actionName, now, now, OK, None, None)
 
     checkSequences match {
       case WsFrameCheckSequence(timeout, currentCheck :: remainingChecks) :: remainingCheckSequences =>

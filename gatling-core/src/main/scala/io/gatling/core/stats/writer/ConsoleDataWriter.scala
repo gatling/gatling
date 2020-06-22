@@ -93,9 +93,9 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     import data._
     import user._
 
-    usersCounters.get(session.scenario) match {
+    usersCounters.get(scenario) match {
       case Some(userCounters) => userCounters.userStart()
-      case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
+      case _                  => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
     }
   }
 
@@ -103,9 +103,9 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     import data._
     import user._
 
-    usersCounters.get(session.scenario) match {
+    usersCounters.get(scenario) match {
       case Some(userCounters) => userCounters.userDone()
-      case _                  => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
+      case _                  => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
     }
   }
 

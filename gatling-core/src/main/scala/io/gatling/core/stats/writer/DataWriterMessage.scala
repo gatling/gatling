@@ -21,7 +21,6 @@ import java.time.format.DateTimeFormatter
 
 import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.core.session.Session
 
 final case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
 
@@ -48,17 +47,17 @@ case object Stop extends DataWriterMessage
 sealed trait LoadEventMessage extends DataWriterMessage
 
 final case class UserStartMessage(
-    session: Session
+    scenario: String,
+    timestamp: Long
 ) extends LoadEventMessage
 
 final case class UserEndMessage(
-    session: Session,
+    scenario: String,
     timestamp: Long
 ) extends LoadEventMessage
 
 final case class ResponseMessage(
     scenario: String,
-    userId: Long,
     groupHierarchy: List[String],
     name: String,
     startTimestamp: Long,
@@ -70,7 +69,6 @@ final case class ResponseMessage(
 
 final case class GroupMessage(
     scenario: String,
-    userId: Long,
     groupHierarchy: List[String],
     startTimestamp: Long,
     endTimestamp: Long,

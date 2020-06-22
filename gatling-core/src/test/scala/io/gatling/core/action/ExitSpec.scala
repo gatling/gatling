@@ -35,6 +35,6 @@ class ExitSpec extends AkkaSpec {
 
     hasTerminated shouldBe true
     val userMessage = expectMsgType[UserEndMessage]
-    userMessage.session shouldBe session
+    userMessage.scenario shouldBe session.scenario
   }
 }

@@ -60,22 +60,19 @@ object Session {
   def apply(
       scenario: String,
       userId: Long,
-      startDate: Long,
       eventLoop: EventLoop
   ): Session =
-    apply(scenario, userId, startDate, Session.NothingOnExit, eventLoop)
+    apply(scenario, userId, Session.NothingOnExit, eventLoop)
 
   private[core] def apply(
       scenario: String,
       userId: Long,
-      startDate: Long,
       onExit: Session => Unit,
       eventLoop: EventLoop
   ): Session =
     Session(
       scenario = scenario,
       userId = userId,
-      startDate = startDate,
       attributes = Map.empty,
       baseStatus = OK,
       blockStack = Nil,
@@ -93,7 +90,6 @@ object Session {
  * @param scenario the name of the current scenario
  * @param userId the id of the current user
  * @param attributes the map that stores all values needed
- * @param startDate when the user was started
  * @param baseStatus the status when not in a TryMax blocks hierarchy
  * @param blockStack the block stack
  * @param onExit hook to execute once the user reaches the exit
@@ -101,7 +97,6 @@ object Session {
 final case class Session(
     scenario: String,
     userId: Long,
-    startDate: Long,
     attributes: Map[String, Any],
     baseStatus: Status,
     blockStack: List[Block],
@@ -144,7 +139,7 @@ final case class Session(
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
-    val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
+    val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.groups } match {
       case Some(l) => l :+ groupName
       case _       => groupName :: Nil
     }
@@ -164,13 +159,13 @@ final case class Session(
       })
     }
 
-  def groupHierarchy: List[String] = {
+  def groups: List[String] = {
 
     @tailrec
     def gh(blocks: List[Block]): List[String] = blocks match {
       case head :: tail =>
         head match {
-          case g: GroupBlock => g.hierarchy
+          case g: GroupBlock => g.groups
           case _             => gh(tail)
         }
       case _ => Nil

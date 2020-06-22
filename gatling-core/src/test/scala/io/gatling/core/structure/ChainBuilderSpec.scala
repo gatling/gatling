@@ -79,8 +79,7 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
       }
 
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          session.status shouldBe KO
+        case LogGroupEnd(_, group, _) =>
           group.status shouldBe KO
       }
     }
@@ -127,43 +126,37 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
       chain ! EmptySession
       expectMsg(message(1, 0, 0))
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup, innerGroup)
-          session.status shouldBe KO
+        case LogGroupEnd(_, group, _) =>
+          group.groups shouldBe List(outerGroup, innerGroup)
           group.status shouldBe KO
       }
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup)
-          session.status shouldBe KO
+        case LogGroupEnd(_, group, _) =>
+          group.groups shouldBe List(outerGroup)
           group.status shouldBe KO
       }
       expectMsg(message(1, 1, 0))
       expectMsg(message(2, 1, 0))
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup, innerGroup)
-          session.status shouldBe OK
+        case LogGroupEnd(_, group, _) =>
+          group.groups shouldBe List(outerGroup, innerGroup)
           group.status shouldBe OK
       }
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup)
-          session.status shouldBe OK
+        case LogGroupEnd(_, group, _) =>
+          group.groups shouldBe List(outerGroup)
           group.status shouldBe OK
       }
       expectMsg(message(1, 1, 1))
       expectMsg(message(2, 1, 1))
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup, innerGroup)
-          session.status shouldBe OK
+        case LogGroupEnd(_, group, _) =>
+          group.groups shouldBe List(outerGroup, innerGroup)
           group.status shouldBe OK
       }
       expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup)
-          session.status shouldBe OK
+        case LogGroupEnd(_, group, _) =>
+          group.groups shouldBe List(outerGroup)
           group.status shouldBe OK
       }
     }

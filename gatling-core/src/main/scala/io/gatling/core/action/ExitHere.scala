@@ -40,7 +40,7 @@ class ExitHere(condition: Expression[Boolean], exit: Action, val statsEngine: St
           val now = clock.nowMillis
 
           session.blockStack.foreach {
-            case group: GroupBlock => statsEngine.logGroupEnd(session, group, now)
+            case block: GroupBlock => statsEngine.logGroupEnd(session.scenario, block, now)
             case _                 =>
           }
 

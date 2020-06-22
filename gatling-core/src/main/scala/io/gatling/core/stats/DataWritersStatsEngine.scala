@@ -26,7 +26,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.ControllerCommand
 import io.gatling.core.scenario.SimulationParams
-import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
@@ -99,12 +99,13 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
 
   private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
-  override def logUserStart(session: Session): Unit = dispatch(UserStartMessage(session))
+  override def logUserStart(scenario: String, timestamp: Long): Unit = dispatch(UserStartMessage(scenario, timestamp))
 
   override def logUserEnd(userMessage: UserEndMessage): Unit = dispatch(userMessage)
 
   override def logResponse(
-      session: Session,
+      scenario: String,
+      groups: List[String],
       requestName: String,
       startTimestamp: Long,
       endTimestamp: Long,
@@ -115,9 +116,8 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
     if (endTimestamp >= 0) {
       dispatch(
         ResponseMessage(
-          session.scenario,
-          session.userId,
-          session.groupHierarchy,
+          scenario,
+          groups,
           requestName,
           startTimestamp,
           endTimestamp,
@@ -129,22 +129,21 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
     }
 
   override def logGroupEnd(
-      session: Session,
-      group: GroupBlock,
+      scenario: String,
+      groupBlock: GroupBlock,
       exitTimestamp: Long
   ): Unit =
     dispatch(
       GroupMessage(
-        session.scenario,
-        session.userId,
-        group.hierarchy,
-        group.startTimestamp,
+        scenario,
+        groupBlock.groups,
+        groupBlock.startTimestamp,
         exitTimestamp,
-        group.cumulatedResponseTime,
-        group.status
+        groupBlock.cumulatedResponseTime,
+        groupBlock.status
       )
     )
 
-  override def logCrash(session: Session, requestName: String, error: String): Unit =
+  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
     dispatch(ErrorMessage(s"$requestName: $error ", clock.nowMillis))
 }

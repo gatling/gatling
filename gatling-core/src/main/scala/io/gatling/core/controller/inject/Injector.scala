@@ -95,9 +95,8 @@ private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: Stat
   }
 
   when(Started) {
-    case Event(userMessage @ UserEndMessage(session, _), data: StartedData) =>
-      logger.debug(s"End user #${session.userId}")
-      val scenario = session.scenario
+    case Event(userMessage @ UserEndMessage(scenario, _), data: StartedData) =>
+      logger.debug(s"End user #$scenario")
       val workload = data.inProgressWorkloads(scenario)
       workload.endUser(userMessage)
       if (workload.isAllUsersStopped) {

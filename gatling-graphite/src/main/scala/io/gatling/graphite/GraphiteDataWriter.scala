@@ -90,10 +90,10 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
   }
 
   override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {
-    case UserStartMessage(session)  => onUserMessage(session.scenario, isStart = true, data)
-    case UserEndMessage(session, _) => onUserMessage(session.scenario, isStart = false, data)
-    case response: ResponseMessage  => onResponseMessage(response, data)
-    case _                          =>
+    case UserStartMessage(scenario, _) => onUserMessage(scenario, isStart = true, data)
+    case UserEndMessage(scenario, _)   => onUserMessage(scenario, isStart = false, data)
+    case response: ResponseMessage     => onResponseMessage(response, data)
+    case _                             =>
   }
 
   override def onCrash(cause: String, data: GraphiteData): Unit = {}

@@ -49,7 +49,7 @@ abstract class SseState(fsm: SseFsm) {
   def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onTimeout in ${getClass.getSimpleName} state")
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
-    statsEngine.logResponse(session, sseName, clock.nowMillis, Long.MinValue, OK, None, None)
+    statsEngine.logResponse(session.scenario, session.groups, sseName, clock.nowMillis, Long.MinValue, OK, None, None)
 
   protected def logResponse(
       session: Session,
@@ -62,7 +62,7 @@ abstract class SseState(fsm: SseFsm) {
   ): Session = {
     val newSession = session.logGroupRequestTimings(start, end)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
-    statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason)
+    statsEngine.logResponse(session.scenario, session.groups, actionName, start, end, status, code, reason)
     newSessionWithMark
   }
 

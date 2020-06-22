@@ -54,6 +54,6 @@ class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with Give
     verify(statsEngine).logGroupEnd(ArgumentMatchers.any(), groupBlockCaptor.capture(), ArgumentMatchers.anyLong())
     val groupBlock = groupBlockCaptor.getValue
 
-    groupBlock.hierarchy shouldBe List("group")
+    groupBlock.groups shouldBe List("group")
   }
 }

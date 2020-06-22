@@ -16,7 +16,7 @@
 
 package io.gatling.core.session
 
-import io.gatling.commons.stats.{ OK, Status }
+import io.gatling.commons.stats.Status
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 
@@ -50,4 +50,4 @@ final case class ExitAsapLoopBlock(counterName: String, condition: Expression[Bo
 
 final case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status) extends CounterBlock
 
-final case class GroupBlock(hierarchy: List[String], startTimestamp: Long, cumulatedResponseTime: Int, status: Status) extends Block
+final case class GroupBlock(groups: List[String], startTimestamp: Long, cumulatedResponseTime: Int, status: Status) extends Block

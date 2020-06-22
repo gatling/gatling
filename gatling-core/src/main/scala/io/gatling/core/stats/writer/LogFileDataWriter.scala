@@ -184,13 +184,11 @@ class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends Data
 
   override protected def serialize0(user: UserStartMessage): Unit = {
     import user._
-    writer.writeString(session.scenario)
-    writeSeparator()
-    writer.writePositiveLong(session.userId)
+    writer.writeString(scenario)
     writeSeparator()
     writer.writeString(MessageEvent.Start.name)
     writeSeparator()
-    writer.writePositiveLong(session.startDate)
+    writer.writePositiveLong(timestamp)
   }
 }
 
@@ -198,13 +196,9 @@ class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWr
 
   override protected def serialize0(user: UserEndMessage): Unit = {
     import user._
-    writer.writeString(session.scenario)
-    writeSeparator()
-    writer.writePositiveLong(session.userId)
+    writer.writeString(scenario)
     writeSeparator()
     writer.writeString(MessageEvent.End.name)
-    writeSeparator()
-    writer.writePositiveLong(session.startDate)
     writeSeparator()
     writer.writePositiveLong(timestamp)
   }
@@ -216,8 +210,6 @@ class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataW
 
   override protected def serialize0(response: ResponseMessage): Unit = {
     import response._
-    writer.writePositiveLong(userId)
-    writeSeparator()
     writeGroups(groupHierarchy)
     writeSeparator()
     writer.writeString(name)
@@ -239,8 +231,6 @@ class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWrit
 
   override protected def serialize0(group: GroupMessage): Unit = {
     import group._
-    writer.writePositiveLong(userId)
-    writeSeparator()
     writeGroups(groupHierarchy)
     writeSeparator()
     writer.writePositiveLong(startTimestamp)

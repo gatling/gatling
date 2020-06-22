@@ -29,12 +29,10 @@ private object UserRecordParser {
   private def parseUserRecord(strings: Array[String]): UserRecord = {
 
     val scenario = strings(1)
-    val userId = strings(2)
-    val event = MessageEvent(strings(3))
-    val start = strings(4).toLong
-    val end = if (event == MessageEvent.End) strings(5).toLong else 0
+    val event = MessageEvent(strings(2))
+    val timestamp = strings(3).toLong
 
-    UserRecord(scenario, userId, event, start, end)
+    UserRecord(scenario, event, timestamp)
   }
 }
 
@@ -45,16 +43,16 @@ private class RequestRecordParser(bucketFunction: Long => Int) {
   private def parseRequestRecord(strings: Array[String]): RequestRecord = {
 
     val group = {
-      val groupString = strings(2)
+      val groupString = strings(1)
       if (groupString.isEmpty) None else Some(GroupRecordParser.parseGroup(groupString))
     }
-    val request = strings(3)
+    val request = strings(2)
 
-    val start = strings(4).toLong
-    val end = strings(5).toLong
+    val start = strings(3).toLong
+    val end = strings(4).toLong
 
-    val status = Status.apply(strings(6))
-    val errorMessage = if (status == KO) Some(strings(7)) else None
+    val status = Status.apply(strings(5))
+    val errorMessage = if (status == KO) Some(strings(6)) else None
 
     if (end != Long.MinValue) {
       // regular request
@@ -79,11 +77,11 @@ private class GroupRecordParser(bucketFunction: Long => Int) {
 
   private def parseGroupRecord(strings: Array[String]): GroupRecord = {
 
-    val group = GroupRecordParser.parseGroup(strings(2))
-    val start = strings(3).toLong
-    val end = strings(4).toLong
-    val cumulatedResponseTime = strings(5).toInt
-    val status = Status.apply(strings(6))
+    val group = GroupRecordParser.parseGroup(strings(1))
+    val start = strings(2).toLong
+    val end = strings(3).toLong
+    val cumulatedResponseTime = strings(4).toInt
+    val status = Status.apply(strings(5))
     val duration = (end - start).toInt
     GroupRecord(group, duration, cumulatedResponseTime, status, start, bucketFunction(start))
   }
@@ -114,5 +112,5 @@ private final case class RequestRecord(
     incoming: Boolean
 )
 private final case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, start: Long, startBucket: Int)
-private final case class UserRecord(scenario: String, userId: String, event: MessageEvent, start: Long, end: Long)
+private final case class UserRecord(scenario: String, event: MessageEvent, timestamp: Long)
 private final case class ErrorRecord(message: String, timestamp: Long)

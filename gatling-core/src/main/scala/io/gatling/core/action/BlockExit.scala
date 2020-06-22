@@ -32,7 +32,7 @@ import io.gatling.core.stats.StatsEngine
 final class BlockExit(val exitAction: Action, val session: Session, val groupsToClose: List[GroupBlock]) {
 
   def exitBlock(statsEngine: StatsEngine, nowMillis: Long): Unit = {
-    groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session, _, nowMillis))
+    groupsToClose.reverseIterator.foreach(statsEngine.logGroupEnd(session.scenario, _, nowMillis))
     exitAction ! session
   }
 }

@@ -27,8 +27,8 @@ class GroupEnd(statsEngine: StatsEngine, clock: Clock, val next: Action) extends
 
   def execute(session: Session): Unit =
     session.blockStack match {
-      case (group: GroupBlock) :: tail =>
-        statsEngine.logGroupEnd(session, group, clock.nowMillis)
+      case (block: GroupBlock) :: tail =>
+        statsEngine.logGroupEnd(session.scenario, block, clock.nowMillis)
         next ! session.exitGroup(tail)
 
       case _ =>

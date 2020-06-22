@@ -19,7 +19,7 @@ package io.gatling.core.stats
 import java.net.InetSocketAddress
 
 import io.gatling.commons.stats.Status
-import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 
 import akka.actor.ActorRef
@@ -31,7 +31,7 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def stop(controller: ActorRef, exception: Option[Exception]): Unit
 
-  def logUserStart(session: Session): Unit
+  def logUserStart(scenario: String, timestamp: Long): Unit
 
   def logUserEnd(userMessage: UserEndMessage): Unit
 
@@ -60,10 +60,13 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
   //
   //
   //
+  //
+  //
   // [fl]
 
   def logResponse(
-      session: Session,
+      scenario: String,
+      groups: List[String],
       requestName: String,
       startTimestamp: Long,
       endTimestamp: Long,
@@ -73,15 +76,15 @@ trait StatsEngine extends FrontLineStatsEngineExtensions {
   ): Unit
 
   def logGroupEnd(
-      session: Session,
-      group: GroupBlock,
+      scenario: String,
+      groupBlock: GroupBlock,
       exitTimestamp: Long
   ): Unit
 
-  def logCrash(session: Session, requestName: String, error: String): Unit
+  def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit
 
-  def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
-    logCrash(session, requestName, s"Failed to build request: $errorMessage")
+  def reportUnbuildableRequest(scenario: String, groups: List[String], requestName: String, errorMessage: String): Unit =
+    logCrash(scenario, groups, requestName, s"Failed to build request: $errorMessage")
 }
 
 // WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components

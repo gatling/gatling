@@ -49,11 +49,12 @@ abstract class Workload(
   protected def incrementStoppedUsers(): Unit = stopped += 1
 
   private def startUser(userId: Long, eventLoop: EventLoop): Unit = {
-    val rawSession = Session(scenario.name, userId, clock.nowMillis, scenario.onExit, eventLoop)
+    val rawSession = Session(scenario.name, userId, scenario.onExit, eventLoop)
     val session = scenario.onStart(rawSession)
+    val timestamp = clock.nowMillis
     scenario.entry ! session
     logger.debug(s"Start user #${session.userId}")
-    statsEngine.logUserStart(session)
+    statsEngine.logUserStart(scenario.name, timestamp)
   }
 
   protected def injectUser(delay: FiniteDuration): Unit = {

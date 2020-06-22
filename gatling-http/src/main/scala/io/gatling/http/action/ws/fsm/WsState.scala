@@ -91,12 +91,12 @@ abstract class WsState(fsm: WsFsm) {
   ): Session = {
     val newSession = session.logGroupRequestTimings(start, end)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
-    fsm.statsEngine.logResponse(newSessionWithMark, actionName, start, end, status, code, reason)
+    fsm.statsEngine.logResponse(session.scenario, session.groups, actionName, start, end, status, code, reason)
     newSessionWithMark
   }
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
-    fsm.statsEngine.logResponse(session, fsm.wsName, fsm.clock.nowMillis, Long.MinValue, OK, None, None)
+    fsm.statsEngine.logResponse(session.scenario, session.groups, fsm.wsName, fsm.clock.nowMillis, Long.MinValue, OK, None, None)
 
   protected def sendFrameNextAction(session: Session, sendFrame: SendFrame): () => Unit =
     sendFrame match {

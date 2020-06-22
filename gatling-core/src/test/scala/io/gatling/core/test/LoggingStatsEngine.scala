@@ -19,7 +19,7 @@ package io.gatling.core.test
 import java.util.concurrent.ConcurrentLinkedDeque
 
 import io.gatling.commons.stats.Status
-import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.writer.UserEndMessage
 
@@ -28,7 +28,8 @@ import akka.actor.ActorRef
 sealed trait StatsEngineMessage
 
 final case class LogResponse(
-    session: Session,
+    scenario: String,
+    groups: List[String],
     requestName: String,
     startTimestamp: Long,
     endTimestamp: Long,
@@ -37,9 +38,9 @@ final case class LogResponse(
     message: Option[String]
 ) extends StatsEngineMessage
 
-final case class LogGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
+final case class LogGroupEnd(scenario: String, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
 
-final case class LogCrash(session: Session, requestName: String, error: String) extends StatsEngineMessage
+final case class LogCrash(scenario: String, groups: List[String], requestName: String, error: String) extends StatsEngineMessage
 
 class LoggingStatsEngine extends StatsEngine {
 
@@ -49,12 +50,13 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
-  override def logUserStart(session: Session): Unit = {}
+  override def logUserStart(scenario: String, timestamp: Long): Unit = {}
 
   override def logUserEnd(userMessage: UserEndMessage): Unit = {}
 
   override def logResponse(
-      session: Session,
+      scenario: String,
+      groups: List[String],
       requestName: String,
       startTimestamp: Long,
       endTimestamp: Long,
@@ -62,11 +64,11 @@ class LoggingStatsEngine extends StatsEngine {
       responseCode: Option[String],
       message: Option[String]
   ): Unit =
-    msgQueue.addLast(LogResponse(session, requestName, startTimestamp, endTimestamp, status, responseCode, message))
+    msgQueue.addLast(LogResponse(scenario, groups, requestName, startTimestamp, endTimestamp, status, responseCode, message))
 
-  override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
-    msgQueue.addLast(LogGroupEnd(session, group, exitTimestamp))
+  override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit =
+    msgQueue.addLast(LogGroupEnd(scenario, groupBlock, exitTimestamp))
 
-  override def logCrash(session: Session, requestName: String, error: String): Unit =
-    msgQueue.addLast(LogCrash(session, requestName, error))
+  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
+    msgQueue.addLast(LogCrash(scenario, groups, requestName, error))
 }

@@ -29,6 +29,6 @@ class Exit(injector: ActorRef, clock: Clock) extends Action {
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
-    injector ! UserEndMessage(session, clock.nowMillis)
+    injector ! UserEndMessage(session.scenario, clock.nowMillis)
   }
 }

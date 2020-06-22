@@ -113,7 +113,8 @@ final class DefaultStatsProcessor(
       errorMessage: Option[String]
   ): Unit =
     statsEngine.logResponse(
-      session,
+      session.scenario,
+      session.groups,
       fullRequestName,
       result.startTimestamp,
       result.endTimestamp,

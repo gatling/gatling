@@ -51,6 +51,6 @@ class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with Gi
     And("this Session's blockStack should match the resolved group name")
     val nextBlock = nextSession.blockStack.head
     nextBlock shouldBe an[GroupBlock]
-    nextBlock.asInstanceOf[GroupBlock].hierarchy shouldBe List("foo")
+    nextBlock.asInstanceOf[GroupBlock].groups shouldBe List("foo")
   }
 }

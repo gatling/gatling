@@ -29,6 +29,7 @@ import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
+import io.gatling.core.stats.message.MessageEvent
 import io.gatling.core.stats.writer._
 
 import boopickle.Default._
@@ -72,10 +73,11 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
     var runStart = Long.MaxValue
     var runEnd = Long.MinValue
 
-    def updateRunLimits(eventStart: Long, eventEnd: Long): Unit = {
+    def updateRunStart(eventStart: Long): Unit =
       runStart = math.min(runStart, eventStart)
+
+    def updateRunEnd(eventEnd: Long): Unit =
       runEnd = math.max(runEnd, eventEnd)
-    }
 
     val runMessages = mutable.ListBuffer.empty[RunMessage]
     val assertions = mutable.LinkedHashSet.empty[Assertion]
@@ -87,13 +89,20 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
       line.split(DataWriterMessageSerializer.Separator) match {
 
         case RawRequestRecord(array) =>
-          updateRunLimits(array(4).toLong, array(5).toLong)
+          updateRunStart(array(3).toLong)
+          updateRunEnd(array(4).toLong)
 
         case RawUserRecord(array) =>
-          updateRunLimits(array(4).toLong, array(5).toLong)
+          val timestamp = array(3).toLong
+          if (array(2) == MessageEvent.Start.name) {
+            updateRunStart(timestamp)
+          } else {
+            updateRunEnd(timestamp)
+          }
 
         case RawGroupRecord(array) =>
-          updateRunLimits(array(3).toLong, array(4).toLong)
+          updateRunStart(array(2).toLong)
+          updateRunEnd(array(3).toLong)
 
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim, array(5).trim)
@@ -165,7 +174,7 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
         }
       }
 
-    resultsHolder.endOrphanUserRecords()
+    resultsHolder.endDandlingStartedUser()
 
     logger.info(s"Second pass: read $count lines")
 

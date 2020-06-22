@@ -20,6 +20,7 @@ import scala.collection.mutable
 
 import io.gatling.charts.stats.{ GroupRecord, RequestRecord, UserRecord }
 import io.gatling.commons.stats.{ GroupStatsPath, RequestStatsPath, StatsPath }
+import io.gatling.core.stats.message.MessageEvent
 
 private[stats] trait NamesBuffers {
 
@@ -35,7 +36,9 @@ private[stats] trait NamesBuffers {
   val scenarioNameBuffer: NameBuffer[String] = new NameBuffer[String]
 
   def addScenarioName(record: UserRecord): Unit =
-    scenarioNameBuffer.update(record.scenario, record.start)
+    if (record.event == MessageEvent.Start) {
+      scenarioNameBuffer.update(record.scenario, record.timestamp)
+    }
 
   def addRequestName(record: RequestRecord): Unit =
     groupAndRequestsNameBuffer.update(RequestStatsPath(record.name, record.group), record.start)

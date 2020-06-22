@@ -69,6 +69,6 @@ class ExitHereSpec extends BaseSpec {
 
     verify(exit) ! sessionWithGroup
     verify(next, never) ! any[Session]
-    verify(statsEngine).logGroupEnd(sessionWithGroup, GroupBlock(List("group"), 0, 0, KO), 1)
+    verify(statsEngine).logGroupEnd(sessionWithGroup.scenario, GroupBlock(List("group"), 0, 0, KO), 1)
   }
 }

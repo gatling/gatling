@@ -60,7 +60,7 @@ private[polling] class Poller(
       }
 
       httpRequest <- requestDef.build(requestName, session).mapError { errorMessage =>
-        statsEngine.reportUnbuildableRequest(session, pollerName, errorMessage)
+        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, pollerName, errorMessage)
         errorMessage
       }
     } yield HttpTx(session, httpRequest, next = null, resourceTx = None, redirectCount = 0)

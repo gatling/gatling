@@ -55,7 +55,7 @@ class Send(
         }
 
         val now = clock.nowMillis
-        statsEngine.logResponse(session, requestName, now, now, OK, None, None)
+        statsEngine.logResponse(session.scenario, session.groups, requestName, now, now, OK, None, None)
         next ! session
       },
       after = () => ()

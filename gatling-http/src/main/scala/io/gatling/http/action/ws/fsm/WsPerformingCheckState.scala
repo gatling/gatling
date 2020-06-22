@@ -53,7 +53,7 @@ final case class WsPerformingCheckState(
       case Right(sendFrame) =>
         // logging crash
         logger.debug("Check timeout while trying to reconnect, failing pending send message and performing next action")
-        statsEngine.logCrash(newSession, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
+        statsEngine.logCrash(session.scenario, session.groups, sendFrame.actionName, s"Couldn't reconnect: $errorMessage")
         sendFrame.next
     }
 
@@ -135,7 +135,7 @@ final case class WsPerformingCheckState(
             case Right(sendMessage) =>
               // failed to reconnect, logging crash
               logger.debug("Check failed while trying to reconnect, failing pending send message and performing next action")
-              statsEngine.logCrash(newSession, sendMessage.actionName, s"Couldn't reconnect: $errorMessage")
+              statsEngine.logCrash(session.scenario, session.groups, sendMessage.actionName, s"Couldn't reconnect: $errorMessage")
               sendMessage.next
           }
 
@@ -218,7 +218,7 @@ final case class WsPerformingCheckState(
       case Right(sendTextMessage) =>
         // failed to reconnect, logging crash
         logger.debug("WebSocket crashed while trying to reconnect, failing pending send message and performing next action")
-        statsEngine.logCrash(newSession, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
+        statsEngine.logCrash(session.scenario, session.groups, sendTextMessage.actionName, s"Couldn't reconnect: $errorMessage")
         sendTextMessage.next
     }
 
