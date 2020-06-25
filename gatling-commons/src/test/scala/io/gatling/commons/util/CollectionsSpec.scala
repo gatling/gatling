@@ -17,14 +17,15 @@
 package io.gatling.commons.util
 
 import io.gatling.BaseSpec
+import io.gatling.commons.util.Collections._
 
 class CollectionsSpec extends BaseSpec {
 
   "lift" should "return Some if index exists" in {
-    Collections.lift((0 until 10).iterator, 9) shouldBe Some(9)
+    (0 until 10).iterator.lift(9) shouldBe Some(9)
   }
 
   it should "return None if index doesn't exists" in {
-    Collections.lift((0 until 10).iterator, 10) shouldBe None
+    (0 until 10).iterator.lift(10) shouldBe None
   }
 }

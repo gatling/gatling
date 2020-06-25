@@ -18,25 +18,37 @@ package io.gatling.commons.util
 
 object Collections {
 
-  implicit class PimpedTraversableOnce[A](val t: TraversableOnce[A]) extends AnyVal {
+  implicit class PimpedIterable[A](val seq: Iterable[A]) extends AnyVal {
 
     def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
       var sum = num.zero
-      for (x <- t) sum = num.plus(sum, f(x))
+      for (x <- seq) sum = num.plus(sum, f(x))
       sum
     }
   }
 
-  def lift[T](it: Iterator[T], i: Int): Option[T] = {
-    var j = 0
-    var found: Option[T] = None
-    while (it.hasNext && found.isEmpty) {
-      val value = it.next()
-      if (i == j) {
-        found = Some(value)
+  @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
+  implicit class PimpedIterator[A](val it: Iterator[A]) extends AnyVal {
+
+    def collectFirstSome[B](f: A => Option[B]): Option[B] = {
+      var res: Option[B] = None
+      while (it.hasNext && res.isEmpty) {
+        res = f(it.next())
       }
-      j += 1
+      res
     }
-    found
+
+    def lift(i: Int): Option[A] = {
+      var j = 0
+      var found: Option[A] = None
+      while (it.hasNext && found.isEmpty) {
+        val value = it.next()
+        if (i == j) {
+          found = Some(value)
+        }
+        j += 1
+      }
+      found
+    }
   }
 }

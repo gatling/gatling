@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.jsonpath
 
-import io.gatling.commons.util.Collections
+import io.gatling.commons.util.Collections._
 import io.gatling.core.check._
 
 import com.fasterxml.jackson.databind.JsonNode
@@ -28,7 +28,7 @@ object JsonPathExtractors {
       name,
       path,
       occurrence,
-      jsonPaths.extractAll(_, path).map(Collections.lift(_, occurrence))
+      jsonPaths.extractAll(_, path).map(_.lift(occurrence))
     )
 
   def findAll[X: JsonFilter](name: String, path: String, jsonPaths: JsonPaths): FindAllCriterionExtractor[JsonNode, String, X] =
