@@ -22,8 +22,8 @@ import io.gatling.http.action.ws.fsm.WsFsm
 
 trait WsAction {
 
-  final def fetchFsm(actorName: String, session: Session): Validation[WsFsm] =
-    session.attributes.get(actorName) match {
+  final def fetchFsm(wsName: String, session: Session): Validation[WsFsm] =
+    session.attributes.get(wsName) match {
       case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
       case _           => s"Couldn't fetch open webSocket".failure
     }
