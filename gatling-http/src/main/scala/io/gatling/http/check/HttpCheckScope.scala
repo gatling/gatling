@@ -16,14 +16,17 @@
 
 package io.gatling.http.check
 
-sealed trait HttpCheckScope
+sealed abstract class HttpCheckScope(protected val priority: Int) extends Product with Serializable
 
 object HttpCheckScope {
 
-  case object Status extends HttpCheckScope
-  case object Url extends HttpCheckScope
-  case object Time extends HttpCheckScope
-  case object Header extends HttpCheckScope
-  case object Chunks extends HttpCheckScope
-  case object Body extends HttpCheckScope
+  implicit val ordering: Ordering[HttpCheckScope] =
+    (x: HttpCheckScope, y: HttpCheckScope) => Ordering[Int].compare(x.priority, y.priority)
+
+  case object Url extends HttpCheckScope(priority = 1)
+  case object Status extends HttpCheckScope(priority = 2)
+  case object Header extends HttpCheckScope(priority = 3)
+  case object Chunks extends HttpCheckScope(priority = 4)
+  case object Body extends HttpCheckScope(priority = 4)
+  case object Time extends HttpCheckScope(priority = 5)
 }

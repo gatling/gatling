@@ -21,11 +21,14 @@ import scala.collection.JavaConverters._
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
+import io.gatling.core.Predef._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el._
+import io.gatling.http.Predef._
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
@@ -42,10 +45,11 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   private val coreComponents = new CoreComponents(null, null, null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
 
-  private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder, httpProtocol: HttpProtocol = HttpProtocol(configuration)) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, HttpMethod.GET, Right(Uri.create("http://gatling.io")))
     val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes.Empty))
-    builder.build(httpCaches, HttpProtocol(configuration), throttled = false, configuration)
+    builder.build(httpCaches, httpProtocol, throttled = false, configuration)
   }
 
   "signature calculator" should "work when passed as a SignatureCalculator instance" in {
@@ -97,4 +101,82 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
       )
       .succeeded shouldBe Seq("BAR")
   }
+
+  "checks" should "respect their scope priority" in {
+
+    val result = httpRequestDef(builder => {
+      builder
+        .check(bodyString.notNull)
+        .check(status.is(200))
+        .check(currentLocation.is("current location"))
+        .check(header("HEADER").is("VALUE"))
+        .check(responseTimeInMillis.lt(300))
+    }).build("requestName", EmptySession).map(_.requestConfig.checks).succeeded
+
+    result.map(_.scope) shouldBe Seq(
+      Url,
+      Status,
+      Header,
+      Body,
+      Time
+    )
+  }
+
+  "checks" should "respect their provenance priority" in {
+
+    val result = httpRequestDef(
+      _.check(bodyString.notNull),
+      http(configuration)
+        .baseUrl("https://gatling.io")
+        .check(md5.notNull)
+        .build
+    ).build("requestName", EmptySession)
+      .map(_.requestConfig.checks)
+      .succeeded
+
+    result.map(_.scope) shouldBe Seq(
+      Status,
+      Body,
+      Chunks
+    )
+  }
+
+  "checks" should "respect user defined order on request" in {
+    val result = httpRequestDef(builder => {
+      builder
+        .check(bodyString.notNull)
+        .check(md5.notNull)
+        .check(bodyString.notNull)
+        .check()
+    }).build("requestName", EmptySession).map(_.requestConfig.checks).succeeded
+
+    result.map(_.scope) shouldBe Seq(
+      Status,
+      Body,
+      Chunks,
+      Body
+    )
+  }
+
+  "checks" should "respect user defined order on protocol" in {
+    val result = httpRequestDef(
+      f => f,
+      http(configuration)
+        .baseUrl("https://gatling.io")
+        .check(bodyString.notNull)
+        .check(md5.notNull)
+        .check(bodyString.notNull)
+        .build
+    ).build("requestName", EmptySession).map(_.requestConfig.checks).succeeded
+
+    result.map(_.scope) shouldBe Seq(
+      Status,
+      Body,
+      Chunks,
+      Body
+    )
+  }
+
+  // Not possible to check prior of default over protocol, as only default added value is status
+  // and the presence of a status (for same scope priority) remove the default one.
 }

@@ -28,7 +28,7 @@ import io.gatling.http.ResponseTransformer
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckScope.{ Body, Status }
+import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.engine.response.IsHttpDebugEnabled
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request._
@@ -134,17 +134,27 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
   @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def build(httpCaches: HttpCaches, httpProtocol: HttpProtocol, throttled: Boolean, configuration: GatlingConfiguration): HttpRequestDef = {
 
-    val checks =
-      if (httpAttributes.ignoreDefaultChecks)
-        httpAttributes.checks
-      else
-        httpProtocol.responsePart.checks ::: httpAttributes.checks
+    val requestChecks = httpAttributes.checks
 
-    val resolvedChecks =
-      if (checks.exists(_.scope == Status))
-        checks
-      else
-        checks ::: List(RequestBuilder.DefaultHttpCheck)
+    val requestAndProtocolChecks =
+      if (httpAttributes.ignoreDefaultChecks) {
+        requestChecks
+      } else {
+        val protocolChecks = httpProtocol.responsePart.checks
+        requestChecks ::: protocolChecks
+      }
+
+    val checks =
+      if (requestAndProtocolChecks.exists(_.scope == Status)) requestAndProtocolChecks
+      else requestAndProtocolChecks ::: List(RequestBuilder.DefaultHttpCheck)
+
+    val sortedChecks = checks.zipWithIndex
+      .sortBy {
+        case (check, rank) => (check.scope, rank)
+      }
+      .map {
+        case (check, _) => check
+      }
 
     val resolvedFollowRedirect = httpProtocol.responsePart.followRedirect && httpAttributes.followRedirect
 
@@ -155,7 +165,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
     val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpCaches, httpProtocol, configuration).build
 
     val digests: Map[String, MessageDigest] =
-      resolvedChecks
+      sortedChecks
         .map(_.wrapped)
         .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }(breakOut)
 
@@ -163,13 +173,13 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
       // we can't assume anything about if and how the response body will be used,
       // let's force bytes so we don't risk decoding binary content
       resolvedResponseTransformer.isDefined ||
-      resolvedChecks.exists(_.scope == Body)
+      sortedChecks.exists(_.scope == Body)
 
     HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
       HttpRequestConfig(
-        checks = resolvedChecks,
+        checks = sortedChecks,
         responseTransformer = resolvedResponseTransformer,
         throttled = throttled,
         silent = httpAttributes.silent,
