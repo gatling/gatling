@@ -58,7 +58,7 @@ abstract class RequestExpressionBuilder(
 
   protected val charset: Charset = configuration.core.charset
   protected val headers: Map[CharSequence, Expression[String]] =
-    if (commonAttributes.ignoreDefaultHeaders) {
+    if (commonAttributes.ignoreProtocolHeaders) {
       commonAttributes.headers
     } else {
       httpProtocol.requestPart.headers ++ commonAttributes.headers

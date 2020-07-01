@@ -50,7 +50,7 @@ object CommonAttributes {
       virtualHost = None,
       proxy = None,
       signatureCalculator = None,
-      ignoreDefaultHeaders = false
+      ignoreProtocolHeaders = false
     )
 }
 
@@ -65,7 +65,7 @@ final case class CommonAttributes(
     virtualHost: Option[Expression[String]],
     proxy: Option[ProxyServer],
     signatureCalculator: Option[Expression[SignatureCalculator]],
-    ignoreDefaultHeaders: Boolean
+    ignoreProtocolHeaders: Boolean
 )
 
 object RequestBuilder {
@@ -141,7 +141,10 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    */
   def headers(newHeaders: Map[_ <: CharSequence, String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.mapValues(_.el[String])))
 
-  def ignoreDefaultHeaders: B = newInstance(modify(commonAttributes)(_.ignoreDefaultHeaders).setTo(true))
+  @deprecated("Please use ignoreProtocolHeaders instead. Will be removed in 3.5.0", "3.4.0")
+  def ignoreDefaultHeaders: B = ignoreProtocolHeaders
+
+  def ignoreProtocolHeaders: B = newInstance(modify(commonAttributes)(_.ignoreProtocolHeaders).setTo(true))
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values

@@ -139,7 +139,7 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").digestAuth("usr", "pwd"))
     // misc
     .exec(
-      http("Request").get("/").silent.notSilent.disableUrlEncoding.disableFollowRedirect.ignoreProtocolChecks.ignoreDefaultHeaders
+      http("Request").get("/").silent.notSilent.disableUrlEncoding.disableFollowRedirect.ignoreProtocolChecks.ignoreProtocolHeaders
     )
     // check
     .exec(

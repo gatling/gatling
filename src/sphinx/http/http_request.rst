@@ -121,11 +121,11 @@ Here are some examples:
 
 .. note:: Headers can also be defined on the ``HttpProtocol``.
 
-.. _http-request-ignore-default-headers:
+.. _http-request-ignore-protocol-headers:
 
-For a given request, you can also disable common headers that were defined on the ``HttpProtocol`` with ``ignoreDefaultHeaders``:
+For a given request, you can also disable common headers that were defined on the ``HttpProtocol`` with ``ignoreProtocolHeaders``:
 
-.. includecode:: code/HttpRequestSample.scala#ignoreDefaultHeaders
+.. includecode:: code/HttpRequestSample.scala#ignoreProtocolHeaders
 
 .. _http-request-signature:
 
