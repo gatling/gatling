@@ -212,11 +212,11 @@ You can add checks on a request:
 
 For more information, see the :ref:`HTTP Checks reference section <http-check>`.
 
-.. _http-request-ignore-default-checks:
+.. _http-request-ignore-protocol-checks:
 
-For a given request, you can also disable common checks that were defined on the ``HttpProtocol`` with ``ignoreDefaultChecks``:
+For a given request, you can also disable common checks that were defined on the ``HttpProtocol`` with ``ignoreProtocolChecks``:
 
-.. includecode:: code/HttpRequestSample.scala#ignoreDefaultChecks
+.. includecode:: code/HttpRequestSample.scala#ignoreProtocolChecks
 
 FollowRedirect
 ==============

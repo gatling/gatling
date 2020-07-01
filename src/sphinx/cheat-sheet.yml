@@ -844,7 +844,7 @@
             - signature: (check...)
               description: Every check you need to make on the response from the server
 
-        - keyword: ignoreDefaultChecks
+        - keyword: ignoreProtocolChecks
           description: Ignore default checks that were defined on the HttpProtocol
 
         - keyword: name

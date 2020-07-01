@@ -40,7 +40,7 @@ object HttpAttributes {
   val Empty: HttpAttributes =
     new HttpAttributes(
       checks = Nil,
-      ignoreDefaultChecks = false,
+      ignoreProtocolChecks = false,
       silent = None,
       followRedirect = true,
       responseTransformer = None,
@@ -54,7 +54,7 @@ object HttpAttributes {
 
 final case class HttpAttributes(
     checks: List[HttpCheck],
-    ignoreDefaultChecks: Boolean,
+    ignoreProtocolChecks: Boolean,
     silent: Option[Boolean],
     followRedirect: Boolean,
     responseTransformer: Option[ResponseTransformer],
@@ -85,7 +85,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   def check(checks: HttpCheck*): HttpRequestBuilder = this.modify(_.httpAttributes.checks).using(_ ::: checks.toList)
 
-  def ignoreDefaultChecks: HttpRequestBuilder = this.modify(_.httpAttributes.ignoreDefaultChecks).setTo(true)
+  @deprecated("Please use ignoreProtocolChecks instead. Will be removed in 3.5.0", "3.4.0")
+  def ignoreDefaultChecks: HttpRequestBuilder = ignoreProtocolChecks
+
+  def ignoreProtocolChecks: HttpRequestBuilder = this.modify(_.httpAttributes.ignoreProtocolChecks).setTo(true)
 
   def silent: HttpRequestBuilder = this.modify(_.httpAttributes.silent).setTo(Some(true))
 
@@ -137,7 +140,7 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
     val requestChecks = httpAttributes.checks
 
     val requestAndProtocolChecks =
-      if (httpAttributes.ignoreDefaultChecks) {
+      if (httpAttributes.ignoreProtocolChecks) {
         requestChecks
       } else {
         val protocolChecks = httpProtocol.responsePart.checks

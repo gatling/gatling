@@ -359,7 +359,7 @@ Checks
 ------
 
 You can define checks at the http protocol definition level with: ``check(checks: HttpCheck*)``.
-They will be apply on all the requests, however you can disable them for given request thanks to the ``ignoreDefaultChecks`` method.
+They will be apply on all the requests, however you can disable them for given request thanks to the ``ignoreProtocolChecks`` method.
 
 .. note:: For more details see the dedicated section :ref:`here <http-check>`.
 

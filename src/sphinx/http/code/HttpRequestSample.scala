@@ -153,11 +153,11 @@ class HttpRequestSample {
       .check(myCheck)
     //#check
 
-    //#ignoreDefaultChecks
+    //#ignoreProtocolChecks
     http("Getting issues")
       .get("https://www.github.com/gatling/gatling/issues")
-      .ignoreDefaultChecks
-    //#ignoreDefaultChecks
+      .ignoreProtocolChecks
+    //#ignoreProtocolChecks
 
     //#disableFollowRedirect
     http("Getting issues")
