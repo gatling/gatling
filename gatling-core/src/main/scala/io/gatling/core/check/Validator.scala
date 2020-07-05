@@ -49,7 +49,7 @@ class IsMatcher[A](expected: A, equality: Equality[A]) extends Matcher[A] {
       } else {
         s"found $actualValue".failure
       }
-    case None => Validator.FoundNothingFailure
+    case _ => Validator.FoundNothingFailure
   }
 }
 
@@ -64,7 +64,7 @@ class IsNullMatcher[A] extends Matcher[A] {
       } else {
         s"found $actualValue".failure
       }
-    case None => Validator.FoundNothingFailure
+    case _ => Validator.FoundNothingFailure
   }
 }
 
@@ -79,7 +79,7 @@ class NotMatcher[A](expected: A, equality: Equality[A]) extends Matcher[A] {
       } else {
         s"unexpectedly found $actualValue".failure
       }
-    case None => NoneSuccess
+    case _ => NoneSuccess
   }
 }
 
@@ -93,7 +93,7 @@ class NotNullMatcher[A] extends Matcher[A] {
         actual.success
       else
         "found null".failure
-    case None => NoneSuccess
+    case _ => NoneSuccess
   }
 }
 
