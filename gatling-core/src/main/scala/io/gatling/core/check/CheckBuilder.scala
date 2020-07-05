@@ -171,10 +171,10 @@ final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[
     )
 
   def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
-    validate(expected.map(new IsMatcher(_, implicitly(equality))))
+    validate(expected.map(new IsMatcher(_, equality)))
   def isNull: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new IsNullMatcher[X].expressionSuccess)
   def not(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =
-    validate(expected.map(new NotMatcher(_, implicitly(equality))))
+    validate(expected.map(new NotMatcher(_, equality)))
   def notNull: CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(new NotNullMatcher[X].expressionSuccess)
   def in(expected: X*): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
   def in(expected: Expression[Seq[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] = validate(expected.map(new InMatcher(_)))
