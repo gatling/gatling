@@ -28,12 +28,36 @@ object Feeds {
 private[structure] trait Feeds[B] extends Execs[B] {
 
   /**
-   * Method used to load data from a feeder in the current scenario
+   * Chain an action that will inject a single data record into the virtual users' Session
    *
-   * @param feederBuilder the feeder from which the values will be loaded
-   * @param number the number of records to be polled (default 1)
+   * @param feederBuilder a factory of a source of records
    */
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def feed(feederBuilder: FeederBuilder, number: Expression[Int] = Feeds.OneExpression): B =
+  def feed(feederBuilder: FeederBuilder): B =
+    feed(feederBuilder, Feeds.OneExpression)
+
+  /**
+   * Chain an action that will inject multiple data records into the virtual users' Session
+   *
+   * @param feederBuilder a factory of a source of records
+   * @param number the number of records to be injected
+   */
+  def feed(feederBuilder: FeederBuilder, number: Expression[Int]): B =
     exec(new FeedBuilder(feederBuilder, number))
+
+  /**
+   * Chain an action that will inject a single data record into the virtual users' Session
+   *
+   * @param feeder a source of records
+   */
+  def feed(feeder: Feeder[Any]): B =
+    feed(feeder, Feeds.OneExpression)
+
+  /**
+   * Chain an action that will inject multiple data records into the virtual users' Session
+   *
+   * @param feeder a source of records
+   * @param number the number of records to be injected
+   */
+  def feed(feeder: Feeder[Any], number: Expression[Int]): B =
+    feed(() => feeder, number)
 }

@@ -28,7 +28,6 @@ trait FeederSupport extends ResourceCache {
     SourceFeederBuilder(InMemoryFeederSource(data), configuration)
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
     SourceFeederBuilder(InMemoryFeederSource(data), configuration)
-  implicit def feeder2FeederBuilder(feeder: Feeder[Any]): FeederBuilder = () => feeder
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def csv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
