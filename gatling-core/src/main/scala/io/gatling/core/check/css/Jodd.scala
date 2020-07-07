@@ -25,25 +25,11 @@ object Jodd {
 
   LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
 
-  private val IeVersionDroppingCc = 10.0
-
-  private def joddConfigBase =
+  private val JoddConfig =
     new LagartoDomBuilderConfig()
       .setParsingErrorLogLevelName("INFO")
       .setCaseSensitive(false)
-
-  private val JoddConfig = joddConfigBase
-    .setEnableConditionalComments(false)
-
-  def getJoddConfig(ieVersion: Option[Float]): LagartoDomBuilderConfig =
-    ieVersion match {
-      case Some(version) if version < IeVersionDroppingCc =>
-        joddConfigBase
-          .setEnableConditionalComments(true)
-          .setCondCommentIEVersion(version)
-
-      case _ => JoddConfig
-    }
+      .setEnableConditionalComments(false)
 
   def newLagartoDomBuilder: LagartoDOMBuilder = {
     val domBuilder = new LagartoDOMBuilder
@@ -51,9 +37,9 @@ object Jodd {
     domBuilder
   }
 
-  def newLagartoParser(chars: Array[Char], ieVersion: Option[Float]): LagartoParser = {
+  def newLagartoParser(chars: Array[Char]): LagartoParser = {
     val lagartoParser = new LagartoParser(chars)
-    lagartoParser.setConfig(getJoddConfig(ieVersion))
+    lagartoParser.setConfig(JoddConfig)
     lagartoParser
   }
 }

@@ -24,7 +24,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.http.client.uri.Uri
-import io.gatling.http.fetch.{ ConcurrentResource, HtmlParser, UserAgent }
+import io.gatling.http.fetch.{ ConcurrentResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.model._
@@ -92,8 +92,7 @@ private[recorder] object RequestElement {
         case HtmlContentType(headerCharset) if responseBody.nonEmpty =>
           val charset = Option(headerCharset).collect { case charsetName if Charset.isSupported(charsetName) => Charset.forName(charsetName) }.getOrElse(UTF_8)
           val htmlChars = new String(response.body, charset).toCharArray
-          val userAgent = Option(requestHeaders.get(HttpHeaderNames.USER_AGENT)).flatMap(UserAgent.parseFromHeader)
-          new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars, userAgent)
+          new HtmlParser().getEmbeddedResources(Uri.create(request.uri), htmlChars)
       }
       .getOrElse(Nil)
 

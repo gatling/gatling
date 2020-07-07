@@ -26,7 +26,6 @@ import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
 import jodd.lagarto.{ EmptyTagVisitor, Tag, TagType }
-import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 import jodd.util.CharSequenceUtil
 
 private[fetch] sealed abstract class RawResource {
@@ -90,15 +89,12 @@ class HtmlParser extends StrictLogging {
 
   var inStyle = false
 
-  private def parseHtml(htmlContent: Array[Char], userAgent: Option[UserAgent]): HtmlResources = {
+  private def parseHtml(htmlContent: Array[Char]): HtmlResources = {
 
     var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
-    val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
-    val ieVersion = userAgent.map(_.version)
 
     val visitor: EmptyTagVisitor = new EmptyTagVisitor {
-      var inHiddenCommentStack = false :: Nil
 
       def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit =
         Option(tag.getAttributeValue(attributeName)).foreach { url =>
@@ -106,27 +102,11 @@ class HtmlParser extends StrictLogging {
         }
 
       override def script(tag: Tag, body: CharSequence): Unit =
-        if (!isInHiddenComment)
-          addResource(tag, SrcAttribute, RegularRawResource)
+        addResource(tag, SrcAttribute, RegularRawResource)
 
       override def text(text: CharSequence): Unit =
-        if (inStyle && !isInHiddenComment)
+        if (inStyle)
           rawResources ++= CssParser.extractStyleImportsUrls(text).map(CssRawResource)
-
-      private def isInHiddenComment = inHiddenCommentStack.head
-
-      override def condComment(expression: CharSequence, isStartingTag: Boolean, isHidden: Boolean, isHiddenEndTag: Boolean): Unit =
-        ieVersion match {
-          case Some(version) =>
-            if (!isStartingTag) {
-              inHiddenCommentStack = inHiddenCommentStack.tail
-            } else {
-              val commentValue = conditionalCommentsMatcher.`match`(version, expression.toString)
-              inHiddenCommentStack = (!commentValue) :: inHiddenCommentStack
-            }
-          case None =>
-            throw new IllegalStateException("condComment call while it should be disabled")
-        }
 
       override def tag(tag: Tag): Unit = {
 
@@ -207,20 +187,19 @@ class HtmlParser extends StrictLogging {
             case _ =>
           }
 
-        if (!isInHiddenComment)
-          processTag()
+        processTag()
       }
     }
 
     try {
-      Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor)
+      Jodd.newLagartoParser(htmlContent).parse(visitor)
     } catch { case NonFatal(e) => logException(htmlContent, e) }
     HtmlResources(rawResources, base)
   }
 
-  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[ConcurrentResource] = {
+  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char]): List[ConcurrentResource] = {
 
-    val htmlResources = parseHtml(htmlContent, userAgent)
+    val htmlResources = parseHtml(htmlContent)
 
     val rootURI = htmlResources.base.map(Uri.create(documentURI, _)).getOrElse(documentURI)
 

@@ -74,7 +74,7 @@ private[http] class ResourceFetcher(
     val htmlDocumentUri = request.getUri
 
     def inferredResourcesRequests(): List[HttpRequest] = {
-      val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.chars, UserAgent.getAgent(request))
+      val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.chars)
       val filtered = applyResourceFilters(inferred, httpProtocol.responsePart.htmlResourcesInferringFilters)
       resourcesToRequests(filtered, session, httpCaches, httpProtocol, throttled, coreComponents.configuration)
     }
