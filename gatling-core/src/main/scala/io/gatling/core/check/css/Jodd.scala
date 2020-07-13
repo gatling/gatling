@@ -30,6 +30,7 @@ object Jodd {
       .setParsingErrorLogLevelName("INFO")
       .setCaseSensitive(false)
       .setEnableConditionalComments(false)
+      .setEnableRawTextModes(false)
 
   def newLagartoDomBuilder: LagartoDOMBuilder = {
     val domBuilder = new LagartoDOMBuilder
