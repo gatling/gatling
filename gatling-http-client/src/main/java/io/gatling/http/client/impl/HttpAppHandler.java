@@ -215,7 +215,7 @@ class HttpAppHandler extends ChannelDuplexHandler {
     tx.requestTimeout.cancel();
 
     // only retry when we haven't started receiving response
-    if (!httpResponseReceived && client.canRetry(tx, ctx.channel())) {
+    if (!httpResponseReceived && client.canRetry(tx)) {
       client.retry(tx, ctx.channel().eventLoop());
     } else {
       crash(ctx, PREMATURE_CLOSE, false, tx);

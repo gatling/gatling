@@ -307,10 +307,10 @@ public class DefaultHttpClient implements HttpClient {
     return new HttpTx(request, listener, requestTimeout, key, sslContext, alpnSslContext);
   }
 
-  boolean canRetry(HttpTx tx, Channel channel) {
-    return ChannelPool.isReused(channel) // only retry polled keep-alive connections = when keep-alive timeout triggered server side while we were writing
-      && !(tx.request.getBody() instanceof InputStreamRequestBody && ((InputStreamRequestBody) tx.request.getBody()).isConsumed()) // InputStreamRequestBody can't be replayed
-      && tx.channelState == HttpTx.ChannelState.POOLED;
+  // only retry pooled keep-alive connections = when keep-alive timeout triggered server side while we were writing and request can be replayed
+  boolean canRetry(HttpTx tx) {
+    return tx.channelState == HttpTx.ChannelState.POOLED
+      && !(tx.request.getBody() instanceof InputStreamRequestBody && ((InputStreamRequestBody) tx.request.getBody()).isConsumed()); // InputStreamRequestBody can't be replayed
   }
 
   void retry(HttpTx tx, EventLoop eventLoop) {
