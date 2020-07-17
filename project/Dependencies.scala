@@ -67,7 +67,7 @@ object Dependencies {
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-2"                     % "3.1.2.0"           % "test"
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.14.3"            % "test"
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
-  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "3.4.2"             % "test"
+  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "3.4.3"             % "test"
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.0"           % "test")
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
   private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % "test"
