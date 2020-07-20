@@ -16,19 +16,36 @@
 
 package io.gatling.http.cache
 
+import java.net.InetAddress
+
+import scala.util.control.NonFatal
+
 import io.gatling.commons.util.CircularIterator
 import io.gatling.commons.validation._
 import io.gatling.core.session._
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 
-private[http] object BaseUrlSupport {
+import com.typesafe.scalalogging.LazyLogging
+
+private[http] object BaseUrlSupport extends LazyLogging {
 
   private val BaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
 
   private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
 
-  private def setBaseUrl(baseUrls: List[String], attributeName: String): Session => Session =
+  private def preResolve(baseUrl: String): Unit =
+    try {
+      val uri = Uri.create(baseUrl)
+      InetAddress.getAllByName(uri.getHost)
+    } catch {
+      case NonFatal(e) =>
+        logger.debug(s"Couldn't pre-resolve hostname from baseUrl $baseUrl", e)
+    }
+
+  private def setBaseUrl(baseUrls: List[String], attributeName: String): Session => Session = {
+    baseUrls.foreach(preResolve)
+
     baseUrls match {
       case Nil        => Session.Identity
       case url :: Nil => _.set(attributeName, url)
@@ -36,6 +53,7 @@ private[http] object BaseUrlSupport {
         val it = CircularIterator(urls.toVector, threadSafe = true)
         _.set(attributeName, it.next())
     }
+  }
 
   def setHttpBaseUrl(httpProtocol: HttpProtocol): Session => Session =
     setBaseUrl(httpProtocol.baseUrls, BaseUrlAttributeName)
