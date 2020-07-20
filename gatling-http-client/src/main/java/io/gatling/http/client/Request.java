@@ -37,7 +37,8 @@ public class Request {
   private final RequestBody<?> body;
   private final long requestTimeout;
   private final String virtualHost;
-  private final InetAddress localAddress;
+  private final InetAddress localIpV4Address;
+  private final InetAddress localIpV6Address;
   private final Realm realm;
   private final ProxyServer proxyServer;
   private final SignatureCalculator signatureCalculator;
@@ -54,7 +55,8 @@ public class Request {
                  RequestBody<?> body,
                  long requestTimeout,
                  String virtualHost,
-                 InetAddress localAddress,
+                 InetAddress localIpV4Address,
+                 InetAddress localIpV6Address,
                  Realm realm,
                  ProxyServer proxyServer,
                  SignatureCalculator signatureCalculator,
@@ -70,7 +72,8 @@ public class Request {
     this.body = body;
     this.requestTimeout = requestTimeout;
     this.virtualHost = virtualHost;
-    this.localAddress = localAddress;
+    this.localIpV4Address = localIpV4Address;
+    this.localIpV6Address = localIpV6Address;
     this.realm = realm;
     this.proxyServer = proxyServer;
     this.signatureCalculator = signatureCalculator;
@@ -90,7 +93,8 @@ public class Request {
       this.body,
       this.requestTimeout,
       this.virtualHost,
-      this.localAddress,
+      this.localIpV4Address,
+      this.localIpV6Address,
       this.realm,
       this.proxyServer,
       this.signatureCalculator,
@@ -129,8 +133,12 @@ public class Request {
     return virtualHost;
   }
 
-  public InetAddress getLocalAddress() {
-    return localAddress;
+  public InetAddress getLocalIpV4Address() {
+    return localIpV4Address;
+  }
+
+  public InetAddress getLocalIpV6Address() {
+    return localIpV6Address;
   }
 
   public Realm getRealm() {
@@ -175,7 +183,8 @@ public class Request {
       ", body=" + body +
       ", requestTimeout=" + requestTimeout +
       ", virtualHost='" + virtualHost + '\'' +
-      ", localAddress=" + localAddress +
+      ", localIpV4Address=" + localIpV4Address +
+      ", localIpV6Address=" + localIpV6Address +
       ", realm=" + realm +
       ", proxyServer=" + proxyServer +
       ", signatureCalculator=" + signatureCalculator +

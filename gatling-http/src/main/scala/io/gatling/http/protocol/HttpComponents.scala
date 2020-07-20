@@ -32,7 +32,7 @@ final class HttpComponents(
   override lazy val onStart: Session => Session =
     (SslContextSupport.setSslContexts(httpProtocol, httpEngine)
       andThen httpCaches.setNameResolver(httpProtocol, httpEngine)
-      andThen LocalAddressSupport.setLocalAddress(httpProtocol)
+      andThen LocalAddressSupport.setLocalAddresses(httpProtocol)
       andThen BaseUrlSupport.setHttpBaseUrl(httpProtocol)
       andThen BaseUrlSupport.setWsBaseUrl(httpProtocol)
       andThen Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol))

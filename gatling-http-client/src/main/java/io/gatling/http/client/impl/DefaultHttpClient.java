@@ -41,9 +41,13 @@ import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http2.*;
-import io.netty.handler.ssl.*;
+import io.netty.handler.ssl.ApplicationProtocolNames;
+import io.netty.handler.ssl.ApplicationProtocolNegotiationHandler;
+import io.netty.handler.ssl.SslContext;
+import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
+import io.netty.util.NetUtil;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
 import io.netty.util.internal.logging.InternalLoggerFactory;
@@ -51,9 +55,12 @@ import io.netty.util.internal.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -582,6 +589,10 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
+  private static InetSocketAddress localAddressWithRandomPort(InetAddress localAddress) {
+    return localAddress != null ?  new InetSocketAddress(localAddress, 0) : null;
+  }
+
   private Future<Channel> openNewChannel(Request request,
                                          EventLoop eventLoop,
                                          EventLoopResources resources,
@@ -591,8 +602,7 @@ public class DefaultHttpClient implements HttpClient {
 
     Bootstrap bootstrap = bootstrap(request, resources);
     Promise<Channel> channelPromise = eventLoop.newPromise();
-    InetSocketAddress localAddress = request.getLocalAddress() != null ? new InetSocketAddress(request.getLocalAddress(), 0) : null;
-    openNewChannelRec(remoteAddresses, localAddress, 0, channelPromise, bootstrap, listener, requestTimeout);
+    openNewChannelRec(remoteAddresses, localAddressWithRandomPort(request.getLocalIpV4Address()), localAddressWithRandomPort(request.getLocalIpV6Address()), 0, channelPromise, bootstrap, listener, requestTimeout);
     return channelPromise;
   }
 
@@ -604,7 +614,8 @@ public class DefaultHttpClient implements HttpClient {
   };
 
   private void openNewChannelRec(List<InetSocketAddress> remoteAddresses,
-                                 InetSocketAddress localAddress,
+                                 InetSocketAddress localIpV4Address,
+                                 InetSocketAddress localIpV6Address,
                                  int i,
                                  Promise<Channel> channelPromise,
                                  Bootstrap bootstrap,
@@ -616,40 +627,74 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     InetSocketAddress remoteAddress = remoteAddresses.get(i);
+    InetSocketAddress localAddress;
+    boolean forceMoveToNextRemoteAddress = false;
 
-    //[fl]
-    //
-    //[fl]
-    ChannelFuture whenChannel = bootstrap.connect(remoteAddress, localAddress);
+    if (localIpV4Address == null && localIpV6Address == null) {
+      // non explicit local addresses, skip
+      localAddress = null;
+    } else if (remoteAddress.getAddress() instanceof Inet6Address) {
+      if (localIpV6Address == null) {
+        // forcing local IPv4 while remote is IPv6 is bound to fail => move to next address
+        localAddress = null;
+        forceMoveToNextRemoteAddress = true;
+      } else {
+        localAddress = localIpV6Address;
+      }
+    } else {
+      // IPv4
+      localAddress = NetUtil.isIpV6AddressesPreferred() && localIpV6Address != null ? localIpV6Address : localIpV4Address;
+    }
 
-    whenChannel.addListener(f -> {
-      if (f.isSuccess()) {
-        //[fl]
-        //
-        //[fl]
-        channelPromise.setSuccess(whenChannel.channel());
+    if (forceMoveToNextRemoteAddress) {
+      int nextI = i + 1;
+      if (nextI < remoteAddresses.size()) {
+        openNewChannelRec(remoteAddresses, localIpV4Address, null, nextI, channelPromise, bootstrap, listener, requestTimeout);
 
       } else {
-        //[fl]
-        //
-        //[fl]
+        requestTimeout.cancel();
+        Exception cause = new UnsupportedOperationException("Can't connect to IPv6 remote " + remoteAddress + " + from IPv4 local one " + localIpV4Address);
+        listener.onThrowable(cause);
+        channelPromise.setFailure(cause);
+      }
+    } else {
+      //[fl]
+      //
+      //[fl]
+      ChannelFuture whenChannel = bootstrap.connect(remoteAddress, localAddress);
 
-        if (requestTimeout.isDone()) {
-          channelPromise.setFailure(IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT);
-          return;
-        }
-
-        int nextI = i + 1;
-        if (nextI < remoteAddresses.size()) {
-          openNewChannelRec(remoteAddresses, localAddress, nextI, channelPromise, bootstrap, listener, requestTimeout);
+      whenChannel.addListener(f -> {
+        if (f.isSuccess()) {
+          //[fl]
+          //
+          //[fl]
+          channelPromise.setSuccess(whenChannel.channel());
 
         } else {
-          requestTimeout.cancel();
-          listener.onThrowable(f.cause());
-          channelPromise.setFailure(f.cause());
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Failed to connect to remoteAddress=" + remoteAddress + " from localAddress=" + localAddress, f.cause());
+          }
+          //[fl]
+          //
+          //[fl]
+
+          if (requestTimeout.isDone()) {
+            channelPromise.setFailure(IGNORE_REQUEST_TIMEOUT_REACHED_WHILE_TRYING_TO_CONNECT);
+            return;
+          }
+
+          int nextI = i + 1;
+          if (nextI < remoteAddresses.size()) {
+            openNewChannelRec(remoteAddresses, localIpV4Address, localIpV6Address, nextI, channelPromise, bootstrap, listener, requestTimeout);
+
+          } else {
+            requestTimeout.cancel();
+            listener.onThrowable(f.cause());
+            channelPromise.setFailure(f.cause());
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   private Future<Channel> installSslHandler(HttpTx tx, Channel channel) {

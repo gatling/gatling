@@ -75,7 +75,8 @@ object HttpProtocol extends StrictLogging {
         shareConnections = false,
         maxConnectionsPerHost = 6,
         virtualHost = None,
-        localAddresses = Nil,
+        localIpV4Addresses = Nil,
+        localIpV6Addresses = Nil,
         enableHttp2 = false,
         http2PriorKnowledge = Map.empty,
         perUserKeyManagerFactory = None
@@ -147,7 +148,8 @@ final case class HttpProtocolEnginePart(
     shareConnections: Boolean,
     maxConnectionsPerHost: Int,
     virtualHost: Option[Expression[String]],
-    localAddresses: List[InetAddress],
+    localIpV4Addresses: List[InetAddress],
+    localIpV6Addresses: List[InetAddress],
     enableHttp2: Boolean,
     http2PriorKnowledge: Map[Remote, Boolean],
     perUserKeyManagerFactory: Option[Long => KeyManagerFactory]

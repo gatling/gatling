@@ -53,7 +53,8 @@ public class RequestBuilder {
   private RequestBodyBuilder<?> bodyBuilder;
   private long requestTimeout;
   private String virtualHost;
-  private InetAddress localAddress;
+  private InetAddress localIpV4Address;
+  private InetAddress localIpV6Address;
   private Realm realm;
   private ProxyServer proxyServer;
   private SignatureCalculator signatureCalculator;
@@ -77,7 +78,8 @@ public class RequestBuilder {
     bodyBuilder = request.getBody() != null ? request.getBody().newBuilder() : null;
     requestTimeout = request.getRequestTimeout();
     virtualHost = request.getVirtualHost();
-    localAddress = request.getLocalAddress();
+    localIpV4Address = request.getLocalIpV4Address();
+    localIpV6Address = request.getLocalIpV6Address();
     realm = request.getRealm();
     proxyServer = request.getProxyServer();
     signatureCalculator = request.getSignatureCalculator();
@@ -122,8 +124,13 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setLocalAddress(InetAddress localAddress) {
-    this.localAddress = localAddress;
+  public RequestBuilder setLocalIpV4Address(InetAddress localIpV4Address) {
+    this.localIpV4Address = localIpV4Address;
+    return this;
+  }
+
+  public RequestBuilder setLocalIpV6Address(InetAddress localIpV6Address) {
+    this.localIpV6Address = localIpV6Address;
     return this;
   }
 
@@ -226,7 +233,8 @@ public class RequestBuilder {
       body,
       requestTimeout,
       virtualHost,
-      localAddress,
+      localIpV4Address,
+      localIpV6Address,
       realm,
       proxyServer,
       signatureCalculator,

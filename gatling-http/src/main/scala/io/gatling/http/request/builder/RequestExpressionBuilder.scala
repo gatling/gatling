@@ -200,10 +200,14 @@ abstract class RequestExpressionBuilder(
       case _           => ConfigureIdentity
     }
 
-  private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit =
-    if (httpProtocol.enginePart.localAddresses.nonEmpty) {
-      LocalAddressSupport.localAddress(session).foreach(requestBuilder.setLocalAddress)
+  private def configureLocalAddress(session: Session, requestBuilder: ClientRequestBuilder): Unit = {
+    if (httpProtocol.enginePart.localIpV4Addresses.nonEmpty) {
+      LocalAddressSupport.localIpV4Address(session).foreach(requestBuilder.setLocalIpV4Address)
     }
+    if (httpProtocol.enginePart.localIpV6Addresses.nonEmpty) {
+      LocalAddressSupport.localIpV6Address(session).foreach(requestBuilder.setLocalIpV6Address)
+    }
+  }
 
   private val configureSignatureCalculator: RequestBuilderConfigure =
     signatureCalculatorExpression match {
