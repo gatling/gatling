@@ -35,7 +35,7 @@ DEFAULT_JAVA_OPTS="-server"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Xmx1G -XX:+HeapDumpOnOutOfMemoryError"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:+UseG1GC -XX:+ParallelRefProcEnabled"
 DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -XX:MaxInlineLevel=20 -XX:MaxTrivialSize=12 -XX:-UseBiasedLocking"
-DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false"
+DEFAULT_JAVA_OPTS="${DEFAULT_JAVA_OPTS} -Djava.net.preferIPv6Addresses=true"
 COMPILER_OPTS="-Xss100M $DEFAULT_JAVA_OPTS $JAVA_OPTS"
 
 # Setup classpaths

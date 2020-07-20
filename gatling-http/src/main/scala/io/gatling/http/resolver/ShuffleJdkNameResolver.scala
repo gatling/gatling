@@ -17,12 +17,12 @@
 package io.gatling.http.resolver
 
 import java.{ util => ju }
-import java.net.{ InetAddress, UnknownHostException }
+import java.net.{ Inet4Address, InetAddress, UnknownHostException }
 
-import io.gatling.commons.util.Arrays
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
 
+import io.netty.util.NetUtil
 import io.netty.util.concurrent.{ Future, Promise }
 
 private[http] object ShuffleJdkNameResolver {
@@ -31,12 +31,46 @@ private[http] object ShuffleJdkNameResolver {
 
 private[http] class ShuffleJdkNameResolver extends InetAddressNameResolver {
 
+  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf", "org.wartremover.warts.AnyVal"))
   protected def resolveAll0(inetHost: String, promise: Promise[ju.List[InetAddress]]): Unit =
     try {
-      val addresses: ju.List[InetAddress] = InetAddress.getAllByName(inetHost) match {
-        case Array(single) => ju.Collections.singletonList(single)
-        case array         => ju.Arrays.asList(Arrays.shuffle(array): _*)
-      }
+      val allAddresses: Array[InetAddress] = InetAddress.getAllByName(inetHost)
+      val addresses =
+        if (allAddresses.length == 1) {
+          ju.Collections.singletonList(allAddresses(0))
+        } else {
+          var ipV4: ju.List[InetAddress] = null
+          var ipV6: ju.List[InetAddress] = null
+          allAddresses.foreach { inetAddress =>
+            if (inetAddress.isInstanceOf[Inet4Address]) {
+              if (ipV4 == null) {
+                ipV4 = new ju.ArrayList[InetAddress](allAddresses.length)
+              }
+              ipV4.add(inetAddress)
+            } else if (!NetUtil.isIpV4StackPreferred) {
+              if (ipV6 == null) {
+                ipV6 = new ju.ArrayList[InetAddress](allAddresses.length)
+              }
+              ipV6.add(inetAddress)
+            }
+          }
+
+          val higher = if (NetUtil.isIpV6AddressesPreferred) ipV6 else ipV4
+          val lower = if (NetUtil.isIpV6AddressesPreferred) ipV4 else ipV6
+
+          if (higher != null) {
+            ju.Collections.shuffle(higher)
+            if (lower != null) {
+              ju.Collections.shuffle(lower)
+              higher.addAll(lower)
+            }
+            higher
+          } else {
+            ju.Collections.shuffle(lower)
+            lower
+          }
+        }
+
       promise.setSuccess(addresses)
     } catch {
       case e: UnknownHostException => promise.setFailure(e)
