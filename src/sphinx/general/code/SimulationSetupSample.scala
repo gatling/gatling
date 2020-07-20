@@ -95,6 +95,18 @@ class SimulationSetupSample extends Simulation {
   )
   //#incrementUsersPerSec
 
+  private val scenario1 = scenario("scenario1")
+  private val scenario2 = scenario("scenario2")
+  private val injectionProfile1 = atOnceUsers(1)
+  private val injectionProfile2 = atOnceUsers(1)
+
+  //#multiple
+  setUp(
+    scenario1.inject(injectionProfile1),
+    scenario2.inject(injectionProfile2)
+  )
+  //#multiple
+
   private val parent = scenario("parent")
   private val child1 = scenario("child1")
   private val child2 = scenario("child2")

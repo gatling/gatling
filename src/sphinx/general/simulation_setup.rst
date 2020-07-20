@@ -114,14 +114,21 @@ But there is now an alternative using the meta DSL.
 If you don't specify a ramp, the test will jump from one level to another as soon as it is finished.
 If you don't specify the number of starting users the test will start at 0 concurrent user or 0 user per sec and will go to the next step right away.
 
+.. _simulation-inject-concurrent:
+
+Concurrent Scenarios
+^^^^^^^^^^^^^^^^^^^^
+
+You can configure multiple scenarios in the same ``setUp`` block to started at the same time and executed concurrently.
+
+.. includecode:: code/SimulationSetupSample.scala#multiple
+
 .. _simulation-inject-seq:
 
-Chaining Sequences of Scenarios
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Sequential Scenarios
+^^^^^^^^^^^^^^^^^^^^
 
-Scenarios defined in the same ``setUp`` block will be started at the same time and executed concurrently.
-
-However, it's possible with ``andThen`` to chain scenarios so that children scenarios starts once all the users in the parent ones terminate.
+It's also possible with ``andThen`` to chain scenarios so that children scenarios starts once all the users in the parent scenario terminate.
 
 .. includecode:: code/SimulationSetupSample.scala#andThen
 
