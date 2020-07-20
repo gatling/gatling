@@ -1270,6 +1270,12 @@
           - signature: (InetAddress...)
             description: Address Strings that will be turned into InetAddresses
 
+        - keyword: useAllLocalAddresses
+          description: Binds the sockets from all available local addresses
+          syntax:
+            - signature: (InetAddress...)
+              description: Address Strings that will be turned into InetAddresses
+
         - keyword: perUserKeyManagerFactory
           description: Configure a specific javax.net.ssl.KeyManagerFactory per virtual user
           syntax:
