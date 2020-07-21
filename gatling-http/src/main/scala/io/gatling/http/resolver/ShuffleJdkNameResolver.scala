@@ -18,6 +18,7 @@ package io.gatling.http.resolver
 
 import java.{ util => ju }
 import java.net.{ Inet4Address, InetAddress, UnknownHostException }
+import java.util.concurrent.ThreadLocalRandom
 
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
@@ -27,50 +28,52 @@ import io.netty.util.concurrent.{ Future, Promise }
 
 private[http] object ShuffleJdkNameResolver {
   val Instance = new ShuffleJdkNameResolver
+
+  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf", "org.wartremover.warts.AnyVal"))
+  def shuffleInetAddresses(originalAddresses: Array[InetAddress], isIpV4StackPreferred: Boolean, isIpV6AddressesPreferred: Boolean): ju.List[InetAddress] =
+    if (originalAddresses.length == 1) {
+      ju.Collections.singletonList(originalAddresses(0))
+    } else {
+      var ipV4: ju.List[InetAddress] = null
+      var ipV6: ju.List[InetAddress] = null
+      originalAddresses.foreach { inetAddress =>
+        if (inetAddress.isInstanceOf[Inet4Address]) {
+          if (ipV4 == null) {
+            ipV4 = new ju.ArrayList[InetAddress](originalAddresses.length)
+          }
+          ipV4.add(inetAddress)
+        } else if (!isIpV4StackPreferred) {
+          if (ipV6 == null) {
+            ipV6 = new ju.ArrayList[InetAddress](originalAddresses.length)
+          }
+          ipV6.add(inetAddress)
+        }
+      }
+
+      val higher = if (isIpV6AddressesPreferred) ipV6 else ipV4
+      val lower = if (isIpV6AddressesPreferred) ipV4 else ipV6
+
+      val random = ThreadLocalRandom.current()
+      if (higher != null) {
+        ju.Collections.shuffle(higher, random)
+        if (lower != null) {
+          ju.Collections.shuffle(lower, random)
+          higher.addAll(lower)
+        }
+        higher
+      } else {
+        ju.Collections.shuffle(lower, random)
+        lower
+      }
+    }
 }
 
 private[http] class ShuffleJdkNameResolver extends InetAddressNameResolver {
 
-  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf", "org.wartremover.warts.AnyVal"))
   protected def resolveAll0(inetHost: String, promise: Promise[ju.List[InetAddress]]): Unit =
     try {
-      val allAddresses: Array[InetAddress] = InetAddress.getAllByName(inetHost)
-      val addresses =
-        if (allAddresses.length == 1) {
-          ju.Collections.singletonList(allAddresses(0))
-        } else {
-          var ipV4: ju.List[InetAddress] = null
-          var ipV6: ju.List[InetAddress] = null
-          allAddresses.foreach { inetAddress =>
-            if (inetAddress.isInstanceOf[Inet4Address]) {
-              if (ipV4 == null) {
-                ipV4 = new ju.ArrayList[InetAddress](allAddresses.length)
-              }
-              ipV4.add(inetAddress)
-            } else if (!NetUtil.isIpV4StackPreferred) {
-              if (ipV6 == null) {
-                ipV6 = new ju.ArrayList[InetAddress](allAddresses.length)
-              }
-              ipV6.add(inetAddress)
-            }
-          }
-
-          val higher = if (NetUtil.isIpV6AddressesPreferred) ipV6 else ipV4
-          val lower = if (NetUtil.isIpV6AddressesPreferred) ipV4 else ipV6
-
-          if (higher != null) {
-            ju.Collections.shuffle(higher)
-            if (lower != null) {
-              ju.Collections.shuffle(lower)
-              higher.addAll(lower)
-            }
-            higher
-          } else {
-            ju.Collections.shuffle(lower)
-            lower
-          }
-        }
-
+      val originalAddresses: Array[InetAddress] = InetAddress.getAllByName(inetHost)
+      val addresses = ShuffleJdkNameResolver.shuffleInetAddresses(originalAddresses, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred)
       promise.setSuccess(addresses)
     } catch {
       case e: UnknownHostException => promise.setFailure(e)

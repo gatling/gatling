@@ -183,8 +183,10 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     }.toArray)
   def asyncNameResolution(dnsServers: Array[InetSocketAddress]): HttpProtocolBuilder =
     this.modify(_.protocol.dnsPart.dnsNameResolution).setTo(AsyncDnsNameResolution(dnsServers))
-  def hostNameAliases(aliases: Map[String, String]): HttpProtocolBuilder = {
-    val aliasesToInetAddresses = aliases.map { case (hostname, ip) => hostname -> InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress) }
+  def hostNameAliases(aliases: Map[String, List[String]]): HttpProtocolBuilder = {
+    val aliasesToInetAddresses = aliases.map {
+      case (hostname, ips) => hostname -> ips.map(ip => InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress)).toArray
+    }
     this.modify(_.protocol.dnsPart.hostNameAliases).setTo(aliasesToInetAddresses)
   }
   def perUserNameResolution: HttpProtocolBuilder =

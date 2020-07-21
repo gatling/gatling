@@ -19,6 +19,7 @@ package io.gatling.http.cache
 import java.{ util => ju }
 import java.net.InetAddress
 
+import io.gatling.commons.util.Maps._
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.client.HttpListener
@@ -28,6 +29,7 @@ import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, Htt
 import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
 
 import io.netty.channel.EventLoop
+import io.netty.util.NetUtil
 import io.netty.util.concurrent.{ Future, Promise }
 
 private object DnsCacheSupport {
@@ -52,21 +54,29 @@ private[http] trait DnsCacheSupport {
   private def newNameResolver(
       eventLoop: EventLoop,
       dnsNameResolution: DnsNameResolution,
-      hostNameAliases: Map[String, InetAddress],
       httpEngine: HttpEngine
   ): InetAddressNameResolver = {
-    val resolver = {
-      dnsNameResolution match {
-        case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
-        case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(eventLoop, dnsServers)
-      }
+    dnsNameResolution match {
+      case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
+      case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(eventLoop, dnsServers)
     }
+  }
 
-    if (hostNameAliases.isEmpty) {
-      resolver
-    } else {
-      new AliasesAwareNameResolver(hostNameAliases, resolver)
-    }
+  private def setAliasAwareResolver(
+      session: Session,
+      resolver: InetAddressNameResolver,
+      hostNameAliases: Map[String, Array[InetAddress]]
+  ): Session = {
+    val aliasAwareResolver =
+      if (hostNameAliases.isEmpty) {
+        resolver
+      } else {
+        val shuffled =
+          hostNameAliases.forceMapValues(ShuffleJdkNameResolver.shuffleInetAddresses(_, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred))
+        new AliasesAwareNameResolver(shuffled, resolver)
+      }
+
+    session.set(DnsNameResolverAttributeName, aliasAwareResolver)
   }
 
   def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
@@ -74,17 +84,17 @@ private[http] trait DnsCacheSupport {
     import httpProtocol.dnsPart._
 
     if (perUserNameResolution) { session =>
-      session.set(DnsNameResolverAttributeName, newNameResolver(session.eventLoop, dnsNameResolution, hostNameAliases, httpEngine))
+      val actualResolver = newNameResolver(session.eventLoop, dnsNameResolution, httpEngine)
+      setAliasAwareResolver(session, actualResolver, hostNameAliases)
 
     } else {
       // create shared name resolver for all the users with this protocol
-      val nameResolver = newNameResolver(coreComponents.eventLoopGroup.next(), dnsNameResolution, hostNameAliases, httpEngine)
-      coreComponents.actorSystem.registerOnTermination(() => nameResolver.close())
+      val actualResolver = newNameResolver(coreComponents.eventLoopGroup.next(), dnsNameResolution, httpEngine)
+      coreComponents.actorSystem.registerOnTermination(() => actualResolver.close())
 
       // perform close on system shutdown instead of virtual user termination as its shared
-      val noopCloseNameResolver = new NoopCloseNameResolver(nameResolver)
-
-      _.set(DnsNameResolverAttributeName, noopCloseNameResolver)
+      val noopCloseNameResolver = new NoopCloseNameResolver(actualResolver)
+      setAliasAwareResolver(_, noopCloseNameResolver, hostNameAliases)
     }
   }
 

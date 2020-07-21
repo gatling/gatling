@@ -96,7 +96,7 @@ class HttpCompileTest extends Simulation {
     .asyncNameResolution()
     .asyncNameResolution("8.8.8.8", "8.8.4.4")
     .asyncNameResolution(Array(new InetSocketAddress("8.8.8.8", 53), new InetSocketAddress("8.8.4.4", 53)))
-    .hostNameAliases(Map("foo" -> "127.0.0.1"))
+    .hostNameAliases(Map("foo" -> List("127.0.0.1")))
     .enableHttp2
     .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
     .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))

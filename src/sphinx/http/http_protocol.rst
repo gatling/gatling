@@ -166,8 +166,9 @@ Hostname Aliasing
 
 You can of course define hostname aliases at the OS level in the ``/etc/hosts`` file.
 
-But you can also pass a ``Map[String, String]`` to ``.hostNameAliases`` where values are valid IP addresses.
-Note that, just like with ``/etc/hosts`` you can only define one IP per alias.
+But you can use ``.hostNameAliases`` to pass aliases programmatically:
+
+.. includecode:: code/HttpProtocolSample.scala#hostNameAliases
 
 .. _http-protocol-virtual-host:
 

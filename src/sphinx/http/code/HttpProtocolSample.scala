@@ -122,4 +122,11 @@ class HttpProtocolSample extends Simulation {
       .http2PriorKnowledge(Map("www.google.com" -> true, "gatling.io" -> false))
     //#http2PriorKnowledge
   }
+
+  {
+    //#hostNameAliases
+    val httpProtocol = http
+      .hostNameAliases(Map("gatling.io" -> List("192.168.0.1", "192.168.0.2")))
+    //#hostNameAliases
+  }
 }

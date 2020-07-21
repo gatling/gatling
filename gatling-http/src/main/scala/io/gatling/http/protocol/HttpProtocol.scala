@@ -190,6 +190,6 @@ final case class HttpProtocolProxyPart(
 
 final case class DnsPart(
     dnsNameResolution: DnsNameResolution,
-    hostNameAliases: Map[String, InetAddress],
+    hostNameAliases: Map[String, Array[InetAddress]],
     perUserNameResolution: Boolean
 )

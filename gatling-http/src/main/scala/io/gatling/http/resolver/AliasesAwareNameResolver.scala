@@ -24,12 +24,12 @@ import io.gatling.http.client.resolver.InetAddressNameResolver
 
 import io.netty.util.concurrent.{ Future, Promise }
 
-private[http] class AliasesAwareNameResolver(aliases: Map[String, InetAddress], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
+private[http] class AliasesAwareNameResolver(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
 
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] =
     aliases.get(inetHost) match {
-      case Some(address) => promise.setSuccess(ju.Collections.singletonList(address))
-      case _             => wrapped.resolveAll(inetHost, promise, listener)
+      case Some(addresses) => promise.setSuccess(addresses)
+      case _               => wrapped.resolveAll(inetHost, promise, listener)
     }
 
   override def close(): Unit = wrapped.close()
