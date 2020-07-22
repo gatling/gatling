@@ -35,6 +35,7 @@ import io.gatling.http.client.util.Pair
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.Http
 import io.gatling.http.util.{ SslContexts, SslContextsFactory }
+import io.gatling.netty.util.Transports
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.buffer.ByteBuf
@@ -164,6 +165,7 @@ class HttpEngine(
   def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): InetAddressNameResolverWrapper =
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)
+        .channelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport))
         .nameServerProvider(
           if (dnsServers.length == 0) DnsServerAddressStreamProviders.platformDefault
           else new SequentialDnsServerAddressStreamProvider(dnsServers: _*)

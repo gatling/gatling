@@ -155,7 +155,7 @@ public class DefaultHttpClient implements HttpClient {
         TimeUnit.MILLISECONDS);
 
       http1Bootstrap = new Bootstrap()
-        .channelFactory(Transports.newChannelFactory(config.isUseNativeTransport()))
+        .channelFactory(Transports.newSocketChannelFactory(config.isUseNativeTransport()))
         .group(eventLoop)
         .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) config.getConnectTimeout())
         .option(ChannelOption.SO_REUSEADDR, config.isSoReuseAddress())
