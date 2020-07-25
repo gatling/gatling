@@ -37,7 +37,7 @@ object Dependencies {
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.30"
-  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.4.0-M6")
+  private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.4.0-M7")
     .exclude("org.scala-lang.modules", "scala-parser-combinators_2.12")
     .exclude("org.scala-lang.modules", "scala-xml_2.12")
     .exclude("org.scala-sbt", "launcher-interface")
@@ -80,7 +80,14 @@ object Dependencies {
   // format: ON
 
   private val loggingDeps = Seq(slf4jApi, scalaLogging, logback)
-  private val testDeps = Seq(scalaTest, scalaTestScalacheck, scalaTestMockito, scalaCheck, akkaTestKit, mockitoCore)
+  private val testDeps = Seq(
+    scalaTest,
+    scalaTestScalacheck,
+    scalaTestMockito,
+    scalaCheck,
+    akkaTestKit,
+    mockitoCore
+  )
   private val parserDeps = Seq(jackson, saxon, joddLagarto, jmespath)
 
   // Dependencies by module
@@ -95,7 +102,18 @@ object Dependencies {
     Seq(scalaParserCombinators, jackson) ++ testDeps
 
   val coreDependencies =
-    Seq(akka, akkaSlf4j, sfm, java8Compat, caffeine, pebble, scalaParserCombinators, scopt, nettyHandler, quicklens) ++
+    Seq(
+      akka,
+      akkaSlf4j,
+      sfm,
+      java8Compat,
+      caffeine,
+      pebble,
+      scalaParserCombinators,
+      scopt,
+      nettyHandler,
+      quicklens
+    ) ++
       parserDeps ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
@@ -129,7 +147,16 @@ object Dependencies {
   val benchmarkDependencies = Seq(jmh)
 
   def compilerDependencies(scalaVersion: String) =
-    Seq(scalaCompiler(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logback, zinc, compilerBridge, scopt)
+    Seq(
+      scalaCompiler(scalaVersion),
+      scalaReflect(scalaVersion),
+      config,
+      slf4jApi,
+      logback,
+      zinc,
+      compilerBridge,
+      scopt
+    )
 
   val recorderDependencies = Seq(scalaSwing, jackson, bouncyCastle, netty, akka) ++ testDeps
 
