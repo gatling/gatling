@@ -54,12 +54,12 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
         pattern <- pattern(session)
       } yield f(headerName, pattern)
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] =
+  override protected def findExtractor(occurrence: Int): Expression[Extractor[Response, X]] =
     withHeaderAndPattern(HttpHeaderRegexExtractors.find(_, _, occurrence, patterns))
 
-  override def findAllExtractor: Expression[Extractor[Response, Seq[X]]] = withHeaderAndPattern(HttpHeaderRegexExtractors.findAll(_, _, patterns))
+  override protected def findAllExtractor: Expression[Extractor[Response, Seq[X]]] = withHeaderAndPattern(HttpHeaderRegexExtractors.findAll(_, _, patterns))
 
-  override def countExtractor: Expression[Extractor[Response, Int]] = withHeaderAndPattern(HttpHeaderRegexExtractors.count(_, _, patterns))
+  override protected def countExtractor: Expression[Extractor[Response, Int]] = withHeaderAndPattern(HttpHeaderRegexExtractors.count(_, _, patterns))
 }
 
 object HttpHeaderRegexCheckMaterializer {

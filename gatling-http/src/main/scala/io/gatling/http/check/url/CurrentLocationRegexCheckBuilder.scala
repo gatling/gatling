@@ -43,10 +43,10 @@ class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
     private[url] val patterns: Patterns
 ) extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, X](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
+  override protected def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
     pattern.map(RegexExtractors.find[X]("currentLocationRegex", _, occurrence, patterns))
-  override def findAllExtractor: Expression[Extractor[String, Seq[X]]] = pattern.map(RegexExtractors.findAll[X]("currentLocationRegex", _, patterns))
-  override def countExtractor: Expression[Extractor[String, Int]] = pattern.map(RegexExtractors.count("currentLocationRegex", _, patterns))
+  override protected def findAllExtractor: Expression[Extractor[String, Seq[X]]] = pattern.map(RegexExtractors.findAll[X]("currentLocationRegex", _, patterns))
+  override protected def countExtractor: Expression[Extractor[String, Int]] = pattern.map(RegexExtractors.count("currentLocationRegex", _, patterns))
 }
 
 object CurrentLocationRegexCheckMaterializer {

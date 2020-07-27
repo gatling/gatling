@@ -53,11 +53,11 @@ trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
 
 abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Boolean) extends MultipleFindCheckBuilder[T, P, X] {
 
-  def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
+  protected def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
 
-  def findAllExtractor: Expression[Extractor[P, Seq[X]]]
+  protected def findAllExtractor: Expression[Extractor[P, Seq[X]]]
 
-  def findRandomExtractor: Expression[Extractor[P, X]] = findAllExtractor.map { fae =>
+  private def findRandomExtractor: Expression[Extractor[P, X]] = findAllExtractor.map { fae =>
     new Extractor[P, X] {
       override def name: String = fae.name
       override def arity: String = "findRandom"
@@ -68,7 +68,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
     }
   }
 
-  def findManyRandomExtractor(num: Int, failIfLess: Boolean): Expression[Extractor[P, Seq[X]]] = findAllExtractor.map { fae =>
+  private def findManyRandomExtractor(num: Int, failIfLess: Boolean): Expression[Extractor[P, Seq[X]]] = findAllExtractor.map { fae =>
     new Extractor[P, Seq[X]] {
       override def name: String = fae.name
       override def arity: String = s"findRandom($num, $failIfLess)"
@@ -99,20 +99,20 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
     }
   }
 
-  def countExtractor: Expression[Extractor[P, Int]]
+  protected def countExtractor: Expression[Extractor[P, Int]]
 
-  def find: ValidatorCheckBuilder[T, P, X] = find(0)
+  override def find: ValidatorCheckBuilder[T, P, X] = find(0)
 
-  def find(occurrence: Int): ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findExtractor(occurrence), displayActualValue)
+  override def find(occurrence: Int): ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findExtractor(occurrence), displayActualValue)
 
-  def findAll: ValidatorCheckBuilder[T, P, Seq[X]] = ValidatorCheckBuilder(findAllExtractor, displayActualValue)
+  override def findAll: ValidatorCheckBuilder[T, P, Seq[X]] = ValidatorCheckBuilder(findAllExtractor, displayActualValue)
 
-  def findRandom: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findRandomExtractor, displayActualValue)
+  override def findRandom: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(findRandomExtractor, displayActualValue)
 
-  def findRandom(num: Int, failIfLess: Boolean): ValidatorCheckBuilder[T, P, Seq[X]] =
+  override def findRandom(num: Int, failIfLess: Boolean): ValidatorCheckBuilder[T, P, Seq[X]] =
     ValidatorCheckBuilder(findManyRandomExtractor(num, failIfLess), displayActualValue)
 
-  def count: ValidatorCheckBuilder[T, P, Int] = ValidatorCheckBuilder(countExtractor, displayActualValue)
+  override def count: ValidatorCheckBuilder[T, P, Int] = ValidatorCheckBuilder(countExtractor, displayActualValue)
 }
 
 object ValidatorCheckBuilder {

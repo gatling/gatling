@@ -40,8 +40,8 @@ class CssCheckBuilder[X: NodeConverter](
     private[css] val selectors: CssSelectors
 ) extends DefaultMultipleFindCheckBuilder[CssCheckType, NodeSelector, X](displayActualValue = true) {
 
-  override def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] =
+  override protected def findExtractor(occurrence: Int): Expression[Extractor[NodeSelector, X]] =
     expression.map(CssExtractors.find(_, nodeAttribute, occurrence, selectors))
-  override def findAllExtractor: Expression[Extractor[NodeSelector, Seq[X]]] = expression.map(CssExtractors.findAll(_, nodeAttribute, selectors))
-  override def countExtractor: Expression[Extractor[NodeSelector, Int]] = expression.map(CssExtractors.count(_, nodeAttribute, selectors))
+  override protected def findAllExtractor: Expression[Extractor[NodeSelector, Seq[X]]] = expression.map(CssExtractors.findAll(_, nodeAttribute, selectors))
+  override protected def countExtractor: Expression[Extractor[NodeSelector, Int]] = expression.map(CssExtractors.count(_, nodeAttribute, selectors))
 }

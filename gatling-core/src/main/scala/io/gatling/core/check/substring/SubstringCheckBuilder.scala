@@ -22,7 +22,7 @@ import io.gatling.core.session.Expression
 trait SubstringCheckType
 
 class SubstringCheckBuilder(substring: Expression[String]) extends DefaultMultipleFindCheckBuilder[SubstringCheckType, String, Int](displayActualValue = true) {
-  override def findExtractor(occurrence: Int): Expression[Extractor[String, Int]] = substring.map(SubstringExtractors.find(_, occurrence))
-  override def findAllExtractor: Expression[Extractor[String, Seq[Int]]] = substring.map(SubstringExtractors.findAll)
-  override def countExtractor: Expression[Extractor[String, Int]] = substring.map(SubstringExtractors.count)
+  override protected def findExtractor(occurrence: Int): Expression[Extractor[String, Int]] = substring.map(SubstringExtractors.find(_, occurrence))
+  override protected def findAllExtractor: Expression[Extractor[String, Seq[Int]]] = substring.map(SubstringExtractors.findAll)
+  override protected def countExtractor: Expression[Extractor[String, Int]] = substring.map(SubstringExtractors.count)
 }
