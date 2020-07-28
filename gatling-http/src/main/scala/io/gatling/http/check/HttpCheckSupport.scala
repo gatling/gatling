@@ -59,13 +59,13 @@ trait HttpCheckSupport {
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
   implicit def validatorCheckBuilder2HttpCheck[A, P, X](
       validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]
-  )(implicit CheckMaterializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
+  )(implicit materializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
     validatorCheckBuilder.exists
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
   implicit def findCheckBuilder2HttpCheck[A, P, X](
       findCheckBuilder: FindCheckBuilder[A, P, X]
-  )(implicit CheckMaterializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
+  )(implicit materializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
     findCheckBuilder.find.exists
 
   val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder
