@@ -65,7 +65,7 @@ private[structure] trait Loops[B] extends Execs[B] {
       DuringLoopType
     )
 
-  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString)(chain)
+  def forever(chain: ChainBuilder): B = forever()(chain)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
