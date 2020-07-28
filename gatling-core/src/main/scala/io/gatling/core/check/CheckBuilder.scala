@@ -138,7 +138,7 @@ final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[
   def transform[X2](transformation: X => X2): ValidatorCheckBuilder[T, P, X2] =
     copy(extractor = extractor.map(transformExtractor(transformation)))
 
-  def transform[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[T, P, X2] =
+  def transformWithSession[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[T, P, X2] =
     copy(extractor = session => extractor(session).map(transformExtractor(transformation(_, session))))
 
   private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(extractor: Extractor[P, X]) =
@@ -155,7 +155,7 @@ final case class ValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[
   def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2] =
     copy(extractor = extractor.map(transformOptionExtractor(transformation)))
 
-  def transformOption[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2] =
+  def transformOptionWithSession[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[T, P, X2] =
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
   def validate(validator: Expression[Validator[X]]): CheckBuilder[T, P, X] with SaveAs[T, P, X] =

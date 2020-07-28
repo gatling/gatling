@@ -998,13 +998,25 @@
           description: Transform extracted data before verification.
           syntax:
             - signature: (A => B)
-              description: This function is optional. It can be useful sometimes to apply a transformation on the extracted values before validating them. In this function, type <i>A</i> is the type of the find operation (either <i>String</i>, <i>List[String]</i> or <i>Int</i>). Type B is whatever you want it to be (could be a case class for example)
+              description: This function is optional. It can be useful sometimes to apply a transformation on the extracted values before validating them. In this function, type <i>A</i> is the type of the find operation. Type B is whatever you want it to be (could be a case class for example)
+
+        - keyword: transformWithSession
+          description: Transform extracted data before verification.
+          syntax:
+            - signature: ((A, Session) => B)
+              description: Same as <i>transform</i>, but with read access to the current Session.
 
         - keyword: transformOption
           description: Transform extracted data before verification.
           syntax:
             - signature: (Option[A] => Validation[Option[B]])
               description: Gives full control over the extracted result, even providing a default value
+
+        - keyword: transformOptionWithSession
+          description: Transform extracted data before verification.
+          syntax:
+            - signature: ((Option[A], Session) => Validation[Option[B]])
+              description: Same as <i>transformOption</i>, but with read access to the current Session.
 
     - title: Check verifiers
       functions:

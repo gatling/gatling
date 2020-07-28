@@ -55,10 +55,10 @@ class HttpCompileTest extends Simulation {
     .header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE, "bar")
     .headers(Map("foo" -> "bar"))
     .headers(Map(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE -> "bar"))
-    .check(bodyString.transform(string => string.length).lt(100000))
-    .check(bodyString.transform((string, session) => string.length).lte(100000))
+    .check(bodyString.transform(_.length).lt(100000))
+    .check(bodyString.transformWithSession((string, session) => string.length).lte(100000))
     .check(bodyString.transformOption(stringO => stringO.map(_.length)).gt(100000))
-    .check(bodyString.transformOption((stringO, session) => stringO.map(_.length)).gte(100000))
+    .check(bodyString.transformOptionWithSession((stringO, session) => stringO.map(_.length)).gte(100000))
     .check(bodyBytes.is("foo".getBytes()))
     .check(md5.is("XXXXX"))
     .check(sha1.is("XXXXX"))
@@ -164,9 +164,7 @@ class HttpCompileTest extends Simulation {
           css("#foo", "href"),
           css(".foo").ofType[Node].count.is(1),
           css(".foo").notExists,
-          css("#foo").ofType[Node].transform { node: Node =>
-            node.getNodeName
-          },
+          css("#foo").ofType[Node].transform(_.getNodeName),
           css(".foo").findRandom.is("some text"),
           css(".foo").findRandom(5).is(Seq("some text")),
           jsonPath("//foo/bar[2]/baz"),
@@ -175,6 +173,10 @@ class HttpCompileTest extends Simulation {
           jsonPath("$..foo").ofType[Int].is(1),
           jsonPath("$..foo").ofType[Seq[Any]].is(Seq("foo")),
           jsonPath("$..foo").ofType[Map[String, Any]].is(Map[String, Any]("foo" -> 1)),
+          jsonPath("$..foo.bar[2].baz").transform(_ + "foo"),
+          jsonPath("$..foo.bar[2].baz").transformWithSession((string, session) => string + "foo"),
+          jsonPath("$..foo.bar[2].baz").transformOption(_.map(_ + "foo")),
+          jsonPath("$..foo.bar[2].baz").transformOptionWithSession((maybeString, session) => maybeString.map(_ + "foo")),
           jsonpJsonPath("$..foo").is("bar"),
           jmesPath("[].friends[].name"),
           jmesPath("[].friends[].name").is("bar"),
