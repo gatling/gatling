@@ -19,7 +19,7 @@ package io.gatling.core.config
 import java.nio.charset.Charset
 import java.nio.file.{ Path, Paths }
 import java.util.ResourceBundle
-import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
@@ -151,13 +151,33 @@ object GatlingConfiguration extends StrictLogging {
       soReuseAddress = config.getBoolean(socket.SoReuseAddress)
     )
 
-  private def sslConfiguration(config: Config) =
+  private def defaultEnabledProtocols(useOpenSsl: Boolean) =
+    if (useOpenSsl) {
+      List("TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1")
+    } else {
+      try {
+        val ctx = SSLContext.getInstance("TLS")
+        ctx.init(null, null, null)
+        ctx.getDefaultSSLParameters.getProtocols.filterNot(_ == "SSLv3").toList
+      } catch {
+        case e: Exception =>
+          throw new Error("Failed to initialize the default SSL context", e)
+      }
+    }
+
+  private def sslConfiguration(config: Config) = {
+    val useOpenSsl = config.getBoolean(ssl.UseOpenSsl)
+    val enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList match {
+      case Nil                  => defaultEnabledProtocols(useOpenSsl)
+      case userDefinedProtocols => userDefinedProtocols
+    }
+
     new SslConfiguration(
-      useOpenSsl = config.getBoolean(ssl.UseOpenSsl),
+      useOpenSsl = useOpenSsl,
       useOpenSslFinalizers = config.getBoolean(ssl.UseOpenSslFinalizers),
       handshakeTimeout = config.getInt(ssl.HandshakeTimeout) millis,
       useInsecureTrustManager = config.getBoolean(ssl.UseInsecureTrustManager),
-      enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList,
+      enabledProtocols = enabledProtocols,
       enabledCipherSuites = config.getStringList(ssl.EnabledCipherSuites).asScala.toList,
       sessionCacheSize = config.getInt(ssl.SessionCacheSize),
       sessionTimeout = config.getInt(ssl.SessionTimeout) seconds,
@@ -177,6 +197,7 @@ object GatlingConfiguration extends StrictLogging {
         storeFile.map(Ssl.newTrustManagerFactory(storeType, _, storePassword, storeAlgorithm))
       }
     )
+  }
 
   private def nettyConfiguration(config: Config) =
     new NettyConfiguration(
