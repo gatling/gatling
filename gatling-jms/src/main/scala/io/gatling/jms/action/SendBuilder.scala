@@ -33,8 +33,7 @@ final class SendBuilder(attributes: JmsAttributes) extends JmsActionBuilder {
       coreComponents.statsEngine,
       coreComponents.clock,
       next,
-      coreComponents.throttler,
-      ctx.throttled
+      coreComponents.throttler.filter(_ => ctx.throttled)
     )
   }
 }

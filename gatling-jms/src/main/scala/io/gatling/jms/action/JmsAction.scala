@@ -40,8 +40,7 @@ abstract class JmsAction(
     attributes: JmsAttributes,
     protocol: JmsProtocol,
     pool: JmsConnectionPool,
-    throttler: Throttler,
-    throttled: Boolean
+    throttler: Option[Throttler]
 ) extends RequestAction
     with JmsLogging
     with NameGen {
@@ -63,10 +62,9 @@ abstract class JmsAction(
       props.foreach { case (key, value) => message.setObjectProperty(key, value) }
       jmsType.foreach(message.setJMSType)
 
-      if (throttled) {
-        throttler.throttle(session.scenario, () => around(producer.send(message)))
-      } else {
-        around(producer.send(message))
+      throttler match {
+        case Some(th) => th.throttle(session.scenario, () => around(producer.send(message)))
+        case _        => around(producer.send(message))
       }
     }
 

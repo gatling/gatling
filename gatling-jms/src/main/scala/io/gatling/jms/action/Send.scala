@@ -41,9 +41,8 @@ class Send(
     val statsEngine: StatsEngine,
     val clock: Clock,
     val next: Action,
-    throttler: Throttler,
-    throttled: Boolean
-) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler, throttled) {
+    throttler: Option[Throttler]
+) extends JmsAction(attributes, protocol, jmsConnectionPool, throttler) {
 
   override val name: String = genName("jmsSend")
 

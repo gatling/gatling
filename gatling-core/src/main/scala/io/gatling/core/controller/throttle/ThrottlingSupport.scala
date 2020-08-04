@@ -54,7 +54,9 @@ trait ThrottlingSupport {
   def jumpToRps(target: Int): ThrottleStep = Jump(target)
 }
 
-final case class Throttlings(global: Option[Throttling], perScenario: Map[String, Throttling])
+final case class Throttlings(global: Option[Throttling], perScenario: Map[String, Throttling]) {
+  val isEmpty: Boolean = global.isEmpty && perScenario.isEmpty
+}
 
 object Throttling {
 

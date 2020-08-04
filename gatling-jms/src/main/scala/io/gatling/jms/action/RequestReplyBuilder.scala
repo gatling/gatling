@@ -40,8 +40,7 @@ final case class RequestReplyBuilder(
       coreComponents.statsEngine,
       coreComponents.clock,
       next,
-      coreComponents.throttler,
-      ctx.throttled
+      coreComponents.throttler.filter(_ => ctx.throttled)
     )
   }
 }

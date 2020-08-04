@@ -147,13 +147,15 @@ class HttpTxExecutor(
         val sslContext = userSslContexts.map(_.sslContext).orNull
         val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
-        if (tx.request.requestConfig.throttled) {
-          throttler.throttle(
-            tx.session.scenario,
-            () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
-          )
-        } else {
-          httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+        throttler match {
+          case Some(th) if tx.request.requestConfig.throttled =>
+            th.throttle(
+              tx.session.scenario,
+              () => httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+            )
+          case _ =>
+            httpEngine.executeRequest(clientRequest, clientId, shared, tx.session.eventLoop, listener, sslContext, alpnSslContext)
+
         }
       }
     }
@@ -177,13 +179,14 @@ class HttpTxExecutor(
       val sslContext = userSslContexts.map(_.sslContext).orNull
       val alpnSslContext = userSslContexts.flatMap(_.alpnSslContext).orNull
 
-      if (txs.head.request.requestConfig.throttled) {
-        throttler.throttle(
-          headTx.session.scenario,
-          () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
-        )
-      } else {
-        httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
+      throttler match {
+        case Some(th) if txs.head.request.requestConfig.throttled =>
+          th.throttle(
+            headTx.session.scenario,
+            () => httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
+          )
+        case _ =>
+          httpEngine.executeHttp2Requests(requestsAndListeners, clientId, shared, headTx.session.eventLoop, sslContext, alpnSslContext)
       }
     }
   }

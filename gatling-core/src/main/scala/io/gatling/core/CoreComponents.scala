@@ -29,7 +29,7 @@ final class CoreComponents(
     val actorSystem: ActorSystem,
     val eventLoopGroup: EventLoopGroup,
     val controller: ActorRef,
-    val throttler: Throttler,
+    val throttler: Option[Throttler],
     val statsEngine: StatsEngine,
     val clock: Clock,
     val exit: Action,

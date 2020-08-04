@@ -32,7 +32,7 @@ object Controller {
   def props(
       statsEngine: StatsEngine,
       injector: ActorRef,
-      throttler: Throttler,
+      throttler: Option[Throttler],
       simulationParams: SimulationParams
   ): Props =
     Props(new Controller(statsEngine, injector, throttler, simulationParams))
@@ -41,7 +41,7 @@ object Controller {
     system.actorSelection("/user/" + ControllerActorName)
 }
 
-class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams) extends ControllerFSM {
+class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Option[Throttler], simulationParams: SimulationParams) extends ControllerFSM {
 
   import ControllerCommand._
   import ControllerData._
@@ -60,7 +60,7 @@ class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Thrott
         startSingleTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
       }
 
-      throttler.start()
+      throttler.foreach(_.start())
       statsEngine.start()
       injector ! InjectorCommand.Start(self, initData.scenarios)
 

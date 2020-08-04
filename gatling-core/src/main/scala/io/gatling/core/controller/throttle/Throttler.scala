@@ -47,15 +47,17 @@ class Throttle(val limit: Int) {
 
 object Throttler {
 
-  val ThrottlerActorName = "gatling-throttler"
-  val ThrottlerControllerActorName = "gatling-throttler-controller"
+  private val ThrottlerActorName = "gatling-throttler"
+  private val ThrottlerControllerActorName = "gatling-throttler-controller"
 
-  def apply(system: ActorSystem, simulationParams: SimulationParams): Throttler = {
-
-    val throttler = system.actorOf(Props(new ThrottlerActor), ThrottlerActorName)
-    val throttlerController = system.actorOf(Props(new ThrottlerController(throttler, simulationParams.throttlings)), ThrottlerControllerActorName)
-    new Throttler(throttlerController, throttler)
-  }
+  def newThrottler(system: ActorSystem, simulationParams: SimulationParams): Option[Throttler] =
+    if (simulationParams.throttlings.isEmpty) {
+      None
+    } else {
+      val throttler = system.actorOf(Props(new ThrottlerActor), ThrottlerActorName)
+      val throttlerController = system.actorOf(Props(new ThrottlerController(throttler, simulationParams.throttlings)), ThrottlerControllerActorName)
+      Some(new Throttler(throttlerController, throttler))
+    }
 }
 
 class Throttler(throttlerController: ActorRef, throttlerActor: ActorRef) {

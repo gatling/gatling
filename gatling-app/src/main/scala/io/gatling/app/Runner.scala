@@ -72,7 +72,7 @@ private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGrou
 
     val runMessage = RunMessage(simulationParams.name, selection.simulationId, clock.nowMillis, selection.description, configuration.core.version)
     val statsEngine = newStatsEngine(simulationParams, runMessage)
-    val throttler = Throttler(system, simulationParams)
+    val throttler = Throttler.newThrottler(system, simulationParams)
     val injector = Injector(system, eventLoopGroup, statsEngine, clock)
     val controller = system.actorOf(Controller.props(statsEngine, injector, throttler, simulationParams), Controller.ControllerActorName)
     val exit = new Exit(injector, clock)

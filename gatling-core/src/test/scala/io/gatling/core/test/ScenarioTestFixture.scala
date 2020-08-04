@@ -28,7 +28,6 @@ import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Action
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.ProtocolComponentsRegistries
 import io.gatling.core.structure._
@@ -72,7 +71,7 @@ trait ScenarioTestFixture extends BaseSpec {
     try {
       val statsEngine = new LoggingStatsEngine
       val coreComponents =
-        new CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], mock[Throttler], statsEngine, new DefaultClock, mock[Action], configuration)
+        new CoreComponents(system, mock[EventLoopGroup], mock[ActorRef], None, statsEngine, new DefaultClock, mock[Action], configuration)
       val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, Map.empty).scenarioRegistry(Map.empty)
       val scenarioContext = new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false)
       val exitAction = new BlockingExitAction(1)
