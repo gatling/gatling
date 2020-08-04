@@ -18,7 +18,6 @@ package io.gatling.core.controller
 
 import scala.util.{ Failure, Success, Try }
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.InjectorCommand
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
@@ -34,17 +33,15 @@ object Controller {
       statsEngine: StatsEngine,
       injector: ActorRef,
       throttler: Throttler,
-      simulationParams: SimulationParams,
-      configuration: GatlingConfiguration
+      simulationParams: SimulationParams
   ): Props =
-    Props(new Controller(statsEngine, injector, throttler, simulationParams, configuration))
+    Props(new Controller(statsEngine, injector, throttler, simulationParams))
 
   def controllerSelection(system: ActorSystem): ActorSelection =
     system.actorSelection("/user/" + ControllerActorName)
 }
 
-class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
-    extends ControllerFSM {
+class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Throttler, simulationParams: SimulationParams) extends ControllerFSM {
 
   import ControllerCommand._
   import ControllerData._
