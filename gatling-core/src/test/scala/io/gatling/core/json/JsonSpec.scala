@@ -95,6 +95,11 @@ class JsonSpec extends BaseSpec {
     stringify(url, isRootObject = true) shouldBe url
   }
 
+  it should "not wrap null values with double quotes" in {
+    val map: ju.Map[String, Any] = Map[String, Any]("name" -> "frodo", "note" -> null).asJava
+    stringify(map, isRootObject = true) shouldBe """{"name":"frodo","note":null}"""
+  }
+
   "asScala" should "deep convert into Scala structures" in {
     val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
       new JsonParsers().parse(is, UTF_8)

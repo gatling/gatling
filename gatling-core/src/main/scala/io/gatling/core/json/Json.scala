@@ -48,11 +48,12 @@ private[gatling] object Json {
           case BIG_INTEGER => sb.append(node.bigIntegerValue)
           case BIG_DECIMAL => sb.append(node.decimalValue)
         }
-      case BOOLEAN       => sb.append(node.booleanValue)
-      case STRING | NULL => appendString(node.asText, rootLevel)
-      case OBJECT        => appendMap(node)
-      case ARRAY         => appendArray(node)
-      case _             => appendString(node.toString, rootLevel)
+      case STRING  => appendString(node.asText, rootLevel)
+      case OBJECT  => appendMap(node)
+      case ARRAY   => appendArray(node)
+      case BOOLEAN => sb.append(node.booleanValue)
+      case NULL    => sb.append("null")
+      case _       => appendString(node.toString, rootLevel)
     }
 
     def appendString(s: String, rootLevel: Boolean): jl.StringBuilder =
