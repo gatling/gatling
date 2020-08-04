@@ -22,12 +22,11 @@ import akka.actor.{ ActorRef, ActorSystem, Props }
 
 final case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
 
-  def limitReached(scenario: String): Boolean = {
+  def limitReached(scenario: String): Boolean =
     global.map(_.limitReached) match {
       case Some(true) => true
       case _          => perScenario.collectFirst { case (`scenario`, throttle) => throttle.limitReached }.getOrElse(false)
     }
-  }
 
   def increment(scenario: String): Unit = {
     global.foreach(_.increment())
