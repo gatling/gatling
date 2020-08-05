@@ -33,6 +33,7 @@ import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.util.Pair;
 import io.gatling.netty.util.Transports;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -264,14 +265,14 @@ public class DefaultHttpClient implements HttpClient {
     if (isClosed()) {
       return;
     }
-    for (Pair<Request, HttpListener> pair: requestsAndListeners) {
+    for (Pair<Request, HttpListener> pair : requestsAndListeners) {
       pair.getRight().onSend();
     }
 
     Request headRequest = requestsAndListeners[0].getLeft();
 
     if (headRequest.getUri().isSecured() && headRequest.isHttp2Enabled() && !config.isEnableSni()) {
-      for (Pair<Request, HttpListener> requestAndListener: requestsAndListeners) {
+      for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
         HttpListener listener = requestAndListener.getRight();
         listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       }
@@ -326,8 +327,20 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     tx.channelState = HttpTx.ChannelState.RETRY;
-    LOGGER.debug("Retrying with new connection");
+    LOGGER.debug("Retrying with new HTTP/1.1 connection");
     sendTx(tx, eventLoop);
+  }
+
+  void retryHttp2(List<HttpTx> txs, EventLoop eventLoop) {
+    if (isClosed()) {
+      return;
+    }
+
+    for (HttpTx tx : txs) {
+      tx.channelState = HttpTx.ChannelState.RETRY;
+    }
+    LOGGER.debug("Retrying with new HTTP/2 connection");
+    sendHttp2Txs(txs, eventLoop);
   }
 
   private void sendTx(HttpTx tx, EventLoop eventLoop) {
@@ -393,23 +406,23 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     resolveRemoteAddresses(request, eventLoop, listener, requestTimeout)
-       .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
-         if (requestTimeout.isDone()) {
-           return;
-         }
+      .addListener((Future<List<InetSocketAddress>> whenRemoteAddresses) -> {
+        if (requestTimeout.isDone()) {
+          return;
+        }
 
-         if (whenRemoteAddresses.isSuccess()) {
-           List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
+        if (whenRemoteAddresses.isSuccess()) {
+          List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-           String domain = tx.request.getUri().getHost();
-           Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
-           if (coalescedChannel != null) {
-             sendHttp2TxsWithChannel(txs, coalescedChannel);
-           } else {
-             sendHttp2TxsWithNewChannel(txs, resources, eventLoop, addresses);
-           }
-         }
-       });
+          String domain = tx.request.getUri().getHost();
+          Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
+          if (coalescedChannel != null) {
+            sendHttp2TxsWithChannel(txs, coalescedChannel);
+          } else {
+            sendHttp2TxsWithNewChannel(txs, resources, eventLoop, addresses);
+          }
+        }
+      });
   }
 
   private void sendTxWithChannel(HttpTx tx, Channel channel) {
@@ -441,7 +454,7 @@ public class DefaultHttpClient implements HttpClient {
       return;
     }
 
-    for (HttpTx tx: txs) {
+    for (HttpTx tx : txs) {
       tx.requestTimeout.setChannel(channel);
       tx.listener.onProtocolAwareness(true);
       channel.write(tx);
@@ -537,34 +550,34 @@ public class DefaultHttpClient implements HttpClient {
                                           List<InetSocketAddress> addresses) {
     HttpTx tx = txs.get(0);
     openNewChannel(tx.request, eventLoop, resources, addresses, tx.listener, tx.requestTimeout)
-       .addListener((Future<Channel> whenNewChannel) -> {
-         if (whenNewChannel.isSuccess()) {
-           Channel channel = whenNewChannel.getNow();
-           if (tx.requestTimeout.isDone()) {
-             channel.close();
-             return;
-           }
+      .addListener((Future<Channel> whenNewChannel) -> {
+        if (whenNewChannel.isSuccess()) {
+          Channel channel = whenNewChannel.getNow();
+          if (tx.requestTimeout.isDone()) {
+            channel.close();
+            return;
+          }
 
-           channelGroup.add(channel);
-           resources.channelPool.register(channel, tx.key);
+          channelGroup.add(channel);
+          resources.channelPool.register(channel, tx.key);
 
-           LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
-           installSslHandler(tx, channel).addListener(f -> {
-             if (tx.requestTimeout.isDone() || !f.isSuccess()) {
-               channel.close();
-               return;
-             }
-             LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
-             installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
-               if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
-                 channel.close();
-                 return;
-               }
-               sendHttp2TxsWithChannel(txs, channel);
-             });
-           });
-         }
-       });
+          LOGGER.debug("Installing SslHandler for {}", tx.request.getUri());
+          installSslHandler(tx, channel).addListener(f -> {
+            if (tx.requestTimeout.isDone() || !f.isSuccess()) {
+              channel.close();
+              return;
+            }
+            LOGGER.debug("Installing Http2Handler for {}", tx.request.getUri());
+            installHttp2Handler(tx, channel, resources.channelPool).addListener(f2 -> {
+              if (tx.requestTimeout.isDone() || !f2.isSuccess()) {
+                channel.close();
+                return;
+              }
+              sendHttp2TxsWithChannel(txs, channel);
+            });
+          });
+        }
+      });
   }
 
   private Bootstrap bootstrap(Request request, EventLoopResources resources) {
@@ -590,7 +603,7 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private static InetSocketAddress localAddressWithRandomPort(InetAddress localAddress) {
-    return localAddress != null ?  new InetSocketAddress(localAddress, 0) : null;
+    return localAddress != null ? new InetSocketAddress(localAddress, 0) : null;
   }
 
   private Future<Channel> openNewChannel(Request request,
@@ -760,12 +773,17 @@ public class DefaultHttpClient implements HttpClient {
               .frameListener(
                 new DelegatingDecompressorFrameListener(
                   connection,
-                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenAlpn))
+                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenAlpn) {
+                    @Override
+                    public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) throws Http2Exception {
+                      ctx.fireChannelRead(new Http2AppHandler.GoAwayFrame(lastStreamId, errorCode));
+                    }
+                  })
               ).build();
 
             ctx.pipeline()
               .addLast(HTTP2_HANDLER, http2Handler)
-              .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(connection, http2Handler, channelPool, config));
+              .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(DefaultHttpClient.this, connection, http2Handler, channelPool, config));
 
             channelPool.offer(channel);
 
@@ -782,7 +800,7 @@ public class DefaultHttpClient implements HttpClient {
           case ApplicationProtocolNames.HTTP_1_1:
             LOGGER.debug("ALPN led to HTTP/1 with remote {}", tx.request.getUri().getHost());
             if (tx.request.isHttp2PriorKnowledge()) {
-              IllegalStateException e =  new IllegalStateException("HTTP/2 Prior knowledge was set on host " + tx.request.getUri().getHost() + " but it only supports HTTP/1");
+              IllegalStateException e = new IllegalStateException("HTTP/2 Prior knowledge was set on host " + tx.request.getUri().getHost() + " but it only supports HTTP/1");
               whenAlpn.setFailure(e);
               throw e;
             }

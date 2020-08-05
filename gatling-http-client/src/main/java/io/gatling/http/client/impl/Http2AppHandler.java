@@ -31,12 +31,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Http2AppHandler extends ChannelDuplexHandler {
+
+  public static final class GoAwayFrame {
+    private final int lastStreamId;
+    private final long errorCode;
+
+    public GoAwayFrame(int lastStreamId, long errorCode) {
+      this.lastStreamId = lastStreamId;
+      this.errorCode = errorCode;
+    }
+
+    @Override
+    public String toString() {
+      final StringBuilder sb = new StringBuilder("GoAwayFrame{");
+      sb.append("lastStreamId=").append(lastStreamId);
+      sb.append(", errorCode=").append(errorCode);
+      sb.append('}');
+      return sb.toString();
+    }
+  }
 
   private static final Logger LOGGER = LoggerFactory.getLogger(Http2AppHandler.class);
   private static final IOException REMOTELY_CLOSED_EXCEPTION = new IOException("Channel was closed before handshake completed");
 
+  private final DefaultHttpClient client;
   private final Http2Connection connection;
   private final Http2Connection.PropertyKey propertyKey;
   private final Http2ConnectionHandler http2ConnectionHandler;
@@ -46,7 +68,8 @@ public class Http2AppHandler extends ChannelDuplexHandler {
   // mutable state
   private int nextStreamId = 1;
 
-  Http2AppHandler(Http2Connection connection, Http2ConnectionHandler http2ConnectionHandler, ChannelPool channelPool, HttpClientConfig config) {
+  Http2AppHandler(DefaultHttpClient client, Http2Connection connection, Http2ConnectionHandler http2ConnectionHandler, ChannelPool channelPool, HttpClientConfig config) {
+    this.client = client;
     this.connection = connection;
     this.propertyKey = connection.newKey();
     this.http2ConnectionHandler = http2ConnectionHandler;
@@ -123,7 +146,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
       tx.listener.onHttpResponse(status, response.headers());
 
-    } else if (msg instanceof Http2Content){
+    } else if (msg instanceof Http2Content) {
       Http2Content content = (Http2Content) msg;
       int streamId = content.getStreamId();
       Http2Stream stream = connection.stream(streamId);
@@ -152,6 +175,34 @@ public class Http2AppHandler extends ChannelDuplexHandler {
         tx.requestTimeout.cancel();
         channelPool.offer(ctx.channel());
       }
+    } else if (msg instanceof GoAwayFrame) {
+      GoAwayFrame goAway = (GoAwayFrame) msg;
+
+      LOGGER.debug("Received GOAWAY frame: {}", goAway);
+      List<HttpTx> retryTxs = new ArrayList<>(3);
+
+      try {
+        connection.forEachActiveStream(stream -> {
+          if (stream.id() > goAway.lastStreamId) {
+            HttpTx tx = stream.getProperty(propertyKey);
+            tx.releasePendingRequestExpectingContinue();
+            if (goAway.errorCode == 0 && client.canRetry(tx)) {
+              retryTxs.add(tx);
+            } else {
+              tx.listener.onThrowable(REMOTELY_CLOSED_EXCEPTION);
+            }
+          }
+          return true;
+        });
+      } catch (Http2Exception e) {
+        LOGGER.error("Failed to close active streams on GOAWAY", e);
+      }
+
+      if (!retryTxs.isEmpty()) {
+        client.retryHttp2(retryTxs, ctx.channel().eventLoop());
+      }
+
+      ctx.close();
     }
   }
 
@@ -168,7 +219,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
       });
 
     } catch (Http2Exception e) {
-      LOGGER.error("Can't properly close active streams");
+      LOGGER.error("Failed to close active streams", e);
     } finally {
       if (close) {
         ctx.close();
@@ -183,7 +234,7 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-    crash(ctx, cause, null,true);
+    crash(ctx, cause, null, true);
   }
 
   @Override
