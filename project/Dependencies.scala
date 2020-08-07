@@ -62,7 +62,7 @@ object Dependencies {
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.4"
 
   // Test dependencies
-  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.0"             % "test"
+  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.1"             % "test"
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-14"                 % "3.2.0.0"           % "test"
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-2"                     % "3.1.2.0"           % "test"
   private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.14.3"            % "test"
