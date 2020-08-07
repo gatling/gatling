@@ -38,20 +38,16 @@ object SeparatedValuesParser {
 
     is => {
       val reader = new InputStreamReader(new Utf8BomSkipInputStream(is), charset)
-      val it: Iterator[Array[String]] = parser.iterator(reader).asScala
-      if (it.hasNext) {
-        val headers = it.next.map(_.trim)
-        require(headers.nonEmpty, "CSV sources must have a non empty first line containing the headers")
-        headers.foreach { header =>
-          require(header.nonEmpty, "CSV headers can't be empty")
-        }
+      val it = parser.iterator(reader)
 
-        it.map { values =>
-          ArrayBasedMap(headers, values)
-        }
-      } else {
-        throw new ArrayIndexOutOfBoundsException("Feeder source is empty")
+      require(it.hasNext, "Feeder source is empty")
+      val headers = it.next.map(_.trim)
+      require(headers.nonEmpty, "CSV sources must have a non empty first line containing the headers")
+      headers.foreach { header =>
+        require(header.nonEmpty, "CSV headers can't be empty")
       }
+
+      it.asScala.collect { case row if !(row.length == 1 && row(0).isEmpty) => ArrayBasedMap(headers, row) }
     }
   }
 }

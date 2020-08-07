@@ -47,8 +47,8 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
     )
   }
 
-  it should "throw a ArrayIndexOutOfBoundsException on empty content" in {
-    a[ArrayIndexOutOfBoundsException] should be thrownBy new QueueBatchedSeparatedValuesFeeder(newInputStream(""), streamer)
+  it should "throw a IllegalArgumentException on empty content" in {
+    a[IllegalArgumentException] should be thrownBy new QueueBatchedSeparatedValuesFeeder(newInputStream(""), streamer)
   }
 
   it should "return an empty feeder when there's no record" in {

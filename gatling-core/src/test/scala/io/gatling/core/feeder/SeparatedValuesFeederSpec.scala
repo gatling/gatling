@@ -79,4 +79,19 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
       }
     stream(CommaSeparator, quoteChar = '\'', UTF_8)(new ByteArrayInputStream(bytes)).toVector shouldBe Vector(Map("foo" -> "hello", "bar" -> "world"))
   }
+
+  it should "skip empty lines" in {
+    val bytes =
+      s"""header
+         |line1
+         |
+         |line2
+         |
+         |""".stripMargin.getBytes(UTF_8)
+
+    stream(CommaSeparator, quoteChar = '\'', UTF_8)(new ByteArrayInputStream(bytes)).toVector shouldBe Vector(
+      Map("header" -> "line1"),
+      Map("header" -> "line2")
+    )
+  }
 }
