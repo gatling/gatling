@@ -567,9 +567,25 @@
         - keyword: between
           description: Check that the value of the statistic is between two thresholds
           syntax:
-            - signature: (thresholdMin,thresholdMax)
+            - signature: (thresholdMin, thresholdMax)
               description: the statistic's bounds
             - signature: (thresholdMin,thresholdMax, inclusive = false)
+              description: the statistic's bounds, excluded
+
+        - keyword: around
+          description: Check that the value of the metric is around a target value plus or minus a given margin.
+          syntax:
+            - signature: (value, margin)
+              description: the statistic's target and bounds margin
+            - signature: (value, margin, inclusive = false)
+              description: the statistic's bounds, excluded
+
+        - keyword: deviatesAround
+          description: Check that metric is around a target value plus or minus a given relative margin
+          syntax:
+            - signature: (value, relativeMargin)
+              description: the statistic's target and bounds margin
+            - signature: (thresholdMin, thresholdMax, inclusive = false)
               description: the statistic's bounds, excluded
 
         - keyword: is
@@ -583,7 +599,6 @@
           syntax:
             - signature: (sequence)
               description: the <i>sequence</i> the statistic has to be in
-
 
 - title: HTTP Action
   description: Define the HTTP requests sent in your scenario
