@@ -69,4 +69,11 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
   def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
   def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))
   def in(values: T*): Assertion = in(values.toSet)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def deviatesAround(mean: T, deviationThreshold: T, inclusive: Boolean = true): Assertion =
+    between(
+      numeric.minus(mean, numeric.times(mean, deviationThreshold)),
+      numeric.plus(mean, numeric.times(mean, deviationThreshold)),
+      inclusive
+    )
 }
