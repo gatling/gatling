@@ -115,6 +115,10 @@ Conditions can be chained to apply several conditions on the same metric.
 
 * ``around(value, plusOrMinus, inclusive = false)``: same as above but doesn't include bounds
 
+* ``deviatesAround(target, percentDeviationThreshold)``: check that metric is around a target value plus or minus a given relative margin
+
+* ``deviatesAround(target, percentDeviationThreshold, inclusive = false)``: same as above but doesn't include bounds
+
 * ``is(value)``: check that the value of the metric is equal to the given value.
 
 * ``in(sequence)``: check that the value of metric is in a sequence.
