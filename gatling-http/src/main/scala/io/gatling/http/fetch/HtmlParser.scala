@@ -138,8 +138,6 @@ class HtmlParser extends StrictLogging {
                   case Some(rel)
                       if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
                     addResource(tag, HrefAttribute, RegularRawResource)
-                  case None =>
-                    logger.error("Malformed HTML: <link> tag without rel attribute")
                   case _ =>
                 }
 
