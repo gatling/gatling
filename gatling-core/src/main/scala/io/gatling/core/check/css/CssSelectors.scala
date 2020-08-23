@@ -26,12 +26,8 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.NodeSelector
-import jodd.log.LoggerFactory
-import jodd.log.impl.Slf4jLogger
 
 class CssSelectors(cacheMaxCapacity: Long) {
-
-  LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
 
   private val domBuilder = Jodd.newLagartoDomBuilder
   private val selectorCache: LoadingCache[String, ju.List[ju.List[CssSelector]]] =

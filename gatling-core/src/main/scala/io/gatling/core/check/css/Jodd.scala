@@ -16,31 +16,22 @@
 
 package io.gatling.core.check.css
 
-import jodd.lagarto.LagartoParser
+import jodd.lagarto.{ LagartoParser, LagartoParserConfig }
 import jodd.lagarto.dom.{ LagartoDOMBuilder, LagartoDomBuilderConfig }
-import jodd.log.LoggerFactory
-import jodd.log.impl.Slf4jLogger
 
 object Jodd {
 
-  LoggerFactory.setLoggerProvider(Slf4jLogger.PROVIDER)
+  private val ParserConfig = new LagartoParserConfig().setEnableConditionalComments(false).setEnableRawTextModes(false)
 
-  private val JoddConfig =
-    new LagartoDomBuilderConfig()
-      .setParsingErrorLogLevelName("INFO")
-      .setCaseSensitive(false)
-      .setEnableConditionalComments(false)
-      .setEnableRawTextModes(false)
-
-  def newLagartoDomBuilder: LagartoDOMBuilder = {
-    val domBuilder = new LagartoDOMBuilder
-    domBuilder.setConfig(JoddConfig)
-    domBuilder
+  private val DomBuilderConfig = {
+    val config = new LagartoDomBuilderConfig()
+    config.setParserConfig(ParserConfig)
+    config
   }
 
-  def newLagartoParser(chars: Array[Char]): LagartoParser = {
-    val lagartoParser = new LagartoParser(chars)
-    lagartoParser.setConfig(JoddConfig)
-    lagartoParser
-  }
+  def newLagartoDomBuilder: LagartoDOMBuilder =
+    new LagartoDOMBuilder(DomBuilderConfig)
+
+  def newLagartoParser(chars: Array[Char]): LagartoParser =
+    new LagartoParser(ParserConfig, chars)
 }
