@@ -1,6 +1,6 @@
 Make sure these checkboxes are checked before submitting your issue. Thanks you!
 
-* [ ] Don't post questions here. This bugtracker is for issues and feature requests only. Use the [community mailing list](https://groups.google.com/forum/#!forum/gatling) instead.
+* [ ] Don't post questions here. This bugtracker is for issues and feature requests only. Use the [community mailing list](https://groups.google.com/g/gatling) instead.
 * Regarding issues:
   * [ ] Check that you can reproduce your issue with latest Gatling version
   * [ ] Search this bugtracker for any similar issue that might have already been reported (and possibly fixed and available as a SNAPSHOT version)
