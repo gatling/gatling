@@ -53,7 +53,6 @@ object RedirectProcessor {
       .remove(HttpHeaderNames.CONTENT_LENGTH)
       .remove(HttpHeaderNames.COOKIE)
       .remove(HttpHeaderNames.ORIGIN)
-      .set(HttpHeaderNames.REFERER, originalRequest.getUri.toString)
 
     if (originalRequest.getRealm != null) {
       // remove Authorization header if there's a realm as it will be recomputed
