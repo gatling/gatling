@@ -101,7 +101,7 @@ abstract class Simulation {
     require(rootPopulationBuilders.nonEmpty, "No scenario set up")
 
     val childrenPopulationBuilders = PopulationBuilder.groupChildrenByParent(rootPopulationBuilders)
-    val allPopulationBuilders = childrenPopulationBuilders.values.flatten
+    val allPopulationBuilders = rootPopulationBuilders ++ childrenPopulationBuilders.values.flatten
 
     val duplicates =
       allPopulationBuilders
@@ -109,7 +109,10 @@ abstract class Simulation {
         .collect { case (name, scns) if scns.size > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
 
-    allPopulationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
+    allPopulationBuilders.foreach { scn =>
+      require(scn.scenarioBuilder.name.nonEmpty, "Scenario name cannot be empty")
+      require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty")
+    }
 
     val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { scn =>
       val steps = scn.scenarioThrottleSteps
