@@ -28,7 +28,6 @@ import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.util.NameGen
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
 import io.gatling.http.client.resolver._
 import io.gatling.http.client.uri.Uri
@@ -60,7 +59,6 @@ class HttpEngine(
     clock: Clock,
     configuration: GatlingConfiguration
 ) extends AutoCloseable
-    with NameGen
     with StrictLogging {
 
   private[this] var warmedUp = false
@@ -164,9 +162,22 @@ class HttpEngine(
       httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, sslContext, alpnSslContext)
     }
 
+  // [fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // [fl]
+
+  // [fl]
   def newJavaDnsNameResolver: InetAddressNameResolver =
     InetAddressNameResolver.JAVA_RESOLVER
 
+  // [fl]
   def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): InetAddressNameResolver =
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)
@@ -179,20 +190,6 @@ class HttpEngine(
         .maxQueriesPerResolve(configuration.http.dns.maxQueriesPerResolve)
         .build()
     )
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts =
     sslContextsFactory.newSslContexts(http2Enabled, perUserKeyManagerFactory)

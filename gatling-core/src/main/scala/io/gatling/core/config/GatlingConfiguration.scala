@@ -285,33 +285,6 @@ object GatlingConfiguration extends StrictLogging {
       data = dataConfiguration(config),
       // [fl]
       //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
       // [fl]
       config = config
     )
@@ -462,18 +435,6 @@ final class GraphiteDataWriterConfiguration(
     val bufferSize: Int,
     val writePeriod: FiniteDuration
 )
-
-// [fl]
-//
-//
-//
-//
-//
-//
-//
-//
-//
-// [fl]
 
 final class GatlingConfiguration(
     val core: CoreConfiguration,

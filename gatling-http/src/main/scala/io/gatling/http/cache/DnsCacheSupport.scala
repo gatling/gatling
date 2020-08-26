@@ -56,14 +56,13 @@ private[http] trait DnsCacheSupport {
         val actualResolver = httpEngine.newJavaDnsNameResolver
         setDecoratedResolver(_, actualResolver, hostNameAliases)
       case AsyncDnsNameResolution(dnsServers) =>
-        if (perUserNameResolution) { (session: Session) =>
+        if (perUserNameResolution) { session =>
           {
             val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers)
             setDecoratedResolver(session, actualResolver, hostNameAliases)
           }
         } else {
           val factory = SharedAsyncDnsNameResolverFactory(httpEngine, dnsServers, coreComponents.actorSystem)
-
           session => {
             val sharedResolver = factory(session.eventLoop)
             setDecoratedResolver(session, sharedResolver, hostNameAliases)

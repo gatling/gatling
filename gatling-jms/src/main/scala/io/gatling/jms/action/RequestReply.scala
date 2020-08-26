@@ -79,7 +79,7 @@ class RequestReply(
 
           // [fl]
           //
-          // [/fl]
+          // [fl]
 
           if (matchId != null) {
             tracker.track(matchId, clock.nowMillis, replyTimeout, attributes.checks, session, next, requestName)

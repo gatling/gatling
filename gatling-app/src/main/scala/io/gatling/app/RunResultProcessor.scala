@@ -24,7 +24,13 @@ import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {
 
-  def processRunResult(runResult: RunResult): StatusCode = {
+  // [fl]
+  //
+  //
+  // [fl]
+
+  // [fl]
+  def processRunResult(runResult: RunResult): StatusCode =
     initLogFileReader(runResult) match {
       case Some(reader) =>
         val assertionResults = AssertionValidator.validateAssertions(reader)
@@ -39,7 +45,6 @@ private final class RunResultProcessor(configuration: GatlingConfiguration) {
       case _ =>
         StatusCode.Success
     }
-  }
 
   private def initLogFileReader(runResult: RunResult): Option[LogFileReader] =
     if (reportsGenerationEnabled || runResult.hasAssertions) {

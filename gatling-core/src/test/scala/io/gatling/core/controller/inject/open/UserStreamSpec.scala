@@ -76,33 +76,4 @@ class UserStreamSpec extends BaseSpec {
       injection.continue shouldBe true
     }
   }
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 }
