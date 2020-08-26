@@ -237,6 +237,7 @@ class CoreCompileTest extends Simulation {
       global.allRequests.percent.is(100),
       forAll.failedRequests.percent.is(0),
       forAll.responseTime.max.is(100),
+      global.responseTime.percentile(99).deviatesAround(100, .05),
       details("Users" / "Search" / "Index page").responseTime.mean.gt(0),
       details("Admins" / "Create").failedRequests.percent.lt(90),
       details("request_9").requestsPerSec.gte(10)

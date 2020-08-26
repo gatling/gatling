@@ -31,17 +31,17 @@ class AssertionWithPath(path: AssertionPath, configuration: GatlingConfiguration
 class AssertionWithPathAndTimeMetric(path: AssertionPath, metric: TimeMetric, configuration: GatlingConfiguration) {
 
   private def next(selection: TimeSelection) =
-    new AssertionWithPathAndTarget[Int](path, TimeTarget(metric, selection))
+    new AssertionWithPathAndTarget[Double](path, TimeTarget(metric, selection))
 
-  def min: AssertionWithPathAndTarget[Int] = next(Min)
-  def max: AssertionWithPathAndTarget[Int] = next(Max)
-  def mean: AssertionWithPathAndTarget[Int] = next(Mean)
-  def stdDev: AssertionWithPathAndTarget[Int] = next(StandardDeviation)
-  def percentile1: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile1)
-  def percentile2: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile2)
-  def percentile3: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile3)
-  def percentile4: AssertionWithPathAndTarget[Int] = percentile(configuration.charting.indicators.percentile4)
-  def percentile(value: Double): AssertionWithPathAndTarget[Int] = next(Percentiles(value))
+  def min: AssertionWithPathAndTarget[Double] = next(Min)
+  def max: AssertionWithPathAndTarget[Double] = next(Max)
+  def mean: AssertionWithPathAndTarget[Double] = next(Mean)
+  def stdDev: AssertionWithPathAndTarget[Double] = next(StandardDeviation)
+  def percentile1: AssertionWithPathAndTarget[Double] = percentile(configuration.charting.indicators.percentile1)
+  def percentile2: AssertionWithPathAndTarget[Double] = percentile(configuration.charting.indicators.percentile2)
+  def percentile3: AssertionWithPathAndTarget[Double] = percentile(configuration.charting.indicators.percentile3)
+  def percentile4: AssertionWithPathAndTarget[Double] = percentile(configuration.charting.indicators.percentile4)
+  def percentile(value: Double): AssertionWithPathAndTarget[Double] = next(Percentiles(value))
 }
 
 class AssertionWithPathAndCountMetric(path: AssertionPath, metric: CountMetric) {
@@ -66,14 +66,13 @@ class AssertionWithPathAndTarget[T: Numeric](path: AssertionPath, target: Target
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def around(mean: T, plusOrMinus: T, inclusive: Boolean = true): Assertion =
     between(numeric.minus(mean, plusOrMinus), numeric.plus(mean, plusOrMinus), inclusive)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def deviatesAround(target: T, percentDeviationThreshold: T, inclusive: Boolean = true): Assertion = {
+    val margin  = numeric.times(target, percentDeviationThreshold)
+    between(numeric.minus(target, margin), numeric.plus(target, margin), inclusive)
+  }
   def is(value: T): Assertion = next(Is(numeric.toDouble(value)))
   def in(set: Set[T]): Assertion = next(In(set.map(numeric.toDouble).toList))
   def in(values: T*): Assertion = in(values.toSet)
-  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def deviatesAround(mean: T, deviationThreshold: T, inclusive: Boolean = true): Assertion =
-    between(
-      numeric.minus(mean, numeric.times(mean, deviationThreshold)),
-      numeric.plus(mean, numeric.times(mean, deviationThreshold)),
-      inclusive
-    )
+
 }
