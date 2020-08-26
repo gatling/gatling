@@ -19,6 +19,8 @@ package io.gatling.http.protocol
 import java.net.{ Inet4Address, InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
+import scala.collection.JavaConverters._
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
@@ -185,7 +187,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     this.modify(_.protocol.dnsPart.dnsNameResolution).setTo(AsyncDnsNameResolution(dnsServers))
   def hostNameAliases(aliases: Map[String, List[String]]): HttpProtocolBuilder = {
     val aliasesToInetAddresses = aliases.map {
-      case (hostname, ips) => hostname -> ips.map(ip => InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress)).toArray
+      case (hostname, ips) => hostname -> ips.map(ip => InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress)).asJava
     }
     this.modify(_.protocol.dnsPart.hostNameAliases).setTo(aliasesToInetAddresses)
   }

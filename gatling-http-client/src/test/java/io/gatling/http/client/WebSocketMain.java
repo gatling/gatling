@@ -37,8 +37,7 @@ public class WebSocketMain {
   public static void main(String[] args) throws Exception {
     try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig())) {
 
-      Request request = new RequestBuilder(HttpMethod.GET, Uri.create("wss://echo.websocket.org"))
-        .setNameResolver(client.getNameResolver())
+      Request request = client.newRequestBuilder(HttpMethod.GET, Uri.create("wss://echo.websocket.org"))
         .setRequestTimeout(10000)
         .build();
 

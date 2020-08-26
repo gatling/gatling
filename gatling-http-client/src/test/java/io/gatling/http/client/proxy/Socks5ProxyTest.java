@@ -19,7 +19,6 @@ package io.gatling.http.client.proxy;
 import io.gatling.http.client.GatlingHttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.Request;
-import io.gatling.http.client.RequestBuilder;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.test.DefaultResponse;
 import io.gatling.http.client.test.listener.ResponseAsStringListener;
@@ -38,9 +37,8 @@ public class Socks5ProxyTest {
       .setDefaultSslContext(SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build());
     try (GatlingHttpClient client = new GatlingHttpClient(config)) {
 
-      Request request = new RequestBuilder(HttpMethod.GET, Uri.create("https://gatling.io"))
+      Request request = client.newRequestBuilder(HttpMethod.GET, Uri.create("https://gatling.io"))
         .setProxyServer(new Socks5ProxyServer("localhost", 8889, null))
-        .setNameResolver(client.getNameResolver())
         .setRequestTimeout(TIMEOUT_SECONDS * 1000)
         .build();
 

@@ -33,8 +33,7 @@ public class MultipleRequestsMain {
 
     try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig())) {
 
-      Request request = new RequestBuilder(HttpMethod.GET, Uri.create("https://gatling.io"))
-        .setNameResolver(client.getNameResolver())
+      Request request = client.newRequestBuilder(HttpMethod.GET, Uri.create("https://gatling.io"))
         .setRequestTimeout(1000)
         .build();
 

@@ -20,7 +20,7 @@ import java.util.concurrent.CompletableFuture;
 
 public abstract class TestListener extends ResponseAsStringListener {
 
-    private CompletableFuture<Void> result = new CompletableFuture<>();
+    private final CompletableFuture<Void> result = new CompletableFuture<>();
 
     public abstract void onComplete0();
 

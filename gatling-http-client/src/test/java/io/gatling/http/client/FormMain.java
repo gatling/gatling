@@ -41,9 +41,8 @@ public class FormMain {
       params.add(new Param("firstname", "Mickey"));
       params.add(new Param("lastname", "Mouse"));
 
-      Request request = new RequestBuilder(HttpMethod.POST, Uri.create("https://www.w3schools.com/action_page.php"))
+      Request request = client.newRequestBuilder(HttpMethod.POST, Uri.create("https://www.w3schools.com/action_page.php"))
         .setBodyBuilder(new FormUrlEncodedRequestBodyBuilder(params))
-        .setNameResolver(client.getNameResolver())
         .setRequestTimeout(TIMEOUT_SECONDS * 1000)
         .build();
 

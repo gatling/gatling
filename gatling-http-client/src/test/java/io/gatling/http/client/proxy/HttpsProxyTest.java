@@ -17,7 +17,6 @@
 package io.gatling.http.client.proxy;
 
 import io.gatling.http.client.Request;
-import io.gatling.http.client.RequestBuilder;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.test.HttpTest;
 import io.gatling.http.client.test.TestServer;
@@ -93,7 +92,7 @@ class HttpsProxyTest extends HttpTest {
           h.add("Test" + i, "Test" + i);
         }
 
-        Request request = new RequestBuilder(HttpMethod.GET, Uri.create(server.getHttpsUrl()))
+        Request request = client.newRequestBuilder(HttpMethod.GET, Uri.create(server.getHttpsUrl()))
           .setHeaders(h)
           .setProxyServer(new HttpProxyServer("localhost", 0, proxy.getPort(), null))
           .build();

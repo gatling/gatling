@@ -16,6 +16,7 @@
 
 package io.gatling.http.protocol
 
+import java.{ util => ju }
 import java.net.InetAddress
 import java.util.regex.Pattern
 import javax.net.ssl.KeyManagerFactory
@@ -110,7 +111,7 @@ object HttpProtocol extends StrictLogging {
         proxy = None,
         proxyExceptions = Nil
       ),
-      dnsPart = DnsPart(
+      dnsPart = HttpProtocolDnsPart(
         dnsNameResolution = JavaDnsNameResolution,
         hostNameAliases = Map.empty,
         perUserNameResolution = false
@@ -138,7 +139,7 @@ final case class HttpProtocol(
     responsePart: HttpProtocolResponsePart,
     wsPart: HttpProtocolWsPart,
     proxyPart: HttpProtocolProxyPart,
-    dnsPart: DnsPart
+    dnsPart: HttpProtocolDnsPart
 ) extends Protocol {
 
   type Components = HttpComponents
@@ -188,8 +189,8 @@ final case class HttpProtocolProxyPart(
     proxyExceptions: Seq[String]
 )
 
-final case class DnsPart(
+final case class HttpProtocolDnsPart(
     dnsNameResolution: DnsNameResolution,
-    hostNameAliases: Map[String, Array[InetAddress]],
+    hostNameAliases: Map[String, ju.List[InetAddress]],
     perUserNameResolution: Boolean
 )

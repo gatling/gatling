@@ -19,12 +19,27 @@ package io.gatling.http.resolver
 import java.{ util => ju }
 import java.net.InetAddress
 
+import io.gatling.commons.util.Maps._
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
+import io.gatling.http.util.InetAddresses
 
+import io.netty.util.NetUtil
 import io.netty.util.concurrent.{ Future, Promise }
 
-private[http] class AliasesAwareNameResolver(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
+private[http] object AliasesAwareNameResolver {
+  def apply(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver): InetAddressNameResolver = {
+    if (aliases.isEmpty) {
+      wrapped
+    } else {
+      val shuffledAliases =
+        aliases.forceMapValues(InetAddresses.shuffleInetAddresses(_, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred))
+      new AliasesAwareNameResolver(shuffledAliases, wrapped)
+    }
+  }
+}
+
+private class AliasesAwareNameResolver(aliases: Map[String, ju.List[InetAddress]], wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
 
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] =
     aliases.get(inetHost) match {

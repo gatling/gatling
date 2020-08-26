@@ -23,13 +23,14 @@ import scala.concurrent.{ Await, Promise }
 import scala.concurrent.duration._
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.NameGen
 import io.gatling.http.client.{ HttpClient, HttpListener, Request, RequestBuilder }
-import io.gatling.http.client.resolver.InetAddressNameResolverWrapper
+import io.gatling.http.client.resolver._
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.client.util.Pair
 import io.gatling.http.protocol.HttpComponents
@@ -48,7 +49,7 @@ object HttpEngine {
   def apply(coreComponents: CoreComponents): HttpEngine = {
     val sslContextsFactory = new SslContextsFactory(coreComponents.configuration.ssl)
     val httpClient = new HttpClientFactory(sslContextsFactory, coreComponents.configuration).newClient
-    new HttpEngine(sslContextsFactory, httpClient, coreComponents.eventLoopGroup, coreComponents.configuration)
+    new HttpEngine(sslContextsFactory, httpClient, coreComponents.eventLoopGroup, coreComponents.clock, coreComponents.configuration)
   }
 }
 
@@ -56,6 +57,7 @@ class HttpEngine(
     sslContextsFactory: SslContextsFactory,
     httpClient: HttpClient,
     eventLoopGroup: EventLoopGroup,
+    clock: Clock,
     configuration: GatlingConfiguration
 ) extends AutoCloseable
     with NameGen
@@ -72,7 +74,7 @@ class HttpEngine(
 
       httpProtocol.warmUpUrl match {
         case Some(url) =>
-          val requestBuilder = new RequestBuilder(HttpMethod.GET, Uri.create(url))
+          val requestBuilder = new RequestBuilder(HttpMethod.GET, Uri.create(url), InetAddressNameResolver.JAVA_RESOLVER)
             .setHeaders(
               new DefaultHttpHeaders()
                 .add(HttpHeaderNames.ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
@@ -162,7 +164,10 @@ class HttpEngine(
       httpClient.sendHttp2Requests(requestsAndListeners.toArray, if (shared) -1 else clientId, eventLoop, sslContext, alpnSslContext)
     }
 
-  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): InetAddressNameResolverWrapper =
+  def newJavaDnsNameResolver: InetAddressNameResolver =
+    InetAddressNameResolver.JAVA_RESOLVER
+
+  def newAsyncDnsNameResolver(eventLoop: EventLoop, dnsServers: Array[InetSocketAddress]): InetAddressNameResolver =
     new InetAddressNameResolverWrapper(
       new DnsNameResolverBuilder(eventLoop)
         .channelFactory(Transports.newDatagramChannelFactory(configuration.netty.useNativeTransport))
@@ -174,6 +179,20 @@ class HttpEngine(
         .maxQueriesPerResolve(configuration.http.dns.maxQueriesPerResolve)
         .build()
     )
+
+  // [fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // [fl]
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts =
     sslContextsFactory.newSslContexts(http2Enabled, perUserKeyManagerFactory)

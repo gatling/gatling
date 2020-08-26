@@ -16,7 +16,9 @@
 
 package io.gatling.http.util
 
+import java.{ util => ju }
 import java.net._
+import java.util.concurrent.ThreadLocalRandom
 
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
@@ -24,7 +26,7 @@ import scala.util.control.NonFatal
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.util.NetUtil
 
-object InetAddresses extends LazyLogging {
+private[http] object InetAddresses extends LazyLogging {
 
   private def isBindable(localAddress: InetAddress): Boolean = {
     val socket = new Socket
@@ -53,4 +55,48 @@ object InetAddresses extends LazyLogging {
 
   val AllIpV4LocalAddresses: List[InetAddress] = AllLocalAddresses.filter(_.isInstanceOf[Inet4Address])
   val AllIpV6LocalAddresses: List[InetAddress] = if (NetUtil.isIpV4StackPreferred) Nil else AllLocalAddresses.filter(_.isInstanceOf[Inet6Address])
+
+  @SuppressWarnings(Array("org.wartremover.warts.IsInstanceOf", "org.wartremover.warts.AnyVal"))
+  def shuffleInetAddresses(originalAddresses: ju.List[InetAddress], isIpV4StackPreferred: Boolean, isIpV6AddressesPreferred: Boolean): ju.List[InetAddress] =
+    if (originalAddresses.size() == 1) {
+      originalAddresses
+    } else {
+      var ipV4: ju.List[InetAddress] = null
+      var ipV6: ju.List[InetAddress] = null
+
+      originalAddresses.asScala.foreach { inetAddress =>
+        if (inetAddress.isInstanceOf[Inet4Address]) {
+          if (ipV4 == null) {
+            ipV4 = new ju.ArrayList[InetAddress](originalAddresses.size())
+          }
+          ipV4.add(inetAddress)
+        } else if (!isIpV4StackPreferred) {
+          if (ipV6 == null) {
+            ipV6 = new ju.ArrayList[InetAddress](originalAddresses.size())
+          }
+          ipV6.add(inetAddress)
+        }
+      }
+
+      val higher = if (isIpV6AddressesPreferred) ipV6 else ipV4
+      val lower = if (isIpV6AddressesPreferred) ipV4 else ipV6
+
+      val random = ThreadLocalRandom.current()
+      if (higher != null) {
+        shuffle(higher, random)
+        if (lower != null) {
+          shuffle(lower, random)
+          higher.addAll(lower)
+        }
+        higher
+      } else {
+        shuffle(lower, random)
+        lower
+      }
+    }
+
+  private def shuffle(list: ju.List[InetAddress], random: ThreadLocalRandom): Unit =
+    if (list.size() > 1) {
+      ju.Collections.shuffle(list, random)
+    }
 }

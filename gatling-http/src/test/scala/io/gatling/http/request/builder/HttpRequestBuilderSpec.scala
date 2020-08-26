@@ -27,11 +27,13 @@ import io.gatling.core.session._
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el._
 import io.gatling.http.Predef._
+import io.gatling.http.cache.DnsCacheSupport
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.client.{ HttpClientConfig, Request, SignatureCalculator }
 import io.gatling.http.client.body.form.FormUrlEncodedRequestBody
 import io.gatling.http.client.impl.request.WritableRequestBuilder
+import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
 
@@ -44,6 +46,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   private val clock = new DefaultClock
   private val coreComponents = new CoreComponents(null, null, null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
+  private val sessionBase = EmptySession.set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder, httpProtocol: HttpProtocol = HttpProtocol(configuration)) = {
@@ -56,7 +59,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     httpRequestDef(_.sign(new SignatureCalculator {
       override def sign(request: Request): Unit = request.getHeaders.add("X-Token", "foo")
     }.expressionSuccess))
-      .build("requestName", EmptySession)
+      .build("requestName", sessionBase)
       .map { httpRequest =>
         val writableRequest = WritableRequestBuilder.buildRequest(httpRequest.clientRequest, null, new HttpClientConfig, false)
         writableRequest.getRequest.headers.get("X-Token")
@@ -67,7 +70,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   "form" should "work when overriding a value" in {
 
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
-    val session = EmptySession.set("form", form).set("formParamToOverride", "bar")
+    val session = sessionBase.set("form", form).set("formParamToOverride", "bar")
 
     httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
       .build("requestName", session)
@@ -79,7 +82,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   it should "work when passing only formParams" in {
 
-    val session = EmptySession.set("formParam", "bar")
+    val session = sessionBase.set("formParam", "bar")
 
     httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
       .build("requestName", session)
@@ -92,7 +95,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   it should "work when passing only a form" in {
 
     val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
-    val session = EmptySession.set("form", form)
+    val session = sessionBase.set("form", form)
 
     httpRequestDef(_.form("${form}".el))
       .build("requestName", session)
@@ -111,7 +114,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
         .check(currentLocation.is("current location"))
         .check(header("HEADER").is("VALUE"))
         .check(responseTimeInMillis.lt(300))
-    }).build("requestName", EmptySession).map(_.requestConfig.checks).succeeded
+    }).build("requestName", sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Url,
@@ -130,7 +133,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
         .baseUrl("https://gatling.io")
         .check(md5.notNull)
         .build
-    ).build("requestName", EmptySession)
+    ).build("requestName", sessionBase)
       .map(_.requestConfig.checks)
       .succeeded
 
@@ -148,7 +151,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
         .check(md5.notNull)
         .check(bodyString.notNull)
         .check()
-    }).build("requestName", EmptySession).map(_.requestConfig.checks).succeeded
+    }).build("requestName", sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Status,
@@ -167,7 +170,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
         .check(md5.notNull)
         .check(bodyString.notNull)
         .build
-    ).build("requestName", EmptySession).map(_.requestConfig.checks).succeeded
+    ).build("requestName", sessionBase).map(_.requestConfig.checks).succeeded
 
     result.map(_.scope) shouldBe Seq(
       Status,

@@ -26,7 +26,7 @@ import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.HttpEngine
 import io.gatling.http.engine.tx.HttpTx
-import io.gatling.http.protocol.HttpProtocol
+import io.gatling.http.protocol.{ HttpProtocol, HttpProtocolDnsPart }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
 import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpMethod }
@@ -101,7 +101,7 @@ class CacheSupportSpec extends BaseSpec {
     var session: Session = EmptySession
 
     def addRedirect(from: String, to: String): Unit = {
-      val request = new RequestBuilder(HttpMethod.GET, Uri.create(from))
+      val request = new RequestBuilder(HttpMethod.GET, Uri.create(from), null)
         .build()
       session = httpCaches.addRedirect(session, request, Uri.create(to))
     }
@@ -159,7 +159,7 @@ class CacheSupportSpec extends BaseSpec {
 
     when(request.getUri) thenReturn Uri.create(uri)
     when(request.getHeaders) thenReturn new DefaultHttpHeaders
-    when(caches.setNameResolver(any[HttpProtocol], any[HttpEngine])) thenReturn identity[Session] _
+    when(caches.setNameResolver(any[HttpProtocolDnsPart], any[HttpEngine])) thenReturn identity[Session] _
 
     HttpTx(
       session,

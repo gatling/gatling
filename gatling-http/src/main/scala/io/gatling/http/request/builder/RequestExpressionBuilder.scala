@@ -124,10 +124,6 @@ abstract class RequestExpressionBuilder(
     }
   }
 
-  // note: DNS cache is supposed to be set early
-  private def configureNameResolver(session: Session, requestBuilder: ClientRequestBuilder): Unit =
-    httpCaches.nameResolver(session).foreach(requestBuilder.setNameResolver)
-
   private val proxy = commonAttributes.proxy.orElse(httpProtocol.proxyPart.proxy)
 
   private def configureProxy(requestBuilder: ClientRequestBuilder): Unit =
@@ -219,7 +215,6 @@ abstract class RequestExpressionBuilder(
   protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
     configureProxy(requestBuilder)
     configureCookies(session, requestBuilder)
-    configureNameResolver(session, requestBuilder)
     configureLocalAddress(session, requestBuilder)
 
     configureVirtualHost(session)(requestBuilder)
@@ -233,7 +228,8 @@ abstract class RequestExpressionBuilder(
       safely(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
-          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri)
+          nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
+          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri, nameResolver)
             .setDefaultCharset(charset)
             .setRequestTimeout(configuration.http.requestTimeout.toMillis)
           rb <- configureRequestBuilder(session, requestBuilder)

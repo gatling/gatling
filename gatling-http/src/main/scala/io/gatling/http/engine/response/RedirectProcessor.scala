@@ -63,12 +63,11 @@ object RedirectProcessor {
       newHeaders.remove(HttpHeaderNames.CONTENT_TYPE)
     }
 
-    val requestBuilder = new RequestBuilder(if (switchToGet) GET else originalMethod, redirectUri)
+    val requestBuilder = new RequestBuilder(if (switchToGet) GET else originalMethod, redirectUri, originalRequest.getNameResolver)
       .setHeaders(newHeaders)
       .setHttp2Enabled(originalRequest.isHttp2Enabled)
       .setLocalIpV4Address(originalRequest.getLocalIpV4Address)
       .setLocalIpV6Address(originalRequest.getLocalIpV6Address)
-      .setNameResolver(originalRequest.getNameResolver)
       .setRealm(originalRequest.getRealm)
       .setRequestTimeout(originalRequest.getRequestTimeout)
       .setDefaultCharset(defaultCharset)

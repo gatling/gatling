@@ -33,9 +33,8 @@ public class Http2Main {
 
     try (GatlingHttpClient client = new GatlingHttpClient(new HttpClientConfig())) {
 
-      Request request = new RequestBuilder(HttpMethod.GET, Uri.create("https://www.bbc.com/pidgin"))
+      Request request = client.newRequestBuilder(HttpMethod.GET, Uri.create("https://www.bbc.com/pidgin"))
         .setHttp2Enabled(true)
-        .setNameResolver(client.getNameResolver())
         .setRequestTimeout(10000)
         .build();
 

@@ -19,10 +19,12 @@ package io.gatling.http.client;
 import io.gatling.http.client.impl.DefaultHttpClient;
 import io.gatling.http.client.resolver.InetAddressNameResolver;
 import io.gatling.http.client.resolver.InetAddressNameResolverWrapper;
+import io.gatling.http.client.uri.Uri;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -60,15 +62,14 @@ public class GatlingHttpClient implements AutoCloseable {
     if (request.getNameResolver() == null) {
       // hack: patch request with name resolver
       request = new RequestBuilder(request, request.getUri())
-        .setNameResolver(nameResolver)
         .build();
     }
 
     client.sendRequest(request, shared ? - 1 : clientId, eventLoopGroup.next(), listener, sslContext, null);
   }
 
-  public InetAddressNameResolver getNameResolver() {
-    return nameResolver;
+  public RequestBuilder newRequestBuilder(HttpMethod method, Uri uri) {
+    return new RequestBuilder(method, uri, nameResolver);
   }
 
   @Override

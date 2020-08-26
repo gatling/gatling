@@ -19,30 +19,16 @@ package io.gatling.http.cache
 import java.{ util => ju }
 import java.net.InetAddress
 
-import io.gatling.commons.util.Maps._
+import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.engine.HttpEngine
-import io.gatling.http.protocol.{ AsyncDnsNameResolution, DnsNameResolution, HttpProtocol, JavaDnsNameResolution }
-import io.gatling.http.resolver.{ AliasesAwareNameResolver, ShuffleJdkNameResolver }
+import io.gatling.http.protocol.{ AsyncDnsNameResolution, HttpProtocolDnsPart, JavaDnsNameResolution }
+import io.gatling.http.resolver.{ AliasesAwareNameResolver, SharedAsyncDnsNameResolverFactory, ShufflingNameResolver }
 
-import io.netty.channel.EventLoop
-import io.netty.util.NetUtil
-import io.netty.util.concurrent.{ Future, Promise }
-
-private object DnsCacheSupport {
-
+private[http] object DnsCacheSupport {
   val DnsNameResolverAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"
-}
-
-private class NoopCloseNameResolver(wrapped: InetAddressNameResolver) extends InetAddressNameResolver {
-
-  override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] =
-    wrapped.resolveAll(inetHost, promise, listener)
-
-  override def close(): Unit = {}
 }
 
 private[http] trait DnsCacheSupport {
@@ -51,53 +37,41 @@ private[http] trait DnsCacheSupport {
 
   def coreComponents: CoreComponents
 
-  private def newNameResolver(
-      eventLoop: EventLoop,
-      dnsNameResolution: DnsNameResolution,
-      httpEngine: HttpEngine
-  ): InetAddressNameResolver = {
-    dnsNameResolution match {
-      case JavaDnsNameResolution              => ShuffleJdkNameResolver.Instance
-      case AsyncDnsNameResolution(dnsServers) => httpEngine.newAsyncDnsNameResolver(eventLoop, dnsServers)
-    }
-  }
-
-  private def setAliasAwareResolver(
+  private def setDecoratedResolver(
       session: Session,
       resolver: InetAddressNameResolver,
-      hostNameAliases: Map[String, Array[InetAddress]]
+      hostNameAliases: Map[String, ju.List[InetAddress]]
   ): Session = {
-    val aliasAwareResolver =
-      if (hostNameAliases.isEmpty) {
-        resolver
-      } else {
-        val shuffled =
-          hostNameAliases.forceMapValues(ShuffleJdkNameResolver.shuffleInetAddresses(_, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred))
-        new AliasesAwareNameResolver(shuffled, resolver)
-      }
-
+    val shufflingResolver = new ShufflingNameResolver(resolver, session.eventLoop)
+    val aliasAwareResolver = AliasesAwareNameResolver(hostNameAliases, shufflingResolver)
     session.set(DnsNameResolverAttributeName, aliasAwareResolver)
   }
 
-  def setNameResolver(httpProtocol: HttpProtocol, httpEngine: HttpEngine): Session => Session = {
+  def setNameResolver(dnsPart: HttpProtocolDnsPart, httpEngine: HttpEngine): Session => Session = {
 
-    import httpProtocol.dnsPart._
+    import dnsPart._
 
-    if (perUserNameResolution) { session =>
-      val actualResolver = newNameResolver(session.eventLoop, dnsNameResolution, httpEngine)
-      setAliasAwareResolver(session, actualResolver, hostNameAliases)
+    dnsNameResolution match {
+      case JavaDnsNameResolution =>
+        val actualResolver = httpEngine.newJavaDnsNameResolver
+        setDecoratedResolver(_, actualResolver, hostNameAliases)
+      case AsyncDnsNameResolution(dnsServers) =>
+        if (perUserNameResolution) { (session: Session) =>
+          {
+            val actualResolver = httpEngine.newAsyncDnsNameResolver(session.eventLoop, dnsServers)
+            setDecoratedResolver(session, actualResolver, hostNameAliases)
+          }
+        } else {
+          val factory = SharedAsyncDnsNameResolverFactory(httpEngine, dnsServers, coreComponents.actorSystem)
 
-    } else {
-      // create shared name resolver for all the users with this protocol
-      val actualResolver = newNameResolver(coreComponents.eventLoopGroup.next(), dnsNameResolution, httpEngine)
-      coreComponents.actorSystem.registerOnTermination(() => actualResolver.close())
-
-      // perform close on system shutdown instead of virtual user termination as its shared
-      val noopCloseNameResolver = new NoopCloseNameResolver(actualResolver)
-      setAliasAwareResolver(_, noopCloseNameResolver, hostNameAliases)
+          session => {
+            val sharedResolver = factory(session.eventLoop)
+            setDecoratedResolver(session, sharedResolver, hostNameAliases)
+          }
+        }
     }
   }
 
-  def nameResolver(session: Session): Option[InetAddressNameResolver] =
-    session.attributes.get(DnsNameResolverAttributeName).map(_.asInstanceOf[InetAddressNameResolver])
+  def nameResolver(session: Session): Validation[InetAddressNameResolver] =
+    session.attributes.get(DnsNameResolverAttributeName).map(_.asInstanceOf[InetAddressNameResolver]).toValidation("DnsNameResolver missing from Session")
 }
