@@ -585,7 +585,7 @@
           syntax:
             - signature: (value, relativeMargin)
               description: the statistic's target and bounds margin
-            - signature: (thresholdMin,thresholdMax, inclusive = false)
+            - signature: (thresholdMin, thresholdMax, inclusive = false)
               description: the statistic's bounds, excluded
 
         - keyword: is
