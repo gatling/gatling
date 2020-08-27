@@ -132,6 +132,22 @@ It's also possible with ``andThen`` to chain scenarios so that children scenario
 
 .. includecode:: code/SimulationSetupSample.scala#andThen
 
+
+.. _no-shard:
+
+Disabling FrontLine Load Sharding
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, FrontLine will distribute your injection profile amongst all injectors when running a distributed test from multiple node.
+
+This might not be the desirable behavior, typically when running a first initial scenario with one single user in order to fetch some auth token to be used by the actual scenario.
+Indeed, only one node would run this user, leaving the other nodes without an initialized token.
+
+You can user ``noShard`` to disable load sharding. In this case, all the node will use the injection and throttling profiles as defined in the Simulation.
+
+.. includecode:: code/SimulationSetupSample.scala#noShard
+
+
 .. _simulation-setup-pause:
 
 Global Pause configuration

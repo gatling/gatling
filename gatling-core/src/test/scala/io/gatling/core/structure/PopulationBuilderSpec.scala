@@ -28,7 +28,8 @@ class PopulationBuilderSpec extends AnyFlatSpec with Matchers {
       scenarioProtocols = Map.empty,
       scenarioThrottleSteps = Nil,
       pauseType = None,
-      children = children
+      children = children,
+      shard = false
     )
 
   "groupChildrenByParent" should "return empty flat populations" in {

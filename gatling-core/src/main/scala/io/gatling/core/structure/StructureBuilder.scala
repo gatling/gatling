@@ -63,7 +63,8 @@ final class ScenarioBuilder(val name: String, val actionBuilders: List[ActionBui
       scenarioProtocols = Map.empty,
       scenarioThrottleSteps = Nil,
       pauseType = None,
-      children = Nil
+      children = Nil,
+      shard = true
     )
   }
 }

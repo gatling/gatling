@@ -127,4 +127,17 @@ class SimulationSetupSample extends Simulation {
       )
   )
   //#andThen
+
+  //#noShard
+  setUp(
+    // parent load won't be sharded
+    parent
+      .inject(atOnceUsers(1))
+      .noShard
+      .andThen(
+        // child load will be sharded
+        child1.inject(injectionProfile)
+      )
+  )
+  //#noShard
 }

@@ -114,13 +114,13 @@ abstract class Simulation {
       require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty")
     }
 
-    val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { scn =>
-      val steps = scn.scenarioThrottleSteps
+    val scenarioThrottlings: Map[String, Throttling] = allPopulationBuilders.flatMap { populationBuilder =>
+      val steps = populationBuilder.scenarioThrottleSteps
 
       if (steps.isEmpty) {
         Nil
       } else {
-        List(scn.scenarioBuilder.name -> Throttling(steps))
+        List(populationBuilder.scenarioBuilder.name -> Throttling(steps))
       }
     }.toMap
 
