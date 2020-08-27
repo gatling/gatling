@@ -117,7 +117,7 @@ Conditions can be chained to apply several conditions on the same metric.
 
 * ``deviatesAround(target, percentDeviationThreshold)``: check that metric is around a target value plus or minus a given relative margin
 
-* ``percentDeviationThreshold(target, percentDeviationThreshold, inclusive = false)``: same as above but doesn't include bounds
+* ``deviatesAround(target, percentDeviationThreshold, inclusive = false)``: same as above but doesn't include bounds
 
 * ``is(value)``: check that the value of the metric is equal to the given value.
 
