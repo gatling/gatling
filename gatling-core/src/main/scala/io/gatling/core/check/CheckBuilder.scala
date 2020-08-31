@@ -32,7 +32,7 @@ trait FindCheckBuilder[T, P, X] {
 
 class DefaultFindCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean) extends FindCheckBuilder[T, P, X] {
 
-  def find: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(extractor, displayActualValue)
+  override def find: ValidatorCheckBuilder[T, P, X] = ValidatorCheckBuilder(extractor, displayActualValue)
 }
 
 trait MultipleFindCheckBuilder[T, P, X] extends FindCheckBuilder[T, P, X] {
