@@ -110,13 +110,13 @@ which correspond to:
 Hooks
 =====
 
-.. warning:: Hooks are deprecated and planned for removal in 3.5.0. Use :ref:`simulation-inject-seq <sequential scenarios>` instead.
-
 Gatling provides two hooks:
 
-* ``before`` for executing some code before the simulation actually runs
-* ``after`` for executing some code after the simulation actually runs
+* ``before`` for executing some arbitrary code before the simulation actually runs
+* ``after`` for executing some arbitrary code after the simulation actually runs
 
 .. includecode:: code/SimulationStructureSample.scala#hooks
 
-.. note:: You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your custom code.
+.. note::
+    You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your own code.
+    If you're looking for executing Gatling DSL, you might consider using :ref:`sequential scenarios <simulation-inject-seq>`.

@@ -38,7 +38,6 @@ abstract class Simulation {
   private var _beforeSteps: List[() => Unit] = Nil
   private var _afterSteps: List[() => Unit] = Nil
 
-  @deprecated("Use sequential scenarios instead. Will be removed in 3.5.0", "3.4.0")
   def before(step: => Unit): Unit =
     _beforeSteps = _beforeSteps ::: List(() => step)
 
@@ -51,7 +50,6 @@ abstract class Simulation {
     new SetUp
   }
 
-  @deprecated("Use sequential scenarios instead. Will be removed in 3.5.0", "3.4.0")
   def after(step: => Unit): Unit =
     _afterSteps = _afterSteps ::: List(() => step)
 
