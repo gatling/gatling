@@ -17,3 +17,4 @@ Migrating from 3.3 to 3.4
 * HTTP:
 
   * ``hostNameAliases`` now takes a ``Map[String, List[String]]`` instead of a ``Map[String, String]``
+  * ``HttpHeaderNames`` and ``HttpHeaderValues`` are deprecated and planned for removal in the next release. Use ``io.netty.handler.codec.http.HttpHeaderNames`` and ``io.netty.handler.codec.http.HttpHeaderValues`` instead.
