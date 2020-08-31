@@ -70,11 +70,6 @@ trait CheckSupport {
       implicit xmlParsers: XmlParsers
   ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
-  @deprecated(message = "Pass namespaces as a Map instead of a List, will be removed soon", since = "3.4.0")
-  def xpath(path: Expression[String], namespaces: List[(String, String)])(
-      implicit xmlParsers: XmlParsers
-  ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
-    new XPathCheckBuilder(path, namespaces.toMap, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)
