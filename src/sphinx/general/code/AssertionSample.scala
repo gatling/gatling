@@ -28,11 +28,11 @@ class AssertionSample extends Simulation {
   //#setUp
 
   //#details
-  details("Index")
+  details("MyRequest")
   //#details
 
   //#details-group
-  details("Search" / "Index")
+  details("MyGroup" / "MyRequest")
   //#details-group
 
   //#examples
@@ -42,11 +42,11 @@ class AssertionSample extends Simulation {
   // Assert that every request has no more than 5% of failing requests
   setUp(scn).assertions(forAll.failedRequests.percent.lte(5))
 
-  // Assert that the percentage of failed requests named "Index" in the group "Search"
+  // Assert that the percentage of failed requests named "MyRequest" in the group "MyGroup"
   // is exactly 0 %
-  setUp(scn).assertions(details("Search" / "Index").failedRequests.percent.is(0))
+  setUp(scn).assertions(details("MyGroup" / "MyRequest").failedRequests.percent.is(0))
 
-  // Assert that the rate of requests per seconds for the group "Search"
-  setUp(scn).assertions(details("Search").requestsPerSec.between(100, 1000))
+  // Assert that the rate of requests per seconds for the group "MyGroup"
+  setUp(scn).assertions(details("MyGroup").requestsPerSec.between(100, 1000))
   //#examples
 }
