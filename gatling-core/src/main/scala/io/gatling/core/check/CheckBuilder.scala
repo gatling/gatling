@@ -115,7 +115,7 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
   override def count: ValidatorCheckBuilder[T, P, Int] = ValidatorCheckBuilder(countExtractor, displayActualValue)
 }
 
-object ValidatorCheckBuilder {
+private object ValidatorCheckBuilder {
   val TransformErrorMapper: String => String = "transform crashed: " + _
   val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
 }
