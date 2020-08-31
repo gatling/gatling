@@ -1,0 +1,43 @@
+#################
+What's New in 3.4
+#################
+
+Core
+====
+
+* `#3830 <https://github.com/gatling/gatling/issues/3830>`__: Scenarios in a same simulation can now be execute sequentially with ``andThen``.
+* `#3845 <https://github.com/gatling/gatling/issues/3845>`__: Introduce ``around`` assertion criterion.
+* `#3871 <https://github.com/gatling/gatling/issues/3871>`__: Keystores and truststores can now be passwordless.
+* `#3895 <https://github.com/gatling/gatling/issues/3895>`__: Introduce ``currentTimeMillis()`` and ``currentDate(<pattern>)`` Gatling EL functions.
+* `#3904 <https://github.com/gatling/gatling/issues/3904>`__: Introduce ``exitHere`` and ``exitHereIf`` for having a virtual user exit its scenario.
+* `#3926 <https://github.com/gatling/gatling/issues/3926>`__: Rename Session based versions of ``transform`` and ``transformOption`` into ``transformWithSession`` and ``transformOptionWithSession``.
+* `#3931 <https://github.com/gatling/gatling/issues/3931>`__: Skip feeder empty lines
+* `#3847 <https://github.com/gatling/gatling/issues/3847>`__: Introduce ``deviatesAround`` assertion target
+
+HTTP
+====
+
+* `#3817 <https://github.com/gatling/gatling/issues/3817>`__: WebSocket actions can now be flagged as ``silent``
+* `#3857 <https://github.com/gatling/gatling/issues/3857>`__: ``addCookie`` Cookie name is now a dynamic Expression
+* `#3897 <https://github.com/gatling/gatling/issues/3897>`__: WebSocket ``await`` timeout is now a dynamic Expression
+* `#3899 <https://github.com/gatling/gatling/issues/3899>`__: Introduce ``ignoreDefaultHeaders`` for disabling default headers on a given request
+* `#3905 <https://github.com/gatling/gatling/issues/3905>`__: ``getCookie`` Cookie name is now a dynamic Expression
+* `#3915 <https://github.com/gatling/gatling/issues/3915>`__: Checks are not performed sorted by their scope (url, status, headers, body checksum, body, time)
+* `#2431 <https://github.com/gatling/gatling/issues/2431>`__: SSE now automatically reconnect as per spec
+* `#3909 <https://github.com/gatling/gatling/issues/3909>`__: WebSocket ``subprotocol`` is now a dynamic Expression
+* `#3925 <https://github.com/gatling/gatling/issues/3925>`__: Introduce `HttpProtocol#useAllLocalAddresses` for binding from all available local addresses
+* `#3923 <https://github.com/gatling/gatling/issues/3923>`__: Stop preferring IPv4 stack by default and prefer IPv6 addresses
+* `#3907 <https://github.com/gatling/gatling/issues/3907>`__: ``hostNameAliases`` now accepts multiple addresses for a given alias
+* `#3927 <https://github.com/gatling/gatling/issues/3927>`__: Enable TLSv1.3 by default when available
+
+Recorder
+========
+
+* `#3890 <https://github.com/gatling/gatling/issues/3890>`__: Introduce an option (checkbox and config) for having the method and the url in the generated request names.
+
+JMS
+===
+
+* `#3820 <https://github.com/gatling/gatling/issues/3820>`__: Selector can now be a dynamic Expression
+* `#3831 <https://github.com/gatling/gatling/issues/3831>`__: JMS now supports bodyString, substring, checkIf and jsonPath checks
+* `#3836 <https://github.com/gatling/gatling/issues/3836>`__: JMS now supports jmesPath checks
