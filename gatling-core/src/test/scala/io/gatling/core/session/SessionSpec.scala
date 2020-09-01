@@ -61,7 +61,7 @@ object SessionSpec {
       throw new UnsupportedOperationException
     override def scheduleWithFixedDelay(command: Runnable, initialDelay: Long, delay: Long, unit: juc.TimeUnit): ScheduledFuture[_] =
       throw new UnsupportedOperationException
-    override def isShutdown: Boolean = throw new UnsupportedOperationException
+    override def isShutdown: Boolean = false
     override def isTerminated: Boolean = throw new UnsupportedOperationException
     override def awaitTermination(timeout: Long, unit: juc.TimeUnit): Boolean = throw new UnsupportedOperationException
     override def invokeAll[T](tasks: ju.Collection[_ <: juc.Callable[T]]): ju.List[juc.Future[T]] = throw new UnsupportedOperationException

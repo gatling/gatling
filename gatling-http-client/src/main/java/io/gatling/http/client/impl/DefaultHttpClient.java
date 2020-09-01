@@ -255,7 +255,7 @@ public class DefaultHttpClient implements HttpClient {
 
     if (eventLoop.inEventLoop()) {
       sendTx(tx, eventLoop);
-    } else {
+    } else if (!eventLoop.isShutdown()) {
       eventLoop.execute(() -> sendTx(tx, eventLoop));
     }
   }
@@ -293,7 +293,7 @@ public class DefaultHttpClient implements HttpClient {
 
     if (eventLoop.inEventLoop()) {
       sendHttp2Txs(txs, eventLoop);
-    } else {
+    } else if (!eventLoop.isShutdown()) {
       eventLoop.execute(() -> sendHttp2Txs(txs, eventLoop));
     }
   }
@@ -840,7 +840,7 @@ public class DefaultHttpClient implements HttpClient {
   public void flushClientIdChannels(long clientId, EventLoop eventLoop) {
     if (eventLoop.inEventLoop()) {
       eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId);
-    } else {
+    } else if (!eventLoop.isShutdown()) {
       eventLoop.execute(() -> eventLoopResources(eventLoop).channelPool.flushClientIdChannelPoolPartitions(clientId));
     }
   }

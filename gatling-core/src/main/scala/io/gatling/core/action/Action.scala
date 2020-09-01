@@ -38,7 +38,7 @@ trait Action extends StrictLogging {
     val evenLoop = session.eventLoop
     if (evenLoop.inEventLoop) {
       execute(session)
-    } else {
+    } else if (!evenLoop.isShutdown) {
       evenLoop.execute(() => execute(session))
     }
   }

@@ -61,10 +61,12 @@ abstract class Workload(
     incrementScheduledUsers()
     val userId = userIdGen.incrementAndGet()
     val eventLoop = eventLoopGroup.next()
-    if (delay <= Duration.Zero) {
-      eventLoop.execute(() => startUser(userId, eventLoop))
-    } else {
-      eventLoop.schedule((() => startUser(userId, eventLoop)): Runnable, delay.toMillis, TimeUnit.MILLISECONDS)
+    if (!eventLoop.isShutdown) {
+      if (delay <= Duration.Zero) {
+        eventLoop.execute(() => startUser(userId, eventLoop))
+      } else {
+        eventLoop.schedule((() => startUser(userId, eventLoop)): Runnable, delay.toMillis, TimeUnit.MILLISECONDS)
+      }
     }
   }
 

@@ -85,7 +85,10 @@ class InnerLoop(
       if (incrementedSession.userId == lastUserId) {
         // except if we're running only one user per core, it's very likely we're hitting an empty loop
         // let's dispatch so we don't spin
-        session.eventLoop.execute(() => loopNext ! incrementedSession)
+        val eventLoop = session.eventLoop
+        if (!eventLoop.isShutdown) {
+          eventLoop.execute(() => loopNext ! incrementedSession)
+        }
 
       } else {
         loopNext ! incrementedSession
