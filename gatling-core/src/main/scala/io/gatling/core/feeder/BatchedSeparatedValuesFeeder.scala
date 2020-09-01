@@ -16,7 +16,8 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ File, FileInputStream, InputStream }
+import java.io.File
+import java.nio.channels.{ FileChannel, ReadableByteChannel }
 import java.nio.charset.Charset
 
 import io.gatling.commons.util.Arrays
@@ -33,14 +34,18 @@ object BatchedSeparatedValuesFeeder {
       charset: Charset
   ): Feeder[Any] = {
 
-    val streamer: InputStream => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
+    val streamer: ReadableByteChannel => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
 
-    def is = new FileInputStream(file)
+    val channelFactory = {
+      val path = file.toPath
+      () => FileChannel.open(path)
+    }
+
     val rawFeeder = strategy match {
-      case Queue    => new QueueBatchedSeparatedValuesFeeder(is, streamer)
-      case Random   => new RandomBatchedSeparatedValuesFeeder(is, streamer, bufferSize)
-      case Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(is, streamer, bufferSize)
-      case Circular => new CircularBatchedSeparatedValuesFeeder(is, streamer)
+      case Queue    => new QueueBatchedSeparatedValuesFeeder(channelFactory, streamer)
+      case Random   => new RandomBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
+      case Shuffle  => new ShuffleBatchedSeparatedValuesFeeder(channelFactory, streamer, bufferSize)
+      case Circular => new CircularBatchedSeparatedValuesFeeder(channelFactory, streamer)
     }
 
     conversion match {
@@ -56,29 +61,36 @@ object BatchedSeparatedValuesFeeder {
   }
 }
 
-abstract class BatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String]) extends CloseableFeeder[String] {
+abstract class BatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, feederFactory: ReadableByteChannel => Feeder[String])
+    extends CloseableFeeder[String] {
 
-  private var currentIs: InputStream = is
-  protected var feeder: Feeder[String] = streamer(currentIs)
+  private var currentChannel: ReadableByteChannel = _
+  protected var feeder: Feeder[String] = _
+  reset0()
 
-  protected def resetStream(): Unit = {
-    currentIs.close()
-    currentIs = is
-    feeder = streamer(currentIs)
+  private def reset0(): Unit = {
+    currentChannel = channelFactory()
+    feeder = feederFactory(currentChannel)
   }
 
-  override def close(): Unit = currentIs.close()
+  protected def resetStream(): Unit = {
+    currentChannel.close()
+    reset0()
+  }
+
+  override def close(): Unit = currentChannel.close()
 }
 
-class QueueBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String]) extends BatchedSeparatedValuesFeeder(is, streamer) {
+class QueueBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String])
+    extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
 
   override def hasNext: Boolean = feeder.hasNext
 
   override def next(): Record[String] = feeder.next()
 }
 
-class RandomBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String], bufferSize: Int)
-    extends BatchedSeparatedValuesFeeder(is, streamer) {
+class RandomBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String], bufferSize: Int)
+    extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
 
   private val buffer = new Array[Record[String]](bufferSize)
   private var index = 0
@@ -110,8 +122,8 @@ class RandomBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStre
     }
 }
 
-class ShuffleBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String], bufferSize: Int)
-    extends BatchedSeparatedValuesFeeder(is, streamer) {
+class ShuffleBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String], bufferSize: Int)
+    extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
 
   private val buffer = new Array[Record[String]](bufferSize)
   private var index = 0
@@ -142,7 +154,8 @@ class ShuffleBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStr
     }
 }
 
-class CircularBatchedSeparatedValuesFeeder(is: => InputStream, streamer: InputStream => Feeder[String]) extends BatchedSeparatedValuesFeeder(is, streamer) {
+class CircularBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChannel, streamer: ReadableByteChannel => Feeder[String])
+    extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
 
   override def hasNext: Boolean = true
 

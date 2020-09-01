@@ -16,7 +16,8 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ ByteArrayInputStream, InputStream }
+import java.io.ByteArrayInputStream
+import java.nio.channels.{ Channels, ReadableByteChannel }
 import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
@@ -34,11 +35,11 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
        |line5_1,line5_2
        |""".stripMargin
 
-  private def newInputStream(text: String): InputStream =
-    new ByteArrayInputStream(text.getBytes(UTF_8))
+  private def channelFactory(text: String): () => ReadableByteChannel =
+    () => Channels.newChannel(new ByteArrayInputStream(text.getBytes(UTF_8)))
 
   "QueueBatchedSeparatedValuesFeeder" should "feed full content" in {
-    new QueueBatchedSeparatedValuesFeeder(newInputStream(csvContent), streamer).toVector shouldBe Vector(
+    new QueueBatchedSeparatedValuesFeeder(channelFactory(csvContent), streamer).toVector shouldBe Vector(
       Map("column1" -> "line1_1", "column2" -> "line1_2"),
       Map("column1" -> "line2_1", "column2" -> "line2_2"),
       Map("column1" -> "line3_1", "column2" -> "line3_2"),
@@ -48,24 +49,24 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
   }
 
   it should "throw a IllegalArgumentException on empty content" in {
-    a[IllegalArgumentException] should be thrownBy new QueueBatchedSeparatedValuesFeeder(newInputStream(""), streamer)
+    a[IllegalArgumentException] should be thrownBy new QueueBatchedSeparatedValuesFeeder(channelFactory(""), streamer)
   }
 
   it should "return an empty feeder when there's no record" in {
-    new QueueBatchedSeparatedValuesFeeder(newInputStream(s"""column1,column2
+    new QueueBatchedSeparatedValuesFeeder(channelFactory(s"""column1,column2
                                                             |""".stripMargin), streamer).hasNext shouldBe false
   }
 
   "RandomBatchedSeparatedValuesFeeder" should "feed an infinite stream of different records" in {
     val takeSize = 100
-    val records = new RandomBatchedSeparatedValuesFeeder(newInputStream(csvContent), streamer, 3).take(takeSize).toVector
+    val records = new RandomBatchedSeparatedValuesFeeder(channelFactory(csvContent), streamer, 3).take(takeSize).toVector
     records.size shouldBe takeSize
     records.toSet.size shouldBe 5
   }
 
   "ShuffleBatchedSeparatedValuesFeeder" should "feed a finite stream of different records" in {
     val takeSize = 5
-    val feeder = new ShuffleBatchedSeparatedValuesFeeder(newInputStream(csvContent), streamer, 3)
+    val feeder = new ShuffleBatchedSeparatedValuesFeeder(channelFactory(csvContent), streamer, 3)
     val records = feeder.take(takeSize).toVector
     records.size shouldBe takeSize
     records.toSet.size shouldBe 5
@@ -73,7 +74,7 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
   }
 
   "CircularBatchedSeparatedValuesFeeder" should "feed a finite stream of expected records" in {
-    new CircularBatchedSeparatedValuesFeeder(newInputStream(csvContent), streamer).take(10).toVector shouldBe Vector(
+    new CircularBatchedSeparatedValuesFeeder(channelFactory(csvContent), streamer).take(10).toVector shouldBe Vector(
       Map("column1" -> "line1_1", "column2" -> "line1_2"),
       Map("column1" -> "line2_1", "column2" -> "line2_2"),
       Map("column1" -> "line3_1", "column2" -> "line3_2"),

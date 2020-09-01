@@ -16,7 +16,7 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ BufferedInputStream, InputStream, InputStreamReader }
+import java.nio.channels.{ Channels, ReadableByteChannel }
 import java.nio.charset.Charset
 
 import scala.collection.JavaConverters._
@@ -31,13 +31,13 @@ object SeparatedValuesParser {
   val SemicolonSeparator: Char = ';'
   val TabulationSeparator: Char = '\t'
 
-  def stream(columnSeparator: Char, quoteChar: Char, charset: Charset): InputStream => Feeder[String] = {
+  def stream(columnSeparator: Char, quoteChar: Char, charset: Charset): ReadableByteChannel => Feeder[String] = {
     val parser = CsvParser
       .separator(columnSeparator)
       .quote(quoteChar)
 
-    is => {
-      val reader = new InputStreamReader(new Utf8BomSkipInputStream(new BufferedInputStream(is)), charset)
+    channel => {
+      val reader = Channels.newReader(new Utf8BomSkipReadableByteChannel(channel), charset.newDecoder, -1)
       val it = parser.iterator(reader)
 
       require(it.hasNext, "Feeder source is empty")

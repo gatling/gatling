@@ -17,6 +17,7 @@
 package io.gatling.core.feeder
 
 import java.io.{ File, FileOutputStream, InputStream }
+import java.nio.channels.FileChannel
 import java.util.zip.{ GZIPInputStream, ZipInputStream }
 
 import scala.annotation.switch
@@ -114,8 +115,8 @@ final class SeparatedValuesFeederSource(resource: Resource, separator: Char, quo
         case Adaptive if res.file.length > configuration.core.feederAdaptiveLoadModeThreshold =>
           BatchedSeparatedValuesFeeder(res.file, separator, quoteChar, options.conversion, options.strategy, Batch.DefaultBufferSize, charset)
         case _ =>
-          val records = withCloseable(res.inputStream) { is =>
-            SeparatedValuesParser.stream(separator, quoteChar, charset)(is).toVector
+          val records = withCloseable(FileChannel.open(res.file.toPath)) { channel =>
+            SeparatedValuesParser.stream(separator, quoteChar, charset)(channel).toVector
           }
 
           InMemoryFeeder(records, options.conversion, options.strategy)
