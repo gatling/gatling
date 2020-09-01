@@ -16,7 +16,7 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ InputStream, InputStreamReader }
+import java.io.{ BufferedInputStream, InputStream, InputStreamReader }
 import java.nio.charset.Charset
 
 import scala.collection.JavaConverters._
@@ -37,7 +37,7 @@ object SeparatedValuesParser {
       .quote(quoteChar)
 
     is => {
-      val reader = new InputStreamReader(new Utf8BomSkipInputStream(is), charset)
+      val reader = new InputStreamReader(new Utf8BomSkipInputStream(new BufferedInputStream(is)), charset)
       val it = parser.iterator(reader)
 
       require(it.hasNext, "Feeder source is empty")
