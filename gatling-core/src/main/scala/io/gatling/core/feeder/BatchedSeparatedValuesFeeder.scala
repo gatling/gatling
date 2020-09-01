@@ -35,7 +35,7 @@ object BatchedSeparatedValuesFeeder {
 
     val streamer: InputStream => Feeder[String] = SeparatedValuesParser.stream(separator, quoteChar, charset)
 
-    val is = new FileInputStream(file)
+    def is = new FileInputStream(file)
     val rawFeeder = strategy match {
       case Queue    => new QueueBatchedSeparatedValuesFeeder(is, streamer)
       case Random   => new RandomBatchedSeparatedValuesFeeder(is, streamer, bufferSize)
