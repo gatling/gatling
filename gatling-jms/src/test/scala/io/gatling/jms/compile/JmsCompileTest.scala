@@ -116,7 +116,7 @@ class JmsCompileTest extends Simulation {
         .check(
           bodyString.is("hello"),
           substring("he").count.is(1),
-          checkIf(bodyString.notNull.displayActualValue) {
+          checkIf(_ => true) {
             jsonPath("$").is("hello")
           }
         )
