@@ -108,11 +108,6 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
   override def count: ValidatorCheckBuilder[T, P, Int] = DefaultValidatorCheckBuilder(countExtractor, displayActualValue)
 }
 
-private object ValidatorCheckBuilder {
-  val TransformErrorMapper: String => String = "transform crashed: " + _
-  val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
-}
-
 trait ValidatorCheckBuilder[T, P, X] {
   def transform[X2](transformation: X => X2): ValidatorCheckBuilder[T, P, X2]
   def transformWithSession[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[T, P, X2]
@@ -135,10 +130,15 @@ trait ValidatorCheckBuilder[T, P, X] {
   def gte(expected: Expression[X])(implicit ordering: Ordering[X]): CheckBuilder[T, P, X]
 }
 
+private object DefaultValidatorCheckBuilder {
+  val TransformErrorMapper: String => String = "transform crashed: " + _
+  val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
+}
+
 private final case class DefaultValidatorCheckBuilder[T, P, X](extractor: Expression[Extractor[P, X]], displayActualValue: Boolean)
     extends ValidatorCheckBuilder[T, P, X] {
 
-  import ValidatorCheckBuilder._
+  import DefaultValidatorCheckBuilder._
 
   private def transformExtractor[X2](transformation: X => X2)(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
