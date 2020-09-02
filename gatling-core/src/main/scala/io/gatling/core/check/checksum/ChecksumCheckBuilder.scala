@@ -27,7 +27,7 @@ trait Sha1CheckType
 
 object ChecksumCheckBuilder {
 
-  private def checksum[T](algorithm: String): DefaultFindCheckBuilder[T, String, String] =
+  private def checksum[T](algorithm: String): FindCheckBuilder[T, String, String] =
     new DefaultFindCheckBuilder[T, String, String](
       extractor = new FindExtractor[String, String](algorithm.toLowerCase(Locale.ROOT), Some(_).success).expressionSuccess,
       displayActualValue = false

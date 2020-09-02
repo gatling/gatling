@@ -198,7 +198,7 @@ class HttpCompileTest extends Simulation {
           xpath("//input[@id='text1']/@value").findAll,
           xpath("//input[@id='text1']/@value").count,
           xpath("//input[@id='text1']/@value").name("This is a check"),
-          xpath("//input[@value='${aaaa_value}']/@id").saveAs("sessionParam"),
+          xpath("//input[@value='${aaaa_value}']/@id").name("foo").saveAs("sessionParam"),
           xpath("//input[@value='aaaa']/@id").not("param"),
           xpath("//input[@id='${aaaa_value}']/@value").notExists,
           xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
