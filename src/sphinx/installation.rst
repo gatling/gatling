@@ -82,9 +82,9 @@ Check the :ref:`sbt plugin documentation <sbt-plugin>` for more information.
 Gradle
 ------
 
-Gatling doesn't provide an official gradle plugin. Still, you can find several community ones.
+Gatling provides an official gradle plugin named `io.gatling.gradle`. This plugin lets you launch your Gatling simulations.
 
-Check the :ref:`third parties list <third-parties>` for more links to those external projects.
+Check the :ref:`gradle plugin documentation <gradle-plugin>` for more information.
 
 .. _ide:
 
