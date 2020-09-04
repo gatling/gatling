@@ -29,7 +29,6 @@ Third Parties
 Active
 ------
 
-* `Gradle plugin <https://github.com/lkishalmi/gradle-gatling-plugin>`_ by Laszlo Kishalmi
 * `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_ by Muneyuki Noguchi
 * `Neo4j Bolt plugin <https://github.com/sarmbruster/gatling-bolt>`_ by Stefan Armbruster
 * `JDBC plugin <https://github.com/rbraeunlich/gatling-jdbc>`_ by Ronny Bräunlich
