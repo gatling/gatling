@@ -16,39 +16,22 @@
 
 package io.gatling.commons.util
 
-trait Clock {
-  def nowMillis: Long
-  def nowSeconds: Long = nowMillis / 1000
+import io.gatling.commons.util.Classes._
+
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class ClassesSpec extends AnyFlatSpecLike with Matchers {
+
+  "getShortName" should "shorten Class name" in {
+    classOf[java.util.concurrent.TimeoutException].getShortName shouldBe "j.u.c.TimeoutException"
+  }
+
+  "toClassShortName" should "shorten String with package" in {
+    toClassShortName("foo.bar.baz.Foo") shouldBe "f.b.b.Foo"
+  }
+
+  it should "leave String without package as is" in {
+    toClassShortName("Foo") shouldBe "Foo"
+  }
 }
-
-class DefaultClock extends Clock {
-
-  private val currentTimeMillisReference = System.currentTimeMillis
-  private val nanoTimeReference = System.nanoTime
-
-  override def nowMillis: Long = (System.nanoTime - nanoTimeReference) / 1000000 + currentTimeMillisReference
-}
-
-//[fl]
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//[fl]

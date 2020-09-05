@@ -16,36 +16,9 @@
 
 package io.gatling.commons.util
 
-import scala.collection.breakOut
 import scala.collection.mutable
 
 object Maps {
-
-  trait Merger[T] {
-    def copy(value: T): T
-    def merge(left: T, right: T): T
-  }
-
-  implicit val LongMerger: Merger[Long] = new Merger[Long] {
-    override def copy(value: Long): Long = value
-    override def merge(left: Long, right: Long): Long = left + right
-  }
-
-  implicit def mapMerger[K, V](implicit merger: Merger[V]): Merger[Map[K, V]] = new Merger[Map[K, V]] {
-    override def copy(value: Map[K, V]): Map[K, V] = value.forceMapValues(merger.copy)
-    override def merge(left: Map[K, V], right: Map[K, V]): Map[K, V] =
-      (left.keySet ++ right.keySet).map { key =>
-        val value = left.get(key) match {
-          case Some(leftValue) =>
-            right.get(key) match {
-              case Some(rightValue) => merger.merge(leftValue, rightValue)
-              case _                => leftValue
-            }
-          case _ => merger.copy(right(key))
-        }
-        key -> value
-      }(breakOut)
-  }
 
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
 
@@ -55,15 +28,6 @@ object Maps {
       } else {
         map.map { case (k, v) => k -> f(v) }
       }
-
-    /**
-     * Merge with another map. Left is this map and right the other one.
-     *
-     * @param other the map to merge into this map
-     * @return a merged map
-     */
-    def mergeWith(other: Map[K, V])(implicit merger: Merger[V]): Map[K, V] =
-      mapMerger[K, V].merge(map, other)
   }
 
   implicit class PimpedPairTraversableOnce[K, V](val iterable: TraversableOnce[(K, V)]) extends AnyVal {

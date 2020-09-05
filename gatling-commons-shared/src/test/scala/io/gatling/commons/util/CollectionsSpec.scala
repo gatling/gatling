@@ -16,20 +16,18 @@
 
 package io.gatling.commons.util
 
-import io.gatling.BaseSpec
-import io.gatling.commons.util.Classes._
+import io.gatling.commons.util.Collections._
 
-class ClassesSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-  "getShortName" should "shorten Class name" in {
-    classOf[java.util.concurrent.TimeoutException].getShortName shouldBe "j.u.c.TimeoutException"
+class CollectionsSpec extends AnyFlatSpecLike with Matchers {
+
+  "lift" should "return Some if index exists" in {
+    (0 until 10).iterator.lift(9) shouldBe Some(9)
   }
 
-  "toClassShortName" should "shorten String with package" in {
-    toClassShortName("foo.bar.baz.Foo") shouldBe "f.b.b.Foo"
-  }
-
-  it should "leave String without package as is" in {
-    toClassShortName("Foo") shouldBe "Foo"
+  it should "return None if index doesn't exists" in {
+    (0 until 10).iterator.lift(10) shouldBe None
   }
 }

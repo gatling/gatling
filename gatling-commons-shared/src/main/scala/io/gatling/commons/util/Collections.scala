@@ -27,16 +27,18 @@ object Collections {
     }
   }
 
+  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.3.1", "3.4.0")
+  implicit class PimpedTraversableOnce[A](val t: TraversableOnce[A]) extends AnyVal {
+
+    def sumBy[B](f: A => B)(implicit num: Numeric[B]): B = {
+      var sum = num.zero
+      for (x <- t) sum = num.plus(sum, f(x))
+      sum
+    }
+  }
+
   @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
   implicit class PimpedIterator[A](val it: Iterator[A]) extends AnyVal {
-
-    def collectFirstSome[B](f: A => Option[B]): Option[B] = {
-      var res: Option[B] = None
-      while (it.hasNext && res.isEmpty) {
-        res = f(it.next())
-      }
-      res
-    }
 
     def lift(i: Int): Option[A] = {
       var j = 0

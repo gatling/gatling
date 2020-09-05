@@ -16,16 +16,15 @@
 
 package io.gatling.commons.util
 
-import io.gatling.BaseSpec
-import io.gatling.commons.util.Collections._
+trait Clock {
+  def nowMillis: Long
+  def nowSeconds: Long = nowMillis / 1000
+}
 
-class CollectionsSpec extends BaseSpec {
+class DefaultClock extends Clock {
 
-  "lift" should "return Some if index exists" in {
-    (0 until 10).iterator.lift(9) shouldBe Some(9)
-  }
+  private val currentTimeMillisReference = System.currentTimeMillis
+  private val nanoTimeReference = System.nanoTime
 
-  it should "return None if index doesn't exists" in {
-    (0 until 10).iterator.lift(10) shouldBe None
-  }
+  override def nowMillis: Long = (System.nanoTime - nanoTimeReference) / 1000000 + currentTimeMillisReference
 }

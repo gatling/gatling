@@ -19,9 +19,10 @@ package io.gatling.commons.util
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class FastByteArrayOutputStreamSpec extends BaseSpec {
+class FastByteArrayOutputStreamSpec extends AnyFlatSpecLike with Matchers {
 
   "toByteArray" should "consume all bytes" in {
     val os = new FastByteArrayOutputStream(10)
