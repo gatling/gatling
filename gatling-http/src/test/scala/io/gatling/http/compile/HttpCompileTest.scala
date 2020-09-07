@@ -19,6 +19,8 @@ package io.gatling.http.compile
 import java.net.InetSocketAddress
 import javax.net.ssl.KeyManagerFactory
 
+import scala.concurrent.duration._
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
@@ -137,6 +139,8 @@ class HttpCompileTest extends Simulation {
     // auth
     .exec(http("Request").get("/").basicAuth("usr", "pwd"))
     .exec(http("Request").get("/").digestAuth("usr", "pwd"))
+    // requestTimeout
+    .exec(http("Request").get("/").requestTimeout(3 minutes))
     // misc
     .exec(
       http("Request").get("/").silent.notSilent.disableUrlEncoding.disableFollowRedirect.ignoreProtocolChecks.ignoreProtocolHeaders

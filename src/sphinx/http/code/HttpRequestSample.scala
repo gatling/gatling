@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import scala.concurrent.duration._
+
 import io.gatling.core.Predef._
 import io.gatling.core.session.Expression
 import io.gatling.http.Predef._
@@ -124,6 +126,13 @@ class HttpRequestSample {
       .get("https://www.github.com/gatling/gatling/issues")
       .ignoreProtocolHeaders
     //#ignoreProtocolHeaders
+
+    //#requestTimeout
+    http("Getting issues")
+      .post("https://www.github.com/gatling/gatling/issues")
+      .body(RawFileBody("someLargeFile"))
+      .requestTimeout(3 minutes)
+    //#requestTimeout
 
     //#authentication
     http("My BASIC secured request").get("http://my.secured.uri").basicAuth("myUser", "myPassword")

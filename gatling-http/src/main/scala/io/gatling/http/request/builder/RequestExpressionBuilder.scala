@@ -212,8 +212,13 @@ abstract class RequestExpressionBuilder(
       case _ => ConfigureIdentity
     }
 
-  protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
+  protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit
+
+  protected def configureRequestBuilderForProtocol: RequestBuilderConfigure
+
+  private def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] = {
     configureProxy(requestBuilder)
+    configureRequestTimeout(requestBuilder)
     configureCookies(session, requestBuilder)
     configureLocalAddress(session, requestBuilder)
 
@@ -221,6 +226,7 @@ abstract class RequestExpressionBuilder(
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))
       .flatMap(configureSignatureCalculator(session))
+      .flatMap(configureRequestBuilderForProtocol(session))
   }
 
   def build: Expression[Request] =
@@ -229,9 +235,7 @@ abstract class RequestExpressionBuilder(
         for {
           uri <- buildURI(session)
           nameResolver <- httpCaches.nameResolver(session) // note: DNS cache is supposed to be set early
-          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri, nameResolver)
-            .setDefaultCharset(charset)
-            .setRequestTimeout(configuration.http.requestTimeout.toMillis)
+          requestBuilder = new ClientRequestBuilder(commonAttributes.method, uri, nameResolver).setDefaultCharset(charset)
           rb <- configureRequestBuilder(session, requestBuilder)
         } yield rb.build
       }

@@ -16,13 +16,12 @@
 
 package io.gatling.http.request.builder.sse
 
-import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
+import io.gatling.http.request.builder.RequestExpressionBuilder._
 
 class SseRequestExpressionBuilder(
     commonAttributes: CommonAttributes,
@@ -31,7 +30,9 @@ class SseRequestExpressionBuilder(
     configuration: GatlingConfiguration
 ) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
-  override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
-    // disable request timeout for SSE
-    super.configureRequestBuilder(session, requestBuilder.setRequestTimeout(-1))
+  // disable request timeout for SSE
+  override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
+    requestBuilder.setRequestTimeout(-1)
+
+  override protected def configureRequestBuilderForProtocol: RequestBuilderConfigure = ConfigureIdentity
 }

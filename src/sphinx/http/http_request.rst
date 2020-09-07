@@ -127,6 +127,18 @@ For a given request, you can also disable common headers that were defined on th
 
 .. includecode:: code/HttpRequestSample.scala#ignoreProtocolHeaders
 
+.. _http-request-timeout:
+
+Request Timeout
+===============
+
+The default request timeout is controlled by the ```gatling.http.requestTimeout`` configuration parameter.
+
+However, you might want to use ``requestTimeout(timeout: FiniteDuration)``
+to override the global value for a specific request, typically a long file upload or download.
+
+.. includecode:: code/HttpRequestSample.scala#requestTimeout
+
 .. _http-request-signature:
 
 Signature Calculator

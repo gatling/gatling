@@ -117,11 +117,14 @@ class HttpRequestExpressionBuilder(
     }
   }
 
-  override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
-    super
-      .configureRequestBuilder(session, requestBuilder)
-      .flatMap(configureBody(session))
-      .flatMap(configurePriorKnowledge(session))
+  override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
+    requestBuilder.setRequestTimeout(httpAttributes.requestTimeout.getOrElse(configuration.http.requestTimeout).toMillis)
+
+  override protected def configureRequestBuilderForProtocol: RequestBuilderConfigure =
+    session =>
+      requestBuilder =>
+        configureBody(session)(requestBuilder)
+          .flatMap(configurePriorKnowledge(session))
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
     httpCaches.contentCacheEntry(session, request).foreach {

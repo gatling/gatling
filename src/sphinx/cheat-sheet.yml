@@ -706,6 +706,12 @@
         - keyword: ignoreProtocolHeaders
           description: Ignore default headers that were defined on the HttpProtocol
 
+        - keyword: requestTimeout
+          description: Override the requestTimeout defined in the global configuration
+          syntax:
+            - signature: (timeout)
+              description: A FiniteDuration, eg 3 minutes
+
         - keyword: sign
           description: Pass a `SignatureCalculator` to sign the request.
           syntax:

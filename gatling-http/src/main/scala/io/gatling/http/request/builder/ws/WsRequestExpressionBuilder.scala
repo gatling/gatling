@@ -16,13 +16,13 @@
 
 package io.gatling.http.request.builder.ws
 
-import io.gatling.commons.validation.Validation
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches }
-import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.client.RequestBuilder
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
+import io.gatling.http.request.builder.RequestExpressionBuilder.{ ConfigureIdentity, RequestBuilderConfigure }
 import io.gatling.http.util.HttpHelper
 
 class WsRequestExpressionBuilder(
@@ -42,9 +42,17 @@ class WsRequestExpressionBuilder(
   override protected def isAbsoluteUrl(url: String): Boolean =
     HttpHelper.isAbsoluteWsUrl(url)
 
-  override protected def configureRequestBuilder(session: Session, requestBuilder: ClientRequestBuilder): Validation[ClientRequestBuilder] =
-    for {
-      maybeSubprotocol <- resolveOptionalExpression(subprotocol, session)
-      clientRequestBuilder <- super.configureRequestBuilder(session, requestBuilder.setWsSubprotocol(maybeSubprotocol.orNull))
-    } yield clientRequestBuilder
+  override protected def configureRequestTimeout(requestBuilder: RequestBuilder): Unit =
+    requestBuilder.setRequestTimeout(configuration.http.requestTimeout.toMillis)
+
+  override protected val configureRequestBuilderForProtocol: RequestBuilderConfigure =
+    subprotocol match {
+      case Some(sub) =>
+        session =>
+          requestBuilder =>
+            for {
+              resolvedSubProtocol <- sub(session)
+            } yield requestBuilder.setWsSubprotocol(resolvedSubProtocol)
+      case _ => ConfigureIdentity
+    }
 }
