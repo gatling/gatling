@@ -16,7 +16,7 @@
 
 package io.gatling.core.feeder
 
-import java.io.{ File, FileOutputStream, InputStream }
+import java.io.{ BufferedOutputStream, File, FileOutputStream, InputStream }
 import java.nio.channels.FileChannel
 import java.util.zip.{ GZIPInputStream, ZipInputStream }
 
@@ -67,7 +67,7 @@ object SeparatedValuesFeederSource {
     val tempFile = File.createTempFile(s"uncompressed-${resource.name}", null)
     tempFile.deleteOnExit()
 
-    withCloseable(new FileOutputStream(tempFile)) { os =>
+    withCloseable(new BufferedOutputStream(new FileOutputStream(tempFile))) { os =>
       withCloseable(new TwoBytesMagicValueInputStream(resource.inputStream)) { is =>
         is.magicValue match {
           case TwoBytesMagicValueInputStream.PkZipMagicValue =>

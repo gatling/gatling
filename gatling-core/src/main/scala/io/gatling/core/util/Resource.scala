@@ -16,7 +16,7 @@
 
 package io.gatling.core.util
 
-import java.io.{ File, FileInputStream, FileOutputStream, InputStream }
+import java.io._
 import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.{ Files, Path, Paths }
@@ -70,7 +70,7 @@ object Resource {
 sealed trait Resource {
   def name: String
   def file: File
-  def inputStream: InputStream = new FileInputStream(file)
+  def inputStream: InputStream = new BufferedInputStream(new FileInputStream(file))
   def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
 }
@@ -89,7 +89,7 @@ final case class ClasspathPackagedResource(path: String, url: URL) extends Resou
     tempFile.deleteOnExit()
 
     withCloseable(url.openStream()) { is =>
-      withCloseable(new FileOutputStream(tempFile, false)) { os =>
+      withCloseable(new BufferedOutputStream(new FileOutputStream(tempFile, false))) { os =>
         is.copyTo(os)
       }
     }

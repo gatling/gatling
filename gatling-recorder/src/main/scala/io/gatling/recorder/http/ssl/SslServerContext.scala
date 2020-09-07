@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.http.ssl
 
-import java.io.{ File, FileInputStream }
+import java.io.{ BufferedInputStream, File, FileInputStream }
 import java.nio.file.Path
 import java.security.{ KeyStore, Security }
 import java.util.concurrent.ConcurrentHashMap
@@ -84,7 +84,7 @@ private[recorder] object SslServerContext {
     private lazy val context = {
       val keyStore = {
         val ks = KeyStore.getInstance(keyStoreType.toString)
-        withCloseable(new FileInputStream(ksFile)) { ks.load(_, password) }
+        withCloseable(new BufferedInputStream(new FileInputStream(ksFile))) { ks.load(_, password) }
         ks
       }
 

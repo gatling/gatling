@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import java.io.{ File, FileInputStream, FileNotFoundException, InputStream }
+import java.io._
 import java.security.KeyStore
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
@@ -27,7 +27,7 @@ object Ssl {
   private def storeStream(filePath: String): InputStream = {
     val storeFile = new File(filePath)
     if (storeFile.exists)
-      new FileInputStream(storeFile)
+      new BufferedInputStream(new FileInputStream(storeFile))
     else
       Option(getClass.getClassLoader.getResourceAsStream(filePath)).getOrElse(throw new FileNotFoundException(filePath))
   }

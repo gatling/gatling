@@ -16,7 +16,7 @@
 
 package io.gatling.commons.util
 
-import java.io.{ FileInputStream, InputStream }
+import java.io.{ BufferedInputStream, FileInputStream, InputStream }
 import java.net.JarURLConnection
 import java.nio.file.{ Path, Paths, StandardCopyOption }
 import java.util.jar.{ JarEntry, JarFile }
@@ -46,7 +46,7 @@ object ScanHelper {
       path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
     }
 
-    override def inputStream(): InputStream = new FileInputStream(file)
+    override def inputStream(): InputStream = new BufferedInputStream(new FileInputStream(file))
 
     override def lastModified: Long = file.lastModified
   }

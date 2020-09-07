@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.har
 
-import java.io.{ FileInputStream, InputStream }
+import java.io.{ BufferedInputStream, FileInputStream, InputStream }
 import java.net.{ URL, URLEncoder }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
@@ -38,7 +38,7 @@ final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 private[recorder] object HarReader {
 
   def readFile(path: String, filters: Option[Filters]): Seq[HttpTransaction] =
-    withCloseable(new FileInputStream(path))(readStream(_, filters))
+    withCloseable(new BufferedInputStream(new FileInputStream(path)))(readStream(_, filters))
 
   private[har] def readStream(is: InputStream, filters: Option[Filters]): Seq[HttpTransaction] = {
     val harEntries = HarParser.parseHarEntries(is)
