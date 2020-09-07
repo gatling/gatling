@@ -29,7 +29,7 @@ object ElCompilerBenchmark extends ValidationImplicits {
   private implicit val config = GatlingConfiguration.loadForTest()
   private val charset = config.core.charset
 
-  private val Session1 = Session("Scenario", 0, 0, null).set("id", 3)
+  private val Session1 = Session("Scenario", 0, null).set("id", 3)
   private val Template = ElCompiler.compile[String](resourceAsString("sample-el.json", charset))
 }
 
