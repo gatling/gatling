@@ -28,7 +28,7 @@ class CompositeByteArrayInputStream(parts: Seq[Array[Byte]]) extends InputStream
   private var active: Array[Byte] = parts.head
   private var _available = parts.sumBy(_.length)
 
-  override val available: Int = _available
+  override def available: Int = _available
 
   override def read(): Int = {
     if (_available > 0) {
