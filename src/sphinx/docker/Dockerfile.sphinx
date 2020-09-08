@@ -1,0 +1,17 @@
+FROM python:2
+
+RUN pip2 install sphinx==1.8.1 sphinx-autobuild==0.7.1
+
+COPY ./init.sh /init.sh
+
+EXPOSE 55242
+
+ENV LANG C.UTF-8
+ENV LANGUAGE C.UTF-8
+ENV LC_ALL C.UTF-8
+
+VOLUME /sphinx-doc
+
+WORKDIR /sphinx-doc
+
+CMD sphinx-autobuild --port 55242 --host 0.0.0.0 /sphinx-doc /sphinx-doc/_build/html
