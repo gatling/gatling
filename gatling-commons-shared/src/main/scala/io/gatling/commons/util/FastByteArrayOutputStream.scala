@@ -170,10 +170,10 @@ final class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
   }
 
   def toByteArray: Array[Byte] = {
-    var remaining = count
-    if (remaining == 0) {
+    if (count == 0) {
       Array.emptyByteArray
     } else {
+      var remaining = count
       val newbuf = new Array[Byte](remaining)
       var pos = 0
       var buffersIndex = 0
