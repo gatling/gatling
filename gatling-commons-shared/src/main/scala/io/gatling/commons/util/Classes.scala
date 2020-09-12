@@ -24,22 +24,24 @@ object Classes {
 
   private[util] def appendClassShortName(className: String, sb: jl.StringBuilder): Unit = {
     var bufferedChar: Char = className.charAt(0)
-    var off = 0
+    var offset = 0
     var next = 0
     while ({
-      next = className.indexOf('.', off)
+      next = className.indexOf('.', offset)
       next != -1
     }) {
       sb.append(bufferedChar).append('.')
       bufferedChar = className.charAt(next + 1)
-      off = next + 2
+      offset = next + 2
     }
 
-    if (off > 0) {
+    if (offset > 0) {
       sb.append(bufferedChar)
     }
 
-    sb.append(className, off, className.length)
+    val endOffset = if (className.charAt(className.length - 1) == '$') 1 else 0
+
+    sb.append(className, offset, className.length - endOffset)
   }
 
   def toClassShortName(className: String): String = {

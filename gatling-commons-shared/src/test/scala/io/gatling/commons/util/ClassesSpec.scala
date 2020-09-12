@@ -34,4 +34,8 @@ class ClassesSpec extends AnyFlatSpecLike with Matchers {
   it should "leave String without package as is" in {
     toClassShortName("Foo") shouldBe "Foo"
   }
+
+  it should "drop object trailing $" in {
+    toClassShortName("Foo$") shouldBe "Foo"
+  }
 }
