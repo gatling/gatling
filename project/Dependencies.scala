@@ -33,7 +33,7 @@ object Dependencies {
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.11.2"
   private val sfm                            = ("org.simpleflatmapper"                % "lightning-csv"                   % "8.2.3")
     .exclude("org.simpleflatmapper", "ow2-asm")
-  private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "6.0.0"
+  private val joddLagarto                    = "org.jodd"                             % "jodd-lagarto"                    % "6.0.1"
   private val jmespath                       = "io.burt"                              % "jmespath-jackson"                % "0.5.0"
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.30"
