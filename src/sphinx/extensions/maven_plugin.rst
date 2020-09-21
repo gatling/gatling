@@ -144,14 +144,20 @@ Also note that those filters are only applied against the classes that were comp
 
 .. note:: The order of filters has no impact on execution order, simulations will be sorted by class name alphabetically.
 
-Disabling compiler
-==================
+Working Along with scala-maven-plugin
+=====================================
 
 By default, the gatling-maven-plugin takes care of compiling your Scala code, so you can directly run ``mvn gatling:test``.
 
-Then, for some reason, you might want to have another plugin, such as the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_
-or the `scalor-maven-plugin <https://github.com/random-maven/scalor-maven-plugin>`_, take care of compiling.
-Then, you can disable the Gatling compiler so you don't compile twice::
+Then, for some reason, you might want to have the `scala-maven-plugin <https://github.com/davidB/scala-maven-plugin>`_ take care of compiling.
+
+Make sure to properly configure it, in particular set `testSourceDirectory` to point to the directory that contains your Gatling classes, typically::
+
+  <build>
+    <testSourceDirectory>src/test/scala</testSourceDirectory>
+  </build>
+
+Then, you should disable the Gatling compiler so you don't compile twice::
 
   <configuration>
     <disableCompiler>true</disableCompiler>
