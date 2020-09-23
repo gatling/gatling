@@ -81,7 +81,8 @@ abstract class DefaultMultipleFindCheckBuilder[T, P, X](displayActualValue: Bool
                   if (num >= seq.size) {
                     seq
                   } else {
-                    Arrays.shuffle(seq.indices.toArray).take(num).sorted.map(seq).toSeq
+                    val shuffledIndices = Arrays.shuffle(seq.indices.toArray)
+                    for (i <- 0 until num) yield seq(shuffledIndices(i))
                   }
 
                 Some(randomSeq).success
