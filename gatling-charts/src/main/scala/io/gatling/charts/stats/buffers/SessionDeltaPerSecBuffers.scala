@@ -21,7 +21,6 @@ import java.util.concurrent.atomic.LongAdder
 import scala.collection.mutable
 
 import io.gatling.charts.stats.{ IntVsTimePlot, UserRecord }
-import io.gatling.commons.util.Maps._
 import io.gatling.core.stats.message.MessageEvent
 
 private[stats] object SessionDeltas {
@@ -55,16 +54,15 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
       eachSecondActiveSessions.update(second, bucketSessions)
     }
 
-    eachSecondActiveSessions.zipWithIndex.iterator
-      .map { case (sessions, second) => second -> sessions }
-      .groupByKey(secondToBucket)
+    eachSecondActiveSessions.zipWithIndex.view
+      .groupMap { case (_, second) => secondToBucket(second) } { case (sessions, _) => sessions }
       .map {
         case (bucket, sessionCounts) =>
           val averageSessionCount = sessionCounts.sum / sessionCounts.size
           val time = buckets(bucket)
           new IntVsTimePlot(time, averageSessionCount)
       }
-      .toList
+      .to(List)
       .sortBy(_.time)
   }
 }

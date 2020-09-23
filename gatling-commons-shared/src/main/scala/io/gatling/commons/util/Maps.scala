@@ -16,8 +16,6 @@
 
 package io.gatling.commons.util
 
-import scala.collection.mutable
-
 object Maps {
 
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
@@ -28,23 +26,5 @@ object Maps {
       } else {
         map.map { case (k, v) => k -> f(v) }
       }
-  }
-
-  implicit class PimpedPairTraversableOnce[K, V](val iterable: TraversableOnce[(K, V)]) extends AnyVal {
-
-    def groupByKey[K2](f: K => K2): mutable.Map[K2, mutable.ArrayBuffer[V]] = {
-      val mm = new mutable.HashMap[K2, mutable.ArrayBuffer[V]]
-      for ((k1, value) <- iterable) {
-        val k2 = f(k1)
-        if (mm.contains(k2)) {
-          mm(k2) += value
-        } else {
-          val newEntry = new mutable.ArrayBuffer[V](1)
-          newEntry += value
-          mm.update(k2, newEntry)
-        }
-      }
-      mm
-    }
   }
 }

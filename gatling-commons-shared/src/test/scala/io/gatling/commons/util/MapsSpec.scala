@@ -31,18 +31,4 @@ class MapsSpec extends AnyFlatSpecLike with Matchers {
     val mapComputed = mapTest1.forceMapValues(_ + 1)
     mapComputed shouldBe mapResult
   }
-
-  "groupByKey" should "regroup values in a IterableView object by adding them by key" in {
-    val mapTest = Seq(1 -> 2, 2 -> 3, 1 -> 4, 2 -> 6, 3 -> 4, 4 -> 12, 12 -> 4)
-    val mapResult = Map(1 -> ArrayBuffer(2, 4), 2 -> ArrayBuffer(3, 6), 3 -> ArrayBuffer(4), 4 -> ArrayBuffer(12), 12 -> ArrayBuffer(4))
-    val mapComputed = mapTest.groupByKey[Int](k => k)
-    mapComputed shouldBe mapResult
-  }
-
-  it should "regroup values in a TraversableOnce object by adding them by key after applying a function on the keys" in {
-    val mapTest = Seq(1 -> 2, 2 -> 3, 1 -> 4, 2 -> 6, 3 -> 4, 4 -> 12, 12 -> 4)
-    val mapResult = Map(2 -> ArrayBuffer(2, 4), 4 -> ArrayBuffer(3, 6), 6 -> ArrayBuffer(4), 8 -> ArrayBuffer(12), 24 -> ArrayBuffer(4))
-    val mapComputed = mapTest.groupByKey[Int](_ * 2)
-    mapComputed shouldBe mapResult
-  }
 }
