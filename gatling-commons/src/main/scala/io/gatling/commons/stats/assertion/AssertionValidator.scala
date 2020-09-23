@@ -88,7 +88,7 @@ object AssertionValidator {
 
       case target: CountTarget =>
         val actualValue = resolveCountTargetActualValue(target, stats)
-        resolveCondition(assertion, path, printableTarget, actualValue)
+        resolveCondition(assertion, path, printableTarget, actualValue.toDouble)
 
       case target: PercentTarget =>
         val actualValue = resolvePercentTargetActualValue(target, stats)
