@@ -153,7 +153,7 @@ class HtmlParser extends StrictLogging {
 
               } else if (tag.nameEquals(AppletTagName)) {
                 val code = tag.getAttributeValue(CodeAttribute).toString
-                val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
+                val archives = Option(tag.getAttributeValue(ArchiveAttribute)).map(_.toString.split(",").map(_.trim)(breakOut))
 
                 val appletResources = archives.getOrElse(code :: Nil).iterator
                 val appletResourcesUrls = codeBase() match {
