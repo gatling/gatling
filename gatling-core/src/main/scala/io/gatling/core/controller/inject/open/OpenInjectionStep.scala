@@ -76,7 +76,7 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
     result.getOrElse(true)
   }
 
-  override def hasNext(): Boolean =
+  override def hasNext: Boolean =
     if (thisSecondIterator.hasNext) {
       true
     } else if (finished) {

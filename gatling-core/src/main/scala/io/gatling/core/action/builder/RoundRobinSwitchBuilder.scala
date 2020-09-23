@@ -32,7 +32,7 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
     val possibleActions = possibilities.map(_.build(ctx, next)).toArray
     val roundRobin = CircularIterator(possibleActions, threadSafe = true)
 
-    val nextAction: Expression[Action] = _ => roundRobin.next.success
+    val nextAction: Expression[Action] = _ => roundRobin.next().success
 
     new Switch(nextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("roundRobinSwitch"), next)
   }

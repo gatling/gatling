@@ -28,6 +28,6 @@ class RedisCompileTest extends Simulation {
   redisFeeder(???, "key")
 
   after {
-    redisPool.close
+    redisPool.close()
   }
 }

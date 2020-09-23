@@ -46,12 +46,12 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
       try {
         val newState = onInit(init)
         logger.info("Initialized")
-        sender ! true
+        sender() ! true
         goto(Initialized) using newState
       } catch {
         case NonFatal(e) =>
           logger.error("DataWriter failed to initialize", e)
-          sender ! false
+          sender() ! false
           goto(Terminated)
       }
   }
@@ -63,7 +63,7 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
     case Event(Stop, data: Any) =>
       onStop(data.asInstanceOf[T])
-      sender ! true
+      sender() ! true
       goto(Terminated) using NoData
 
     case Event(Crash(cause), data: Any) =>

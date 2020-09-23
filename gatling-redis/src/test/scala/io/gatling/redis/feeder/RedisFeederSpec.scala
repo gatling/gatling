@@ -47,14 +47,14 @@ class RedisFeederSpec extends BaseSpec {
   "redis feeder" should "use lpop as default command" in {
     new MockContext {
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
-      redisFeeder(clientPool, KEY).apply.toList shouldBe valsLst(KEY, "v1", "v2", "v3")
+      redisFeeder(clientPool, KEY).apply().toList shouldBe valsLst(KEY, "v1", "v2", "v3")
     }
   }
 
   it should "use spop command" in {
     new MockContext {
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
-      redisFeeder(clientPool, KEY).SPOP.apply.toList shouldBe valsLst(KEY, "v1", "v2", "v3")
+      redisFeeder(clientPool, KEY).SPOP.apply().toList shouldBe valsLst(KEY, "v1", "v2", "v3")
     }
   }
 
@@ -62,7 +62,7 @@ class RedisFeederSpec extends BaseSpec {
     new MockContext {
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-      val feeder = redisFeeder(clientPool, KEY).SRANDMEMBER.apply
+      val feeder = redisFeeder(clientPool, KEY).SRANDMEMBER.apply()
 
       feeder.next() shouldBe Map(KEY -> "v1")
       feeder.next() shouldBe Map(KEY -> "v2")

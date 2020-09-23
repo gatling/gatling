@@ -41,7 +41,7 @@ object SeparatedValuesParser {
       val it = parser.iterator(reader)
 
       require(it.hasNext, "Feeder source is empty")
-      val headers = it.next.map(_.trim)
+      val headers = it.next().map(_.trim)
       require(headers.nonEmpty, "CSV sources must have a non empty first line containing the headers")
       headers.foreach { header =>
         require(header.nonEmpty, "CSV headers can't be empty")

@@ -31,7 +31,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   "FeederSupport.seq2FeederBuilder" should "build a Feeder with a queue strategy" in {
-    val queuedFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test")).queue.apply
+    val queuedFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test")).queue.apply()
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
   }
 
@@ -44,7 +44,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val testsOutcome: immutable.IndexedSeq[Boolean] =
       (1 to 3).map { _ =>
-        val randomFeeder = orderedMaps.random.apply
+        val randomFeeder = orderedMaps.random.apply()
         randomFeeder.hasNext shouldBe true
         val retrievedMaps = fiftyTimes.map(_ => randomFeeder.next())
         retrievedMaps != orderedMaps
@@ -62,7 +62,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val shuffledOutcome: immutable.IndexedSeq[IndexedSeq[Record[_]]] =
       (1 to 3).map { _ =>
-        val shuffleFeeder = orderedMaps.shuffle.apply
+        val shuffleFeeder = orderedMaps.shuffle.apply()
         shuffleFeeder.hasNext shouldBe true
         fiftyTimes.map(_ => shuffleFeeder.next())
       }
@@ -72,7 +72,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   it should "build a Feeder with a circular strategy" in {
-    val circularFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test")).circular.apply
+    val circularFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test")).circular.apply()
     circularFeeder.next()
     circularFeeder.next()
     circularFeeder.next() shouldBe Map("1" -> "Test")
@@ -85,7 +85,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
       .convert {
         case ("1", attr) => attr.concat("s are boring !")
       }
-      .apply
+      .apply()
       .next()
       .get("1")
 
@@ -95,7 +95,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
       .convert {
         case ("Can't find because don't exist", shouldKeepAsIs) => shouldKeepAsIs.concat("s are boring !")
       }
-      .apply
+      .apply()
       .next()
       .get("1")
 

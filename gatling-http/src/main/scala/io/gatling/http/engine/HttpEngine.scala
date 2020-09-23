@@ -88,7 +88,7 @@ class HttpEngine(
           val eventLoop = eventLoopGroup.next()
 
           try {
-            val p = Promise[Unit]
+            val p = Promise[Unit]()
             httpClient.sendRequest(
               requestBuilder.build,
               0,

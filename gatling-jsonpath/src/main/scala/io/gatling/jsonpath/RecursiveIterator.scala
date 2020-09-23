@@ -34,7 +34,7 @@ abstract class RecursiveIterator[T](root: JsonNode) extends AbstractIterator[Jso
 
   protected def visit(t: T): Unit
 
-  override def hasNext(): Boolean =
+  override def hasNext: Boolean =
     (nextNode != null && !finished) || {
       pause = false
       if (stack == null) {
