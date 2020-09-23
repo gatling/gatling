@@ -290,7 +290,7 @@ class ElCompiler private extends RegexParsers {
   }
 
   private def staticPart: Parser[StaticPart] =
-    staticPartPattern ^? ({
+    staticPartPattern.^?({
       case staticStr if staticStr.nonEmpty => StaticPart(staticStr.mkString)
     }, _ => "Not a static part")
 
