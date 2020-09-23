@@ -18,8 +18,6 @@ package io.gatling.core.controller.throttle
 
 import scala.concurrent.duration._
 
-import io.gatling.commons.util.Maps._
-
 import akka.actor.ActorRef
 
 sealed trait ThrottlerControllerCommand
@@ -41,7 +39,7 @@ private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throt
 
     val throttles = Throttles(
       global = throttlings.global.map(p => new Throttle(p.limit(tick))),
-      perScenario = throttlings.perScenario.forceMapValues(p => new Throttle(p.limit(tick)))
+      perScenario = throttlings.perScenario.view.mapValues(p => new Throttle(p.limit(tick))).to(Map)
     )
 
     throttler ! throttles

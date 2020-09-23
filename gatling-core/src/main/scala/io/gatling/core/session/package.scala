@@ -18,7 +18,6 @@ package io.gatling.core
 
 import scala.annotation.tailrec
 
-import io.gatling.commons.util.Maps._
 import io.gatling.commons.validation._
 import io.gatling.core.session.el._
 
@@ -87,10 +86,12 @@ package object session {
   }
 
   def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
-    val elValues: Map[String, Expression[Any]] = map.forceMapValues {
-      case s: String => s.el[Any]
-      case v         => v.expressionSuccess
-    }
+    val elValues: Map[String, Expression[Any]] = map.view
+      .mapValues {
+        case s: String => s.el[Any]
+        case v         => v.expressionSuccess
+      }
+      .to(Map)
 
     resolveIterable(elValues)
   }

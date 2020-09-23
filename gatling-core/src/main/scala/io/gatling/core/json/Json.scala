@@ -23,7 +23,6 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
-import io.gatling.commons.util.Maps._
 import io.gatling.commons.util.Spire._
 import io.gatling.netty.util.StringBuilderPool
 
@@ -280,7 +279,7 @@ private[gatling] object Json {
               asScala(entry3.getValue)
             )
           case _ =>
-            node.fields.asScala.map(e => e.getKey -> e.getValue).toMap.forceMapValues(asScala)
+            node.fields.asScala.map(e => e.getKey -> asScala(e.getValue)).toMap
         }
 
       case STRING  => node.textValue

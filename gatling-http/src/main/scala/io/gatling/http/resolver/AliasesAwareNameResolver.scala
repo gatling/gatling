@@ -19,7 +19,6 @@ package io.gatling.http.resolver
 import java.{ util => ju }
 import java.net.InetAddress
 
-import io.gatling.commons.util.Maps._
 import io.gatling.http.client.HttpListener
 import io.gatling.http.client.resolver.InetAddressNameResolver
 import io.gatling.http.util.InetAddresses
@@ -33,7 +32,7 @@ private[http] object AliasesAwareNameResolver {
       wrapped
     } else {
       val shuffledAliases =
-        aliases.forceMapValues(InetAddresses.shuffleInetAddresses(_, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred))
+        aliases.view.mapValues(InetAddresses.shuffleInetAddresses(_, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred)).to(Map)
       new AliasesAwareNameResolver(shuffledAliases, wrapped)
     }
   }

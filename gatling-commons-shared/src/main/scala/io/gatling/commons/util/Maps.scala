@@ -18,6 +18,7 @@ package io.gatling.commons.util
 
 object Maps {
 
+  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.4", "3.5.0")
   implicit class PimpedMap[K, V](val map: Map[K, V]) extends AnyVal {
 
     def forceMapValues[V2](f: V => V2): Map[K, V2] =
