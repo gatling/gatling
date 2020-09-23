@@ -69,7 +69,7 @@ object ZincCompiler extends App with ProblemStringFormats {
     classPathEntries.flatten.toArray
   }
 
-  private def jarMatching(classpath: Seq[JFile], regex: String): JFile =
+  private def jarMatching(classpath: Array[JFile], regex: String): JFile =
     classpath
       .find(
         file =>
