@@ -25,7 +25,7 @@ object Dependencies {
   private val saxon                          = ("net.sf.saxon"                        % "Saxon-HE"                        % "10.2")
     .exclude("jline", "jline")
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.30"
-  private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.16.2")
+  private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.17.0-RC1")
     .exclude("org.typelevel", "machinist_2.12")
     .exclude("org.typelevel", "algebra_2.12")
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
