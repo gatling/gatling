@@ -39,7 +39,7 @@ object JsonPath {
     }
 
   def query(query: String, jsonObject: JsonNode): Either[JPError, Iterator[JsonNode]] =
-    compile(query).right.map(_.query(jsonObject))
+    compile(query).map(_.query(jsonObject))
 }
 
 class JsonPath(path: List[PathToken]) {
