@@ -17,7 +17,6 @@
 package io.gatling.core.session
 
 import scala.annotation.tailrec
-import scala.collection.breakOut
 import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
@@ -118,20 +117,20 @@ final case class Session(
     val newAttributes =
       if (blockStack.isEmpty) {
         // not in a block
-        attributes.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
+        attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
       } else {
-        val counterNames: Set[String] = blockStack.collect { case counterBlock: CounterBlock => counterBlock.counterName }(breakOut)
+        val counterNames: Set[String] = blockStack.view.collect { case counterBlock: CounterBlock => counterBlock.counterName }.to(Set)
         if (counterNames.isEmpty) {
           // no counter based blocks (only groups)
-          attributes.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
+          attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
-          attributes.filterKeys(
+          attributes.view.filterKeys(
             key => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
           )
         }
       }
-    copy(attributes = newAttributes)
+    copy(attributes = newAttributes.to(Map))
   }
 
   def loopCounterValue(counterName: String): Int = attributes(counterName).asInstanceOf[Int]

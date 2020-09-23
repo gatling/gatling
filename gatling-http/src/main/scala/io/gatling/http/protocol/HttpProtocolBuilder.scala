@@ -91,7 +91,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def disableCaching: HttpProtocolBuilder = this.modify(_.protocol.requestPart.cache).setTo(false)
   def header(name: CharSequence, value: Expression[String]): HttpProtocolBuilder = this.modify(_.protocol.requestPart.headers).using(_ + (name -> value))
   def headers(headers: Map[_ <: CharSequence, String]): HttpProtocolBuilder =
-    this.modify(_.protocol.requestPart.headers).using(_ ++ headers.mapValues(_.el[String]))
+    this.modify(_.protocol.requestPart.headers).using(_ ++ headers.view.mapValues(_.el[String]))
   def acceptHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT, value)
   def acceptCharsetHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT_CHARSET, value)
   def acceptEncodingHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ACCEPT_ENCODING, value)

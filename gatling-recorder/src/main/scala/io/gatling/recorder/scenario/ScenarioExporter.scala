@@ -204,7 +204,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
         // a header has to be defined on all requestElements to be turned into a common one
         None
       else {
-        val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+        val headersValuesOccurrences = headers.groupBy(identity).view.mapValues(_.size).to(Seq)
         val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
         Some(mostFrequentValue)
       }
@@ -222,7 +222,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
   }
 
   private def getBaseUrl(requestElements: Seq[RequestElement]): String = {
-    val urlsOccurrences = requestElements.map(_.baseUrl).groupBy(identity).mapValues(_.size).toSeq
+    val urlsOccurrences = requestElements.map(_.baseUrl).groupBy(identity).view.mapValues(_.size).to(Seq)
 
     urlsOccurrences.maxBy(_._2)._1
   }

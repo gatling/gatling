@@ -51,12 +51,12 @@ class ExtractedUrisSpec extends BaseSpec {
 
     val extractedUris = extractUris(Seq(gatlingUrl1, gatlingUrl2, nettyUrl1, nettyUrl2))
 
-    extractedUris.vals shouldBe List(Value("uri2", gatlingRoot), Value("uri1", nettyRoot))
+    extractedUris.vals.toSet shouldBe Set(Value("uri1", gatlingRoot), Value("uri2", nettyRoot))
 
-    extractedUris.renderUri(gatlingUrl1).toString shouldBe """uri2 + "/file1""""
-    extractedUris.renderUri(gatlingUrl2).toString shouldBe """uri2 + "/file2""""
-    extractedUris.renderUri(nettyUrl1).toString shouldBe """uri1 + "/file1""""
-    extractedUris.renderUri(nettyUrl2).toString shouldBe """uri1 + "/file2""""
+    extractedUris.renderUri(gatlingUrl1).toString shouldBe """uri1 + "/file1""""
+    extractedUris.renderUri(gatlingUrl2).toString shouldBe """uri1 + "/file2""""
+    extractedUris.renderUri(nettyUrl1).toString shouldBe """uri2 + "/file1""""
+    extractedUris.renderUri(nettyUrl2).toString shouldBe """uri2 + "/file2""""
   }
 
   it should "preserve port and auth" in {

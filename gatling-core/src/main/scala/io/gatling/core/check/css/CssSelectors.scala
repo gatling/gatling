@@ -18,7 +18,6 @@ package io.gatling.core.check.css
 
 import java.{ util => ju }
 
-import scala.collection.breakOut
 import scala.jdk.CollectionConverters._
 
 import io.gatling.core.util.cache.Cache
@@ -43,8 +42,8 @@ class CssSelectors(cacheMaxCapacity: Long) {
     selector
       .select(selectors)
       .asScala
-      .flatMap { node =>
-        NodeConverter[X].convert(node, nodeAttribute).toList
-      }(breakOut)
+      .view
+      .flatMap(node => NodeConverter[X].convert(node, nodeAttribute).toList)
+      .to(Vector)
   }
 }

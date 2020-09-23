@@ -52,7 +52,7 @@ final case class Response(
   val isRedirect: Boolean = HttpHelper.isRedirect(status)
 
   def header(name: CharSequence): Option[String] = Option(headers.get(name))
-  def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala
+  def headers(name: CharSequence): Seq[String] = headers.getAll(name).asScala.toSeq
   val cookies: List[Cookie] = HttpHelper.responseCookies(headers)
 
   def checksum(algorithm: String): Option[String] = checksums.get(algorithm)

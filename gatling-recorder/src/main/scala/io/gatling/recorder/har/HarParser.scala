@@ -72,13 +72,15 @@ object HarParser {
               url = entry.getRequest.getUrl,
               headers = Option(entry.getRequest.getHeaders)
                 .map(
-                  _.asScala.map(
-                    header =>
-                      HarHeader(
-                        name = header.getName,
-                        value = header.getValue
-                      )
-                  )
+                  _.asScala
+                    .map(
+                      header =>
+                        HarHeader(
+                          name = header.getName,
+                          value = header.getValue
+                        )
+                    )
+                    .toSeq
                 )
                 .getOrElse(Nil),
               postData = Option(entry.getRequest.getPostData).map(
@@ -86,12 +88,17 @@ object HarParser {
                   HarRequestPostData(
                     text = Option(postData.getText),
                     params = Option(postData.getParams)
-                      .map(_.asScala.map { param =>
-                        HarRequestPostParam(
-                          name = param.getName,
-                          value = param.getValue
-                        )
-                      })
+                      .map(
+                        _.asScala
+                          .map(
+                            param =>
+                              HarRequestPostParam(
+                                name = param.getName,
+                                value = param.getValue
+                              )
+                          )
+                          .toSeq
+                      )
                       .getOrElse(Nil)
                   )
               )
@@ -100,13 +107,15 @@ object HarParser {
               status = entry.getResponse.getStatus,
               headers = Option(entry.getResponse.getHeaders)
                 .map(
-                  _.asScala.map(
-                    header =>
-                      HarHeader(
-                        name = header.getName,
-                        value = header.getValue
-                      )
-                  )
+                  _.asScala
+                    .map(
+                      header =>
+                        HarHeader(
+                          name = header.getName,
+                          value = header.getValue
+                        )
+                    )
+                    .toSeq
                 )
                 .getOrElse(Nil),
               statusText = entry.getResponse.getStatusText,
@@ -118,8 +127,7 @@ object HarParser {
               )
             )
           )
-        }
-
+        }.toSeq
       }
       .getOrElse(Nil)
   }

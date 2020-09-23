@@ -16,6 +16,8 @@
 
 package io.gatling.core.feeder
 
+import scala.collection.immutable.ArraySeq
+
 import io.gatling.commons.validation._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.feeder.SeparatedValuesParser._
@@ -27,7 +29,7 @@ trait FeederSupport extends ResourceCache {
   implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
     SourceFeederBuilder(InMemoryFeederSource(data), configuration)
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
-    SourceFeederBuilder(InMemoryFeederSource(data), configuration)
+    SourceFeederBuilder(InMemoryFeederSource(ArraySeq.unsafeWrapArray(data)), configuration)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def csv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =

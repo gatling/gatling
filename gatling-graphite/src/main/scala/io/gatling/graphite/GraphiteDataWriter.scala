@@ -64,8 +64,8 @@ private[gatling] class GraphiteDataWriter(clock: Clock, configuration: GatlingCo
   def onFlush(data: GraphiteData): Unit = {
     import data._
 
-    val requestsMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
-    val usersBreakdowns = usersByScenario.mapValues(_.breakDown).toMap
+    val requestsMetrics = requestsByPath.view.mapValues(_.metricsByStatus).to(Map)
+    val usersBreakdowns = usersByScenario.view.mapValues(_.breakDown).to(Map)
 
     // Reset all metrics
     requestsByPath.foreach { case (_, buff) => buff.clear() }

@@ -105,7 +105,7 @@ object PathHelper {
             }
           }
         )
-        acc
+        acc.toSeq
       } else {
         Nil
       }
@@ -126,7 +126,7 @@ object PathHelper {
             }
           }
         )
-        acc
+        acc.toSeq
       } else {
         Nil
       }

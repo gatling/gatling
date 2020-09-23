@@ -18,7 +18,6 @@ package io.gatling.http
 
 import java.{ util => ju }
 
-import scala.collection.breakOut
 import scala.jdk.CollectionConverters._
 
 import io.netty.handler.codec.http.cookie.Cookie
@@ -29,6 +28,6 @@ package object cache {
 
   object Cookies {
     def apply(cookies: ju.Collection[Cookie]): Cookies =
-      cookies.asScala.map(cookie => cookie.name -> cookie.path)(breakOut)
+      cookies.asScala.view.map(cookie => cookie.name -> cookie.path).to(Map)
   }
 }

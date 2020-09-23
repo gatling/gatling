@@ -778,7 +778,7 @@ class JsonPathSpec extends AnyFlatSpec with Matchers with JsonPathMatchers {
   //////////////
 
   "Incorrect JsonPath expressions" should "be handled properly" in {
-    JsonPath.query("€.$", goessnerJson) should be('left)
+    JsonPath.query("€.$", goessnerJson) shouldBe Symbol("left")
   }
 
   "Keys starting with number" should "be handled properly" in {

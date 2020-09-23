@@ -64,10 +64,10 @@ private[gatling] object Pebble extends StrictLogging {
     c.map(anyRefToJava).asJava
 
   private def mutableMapToJava(c: mutable.Map[_, _]): ju.Map[_, AnyRef] =
-    (Map.empty ++ c.mapValues(anyRefToJava)).asJava
+    (Map.empty ++ c.view.mapValues(anyRefToJava)).asJava
 
   private def immutableMapToJava(c: immutable.Map[_, _]): ju.Map[_, AnyRef] =
-    (Map.empty ++ c.mapValues(anyRefToJava)).asJava
+    (Map.empty ++ c.view.mapValues(anyRefToJava)).asJava
 
   private def anyRefToJava(any: Any): AnyRef = any match {
     case c: mutable.Seq[_]      => mutableSeqToJava(c)

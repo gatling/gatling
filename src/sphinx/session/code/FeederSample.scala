@@ -211,11 +211,7 @@ class FeederSample {
 
     // convert the Map values to get only the issues instead of the full records
     val issuesByProject: Map[String, Seq[Any]] =
-      recordsByProject.mapValues { records =>
-        records.map { record =>
-          record("issue")
-        }
-      }
+      recordsByProject.view.mapValues { records => records.map { record => record("issue") } }.to(Map)
 
     // inject project
     feed(csv("userProject.csv"))

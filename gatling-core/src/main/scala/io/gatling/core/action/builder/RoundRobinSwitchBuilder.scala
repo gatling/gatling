@@ -16,6 +16,8 @@
 
 package io.gatling.core.action.builder
 
+import scala.collection.immutable.ArraySeq
+
 import io.gatling.commons.util.CircularIterator
 import io.gatling.commons.validation.SuccessWrapper
 import io.gatling.core.action.{ Action, Switch }
@@ -29,7 +31,7 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
 
-    val possibleActions = possibilities.map(_.build(ctx, next)).toArray
+    val possibleActions = ArraySeq.unsafeWrapArray(possibilities.map(_.build(ctx, next)).toArray)
     val roundRobin = CircularIterator(possibleActions, threadSafe = true)
 
     val nextAction: Expression[Action] = _ => roundRobin.next().success

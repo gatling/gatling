@@ -19,6 +19,7 @@ package io.gatling.core.json
 import java.{ lang => jl, util => ju }
 
 import scala.annotation.switch
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
@@ -135,7 +136,7 @@ private[gatling] object Json {
       case map: collection.Map[_, _] => appendMap(map)
       case jMap: ju.Map[_, _]        => appendMap(jMap.asScala)
       case array: Array[_]           => appendArray(array)
-      case seq: Seq[_]               => appendArray(seq)
+      case seq: Iterable[_]          => appendArray(seq)
       case coll: ju.Collection[_]    => appendArray(coll.asScala)
       case _                         => appendString(value.toString, rootLevel)
     }
@@ -176,7 +177,7 @@ private[gatling] object Json {
       sb
     }
 
-    def appendArray(iterable: Traversable[_]): jl.StringBuilder = {
+    def appendArray(iterable: Iterable[_]): jl.StringBuilder = {
       sb.append('[')
       iterable.foreach { elem =>
         appendStringified(elem, rootLevel = false).append(',')

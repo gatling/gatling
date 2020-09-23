@@ -16,7 +16,7 @@
 
 package io.gatling.http.fetch
 
-import scala.collection.{ breakOut, mutable }
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
@@ -153,7 +153,7 @@ class HtmlParser extends StrictLogging {
 
               } else if (tag.nameEquals(AppletTagName)) {
                 val code = tag.getAttributeValue(CodeAttribute).toString
-                val archives = Option(tag.getAttributeValue(ArchiveAttribute)).map(_.toString.split(",").map(_.trim)(breakOut))
+                val archives = Option(tag.getAttributeValue(ArchiveAttribute)).map(_.toString.split(",").view.map(_.trim).to(Seq))
 
                 val appletResources = archives.getOrElse(code :: Nil).iterator
                 val appletResourcesUrls = codeBase() match {
@@ -192,7 +192,7 @@ class HtmlParser extends StrictLogging {
     try {
       Lagarto.newLagartoParser(htmlContent).parse(visitor)
     } catch { case NonFatal(e) => logException(htmlContent, e) }
-    HtmlResources(rawResources, base)
+    HtmlResources(rawResources.toSeq, base)
   }
 
   def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char]): List[ConcurrentResource] = {
@@ -201,8 +201,9 @@ class HtmlParser extends StrictLogging {
 
     val rootURI = htmlResources.base.map(Uri.create(documentURI, _)).getOrElse(documentURI)
 
-    htmlResources.rawResources.distinct
+    htmlResources.rawResources.view.distinct
       .filterNot(res => res.rawUrl.isEmpty || res.rawUrl.charAt(0) == '#' || res.rawUrl.startsWith("data:"))
-      .flatMap(_.toEmbeddedResource(rootURI).toList)(breakOut)
+      .flatMap(_.toEmbeddedResource(rootURI).toList)
+      .to(List)
   }
 }

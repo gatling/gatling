@@ -119,12 +119,14 @@ private[css] object FormExtractor {
   }
 
   private def filterNonCheckedCheckboxes(groupedInputs: Map[String, Seq[SingleValueInput]]): Map[String, Seq[SingleValueInput]] =
-    groupedInputs.mapValues { inputs =>
-      inputs.filter {
-        case CheckboxInput(_, _, checked) => checked
-        case _                            => true
+    groupedInputs.view
+      .mapValues { inputs =>
+        inputs.filter {
+          case CheckboxInput(_, _, checked) => checked
+          case _                            => true
+        }
       }
-    }
+      .to(Map)
 
   def extractFormInputs(node: Node): Map[String, Any] = {
 

@@ -16,9 +16,10 @@
 
 package io.gatling.jms.jndi
 
+import java.{ util => ju }
 import javax.naming.Context
 
-import scala.jdk.CollectionConverters.dictionaryAsScalaMapConverter
+import scala.jdk.CollectionConverters._
 
 import io.gatling.BaseSpec
 import io.gatling.jms.Predef.jmsJndiConnectionFactory
@@ -36,14 +37,16 @@ class JmsJndiConnectionFactoryBuilderSpec extends BaseSpec {
       .contextFactory(classOf[DummyContextFactory].getName)
 
     val factory = jndiCf.build()
-    val contextEnv = factory.asInstanceOf[DummyConnectionFactory].environment.asScala
-    contextEnv should contain allOf (
+    val contextEnv = new ju.HashMap[Any, Any](factory.asInstanceOf[DummyConnectionFactory].environment).asScala.toSeq
+      .map { case (k, v) => k.toString -> v.toString }
+      .sortBy(_._1)
+    contextEnv shouldBe Seq(
+      "extProperty" -> "extValue",
       Context.INITIAL_CONTEXT_FACTORY -> classOf[DummyContextFactory].getName,
       Context.PROVIDER_URL -> "testUrl",
-      Context.SECURITY_PRINCIPAL -> "user",
       Context.SECURITY_CREDENTIALS -> "secret",
-      "testProperty" -> "testValue",
-      "extProperty" -> "extValue"
+      Context.SECURITY_PRINCIPAL -> "user",
+      "testProperty" -> "testValue"
     )
   }
 }

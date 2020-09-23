@@ -50,22 +50,24 @@ private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
     var tmpValues: List[Value] = Nil
 
-    val tmpRenders = uriGroupedByHost.zipWithIndex.flatMap {
-      case ((_, uris), index) =>
-        val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
+    val tmpRenders = uriGroupedByHost.view.zipWithIndex
+      .flatMap {
+        case ((_, uris), index) =>
+          val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
 
-        if (uris.size == 1 || schemesPortAreSame(uris)) {
-          val paths = uris.map(uri => uri.getPath)
-          val longestCommonPath = longestCommonRoot(paths)
+          if (uris.size == 1 || schemesPortAreSame(uris)) {
+            val paths = uris.map(uri => uri.getPath)
+            val longestCommonPath = longestCommonRoot(paths)
 
-          tmpValues = Value(valName, uris.head.getBaseUrl + longestCommonPath) :: tmpValues
-          extractLongestPathUrls(uris, longestCommonPath, valName)
+            tmpValues = Value(valName, uris.head.getBaseUrl + longestCommonPath) :: tmpValues
+            extractLongestPathUrls(uris, longestCommonPath, valName)
 
-        } else {
-          tmpValues = Value(valName, uris.head.getHost) :: tmpValues
-          extractCommonHostUrls(uris, valName)
-        }
-    }
+          } else {
+            tmpValues = Value(valName, uris.head.getHost) :: tmpValues
+            extractCommonHostUrls(uris, valName)
+          }
+      }
+      .to(Map)
 
     (tmpValues, tmpRenders)
   }

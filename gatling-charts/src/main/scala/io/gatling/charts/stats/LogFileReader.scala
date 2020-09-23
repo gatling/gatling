@@ -20,6 +20,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.Base64
 
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.io.Source
 
@@ -253,7 +254,7 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
 
       def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
 
-        val bucketsWithValues: Map[Int, Double] = buffer
+        val bucketsWithValues: Map[Int, Double] = buffer.view
           .map(record => (bucketFunction(record.time), record))
           .groupBy(_._1)
           .map {
@@ -264,9 +265,9 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
 
               (responseTimeBucket, percent(bucketSize))
           }
-          .toMap
+          .to(Map)
 
-        buckets.map { bucket =>
+        ArraySeq.unsafeWrapArray(buckets).map { bucket =>
           new PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
         }
       }
@@ -341,6 +342,7 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
           val count = globalCountsByBucket(bucketNumber)
           new IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
       }
+      .to(Seq)
       .sortBy(_.time)
   }
 

@@ -20,7 +20,6 @@ import java.io.InputStream
 import java.net.URL
 import java.nio.charset.Charset
 
-import scala.collection._
 import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Io._

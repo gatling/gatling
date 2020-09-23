@@ -53,8 +53,8 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   it should "correctly support Cache-Control header" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "max-age=1")) shouldBe 'defined
-    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) shouldBe 'defined
+    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "max-age=1")) shouldBe Symbol("defined")
+    getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) shouldBe Symbol("defined")
     getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "public, no-cache")) shouldBe None
     getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "public, max-age=-1")) shouldBe None
     getResponseExpire(List(HttpHeaderNames.CACHE_CONTROL -> "public, max-age=0")) shouldBe None
@@ -62,14 +62,16 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   it should "correctly support Expires header" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Sun, 16 Oct 2033 21:56:44 GMT")) shouldBe 'defined
+    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Sun, 16 Oct 2033 21:56:44 GMT")) shouldBe Symbol("defined")
   }
 
   it should "give priority to Cache-Control over Expires" in new CacheContext {
     getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> HttpHeaderValues.NO_STORE)) shouldBe None
     getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=-1")) shouldBe None
     getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")) shouldBe None
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=567")) shouldBe 'defined
+    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=567")) shouldBe Symbol(
+      "defined"
+    )
   }
 
   it should "Pragma has priority over Cache-Control" in new CacheContext {

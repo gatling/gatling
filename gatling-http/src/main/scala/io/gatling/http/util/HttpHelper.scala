@@ -20,9 +20,8 @@ import java.net.URLDecoder
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.collection.{ breakOut, BitSet }
+import scala.collection.BitSet
 import scala.jdk.CollectionConverters._
-import scala.util.Try
 import scala.util.control.NonFatal
 
 import io.gatling.core.session._
@@ -59,12 +58,14 @@ private[gatling] object HttpHelper extends StrictLogging {
 
     body
       .split("&")
+      .view
       .map(_.split("=", 2))
       .map { pair =>
         val paramName = utf8Decode(pair(0))
         val paramValue = if (pair.length > 1) utf8Decode(pair(1)) else ""
         paramName -> paramValue
-      }(breakOut)
+      }
+      .to(List)
   }
 
   def buildBasicAuthRealm(username: Expression[String], password: Expression[String]): Expression[Realm] =
@@ -196,7 +197,7 @@ private[gatling] object HttpHelper extends StrictLogging {
     if (setCookieValues.isEmpty) {
       Nil
     } else {
-      setCookieValues.asScala.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)).toList)(breakOut)
+      setCookieValues.asScala.view.flatMap(setCookie => Option(ClientCookieDecoder.LAX.decode(setCookie)).toList).to(List)
     }
   }
 }

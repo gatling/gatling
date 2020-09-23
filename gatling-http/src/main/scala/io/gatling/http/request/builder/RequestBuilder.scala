@@ -139,7 +139,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    *
    * @param newHeaders a scala map containing the headers to add
    */
-  def headers(newHeaders: Map[_ <: CharSequence, String]): B = newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.mapValues(_.el[String])))
+  def headers(newHeaders: Map[_ <: CharSequence, String]): B =
+    newInstance(modify(commonAttributes)(_.headers).using(_ ++ newHeaders.view.mapValues(_.el[String])))
 
   @deprecated("Please use ignoreProtocolHeaders instead. Will be removed in 3.5.0", "3.4.0")
   def ignoreDefaultHeaders: B = ignoreProtocolHeaders
