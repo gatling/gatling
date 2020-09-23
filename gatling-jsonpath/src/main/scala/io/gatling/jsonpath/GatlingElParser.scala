@@ -36,7 +36,7 @@ class StringBuilderPool extends ThreadLocal[jl.StringBuilder] {
 /**
  * Originally contributed by Nicolas Rémond.
  */
-object Parser extends RegexParsers {
+object GatlingElParser extends RegexParsers {
 
   private val stringBuilderPool = new StringBuilderPool
 
@@ -211,7 +211,7 @@ object Parser extends RegexParsers {
     phrase(root ~ pathSequence) ^^ { case r ~ ps => r :: ps }
 }
 
-class Parser {
-  private val query = Parser.query
-  def compile(jsonpath: String): Parser.ParseResult[List[PathToken]] = Parser.parse(query, jsonpath)
+class GatlingElParser {
+  private val query = GatlingElParser.query
+  def compile(jsonpath: String): GatlingElParser.ParseResult[List[PathToken]] = GatlingElParser.parse(query, jsonpath)
 }

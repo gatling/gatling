@@ -17,21 +17,19 @@
 package io.gatling.jsonpath
 
 import io.gatling.jsonpath.AST._
-import io.gatling.jsonpath.Parser._
+import io.gatling.jsonpath.GatlingElParser._
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.{ MatchResult, Matcher }
 import org.scalatest.matchers.should.Matchers
 
-class StringSpec extends AnyFlatSpec with Matchers {
+class GatlingElParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
+
   "Fast string replacement" should "work as expected" in {
     fastReplaceAll("foo", "f", "b") shouldBe "boo"
     fastReplaceAll("foobarqix", "bar", "B") shouldBe "fooBqix"
     fastReplaceAll("foo-foo-foo-bar-foo", "foo", "f") shouldBe "f-f-f-bar-f"
   }
-}
-
-class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
 
   "Field parsing" should "work with standard names" in {
     def shouldParseField(name: String) = {
@@ -50,7 +48,7 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
   }
 
   it should "work with the root object" in {
-    parse(Parser.root, "$") should beParsedAs(RootNode)
+    parse(GatlingElParser.root, "$") should beParsedAs(RootNode)
   }
 
   it should "work when having multiple fields" in {
@@ -99,8 +97,8 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
   }
 
   it should "work with array access on the root object" in {
-    new Parser().compile("$[1]").get should be(RootNode :: ArrayRandomAccess(List(1)) :: Nil)
-    new Parser().compile("$[*]").get should be(RootNode :: ArraySlice.All :: Nil)
+    new GatlingElParser().compile("$[1]").get should be(RootNode :: ArrayRandomAccess(List(1)) :: Nil)
+    new GatlingElParser().compile("$[*]").get should be(RootNode :: ArraySlice.All :: Nil)
   }
 
   it should "work with array access on fields" in {
@@ -119,17 +117,17 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
   }
 
   it should "work on the root element" in {
-    new Parser().compile("$.foo").get should be(RootNode :: Field("foo") :: Nil)
-    new Parser().compile("$['foo']").get should be(RootNode :: Field("foo") :: Nil)
+    new GatlingElParser().compile("$.foo").get should be(RootNode :: Field("foo") :: Nil)
+    new GatlingElParser().compile("$['foo']").get should be(RootNode :: Field("foo") :: Nil)
 
     // TODO  : how to access childs w/ ['xxx'] notation
-    new Parser().compile("$..foo").get should be(RootNode :: RecursiveField("foo") :: Nil)
+    new GatlingElParser().compile("$..foo").get should be(RootNode :: RecursiveField("foo") :: Nil)
   }
 
   // cf : http://goessner.net/articles/JsonPath
   "Expressions from Goessner specs" should "be correctly parsed" in {
     def shouldParse(query: String, expected: Any) = {
-      new Parser().compile(query).get should be(expected)
+      new GatlingElParser().compile(query).get should be(expected)
     }
 
     shouldParse(
@@ -194,8 +192,8 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
 
   "Failures" should "be handled gracefully" in {
     def gracefulFailure(query: String): Unit =
-      new Parser().compile(query) match {
-        case Parser.Failure(msg, _) =>
+      new GatlingElParser().compile(query) match {
+        case GatlingElParser.Failure(msg, _) =>
           info(s"""that's an expected failure for "$query": $msg""")
         case other =>
           fail(s"""a Failure was expected but instead, for "$query" got: $other""")
@@ -220,7 +218,7 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
       HasFilter(SubQuery(List(CurrentNode, Field("foo"))))
     )
 
-    new Parser().compile("$.things[?(@.foo.bar)]").get should be(
+    new GatlingElParser().compile("$.things[?(@.foo.bar)]").get should be(
       RootNode
         :: Field("things")
         :: HasFilter(SubQuery(CurrentNode :: Field("foo") :: Field("bar") :: Nil))
@@ -297,21 +295,21 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
       ComparisonFilter(EqOperator, SubQuery(List(CurrentNode)), SubQuery(List(RootNode, Field("foo"))))
     )
 
-    new Parser().compile("$['points'][?(@['y'] >= 3)].id").get should be(
+    new GatlingElParser().compile("$['points'][?(@['y'] >= 3)].id").get should be(
       RootNode
         :: Field("points")
         :: ComparisonFilter(GreaterOrEqOperator, SubQuery(List(CurrentNode, Field("y"))), FilterDirectValue.long(3))
         :: Field("id") :: Nil
     )
 
-    new Parser().compile("$.points[?(@['id']=='i4')].x").get should be(
+    new GatlingElParser().compile("$.points[?(@['id']=='i4')].x").get should be(
       RootNode
         :: Field("points")
         :: ComparisonFilter(EqOperator, SubQuery(List(CurrentNode, Field("id"))), FilterDirectValue.string("i4"))
         :: Field("x") :: Nil
     )
 
-    new Parser().compile("""$.points[?(@['id']=="i4")].x""").get should be(
+    new GatlingElParser().compile("""$.points[?(@['id']=="i4")].x""").get should be(
       RootNode
         :: Field("points")
         :: ComparisonFilter(EqOperator, SubQuery(List(CurrentNode, Field("id"))), FilterDirectValue.string("i4"))
@@ -372,16 +370,16 @@ class ParserSpec extends AnyFlatSpec with Matchers with ParsingMatchers {
 
 trait ParsingMatchers {
 
-  class SuccessBeMatcher[+T <: AstToken](expected: T) extends Matcher[Parser.ParseResult[AstToken]] {
-    def apply(left: Parser.ParseResult[AstToken]): MatchResult = {
+  class SuccessBeMatcher[+T <: AstToken](expected: T) extends Matcher[GatlingElParser.ParseResult[AstToken]] {
+    def apply(left: GatlingElParser.ParseResult[AstToken]): MatchResult = {
       left match {
-        case Parser.Success(res, _) =>
+        case GatlingElParser.Success(res, _) =>
           MatchResult(
             expected == res,
             s"$res is not equal to expected value $expected",
             s"$res is equal to $expected but it shouldn't be"
           )
-        case Parser.NoSuccess(msg, _) =>
+        case GatlingElParser.NoSuccess(msg, _) =>
           MatchResult(
             matches = false,
             s"parsing issue, $msg",
