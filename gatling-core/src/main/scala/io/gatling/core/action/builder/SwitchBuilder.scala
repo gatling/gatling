@@ -16,8 +16,6 @@
 
 package io.gatling.core.action.builder
 
-import scala.collection.breakOut
-
 import io.gatling.core.action.{ Action, Switch }
 import io.gatling.core.session._
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
