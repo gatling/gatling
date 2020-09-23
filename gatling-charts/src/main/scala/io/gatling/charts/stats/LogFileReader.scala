@@ -331,12 +331,7 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
   def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
-  private def timeAgainstGlobalNumberOfRequestsPerSec(
-      buffer: PercentilesBuffers,
-      status: Status,
-      requestName: String,
-      group: Option[Group]
-  ): Seq[IntVsTimePlot] = {
+  private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers): Seq[IntVsTimePlot] = {
 
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None).counts
 
@@ -351,7 +346,7 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
 
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
     val percentilesBuffer = resultsHolder.getResponseTimePercentilesBuffers(Some(requestName), group, status)
-    timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
+    timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer)
   }
 
   def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot] =
