@@ -18,8 +18,8 @@ package io.gatling.core.check.css
 
 import java.{ util => ju }
 
-import scala.collection._
 import scala.collection.JavaConverters._
+import scala.collection.breakOut
 
 import io.gatling.core.util.cache.Cache
 

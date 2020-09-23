@@ -18,7 +18,6 @@ package io.gatling.http.request.builder
 
 import java.security.MessageDigest
 
-import scala.collection.breakOut
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.body.{ Body, RawFileBodies }
@@ -176,7 +175,8 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
     val digests: Map[String, MessageDigest] =
       sortedChecks
         .map(_.wrapped)
-        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }(breakOut)
+        .collect { case check: ChecksumCheck[_] => check.algorithm -> MessageDigest.getInstance(check.algorithm) }
+        .toMap
 
     val storeBodyParts = IsHttpDebugEnabled ||
       // we can't assume anything about if and how the response body will be used,

@@ -18,7 +18,6 @@ package io.gatling.core.controller.inject
 
 import java.util.concurrent.atomic.AtomicLong
 
-import scala.collection.breakOut
 import scala.concurrent.duration._
 
 import io.gatling.commons.util.Clock
@@ -61,7 +60,7 @@ private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: Stat
     val startTime = clock.nowMillis
     scenarios.map { scenario =>
       scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
-    }(breakOut)
+    }.toMap
   }
 
   private def inject(data: StartedData, firstBatch: Boolean): State = {

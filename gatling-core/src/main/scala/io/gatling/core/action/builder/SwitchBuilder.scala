@@ -33,7 +33,7 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
       case (value, possibility) =>
         val possibilityAction = possibility.build(ctx, next)
         (value, possibilityAction)
-    }(breakOut)
+    }.toMap
 
     val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
 

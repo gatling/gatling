@@ -16,8 +16,6 @@
 
 package io.gatling.charts.report
 
-import scala.collection.breakOut
-
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
@@ -149,7 +147,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         case GroupStatsPath(group)            => group
         case RequestStatsPath(_, Some(group)) => group
       }
-      .map(group => group.hierarchy.reverse -> group)(breakOut)
+      .map(group => group.hierarchy.reverse -> group)
+      .toMap
 
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 

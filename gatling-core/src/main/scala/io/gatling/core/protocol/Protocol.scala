@@ -16,7 +16,6 @@
 
 package io.gatling.core.protocol
 
-import scala.collection.breakOut
 import scala.collection.mutable
 
 import io.gatling.core.CoreComponents
@@ -25,7 +24,7 @@ import io.gatling.core.session.Session
 
 object Protocol {
   def indexByType(protocols: Iterable[Protocol]): Protocols =
-    protocols.map(p => p.getClass.asInstanceOf[Class[Protocol]] -> p)(breakOut)
+    protocols.map(p => p.getClass.asInstanceOf[Class[Protocol]] -> p).toMap
 }
 
 trait Protocol

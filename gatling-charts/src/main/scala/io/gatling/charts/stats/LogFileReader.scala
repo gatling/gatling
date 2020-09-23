@@ -20,7 +20,7 @@ import java.io.InputStream
 import java.nio.ByteBuffer
 import java.util.Base64
 
-import scala.collection.{ breakOut, mutable }
+import scala.collection.mutable
 import scala.io.Source
 
 import io.gatling.charts.stats.buffers.{ CountsBuffer, GeneralStatsBuffer, PercentilesBuffers }
@@ -263,7 +263,8 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
               }
 
               (responseTimeBucket, percent(bucketSize))
-          }(breakOut)
+          }
+          .toMap
 
         buckets.map { bucket =>
           new PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
