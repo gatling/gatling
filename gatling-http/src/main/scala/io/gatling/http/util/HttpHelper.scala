@@ -39,9 +39,20 @@ private[gatling] object HttpHelper extends StrictLogging {
 
   val HttpScheme = "http"
   val WsScheme = "ws"
-  val OkCodes
-      : BitSet = BitSet.empty + OK.code + NOT_MODIFIED.code + CREATED.code + ACCEPTED.code + NON_AUTHORITATIVE_INFORMATION.code + NO_CONTENT.code + RESET_CONTENT.code + PARTIAL_CONTENT.code + MULTI_STATUS.code + 208 + 209
-  private val RedirectStatusCodes = BitSet.empty + MOVED_PERMANENTLY.code + FOUND.code + SEE_OTHER.code + TEMPORARY_REDIRECT.code + PERMANENT_REDIRECT.code
+  val OkCodes: BitSet = BitSet(
+    OK.code,
+    NOT_MODIFIED.code,
+    CREATED.code,
+    ACCEPTED.code,
+    NON_AUTHORITATIVE_INFORMATION.code,
+    NO_CONTENT.code,
+    RESET_CONTENT.code,
+    PARTIAL_CONTENT.code,
+    MULTI_STATUS.code,
+    208,
+    209
+  )
+  private val RedirectStatusCodes = BitSet(MOVED_PERMANENTLY.code, FOUND.code, SEE_OTHER.code, TEMPORARY_REDIRECT.code, PERMANENT_REDIRECT.code)
 
   def parseFormBody(body: String): List[(String, String)] = {
     def utf8Decode(s: String) = URLDecoder.decode(s, UTF_8.name)
