@@ -18,8 +18,8 @@ package io.gatling.http
 
 import java.{ util => ju }
 
-import scala.collection.JavaConverters._
 import scala.collection.breakOut
+import scala.jdk.CollectionConverters._
 
 import io.netty.handler.codec.http.cookie.Cookie
 

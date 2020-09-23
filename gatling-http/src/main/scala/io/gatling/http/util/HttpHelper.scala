@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.collection.{ breakOut, BitSet }
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
 

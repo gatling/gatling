@@ -16,7 +16,7 @@
 
 package io.gatling.jsonpath
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.math.abs
 
 import io.gatling.jsonpath.AST._

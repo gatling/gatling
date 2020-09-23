@@ -20,7 +20,7 @@ import java.io.{ InputStream, SequenceInputStream }
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ByteBufs._

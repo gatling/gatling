@@ -20,7 +20,7 @@ import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 import javax.jms.{ Destination, MessageProducer }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 private[client] final case class CachedProducerKey(destination: Destination, deliveryMode: Int)
 

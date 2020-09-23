@@ -19,7 +19,7 @@ package io.gatling.http
 import java.{ lang => jl }
 import java.nio.charset.Charset
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol

@@ -18,7 +18,7 @@ package io.gatling.recorder.har
 
 import java.io.InputStream
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import com.fasterxml.jackson.databind.{ DeserializationFeature, ObjectMapper }
 

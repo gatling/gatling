@@ -18,7 +18,7 @@ package io.gatling.core.action.builder
 
 import java.{ util => ju }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.core.action.{ Action, Feed, FeedActor }
 import io.gatling.core.feeder.FeederBuilder

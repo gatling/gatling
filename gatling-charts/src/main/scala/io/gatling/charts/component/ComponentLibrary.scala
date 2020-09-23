@@ -16,7 +16,7 @@
 
 package io.gatling.charts.component
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
 import io.gatling.charts.stats._

@@ -21,8 +21,8 @@ import java.nio.file.{ Path, Paths }
 import java.util.Locale
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.collection.immutable.SortedMap
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._

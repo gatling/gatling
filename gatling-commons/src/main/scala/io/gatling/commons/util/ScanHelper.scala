@@ -21,7 +21,7 @@ import java.net.JarURLConnection
 import java.nio.file.{ Path, Paths, StandardCopyOption }
 import java.util.jar.{ JarEntry, JarFile }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._

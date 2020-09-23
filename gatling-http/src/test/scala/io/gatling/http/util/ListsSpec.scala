@@ -16,7 +16,7 @@
 
 package io.gatling.http.util
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.BaseSpec
 

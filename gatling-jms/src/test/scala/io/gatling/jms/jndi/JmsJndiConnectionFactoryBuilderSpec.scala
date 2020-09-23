@@ -18,7 +18,7 @@ package io.gatling.jms.jndi
 
 import javax.naming.Context
 
-import scala.collection.JavaConverters.dictionaryAsScalaMapConverter
+import scala.jdk.CollectionConverters.dictionaryAsScalaMapConverter
 
 import io.gatling.BaseSpec
 import io.gatling.jms.Predef.jmsJndiConnectionFactory

@@ -22,7 +22,7 @@ import java.nio.file.{ Files, Path }
 import java.util.Optional
 import java.util.jar.{ Attributes, Manifest => JManifest }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.io.Directory
 
 import io.gatling.compiler.config.CompilerConfiguration

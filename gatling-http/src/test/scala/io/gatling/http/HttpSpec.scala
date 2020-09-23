@@ -20,8 +20,8 @@ import java.io.RandomAccessFile
 import java.net.ServerSocket
 import javax.activation.FileTypeMap
 
-import scala.collection.JavaConverters._
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 import io.gatling.AkkaSpec

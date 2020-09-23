@@ -19,7 +19,7 @@ package io.gatling.http
 import java.net.InetSocketAddress
 import java.util.concurrent.{ ConcurrentLinkedQueue, TimeUnit }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import com.typesafe.scalalogging.LazyLogging
 import io.netty.bootstrap.ServerBootstrap

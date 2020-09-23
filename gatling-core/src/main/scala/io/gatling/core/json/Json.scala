@@ -19,7 +19,7 @@ package io.gatling.core.json
 import java.{ lang => jl, util => ju }
 
 import scala.annotation.switch
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Hex
 import io.gatling.commons.util.Maps._

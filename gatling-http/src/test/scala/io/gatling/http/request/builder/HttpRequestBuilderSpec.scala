@@ -16,7 +16,7 @@
 
 package io.gatling.http.request.builder
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.DefaultClock

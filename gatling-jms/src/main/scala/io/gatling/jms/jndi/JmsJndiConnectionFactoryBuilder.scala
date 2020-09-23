@@ -20,7 +20,7 @@ import java.util.{ Hashtable => JHashtable }
 import javax.jms.ConnectionFactory
 import javax.naming.{ Context, InitialContext }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.model.Credentials
 

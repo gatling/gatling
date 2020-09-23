@@ -20,8 +20,8 @@ import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Base64
 
-import scala.collection.JavaConverters._
 import scala.concurrent.duration.FiniteDuration
+import scala.jdk.CollectionConverters._
 
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.{ ConcurrentResource, HtmlParser }

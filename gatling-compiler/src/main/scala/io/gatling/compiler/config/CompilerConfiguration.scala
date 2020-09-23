@@ -18,7 +18,7 @@ package io.gatling.compiler.config
 
 import java.nio.file._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.compiler.config.ConfigUtils._
 import io.gatling.compiler.config.cli.{ ArgsParser, CommandLineOverrides }

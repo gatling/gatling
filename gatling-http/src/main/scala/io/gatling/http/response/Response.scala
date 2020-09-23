@@ -16,7 +16,7 @@
 
 package io.gatling.http.response
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpProtocol

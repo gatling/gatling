@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.xpath
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._

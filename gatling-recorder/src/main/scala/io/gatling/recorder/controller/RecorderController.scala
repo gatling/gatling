@@ -19,8 +19,8 @@ package io.gatling.recorder.controller
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConverters._
 import scala.concurrent.duration.DurationLong
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.PathHelper._

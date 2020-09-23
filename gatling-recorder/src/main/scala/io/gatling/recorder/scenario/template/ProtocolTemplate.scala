@@ -16,7 +16,7 @@
 
 package io.gatling.recorder.scenario.template
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }

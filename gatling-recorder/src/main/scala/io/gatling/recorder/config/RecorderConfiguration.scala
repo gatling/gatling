@@ -19,9 +19,9 @@ package io.gatling.recorder.config
 import java.io.FileNotFoundException
 import java.nio.file.{ Path, Paths }
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
+import scala.jdk.CollectionConverters._
 import scala.util.Properties.userHome
 import scala.util.control.NonFatal
 

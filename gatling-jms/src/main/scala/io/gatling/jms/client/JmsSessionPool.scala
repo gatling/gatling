@@ -20,7 +20,7 @@ import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 import javax.jms._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class JmsSessionPool(connection: Connection) {
 

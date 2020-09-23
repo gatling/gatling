@@ -20,7 +20,7 @@ import java.{ util => ju }
 import java.net._
 import java.util.concurrent.ThreadLocalRandom
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import com.typesafe.scalalogging.LazyLogging

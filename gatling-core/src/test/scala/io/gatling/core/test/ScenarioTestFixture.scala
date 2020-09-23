@@ -18,10 +18,10 @@ package io.gatling.core.test
 
 import java.util.concurrent.ConcurrentLinkedDeque
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock

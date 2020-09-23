@@ -18,9 +18,9 @@ package io.gatling.core.body
 
 import java.{ util => ju }
 
-import scala.collection.JavaConverters._
 import scala.collection.immutable
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._

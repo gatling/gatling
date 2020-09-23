@@ -19,7 +19,7 @@ package io.gatling.http.request
 import java.{ util => ju }
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }

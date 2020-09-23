@@ -19,7 +19,7 @@ package io.gatling.http.protocol
 import java.net.{ Inet4Address, InetAddress, InetSocketAddress }
 import javax.net.ssl.KeyManagerFactory
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }

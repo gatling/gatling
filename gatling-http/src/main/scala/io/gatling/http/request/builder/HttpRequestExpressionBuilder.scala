@@ -16,7 +16,7 @@
 
 package io.gatling.http.request.builder
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.body._

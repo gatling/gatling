@@ -21,9 +21,9 @@ import java.nio.file.{ Path, Paths }
 import java.util.ResourceBundle
 import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.util.ConfigHelper._
 import io.gatling.commons.util.Ssl

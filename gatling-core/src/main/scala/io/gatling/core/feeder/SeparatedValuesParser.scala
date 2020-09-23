@@ -19,7 +19,7 @@ package io.gatling.core.feeder
 import java.nio.channels.{ Channels, ReadableByteChannel }
 import java.nio.charset.Charset
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.simpleflatmapper.lightningcsv.CsvParser
 

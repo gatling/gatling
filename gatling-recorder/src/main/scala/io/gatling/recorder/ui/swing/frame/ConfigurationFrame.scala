@@ -20,7 +20,7 @@ import java.awt.Font
 import java.nio.file.Paths
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode._

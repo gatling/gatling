@@ -19,7 +19,7 @@ package io.gatling.jms.client
 import java.util.concurrent.ConcurrentHashMap
 import javax.jms.ConnectionFactory
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.model.Credentials
 import io.gatling.commons.util.Clock
