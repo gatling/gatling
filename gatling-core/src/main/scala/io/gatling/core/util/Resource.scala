@@ -17,7 +17,7 @@
 package io.gatling.core.util
 
 import java.io._
-import java.net.URL
+import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
 import java.nio.file.{ Files, Path, Paths }
 import java.util.concurrent.ConcurrentHashMap
@@ -31,11 +31,19 @@ object Resource {
   private final case class Location(directory: Path, path: String)
 
   private object ClasspathResource {
+
+    private def urlToFile(url: URL): File =
+      try {
+        new File(url.toURI)
+      } catch {
+        case _: URISyntaxException => new File(url.getPath)
+      }
+
     def unapply(location: Location): Option[Validation[Resource]] = {
       val cleanPath = location.path.replace('\\', '/')
       Option(getClass.getClassLoader.getResource(cleanPath)).map { url =>
         url.getProtocol match {
-          case "file" => ClasspathFileResource(cleanPath, url.file).success
+          case "file" => ClasspathFileResource(cleanPath, urlToFile(url)).success
           case "jar"  => ClasspathPackagedResource(cleanPath, url).success
           case _      => s"$url is neither a file nor a jar".failure
         }
