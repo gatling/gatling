@@ -29,14 +29,14 @@ import static io.gatling.http.client.util.HttpUtils.patchContentTypeWithBoundary
 import static io.gatling.http.client.util.MiscUtils.withDefault;
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
-public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder<List<Part<?>>> {
+public class MultipartFormDataRequestBodyBuilder extends RequestBodyBuilder.Base<List<Part<?>>> {
 
   public MultipartFormDataRequestBodyBuilder(List<Part<?>> content) {
     super(content);
   }
 
   @Override
-  public RequestBody<List<Part<?>>> build(String contentType, Charset charset, Charset defaultCharset) {
+  public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
 
     byte[] boundary;
     String contentTypeBoundaryAttribute = extractContentTypeBoundaryAttribute(contentType);

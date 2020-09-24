@@ -34,7 +34,7 @@ public class Request {
   private final Uri uri;
   private final HttpHeaders headers;
   private final List<Cookie> cookies;
-  private final RequestBody<?> body;
+  private final RequestBody body;
   private final long requestTimeout;
   private final String virtualHost;
   private final InetAddress localIpV4Address;
@@ -52,7 +52,7 @@ public class Request {
                  Uri uri,
                  HttpHeaders headers,
                  List<Cookie> cookies,
-                 RequestBody<?> body,
+                 RequestBody body,
                  long requestTimeout,
                  String virtualHost,
                  InetAddress localIpV4Address,
@@ -121,7 +121,7 @@ public class Request {
     return cookies;
   }
 
-  public RequestBody<?> getBody() {
+  public RequestBody getBody() {
     return body;
   }
 

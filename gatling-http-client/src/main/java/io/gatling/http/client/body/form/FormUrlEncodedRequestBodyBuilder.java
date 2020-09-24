@@ -26,14 +26,14 @@ import java.util.List;
 
 import static io.gatling.http.client.util.MiscUtils.withDefault;
 
-public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder<List<Param>> {
+public class FormUrlEncodedRequestBodyBuilder extends RequestBodyBuilder.Base<List<Param>> {
 
   public FormUrlEncodedRequestBodyBuilder(List<Param> content) {
     super(content);
   }
 
   @Override
-  public RequestBody<List<Param>> build(String contentType, Charset charset, Charset defaultCharset) {
+  public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
     return new FormUrlEncodedRequestBody(content, contentType != null ? contentType : HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString(), withDefault(charset, defaultCharset));
   }
 }

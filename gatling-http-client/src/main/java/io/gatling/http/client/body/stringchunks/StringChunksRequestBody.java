@@ -25,7 +25,7 @@ import io.netty.buffer.ByteBufAllocator;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public final class StringChunksRequestBody extends RequestBody<List<StringWithCachedBytes>> {
+public final class StringChunksRequestBody extends RequestBody.Base<List<StringWithCachedBytes>> {
 
   private final Charset charset;
   private final long contentLength;
@@ -46,7 +46,7 @@ public final class StringChunksRequestBody extends RequestBody<List<StringWithCa
   }
 
   @Override
-  public RequestBodyBuilder<List<StringWithCachedBytes>> newBuilder() {
+  public RequestBodyBuilder newBuilder() {
     return new StringChunksRequestBodyBuilder(content);
   }
 

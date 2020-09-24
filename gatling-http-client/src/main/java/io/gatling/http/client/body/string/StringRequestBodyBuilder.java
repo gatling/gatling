@@ -23,14 +23,14 @@ import java.nio.charset.Charset;
 
 import static io.gatling.http.client.util.MiscUtils.withDefault;
 
-public class StringRequestBodyBuilder extends RequestBodyBuilder<String> {
+public class StringRequestBodyBuilder extends RequestBodyBuilder.Base<String> {
 
   public StringRequestBodyBuilder(String content) {
     super(content);
   }
 
   @Override
-  public RequestBody<String> build(String contentType, Charset charset, Charset defaultCharset) {
+  public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
     return new StringRequestBody(content, contentType, withDefault(charset, defaultCharset));
   }
 }

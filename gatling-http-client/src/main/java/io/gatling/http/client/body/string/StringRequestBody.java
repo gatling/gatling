@@ -27,7 +27,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-public final class StringRequestBody extends RequestBody<String> {
+public final class StringRequestBody extends RequestBody.Base<String> {
 
   private final Charset charset;
 
@@ -47,7 +47,7 @@ public final class StringRequestBody extends RequestBody<String> {
   }
 
   @Override
-  public RequestBodyBuilder<String> newBuilder() {
+  public RequestBodyBuilder newBuilder() {
     return new StringRequestBodyBuilder(content);
   }
 

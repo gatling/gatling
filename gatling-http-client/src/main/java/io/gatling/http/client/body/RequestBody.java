@@ -20,27 +20,33 @@ import io.netty.buffer.ByteBufAllocator;
 
 import java.io.IOException;
 
-public abstract class RequestBody<T> {
+public interface RequestBody {
 
-  protected final T content;
-  protected final String contentType;
+  String getContentType();
 
-  public RequestBody(T content, String contentType) {
-    this.content = content;
-    this.contentType = contentType;
+  WritableContent build(ByteBufAllocator alloc) throws IOException;
+
+  RequestBodyBuilder newBuilder();
+
+  byte[] getBytes();
+
+  abstract class Base<T> implements RequestBody {
+
+    protected final T content;
+    protected final String contentType;
+
+    public Base(T content, String contentType) {
+      this.content = content;
+      this.contentType = contentType;
+    }
+
+    public T getContent() {
+      return content;
+    }
+
+    @Override
+    public String getContentType() {
+      return contentType;
+    }
   }
-
-  public T getContent() {
-    return content;
-  }
-
-  public String getContentType() {
-    return contentType;
-  }
-
-  public abstract WritableContent build(ByteBufAllocator alloc) throws IOException;
-
-  public abstract RequestBodyBuilder<T> newBuilder();
-
-  public abstract byte[] getBytes();
 }

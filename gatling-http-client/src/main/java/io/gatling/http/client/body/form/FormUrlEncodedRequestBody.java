@@ -33,7 +33,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public final class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
+public final class FormUrlEncodedRequestBody extends RequestBody.Base<List<Param>> {
 
   private final Charset charset;
   private static final StringBuilderPool SB_POOL = new StringBuilderPool();
@@ -85,7 +85,7 @@ public final class FormUrlEncodedRequestBody extends RequestBody<List<Param>> {
   }
 
   @Override
-  public RequestBodyBuilder<List<Param>> newBuilder() {
+  public RequestBodyBuilder newBuilder() {
     return new FormUrlEncodedRequestBodyBuilder(content);
   }
 

@@ -18,13 +18,16 @@ package io.gatling.http.client.body;
 
 import java.nio.charset.Charset;
 
-public abstract class RequestBodyBuilder<T> {
+public interface RequestBodyBuilder {
 
-  protected final T content;
+  RequestBody build(String contentType, Charset charset, Charset defaultCharset);
 
-  public RequestBodyBuilder(T content) {
-    this.content = content;
+  abstract class Base<T> implements RequestBodyBuilder {
+
+    protected final T content;
+
+    public Base(T content) {
+      this.content = content;
+    }
   }
-
-  public abstract RequestBody<?> build(String contentType, Charset charset, Charset defaultCharset);
 }

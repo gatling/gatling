@@ -25,7 +25,7 @@ import io.netty.buffer.Unpooled;
 import java.nio.charset.Charset;
 import java.util.Base64;
 
-public final class ByteArrayRequestBody extends RequestBody<byte[]> {
+public final class ByteArrayRequestBody extends RequestBody.Base<byte[]> {
 
   private final String fileName;
   private final Charset charset;
@@ -42,7 +42,7 @@ public final class ByteArrayRequestBody extends RequestBody<byte[]> {
   }
 
   @Override
-  public RequestBodyBuilder<byte[]> newBuilder() {
+  public RequestBodyBuilder newBuilder() {
     return new ByteArrayRequestBodyBuilder(content, fileName);
   }
 

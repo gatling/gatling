@@ -52,7 +52,7 @@ public class OAuthSignatureCalculator implements SignatureCalculator {
   @Override
   public void sign(Request request) throws Exception {
 
-    RequestBody<?> body = request.getBody();
+    RequestBody body = request.getBody();
     List<Param> formParams =
       body instanceof FormUrlEncodedRequestBody ?
         ((FormUrlEncodedRequestBody) body).getContent() :

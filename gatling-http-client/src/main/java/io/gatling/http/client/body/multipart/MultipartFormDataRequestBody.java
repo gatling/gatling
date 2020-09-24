@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>>> {
+public final class MultipartFormDataRequestBody extends RequestBody.Base<List<Part<?>>> {
 
   private static final byte[] EMPTY_BYTES = new byte[0];
 
@@ -63,7 +63,7 @@ public final class MultipartFormDataRequestBody extends RequestBody<List<Part<?>
   }
 
   @Override
-  public RequestBodyBuilder<List<Part<?>>> newBuilder() {
+  public RequestBodyBuilder newBuilder() {
     return new MultipartFormDataRequestBodyBuilder(content);
   }
 

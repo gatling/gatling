@@ -59,7 +59,7 @@ public class WritableRequestBuilder {
   private static WritableRequest buildRequestWithBody(String url,
                                                       HttpMethod method,
                                                       HttpHeaders headers,
-                                                      RequestBody<?> requestBody,
+                                                      RequestBody requestBody,
                                                       ByteBufAllocator alloc) throws IOException {
 
     WritableContent writableContent = requestBody.build(alloc);
@@ -103,7 +103,7 @@ public class WritableRequestBuilder {
   public static WritableRequest buildRequest(Request request, ByteBufAllocator alloc, HttpClientConfig config, boolean http2) throws Exception {
     Uri uri = request.getUri();
     HttpHeaders headers = request.getHeaders();
-    RequestBody<?> requestBody = request.getBody();
+    RequestBody requestBody = request.getBody();
 
     boolean isClearHttpProxy = !uri.isSecured() && request.getProxyServer() instanceof HttpProxyServer;
 

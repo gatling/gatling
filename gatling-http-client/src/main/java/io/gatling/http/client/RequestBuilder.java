@@ -49,7 +49,7 @@ public class RequestBuilder {
   private final InetAddressNameResolver nameResolver;
   private HttpHeaders headers = new DefaultHttpHeaders(false);
   private List<Cookie> cookies;
-  private RequestBodyBuilder<?> bodyBuilder;
+  private RequestBodyBuilder bodyBuilder;
   private long requestTimeout;
   private String virtualHost;
   private InetAddress localIpV4Address;
@@ -106,7 +106,7 @@ public class RequestBuilder {
     return this;
   }
 
-  public RequestBuilder setBodyBuilder(RequestBodyBuilder<?> bodyBuilder) {
+  public RequestBuilder setBodyBuilder(RequestBodyBuilder bodyBuilder) {
     this.bodyBuilder = bodyBuilder;
     return this;
   }
@@ -206,7 +206,7 @@ public class RequestBuilder {
       headers.set(HOST, virtualHost != null ? virtualHost : hostHeader(uri));
     }
 
-    RequestBody<?> body = null;
+    RequestBody body = null;
     if (bodyBuilder != null) {
       String contentType = headers.get(CONTENT_TYPE);
       Charset charset = extractContentTypeCharsetAttribute(contentType);

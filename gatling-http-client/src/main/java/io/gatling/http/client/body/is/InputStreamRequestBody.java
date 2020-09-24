@@ -25,7 +25,7 @@ import io.netty.handler.stream.ChunkedStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class InputStreamRequestBody extends RequestBody<InputStream> {
+public final class InputStreamRequestBody extends RequestBody.Base<InputStream> {
 
   private static class ConsumableInputStream extends InputStream {
     private final InputStream is;
@@ -53,7 +53,7 @@ public final class InputStreamRequestBody extends RequestBody<InputStream> {
   }
 
   @Override
-  public RequestBodyBuilder<InputStream> newBuilder() {
+  public RequestBodyBuilder newBuilder() {
     return new InputStreamRequestBodyBuilder(content);
   }
 

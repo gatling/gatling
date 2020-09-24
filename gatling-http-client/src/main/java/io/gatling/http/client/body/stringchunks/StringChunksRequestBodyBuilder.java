@@ -24,14 +24,14 @@ import io.gatling.netty.util.StringWithCachedBytes;
 import java.nio.charset.Charset;
 import java.util.List;
 
-public class StringChunksRequestBodyBuilder extends RequestBodyBuilder<List<StringWithCachedBytes>> {
+public class StringChunksRequestBodyBuilder extends RequestBodyBuilder.Base<List<StringWithCachedBytes>> {
 
   public StringChunksRequestBodyBuilder(List<StringWithCachedBytes> content) {
     super(content);
   }
 
   @Override
-  public RequestBody<?> build(String contentType, Charset charset, Charset defaultCharset) {
+  public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
     if (charset == null || charset.equals(defaultCharset)) {
       return new StringChunksRequestBody(content, contentType, defaultCharset);
     } else {

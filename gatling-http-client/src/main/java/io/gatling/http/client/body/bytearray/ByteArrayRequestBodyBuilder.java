@@ -23,7 +23,7 @@ import java.nio.charset.Charset;
 
 import static io.gatling.http.client.util.MiscUtils.withDefault;
 
-public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder<byte[]> {
+public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder.Base<byte[]> {
 
   private final String fileName;
 
@@ -33,7 +33,7 @@ public class ByteArrayRequestBodyBuilder extends RequestBodyBuilder<byte[]> {
   }
 
   @Override
-  public RequestBody<byte[]> build(String contentType, Charset charset, Charset defaultCharset) {
+  public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
     return new ByteArrayRequestBody(content, contentType, fileName, withDefault(charset, defaultCharset));
   }
 }

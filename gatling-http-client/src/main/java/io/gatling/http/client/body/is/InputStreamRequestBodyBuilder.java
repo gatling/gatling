@@ -22,14 +22,14 @@ import io.gatling.http.client.body.RequestBodyBuilder;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 
-public class InputStreamRequestBodyBuilder extends RequestBodyBuilder<InputStream> {
+public class InputStreamRequestBodyBuilder extends RequestBodyBuilder.Base<InputStream> {
 
   public InputStreamRequestBodyBuilder(InputStream content) {
     super(content);
   }
 
   @Override
-  public RequestBody<InputStream> build(String contentType, Charset charset, Charset defaultCharset) {
+  public RequestBody build(String contentType, Charset charset, Charset defaultCharset) {
     return new InputStreamRequestBody(content, contentType);
   }
 }
