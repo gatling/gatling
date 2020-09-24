@@ -27,7 +27,6 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
-import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
@@ -107,6 +106,15 @@ final case class JsonStringify(part: ElPart[Any], name: String) extends ElPart[S
       case NullValueFailure => NullStringSuccess
       case failure: Failure => failure
     }
+}
+
+private class IntStringOpt(val s: String) extends AnyVal {
+  def isEmpty: Boolean = s.exists(char => char < '0' || char > '9')
+  def get: Int = s.toInt
+}
+
+private object IntString {
+  def unapply(s: String): IntStringOpt = new IntStringOpt(s)
 }
 
 final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String) extends ElPart[Any] {
