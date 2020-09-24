@@ -40,6 +40,7 @@ object Collections {
   }
 
   @SuppressWarnings(Array("org.wartremover.warts.ArrayEquals"))
+  @deprecated("Will be removed once FrontLine stop supporting Gatling 3.4", "3.5.0")
   implicit class PimpedIterator[A](val it: Iterator[A]) extends AnyVal {
 
     def lift(i: Int): Option[A] = {
