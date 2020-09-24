@@ -62,7 +62,7 @@ private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) exten
   private def classAsStream(className: String): Option[InputStream] =
     Option(getResourceAsStream(className.replaceAll("""\.""", "/") + ".class"))
 
-  def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
+  private def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
     case Some(path) => Files.readAllBytes(path)
     case _ =>
       classAsStream(name) match {
