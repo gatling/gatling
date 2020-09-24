@@ -20,7 +20,6 @@ import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.{ UTF_16, UTF_8 }
 
-import io.gatling.commons.util.NonStandardCharsets.UTF_32
 import io.gatling.commons.validation._
 
 import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
@@ -28,7 +27,7 @@ import com.fasterxml.jackson.databind.{ JsonNode, ObjectMapper }
 object JsonParsers {
 
   private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
-  private val JsonSupportedEncodings = Set(UTF_8, UTF_16, UTF_32)
+  private val JsonSupportedEncodings = Set(UTF_8, UTF_16, Charset.forName("UTF-32"))
 }
 
 class JsonParsers {
