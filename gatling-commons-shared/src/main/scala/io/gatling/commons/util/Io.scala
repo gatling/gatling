@@ -44,10 +44,19 @@ object Io {
 
     @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
     def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
-      val writer = new FastStringWriter(bufferSize)
       val reader = new InputStreamReader(is, charset)
+      val buffer = new Array[Char](bufferSize)
 
-      reader.copyTo(writer, bufferSize)
+      var lastReadCount: Int = 0
+      def read(): Int = {
+        lastReadCount = reader.read(buffer)
+        lastReadCount
+      }
+
+      val writer = new FastStringWriter(bufferSize)
+      while (read() != -1) {
+        writer.write(buffer, 0, lastReadCount)
+      }
 
       writer.toString
     }
@@ -80,36 +89,6 @@ object Io {
       }
 
       copyLarge(new Array[Byte](bufferSize)) match {
-        case l if l > Integer.MAX_VALUE => -1
-        case l                          => l.toInt
-      }
-    }
-  }
-
-  implicit class RichReader(val reader: Reader) extends AnyVal {
-
-    @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-    def copyTo(writer: Writer, bufferSize: Int = DefaultBufferSize): Int = {
-
-      def copyLarge(buffer: Array[Char]) = {
-
-        var lastReadCount: Int = 0
-        def read(): Int = {
-          lastReadCount = reader.read(buffer)
-          lastReadCount
-        }
-
-        var count: Long = 0
-
-        while (read() != -1) {
-          writer.write(buffer, 0, lastReadCount)
-          count += lastReadCount
-        }
-
-        count
-      }
-
-      copyLarge(new Array[Char](bufferSize)) match {
         case l if l > Integer.MAX_VALUE => -1
         case l                          => l.toInt
       }
