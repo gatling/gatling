@@ -13,6 +13,7 @@ Migrating from 3.3 to 3.4
 
   * the Session based versions of ``transform`` and ``transformOption`` were renamed into ``transformWithSession`` and ``transformOptionWithSession``.
   * ``xpath`` check's namespaces are now a ``Map[String, String]`` instead of a ``List[(String, String)]``
+  * Configuration option in ``gatling.config`` related to ssl, sockets, and netty were moved around in an effort to share amongst multiple protocol supports, eg MQTT (FrontLine).
 
 * HTTP:
 
