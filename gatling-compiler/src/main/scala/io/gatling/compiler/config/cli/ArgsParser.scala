@@ -21,7 +21,7 @@ import io.gatling.compiler.config.cli.CommandLineConstants._
 import scopt.{ OptionDef, OptionParser, Read }
 
 private[config] object CommandLineOverrides {
-  val Empty = CommandLineOverrides("", "", "")
+  val Empty: CommandLineOverrides = CommandLineOverrides("", "", "")
 }
 
 private[config] final case class CommandLineOverrides(

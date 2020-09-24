@@ -25,7 +25,7 @@ private[stats] trait ErrorsBuffers {
 
   val errorsBuffers = mutable.Map.empty[BufferKey, mutable.Map[String, Int]]
 
-  def getErrorsBuffers(requestName: Option[String], group: Option[Group]) =
+  def getErrorsBuffers(requestName: Option[String], group: Option[Group]): mutable.Map[String, Int] =
     errorsBuffers.getOrElseUpdate(BufferKey(requestName, group, None), mutable.Map.empty[String, Int])
 
   def updateGlobalError(errorMessage: String): Unit = {

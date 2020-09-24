@@ -27,7 +27,7 @@ private[stats] class Counts(var oks: Int = 0, var kos: Int = 0) {
     case _  => kos += 1
   }
 
-  def total = oks + kos
+  def total: Int = oks + kos
 }
 
 private[stats] class CountsBuffer(buckets: Array[Int]) {
