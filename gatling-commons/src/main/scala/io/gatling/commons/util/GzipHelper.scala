@@ -31,7 +31,7 @@ object GzipHelper {
   def gzip(in: InputStream): Array[Byte] =
     withCloseable(in) { is =>
       val out = FastByteArrayOutputStream.pooled()
-      withCloseable(new GZIPOutputStream(out))(gzip => is.copyTo(gzip))
+      withCloseable(new GZIPOutputStream(out))(is.copyTo(_))
       out.toByteArray
     }
 }

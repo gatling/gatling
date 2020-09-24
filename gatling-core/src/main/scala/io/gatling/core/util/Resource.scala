@@ -97,9 +97,7 @@ final case class ClasspathPackagedResource(path: String, url: URL) extends Resou
     tempFile.deleteOnExit()
 
     withCloseable(url.openStream()) { is =>
-      withCloseable(new BufferedOutputStream(new FileOutputStream(tempFile, false))) { os =>
-        is.copyTo(os)
-      }
+      withCloseable(new BufferedOutputStream(new FileOutputStream(tempFile, false)))(is.copyTo(_))
     }
     tempFile
   }

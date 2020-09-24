@@ -58,9 +58,7 @@ object ScanHelper {
     override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs()
       withCloseable(jar.getInputStream(jarEntry)) { input =>
-        withCloseable(target.outputStream) { output =>
-          input.copyTo(output)
-        }
+        withCloseable(target.outputStream)(input.copyTo(_))
       }
     }
 
