@@ -24,15 +24,6 @@ In ``build.gradle``, add:
      id 'io.gatling.gradle' version "MANUALLY_REPLACE_WITH_LATEST_VERSION"
    }
 
-
-You'll also need to add a repository if not already added:
-
-.. code-block:: groovy
-
-   repositories {
-     mavenCentral()
-   }
-
 Demo sample
 ===========
 
