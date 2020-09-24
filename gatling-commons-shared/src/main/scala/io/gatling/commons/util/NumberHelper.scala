@@ -49,9 +49,6 @@ object NumberHelper {
       case _ => "th"
     }
 
-    def roundWithScale(scale: Int): Double =
-      BigDecimal(double).setScale(scale, BigDecimal.RoundingMode.HALF_UP).toDouble
-
     def toRank: String =
       if (double == Math.floor(double)) {
         toPrintableString + suffix(double.toInt)
