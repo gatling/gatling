@@ -253,19 +253,9 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
       }
 
       def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
-
-        val bucketsWithValues: Map[Int, Double] = buffer.view
-          .map(record => (bucketFunction(record.time), record))
-          .groupBy(_._1)
-          .map {
-            case (responseTimeBucket, recordList) =>
-              val bucketSize = recordList.foldLeft(0) { (partialSize, record) =>
-                partialSize + record._2.value
-              }
-
-              (responseTimeBucket, percent(bucketSize))
-          }
-          .to(Map)
+        val bucketsWithValues: Map[Int, Double] =
+          buffer
+            .groupMapReduce(record => bucketFunction(record.time))(record => percent(record.value))(_ + _)
 
         ArraySeq.unsafeWrapArray(buckets).map { bucket =>
           new PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
