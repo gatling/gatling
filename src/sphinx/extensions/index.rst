@@ -10,9 +10,11 @@ Official Extensions
 .. toctree::
     :maxdepth: 1
 
-    sbt_plugin
     maven_plugin
     maven_archetype
+    sbt_plugin
+    g8-template
+    gradle_plugin
     jenkins_plugin
     bamboo_plugin
     teamcity_plugin
@@ -38,8 +40,6 @@ Active
 * `Radius plugin <https://github.com/bpabdelkader/gatling-radius>`_ by Bilal Pierre Abdelkader
 * `Kafka plugin <https://github.com/TinkoffCreditSystems/gatling-kafka-plugin>`_ by Ioann Akhaltsev
 * `AMQP plugin <https://github.com/TinkoffCreditSystems/gatling-amqp-plugin>`_ by Vyacheslav Kalyokin
-
-
 
 Inactive, built against legacy versions of Gatling
 --------------------------------------------------
