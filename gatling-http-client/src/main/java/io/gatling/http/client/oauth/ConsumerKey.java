@@ -30,7 +30,7 @@
 
 package io.gatling.http.client.oauth;
 
-import io.gatling.netty.util.Utf8UrlEncoder;
+import io.gatling.http.client.util.Utf8UrlEncoder;
 
 public class ConsumerKey {
   public final String key;

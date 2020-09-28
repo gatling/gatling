@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.netty.util;
+package io.gatling.http.client.util;
 
 import org.junit.jupiter.api.Test;
 

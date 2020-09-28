@@ -34,7 +34,7 @@ import io.gatling.http.client.Param;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.netty.util.StringBuilderPool;
 import io.gatling.http.client.util.StringUtils;
-import io.gatling.netty.util.Utf8UrlEncoder;
+import io.gatling.http.client.util.Utf8UrlEncoder;
 import io.netty.handler.codec.http.HttpMethod;
 
 import javax.crypto.Mac;
