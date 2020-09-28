@@ -21,7 +21,7 @@ import io.gatling.http.client.body.RequestBody;
 import io.gatling.http.client.body.RequestBodyBuilder;
 import io.gatling.http.client.body.WritableContent;
 import io.gatling.netty.util.StringBuilderPool;
-import io.gatling.netty.util.Utf8UrlEncoder;
+import io.gatling.http.client.util.Utf8UrlEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
