@@ -29,7 +29,7 @@ import jodd.lagarto.dom.NodeSelector
 
 class CssSelectors(cacheMaxCapacity: Long) {
 
-  private val domBuilder = Jodd.newLagartoDomBuilder
+  private val domBuilder = Lagarto.newLagartoDomBuilder
   private val selectorCache: LoadingCache[String, ju.List[ju.List[CssSelector]]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, CSSelly.parse)
 

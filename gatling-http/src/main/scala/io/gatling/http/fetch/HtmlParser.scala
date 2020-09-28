@@ -20,7 +20,7 @@ import scala.collection.{ breakOut, mutable }
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.Throwables._
-import io.gatling.core.check.css.Jodd
+import io.gatling.core.check.css.Lagarto
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.util.HttpHelper
 
@@ -190,7 +190,7 @@ class HtmlParser extends StrictLogging {
     }
 
     try {
-      Jodd.newLagartoParser(htmlContent).parse(visitor)
+      Lagarto.newLagartoParser(htmlContent).parse(visitor)
     } catch { case NonFatal(e) => logException(htmlContent, e) }
     HtmlResources(rawResources, base)
   }

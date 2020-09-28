@@ -19,7 +19,7 @@ package io.gatling.core.check.css
 import jodd.lagarto.{ LagartoParser, LagartoParserConfig }
 import jodd.lagarto.dom.{ LagartoDOMBuilder, LagartoDomBuilderConfig }
 
-object Jodd {
+object Lagarto {
 
   private val ParserConfig = new LagartoParserConfig().setEnableConditionalComments(false).setEnableRawTextModes(false)
 
