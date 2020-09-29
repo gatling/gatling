@@ -462,15 +462,15 @@ public class DefaultHttpClient implements HttpClient {
   }
 
   private Future<List<InetSocketAddress>> resolveRemoteAddresses(Request request, EventLoop eventLoop, HttpListener listener, RequestTimeout requestTimeout) {
-    if (request.getProxyServer() != null) {
-      ProxyServer proxyServer = request.getProxyServer();
+    ProxyServer proxyServer = request.getProxyServer();
+    if (proxyServer != null) {
       Uri uri = request.getUri();
       InetSocketAddress remoteAddress =
         proxyServer instanceof SockProxyServer || uri.isSecured() || uri.isWebSocket() ?
           // ProxyHandler will take care of the connect logic
-          InetSocketAddress.createUnresolved(request.getUri().getHost(), request.getUri().getExplicitPort()) :
+          InetSocketAddress.createUnresolved(uri.getHost(), uri.getExplicitPort()) :
           // directly connect to proxy over clear HTTP
-          request.getProxyServer().getAddress();
+          proxyServer.getAddress();
 
       return ImmediateEventExecutor.INSTANCE.newSucceededFuture(singletonList(remoteAddress));
 
