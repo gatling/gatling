@@ -16,12 +16,36 @@
 
 package io.gatling.core.check.css
 
+import com.typesafe.scalalogging.StrictLogging
 import jodd.lagarto.{ LagartoParser, LagartoParserConfig }
-import jodd.lagarto.dom.{ LagartoDOMBuilder, LagartoDomBuilderConfig }
+import jodd.lagarto.dom.{ Document, LagartoDOMBuilder, LagartoDOMBuilderTagVisitor, LagartoDomBuilderConfig }
+
+class InfoLogLagartoDOMBuilderTagVisitor(domBuilder: LagartoDOMBuilder) extends LagartoDOMBuilderTagVisitor(domBuilder) with StrictLogging {
+
+  override def errorEnabled(): Boolean =
+    domBuilder.getConfig.isCollectErrors || logger.underlying.isInfoEnabled
+
+  override def error(message: String): Unit = {
+    rootNode.addError(message)
+    logger.info(message)
+  }
+}
+
+class InfoLogLagartoDOMBuilder(config: LagartoDomBuilderConfig) extends LagartoDOMBuilder(config) {
+
+  override def parseWithLagarto(lagartoParser: LagartoParser): Document = {
+    val domBuilderTagVisitor = new InfoLogLagartoDOMBuilderTagVisitor(this)
+    lagartoParser.parse(domBuilderTagVisitor)
+    domBuilderTagVisitor.getDocument
+  }
+}
 
 object Jodd {
 
-  private val ParserConfig = new LagartoParserConfig().setEnableConditionalComments(false).setEnableRawTextModes(false)
+  private val ParserConfig =
+    new LagartoParserConfig()
+      .setEnableConditionalComments(false)
+      .setEnableRawTextModes(false)
 
   private val DomBuilderConfig = {
     val config = new LagartoDomBuilderConfig()
@@ -30,7 +54,7 @@ object Jodd {
   }
 
   def newLagartoDomBuilder: LagartoDOMBuilder =
-    new LagartoDOMBuilder(DomBuilderConfig)
+    new InfoLogLagartoDOMBuilder(DomBuilderConfig)
 
   def newLagartoParser(chars: Array[Char]): LagartoParser =
     new LagartoParser(ParserConfig, chars)
