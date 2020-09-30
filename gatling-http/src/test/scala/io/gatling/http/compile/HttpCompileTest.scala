@@ -55,6 +55,7 @@ class HttpCompileTest extends Simulation {
     )
     .header("foo", "bar")
     .header(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE, "bar")
+    .header(HttpHeaderNames.ContentType, "bar")
     .headers(Map("foo" -> "bar"))
     .headers(Map(io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE -> "bar"))
     .check(bodyString.transform(_.length).lt(100000))

@@ -19,13 +19,13 @@ package io.gatling.http
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
 import io.netty.util.AsciiString
 
-object MissingNettyHttpHeaderNames {
-  val DNT: AsciiString = AsciiString.cached("dnt") // FIXME contribute upstream
-  val UpgradeInsecureRequests: AsciiString = AsciiString.cached("upgrade-insecure-requests") // FIXME contribute upstream
-  val XRequestedWith: AsciiString = AsciiString.cached("x-requested-with") // FIXME contribute upstream
+// FIXME contribute upstream
+private[gatling] object MissingNettyHttpHeaderNames {
+  val DNT: AsciiString = AsciiString.cached("dnt")
+  val UpgradeInsecureRequests: AsciiString = AsciiString.cached("upgrade-insecure-requests")
+  val XRequestedWith: AsciiString = AsciiString.cached("x-requested-with")
 }
 
-@deprecated("Use io.netty.handler.codec.http.HttpHeaderNames instead. Will be removed in 3.5.0", since = "3.4.0")
 object HeaderNames {
   val Accept: AsciiString = HttpHeaderNames.ACCEPT
   val AcceptCharset: AsciiString = HttpHeaderNames.ACCEPT_CHARSET
@@ -97,7 +97,8 @@ object HeaderNames {
   val XRequestedWith: AsciiString = MissingNettyHttpHeaderNames.XRequestedWith
 }
 
-object MissingNettyHttpHeaderValues {
+// FIXME contribute upstream
+private[gatling] object MissingNettyHttpHeaderValues {
   val ApplicationXml: AsciiString = AsciiString.cached("application/xml")
   val ApplicationXhtml: AsciiString = AsciiString.cached("application/xhtml+xml")
   val TextCss: AsciiString = AsciiString.cached("text/css")
@@ -106,15 +107,19 @@ object MissingNettyHttpHeaderValues {
   val XmlHttpRequest: AsciiString = AsciiString.cached("XMLHttpRequest")
 }
 
-@deprecated("Use io.netty.handler.codec.http.HttpHeaderValues instead. Will be removed in 3.5.0", since = "3.4.0")
 object HeaderValues {
   val ApplicationJson: String = HttpHeaderValues.APPLICATION_JSON.toString
   val ApplicationOctetStream: String = HttpHeaderValues.APPLICATION_OCTET_STREAM.toString
   val ApplicationFormUrlEncoded: String = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString
   val ApplicationXml: String = MissingNettyHttpHeaderValues.ApplicationXml.toString
+  val ApplicationXhtml: String = MissingNettyHttpHeaderValues.ApplicationXhtml.toString
   val Close: String = HttpHeaderValues.CLOSE.toString
   val MultipartFormData: String = HttpHeaderValues.MULTIPART_FORM_DATA.toString
-  val TextPlain: String = HttpHeaderValues.TEXT_PLAIN.toString
   val NoCache: String = HttpHeaderValues.NO_CACHE.toString
   val NoStore: String = HttpHeaderValues.NO_STORE.toString
+  val TextCss: String = MissingNettyHttpHeaderValues.TextCss.toString
+  val TextHtml: String = MissingNettyHttpHeaderValues.TextHtml.toString
+  val TextPlain: String = HttpHeaderValues.TEXT_PLAIN.toString
+  val TextEventStream: String = MissingNettyHttpHeaderValues.TextEventStream.toString
+  val XmlHttpRequest: String = MissingNettyHttpHeaderValues.XmlHttpRequest.toString
 }
