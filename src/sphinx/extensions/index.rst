@@ -13,7 +13,7 @@ Official Extensions
     maven_plugin
     maven_archetype
     sbt_plugin
-    g8-template
+    giter8_template
     gradle_plugin
     jenkins_plugin
     bamboo_plugin
