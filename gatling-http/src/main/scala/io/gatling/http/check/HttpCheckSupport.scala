@@ -85,7 +85,7 @@ trait HttpCheckSupport {
   val header: Expression[CharSequence] => MultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(_)
   implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer.Instance
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String])(
+  def headerRegex(headerName: Expression[CharSequence], pattern: Expression[String])(
       implicit patterns: Patterns
   ): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)

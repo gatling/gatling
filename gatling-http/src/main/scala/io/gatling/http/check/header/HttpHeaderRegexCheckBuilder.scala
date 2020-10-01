@@ -34,7 +34,7 @@ trait HttpHeaderRegexOfType {
 object HttpHeaderRegexCheckBuilder {
 
   def headerRegex(
-      headerName: Expression[String],
+      headerName: Expression[CharSequence],
       pattern: Expression[String],
       patterns: Patterns
   ): HttpHeaderRegexCheckBuilder[String] with HttpHeaderRegexOfType =
@@ -42,12 +42,12 @@ object HttpHeaderRegexCheckBuilder {
 }
 
 class HttpHeaderRegexCheckBuilder[X: GroupExtractor](
-    private[header] val headerName: Expression[String],
+    private[header] val headerName: Expression[CharSequence],
     private[header] val pattern: Expression[String],
     private[header] val patterns: Patterns
 ) extends DefaultMultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X](displayActualValue = true) {
 
-  private def withHeaderAndPattern[T](f: (String, String) => T): Expression[T] =
+  private def withHeaderAndPattern[T](f: (CharSequence, String) => T): Expression[T] =
     session =>
       for {
         headerName <- headerName(session)
