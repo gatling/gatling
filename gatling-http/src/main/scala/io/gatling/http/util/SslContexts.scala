@@ -16,6 +16,7 @@
 
 package io.gatling.http.util
 
+import java.{ util => ju }
 import java.io.Closeable
 import java.security.SecureRandom
 import javax.net.ssl._
@@ -47,9 +48,6 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
 
   import SslContextsFactory._
 
-  private val sslSessionTimeoutSeconds = sslConfig.sessionTimeout.toSeconds
-  private val enabledProtocols: Array[String] = sslConfig.enabledProtocols.toArray
-  private val enabledCipherSuites = sslConfig.enabledCipherSuites.asJava
   private val useOpenSsl =
     if (sslConfig.useOpenSsl) {
       val available = OpenSsl.isAvailable
@@ -60,6 +58,23 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
     } else {
       false
     }
+  private val sslSessionTimeoutSeconds = sslConfig.sessionTimeout.toSeconds
+  private lazy val DefaultJavaSslParameters = SSLContext.getInstance("TLS").getDefaultSSLParameters
+  private val enabledProtocols: Array[String] =
+    if (useOpenSsl) {
+      sslConfig.enabledProtocols.toArray
+    } else {
+      val supportedProtocols = DefaultJavaSslParameters.getProtocols.toSet
+      sslConfig.enabledProtocols.toArray.filter(supportedProtocols.contains)
+    }
+  private val enabledCipherSuites: ju.List[String] = {
+    if (useOpenSsl) {
+      sslConfig.enabledCipherSuites.asJava
+    } else {
+      val supportedCipherSuites = DefaultJavaSslParameters.getCipherSuites
+      sslConfig.enabledCipherSuites.filter(supportedCipherSuites.contains).asJava
+    }
+  }
   private val useOpenSslFinalizers = sslConfig.useOpenSslFinalizers
 
   def newSslContexts(http2Enabled: Boolean, perUserKeyManagerFactory: Option[KeyManagerFactory]): SslContexts = {
