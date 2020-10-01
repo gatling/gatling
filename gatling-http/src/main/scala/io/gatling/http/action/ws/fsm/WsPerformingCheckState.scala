@@ -17,6 +17,7 @@
 package io.gatling.http.action.ws.fsm
 
 import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.{ Failure, Success }
 import io.gatling.core.action.Action
 import io.gatling.core.check.Check
@@ -226,5 +227,10 @@ final case class WsPerformingCheckState(
       new WsCrashedState(fsm, Some(errorMessage)),
       () => nextAction ! newSession
     )
+  }
+
+  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
+    logger.info("WebSocket crashed by the server while in PerformingCheck state", t)
+    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
   }
 }
