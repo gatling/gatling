@@ -108,6 +108,12 @@ class PebbleStringBodySpec extends BaseSpec with ValidationValues {
     body(session).succeeded shouldBe "1"
   }
 
+  it should "handle Maps" in {
+    val session = EmptySession.set("map", Map("foo" -> "bar"))
+    val body = PebbleStringBody("{{map.foo}}")
+    body(session).succeeded shouldBe "bar"
+  }
+
   it should "return expected result when using filters" in {
     val session = EmptySession.set("bar", "bar")
     val body = PebbleStringBody("{{ bar | capitalize }}{% filter upper %}hello{% endfilter %}")

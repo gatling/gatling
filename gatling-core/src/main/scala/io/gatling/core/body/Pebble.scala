@@ -19,6 +19,8 @@ package io.gatling.core.body
 import java.{ util => ju }
 
 import scala.collection.JavaConverters._
+import scala.collection.immutable
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
@@ -49,13 +51,17 @@ private[gatling] object Pebble extends StrictLogging {
   private val StringEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).loader(new StringLoader).build
   private val DelegatingEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).build
 
-  private def matchMap(map: Map[String, Any]): ju.Map[String, AnyRef] = {
+  private[body] def toJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
     val jMap = new ju.HashMap[String, AnyRef](map.size)
     for ((k, v) <- map) {
       val javaValue = v match {
-        case c: Seq[Any]      => c.asJava
-        case c: Iterable[Any] => c.asJavaCollection
-        case any: AnyRef      => any // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
+        case c: mutable.Seq[_]      => c.asJava
+        case c: immutable.Seq[_]    => c.asJava
+        case m: mutable.Map[_, _]   => m.asJava
+        case m: immutable.Map[_, _] => m.asJava
+        case m: mutable.Set[_]      => m.asJava
+        case m: immutable.Set[_]    => m.asJava
+        case any: AnyRef            => any // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
       }
       jMap.put(k, javaValue)
     }
@@ -87,7 +93,7 @@ private[gatling] object Pebble extends StrictLogging {
     }
 
   def evaluateTemplate(template: PebbleTemplate, session: Session): Validation[String] = {
-    val context = matchMap(session.attributes)
+    val context = toJava(session.attributes)
     val writer = PooledSpecializedStringWriter.pooled
     try {
       template.evaluate(writer, context)
