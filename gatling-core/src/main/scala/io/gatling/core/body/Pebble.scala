@@ -24,7 +24,7 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.{ ClasspathFileResource, ClasspathPackagedResource, FilesystemResource, Resource }
 
 import com.mitchellbosecke.pebble.PebbleEngine
@@ -79,9 +79,9 @@ private[gatling] object Pebble extends StrictLogging {
     case anyRef: AnyRef         => anyRef // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
   }
 
-  private[body] def toJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
+  private[body] def sessionAttributesToJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
     val jMap = new ju.HashMap[String, AnyRef](map.size)
-    for ((k, v) <- map) {
+    for ((k, v) <- map if !k.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)) {
       jMap.put(k, anyRefToJava(v))
     }
     jMap
@@ -112,7 +112,7 @@ private[gatling] object Pebble extends StrictLogging {
     }
 
   def evaluateTemplate(template: PebbleTemplate, session: Session): Validation[String] = {
-    val context = toJava(session.attributes)
+    val context = sessionAttributesToJava(session.attributes)
     val writer = PooledSpecializedStringWriter.pooled
     try {
       template.evaluate(writer, context)
