@@ -115,6 +115,17 @@ Gatling provides two hooks:
 * ``before`` for executing some arbitrary code before the simulation actually runs
 * ``after`` for executing some arbitrary code after the simulation actually runs
 
+The lifecycle is as below:
+
+#. Gatling starts
+#. Simulation instance is created and all code not delayed in ``before`` and ``after`` hooks is execute (code inside a Scala class body is its constructor)
+#. ``before`` hook is executed
+#. Simulation runs
+#. Simulation terminates
+#. ``after`` hook is executed
+#. HTML reports are generated if enabled
+#. Gatling shuts down
+
 .. includecode:: code/SimulationStructureSample.scala#hooks
 
 .. note::
