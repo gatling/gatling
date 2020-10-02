@@ -88,12 +88,13 @@ class SessionSpec extends BaseSpec {
     session.attributes("otherKey") shouldBe 2
   }
 
-  "reset" should "remove all attributes from the session" in {
+  "reset" should "remove all non private attributes from the session" in {
+    val privateAttribute = SessionPrivateAttributes.PrivateAttributePrefix + "foo"
     val session = EmptySession
-      .setAll("key" -> 1, "otherKey" -> 2)
+      .setAll("key" -> 1, "otherKey" -> 2, privateAttribute -> 5)
       .reset
 
-    session.attributes shouldBe empty
+    session.attributes shouldBe Map(privateAttribute -> 5)
   }
 
   it should "preserve loop counter" in {

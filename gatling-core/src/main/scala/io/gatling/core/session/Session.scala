@@ -118,17 +118,17 @@ final case class Session(
     val newAttributes =
       if (blockStack.isEmpty) {
         // not in a block
-        Map.empty[String, Any]
+        attributes.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
       } else {
         val counterNames: Set[String] = blockStack.collect { case counterBlock: CounterBlock => counterBlock.counterName }(breakOut)
         if (counterNames.isEmpty) {
           // no counter based blocks (only groups)
-          Map.empty[String, Any]
+          attributes.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
-          attributes.filter {
-            case (key, _) => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
-          }
+          attributes.filterKeys(
+            key => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
+          )
         }
       }
     copy(attributes = newAttributes)
