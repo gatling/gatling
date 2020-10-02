@@ -51,19 +51,38 @@ private[gatling] object Pebble extends StrictLogging {
   private val StringEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).loader(new StringLoader).build
   private val DelegatingEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).build
 
+  private def mutableSeqToJava(c: mutable.Seq[_]): ju.List[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def immutableSeqToJava(c: immutable.Seq[_]): ju.List[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def mutableSetToJava(c: mutable.Set[_]): ju.Set[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def immutableSetToJava(c: immutable.Set[_]): ju.Set[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def mutableMapToJava(c: mutable.Map[_, _]): ju.Map[_, AnyRef] =
+    (Map.empty ++ c.mapValues(anyRefToJava)).asJava
+
+  private def immutableMapToJava(c: immutable.Map[_, _]): ju.Map[_, AnyRef] =
+    (Map.empty ++ c.mapValues(anyRefToJava)).asJava
+
+  private def anyRefToJava(any: Any): AnyRef = any match {
+    case c: mutable.Seq[_]      => mutableSeqToJava(c)
+    case c: immutable.Seq[_]    => immutableSeqToJava(c)
+    case s: mutable.Set[_]      => mutableSetToJava(s)
+    case s: immutable.Set[_]    => immutableSetToJava(s)
+    case m: mutable.Map[_, _]   => mutableMapToJava(m)
+    case m: immutable.Map[_, _] => immutableMapToJava(m)
+    case anyRef: AnyRef         => anyRef // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
+  }
+
   private[body] def toJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
     val jMap = new ju.HashMap[String, AnyRef](map.size)
     for ((k, v) <- map) {
-      val javaValue = v match {
-        case c: mutable.Seq[_]      => c.asJava
-        case c: immutable.Seq[_]    => c.asJava
-        case m: mutable.Map[_, _]   => m.asJava
-        case m: immutable.Map[_, _] => m.asJava
-        case m: mutable.Set[_]      => m.asJava
-        case m: immutable.Set[_]    => m.asJava
-        case any: AnyRef            => any // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
-      }
-      jMap.put(k, javaValue)
+      jMap.put(k, anyRefToJava(v))
     }
     jMap
   }

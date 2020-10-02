@@ -114,6 +114,30 @@ class PebbleStringBodySpec extends BaseSpec with ValidationValues {
     body(session).succeeded shouldBe "bar"
   }
 
+  it should "handle deep objects" in {
+    val session = EmptySession.set("map", List(Map("key" -> "key1", "value" -> "value1"), Map("key" -> "key2", "value" -> "value2")))
+
+    val template =
+      """{% for element in map %}
+        |{
+        |  "name": "{{element.key}}",
+        |  "value": "{{element.value}}"
+        |}{% if loop.last %}{% else %},
+        |{% endif %}
+        |{% endfor %}""".stripMargin
+
+    val body = PebbleStringBody(template)
+    body(session).succeeded shouldBe
+      """{
+        |  "name": "key1",
+        |  "value": "value1"
+        |},
+        |{
+        |  "name": "key2",
+        |  "value": "value2"
+        |}""".stripMargin
+  }
+
   it should "return expected result when using filters" in {
     val session = EmptySession.set("bar", "bar")
     val body = PebbleStringBody("{{ bar | capitalize }}{% filter upper %}hello{% endfilter %}")
