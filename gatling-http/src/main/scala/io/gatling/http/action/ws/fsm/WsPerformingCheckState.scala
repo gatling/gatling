@@ -86,7 +86,7 @@ final case class WsPerformingCheckState(
         tryApplyingChecks(message, timestamp, matchConditions, checks)
 
       case _ =>
-        logger.debug(s"Received unmatched binary frame $message")
+        logger.debug("Received unmatched binary frame")
         // server unmatched message, just log
         logUnmatchedServerMessage(session)
         NextWsState(this)
@@ -167,7 +167,6 @@ final case class WsPerformingCheckState(
                   //[fl]
                   //
                   //[fl]
-
                   NextWsState(
                     this.copy(
                       currentCheck = newCurrentCheck,
