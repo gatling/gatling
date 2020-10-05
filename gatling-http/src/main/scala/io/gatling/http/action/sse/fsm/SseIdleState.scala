@@ -73,10 +73,6 @@ class SseIdleState(fsm: SseFsm, session: Session) extends SseState(fsm) with Str
     NextSseState(new SseCrashedState(fsm.statsEngine, "End of stream"))
   }
 
-  override def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
-    logger.info("SSE stream crashed while in Idle state", t)
-    NextSseState(new SseCrashedState(fsm.statsEngine, t.rootMessage))
-  }
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
     logger.info("Client requested SSE stream close")
     //[fl]

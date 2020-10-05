@@ -126,12 +126,6 @@ final class WsIdleState(fsm: WsFsm, session: Session, webSocket: WebSocket) exte
     NextWsState(new WsCrashedState(fsm, None))
   }
 
-  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
-    // crash
-    logger.info("WebSocket crashed by the server while in Idle state", t)
-    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
-  }
-
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
     logger.info("Client requested WebSocket close")
     webSocket.sendFrame(new CloseWebSocketFrame())

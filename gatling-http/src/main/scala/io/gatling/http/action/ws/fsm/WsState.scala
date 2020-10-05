@@ -17,11 +17,13 @@
 package io.gatling.http.action.ws.fsm
 
 import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.ws._
 import io.gatling.http.client.WebSocket
 
+import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.codec.http.cookie.Cookie
 
 object NextWsState {
@@ -31,15 +33,15 @@ object NextWsState {
 @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = NextWsState.DoNothing)
 
-abstract class WsState(fsm: WsFsm) {
+abstract class WsState(fsm: WsFsm) extends StrictLogging {
 
   private val stateName = getClass.getSimpleName
 
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
-    throw new IllegalStateException(s"Can't call onPerformInitialConnect in $stateName state")
+    onIllegalState(s"Can't call onPerformInitialConnect in $stateName state", fsm.clock.nowMillis)
 
   def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onWebSocketConnected in $stateName state")
+    onIllegalState(s"Can't call onWebSocketConnected in $stateName state", timestamp)
 
   def onSendTextFrame(
       actionName: String,
@@ -48,7 +50,7 @@ abstract class WsState(fsm: WsFsm) {
       session: Session,
       next: Action
   ): NextWsState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in $stateName state")
+    onIllegalState(s"Can't call onSendTextFrame in $stateName state", fsm.clock.nowMillis)
 
   def onSendBinaryFrame(
       actionName: String,
@@ -57,25 +59,33 @@ abstract class WsState(fsm: WsFsm) {
       session: Session,
       next: Action
   ): NextWsState =
-    throw new IllegalStateException(s"Can't call onSendBinaryFrame in $stateName state")
+    onIllegalState(s"Unexpected onSendBinaryFrame in $stateName state", fsm.clock.nowMillis)
 
   def onTextFrameReceived(message: String, timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onTextFrameReceived in $stateName state")
+    onIllegalState(s"Unexpected onTextFrameReceived in $stateName state", timestamp)
 
   def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onBinaryFrameReceived in $stateName state")
+    onIllegalState(s"Unexpected onBinaryFrameReceived in $stateName state", timestamp)
 
   def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onWebSocketClosed in $stateName state")
-
-  def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onWebSocketCrashed in $stateName state")
+    onIllegalState(s"Unexpected onWebSocketClosed in $stateName state", timestamp)
 
   def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState =
-    throw new IllegalStateException(s"Can't call onClientCloseRequest in $stateName state")
+    onIllegalState(s"Unexpected onClientCloseRequest call in $stateName state", fsm.clock.nowMillis)
 
   def onTimeout(): NextWsState =
-    throw new IllegalStateException(s"Can't call onTimeout in $stateName state")
+    onIllegalState(s"Unexpected onTimeout call in $stateName state", fsm.clock.nowMillis)
+
+  private def onIllegalState(message: String, timestamp: Long): NextWsState = {
+    val error = new IllegalStateException(message)
+    logger.error(error.getMessage, error)
+    onWebSocketCrashed(error, timestamp)
+  }
+
+  def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
+    logger.info(s"WebSocket crashed by the server while in $stateName state", t)
+    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
+  }
 
   //[fl]
   //
