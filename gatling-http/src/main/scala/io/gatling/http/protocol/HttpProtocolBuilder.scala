@@ -167,8 +167,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def wsBaseUrl(url: String): HttpProtocolBuilder = wsBaseUrls(List(url))
   def wsBaseUrls(urls: String*): HttpProtocolBuilder = wsBaseUrls(urls.toList)
   def wsBaseUrls(urls: List[String]): HttpProtocolBuilder = this.modify(_.protocol.wsPart.wsBaseUrls).setTo(urls)
-  def wsReconnect: HttpProtocolBuilder = this.modify(_.protocol.wsPart.reconnect).setTo(true)
-  def wsMaxReconnects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.wsPart.maxReconnects).setTo(Some(max))
+  def wsReconnect: HttpProtocolBuilder = wsMaxReconnects(Int.MaxValue)
+  def wsMaxReconnects(max: Int): HttpProtocolBuilder = this.modify(_.protocol.wsPart.maxReconnects).setTo(max)
 
   // proxyPart
   def noProxyFor(hosts: String*): HttpProtocolBuilder = this.modify(_.protocol.proxyPart.proxyExceptions).setTo(hosts)
