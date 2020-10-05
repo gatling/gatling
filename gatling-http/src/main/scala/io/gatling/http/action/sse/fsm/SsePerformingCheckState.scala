@@ -117,7 +117,7 @@ final case class SsePerformingCheckState(
 
             case _ =>
               remainingCheckSequences match {
-                case SseMessageCheckSequence(timeout, newCurrentCheck :: newRemainingChecks) :: nextRemainingCheckSequences =>
+                case SseMessageCheckSequence(timeout, nextCheck :: nextRemainingChecks) :: nextRemainingCheckSequences =>
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
                   scheduleTimeout(timeout)
@@ -126,8 +126,8 @@ final case class SsePerformingCheckState(
                   //[fl]
                   NextSseState(
                     this.copy(
-                      currentCheck = newCurrentCheck,
-                      remainingChecks = newRemainingChecks,
+                      currentCheck = nextCheck,
+                      remainingChecks = nextRemainingChecks,
                       checkSequenceStart = timestamp,
                       remainingCheckSequences = nextRemainingCheckSequences,
                       session = newSession
