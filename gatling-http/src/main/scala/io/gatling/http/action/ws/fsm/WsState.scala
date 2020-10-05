@@ -33,11 +33,13 @@ final case class NextWsState(state: WsState, afterStateUpdate: () => Unit = Next
 
 abstract class WsState(fsm: WsFsm) {
 
+  private val stateName = getClass.getSimpleName
+
   def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
-    throw new IllegalStateException(s"Can't call onPerformInitialConnect in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onPerformInitialConnect in $stateName state")
 
   def onWebSocketConnected(webSocket: WebSocket, cookies: List[Cookie], timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onWebSocketConnected in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onWebSocketConnected in $stateName state")
 
   def onSendTextFrame(
       actionName: String,
@@ -46,7 +48,7 @@ abstract class WsState(fsm: WsFsm) {
       session: Session,
       next: Action
   ): NextWsState =
-    throw new IllegalStateException(s"Can't call onSendTextFrame in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSendTextFrame in $stateName state")
 
   def onSendBinaryFrame(
       actionName: String,
@@ -55,25 +57,25 @@ abstract class WsState(fsm: WsFsm) {
       session: Session,
       next: Action
   ): NextWsState =
-    throw new IllegalStateException(s"Can't call onSendBinaryFrame in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSendBinaryFrame in $stateName state")
 
   def onTextFrameReceived(message: String, timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onTextFrameReceived in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onTextFrameReceived in $stateName state")
 
   def onBinaryFrameReceived(message: Array[Byte], timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onBinaryFrameReceived in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onBinaryFrameReceived in $stateName state")
 
   def onWebSocketClosed(code: Int, reason: String, timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onWebSocketClosed in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onWebSocketClosed in $stateName state")
 
   def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState =
-    throw new IllegalStateException(s"Can't call onWebSocketCrashed in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onWebSocketCrashed in $stateName state")
 
   def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState =
-    throw new IllegalStateException(s"Can't call onClientCloseRequest in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onClientCloseRequest in $stateName state")
 
   def onTimeout(): NextWsState =
-    throw new IllegalStateException(s"Can't call onTimeout in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onTimeout in $stateName state")
 
   //[fl]
   //

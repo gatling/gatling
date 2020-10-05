@@ -30,26 +30,26 @@ final case class NextSseState(state: SseState, afterStateUpdate: () => Unit = Ne
 
 abstract class SseState(fsm: SseFsm) {
 
-  import fsm._
+  private val stateName = getClass.getSimpleName
 
   def onSseStreamConnected(timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseStreamConnected in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseStreamConnected in $stateName state")
   def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onSetCheck in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSetCheck in $stateName state")
   def onSseReceived(message: String, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseReceived in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseReceived in $stateName state")
   def onSseEndOfStream(timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseEndOfStream in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseEndOfStream in $stateName state")
   def onSseStreamClosed(timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseStreamClosed in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseStreamClosed in $stateName state")
   def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseStreamCrashed in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onSseStreamCrashed in $stateName state")
   def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onClientCloseRequest in ${getClass.getSimpleName} state")
-  def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onTimeout in ${getClass.getSimpleName} state")
+    throw new IllegalStateException(s"Can't call onClientCloseRequest in $stateName state")
+  def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onTimeout in $stateName state")
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
-    statsEngine.logResponse(session.scenario, session.groups, sseName, clock.nowMillis, Long.MinValue, OK, None, None)
+    fsm.statsEngine.logResponse(session.scenario, session.groups, fsm.sseName, fsm.clock.nowMillis, Long.MinValue, OK, None, None)
 
   protected def logResponse(
       session: Session,
@@ -62,7 +62,7 @@ abstract class SseState(fsm: SseFsm) {
   ): Session = {
     val newSession = session.logGroupRequestTimings(start, end)
     val newSessionWithMark = if (status == KO) newSession.markAsFailed else newSession
-    statsEngine.logResponse(session.scenario, session.groups, actionName, start, end, status, code, reason)
+    fsm.statsEngine.logResponse(session.scenario, session.groups, actionName, start, end, status, code, reason)
     newSessionWithMark
   }
 
