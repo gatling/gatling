@@ -227,9 +227,4 @@ final case class WsPerformingCheckState(
       () => nextAction ! newSession
     )
   }
-
-  override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
-    logger.info("WebSocket crashed by the server while in PerformingCheck state", t)
-    NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
-  }
 }

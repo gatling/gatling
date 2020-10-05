@@ -17,9 +17,12 @@
 package io.gatling.http.action.sse.fsm
 
 import io.gatling.commons.stats.{ KO, OK, Status }
+import io.gatling.commons.util.Throwables._
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
 import io.gatling.http.check.sse._
+
+import com.typesafe.scalalogging.StrictLogging
 
 object NextSseState {
   val DoNothing: () => Unit = () => {}
@@ -28,25 +31,41 @@ object NextSseState {
 @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 final case class NextSseState(state: SseState, afterStateUpdate: () => Unit = NextSseState.DoNothing)
 
-abstract class SseState(fsm: SseFsm) {
+abstract class SseState(fsm: SseFsm) extends StrictLogging {
 
   private val stateName = getClass.getSimpleName
 
   def onSseStreamConnected(timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseStreamConnected in $stateName state")
+    onIllegalState(s"Can't call onSseStreamConnected in $stateName state", timestamp)
+
   def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onSetCheck in $stateName state")
+    onIllegalState(s"Can't call onSetCheck in $stateName state", fsm.clock.nowMillis)
+
   def onSseReceived(message: String, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseReceived in $stateName state")
+    onIllegalState(s"Can't call onSseReceived in $stateName state", timestamp)
+
   def onSseEndOfStream(timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseEndOfStream in $stateName state")
+    onIllegalState(s"Can't call onSseEndOfStream in $stateName state", timestamp)
+
   def onSseStreamClosed(timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseStreamClosed in $stateName state")
-  def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState =
-    throw new IllegalStateException(s"Can't call onSseStreamCrashed in $stateName state")
+    onIllegalState(s"Can't call onSseStreamClosed in $stateName state", timestamp)
+
   def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState =
-    throw new IllegalStateException(s"Can't call onClientCloseRequest in $stateName state")
-  def onTimeout(): NextSseState = throw new IllegalStateException(s"Can't call onTimeout in $stateName state")
+    onIllegalState(s"Can't call onClientCloseRequest in $stateName state", fsm.clock.nowMillis)
+
+  def onTimeout(): NextSseState =
+    onIllegalState(s"Can't call onTimeout in $stateName state", fsm.clock.nowMillis)
+
+  def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
+    logger.info(s"WebSocket crashed by the server while in $stateName state", t)
+    NextSseState(new SseCrashedState(fsm.statsEngine, t.rootMessage))
+  }
+
+  private def onIllegalState(message: String, timestamp: Long): NextSseState = {
+    val error = new IllegalStateException(message)
+    logger.error(error.getMessage, error)
+    onSseStreamCrashed(error, timestamp)
+  }
 
   protected def logUnmatchedServerMessage(session: Session): Unit =
     fsm.statsEngine.logResponse(session.scenario, session.groups, fsm.sseName, fsm.clock.nowMillis, Long.MinValue, OK, None, None)
