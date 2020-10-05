@@ -160,7 +160,7 @@ final case class WsPerformingCheckState(
 
             case _ =>
               remainingCheckSequences match {
-                case WsFrameCheckSequence(timeout, newCurrentCheck :: newRemainingChecks) :: nextRemainingCheckSequences =>
+                case WsFrameCheckSequence(timeout, nextCheck :: nextRemainingChecks) :: nextRemainingCheckSequences =>
                   logger.debug("Perform next check sequence")
                   // perform next CheckSequence
                   scheduleTimeout(timeout)
@@ -169,8 +169,8 @@ final case class WsPerformingCheckState(
                   //[fl]
                   NextWsState(
                     this.copy(
-                      currentCheck = newCurrentCheck,
-                      remainingChecks = newRemainingChecks,
+                      currentCheck = nextCheck,
+                      remainingChecks = nextRemainingChecks,
                       checkSequenceStart = timestamp,
                       remainingCheckSequences = nextRemainingCheckSequences,
                       session = newSession
