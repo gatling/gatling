@@ -34,7 +34,7 @@ object WsConnectingState {
   private val WsConnectSuccessStatusCode = Some(Integer.toString(SWITCHING_PROTOCOLS.code))
 
   def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame]): NextWsState =
-    gotoConnecting(fsm, session, next, fsm.httpProtocol.wsPart.maxReconnects.getOrElse(0))
+    gotoConnecting(fsm, session, next, fsm.httpProtocol.wsPart.maxReconnects)
 
   def gotoConnecting(fsm: WsFsm, session: Session, next: Either[Action, SendFrame], remainingTries: Int): NextWsState = {
 
