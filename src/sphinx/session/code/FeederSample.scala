@@ -204,14 +204,9 @@ class FeederSample {
     import io.gatling.core.feeder._
 
     // index records by project
-    val recordsByProject: Map[String, Seq[Record[Any]]] =
-      csv("projectIssue.csv").readRecords.groupBy { record =>
-        record("project").toString
-      }
-
-    // convert the Map values to get only the issues instead of the full records
     val issuesByProject: Map[String, Seq[Any]] =
-      recordsByProject.view.mapValues { records => records.map { record => record("issue") } }.to(Map)
+      csv("projectIssue.csv").readRecords
+        .groupMap(record => record("project").toString)(record => record("issue"))
 
     // inject project
     feed(csv("userProject.csv"))
