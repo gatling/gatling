@@ -1,17 +1,11 @@
-# eclipse conf file
-.settings
-.classpath
-.project
-.manager
-.scala_dependencies
-.cache
-.worksheet
-
 # idea conf files
 .idea
 *.iml
 *.ipr
 *.iws
+
+# sbt
+.bsp/sbt.json
 
 # building
 target
