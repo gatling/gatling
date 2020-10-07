@@ -350,12 +350,13 @@ public class DefaultHttpClient implements HttpClient {
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
     Uri requestUri = request.getUri();
+    boolean tryHttp2 = request.isHttp2Enabled() && requestUri.isSecured() && !requestUri.isWebSocket();
 
     // use a fresh channel for WebSocket
     Channel pooledChannel = requestUri.isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
     listener.onSend();
-    if (request.isHttp2Enabled() && requestUri.isSecured() && !requestUri.isWebSocket() && !config.isEnableSni()) {
+    if (tryHttp2 && !config.isEnableSni()) {
       listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       return;
     }
@@ -379,7 +380,7 @@ public class DefaultHttpClient implements HttpClient {
           if (whenRemoteAddresses.isSuccess()) {
             List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-            if (request.isHttp2Enabled() && tx.channelState != HttpTx.ChannelState.RETRY) {
+            if (tryHttp2 && tx.channelState != HttpTx.ChannelState.RETRY) {
               String domain = requestUri.getHost();
               Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
               if (coalescedChannel != null) {
