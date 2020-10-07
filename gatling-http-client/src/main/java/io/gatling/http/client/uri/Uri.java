@@ -77,7 +77,7 @@ public class Uri {
     this.query = query;
     this.fragment = fragment;
     this.secured = HTTPS.equals(scheme) || WSS.equals(scheme);
-    this.webSocket = WS.equals(scheme) || WSS.equalsIgnoreCase(scheme);
+    this.webSocket = WS.equals(scheme) || WSS.equals(scheme);
   }
 
   public static Uri create(String originalUrl) {
