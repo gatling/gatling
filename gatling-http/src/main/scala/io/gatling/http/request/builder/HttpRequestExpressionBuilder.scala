@@ -70,13 +70,12 @@ class HttpRequestExpressionBuilder(
     body match {
       case StringBody(string, _) => string(session).map(s => requestBuilder.setBodyBuilder(new StringRequestBodyBuilder(s)))
       case RawFileBody(resourceWithCachedBytes) =>
-        resourceWithCachedBytes(session).map {
-          case ResourceAndCachedBytes(resource, cachedBytes) =>
-            val requestBodyBuilder = cachedBytes match {
-              case Some(bytes) => new ByteArrayRequestBodyBuilder(bytes, resource.name)
-              case _           => new FileRequestBodyBuilder(resource.file)
-            }
-            requestBuilder.setBodyBuilder(requestBodyBuilder)
+        resourceWithCachedBytes(session).map { case ResourceAndCachedBytes(resource, cachedBytes) =>
+          val requestBodyBuilder = cachedBytes match {
+            case Some(bytes) => new ByteArrayRequestBodyBuilder(bytes, resource.name)
+            case _           => new FileRequestBodyBuilder(resource.file)
+          }
+          requestBuilder.setBodyBuilder(requestBodyBuilder)
         }
       case ByteArrayBody(bytes) => bytes(session).map(b => requestBuilder.setBodyBuilder(new ByteArrayRequestBodyBuilder(b, null)))
       case body: ElBody         => body.asStringWithCachedBytes(session).map(chunks => requestBuilder.setBodyBuilder(new StringChunksRequestBodyBuilder(chunks.asJava)))
@@ -127,10 +126,9 @@ class HttpRequestExpressionBuilder(
           .flatMap(configurePriorKnowledge(session))
 
   private def configureCachingHeaders(session: Session)(request: Request): Request = {
-    httpCaches.contentCacheEntry(session, request).foreach {
-      case ContentCacheEntry(_, etag, lastModified) =>
-        etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
-        lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
+    httpCaches.contentCacheEntry(session, request).foreach { case ContentCacheEntry(_, etag, lastModified) =>
+      etag.foreach(request.getHeaders.set(HttpHeaderNames.IF_NONE_MATCH, _))
+      lastModified.foreach(request.getHeaders.set(HttpHeaderNames.IF_MODIFIED_SINCE, _))
     }
     request
   }

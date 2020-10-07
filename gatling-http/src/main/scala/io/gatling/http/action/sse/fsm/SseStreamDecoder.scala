@@ -24,8 +24,8 @@ import io.netty.buffer.ByteBuf
 
 object SseStreamDecoder {
   private val BOM = '\uFEFF'
-  private val LF = 0x0A
-  private val CR = 0x0D
+  private val LF = 0x0a
+  private val CR = 0x0d
 
   private val EventHeader = "event:".toCharArray
   private val DataHeader = "data:".toCharArray
@@ -65,9 +65,11 @@ class SseStreamDecoder extends Utf8ByteBufCharsetDecoder {
       if (lineLength < fieldHeaderLength) {
         None
 
-      } else if ((0 until fieldHeaderLength).forall { i =>
-                   charArray(lineStart + i) == fieldHeader(i)
-                 }) {
+      } else if (
+        (0 until fieldHeaderLength).forall { i =>
+          charArray(lineStart + i) == fieldHeader(i)
+        }
+      ) {
         val nextPos = lineStart + fieldHeaderLength
         val valueStart =
           if (charArray(nextPos) == ' ') {

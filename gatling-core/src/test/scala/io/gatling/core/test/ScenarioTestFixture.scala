@@ -46,18 +46,17 @@ trait ScenarioTestFixture extends BaseSpec {
 
   private def resolve(msgQueue: ConcurrentLinkedDeque[Any], expectations: ArrayBuffer[PartialFunction[Any, Unit]]): Unit = {
     val msgIt = msgQueue.iterator
-    expectations.zipWithIndex.foreach {
-      case (expectation, i) =>
-        if (!msgIt.hasNext) {
-          throw new AssertionError(s"Expectation $i didn't receive any message")
-        }
-        val msg = msgIt.next()
+    expectations.zipWithIndex.foreach { case (expectation, i) =>
+      if (!msgIt.hasNext) {
+        throw new AssertionError(s"Expectation $i didn't receive any message")
+      }
+      val msg = msgIt.next()
 
-        if (!expectation.isDefinedAt(msg)) {
-          throw new AssertionError(s"Expectation $i didn't match message $msg")
-        }
+      if (!expectation.isDefinedAt(msg)) {
+        throw new AssertionError(s"Expectation $i didn't match message $msg")
+      }
 
-        expectation(msg)
+      expectation(msg)
     }
 
     if (msgIt.hasNext) {

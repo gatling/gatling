@@ -141,10 +141,12 @@ class HtmlParser extends StrictLogging {
                   case _ =>
                 }
 
-              } else if (tag.nameEquals(ImgTagName) ||
-                         tag.nameEquals(BgsoundTagName) ||
-                         tag.nameEquals(EmbedTagName) ||
-                         tag.nameEquals(InputTagName)) {
+              } else if (
+                tag.nameEquals(ImgTagName) ||
+                tag.nameEquals(BgsoundTagName) ||
+                tag.nameEquals(EmbedTagName) ||
+                tag.nameEquals(InputTagName)
+              ) {
 
                 addResource(tag, SrcAttribute, RegularRawResource)
 

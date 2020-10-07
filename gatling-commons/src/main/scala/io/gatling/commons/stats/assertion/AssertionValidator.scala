@@ -37,9 +37,8 @@ object AssertionValidator {
         List(resolveTarget(assertion, status => source.requestGeneralStats(None, None, status), printablePath))
 
       case ForAll =>
-        val detailedAssertions = source.statsPaths.collect {
-          case RequestStatsPath(request, group) =>
-            assertion.copy(path = Details(group.map(_.hierarchy).getOrElse(Nil) ::: List(request)))
+        val detailedAssertions = source.statsPaths.collect { case RequestStatsPath(request, group) =>
+          assertion.copy(path = Details(group.map(_.hierarchy).getOrElse(Nil) ::: List(request)))
         }
 
         detailedAssertions.flatMap(validateAssertion(_, source))

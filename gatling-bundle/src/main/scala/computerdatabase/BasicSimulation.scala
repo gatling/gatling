@@ -24,19 +24,23 @@ import io.gatling.http.Predef._
 class BasicSimulation extends Simulation {
 
   val httpProtocol = http
-    .baseUrl("http://computer-database.gatling.io") // Here is the root for all relative URLs
-    .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // Here are the common headers
+    // Here is the root for all relative URLs
+    .baseUrl("http://computer-database.gatling.io")
+    // Here are the common headers
+    .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
     .acceptLanguageHeader("en-US,en;q=0.5")
     .acceptEncodingHeader("gzip, deflate")
     .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
-  val scn = scenario("Scenario Name") // A scenario is a chain of requests and pauses
+  // A scenario is a chain of requests and pauses
+  val scn = scenario("Scenario Name")
     .exec(
       http("request_1")
         .get("/")
     )
-    .pause(7) // Note that Gatling has recorded real time pauses
+    // Note that Gatling has recorded real time pauses
+    .pause(7)
     .exec(
       http("request_2")
         .get("/computers?f=macbook")
@@ -78,9 +82,11 @@ class BasicSimulation extends Simulation {
     )
     .pause(1)
     .exec(
-      http("request_10") // Here's an example of a POST request
+      http("request_10")
+        // Here's an example of a POST request
         .post("/computers")
-        .formParam("name", "Beautiful Computer") // Note the triple double quotes: used in Scala for protecting a whole chain of characters (no need for backslash)
+        // Note the triple double quotes: used in Scala for protecting a whole chain of characters (no need for backslash)
+        .formParam("name", "Beautiful Computer")
         .formParam("introduced", "2012-05-30")
         .formParam("discontinued", "")
         .formParam("company", "37")

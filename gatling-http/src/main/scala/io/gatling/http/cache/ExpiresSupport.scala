@@ -33,13 +33,15 @@ private[cache] trait ExpiresSupport {
   def extractMaxAgeValue(s: String): Option[Long] = {
     val index = s.indexOf(MaxAgePrefix)
     val start = MaxAgePrefix.length + index
-    if (index >= 0 && start <= s.length)
+    if (index >= 0 && start <= s.length) {
       s.charAt(start) match {
         case '-'            => Some(-1)
         case c if c.isDigit => Some(extractLongValue(s, start))
         case _              => None
-      } else
+      }
+    } else {
       None
+    }
   }
 
   def extractExpiresValue(timestring: String): Option[Long] = {

@@ -60,8 +60,8 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
       .map { str =>
         (str, Try(str.r))
       }
-      .collect {
-        case (str, fail: Failure[_]) => s"$str is not a valid regular expression: ${fail.exception.rootMessage}"
+      .collect { case (str, fail: Failure[_]) =>
+        s"$str is not a valid regular expression: ${fail.exception.rootMessage}"
       }
 
   def removeRows(toRemove: Seq[Int]): Unit = {
@@ -116,8 +116,8 @@ private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
 
     listenTo(table.mouse.clicks)
 
-    reactions += {
-      case e: MouseButtonEvent => maybeShowPopup(e)
+    reactions += { case e: MouseButtonEvent =>
+      maybeShowPopup(e)
     }
 
     def maybeShowPopup(e: MouseEvent): Unit =

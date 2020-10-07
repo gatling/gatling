@@ -39,9 +39,9 @@ import io.netty.handler.codec.http.HttpHeaders
 // LeakingSealed error is in scala-swing
 private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
 
-  /************************************/
-  /**           COMPONENTS           **/
-  /************************************/
+  //////////////////////////////////////
+  //           COMPONENTS
+  //////////////////////////////////////
   /* Top panel components */
   private val tagField = new TextField(15)
   private val tagButton = Button("Add")(addTag())
@@ -66,9 +66,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
   /* Bottom panel components */
   private val hostsRequiringCertificates = new ListView[String] { foreground = Color.red }
 
-  /**********************************/
-  /**           UI SETUP           **/
-  /**********************************/
+  //////////////////////////////////////
+  //           UI SETUP
+  //////////////////////////////////////
   /* Frame setup */
   title = "Gatling Recorder - Running..."
   peer.setIconImages(IconList.asJava)
@@ -142,9 +142,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame 
 
   centerOnScreen()
 
-  /*****************************************/
-  /**           EVENTS HANDLING           **/
-  /*****************************************/
+  //////////////////////////////////////
+  //           EVENTS HANDLING
+  //////////////////////////////////////
   /* Reactions */
   listenTo(events.selection)
   reactions += {

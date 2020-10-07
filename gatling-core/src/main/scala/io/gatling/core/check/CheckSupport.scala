@@ -66,15 +66,15 @@ trait CheckSupport {
 
   def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     xpath(path, Map.empty[String, String])
-  def xpath(path: Expression[String], namespaces: Map[String, String])(
-      implicit xmlParsers: XmlParsers
+  def xpath(path: Expression[String], namespaces: Map[String, String])(implicit
+      xmlParsers: XmlParsers
   ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
 
   def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)
-  def css(selector: Expression[String], nodeAttribute: String)(
-      implicit selectors: CssSelectors
+  def css(selector: Expression[String], nodeAttribute: String)(implicit
+      selectors: CssSelectors
   ): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
   def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] =

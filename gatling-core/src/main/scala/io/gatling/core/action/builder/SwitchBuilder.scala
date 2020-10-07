@@ -27,10 +27,9 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
 
-    val possibleActions: Map[Any, Action] = possibilities.map {
-      case (value, possibility) =>
-        val possibilityAction = possibility.build(ctx, next)
-        (value, possibilityAction)
+    val possibleActions: Map[Any, Action] = possibilities.map { case (value, possibility) =>
+      val possibilityAction = possibility.build(ctx, next)
+      (value, possibilityAction)
     }.toMap
 
     val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)

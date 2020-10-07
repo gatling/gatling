@@ -206,13 +206,14 @@ final case class BodyPart(
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
       customHeaders <- attributes.customHeadersExpression(session)
-      customHeadersAsParams = if (customHeaders.nonEmpty) {
-        val params = new ju.ArrayList[Param](customHeaders.size)
-        customHeaders.foreach { case (headerName, value) => params.add(new Param(headerName, value)) }
-        params
-      } else {
-        ju.Collections.emptyList[Param]
-      }
+      customHeadersAsParams =
+        if (customHeaders.nonEmpty) {
+          val params = new ju.ArrayList[Param](customHeaders.size)
+          customHeaders.foreach { case (headerName, value) => params.add(new Param(headerName, value)) }
+          params
+        } else {
+          ju.Collections.emptyList[Param]
+        }
       part <- partBuilder(
         name.orNull,
         attributes.charset,

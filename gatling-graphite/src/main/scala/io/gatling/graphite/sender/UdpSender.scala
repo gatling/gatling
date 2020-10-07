@@ -38,7 +38,7 @@ private[graphite] class UdpSender(remote: InetSocketAddress) extends MetricsSend
     case _ => stash()
   }
 
-  private def connected(connection: ActorRef): Receive = {
-    case GraphiteMetrics(bytes) => connection ! Send(bytes, remote)
+  private def connected(connection: ActorRef): Receive = { case GraphiteMetrics(bytes) =>
+    connection ! Send(bytes, remote)
   }
 }

@@ -66,7 +66,7 @@ class RequestTemplateSpec extends BaseSpec {
     implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseSimulationAsPrefix -> true))
     val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
     res1 should include(s"${simulationClass}_0")
-    res1 should not include ("request_0")
+    res1 should not include "request_0"
   }
 
   it should "use method and URI as postfix when requested" in {

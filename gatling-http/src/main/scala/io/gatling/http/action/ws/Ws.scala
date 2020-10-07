@@ -47,7 +47,6 @@ class Ws(requestName: Expression[String], wsName: String) {
    * Opens a WebSocket and stores it in the session.
    *
    * @param url The socket URL
-   *
    */
   def connect(url: Expression[String]): WsConnectRequestBuilder =
     new WsConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), wsName, None)

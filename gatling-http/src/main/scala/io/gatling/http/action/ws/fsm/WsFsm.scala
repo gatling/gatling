@@ -50,11 +50,15 @@ class WsFsm(
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     logger.debug("Scheduling timeout")
-    eventLoop.schedule(() => {
-      currentTimeout = null
-      execute(currentState.onTimeout())
-      null
-    }, dur.toMillis, TimeUnit.MILLISECONDS)
+    eventLoop.schedule(
+      () => {
+        currentTimeout = null
+        execute(currentState.onTimeout())
+        null
+      },
+      dur.toMillis,
+      TimeUnit.MILLISECONDS
+    )
   }
 
   private[fsm] def cancelTimeout(): Unit =

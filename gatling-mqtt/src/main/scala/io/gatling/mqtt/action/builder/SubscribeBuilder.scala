@@ -48,13 +48,13 @@ case class SubscribeBuilder(
     wait(timeout, null)
   def wait(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
     new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = true)))
-    with CheckableSubscribeBuilder
+      with CheckableSubscribeBuilder
 
   def expect(timeout: FiniteDuration): SubscribeBuilder with CheckableSubscribeBuilder =
     expect(timeout, null)
   def expect(timeout: FiniteDuration, expectedTopic: Expression[String]): SubscribeBuilder with CheckableSubscribeBuilder =
     new SubscribeBuilder(requestName, topic, qosOverride, Some(MqttExpectation(None, timeout, topic = Option(expectedTopic), blocking = false)))
-    with CheckableSubscribeBuilder
+      with CheckableSubscribeBuilder
 
   override def build(ctx: ScenarioContext, next: Action): Action = ???
 }

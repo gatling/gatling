@@ -29,12 +29,11 @@ object BodyProcessors {
         case pebbleBody: PebbleBody   => pebbleBody.map(GzipHelper.gzip)
         case ByteArrayBody(byteArray) => byteArray.map(GzipHelper.gzip)
         case RawFileBody(resourceAndCachedBytes) =>
-          resourceAndCachedBytes.map {
-            case ResourceAndCachedBytes(resource, cachedBytes) =>
-              cachedBytes match {
-                case Some(bytes) => GzipHelper.gzip(bytes)
-                case _           => GzipHelper.gzip(resource.inputStream)
-              }
+          resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>
+            cachedBytes match {
+              case Some(bytes) => GzipHelper.gzip(bytes)
+              case _           => GzipHelper.gzip(resource.inputStream)
+            }
           }
         case InputStreamBody(inputStream) => inputStream.map(GzipHelper.gzip)
         case b: ElBody                    => b.asStream.map(GzipHelper.gzip)
@@ -50,12 +49,11 @@ object BodyProcessors {
         case pebbleBody: PebbleBody      => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(charset)))
         case ByteArrayBody(byteArray)    => byteArray.map(new FastByteArrayInputStream(_))
         case RawFileBody(resourceAndCachedBytes) =>
-          resourceAndCachedBytes.map {
-            case ResourceAndCachedBytes(resource, cachedBytes) =>
-              cachedBytes match {
-                case Some(bytes) => new FastByteArrayInputStream(bytes)
-                case _           => resource.inputStream
-              }
+          resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>
+            cachedBytes match {
+              case Some(bytes) => new FastByteArrayInputStream(bytes)
+              case _           => resource.inputStream
+            }
           }
         case InputStreamBody(inputStream) => inputStream
         case b: ElBody                    => b.asStream

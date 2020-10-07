@@ -35,28 +35,27 @@ private[http] class ShufflingNameResolver(wrapped: InetAddressNameResolver, even
   override def resolveAll(inetHost: String, promise: Promise[ju.List[InetAddress]], listener: HttpListener): Future[ju.List[InetAddress]] = {
     wrapped
       .resolveAll(inetHost, eventLoop.newPromise[ju.List[InetAddress]], listener)
-      .addListener(
-        (future: Future[ju.List[InetAddress]]) =>
-          if (future.isSuccess) {
-            val rawAddresses = future.getNow
-            if (rawAddresses.size == 1) {
-              // don't bother checking equality or shuffling, directly clear cache and return
-              cache.remove(inetHost)
-              promise.setSuccess(rawAddresses)
-            } else {
-              val cachedAddresses = cache.get(inetHost)
-
-              if (cachedAddresses != null && Lists.isSameSetAssumingNoDuplicate(cachedAddresses, rawAddresses)) {
-                promise.setSuccess(cachedAddresses)
-              } else {
-                val shuffledAddresses = InetAddresses.shuffleInetAddresses(rawAddresses, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred)
-                cache.put(inetHost, shuffledAddresses)
-                promise.setSuccess(shuffledAddresses)
-              }
-            }
+      .addListener((future: Future[ju.List[InetAddress]]) =>
+        if (future.isSuccess) {
+          val rawAddresses = future.getNow
+          if (rawAddresses.size == 1) {
+            // don't bother checking equality or shuffling, directly clear cache and return
+            cache.remove(inetHost)
+            promise.setSuccess(rawAddresses)
           } else {
-            promise.setFailure(future.cause)
+            val cachedAddresses = cache.get(inetHost)
+
+            if (cachedAddresses != null && Lists.isSameSetAssumingNoDuplicate(cachedAddresses, rawAddresses)) {
+              promise.setSuccess(cachedAddresses)
+            } else {
+              val shuffledAddresses = InetAddresses.shuffleInetAddresses(rawAddresses, NetUtil.isIpV4StackPreferred, NetUtil.isIpV6AddressesPreferred)
+              cache.put(inetHost, shuffledAddresses)
+              promise.setSuccess(shuffledAddresses)
+            }
           }
+        } else {
+          promise.setFailure(future.cause)
+        }
       )
 
     promise

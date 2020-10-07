@@ -29,9 +29,9 @@ private[recorder] object RecorderFrontEnd {
 }
 private[recorder] abstract class RecorderFrontEnd(controller: RecorderController) {
 
-  /******************************/
-  /**  Controller => Frontend  **/
-  /******************************/
+  //////////////////////////////////////
+  //           Controller => Frontend
+  //////////////////////////////////////
   def selectedRecorderMode: RecorderMode
 
   def harFilePath: String
@@ -54,9 +54,9 @@ private[recorder] abstract class RecorderFrontEnd(controller: RecorderController
 
   def receiveEvent(event: FrontEndEvent): Unit
 
-  /******************************/
-  /**  Frontend => Controller  **/
-  /******************************/
+  //////////////////////////////////////
+  //           Frontend => Controller
+  //////////////////////////////////////
   def addTag(tag: String): Unit = controller.addTag(tag)
 
   def startRecording(): Unit = controller.startRecording()

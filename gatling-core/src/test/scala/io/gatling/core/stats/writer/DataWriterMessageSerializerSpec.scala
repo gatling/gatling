@@ -25,6 +25,8 @@ class DataWriterMessageSerializerSpec extends BaseSpec {
   "sanitize" should "sanitize extra info so that simulation log format is preserved" in {
     DataWriterMessageSerializer.sanitize("\nnewlines \n are\nnot \n\n allowed\n") shouldBe " newlines   are not    allowed "
     DataWriterMessageSerializer.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") shouldBe " carriage returns   are not    allowed "
-    DataWriterMessageSerializer.sanitize(s"${Separator}tabs $Separator are${Separator}not $Separator$Separator allowed$Separator") shouldBe " tabs   are not    allowed "
+    DataWriterMessageSerializer.sanitize(
+      s"${Separator}tabs $Separator are${Separator}not $Separator$Separator allowed$Separator"
+    ) shouldBe " tabs   are not    allowed "
   }
 }

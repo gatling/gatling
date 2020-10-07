@@ -98,9 +98,13 @@ class SseStream(
       case Open(_) =>
         logger.debug("Server closed the stream while in state Open. Reconnecting.")
         // reconnect
-        originalSession.eventLoop.schedule(new Runnable {
-          override def run(): Unit = connect()
-        }, retryDelayInSeconds, TimeUnit.SECONDS)
+        originalSession.eventLoop.schedule(
+          new Runnable {
+            override def run(): Unit = connect()
+          },
+          retryDelayInSeconds,
+          TimeUnit.SECONDS
+        )
       case ProcessingClientCloseRequest(_) =>
         logger.debug("Server closed the stream while in state ProcessingClientCloseRequest.")
         state = Close

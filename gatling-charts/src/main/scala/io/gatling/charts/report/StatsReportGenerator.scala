@@ -59,8 +59,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       val groupedCounts = logFileReader
         .numberOfRequestInResponseTimeRange(requestName, group)
-        .map {
-          case (rangeName, count) => GroupedCount(rangeName, count, total.count)
+        .map { case (rangeName, count) =>
+          GroupedCount(rangeName, count, total.count)
         }
 
       val path = requestName match {
@@ -115,8 +115,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
       val groupedCounts = logFileReader
         .numberOfRequestInResponseTimeRange(None, Some(group))
-        .map {
-          case (rangeName, count) => GroupedCount(rangeName, count, total.count)
+        .map { case (rangeName, count) =>
+          GroupedCount(rangeName, count, total.count)
         }
 
       val path = RequestPath.path(group)
@@ -170,13 +170,12 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     }
 
     val requestStatsPaths = statsPaths.collect { case path: RequestStatsPath => path }
-    requestStatsPaths.foreach {
-      case RequestStatsPath(request, group) =>
-        group.foreach { group =>
-          addGroupsRec(group.hierarchy.reverse)
-        }
-        val stats = computeRequestStats(request, Some(request), group)
-        rootContainer.addRequest(group, request, stats)
+    requestStatsPaths.foreach { case RequestStatsPath(request, group) =>
+      group.foreach { group =>
+        addGroupsRec(group.hierarchy.reverse)
+      }
+      val stats = computeRequestStats(request, Some(request), group)
+      rootContainer.addRequest(group, request, stats)
     }
 
     new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))

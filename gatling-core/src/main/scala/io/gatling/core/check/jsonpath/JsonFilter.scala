@@ -30,13 +30,8 @@ trait LowPriorityJsonFilterImplicits {
       override val filter: PartialFunction[JsonNode, T] = f
     }
 
-  implicit val stringJsonFilter: JsonFilter[String] = newJsonFilter {
-    case node =>
-      if (node.getNodeType == NULL) {
-        null
-      } else {
-        Json.stringifyNode(node, isRootObject = true)
-      }
+  implicit val stringJsonFilter: JsonFilter[String] = newJsonFilter { case node =>
+    if (node.getNodeType == NULL) null else Json.stringifyNode(node, isRootObject = true)
   }
 
   implicit val jBooleanJsonFilter: JsonFilter[Boolean] = newJsonFilter {
@@ -74,8 +69,8 @@ trait LowPriorityJsonFilterImplicits {
     case node if node.getNodeType == NULL   => null.asInstanceOf[Map[String, Any]]
   }
 
-  implicit val anyJsonFilter: JsonFilter[Any] = newJsonFilter {
-    case e => Json.asScala(e)
+  implicit val anyJsonFilter: JsonFilter[Any] = newJsonFilter { case e =>
+    Json.asScala(e)
   }
 }
 

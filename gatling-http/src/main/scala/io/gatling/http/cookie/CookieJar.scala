@@ -130,8 +130,8 @@ private[http] final case class CookieJar(store: Map[CookieKey, StoredCookie]) {
           pathsMatch(key.path, path) &&
           (secure || !storedCookie.cookie.isSecure)
 
-      val matchingCookies = store.filter {
-        case (key, storedCookie) => isCookieMatching(key, storedCookie)
+      val matchingCookies = store.filter { case (key, storedCookie) =>
+        isCookieMatching(key, storedCookie)
       }
 
       matchingCookies.toList

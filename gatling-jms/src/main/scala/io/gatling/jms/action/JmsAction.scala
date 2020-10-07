@@ -72,13 +72,12 @@ abstract class JmsAction(
       properties: Map[Expression[String], Expression[Any]],
       session: Session
   ): Validation[Map[String, Any]] =
-    properties.foldLeft(Map.empty[String, Any].success) {
-      case (resolvedProperties, (key, value)) =>
-        for {
-          key <- key(session)
-          value <- value(session)
-          resolvedProperties <- resolvedProperties
-        } yield resolvedProperties + (key -> value)
+    properties.foldLeft(Map.empty[String, Any].success) { case (resolvedProperties, (key, value)) =>
+      for {
+        key <- key(session)
+        value <- value(session)
+        resolvedProperties <- resolvedProperties
+      } yield resolvedProperties + (key -> value)
     }
 
   protected def aroundSend(requestName: String, session: Session, message: Message): Validation[Around]

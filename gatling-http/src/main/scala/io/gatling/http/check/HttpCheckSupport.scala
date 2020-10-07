@@ -85,8 +85,8 @@ trait HttpCheckSupport {
   val header: Expression[CharSequence] => MultipleFindCheckBuilder[HttpHeaderCheckType, Response, String] = new HttpHeaderCheckBuilder(_)
   implicit val httpHeaderCheckMaterializer: CheckMaterializer[HttpHeaderCheckType, HttpCheck, Response, Response] = HttpHeaderCheckMaterializer.Instance
 
-  def headerRegex(headerName: Expression[CharSequence], pattern: Expression[String])(
-      implicit patterns: Patterns
+  def headerRegex(headerName: Expression[CharSequence], pattern: Expression[String])(implicit
+      patterns: Patterns
   ): MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, String] with HttpHeaderRegexOfType =
     HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern, patterns)
   implicit val httpHeaderRegexCheckMaterializer: CheckMaterializer[HttpHeaderRegexCheckType, HttpCheck, Response, Response] =
@@ -106,13 +106,13 @@ trait HttpCheckSupport {
     HttpBodyCssCheckMaterializer.instance(selectors)
   implicit def httpBodyJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
     HttpBodyJsonPathCheckMaterializer.instance(jsonParsers)
-  implicit def httpBodyJsonpJsonPathCheckMaterializer(
-      implicit jsonParsers: JsonParsers
+  implicit def httpBodyJsonpJsonPathCheckMaterializer(implicit
+      jsonParsers: JsonParsers
   ): CheckMaterializer[JsonpJsonPathCheckType, HttpCheck, Response, JsonNode] = HttpBodyJsonpCheckMaterializer.instance(jsonParsers)
   implicit def httpBodyJmesPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JmesPathCheckType, HttpCheck, Response, JsonNode] =
     HttpBodyJmesPathCheckMaterializer.instance(jsonParsers)
-  implicit def httpBodyJsonpJmesPathCheckMaterializer(
-      implicit jsonParsers: JsonParsers
+  implicit def httpBodyJsonpJmesPathCheckMaterializer(implicit
+      jsonParsers: JsonParsers
   ): CheckMaterializer[JsonpJmesPathCheckType, HttpCheck, Response, JsonNode] = HttpBodyJsonpCheckMaterializer.instance(jsonParsers)
 
   implicit val httpMd5CheckMaterializer: CheckMaterializer[Md5CheckType, HttpCheck, Response, String] = HttpChecksumCheckMaterializer.Md5

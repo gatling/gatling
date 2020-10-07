@@ -46,9 +46,9 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 // LeakingSealed error is in scala-swing
 private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
-  /************************************/
-  /**           COMPONENTS           **/
-  /************************************/
+  //////////////////////////////////////
+  //           COMPONENTS
+  //////////////////////////////////////
   /* Top panel components */
   private val modeSelector = new LabelledComboBox[RecorderMode](RecorderMode.AllModes)
 
@@ -113,9 +113,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
   private val start = Button("Start !")(reloadConfigurationAndStart())
 
-  /**********************************/
-  /**           UI SETUP           **/
-  /**********************************/
+  //////////////////////////////////////
+  //           UI SETUP
+  //////////////////////////////////////
   /* Frame setup */
   title = "Gatling Recorder - Configuration"
   resizable = true
@@ -310,9 +310,13 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
   registerValidators()
   populateItemsFromConfiguration()
 
-  /*****************************************/
-  /**           EVENTS HANDLING           **/
-  /*****************************************/
+  /**
+   * **************************************
+   */
+  /** EVENTS HANDLING           * */
+  /**
+   * **************************************
+   */
   def toggleModeSelector(mode: RecorderMode): Unit = mode match {
     case Proxy =>
       root.center.network.visible = true
@@ -453,10 +457,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     filterStrategies.selection.item = BlackListFirst
   }
 
-  reactions += {
-    case KeyReleased(field, _, _, _) =>
-      updateValidationStatus(field.asInstanceOf[TextField])
-      start.enabled = ValidationHelper.validationStatus
+  reactions += { case KeyReleased(field, _, _, _) =>
+    updateValidationStatus(field.asInstanceOf[TextField])
+    start.enabled = ValidationHelper.validationStatus
   }
 
   def selectedRecorderMode = modeSelector.selection.item
@@ -481,9 +484,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit con
     )
   }
 
-  /****************************************/
-  /**           CONFIGURATION            **/
-  /****************************************/
+  //////////////////////////////////////
+  //           CONFIGURATION
+  //////////////////////////////////////
   /**
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
    */

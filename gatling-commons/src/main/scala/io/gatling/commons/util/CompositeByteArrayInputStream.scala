@@ -50,7 +50,7 @@ class CompositeByteArrayInputStream(parts: Seq[Array[Byte]]) extends InputStream
       -1
     } else {
       _available -= 1
-      active(bytePos) & 0xFF
+      active(bytePos) & 0xff
     }
   }
 }

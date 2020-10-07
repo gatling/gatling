@@ -42,9 +42,8 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
         case n if n > 0 =>
           (1 to n)
             .foldLeft(Map.empty[String, T]) { (acc, i) =>
-              feeder.next().foldLeft(acc) {
-                case (acc2, (key, value)) =>
-                  acc2 + (key + Integer.toString(i) -> value)
+              feeder.next().foldLeft(acc) { case (acc2, (key, value)) =>
+                acc2 + (key + Integer.toString(i) -> value)
               }
             }
             .success
@@ -55,12 +54,11 @@ class FeedActor[T](val feeder: Feeder[T], controller: ActorRef) extends BaseActo
       case NonFatal(e)               => s"Feeder crashed: ${e.detailedMessage}".failure
     }
 
-  def receive: Receive = {
-    case FeedMessage(session, number, next) =>
-      pollNewAttributes(number) match {
-        case Success(newAttributes) => next ! session.setAll(newAttributes)
-        case Failure(message)       => controller ! ControllerCommand.Crash(new IllegalStateException(message))
-      }
+  def receive: Receive = { case FeedMessage(session, number, next) =>
+    pollNewAttributes(number) match {
+      case Success(newAttributes) => next ! session.setAll(newAttributes)
+      case Failure(message)       => controller ! ControllerCommand.Crash(new IllegalStateException(message))
+    }
   }
 
   override def postStop(): Unit =

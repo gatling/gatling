@@ -53,8 +53,8 @@ class JmsCompileTest extends Simulation {
     .matchByMessageId
 
   private val scn = scenario("scn")
-  // requestReply
-  // textMessage
+    // requestReply
+    // textMessage
     .exec(
       jms("req").requestReply
         .queue("queue")

@@ -40,16 +40,15 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
           logMsg(message1)
           session
         }.exec {
-            scenario("Wrapped Scenario")
-              .exec { session =>
-                logMsg(message2)
-                session
-              }
-          }
-          .exec { session =>
-            logMsg(message3)
-            session
-          }
+          scenario("Wrapped Scenario")
+            .exec { session =>
+              logMsg(message2)
+              session
+            }
+        }.exec { session =>
+          logMsg(message3)
+          session
+        }
       }
 
       chain ! EmptySession
@@ -74,13 +73,12 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
       chain ! EmptySession
 
-      expectMsgPF {
-        case session: Session => session.status shouldBe KO
+      expectMsgPF { case session: Session =>
+        session.status shouldBe KO
       }
 
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.status shouldBe KO
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.status shouldBe KO
       }
     }
   }
@@ -125,39 +123,33 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
       chain ! EmptySession
       expectMsg(message(1, 0, 0))
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.groups shouldBe List(outerGroup, innerGroup)
-          group.status shouldBe KO
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup, innerGroup)
+        group.status shouldBe KO
       }
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.groups shouldBe List(outerGroup)
-          group.status shouldBe KO
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup)
+        group.status shouldBe KO
       }
       expectMsg(message(1, 1, 0))
       expectMsg(message(2, 1, 0))
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.groups shouldBe List(outerGroup, innerGroup)
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup, innerGroup)
+        group.status shouldBe OK
       }
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.groups shouldBe List(outerGroup)
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup)
+        group.status shouldBe OK
       }
       expectMsg(message(1, 1, 1))
       expectMsg(message(2, 1, 1))
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.groups shouldBe List(outerGroup, innerGroup)
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup, innerGroup)
+        group.status shouldBe OK
       }
-      expectMsgPF {
-        case LogGroupEnd(_, group, _) =>
-          group.groups shouldBe List(outerGroup)
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup)
+        group.status shouldBe OK
       }
     }
   }

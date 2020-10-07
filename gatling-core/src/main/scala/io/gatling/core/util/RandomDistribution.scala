@@ -37,8 +37,9 @@ private[core] object RandomDistribution {
     val intendedTotalIs100 = math.abs(sum - 100.0) <= 0.000001
 
     val (_, headChain) :: tail = possibilities
-    val normalizedTail
-        : List[(Int, T)] = tail.map { case (weight, chain) => (weight * PercentWeightsNormalizingFactor).toInt -> chain } // don't round but truncate so normalized sum doesn't because bigger than original one
+    val normalizedTail: List[(Int, T)] = tail.map { case (weight, chain) =>
+      (weight * PercentWeightsNormalizingFactor).toInt -> chain
+    } // don't round but truncate so normalized sum doesn't because bigger than original one
 
     val normalizedTailSum = normalizedTail.sumBy(_._1)
     val normalizedHeadWeight =

@@ -43,12 +43,11 @@ package object builder {
           } yield {
             val formParamsByName = resolvedFormParams.asScala.groupBy(_.getName)
             val formFieldsByName: Map[String, Seq[Param]] =
-              resolvedForm.map {
-                case (key, value) =>
-                  value match {
-                    case multipleValues: Seq[_] => key -> multipleValues.map(value => new Param(key, value.toString))
-                    case monoValue              => key -> Seq(new Param(key, monoValue.toString))
-                  }
+              resolvedForm.map { case (key, value) =>
+                value match {
+                  case multipleValues: Seq[_] => key -> multipleValues.map(value => new Param(key, value.toString))
+                  case monoValue              => key -> Seq(new Param(key, monoValue.toString))
+                }
               }
             // override form with formParams
             val javaParams: ju.List[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava

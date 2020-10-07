@@ -157,11 +157,11 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
       else requestAndProtocolChecks ::: List(RequestBuilder.DefaultHttpCheck)
 
     val sortedChecks = checks.zipWithIndex
-      .sortBy {
-        case (check, rank) => (check.scope, rank)
+      .sortBy { case (check, rank) =>
+        (check.scope, rank)
       }
-      .map {
-        case (check, _) => check
+      .map { case (check, _) =>
+        check
       }
 
     val resolvedFollowRedirect = httpProtocol.responsePart.followRedirect && httpAttributes.followRedirect

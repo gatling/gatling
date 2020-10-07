@@ -88,8 +88,10 @@ private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
   }
 
   def receiveResponse(request: HttpRequest, response: HttpResponse): Unit =
-    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.uri))
-        && Filters.BrowserNoiseFilters.accept(request.uri)) {
+    if (
+      RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.uri))
+      && Filters.BrowserNoiseFilters.accept(request.uri)
+    ) {
       requests.add(TimedScenarioElement(request.timestamp, response.timestamp, RequestElement(request, response)))
 
       // Notify frontend

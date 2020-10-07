@@ -91,10 +91,9 @@ private[graphite] class TcpSender(
       }
   }
 
-  when(RetriesExhausted) {
-    case _ =>
-      logger.debug("All connection/sending retries have been exhausted, ignore further messages")
-      stay()
+  when(RetriesExhausted) { case _ =>
+    logger.debug("All connection/sending retries have been exhausted, ignore further messages")
+    stay()
   }
 
   initialize()

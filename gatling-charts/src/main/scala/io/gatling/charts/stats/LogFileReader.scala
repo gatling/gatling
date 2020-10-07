@@ -327,10 +327,9 @@ private[gatling] class LogFileReader(runUuid: String)(implicit configuration: Ga
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None).counts
 
     buffer.digests.view.zipWithIndex
-      .collect {
-        case (Some(digest), bucketNumber) =>
-          val count = globalCountsByBucket(bucketNumber)
-          new IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
+      .collect { case (Some(digest), bucketNumber) =>
+        val count = globalCountsByBucket(bucketNumber)
+        new IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
       }
       .to(Seq)
       .sortBy(_.time)

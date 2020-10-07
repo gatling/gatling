@@ -85,16 +85,15 @@ private[scenario] object ProtocolTemplate {
           entry.getKey -> entry.getValue
         }
         .sorted
-        .flatMap {
-          case (headerName, headerValue) =>
-            val properHeaderValue =
-              if (headerName.equalsIgnoreCase(HttpHeaderNames.ACCEPT_ENCODING.toString)) {
-                HttpUtils.filterSupportedEncodings(headerValue)
-              } else {
-                headerValue
-              }
+        .flatMap { case (headerName, headerValue) =>
+          val properHeaderValue =
+            if (headerName.equalsIgnoreCase(HttpHeaderNames.ACCEPT_ENCODING.toString)) {
+              HttpUtils.filterSupportedEncodings(headerValue)
+            } else {
+              headerValue
+            }
 
-            Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue)).toList
+          Option(BaseHeadersAndProtocolMethods.get(headerName)).map(renderHeader(_, properHeaderValue)).toList
         }
         .mkString
     }

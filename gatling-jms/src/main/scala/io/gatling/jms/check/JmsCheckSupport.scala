@@ -58,32 +58,32 @@ trait JmsCheckSupport {
   )(implicit materializer: CheckMaterializer[A, JmsCheck, Message, P]): JmsCheck =
     findCheckBuilder.find.exists
 
-  implicit def jmsBodyBytesCheckMaterializer(
-      implicit configuration: GatlingConfiguration
+  implicit def jmsBodyBytesCheckMaterializer(implicit
+      configuration: GatlingConfiguration
   ): CheckMaterializer[BodyBytesCheckType, JmsCheck, Message, Array[Byte]] =
     JmsCheckMaterializer.bodyBytes(configuration.core.charset)
 
-  implicit def jmsBodyStringCheckMaterializer(
-      implicit configuration: GatlingConfiguration
+  implicit def jmsBodyStringCheckMaterializer(implicit
+      configuration: GatlingConfiguration
   ): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =
     JmsCheckMaterializer.bodyString(configuration.core.charset)
 
-  implicit def jmsBodySubstringCheckMaterializer(
-      implicit configuration: GatlingConfiguration
+  implicit def jmsBodySubstringCheckMaterializer(implicit
+      configuration: GatlingConfiguration
   ): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
     JmsCheckMaterializer.substring(configuration.core.charset)
 
   implicit val jmsXPathmaterializer: CheckMaterializer[XPathCheckType, JmsCheck, Message, Option[XdmNode]] =
     JmsCheckMaterializer.Xpath
 
-  implicit def jmsJsonPathCheckMaterializer(
-      implicit jsonParsers: JsonParsers,
+  implicit def jmsJsonPathCheckMaterializer(implicit
+      jsonParsers: JsonParsers,
       configuration: GatlingConfiguration
   ): CheckMaterializer[JsonPathCheckType, JmsCheck, Message, JsonNode] =
     JmsCheckMaterializer.jsonPath(jsonParsers, configuration.core.charset)
 
-  implicit def jmsJmesPathCheckMaterializer(
-      implicit jsonParsers: JsonParsers,
+  implicit def jmsJmesPathCheckMaterializer(implicit
+      jsonParsers: JsonParsers,
       configuration: GatlingConfiguration
   ): CheckMaterializer[JmesPathCheckType, JmsCheck, Message, JsonNode] =
     JmsCheckMaterializer.jmesPath(jsonParsers, configuration.core.charset)

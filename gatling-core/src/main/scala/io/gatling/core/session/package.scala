@@ -73,13 +73,12 @@ package object session {
   }
 
   def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
-    val elValues: Seq[(String, Expression[Any])] = seq.map {
-      case (key, value) =>
-        val elValue = value match {
-          case s: String => s.el[Any]
-          case v         => v.expressionSuccess
-        }
-        key -> elValue
+    val elValues: Seq[(String, Expression[Any])] = seq.map { case (key, value) =>
+      val elValue = value match {
+        case s: String => s.el[Any]
+        case v         => v.expressionSuccess
+      }
+      key -> elValue
     }
 
     resolveIterable(elValues)

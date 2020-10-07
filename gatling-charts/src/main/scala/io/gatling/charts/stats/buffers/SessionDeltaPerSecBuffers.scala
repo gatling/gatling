@@ -56,11 +56,10 @@ private[stats] class SessionDeltaBuffer(minTimestamp: Long, maxTimestamp: Long, 
 
     eachSecondActiveSessions.zipWithIndex.view
       .groupMap { case (_, second) => secondToBucket(second) } { case (sessions, _) => sessions }
-      .map {
-        case (bucket, sessionCounts) =>
-          val averageSessionCount = sessionCounts.sum / sessionCounts.size
-          val time = buckets(bucket)
-          new IntVsTimePlot(time, averageSessionCount)
+      .map { case (bucket, sessionCounts) =>
+        val averageSessionCount = sessionCounts.sum / sessionCounts.size
+        val time = buckets(bucket)
+        new IntVsTimePlot(time, averageSessionCount)
       }
       .to(List)
       .sortBy(_.time)

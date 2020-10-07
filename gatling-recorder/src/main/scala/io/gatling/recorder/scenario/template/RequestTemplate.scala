@@ -66,8 +66,8 @@ private[scenario] object RequestTemplate {
           case _: RequestBodyBytes => s"""
 			.body(RawFileBody("${ScenarioExporter.requestBodyRelativeFilePath(request)}"))"""
           case RequestBodyParams(params) =>
-            params.map {
-              case (key, value) => s"""
+            params.map { case (key, value) =>
+              s"""
 			.formParam(${protectWithTripleQuotes(key)}, ${renderLongString(value)})"""
             }.mkString
         }
@@ -75,8 +75,8 @@ private[scenario] object RequestTemplate {
 
     def renderCredentials: String =
       request.basicAuthCredentials
-        .map {
-          case (username, password) => s"""
+        .map { case (username, password) =>
+          s"""
 			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
         }
         .getOrElse("")

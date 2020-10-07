@@ -20,9 +20,9 @@ import java.nio.ByteBuffer
 import java.nio.channels.ReadableByteChannel
 
 private object Utf8BomSkipReadableByteChannel {
-  val Utf8BomByte1: Byte = 0xEF.toByte
-  val Utf8BomByte2: Byte = 0xBB.toByte
-  val Utf8BomByte3: Byte = 0xBF.toByte
+  val Utf8BomByte1: Byte = 0xef.toByte
+  val Utf8BomByte2: Byte = 0xbb.toByte
+  val Utf8BomByte3: Byte = 0xbf.toByte
 }
 
 private class Utf8BomSkipReadableByteChannel(channel: ReadableByteChannel) extends ReadableByteChannel {

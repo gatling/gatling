@@ -107,7 +107,7 @@ class HttpCompileTest extends Simulation {
   private val testData3 = Array(Map("foo" -> "bar")).circular
 
   private val scn = scenario("Scn")
-  // method
+    // method
     .exec(http("Request").get("/"))
     .exec(http("Request").put("/"))
     .exec(http("Request").post("/"))

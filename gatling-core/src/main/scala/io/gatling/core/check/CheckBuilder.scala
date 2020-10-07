@@ -179,12 +179,11 @@ private final case class DefaultValidatorCheckBuilder[T, P, X](extractor: Expres
     new DefaultCheckBuilder[T, P, X](this.extractor, validator, displayActualValue, None, None)
 
   override def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[T, P, X] =
-    validate(
-      (session: Session) =>
-        new Validator[X] {
-          override val name: String = opName
-          override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] = validator(actual, session)
-        }.success
+    validate((session: Session) =>
+      new Validator[X] {
+        override val name: String = opName
+        override def apply(actual: Option[X], displayActualValue: Boolean): Validation[Option[X]] = validator(actual, session)
+      }.success
     )
 
   override def is(expected: Expression[X])(implicit equality: Equality[X]): CheckBuilder[T, P, X] =

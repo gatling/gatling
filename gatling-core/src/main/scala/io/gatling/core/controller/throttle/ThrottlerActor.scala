@@ -30,11 +30,9 @@ class ThrottlerActor extends ThrottlerActorFSM {
 
   startWith(WaitingToStart, NoData)
 
-  when(WaitingToStart) {
-
-    case Event(throttles: Throttles, NoData) =>
-      // FIXME use a capped size? or kill when overflow?
-      goto(Started) using StartedData(throttles, mutable.ArrayBuffer.empty[ThrottledRequest], nanoTime)
+  when(WaitingToStart) { case Event(throttles: Throttles, NoData) =>
+    // FIXME use a capped size? or kill when overflow?
+    goto(Started) using StartedData(throttles, mutable.ArrayBuffer.empty[ThrottledRequest], nanoTime)
   }
 
   private def millisSinceTick(tickNanos: Long): Int = ((nanoTime - tickNanos) / 1000000).toInt

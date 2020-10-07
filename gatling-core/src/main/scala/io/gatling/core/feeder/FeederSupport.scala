@@ -44,8 +44,8 @@ trait FeederSupport extends ResourceCache {
     separatedValues(fileName, TabulationSeparator, quoteChar)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(
-      implicit configuration: GatlingConfiguration
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
+      configuration: GatlingConfiguration
   ): BatchableFeederBuilder[String] =
     cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)

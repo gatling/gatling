@@ -40,20 +40,19 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
   def onMessage(message: LoadEventMessage, data: T): Unit
 
-  when(Uninitialized) {
-    case Event(init: Init, NoData) =>
-      logger.info("Initializing")
-      try {
-        val newState = onInit(init)
-        logger.info("Initialized")
-        sender() ! true
-        goto(Initialized) using newState
-      } catch {
-        case NonFatal(e) =>
-          logger.error("DataWriter failed to initialize", e)
-          sender() ! false
-          goto(Terminated)
-      }
+  when(Uninitialized) { case Event(init: Init, NoData) =>
+    logger.info("Initializing")
+    try {
+      val newState = onInit(init)
+      logger.info("Initialized")
+      sender() ! true
+      goto(Initialized) using newState
+    } catch {
+      case NonFatal(e) =>
+        logger.error("DataWriter failed to initialize", e)
+        sender() ! false
+        goto(Terminated)
+    }
   }
 
   when(Initialized) {
@@ -77,9 +76,8 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
   when(Terminated)(NullFunction)
 
-  whenUnhandled {
-    case Event(m, _) =>
-      logger.info(s"Can't handle $m in state $stateName")
-      stay()
+  whenUnhandled { case Event(m, _) =>
+    logger.info(s"Can't handle $m in state $stateName")
+    stay()
   }
 }

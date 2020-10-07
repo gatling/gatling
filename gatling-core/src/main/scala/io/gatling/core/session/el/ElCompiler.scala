@@ -290,9 +290,12 @@ class ElCompiler private extends RegexParsers {
   }
 
   private def staticPart: Parser[StaticPart] =
-    staticPartPattern.^?({
-      case staticStr if staticStr.nonEmpty => StaticPart(staticStr.mkString)
-    }, _ => "Not a static part")
+    staticPartPattern.^?(
+      {
+        case staticStr if staticStr.nonEmpty => StaticPart(staticStr.mkString)
+      },
+      _ => "Not a static part"
+    )
 
   private def elExpr: Parser[ElPart[Any]] = "${" ~> (nonSessionObject | sessionObject | emptyAttribute) <~ "}"
 

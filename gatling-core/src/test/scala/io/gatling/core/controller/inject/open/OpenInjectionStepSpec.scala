@@ -133,8 +133,8 @@ class OpenInjectionStepSpec extends BaseSpec {
 
     val steps = constantRampScheduling
       .zip(constantRampScheduling.drop(1))
-      .map {
-        case (i1, i2) => i2 - i1
+      .map { case (i1, i2) =>
+        i2 - i1
       }
       .toSet[FiniteDuration]
 

@@ -44,8 +44,8 @@ class RendezVousActor(users: Int, val next: Action) extends BaseActor {
 
   private val buffer = mutable.Queue.empty[Session]
 
-  private val passThrough: Receive = {
-    case session: Session => next ! session
+  private val passThrough: Receive = { case session: Session =>
+    next ! session
   }
 
   def execute(session: Session): Unit = {
@@ -57,8 +57,8 @@ class RendezVousActor(users: Int, val next: Action) extends BaseActor {
     }
   }
 
-  override def receive: Receive = {
-    case session: Session => execute(session)
+  override def receive: Receive = { case session: Session =>
+    execute(session)
   }
 
   /**

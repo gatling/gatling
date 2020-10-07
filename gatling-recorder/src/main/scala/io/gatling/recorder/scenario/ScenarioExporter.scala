@@ -75,10 +75,9 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       if (transactions.isEmpty) {
         "the selected file doesn't contain any valid HTTP requests".failure
       } else {
-        val scenarioElements = transactions.map {
-          case HttpTransaction(request, response) =>
-            val element = RequestElement(request, response)
-            TimedScenarioElement(request.timestamp, response.timestamp, element)
+        val scenarioElements = transactions.map { case HttpTransaction(request, response) =>
+          val element = RequestElement(request, response)
+          TimedScenarioElement(request.timestamp, response.timestamp, element)
         }
 
         ScenarioExporter.saveScenario(ScenarioDefinition(scenarioElements, tags = Nil)).success
@@ -128,21 +127,19 @@ private[recorder] object ScenarioExporter extends StrictLogging {
     requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
     // dump request & response bodies if needed
-    requestElements.foreach(
-      el =>
-        el.body.foreach {
-          case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
-          case _                       =>
-        }
+    requestElements.foreach(el =>
+      el.body.foreach {
+        case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
+        case _                       =>
+      }
     )
 
     if (config.http.checkResponseBodies) {
-      requestElements.foreach(
-        el =>
-          el.responseBody.foreach {
-            case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
-            case _                        =>
-          }
+      requestElements.foreach(el =>
+        el.responseBody.foreach {
+          case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
+          case _                        =>
+        }
       )
     }
 
@@ -155,14 +152,13 @@ private[recorder] object ScenarioExporter extends StrictLogging {
           val acceptedHeaders = element.headers.entries.asScala
             .map(e => e.getKey -> e.getValue)
             .toList
-            .filterNot {
-              case (headerName, headerValue) =>
-                val isFiltered = containsIgnoreCase(filteredHeaders, headerName) || isHttp2PseudoHeader(headerName)
-                val isAlreadyInBaseHeaders = getIgnoreCase(baseHeaders, headerName).contains(headerValue)
-                val isPostWithFormParams = element.method == HttpMethod.POST.name && HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED
-                  .contentEqualsIgnoreCase(headerValue)
-                val isEmptyContentLength = HttpHeaderNames.CONTENT_LENGTH.contentEqualsIgnoreCase(headerName) && headerValue == "0"
-                isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
+            .filterNot { case (headerName, headerValue) =>
+              val isFiltered = containsIgnoreCase(filteredHeaders, headerName) || isHttp2PseudoHeader(headerName)
+              val isAlreadyInBaseHeaders = getIgnoreCase(baseHeaders, headerName).contains(headerValue)
+              val isPostWithFormParams = element.method == HttpMethod.POST.name && HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED
+                .contentEqualsIgnoreCase(headerValue)
+              val isEmptyContentLength = HttpHeaderNames.CONTENT_LENGTH.contentEqualsIgnoreCase(headerName) && headerValue == "0"
+              isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams || isEmptyContentLength
             }
             .sortBy(_._1)
 
@@ -172,8 +168,8 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
           } else {
             val headersSeq = headers.toSeq
-            headersSeq.indexWhere {
-              case (_, existingHeaders) => existingHeaders == acceptedHeaders
+            headersSeq.indexWhere { case (_, existingHeaders) =>
+              existingHeaders == acceptedHeaders
             } match {
               case -1 =>
                 element.filteredHeadersId = Some(element.id)

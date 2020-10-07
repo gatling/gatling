@@ -71,10 +71,9 @@ object ZincCompiler extends App with ProblemStringFormats {
 
   private def jarMatching(classpath: Array[JFile], regex: String): JFile =
     classpath
-      .find(
-        file =>
-          !file.getName
-            .startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined
+      .find(file =>
+        !file.getName
+          .startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined
       )
       .getOrElse(
         throw new RuntimeException(s"Can't find the jar matching $regex")
@@ -226,9 +225,7 @@ object ZincCompiler extends App with ProblemStringFormats {
     }
 
     val options = CompileOptions.of(
-      (classpath :+ configuration.binariesDirectory.toFile).map(
-        file => new PlainVirtualFile(file.toPath): VirtualFile
-      ), // _classpath
+      (classpath :+ configuration.binariesDirectory.toFile).map(file => new PlainVirtualFile(file.toPath): VirtualFile), // _classpath
       sources
         .map(file => new PlainVirtualFile(file.toPath): VirtualFile), // _sources
       configuration.binariesDirectory, // _classesDirectory

@@ -82,8 +82,8 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     val queuedFeeder = IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))
 
     val convertedValue: Option[Any] = queuedFeeder
-      .convert {
-        case ("1", attr) => attr.concat("s are boring !")
+      .convert { case ("1", attr) =>
+        attr.concat("s are boring !")
       }
       .apply()
       .next()
@@ -92,8 +92,8 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     convertedValue.fold(fail("Could not find key"))(_ shouldBe "Tests are boring !")
 
     val cantConvert: Option[Any] = queuedFeeder
-      .convert {
-        case ("Can't find because don't exist", shouldKeepAsIs) => shouldKeepAsIs.concat("s are boring !")
+      .convert { case ("Can't find because don't exist", shouldKeepAsIs) =>
+        shouldKeepAsIs.concat("s are boring !")
       }
       .apply()
       .next()

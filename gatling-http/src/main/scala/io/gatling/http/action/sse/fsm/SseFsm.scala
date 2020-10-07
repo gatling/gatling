@@ -83,12 +83,16 @@ class SseFsm(
   private var currentState: SseState = _
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit =
-    eventLoop.schedule(new Runnable {
-      override def run(): Unit = {
-        currentTimeout = null
-        execute(currentState.onTimeout())
-      }
-    }, dur.toMillis, TimeUnit.MILLISECONDS)
+    eventLoop.schedule(
+      new Runnable {
+        override def run(): Unit = {
+          currentTimeout = null
+          execute(currentState.onTimeout())
+        }
+      },
+      dur.toMillis,
+      TimeUnit.MILLISECONDS
+    )
 
   private[fsm] def cancelTimeout(): Unit =
     if (currentTimeout != null) {

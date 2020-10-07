@@ -75,15 +75,15 @@ trait MqttCheckSupport {
 
   // correlators
   implicit def findCheckBuilder2MessageCorrelator[A, P](findCheckBuilder: FindCheckBuilder[A, P, String]) //
-  (
-      implicit textMaterializer: CheckMaterializer[A, Check[String], String, P],
+  (implicit
+      textMaterializer: CheckMaterializer[A, Check[String], String, P],
       bufferMaterializer: CheckMaterializer[A, Check[ByteBuf], ByteBuf, P]
   ): MessageCorrelator =
     validatorCheckBuilder2MessageCorrelator(findCheckBuilder.find)
 
   implicit def validatorCheckBuilder2MessageCorrelator[A, P](validatorCheckBuilder: ValidatorCheckBuilder[A, P, String]) //
-  (
-      implicit textMaterializer: CheckMaterializer[A, Check[String], String, P],
+  (implicit
+      textMaterializer: CheckMaterializer[A, Check[String], String, P],
       bufferMaterializer: CheckMaterializer[A, Check[ByteBuf], ByteBuf, P]
   ): MessageCorrelator = ???
 }

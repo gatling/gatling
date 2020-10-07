@@ -127,14 +127,13 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def http2PriorKnowledge(remotes: Map[String, Boolean]): HttpProtocolBuilder =
     this
       .modify(_.protocol.enginePart.http2PriorKnowledge)
-      .setTo(remotes.map {
-        case (address, isHttp2) =>
-          val remote = address.split(':') match {
-            case Array(hostname, port) => new Remote(hostname, port.toInt)
-            case Array(hostname)       => new Remote(hostname, 443)
-            case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
-          }
-          remote -> isHttp2
+      .setTo(remotes.map { case (address, isHttp2) =>
+        val remote = address.split(':') match {
+          case Array(hostname, port) => new Remote(hostname, port.toInt)
+          case Array(hostname)       => new Remote(hostname, 443)
+          case _                     => throw new IllegalArgumentException("Invalid address for HTTP/2 prior knowledge: " + address)
+        }
+        remote -> isHttp2
       })
 
   // responsePart
@@ -186,8 +185,8 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def asyncNameResolution(dnsServers: Array[InetSocketAddress]): HttpProtocolBuilder =
     this.modify(_.protocol.dnsPart.dnsNameResolution).setTo(AsyncDnsNameResolution(dnsServers))
   def hostNameAliases(aliases: Map[String, List[String]]): HttpProtocolBuilder = {
-    val aliasesToInetAddresses = aliases.map {
-      case (hostname, ips) => hostname -> ips.map(ip => InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress)).asJava
+    val aliasesToInetAddresses = aliases.map { case (hostname, ips) =>
+      hostname -> ips.map(ip => InetAddress.getByAddress(hostname, InetAddress.getByName(ip).getAddress)).asJava
     }
     this.modify(_.protocol.dnsPart.hostNameAliases).setTo(aliasesToInetAddresses)
   }

@@ -75,25 +75,24 @@ $mapContent)"""
 
         case Right(chains) =>
           val chainElements = chains.zipWithIndex
-            .map {
-              case (chain, i) =>
-                var firstNonTagElement = true
-                val chainContent = chain
-                  .map { element =>
-                    val prefix = element match {
-                      case TagElement(_) => ""
-                      case _ =>
-                        if (firstNonTagElement) {
-                          firstNonTagElement = false
-                          ""
-                        } else {
-                          "."
-                        }
-                    }
-                    s"$prefix${renderScenarioElement(element, extractedUris)}"
+            .map { case (chain, i) =>
+              var firstNonTagElement = true
+              val chainContent = chain
+                .map { element =>
+                  val prefix = element match {
+                    case TagElement(_) => ""
+                    case _ =>
+                      if (firstNonTagElement) {
+                        firstNonTagElement = false
+                        ""
+                      } else {
+                        "."
+                      }
                   }
-                  .mkString("\n\t\t")
-                s"val chain_$i = $chainContent"
+                  s"$prefix${renderScenarioElement(element, extractedUris)}"
+                }
+                .mkString("\n\t\t")
+              s"val chain_$i = $chainContent"
             }
             .mkString("\n\n")
 

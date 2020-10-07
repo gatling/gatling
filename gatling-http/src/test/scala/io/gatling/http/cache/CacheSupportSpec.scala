@@ -66,7 +66,9 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   it should "give priority to Cache-Control over Expires" in new CacheContext {
-    getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> HttpHeaderValues.NO_STORE)) shouldBe None
+    getResponseExpire(
+      List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> HttpHeaderValues.NO_STORE)
+    ) shouldBe None
     getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=-1")) shouldBe None
     getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=0")) shouldBe None
     getResponseExpire(List(HttpHeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HttpHeaderNames.CACHE_CONTROL -> "max-age=567")) shouldBe Symbol(

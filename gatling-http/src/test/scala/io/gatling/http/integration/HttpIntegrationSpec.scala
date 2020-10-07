@@ -100,9 +100,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   ignore should "retrieve linked resources, when resource downloading is enabled" in {
 
-    val handler: Handler = {
-      case HttpRequest(HttpMethod.GET, path) =>
-        sendFile(path.drop(1)) // Drop leading slash in path
+    val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
+      sendFile(path.drop(1)) // Drop leading slash in path
     }
 
     runWithHttpServer(handler) { implicit httpServer =>
@@ -131,9 +130,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   ignore should "fetch resources in conditional comments" in {
 
-    val handler: Handler = {
-      case HttpRequest(HttpMethod.GET, path) =>
-        sendFile(path.drop(1)) // Drop leading slash in path
+    val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
+      sendFile(path.drop(1)) // Drop leading slash in path
     }
 
     runWithHttpServer(handler) { implicit httpServer =>

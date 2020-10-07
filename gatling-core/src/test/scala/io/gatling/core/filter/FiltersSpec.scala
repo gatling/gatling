@@ -60,21 +60,30 @@ class FiltersSpec extends AnyFlatSpec with Matchers with MockitoSugar with Inspe
   }
 
   it should "filter whitelist then blacklist when both are specified on whitefirst mode" in {
-    checkRequestAccepted(new Filters(whiteList, blackList), urls.partition { url =>
-      url.contains("takima") && !url.contains("assets")
-    })
+    checkRequestAccepted(
+      new Filters(whiteList, blackList),
+      urls.partition { url =>
+        url.contains("takima") && !url.contains("assets")
+      }
+    )
   }
 
   it should "filter blacklist correctly when whitelist is empty" in {
-    checkRequestAccepted(new Filters(blackList, WhiteList.Empty), urls.partition { url =>
-      !url.contains("assets")
-    })
+    checkRequestAccepted(
+      new Filters(blackList, WhiteList.Empty),
+      urls.partition { url =>
+        !url.contains("assets")
+      }
+    )
   }
 
   it should "filter blacklist then whitelist when both are specified on blackfirst mode" in {
-    checkRequestAccepted(new Filters(blackList, whiteList), urls.partition { url =>
-      !url.contains("assets") && url.contains("takima")
-    })
+    checkRequestAccepted(
+      new Filters(blackList, whiteList),
+      urls.partition { url =>
+        !url.contains("assets") && url.contains("takima")
+      }
+    )
   }
 
   it should "filter correctly when there are multiple patterns" in {

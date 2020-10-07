@@ -93,11 +93,10 @@ private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: Stat
     }
   }
 
-  when(WaitingToStart) {
-    case Event(Start(controller, scenarios), NoData) =>
-      val rootWorkloads = buildWorkloads(scenarios.roots)
-      val timer = system.scheduler.scheduleWithFixedDelay(TickPeriod, TickPeriod, self, Tick)
-      inject(StartedData(controller, rootWorkloads, Nil, scenarios.children, timer), firstBatch = true)
+  when(WaitingToStart) { case Event(Start(controller, scenarios), NoData) =>
+    val rootWorkloads = buildWorkloads(scenarios.roots)
+    val timer = system.scheduler.scheduleWithFixedDelay(TickPeriod, TickPeriod, self, Tick)
+    inject(StartedData(controller, rootWorkloads, Nil, scenarios.children, timer), firstBatch = true)
   }
 
   when(Started) {

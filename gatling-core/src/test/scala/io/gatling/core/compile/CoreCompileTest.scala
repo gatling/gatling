@@ -61,7 +61,7 @@ class CoreCompileTest extends Simulation {
   private val chainedScenarios = exec(scenario("foo")).exec(scenario("bar"))
 
   private val lambdaUser = scenario("Standard User")
-  // First request outside iteration
+    // First request outside iteration
     .repeat(2) {
       feed(richTestData)
         .exec(noop)

@@ -109,10 +109,9 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
 
       val pauses = allElementsWithTagsStickingToNextRequest.tail
         .zip(allElementsWithTagsStickingToNextRequest)
-        .map {
-          case (element, previousElement) =>
-            val pauseDurationInMillis = math.max(element.sendTime - previousElement.arrivalTime, 0L)
-            TimedScenarioElement(element.arrivalTime, element.arrivalTime, PauseElement(pauseDurationInMillis milliseconds))
+        .map { case (element, previousElement) =>
+          val pauseDurationInMillis = math.max(element.sendTime - previousElement.arrivalTime, 0L)
+          TimedScenarioElement(element.arrivalTime, element.arrivalTime, PauseElement(pauseDurationInMillis milliseconds))
         }
 
       val combined = allElementsWithTagsStickingToNextRequest.zip(pauses).flatMap { case (elem, pause) => List(elem, pause) } ++ Seq(
@@ -128,8 +127,8 @@ private[recorder] object ScenarioDefinition extends StrictLogging {
     }
   }
 
-  def apply(requests: Seq[TimedScenarioElement[RequestElement]], tags: Seq[TimedScenarioElement[TagElement]])(
-      implicit config: RecorderConfiguration
+  def apply(requests: Seq[TimedScenarioElement[RequestElement]], tags: Seq[TimedScenarioElement[TagElement]])(implicit
+      config: RecorderConfiguration
   ): ScenarioDefinition = {
     val sortedRequests = requests.sortBy(_.arrivalTime)
 

@@ -53,8 +53,11 @@ class BatchedSeparatedValuesFeederSpec extends BaseSpec {
   }
 
   it should "return an empty feeder when there's no record" in {
-    new QueueBatchedSeparatedValuesFeeder(channelFactory(s"""column1,column2
-                                                            |""".stripMargin), streamer).hasNext shouldBe false
+    new QueueBatchedSeparatedValuesFeeder(
+      channelFactory(s"""column1,column2
+                        |""".stripMargin),
+      streamer
+    ).hasNext shouldBe false
   }
 
   "RandomBatchedSeparatedValuesFeeder" should "feed an infinite stream of different records" in {

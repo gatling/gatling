@@ -45,8 +45,10 @@ object RedirectProcessor {
 
     val originalMethod = originalRequest.getMethod
 
-    val switchToGet = originalMethod != GET && originalMethod != HEAD && originalMethod != OPTIONS && (responseStatus == HttpResponseStatus.MOVED_PERMANENTLY || responseStatus == SEE_OTHER || (responseStatus == FOUND && !httpProtocol.responsePart.strict302Handling))
-    val keepBody = responseStatus == TEMPORARY_REDIRECT || responseStatus == PERMANENT_REDIRECT || (responseStatus == FOUND && httpProtocol.responsePart.strict302Handling)
+    val switchToGet =
+      originalMethod != GET && originalMethod != HEAD && originalMethod != OPTIONS && (responseStatus == HttpResponseStatus.MOVED_PERMANENTLY || responseStatus == SEE_OTHER || (responseStatus == FOUND && !httpProtocol.responsePart.strict302Handling))
+    val keepBody =
+      responseStatus == TEMPORARY_REDIRECT || responseStatus == PERMANENT_REDIRECT || (responseStatus == FOUND && httpProtocol.responsePart.strict302Handling)
 
     val newHeaders = originalRequest.getHeaders
       .remove(HttpHeaderNames.HOST)
@@ -94,9 +96,11 @@ object RedirectProcessor {
 
     val newClientRequest = requestBuilder.build
 
-    if (newClientRequest.getUri == originalRequest.getUri
-        && newClientRequest.getMethod == originalRequest.getMethod
-        && newClientRequest.getCookies.asScala.toSet == originalRequest.getCookies.asScala.toSet) {
+    if (
+      newClientRequest.getUri == originalRequest.getUri
+      && newClientRequest.getMethod == originalRequest.getMethod
+      && newClientRequest.getCookies.asScala.toSet == originalRequest.getCookies.asScala.toSet
+    ) {
       // invalid redirect
 
       "Invalid redirect to the same request".failure

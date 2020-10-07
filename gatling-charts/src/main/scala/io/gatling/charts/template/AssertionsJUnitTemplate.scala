@@ -34,7 +34,8 @@ private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionR
 </testcase>"""
 
   def getOutput: String =
-    s"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults.count(_.result == false)}" time="0">
+    s"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults
+      .count(_.result == false)}" time="0">
 ${assertionResults.map(print).mkString(Eol)}
 </testsuite>"""
 }

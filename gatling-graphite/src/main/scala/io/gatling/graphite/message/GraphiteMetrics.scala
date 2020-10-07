@@ -30,9 +30,8 @@ private[graphite] object GraphiteMetrics extends StrictLogging {
   def apply(pathValuePairs: Iterator[(String, Long)], epoch: Long): GraphiteMetrics = {
 
     val sb = StringBuilderPool.DEFAULT.get()
-    pathValuePairs.foreach {
-      case (path, value) =>
-        sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')
+    pathValuePairs.foreach { case (path, value) =>
+      sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')
     }
     logger.debug(s"GraphiteMetrics=${sb.toString}")
     GraphiteMetrics(ByteString(sb.toString, UTF_8.name))

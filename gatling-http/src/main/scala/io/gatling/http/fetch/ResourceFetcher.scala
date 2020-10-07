@@ -123,10 +123,15 @@ private[http] class ResourceFetcher(
       case HttpResponseStatus.OK =>
         maybeLastModifiedOrEtag match {
           case Some(lastModifiedOrEtag) =>
-            httpCaches.computeInferredResourcesIfAbsent(httpProtocol, uri, lastModifiedOrEtag, () => {
-              httpCaches.removeCssResources(uri)
-              parseCssResources()
-            })
+            httpCaches.computeInferredResourcesIfAbsent(
+              httpProtocol,
+              uri,
+              lastModifiedOrEtag,
+              () => {
+                httpCaches.removeCssResources(uri)
+                parseCssResources()
+              }
+            )
 
           case _ =>
             // don't cache

@@ -62,12 +62,11 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
           thisSecondIterator = Shard
             .shards(users, 1000)
             .zipWithIndex
-            .flatMap {
-              case (millisUsers, millis) =>
-                if (millisUsers > 0)
-                  Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis) milliseconds)
-                else
-                  Iterator.empty
+            .flatMap { case (millisUsers, millis) =>
+              if (millisUsers > 0)
+                Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis) milliseconds)
+              else
+                Iterator.empty
             }
           result = Some(false)
         }
@@ -372,9 +371,8 @@ final case class IncreasingUsersPerSecCompositeStep private[inject] (
 private[inject] final case class CompositeOpenInjectionStep private[inject] (injectionSteps: List[OpenInjectionStep]) extends OpenInjectionStep {
 
   override private[inject] def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    injectionSteps.foldRight(iterator) {
-      case (injectionStep, acc) =>
-        injectionStep.chain(acc)
+    injectionSteps.foldRight(iterator) { case (injectionStep, acc) =>
+      injectionStep.chain(acc)
     }
 
   override private[inject] def users: Long = injectionSteps.map(_.users).sum

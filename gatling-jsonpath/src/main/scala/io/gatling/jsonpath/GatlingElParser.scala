@@ -83,16 +83,16 @@ object GatlingElParser extends RegexParsers {
   private def arraySliceStep: Parser[Option[Int]] = ":" ~> number.?
 
   private def arraySlice: Parser[ArraySlice] =
-    (":" ~> number.?) ~ arraySliceStep.? ^^ {
-      case end ~ step => ArraySlice(None, end, step.flatten.getOrElse(1))
+    (":" ~> number.?) ~ arraySliceStep.? ^^ { case end ~ step =>
+      ArraySlice(None, end, step.flatten.getOrElse(1))
     }
 
   private def arrayRandomAccess: Parser[Option[ArrayRandomAccess]] =
     rep1("," ~> number).? ^^ (_.map(ArrayRandomAccess))
 
   private def arraySlicePartial: Parser[ArrayAccessor] =
-    number ~ arraySlice ^^ {
-      case i ~ as => as.copy(start = Some(i))
+    number ~ arraySlice ^^ { case i ~ as =>
+      as.copy(start = Some(i))
     }
 
   private def arrayRandomAccessPartial: Parser[ArrayAccessor] =
@@ -146,8 +146,8 @@ object GatlingElParser extends RegexParsers {
     }
 
   private def expression2: Parser[FilterToken] =
-    value ~ comparisonOperator ~ subQuery ^^ {
-      case lhs ~ op ~ rhs => ComparisonFilter(op, lhs, rhs)
+    value ~ comparisonOperator ~ subQuery ^^ { case lhs ~ op ~ rhs =>
+      ComparisonFilter(op, lhs, rhs)
     }
 
   private def expression: Parser[FilterToken] = expression1 | expression2

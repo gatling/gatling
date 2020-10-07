@@ -125,8 +125,8 @@ final case class Session(
           attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
         } else {
           val timestampNames: Set[String] = counterNames.map(timestampName)
-          attributes.view.filterKeys(
-            key => counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
+          attributes.view.filterKeys(key =>
+            counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
           )
         }
       }

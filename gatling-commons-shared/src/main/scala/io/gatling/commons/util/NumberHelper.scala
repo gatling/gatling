@@ -29,10 +29,12 @@ object NumberHelper {
     var value = 0L
     var k = start
     var c = ' '
-    while (k < s.length && {
-             c = s.charAt(k)
-             c.isDigit
-           }) {
+    while (
+      k < s.length && {
+        c = s.charAt(k)
+        c.isDigit
+      }
+    ) {
       value = value * 10L + c.getNumericValue
       k += 1
     }
@@ -41,7 +43,7 @@ object NumberHelper {
 
   implicit class RichDouble(val double: Double) extends AnyVal {
 
-    private def suffix(i: Int) = i % 10 match {
+    private def suffix(i: Int) = i    % 10 match {
       case _ if (11 to 13) contains i % 100 => "th"
       case 1 => "st"
       case 2 => "nd"

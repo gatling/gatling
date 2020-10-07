@@ -36,9 +36,13 @@ class Pause(pauseDuration: Expression[Long], val statsEngine: StatsEngine, val c
       // can make pause
       logger.debug(s"Pausing for ${durationInMillis}ms")
 
-      session.eventLoop.schedule((() => {
-        next ! session
-      }): Runnable, durationInMillis, TimeUnit.MILLISECONDS)
+      session.eventLoop.schedule(
+        (() => {
+          next ! session
+        }): Runnable,
+        durationInMillis,
+        TimeUnit.MILLISECONDS
+      )
     }
 
     pauseDuration(session).map(schedule)

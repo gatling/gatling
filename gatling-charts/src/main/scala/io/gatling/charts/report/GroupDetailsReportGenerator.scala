@@ -28,8 +28,8 @@ private[charts] class GroupDetailsReportGenerator(
     reportsGenerationInputs: ReportsGenerationInputs,
     chartsFiles: ChartsFiles,
     componentLibrary: ComponentLibrary
-)(
-    implicit configuration: GatlingConfiguration
+)(implicit
+    configuration: GatlingConfiguration
 ) extends ReportGenerator {
 
   def generate(): Unit = {

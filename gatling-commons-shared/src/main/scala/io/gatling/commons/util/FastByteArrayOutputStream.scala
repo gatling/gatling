@@ -84,11 +84,13 @@ class FastByteArrayOutputStream(initialSize: Int) extends OutputStream {
   }
 
   override def write(b: Array[Byte], off: Int, len: Int): Unit = {
-    if ((off < 0)
-        || (off > b.length)
-        || (len < 0)
-        || ((off + len) > b.length)
-        || ((off + len) < 0)) {
+    if (
+      (off < 0)
+      || (off > b.length)
+      || (len < 0)
+      || ((off + len) > b.length)
+      || ((off + len) < 0)
+    ) {
       throw new IndexOutOfBoundsException()
 
     } else if (len != 0) {

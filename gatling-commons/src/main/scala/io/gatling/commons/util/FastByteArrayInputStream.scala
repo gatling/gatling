@@ -52,7 +52,7 @@ final class FastByteArrayInputStream(bytes: Array[Byte]) extends InputStream {
     } else {
       val oldPosition = position
       position += 1
-      bytes(oldPosition) & 0xFF
+      bytes(oldPosition) & 0xff
     }
 
   override def read(b: Array[Byte], offset: Int, length: Int): Int =
