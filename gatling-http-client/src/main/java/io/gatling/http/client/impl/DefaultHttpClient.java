@@ -349,12 +349,13 @@ public class DefaultHttpClient implements HttpClient {
     Request request = tx.request;
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
+    Uri requestUri = request.getUri();
 
     // use a fresh channel for WebSocket
-    Channel pooledChannel = request.getUri().isWebSocket() ? null : resources.channelPool.poll(tx.key);
+    Channel pooledChannel = requestUri.isWebSocket() ? null : resources.channelPool.poll(tx.key);
 
     listener.onSend();
-    if (request.getUri().isSecured() && request.isHttp2Enabled() && !config.isEnableSni()) {
+    if (requestUri.isSecured() && request.isHttp2Enabled() && !config.isEnableSni()) {
       listener.onThrowable(new UnsupportedOperationException("HTTP/2 can't work if SNI is disabled."));
       return;
     }
@@ -366,7 +367,7 @@ public class DefaultHttpClient implements HttpClient {
       sendTxWithChannel(tx, pooledChannel);
 
     } else {
-      InetSocketAddress unresolvedRemoteAddressThroughTunnelling = unresolvedRemoteAddressThroughTunnelling(request.getProxyServer(), request.getUri());
+      InetSocketAddress unresolvedRemoteAddressThroughTunnelling = unresolvedRemoteAddressThroughTunnelling(request.getProxyServer(), requestUri);
       boolean logProxyAddress = unresolvedRemoteAddressThroughTunnelling != null;
 
       resolveRemoteAddresses(request, eventLoop, unresolvedRemoteAddressThroughTunnelling, listener, requestTimeout)
@@ -379,7 +380,7 @@ public class DefaultHttpClient implements HttpClient {
             List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
             if (request.isHttp2Enabled() && tx.channelState != HttpTx.ChannelState.RETRY) {
-              String domain = tx.request.getUri().getHost();
+              String domain = requestUri.getHost();
               Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
               if (coalescedChannel != null) {
                 tx.listener.onProtocolAwareness(true);
@@ -402,6 +403,7 @@ public class DefaultHttpClient implements HttpClient {
     Request request = tx.request;
     HttpListener listener = tx.listener;
     RequestTimeout requestTimeout = tx.requestTimeout;
+    Uri requestUri = request.getUri();
 
     // start timeouts
     for (HttpTx t : txs) {
@@ -409,7 +411,7 @@ public class DefaultHttpClient implements HttpClient {
     }
 
     ProxyServer proxyServer = request.getProxyServer();
-    InetSocketAddress unresolvedRemoteAddressThroughTunnelling = unresolvedRemoteAddressThroughTunnelling(proxyServer, request.getUri());
+    InetSocketAddress unresolvedRemoteAddressThroughTunnelling = unresolvedRemoteAddressThroughTunnelling(proxyServer, requestUri);
     boolean logProxyAddress = unresolvedRemoteAddressThroughTunnelling != null;
 
     resolveRemoteAddresses(request, eventLoop, unresolvedRemoteAddressThroughTunnelling, listener, requestTimeout)
@@ -421,7 +423,7 @@ public class DefaultHttpClient implements HttpClient {
         if (whenRemoteAddresses.isSuccess()) {
           List<InetSocketAddress> addresses = whenRemoteAddresses.getNow();
 
-          String domain = tx.request.getUri().getHost();
+          String domain = requestUri.getHost();
           Channel coalescedChannel = resources.channelPool.pollCoalescedChannel(tx.key.clientId, domain, addresses);
           if (coalescedChannel != null) {
             sendHttp2TxsWithChannel(txs, coalescedChannel);
