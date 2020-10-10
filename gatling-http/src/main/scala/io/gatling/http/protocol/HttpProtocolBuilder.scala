@@ -55,7 +55,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def disableWarmUp: HttpProtocolBuilder = this.modify(_.protocol.warmUpUrl).setTo(None)
 
   // enginePart
-  def shareConnections: HttpProtocolBuilder = this.modify(_.protocol.enginePart.shareConnections).setTo(true)
+  def shareConnections: HttpProtocolBuilder = disableAutoReferer.modify(_.protocol.enginePart.shareConnections).setTo(true)
   def virtualHost(virtualHost: Expression[String]): HttpProtocolBuilder = this.modify(_.protocol.enginePart.virtualHost).setTo(Some(virtualHost))
   def localAddress(address: String): HttpProtocolBuilder = localAddresses(address :: Nil)
   def localAddresses(addresses: String*): HttpProtocolBuilder = localAddresses(addresses.toList)
