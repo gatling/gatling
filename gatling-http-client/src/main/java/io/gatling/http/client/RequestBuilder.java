@@ -195,11 +195,14 @@ public class RequestBuilder {
     }
 
     String referer = headers.get(REFERER);
-    if (!headers.contains(ORIGIN)
+    if (referer != null
       && !HttpMethod.GET.equals(method)
       && !HttpMethod.HEAD.equals(method)
-      && referer != null) {
-      headers.set(ORIGIN, originHeader(Uri.create(referer)));
+      && !headers.contains(ORIGIN)) {
+      String origin = originHeader(referer);
+      if (origin != null) {
+        headers.set(ORIGIN, origin);
+      }
     }
 
     if (!headers.contains(HOST)) {
