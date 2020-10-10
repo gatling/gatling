@@ -56,13 +56,27 @@ public final class HttpUtils {
     return port == -1 || port == uri.getSchemeDefaultPort() ? host : host + ":" + port;
   }
 
-  public static String originHeader(Uri uri) {
-    StringBuilder sb = StringBuilderPool.DEFAULT.get();
-    sb.append(uri.isSecured() ? "https://" : "http://").append(uri.getHost());
-    if (uri.getExplicitPort() != uri.getSchemeDefaultPort()) {
-      sb.append(':').append(uri.getPort());
+  public static String originHeader(String referer) {
+    if (referer.startsWith("http://")
+      || referer.startsWith("https://")
+      || referer.startsWith("ws://")
+      || referer.startsWith("wss://")
+    ) {
+      Uri uri;
+      try {
+        uri = Uri.create(referer);
+      } catch (IllegalArgumentException e) {
+        return null;
+      }
+      StringBuilder sb = StringBuilderPool.DEFAULT.get();
+      sb.append(uri.isSecured() ? "https://" : "http://").append(uri.getHost());
+      if (uri.getExplicitPort() != uri.getSchemeDefaultPort()) {
+        sb.append(':').append(uri.getPort());
+      }
+      return sb.toString();
+    } else {
+      return null;
     }
-    return sb.toString();
   }
 
   public static Charset extractContentTypeCharsetAttribute(String contentType) {
