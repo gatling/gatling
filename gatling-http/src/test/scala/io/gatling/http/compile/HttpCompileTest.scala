@@ -84,6 +84,7 @@ class HttpCompileTest extends Simulation {
     .perUserNameResolution
     .localAddress("192.168.1.100")
     .localAddresses(List("192.168.1.100", "192.168.1.101"))
+    .useAllLocalAddresses
     .disableCaching
     .disableUrlEncoding
     .silentUri("https://foo\\.com/*")
