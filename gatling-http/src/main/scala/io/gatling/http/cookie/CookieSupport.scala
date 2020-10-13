@@ -19,6 +19,8 @@ package io.gatling.http.cookie
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.session.Expression
+import io.gatling.http.action.cookie.{ AddCookieBuilder, AddCookieDsl, GetCookieBuilder, GetCookieDsl }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.Cookie
@@ -75,4 +77,16 @@ private[http] object CookieSupport {
     }
 
   val FlushCookieJar: Expression[Session] = _.remove(CookieJarAttributeName).success
+}
+
+trait CookieSupport {
+  def addCookie(cookie: AddCookieDsl): AddCookieBuilder = AddCookieBuilder(cookie)
+  def getCookieValue(cookie: GetCookieDsl): GetCookieBuilder = GetCookieBuilder(cookie)
+  def flushSessionCookies: Expression[Session] = CookieSupport.FlushSessionCookies
+  def flushCookieJar: Expression[Session] = CookieSupport.FlushCookieJar
+  def flushHttpCache: Expression[Session] = HttpCaches.FlushCache
+
+  def Cookie(name: Expression[String], value: Expression[String]): AddCookieDsl =
+    AddCookieDsl(name, value, domain = None, path = None, maxAge = None, secure = false)
+  def CookieKey(name: Expression[String]): GetCookieDsl = GetCookieDsl(name, domain = None, path = None, secure = false, saveAs = None)
 }
