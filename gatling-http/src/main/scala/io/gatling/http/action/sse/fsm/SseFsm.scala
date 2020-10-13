@@ -89,7 +89,6 @@ class SseFsm(
         logger.debug(s"Timeout ${currentState.hashCode} triggered")
         currentTimeout = null
         execute(currentState.onTimeout())
-        null
       },
       dur.toMillis,
       TimeUnit.MILLISECONDS
