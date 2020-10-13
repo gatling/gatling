@@ -49,7 +49,7 @@ class WsFsm(
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
-    eventLoop.schedule(
+    currentTimeout = eventLoop.schedule(
       () => {
         logger.debug(s"Timeout ${currentState.hashCode} triggered")
         currentTimeout = null
