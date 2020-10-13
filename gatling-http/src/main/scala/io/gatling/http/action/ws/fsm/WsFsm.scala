@@ -49,9 +49,9 @@ class WsFsm(
   private var currentState: WsState = new WsInitState(this)
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
-    logger.debug("Scheduling timeout")
     eventLoop.schedule(
       () => {
+        logger.debug(s"Timeout ${currentState.hashCode} triggered")
         currentTimeout = null
         execute(currentState.onTimeout())
         null
@@ -59,6 +59,7 @@ class WsFsm(
       dur.toMillis,
       TimeUnit.MILLISECONDS
     )
+    logger.debug(s"Timeout ${currentState.hashCode} scheduled")
   }
 
   private[fsm] def cancelTimeout(): Unit =
@@ -66,9 +67,9 @@ class WsFsm(
       logger.debug("Couldn't cancel timeout because it wasn't set")
     } else {
       if (currentTimeout.cancel(true)) {
-        logger.debug("Timeout cancelled")
+        logger.debug(s"Timeout ${currentState.hashCode} cancelled")
       } else {
-        logger.debug("Failed to cancel timeout")
+        logger.debug(s"Failed to cancel timeout ${currentState.hashCode}")
       }
       currentTimeout = null
     }
