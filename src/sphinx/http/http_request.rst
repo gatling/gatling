@@ -442,6 +442,16 @@ Similar to :ref:`ElFileBody <http-request-body-elfile>`.
 
 Similar to :ref:`StringBody <http-request-body-string>`.
 
+* ``PebbleStringBodyPart(string: String)``
+* ``PebbleStringBodyPart(name: Expression[String], string: String)``
+
+Similar to :ref:`PebbleStringBody <http-request-body-pebble>`.
+
+* ``PebbleFileBodyPart(path: Expression[String])``
+* ``PebbleFileBodyPart(name: Expression[String], path: Expression[String])``
+
+Similar to :ref:`PebbleFileBody <http-request-body-pebble>`.
+
 * ``ByteArrayBodyPart(bytes: Expression[Array[Byte])``
 * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
 

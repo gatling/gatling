@@ -797,7 +797,9 @@
               description: Sets a string
             - signature: (ByteArrayBodyPart(bytes))
               description: Sets the body from a bytes array
-            - signature: (PebbleBodyPart(path))
+            - signature: (PebbleStringBodyPart(path))
+              description: Parses, resolves and then uploads a Pebble template from the <i>string</i>
+            - signature: (PebbleBodyFilePart(string))
               description: Parses, resolves and then uploads a Pebble template from the <i>path</i>
 
         - keyword: formParam

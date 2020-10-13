@@ -16,7 +16,7 @@
 
 package io.gatling.http.request
 
-import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
+import io.gatling.core.body.{ ElFileBodies, PebbleFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 
@@ -39,6 +39,19 @@ trait BodyPartSupport {
     BodyPart.rawFileBodyPart(None, filePath, rawFileBodies)
   def RawFileBodyPart(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
     BodyPart.rawFileBodyPart(Some(name), filePath, rawFileBodies)
+
+  def PebbleStringBodyPart(string: String)(implicit configuration: GatlingConfiguration): BodyPart =
+    BodyPart.pebbleStringBodyPart(None, string, configuration.core.charset)
+  def PebbleStringBodyPart(name: Expression[String], string: String)(implicit configuration: GatlingConfiguration): BodyPart =
+    BodyPart.pebbleStringBodyPart(Some(name), string, configuration.core.charset)
+
+  def PebbleFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): BodyPart =
+    BodyPart.pebbleFileBodyPart(None, filePath, configuration.core.charset, pebbleFileBodies)
+  def PebbleFileBodyPart(
+      name: Expression[String],
+      filePath: Expression[String]
+  )(implicit configuration: GatlingConfiguration, pebbleFileBodies: PebbleFileBodies): BodyPart =
+    BodyPart.pebbleFileBodyPart(Some(name), filePath, configuration.core.charset, pebbleFileBodies)
 
   def ByteArrayBodyPart(bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(None, bytes)
   def ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(Some(name), bytes)
