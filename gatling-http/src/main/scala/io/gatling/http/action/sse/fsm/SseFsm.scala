@@ -84,7 +84,7 @@ class SseFsm(
   private var currentState: SseState = _
   private var currentTimeout: ScheduledFuture[Unit] = _
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
-    eventLoop.schedule(
+    currentTimeout = eventLoop.schedule(
       () => {
         logger.debug(s"Timeout ${currentState.hashCode} triggered")
         currentTimeout = null
