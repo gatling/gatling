@@ -17,6 +17,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.commons.validation.Failure
 import io.gatling.core.CoreDsl
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.jmespath.JmesPathCheckType
@@ -56,55 +57,22 @@ class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with Core
     )
   }
 
+  it should "fail when the path doesn't match" in {
+    val response = mockResponse(storeJson)
+    jmesPath("foo").find.exists.check(response, EmptySession, Check.newPreparedCache) shouldBe a[Failure]
+  }
+
+  it should "fail when the attribute value is null" in {
+    val response = mockResponse("""{"foo": null}""")
+    jmesPath("foo").ofType[String].find.exists.check(response, EmptySession, Check.newPreparedCache) shouldBe a[Failure]
+  }
+
   it should "find single result into Map object form" in {
     val response = mockResponse(storeJson)
     jmesPath("street").ofType[Map[String, Any]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Map("book" -> "On the street")),
       None
     )
-  }
-
-  it should "find a null attribute value when expected type is String" in {
-    val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[String].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
-  }
-
-  it should "find a null attribute value when expected type is Any" in {
-    val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[Any].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
-  }
-
-  it should "find a null attribute value when expected type is Int" in {
-    val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[Int].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
-      Some(null.asInstanceOf[Int]),
-      None
-    )
-  }
-
-  it should "find a null attribute value when expected type is Seq" in {
-    val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[Seq[Any]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
-  }
-
-  it should "find a null attribute value when expected type is Map" in {
-    val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[Map[String, Any]].find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
-  }
-
-  it should "succeed when expecting a null value and getting a null one" in {
-    val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo").ofType[Any].find.isNull.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(null), None)
-  }
-
-  it should "fail when expecting a null value and getting a non-null one" in {
-    val response = mockResponse("""{"foo": "bar"}""")
-    jmesPath("foo")
-      .ofType[Any]
-      .find
-      .isNull
-      .check(response, EmptySession, Check.newPreparedCache)
-      .failed shouldBe "jmesPath(foo).find.isNull, but actually found bar"
   }
 
   it should "succeed when expecting a non-null value and getting a non-null one" in {
@@ -114,12 +82,8 @@ class HttpBodyJmesPathCheckSpec extends BaseSpec with ValidationValues with Core
 
   it should "fail when expecting a non-null value and getting a null one" in {
     val response = mockResponse("""{"foo": null}""")
-    jmesPath("foo")
-      .ofType[Any]
-      .find
-      .notNull
-      .check(response, EmptySession, Check.newPreparedCache)
-      .failed shouldBe "jmesPath(foo).find.notNull, but actually found null"
+    jmesPath("foo").find
+      .check(response, EmptySession, Check.newPreparedCache) shouldBe a[Failure]
   }
 
   it should "not fail on empty array" in {

@@ -53,7 +53,7 @@ private[gatling] class JmesPaths(cacheMaxCapacity: Long) {
   def extract[X: JsonFilter](json: JsonNode, expression: String): Validation[Option[X]] =
     compileJmesPath(expression).map { compiledExpression =>
       val node = compiledExpression.search(json)
-      JsonFilter[X].filter.lift(node)
+      if (node.isNull) None else JsonFilter[X].filter.lift(node)
     }
 
   private def compileJmesPath(expression: String): Validation[Expression[JsonNode]] = jmesPathCache.get(expression)
