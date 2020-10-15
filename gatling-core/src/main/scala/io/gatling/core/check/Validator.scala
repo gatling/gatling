@@ -93,7 +93,7 @@ class NotNullMatcher[A] extends Matcher[A] {
         actual.success
       else
         "found null".failure
-    case _ => NoneSuccess
+    case _ => Validator.FoundNothingFailure
   }
 }
 
