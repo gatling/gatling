@@ -48,8 +48,10 @@ private[polling] class Poller(
   private var session: Session = _
   private var timer: ScheduledFuture[_] = _
 
-  def start(session: Session): Unit =
+  def start(session: Session): Unit = {
+    this.session = session
     timer = session.eventLoop.scheduleAtFixedRate(() => poll(), 0, period.toMillis, TimeUnit.MILLISECONDS)
+  }
 
   // FIXME is currently static
   private def buildHttpTx(): Validation[HttpTx] =
