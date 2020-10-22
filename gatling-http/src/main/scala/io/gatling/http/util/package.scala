@@ -17,13 +17,13 @@
 package io.gatling.http
 
 import java.{ lang => jl }
-import java.nio.charset.Charset
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.StringHelper.Eol
 import io.gatling.commons.util.Throwables._
+import io.gatling.http.client.Request
 import io.gatling.http.response.{ HttpResult, Response }
 import io.gatling.http.util.HttpHelper.isText
 
@@ -36,34 +36,37 @@ package object util extends LazyLogging {
 
     def appendHttpHeaders(headers: HttpHeaders): jl.StringBuilder = {
       headers.asScala.foreach { entry =>
-        buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
+        buff.append('\t').append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
       buff
     }
 
-    def appendRequest(result: HttpResult, charset: Charset): jl.StringBuilder = {
-      val request = result.request
+    def appendRequest(request: Request): jl.StringBuilder = {
       buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
 
       if (!request.getHeaders.isEmpty) {
-        buff.append("headers=").append(Eol)
+        buff.append("headers:").append(Eol)
         buff.appendHttpHeaders(request.getHeaders)
       }
 
       if (!request.getCookies.isEmpty) {
-        buff.append("cookies=").append(Eol)
+        buff.append("cookies:").append(Eol)
         for (cookie <- request.getCookies.asScala) {
-          buff.append(cookie).append(Eol)
+          buff.append('\t').append(cookie).append(Eol)
         }
       }
 
       Option(request.getBody).foreach { requestBody =>
-        buff.append("stringBody=").append(requestBody).append(Eol)
+        buff.append("body:").append(requestBody).append(Eol)
       }
 
-      if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
+      if (request.getProxyServer != null) {
+        buff.append("proxy:").append(Eol).append('\t').append(request.getProxyServer).append(Eol)
+      }
 
-      if (request.getRealm != null) buff.append("realm=").append(request.getRealm).append(Eol)
+      if (request.getRealm != null) {
+        buff.append("realm:").append(Eol).append('\t').append(request.getRealm).append(Eol)
+      }
 
       buff
     }
@@ -71,19 +74,21 @@ package object util extends LazyLogging {
     def appendWithEol(s: String): jl.StringBuilder =
       buff.append(s).append(Eol)
 
-    def appendResponse(result: HttpResult): jl.StringBuilder = {
-
+    def appendResponse(result: HttpResult): jl.StringBuilder =
       result match {
         case response: Response =>
-          buff.append("status=").append(Eol).append(response.status).append(Eol)
+          buff.append("status:").append(Eol).append('\t').append(response.status).append(Eol)
 
           if (!response.headers.isEmpty) {
-            buff.append("headers= ").append(Eol)
-            buff.appendHttpHeaders(response.headers).append(Eol)
+            buff
+              .append("headers:")
+              .append(Eol)
+              .appendHttpHeaders(response.headers)
+              .append(Eol)
           }
 
           if (response.body.length > 0) {
-            buff.append("body=").append(Eol)
+            buff.append("body:").append(Eol)
             if (isText(response.headers)) {
               try {
                 buff.append(response.body.string)
@@ -97,11 +102,10 @@ package object util extends LazyLogging {
               buff.append("<<<BINARY CONTENT>>>")
             }
             buff.append(Eol)
+          } else {
+            buff
           }
-        case _ =>
+        case _ => buff
       }
-
-      buff
-    }
   }
 }
