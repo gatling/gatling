@@ -48,6 +48,7 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
       errorMessage: Option[String]
   ): Unit
 
+  private val loggingStringBuilderPool = new StringBuilderPool
   private def logTx(
       fullRequestName: String,
       session: Session,
@@ -56,10 +57,7 @@ sealed abstract class StatsProcessor(charset: Charset) extends StrictLogging {
       errorMessage: Option[String]
   ): Unit = {
     def dump = {
-      // hack: pre-cache url because it would reset StringBuilderPool.DEFAULT otherwise
-      // there's a good chance building the request only called toRelativeUrl
-      result.request.getUri.toUrl
-      StringBuilderPool.DEFAULT
+      loggingStringBuilderPool
         .get()
         .append(Eol)
         .appendWithEol(">>>>>>>>>>>>>>>>>>>>>>>>>>")
