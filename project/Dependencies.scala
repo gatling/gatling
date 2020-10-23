@@ -21,7 +21,7 @@ object Dependencies {
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.34.Final"
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.8"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
-  private val config                         = "com.typesafe"                         % "config"                          % "1.4.0"
+  private val config                         = "com.typesafe"                         % "config"                          % "1.4.1"
   private val saxon                          = ("net.sf.saxon"                        % "Saxon-HE"                        % "10.2")
     .exclude("jline", "jline")
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.30"
