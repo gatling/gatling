@@ -25,7 +25,6 @@ import io.gatling.core.session.{ Expression, Session }
 private[http] object HttpCaches {
   val FlushCache: Expression[Session] = _.removeAll(
     HttpContentCacheSupport.HttpContentCacheAttributeName,
-    DnsCacheSupport.DnsNameResolverAttributeName,
     PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName,
     Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName
   ).success
