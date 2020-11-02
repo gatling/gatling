@@ -34,7 +34,7 @@ class PaceSpec extends AkkaSpec {
   private val counterName = "paceCounter"
 
   "pace" should "run actions with a minimum wait time" in {
-    val instance = new Pace(interval, counterName, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val instance = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
     instance ! EmptySession
@@ -51,7 +51,7 @@ class PaceSpec extends AkkaSpec {
 
   it should "run actions immediately if the minimum time has expired" in {
     val overrunTime = 1 second
-    val instance = new Pace(interval, counterName, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val instance = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
     instance ! EmptySession

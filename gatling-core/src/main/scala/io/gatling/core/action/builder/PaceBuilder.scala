@@ -16,7 +16,7 @@
 
 package io.gatling.core.action.builder
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.action.{ Action, Pace }
 import io.gatling.core.session.Expression
@@ -27,8 +27,8 @@ import io.gatling.core.structure.ScenarioContext
  *
  * Originally contributed by James Pickering.
  */
-class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
+class PaceBuilder(interval: Expression[FiniteDuration], counter: String) extends ActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
-    new Pace(interval, counter, ctx.coreComponents.actorSystem, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
+    new Pace(interval, counter, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }

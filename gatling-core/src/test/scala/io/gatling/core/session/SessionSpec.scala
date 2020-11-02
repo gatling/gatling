@@ -17,7 +17,7 @@
 package io.gatling.core.session
 
 import java.{ util => ju }
-import java.util.{ concurrent => juc }
+import java.util.{ Timer, TimerTask, concurrent => juc }
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.{ KO, OK }
@@ -28,10 +28,17 @@ import io.netty.channel.{ Channel, ChannelFuture, ChannelPromise, EventLoop, Eve
 import io.netty.util.concurrent.{ EventExecutor, Future => NFuture, ProgressivePromise, Promise, ScheduledFuture }
 
 object SessionSpec {
+  private val timer = new Timer
+
   private val FakeEventLoop: EventLoop = new EventLoop {
     override def inEventLoop(): Boolean = true
     override def schedule(command: Runnable, delay: Long, unit: juc.TimeUnit): ScheduledFuture[_] = {
-      command.run()
+      timer.schedule(
+        new TimerTask {
+          override def run(): Unit = { command.run() }
+        },
+        unit.toMillis(delay)
+      )
       null
     }
     override def execute(command: Runnable): Unit = command.run()
