@@ -16,14 +16,14 @@
 
 package io.gatling.core.action
 
-import scala.concurrent.duration.{ Duration, DurationLong }
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-
-import akka.actor.ActorSystem
 
 /**
  * Pace provides a means to limit the frequency with which an action is run, by specifying a minimum wait time between iterations.
@@ -34,11 +34,9 @@ import akka.actor.ActorSystem
  * @param counter the name of the counter used to keep track of the run state. Typically this would be random, but
  *                can be set explicitly if needed
  */
-class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: ActorSystem, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+class Pace(intervalExpr: Expression[FiniteDuration], counter: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
     extends ExitableAction
     with NameGen {
-
-  import actorSystem._
 
   override val name: String = genName("pace")
 
@@ -56,10 +54,14 @@ class Pace(intervalExpr: Expression[Duration], counter: String, actorSystem: Act
       val intervalMillis = interval.toMillis
       session(counter).asOption[Long] match {
         case Some(timeLimit) if timeLimit > now =>
-          scheduler.scheduleOnce((timeLimit - now) milliseconds) {
-            // by-name parameter, so clock.nowMillis will be evaluated when scheduled task will run
-            next ! session.set(counter, clock.nowMillis + intervalMillis)
-          }
+          session.eventLoop.schedule(
+            (() => {
+              // clock.nowMillis will be evaluated when scheduled task will run
+              next ! session.set(counter, clock.nowMillis + intervalMillis)
+            }): Runnable,
+            timeLimit - now,
+            TimeUnit.MILLISECONDS
+          )
 
         case _ =>
           next ! session.set(counter, now + intervalMillis)

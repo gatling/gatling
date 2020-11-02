@@ -18,18 +18,18 @@ package io.gatling.http.check.body
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
+import io.gatling.core.EmptySession
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
 import com.fasterxml.jackson.databind.JsonNode
 
-class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
+class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
 
   implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
@@ -45,7 +45,7 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
 
   "jsonpJsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonpJsonPath("$.street").find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
+    jsonpJsonPath("$.street").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some("""{"book":"On the street"}"""),
       None
     )

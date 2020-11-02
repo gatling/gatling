@@ -20,10 +20,10 @@ import scala.util.control.NoStackTrace
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation._
+import io.gatling.core.EmptySession
 import io.gatling.core.session.Session
-import io.gatling.core.session.SessionSpec.EmptySession
 
-class ChainableActionSpec extends BaseSpec {
+class ChainableActionSpec extends BaseSpec with EmptySession {
 
   class ChainableTestAction(val next: Action, fail: Boolean) extends ChainableAction {
     var hasRun = false
@@ -59,7 +59,7 @@ class ChainableActionSpec extends BaseSpec {
     val testAction = new ChainableTestAction(next, fail = false)
 
     testAction.hasRun shouldBe false
-    testAction ! EmptySession
+    testAction ! emptySession
     testAction.hasRun shouldBe true
   }
 
@@ -67,8 +67,8 @@ class ChainableActionSpec extends BaseSpec {
     val next = new NextTestAction
     val testAction = new ChainableTestAction(next, fail = true)
 
-    testAction ! EmptySession
-    next.message shouldBe EmptySession.markAsFailed
+    testAction ! emptySession
+    next.message shouldBe emptySession.markAsFailed
   }
 
   "A Failable Action" should "call the execute method when receiving a Session" in {
@@ -77,7 +77,7 @@ class ChainableActionSpec extends BaseSpec {
 
     testAction.hasRun shouldBe false
 
-    testAction ! EmptySession
+    testAction ! emptySession
     testAction.hasRun shouldBe true
   }
 
@@ -85,7 +85,7 @@ class ChainableActionSpec extends BaseSpec {
     val next = new NextTestAction
     val testAction = new FailableTestAction(next, fail = true)
 
-    testAction ! EmptySession
-    next.message shouldBe EmptySession.markAsFailed
+    testAction ! emptySession
+    next.message shouldBe emptySession.markAsFailed
   }
 }

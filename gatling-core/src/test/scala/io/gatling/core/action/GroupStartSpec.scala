@@ -17,8 +17,8 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el.El
 import io.gatling.core.stats.StatsEngine
 
@@ -29,7 +29,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
-class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen {
+class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen with EmptySession {
 
   private val clock = new DefaultClock
 
@@ -40,7 +40,7 @@ class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with Gi
     val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)
 
     When("being sent a Session that resolves the group name")
-    val session = EmptySession.copy(attributes = Map("theGroupName" -> "foo"))
+    val session = emptySession.copy(attributes = Map("theGroupName" -> "foo"))
     groupStart ! session
 
     Then("next Action should receive a Session")

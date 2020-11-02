@@ -18,25 +18,25 @@ package io.gatling.core.session
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation._
-import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.EmptySession
 import io.gatling.core.session.el._
 
-class ExpressionUtilsSpec extends BaseSpec with ValidationValues {
+class ExpressionUtilsSpec extends BaseSpec with ValidationValues with EmptySession {
 
   "resolveOptionalExpression" should "return NoneSuccess if the expression was None" in {
-    resolveOptionalExpression(None, EmptySession) shouldBe NoneSuccess
+    resolveOptionalExpression(None, emptySession) shouldBe NoneSuccess
   }
 
   it should "return the expression's result wrapped in a Success if the expression wasn't None" in {
-    val session = EmptySession.set("foo", "bar")
+    val session = emptySession.set("foo", "bar")
     val expr = Some("${foo}".el[String])
     resolveOptionalExpression(expr, session) shouldBe Success(Some("bar"))
   }
 
   "ExpressionWrapper" should "correctly map the underlying validation" in {
     val expr = "foo".el[String]
-    expr(EmptySession).succeeded shouldBe "foo"
+    expr(emptySession).succeeded shouldBe "foo"
     val newExpr = expr.map(_.toUpperCase)
-    newExpr(EmptySession).succeeded shouldBe "FOO"
+    newExpr(emptySession).succeeded shouldBe "FOO"
   }
 }

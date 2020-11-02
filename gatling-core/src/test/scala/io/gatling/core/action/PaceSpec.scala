@@ -21,7 +21,6 @@ import scala.concurrent.duration._
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.Predef._
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.StatsEngine
 
 import akka.testkit._
@@ -34,10 +33,10 @@ class PaceSpec extends AkkaSpec {
   private val counterName = "paceCounter"
 
   "pace" should "run actions with a minimum wait time" in {
-    val instance = new Pace(interval, counterName, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val instance = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
-    instance ! EmptySession
+    instance ! emptySession
     val session1 = expectMsgClass(1 second, classOf[Session])
 
     // Send second session, expect nothing for ~3 seconds, then a response
@@ -51,10 +50,10 @@ class PaceSpec extends AkkaSpec {
 
   it should "run actions immediately if the minimum time has expired" in {
     val overrunTime = 1 second
-    val instance = new Pace(interval, counterName, system, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
+    val instance = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
-    instance ! EmptySession
+    instance ! emptySession
     val session1 = expectMsgClass(1 second, classOf[Session])
 
     // Wait 4 seconds - simulate overrunning action

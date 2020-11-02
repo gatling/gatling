@@ -19,9 +19,9 @@ package io.gatling.http.cache
 import io.gatling.BaseSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
+import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.uri.Uri
 import io.gatling.http.engine.HttpEngine
@@ -33,7 +33,7 @@ import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHe
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 
-class CacheSupportSpec extends BaseSpec {
+class CacheSupportSpec extends BaseSpec with EmptySession {
 
   private val configuration = GatlingConfiguration.loadForTest()
   private val coreComponents = new CoreComponents(null, null, null, null, null, new DefaultClock, null, configuration)
@@ -102,7 +102,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   class RedirectContext {
-    var session: Session = EmptySession
+    var session: Session = emptySession
 
     def addRedirect(from: String, to: String): Unit = {
       val request = new RequestBuilder(HttpMethod.GET, Uri.create(from), null)

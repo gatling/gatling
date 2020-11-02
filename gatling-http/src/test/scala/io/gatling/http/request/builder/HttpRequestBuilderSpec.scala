@@ -21,10 +21,10 @@ import scala.jdk.CollectionConverters._
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.CoreComponents
+import io.gatling.core.EmptySession
 import io.gatling.core.Predef._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el._
 import io.gatling.http.Predef._
 import io.gatling.http.cache.DnsCacheSupport
@@ -39,14 +39,14 @@ import io.gatling.http.protocol.HttpProtocol
 
 import io.netty.handler.codec.http.HttpMethod
 
-class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
+class HttpRequestBuilderSpec extends BaseSpec with ValidationValues with EmptySession {
 
   // Default config
   private val configuration = GatlingConfiguration.loadForTest()
   private val clock = new DefaultClock
   private val coreComponents = new CoreComponents(null, null, null, null, null, clock, null, configuration)
   private val httpCaches = new HttpCaches(coreComponents)
-  private val sessionBase = EmptySession.set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
+  private val sessionBase = emptySession.set(DnsCacheSupport.DnsNameResolverAttributeName, InetAddressNameResolver.JAVA_RESOLVER)
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   private def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder, httpProtocol: HttpProtocol = HttpProtocol(configuration)) = {

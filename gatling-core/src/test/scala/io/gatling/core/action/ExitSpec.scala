@@ -18,7 +18,6 @@ package io.gatling.core.action
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.writer.UserEndMessage
 
 class ExitSpec extends AkkaSpec {
@@ -30,7 +29,7 @@ class ExitSpec extends AkkaSpec {
 
     var hasTerminated = false
 
-    val session = EmptySession.copy(onExit = _ => hasTerminated = true)
+    val session = emptySession.copy(onExit = _ => hasTerminated = true)
     exit ! session
 
     hasTerminated shouldBe true

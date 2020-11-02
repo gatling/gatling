@@ -18,17 +18,17 @@ package io.gatling.http.check.body
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
+import io.gatling.core.EmptySession
 import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
 import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 
 import net.sf.saxon.s9api.XdmNode
 
-class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
+class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
 
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
   private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
@@ -38,7 +38,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
 
     val response = mockResponse(<id>1072920417</id>)
 
-    xpath("/id").find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("/id").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
@@ -48,7 +48,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920418</id>
                                 </root>)
 
-    xpath("//id").find.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("//id").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "xpath.findAll.exists" should "find all occurrences" in {
@@ -58,7 +58,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920418</id>
                                 </root>)
 
-    xpath("//id").findAll.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
+    xpath("//id").findAll.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
       Some(Seq("1072920417", "1072920418")),
       None
     )
@@ -71,7 +71,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920418</id>
                                 </root>)
 
-    xpath("//foo").findAll.exists.check(response, EmptySession, Check.newPreparedCache).failed shouldBe "xpath((//foo,Map())).findAll.exists, found nothing"
+    xpath("//foo").findAll.exists.check(response, emptySession, Check.newPreparedCache).failed shouldBe "xpath((//foo,Map())).findAll.exists, found nothing"
   }
 
   "xpath.count.exists" should "find all occurrences" in {
@@ -81,7 +81,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920418</id>
                                 </root>)
 
-    xpath("//id").count.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(2), None)
+    xpath("//id").count.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
@@ -91,6 +91,6 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
                                   <id>1072920418</id>
                                 </root>)
 
-    xpath("//foo").count.exists.check(response, EmptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(0), None)
+    xpath("//foo").count.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

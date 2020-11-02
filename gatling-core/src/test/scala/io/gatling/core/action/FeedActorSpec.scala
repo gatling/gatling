@@ -20,7 +20,6 @@ import io.gatling.AkkaSpec
 import io.gatling.core.controller.ControllerCommand.Crash
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
-import io.gatling.core.session.SessionSpec.EmptySession
 
 import akka.testkit._
 
@@ -33,10 +32,10 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
-    feedActor ! FeedMessage(EmptySession, 0, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, 0, new ActorDelegatingAction("next", self))
     controller.expectMsgType[Crash]
 
-    feedActor ! FeedMessage(EmptySession, -1, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, -1, new ActorDelegatingAction("next", self))
     controller.expectMsgType[Crash]
   }
 
@@ -44,7 +43,7 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.empty, controller)
 
-    feedActor ! FeedMessage(EmptySession, 1, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, 1, new ActorDelegatingAction("next", self))
     controller.expectMsgType[Crash]
   }
 
@@ -52,7 +51,7 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
-    feedActor ! FeedMessage(EmptySession, 1, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, 1, new ActorDelegatingAction("next", self))
 
     val newSession = expectMsgType[Session]
     newSession.contains("foo") shouldBe true
@@ -63,7 +62,7 @@ class FeedActorSpec extends AkkaSpec {
     val controller = TestProbe()
     val feedActor = createFeedActor(Iterator.continually(Map("foo" -> "bar")), controller)
 
-    feedActor ! FeedMessage(EmptySession, 2, new ActorDelegatingAction("next", self))
+    feedActor ! FeedMessage(emptySession, 2, new ActorDelegatingAction("next", self))
 
     val newSession = expectMsgType[Session]
     newSession.contains("foo1") shouldBe true
