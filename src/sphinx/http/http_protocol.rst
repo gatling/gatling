@@ -44,7 +44,7 @@ If you want to load test several servers at the same time, to bypass a load-bala
 
 .. includecode:: code/HttpProtocolSample.scala#baseUrls
 
-The selection of the URL is made once and for all for a given virtual user.
+Each virtual user will pick one of the baseUrl from the list once and for all when it starts, based on a round-robin strategy.
 
 .. _http-protocol-warmup:
 
