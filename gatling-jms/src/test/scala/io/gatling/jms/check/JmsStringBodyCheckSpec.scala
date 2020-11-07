@@ -21,14 +21,21 @@ import javax.jms.Message
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
+import io.gatling.core.EmptySession
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.jms.MockMessage
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-class JmsStringBodyCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport with TableDrivenPropertyChecks {
+class JmsStringBodyCheckSpec
+    extends BaseSpec
+    with ValidationValues
+    with MockMessage
+    with CoreDsl
+    with JmsCheckSupport
+    with TableDrivenPropertyChecks
+    with EmptySession {
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private def jmap[K, V] = new JHashMap[K, V]
@@ -42,19 +49,19 @@ class JmsStringBodyCheckSpec extends BaseSpec with ValidationValues with MockMes
   forAll(testResponses) { (response: Message, msgType: String) =>
     s"bodyString.find.exists for $msgType" should "extract response body correctly" in {
       bodyString.find.exists
-        .check(response, EmptySession, jmap[Any, Any])
+        .check(response, emptySession, jmap[Any, Any])
         .succeeded shouldBe CheckResult(Some("""[{"id":"1072920417"},"id":"1072920418"]"""), None)
     }
 
     s"bodyString.notNull for $msgType" should "pass when response not empty" in {
       bodyString.find.notNull
-        .check(response, EmptySession, jmap[Any, Any])
+        .check(response, emptySession, jmap[Any, Any])
         .succeeded shouldBe CheckResult(Some("""[{"id":"1072920417"},"id":"1072920418"]"""), None)
     }
 
     s"bodyString.isNull for $msgType" should "fail when response not empty" in {
       bodyString.isNull
-        .check(response, EmptySession, jmap[Any, Any])
+        .check(response, emptySession, jmap[Any, Any])
         .failed shouldBe """bodyString.find.isNull, found [{"id":"1072920417"},"id":"1072920418"]"""
     }
   }

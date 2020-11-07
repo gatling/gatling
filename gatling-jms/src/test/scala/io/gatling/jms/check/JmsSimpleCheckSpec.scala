@@ -21,10 +21,10 @@ import javax.jms._
 
 import io.gatling.BaseSpec
 import io.gatling.commons.validation._
-import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.EmptySession
 import io.gatling.jms._
 
-class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
+class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage with EmptySession {
 
   private val check = simpleCheck {
     case tm: TextMessage => tm.getText == "OK"
@@ -32,14 +32,14 @@ class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
   }
 
   "simple check" should "return success if condition is true" in {
-    check.check(textMessage("OK"), EmptySession, new JHashMap[Any, Any]) shouldBe a[Success[_]]
+    check.check(textMessage("OK"), emptySession, new JHashMap[Any, Any]) shouldBe a[Success[_]]
   }
 
   it should "return failure if condition is false" in {
-    check.check(textMessage("KO"), EmptySession, new JHashMap[Any, Any]) shouldBe a[Failure]
+    check.check(textMessage("KO"), emptySession, new JHashMap[Any, Any]) shouldBe a[Failure]
   }
 
   it should "return failure if message is not TextMessage" in {
-    check.check(message, EmptySession, new JHashMap[Any, Any]) shouldBe a[Failure]
+    check.check(message, emptySession, new JHashMap[Any, Any]) shouldBe a[Failure]
   }
 }

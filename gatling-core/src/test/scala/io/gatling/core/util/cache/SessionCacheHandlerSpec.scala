@@ -17,38 +17,38 @@
 package io.gatling.core.util.cache
 
 import io.gatling.BaseSpec
-import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.EmptySession
 
 import org.scalatest.OptionValues
 
-class SessionCacheHandlerSpec extends BaseSpec with OptionValues {
+class SessionCacheHandlerSpec extends BaseSpec with OptionValues with EmptySession {
 
   private val sessionCacheHandler = new SessionCacheHandler[String, String]("stringCache", 1)
 
   "getCache" should "return None if the cache does not exist" in {
-    sessionCacheHandler.getCache(EmptySession) shouldBe empty
+    sessionCacheHandler.getCache(emptySession) shouldBe empty
   }
 
   it should "return the cache if it exists" in {
     val newCache = Cache.newImmutableCache[String, String](2)
-    val sessionWithCache = EmptySession.set("stringCache", newCache)
+    val sessionWithCache = emptySession.set("stringCache", newCache)
     sessionCacheHandler.getCache(sessionWithCache) should not be empty
     sessionCacheHandler.getCache(sessionWithCache).value should be theSameInstanceAs newCache
   }
 
   "getOrCreateCache" should "return the cache if it exists" in {
     val newCache = Cache.newImmutableCache[String, String](2)
-    val sessionWithCache = EmptySession.set("stringCache", newCache)
+    val sessionWithCache = emptySession.set("stringCache", newCache)
     sessionCacheHandler.getOrCreateCache(sessionWithCache) should be theSameInstanceAs newCache
   }
 
   it should "create a new cache if it didn't exists" in {
-    EmptySession.contains("stringCache") shouldBe false
-    sessionCacheHandler.getOrCreateCache(EmptySession) shouldBe a[Cache[_, _]] // TODO : Can this test be improved ?
+    emptySession.contains("stringCache") shouldBe false
+    sessionCacheHandler.getOrCreateCache(emptySession) shouldBe a[Cache[_, _]] // TODO : Can this test be improved ?
   }
 
   "addEntry" should "add a new entry to the cache" in {
-    val sessionWithNewEntry = sessionCacheHandler.addEntry(EmptySession, "foo", "bar")
+    val sessionWithNewEntry = sessionCacheHandler.addEntry(emptySession, "foo", "bar")
     val entry = sessionCacheHandler.getOrCreateCache(sessionWithNewEntry).get("foo")
 
     entry should not be empty
@@ -56,16 +56,16 @@ class SessionCacheHandlerSpec extends BaseSpec with OptionValues {
   }
 
   "getEntry" should "return None if the cache does not exists" in {
-    sessionCacheHandler.getEntry(EmptySession, "foo") shouldBe empty
+    sessionCacheHandler.getEntry(emptySession, "foo") shouldBe empty
   }
 
   it should "return None if the entry does not exists" in {
-    val sessionWithCache = sessionCacheHandler.addEntry(EmptySession, "foo", "bar")
+    val sessionWithCache = sessionCacheHandler.addEntry(emptySession, "foo", "bar")
     sessionCacheHandler.getEntry(sessionWithCache, "quz") shouldBe empty
   }
 
   it should "return the value if the cache and entry exists" in {
-    val sessionWithCache = sessionCacheHandler.addEntry(EmptySession, "foo", "bar")
+    val sessionWithCache = sessionCacheHandler.addEntry(emptySession, "foo", "bar")
     val entry = sessionCacheHandler.getEntry(sessionWithCache, "foo")
 
     entry should not be empty
@@ -73,11 +73,11 @@ class SessionCacheHandlerSpec extends BaseSpec with OptionValues {
   }
 
   "removeEntry" should "left the session untouched if the cache doesn't exist" in {
-    sessionCacheHandler.removeEntry(EmptySession, "foo") should be theSameInstanceAs EmptySession
+    sessionCacheHandler.removeEntry(emptySession, "foo") should be theSameInstanceAs emptySession
   }
 
   it should "remove the key from the cache if it exists" in {
-    val sessionWithEntry = sessionCacheHandler.addEntry(EmptySession, "foo", "bar")
+    val sessionWithEntry = sessionCacheHandler.addEntry(emptySession, "foo", "bar")
     val sessionWithoutEntry = sessionCacheHandler.removeEntry(sessionWithEntry, "foo")
 
     sessionCacheHandler.getEntry(sessionWithoutEntry, "foo") shouldBe empty

@@ -19,16 +19,16 @@ package io.gatling.core.session.el
 import java.{ util => ju }
 
 import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el
 
-class ElSpec extends BaseSpec with ValidationValues {
+class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private def newSession(attributes: Map[String, Any]) =
-    EmptySession.copy(attributes = attributes)
+    emptySession.copy(attributes = attributes)
 
   "Static String" should "return itself" in {
     val session = newSession(Map.empty)

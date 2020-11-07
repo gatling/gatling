@@ -17,12 +17,12 @@
 package io.gatling.http.cookie
 
 import io.gatling.BaseSpec
-import io.gatling.core.session.SessionSpec.EmptySession
+import io.gatling.core.EmptySession
 import io.gatling.http.client.uri.Uri
 
 import io.netty.handler.codec.http.cookie.ClientCookieDecoder.LAX.decode
 
-class CookieHandlingSpec extends BaseSpec {
+class CookieHandlingSpec extends BaseSpec with EmptySession {
 
   private val uri = Uri.create("https://docs.foo.com/accounts")
 
@@ -31,19 +31,19 @@ class CookieHandlingSpec extends BaseSpec {
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
     val originalSession =
-      EmptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+      emptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, uri).map(x => x.value) shouldBe List("VALUE1")
   }
 
   it should "be called with an empty session" in {
-    CookieSupport.getStoredCookies(EmptySession, uri) shouldBe empty
+    CookieSupport.getStoredCookies(emptySession, uri) shouldBe empty
   }
 
   "storeCookies" should "be able to store a cookie in an empty session" in {
     val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-    CookieSupport.storeCookies(EmptySession, uri, List(newCookie), System.currentTimeMillis())
+    CookieSupport.storeCookies(emptySession, uri, List(newCookie), System.currentTimeMillis())
 
-    CookieSupport.getStoredCookies(EmptySession, uri) shouldBe empty
+    CookieSupport.getStoredCookies(emptySession, uri) shouldBe empty
   }
 
   "getSecureStoredCookies" should "be able to get a secure cookie from session" in {
@@ -51,7 +51,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
     val originalSession =
-      EmptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+      emptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, uri).map(x => x.value) shouldBe List("VALUE1")
     CookieSupport.getStoredCookies(originalSession, uri).map(x => x.isSecure) shouldBe List(true)
   }
@@ -61,7 +61,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
     val originalSession =
-      EmptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+      emptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, uri).map(x => x.value) shouldBe List("VALUE6")
     CookieSupport.getStoredCookies(originalSession, uri).map(x => x.isSecure) shouldBe List(false)
   }
@@ -71,7 +71,7 @@ class CookieHandlingSpec extends BaseSpec {
     val originalDomain = "docs.foo.com"
     val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
     val originalSession =
-      EmptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
+      emptySession.copy(attributes = Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, uri.withNewScheme("http")).size shouldBe 0
   }
 }

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package io.gatling
+package io.gatling.core
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
+import io.gatling.core.session.Session
 
-import io.gatling.core.EmptySession
+import org.scalatest.{ BeforeAndAfterAll, Suite }
 
-import akka.actor.ActorSystem
-import akka.testkit.{ ImplicitSender, TestKit }
+trait EmptySession extends BeforeAndAfterAll { this: Suite =>
+  val fakeEventLoop = new FakeEventLoop
+  val emptySession: Session = Session("Scenario", 0, fakeEventLoop)
 
-abstract class AkkaSpec extends TestKit(ActorSystem()) with BaseSpec with ImplicitSender with EmptySession {
-  override def afterAll(): Unit = {
-    val whenTerminated = system.terminate()
-    Await.result(whenTerminated, 2 seconds)
+  override protected def afterAll(): Unit = {
+    fakeEventLoop.shutdownGracefully()
+    super.afterAll()
   }
+
 }

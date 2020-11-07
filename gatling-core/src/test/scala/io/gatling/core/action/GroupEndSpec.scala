@@ -17,8 +17,8 @@
 package io.gatling.core.action
 
 import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.StatsEngine
 
 import org.mockito.{ ArgumentCaptor, ArgumentMatchers }
@@ -28,7 +28,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatestplus.mockito.MockitoSugar
 
-class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen {
+class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen with EmptySession {
 
   private val clock = new DefaultClock
 
@@ -40,7 +40,7 @@ class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with Give
     val groupEnd = new GroupEnd(statsEngine, clock, next)
 
     When("being sent a Session that has one single group")
-    val session = EmptySession.enterGroup("group", clock.nowMillis)
+    val session = emptySession.enterGroup("group", clock.nowMillis)
     groupEnd ! session
 
     Then("next Action should receive a Session with an empty blockStack")

@@ -17,57 +17,57 @@
 package io.gatling.core.body
 
 import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.SessionSpec.EmptySession
 
-class PebbleStringBodySpec extends BaseSpec with ValidationValues {
+class PebbleStringBodySpec extends BaseSpec with ValidationValues with EmptySession {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "Static String" should "return itself" in {
-    val session = EmptySession
+    val session = emptySession
     val body = PebbleStringBody("bar")
     body(session).succeeded shouldBe "bar"
   }
 
   it should "return empty when empty" in {
-    val session = EmptySession
+    val session = emptySession
     val body = PebbleStringBody("")
     body(session).succeeded shouldBe ""
   }
 
   "One monovalued Expression" should "return expected result when the variable is the whole string" in {
-    val session = EmptySession.set("bar", "BAR")
+    val session = emptySession.set("bar", "BAR")
     val body = PebbleStringBody("{{bar}}")
     body(session).succeeded shouldBe "BAR"
   }
 
   it should "return expected result when the variable is at the end of the string" in {
-    val session = EmptySession.set("bar", "BAR")
+    val session = emptySession.set("bar", "BAR")
     val body = PebbleStringBody("foo{{bar}}")
     body(session).succeeded shouldBe "fooBAR"
   }
 
   it should "return expected result when the variable is at the beginning of the string" in {
-    val session = EmptySession.set("bar", "BAR")
+    val session = emptySession.set("bar", "BAR")
     val body = PebbleStringBody("{{bar}}foo")
     body(session).succeeded shouldBe "BARfoo"
   }
 
   it should "return expected result when the variable is in the middle of the string" in {
-    val session = EmptySession.set("bar", "BAR")
+    val session = emptySession.set("bar", "BAR")
     val body = PebbleStringBody("foo{{bar}}foo")
     body(session).succeeded shouldBe "fooBARfoo"
   }
 
   it should "handle when an attribute is missing" in {
-    val session = EmptySession.set("foo", "FOO")
+    val session = emptySession.set("foo", "FOO")
     val body = PebbleStringBody("foo{{bar}}")
     body(session).succeeded shouldBe "foo"
   }
 
   it should "properly handle multiline JSON template" in {
-    val session = EmptySession.set("foo", "FOO")
+    val session = emptySession.set("foo", "FOO")
     val body = PebbleStringBody("""{
         "foo": {{foo}},
         "bar": 1
@@ -79,43 +79,43 @@ class PebbleStringBodySpec extends BaseSpec with ValidationValues {
   }
 
   it should "properly handle if" in {
-    val session = EmptySession.setAll("barTrue" -> "BARTRUE", "barFalse" -> "BARFALSE", "true" -> true, "false" -> false)
+    val session = emptySession.setAll("barTrue" -> "BARTRUE", "barFalse" -> "BARFALSE", "true" -> true, "false" -> false)
     val body = PebbleStringBody("{%if true %}{{barTrue}}{%endif%}{%if false %}{{barFalse}}{% endif %}")
     body(session).succeeded shouldBe "BARTRUE"
   }
 
   it should "handle gracefully when an exception is thrown" in {
-    val session = EmptySession
+    val session = emptySession
     val body = PebbleStringBody("{{ 0 / 0 }}")
     body(session).failed
   }
 
   "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
-    val session = EmptySession.setAll("foo" -> "FOO", "bar" -> "BAR")
+    val session = emptySession.setAll("foo" -> "FOO", "bar" -> "BAR")
     val body = PebbleStringBody("{{foo}} {{bar}}")
     body(session).succeeded shouldBe "FOO BAR"
   }
 
   it should "properly handle for loop" in {
-    val session = EmptySession.set("list", List("hello", "bonjour", 42))
+    val session = emptySession.set("list", List("hello", "bonjour", 42))
     val body = PebbleStringBody("{% for value in list %}{{value }}{% endfor %}")
     body(session).succeeded shouldBe "hellobonjour42"
   }
 
   it should "support index access for Scala Seq" in {
-    val session = EmptySession.set("list", Seq(1, 2, 3))
+    val session = emptySession.set("list", Seq(1, 2, 3))
     val body = PebbleStringBody("{{list[0]}}")
     body(session).succeeded shouldBe "1"
   }
 
   it should "handle Maps" in {
-    val session = EmptySession.set("map", Map("foo" -> "bar"))
+    val session = emptySession.set("map", Map("foo" -> "bar"))
     val body = PebbleStringBody("{{map.foo}}")
     body(session).succeeded shouldBe "bar"
   }
 
   it should "handle deep objects" in {
-    val session = EmptySession.set("map", List(Map("key" -> "key1", "value" -> "value1"), Map("key" -> "key2", "value" -> "value2")))
+    val session = emptySession.set("map", List(Map("key" -> "key1", "value" -> "value1"), Map("key" -> "key2", "value" -> "value2")))
 
     val template =
       """{% for element in map %}
@@ -139,7 +139,7 @@ class PebbleStringBodySpec extends BaseSpec with ValidationValues {
   }
 
   it should "return expected result when using filters" in {
-    val session = EmptySession.set("bar", "bar")
+    val session = emptySession.set("bar", "bar")
     val body = PebbleStringBody("{{ bar | capitalize }}{% filter upper %}hello{% endfilter %}")
     body(session).succeeded shouldBe "BarHELLO"
   }

@@ -19,10 +19,10 @@ package io.gatling.core.session
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.OK
 import io.gatling.commons.validation._
+import io.gatling.core.EmptySession
 import io.gatling.core.action.Action
-import io.gatling.core.session.SessionSpec.EmptySession
 
-class BlockSpec extends BaseSpec {
+class BlockSpec extends BaseSpec with EmptySession {
 
   "LoopBlock.unapply" should "return the block's counter name if it is a instance of LoopBlock" in {
     LoopBlock.unapply(ExitAsapLoopBlock("counter", true.expressionSuccess, mock[Action])) shouldBe Some("counter")
@@ -34,12 +34,12 @@ class BlockSpec extends BaseSpec {
   }
 
   "LoopBlock.continue" should "return true if the condition evaluation succeeds and evaluates to true" in {
-    val session = EmptySession.set("foo", 1)
+    val session = emptySession.set("foo", 1)
     LoopBlock.continue(session => (session("foo").as[Int] == 1).success, session) shouldBe true
   }
 
   it should "return false if the condition evaluation succeeds and evaluates to false or if it failed" in {
-    val session = EmptySession.set("foo", 1)
+    val session = emptySession.set("foo", 1)
     LoopBlock.continue(session => (session("foo").as[Int] == 0).success, session) shouldBe false
 
     LoopBlock.continue(_ => "failed".failure, session) shouldBe false

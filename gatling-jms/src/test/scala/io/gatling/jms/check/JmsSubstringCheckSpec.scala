@@ -21,14 +21,21 @@ import javax.jms.Message
 
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
+import io.gatling.core.EmptySession
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.jms.MockMessage
 
 import org.scalatest.prop.TableDrivenPropertyChecks
 
-class JmsSubstringCheckSpec extends BaseSpec with ValidationValues with MockMessage with CoreDsl with JmsCheckSupport with TableDrivenPropertyChecks {
+class JmsSubstringCheckSpec
+    extends BaseSpec
+    with ValidationValues
+    with MockMessage
+    with CoreDsl
+    with JmsCheckSupport
+    with TableDrivenPropertyChecks
+    with EmptySession {
   override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   private def jmap[K, V] = new JHashMap[K, V]
@@ -41,36 +48,36 @@ class JmsSubstringCheckSpec extends BaseSpec with ValidationValues with MockMess
 
   "substring.find.exists for TextMessage" should "find single result" in {
     val response = textMessage("""{"id":"1072920417"}""")
-    substring(""""id":"""").find.exists.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(1), None)
+    substring(""""id":"""").find.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(1), None)
   }
 
   "substring.find.exists for BytesMessage" should "find single result" in {
     val response = bytesMessage("""{"id":"1072920417"}""".getBytes())
-    substring(""""id":"""").find.exists.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(1), None)
+    substring(""""id":"""").find.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(1), None)
   }
 
   forAll(testResponses) { (response: Message, msgType: String) =>
     s"substring.find.exists for $msgType" should "find first occurrence" in {
-      substring(""""id":"""").find.exists.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
+      substring(""""id":"""").find.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
     }
 
     s"substring.findAll.exists for $msgType" should "find all occurrences" in {
-      substring(""""id":"""").findAll.exists.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(Seq(2, 21)), None)
+      substring(""""id":"""").findAll.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(Seq(2, 21)), None)
     }
 
     it should "fail when finding nothing instead of returning an empty Seq" in {
       val substringValue = """"foo":""""
       substring(substringValue).findAll.exists
-        .check(response, EmptySession, jmap[Any, Any])
+        .check(response, emptySession, jmap[Any, Any])
         .failed shouldBe s"substring($substringValue).findAll.exists, found nothing"
     }
 
     s"substring.count.exists for $msgType" should "find all occurrences" in {
-      substring(""""id":"""").count.exists.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
+      substring(""""id":"""").count.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(2), None)
     }
 
     it should "return 0 when finding nothing instead of failing" in {
-      substring(""""foo":"""").count.exists.check(response, EmptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
+      substring(""""foo":"""").count.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(0), None)
     }
   }
 }

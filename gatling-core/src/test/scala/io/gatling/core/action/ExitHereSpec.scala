@@ -19,14 +19,14 @@ package io.gatling.core.action
 import io.gatling.BaseSpec
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
+import io.gatling.core.EmptySession
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.StatsEngine
 
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 
-class ExitHereSpec extends BaseSpec {
+class ExitHereSpec extends BaseSpec with EmptySession {
 
   "ExitHereIfFailed" should "send the session to the next action if the session was not failed" in {
     val exit = mock[Action]
@@ -35,8 +35,8 @@ class ExitHereSpec extends BaseSpec {
     val clock = mock[Clock]
     val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
-    exitHereIfFailed ! EmptySession
-    verify(next) ! EmptySession
+    exitHereIfFailed ! emptySession
+    verify(next) ! emptySession
     verify(exit, never) ! any[Session]
   }
 
@@ -47,7 +47,7 @@ class ExitHereSpec extends BaseSpec {
     val clock = mock[Clock]
     val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
-    val sessionWithTryMax = EmptySession.enterTryMax("loop", next).markAsFailed
+    val sessionWithTryMax = emptySession.enterTryMax("loop", next).markAsFailed
 
     exitHereIfFailed ! sessionWithTryMax
 
@@ -63,7 +63,7 @@ class ExitHereSpec extends BaseSpec {
     when(clock.nowMillis).thenReturn(1)
     val exitHereIfFailed = new ExitHere(ExitHere.ExitHereOnFailedCondition, exit, statsEngine, clock, next)
 
-    val sessionWithGroup = EmptySession.enterGroup("group", 0).markAsFailed
+    val sessionWithGroup = emptySession.enterGroup("group", 0).markAsFailed
 
     exitHereIfFailed ! sessionWithGroup
 

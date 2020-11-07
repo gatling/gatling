@@ -19,7 +19,6 @@ package io.gatling.core.action
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
 import io.gatling.core.session._
-import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.stats.StatsEngine
 
 import akka.testkit._
@@ -35,10 +34,10 @@ class FeedSpec extends AkkaSpec with MockitoSugar {
 
     val feed = new Feed(feedActor.ref, 1.expressionSuccess, mock[StatsEngine], clock, next)
 
-    feed ! EmptySession
+    feed ! emptySession
 
     val feedMessage = feedActor.expectMsgType[FeedMessage]
-    feedMessage.session shouldBe EmptySession
+    feedMessage.session shouldBe emptySession
     feedMessage.next shouldBe next
   }
 }
