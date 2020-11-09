@@ -16,8 +16,6 @@
 
 package io.gatling.core.body
 
-import java.nio.charset.Charset
-
 import io.gatling.commons.util.{ FastByteArrayInputStream, GzipHelper }
 
 object BodyProcessors {
@@ -25,7 +23,7 @@ object BodyProcessors {
   def gzip: Body => ByteArrayBody =
     (body: Body) => {
       val gzippedBytes = body match {
-        case StringBody(string, charset) => string.map(GzipHelper.gzip)
+        case StringBody(string, charset) => string.map(GzipHelper.gzip(_, charset))
         case ByteArrayBody(byteArray)    => byteArray.map(GzipHelper.gzip)
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>
@@ -41,7 +39,7 @@ object BodyProcessors {
       ByteArrayBody(gzippedBytes)
     }
 
-  def stream(charset: Charset): Body => InputStreamBody =
+  def stream: Body => InputStreamBody =
     (body: Body) => {
       val stream = body match {
         case StringBody(string, charset) => string.map(s => new FastByteArrayInputStream(s.getBytes(charset)))

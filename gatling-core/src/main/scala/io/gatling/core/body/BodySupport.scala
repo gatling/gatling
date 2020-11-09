@@ -26,7 +26,7 @@ import com.mitchellbosecke.pebble.extension.Extension
 trait BodySupport {
 
   def gzipBody: Body => Body = BodyProcessors.gzip
-  def streamBody(implicit configuration: GatlingConfiguration): Body => Body = BodyProcessors.stream(configuration.core.charset)
+  def streamBody: Body => Body = BodyProcessors.stream
 
   def StringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
     io.gatling.core.body.ElBody(string, configuration.core.charset)

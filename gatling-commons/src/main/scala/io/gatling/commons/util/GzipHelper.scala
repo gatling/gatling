@@ -17,13 +17,14 @@
 package io.gatling.commons.util
 
 import java.io.InputStream
+import java.nio.charset.Charset
 import java.util.zip.GZIPOutputStream
 
 import io.gatling.commons.util.Io._
 
 object GzipHelper {
 
-  def gzip(string: String): Array[Byte] = gzip(string.getBytes)
+  def gzip(string: String, charset: Charset): Array[Byte] = gzip(string.getBytes(charset))
 
   def gzip(bytes: Array[Byte]): Array[Byte] =
     gzip(new FastByteArrayInputStream(bytes))
