@@ -16,6 +16,7 @@
 
 package io.gatling.jms.integration
 
+import java.util.Locale
 import javax.jms.TextMessage
 
 import io.gatling.core.CoreDsl
@@ -33,7 +34,7 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
       requestQueue,
       { case (tm: TextMessage, session) =>
         session.createTextMessage(s"""<response>
-                                     |<hello>${tm.getText.toUpperCase}</hello>
+                                     |<hello>${tm.getText.toUpperCase(Locale.ROOT)}</hello>
                                      |<property><key>${tm.getStringProperty("key")}</key></property>
                                      |<jmsType>${tm.getJMSType}</jmsType>
                                      |</response>""".stripMargin)

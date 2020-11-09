@@ -16,6 +16,8 @@
 
 package io.gatling.core.session
 
+import java.util.Locale
+
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.validation._
 import io.gatling.core.EmptySession
@@ -36,7 +38,7 @@ class ExpressionUtilsSpec extends BaseSpec with ValidationValues with EmptySessi
   "ExpressionWrapper" should "correctly map the underlying validation" in {
     val expr = "foo".el[String]
     expr(emptySession).succeeded shouldBe "foo"
-    val newExpr = expr.map(_.toUpperCase)
+    val newExpr = expr.map(_.toUpperCase(Locale.ROOT))
     newExpr(emptySession).succeeded shouldBe "FOO"
   }
 }
