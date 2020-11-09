@@ -25,9 +25,8 @@ object BodyProcessors {
   def gzip: Body => ByteArrayBody =
     (body: Body) => {
       val gzippedBytes = body match {
-        case StringBody(string, _)    => string.map(GzipHelper.gzip)
-        case pebbleBody: PebbleBody   => pebbleBody.map(GzipHelper.gzip)
-        case ByteArrayBody(byteArray) => byteArray.map(GzipHelper.gzip)
+        case StringBody(string, charset) => string.map(GzipHelper.gzip)
+        case ByteArrayBody(byteArray)    => byteArray.map(GzipHelper.gzip)
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>
             cachedBytes match {
@@ -46,7 +45,6 @@ object BodyProcessors {
     (body: Body) => {
       val stream = body match {
         case StringBody(string, charset) => string.map(s => new FastByteArrayInputStream(s.getBytes(charset)))
-        case pebbleBody: PebbleBody      => pebbleBody.map(string => new FastByteArrayInputStream(string.getBytes(charset)))
         case ByteArrayBody(byteArray)    => byteArray.map(new FastByteArrayInputStream(_))
         case RawFileBody(resourceAndCachedBytes) =>
           resourceAndCachedBytes.map { case ResourceAndCachedBytes(resource, cachedBytes) =>

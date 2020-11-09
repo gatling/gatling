@@ -40,13 +40,13 @@ trait BodySupport {
   def ElFileBody(filePath: Expression[String])(implicit elFileBodies: ElFileBodies): Body with Expression[String] =
     new io.gatling.core.body.ElBody(elFileBodies.parse(filePath))
 
-  def PebbleStringBody(string: String): Body with Expression[String] =
-    io.gatling.core.body.PebbleStringBody(string)
+  def PebbleStringBody(string: String)(implicit configuration: GatlingConfiguration): Body with Expression[String] =
+    io.gatling.core.body.PebbleStringBody(string, configuration.core.charset)
 
   def PebbleFileBody(
       filePath: Expression[String]
-  )(implicit pebbleFileBodies: PebbleFileBodies): Body with Expression[String] =
-    io.gatling.core.body.PebbleFileBody(filePath, pebbleFileBodies)
+  )(implicit pebbleFileBodies: PebbleFileBodies, configuration: GatlingConfiguration): Body with Expression[String] =
+    io.gatling.core.body.PebbleFileBody(filePath, pebbleFileBodies, configuration.core.charset)
 
   def ByteArrayBody(bytes: Expression[Array[Byte]]): Body with Expression[Array[Byte]] =
     io.gatling.core.body.ByteArrayBody(bytes)

@@ -25,8 +25,6 @@ import io.gatling.core.session._
 import io.gatling.core.session.el.{ ElCompiler, ElParserException, StaticPart }
 import io.gatling.netty.util.{ StringBuilderPool, StringWithCachedBytes }
 
-import com.mitchellbosecke.pebble.template.PebbleTemplate
-
 sealed trait Body
 
 final case class StringBody(string: Expression[String], charset: Charset) extends Body with Expression[String] {
@@ -105,18 +103,15 @@ final case class ElBody(partsE: Expression[List[ElBody.ElBodyPart]]) extends Bod
 final case class InputStreamBody(is: Expression[InputStream]) extends Body
 
 object PebbleStringBody {
-  def apply(string: String): PebbleBody = {
+  def apply(string: String, charset: Charset): StringBody = {
     val template = Pebble.getStringTemplate(string)
-    PebbleBody(_ => template)
+    StringBody(session => template.flatMap(Pebble.evaluateTemplate(_, session)), charset)
   }
 }
 
 object PebbleFileBody {
-  def apply(filePath: Expression[String], pebbleFileBodies: PebbleFileBodies): PebbleBody =
-    PebbleBody(pebbleFileBodies.asTemplate(filePath))
-}
-
-final case class PebbleBody(template: Expression[PebbleTemplate]) extends Body with Expression[String] {
-  override def apply(session: Session): Validation[String] =
-    template(session).flatMap(Pebble.evaluateTemplate(_, session))
+  def apply(filePath: Expression[String], pebbleFileBodies: PebbleFileBodies, charset: Charset): StringBody = {
+    val template = pebbleFileBodies.asTemplate(filePath)
+    StringBody(session => template(session).flatMap(Pebble.evaluateTemplate(_, session)), charset)
+  }
 }

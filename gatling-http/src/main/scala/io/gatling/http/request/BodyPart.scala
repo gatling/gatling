@@ -45,7 +45,7 @@ object BodyPart {
     stringBodyPart(name, new ElBody(elFileBodies.parse(filePath)), defaultCharset)
 
   def pebbleStringBodyPart(name: Option[Expression[String]], string: String, defaultCharset: Charset): BodyPart =
-    stringBodyPart(name, PebbleStringBody(string), defaultCharset)
+    stringBodyPart(name, PebbleStringBody(string, defaultCharset), defaultCharset)
 
   def pebbleFileBodyPart(
       name: Option[Expression[String]],
@@ -53,7 +53,7 @@ object BodyPart {
       defaultCharset: Charset,
       pebbleFileBodies: PebbleFileBodies
   ): BodyPart =
-    stringBodyPart(name, PebbleBody(pebbleFileBodies.asTemplate(filePath)), defaultCharset)
+    stringBodyPart(name, PebbleFileBody(filePath, pebbleFileBodies, defaultCharset), defaultCharset)
 
   def stringBodyPart(name: Option[Expression[String]], string: Expression[String], defaultCharset: Charset): BodyPart =
     BodyPart(name, stringBodyPartBuilder(string, defaultCharset), BodyPartAttributes.Empty)
