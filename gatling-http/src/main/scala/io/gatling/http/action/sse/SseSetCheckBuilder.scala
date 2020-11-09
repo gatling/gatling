@@ -19,7 +19,7 @@ package io.gatling.http.action.sse
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.action.Action
-import io.gatling.core.session.Expression
+import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.sse.{ SseMessageCheck, SseMessageCheckSequence }
@@ -29,11 +29,15 @@ import com.softwaremill.quicklens._
 final case class SseSetCheckBuilder(
     requestName: Expression[String],
     sseName: String,
-    checkSequences: List[SseMessageCheckSequence]
+    checkSequences: List[SseMessageCheckSequenceBuilder]
 ) extends HttpActionBuilder {
 
   def await(timeout: FiniteDuration)(checks: SseMessageCheck*): SseSetCheckBuilder =
-    this.modify(_.checkSequences).using(_ ::: List(SseMessageCheckSequence(timeout, checks.toList)))
+    await(timeout.expressionSuccess)(checks: _*)
+
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  def await(timeout: Expression[FiniteDuration])(checks: SseMessageCheck*): SseSetCheckBuilder =
+    this.modify(_.checkSequences).using(_ :+ SseMessageCheckSequenceBuilder(timeout, checks.toList))
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)

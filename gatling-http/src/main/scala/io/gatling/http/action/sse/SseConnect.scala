@@ -24,7 +24,6 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 import io.gatling.http.action.sse.fsm.SseFsm
-import io.gatling.http.check.sse.SseMessageCheckSequence
 import io.gatling.http.client.Request
 import io.gatling.http.protocol.HttpComponents
 
@@ -32,7 +31,7 @@ class SseConnect(
     val requestName: Expression[String],
     sseName: String,
     request: Expression[Request],
-    connectCheckSequences: List[SseMessageCheckSequence],
+    connectCheckSequences: List[SseMessageCheckSequenceBuilder],
     coreComponents: CoreComponents,
     httpComponents: HttpComponents,
     val next: Action
@@ -51,6 +50,7 @@ class SseConnect(
       case _: Failure =>
         for {
           request <- request(session)
+          resolvedCheckSequences <- SseMessageCheckSequenceBuilder.resolve(connectCheckSequences, session)
         } yield {
           logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
@@ -59,7 +59,7 @@ class SseConnect(
             sseName,
             requestName,
             request,
-            connectCheckSequences,
+            resolvedCheckSequences,
             statsEngine,
             httpComponents.httpEngine,
             httpComponents.httpProtocol,

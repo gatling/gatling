@@ -22,11 +22,10 @@ import io.gatling.core.action.{ Action, RequestAction }
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
-import io.gatling.http.check.sse.SseMessageCheckSequence
 
 class SseSetCheck(
     val requestName: Expression[String],
-    checkSequences: List[SseMessageCheckSequence],
+    checkSequences: List[SseMessageCheckSequenceBuilder],
     sseName: String,
     val statsEngine: StatsEngine,
     val clock: Clock,
@@ -40,10 +39,11 @@ class SseSetCheck(
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
       fsm <- fetchFsm(sseName, session)
+      resolvedCheckSequences <- SseMessageCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
       // [fl]
       //
       // [fl]
-      fsm.onSetCheck(requestName, checkSequences, session, next)
+      fsm.onSetCheck(requestName, resolvedCheckSequences, session, next)
     }
 }
