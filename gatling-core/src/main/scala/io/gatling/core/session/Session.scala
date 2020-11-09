@@ -139,11 +139,11 @@ final case class Session(
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
-    val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.groups } match {
+    val groups = blockStack.collectFirst { case g: GroupBlock => g.groups } match {
       case Some(l) => l :+ groupName
       case _       => groupName :: Nil
     }
-    copy(blockStack = GroupBlock(groupHierarchy, nowMillis, 0, OK) :: blockStack)
+    copy(blockStack = GroupBlock(groups, nowMillis, 0, OK) :: blockStack)
   }
 
   private[core] def exitGroup(tail: List[Block]): Session = copy(blockStack = tail)
