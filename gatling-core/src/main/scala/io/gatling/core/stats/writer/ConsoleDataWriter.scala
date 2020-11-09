@@ -109,6 +109,7 @@ class ConsoleDataWriter(clock: Clock, configuration: GatlingConfiguration) exten
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private def onResponseMessage(response: ResponseMessage, data: ConsoleData): Unit = {
     import data._
     import response._

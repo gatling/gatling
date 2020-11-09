@@ -21,5 +21,6 @@ import io.gatling.commons.stats.Group
 private[charts] object RequestPath {
   val Separator = " / "
   def path(group: Group): String = group.hierarchy.mkString(Separator)
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) :+ requestName).mkString(Separator)
 }

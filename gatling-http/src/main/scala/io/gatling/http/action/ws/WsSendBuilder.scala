@@ -36,6 +36,7 @@ final case class WsSendTextFrameBuilder(
   def await(timeout: FiniteDuration)(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
     await(timeout.expressionSuccess)(checks: _*)
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def await(timeout: Expression[FiniteDuration])(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
     this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
 

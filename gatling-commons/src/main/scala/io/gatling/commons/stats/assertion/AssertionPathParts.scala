@@ -19,6 +19,9 @@ package io.gatling.commons.stats.assertion
 object AssertionPathParts {
   implicit def string2PathParts(path: String): AssertionPathParts = AssertionPathParts(List(path))
 }
+
 final case class AssertionPathParts(parts: List[String]) {
+
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def /(part: String): AssertionPathParts = copy(parts = parts :+ part)
 }

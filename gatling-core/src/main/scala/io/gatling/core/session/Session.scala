@@ -137,6 +137,7 @@ final case class Session(
 
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.groups } match {
       case Some(l) => l :+ groupName

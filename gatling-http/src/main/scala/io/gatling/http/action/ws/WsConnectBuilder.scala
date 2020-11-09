@@ -22,7 +22,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.session._
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
+import io.gatling.http.check.ws.WsFrameCheck
 import io.gatling.http.request.builder.ws.WsConnectRequestBuilder
 
 import com.softwaremill.quicklens._
@@ -36,6 +36,7 @@ final case class WsConnectBuilder(
   def await(timeout: FiniteDuration)(checks: WsFrameCheck*): WsConnectBuilder =
     await(timeout.expressionSuccess)(checks: _*)
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def await(timeout: Expression[FiniteDuration])(checks: WsFrameCheck*): WsConnectBuilder =
     this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
 

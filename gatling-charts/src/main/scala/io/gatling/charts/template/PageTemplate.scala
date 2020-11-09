@@ -43,6 +43,7 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
 
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def getOutput(charset: Charset): String = {
     val runMessage = PageTemplate.runMessage
     val runStart = PageTemplate.runStart

@@ -40,6 +40,7 @@ object HttpRequestExpressionBuilder {
 
   private val bodyPartsToMultipartsZero = List.empty[Part[_]].success
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private def bodyPartsToMultiparts(bodyParts: List[BodyPart], session: Session): Validation[List[Part[_]]] =
     bodyParts.foldLeft(bodyPartsToMultipartsZero) { (acc, bodyPart) =>
       for {

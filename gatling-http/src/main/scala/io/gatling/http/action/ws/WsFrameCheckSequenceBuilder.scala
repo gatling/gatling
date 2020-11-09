@@ -23,6 +23,8 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.ws.{ WsFrameCheck, WsFrameCheckSequence }
 
 object WsFrameCheckSequenceBuilder {
+
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def resolve[T <: WsFrameCheck](builders: List[WsFrameCheckSequenceBuilder[T]], session: Session): Validation[List[WsFrameCheckSequence[T]]] =
     builders.foldLeft(List.empty[WsFrameCheckSequence[T]].success) { (acc, builder) =>
       for {

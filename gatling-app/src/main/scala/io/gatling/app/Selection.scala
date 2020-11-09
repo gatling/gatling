@@ -87,7 +87,7 @@ object Selection {
     }
 
     private def singleSimulationFromList(simulationClasses: SimulationClasses) = simulationClasses match {
-      case simulation :: Nil =>
+      case List(simulation) =>
         println(s"${simulation.getName} is the only simulation, executing it.")
         Some(simulation)
 

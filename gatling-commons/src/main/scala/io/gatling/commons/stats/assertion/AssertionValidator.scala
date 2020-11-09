@@ -64,6 +64,7 @@ object AssertionValidator {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   private def findPath(parts: List[String], source: GeneralStatsSource): Option[StatsPath] =
     source.statsPaths.find { statsPath =>
       val path = statsPath match {

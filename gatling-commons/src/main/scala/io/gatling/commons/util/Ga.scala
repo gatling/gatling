@@ -31,6 +31,7 @@ object Ga {
 
   private[this] def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
 
+  @SuppressWarnings(Array("org.wartremover.warts.GlobalExecutionContext"))
   def send(version: String): Unit = {
     import ExecutionContext.Implicits.global
 
