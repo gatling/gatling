@@ -157,7 +157,7 @@ private[recorder] final case class RequestElement(
 
   val basicAuthCredentials: Option[(String, String)] = {
     def parseCredentials(header: String) =
-      new String(Base64.getDecoder.decode(header.split(" ")(1))).split(":") match {
+      new String(Base64.getDecoder.decode(header.split(" ")(1)), UTF_8).split(":") match {
         case Array(username, password) =>
           val credentials = (username, password)
           Some(credentials)

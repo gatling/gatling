@@ -16,6 +16,8 @@
 
 package io.gatling.http.compile
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
@@ -109,7 +111,7 @@ class WsCompileTest extends Simulation {
     )
     .exec(
       ws("BinaryMessage")
-        .sendBytes("hello".getBytes())
+        .sendBytes("hello".getBytes(UTF_8))
         .await(30 seconds)(
           // match first message
           ws.checkBinaryMessage("checkName").check(bodyBytes.transform(_.length).saveAs("bytesLength")).silent

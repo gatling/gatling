@@ -64,7 +64,7 @@ class JmsJsonPathCheckSpec
   val jsons: TableFor2[Message, String] = Table(
     ("json", "messageType"),
     (textMessage(testJson), "TextMessage"),
-    (bytesMessage(testJson.getBytes()), "BytesMessage")
+    (bytesMessage(testJson.getBytes(configuration.core.charset)), "BytesMessage")
   )
 
   forAll(jsons) { (response, messageType) =>

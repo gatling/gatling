@@ -17,6 +17,7 @@
 package io.gatling.http.compile
 
 import java.net.InetSocketAddress
+import java.nio.charset.StandardCharsets.UTF_8
 import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration._
@@ -62,7 +63,7 @@ class HttpCompileTest extends Simulation {
     .check(bodyString.transformWithSession((string, session) => string.length).lte(100000))
     .check(bodyString.transformOption(stringO => stringO.map(_.length)).gt(100000))
     .check(bodyString.transformOptionWithSession((stringO, session) => stringO.map(_.length)).gte(100000))
-    .check(bodyBytes.is("foo".getBytes()))
+    .check(bodyBytes.is("foo".getBytes(UTF_8)))
     .check(md5.is("XXXXX"))
     .check(sha1.is("XXXXX"))
     .check(responseTimeInMillis.is(100))

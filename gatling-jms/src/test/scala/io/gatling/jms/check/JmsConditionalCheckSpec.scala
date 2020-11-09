@@ -45,7 +45,7 @@ class JmsConditionalCheckSpec
   private val testResponses = Table(
     ("msg", "msgType"),
     (textMessage("""[{"id":"1072920417"},"id":"1072920418"]"""), "TextMessage"),
-    (bytesMessage("""[{"id":"1072920417"},"id":"1072920418"]""".getBytes()), "BytesMessage")
+    (bytesMessage("""[{"id":"1072920417"},"id":"1072920418"]""".getBytes(configuration.core.charset)), "BytesMessage")
   )
 
   forAll(testResponses) { (response: Message, msgType: String) =>

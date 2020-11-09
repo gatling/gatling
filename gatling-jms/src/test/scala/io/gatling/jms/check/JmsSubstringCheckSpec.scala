@@ -43,7 +43,7 @@ class JmsSubstringCheckSpec
   private val testResponses = Table(
     ("msg", "msgType"),
     (textMessage("""[{"id":"1072920417"},"id":"1072920418"]"""), "TextMessage"),
-    (bytesMessage("""[{"id":"1072920417"},"id":"1072920418"]""".getBytes()), "BytesMessage")
+    (bytesMessage("""[{"id":"1072920417"},"id":"1072920418"]""".getBytes(configuration.core.charset)), "BytesMessage")
   )
 
   "substring.find.exists for TextMessage" should "find single result" in {
@@ -52,7 +52,7 @@ class JmsSubstringCheckSpec
   }
 
   "substring.find.exists for BytesMessage" should "find single result" in {
-    val response = bytesMessage("""{"id":"1072920417"}""".getBytes())
+    val response = bytesMessage("""{"id":"1072920417"}""".getBytes(configuration.core.charset))
     substring(""""id":"""").find.exists.check(response, emptySession, jmap[Any, Any]).succeeded shouldBe CheckResult(Some(1), None)
   }
 
