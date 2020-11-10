@@ -35,11 +35,11 @@ trait Action extends StrictLogging {
   def name: String
 
   def !(session: Session): Unit = {
-    val evenLoop = session.eventLoop
-    if (evenLoop.inEventLoop) {
+    val eventLoop = session.eventLoop
+    if (eventLoop.inEventLoop) {
       execute(session)
-    } else if (!evenLoop.isShutdown) {
-      evenLoop.execute(() => execute(session))
+    } else if (!eventLoop.isShutdown) {
+      eventLoop.execute(() => execute(session))
     }
   }
 
