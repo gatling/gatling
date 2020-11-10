@@ -22,7 +22,7 @@ import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.Container.{ Group, Request }
 import io.gatling.charts.report.GroupContainer
-import io.gatling.commons.util.StringHelper._
+import io.gatling.charts.util.JsHelper._
 
 private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean) {
 
@@ -33,8 +33,8 @@ private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean
     def renderStats(request: RequestStatistics, path: String): String = {
       val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
 
-      s"""${fieldName("name")}: "${request.name.escapeJsIllegalChars}",
-${fieldName("path")}: "${request.path.escapeJsIllegalChars}",
+      s"""${fieldName("name")}: "${escapeJsIllegalChars(request.name)}",
+${fieldName("path")}: "${escapeJsIllegalChars(request.path)}",
 ${fieldName("pathFormatted")}: "$path",
 ${fieldName("stats")}: $jsonStats"""
     }

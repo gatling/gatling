@@ -42,8 +42,6 @@ object StringHelper {
       normalized.toLowerCase(Locale.ROOT).replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
     }
 
-    def escapeJsIllegalChars: String = string.replace("\"", "\\\"").replace("\\", "\\\\")
-
     def trimToOption: Option[String] = string.trim match {
       case "" => None
       case s  => Some(s)
