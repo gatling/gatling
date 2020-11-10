@@ -34,12 +34,13 @@ trait Action extends StrictLogging {
 
   def name: String
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   def !(session: Session): Unit = {
     val eventLoop = session.eventLoop
     if (eventLoop.inEventLoop) {
       execute(session)
     } else if (!eventLoop.isShutdown) {
-      eventLoop.execute(() => execute(session))
+      eventLoop.execute(() => this ! session)
     }
   }
 
