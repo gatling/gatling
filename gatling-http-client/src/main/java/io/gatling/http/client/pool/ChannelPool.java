@@ -92,7 +92,7 @@ public class ChannelPool {
     return channel;
   }
 
-  public void addCoalescedChannel(Set<String> subjectAlternativeNames, InetSocketAddress address, Channel channel, ChannelPoolKey key) {
+  public void offerCoalescedChannel(Set<String> subjectAlternativeNames, InetSocketAddress address, Channel channel, ChannelPoolKey key) {
     IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
     coalescingChannelPool.addEntry(key.clientId, ipAndPort, subjectAlternativeNames, channel);
   }

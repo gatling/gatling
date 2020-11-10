@@ -812,7 +812,7 @@ public class DefaultHttpClient implements HttpClient {
               LOGGER.debug("TLS handshake successful: protocol={} cipher suite={}", sslHandler.engine().getSession().getProtocol(), sslHandler.engine().getSession().getCipherSuite());
             }
             if (!subjectAlternativeNames.isEmpty()) {
-              channelPool.addCoalescedChannel(subjectAlternativeNames, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
+              channelPool.offerCoalescedChannel(subjectAlternativeNames, (InetSocketAddress) channel.remoteAddress(), channel, tx.key);
             }
             break;
 
