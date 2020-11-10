@@ -794,7 +794,7 @@ public class DefaultHttpClient implements HttpClient {
                   connection,
                   new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenAlpn) {
                     @Override
-                    public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) throws Http2Exception {
+                    public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
                       ctx.fireChannelRead(new Http2AppHandler.GoAwayFrame(lastStreamId, errorCode));
                     }
                   })
