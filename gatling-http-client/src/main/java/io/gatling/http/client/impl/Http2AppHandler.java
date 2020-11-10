@@ -47,11 +47,9 @@ public class Http2AppHandler extends ChannelDuplexHandler {
 
     @Override
     public String toString() {
-      final StringBuilder sb = new StringBuilder("GoAwayFrame{");
-      sb.append("lastStreamId=").append(lastStreamId);
-      sb.append(", errorCode=").append(errorCode);
-      sb.append('}');
-      return sb.toString();
+      return "GoAwayFrame{lastStreamId=" + lastStreamId +
+        ", errorCode=" + errorCode +
+        '}';
     }
   }
 
