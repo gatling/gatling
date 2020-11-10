@@ -185,6 +185,7 @@ You can bind the sockets from specific local addresses instead of the default on
   localAddress(localAddress: String)
   localAddresses(localAddress1: String, localAddress2: String)
   useAllLocalAddresses // automatically discover all bindable local addresses
+  useAllLocalAddressesMatching(regex1, regex2) // automatically discover all bindable local addresses matching one of the pattern parameters (String)
 
 When setting multiple addresses, each virtual user is assigned to one single local address once and for all.
 

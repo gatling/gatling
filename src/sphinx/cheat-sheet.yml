@@ -1308,13 +1308,17 @@
         - keyword: localAddresses
           description: Binds the sockets from a list of specific local addresses instead of the default one
           syntax:
-          - signature: (InetAddress...)
-            description: Address Strings that will be turned into InetAddresses
+            - signature: (InetAddress...)
+              description: Address Strings that will be turned into InetAddresses
 
         - keyword: useAllLocalAddresses
           description: Binds the sockets from all available local addresses
+
+        - keyword: useAllLocalAddressesMatching
+          description: Binds the sockets from all available local addresses matching one of the pattern parameters
           syntax:
-              description: Address Strings that will be turned into InetAddresses
+            - signature: (String...)
+              description: Pattern Strings that will be compiled into Java patterns
 
         - keyword: perUserKeyManagerFactory
           description: Configure a specific javax.net.ssl.KeyManagerFactory per virtual user

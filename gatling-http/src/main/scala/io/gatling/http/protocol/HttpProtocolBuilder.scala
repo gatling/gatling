@@ -17,6 +17,7 @@
 package io.gatling.http.protocol
 
 import java.net.{ Inet4Address, InetAddress, InetSocketAddress }
+import java.util.regex.Pattern
 import javax.net.ssl.KeyManagerFactory
 
 import scala.jdk.CollectionConverters._
@@ -63,8 +64,18 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
     val (ipV4Addresses, ipV6Addresses) = addresses.map(InetAddress.getByName).partition(_.isInstanceOf[Inet4Address])
     localAddresses(ipV4Addresses, ipV6Addresses)
   }
-  def useAllLocalAddresses: HttpProtocolBuilder =
-    localAddresses(InetAddresses.AllIpV4LocalAddresses, InetAddresses.AllIpV6LocalAddresses)
+  def useAllLocalAddresses: HttpProtocolBuilder = useAllLocalAddressesMatching()
+  def useAllLocalAddressesMatching(patterns: String*): HttpProtocolBuilder = {
+    val compiledPatterns = patterns.map(Pattern.compile)
+
+    def filter(addresses: List[InetAddress]): List[InetAddress] =
+      addresses.filter { address =>
+        val hostAddress = address.getHostAddress
+        compiledPatterns.exists(_.matcher(hostAddress).matches)
+      }
+
+    localAddresses(filter(InetAddresses.AllIpV4LocalAddresses), filter(InetAddresses.AllIpV6LocalAddresses))
+  }
 
   private def localAddresses(ipV4Addresses: List[InetAddress], ipV6Addresses: List[InetAddress]): HttpProtocolBuilder =
     this
