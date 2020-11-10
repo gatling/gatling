@@ -40,7 +40,12 @@ object Resource {
       }
 
     def unapply(location: Location): Option[Validation[Resource]] = {
-      val cleanPath = location.path.replace('\\', '/')
+      val cleanPath = location.path
+        .replace('\\', '/')
+        .replace("src/test/resources/", "")
+        .replace("src/main/resources/", "")
+        .replace("src/gatling/resources/", "")
+
       Option(getClass.getClassLoader.getResource(cleanPath)).map { url =>
         url.getProtocol match {
           case "file" => ClasspathFileResource(cleanPath, urlToFile(url)).success
