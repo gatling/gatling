@@ -17,7 +17,6 @@
 package io.gatling.http.util
 
 import java.{ util => ju }
-import java.io.Closeable
 import java.security.SecureRandom
 import javax.net.ssl._
 
@@ -154,7 +153,7 @@ private[gatling] class SslContextsFactory(sslConfig: SslConfiguration) extends S
     )
 }
 
-private[http] final class SslContexts(val sslContext: SslContext, val alpnSslContext: Option[SslContext]) extends Closeable {
+private[http] final class SslContexts(val sslContext: SslContext, val alpnSslContext: Option[SslContext]) extends AutoCloseable {
   override def close(): Unit = {
     ReferenceCountUtil.release(sslContext)
     alpnSslContext.foreach(ReferenceCountUtil.release)
