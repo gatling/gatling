@@ -78,6 +78,7 @@ object HeaderNames {
   val SecWebSocketVersion: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_VERSION
   val SecWebSocketKey: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_KEY
   val SecWebSocketAccept: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_ACCEPT
+  val SecWebSocketExtensions: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS
   val Server: CharSequence = HttpHeaderNames.SERVER
   val SetCookie: CharSequence = HttpHeaderNames.SET_COOKIE
   val SetCookie2: CharSequence = HttpHeaderNames.SET_COOKIE2
