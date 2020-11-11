@@ -7,7 +7,7 @@ object Dependencies {
   // format: OFF
   private def scalaReflect(version: String)  = "org.scala-lang"                       % "scala-reflect"                   % version
   private def scalaCompiler(version: String) = "org.scala-lang"                       % "scala-compiler"                  % version
-  private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "2.1.1"
+  private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "1.1.2"
   private val java8Compat                    = "org.scala-lang.modules"              %% "scala-java8-compat"              % "0.9.1"
   private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.53.Final"
