@@ -22,6 +22,8 @@ import java.nio.charset.Charset
 import java.nio.file.{ Files, Path, Paths }
 import java.util.concurrent.ConcurrentHashMap
 
+import scala.util.Using
+
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
@@ -84,7 +86,7 @@ sealed trait Resource {
   def name: String
   def file: File
   def inputStream: InputStream = new BufferedInputStream(new FileInputStream(file))
-  def string(charset: Charset): String = withCloseable(inputStream) { _.toString(charset) }
+  def string(charset: Charset): String = Using.resource(inputStream) { _.toString(charset) }
   def bytes: Array[Byte] = Files.readAllBytes(file.toPath)
 }
 
@@ -101,8 +103,8 @@ final case class ClasspathPackagedResource(path: String, url: URL) extends Resou
     val tempFile = File.createTempFile("gatling-" + name, null)
     tempFile.deleteOnExit()
 
-    withCloseable(url.openStream()) { is =>
-      withCloseable(new BufferedOutputStream(new FileOutputStream(tempFile, false)))(is.copyTo(_))
+    Using.resources(url.openStream(), new BufferedOutputStream(new FileOutputStream(tempFile, false))) { (is, os) =>
+      is.copyTo(os)
     }
     tempFile
   }

@@ -18,7 +18,7 @@ package io.gatling.jdbc
 
 import java.sql.DriverManager
 
-import io.gatling.commons.util.Io.withCloseable
+import scala.util.Using
 
 trait JdbcSpec {
 
@@ -29,7 +29,7 @@ trait JdbcSpec {
     val jdbcUrl = s"jdbc:h2:mem:$dbName"
     val fullUrl = s"$jdbcUrl;INIT=RUNSCRIPT FROM 'classpath:$initScriptName'"
     Class.forName("org.h2.Driver")
-    withCloseable(DriverManager.getConnection(fullUrl, Username, Password)) { conn => // Kept open, but unused
+    Using.resource(DriverManager.getConnection(fullUrl, Username, Password)) { conn => // Kept open, but unused
       block(jdbcUrl)
     }
   }

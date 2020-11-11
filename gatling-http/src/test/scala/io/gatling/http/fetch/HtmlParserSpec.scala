@@ -18,13 +18,15 @@ package io.gatling.http.fetch
 
 import java.nio.charset.StandardCharsets.UTF_8
 
+import scala.util.Using
+
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Io._
 import io.gatling.http.client.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
 
-  private val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
+  private val htmlContent = Using.resource(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
     _.toString(UTF_8).toCharArray
   }
 

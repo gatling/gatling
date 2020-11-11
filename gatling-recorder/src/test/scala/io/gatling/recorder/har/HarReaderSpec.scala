@@ -18,8 +18,9 @@ package io.gatling.recorder.har
 
 import java.nio.charset.StandardCharsets.UTF_8
 
+import scala.util.Using
+
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io
 import io.gatling.core.filter.Filters
 
 import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
@@ -27,7 +28,7 @@ import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
 class HarReaderSpec extends BaseSpec {
 
   private def readHar(file: String, filters: Option[Filters]): Seq[HttpTransaction] =
-    Io.withCloseable(Thread.currentThread.getContextClassLoader.getResourceAsStream("har/" + file)) { is =>
+    Using.resource(Thread.currentThread.getContextClassLoader.getResourceAsStream("har/" + file)) { is =>
       HarReader.readStream(is, filters)
     }
 

@@ -23,10 +23,10 @@ import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.jdk.CollectionConverters._
 import scala.util.Properties.userHome
+import scala.util.Using
 import scala.util.control.NonFatal
 
 import io.gatling.commons.util.ConfigHelper.configChain
-import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.util.Throwables._
@@ -93,7 +93,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
     val configToSave = configuration.config.withoutPath(ConfigKeys.core.ResourcesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
-    configFile.foreach(file => withCloseable(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
+    configFile.foreach(file => Using.resource(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
   }
 
   private[config] def createAndOpen(path: Path): Path =

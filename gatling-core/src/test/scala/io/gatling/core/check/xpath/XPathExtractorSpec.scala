@@ -18,6 +18,8 @@ package io.gatling.core.check.xpath
 
 import java.nio.charset.StandardCharsets.UTF_8
 
+import scala.util.Using
+
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.util.Io._
 
@@ -30,7 +32,7 @@ class XPathExtractorSpec extends BaseSpec with ValidationValues {
   private val xmlParsers = new XmlParsers(Long.MaxValue)
 
   private def dom(file: String): Option[XdmNode] =
-    withCloseable(getClass.getResourceAsStream(file)) { is =>
+    Using.resource(getClass.getResourceAsStream(file)) { is =>
       Some(XmlParsers.parse(is, UTF_8))
     }
 

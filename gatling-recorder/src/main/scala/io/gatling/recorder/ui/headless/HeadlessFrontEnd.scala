@@ -19,7 +19,8 @@ package io.gatling.recorder.ui.headless
 import java.io.{ File, PrintStream }
 import java.lang.management.ManagementFactory
 
-import io.gatling.commons.util.Io._
+import scala.util.Using
+
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.config.RecorderMode.Proxy
 import io.gatling.recorder.controller.RecorderController
@@ -88,7 +89,7 @@ private[ui] class HeadlessFrontEnd(controller: RecorderController)(implicit conf
 
   private def createLockFile(): Unit = {
     val pid = ManagementFactory.getRuntimeMXBean.getName.split("@").head
-    withCloseable(new PrintStream(RecorderPidFile))(_.println(pid))
+    Using.resource(new PrintStream(RecorderPidFile))(_.println(pid))
   }
 
   private def printErr(msg: String): Unit =

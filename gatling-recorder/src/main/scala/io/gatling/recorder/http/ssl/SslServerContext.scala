@@ -22,9 +22,8 @@ import java.security.{ KeyStore, Security }
 import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.{ KeyManagerFactory, SSLEngine }
 
-import scala.util.Failure
+import scala.util.{ Failure, Using }
 
-import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 
@@ -84,7 +83,7 @@ private[recorder] object SslServerContext {
     private lazy val context = {
       val keyStore = {
         val ks = KeyStore.getInstance(keyStoreType.toString)
-        withCloseable(new BufferedInputStream(new FileInputStream(ksFile))) { ks.load(_, password) }
+        Using.resource(new BufferedInputStream(new FileInputStream(ksFile))) { ks.load(_, password) }
         ks
       }
 

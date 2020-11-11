@@ -95,10 +95,12 @@ object Io {
     }
   }
 
+  @deprecated("Use scala.util.Using", "3.5.0")
   def withCloseable[T, C <: AutoCloseable](closeable: C)(block: C => T): T =
     try block(closeable)
     finally closeable.close()
 
+  @deprecated("Use scala.util.Using", "3.5.0")
   def withSource[T, C <: Source](closeable: C)(block: C => T): T =
     try block(closeable)
     finally closeable.close()

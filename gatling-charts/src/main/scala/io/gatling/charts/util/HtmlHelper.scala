@@ -19,14 +19,14 @@ package io.gatling.charts.util
 import java.{ lang => jl }
 
 import scala.io.{ Codec, Source }
+import scala.util.Using
 
-import io.gatling.commons.util.Io
 import io.gatling.commons.util.Spire._
 
 object HtmlHelper {
 
   private val charToHtml: Map[Char, String] =
-    Io.withSource(Source.fromResource("html-entities.properties")(Codec.UTF8)) { source =>
+    Using.resource(Source.fromResource("html-entities.properties")(Codec.UTF8)) { source =>
       source
         .getLines()
         .collect {

@@ -18,12 +18,13 @@ package io.gatling.charts.report
 
 import java.nio.file.Path
 
-import io.gatling.commons.util.Io._
+import scala.util.Using
+
 import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class TemplateWriter(path: Path) {
 
   def writeToFile(output: String)(implicit configuration: GatlingConfiguration): Unit =
-    withCloseable(path.writer(configuration.core.charset)) { _.write(output) }
+    Using.resource(path.writer(configuration.core.charset)) { _.write(output) }
 }

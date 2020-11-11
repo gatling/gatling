@@ -20,6 +20,8 @@ import java.io.InputStream
 import java.nio.charset.Charset
 import java.util.zip.GZIPOutputStream
 
+import scala.util.Using
+
 import io.gatling.commons.util.Io._
 
 object GzipHelper {
@@ -30,9 +32,9 @@ object GzipHelper {
     gzip(new FastByteArrayInputStream(bytes))
 
   def gzip(in: InputStream): Array[Byte] =
-    withCloseable(in) { is =>
+    Using.resource(in) { is =>
       val out = FastByteArrayOutputStream.pooled()
-      withCloseable(new GZIPOutputStream(out))(is.copyTo(_))
+      Using.resource(new GZIPOutputStream(out))(is.copyTo(_))
       out.toByteArray
     }
 }

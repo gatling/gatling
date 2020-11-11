@@ -22,7 +22,7 @@ import javax.activation.FileTypeMap
 
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
-import scala.util.Try
+import scala.util.{ Try, Using }
 
 import io.gatling.AkkaSpec
 import io.gatling.commons.util.DefaultClock
@@ -48,7 +48,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 
   private val clock = new DefaultClock
-  protected val mockHttpPort: Int = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
+  protected val mockHttpPort: Int = Using(new ServerSocket(0))(_.getLocalPort).getOrElse(8072)
 
   private def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
     HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")

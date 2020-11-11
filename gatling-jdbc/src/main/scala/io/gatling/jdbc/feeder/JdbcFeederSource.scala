@@ -20,14 +20,14 @@ import java.sql.DriverManager
 import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
 
 import scala.annotation.tailrec
+import scala.util.Using
 
-import io.gatling.commons.util.Io._
 import io.gatling.core.feeder.Record
 
 object JdbcFeederSource {
 
   def apply(url: String, username: String, password: String, sql: String): Vector[Record[Any]] =
-    withCloseable(DriverManager.getConnection(url, username, password)) { connection =>
+    Using.resource(DriverManager.getConnection(url, username, password)) { connection =>
       val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
       val resultSet = preparedStatement.executeQuery
       val metadata = resultSet.getMetaData

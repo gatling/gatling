@@ -22,9 +22,8 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.time.ZonedDateTime
 import java.util.{ Base64, Locale }
 
-import scala.util.Try
+import scala.util.{ Try, Using }
 
-import io.gatling.commons.util.Io._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.filter.Filters
 import io.gatling.recorder.har.HarParser._
@@ -38,7 +37,7 @@ final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
 private[recorder] object HarReader {
 
   def readFile(path: String, filters: Option[Filters]): Seq[HttpTransaction] =
-    withCloseable(new BufferedInputStream(new FileInputStream(path)))(readStream(_, filters))
+    Using.resource(new BufferedInputStream(new FileInputStream(path)))(readStream(_, filters))
 
   private[har] def readStream(is: InputStream, filters: Option[Filters]): Seq[HttpTransaction] = {
     val harEntries = HarParser.parseHarEntries(is)

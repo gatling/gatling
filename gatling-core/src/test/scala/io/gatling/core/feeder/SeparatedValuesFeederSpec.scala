@@ -20,8 +20,9 @@ import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
 import java.nio.channels.{ Channels, ReadableByteChannel }
 import java.nio.charset.StandardCharsets.UTF_8
 
+import scala.util.Using
+
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.feeder.Utf8BomSkipReadableByteChannel._
@@ -75,7 +76,7 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
 
   it should "skip UTF-8 BOM" in {
     val bytes =
-      Io.withCloseable(new ByteArrayOutputStream) { os =>
+      Using.resource(new ByteArrayOutputStream) { os =>
         os.write(Array(Utf8BomByte1, Utf8BomByte2, Utf8BomByte3))
         os.write("foo,bar\n".getBytes(UTF_8))
         os.write("hello,world\n".getBytes(UTF_8))

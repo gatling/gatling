@@ -23,6 +23,7 @@ import java.util.Locale
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
@@ -89,7 +90,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
 
-    withCloseable(simulationFilePath.outputStream) {
+    Using.resource(simulationFilePath.outputStream) {
       _.write(output.getBytes(config.core.encoding))
     }
   }
@@ -230,7 +231,7 @@ private[recorder] object ScenarioExporter extends StrictLogging {
       Left(scenarioElements)
 
   private def dumpBody(fileName: String, content: Array[Byte])(implicit config: RecorderConfiguration): Unit = {
-    withCloseable((resourcesFolderPath / fileName).outputStream) { fw =>
+    Using.resource((resourcesFolderPath / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {

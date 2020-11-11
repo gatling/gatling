@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 import io.gatling.BaseSpec
 import io.gatling.commons.util.Io
@@ -104,7 +105,7 @@ class JsonSpec extends BaseSpec {
   }
 
   "asScala" should "deep convert into Scala structures" in {
-    val input = Io.withCloseable(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
+    val input = Using.resource(Thread.currentThread().getContextClassLoader.getResourceAsStream("test.json")) { is =>
       new JsonParsers().parse(is, UTF_8)
     }
 

@@ -20,8 +20,9 @@ import java.io.{ IOException, InputStream }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Paths
 
+import scala.util.Using
+
 import io.gatling.{ BaseSpec, ValidationValues }
-import io.gatling.commons.util.Io._
 import io.gatling.core.feeder.Record
 import io.gatling.core.util.Resource
 
@@ -34,7 +35,7 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
   private def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
   "sitemap parser" should "parse valid sitemap input stream" in {
-    withCloseable(getIs("sitemap.xml")) { is =>
+    Using.resource(getIs("sitemap.xml")) { is =>
       val records = SitemapParser.parse(is, UTF_8).toArray
       verifySitemapRecords(records)
     }

@@ -26,9 +26,8 @@ import java.util.concurrent.ThreadLocalRandom
 import javax.security.auth.x500.X500Principal
 
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.util.{ Try, Using }
 
-import io.gatling.commons.util.Io.withCloseable
 import io.gatling.commons.util.PathHelper._
 
 import com.typesafe.scalalogging.StrictLogging
@@ -62,10 +61,10 @@ private[recorder] object SslUtil extends StrictLogging {
   Security.addProvider(new BouncyCastleProvider)
 
   def readPEM(file: InputStream): Any =
-    withCloseable(new PEMParser(new InputStreamReader(file))) { _.readObject }
+    Using.resource(new PEMParser(new InputStreamReader(file))) { _.readObject }
 
   def writePEM(obj: Any, os: OutputStream): Unit =
-    withCloseable(new JcaPEMWriter(new OutputStreamWriter(os))) { _.writeObject(obj) }
+    Using.resource(new JcaPEMWriter(new OutputStreamWriter(os))) { _.writeObject(obj) }
 
   def certificateFromHolder(certHolder: X509CertificateHolder): X509Certificate =
     new JcaX509CertificateConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME).getCertificate(certHolder)

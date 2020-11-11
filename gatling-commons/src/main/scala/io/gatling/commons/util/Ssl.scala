@@ -20,7 +20,7 @@ import java.io._
 import java.security.KeyStore
 import javax.net.ssl.{ KeyManagerFactory, TrustManagerFactory }
 
-import io.gatling.commons.util.Io.withCloseable
+import scala.util.Using
 
 object Ssl {
 
@@ -33,7 +33,7 @@ object Ssl {
   }
 
   def newTrustManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): TrustManagerFactory =
-    withCloseable(storeStream(file)) { is =>
+    Using.resource(storeStream(file)) { is =>
       val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       trustStore.load(is, password.toCharArray)
       val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
@@ -43,7 +43,7 @@ object Ssl {
     }
 
   def newKeyManagerFactory(storeType: Option[String], file: String, password: String, algorithm: Option[String]): KeyManagerFactory =
-    withCloseable(storeStream(file)) { is =>
+    Using.resource(storeStream(file)) { is =>
       val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       val passwordCharArray = password.toCharArray
       keyStore.load(is, passwordCharArray)

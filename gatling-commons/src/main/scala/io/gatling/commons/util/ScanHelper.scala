@@ -22,6 +22,7 @@ import java.nio.file.{ Path, Paths, StandardCopyOption }
 import java.util.jar.{ JarEntry, JarFile }
 
 import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 import io.gatling.commons.util.Io._
 import io.gatling.commons.util.PathHelper._
@@ -57,8 +58,8 @@ object ScanHelper {
 
     override def copyTo(target: Path): Unit = {
       target.getParent.mkdirs()
-      withCloseable(jar.getInputStream(jarEntry)) { input =>
-        withCloseable(target.outputStream)(input.copyTo(_))
+      Using.resources(jar.getInputStream(jarEntry), target.outputStream) { (in, out) =>
+        in.copyTo(out)
       }
     }
 
