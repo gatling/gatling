@@ -96,10 +96,10 @@ object Dependencies {
     Seq(nettyBuffer, nettyEpoll, junit)
 
   def commonsSharedDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), spire, boopickle) ++ testDeps
+    Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
 
   val commonsDependencies =
-    Seq(config, java8Compat) ++ loggingDeps ++ testDeps
+    Seq(config, spire, java8Compat) ++ loggingDeps ++ testDeps
 
   val jsonpathDependencies =
     Seq(scalaParserCombinators, jackson) ++ testDeps
