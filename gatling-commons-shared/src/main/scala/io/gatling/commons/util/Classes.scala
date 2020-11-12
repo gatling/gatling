@@ -48,14 +48,11 @@ object Classes {
     sb.toString
   }
 
-  implicit class PimpedClass(val clazz: Class[_]) extends AnyVal {
-
-    def nonAnonSuperclass: Class[_] = {
-      var res: Class[_] = clazz
-      while (res.isAnonymousClass || res.getName.contains("$anon$")) {
-        res = clazz.getSuperclass
-      }
-      res
+  def nonAnonSuperclass(clazz: Class[_]): Class[_] = {
+    var res: Class[_] = clazz
+    while (res.isAnonymousClass || res.getName.contains("$anon$")) {
+      res = clazz.getSuperclass
     }
+    res
   }
 }

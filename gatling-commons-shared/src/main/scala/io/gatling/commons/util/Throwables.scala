@@ -36,7 +36,7 @@ object Throwables {
 
     def detailedMessage: String = {
       val sb = StringBuilderPool.DEFAULT.get()
-      appendClassShortName(e.getClass.nonAnonSuperclass.getName, sb)
+      appendClassShortName(nonAnonSuperclass(e.getClass).getName, sb)
       if (e.getMessage != null) {
         sb.append(": ").append(e.getMessage)
       }
