@@ -18,8 +18,6 @@ package io.gatling.commons.util
 
 import java.{ lang => jl }
 
-import io.gatling.netty.util.StringBuilderPool
-
 object Classes {
 
   private[util] def appendClassShortName(className: String, sb: jl.StringBuilder): Unit = {
@@ -45,13 +43,12 @@ object Classes {
   }
 
   def toClassShortName(className: String): String = {
-    val sb = StringBuilderPool.DEFAULT.get()
+    val sb = new jl.StringBuilder
     appendClassShortName(className, sb)
     sb.toString
   }
 
   implicit class PimpedClass(val clazz: Class[_]) extends AnyVal {
-    def getShortName: String = toClassShortName(clazz.getName)
 
     def nonAnonSuperclass: Class[_] = {
       var res: Class[_] = clazz
