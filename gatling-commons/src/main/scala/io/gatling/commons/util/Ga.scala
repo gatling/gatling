@@ -26,8 +26,6 @@ import scala.concurrent._
 import scala.util.Properties._
 import scala.util.Using
 
-import io.gatling.commons.util.Io._
-
 object Ga {
 
   private[this] def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
