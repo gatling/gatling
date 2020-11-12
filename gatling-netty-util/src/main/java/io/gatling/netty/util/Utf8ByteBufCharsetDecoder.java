@@ -49,8 +49,8 @@ public class Utf8ByteBufCharsetDecoder {
 
   private static final ThreadLocal<Utf8ByteBufCharsetDecoder> POOL = ThreadLocal.withInitial(Utf8ByteBufCharsetDecoder::new);
   private final CharsetDecoder decoder = configureReplaceCodingErrorActions(UTF_8.newDecoder());
+  private final ByteBuffer splitCharBuffer = ByteBuffer.allocate(UTF_8_MAX_BYTES_PER_CHAR);
   protected CharBuffer charBuffer = allocateCharBuffer(INITIAL_CHAR_BUFFER_SIZE);
-  private ByteBuffer splitCharBuffer = ByteBuffer.allocate(UTF_8_MAX_BYTES_PER_CHAR);
   private int totalSize = 0;
   private int totalNioBuffers = 0;
   private boolean withoutArray = false;
