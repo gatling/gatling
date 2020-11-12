@@ -19,6 +19,7 @@ package io.gatling.commons.util
 import java.text.{ DecimalFormat, DecimalFormatSymbols }
 import java.util.Locale.ENGLISH
 
+// FIXME once Gatling 3.4 methods are dropped, move to gatling-commons
 object NumberHelper {
 
   private val Formatter = new DecimalFormat("###.###", DecimalFormatSymbols.getInstance(ENGLISH))
