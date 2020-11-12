@@ -32,80 +32,55 @@ sealed trait ComparisonWithOrderingOperator extends ComparisonOperator {
 
   protected def compare[T: Ordering](lhs: T, rhs: T): Boolean
 
+  private def compareNumbers(lhs: JsonNode, rhs: JsonNode): Boolean =
+    lhs.numberType match {
+      case NumberType.INT =>
+        rhs.numberType match {
+          case NumberType.INT                       => compare(lhs.intValue, rhs.intValue)
+          case NumberType.LONG                      => compare(lhs.longValue, rhs.longValue)
+          case NumberType.DOUBLE | NumberType.FLOAT => compare(lhs.doubleValue, rhs.doubleValue)
+          case NumberType.BIG_INTEGER               => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
+          case NumberType.BIG_DECIMAL               => compare(lhs.decimalValue, rhs.decimalValue)
+        }
+
+      case NumberType.LONG =>
+        rhs.numberType match {
+          case NumberType.INT | NumberType.LONG     => compare(lhs.longValue, rhs.longValue)
+          case NumberType.DOUBLE | NumberType.FLOAT => compare(lhs.doubleValue, rhs.doubleValue)
+          case NumberType.BIG_INTEGER               => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
+          case NumberType.BIG_DECIMAL               => compare(lhs.decimalValue, rhs.decimalValue)
+        }
+
+      case NumberType.FLOAT =>
+        rhs.numberType match {
+          case NumberType.INT | NumberType.LONG | NumberType.DOUBLE => compare(lhs.doubleValue, rhs.doubleValue)
+          case NumberType.FLOAT                                     => compare(lhs.floatValue, rhs.floatValue)
+          case NumberType.BIG_INTEGER | NumberType.BIG_DECIMAL      => compare(lhs.decimalValue, rhs.decimalValue)
+        }
+
+      case NumberType.DOUBLE =>
+        rhs.numberType match {
+          case NumberType.INT | NumberType.LONG | NumberType.DOUBLE | NumberType.FLOAT => compare(lhs.doubleValue, rhs.doubleValue)
+          case NumberType.BIG_INTEGER | NumberType.BIG_DECIMAL                         => compare(lhs.decimalValue, rhs.decimalValue)
+        }
+
+      case NumberType.BIG_INTEGER =>
+        rhs.numberType match {
+          case NumberType.INT | NumberType.LONG | NumberType.BIG_INTEGER     => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
+          case NumberType.DOUBLE | NumberType.FLOAT | NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
+        }
+
+      case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
+
+      case _ => false
+    }
+
   def apply(lhs: JsonNode, rhs: JsonNode): Boolean =
     lhs.getNodeType match {
       case STRING  => rhs.getNodeType == STRING && compare(lhs.textValue, rhs.textValue)
       case BOOLEAN => rhs.getNodeType == BOOLEAN && compare(lhs.booleanValue, rhs.booleanValue)
-      case NUMBER =>
-        rhs.getNodeType match {
-          case NUMBER =>
-            lhs.numberType match {
-              case NumberType.INT =>
-                rhs.numberType match {
-                  case NumberType.INT         => compare(lhs.intValue, rhs.intValue)
-                  case NumberType.LONG        => compare(lhs.longValue, rhs.longValue)
-                  case NumberType.DOUBLE      => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.FLOAT       => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.BIG_INTEGER => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
-                  case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
-                }
-
-              case NumberType.LONG =>
-                rhs.numberType match {
-                  case NumberType.INT         => compare(lhs.longValue, rhs.longValue)
-                  case NumberType.LONG        => compare(lhs.longValue, rhs.longValue)
-                  case NumberType.DOUBLE      => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.FLOAT       => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.BIG_INTEGER => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
-                  case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
-                }
-
-              case NumberType.FLOAT =>
-                rhs.numberType match {
-                  case NumberType.INT         => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.LONG        => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.DOUBLE      => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.FLOAT       => compare(lhs.floatValue, rhs.floatValue)
-                  case NumberType.BIG_INTEGER => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
-                }
-
-              case NumberType.DOUBLE =>
-                rhs.numberType match {
-                  case NumberType.INT         => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.LONG        => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.DOUBLE      => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.FLOAT       => compare(lhs.doubleValue, rhs.doubleValue)
-                  case NumberType.BIG_INTEGER => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
-                }
-
-              case NumberType.BIG_INTEGER =>
-                rhs.numberType match {
-                  case NumberType.INT         => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
-                  case NumberType.LONG        => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
-                  case NumberType.DOUBLE      => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.FLOAT       => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.BIG_INTEGER => compare(lhs.bigIntegerValue, rhs.bigIntegerValue)
-                  case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
-                }
-
-              case NumberType.BIG_DECIMAL =>
-                rhs.numberType match {
-                  case NumberType.INT         => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.LONG        => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.DOUBLE      => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.FLOAT       => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.BIG_INTEGER => compare(lhs.decimalValue, rhs.decimalValue)
-                  case NumberType.BIG_DECIMAL => compare(lhs.decimalValue, rhs.decimalValue)
-                }
-
-              case _ => false
-            }
-          case _ => false
-        }
-
-      case _ => false
+      case NUMBER  => rhs.getNodeType == NUMBER && compareNumbers(lhs, rhs)
+      case _       => false
     }
 }
 
