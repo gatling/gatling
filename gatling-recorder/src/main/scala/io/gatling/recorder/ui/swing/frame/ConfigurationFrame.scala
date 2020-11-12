@@ -21,6 +21,7 @@ import java.nio.file.Paths
 import javax.swing.filechooser.FileNameExtensionFilter
 
 import scala.jdk.CollectionConverters._
+import scala.language.reflectiveCalls
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode._
