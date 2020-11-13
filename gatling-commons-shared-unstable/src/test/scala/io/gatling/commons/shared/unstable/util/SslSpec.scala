@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.commons.shared.unstable.util
 
 import java.io.{ File, FileNotFoundException }
 
-import io.gatling.BaseSpec
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
 
-class SslSpec extends BaseSpec {
+class SslSpec extends AnyFlatSpecLike with Matchers {
 
   private val keystore = "testkeystore"
   private val password = "123456"

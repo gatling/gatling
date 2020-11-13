@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.stats
+package io.gatling.commons.shared.unstable.util
 
-object GeneralStats {
+object SystemProps {
 
-  val NoPlotMagicValue: Int = -1
-
-  val NoPlot: GeneralStats = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
+  def setSystemPropertyIfUndefined(name: String, value: Any): Unit =
+    if (System.getProperty(name) == null) {
+      System.setProperty(name, value.toString)
+    }
 }
-
-final case class GeneralStats(min: Int, max: Int, count: Long, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)

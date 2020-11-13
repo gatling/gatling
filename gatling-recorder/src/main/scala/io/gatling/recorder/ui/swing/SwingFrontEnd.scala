@@ -21,7 +21,7 @@ import java.nio.file.Paths
 import scala.swing.Dialog
 import scala.swing.Swing._
 
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.{ FrontEndEvent, RecorderFrontEnd }

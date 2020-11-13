@@ -19,7 +19,7 @@ package io.gatling.app
 import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.charts.stats.LogFileReader
-import io.gatling.commons.stats.assertion.{ AssertionResult, AssertionValidator }
+import io.gatling.commons.shared.unstable.model.stats.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingConfiguration
 
 private final class RunResultProcessor(configuration: GatlingConfiguration) {

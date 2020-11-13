@@ -19,7 +19,7 @@ package io.gatling.charts.template
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.Statistics.printable
 import io.gatling.charts.util.JsHelper._
-import io.gatling.commons.stats.GeneralStats
+import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 
 private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 

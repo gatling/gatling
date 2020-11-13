@@ -19,7 +19,8 @@ package io.gatling.charts.stats.buffers
 import scala.collection.mutable
 
 import io.gatling.charts.stats.{ GroupRecord, IntVsTimePlot, RequestRecord }
-import io.gatling.commons.stats.{ GeneralStats, Group, Status }
+import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, Group }
+import io.gatling.commons.stats.Status
 
 import com.tdunning.math.stats.AVLTreeDigest
 

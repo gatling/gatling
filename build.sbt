@@ -17,6 +17,7 @@ lazy val root = Project("gatling-parent", file("."))
   .aggregate(
     nettyUtil,
     commonsShared,
+    commonsSharedUnstable,
     commons,
     jsonpath,
     core,
@@ -53,8 +54,13 @@ lazy val commonsShared = gatlingModule("gatling-commons-shared")
   .dependsOn(nettyUtil % "compile->compile;test->test")
   .settings(libraryDependencies ++= commonsSharedDependencies(scalaVersion.value))
 
+lazy val commonsSharedUnstable = gatlingModule("gatling-commons-shared-unstable")
+  .dependsOn(commonsShared)
+  .settings(libraryDependencies ++= commonsSharedUnstableDependencies)
+
 lazy val commons = gatlingModule("gatling-commons")
   .dependsOn(commonsShared % "compile->compile;test->test")
+  .dependsOn(commonsSharedUnstable)
   .settings(libraryDependencies ++= commonsDependencies)
   .settings(generateVersionFileSettings)
 

@@ -19,7 +19,8 @@ package io.gatling.charts.stats.buffers
 import scala.collection.mutable
 
 import io.gatling.charts.stats.GroupRecord
-import io.gatling.commons.stats.{ Group, Status }
+import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.commons.stats.Status
 
 private[stats] trait GroupPercentilesBuffers {
   this: Buckets =>

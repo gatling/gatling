@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.stats.assertion
+package io.gatling.commons.shared.unstable.model.stats
 
-object AssertionPathParts {
-  implicit def string2PathParts(path: String): AssertionPathParts = AssertionPathParts(List(path))
-}
-
-final case class AssertionPathParts(parts: List[String]) {
-
-  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def /(part: String): AssertionPathParts = copy(parts = parts :+ part)
+final case class Group(hierarchy: List[String]) {
+  val name: String = hierarchy.last
 }

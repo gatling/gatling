@@ -98,6 +98,8 @@ object Dependencies {
   def commonsSharedDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
 
+  val commonsSharedUnstableDependencies = testDeps
+
   val commonsDependencies =
     Seq(config, spire, java8Compat) ++ loggingDeps ++ testDeps
 

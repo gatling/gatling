@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.stats.assertion
+package io.gatling.commons.shared.unstable.model.stats.assertion
 
+import io.gatling.commons.shared.unstable.model.stats
+import io.gatling.commons.shared.unstable.model.stats._
 import io.gatling.commons.stats._
-import io.gatling.commons.validation.{ Failure, Success, Validation }
+import io.gatling.commons.stats.assertion._
 
 object AssertionValidator {
 
-  type ValidatedRequestPath = Validation[Option[Status] => GeneralStats]
   type StatsByStatus = Option[Status] => GeneralStats
 
   def validateAssertions(dataReader: GeneralStatsSource): List[AssertionResult] =
@@ -47,19 +48,15 @@ object AssertionValidator {
         List(resolveTarget(assertion, status => source.requestGeneralStats(None, None, status), printablePath))
 
       case Details(parts) =>
-        val generalStats: ValidatedRequestPath = findPath(parts, source) match {
+        findPath(parts, source) match {
           case Some(RequestStatsPath(request, group)) =>
-            Success(source.requestGeneralStats(Some(request), group, _))
+            List(resolveTarget(assertion, source.requestGeneralStats(Some(request), group, _), printablePath))
 
           case Some(GroupStatsPath(group)) =>
-            Success(source.groupCumulatedResponseTimeGeneralStats(group, _))
+            List(resolveTarget(assertion, source.groupCumulatedResponseTimeGeneralStats(group, _), printablePath))
 
           case _ =>
-            Failure(s"Could not find stats matching assertion path $parts")
-        }
-        generalStats match {
-          case Success(stats) => List(resolveTarget(assertion, stats, printablePath))
-          case Failure(msg)   => List(AssertionResult(assertion, result = false, msg, None))
+            List(AssertionResult(assertion, result = false, s"Could not find stats matching assertion path $parts", None))
         }
     }
   }
@@ -161,6 +158,6 @@ object AssertionValidator {
         case In(elements)                 => (elements.contains(actualValue), elements.toString)
       }
 
-    AssertionResult(assertion, result, s"$path: $printableTarget ${assertion.condition.printable} $expectedValueMessage", Some(actualValue))
+    stats.assertion.AssertionResult(assertion, result, s"$path: $printableTarget ${assertion.condition.printable} $expectedValueMessage", Some(actualValue))
   }
 }

@@ -18,7 +18,7 @@ package io.gatling.core.stats.writer
 
 import java.{ lang => jl }
 
-import io.gatling.commons.stats.ErrorStats
+import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.StringHelper._
 
 /**

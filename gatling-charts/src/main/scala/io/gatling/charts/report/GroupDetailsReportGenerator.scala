@@ -21,7 +21,8 @@ import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.{ PercentilesVsTimePlot, RequestPath, Series }
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors._
-import io.gatling.commons.stats.{ Group, GroupStatsPath, OK }
+import io.gatling.commons.shared.unstable.model.stats.{ Group, GroupStatsPath }
+import io.gatling.commons.stats.OK
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class GroupDetailsReportGenerator(

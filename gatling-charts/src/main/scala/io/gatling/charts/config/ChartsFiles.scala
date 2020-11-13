@@ -19,7 +19,7 @@ package io.gatling.charts.config
 import java.nio.file.{ Path, Paths }
 
 import io.gatling.charts.FileNamingConventions
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles
 

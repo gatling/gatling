@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import scala.concurrent.duration.DurationLong
 import scala.jdk.CollectionConverters._
 
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Clock
-import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.validation._
 import io.gatling.core.filter.Filters
 import io.gatling.http.client.uri.Uri

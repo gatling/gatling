@@ -28,7 +28,7 @@ import javax.security.auth.x500.X500Principal
 import scala.concurrent.duration._
 import scala.util.{ Try, Using }
 
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.handler.ssl.{ OpenSsl, SslProvider }

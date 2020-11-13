@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.stats
+package io.gatling.commons.shared.unstable.model
 
-final class ErrorStats(val message: String, val count: Int, val totalCount: Int) {
-  def percentage: Double = count * 100.0 / totalCount
+object FrontLineLoadDistribution {
+  final case class Even(globalInjectorId: Int, globalInjectorCount: Int) extends FrontLineLoadDistribution {
+    override def isShardingEffective: Boolean = globalInjectorCount > 1
+  }
+  final case class Weighted(poolWeightOffset: Int, poolWeight: Int, poolInjectorId: Int, poolInjectorCount: Int) extends FrontLineLoadDistribution {
+    override def isShardingEffective: Boolean = poolWeight < 100 || poolInjectorCount > 1
+  }
+}
+
+sealed trait FrontLineLoadDistribution {
+  def isShardingEffective: Boolean
 }

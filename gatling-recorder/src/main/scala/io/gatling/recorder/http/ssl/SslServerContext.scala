@@ -24,7 +24,7 @@ import javax.net.ssl.{ KeyManagerFactory, SSLEngine }
 
 import scala.util.{ Failure, Using }
 
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 
 import io.netty.buffer.ByteBufAllocator

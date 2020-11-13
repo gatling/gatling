@@ -23,9 +23,9 @@ import java.nio.charset.CharsetEncoder
 import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.Base64
 
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.Clock
-import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.StringHelper.EolBytes
 import io.gatling.core.config.GatlingConfiguration

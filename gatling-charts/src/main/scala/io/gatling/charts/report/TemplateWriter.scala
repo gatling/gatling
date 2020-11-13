@@ -20,7 +20,7 @@ import java.nio.file.Path
 
 import scala.util.Using
 
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class TemplateWriter(path: Path) {

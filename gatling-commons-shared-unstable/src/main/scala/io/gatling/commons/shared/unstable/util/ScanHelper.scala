@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.commons.shared.unstable.util
 
 import java.io.{ BufferedInputStream, FileInputStream, InputStream }
 import java.net.JarURLConnection
@@ -24,8 +24,8 @@ import java.util.jar.{ JarEntry, JarFile }
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Io._
-import io.gatling.commons.util.PathHelper._
 
 object ScanHelper {
 

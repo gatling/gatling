@@ -21,7 +21,8 @@ import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats._
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
-import io.gatling.commons.stats.{ Group, KO, OK, Status }
+import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(

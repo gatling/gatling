@@ -16,7 +16,7 @@
 
 package io.gatling.charts.component
 
-import io.gatling.commons.stats.GeneralStats
+import io.gatling.commons.shared.unstable.model.stats.GeneralStats
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
 

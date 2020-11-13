@@ -26,8 +26,8 @@ import scala.util.Properties.userHome
 import scala.util.Using
 import scala.util.control.NonFatal
 
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.ConfigHelper.configChain
-import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.commons.util.Throwables._
 import io.gatling.core.config.GatlingConfiguration

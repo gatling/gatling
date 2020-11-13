@@ -23,7 +23,7 @@ import java.util.Date
 import scala.collection.mutable
 import scala.math.{ ceil, floor }
 
-import io.gatling.commons.stats.ErrorStats
+import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.Collections._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration

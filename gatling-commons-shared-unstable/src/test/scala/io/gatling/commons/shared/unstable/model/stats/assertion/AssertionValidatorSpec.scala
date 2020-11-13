@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.stats.assertion
+package io.gatling.commons.shared.unstable.model.stats.assertion
 
-import io.gatling.BaseSpec
-import io.gatling.commons.stats.{ GeneralStats, GeneralStatsSource }
+import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, GeneralStatsSource }
+import io.gatling.commons.stats.assertion.{ Assertion, Between, Global, MeanRequestsPerSecondTarget }
 
 import org.mockito.Mockito._
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-class AssertionValidatorSpec extends BaseSpec {
+class AssertionValidatorSpec extends AnyFlatSpecLike with Matchers with MockitoSugar {
 
   private def validateAssertions[T](
       assertions: List[Assertion],

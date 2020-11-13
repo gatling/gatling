@@ -16,7 +16,7 @@
 
 package io.gatling.charts.template
 
-import io.gatling.commons.stats.assertion.AssertionResult
+import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
 import io.gatling.core.stats.writer.RunMessage
 
 private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult]) {

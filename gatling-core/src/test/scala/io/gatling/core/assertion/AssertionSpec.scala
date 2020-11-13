@@ -17,8 +17,10 @@
 package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
+import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, GeneralStatsSource, Group, GroupStatsPath, RequestStatsPath, StatsPath }
+import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionValidator
 import io.gatling.commons.stats._
-import io.gatling.commons.stats.assertion.{ Assertion, AssertionValidator }
+import io.gatling.commons.stats.assertion.Assertion
 import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.GatlingConfiguration
 

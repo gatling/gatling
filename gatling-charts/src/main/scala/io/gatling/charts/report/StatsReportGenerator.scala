@@ -20,6 +20,7 @@ import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStat
 import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
+import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.commons.stats._
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration

@@ -16,7 +16,7 @@
 
 package io.gatling.http.engine
 
-import io.gatling.commons.util.SystemProps._
+import io.gatling.commons.shared.unstable.util.SystemProps._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.client.{ HttpClient, HttpClientConfig }
 import io.gatling.http.client.impl.DefaultHttpClient

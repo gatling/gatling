@@ -25,9 +25,10 @@ import scala.collection.mutable
 import scala.io.Source
 
 import io.gatling.charts.stats.buffers.{ CountsBuffer, GeneralStatsBuffer, PercentilesBuffers }
+import io.gatling.commons.shared.unstable.model.stats.{ ErrorStats, GeneralStats, GeneralStatsSource, Group, GroupStatsPath, RequestStatsPath, StatsPath }
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.stats._
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.commons.util.PathHelper._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats.message.MessageEvent

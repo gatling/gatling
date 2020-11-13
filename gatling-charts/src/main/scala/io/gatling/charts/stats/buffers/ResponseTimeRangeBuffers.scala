@@ -19,7 +19,8 @@ package io.gatling.charts.stats.buffers
 import scala.collection.mutable
 
 import io.gatling.charts.stats.{ GroupRecord, RequestRecord }
-import io.gatling.commons.stats.{ Group, KO, Status }
+import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.commons.stats.{ KO, Status }
 import io.gatling.core.config.GatlingConfiguration
 
 private[stats] trait ResponseTimeRangeBuffers {

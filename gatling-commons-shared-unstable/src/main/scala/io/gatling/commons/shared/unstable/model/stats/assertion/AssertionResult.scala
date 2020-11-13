@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.commons.shared.unstable.model.stats.assertion
 
-object SystemProps {
+import io.gatling.commons.stats.assertion.Assertion
 
-  def setSystemPropertyIfUndefined(name: String, value: Any): Unit =
-    if (System.getProperty(name) == null) {
-      System.setProperty(name, value.toString)
-    }
-}
+final case class AssertionResult(assertion: Assertion, result: Boolean, message: String, actualValue: Option[Double])

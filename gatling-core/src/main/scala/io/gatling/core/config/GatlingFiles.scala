@@ -20,7 +20,7 @@ import java.nio.file.{ Path, Paths }
 
 import scala.util.Properties.{ envOrElse, propOrElse }
 
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 
 object GatlingFiles {
 

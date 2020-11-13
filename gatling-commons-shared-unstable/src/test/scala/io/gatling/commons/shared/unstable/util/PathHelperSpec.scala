@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package io.gatling.commons.util
+package io.gatling.commons.shared.unstable.util
 
 import java.nio.file.Paths
 
-import io.gatling.BaseSpec
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 
-class PathHelperSpec extends BaseSpec {
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.should.Matchers
+
+class PathHelperSpec extends AnyFlatSpecLike with Matchers {
 
   private val root = Paths.get("foo")
 

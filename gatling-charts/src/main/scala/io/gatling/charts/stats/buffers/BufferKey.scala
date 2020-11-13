@@ -16,6 +16,7 @@
 
 package io.gatling.charts.stats.buffers
 
-import io.gatling.commons.stats.{ Group, Status }
+import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.commons.stats.Status
 
 private[stats] final case class BufferKey(requestName: Option[String], group: Option[Group], status: Option[Status])
