@@ -16,8 +16,6 @@
 
 package io.gatling.commons.util
 
-import java.io.PrintWriter
-
 import io.gatling.commons.util.Classes._
 import io.gatling.netty.util.StringBuilderPool
 
@@ -43,12 +41,6 @@ object Throwables {
         sb.append(": ").append(e.getMessage)
       }
       sb.toString
-    }
-
-    def stackTraceString: String = {
-      val sw = new FastStringWriter(16)
-      e.printStackTrace(new PrintWriter(sw))
-      sw.toString
     }
   }
 }
