@@ -19,11 +19,8 @@ package io.gatling.commons.util
 import java.io._
 import java.net.{ URISyntaxException, URL }
 import java.nio.charset.Charset
-import java.nio.file.{ FileVisitResult, Files, Path, SimpleFileVisitor }
-import java.nio.file.attribute.BasicFileAttributes
 
 import scala.io.Source
-import scala.util.control.NonFatal
 
 object Io {
 
@@ -40,9 +37,11 @@ object Io {
       }
   }
 
+  // FIXME drop when switching to Java 9+
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
 
     @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+    // FIXME only used for tests and Resource#string (not on hot path): replace with new String(InputStream#readAllBytes) (Java 9+)
     def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
       val reader = new InputStreamReader(is, charset)
       val buffer = new Array[Char](bufferSize)
@@ -61,6 +60,7 @@ object Io {
       writer.toString
     }
 
+    // FIXME https://docs.oracle.com/javase/9/docs/api/java/io/InputStream.html#readAllBytes-- (Java 9+)
     def toByteArray(): Array[Byte] = {
       val os = FastByteArrayOutputStream.pooled()
       os.write(is)
@@ -68,6 +68,7 @@ object Io {
     }
 
     @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+    // FIXME https://docs.oracle.com/javase/9/docs/api/java/io/InputStream.html#transferTo-java.io.OutputStream- (Java 9+)
     def copyTo(os: OutputStream, bufferSize: Int = DefaultBufferSize): Int = {
 
       def copyLarge(buffer: Array[Byte]): Long = {
@@ -104,61 +105,4 @@ object Io {
   def withSource[T, C <: Source](closeable: C)(block: C => T): T =
     try block(closeable)
     finally closeable.close()
-
-  def deleteDirectoryAsap(directory: Path): Unit =
-    if (!deleteDirectory(directory)) {
-      deleteDirectoryOnExit(directory)
-    }
-
-  /**
-   * Delete a possibly non empty directory
-   *
-   * @param directory the directory to delete
-   * @return if directory could be deleted
-   */
-  def deleteDirectory(directory: Path): Boolean =
-    try {
-      Files.walkFileTree(
-        directory,
-        new SimpleFileVisitor[Path]() {
-          @throws[IOException]
-          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            Files.delete(file)
-            FileVisitResult.CONTINUE
-          }
-
-          @throws[IOException]
-          override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-            Files.delete(dir)
-            FileVisitResult.CONTINUE
-          }
-        }
-      )
-      true
-    } catch {
-      case NonFatal(_) => false
-    }
-
-  /**
-   * Make a possibly non empty directory to be deleted on exit
-   *
-   * @param directory the directory to delete
-   */
-  def deleteDirectoryOnExit(directory: Path): Unit =
-    Files.walkFileTree(
-      directory,
-      new SimpleFileVisitor[Path]() {
-        @throws[IOException]
-        override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-          file.toFile.deleteOnExit()
-          FileVisitResult.CONTINUE
-        }
-
-        @throws[IOException]
-        override def postVisitDirectory(dir: Path, exc: IOException): FileVisitResult = {
-          dir.toFile.deleteOnExit()
-          FileVisitResult.CONTINUE
-        }
-      }
-    )
 }
