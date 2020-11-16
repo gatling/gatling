@@ -18,21 +18,21 @@ package io.gatling.http.action.sse.fsm
 
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
-import io.gatling.core.stats.StatsEngine
 import io.gatling.http.check.sse.SseMessageCheckSequence
 
 import com.typesafe.scalalogging.StrictLogging
 
-class SseCrashedState(statsEngine: StatsEngine, errorMessage: String) extends SseState(null) with StrictLogging {
+class SseCrashedState(fsm: SseFsm, errorMessage: String) extends SseState(null) with StrictLogging {
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextSseState = {
-    statsEngine.logCrash(session.scenario, session.groups, actionName, s"Client issued close order but SSE stream was already crashed: $errorMessage")
-    NextSseState(this)
+    fsm.statsEngine.logCrash(session.scenario, session.groups, actionName, s"Client issued close order but SSE stream was already crashed: $errorMessage")
+    val newSession = session.markAsFailed.remove(fsm.sseName)
+    NextSseState(new SseClosedState(fsm), () => next ! newSession)
   }
 
   override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
     logger.info(s"Client set checks but SSE stream was already crashed: $errorMessage")
-    statsEngine.logCrash(session.scenario, session.groups, actionName, errorMessage)
+    fsm.statsEngine.logCrash(session.scenario, session.groups, actionName, errorMessage)
     NextSseState(this, () => next ! session.markAsFailed)
   }
 }
