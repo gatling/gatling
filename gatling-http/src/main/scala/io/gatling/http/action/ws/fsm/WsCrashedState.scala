@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.StrictLogging
 final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsState(fsm) with StrictLogging {
 
   override def onClientCloseRequest(actionName: String, session: Session, next: Action): NextWsState = {
-    val newSession = errorMessage match {
+    val newSession = (errorMessage match {
       case Some(mess) =>
         val newSession = session.markAsFailed
         fsm.statsEngine.logCrash(session.scenario, session.groups, actionName, s"Client issued close order but WebSocket was already crashed: $mess")
@@ -33,12 +33,9 @@ final class WsCrashedState(fsm: WsFsm, errorMessage: Option[String]) extends WsS
       case _ =>
         logger.info("Client issued close order but WebSocket was already closed")
         session
-    }
+    }).remove(fsm.wsName)
 
-    NextWsState(
-      new WsClosedState(fsm),
-      () => next ! newSession.remove(fsm.wsName)
-    )
+    NextWsState(new WsClosedState(fsm), () => next ! newSession)
   }
 
   override def onSendTextFrame(

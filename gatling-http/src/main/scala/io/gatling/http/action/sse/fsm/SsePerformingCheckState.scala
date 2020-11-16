@@ -161,6 +161,6 @@ final case class SsePerformingCheckState(
     val newSession = logResponse(session, checkName, checkSequenceStart, clock.nowMillis, KO, code, Some(fullMessage))
     logger.debug("SSE crashed, performing next action")
 
-    NextSseState(new SseCrashedState(fsm.statsEngine, errorMessage), () => next ! newSession)
+    NextSseState(new SseCrashedState(fsm, errorMessage), () => next ! newSession)
   }
 }

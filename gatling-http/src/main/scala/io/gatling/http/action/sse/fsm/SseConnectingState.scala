@@ -75,6 +75,6 @@ class SseConnectingState(fsm: SseFsm, session: Session, next: Action, connectSta
     val newSession = logResponse(session, connectActionName, connectStart, timestamp, KO, None, Some(error))
     logger.debug(s"Connect failed: $error, going to Crashed state and performing next action")
 
-    NextSseState(new SseCrashedState(fsm.statsEngine, error), () => next ! newSession.markAsFailed)
+    NextSseState(new SseCrashedState(fsm, error), () => next ! newSession.markAsFailed)
   }
 }

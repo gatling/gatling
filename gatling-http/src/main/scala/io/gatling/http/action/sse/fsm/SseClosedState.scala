@@ -16,4 +16,4 @@
 
 package io.gatling.http.action.sse.fsm
 
-object SseClosedState extends SseState(null)
+final class SseClosedState(fsm: SseFsm) extends SseState(fsm)
