@@ -19,6 +19,7 @@ package io.gatling.core.session.el
 import java.{ util => ju }
 
 import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.commons.validation.Success
 import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.el
@@ -567,10 +568,13 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   }
 
   "currentDate" should "generate a String" in {
-    val session = newSession(Map("foo" -> "bar"))
-    val pattern = "yyyy-MM-dd HH:mm:ss"
-    val currentDateExpression = s"$${currentDate($pattern)}".el[String]
-    currentDateExpression(session).succeeded.length shouldBe pattern.length
+    val currentDateExpression = """${currentDate(yyyy-MM-dd HH:mm:ss)}""".el[String]
+    currentDateExpression(emptySession) shouldBe a[Success[_]]
+  }
+
+  it should "support patterns with a dot" in {
+    val currentDateExpression = """${currentDate("YYYY-MM-dd'T'HH:mm:ss.SSSMs'Z'")}""".el[String]
+    currentDateExpression(emptySession) shouldBe a[Success[_]]
   }
 
   "Escaping" should "turn $${ into ${" in {

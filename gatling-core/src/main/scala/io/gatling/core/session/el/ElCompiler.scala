@@ -186,7 +186,8 @@ class ElParserException(string: String, msg: String) extends Exception(s"Failed 
 
 object ElCompiler {
 
-  private val NameRegex = "[^.${}()]+".r
+  private val NameRegex = """[^\.${}\(\)]+""".r
+  private val DateFormatRegex = """[^${}\(\)]+""".r
   private val NumberRegex = "[0-9]+".r
   private val DynamicPartStart = "${".toCharArray
 
@@ -301,7 +302,7 @@ class ElCompiler private extends RegexParsers {
 
   private def currentTimeMillis: Parser[ElPart[Any]] = "currentTimeMillis()" ^^ (_ => CurrentTimeMillisPart)
 
-  private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> NameRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
+  private def currentDate: Parser[ElPart[Any]] = "currentDate(" ~> DateFormatRegex <~ ")" ^^ (format => CurrentDateTimePart(new SimpleDateFormat(format)))
 
   private def nonSessionObject: Parser[ElPart[Any]] = currentTimeMillis | currentDate
 
