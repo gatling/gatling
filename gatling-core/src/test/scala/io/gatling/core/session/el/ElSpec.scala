@@ -18,8 +18,8 @@ package io.gatling.core.session.el
 
 import java.{ util => ju }
 
-import io.gatling.commons.validation.Success
 import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.commons.validation.Success
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.SessionSpec.EmptySession
 import io.gatling.core.session.el
