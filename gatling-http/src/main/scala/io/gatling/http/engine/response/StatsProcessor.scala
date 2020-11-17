@@ -76,7 +76,7 @@ sealed abstract class StatsProcessor extends StrictLogging {
     }
 
     if (status == KO) {
-      logger.info(s"Request '$fullRequestName' failed for user ${session.userId}: ${errorMessage.getOrElse("")}")
+      logger.debug(s"Request '$fullRequestName' failed for user ${session.userId}: ${errorMessage.getOrElse("")}")
       if (!IsHttpTraceEnabled) {
         logger.debug(dump)
       }

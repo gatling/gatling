@@ -57,7 +57,7 @@ abstract class SseState(fsm: SseFsm) extends StrictLogging {
     onIllegalState(s"Can't call onTimeout in $stateName state", fsm.clock.nowMillis)
 
   def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
-    logger.info(s"WebSocket crashed by the server while in $stateName state", t)
+    logger.debug(s"WebSocket crashed by the server while in $stateName state", t)
     NextSseState(new SseCrashedState(fsm, t.rootMessage))
   }
 

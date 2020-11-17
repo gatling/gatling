@@ -58,13 +58,13 @@ class HttpTxExecutor(
       case _ =>
         resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
           case Some(aggregator) =>
-            logger.info(
+            logger.debug(
               s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
             )
             aggregator.start(tx.session)
 
           case _ =>
-            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+            logger.debug(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             tx.resourceTx match {
               case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
               case _                               => tx.next ! tx.session
@@ -102,11 +102,13 @@ class HttpTxExecutor(
       resourceFetcher.newResourceAggregatorForCachedPage(tx) match {
         case Some(aggregator) =>
           logger
-            .info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+            .debug(
+              s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}"
+            )
           aggregator.start(tx.session)
 
         case _ =>
-          logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+          logger.debug(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
           tx.resourceTx match {
             case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
             case _                               =>

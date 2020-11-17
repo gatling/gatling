@@ -76,11 +76,11 @@ final class JmsJndiConnectionFactoryBuilder(
     properties.putAll(jndiProperties.asJava)
 
     val ctx = new InitialContext(properties)
-    logger.info(s"Got InitialContext $ctx")
+    logger.debug(s"Got InitialContext $ctx")
 
     // create QueueConnectionFactory
     val qcf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
-    logger.info(s"Got ConnectionFactory $qcf")
+    logger.debug(s"Got ConnectionFactory $qcf")
     qcf
   }
 

@@ -59,14 +59,14 @@ final case class SsePerformingCheckState(
 
   override def onSseEndOfStream(timestamp: Long): NextSseState = {
     // unexpected end of stream, fail check
-    logger.info(s"Server notified of end of stream while in PerformingChecks state")
+    logger.debug(s"Server notified of end of stream while in PerformingChecks state")
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, None, "End of stream")
   }
 
   override def onSseStreamCrashed(t: Throwable, timestamp: Long): NextSseState = {
     // crash, fail check
-    logger.info("SSE stream crashed while in PerformingChecks state", t)
+    logger.debug("SSE stream crashed while in PerformingChecks state", t)
     cancelTimeout()
     handleSseCheckCrash(currentCheck.name, session, next, None, t.getMessage)
   }

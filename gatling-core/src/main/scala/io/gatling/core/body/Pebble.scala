@@ -119,7 +119,7 @@ private[gatling] object Pebble extends StrictLogging {
       writer.toString.success
     } catch {
       case NonFatal(e) =>
-        logger.info("Error while evaluate Pebble template", e)
+        logger.debug("Error while evaluating Pebble template", e)
         e.getMessage.failure
     }
   }

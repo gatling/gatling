@@ -45,7 +45,7 @@ class WsSendTextFrame(
       message <- message(session)
       resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
-      logger.info(s"Sending text frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      logger.debug(s"Sending text frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
       fsm.onSendTextFrame(requestName, message, resolvedCheckSequences, session, next)
     }
 }
@@ -71,7 +71,7 @@ class WsSendBinaryFrame(
       message <- message(session)
       resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
-      logger.info(s"Sending binary frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      logger.debug(s"Sending binary frame $message with websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
       fsm.onSendBinaryFrame(requestName, message, resolvedCheckSequences, session, next)
     }
 }

@@ -30,8 +30,8 @@ object Lagarto extends StrictLogging {
   private val DomBuilderConfig = {
     val config = new LagartoDomBuilderConfig()
     config.setParserConfig(ParserConfig)
-    if (logger.underlying.isInfoEnabled) {
-      config.setErrorLogConsumer { case (logger, message) => logger.info(message) }
+    if (logger.underlying.isDebugEnabled) {
+      config.setErrorLogConsumer { case (logger, message) => logger.debug(message) }
     } else {
       config.setErrorLogEnabled(false)
     }

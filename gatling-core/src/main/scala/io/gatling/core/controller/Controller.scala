@@ -97,11 +97,11 @@ class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Option
 
   when(WaitingForResourcesToStop) {
     case Event(StatsEngineStopped, data: EndData) =>
-      logger.info("StatsEngineStopped")
+      logger.debug("StatsEngine was stopped")
       stop(data)
 
     case Event(Kill, data: EndData) =>
-      logger.error("Kill")
+      logger.error("Kill order received")
       stop(data)
 
     case Event(message, _) =>

@@ -40,7 +40,7 @@ class WsClose(
     for {
       fsm <- fetchFsm(wsName, session)
     } yield {
-      logger.info(s"Closing websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+      logger.debug(s"Closing websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
       fsm.onClientCloseRequest(requestName, session, next)
     }
 }

@@ -27,13 +27,13 @@ class SseClosingState(fsm: SseFsm, actionName: String, session: Session, next: A
   import fsm._
 
   override def onSseStreamClosed(closeEnd: Long): NextSseState = {
-    logger.info("Stream closed")
+    logger.debug("Stream closed")
     val newSession = logResponse(session, actionName, timestamp, closeEnd, OK, None, None).remove(sseName)
     NextSseState(new SseClosedState(fsm), () => next ! newSession)
   }
 
   override def onSseStreamCrashed(t: Throwable, closeStart: Long): NextSseState = {
-    logger.info("SSE stream crashed while waiting for socket close")
+    logger.debug("SSE stream crashed while waiting for socket close")
     // crash, close anyway
     val newSession = logResponse(session, actionName, closeStart, timestamp, KO, None, Some(t.getMessage)).markAsFailed.remove(sseName)
     NextSseState(new SseClosedState(fsm), () => next ! newSession)

@@ -36,13 +36,13 @@ final class WsClosingState(fsm: WsFsm, actionName: String, session: Session, nex
 
   override def onWebSocketClosed(code: Int, reason: String, closeEnd: Long): NextWsState = {
     // server has acked closing
-    logger.info("Server has acked closing")
+    logger.debug("Server has acked closing")
     val newSession = logResponse(session, actionName, closeStart, closeEnd, OK, None, None).remove(fsm.wsName)
     NextWsState(new WsClosedState(fsm), () => next ! newSession)
   }
 
   override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
-    logger.info("WebSocket crashed while waiting for close ack")
+    logger.debug("WebSocket crashed while waiting for close ack")
     // crash, close anyway
     val newSession = logResponse(session, actionName, closeStart, timestamp, KO, None, Some(t.getMessage)).markAsFailed.remove(fsm.wsName)
     NextWsState(new WsClosedState(fsm), () => next ! newSession)

@@ -65,7 +65,7 @@ class HttpEngine(
 
   def warmUp(httpComponents: HttpComponents): Unit =
     if (!warmedUp) {
-      logger.info("Start warm up")
+      logger.debug("Start warm up")
       warmedUp = true
 
       import httpComponents._
@@ -113,7 +113,7 @@ class HttpEngine(
               if (logger.underlying.isDebugEnabled)
                 logger.debug(s"Couldn't execute warm up request $url", e)
               else
-                logger.info(s"Couldn't execute warm up request $url: ${e.rootMessage}")
+                logger.debug(s"Couldn't execute warm up request $url: ${e.rootMessage}")
           } finally {
             httpClient.flushClientIdChannels(0, eventLoop)
           }
@@ -134,7 +134,7 @@ class HttpEngine(
             .build(httpComponents.httpCaches, httpComponents.httpProtocol, throttled = false, configuration)
       }
 
-      logger.info("Warm up done")
+      logger.debug("Warm up done")
     }
 
   def executeRequest(
