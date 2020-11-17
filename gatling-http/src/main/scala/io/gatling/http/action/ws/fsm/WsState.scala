@@ -83,7 +83,7 @@ abstract class WsState(fsm: WsFsm) extends StrictLogging {
   }
 
   def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
-    logger.info(s"WebSocket crashed by the server while in $stateName state", t)
+    logger.debug(s"WebSocket crashed by the server while in $stateName state", t)
     NextWsState(new WsCrashedState(fsm, Some(t.rootMessage)))
   }
 

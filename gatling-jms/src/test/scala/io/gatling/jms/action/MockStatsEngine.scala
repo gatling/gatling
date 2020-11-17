@@ -68,6 +68,6 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   private def handle(msg: DataWriterMessage): Unit = {
     dataWriterMsg = msg :: dataWriterMsg
-    logger.info(msg.toString)
+    logger.debug(msg.toString)
   }
 }

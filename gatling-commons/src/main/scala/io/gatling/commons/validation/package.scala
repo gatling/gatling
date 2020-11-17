@@ -37,7 +37,7 @@ package object validation extends StrictLogging {
     } catch {
       case NonFatal(e) =>
         val message = errorMapper(e.detailedMessage)
-        logger.info(message, e)
+        logger.debug(message, e)
         message.failure
     }
 

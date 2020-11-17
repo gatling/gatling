@@ -31,7 +31,7 @@ class SseCrashedState(fsm: SseFsm, errorMessage: String) extends SseState(null) 
   }
 
   override def onSetCheck(actionName: String, checkSequences: List[SseMessageCheckSequence], session: Session, next: Action): NextSseState = {
-    logger.info(s"Client set checks but SSE stream was already crashed: $errorMessage")
+    logger.debug(s"Client set checks but SSE stream was already crashed: $errorMessage")
     fsm.statsEngine.logCrash(session.scenario, session.groups, actionName, errorMessage)
     NextSseState(this, () => next ! session.markAsFailed)
   }

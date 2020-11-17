@@ -161,7 +161,7 @@ final case class WsConnectingState(fsm: WsFsm, session: Session, next: Either[Ac
 
   override def onWebSocketCrashed(t: Throwable, timestamp: Long): NextWsState = {
     // crash
-    logger.info(s"WebSocket crashed by the server while in Connecting state", t)
+    logger.debug(s"WebSocket crashed by the server while in Connecting state", t)
     val failedSession = session.markAsFailed
     logResponse(failedSession, connectActionName, connectStart, timestamp, KO, Some(t.rootMessage), None)
 

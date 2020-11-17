@@ -52,7 +52,7 @@ class SseConnect(
         for {
           request <- request(session)
         } yield {
-          logger.info(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
+          logger.debug(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
           val fsm = SseFsm(
             session,

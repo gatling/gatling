@@ -109,7 +109,7 @@ private[fetch] class DefaultResourceAggregator(
 
     val uri = resource.clientRequest.getUri
 
-    logger.info(s"Fetching resource $uri from cache")
+    logger.debug(s"Fetching resource $uri from cache")
 
     val silent = resource.isSilent(root = false)
 

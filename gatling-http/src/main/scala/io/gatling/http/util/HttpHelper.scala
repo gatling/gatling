@@ -131,7 +131,7 @@ private[gatling] object HttpHelper extends StrictLogging {
       Some(resolveFromUri(rootURI, relative))
     } catch {
       case NonFatal(e) =>
-        logger.info(s"Failed to resolve URI rootURI='$rootURI', relative='$relative'", e)
+        logger.debug(s"Failed to resolve URI rootURI='$rootURI', relative='$relative'", e)
         None
     }
 

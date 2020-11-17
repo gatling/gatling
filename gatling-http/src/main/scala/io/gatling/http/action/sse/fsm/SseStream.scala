@@ -140,7 +140,7 @@ class SseStream(
       logger.debug("Sse stream crashed", throwable)
     } else {
       val errorMessage = throwable.rootMessage
-      logger.info(s"Sse stream crashed: $errorMessage")
+      logger.debug(s"Sse stream crashed: $errorMessage")
     }
 
     state match {

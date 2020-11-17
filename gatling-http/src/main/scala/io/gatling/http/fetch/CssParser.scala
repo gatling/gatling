@@ -118,7 +118,7 @@ private[fetch] object CssParser extends StrictLogging {
         else
           Some(string.substring(trimmedStart, trimmedEnd))
       } else {
-        logger.info(s"css url $string broken")
+        logger.debug(s"css url $string broken")
         None
       }
     }

@@ -27,7 +27,7 @@ class InfoLogLagartoDOMBuilderTagVisitor(domBuilder: LagartoDOMBuilder) extends 
 
   override def error(message: String): Unit = {
     rootNode.addError(message)
-    logger.info(message)
+    logger.debug(message)
   }
 }
 
