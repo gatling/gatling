@@ -71,7 +71,7 @@ object Dependencies {
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.0"           % "test")
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
   private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % "test"
-  private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.25.2"
+  private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.26"
 
   private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.5.2"             % "test"
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.34.v20201102"  % "test"
