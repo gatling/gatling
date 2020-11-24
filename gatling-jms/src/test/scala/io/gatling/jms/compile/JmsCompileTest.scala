@@ -112,6 +112,8 @@ class JmsCompileTest extends Simulation {
         .check(jsonPath("$.foo"))
         .check(jmesPath("[].foo"))
         .check(substring("foo"))
+        .check(bodyLength.lte(50))
+        .check(bodyBytes.transform(_.length).lte(50))
         .check(bodyString)
         .check(
           bodyString.is("hello"),

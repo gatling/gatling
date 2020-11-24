@@ -137,6 +137,10 @@ Note that this can be matched against content from the the filesystem using :ref
 
 Return the full response body byte array.
 
+* ``bodyLength``
+
+Return the length of the response body in bytes (without the overhead of computing the bytes array).
+
 .. _http-check-body-stream:
 
 * ``bodyStream``

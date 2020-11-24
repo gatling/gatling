@@ -75,4 +75,7 @@ trait WsCheckSupport {
 
   implicit val wsBodyBytesCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] =
     WsBinaryCheckMaterializer.BodyBytes
+
+  implicit val wsBodyLengthCheckMaterializer: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Int] =
+    WsBinaryCheckMaterializer.BodyLength
 }

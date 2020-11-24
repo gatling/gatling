@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check
+package io.gatling.http.check.body
 
-import io.gatling.commons.validation._
-import io.gatling.core.check.Preparer
-import io.gatling.http.response._
+import io.gatling.core.check.CheckMaterializer
+import io.gatling.core.check.bytes.BodyBytesCheckType
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
+import io.gatling.http.check.HttpCheckBuilders.ResponseBodyLengthPreparer
+import io.gatling.http.check.HttpCheckScope.Body
+import io.gatling.http.response.Response
 
-object HttpCheckBuilders {
+object HttpBodyLengthCheckMaterializer {
 
-  val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success
-  val ResponseBodyBytesPreparer: Preparer[Response, Array[Byte]] = _.body.bytes.success
-  val ResponseBodyLengthPreparer: Preparer[Response, Int] = _.body.length.success
-  val UrlStringPreparer: Preparer[Response, String] = _.request.getUri.toFullUrl.success
+  val Instance: CheckMaterializer[BodyBytesCheckType, HttpCheck, Response, Int] =
+    new HttpCheckMaterializer[BodyBytesCheckType, Int](Body, ResponseBodyLengthPreparer)
 }

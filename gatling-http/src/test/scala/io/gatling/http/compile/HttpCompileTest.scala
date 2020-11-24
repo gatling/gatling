@@ -164,6 +164,7 @@ class HttpCompileTest extends Simulation {
           currentLocationRegex("foo").find.exists,
           bodyBytes.is(Array.fill(5)(1.toByte)),
           bodyBytes.is(RawFileBody("foobar.txt")),
+          bodyLength.lte(100000),
           bodyStream.transform(is => "").saveAs("foo"),
           bodyString.is("foo"),
           bodyString.is(ElFileBody("foobar.txt")),

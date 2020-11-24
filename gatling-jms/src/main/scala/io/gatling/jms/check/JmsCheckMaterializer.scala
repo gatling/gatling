@@ -49,9 +49,15 @@ object JmsCheckMaterializer {
     else
       new String(toBytes(bytesMessage), charset)
 
-  private def bytesPreparer(charset: Charset): Preparer[Message, Array[Byte]] = {
+  private def bodyBytesPreparer(charset: Charset): Preparer[Message, Array[Byte]] = {
     case tm: TextMessage  => tm.getText.getBytes(charset).success
     case bm: BytesMessage => toBytes(bm).success
+    case _                => "Unsupported message type".failure
+  }
+
+  private def bodyLengthPreparer(charset: Charset): Preparer[Message, Int] = {
+    case tm: TextMessage  => tm.getText.getBytes(charset).length.success
+    case bm: BytesMessage => bm.getBodyLength.toInt.success
     case _                => "Unsupported message type".failure
   }
 
@@ -77,7 +83,10 @@ object JmsCheckMaterializer {
     new JmsCheckMaterializer(stringBodyPreparer(charset))
 
   def bodyBytes(charset: Charset): CheckMaterializer[BodyBytesCheckType, JmsCheck, Message, Array[Byte]] =
-    new JmsCheckMaterializer(bytesPreparer(charset))
+    new JmsCheckMaterializer(bodyBytesPreparer(charset))
+
+  def bodyLength(charset: Charset): CheckMaterializer[BodyBytesCheckType, JmsCheck, Message, Int] =
+    new JmsCheckMaterializer(bodyLengthPreparer(charset))
 
   def substring(charset: Charset): CheckMaterializer[SubstringCheckType, JmsCheck, Message, String] =
     new JmsCheckMaterializer(stringBodyPreparer(charset))

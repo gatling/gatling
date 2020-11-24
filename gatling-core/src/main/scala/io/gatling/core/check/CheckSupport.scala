@@ -60,6 +60,8 @@ trait CheckSupport {
 
   val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
 
+  val bodyLength: FindCheckBuilder[BodyBytesCheckType, Int, Int] = BodyLengthCheckBuilder
+
   val bodyStream: FindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream] = BodyStreamCheckBuilder
 
   def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)

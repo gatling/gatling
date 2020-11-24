@@ -63,6 +63,11 @@ trait JmsCheckSupport {
   ): CheckMaterializer[BodyBytesCheckType, JmsCheck, Message, Array[Byte]] =
     JmsCheckMaterializer.bodyBytes(configuration.core.charset)
 
+  implicit def jmsBodyLengthCheckMaterializer(implicit
+      configuration: GatlingConfiguration
+  ): CheckMaterializer[BodyBytesCheckType, JmsCheck, Message, Int] =
+    JmsCheckMaterializer.bodyLength(configuration.core.charset)
+
   implicit def jmsBodyStringCheckMaterializer(implicit
       configuration: GatlingConfiguration
   ): CheckMaterializer[BodyStringCheckType, JmsCheck, Message, String] =

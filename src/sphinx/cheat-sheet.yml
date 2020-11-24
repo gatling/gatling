@@ -945,6 +945,9 @@
         - keyword: bodyBytes
           description: Return the full response body byte array.
 
+        - keyword: bodyLength
+          description: Return the length of the response body in bytes (without the overhead of computing the bytes array).
+
         - keyword: bodyStream
           description: Return an InputStream of the full response body bytes.
 

@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package io.gatling.http.check
+package io.gatling.core.check.bytes
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.Preparer
-import io.gatling.http.response._
+import io.gatling.core.check._
+import io.gatling.core.session._
 
-object HttpCheckBuilders {
-
-  val ResponseBodyStringPreparer: Preparer[Response, String] = _.body.string.success
-  val ResponseBodyBytesPreparer: Preparer[Response, Array[Byte]] = _.body.bytes.success
-  val ResponseBodyLengthPreparer: Preparer[Response, Int] = _.body.length.success
-  val UrlStringPreparer: Preparer[Response, String] = _.request.getUri.toFullUrl.success
-}
+object BodyLengthCheckBuilder
+    extends DefaultFindCheckBuilder[BodyBytesCheckType, Int, Int](
+      extractor = new FindExtractor[Int, Int]("bodyLength", Some(_).success).expressionSuccess,
+      displayActualValue = false
+    )

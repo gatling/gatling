@@ -16,6 +16,7 @@
 
 package io.gatling.http.check.ws
 
+import io.gatling.commons.validation._
 import io.gatling.core.check._
 import io.gatling.core.check.bytes.BodyBytesCheckType
 
@@ -26,4 +27,7 @@ object WsBinaryCheckMaterializer {
 
   val BodyBytes: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Array[Byte]] =
     new WsBinaryCheckMaterializer[BodyBytesCheckType, Array[Byte]](identityPreparer)
+
+  val BodyLength: CheckMaterializer[BodyBytesCheckType, WsBinaryCheck, Array[Byte], Int] =
+    new WsBinaryCheckMaterializer[BodyBytesCheckType, Int](_.length.success)
 }
