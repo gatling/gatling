@@ -118,7 +118,7 @@ Gatling provides two hooks:
 The lifecycle is as below:
 
 #. Gatling starts
-#. Simulation instance is created and all code not delayed in ``before`` and ``after`` hooks is execute (code inside a Scala class body is its constructor)
+#. Simulation constructor is called and all the code in the class body not delayed in ``before`` and ``after`` hooks is executed
 #. ``before`` hook is executed
 #. Simulation runs
 #. Simulation terminates
