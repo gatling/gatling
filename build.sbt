@@ -11,6 +11,8 @@ import VersionFile._
 
 ThisBuild / Keys.useCoursier := false
 
+scalaVersion := "2.13.4"
+
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
   .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
