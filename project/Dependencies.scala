@@ -6,7 +6,8 @@ object Dependencies {
 
   // format: OFF
   private def scalaReflect(version: String)  = "org.scala-lang"                       % "scala-reflect"                   % version
-  private def scalaCompiler(version: String) = "org.scala-lang"                       % "scala-compiler"                  % version
+  private def scalaCompiler(version: String) = ("org.scala-lang"                      % "scala-compiler"                  % version)
+    .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "1.1.2"
   private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.54.Final"
@@ -25,8 +26,9 @@ object Dependencies {
     .exclude("jline", "jline")
   private val slf4jApi                       = "org.slf4j"                            % "slf4j-api"                       % "1.7.30"
   private val spire                          = ("org.typelevel"                      %% "spire-macros"                    % "0.17.0")
-    .exclude("org.typelevel", "machinist_2.12")
-    .exclude("org.typelevel", "algebra_2.12")
+    .exclude("org.typelevel", "machinist_2.13")
+    .exclude("org.typelevel", "algebra_2.13")
+    .exclude("org.scala-lang.modules", "scala-collection-compat_2.13")
   private val scopt                          = "com.github.scopt"                    %% "scopt"                           % "3.7.1"
   private val scalaLogging                   = "com.typesafe.scala-logging"          %% "scala-logging"                   % "3.9.2"
   private val jackson                        = "com.fasterxml.jackson.core"           % "jackson-databind"                % "2.11.3"
@@ -37,14 +39,19 @@ object Dependencies {
   private val boopickle                      = "io.suzaku"                           %% "boopickle"                       % "1.3.3"
   private val redisClient                    = "net.debasishg"                       %% "redisclient"                     % "3.30"
   private val zinc                           = ("org.scala-sbt"                      %% "zinc"                            % "1.4.3")
-    .exclude("org.scala-lang.modules", "scala-parser-combinators_2.12")
-    .exclude("org.scala-lang.modules", "scala-xml_2.12")
+    .exclude("org.jline", "jline")
+    .exclude("org.scala-sbt.jline3", "jline-terminal")
+    .exclude("org.jline", "jline-terminal-jna")
+    .exclude("org.jline", "jline-terminal-jansi")
+    .exclude("org.scala-sbt.jline", "jline")
+    .exclude("org.scala-lang.modules", "scala-parser-combinators_2.13")
+    .exclude("org.scala-lang.modules", "scala-xml_2.13")
     .exclude("org.scala-sbt", "launcher-interface")
-    .exclude("org.scala-sbt", "sbinary_2.12")
-    .exclude("org.scala-sbt", "zinc-ivy-integration_2.12")
-    .exclude("com.eed3si9n", "sjson-new-core_2.12")
-    .exclude("com.eed3si9n", "sjson-new-scalajson_2.12")
-    .exclude("com.lihaoyi", "fastparse_2.12")
+    .exclude("org.scala-sbt", "sbinary_2.13")
+    .exclude("org.scala-sbt", "zinc-ivy-integration_2.13")
+    .exclude("com.eed3si9n", "sjson-new-core_2.13")
+    .exclude("com.eed3si9n", "sjson-new-scalajson_2.13")
+    .exclude("com.lihaoyi", "fastparse_2.13")
     .exclude("com.lmax", "disruptor")
     .exclude("org.apache.logging.log4j", "log4j-api")
     .exclude("org.apache.logging.log4j", "log4j-core")
