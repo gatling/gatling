@@ -9,7 +9,6 @@ object Dependencies {
   private def scalaCompiler(version: String) = "org.scala-lang"                       % "scala-compiler"                  % version
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "1.1.2"
-  private val java8Compat                    = "org.scala-lang.modules"              %% "scala-java8-compat"              % "0.9.1"
   private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.54.Final"
   private val nettyBuffer                    = netty.organization                     % "netty-buffer"                    % netty.revision
   private val nettyHandler                   = netty.organization                     % "netty-handler"                   % netty.revision
@@ -101,7 +100,7 @@ object Dependencies {
   val commonsSharedUnstableDependencies = testDeps
 
   val commonsDependencies =
-    Seq(config, spire, java8Compat) ++ loggingDeps ++ testDeps
+    Seq(config, spire) ++ loggingDeps ++ testDeps
 
   val jsonpathDependencies =
     Seq(scalaParserCombinators, jackson) ++ testDeps
@@ -111,7 +110,6 @@ object Dependencies {
       akka,
       akkaSlf4j,
       sfm,
-      java8Compat,
       caffeine,
       pebble,
       scalaParserCombinators,
