@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,53 +13,85 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.cache
 
-import io.gatling.commons.util.RoundRobin
-import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import java.net.InetAddress
+
+import scala.util.control.NonFatal
+
+import io.gatling.commons.util.CircularIterator
+import io.gatling.commons.validation._
+import io.gatling.core.session._
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.HttpTypeCaster
 
-object BaseUrlSupport {
+import com.typesafe.scalalogging.LazyLogging
 
-  val BaseUrlAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
+private[http] object BaseUrlSupport extends LazyLogging {
 
-  val WsBaseUrlAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
-}
+  private val BaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.baseUrl"
 
-trait BaseUrlSupport {
+  private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
 
-  import BaseUrlSupport._
+  private def preResolve(baseUrl: String): Unit =
+    try {
+      val uri = Uri.create(baseUrl)
+      InetAddress.getAllByName(uri.getHost)
+    } catch {
+      case NonFatal(e) =>
+        logger.debug(s"Couldn't pre-resolve hostname from baseUrl $baseUrl", e)
+    }
 
-  def setBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
+  private def setBaseUrl(baseUrls: List[String], attributeName: String): Session => Session = {
+    baseUrls.foreach(preResolve)
+
+    baseUrls match {
+      case Nil        => Session.Identity
+      case url :: Nil => _.set(attributeName, url)
+      case urls =>
+        val it = CircularIterator(urls.toVector, threadSafe = true)
+        _.set(attributeName, it.next())
+    }
+  }
+
+  def setHttpBaseUrl(httpProtocol: HttpProtocol): Session => Session =
+    setBaseUrl(httpProtocol.baseUrls, BaseUrlAttributeName)
+
+  def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session =
+    setBaseUrl(httpProtocol.wsPart.wsBaseUrls, WsBaseUrlAttributeName)
+
+  private def baseUrl(session: Session, attributeName: String): Option[String] =
+    session.attributes.get(attributeName).map(_.asInstanceOf[String])
+
+  def httpBaseUrl(httpProtocol: HttpProtocol): Session => Option[String] =
     httpProtocol.baseUrls match {
-      case Nil            => identity
-      case baseUrl :: Nil => _.set(BaseUrlAttributeName, baseUrl)
-      case baseUrls =>
-        val it = RoundRobin(baseUrls.toVector)
-        _.set(BaseUrlAttributeName, it.next())
+      case Nil => _ => None
+      case single :: Nil =>
+        val s = Some(single)
+        _ => s
+      case _ => baseUrl(_, BaseUrlAttributeName)
     }
-  }
 
-  def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session = {
+  def wsBaseUrl(httpProtocol: HttpProtocol): Session => Option[String] =
     httpProtocol.wsPart.wsBaseUrls match {
-      case Nil            => identity
-      case baseUrl :: Nil => _.set(WsBaseUrlAttributeName, baseUrl)
-      case baseUrls =>
-        val it = RoundRobin(baseUrls.toVector)
-        _.set(WsBaseUrlAttributeName, it.next())
+      case Nil => _ => None
+      case single :: Nil =>
+        val s = Some(single)
+        _ => s
+      case _ => baseUrl(_, WsBaseUrlAttributeName)
     }
-  }
 
-  val baseUrl: Session => Option[String] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
-    _(BaseUrlAttributeName).asOption[String]
-  }
+  def defaultDomain(httpProtocol: HttpProtocol, failure: Expression[String]): Expression[String] =
+    httpProtocol.baseUrls match {
+      case Nil =>
+        httpProtocol.wsPart.wsBaseUrls match {
+          case Nil           => failure
+          case single :: Nil => Uri.create(single).getHost.expressionSuccess
+          case _             => session => Uri.create(baseUrl(session, WsBaseUrlAttributeName).get).getHost.success
+        }
 
-  val wsBaseUrl: Session => Option[String] = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
-    _(WsBaseUrlAttributeName).asOption[String]
-  }
+      case single :: Nil => Uri.create(single).getHost.expressionSuccess
+      case _             => session => Uri.create(baseUrl(session, BaseUrlAttributeName).get).getHost.success
+    }
 }

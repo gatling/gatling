@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
-import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.End
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
-class Exit(controller: ActorRef, statsEngine: StatsEngine) extends Action {
+class Exit(injector: ActorRef, clock: Clock) extends Action {
 
   override val name = "gatling-exit"
 
   def execute(session: Session): Unit = {
     logger.debug(s"End user #${session.userId}")
     session.exit()
-    val userEnd = UserMessage(session, End, nowMillis)
-    statsEngine.logUser(userEnd)
-    controller ! userEnd
+    injector ! UserEndMessage(session.scenario, clock.nowMillis)
   }
 }

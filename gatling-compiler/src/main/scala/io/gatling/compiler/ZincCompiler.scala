@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.compiler
 
 import java.io.{ File => JFile }
 import java.net.{ URL, URLClassLoader }
-import java.nio.file.Files
+import java.nio.file.{ Files, Path }
 import java.util.Optional
 import java.util.jar.{ Attributes, Manifest => JManifest }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.reflect.io.Directory
 
 import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
-import sbt.internal.inc.{ classpath, AnalysisStore => _, _ }
-import sbt.util.{ InterfaceUtil, Level, Logger => SbtLogger }
+import sbt.internal.inc._
+import sbt.internal.inc.classpath.ClasspathUtil
+import sbt.util.{ Level, Logger => SbtLogger }
 import sbt.util.ShowLines._
+import xsbti.{ FileConverter, Position, Problem, Reporter, T2, VirtualFile }
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
-
-import xsbti.Problem
+import xsbti.compile.analysis.ReadStamps
 
 object ZincCompiler extends App with ProblemStringFormats {
 
   private val logger = LoggerFactory.getLogger(getClass)
 
-  private def manifestClasspath(): Array[JFile] = {
+  private def manifestClasspath: Array[JFile] = {
 
-    val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF").asScala
+    val manifests = Thread.currentThread.getContextClassLoader
+      .getResources("META-INF/MANIFEST.MF")
+      .asScala
       .map { url =>
         val is = url.openStream()
         try {
@@ -52,31 +56,43 @@ object ZincCompiler extends App with ProblemStringFormats {
       }
 
     val classPathEntries = manifests.collect {
-      case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)) == Some("io.gatling.mojo.MainWithArgsInFile") =>
-        manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(url => new JFile(new URL(url).toURI))
+      case manifest
+          if Option(
+            manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)
+          ).contains("io.gatling.mojo.MainWithArgsInFile") =>
+        manifest.getMainAttributes
+          .getValue(Attributes.Name.CLASS_PATH)
+          .split(" ")
+          .map(url => new JFile(new URL(url).toURI))
     }
 
     classPathEntries.flatten.toArray
   }
 
-  private def jarMatching(classpath: Seq[JFile], regex: String): JFile =
+  private def jarMatching(classpath: Array[JFile], regex: String): JFile =
     classpath
-      .find(file => !file.getName.startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined)
-      .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
+      .find(file =>
+        !file.getName
+          .startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined
+      )
+      .getOrElse(
+        throw new RuntimeException(s"Can't find the jar matching $regex")
+      )
 
   private def doCompile(): Unit = {
-    // FIXME will not work with Java 9, see https://blog.codefx.org/java/java-9-migration-guide/#Casting-To-URL-Class-Loader
-    val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
     val configuration = CompilerConfiguration.configuration(args)
     Files.createDirectories(configuration.binariesDirectory)
 
     val classpath: Array[JFile] = {
-      val files = classLoader.getURLs.map(url => new JFile(url.toURI))
+      val files = System
+        .getProperty("java.class.path")
+        .split(JFile.pathSeparator)
+        .map(new JFile(_))
 
       if (files.exists(_.getName.startsWith("gatlingbooter"))) {
         // we've been started by the manifest-only jar,
         // we have to switch the manifest Class-Path entries
-        manifestClasspath()
+        manifestClasspath
       } else {
         files
       }
@@ -87,7 +103,8 @@ object ZincCompiler extends App with ProblemStringFormats {
     val scalaCompilerJar = jarMatching(classpath, """scala-compiler-.*\.jar$""")
     val allScalaJars = Array(scalaCompilerJar, scalaLibraryJar, scalaReflectJar)
 
-    val compilerBridgeJar = jarMatching(classpath, """compiler-bridge_.*\.jar$""")
+    val compilerBridgeJar =
+      jarMatching(classpath, """compiler-bridge_.*\.jar$""")
     val cacheFile = (GatlingHome / "target" / "inc_compile.zip").toFile
 
     val scalaVersionExtractor = """scala-library-(.*)\.jar$""".r
@@ -100,6 +117,7 @@ object ZincCompiler extends App with ProblemStringFormats {
       new ScalaInstance(
         version = scalaVersion,
         loader = new URLClassLoader(allScalaJars.map(_.toURI.toURL)),
+        loaderLibraryOnly = ClasspathUtil.rootLoader,
         libraryJar = scalaLibraryJar,
         compilerJar = scalaCompilerJar,
         allJars = allScalaJars,
@@ -107,74 +125,111 @@ object ZincCompiler extends App with ProblemStringFormats {
       )
 
     val sbtLogger = new SbtLogger {
-      override def trace(t: => Throwable): Unit = logger.debug(Option(t.getMessage).getOrElse("error"), t)
+      override def trace(t: => Throwable): Unit =
+        logger.debug(Option(t.getMessage).getOrElse("error"), t)
 
-      override def success(message: => String): Unit = logger.info(s"Success: $message")
+      override def success(message: => String): Unit =
+        logger.info(s"Success: $message")
 
       override def log(level: Level.Value, message: => String): Unit =
         level match {
-          case Level.Error => logger.error(message)
+          case Level.Error =>
+            if (message.startsWith("## Exception when compiling")) {
+              // see IncrementalCompilerImpl.handleCompilationError
+              // Exception with stacktrace will be thrown and logged properly below in try/catch block
+              logger.error(message.substring(0, message.indexOf("\n")))
+            } else {
+              logger.error(message)
+            }
           case Level.Warn  => logger.warn(message)
           case Level.Info  => logger.info(message)
           case Level.Debug => logger.debug(message)
         }
     }
 
-    val compiler = new IncrementalCompilerImpl
+    val compiler = ZincUtil.defaultIncrementalCompiler
 
     val scalaCompiler = new AnalyzingCompiler(
       scalaInstance = scalaInstance,
-      provider = ZincCompilerUtil.constantBridgeProvider(scalaInstance, compilerBridgeJar),
+      provider = ZincCompilerUtil
+        .constantBridgeProvider(scalaInstance, compilerBridgeJar),
       classpathOptions = ClasspathOptionsUtil.auto,
       onArgsHandler = _ => (),
       classLoaderCache = None
     )
 
-    val compilers = compiler.compilers(scalaInstance, ClasspathOptionsUtil.boot, None, scalaCompiler)
+    val compilers = ZincUtil.compilers(
+      scalaInstance,
+      ClasspathOptionsUtil.boot,
+      None,
+      scalaCompiler
+    )
 
     val lookup = new PerClasspathEntryLookup {
-      override def analysis(classpathEntry: JFile): Optional[CompileAnalysis] = Optional.empty[CompileAnalysis]
+      override def analysis(
+          classpathEntry: VirtualFile
+      ): Optional[CompileAnalysis] = Optional.empty[CompileAnalysis]
 
-      override def definesClass(classpathEntry: JFile): DefinesClass = Locate.definesClass(classpathEntry)
+      override def definesClass(classpathEntry: VirtualFile): DefinesClass =
+        Locate.definesClass(classpathEntry)
     }
 
     val maxErrors = 100
 
     val reporter = new LoggedReporter(maxErrors, sbtLogger) {
-      override protected def logError(problem: Problem): Unit = logger.error(problem.lines.mkString("\n"))
-      override protected def logWarning(problem: Problem): Unit = logger.warn(problem.lines.mkString("\n"))
-      override protected def logInfo(problem: Problem): Unit = logger.info(problem.lines.mkString("\n"))
-    }
-
-    val progress = new CompileProgress {
-      override def advance(current: Int, total: Int): Boolean = true
-
-      override def startUnit(phase: String, unitPath: String): Unit = ()
+      override protected def logError(problem: Problem): Unit =
+        logger.error(problem.lines.mkString("\n"))
+      override protected def logWarning(problem: Problem): Unit =
+        logger.warn(problem.lines.mkString("\n"))
+      override protected def logInfo(problem: Problem): Unit =
+        logger.info(problem.lines.mkString("\n"))
     }
 
     val setup =
-      compiler.setup(
-        lookup = lookup,
-        skip = false,
-        cacheFile = cacheFile,
-        cache = CompilerCache.fresh,
-        incOptions = IncOptions.of(),
-        reporter = reporter,
-        optionProgress = Some(progress),
-        extra = Array.empty
+      Setup.of(
+        lookup, // _perClasspathEntryLookup
+        false, // _skip
+        cacheFile, // _cacheFile
+        CompilerCache.fresh, // _cache
+        IncOptions.of(), // _incrementalCompilerOptions
+        reporter, // _reporter
+        Optional.empty[CompileProgress], // _progress
+        Array.empty[T2[String, String]] // _extra
       )
 
-    // FIXME do we need Directory from scala-reflect??? Java should suffice!
-    val sources: Array[JFile] = Directory(configuration.simulationsDirectory.toString)
-      .deepFiles
-      .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
-      .toArray
+    val sources: Array[JFile] =
+      Directory(configuration.simulationsDirectory.toString).deepFiles.collect {
+        case file if file.hasExtension("scala") || file.hasExtension("java") =>
+          file.jfile
+      }.toArray
 
-    val inputs = compiler.inputs(
-      classpath = classpath,
-      sources = sources,
-      classesDirectory = configuration.binariesDirectory.toFile,
-      scalacOptions = Array(
+    val analysisStore =
+      AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
+
+    val previousResult = {
+      val analysisContents = analysisStore.get
+      if (analysisContents.isPresent) {
+        val analysisContents0 = analysisContents.get
+        val previousAnalysis = analysisContents0.getAnalysis
+        val previousSetup = analysisContents0.getMiniSetup
+        PreviousResult.of(
+          Optional.of(previousAnalysis),
+          Optional.of(previousSetup)
+        )
+      } else {
+        PreviousResult.of(
+          Optional.empty[CompileAnalysis],
+          Optional.empty[MiniSetup]
+        )
+      }
+    }
+
+    val options = CompileOptions.of(
+      (classpath :+ configuration.binariesDirectory.toFile).map(file => new PlainVirtualFile(file.toPath): VirtualFile), // _classpath
+      sources
+        .map(file => new PlainVirtualFile(file.toPath): VirtualFile), // _sources
+      configuration.binariesDirectory, // _classesDirectory
+      Array(
         "-encoding",
         configuration.encoding,
         "-target:jvm-1.8",
@@ -183,33 +238,24 @@ object ZincCompiler extends App with ProblemStringFormats {
         "-unchecked",
         "-language:implicitConversions",
         "-language:postfixOps"
-      ),
-      javacOptions = Array.empty,
-      maxErrors,
-      sourcePositionMappers = Array.empty,
-      order = CompileOrder.Mixed,
-      compilers,
-      setup,
-      compiler.emptyPreviousResult
+      ) ++ configuration.extraScalacOptions, // _scalacOptions
+      Array.empty[String], // _javacOptions
+      100, // _maxErrors
+      (position: Position) => position, // _sourcePositionMapper
+      CompileOrder.Mixed, // _order
+      Optional.empty[Path], // _temporaryClassesDirectory
+      Optional
+        .of(PlainVirtualFileConverter.converter: FileConverter), // _converter
+      Optional.empty[ReadStamps], // _stamper
+      Optional.empty[Output] // _earlyOutput
     )
 
-    val analysisStore = AnalysisStore.getCachedStore(FileAnalysisStore.binary(cacheFile))
+    val inputs = Inputs.of(compilers, options, setup, previousResult)
 
-    val newInputs = {
-      InterfaceUtil.toOption(analysisStore.get()) match {
-        case Some(analysisContents) =>
-          val previousAnalysis = analysisContents.getAnalysis
-          val previousSetup = analysisContents.getMiniSetup
-          val previousResult = PreviousResult.of(Optional.of[CompileAnalysis](previousAnalysis), Optional.of[MiniSetup](previousSetup))
-          inputs.withPreviousResult(previousResult)
-
-        case _ =>
-          inputs
-      }
-    }
-
-    val newResult = compiler.compile(newInputs, sbtLogger)
-    analysisStore.set(AnalysisContents.create(newResult.analysis(), newResult.setup()))
+    val newResult = compiler.compile(inputs, sbtLogger)
+    analysisStore.set(
+      AnalysisContents.create(newResult.analysis(), newResult.setup())
+    )
   }
 
   try {

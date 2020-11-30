@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
-import java.security.MessageDigest
-
 import io.gatling.BaseSpec
-import io.gatling.commons.util.Io._
 import io.gatling.commons.util.StringHelper.RichString
 
 class StringHelperSpec extends BaseSpec {
-
-  private val fileBytes = getClass.getResource("/emoticon.png").toByteArray
-
-  "bytes2Hex" should "correctly compute file sha-1" in {
-    val md = MessageDigest.getInstance("SHA-1")
-    md.update(fileBytes)
-    val digestBytes = md.digest
-    StringHelper.bytes2Hex(digestBytes) shouldBe "665a5bf97191eb3d8b2a20d833182313343af073"
-  }
-
-  it should "correctly compute file md5" in {
-    val md = MessageDigest.getInstance("MD5")
-    md.update(fileBytes)
-    val digestBytes = md.digest
-    StringHelper.bytes2Hex(digestBytes) shouldBe "08f6575e7712febe2f529e1ea2c0179e"
-  }
 
   "truncate" should "truncate the string when its length exceeds the max length" in {
     "hello".truncate(2) shouldBe "he..."
@@ -63,31 +45,31 @@ class StringHelperSpec extends BaseSpec {
     "123456".rightPad(4) shouldBe "123456"
   }
 
-  "unsafeChars" should "correctly get the char array corresponding to the string" in {
-    "foo".unsafeChars shouldBe Array('f', 'o', 'o')
-  }
-
   "RichCharSequence.indexOf" should "find target when placed at the beginning" in {
-    StringHelper.RichCharSequence("${foobar}").indexOf("${", 0) shouldBe 0
+    StringHelper.RichCharSequence("${foobar}").indexOf("${".toCharArray, 0) shouldBe 0
   }
 
   it should "not find target when placed at the beginning but there's an offset" in {
-    StringHelper.RichCharSequence("${foobar}").indexOf("${", 1) shouldBe -1
+    StringHelper.RichCharSequence("${foobar}").indexOf("${".toCharArray, 1) shouldBe -1
   }
 
   it should "find target when placed at the middle" in {
-    StringHelper.RichCharSequence("foo${bar}").indexOf("${", 0) shouldBe 3
+    StringHelper.RichCharSequence("foo${bar}").indexOf("${".toCharArray, 0) shouldBe 3
   }
 
   it should "find target when placed at the middle and there's an inferior offset" in {
-    StringHelper.RichCharSequence("foo${bar}").indexOf("${", 2) shouldBe 3
+    StringHelper.RichCharSequence("foo${bar}").indexOf("${".toCharArray, 2) shouldBe 3
   }
 
   it should "not find target when placed at the middle and there's an superior offset" in {
-    StringHelper.RichCharSequence("foo${bar}").indexOf("${", 4) shouldBe -1
+    StringHelper.RichCharSequence("foo${bar}").indexOf("${".toCharArray, 4) shouldBe -1
   }
 
   it should "not find target when target is longer" in {
-    StringHelper.RichCharSequence("$").indexOf("${", 0) shouldBe -1
+    StringHelper.RichCharSequence("$").indexOf("${".toCharArray, 0) shouldBe -1
+  }
+
+  "replace" should "replace all occurrences" in {
+    "1234foo5678foo9012foo".replaceIf(char => Character.isAlphabetic(char), '_') shouldBe "1234___5678___9012___"
   }
 }

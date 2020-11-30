@@ -17,22 +17,22 @@ If you want to deal with several SSE streams per virtual users, you have to give
 
 For example:
 
-.. includecode:: code/Sse.scala#sseName
+.. includecode:: code/SseSample.scala#sseName
 
 Of course, this step is not required if you deal with one single SSE stream per virtual user.
 
-.. _http-sse-open:
+.. _http-sse-connect:
 
-Open
-----
+Connect
+-------
 
 The first thing is to get a server sent event:
 
-``open(url: Expression[String])``
+``connect(url: Expression[String])``
 
 For example:
 
-.. includecode:: code/Sse.scala#sseOpen
+.. includecode:: code/SseSample.scala#sseConnect
 
 
 .. note:: Gatling automatically sets ``Accept`` header to ``text/event-stream`` and ``Cache-Control`` to ``no-cache``.
@@ -48,70 +48,65 @@ When you're done with a SSE stream, you can close it:
 
 For example:
 
-.. includecode:: code/Sse.scala#sseClose
+.. includecode:: code/SseSample.scala#sseClose
+
+.. _http-sse-checks:
 
 Server Messages: Checks
 =======================
 
-Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
+You deal with incoming messages with checks.
 
-Gatling currently only support one check at a time per SSE stream.
+Beware to not miss messages that would be received prior to setting the check.
+
+Gatling currently only supports blocking checks that will waiting until receiving expected message or timing out.
 
 .. _http-sse-check-set:
 
 Set a Check
 -----------
 
-Checks can be set in 2 ways.
+You can set a check right after connecting:
 
-First, when sending a message:
+.. includecode:: code/SsSample.scala#check-from-connect
 
-.. includecode:: code/Sse.scala#check-from-message
+Or you can set a check from main flow:
 
-Then, directly from the main HTTP flow:
+.. includecode:: code/SseSample.scala#check-from-flow
 
-.. includecode:: code/Sse.scala#check-from-flow
+You can set multiple checks sequentially. Each one will expect one single frame.
 
-If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
+You can configure multiple checks in a single sequence:
 
-.. _http-sse-check-cancel:
+.. includecode:: code/SseSample.scala#check-single-sequence
 
-Cancel a Check
+You can also configure multiple check sequences with different timeouts:
+
+.. includecode:: code/SseSample.scala#check-check-multiple-sequence
+
+Create a check
 --------------
 
-One can decide to cancel a pending check:
+You can create checks for server events with ``checkMessage``.
+You can use almost all the same check criteria as for HTTP requests.
 
-.. includecode:: code/Sse.scala#cancel-check
+.. includecode:: code/SseSample.scala#create-single-check
 
-.. _http-sse-check-build:
+You can have multiple criteria for a given message:
 
-Build a Check
--------------
+.. includecode:: code/SseSample.scala#create-multiple-checks
 
-Now, to the matter at heart, how to build a server sent event check.
+.. _http-sse-matching:
 
-SSE support uses the same checks as WebSockets.
-So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
+Matching messages
+-----------------
 
-Here are few examples:
+You can define ``matching`` criteria to filter messages you want to check.
+Matching criterion is a standard check, except it doesn't take ``saveAs``.
+Non matching messages will be ignored.
 
-.. includecode:: code/Sse.scala#build-check
+.. includecode:: code/SseSample.scala#matching
 
-.. _http-sse-check-reconciliate:
-
-Reconciliate
-------------
-
-One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
-
-So, one has to reconciliate the main flow state and the WebSocket flow one.
-
-This can be done:
-
-* implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
-* explicitly with the ``reconciliate`` method.
-
-.. includecode:: code/Sse.scala#reconciliate
 
 .. _http-sse-check-conf:
 
@@ -120,13 +115,13 @@ Configuration
 
 Server sent event support uses the same parameter as the HttpProtocol:
 
-``baseURL(url: String)``: serves as root that will be prepended to all relative server sent event urls
+``baseUrl(url: String)``: serves as root that will be prepended to all relative server sent event urls
 
-``baseURLs(urls: String*)``: serves as round-robin roots that will be prepended to all relative server sent event urls
+``baseUrls(urls: String*)``: serves as round-robin roots that will be prepended to all relative server sent event urls
 
 Example
 =======
 
 Here's an example that runs against a stock market sample:
 
-.. includecode:: code/Sse.scala#stock-market-sample
+.. includecode:: code/SseSample.scala#stock-market-sample

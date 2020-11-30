@@ -1,19 +1,13 @@
 language: scala
 jdk:
-  - oraclejdk8
+  - openjdk8
 sbt_args: -Xmx2048M
 before_script: ./make_credentials.sh
 script: 
-  - sbt test
+  - sbt ci-checks
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publish || true"
-
-# If building master, Publish to Sonatype and trigger builds
-after_success:
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-highcharts-maven-archetype"
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-maven-plugin"
-  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-sbt"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publishLocal || true"
 
 sudo: false
 
@@ -27,4 +21,3 @@ cache:
 branches:
   only:
     - master
-    - 2.2

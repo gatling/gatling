@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,115 +13,121 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, ExpressionSuccessWrapper }
 import io.gatling.jms.JmsCheck
 import io.gatling.jms.action.{ RequestReplyBuilder, SendBuilder }
 
 import com.softwaremill.quicklens._
 
-case class JmsDslBuilderBase(requestName: Expression[String]) {
+final class JmsDslBuilderBase(requestName: Expression[String]) {
 
-  def send(implicit configuration: GatlingConfiguration) = SendDslBuilderQueue(requestName, configuration)
+  def send: SendDslBuilderQueue = new SendDslBuilderQueue(requestName)
 
-  @deprecated("Use requestReply, will be removed in 3.0.0", "3.0.0-M5")
-  def reqreply(implicit configuration: GatlingConfiguration) = requestReply
-
-  def requestReply(implicit configuration: GatlingConfiguration) = RequestReplyDslBuilderQueue(requestName, configuration)
+  def requestReply: RequestReplyDslBuilderQueue = new RequestReplyDslBuilderQueue(requestName)
 }
 
-case class SendDslBuilderQueue(
-    requestName:   Expression[String],
-    configuration: GatlingConfiguration
+final class SendDslBuilderQueue(
+    requestName: Expression[String]
 ) {
 
-  def queue(name: String) = destination(JmsQueue(name))
+  def queue(name: Expression[String]): SendDslDslBuilderMessage = destination(JmsQueue(name))
 
-  def destination(destination: JmsDestination) = SendDslDslBuilderMessage(requestName, destination, configuration)
+  def destination(destination: JmsDestination): SendDslDslBuilderMessage =
+    new SendDslDslBuilderMessage(requestName, destination)
 }
 
-case class RequestReplyDslBuilderQueue(
-    requestName:   Expression[String],
-    configuration: GatlingConfiguration
+final class RequestReplyDslBuilderQueue(
+    requestName: Expression[String]
 ) {
 
-  def queue(name: String) = destination(JmsQueue(name))
+  def queue(name: Expression[String]): RequestReplyDslBuilderMessage = destination(JmsQueue(name))
 
-  def destination(destination: JmsDestination) = RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, None, configuration)
+  def destination(destination: JmsDestination): RequestReplyDslBuilderMessage =
+    RequestReplyDslBuilderMessage(requestName, destination, JmsTemporaryQueue, setJmsReplyTo = true, None, None)
 }
 
-case class SendDslDslBuilderMessage(
-    requestName:   Expression[String],
-    destination:   JmsDestination,
-    configuration: GatlingConfiguration
+final class SendDslDslBuilderMessage(
+    requestName: Expression[String],
+    destination: JmsDestination
 ) {
 
-  def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
-  def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
-  def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
+  def textMessage(text: Expression[String]): SendDslBuilder = message(TextJmsMessage(text))
+  def bytesMessage(bytes: Expression[Array[Byte]]): SendDslBuilder = message(BytesJmsMessage(bytes))
+  def mapMessage(map: Map[String, Any]): SendDslBuilder = mapMessage(map.expressionSuccess)
+  def mapMessage(map: Expression[Map[String, Any]]): SendDslBuilder = message(MapJmsMessage(map))
+  def objectMessage(o: Expression[JSerializable]): SendDslBuilder = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), SendBuilder.apply(_, configuration))
+    SendDslBuilder(JmsAttributes(requestName, destination, None, mess), new SendBuilder(_))
 }
 
-case class RequestReplyDslBuilderMessage(
-    requestName:     Expression[String],
-    destination:     JmsDestination,
-    replyDest:       JmsDestination,
-    messageSelector: Option[String],
-    configuration:   GatlingConfiguration
+final case class RequestReplyDslBuilderMessage(
+    requestName: Expression[String],
+    destination: JmsDestination,
+    replyDest: JmsDestination,
+    setJmsReplyTo: Boolean,
+    trackerDest: Option[JmsDestination],
+    selector: Option[Expression[String]]
 ) {
+
   /**
    * Add a reply queue, if not specified dynamic queue is used
    */
-  def replyQueue(name: String) = replyDestination(JmsQueue(name))
-  def replyDestination(destination: JmsDestination) = this.copy(replyDest = destination)
+  def replyQueue(name: Expression[String]): RequestReplyDslBuilderMessage = replyDestination(JmsQueue(name))
+  def replyDestination(destination: JmsDestination): RequestReplyDslBuilderMessage = this.copy(replyDest = destination)
+  def noJmsReplyTo: RequestReplyDslBuilderMessage = this.copy(setJmsReplyTo = false)
+  def trackerQueue(name: Expression[String]): RequestReplyDslBuilderMessage = trackerDestination(JmsQueue(name))
+  def trackerDestination(destination: JmsDestination): RequestReplyDslBuilderMessage = this.copy(trackerDest = Some(destination))
 
   /**
    * defines selector for reply destination that is used for responses
    */
-  def selector(selector: String) = this.copy(messageSelector = Some(selector))
+  def selector(select: Expression[String]): RequestReplyDslBuilderMessage = this.copy(selector = Some(select))
 
-  def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
-  def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
+  def textMessage(text: Expression[String]): RequestReplyDslBuilder = message(TextJmsMessage(text))
+  def bytesMessage(bytes: Expression[Array[Byte]]): RequestReplyDslBuilder = message(BytesJmsMessage(bytes))
   def mapMessage(map: Map[String, Any]): RequestReplyDslBuilder = mapMessage(map.expressionSuccess)
   def mapMessage(map: Expression[Map[String, Any]]): RequestReplyDslBuilder = message(MapJmsMessage(map))
-  def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
+  def objectMessage(o: Expression[JSerializable]): RequestReplyDslBuilder = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    RequestReplyDslBuilder(JmsAttributes(requestName, destination, messageSelector, mess), RequestReplyBuilder.apply(_, replyDest, configuration))
+    RequestReplyDslBuilder(
+      JmsAttributes(requestName, destination, selector, mess),
+      RequestReplyBuilder.apply(_, replyDest, setJmsReplyTo, trackerDest)
+    )
 }
 
-case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
+final case class SendDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
 
   /**
    * Add JMS message properties (aka headers) to the outbound message
    */
-  def property(key: Expression[String], value: Expression[Any]) = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
+  def property(key: Expression[String], value: Expression[Any]): SendDslBuilder = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
 
-  def jmsType(jmsType: Expression[String]) = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+  def jmsType(jmsType: Expression[String]): SendDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
-  def build(): ActionBuilder = factory(attributes)
+  def build: ActionBuilder = factory(attributes)
 }
 
-case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
+final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
 
   /**
    * Add JMS message properties (aka headers) to the outbound message
    */
-  def property(key: Expression[String], value: Expression[Any]) = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
+  def property(key: Expression[String], value: Expression[Any]): RequestReplyDslBuilder = this.modify(_.attributes.messageProperties).using(_ + (key -> value))
 
-  def jmsType(jmsType: Expression[String]) = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
+  def jmsType(jmsType: Expression[String]): RequestReplyDslBuilder = this.modify(_.attributes.jmsType).setTo(Some(jmsType))
 
   /**
    * Add a check that will be performed on each received JMS response message before giving Gatling on OK/KO response
    */
-  def check(checks: JmsCheck*) = this.modify(_.attributes.checks).using(_ ::: checks.toList)
+  def check(checks: JmsCheck*): RequestReplyDslBuilder = this.modify(_.attributes.checks).using(_ ::: checks.toList)
 
-  def build(): ActionBuilder = factory(attributes)
+  def build: ActionBuilder = factory(attributes)
 }

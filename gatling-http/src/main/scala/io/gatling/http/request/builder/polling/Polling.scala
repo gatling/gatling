@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder.polling
 
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.session._
-import io.gatling.http.action.async.polling.{ PollingStartBuilder, PollingStopBuilder }
+import io.gatling.http.action.HttpActionBuilder
+import io.gatling.http.action.polling.{ PollingStartBuilder, PollingStopBuilder }
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 object Polling {
-  val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
-}
-class Polling(pollerName: String = Polling.DefaultPollerName) {
+  private val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
 
-  def pollerName(pollerName: String) = new Polling(pollerName)
-
-  def every(period: Expression[FiniteDuration]) = new PollingEveryStep(pollerName, period)
-
-  def stop = new PollingStopBuilder(pollerName)
+  val Default: Polling = new Polling(DefaultPollerName)
 }
 
-class PollingEveryStep(pollerName: String, period: Expression[FiniteDuration]) {
+final class Polling(pollerName: String) {
 
-  def exec(requestBuilder: HttpRequestBuilder) =
+  def pollerName(pollerName: String): Polling = new Polling(pollerName)
+
+  def every(period: FiniteDuration): PollingEveryStep = new PollingEveryStep(pollerName, period)
+
+  def stop: HttpActionBuilder = new PollingStopBuilder(pollerName)
+}
+
+final class PollingEveryStep(pollerName: String, period: FiniteDuration) {
+
+  def exec(requestBuilder: HttpRequestBuilder): HttpActionBuilder =
     new PollingStartBuilder(pollerName, period, requestBuilder)
 }

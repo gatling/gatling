@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.integration
 
 import java.nio.charset.StandardCharsets
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.HeaderNames._
-import io.gatling.http.HttpSpec
 import io.gatling.core.CoreDsl
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HttpDsl
-import io.gatling.http.check.HttpCheckSupport
+import io.gatling.http.HttpSpec
 
 import io.netty.buffer.Unpooled
 import io.netty.channel.ChannelFutureListener
-import io.netty.handler.codec.http.{ ServerCookieEncoder => _, DefaultCookie => _, _ }
+import io.netty.handler.codec.http.{ DefaultFullHttpResponse, HttpHeaderNames => NettyHttpHeaderName, HttpMethod, HttpResponseStatus, HttpVersion }
 import io.netty.handler.codec.http.cookie._
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
-  val regexCheck = super[CoreDsl].regex(_)
+  private val regexCheck = super[CoreDsl].regex(_)
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   ignore should "send cookies returned in redirects in subsequent requests" in {
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.MOVED_PERMANENTLY)
-        response.headers()
-          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie1", "Test1")))
-          .set(Location, "/page2")
-          .set(ContentLength, 0)
+        response
+          .headers()
+          .set(NettyHttpHeaderName.SET_COOKIE, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie1", "Test1")))
+          .set(NettyHttpHeaderName.LOCATION, "/page2")
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, 0)
 
         ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
 
@@ -51,9 +51,10 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val bytes = "Hello World".getBytes(StandardCharsets.UTF_8)
 
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
-        response.headers()
-          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
-          .set(ContentLength, bytes.length)
+        response
+          .headers()
+          .set(NettyHttpHeaderName.SET_COOKIE, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, bytes.length)
 
         ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
 
@@ -61,15 +62,15 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
         val bytes = "Hello Again".getBytes(StandardCharsets.UTF_8)
 
         val response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK, Unpooled.wrappedBuffer(bytes))
-        response.headers()
-          .set(SetCookie, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
-          .set(ContentLength, bytes.length)
+        response
+          .headers()
+          .set(NettyHttpHeaderName.SET_COOKIE, ServerCookieEncoder.STRICT.encode(new DefaultCookie("TestCookie2", "Test2")))
+          .set(NettyHttpHeaderName.CONTENT_LENGTH, bytes.length)
 
         ctx => ctx.channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
     }
 
     runWithHttpServer(handler) { implicit httpServer =>
-
       val session = runScenario(
         scenario("Cookie Redirect")
           .exec(
@@ -99,9 +100,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   ignore should "retrieve linked resources, when resource downloading is enabled" in {
 
-    val handler: Handler = {
-      case HttpRequest(HttpMethod.GET, path) =>
-        sendFile(path.drop(1)) // Drop leading slash in path
+    val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
+      sendFile(path.drop(1)) // Drop leading slash in path
     }
 
     runWithHttpServer(handler) { implicit httpServer =>
@@ -130,9 +130,8 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   ignore should "fetch resources in conditional comments" in {
 
-    val handler: Handler = {
-      case HttpRequest(HttpMethod.GET, path) =>
-        sendFile(path.drop(1)) // Drop leading slash in path
+    val handler: Handler = { case HttpRequest(HttpMethod.GET, path) =>
+      sendFile(path.drop(1)) // Drop leading slash in path
     }
 
     runWithHttpServer(handler) { implicit httpServer =>

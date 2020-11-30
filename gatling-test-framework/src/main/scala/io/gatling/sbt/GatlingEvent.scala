@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.sbt
 
 import sbt.testing.{ Event, Fingerprint, OptionalThrowable, Selector, Status }
@@ -27,15 +28,15 @@ import sbt.testing.{ Event, Fingerprint, OptionalThrowable, Selector, Status }
  * @param throwable The exception that may have been thrown by Gatling.
  * @param duration The simulation's execution's duration.
  */
-case class SimulationSuccessful(
+final case class SimulationSuccessful(
     fullyQualifiedName: String,
-    fingerprint:        Fingerprint,
-    selector:           Selector,
-    throwable:          OptionalThrowable,
-    duration:           Long
+    fingerprint: Fingerprint,
+    selector: Selector,
+    throwable: OptionalThrowable,
+    duration: Long
 ) extends Event {
 
-  val status = Status.Success
+  override val status: Status = Status.Success
 }
 
 /**
@@ -48,15 +49,15 @@ case class SimulationSuccessful(
  * @param throwable The exception that may have been thrown by Gatling.
  * @param duration The simulation's execution's duration.
  */
-case class SimulationFailed(
+final case class SimulationFailed(
     fullyQualifiedName: String,
-    fingerprint:        Fingerprint,
-    selector:           Selector,
-    throwable:          OptionalThrowable,
-    duration:           Long
+    fingerprint: Fingerprint,
+    selector: Selector,
+    throwable: OptionalThrowable,
+    duration: Long
 ) extends Event {
 
-  val status = Status.Failure
+  override val status: Status = Status.Failure
 }
 
 /**
@@ -69,13 +70,13 @@ case class SimulationFailed(
  * @param throwable The exception that may have been thrown by Gatling.
  * @param duration The simulation's execution's duration.
  */
-case class InvalidArguments(
+final case class InvalidArguments(
     fullyQualifiedName: String,
-    fingerprint:        Fingerprint,
-    selector:           Selector,
-    throwable:          OptionalThrowable,
-    duration:           Long
+    fingerprint: Fingerprint,
+    selector: Selector,
+    throwable: OptionalThrowable,
+    duration: Long
 ) extends Event {
 
-  val status = Status.Error
+  override val status: Status = Status.Error
 }

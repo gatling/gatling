@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.component
 
 import io.gatling.charts.config.ChartsFiles.GlobalPageName
 import io.gatling.charts.report.Container.{ Group, Request }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.commons.util.StringHelper._
-
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class StatisticsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 
@@ -29,7 +28,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
   private val NumberOfCharsBeforeDots = 8
   private val NumberOfCharsAfterDots = 8
 
-  val html = {
+  override val html: String = {
 
     def pctTitle(pct: Double) = pct.toRank + " pct"
 
@@ -39,7 +38,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
     val pct4 = pctTitle(configuration.charting.indicators.percentile4)
     val responseTimeFields = Vector("Min", pct1, pct2, pct3, pct4, "Max", "Mean", "Std Dev")
 
-    fast"""
+    s"""
                         <div class="statistics extensible-geant collapsed">
                             <div class="title">
                                 <div class="right">
@@ -59,8 +58,10 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
                                         <th id="col-3" class="header sortable"><span>OK</span></th>
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
                                         <th id="col-5" class="header sortable"><span>% KO</span></th>
-                                        <th id="col-6" class="header sortable"><span>Req/s</span></th>
-                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }.mkFastring(Eol)}
+                                        <th id="col-6" class="header sortable"><span><abbr title="Count of events per second">Cnt/s</abbr></span></th>
+                                        ${responseTimeFields.zipWithIndex
+      .map { case (header, i) => s"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }
+      .mkString(Eol)}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -74,7 +75,7 @@ private[charts] class StatisticsTableComponent(implicit configuration: GatlingCo
 """
   }
 
-  val js = fast"""
+  val js = s"""
 
   function shortenNameAndDisplayFullOnHover(name){
    if (name.length < $MaxRequestNameSize)

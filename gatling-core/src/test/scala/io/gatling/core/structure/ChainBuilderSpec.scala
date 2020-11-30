@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.structure
 
 import io.gatling.BaseSpec
 import io.gatling.commons.stats._
 import io.gatling.commons.validation._
 import io.gatling.core.CoreDsl
+import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.test._
 
-class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
+class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture with EmptySession {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "exec" should "wrap Scenarios in chains" in {
     scenarioTest { implicit ctx =>
-
       val message1 = "Message 1"
       val message2 = "Message 2"
       val message3 = "Message 3"
-
-      val session = Session("Actual Scenario", 0)
 
       val chain = buildChain {
         exec { session =>
@@ -52,7 +51,7 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
         }
       }
 
-      chain ! session
+      chain ! emptySession
 
       expectMsg(message1)
       expectMsg(message2)
@@ -62,7 +61,6 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
 
   it should "fail group when action fails, eg when request can't be built" in {
     scenarioTest { implicit ctx =>
-
       val chain = buildChain {
         group("group") {
           exec(session => "Forced failure".failure)
@@ -73,16 +71,14 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
         }
       }
 
-      chain ! Session("Scenario", 0)
+      chain ! emptySession
 
-      expectMsgPF {
-        case session: Session => session.status shouldBe KO
+      expectMsgPF { case session: Session =>
+        session.status shouldBe KO
       }
 
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          session.status shouldBe KO
-          group.status shouldBe KO
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.status shouldBe KO
       }
     }
   }
@@ -125,47 +121,35 @@ class ChainBuilderSpec extends BaseSpec with CoreDsl with ScenarioTestFixture {
         }
       }
 
-      chain ! Session("Scenario", 0)
+      chain ! emptySession
       expectMsg(message(1, 0, 0))
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup, innerGroup)
-          session.status shouldBe KO
-          group.status shouldBe KO
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup, innerGroup)
+        group.status shouldBe KO
       }
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup)
-          session.status shouldBe KO
-          group.status shouldBe KO
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup)
+        group.status shouldBe KO
       }
       expectMsg(message(1, 1, 0))
       expectMsg(message(2, 1, 0))
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup, innerGroup)
-          session.status shouldBe OK
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup, innerGroup)
+        group.status shouldBe OK
       }
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup)
-          session.status shouldBe OK
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup)
+        group.status shouldBe OK
       }
       expectMsg(message(1, 1, 1))
       expectMsg(message(2, 1, 1))
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup, innerGroup)
-          session.status shouldBe OK
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup, innerGroup)
+        group.status shouldBe OK
       }
-      expectMsgPF {
-        case LogGroupEnd(session, group, _) =>
-          group.hierarchy shouldBe List(outerGroup)
-          session.status shouldBe OK
-          group.status shouldBe OK
+      expectMsgPF { case LogGroupEnd(_, group, _) =>
+        group.groups shouldBe List(outerGroup)
+        group.status shouldBe OK
       }
     }
   }

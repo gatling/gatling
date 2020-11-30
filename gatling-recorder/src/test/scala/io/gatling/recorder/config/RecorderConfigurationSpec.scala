@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,47 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.config
 
-import java.io.{ FileNotFoundException, File }
+import java.io.{ File, FileNotFoundException }
 import java.nio.file.Paths
 
 import io.gatling.BaseSpec
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 
 import org.scalatest.BeforeAndAfter
 
 class RecorderConfigurationSpec extends BaseSpec with BeforeAndAfter {
 
-  val NON_EXISTING_DIR = "nonExistingDir"
-  val EXISTING_DIR = "existingDir"
-  val FILE_NAME = "file"
+  private val nonExistingDir = "nonExistingDir"
+  private val existingDir = "existingDir"
+  private val fileName = "file"
 
-  def removeAll(): Unit = {
-    new File(EXISTING_DIR, FILE_NAME).delete()
-    new File(EXISTING_DIR).delete()
-    new File(FILE_NAME).delete()
+  private def removeAll(): Unit = {
+    new File(existingDir, fileName).delete()
+    new File(existingDir).delete()
+    new File(fileName).delete()
   }
 
-  def file2path(file: File) = Paths.get(file.toURI)
+  private def file2path(file: File) = Paths.get(file.toURI)
 
   before(removeAll())
   after(removeAll())
 
   "Recorder Configuration" should "create file if directory exists" in {
-    val resFile = RecorderConfiguration.createAndOpen(file2path(new File(FILE_NAME)))
+    val resFile = RecorderConfiguration.createAndOpen(file2path(new File(fileName)))
     resFile.exists shouldBe true
   }
 
   it should "create if parent directory exists" in {
-    new File(EXISTING_DIR).mkdir()
-    val testFile = new File(EXISTING_DIR, FILE_NAME)
+    new File(existingDir).mkdir()
+    val testFile = new File(existingDir, fileName)
     val resFile = RecorderConfiguration.createAndOpen(file2path(testFile))
     resFile.exists shouldBe true
   }
 
   it should "throw exception if parent directory is missing" in {
-    val testFile = new File(NON_EXISTING_DIR, FILE_NAME)
+    val testFile = new File(nonExistingDir, fileName)
     a[FileNotFoundException] should be thrownBy RecorderConfiguration.createAndOpen(file2path(testFile))
   }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,92 +13,77 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.controller
 
 import scala.util.{ Failure, Success, Try }
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.inject.{ Injector, InjectorCommand }
+import io.gatling.core.controller.inject.InjectorCommand
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.End
-import io.gatling.core.stats.writer.UserMessage
 
-import akka.actor.{ ActorSelection, ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSelection, ActorSystem, Props }
 
 object Controller {
 
   val ControllerActorName = "gatling-controller"
 
-  def props(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration) =
-    Props(new Controller(statsEngine, throttler, simulationParams, configuration))
+  def props(
+      statsEngine: StatsEngine,
+      injector: ActorRef,
+      throttler: Option[Throttler],
+      simulationParams: SimulationParams
+  ): Props =
+    Props(new Controller(statsEngine, injector, throttler, simulationParams))
 
   def controllerSelection(system: ActorSystem): ActorSelection =
     system.actorSelection("/user/" + ControllerActorName)
 }
 
-class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
-  extends ControllerFSM {
+class Controller(statsEngine: StatsEngine, injector: ActorRef, throttler: Option[Throttler], simulationParams: SimulationParams) extends ControllerFSM {
 
-  import ControllerState._
-  import ControllerData._
   import ControllerCommand._
+  import ControllerData._
+  import ControllerState._
 
   val maxDurationTimer = "maxDurationTimer"
 
   startWith(WaitingToStart, NoData)
 
-  when(WaitingToStart) {
-    case Event(Start(scenarios), NoData) =>
-      val initData = InitData(sender(), scenarios)
+  when(WaitingToStart) { case Event(Start(scenarios), NoData) =>
+    val initData = InitData(sender(), scenarios)
 
-      val injector = Injector(system, self, statsEngine, initData.scenarios)
+    simulationParams.maxDuration.foreach { maxDuration =>
+      logger.debug("Setting up max duration")
+      startSingleTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
+    }
 
-      simulationParams.maxDuration.foreach { maxDuration =>
-        logger.debug("Setting up max duration")
-        setTimer(maxDurationTimer, MaxDurationReached(maxDuration), maxDuration)
-      }
+    throttler.foreach(_.start())
+    statsEngine.start()
+    injector ! InjectorCommand.Start(self, initData.scenarios)
 
-      throttler.start()
-      statsEngine.start()
-      injector ! InjectorCommand.Start
-
-      goto(Started) using StartedData(initData, new UserCounts)
+    goto(Started) using StartedData(initData)
   }
 
   when(Started) {
-    case Event(UserMessage(session, End, _), startedData: StartedData) =>
-      logger.debug(s"End user #${session.userId}")
-      startedData.userCounts.incrementCompleted()
-      evaluateUserCounts(startedData)
+    case Event(InjectorStopped, data: StartedData) =>
+      logger.info(s"Injector has stopped, initiating graceful stop")
+      stopGracefully(data, None)
 
-    case Event(InjectionStopped(expectedCount), startedData: StartedData) =>
-      logger.info(s"InjectionStopped expectedCount=$expectedCount")
-      startedData.userCounts.setExpected(expectedCount)
-      evaluateUserCounts(startedData)
-
-    case Event(MaxDurationReached(maxDuration), startedData: StartedData) =>
+    case Event(MaxDurationReached(maxDuration), data: StartedData) =>
       logger.info(s"Max duration of $maxDuration reached")
-      stopGracefully(startedData, None)
+      stopGracefully(data, None)
 
-    case Event(Crash(exception), startedData: StartedData) =>
+    case Event(Crash(exception), data: StartedData) =>
       logger.error(s"Simulation crashed", exception)
       cancelTimer(maxDurationTimer)
-      stopGracefully(startedData, Some(exception))
+      stopGracefully(data, Some(exception))
 
-    case Event(Kill, StartedData(initData, _)) =>
-      logger.error("Simulation was killed")
+    case Event(Kill, StartedData(initData)) =>
+      logger.info("Simulation was killed")
       stop(EndData(initData, None))
   }
-
-  private def evaluateUserCounts(startedData: StartedData): State =
-    if (startedData.userCounts.allStopped) {
-      logger.info("All users are stopped")
-      stopGracefully(startedData, None)
-    } else {
-      stay()
-    }
 
   private def stopGracefully(startedData: StartedData, exception: Option[Exception]): State = {
     statsEngine.stop(self, exception)
@@ -111,16 +96,16 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
   }
 
   when(WaitingForResourcesToStop) {
-    case Event(StatsEngineStopped, endData: EndData) =>
-      logger.info("StatsEngineStopped")
-      stop(endData)
+    case Event(StatsEngineStopped, data: EndData) =>
+      logger.debug("StatsEngine was stopped")
+      stop(data)
 
-    case Event(Kill, endData: EndData) =>
-      logger.error("Kill")
-      stop(endData)
+    case Event(Kill, data: EndData) =>
+      logger.error("Kill order received")
+      stop(data)
 
     case Event(message, _) =>
-      logger.debug(s"Ignore message $message while waiting for StatsEngine to stop")
+      logger.debug(s"Ignore message $message while waiting for resources to stop")
       stay()
   }
 
@@ -132,10 +117,9 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
   // -- STEP 4 : Controller has been stopped, all new messages will be discarded -- //
 
-  when(Stopped) {
-    case Event(message, NoData) =>
-      logger.debug(s"Ignore message $message since Controller has been stopped")
-      stay()
+  when(Stopped) { case Event(message, NoData) =>
+    logger.debug(s"Ignore message $message since Controller has been stopped")
+    stay()
   }
 
   initialize()

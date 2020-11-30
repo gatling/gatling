@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
 
 sealed trait HttpParam
-case class SimpleParam(key: Expression[String], value: Expression[Any]) extends HttpParam
-case class MultivaluedParam(key: Expression[String], values: Expression[Seq[Any]]) extends HttpParam
-case class ParamSeq(seq: Expression[Seq[(String, Any)]]) extends HttpParam
-case class ParamMap(map: Expression[Map[String, Any]]) extends HttpParam
+final case class SimpleParam(key: Expression[String], value: Expression[Any]) extends HttpParam
+final case class MultivaluedParam(key: Expression[String], values: Expression[Seq[Any]]) extends HttpParam
+final case class ParamSeq(seq: Expression[Seq[(String, Any)]]) extends HttpParam
+final case class ParamMap(map: Expression[Map[String, Any]]) extends HttpParam

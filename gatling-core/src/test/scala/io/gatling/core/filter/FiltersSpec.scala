@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.filter
 
-import org.scalatest.{ FlatSpecLike, Inspectors, Matchers }
+import org.scalatest.Inspectors
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-import org.scalatest.mockito.MockitoSugar
+class FiltersSpec extends AnyFlatSpec with Matchers with MockitoSugar with Inspectors {
 
-class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Inspectors {
-
-  val hosts = List(
-    "http://excilys.com",
+  private val hosts = List(
+    "http://takima.fr",
     "http://ebusinessinformation.fr",
-    "http://gatling.io"
+    "https://gatling.io"
   )
 
-  val paths = List(
+  private val paths = List(
     "",
     "/infos.html",
     "/assets/images/foo.png",
     "/assets/js/bar.js"
   )
 
-  val urls = for {
+  private val urls = for {
     host <- hosts
     path <- paths
   } yield host + path
 
-  val whiteList = WhiteList(List("http://excilys\\.com.*"))
-  val emptyWhiteList = WhiteList()
-  val blackList = BlackList(List("http://.*/assets/.*"))
-  val emptyBlackList = BlackList()
+  private val whiteList = new WhiteList(List("http://takima\\.fr.*"))
+  private val blackList = new BlackList(List("http[s]?://.*/assets/.*"))
 
-  def isRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
+  private def checkRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
     val (expectedAccepted, expectedRejected) = partition
 
     forAll(expectedAccepted) {
@@ -56,43 +56,52 @@ class FiltersSpec extends FlatSpecLike with Matchers with MockitoSugar with Insp
   }
 
   "Filters" should "filter whitelist correctly when blacklist is empty" in {
-    isRequestAccepted(Filters(whiteList, emptyBlackList), urls.partition(_.contains("excilys")))
+    checkRequestAccepted(new Filters(whiteList, BlackList.Empty), urls.partition(_.contains("takima")))
   }
 
   it should "filter whitelist then blacklist when both are specified on whitefirst mode" in {
-    isRequestAccepted(Filters(whiteList, blackList), urls.partition { url =>
-      url.contains("excilys") && !url.contains("assets")
-    })
+    checkRequestAccepted(
+      new Filters(whiteList, blackList),
+      urls.partition { url =>
+        url.contains("takima") && !url.contains("assets")
+      }
+    )
   }
 
   it should "filter blacklist correctly when whitelist is empty" in {
-    isRequestAccepted(Filters(blackList, emptyWhiteList), urls.partition { url =>
-      !url.contains("assets")
-    })
+    checkRequestAccepted(
+      new Filters(blackList, WhiteList.Empty),
+      urls.partition { url =>
+        !url.contains("assets")
+      }
+    )
   }
 
   it should "filter blacklist then whitelist when both are specified on blackfirst mode" in {
-    isRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
-      !url.contains("assets") && url.contains("excilys")
-    })
+    checkRequestAccepted(
+      new Filters(blackList, whiteList),
+      urls.partition { url =>
+        !url.contains("assets") && url.contains("takima")
+      }
+    )
   }
 
   it should "filter correctly when there are multiple patterns" in {
     val patterns = List(".*foo.*", ".*bar.*")
-    val url = "http://gatling.io/foo.html"
+    val url = "https://gatling.io/foo.html"
 
-    BlackList(patterns).accept(url) shouldBe false
-    WhiteList(patterns).accept(url) shouldBe true
+    new BlackList(patterns).accept(url) shouldBe false
+    new WhiteList(patterns).accept(url) shouldBe true
   }
 
   it should "filter correctly when there are no patterns" in {
-    val url = "http://gatling.io/foo.html"
-    BlackList(Nil).accept(url) shouldBe true
-    WhiteList(Nil).accept(url) shouldBe true
+    val url = "https://gatling.io/foo.html"
+    new BlackList(Nil).accept(url) shouldBe true
+    new WhiteList(Nil).accept(url) shouldBe true
   }
 
   it should "be able to deal with incorrect patterns" in {
-    val w = WhiteList(List("http://foo\\.com.*", "},{"))
+    val w = new WhiteList(List("http://foo\\.com.*", "},{"))
     w.regexes should not be empty
     w.accept("http://foo.com/bar.html") shouldBe true
   }

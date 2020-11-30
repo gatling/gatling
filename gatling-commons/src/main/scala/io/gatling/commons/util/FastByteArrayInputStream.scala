@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
 import java.io.InputStream
 
-final class FastByteArrayInputStream(bytes: Array[Byte], var offset: Int, var length: Int) extends InputStream {
+final class FastByteArrayInputStream(bytes: Array[Byte]) extends InputStream {
 
-  def this(bytes: Array[Byte]) = this(bytes, 0, bytes.length)
-
-  var position: Int = _
-  var mark: Int = _
+  private val length: Int = bytes.length
+  private var position: Int = _
+  private var mark: Int = _
 
   override def markSupported = true
 
@@ -47,16 +47,16 @@ final class FastByteArrayInputStream(bytes: Array[Byte], var offset: Int, var le
   }
 
   override def read(): Int =
-    if (length == position) {
+    if (position == length) {
       -1
     } else {
       val oldPosition = position
       position += 1
-      bytes(offset + oldPosition) & 0xFF
+      bytes(oldPosition) & 0xff
     }
 
   override def read(b: Array[Byte], offset: Int, length: Int): Int =
-    if (this.length == position) {
+    if (position == this.length) {
       if (length == 0) 0 else -1
     } else {
       val n = math.min(length, available)

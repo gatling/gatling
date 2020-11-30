@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,55 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, LoopBlock, Session }
 import io.gatling.core.stats.StatsEngine
 
-import akka.actor.ActorSystem
-
-/**
- * Action in charge of controlling a while loop execution.
- *
- * @constructor creates a Loop in the scenario
- * @param continueCondition the condition that decides when to exit the loop
- * @param counterName the name of the counter for this loop
- * @param exitASAP if loop condition should be evaluated between chain elements to exit ASAP
- * @param timeBased if loop is based on time and should compute entry timestamp
- * @param evaluateConditionAfterLoop if the loop condition is evaluated after the loop execution
- * @param statsEngine the StatsEngine
- * @param next the chain executed if testFunction evaluates to false
- */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, timeBased: Boolean, evaluateConditionAfterLoop: Boolean, statsEngine: StatsEngine, override val name: String, next: Action) extends Action {
+class Loop(
+    continueCondition: Expression[Boolean],
+    counterName: String,
+    exitASAP: Boolean,
+    timeBased: Boolean,
+    statsEngine: StatsEngine,
+    clock: Clock,
+    override val name: String,
+    next: Action
+) extends Action {
 
   private[this] var innerLoop: Action = _
 
-  private[core] def initialize(loopNext: Action, system: ActorSystem): Unit = {
+  private[core] def initialize(loopNext: Action): Unit = {
 
     val counterIncrement = (session: Session) =>
-      if (session.contains(counterName))
+      if (session.contains(counterName)) {
         session.incrementCounter(counterName)
-      else
-        session.enterLoop(counterName, continueCondition, next, exitASAP, timeBased)
+      } else if (timeBased) {
+        session.enterTimeBasedLoop(counterName, continueCondition, next, exitASAP, clock.nowMillis)
+      } else {
+        session.enterLoop(counterName, continueCondition, next, exitASAP)
+      }
 
-    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, counterName, evaluateConditionAfterLoop, system, name + "-inner", next)
+    innerLoop = new InnerLoop(continueCondition, loopNext, counterIncrement, name + "-inner", next)
   }
 
   override def execute(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
-      innerLoop ! session
+    BlockExit.mustExit(session) match {
+      case Some(blockExit) => blockExit.exitBlock(statsEngine, clock.nowMillis)
+      case _               => innerLoop ! session
     }
 }
 
 class InnerLoop(
-    continueCondition:          Expression[Boolean],
-    loopNext:                   Action,
-    counterIncrement:           Session => Session,
-    counterName:                String,
-    evaluateConditionAfterLoop: Boolean,
-    system:                     ActorSystem,
-    val name:                   String,
-    val next:                   Action
+    continueCondition: Expression[Boolean],
+    loopNext: Action,
+    counterIncrement: Session => Session,
+    val name: String,
+    val next: Action
 ) extends ChainableAction {
 
   private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]
@@ -82,14 +80,15 @@ class InnerLoop(
     val incrementedSession = counterIncrement(session)
     val lastUserId = getAndSetLastUserId(session)
 
-    // checking if we don't need to evaluate the condition the first time
-    if ((incrementedSession.attributes(counterName) == 0 && evaluateConditionAfterLoop)
-      || LoopBlock.continue(continueCondition, incrementedSession)) {
+    if (LoopBlock.continue(continueCondition, incrementedSession)) {
 
       if (incrementedSession.userId == lastUserId) {
-        // except if we're running only one user, it's very likely we're hitting an empty loop
+        // except if we're running only one user per core, it's very likely we're hitting an empty loop
         // let's dispatch so we don't spin
-        system.dispatcher.execute(() => loopNext ! incrementedSession)
+        val eventLoop = session.eventLoop
+        if (!eventLoop.isShutdown) {
+          eventLoop.execute(() => loopNext ! incrementedSession)
+        }
 
       } else {
         loopNext ! incrementedSession

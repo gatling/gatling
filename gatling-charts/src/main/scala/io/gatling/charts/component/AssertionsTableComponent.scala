@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.component
 
-import io.gatling.commons.stats.assertion.AssertionResult
-import io.gatling.commons.util.StringHelper._
-import io.gatling.commons.util.HtmlHelper.HtmlRichString
-
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.charts.util.HtmlHelper.HtmlRichString
+import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
 
 private[charts] class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
 
-  def js = fast"""
+  def js: String = s"""
 	    $$('#container_exceptions').sortable('#container_exceptions');
     """
 
   private def resultStyle(assertionResult: AssertionResult) = if (assertionResult.result) "ok" else "ko"
 
-  def html = if (assertionResults.isEmpty)
-    EmptyFastring
-  else
-    fast"""<div class="statistics extensible-geant collapsed">
+  def html: String =
+    if (assertionResults.isEmpty)
+      ""
+    else
+      s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         <div class="title_collapsed" style="cursor: auto;">ASSERTIONS</div>
     </div>
@@ -44,15 +43,13 @@ private[charts] class AssertionsTableComponent(assertionResults: List[AssertionR
             </tr>
         </thead>
 		<tbody>
-		    ${
-      assertionResults.zipWithIndex.map {
-        case (assertionResult, index) => fast"""
+		    ${assertionResults.zipWithIndex.map { case (assertionResult, index) =>
+        s"""
 		    <tr>
 		    	<td class="error-col-1 ${resultStyle(assertionResult)} total">${assertionResult.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="error-col-2 value ${resultStyle(assertionResult)} total">${if (assertionResult.result) "OK" else "KO"}</td>
 		    </tr>"""
-      }.mkFastring
-    }
+      }.mkString}
 		</tbody>
     </table>
 </div>

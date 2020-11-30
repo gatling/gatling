@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
 import io.gatling.core.filter.Filters
@@ -21,6 +22,6 @@ package object fetch {
 
   implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
 
-    def filter[T <: EmbeddedResource](resources: List[T]) = resources.filter(res => filters.accept(res.url))
+    def filter[T <: ConcurrentResource](resources: List[T]): List[T] = resources.filter(res => filters.accept(res.url))
   }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core
 
 import io.gatling.core.body.{ ElFileBodies, PebbleFileBodies, RawFileBodies }
-import io.gatling.core.check.extractor.css.CssSelectors
-import io.gatling.core.check.extractor.jsonpath.{ JsonPaths, OldJsonPathExtractorFactory }
-import io.gatling.core.check.extractor.regex.{ OldRegexExtractorFactory, Patterns }
-import io.gatling.core.check.extractor.xpath.XmlParsers
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.check.css.CssSelectors
+import io.gatling.core.check.jmespath.JmesPaths
+import io.gatling.core.check.jsonpath.JsonPaths
+import io.gatling.core.check.regex.Patterns
+import io.gatling.core.check.xpath.XmlParsers
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.json.JsonParsers
 
 trait CoreDefaultImplicits {
 
   implicit def configuration: GatlingConfiguration
 
-  implicit lazy val defaultPatterns = new Patterns
-
-  implicit lazy val defaultJsonParsers: JsonParsers = JsonParsers()
-  implicit lazy val defaultJsonPaths = new JsonPaths
-
-  implicit lazy val defaultXmlParsers = new XmlParsers
-
-  implicit lazy val defaultCssSelectors = new CssSelectors
-
-  implicit lazy val elFileBodies = new ElFileBodies
-  implicit lazy val rawFileBodies = new RawFileBodies
-  implicit lazy val pebbleFileBodies = new PebbleFileBodies
-
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultRegexExtractorFactory = new OldRegexExtractorFactory(defaultPatterns)
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit lazy val defaultJsonPathExtractorFactory = new OldJsonPathExtractorFactory(defaultJsonPaths)
+  lazy implicit val defaultPatterns: Patterns = new Patterns(configuration.core.extract.regex.cacheMaxCapacity)
+  lazy implicit val defaultJsonParsers: JsonParsers = new JsonParsers
+  lazy implicit val defaultJsonPaths: JsonPaths = new JsonPaths(configuration.core.extract.jsonPath.cacheMaxCapacity)
+  lazy implicit val defaultJmesPaths: JmesPaths = new JmesPaths(configuration.core.extract.jsonPath.cacheMaxCapacity)
+  lazy implicit val defaultXmlParsers: XmlParsers = new XmlParsers(configuration.core.extract.xpath.cacheMaxCapacity)
+  lazy implicit val defaultCssSelectors: CssSelectors = new CssSelectors(configuration.core.extract.css.cacheMaxCapacity)
+  lazy implicit val elFileBodies: ElFileBodies =
+    new ElFileBodies(GatlingFiles.resourcesDirectory(configuration), configuration.core.charset, configuration.core.elFileBodiesCacheMaxCapacity)
+  lazy implicit val rawFileBodies: RawFileBodies =
+    new RawFileBodies(GatlingFiles.resourcesDirectory(configuration), configuration.core.rawFileBodiesInMemoryMaxSize)
+  lazy implicit val pebbleFileBodies: PebbleFileBodies =
+    new PebbleFileBodies(GatlingFiles.resourcesDirectory(configuration), configuration.core.pebbleFileBodiesCacheMaxCapacity)
 }

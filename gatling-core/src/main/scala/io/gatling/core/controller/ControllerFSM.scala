@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.controller
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.scenario.Scenario
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.scenario.Scenarios
 
 import akka.actor.{ ActorRef, FSM }
 
@@ -32,36 +33,20 @@ private[controller] object ControllerState {
   case object Stopped extends ControllerState
 }
 
-private[controller] class UserCounts {
-
-  private[this] var expectedSet: Boolean = false
-  private[this] var expected: Long = 0
-  private[this] var completed: Long = 0
-
-  def setExpected(expected: Long): Unit = {
-    expectedSet = true
-    this.expected = expected
-  }
-
-  def incrementCompleted(): Unit = completed += 1
-
-  def allStopped: Boolean = expectedSet && completed == expected
-}
-
 private[controller] sealed trait ControllerData
 private[controller] object ControllerData {
   case object NoData extends ControllerData
-  case class InitData(launcher: ActorRef, scenarios: List[Scenario])
-  case class StartedData(initData: InitData, userCounts: UserCounts) extends ControllerData
-  case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
+  final case class InitData(launcher: ActorRef, scenarios: Scenarios)
+  final case class StartedData(initData: InitData) extends ControllerData
+  final case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 }
 
 sealed trait ControllerCommand
 object ControllerCommand {
-  case class Start(scenarios: List[Scenario]) extends ControllerCommand
-  case class InjectionStopped(count: Long) extends ControllerCommand
-  case class Crash(exception: Exception) extends ControllerCommand
-  case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
-  case object Kill extends ControllerCommand
-  case object StatsEngineStopped extends ControllerCommand
+  final case class Start(scenarios: Scenarios) extends ControllerCommand
+  final case object InjectorStopped extends ControllerCommand
+  final case class Crash(exception: Exception) extends ControllerCommand
+  final case class MaxDurationReached(duration: FiniteDuration) extends ControllerCommand
+  final case object Kill extends ControllerCommand
+  final case object StatsEngineStopped extends ControllerCommand
 }

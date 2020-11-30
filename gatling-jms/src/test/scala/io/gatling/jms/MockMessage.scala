@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms
 
-import javax.jms.{ Message, TextMessage }
+import javax.jms.{ BytesMessage, Message, TextMessage }
 
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 
 trait MockMessage extends MockitoSugar {
 
-  def textMessage(text: String) = {
+  def textMessage(text: String): TextMessage = {
     val msg = mock[TextMessage]
     when(msg.getText) thenReturn text
     msg
   }
 
-  def message = mock[Message]
+  def bytesMessage(bytes: Array[Byte]): BytesMessage =
+    mock[BytesMessage](new BytesMessageAnswer(bytes))
+
+  def message: Message = mock[Message]
 }

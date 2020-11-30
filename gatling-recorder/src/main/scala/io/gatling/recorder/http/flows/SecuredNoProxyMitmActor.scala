@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, Mitm, TrafficLogger }
-import io.gatling.recorder.http.Netty._
-import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import io.gatling.recorder.http.Mitm._
+import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM._
+import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslHandler
+import io.netty.util.concurrent.Future
 
 /**
  * Standard flow:
@@ -43,23 +46,25 @@ import io.netty.handler.ssl.SslHandler
  * @param trafficLogger log the traffic
  */
 class SecuredNoProxyMitmActor(
-    serverChannel:    Channel,
-    clientBootstrap:  Bootstrap,
+    serverChannel: Channel,
+    clientBootstrap: Bootstrap,
     sslServerContext: SslServerContext,
-    trafficLogger:    TrafficLogger
-)
-  extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
+    trafficLogger: TrafficLogger,
+    clock: Clock
+) extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   override protected def connectedRemote(requestRemote: Remote): Remote = requestRemote
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
-    // FIXME have an option for disabling
-    val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(remote))
+    val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(clientChannel.alloc, remote))
+    clientChannel.pipeline.addLast(GatlingClientHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
     clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
-    clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger))
 
     // DIFF FROM HTTP
     if (pendingRequest.method == HttpMethod.CONNECT) {
+      // request won't be propagated
+      pendingRequest.release()
+
       // install SslHandler on serverChannel with startTls = true so CONNECT response doesn't get encrypted
       val serverSslHandler = new SslHandler(sslServerContext.createSSLEngine(remote.host), true)
       serverChannel.pipeline.addFirst(SslHandlerName, serverSslHandler)
@@ -68,8 +73,16 @@ class SecuredNoProxyMitmActor(
       serverChannel.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 
     } else {
-      // propagate
-      clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
+      clientSslHandler
+        .handshakeFuture()
+        .addListener((future: Future[Channel]) => {
+          if (future.isSuccess) {
+            // propagate
+            clientChannel.writeAndFlush(pendingRequest.filterSupportedEncodings)
+          } else {
+            throw future.cause
+          }
+        })
     }
 
     goto(Connected) using ConnectedData(remote, clientChannel)

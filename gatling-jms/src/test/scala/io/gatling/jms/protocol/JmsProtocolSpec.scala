@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.protocol
 
 import javax.jms.ConnectionFactory
 
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.commons.model.Credentials
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 
 class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  val cf = mock[ConnectionFactory]
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private val cf = mock[ConnectionFactory]
 
   "jms protocol" should "pass defined credentials" in {
 

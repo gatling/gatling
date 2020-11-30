@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.structure
 
 import java.util.UUID
 
-import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
+import io.gatling.core.action.ExitHere
+import io.gatling.core.action.builder.{ ExitHereBuilder, TryMaxBuilder }
 import io.gatling.core.session._
 
-trait Errors[B] extends Execs[B] {
+private[structure] trait Errors[B] extends Execs[B] {
 
   def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1.expressionSuccess)(chain)
-  def tryMax(times: Expression[Int], counter: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-    exec(new TryMaxBuilder(times, counter, chain))
-  }
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def tryMax(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
+    exec(new TryMaxBuilder(times, counterName, chain))
 
-  def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)
+  def exitHereIf(condition: Expression[Boolean]): B = exec(new ExitHereBuilder(condition))
+
+  def exitHere: B = exitHereIf(TrueExpressionSuccess)
+
+  def exitHereIfFailed: B = exitHereIf(ExitHere.ExitHereOnFailedCondition)
 }

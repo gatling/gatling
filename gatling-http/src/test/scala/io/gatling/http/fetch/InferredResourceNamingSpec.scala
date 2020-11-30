@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.fetch
 
 import io.gatling.BaseSpec
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.fetch.InferredResourceNaming._
-
-import org.asynchttpclient.uri.Uri
 
 class InferredResourceNamingSpec extends BaseSpec {
 
   "UrlTrailInferredResourceNaming" should "return the url trail, query included" in {
-    UrlTrailInferredResourceNaming(Uri.create("http://foo.com/bar?baz=qic")) shouldBe "bar?baz=qic"
+    UrlTailInferredResourceNaming(Uri.create("http://foo.com/bar?baz=qic")) shouldBe "bar?baz=qic"
   }
 
   "AbsoluteUrlInferredResourceNaming" should "return the absolute url, query included" in {

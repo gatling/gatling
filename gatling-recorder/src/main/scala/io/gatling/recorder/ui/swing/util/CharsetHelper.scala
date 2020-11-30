@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing.util
 
 import java.nio.charset.Charset
@@ -49,13 +50,11 @@ private[swing] object CharsetHelper extends StrictLogging {
     "windows-1254" -> "Turkish (Windows-1254)",
     "windows-1258" -> "Vietnamese (Windows-1258)",
     "ISO-8859-15" -> "West European Latin-9 (ISO-8859-15)"
-  )
-    .filter {
-      case (name, label) =>
-        val supported = Charset.isSupported(name)
-        if (!supported) logger.warn(s"This JVM doesn't support $name $label")
-        supported
-    }
+  ).filter { case (name, label) =>
+    val supported = Charset.isSupported(name)
+    if (!supported) logger.warn(s"This JVM doesn't support $name $label")
+    supported
+  }
 
   val charsetNameToLabel: Map[Name, Label] = labelOrderedPairList.toMap
 

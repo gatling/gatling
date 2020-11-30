@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,100 +13,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.body
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
-import io.gatling.{ BaseSpec, ValidationValues }
+import java.{ util => ju }
 
-class PebbleSpec extends BaseSpec with ValidationValues {
+import scala.collection.immutable
+import scala.collection.mutable
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+import io.gatling.BaseSpec
+import io.gatling.core.session.SessionPrivateAttributes
 
-  def newSession(contents: Map[String, Any]) =
-    Session("scenario", 0, contents)
+class PebbleSpec extends BaseSpec {
 
-  "Static String" should "return itself" in {
-    val session = newSession(Map.empty)
-    val expression = PebbleStringBody("bar").apply(session)
-    expression.succeeded shouldBe "bar"
+  "sessionAttributesToJava" should "convert attributes of type immutable.Map" in {
+    val input = Map("foo" -> immutable.Map("bar" -> "baz"))
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
+    output.get("foo").asInstanceOf[ju.Map[_, _]].get("bar") shouldBe "baz"
   }
 
-  it should "return empty when empty" in {
-    val session = newSession(Map.empty)
-    val expression = PebbleStringBody("").apply(session)
-    expression.succeeded shouldBe ""
+  it should "convert attributes of type mutable.Map" in {
+    val input = Map("foo" -> mutable.Map("bar" -> "baz"))
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
+    output.get("foo").asInstanceOf[ju.Map[_, _]].get("bar") shouldBe "baz"
   }
 
-  "One monovalued Expression" should "return expected result when the variable is the whole string" in {
-    val session = newSession(Map("bar" -> "BAR"))
-    val expression = PebbleStringBody("{{bar}}").apply(session)
-    expression.succeeded shouldBe "BAR"
+  it should "convert attributes of type immutable.Seq" in {
+    val input = Map("foo" -> immutable.Seq("bar"))
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
+    output.get("foo").asInstanceOf[ju.List[_]].get(0) shouldBe "bar"
   }
 
-  it should "return expected result when the variable is at the end of the string" in {
-    val session = newSession(Map("bar" -> "BAR"))
-    val expression = PebbleStringBody("foo{{bar}}").apply(session)
-    expression.succeeded shouldBe "fooBAR"
+  it should "convert attributes of type mutable.Seq" in {
+    val input = Map("foo" -> mutable.Seq("bar"))
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
+    output.get("foo").asInstanceOf[ju.List[_]].get(0) shouldBe "bar"
   }
 
-  it should "return expected result when the variable is at the beginning of the string" in {
-    val session = newSession(Map("bar" -> "BAR"))
-    val expression = PebbleStringBody("{{bar}}foo").apply(session)
-    expression.succeeded shouldBe "BARfoo"
+  it should "convert attributes of type immutable.Set" in {
+    val input = Map("foo" -> immutable.Set("bar"))
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
+    output.get("foo").asInstanceOf[ju.Set[_]].iterator.next() shouldBe "bar"
   }
 
-  it should "return expected result when the variable is in the middle of the string" in {
-    val session = newSession(Map("bar" -> "BAR"))
-    val expression = PebbleStringBody("foo{{bar}}foo").apply(session)
-    expression.succeeded shouldBe "fooBARfoo"
+  it should "convert attributes of type mutable.Set" in {
+    val input = Map("foo" -> mutable.Set("bar"))
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
+    output.get("foo").asInstanceOf[ju.Set[_]].iterator.next() shouldBe "bar"
   }
 
-  it should "handle when an attribute is missing" in {
-    val session = newSession(Map("foo" -> "FOO"))
-    val expression = PebbleStringBody("foo{{bar}}").apply(session)
-    expression.succeeded shouldBe "foo"
+  it should "not convert other types" in {
+    val input = Map("foo" -> 1, "bar" -> "baz")
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 2
+    output.get("foo") shouldBe 1
+    output.get("bar") shouldBe "baz"
   }
 
-  it should "properly handle multiline JSON template" in {
-    val session = newSession(Map("foo" -> "FOO"))
-    val expression = PebbleStringBody("""{
-        "foo": {{foo}},
-        "bar": 1
-      }""").apply(session)
-    expression.succeeded shouldBe """{
-        "foo": FOO,
-        "bar": 1
-      }"""
-  }
-
-  it should "properly handle if" in {
-    val session = newSession(Map("barTrue" -> "BARTRUE", "barFalse" -> "BARFALSE", "true" -> true, "false" -> false))
-    val expression = PebbleStringBody("{%if true %}{{barTrue}}{%endif%}{%if false %}{{barFalse}}{% endif %}").apply(session)
-    expression.succeeded shouldBe "BARTRUE"
-  }
-
-  it should "handle gracefully when an exception is thrown" in {
-    val session = newSession(Map.empty)
-    val expression = PebbleStringBody("{{ 0 / 0 }}").apply(session)
-    expression.failed
-  }
-
-  "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
-    val session = newSession(Map("foo" -> "FOO", "bar" -> "BAR"))
-    val expression = PebbleStringBody("{{foo}} {{bar}}").apply(session)
-    expression.succeeded shouldBe "FOO BAR"
-  }
-
-  it should "properly handle for loop" in {
-    val session = newSession(Map("list" -> List("hello", "bonjour", 42)))
-    val expression = PebbleStringBody("{% for value in list %}{{value }}{% endfor %}").apply(session)
-    expression.succeeded shouldBe "hellobonjour42"
-  }
-
-  it should "return expected result when using filters" in {
-    val session = newSession(Map("bar" -> "bar"))
-    val expression = PebbleStringBody("{{ bar | capitalize }}{% filter upper %}hello{% endfilter %}").apply(session)
-    expression.succeeded shouldBe "BarHELLO"
+  it should "remove any Gatling private attribute" in {
+    val input = Map("foo" -> "bar", SessionPrivateAttributes.PrivateAttributePrefix + "hello" -> "world")
+    val output = Pebble.sessionAttributesToJava(input)
+    output.size shouldBe 1
   }
 }

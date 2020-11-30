@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check
 
-import scala.collection.mutable
-
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.{ CheckResult, Check }
+import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult, Preparer }
 import io.gatling.core.session.Session
-import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
+import io.gatling.http.response.Response
 
 /**
  * This class serves as model for the HTTP-specific checks
  *
  * @param wrapped the underlying check
  * @param scope the part of the response this check targets
- * @param responseBodyUsageStrategy how this check uses the response body
  */
-case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
-  extends Check[Response] {
-  override def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
-    wrapped.check(response, session)
+final case class HttpCheck(wrapped: Check[Response], scope: HttpCheckScope) extends Check[Response] {
+  override def check(response: Response, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+    wrapped.check(response, session, preparedCache)
 }
+
+class HttpCheckMaterializer[T, P](scope: HttpCheckScope, override val preparer: Preparer[Response, P])
+    extends CheckMaterializer[T, HttpCheck, Response, P](HttpCheck(_, scope))

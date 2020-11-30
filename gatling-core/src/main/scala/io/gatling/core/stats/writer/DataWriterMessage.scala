@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,63 +13,69 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.stats.writer
+
+import java.time.{ Instant, ZoneOffset, ZonedDateTime }
+import java.time.format.DateTimeFormatter
 
 import io.gatling.commons.stats.Status
 import io.gatling.commons.stats.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
-import io.gatling.core.stats.message.MessageEvent
 
-case class ShortScenarioDescription(name: String, userCount: Int)
+final case class ShortScenarioDescription(name: String, totalUserCount: Option[Long])
 
-case class RunMessage(
+final case class RunMessage(
     simulationClassName: String,
-    simulationId:        String,
-    start:               Long,
-    runDescription:      String
+    simulationId: String,
+    start: Long,
+    runDescription: String,
+    gatlingVersion: String
 ) {
 
-  val runId: String = simulationId + "-" + start
+  val runId: String = simulationId + "-" +
+    DateTimeFormatter
+      .ofPattern("yyyyMMddHHmmssSSS")
+      .format(ZonedDateTime.ofInstant(Instant.ofEpochMilli(start), ZoneOffset.UTC))
 }
 
 sealed trait DataWriterMessage
-case class Init(configuration: GatlingConfiguration, assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+final case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 case object Flush extends DataWriterMessage
-case class Crash(cause: String) extends DataWriterMessage
+final case class Crash(cause: String) extends DataWriterMessage
 case object Stop extends DataWriterMessage
 
 sealed trait LoadEventMessage extends DataWriterMessage
 
-case class UserMessage(
-    session:   Session,
-    event:     MessageEvent,
+final case class UserStartMessage(
+    scenario: String,
     timestamp: Long
 ) extends LoadEventMessage
 
-case class ResponseMessage(
-    scenario:       String,
-    userId:         Long,
-    groupHierarchy: List[String],
-    name:           String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String],
-    extraInfo:      List[Any]
+final case class UserEndMessage(
+    scenario: String,
+    timestamp: Long
 ) extends LoadEventMessage
 
-case class GroupMessage(
-    scenario:              String,
-    userId:                Long,
-    groupHierarchy:        List[String],
-    startTimestamp:        Long,
-    endTimestamp:          Long,
+final case class ResponseMessage(
+    scenario: String,
+    groupHierarchy: List[String],
+    name: String,
+    startTimestamp: Long,
+    endTimestamp: Long,
+    status: Status,
+    responseCode: Option[String],
+    message: Option[String]
+) extends LoadEventMessage
+
+final case class GroupMessage(
+    scenario: String,
+    groupHierarchy: List[String],
+    startTimestamp: Long,
+    endTimestamp: Long,
     cumulatedResponseTime: Int,
-    status:                Status
+    status: Status
 ) extends LoadEventMessage {
   val duration: Int = (endTimestamp - startTimestamp).toInt
 }
 
-case class ErrorMessage(message: String, date: Long) extends LoadEventMessage
+final case class ErrorMessage(message: String, date: Long) extends LoadEventMessage

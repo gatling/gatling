@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.app.classloader
 
 import java.io.File
@@ -21,7 +22,7 @@ import java.nio.file.Path
 
 import scala.util.Properties
 
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.core.scenario.Simulation
 
 private[app] object SimulationClassLoader {
@@ -55,8 +56,7 @@ private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Pa
   }
 
   private def pathToClassName(path: Path, root: Path): String =
-    (path.getParent / path.stripExtension)
-      .toString
-      .stripPrefix(root + File.separator)
+    (path.getParent / path.stripExtension).toString
+      .stripPrefix(root.toString + File.separator)
       .replace(File.separator, ".")
 }

@@ -28,7 +28,7 @@ Redistributed binaries and runtime dependencies
 
 This product depends on Scala, distributed by the EPFL and Lightbend, Inc.:
 
-  * License: license/LICENSE.scala.bsd3.txt (BSD 3 Clause License)
+  * License: license/LICENSE.scala.al20.txt (Apache License v2.0)
   * Homepage: http://www.scala-lang.org/
 
 This product depends on scala-swing, distributed by the EPFL and Lightbend, Inc.:
@@ -50,11 +50,6 @@ This product depends on scala-java8-compat, distributed by the EPFL and Lightben
 
   * License: license/LICENSE.scala-java8-compat.bsd3.txt (BSD 3 Clause License)
   * Homepage: https://github.com/scala/scala-java8-compat
-
-This product depends on AsyncHttpClient, distributed by the AsyncHttpClient Project:
-
-  * License: license/LICENSE.ahc.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/AsyncHttpClient/async-http-client
 
 This product depends on Netty, distributed by the Netty Project:
 
@@ -106,11 +101,6 @@ This product depends on jackson, distributed by FasterXML:
   * License: license/LICENSE.jackson.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/FasterXML/jackson
 
-This product depends on boon, distributed by Advantageous:
-
-  * License: license/LICENSE.boon.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/advantageous/boon
-
 This product depends on JsonPath, distributed by GatlingCorp:
 
   * License: license/LICENSE.jsonpath.al20.txt (Apache License v2.0)
@@ -151,11 +141,6 @@ This product depends on HdrHistogram, distributed by Gil Tene:
   * License: license/LICENSE.hdrhistogram.bsd2.txt (BSD 2-Clause License)
   * Homepage: https://github.com/HdrHistogram/HdrHistogram
 
-This product depends on ConcurrentLinkedHashmap, distributed by Ben Manes:
-
-  * License: license/LICENSE.concurrentlinkedhashmap.al20.txt (Apache License v2.0)
-  * Homepage: https://github.com/ben-manes/concurrentlinkedhashmap
-
 This product depends on BouncyCastle, distributed by the Legion of the Bouncy Castle:
 
   * License: license/LICENSE.bouncycastle.mit.txt (MIT License)
@@ -170,6 +155,11 @@ This product depends on Caffeine, distributed by Benjamin Manes:
 
   * License: license/LICENSE.quicklens.al20.txt (Apache License v2.0)
   * Homepage: https://github.com/ben-manes/caffeine
+
+This product depends on fast-uuid, distributed by Jon Chambers:
+
+  * License: license/LICENSE.fastuuid.mit.txt (MIT License)
+  * Homepage: https://github.com/jchambers/fast-uuid
 
 This product depends on sbt test-interface, distributed by Mark Harrah:
 
@@ -203,13 +193,23 @@ This product depends on Highcharts, distributed by Highsoft:
 
 This product depends on Pebble, distributed by Mitchell Bösecke:
 
-    * License: license/LICENSE.pebble.bsd3.txt (BSD 3-Clause License)
-    * Homepage: http://www.mitchellbosecke.com/pebble/home
+  * License: license/LICENSE.pebble.bsd3.txt (BSD 3-Clause License)
+  * Homepage: http://www.mitchellbosecke.com/pebble/home
 
 This product depends on Coverity Security Library, distributed by Coverity, Inc.:
 
   * License: license/LICENSE.coverity.bsd3.txt (BSD 3-Clause License)
   * Homepage: https://github.com/coverity/coverity-security-library
+
+This product depends on SimpleFlatMapper, distributed by Arnaud Roger:
+
+  * License: license/LICENSE.sfm.mit.txt (BSD 3-Clause License)
+  * Homepage: https://github.com/arnaudroger/SimpleFlatMapper
+
+This product depends on JMESPATH-Java, distributed by Burt AB:
+
+  * License: license/LICENSE.sfm.mit.txt (BSD 3-Clause License)
+  * Homepage: https://github.com/burtcorp/jmespath-java
 
 Test and documentation dependencies
 ===================================
@@ -238,11 +238,6 @@ This product depends on H2, distributed by H2 Group:
 
   * License: license/LICENSE.h2.epl10.txt (Eclipse Public License v1.0)
   * Homepage: http://h2database.com
-
-This product depends on FFMQ, distributed by Timewalker:
-
-  * License: license/LICENSE.ffmq.lgpl3.txt (Gnu Lesser General Public License Version 3)
-  * Homepage: http://timewalker74.github.io/ffmq/
 
 This product depends on JMH, distributed by OpenJDK:
 

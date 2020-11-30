@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,45 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.feeder
 
+import scala.collection.immutable.ArraySeq
+
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.feeder.SeparatedValuesParser._
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.util.Resource
+import io.gatling.core.util.ResourceCache
 
-trait FeederSupport {
+trait FeederSupport extends ResourceCache {
 
-  type Feeder[T] = io.gatling.core.feeder.Feeder[T]
-  type FeederBuilder[T] = io.gatling.core.feeder.FeederBuilder[T]
+  implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
+    SourceFeederBuilder(InMemoryFeederSource(data), configuration)
+  implicit def array2FeederBuilder[T](data: Array[Map[String, T]])(implicit configuration: GatlingConfiguration): FeederBuilderBase[T] =
+    SourceFeederBuilder(InMemoryFeederSource(ArraySeq.unsafeWrapArray(data)), configuration)
 
-  implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
-  implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
-  implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def csv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+    separatedValues(fileName, CommaSeparator, quoteChar)
 
-  def csv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(fileName, CommaSeparator, quoteChar, escapeChar)
-  def ssv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(fileName, SemicolonSeparator, quoteChar, escapeChar)
-  def tsv(fileName: String, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(fileName, TabulationSeparator, quoteChar, escapeChar)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def ssv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+    separatedValues(fileName, SemicolonSeparator, quoteChar)
 
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', escapeChar: Char = 0)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    separatedValues(Resource.feeder(fileName), separator, quoteChar, escapeChar)
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def tsv(fileName: String, quoteChar: Char = DefaultQuoteChar)(implicit configuration: GatlingConfiguration): BatchableFeederBuilder[String] =
+    separatedValues(fileName, TabulationSeparator, quoteChar)
 
-  def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char, escapeChar: Char)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] =
-    feederBuilder(resource)(SeparatedValuesParser.parse(_, separator, quoteChar, escapeChar))
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
+      configuration: GatlingConfiguration
+  ): BatchableFeederBuilder[String] =
+    cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
+      case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
+      case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
+    }
 
-  def jsonFile(fileName: String)(implicit configuration: GatlingConfiguration, jsonParsers: JsonParsers): RecordSeqFeederBuilder[Any] = jsonFile(Resource.feeder(fileName))
-  def jsonFile(resource: Validation[Resource])(implicit jsonParsers: JsonParsers): RecordSeqFeederBuilder[Any] =
-    feederBuilder(resource)(new JsonFeederFileParser().parse)
+  def jsonFile(fileName: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
+    cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
+      case Success(resource) =>
+        val data = new JsonFeederFileParser(jsonParsers).parse(resource, configuration.core.charset)
+        SourceFeederBuilder(InMemoryFeederSource(data), configuration)
 
-  def feederBuilder[T](resource: Validation[Resource])(recordParser: Resource => IndexedSeq[Record[T]]): RecordSeqFeederBuilder[T] =
-    resource match {
-      case Success(res)     => RecordSeqFeederBuilder(recordParser(res))
       case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
-  def jsonUrl(url: String)(implicit jsonParsers: JsonParsers) = RecordSeqFeederBuilder(new JsonFeederFileParser().url(url))
+  def jsonUrl(url: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FeederBuilderBase[Any] = {
+    val data = new JsonFeederFileParser(jsonParsers).url(url, configuration.core.charset)
+    SourceFeederBuilder(InMemoryFeederSource(data), configuration)
+  }
 }

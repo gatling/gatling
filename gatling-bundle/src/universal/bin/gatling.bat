@@ -42,15 +42,15 @@ if not defined GATLING_CONF set GATLING_CONF="%GATLING_HOME%"\conf
 
 echo GATLING_HOME is set to "%GATLING_HOME%"
 
-set JAVA_OPTS=-Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=75 -XX:+ParallelRefProcEnabled -XX:+PerfDisableSharedMem -XX:+AggressiveOpts -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false %JAVA_OPTS%
+set JAVA_OPTS=-Xmx1G -XX:+UseG1GC -XX:MaxGCPauseMillis=30 -XX:G1HeapRegionSize=16m -XX:InitiatingHeapOccupancyPercent=75 -XX:+ParallelRefProcEnabled -XX:+PerfDisableSharedMem -XX:+HeapDumpOnOutOfMemoryError -XX:MaxInlineLevel=20 -XX:MaxTrivialSize=12 -XX:-UseBiasedLocking %JAVA_OPTS%
 
 if "%PROCESSOR_ARCHITECTURE%" == "x86" if "%PROCESSOR_ARCHITEW6432%" == "" goto skipServer
-set JAVA_OPTS=-server -XX:+OptimizeStringConcat %JAVA_OPTS%
+set JAVA_OPTS=-server %JAVA_OPTS%
 
 :skipServer
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
-set COMPILER_CLASSPATH="%GATLING_HOME%"\li\*;%GATLING_CONF%;
+set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\*;%GATLING_CONF%;
 set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%GATLING_CONF%;
 
 set JAVA=java

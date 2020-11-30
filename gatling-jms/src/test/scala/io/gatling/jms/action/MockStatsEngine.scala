@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.action
 
 import io.gatling.commons.stats.Status
-import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.{ DataWriterMessage, GroupMessage, ResponseMessage, UserMessage }
+import io.gatling.core.stats.writer.{ DataWriterMessage, GroupMessage, ResponseMessage, UserEndMessage }
 
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
@@ -29,54 +30,44 @@ class MockStatsEngine extends StatsEngine with StrictLogging {
 
   override def start(): Unit = {}
 
-  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
+  override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
-  override def logUser(userMessage: UserMessage): Unit = {}
+  override def logUserStart(scenario: String, timestamp: Long): Unit = {}
 
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
+  override def logUserEnd(userMessage: UserEndMessage): Unit = {}
 
   override def logResponse(
-    session:        Session,
-    requestName:    String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String] = None,
-    extraInfo:      List[Any]      = Nil
+      scenario: String,
+      groups: List[String],
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String]
   ): Unit =
-    handle(ResponseMessage(
-      session.scenario,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      startTimestamp,
-      endTimestamp,
-      status,
-      None,
-      message,
-      extraInfo
-    ))
+    handle(
+      ResponseMessage(
+        scenario,
+        groups,
+        requestName,
+        startTimestamp,
+        endTimestamp,
+        status,
+        None,
+        message
+      )
+    )
 
-  override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
-    handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startTimestamp, exitTimestamp, group.cumulatedResponseTime, group.status))
+  override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit =
+    handle(GroupMessage(scenario, groupBlock.groups, groupBlock.startTimestamp, exitTimestamp, groupBlock.cumulatedResponseTime, groupBlock.status))
 
-  override def logCrash(session: Session, requestName: String, error: String): Unit = {}
+  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit = {}
 
-  override def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit = {}
+  override def reportUnbuildableRequest(scenario: String, groups: List[String], requestName: String, errorMessage: String): Unit = {}
 
-  private def handle(msg: DataWriterMessage) = {
+  private def handle(msg: DataWriterMessage): Unit = {
     dataWriterMsg = msg :: dataWriterMsg
-    logger.info(msg.toString)
+    logger.debug(msg.toString)
   }
 }

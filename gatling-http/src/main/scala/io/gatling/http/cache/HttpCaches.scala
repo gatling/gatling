@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.cache
 
-import com.typesafe.scalalogging.StrictLogging
-
+import io.gatling.commons.util.Clock
+import io.gatling.commons.validation.SuccessWrapper
+import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.commons.validation.SuccessWrapper
 
-class HttpCaches(val configuration: GatlingConfiguration)
-  extends HttpContentCacheSupport
-  with PermanentRedirectCacheSupport
-  with DnsCacheSupport
-  with LocalAddressSupport
-  with BaseUrlSupport
-  with StrictLogging {
-
+private[http] object HttpCaches {
   val FlushCache: Expression[Session] = _.removeAll(
     HttpContentCacheSupport.HttpContentCacheAttributeName,
-    DnsCacheSupport.DnsNameResolverAttributeName,
-    PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName
+    PermanentRedirectCacheSupport.HttpPermanentRedirectCacheAttributeName,
+    Http2PriorKnowledgeSupport.Http2PriorKnowledgeAttributeName
   ).success
+}
+
+private[http] class HttpCaches(val coreComponents: CoreComponents)
+    extends HttpContentCacheSupport
+    with PermanentRedirectCacheSupport
+    with DnsCacheSupport
+    with ResourceCacheSupport {
+
+  override def clock: Clock = coreComponents.clock
+
+  override def configuration: GatlingConfiguration = coreComponents.configuration
 }

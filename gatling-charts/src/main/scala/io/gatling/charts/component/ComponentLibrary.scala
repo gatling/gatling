@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.component
 
-import scala.collection.JavaConverters._
-
-import io.gatling.core.stats._
-
-import com.dongxiguo.fastring.Fastring
-import com.typesafe.scalalogging.StrictLogging
+import scala.jdk.CollectionConverters._
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
+import io.gatling.charts.stats._
+
+import com.typesafe.scalalogging.StrictLogging
 
 private[charts] object ComponentLibrary extends StrictLogging {
 
@@ -46,15 +45,23 @@ private[charts] object ComponentLibrary extends StrictLogging {
 }
 
 private[gatling] trait ComponentLibrary {
-  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring
+  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): String
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
   def getRequestsChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
   def getResponsesChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component
   def getRequestDetailsResponseTimeChartComponent(runStart: Long, responseTimesSuccess: Series[PercentilesVsTimePlot]): Component
-  def getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccess: Series[PercentVsTimePlot], responseTimesFailures: Series[PercentVsTimePlot]): Component
+  def getRequestDetailsResponseTimeDistributionChartComponent(
+      responseTimesSuccess: Series[PercentVsTimePlot],
+      responseTimesFailures: Series[PercentVsTimePlot]
+  ): Component
   def getRequestDetailsResponseTimeScatterChartComponent(successData: Series[IntVsTimePlot], failuresData: Series[IntVsTimePlot]): Component
   def getRequestDetailsIndicatorChartComponent: Component
   def getNumberOfRequestsChartComponent(numberOfRequestNames: Int): Component
   def getGroupDetailsDurationChartComponent(containerId: String, yAxisName: String, runStart: Long, durationsSuccess: Series[PercentilesVsTimePlot]): Component
-  def getGroupDetailsDurationDistributionChartComponent(title: String, containerId: String, durationsSuccess: Series[PercentVsTimePlot], durationsFailure: Series[PercentVsTimePlot]): Component
+  def getGroupDetailsDurationDistributionChartComponent(
+      title: String,
+      containerId: String,
+      durationsSuccess: Series[PercentVsTimePlot],
+      durationsFailure: Series[PercentVsTimePlot]
+  ): Component
 }

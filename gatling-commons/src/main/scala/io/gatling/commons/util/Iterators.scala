@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
 import scala.collection.AbstractIterator
 
-object Iterators {
+final class InfiniteIterator[T](value: T) extends AbstractIterator[T] {
+  override val hasNext: Boolean = true
+  override val next: T = value
+}
 
-  /**
-   * On contrary to Iterator.continually that takes a by-name parameter that gets evaluated on each iteration,
-   * this one takes a static value.
-   *
-   * @param value the value to be eternally returned
-   * @tparam T the type of value
-   * @return the value
-   */
-  def infinitely[T](value: T): Iterator[T] = new AbstractIterator[T] {
+object CircularIterator {
 
-    override def hasNext: Boolean = true
-
-    override def next(): T = value
+  def apply[T](values: IndexedSeq[T], threadSafe: Boolean): Iterator[T] = values.length match {
+    case 0 => Iterator.empty
+    case 1 => new InfiniteIterator(values(0))
+    case _ =>
+      val counter = if (threadSafe) new CyclicCounter.ThreadSafe(values.length) else new CyclicCounter.NonThreadSafe(values.length)
+      Iterator.continually(values(counter.nextVal))
   }
 }

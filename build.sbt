@@ -1,4 +1,4 @@
-import io.gatling.build.SonatypeReleasePlugin
+import sbt._
 
 import BuildSettings._
 import Bundle._
@@ -6,50 +6,91 @@ import ConfigFiles._
 import CopyLogback._
 import Dependencies._
 import VersionFile._
-import pl.project13.scala.sbt.JmhPlugin
-import sbt.Keys._
-import sbt._
 
 // Root project
 
+ThisBuild / Keys.useCoursier := false
+
 lazy val root = Project("gatling-parent", file("."))
-  .enablePlugins(SonatypeReleasePlugin)
-  .dependsOn(Seq(commons, core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
-  .aggregate(commons, core, jdbc, redis, httpAhc, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
-  .settings(basicSettings: _*)
-  .settings(noArtifactToPublish)
-  .settings(docSettings(benchmarks, bundle): _*)
+  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
+  .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
+  .aggregate(
+    nettyUtil,
+    commonsShared,
+    commonsSharedUnstable,
+    commons,
+    jsonpath,
+    core,
+    jdbc,
+    redis,
+    httpClient,
+    http,
+    jms,
+    mqtt,
+    charts,
+    graphite,
+    app,
+    recorder,
+    testFramework,
+    bundle,
+    compiler
+  )
+  .settings(basicSettings)
+  .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
+  .settings(unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get)
 
 // Modules
 
-def gatlingModule(id: String) = Project(id, file(id))
-  .enablePlugins(SonatypeReleasePlugin)
-  .settings(gatlingModuleSettings: _*)
+def gatlingModule(id: String) =
+  Project(id, file(id))
+    .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
+    .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
+
+lazy val nettyUtil = gatlingModule("gatling-netty-util")
+  .settings(libraryDependencies ++= nettyUtilDependencies)
+
+lazy val commonsShared = gatlingModule("gatling-commons-shared")
+  .dependsOn(nettyUtil % "compile->compile;test->test")
+  .settings(libraryDependencies ++= commonsSharedDependencies(scalaVersion.value))
+
+lazy val commonsSharedUnstable = gatlingModule("gatling-commons-shared-unstable")
+  .dependsOn(commonsShared)
+  .settings(libraryDependencies ++= commonsSharedUnstableDependencies)
 
 lazy val commons = gatlingModule("gatling-commons")
-  .settings(libraryDependencies ++= commonsDependencies(scalaVersion.value))
+  .dependsOn(commonsShared % "compile->compile;test->test")
+  .dependsOn(commonsSharedUnstable)
+  .settings(libraryDependencies ++= commonsDependencies)
+  .settings(generateVersionFileSettings)
+
+lazy val jsonpath = gatlingModule("gatling-jsonpath")
+  .settings(libraryDependencies ++= jsonpathDependencies)
 
 lazy val core = gatlingModule("gatling-core")
   .dependsOn(commons % "compile->compile;test->test")
+  .dependsOn(jsonpath % "compile->compile;test->test")
   .settings(libraryDependencies ++= coreDependencies)
-  .settings(generateVersionFileSettings: _*)
-  .settings(copyGatlingDefaults(compiler): _*)
+  .settings(copyGatlingDefaults(compiler))
 
 lazy val jdbc = gatlingModule("gatling-jdbc")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= jdbcDependencies)
 
+lazy val mqtt = gatlingModule("gatling-mqtt")
+  .dependsOn(nettyUtil, core)
+  .settings(libraryDependencies ++= mqttDependencies)
+
 lazy val redis = gatlingModule("gatling-redis")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= redisDependencies)
 
-lazy val httpAhc = gatlingModule("gatling-http-ahc")
-  .dependsOn(core % "compile->compile;test->test")
-  .settings(libraryDependencies ++= httpAhcDependencies)
+lazy val httpClient = gatlingModule("gatling-http-client")
+  .dependsOn(nettyUtil % "compile->compile;test->test")
+  .settings(libraryDependencies ++= httpClientDependencies)
 
 lazy val http = gatlingModule("gatling-http")
-  .dependsOn(httpAhc % "compile->compile;test->test")
+  .dependsOn(core % "compile->compile;test->test", httpClient % "compile->compile;test->test")
   .settings(libraryDependencies ++= httpDependencies)
 
 lazy val jms = gatlingModule("gatling-jms")
@@ -60,12 +101,12 @@ lazy val jms = gatlingModule("gatling-jms")
 lazy val charts = gatlingModule("gatling-charts")
   .dependsOn(core % "compile->compile;test->test")
   .settings(libraryDependencies ++= chartsDependencies)
-  .settings(excludeDummyComponentLibrary: _*)
-  .settings(chartTestsSettings: _*)
+  .settings(excludeDummyComponentLibrary)
+  .settings(chartTestsSettings)
 
-lazy val metrics = gatlingModule("gatling-metrics")
+lazy val graphite = gatlingModule("gatling-graphite")
   .dependsOn(core % "compile->compile;test->test")
-  .settings(libraryDependencies ++= metricsDependencies)
+  .settings(libraryDependencies ++= graphiteDependencies)
 
 lazy val compiler = gatlingModule("gatling-compiler")
   .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
@@ -76,7 +117,7 @@ lazy val benchmarks = gatlingModule("gatling-benchmarks")
   .settings(libraryDependencies ++= benchmarkDependencies)
 
 lazy val app = gatlingModule("gatling-app")
-  .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
+  .dependsOn(core, http, jms, jdbc, redis, graphite, charts)
 
 lazy val recorder = gatlingModule("gatling-recorder")
   .dependsOn(core % "compile->compile;test->test", http)
@@ -88,8 +129,19 @@ lazy val testFramework = gatlingModule("gatling-test-framework")
 
 lazy val bundle = gatlingModule("gatling-bundle")
   .dependsOn(core, http)
-  .settings(generateConfigFiles(core): _*)
-  .settings(generateConfigFiles(recorder): _*)
-  .settings(copyLogbackXml(core): _*)
-  .settings(bundleSettings: _*)
-  .settings(noArtifactToPublish)
+  .enablePlugins(UniversalPlugin)
+  .settings(generateConfigFiles(core))
+  .settings(generateConfigFiles(recorder))
+  .settings(copyLogbackXml(core))
+  .settings(bundleSettings)
+  .settings(noSrcToPublish, noDocToPublish)
+  .settings(CodeAnalysis.disable)
+
+addCommandAlias(
+  "ci-checks",
+  List(
+    "all clean scalafmtSbtCheck scalafmtCheckAll",
+    "all compile:scalafixCheck test:scalafixCheck",
+    "test"
+  ).mkString(";", ";", "")
+)

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ Action, TryMax }
@@ -23,9 +24,9 @@ class TryMaxBuilder(times: Expression[Int], counterName: String, loopNext: Chain
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
-    val tryMaxAction = new TryMax(times, counterName, coreComponents.statsEngine, next)
+    val tryMaxAction = new TryMax(times, counterName, coreComponents.statsEngine, coreComponents.clock, next)
     val loopNextAction = loopNext.build(ctx, tryMaxAction)
-    tryMaxAction.initialize(loopNextAction, ctx.system)
+    tryMaxAction.initialize(loopNextAction)
     tryMaxAction
   }
 }

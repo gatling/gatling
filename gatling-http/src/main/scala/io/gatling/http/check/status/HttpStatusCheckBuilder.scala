@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.status
 
 import io.gatling.commons.validation._
 import io.gatling.core.check._
-import io.gatling.core.check.extractor._
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
+import io.gatling.http.check.HttpCheckScope.Status
 import io.gatling.http.response.Response
 
 trait HttpStatusCheckType
 
-object HttpStatusCheckBuilder {
+object HttpStatusCheckBuilder
+    extends DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](
+      extractor = new FindExtractor[Response, Int]("status", response => Some(response.status.code).success).expressionSuccess,
+      displayActualValue = true
+    )
 
-  val Status: DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int] = {
-    val statusExtractor = new Extractor[Response, Int] with SingleArity {
-      val name = "status"
-      def apply(prepared: Response): Validation[Option[Int]] = prepared.statusCode match {
-        case None => "Response wasn't received".failure
-        case code => code.success
-      }
-    }.expressionSuccess
+object HttpStatusCheckMaterializer {
 
-    new DefaultFindCheckBuilder[HttpStatusCheckType, Response, Int](statusExtractor)
-  }
-}
-
-object HttpStatusProvider extends CheckProtocolProvider[HttpStatusCheckType, HttpCheck, Response, Response] {
-
-  override val specializer: Specializer[HttpCheck, Response] = StatusSpecializer
-
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  val Instance: CheckMaterializer[HttpStatusCheckType, HttpCheck, Response, Response] =
+    new HttpCheckMaterializer[HttpStatusCheckType, Response](Status, identityPreparer)
 }

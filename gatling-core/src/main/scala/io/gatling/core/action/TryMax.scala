@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,39 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import scala.concurrent.duration._
-
 import io.gatling.commons.stats.KO
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session, TryMaxBlock }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import akka.actor.ActorSystem
+class TryMax(
+    times: Expression[Int],
+    counterName: String,
+    statsEngine: StatsEngine,
+    clock: Clock,
+    next: Action
+) extends Action
+    with NameGen {
 
-class TryMax(times: Expression[Int], counterName: String, statsEngine: StatsEngine, next: Action) extends Action with NameGen {
-
-  override val name = genName("tryMax")
+  override val name: String = genName("tryMax")
 
   private[this] var innerTryMax: Action = _
-  private[core] def initialize(loopNext: Action, system: ActorSystem): Unit =
-    innerTryMax = new InnerTryMax(times, loopNext, counterName, system, name + "-inner", next)
+  private[core] def initialize(loopNext: Action): Unit =
+    innerTryMax = new InnerTryMax(times, loopNext, counterName, name + "-inner", next)
 
   override def execute(session: Session): Unit =
-    if (BlockExit.noBlockExitTriggered(session, statsEngine)) {
-      innerTryMax ! session
+    BlockExit.mustExit(session) match {
+      case Some(blockExit) => blockExit.exitBlock(statsEngine, clock.nowMillis)
+      case _               => innerTryMax ! session
     }
 }
 
 class InnerTryMax(
-    times:       Expression[Int],
-    loopNext:    Action,
+    times: Expression[Int],
+    loopNext: Action,
     counterName: String,
-    system:      ActorSystem,
-    val name:    String,
-    val next:    Action
+    val name: String,
+    val next: Action
 ) extends ChainableAction {
 
   private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]
@@ -98,11 +103,11 @@ class InnerTryMax(
         val resetSession = incrementedSession.markAsSucceeded
 
         if (session.userId == lastUserId) {
-          // except if we're running only one user, it's very likely we're hitting an empty loop
-          // let's schedule so we don't spin
-          import system.dispatcher
-          system.scheduler.scheduleOnce(1 millisecond) { // actual delay is tick (10 ms by default)
-            loopNext ! resetSession
+          // except if we're running only one user per core, it's very likely we're hitting an empty loop
+          // let's dispatch so we don't spin
+          val eventLoop = session.eventLoop
+          if (!eventLoop.isShutdown) {
+            eventLoop.execute(() => loopNext ! resetSession)
           }
 
         } else {

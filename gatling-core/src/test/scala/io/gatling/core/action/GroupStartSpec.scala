@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,30 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
-import io.gatling.core.session.el.El
+import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.stats.DataWritersStatsEngine
+import io.gatling.core.session.el.El
+import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito._
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-class GroupStartSpec extends AkkaSpec {
+class GroupStartSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen with EmptySession {
+
+  private val clock = new DefaultClock
 
   "GroupStart" should "resolve the group name from the session and create a new group" in {
-    val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
-    val groupExpr = "${theGroupName}".el[String]
 
-    val groupStart = new GroupStart(groupExpr, statsEngine, new ActorDelegatingAction("next", self))
+    Given("a GroupStart Action with a dynamic name")
+    val next = mock[Action]
+    val groupStart = new GroupStart("${theGroupName}".el[String], mock[StatsEngine], clock, next)
 
-    val session = Session("scenario", 0, attributes = Map("theGroupName" -> "foo"))
-
+    When("being sent a Session that resolves the group name")
+    val session = emptySession.copy(attributes = Map("theGroupName" -> "foo"))
     groupStart ! session
 
-    val sessionInGroup = expectMsgType[Session]
-    sessionInGroup.blockStack.head shouldBe an[GroupBlock]
-    sessionInGroup.blockStack.head.asInstanceOf[GroupBlock].hierarchy shouldBe List("foo")
+    Then("next Action should receive a Session")
+    val captor: ArgumentCaptor[Session] = ArgumentCaptor.forClass(classOf[Session])
+    verify(next) ! captor.capture()
+    val nextSession = captor.getValue
+
+    And("this Session's blockStack should match the resolved group name")
+    val nextBlock = nextSession.blockStack.head
+    nextBlock shouldBe an[GroupBlock]
+    nextBlock.asInstanceOf[GroupBlock].groups shouldBe List("foo")
   }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,121 +13,123 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.response
 
-import java.io.{ ByteArrayInputStream, InputStream }
+import java.io.{ InputStream, SequenceInputStream }
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets._
+import java.nio.charset.StandardCharsets.UTF_8
 
-import scala.annotation.switch
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-import io.gatling.commons.util.{ CompositeByteArrayInputStream, FastByteArrayInputStream }
 import io.gatling.commons.util.ByteBufs._
-import io.gatling.commons.util.Bytes._
+import io.gatling.commons.util.FastByteArrayInputStream
+import io.gatling.netty.util.ByteBufUtils._
 
-import com.typesafe.scalalogging.{ LazyLogging, StrictLogging }
-import io.netty.buffer.ByteBuf
-import org.asynchttpclient.netty.util.ByteBufUtils
+import com.typesafe.scalalogging.LazyLogging
+import io.netty.buffer.{ ByteBuf, ByteBufInputStream }
 
-sealed trait ResponseBodyUsage
-case object StringResponseBodyUsage extends ResponseBodyUsage
-case object ByteArrayResponseBodyUsage extends ResponseBodyUsage
-case object InputStreamResponseBodyUsage extends ResponseBodyUsage
+object ResponseBody {
 
-trait ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int): ResponseBodyUsage
-}
-
-object StringResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int) = StringResponseBodyUsage
-}
-
-object ByteArrayResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int) = ByteArrayResponseBodyUsage
-}
-
-object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-  def bodyUsage(bodyLength: Int) = InputStreamResponseBodyUsage
+  def apply(bodyLength: Int, chunks: List[ByteBuf], charset: Charset): ResponseBody =
+    chunks match {
+      case Nil          => NoResponseBody(bodyLength)
+      case chunk :: Nil => new ByteBufResponseBody(bodyLength, chunk, charset)
+      case _            => new ByteBufsResponseBody(bodyLength, chunks, charset)
+    }
 }
 
 sealed trait ResponseBody {
+  def length: Int
+  def charset: Charset
   def string: String
+  def chars: Array[Char]
   def bytes: Array[Byte]
   def stream: InputStream
 }
 
-object StringResponseBody extends StrictLogging {
+private[gatling] final class ByteBufResponseBody(override val length: Int, chunk: ByteBuf, override val charset: Charset)
+    extends ResponseBody
+    with LazyLogging {
 
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-    val string =
-      (chunks.length: @switch) match {
-        case 0 => ""
-        case 1 =>
-          ByteBufUtils.byteBuf2String(charset, chunks.head)
-        case _ =>
-          ByteBufUtils.byteBuf2String(charset, chunks: _*)
-      }
-    new StringResponseBody(string, charset)
-  }
-}
-
-class StringResponseBody(val string: String, charset: Charset) extends ResponseBody {
-
-  lazy val bytes = string.getBytes(charset)
-  def stream = new ByteArrayInputStream(bytes)
-}
-
-object ByteArrayResponseBody {
-
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-    new ByteArrayResponseBody(byteBufsToByteArray(chunks), charset)
-  }
-}
-
-class ByteArrayResponseBody(val bytes: Array[Byte], charset: Charset) extends ResponseBody {
-
-  def stream = new FastByteArrayInputStream(bytes)
-  lazy val string = byteArrayToString(bytes, charset)
-}
-
-object InputStreamResponseBody {
-
-  def apply(chunks: Seq[ByteBuf], charset: Charset) = {
-
-    val bytes = chunks.map { chunk =>
-      val array = new Array[Byte](chunk.readableBytes)
-      chunk.readBytes(array)
-      array
-    }
-
-    new InputStreamResponseBody(bytes, charset)
-  }
-}
-
-class InputStreamResponseBody(chunks: Seq[Array[Byte]], charset: Charset) extends ResponseBody with LazyLogging {
-
-  def stream = (chunks.size: @switch) match {
-    case 0 => new FastByteArrayInputStream(EmptyBytes)
-    case 1 => new ByteArrayInputStream(chunks.head)
-    case _ => new CompositeByteArrayInputStream(chunks)
-  }
-
-  lazy val bytes = byteArraysToByteArray(chunks)
-
-  lazy val string =
+  override lazy val string: String =
     try {
-      byteArraysToString(chunks, charset)
+      byteBuf2String(charset, chunk.duplicate)
     } catch {
       case NonFatal(e) =>
         logger.error(s"Response body is not valid ${charset.name} bytes", e)
         ""
     }
+
+  override lazy val chars: Array[Char] =
+    byteBuf2Chars(charset, chunk.duplicate)
+
+  override lazy val bytes: Array[Byte] =
+    byteBuf2Bytes(chunk.duplicate)
+
+  override def stream: InputStream =
+    new ByteBufInputStream(chunk.duplicate)
 }
 
-object NoResponseBody extends ResponseBody {
-  val charset = UTF_8
-  val bytes = EmptyBytes
-  def stream = new FastByteArrayInputStream(bytes)
-  val string = ""
+private[gatling] final class ByteBufsResponseBody(override val length: Int, chunks: Seq[ByteBuf], override val charset: Charset)
+    extends ResponseBody
+    with LazyLogging {
+
+  override lazy val string: String =
+    try {
+      byteBuf2String(charset, chunks.map(_.duplicate): _*)
+    } catch {
+      case NonFatal(e) =>
+        logger.error(s"Response body is not valid ${charset.name} bytes", e)
+        ""
+    }
+
+  override lazy val chars: Array[Char] =
+    byteBuf2Chars(charset, chunks.map(_.duplicate): _*)
+
+  override lazy val bytes: Array[Byte] =
+    byteBufsToByteArray(chunks.map(_.duplicate))
+
+  override def stream: InputStream =
+    new SequenceInputStream(chunks.map(chunk => new ByteBufInputStream(chunk.duplicate)).iterator.asJavaEnumeration)
+}
+
+object NoResponseBody {
+  val Empty: NoResponseBody = new NoResponseBody(0)
+
+  def apply(length: Int): NoResponseBody =
+    if (length == 0) Empty else new NoResponseBody(length)
+}
+
+final class NoResponseBody(val length: Int) extends ResponseBody {
+  override val charset: Charset = UTF_8
+  override val string: String = ""
+  override val chars: Array[Char] = Array.emptyCharArray
+  override val bytes: Array[Byte] = Array.emptyByteArray
+  override def stream: FastByteArrayInputStream = new FastByteArrayInputStream(bytes)
+}
+
+// for ResponseTransformer
+final class StringResponseBody(val string: String, override val charset: Charset) extends ResponseBody {
+
+  override def length: Int = bytes.length
+
+  override lazy val chars: Array[Char] = string.toCharArray
+
+  override lazy val bytes: Array[Byte] = string.getBytes(charset)
+
+  override def stream: InputStream = new FastByteArrayInputStream(bytes)
+}
+
+// for ResponseTransformer and PollerActor
+final class ByteArrayResponseBody(val bytes: Array[Byte], override val charset: Charset) extends ResponseBody {
+
+  override def length: Int = bytes.length
+
+  override lazy val string: String = new String(bytes, charset)
+
+  override lazy val chars: Array[Char] = string.toCharArray
+
+  override def stream: InputStream = new FastByteArrayInputStream(bytes)
 }

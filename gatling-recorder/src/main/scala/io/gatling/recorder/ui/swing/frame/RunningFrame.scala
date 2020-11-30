@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,41 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Color
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.ListView.IntervalMode.Single
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.ListSelectionChanged
 
-import com.typesafe.scalalogging.StrictLogging
-
+import io.gatling.commons.util.StringHelper.Eol
+import io.gatling.recorder.model._
 import io.gatling.recorder.ui._
-import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
+import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
+import com.typesafe.scalalogging.StrictLogging
+import io.netty.handler.codec.http.HttpHeaders
 
-/************************************/
-  /**           COMPONENTS           **/
-/************************************/
+@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
+// LeakingSealed error is in scala-swing
+private[swing] class RunningFrame(frontend: RecorderFrontEnd) extends MainFrame with StrictLogging {
 
+  //////////////////////////////////////
+  //           COMPONENTS
+  //////////////////////////////////////
   /* Top panel components */
   private val tagField = new TextField(15)
   private val tagButton = Button("Add")(addTag())
-  private val clearButton = Button("Clear") { clearState(); frontend.clearRecorderState() }
+  private val clearButton =
+    Button("Clear") {
+      clearState()
+      frontend.clearRecorderState()
+    }
   private val cancelButton = Button("Cancel")(frontend.stopRecording(save = false))
   private val stopButton = Button("Stop & Save")(frontend.stopRecording(save = true))
 
   /* Center panel components */
   private val initialSize = (472, 150)
   private val newSize = (472, 900)
-  private val events = new ListView[EventInfo] { selection.intervalMode = Single }
+  private val events = new ListView[FrontEndEvent] { selection.intervalMode = Single }
   private val requestHeaders = new TextAreaPanel("Summary", initialSize)
   private val responseHeaders = new TextAreaPanel("Summary", initialSize)
   private val requestBodies = new TextAreaPanel("Body", initialSize)
@@ -57,10 +66,9 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
   /* Bottom panel components */
   private val hostsRequiringCertificates = new ListView[String] { foreground = Color.red }
 
-/**********************************/
-  /**           UI SETUP           **/
-/**********************************/
-
+  //////////////////////////////////////
+  //           UI SETUP
+  //////////////////////////////////////
   /* Frame setup */
   title = "Gatling Recorder - Running..."
   peer.setIconImages(IconList.asJava)
@@ -134,18 +142,17 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
 
   centerOnScreen()
 
-/*****************************************/
-  /**           EVENTS HANDLING           **/
-/*****************************************/
-
+  //////////////////////////////////////
+  //           EVENTS HANDLING
+  //////////////////////////////////////
   /* Reactions */
   listenTo(events.selection)
   reactions += {
     case ListSelectionChanged(_, _, _) if events.peer.getSelectedIndex >= 0 =>
       val selectedIndex = events.peer.getSelectedIndex
       events.listData(selectedIndex) match {
-        case requestInfo: RequestInfo => showRequest(requestInfo)
-        case _                        => infoPanels.foreach(_.textArea.clear())
+        case requestInfo: RequestFrontEndEvent => showRequest(requestInfo)
+        case _                                 => infoPanels.foreach(_.textArea.clear())
       }
     case _ => // Do nothing
   }
@@ -160,13 +167,32 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
     }
   }
 
+  private def headersToString(headers: HttpHeaders): String =
+    headers.entries.asScala
+      .map { entry =>
+        s"${entry.getKey}: ${entry.getValue}"
+      }
+      .mkString(Eol)
+
+  private def summary(request: HttpRequest): String = {
+    import request._
+    s"""$httpVersion $method $uri
+       |${headersToString(headers)}""".stripMargin
+  }
+
+  private def summary(response: HttpResponse): String = {
+    import response._
+    s"""$status $statusText
+       |${headersToString(headers)}""".stripMargin
+  }
+
   /**
    * Display request going through the Recorder
    * @param requestInfo The outgoing request info
    */
-  private def showRequest(requestInfo: RequestInfo): Unit = {
-    requestHeaders.textArea.text = requestInfo.request.summary
-    responseHeaders.textArea.text = requestInfo.response.summary
+  private def showRequest(requestInfo: RequestFrontEndEvent): Unit = {
+    requestHeaders.textArea.text = summary(requestInfo.request)
+    responseHeaders.textArea.text = summary(requestInfo.response)
     requestBodies.textArea.text = requestInfo.requestBody
     responseBodies.textArea.text = requestInfo.responseBody
     infoPanels.foreach(_.preferredSize = newSize)
@@ -187,15 +213,15 @@ private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame 
   /**
    * Handle Recorder Events sent by the controller,
    * and display them accordingly
-   * @param eventInfo the event sent by the controller
+   * @param event the event sent by the controller
    */
-  def receiveEventInfo(eventInfo: EventInfo): Unit = {
-    eventInfo match {
-      case pauseInfo: PauseInfo => events.add(pauseInfo)
-      case requestInfo: RequestInfo => events.add(requestInfo)
-      case tagInfo: TagInfo => events.add(tagInfo)
-      case SSLInfo(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
-      case e => logger.debug(s"dropping event $e")
+  def receiveEvent(event: FrontEndEvent): Unit = {
+    event match {
+      case pauseInfo: PauseFrontEndEvent                                               => events.add(pauseInfo)
+      case requestInfo: RequestFrontEndEvent                                           => events.add(requestInfo)
+      case tagInfo: TagFrontEndEvent                                                   => events.add(tagInfo)
+      case SslFrontEndEvent(uri) if !hostsRequiringCertificates.listData.contains(uri) => hostsRequiringCertificates.add(uri)
+      case e                                                                           => logger.debug(s"dropping event $e")
     }
   }
 }

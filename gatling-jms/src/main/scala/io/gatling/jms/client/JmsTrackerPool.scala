@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.client
 
 import java.util.concurrent.ConcurrentHashMap
 import javax.jms.Destination
 
-import scala.collection.JavaConverters._
-import scala.util.Try
-
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.util.Clock
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -29,31 +27,46 @@ import io.gatling.jms.action.JmsLogging
 import io.gatling.jms.protocol.JmsMessageMatcher
 
 import akka.actor.ActorSystem
+import io.netty.util.concurrent.DefaultThreadFactory
 
-class JmsTrackerPool(sessionPool: JmsSessionPool, system: ActorSystem, statsEngine: StatsEngine, configuration: GatlingConfiguration) extends JmsLogging with NameGen {
+object JmsTrackerPool {
+
+  private val JmsConsumerThreadFactory = new DefaultThreadFactory("gatling-jms-consumer")
+}
+
+class JmsTrackerPool(
+    sessionPool: JmsSessionPool,
+    system: ActorSystem,
+    statsEngine: StatsEngine,
+    clock: Clock,
+    configuration: GatlingConfiguration
+) extends JmsLogging
+    with NameGen {
 
   private val trackers = new ConcurrentHashMap[(Destination, Option[String]), JmsTracker]
 
-  def tracker(destination: Destination, selector: Option[String], messageMatcher: JmsMessageMatcher): JmsTracker =
-    trackers.computeIfAbsent((destination, selector), _ => {
-      val actor = system.actorOf(Tracker.props(statsEngine, configuration), genName("jmsTrackerActor"))
+  def tracker(destination: Destination, selector: Option[String], listenerThreadCount: Int, messageMatcher: JmsMessageMatcher): JmsTracker =
+    trackers.computeIfAbsent(
+      (destination, selector),
+      _ => {
+        val actor = system.actorOf(Tracker.props(statsEngine, clock, configuration), genName("jmsTrackerActor"))
 
-      val listenerThread = new ListenerThread(() => {
-        val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
-        consumer.setMessageListener(message => {
-          val matchId = messageMatcher.responseMatchId(message)
-          logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
-          actor ! MessageReceived(matchId, nowMillis, message)
-        })
-      })
-      listenerThread.start()
+        for (_ <- 1 to listenerThreadCount) {
+          // jms session pool logic creates a session per thread and stores it in thread local.
+          // After that the thread can be thrown away. The jms provider takes care of receiving and dispatching
+          val thread = JmsTrackerPool.JmsConsumerThreadFactory.newThread(() => {
+            val consumer = sessionPool.jmsSession().createConsumer(destination, selector.orNull)
+            consumer.setMessageListener(message => {
+              val matchId = messageMatcher.responseMatchId(message)
+              logMessage(s"Message received JMSMessageID=${message.getJMSMessageID} matchId=$matchId", message)
+              actor ! MessageReceived(matchId, clock.nowMillis, message)
+            })
+          })
 
-      system.registerOnTermination {
-        Try(listenerThread.close())
+          thread.start()
+        }
+
+        new JmsTracker(actor)
       }
-
-      new JmsTracker(listenerThread, actor)
-    })
-
-  def close(): Unit = trackers.values().asScala.foreach(_.close())
+    )
 }

@@ -1,0 +1,21 @@
+#################
+What's New in 3.2
+#################
+
+Core
+====
+
+* `#3724 <https://github.com/gatling/gatling/issues/3724>`__: Custom Pebble Extensions registering
+* `#3735 <https://github.com/gatling/gatling/issues/3735>`__: PebbleFileBody now supports template inheritance
+* `#3743 <https://github.com/gatling/gatling/issues/3743>`__: JMESPath support, see :ref:`here <http-check-jsonpath>`
+
+HTTP
+====
+
+* `#3757 <https://github.com/gatling/gatling/issues/3757>`__: Introduce ``bodyStream`` check, see `here <http-check-body-stream>`
+* `#3767 <https://github.com/gatling/gatling/issues/3767>`__: WebSocket and SSE now support ``bodyString`` check
+
+Redis
+=====
+
+* `#3766 <https://github.com/gatling/gatling/issues/3766>`__: Have a proper DSL for RedisFeeder, see `here <feeder-redis>`

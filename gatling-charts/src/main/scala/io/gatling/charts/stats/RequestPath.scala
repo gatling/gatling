@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.stats
 
-import io.gatling.commons.stats.Group
+import io.gatling.commons.shared.unstable.model.stats.Group
 
 private[charts] object RequestPath {
   val Separator = " / "
-  def path(group: Group) = group.hierarchy.mkString(Separator)
+  def path(group: Group): String = group.hierarchy.mkString(Separator)
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
   def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) :+ requestName).mkString(Separator)
 }

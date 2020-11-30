@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.app
 
 import scala.Console._
@@ -25,7 +26,7 @@ import io.gatling.commons.util.StringHelper._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.scenario.Simulation
 
-case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
+final class Selection(val simulationClass: Class[Simulation], val simulationId: String, val description: String)
 
 object Selection {
 
@@ -53,9 +54,10 @@ object Selection {
             .getOrElse(interactiveSelect(simulationClasses))
         }
 
-      // -- Ask for simulation ID and run description if required -- //
+      // ask for simulation ID and run description if required
       val simulationId = defaultOutputDirectoryBaseName(simulation, configuration)
-      val runDescription = configuration.core.runDescription.getOrElse(if (userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined) "" else askRunDescription())
+      val runDescription =
+        configuration.core.runDescription.getOrElse(if (userDefinedSimulationClass.isDefined || selectedSimulationClass.isDefined) "" else askRunDescription())
 
       new Selection(simulation, simulationId, runDescription)
     }
@@ -85,7 +87,7 @@ object Selection {
     }
 
     private def singleSimulationFromList(simulationClasses: SimulationClasses) = simulationClasses match {
-      case simulation :: Nil =>
+      case List(simulation) =>
         println(s"${simulation.getName} is the only simulation, executing it.")
         Some(simulation)
 
@@ -96,7 +98,7 @@ object Selection {
       val validRange = simulationClasses.indices
 
       @tailrec
-      def readSimulationNumber(attempts: Int = 0): Int = {
+      def readSimulationNumber(attempts: Int): Int = {
         if (attempts > MaxReadSimulationNumberAttempts) {
           println(s"Max attempts of reading simulation number ($MaxReadSimulationNumberAttempts) reached. Aborting.")
           sys.exit()
@@ -124,7 +126,7 @@ object Selection {
         println("There is no simulation script. Please check that your scripts are in user-files/simulations")
         sys.exit()
       }
-      simulationClasses(readSimulationNumber())
+      simulationClasses(readSimulationNumber(0))
     }
 
     private def askRunDescription(): String = {

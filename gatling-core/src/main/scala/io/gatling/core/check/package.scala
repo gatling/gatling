@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core
 
-import io.gatling.commons.validation.Validation
+import io.gatling.commons.validation._
 
 package object check {
 
@@ -26,8 +27,14 @@ package object check {
    */
   type Preparer[R, P] = R => Validation[P]
 
+  def identityPreparer[T]: Preparer[T, T] = _.success
+
   /**
    * Specializes a generic check for a given protocol.
    */
   type Specializer[C <: Check[R], R] = Check[R] => C
+
+  implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
+    def liftSeqOption: Option[Seq[X]] = if (values.isEmpty) None else Some(values)
+  }
 }

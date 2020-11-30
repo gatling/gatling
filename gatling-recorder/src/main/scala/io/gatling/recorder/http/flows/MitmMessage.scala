@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
 import io.netty.channel.{ Channel, ChannelId }
@@ -24,14 +25,13 @@ object MitmMessage {
 
   case object ServerChannelInactive extends MitmMessage
 
-  // TODO support not using ObjectAggregator?
-  case class RequestReceived(request: FullHttpRequest) extends MitmMessage
+  final case class RequestReceived(request: FullHttpRequest) extends MitmMessage
 
-  case class ClientChannelActive(channel: Channel) extends MitmMessage
+  final case class ClientChannelActive(channel: Channel) extends MitmMessage
 
-  case class ClientChannelException(t: Throwable) extends MitmMessage
+  final case class ClientChannelException(t: Throwable) extends MitmMessage
 
-  case class ClientChannelInactive(channelId: ChannelId) extends MitmMessage
+  final case class ClientChannelInactive(channelId: ChannelId) extends MitmMessage
 
-  case class ResponseReceived(response: FullHttpResponse) extends MitmMessage
+  final case class ResponseReceived(response: FullHttpResponse) extends MitmMessage
 }

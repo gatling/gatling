@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.app.cli
 
 import io.gatling.app.ConfigOverrides
@@ -37,23 +38,18 @@ private[app] class ArgsParser(args: Array[String]) {
       .valueName("<directoryName>")
       .text("Generates the reports for the simulation in <directoryName>")
 
-    opt[String](DataFolder)
-      .foreach(props.dataDirectory)
+    opt[String](ResourcesFolder)
+      .foreach(props.resourcesDirectory)
       .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
+      .text("Uses <directoryPath> as the absolute path of the directory where resources are stored")
 
     opt[String](ResultsFolder)
       .foreach(props.resultsDirectory)
       .valueName("<directoryPath>")
       .text("Uses <directoryPath> as the absolute path of the directory where results are stored")
 
-    opt[String](BodiesFolder)
-      .foreach(props.bodiesDirectory)
-      .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where bodies are stored")
-
     opt[String](SimulationsFolder)
-      .foreach(props.sourcesDirectory)
+      .foreach(props.simulationsDirectory)
       .valueName("<directoryPath>")
       .text("Uses <directoryPath> to discover simulations that could be run")
 
@@ -67,12 +63,7 @@ private[app] class ArgsParser(args: Array[String]) {
       .valueName("<className>")
       .text("Runs <className> simulation")
 
-    opt[String](OutputDirectoryBaseName)
-      .foreach(props.outputDirectoryBaseName)
-      .valueName("<name>")
-      .text("Use <name> for the base name of the output directory")
-
-    opt[String](SimulationDescription)
+    opt[String](RunDescription)
       .foreach(props.runDescription)
       .valueName("<description>")
       .text("A short <description> of the run to include in the report")

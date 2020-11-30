@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.request
 
-import javax.jms.{ Destination, Session }
+import io.gatling.core.session.Expression
 
-sealed trait JmsDestination {
-  def create(session: Session): Destination
-}
+sealed trait JmsDestination
 
-case class JmsQueue(name: String) extends JmsDestination {
-  override def create(session: Session): Destination = session.createQueue(name)
-}
+final case class JmsQueue(name: Expression[String]) extends JmsDestination
 
-case class JmsTopic(name: String) extends JmsDestination {
-  override def create(session: Session): Destination = session.createTopic(name)
-}
+final case class JmsTopic(name: Expression[String]) extends JmsDestination
 
-case object JmsTemporaryQueue extends JmsDestination {
-  override def create(session: Session): Destination = session.createTemporaryQueue()
-}
+case object JmsTemporaryQueue extends JmsDestination
 
-case object JmsTemporaryTopic extends JmsDestination {
-  override def create(session: Session): Destination = session.createTemporaryTopic()
-}
+case object JmsTemporaryTopic extends JmsDestination

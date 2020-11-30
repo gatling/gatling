@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.funspec
 
 import io.gatling.core.Predef._
+import io.gatling.core.check.MultipleFindCheckBuilder
+import io.gatling.core.check.css.{ CssCheckType, CssOfType }
 import io.gatling.http.Predef._
 import io.gatling.http.funspec.GatlingHttpFunSpecCompileTest._
+import io.gatling.http.protocol.HttpProtocolBuilder
+
+import jodd.lagarto.dom.NodeSelector
 
 class GatlingHttpFunSpecCompileTest extends GatlingHttpFunSpec {
 
-  val baseURL = "http://example.com"
-  override def httpConf = super.httpConf.header("MyHeader", "MyValue")
+  override val baseUrl: String = "http://example.com"
+  override def httpProtocol: HttpProtocolBuilder = super.httpProtocol.header("MyHeader", "MyValue")
 
   spec {
     http("Index test")
       .get("/index.html")
       .check(h1 exists)
   }
-
 }
 
 object GatlingHttpFunSpecCompileTest {
 
-  def h1 = css("h1")
-
+  def h1: MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType = css("h1")
 }

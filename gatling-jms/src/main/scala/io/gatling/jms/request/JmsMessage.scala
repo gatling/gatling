@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
+import javax.jms.{ Message, Session => JmsSession }
 
-import io.gatling.core.session.Expression
+import io.gatling.commons.validation.Validation
+import io.gatling.core.session.{ Expression, Session }
 
-/**
- * Provides the enumeration of JMSMessage types that the implementation supports
- * @author jasonk@bluedevel.com
- */
-sealed trait JmsMessage
-case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage
-case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage
-case class ObjectJmsMessage(o: Expression[JSerializable]) extends JmsMessage
-case class TextJmsMessage(text: Expression[String]) extends JmsMessage
+sealed trait JmsMessage {
+  private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message]
+}
+
+final case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage {
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    bytes(session).map { b =>
+      val message = jmsSession.createBytesMessage
+      message.writeBytes(b)
+      message
+    }
+}
+
+final case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage {
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    map(session).map { m =>
+      val message = jmsSession.createMapMessage
+      m.foreach { case (key, value) => message.setObject(key, value) }
+      message
+    }
+}
+
+final case class ObjectJmsMessage(obj: Expression[JSerializable]) extends JmsMessage {
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    obj(session).map(jmsSession.createObjectMessage)
+}
+
+final case class TextJmsMessage(txt: Expression[String]) extends JmsMessage {
+  override private[jms] def jmsMessage(session: Session, jmsSession: JmsSession): Validation[Message] =
+    txt(session).map(jmsSession.createTextMessage)
+}

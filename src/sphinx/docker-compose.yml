@@ -1,0 +1,11 @@
+version: '3'
+services:
+  sphinx:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.sphinx
+    ports:
+      - "55242:55242"
+    volumes:
+      - .:/sphinx-doc
+      - /sphinx-doc/_build

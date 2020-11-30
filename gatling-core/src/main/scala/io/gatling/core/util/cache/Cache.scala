@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,47 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.util.cache
 
 import java.util.concurrent.ConcurrentMap
 
 import scala.collection.immutable.Queue
 
-import com.github.benmanes.caffeine.cache.{ CacheLoader, Caffeine, LoadingCache }
+import com.github.benmanes.caffeine.cache.{ Caffeine, LoadingCache }
 
 object Cache {
 
   def newConcurrentCache[K, V](maxSize: Long): ConcurrentMap[K, V] =
-    Caffeine
-      .newBuilder
+    Caffeine.newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
       .build[K, V]
       .asMap
 
   def newConcurrentLoadingCache[K, V](maxSize: Long, f: K => V): LoadingCache[K, V] =
-    Caffeine
-      .newBuilder
+    Caffeine.newBuilder
       .asInstanceOf[Caffeine[Any, Any]]
       .maximumSize(maxSize)
-      .build(new CacheLoader[K, V] {
-        override def load(key: K): V = f(key)
-      })
+      .build(key => f(key))
 
-  def newImmutableCache[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
+  def newImmutableCache[K, V](maxCapacity: Int): Cache[K, V] = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
 }
 
 class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
 
-  def +(kv: (K, V)): Cache[K, V] = {
-    val (key, value) = kv
-    add(key, value)
-  }
-  def add(key: K, value: V): Cache[K, V] = {
-    if (map.contains(key))
+  def put(key: K, value: V): Cache[K, V] = {
+    if (map.get(key).contains(value) || maxCapacity == 0) {
       this
 
-    else if (map.size == maxCapacity) {
+    } else if (map.size == maxCapacity) {
       val (removedKey, newQueue) = queue.dequeue
       val newMap = map - removedKey + (key -> value)
       new Cache(newQueue.enqueue(key), newMap, maxCapacity)
@@ -65,16 +58,15 @@ class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
     }
   }
 
-  def -(key: K): Cache[K, V] = remove(key)
-  def remove(key: K): Cache[K, V] = {
+  def remove(key: K): Cache[K, V] =
     if (map.contains(key)) {
       val newQueue = queue.filter(_ != key)
       val newMap = map - key
       new Cache(newQueue, newMap, maxCapacity)
 
-    } else
+    } else {
       this
-  }
+    }
 
   def get(key: K): Option[V] = map.get(key)
 }

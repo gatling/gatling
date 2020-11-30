@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
+import java.nio.file.Paths
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
+import scala.language.reflectiveCalls
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode._
 import scala.swing.event._
 import scala.util.Try
 
-import io.gatling.commons.util.PathHelper._
 import io.gatling.commons.util.StringHelper.RichString
 import io.gatling.recorder.config._
-import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
+import io.gatling.recorder.config.FilterStrategy.BlackListFirst
 import io.gatling.recorder.config.RecorderMode.{ Har, Proxy }
-import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslCertUtil }
+import io.gatling.recorder.http.ssl.{ HttpsMode, KeyStoreType, SslUtil }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.http.ssl.SslServerContext.OnTheFly
-import io.gatling.recorder.ui.RecorderFrontend
-import io.gatling.recorder.ui.swing.keyReleased
+import io.gatling.recorder.ui.RecorderFrontEnd
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component._
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
+import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: RecorderConfiguration) extends MainFrame {
+@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed", "org.wartremover.warts.PublicInference"))
+// LeakingSealed error is in scala-swing
+private[swing] class ConfigurationFrame(frontend: RecorderFrontEnd)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
-/************************************/
-  /**           COMPONENTS           **/
-/************************************/
-
+  //////////////////////////////////////
+  //           COMPONENTS
+  //////////////////////////////////////
   /* Top panel components */
   private val modeSelector = new LabelledComboBox[RecorderMode](RecorderMode.AllModes)
 
@@ -82,14 +85,16 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   private val simulationPackage = new TextField(30)
   private val simulationClassName = new TextField(30)
   private val followRedirects = new CheckBox("Follow Redirects?")
-  private val inferHtmlResources = new CheckBox("Infer html resources?")
+  private val inferHtmlResources = new CheckBox("Infer HTML resources?")
   private val removeCacheHeaders = new CheckBox("Remove cache headers?")
   private val checkResponseBodies = new CheckBox("Save & check response bodies?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
+  private val useSimulationAsPrefix = new CheckBox("Use Class Name as request prefix?")
+  private val useMethodAndUriAsPostfix = new CheckBox("Use HTTP method and URI as request postfix?")
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
-  private val outputFolderChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = DirectoriesOnly)
+  private val simulationsFolderChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = DirectoriesOnly)
 
   /* Filters panel components */
   private val whiteListTable = new FilterTable("Whitelist")
@@ -109,10 +114,9 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
   private val start = Button("Start !")(reloadConfigurationAndStart())
 
-/**********************************/
-  /**           UI SETUP           **/
-/**********************************/
-
+  //////////////////////////////////////
+  //           UI SETUP
+  //////////////////////////////////////
   /* Frame setup */
   title = "Gatling Recorder - Configuration"
   resizable = true
@@ -213,28 +217,25 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
           layout(className) = East
         }
 
-        val redirectAndInferOptions = new BorderPanel {
-          layout(followRedirects) = West
-          layout(inferHtmlResources) = East
-        }
-
-        val cacheAndResponseBodiesCheck = new BorderPanel {
-          layout(removeCacheHeaders) = West
-          layout(checkResponseBodies) = East
+        val options = new GridPanel(2, 3) {
+          contents += followRedirects
+          contents += inferHtmlResources
+          contents += automaticReferers
+          contents += removeCacheHeaders
+          contents += useSimulationAsPrefix
+          contents += useMethodAndUriAsPostfix
+          contents += checkResponseBodies
         }
 
         layout(config) = North
-
-        layout(redirectAndInferOptions) = West
-        layout(automaticReferers) = East
-        layout(cacheAndResponseBodiesCheck) = South
+        layout(options) = Center
       }
       val outputConfig = new BorderPanel {
         border = titledBorder("Output")
 
         val folderSelection = new LeftAlignedFlowPanel {
-          contents += new Label("Output folder*: ")
-          contents += outputFolderChooser
+          contents += new Label("Simulations folder*: ")
+          contents += simulationsFolderChooser
         }
         val encoding = new LeftAlignedFlowPanel {
           contents += new Label("Encoding: ")
@@ -310,10 +311,13 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
   registerValidators()
   populateItemsFromConfiguration()
 
-/*****************************************/
-  /**           EVENTS HANDLING           **/
-/*****************************************/
-
+  /**
+   * **************************************
+   */
+  /** EVENTS HANDLING           * */
+  /**
+   * **************************************
+   */
   def toggleModeSelector(mode: RecorderMode): Unit = mode match {
     case Proxy =>
       root.center.network.visible = true
@@ -332,7 +336,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     case SelectionChanged(`filterStrategies`) =>
       val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
       toggleFiltersEdition(isNotDisabledStrategy)
-    case SelectionChanged(`httpsModes`) => toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
+    case SelectionChanged(`httpsModes`) =>
+      toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
     case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
       val props = new RecorderPropertiesBuilder
       props.saveConfig(savePreferences.selected)
@@ -347,19 +352,28 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     blackListTable.setFocusable(enabled)
   }
 
-  private def toggleHttpsModesConfigsVisibility(currentMode: HttpsMode) = currentMode match {
-    case SelfSignedCertificate =>
-      root.center.network.customKeyStoreConfig.visible = false
-      root.center.network.certificateAuthorityConfig.visible = false
-      generateCAFilesButton.visible = false
-    case ProvidedKeyStore =>
-      root.center.network.customKeyStoreConfig.visible = true
-      root.center.network.certificateAuthorityConfig.visible = false
-      generateCAFilesButton.visible = false
-    case CertificateAuthority =>
-      root.center.network.customKeyStoreConfig.visible = false
-      root.center.network.certificateAuthorityConfig.visible = true
-      generateCAFilesButton.visible = true
+  private def toggleHttpsModesConfigsVisibility(currentMode: HttpsMode) = {
+    currentMode match {
+      case SelfSignedCertificate =>
+        root.center.network.customKeyStoreConfig.visible = false
+        root.center.network.certificateAuthorityConfig.visible = false
+        generateCAFilesButton.visible = false
+
+      case ProvidedKeyStore =>
+        root.center.network.customKeyStoreConfig.visible = true
+        root.center.network.certificateAuthorityConfig.visible = false
+        generateCAFilesButton.visible = false
+
+      case CertificateAuthority =>
+        root.center.network.customKeyStoreConfig.visible = false
+        root.center.network.certificateAuthorityConfig.visible = true
+        generateCAFilesButton.visible = true
+    }
+    ignoreValidation(keyStoreChooser.textField, !root.center.network.customKeyStoreConfig.visible)
+    ignoreValidation(keyStorePassword, !root.center.network.customKeyStoreConfig.visible)
+    ignoreValidation(certificatePathChooser.textField, !root.center.network.certificateAuthorityConfig.visible)
+    ignoreValidation(privateKeyPathChooser.textField, !root.center.network.certificateAuthorityConfig.visible)
+    start.enabled = ValidationHelper.validationStatus
   }
 
   /* Reactions II: fields validation */
@@ -373,7 +387,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     outgoingProxyHost.keys,
     outgoingProxyHttpPort.keys,
     outgoingProxyHttpsPort.keys,
-    outputFolderChooser.chooserKeys,
+    simulationsFolderChooser.chooserKeys,
     simulationPackage.keys,
     simulationClassName.keys
   )
@@ -398,7 +412,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableOutgoingProxyConfig, disableOutgoingProxyConfig, alwaysValid = true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(outgoingProxyPortValidator))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(outgoingProxyPortValidator))
-    ValidationHelper.registerValidator(outputFolderChooser.textField, Validator(isNonEmpty))
+    ValidationHelper.registerValidator(simulationsFolderChooser.textField, Validator(isNonEmpty))
     ValidationHelper.registerValidator(simulationPackage, Validator(isValidPackageName))
     ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
   }
@@ -435,17 +449,18 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       """.*\.jpg""",
       """.*\.ico""",
       """.*\.woff""",
+      """.*\.woff2""",
       """.*\.(t|o)tf""",
-      """.*\.png"""
+      """.*\.png""",
+      """.*detectportal\.firefox\.com.*"""
     ).foreach(blackListTable.addRow)
 
-    filterStrategies.selection.item = BlacklistFirst
+    filterStrategies.selection.item = BlackListFirst
   }
 
-  reactions += {
-    case KeyReleased(field, _, _, _) =>
-      updateValidationStatus(field.asInstanceOf[TextField])
-      start.enabled = ValidationHelper.validationStatus
+  reactions += { case KeyReleased(field, _, _, _) =>
+    updateValidationStatus(field.asInstanceOf[TextField])
+    start.enabled = ValidationHelper.validationStatus
   }
 
   def selectedRecorderMode = modeSelector.selection.item
@@ -456,25 +471,23 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
 
   def updateHarFilePath(path: Option[String]): Unit = path.foreach(p => harPathChooser.setPath(p))
 
-  def generateCAFiles(directory: String): Unit = {
-    SslCertUtil.generateGatlingCAPEMFiles(
-      directory,
+  private def generateCAFiles(directory: String): Unit = {
+    SslUtil.generateGatlingCAPEMFiles(
+      Paths.get(directory),
       OnTheFly.GatlingCAKeyFile,
       OnTheFly.GatlingCACrtFile
     )
 
     Dialog.showMessage(
       title = "Download successful",
-      message =
-        s"""|Gatling's CA certificate and key were successfully saved to
-           |$directory .""".stripMargin
+      message = s"""|Gatling's CA certificate and key were successfully saved to
+                    |$directory .""".stripMargin
     )
   }
 
-/****************************************/
-  /**           CONFIGURATION            **/
-/****************************************/
-
+  //////////////////////////////////////
+  //           CONFIGURATION
+  //////////////////////////////////////
   /**
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
    */
@@ -494,8 +507,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     keyStorePassword.text = configuration.proxy.https.keyStore.password
     keyStoreTypes.selection.item = configuration.proxy.https.keyStore.keyStoreType
 
-    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath)
-    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath)
+    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath.toString)
+    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath.toString)
 
     configuration.proxy.outgoing.host.foreach { proxyHost =>
       outgoingProxyHost.text = proxyHost
@@ -508,7 +521,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       outgoingProxyUsername.enabled = true
       outgoingProxyPassword.enabled = true
     }
-    configuration.core.pkg.trimToOption.map(simulationPackage.text= _)
+    configuration.core.pkg.trimToOption.map(simulationPackage.text = _)
     simulationClassName.text = configuration.core.className
     filterStrategies.selection.item = configuration.filters.filterStrategy
     followRedirects.selected = configuration.http.followRedirect
@@ -518,8 +531,10 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
-    outputFolderChooser.setPath(configuration.core.outputFolder)
+    simulationsFolderChooser.setPath(configuration.core.simulationsFolder)
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
+    useSimulationAsPrefix.selected = configuration.http.useSimulationAsPrefix
+    useMethodAndUriAsPostfix.selected = configuration.http.useMethodAndUriAsPostfix
     savePreferences.selected = configuration.core.saveConfig
 
   }
@@ -591,8 +606,10 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       props.removeCacheHeaders(removeCacheHeaders.selected)
       props.checkResponseBodies(checkResponseBodies.selected)
       props.automaticReferer(automaticReferers.selected)
-      props.simulationOutputFolder(outputFolderChooser.selection.trim)
+      props.simulationsFolder(simulationsFolderChooser.selection.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
+      props.useSimulationAsPrefix(useSimulationAsPrefix.selected)
+      props.useMethodAndUriAsPostfix(useMethodAndUriAsPostfix.selected)
       props.saveConfig(savePreferences.selected)
 
       RecorderConfiguration.reload(props.build)

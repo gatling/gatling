@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,39 +13,50 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request
 
+import java.nio.charset.Charset
+import java.security.MessageDigest
+
 import io.gatling.commons.validation.Validation
-import io.gatling.core.CoreComponents
 import io.gatling.core.session._
+import io.gatling.http.ResponseTransformer
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.protocol.HttpComponents
-import io.gatling.http.response.Response
+import io.gatling.http.client.Request
+import io.gatling.http.protocol.HttpProtocol
 
-import org.asynchttpclient.Request
-
-case class HttpRequestConfig(
-    checks:                List[HttpCheck],
-    responseTransformer:   Option[PartialFunction[Response, Response]],
-    extraInfoExtractor:    Option[ExtraInfoExtractor],
-    maxRedirects:          Option[Int],
-    throttled:             Boolean,
-    silent:                Option[Boolean],
-    followRedirect:        Boolean,
-    discardResponseChunks: Boolean,
-    coreComponents:        CoreComponents,
-    httpComponents:        HttpComponents,
-    explicitResources:     List[HttpRequestDef]
+final case class HttpRequestConfig(
+    checks: List[HttpCheck],
+    responseTransformer: Option[ResponseTransformer],
+    throttled: Boolean,
+    silent: Option[Boolean],
+    followRedirect: Boolean,
+    digests: Map[String, MessageDigest],
+    storeBodyParts: Boolean,
+    defaultCharset: Charset,
+    explicitResources: List[HttpRequestDef],
+    httpProtocol: HttpProtocol
 )
 
-case class HttpRequestDef(
+final case class HttpRequestDef(
     requestName: Expression[String],
-    ahcRequest:  Expression[Request],
-    config:      HttpRequestConfig
+    clientRequest: Expression[Request],
+    requestConfig: HttpRequestConfig
 ) {
 
   def build(requestName: String, session: Session): Validation[HttpRequest] =
-    ahcRequest(session).map(HttpRequest(requestName, _, config))
+    clientRequest(session).map(HttpRequest(requestName, _, requestConfig))
 }
 
-case class HttpRequest(requestName: String, ahcRequest: Request, config: HttpRequestConfig)
+final case class HttpRequest(requestName: String, clientRequest: Request, requestConfig: HttpRequestConfig) {
+
+  def isSilent(root: Boolean): Boolean =
+    requestConfig.silent match {
+      case Some(silent) => silent
+      case _ =>
+        val requestPart = requestConfig.httpProtocol.requestPart
+        requestPart.silentUri.exists(_.matcher(clientRequest.getUri.toUrl).matches) || // silent because matches protocol's silentUri
+        (!root && requestPart.silentResources) // silent because resources are silent
+    }
+}

@@ -1,0 +1,49 @@
+.. _2.3-to-3.0:
+
+#########################
+Migrating from 2.3 to 3.0
+#########################
+
+* Core:
+
+  * JsonPath check's ``ofType`` now deep converts to Scala ``Map`` and ``Seq``, so you'll no longer get Java types deep into the object
+  * ``bodies`` and ``data`` directories were dropped, now those files are resolved from classpath root, see `#3398 <https://github.com/gatling/gatling/issues/3398>`__.
+  * ``extraInfoExtractor`` was dropped as it wasn't used in any Gatling component
+  * check's ``transformResponse`` now takes a second ``Session`` parameter
+  * ``over`` inject method was renamed into ``during``
+  * ``splitUsers`` is dropped in favor of ``incrementUsersPerSec`` and ``incrementConcurrentUsers``
+  * ``Validation#get`` is dropped as it's very error prone, use pattern matching if you must
+  * ``PerMillion`` assertion is dropped as ``Percent`` now takes a Double
+  * ``greaterThan`` and ``lowerThan`` assertion operators are renamed into ``gt`` and ``lt`` and are strict (vs ``gte`` and ``lte``)
+  *
+
+* HTTP:
+
+  * Gatling now has its own HTTP client and no longer uses `AsyncHttpClient <https://github.com/AsyncHttpClient/async-http-client>`__, so this library is no longer shipped. If you've been using it, you'll need to pull it explicitly, or switch to another HTTP client library.
+  * ``baseURL`` was renamed into ``baseUrl``
+  * ``baseURLs`` was renamed into ``baseUrls`` and is now sticky for a given virtual user
+  * ``silentURI`` was renamed into ``silentUri``
+  * ``asJSON`` was renamed into ``asJson``
+  * ``asXML`` was renamed into ``asXml``
+  * WebSocket and SSE support were completely re-written, see :ref:`new API <http-ws>`.
+  * ``ntmlAuth`` is dropped until we can support NTLM properly, see `#3525 <https://github.com/gatling/gatling/issues/3525>`__
+  * The way to compute HTTP request signatures was revamped, see :ref:`new API <http-request-signature>`
+  * ``disableClientSharing`` was dropped. It's not possible atm to specify individual keystore and trustore for each virtual user. However, each virtual user has a distinct ``SSLContext``.
+  * Debugging: in your configuration file `logback.xml` the following needs updating from: `<logger name="io.gatling.http.response" level="TRACE" />` to: `<logger name="io.gatling.http.engine.response" level="TRACE" />`. A full example file can be found `here <https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/logback.dummy>`__
+
+* JMS:
+
+  * ``reqreply`` was renamed into ``requestReply``
+  * ``matchByMessageID`` was renamed into ``matchByMessageId`` and ``matchByCorrelationID`` was renamed into ``matchByCorrelationId``
+  * Protocol level ``receiveTimeout`` was replaced with request level ``replyTimeout``
+
+* CLI:
+
+  * ``-m``/``--mute`` option was dropped, now Gatling is automatically mute when you set the simulation class name
+  * no longer prompts for a user defined simulationId
+
+* gatling-maven-plugin
+
+  * Maven users must upgrade gatling-maven-plugin to `3.0 <https://search.maven.org/search?q=a:gatling-maven-plugin>`__.
+  * options' aliases were dropped, use full option names instead
+  * Drop deprecated gatling-maven-plugin's ``execute`` task, use ``test`` instead

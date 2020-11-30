@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.config
 
 private[recorder] object ConfigKeys {
@@ -22,8 +23,8 @@ private[recorder] object ConfigKeys {
   object core {
     val Mode = "recorder.core.mode"
     val Encoding = "recorder.core.encoding"
-    val SimulationOutputFolder = "recorder.core.outputFolder"
-    val BodiesFolder = "recorder.core.bodiesFolder"
+    val SimulationsFolder = "recorder.core.simulationsFolder"
+    val ResourcesFolder = "recorder.core.resourcesFolder"
     val Package = "recorder.core.package"
     val ClassName = "recorder.core.className"
     val ThresholdForPauseCreation = "recorder.core.thresholdForPauseCreation"
@@ -42,6 +43,8 @@ private[recorder] object ConfigKeys {
     val InferHtmlResources = "recorder.http.inferHtmlResources"
     val RemoveCacheHeaders = "recorder.http.removeCacheHeaders"
     val CheckResponseBodies = "recorder.http.checkResponseBodies"
+    val UseSimulationAsPrefix = "recorder.http.useSimulationAsPrefix"
+    val UseMethodAndUriAsPostfix = "recorder.http.useMethodAndUriAsPostfix"
   }
   object proxy {
     val Port = "recorder.proxy.port"

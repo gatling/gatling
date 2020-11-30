@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.config
 
 import io.gatling.commons.util.ClassSimpleNameToString
 import io.gatling.recorder.util.Labelled
 
-sealed abstract class FilterStrategy(val label: String) extends Labelled with ClassSimpleNameToString
+sealed abstract class FilterStrategy(val label: String) extends Labelled with ClassSimpleNameToString with Product with Serializable
 
 object FilterStrategy {
 
-  case object WhitelistFirst extends FilterStrategy("Whitelist First")
-  case object BlacklistFirst extends FilterStrategy("Blacklist First")
+  case object WhiteListFirst extends FilterStrategy("WhiteList First")
+  case object BlackListFirst extends FilterStrategy("BlackList First")
   case object Disabled extends FilterStrategy("Disabled")
 
-  val AllStrategies = List(WhitelistFirst, BlacklistFirst, Disabled)
+  val AllStrategies: List[FilterStrategy] = List(WhiteListFirst, BlackListFirst, Disabled)
 
   def apply(s: String): FilterStrategy =
-    AllStrategies.find(_.toString == s).getOrElse {
+    AllStrategies.find(_.toString.equalsIgnoreCase(s)).getOrElse {
       throw new IllegalArgumentException(s"$s is not a valid filter strategy")
     }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
-import java.nio.charset.StandardCharsets._
-
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ ClientHandler, Mitm, OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.Mitm._
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM.{ WaitingForProxyConnectResponse, _ }
 import io.gatling.recorder.http.flows.MitmMessage._
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
+import io.gatling.recorder.util.HttpUtils
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.{ Channel, ChannelFutureListener }
 import io.netty.handler.codec.http._
 import io.netty.handler.ssl.SslHandler
-import org.asynchttpclient.util.Base64
 
 /**
  * Standard flow:
@@ -52,22 +52,22 @@ import org.asynchttpclient.util.Base64
  * @param httpClientCodecFactory create new HttpClientCodecs
  */
 class SecuredWithProxyMitmActor(
-    serverChannel:          Channel,
-    clientBootstrap:        Bootstrap,
-    sslServerContext:       SslServerContext,
-    proxy:                  OutgoingProxy,
-    trafficLogger:          TrafficLogger,
-    httpClientCodecFactory: () => HttpClientCodec
-)
-  extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
+    serverChannel: Channel,
+    clientBootstrap: Bootstrap,
+    sslServerContext: SslServerContext,
+    proxy: OutgoingProxy,
+    trafficLogger: TrafficLogger,
+    httpClientCodecFactory: () => HttpClientCodec,
+    clock: Clock
+) extends SecuredMitmActor(serverChannel, clientBootstrap, sslServerContext) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
-  private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
+  private val proxyBasicAuthHeader = proxy.credentials.map(HttpUtils.basicAuth)
 
   override protected def connectedRemote(requestRemote: Remote): Remote = proxyRemote
 
   override protected def onClientChannelActive(clientChannel: Channel, pendingRequest: FullHttpRequest, remote: Remote): State = {
-    clientChannel.pipeline.addLast(GatlingHandler, new ClientHandler(self, serverChannel.id, trafficLogger))
+    clientChannel.pipeline.addLast(GatlingClientHandler, new ClientHandler(self, serverChannel.id, trafficLogger, clock))
 
     // send connect request
     val connectRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.CONNECT, s"${remote.host}:${remote.port}")
@@ -80,17 +80,22 @@ class SecuredWithProxyMitmActor(
   when(WaitingForProxyConnectResponse) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"serverChannel=${serverChannel.id} closed, state=WaitingForClientChannelConnect, closing")
+      // FIXME what about client channel?
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelException(throwable), _) =>
       logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client connect failure, replying 500 and closing", throwable)
       serverChannel.reply500AndClose()
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
-    case Event(ClientChannelInactive(inactiveClientChannelId), WaitingForProxyConnectResponseData(remote, pendingRequest, clientChannel)) =>
+    case Event(ClientChannelInactive(inactiveClientChannelId), WaitingForProxyConnectResponseData(_, pendingRequest, clientChannel)) =>
+      pendingRequest.release()
       if (inactiveClientChannelId == clientChannel.id) {
         logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client got closed, replying 500 and closing")
         serverChannel.reply500AndClose()
+        // FIXME tell handlers to not notify of inactive state
         stop()
       } else {
         // related to previous channel, ignoring
@@ -102,10 +107,12 @@ class SecuredWithProxyMitmActor(
         // the HttpClientCodec has to be regenerated, don't ask me why...
         clientChannel.pipeline.replace(HttpCodecHandlerName, HttpCodecHandlerName, httpClientCodecFactory())
         // install SslHandler on client channel
-        val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(remote))
+        val clientSslHandler = new SslHandler(SslClientContext.createSSLEngine(clientChannel.alloc, remote))
         clientChannel.pipeline.addFirst(Mitm.SslHandlerName, clientSslHandler)
 
         if (pendingRequest.method == HttpMethod.CONNECT) {
+          pendingRequest.release()
+
           // dealing with origin CONNECT from user-agent
           // install SslHandler on serverChannel with startTls = true so CONNECT response doesn't get encrypted
           val serverSslHandler = new SslHandler(sslServerContext.createSSLEngine(remote.host), true)
@@ -122,6 +129,7 @@ class SecuredWithProxyMitmActor(
       } else {
         serverChannel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE)
         clientChannel.close()
+        // FIXME tell handlers to not notify of inactive state
         stop()
       }
   }

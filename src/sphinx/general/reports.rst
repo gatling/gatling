@@ -11,7 +11,8 @@ Global menu points to consolidated statistics.
 
 Details menu points to per-request-type statistics.
 
-.. note:: Reports can be generated from the simulation.log file even if the scenario was interrupted (Ctrl+C or process killed), use the ``-ro`` option.
+.. note:: You can use the ``-ro`` option to generate reports from a truncated simulation.log file, for example when the run was interrupted (Ctrl+C or process killed).
+          Note that the component in charge of logging into the simulation.log file uses a buffer, so last data might be missing if you forcefully interrupt.
           See :ref:`Configuration page <gatling-cli-options>`.
 
 Overall Simulation charts
@@ -48,6 +49,16 @@ Active users over time
     :alt: ActiveUsers
 
 This chart displays the active users during the simulation : total and per scenario.
+
+"Active users" is neither "concurrent users" or "users arrival rate".
+It's a kind of mixed metric that serves for both open and closed workload models and that represents "users who were active on the system under load at a given second".
+
+It's computed as::
+
+    (number of alive users at previous second)
+    + (number of users that were started during this second)
+    - (number of users that were terminated during previous second)
+
 
 Response time distribution
 --------------------------

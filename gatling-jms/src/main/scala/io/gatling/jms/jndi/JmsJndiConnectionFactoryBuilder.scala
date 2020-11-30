@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.jndi
 
 import java.util.{ Hashtable => JHashtable }
 import javax.jms.ConnectionFactory
 import javax.naming.{ Context, InitialContext }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.model.Credentials
 
@@ -27,39 +28,42 @@ import com.typesafe.scalalogging.StrictLogging
 
 case object JmsJndiConnectionFactoryBuilderBase {
 
-  def connectionFactoryName(cfn: String) = JmsJndiConnectionFactoryBuilderUrlStep(cfn)
+  def connectionFactoryName(cfn: String): JmsJndiConnectionFactoryBuilderUrlStep =
+    new JmsJndiConnectionFactoryBuilderUrlStep(cfn)
 }
 
-case class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String) {
+final class JmsJndiConnectionFactoryBuilderUrlStep(connectionFactoryName: String) {
 
-  def url(theUrl: String) =
-    JmsJndiConnectionFactoryBuilderFactoryStep(connectionFactoryName, theUrl)
+  def url(theUrl: String): JmsJndiConnectionFactoryBuilderFactoryStep =
+    JmsJndiConnectionFactoryBuilderFactoryStep(connectionFactoryName, theUrl, None, Map.empty)
 }
 
-case class JmsJndiConnectionFactoryBuilderFactoryStep(
+final case class JmsJndiConnectionFactoryBuilderFactoryStep(
     connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials] = None,
-    properties:            Map[String, String] = Map.empty
+    url: String,
+    credentials: Option[Credentials],
+    properties: Map[String, String]
 ) {
 
-  def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
+  def credentials(user: String, password: String): JmsJndiConnectionFactoryBuilderFactoryStep =
+    copy(credentials = Some(Credentials(user, password)))
 
-  def property(key: String, value: String) = copy(properties = properties.updated(key, value))
+  def property(key: String, value: String): JmsJndiConnectionFactoryBuilderFactoryStep =
+    copy(properties = properties.updated(key, value))
 
-  def contextFactory(cf: String) =
-    JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
+  def contextFactory(cf: String): JmsJndiConnectionFactoryBuilder =
+    new JmsJndiConnectionFactoryBuilder(cf, connectionFactoryName, url, credentials, properties)
 }
 
-case class JmsJndiConnectionFactoryBuilder(
-    contextFactory:        String,
+final class JmsJndiConnectionFactoryBuilder(
+    contextFactory: String,
     connectionFactoryName: String,
-    url:                   String,
-    credentials:           Option[Credentials],
-    jndiProperties:        Map[String, String]
+    url: String,
+    credentials: Option[Credentials],
+    jndiProperties: Map[String, String]
 ) extends StrictLogging {
 
-  def build() = {
+  def build(): ConnectionFactory = {
     // create InitialContext
     val properties = new JHashtable[String, String]
     properties.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory)
@@ -72,11 +76,11 @@ case class JmsJndiConnectionFactoryBuilder(
     properties.putAll(jndiProperties.asJava)
 
     val ctx = new InitialContext(properties)
-    logger.info(s"Got InitialContext $ctx")
+    logger.debug(s"Got InitialContext $ctx")
 
     // create QueueConnectionFactory
     val qcf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
-    logger.info(s"Got ConnectionFactory $qcf")
+    logger.debug(s"Got ConnectionFactory $qcf")
     qcf
   }
 

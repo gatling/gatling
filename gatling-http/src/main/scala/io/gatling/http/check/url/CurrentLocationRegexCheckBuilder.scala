@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.url
 
-import io.gatling.core.check._
-import io.gatling.core.check.extractor.regex._
+import io.gatling.core.check.{ Extractor, _ }
+import io.gatling.core.check.regex._
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckScope.Url
 import io.gatling.http.response.Response
 
 trait CurrentLocationRegexCheckType
@@ -27,33 +29,28 @@ trait CurrentLocationRegexCheckType
 trait CurrentLocationRegexOfType {
   self: CurrentLocationRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
+  def ofType[X: GroupExtractor]: CurrentLocationRegexCheckBuilder[X] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
 }
 
 object CurrentLocationRegexCheckBuilder {
 
-  def currentLocationRegex(pattern: Expression[String], patterns: Patterns) =
+  def currentLocationRegex(pattern: Expression[String], patterns: Patterns): CurrentLocationRegexCheckBuilder[String] with CurrentLocationRegexOfType =
     new CurrentLocationRegexCheckBuilder[String](pattern, patterns) with CurrentLocationRegexOfType
-
-  private val ExtractorFactory = new RegexExtractorFactoryBase("currentLocationRegex")
 }
 
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](
-    private[url] val pattern:  Expression[String],
+    private[url] val pattern: Expression[String],
     private[url] val patterns: Patterns
-)
-  extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, CharSequence, X] {
+) extends DefaultMultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, X](displayActualValue = true) {
 
-  import CurrentLocationRegexCheckBuilder.ExtractorFactory._
-
-  override def findExtractor(occurrence: Int) = pattern.map(newRegexSingleExtractor[X](_, occurrence, patterns))
-  override def findAllExtractor = pattern.map(newRegexMultipleExtractor[X](_, patterns))
-  override def countExtractor = pattern.map(newRegexCountExtractor(_, patterns))
+  override protected def findExtractor(occurrence: Int): Expression[Extractor[String, X]] =
+    pattern.map(RegexExtractors.find[X]("currentLocationRegex", _, occurrence, patterns))
+  override protected def findAllExtractor: Expression[Extractor[String, Seq[X]]] = pattern.map(RegexExtractors.findAll[X]("currentLocationRegex", _, patterns))
+  override protected def countExtractor: Expression[Extractor[String, Int]] = pattern.map(RegexExtractors.count("currentLocationRegex", _, patterns))
 }
 
-object CurrentLocationRegexProvider extends CheckProtocolProvider[CurrentLocationRegexCheckType, HttpCheck, Response, CharSequence] {
+object CurrentLocationRegexCheckMaterializer {
 
-  override val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
-
-  override val preparer: Preparer[Response, String] = UrlStringPreparer
+  val Instance: CheckMaterializer[CurrentLocationRegexCheckType, HttpCheck, Response, String] =
+    new HttpCheckMaterializer[CurrentLocationRegexCheckType, String](Url, UrlStringPreparer)
 }

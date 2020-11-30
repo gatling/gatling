@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.stats.buffers
 
-import io.gatling.core.stats.{ Percentiles, PercentilesVsTimePlot }
+import io.gatling.charts.stats.{ Percentiles, PercentilesVsTimePlot }
 
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 
@@ -36,24 +37,23 @@ private[stats] class PercentilesBuffers(buckets: Array[Int]) {
 
   def percentiles: Iterable[PercentilesVsTimePlot] =
     digests.view.zipWithIndex
-      .map {
-        case (digestO, bucketNumber) =>
-          val time = buckets(bucketNumber)
-          val percentiles = digestO.map { digest =>
-            Percentiles(
-              digest.quantile(0).toInt,
-              digest.quantile(0.25).toInt,
-              digest.quantile(0.5).toInt,
-              digest.quantile(0.75).toInt,
-              digest.quantile(0.80).toInt,
-              digest.quantile(0.85).toInt,
-              digest.quantile(0.90).toInt,
-              digest.quantile(0.95).toInt,
-              digest.quantile(0.99).toInt,
-              digest.quantile(1.0).toInt
-            )
-          }
+      .map { case (digestO, bucketNumber) =>
+        val time = buckets(bucketNumber)
+        val percentiles = digestO.map { digest =>
+          new Percentiles(
+            digest.quantile(0).toInt,
+            digest.quantile(0.25).toInt,
+            digest.quantile(0.5).toInt,
+            digest.quantile(0.75).toInt,
+            digest.quantile(0.80).toInt,
+            digest.quantile(0.85).toInt,
+            digest.quantile(0.90).toInt,
+            digest.quantile(0.95).toInt,
+            digest.quantile(0.99).toInt,
+            digest.quantile(1.0).toInt
+          )
+        }
 
-          PercentilesVsTimePlot(time, percentiles)
+        new PercentilesVsTimePlot(time, percentiles)
       }
 }

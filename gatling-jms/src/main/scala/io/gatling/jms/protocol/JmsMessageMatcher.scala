@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.protocol
 
 import java.util.UUID
 import javax.jms.Message
+
+import com.eatthepath.uuid.FastUUID
 
 /**
  * define trait for message matching logic with separate request/response
@@ -28,14 +31,14 @@ trait JmsMessageMatcher {
   def responseMatchId(msg: Message): String
 }
 
-object MessageIDMessageMatcher extends JmsMessageMatcher {
+object MessageIdMessageMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = {}
   override def requestMatchId(msg: Message): String = msg.getJMSMessageID
   override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }
 
-object CorrelationIDMessageMatcher extends JmsMessageMatcher {
-  override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(UUID.randomUUID.toString)
+object CorrelationIdMessageMatcher extends JmsMessageMatcher {
+  override def prepareRequest(msg: Message): Unit = msg.setJMSCorrelationID(FastUUID.toString(UUID.randomUUID))
   override def requestMatchId(msg: Message): String = msg.getJMSCorrelationID
   override def responseMatchId(msg: Message): String = msg.getJMSCorrelationID
 }

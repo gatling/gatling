@@ -1,13 +1,10 @@
-resolvers += Resolver.url("gatling", url("http://dl.bintray.com/content/gatling/sbt-plugins/"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.bintrayIvyRepo("gatling", "sbt-plugins")
+resolvers += Resolver.jcenterRepo
 
-addSbtPlugin("io.gatling" % "gatling-build-plugin" % "2.0.6")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.6.4")
-
-addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "0.8.2")
-
-addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.3.3")
-
-addSbtPlugin("pl.project13.scala" % "sbt-jmh" % "0.2.25")
-
-addMavenResolverPlugin
+addSbtPlugin("io.gatling"         % "gatling-build-plugin"  % "2.6.0")
+addSbtPlugin("com.typesafe.sbt"   % "sbt-native-packager"   % "1.7.6")
+addSbtPlugin("pl.project13.scala" % "sbt-jmh"               % "0.4.0")
+addSbtPlugin("net.aichler"        % "sbt-jupiter-interface" % "0.7.0")
+addSbtPlugin("com.typesafe.sbt"   % "sbt-site"              % "1.4.1")
+addSbtPlugin("org.wartremover"    % "sbt-wartremover"       % "2.4.13")
+addSbtPlugin("ch.epfl.scala"      % "sbt-scalafix"          % "0.9.23")

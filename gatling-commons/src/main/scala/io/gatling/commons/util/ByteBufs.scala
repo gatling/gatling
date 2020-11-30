@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
 import io.gatling.commons.util.Collections._
@@ -21,18 +22,33 @@ import io.netty.buffer.ByteBuf
 
 object ByteBufs {
 
-  def byteBufsToByteArray(bufs: Seq[ByteBuf]): Array[Byte] = {
-    // should be more efficient than creating a CompositeByteBuf
-    val size = bufs.sumBy(_.readableBytes)
-    val bytes = new Array[Byte](size)
-
-    var offset = 0
-
-    bufs.foreach { buf =>
-      buf.getBytes(0, bytes, offset, buf.readableBytes)
-      offset += buf.readableBytes
+  def byteBufToByteArray(buffer: ByteBuf): Array[Byte] = {
+    val readableBytes = buffer.readableBytes
+    if (readableBytes > 0) {
+      val byteArray = new Array[Byte](readableBytes)
+      buffer.getBytes(buffer.readerIndex, byteArray)
+      byteArray
+    } else {
+      Array.emptyByteArray
     }
-
-    bytes
   }
+
+  def byteBufsToByteArray(bufs: Seq[ByteBuf]): Array[Byte] =
+    if (bufs.nonEmpty) {
+      // should be more efficient than creating a CompositeByteBuf
+      val size = bufs.sumBy(_.readableBytes)
+      val bytes = new Array[Byte](size)
+
+      var offset = 0
+
+      bufs.foreach { buf =>
+        val bufSize = buf.readableBytes
+        buf.getBytes(buf.readerIndex, bytes, offset, bufSize)
+        offset += bufSize
+      }
+
+      bytes
+    } else {
+      Array.emptyByteArray
+    }
 }

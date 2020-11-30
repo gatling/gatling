@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
 import scala.util.{ Failure, Success }
 
+import io.gatling.commons.util.Clock
+import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM.{ WaitingForClientChannelConnect, WaitingForClientChannelConnectData }
 import io.gatling.recorder.http.flows.MitmMessage.{ ClientChannelActive, ClientChannelException }
+import io.gatling.recorder.http.ssl.SslServerContext
 
 import com.typesafe.scalalogging.StrictLogging
 import io.netty.bootstrap.Bootstrap
-import io.netty.handler.codec.http.FullHttpRequest
+import io.netty.channel.Channel
+import io.netty.handler.codec.http.{ FullHttpRequest, HttpClientCodec }
+
+object MitmActor {
+  def apply(
+      outgoingProxy: Option[OutgoingProxy],
+      clientBootstrap: Bootstrap,
+      sslServerContext: SslServerContext,
+      trafficLogger: TrafficLogger,
+      httpClientCodecFactory: () => HttpClientCodec,
+      channel: Channel,
+      https: Boolean,
+      clock: Clock
+  ): MitmActor =
+    if (https) {
+      outgoingProxy match {
+        case Some(proxy) => new SecuredWithProxyMitmActor(channel, clientBootstrap, sslServerContext, proxy, trafficLogger, httpClientCodecFactory, clock)
+        case _           => new SecuredNoProxyMitmActor(channel, clientBootstrap, sslServerContext, trafficLogger, clock)
+      }
+    } else {
+      outgoingProxy match {
+        case Some(proxy) => new PlainWithProxyMitmActor(channel, clientBootstrap, proxy, trafficLogger, clock)
+        case _           => new PlainNoProxyMitmActor(channel, clientBootstrap, trafficLogger, clock)
+      }
+    }
+}
 
 abstract class MitmActor(clientBootstrap: Bootstrap) extends MitmActorFSM with StrictLogging {
 

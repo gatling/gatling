@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.compiler.config.cli
 
-import scopt.{ OptionDef, OptionParser, Read }
+package io.gatling.compiler.config.cli
 
 import io.gatling.compiler.config.cli.CommandLineConstants._
 
-private[config] case class CommandLineOverrides(
-    simulationsDirectory: String = "",
-    binariesFolder:       String = ""
+import scopt.{ OptionDef, OptionParser, Read }
+
+private[config] object CommandLineOverrides {
+  val Empty: CommandLineOverrides = CommandLineOverrides("", "", "")
+}
+
+private[config] final case class CommandLineOverrides(
+    simulationsDirectory: String,
+    binariesFolder: String,
+    extraScalacOptions: String
 )
 
 private[config] class ArgsParser(args: Array[String]) {
@@ -37,12 +43,21 @@ private[config] class ArgsParser(args: Array[String]) {
     help("help").abbr("h")
 
     opt[String](SimulationsFolder)
-      .action { (folder, c) => c.copy(simulationsDirectory = folder) }
+      .action { (folder, c) =>
+        c.copy(simulationsDirectory = folder)
+      }
 
     opt[String](BinariesFolder)
-      .action { (binFolder, c) => c.copy(binariesFolder = binFolder) }
+      .action { (binFolder, c) =>
+        c.copy(binariesFolder = binFolder)
+      }
+
+    opt[String](ExtraScalacOptions)
+      .action { (extraScalacOpts, c) =>
+        c.copy(extraScalacOptions = extraScalacOpts)
+      }
   }
 
-  def parseArguments =
-    cliOptsParser.parse(args, CommandLineOverrides()).get
+  def parseArguments: CommandLineOverrides =
+    cliOptsParser.parse(args, CommandLineOverrides.Empty).get
 }

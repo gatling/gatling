@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
 import scala.collection.mutable
 
+import io.gatling.commons.util.Clock
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-import akka.actor.{ ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
 object RendezVous extends NameGen {
-
-  def apply(users: Int, system: ActorSystem, statsEngine: StatsEngine, next: Action): Action = {
-    val actor = system.actorOf(RendezVousActor.props(users, next))
-    new ExitableActorDelegatingAction(genName("rendezVous"), statsEngine, next, actor)
+  def apply(users: Int, actorSystem: ActorSystem, statsEngine: StatsEngine, clock: Clock, next: Action): RendezVous = {
+    val props = Props(new RendezVousActor(users: Int, next))
+    val actor = actorSystem.actorOf(props, genName("rendezVous"))
+    new RendezVous(actor, statsEngine, clock, next)
   }
 }
 
-object RendezVousActor {
-  def props(users: Int, next: Action) =
-    Props(new RendezVousActor(users: Int, next))
-}
+class RendezVous private (actor: ActorRef, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ActorDelegatingAction(actor.path.name, actor)
 
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.
  */
-class RendezVousActor(users: Int, val next: Action) extends ActionActor {
+class RendezVousActor(users: Int, val next: Action) extends BaseActor {
 
-  val buffer = mutable.Queue.empty[Session]
+  private val buffer = mutable.Queue.empty[Session]
 
-  val passThrough: Receive = {
-    case session: Session => next ! session
+  private val passThrough: Receive = { case session: Session =>
+    next ! session
   }
 
   def execute(session: Session): Unit = {
@@ -55,4 +56,20 @@ class RendezVousActor(users: Int, val next: Action) extends ActionActor {
       buffer.clear()
     }
   }
+
+  override def receive: Receive = { case session: Session =>
+    execute(session)
+  }
+
+  /**
+   * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
+   */
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
+    message.foreach {
+      case session: Session =>
+        logger.error(s"'${self.path.name}' crashed on session $session, forwarding to the next one", reason)
+        next ! session.markAsFailed
+      case _ =>
+        logger.error(s"'${self.path.name}' crashed on unknown message $message, dropping", reason)
+    }
 }

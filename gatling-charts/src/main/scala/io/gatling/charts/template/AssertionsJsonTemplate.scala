@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.template
 
-import io.gatling.commons.stats.assertion.AssertionResult
+import io.gatling.commons.shared.unstable.model.stats.assertion.AssertionResult
 import io.gatling.core.stats.writer.RunMessage
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult]) {
 
-  private[this] def print(assertionResult: AssertionResult): Fastring = {
+  private[this] def print(assertionResult: AssertionResult): String = {
     import assertionResult._
-    fast"""{
+    s"""{
   "path": "${assertion.path.printable}",
   "target": "${assertion.target.printable}",
   "condition": "${assertion.condition.printable}",
   "expectedValues": [${assertion.condition.values.mkString(",")}],
   "result": $result,
   "message": "$message",
-  "actualValue": [${actualValue.getOrElse(-1)}]
+  "actualValue": [${actualValue.getOrElse(-1.0)}]
 }"""
   }
 
-  def getOutput: Fastring = {
-    fast"""{
+  def getOutput: String = {
+    s"""{
   "simulation": "${runMessage.simulationClassName}",
   "simulationId": "${runMessage.simulationId}",
   "start": ${runMessage.start},
   "description": "${runMessage.runDescription}",
   "scenarios": [${scenarioNames.map(n => s""""$n"""").mkString(", ")}],
   "assertions": [
-${assertionResults.map(print).mkFastring(",\n")}
+${assertionResults.map(print).mkString(",\n")}
   ]
 }"""
   }

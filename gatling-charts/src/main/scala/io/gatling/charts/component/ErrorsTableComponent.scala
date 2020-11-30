@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.component
 
-import io.gatling.commons.stats.ErrorStats
-import io.gatling.commons.util.StringHelper.EmptyFastring
-import io.gatling.commons.util.HtmlHelper.HtmlRichString
+import io.gatling.charts.util.HtmlHelper.HtmlRichString
+import io.gatling.commons.shared.unstable.model.stats.ErrorStats
 import io.gatling.commons.util.NumberHelper._
-
-import com.dongxiguo.fastring.Fastring.Implicits._
 
 private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
 
-  def js = fast"""
+  def js: String = s"""
 	    $$('#container_errors').sortable('#container_errors');
     """
 
-  def html = if (errors.isEmpty)
-    EmptyFastring
-  else
-    fast"""<div class="statistics extensible-geant collapsed">
+  def html: String =
+    if (errors.isEmpty)
+      ""
+    else
+      s"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         <div class="title_collapsed" style="cursor: auto;">ERRORS</div>
     </div>
@@ -44,16 +43,14 @@ private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Comp
             </tr>
         </thead>
 		<tbody>
-		    ${
-      errors.zipWithIndex.map {
-        case (error, index) => fast"""
+		    ${errors.zipWithIndex.map { case (error, index) =>
+        s"""
 		    <tr>
 		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="value error-col-2 total">${error.count}</td>
 		    	<td class="value error-col-3 total">${error.percentage.toPrintableString} %</td>
 		    </tr>"""
-      }.mkFastring
-    }
+      }.mkString}
 		</tbody>
     </table>
 </div>

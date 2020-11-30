@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.config
 
 import java.nio.charset.Charset
+import java.nio.file.{ Path, Paths }
 import java.util.ResourceBundle
+import javax.net.ssl.{ KeyManagerFactory, SSLContext, TrustManagerFactory }
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.io.Codec
+import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 
-import io.gatling.commons.util.{StringHelper, ConfigHelper}
+import io.gatling.commons.shared.unstable.util.Ssl
+import io.gatling.commons.util.ConfigHelper._
+import io.gatling.commons.util.StringHelper._
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.stats.writer._
-import ConfigHelper.configChain
-import StringHelper.RichString
 
 import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
 
-/**
- * Configuration loader of Gatling
- */
+sealed abstract class ObsoleteUsage(val message: String) extends Product with Serializable { def path: String }
+final case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
+final case class Renamed(path: String, replacement: String)
+    extends ObsoleteUsage(s"'$path' was renamed into $replacement and will be removed in the next minor release. Please rename.")
+
 object GatlingConfiguration extends StrictLogging {
 
   private val GatlingDefaultsConfigFile = "gatling-defaults.conf"
-  private val GatlingConfigFile = "gatling.conf"
+  private val GatlingCustomConfigFile = "gatling.conf"
+  private val GatlingCustomConfigFileOverrideSystemProperty = "gatling.conf.file"
   private val ActorSystemDefaultsConfigFile = "gatling-akka-defaults.conf"
   private val ActorSystemConfigFile = "gatling-akka.conf"
 
@@ -50,7 +56,9 @@ object GatlingConfiguration extends StrictLogging {
     configChain(customConfig, defaultsConfig)
   }
 
-  def loadForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
+  def loadForTest(): GatlingConfiguration = loadForTest(mutable.Map.empty)
+
+  def loadForTest(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
 
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, GatlingDefaultsConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
@@ -58,397 +66,385 @@ object GatlingConfiguration extends StrictLogging {
     mapToGatlingConfig(config)
   }
 
-  def load(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
-    sealed abstract class ObsoleteUsage(val message: String) { def path: String }
-    case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
-    case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
+  def load(props: mutable.Map[String, _ <: Any]): GatlingConfiguration = {
 
-    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
+    def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Seq[T] = {
       val bundle = ResourceBundle.getBundle(bundleName)
       bundle.getKeys.asScala.map(key => creator(key, bundle.getString(key))).toVector
     }
 
-    def warnAboutRemovedProperties(config: Config): Unit = {
-      val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
-      val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
+    def warnAboutRemovedProperties(config: Config, removedProperties: Seq[Removed], renamedProperties: Seq[Renamed]): Unit = {
 
       val obsoleteUsages =
         (removedProperties ++ renamedProperties).collect { case obs if config.hasPath(obs.path) => obs.message }
 
       if (obsoleteUsages.nonEmpty) {
-        logger.error(
-          s"""|Your gatling.conf file is outdated, some properties have been renamed or removed.
-                |Please update (check gatling.conf in Gatling bundle, or gatling-defaults.conf in gatling-core jar).
-                |Enabled obsolete properties:
-                |${obsoleteUsages.mkString("\n")}""".stripMargin
+        logger.warn(
+          s"""|Your Gatling configuration options are outdated, some properties have been renamed or removed.
+              |Please update (check gatling.conf in Gatling bundle, or gatling-defaults.conf in gatling-core jar).
+              |Enabled obsolete properties:
+              |${obsoleteUsages.mkString("\n")}""".stripMargin
         )
       }
     }
 
     val classLoader = getClass.getClassLoader
 
+    val customConfigFile = sys.props.getOrElse(GatlingCustomConfigFileOverrideSystemProperty, GatlingCustomConfigFile)
+    logger.info(s"Gatling will try to use '$customConfigFile' as custom config file.")
+
     val defaultsConfig = ConfigFactory.parseResources(classLoader, GatlingDefaultsConfigFile)
-    val customConfig = ConfigFactory.parseResources(classLoader, GatlingConfigFile)
+    val customConfig = ConfigFactory.parseResources(classLoader, customConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props.asJava)
 
     val config = configChain(ConfigFactory.systemProperties, customConfig, propertiesConfig, defaultsConfig)
 
-    warnAboutRemovedProperties(config)
+    val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
+    val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
 
-    mapToGatlingConfig(config)
+    warnAboutRemovedProperties(config, removedProperties, renamedProperties)
+
+    mapToGatlingConfig(RenamedAwareConfig(config, renamedProperties))
   }
 
+  private def coreConfiguration(config: Config) =
+    new CoreConfiguration(
+      version = ResourceBundle.getBundle("gatling-version").getString("version"),
+      outputDirectoryBaseName = config.getString(core.OutputDirectoryBaseName).trimToOption,
+      runDescription = config.getString(core.RunDescription).trimToOption,
+      encoding = config.getString(core.Encoding),
+      simulationClass = config.getString(core.SimulationClass).trimToOption,
+      elFileBodiesCacheMaxCapacity = config.getLong(core.ElFileBodiesCacheMaxCapacity),
+      rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
+      rawFileBodiesInMemoryMaxSize = config.getLong(core.RawFileBodiesInMemoryMaxSize),
+      pebbleFileBodiesCacheMaxCapacity = config.getLong(core.PebbleFileBodiesCacheMaxCapacity),
+      feederAdaptiveLoadModeThreshold = config.getLong(core.FeederAdaptiveLoadModeThreshold) * 1048576,
+      shutdownTimeout = config.getLong(core.ShutdownTimeout),
+      extract = new ExtractConfiguration(
+        regex = new RegexConfiguration(
+          cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)
+        ),
+        xpath = new XPathConfiguration(
+          cacheMaxCapacity = config.getLong(core.extract.xpath.CacheMaxCapacity)
+        ),
+        jsonPath = new JsonPathConfiguration(
+          cacheMaxCapacity = config.getLong(core.extract.jsonPath.CacheMaxCapacity)
+        ),
+        css = new CssConfiguration(
+          cacheMaxCapacity = config.getLong(core.extract.css.CacheMaxCapacity)
+        )
+      ),
+      directory = new DirectoryConfiguration(
+        simulations = Paths.get(config.getString(core.directory.Simulations)),
+        resources = Paths.get(config.getString(core.directory.Resources)),
+        binaries = config.getString(core.directory.Binaries).trimToOption.map(Paths.get(_)),
+        reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
+        results = Paths.get(config.getString(core.directory.Results))
+      )
+    )
+
+  private def socketConfiguration(config: Config) =
+    new SocketConfiguration(
+      connectTimeout = config.getInt(socket.ConnectTimeout) millis,
+      tcpNoDelay = config.getBoolean(socket.TcpNoDelay),
+      soKeepAlive = config.getBoolean(socket.SoKeepAlive),
+      soReuseAddress = config.getBoolean(socket.SoReuseAddress)
+    )
+
+  private def defaultEnabledProtocols(useOpenSsl: Boolean) =
+    if (useOpenSsl) {
+      List("TLSv1.3", "TLSv1.2", "TLSv1.1", "TLSv1")
+    } else {
+      try {
+        val ctx = SSLContext.getInstance("TLS")
+        ctx.init(null, null, null)
+        ctx.getDefaultSSLParameters.getProtocols.filterNot(_ == "SSLv3").toList
+      } catch {
+        case e: Exception =>
+          throw new Error("Failed to initialize the default SSL context", e)
+      }
+    }
+
+  private def sslConfiguration(config: Config) = {
+    val useOpenSsl = config.getBoolean(ssl.UseOpenSsl)
+    val enabledProtocols = config.getStringList(ssl.EnabledProtocols).asScala.toList match {
+      case Nil                  => defaultEnabledProtocols(useOpenSsl)
+      case userDefinedProtocols => userDefinedProtocols
+    }
+
+    new SslConfiguration(
+      useOpenSsl = useOpenSsl,
+      useOpenSslFinalizers = config.getBoolean(ssl.UseOpenSslFinalizers),
+      handshakeTimeout = config.getInt(ssl.HandshakeTimeout) millis,
+      useInsecureTrustManager = config.getBoolean(ssl.UseInsecureTrustManager),
+      enabledProtocols = enabledProtocols,
+      enabledCipherSuites = config.getStringList(ssl.EnabledCipherSuites).asScala.toList,
+      sessionCacheSize = config.getInt(ssl.SessionCacheSize),
+      sessionTimeout = config.getInt(ssl.SessionTimeout) seconds,
+      enableSni = config.getBoolean(ssl.EnableSni),
+      keyManagerFactory = {
+        val storeType = config.getString(ssl.keyStore.Type).trimToOption
+        val storeFile = config.getString(ssl.keyStore.File).trimToOption
+        val storePassword = config.getString(ssl.keyStore.Password)
+        val storeAlgorithm = config.getString(ssl.keyStore.Algorithm).trimToOption
+        storeFile.map(Ssl.newKeyManagerFactory(storeType, _, storePassword, storeAlgorithm))
+      },
+      trustManagerFactory = {
+        val storeType = config.getString(ssl.trustStore.Type).trimToOption
+        val storeFile = config.getString(ssl.trustStore.File).trimToOption
+        val storePassword = config.getString(ssl.trustStore.Password)
+        val storeAlgorithm = config.getString(ssl.trustStore.Algorithm).trimToOption
+        storeFile.map(Ssl.newTrustManagerFactory(storeType, _, storePassword, storeAlgorithm))
+      }
+    )
+  }
+
+  private def nettyConfiguration(config: Config) =
+    new NettyConfiguration(
+      useNativeTransport = config.getBoolean(netty.UseNativeTransport),
+      allocator = config.getString(netty.Allocator),
+      maxThreadLocalCharBufferSize = config.getInt(netty.MaxThreadLocalCharBufferSize)
+    )
+
+  private def chartingConfiguration(config: Config) =
+    new ChartingConfiguration(
+      noReports = config.getBoolean(charting.NoReports),
+      maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
+      useGroupDurationMetric = config.getBoolean(charting.UseGroupDurationMetric),
+      indicators = new IndicatorsConfiguration(
+        lowerBound = config.getInt(charting.indicators.LowerBound),
+        higherBound = config.getInt(charting.indicators.HigherBound),
+        percentile1 = config.getDouble(charting.indicators.Percentile1),
+        percentile2 = config.getDouble(charting.indicators.Percentile2),
+        percentile3 = config.getDouble(charting.indicators.Percentile3),
+        percentile4 = config.getDouble(charting.indicators.Percentile4)
+      )
+    )
+
+  private def httpConfiguration(config: Config) =
+    new HttpConfiguration(
+      fetchedCssCacheMaxCapacity = config.getLong(http.FetchedCssCacheMaxCapacity),
+      fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),
+      perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
+      warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
+      enableGA = config.getBoolean(http.EnableGA),
+      requestTimeout = config.getInt(http.RequestTimeout) millis,
+      pooledConnectionIdleTimeout = config.getInt(http.PooledConnectionIdleTimeout) millis,
+      enableHostnameVerification = {
+        val enable = config.getBoolean(http.EnableHostnameVerification)
+        if (!enable) {
+          System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
+          System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
+        }
+        enable
+      },
+      dns = new DnsConfiguration(
+        queryTimeout = config.getInt(http.dns.QueryTimeout) millis,
+        maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
+      )
+    )
+
+  private def jmsConfiguration(config: Config) =
+    new JmsConfiguration(
+      replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod) millis
+    )
+
+  private def dataConfiguration(config: Config) =
+    new DataConfiguration(
+      dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName(_).toList).toSeq,
+      console = new ConsoleDataWriterConfiguration(
+        light = config.getBoolean(data.console.Light),
+        writePeriod = config.getInt(data.console.WritePeriod) seconds
+      ),
+      file = new FileDataWriterConfiguration(
+        bufferSize = config.getInt(data.file.BufferSize)
+      ),
+      leak = new LeakDataWriterConfiguration(
+        noActivityTimeout = config.getInt(data.leak.NoActivityTimeout) seconds
+      ),
+      graphite = new GraphiteDataWriterConfiguration(
+        light = config.getBoolean(data.graphite.Light),
+        host = config.getString(data.graphite.Host),
+        port = config.getInt(data.graphite.Port),
+        protocol = TransportProtocol(config.getString(data.graphite.Protocol).trim),
+        rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
+        bufferSize = config.getInt(data.graphite.BufferSize),
+        writePeriod = config.getInt(data.graphite.WritePeriod) seconds
+      )
+    )
+
   private def mapToGatlingConfig(config: Config) =
-    GatlingConfiguration(
-      core = CoreConfiguration(
-        version = ResourceBundle.getBundle("gatling-version").getString("version"),
-        outputDirectoryBaseName = config.getString(core.OutputDirectoryBaseName).trimToOption,
-        runDescription = config.getString(core.RunDescription).trimToOption,
-        encoding = config.getString(core.Encoding),
-        simulationClass = config.getString(core.SimulationClass).trimToOption,
-        elFileBodiesCacheMaxCapacity = config.getLong(core.ElFileBodiesCacheMaxCapacity),
-        rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
-        rawFileBodiesInMemoryMaxSize = config.getLong(core.RawFileBodiesInMemoryMaxSize),
-        pebbleFileBodiesCacheMaxCapacity = config.getLong(core.PebbleFileBodiesCacheMaxCapacity),
-        extract = ExtractConfiguration(
-          regex = RegexConfiguration(
-            cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)
-          ),
-          xpath = XPathConfiguration(
-            cacheMaxCapacity = config.getLong(core.extract.xpath.CacheMaxCapacity)
-          ),
-          jsonPath = JsonPathConfiguration(
-            cacheMaxCapacity = config.getLong(core.extract.jsonPath.CacheMaxCapacity),
-            preferJackson = config.getBoolean(core.extract.jsonPath.PreferJackson)
-          ),
-          css = CssConfiguration(
-            cacheMaxCapacity = config.getLong(core.extract.css.CacheMaxCapacity)
-          )
-        ),
-        directory = DirectoryConfiguration(
-          data = config.getString(core.directory.Data),
-          bodies = config.getString(core.directory.Bodies),
-          sources = config.getString(core.directory.Simulations),
-          binaries = config.getString(core.directory.Binaries).trimToOption,
-          reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
-          results = config.getString(core.directory.Results)
-        )
-      ),
-      charting = ChartingConfiguration(
-        noReports = config.getBoolean(charting.NoReports),
-        maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
-        useGroupDurationMetric = config.getBoolean(charting.UseGroupDurationMetric),
-        indicators = IndicatorsConfiguration(
-          lowerBound = config.getInt(charting.indicators.LowerBound),
-          higherBound = config.getInt(charting.indicators.HigherBound),
-          percentile1 = config.getDouble(charting.indicators.Percentile1),
-          percentile2 = config.getDouble(charting.indicators.Percentile2),
-          percentile3 = config.getDouble(charting.indicators.Percentile3),
-          percentile4 = config.getDouble(charting.indicators.Percentile4)
-        )
-      ),
-      http = HttpConfiguration(
-        fetchedCssCacheMaxCapacity = config.getLong(http.FetchedCssCacheMaxCapacity),
-        fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),
-        perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
-        warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
-        enableGA = config.getBoolean(http.EnableGA),
-        ssl = {
-          def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
-
-            val storeType = config.getString(typeKey).trimToOption
-            val storeFile = config.getString(fileKey).trimToOption
-            val storePassword = config.getString(passwordKey)
-            val storeAlgorithm = config.getString(algorithmKey).trimToOption
-
-            storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
-          }
-
-          SslConfiguration(
-            keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm),
-            trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
-          )
-        },
-        ahc = AhcConfiguration(
-          keepAlive = config.getBoolean(http.ahc.KeepAlive),
-          connectTimeout = config.getInt(http.ahc.ConnectTimeout),
-          handshakeTimeout = config.getInt(http.ahc.HandshakeTimeout),
-          pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
-          readTimeout = config.getInt(http.ahc.ReadTimeout),
-          maxRetry = config.getInt(http.ahc.MaxRetry),
-          requestTimeOut = config.getInt(http.ahc.RequestTimeout),
-          disableHttpsEndpointIdentificationAlgorithm = {
-            val disable = config.getBoolean(http.ahc.DisableHttpsEndpointIdentificationAlgorithm)
-            if (disable) {
-              System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
-              System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
-            }
-            disable
-          },
-          useInsecureTrustManager = config.getBoolean(http.ahc.UseInsecureTrustManager),
-          httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
-          httpClientCodecInitialBufferSize = config.getInt(http.ahc.HttpClientCodecInitialBufferSize),
-          sslEnabledProtocols = config.getStringList(http.ahc.SslEnabledProtocols).asScala.toList,
-          sslEnabledCipherSuites = config.getStringList(http.ahc.SslEnabledCipherSuites).asScala.toList,
-          sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
-          sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout),
-          useOpenSsl = config.getBoolean(http.ahc.UseOpenSsl),
-          useNativeTransport = config.getBoolean(http.ahc.UseNativeTransport),
-          tcpNoDelay = config.getBoolean(http.ahc.TcpNoDelay),
-          soReuseAddress = config.getBoolean(http.ahc.SoReuseAddress),
-          soLinger = config.getInt(http.ahc.SoLinger),
-          soSndBuf = config.getInt(http.ahc.SoSndBuf),
-          soRcvBuf = config.getInt(http.ahc.SoRcvBuf),
-          allocator = config.getString(http.ahc.Allocator),
-          maxThreadLocalCharBufferSize = config.getInt(http.ahc.MaxThreadLocalCharBufferSize)
-        ),
-        dns = DnsConfiguration(
-          queryTimeout = config.getInt(http.dns.QueryTimeout),
-          maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
-        )
-      ),
-      jms = JmsConfiguration(
-        replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod)
-      ),
-      data = DataConfiguration(
-        dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName),
-        console = ConsoleDataWriterConfiguration(
-          light = config.getBoolean(data.console.Light)
-        ),
-        file = FileDataWriterConfiguration(
-          bufferSize = config.getInt(data.file.BufferSize)
-        ),
-        leak = LeakDataWriterConfiguration(
-          noActivityTimeout = config.getInt(data.leak.NoActivityTimeout)
-        ),
-        graphite = GraphiteDataWriterConfiguration(
-          light = config.getBoolean(data.graphite.Light),
-          host = config.getString(data.graphite.Host),
-          port = config.getInt(data.graphite.Port),
-          protocol = TransportProtocol(config.getString(data.graphite.Protocol).trim),
-          rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
-          bufferSize = config.getInt(data.graphite.BufferSize),
-          writeInterval = config.getInt(data.graphite.WriteInterval)
-        )
-      ),
+    new GatlingConfiguration(
+      core = coreConfiguration(config),
+      socket = socketConfiguration(config),
+      ssl = sslConfiguration(config),
+      netty = nettyConfiguration(config),
+      charting = chartingConfiguration(config),
+      http = httpConfiguration(config),
+      jms = jmsConfiguration(config),
+      data = dataConfiguration(config)
       // [fl]
       //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      //
       // [fl]
-      config = config
     )
 }
 
-case class CoreConfiguration(
-    version:                          String,
-    outputDirectoryBaseName:          Option[String],
-    runDescription:                   Option[String],
-    encoding:                         String,
-    simulationClass:                  Option[String],
-    extract:                          ExtractConfiguration,
-    directory:                        DirectoryConfiguration,
-    elFileBodiesCacheMaxCapacity:     Long,
-    rawFileBodiesCacheMaxCapacity:    Long,
-    rawFileBodiesInMemoryMaxSize:     Long,
-    pebbleFileBodiesCacheMaxCapacity: Long
+final class CoreConfiguration(
+    val version: String,
+    val outputDirectoryBaseName: Option[String],
+    val runDescription: Option[String],
+    val encoding: String,
+    val simulationClass: Option[String],
+    val extract: ExtractConfiguration,
+    val directory: DirectoryConfiguration,
+    val elFileBodiesCacheMaxCapacity: Long,
+    val rawFileBodiesCacheMaxCapacity: Long,
+    val rawFileBodiesInMemoryMaxSize: Long,
+    val pebbleFileBodiesCacheMaxCapacity: Long,
+    val feederAdaptiveLoadModeThreshold: Long,
+    val shutdownTimeout: Long
 ) {
-
   val charset: Charset = Charset.forName(encoding)
-  val codec: Codec = charset
 }
 
-case class ExtractConfiguration(
-    regex:    RegexConfiguration,
-    xpath:    XPathConfiguration,
-    jsonPath: JsonPathConfiguration,
-    css:      CssConfiguration
+final class ExtractConfiguration(
+    val regex: RegexConfiguration,
+    val xpath: XPathConfiguration,
+    val jsonPath: JsonPathConfiguration,
+    val css: CssConfiguration
 )
 
-case class RegexConfiguration(
-    cacheMaxCapacity: Long
+final class RegexConfiguration(
+    val cacheMaxCapacity: Long
 )
 
-case class XPathConfiguration(
-    cacheMaxCapacity: Long
+final class XPathConfiguration(
+    val cacheMaxCapacity: Long
 )
 
-case class JsonPathConfiguration(
-    cacheMaxCapacity: Long,
-    preferJackson:    Boolean
+final class JsonPathConfiguration(
+    val cacheMaxCapacity: Long
 )
 
-case class CssConfiguration(
-    cacheMaxCapacity: Long
+final class CssConfiguration(
+    val cacheMaxCapacity: Long
 )
 
-case class DirectoryConfiguration(
-    data:        String,
-    bodies:      String,
-    sources:     String,
-    binaries:    Option[String],
-    reportsOnly: Option[String],
-    results:     String
+final class DirectoryConfiguration(
+    val simulations: Path,
+    val resources: Path,
+    val binaries: Option[Path],
+    val reportsOnly: Option[String],
+    val results: Path
 )
 
-case class ChartingConfiguration(
-    noReports:              Boolean,
-    maxPlotsPerSeries:      Int,
-    useGroupDurationMetric: Boolean,
-    indicators:             IndicatorsConfiguration
+final class SocketConfiguration(
+    val connectTimeout: FiniteDuration,
+    val tcpNoDelay: Boolean,
+    val soKeepAlive: Boolean,
+    val soReuseAddress: Boolean
 )
 
-case class IndicatorsConfiguration(
-    lowerBound:  Int,
-    higherBound: Int,
-    percentile1: Double,
-    percentile2: Double,
-    percentile3: Double,
-    percentile4: Double
+final class SslConfiguration(
+    val useOpenSsl: Boolean,
+    val useOpenSslFinalizers: Boolean,
+    val handshakeTimeout: FiniteDuration,
+    val useInsecureTrustManager: Boolean,
+    val enabledProtocols: List[String],
+    val enabledCipherSuites: List[String],
+    val sessionCacheSize: Int,
+    val sessionTimeout: FiniteDuration,
+    val enableSni: Boolean,
+    val keyManagerFactory: Option[KeyManagerFactory],
+    val trustManagerFactory: Option[TrustManagerFactory]
 )
 
-case class HttpConfiguration(
-    fetchedCssCacheMaxCapacity:  Long,
-    fetchedHtmlCacheMaxCapacity: Long,
-    perUserCacheMaxCapacity:     Int,
-    warmUpUrl:                   Option[String],
-    enableGA:                    Boolean,
-    ssl:                         SslConfiguration,
-    ahc:                         AhcConfiguration,
-    dns:                         DnsConfiguration
+final class NettyConfiguration(
+    val useNativeTransport: Boolean,
+    val allocator: String,
+    val maxThreadLocalCharBufferSize: Int
 )
 
-case class JmsConfiguration(
-    replyTimeoutScanPeriod: Long
+final class ChartingConfiguration(
+    val noReports: Boolean,
+    val maxPlotsPerSeries: Int,
+    val useGroupDurationMetric: Boolean,
+    val indicators: IndicatorsConfiguration
 )
 
-case class AhcConfiguration(
-    keepAlive:                                   Boolean,
-    connectTimeout:                              Int,
-    handshakeTimeout:                            Int,
-    pooledConnectionIdleTimeout:                 Int,
-    readTimeout:                                 Int,
-    maxRetry:                                    Int,
-    requestTimeOut:                              Int,
-    disableHttpsEndpointIdentificationAlgorithm: Boolean,
-    useInsecureTrustManager:                     Boolean,
-    httpClientCodecMaxChunkSize:                 Int,
-    httpClientCodecInitialBufferSize:            Int,
-    sslEnabledProtocols:                         List[String],
-    sslEnabledCipherSuites:                      List[String],
-    sslSessionCacheSize:                         Int,
-    sslSessionTimeout:                           Int,
-    useOpenSsl:                                  Boolean,
-    useNativeTransport:                          Boolean,
-    tcpNoDelay:                                  Boolean,
-    soReuseAddress:                              Boolean,
-    soLinger:                                    Int,
-    soSndBuf:                                    Int,
-    soRcvBuf:                                    Int,
-    allocator:                                   String,
-    maxThreadLocalCharBufferSize:                Int
+final class IndicatorsConfiguration(
+    val lowerBound: Int,
+    val higherBound: Int,
+    val percentile1: Double,
+    val percentile2: Double,
+    val percentile3: Double,
+    val percentile4: Double
 )
 
-case class DnsConfiguration(
-    queryTimeout:         Int,
-    maxQueriesPerResolve: Int
+final class HttpConfiguration(
+    val fetchedCssCacheMaxCapacity: Long,
+    val fetchedHtmlCacheMaxCapacity: Long,
+    val perUserCacheMaxCapacity: Int,
+    val warmUpUrl: Option[String],
+    val enableGA: Boolean,
+    val pooledConnectionIdleTimeout: FiniteDuration,
+    val requestTimeout: FiniteDuration,
+    val enableHostnameVerification: Boolean,
+    val dns: DnsConfiguration
 )
 
-case class SslConfiguration(
-    keyStore:   Option[StoreConfiguration],
-    trustStore: Option[StoreConfiguration]
+final class JmsConfiguration(
+    val replyTimeoutScanPeriod: FiniteDuration
 )
 
-case class StoreConfiguration(
-    storeType: Option[String],
-    file:      String,
-    password:  String,
-    algorithm: Option[String]
+final class DnsConfiguration(
+    val queryTimeout: FiniteDuration,
+    val maxQueriesPerResolve: Int
 )
 
-case class DataConfiguration(
-    dataWriters: Seq[DataWriterType],
-    file:        FileDataWriterConfiguration,
-    leak:        LeakDataWriterConfiguration,
-    console:     ConsoleDataWriterConfiguration,
-    graphite:    GraphiteDataWriterConfiguration
+final class DataConfiguration(
+    val dataWriters: Seq[DataWriterType],
+    val file: FileDataWriterConfiguration,
+    val leak: LeakDataWriterConfiguration,
+    val console: ConsoleDataWriterConfiguration,
+    val graphite: GraphiteDataWriterConfiguration
 ) {
-
-  def fileDataWriterEnabled: Boolean = dataWriters.contains(FileDataWriterType)
+  def fileDataWriterEnabled: Boolean = dataWriters.contains(DataWriterType.File)
 }
 
-case class FileDataWriterConfiguration(
-    bufferSize: Int
+final class FileDataWriterConfiguration(
+    val bufferSize: Int
 )
 
-case class LeakDataWriterConfiguration(
-    noActivityTimeout: Int
+final class LeakDataWriterConfiguration(
+    val noActivityTimeout: FiniteDuration
 )
 
-case class ConsoleDataWriterConfiguration(
-    light: Boolean
+final class ConsoleDataWriterConfiguration(
+    val light: Boolean,
+    val writePeriod: FiniteDuration
 )
 
-case class GraphiteDataWriterConfiguration(
-    light:          Boolean,
-    host:           String,
-    port:           Int,
-    protocol:       TransportProtocol,
-    rootPathPrefix: String,
-    bufferSize:     Int,
-    writeInterval:  Int
+final class GraphiteDataWriterConfiguration(
+    val light: Boolean,
+    val host: String,
+    val port: Int,
+    val protocol: TransportProtocol,
+    val rootPathPrefix: String,
+    val bufferSize: Int,
+    val writePeriod: FiniteDuration
 )
 
-// [fl]
-//
-//
-//
-//
-//
-//
-//
-//
-// [fl]
-
-case class GatlingConfiguration(
-    core:      CoreConfiguration,
-    charting:  ChartingConfiguration,
-    http:      HttpConfiguration,
-    jms:       JmsConfiguration,
-    data:      DataConfiguration,
+final class GatlingConfiguration(
+    val core: CoreConfiguration,
+    val socket: SocketConfiguration,
+    val netty: NettyConfiguration,
+    val ssl: SslConfiguration,
+    val charting: ChartingConfiguration,
+    val http: HttpConfiguration,
+    val jms: JmsConfiguration,
+    val data: DataConfiguration
     // [fl]
     //
     // [fl]
-    config:    Config
-) {
-  def resolve[T](value: T): T = value
-
-  // [fl]
-  //
-  //
-  // [fl]
-}
+)

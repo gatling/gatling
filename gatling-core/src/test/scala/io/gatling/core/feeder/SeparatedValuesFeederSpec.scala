@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,70 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.feeder
 
-import io.gatling.BaseSpec
-import io.gatling.core.CoreComponents
-import io.gatling.core.structure.ScenarioContext
-import io.gatling.core.config.GatlingConfiguration
+import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
+import java.nio.channels.{ Channels, ReadableByteChannel }
+import java.nio.charset.StandardCharsets.UTF_8
 
-import org.mockito.Mockito._
+import scala.util.Using
+
+import io.gatling.BaseSpec
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.feeder.SeparatedValuesParser._
+import io.gatling.core.feeder.Utf8BomSkipReadableByteChannel._
 
 class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-
-  def scenarioContext(cfg: GatlingConfiguration = configuration) = {
-    val ctx = mock[ScenarioContext]
-    val coreComponents = mock[CoreComponents]
-    when(coreComponents.configuration) thenReturn cfg
-    when(ctx.coreComponents) thenReturn coreComponents
-    ctx
-  }
+  private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
 
   "csv" should "not handle file without quote char" in {
-    val data = csv("sample1.tsv").build(scenarioContext()).toArray
+    val data = csv("sample1.tsv").readRecords
     data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "handle file with quote char" in {
-    val data = csv("sample2.csv").build(scenarioContext()).toArray
+    val data = csv("sample2.csv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
-  it should "allow an escape char" in {
-    val data = csv("sample3.csv", escapeChar = '\\').build(scenarioContext()).toArray
-    data shouldBe Array(Map("id" -> "id", "payload" -> """{"k1": "v1", "k2": "v2"}"""))
-  }
-
-  it should "be compliant with the RFC4180 by default (no escape char by default)" in {
-    val data = csv("sample4.csv").build(scenarioContext()).toArray
-    data shouldBe Array(Map("id" -> "id", "payload" -> """{"key": "\"value\""}"""))
+  it should "be compliant with the RFC4180 by default and use \" as escape char" in {
+    val data = csv("sample4.csv").readRecords
+    data shouldBe Array(Map("id" -> "id", "payload" -> """{"key1": "value1", "key2": "value3"}"""))
   }
 
   "tsv" should "handle file without quote char" in {
-    val data = tsv("sample1.tsv").build(scenarioContext()).toArray
+    val data = tsv("sample1.tsv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "handle file with quote char" in {
-    val data = tsv("sample2.tsv").build(scenarioContext()).toArray
+    val data = tsv("sample2.tsv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   "ssv" should "not handle file without quote char" in {
-    val data = ssv("sample1.ssv").build(scenarioContext()).toArray
+    val data = ssv("sample1.ssv").readRecords
     data should not be Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
   it should "handle file with quote char" in {
-    val data = ssv("sample2.ssv").build(scenarioContext()).toArray
+    val data = ssv("sample2.ssv").readRecords
     data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
+  private def newChannel(bytes: Array[Byte]): ReadableByteChannel =
+    Channels.newChannel(new ByteArrayInputStream(bytes))
+
   "SeparatedValuesParser.stream" should "throw an exception when provided with bad resource" in {
-    import io.gatling.core.feeder.SeparatedValuesParser._
     an[Exception] should be thrownBy
-      stream(this.getClass.getClassLoader.getResourceAsStream("empty.csv"), CommaSeparator, quoteChar = '\'', escapeChar = 0)
+      stream(CommaSeparator, quoteChar = '\'', configuration.core.charset)(newChannel(Array.emptyByteArray))
+  }
+
+  it should "skip UTF-8 BOM" in {
+    val bytes =
+      Using.resource(new ByteArrayOutputStream) { os =>
+        os.write(Array(Utf8BomByte1, Utf8BomByte2, Utf8BomByte3))
+        os.write("foo,bar\n".getBytes(UTF_8))
+        os.write("hello,world\n".getBytes(UTF_8))
+        os.toByteArray
+      }
+    stream(CommaSeparator, quoteChar = '\'', UTF_8)(newChannel(bytes)).toVector shouldBe Vector(Map("foo" -> "hello", "bar" -> "world"))
+  }
+
+  it should "skip empty lines" in {
+    val bytes =
+      s"""header
+         |line1
+         |
+         |line2
+         |
+         |""".stripMargin.getBytes(UTF_8)
+
+    stream(CommaSeparator, quoteChar = '\'', UTF_8)(newChannel(bytes)).toVector shouldBe Vector(
+      Map("header" -> "line1"),
+      Map("header" -> "line2")
+    )
   }
 }

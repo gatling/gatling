@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
 object Predef extends HttpDsl {
 
-  type Request = org.asynchttpclient.Request
+  type Request = io.gatling.http.client.Request
+  type SignatureCalculator = io.gatling.http.client.SignatureCalculator
   type Response = io.gatling.http.response.Response
 }

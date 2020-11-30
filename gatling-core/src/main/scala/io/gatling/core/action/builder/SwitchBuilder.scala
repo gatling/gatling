@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.action.builder
 
-import scala.collection.breakOut
+package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ Action, Switch }
 import io.gatling.core.session._
@@ -28,16 +27,15 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
 
-    val possibleActions: Map[Any, Action] = possibilities.map {
-      case (percentage, possibility) =>
-        val possibilityAction = possibility.build(ctx, next)
-        (percentage, possibilityAction)
-    }(breakOut)
+    val possibleActions: Map[Any, Action] = possibilities.map { case (value, possibility) =>
+      val possibilityAction = possibility.build(ctx, next)
+      (value, possibilityAction)
+    }.toMap
 
     val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextAction))
 
-    new Switch(nextAction, ctx.coreComponents.statsEngine, genName("switch"), next)
+    new Switch(nextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("switch"), next)
   }
 }

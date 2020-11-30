@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.integration
 
+import java.util.Locale
 import javax.jms.TextMessage
 
 import io.gatling.core.CoreDsl
@@ -28,21 +30,22 @@ class JmsIntegrationSpec extends JmsSpec with CoreDsl with JmsDsl {
 
     val requestQueue = JmsQueue("request")
 
-    replier(requestQueue, {
-      case (tm: TextMessage, session) =>
+    replier(
+      requestQueue,
+      { case (tm: TextMessage, session) =>
         session.createTextMessage(s"""<response>
-                                     |<hello>${tm.getText.toUpperCase}</hello>
+                                     |<hello>${tm.getText.toUpperCase(Locale.ROOT)}</hello>
                                      |<property><key>${tm.getStringProperty("key")}</key></property>
                                      |<jmsType>${tm.getJMSType}</jmsType>
                                      |</response>""".stripMargin)
-    })
+      }
+    )
 
     val session = runScenario(
       scenario("Jms upperCase")
         .exec(_.set("sessionMarker", "test"))
         .exec(
-          jms("toUpperCase")
-            .requestReply
+          jms("toUpperCase").requestReply
             .destination(requestQueue)
             .textMessage("hi ${sessionMarker}")
             .property("key", "${sessionMarker} value")

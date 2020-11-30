@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,71 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
-import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
+import java.{ lang => jl }
 import java.nio.charset.StandardCharsets._
-import java.security.MessageDigest
 import java.text.Normalizer
+import java.util.Locale
 
-import io.gatling.commons.util.UnsafeHelper._
+import io.gatling.commons.util.Spire.cfor
+import io.gatling.netty.util.StringBuilderPool
 
-import com.dongxiguo.fastring.Fastring.Implicits._
-
-/**
- * This object groups all utilities for strings
- */
 object StringHelper {
 
-  private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
+  val Eol: String = System.lineSeparator
+  val EolBytes: Array[Byte] = Eol.getBytes(US_ASCII)
 
-  val Eol = System.getProperty("line.separator")
-  val EolBytes = Eol.getBytes(US_ASCII)
+  val Crlf: String = "\r\n"
 
-  val Crlf = "\r\n"
-
-  val EmptyFastring = fast""
-
-  val EmptyCharSequence = ArrayCharSequence(Array.empty[Char])
-
-  def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
-    val shifted = b & 0xff
-    if (shifted < 0x10)
-      buff.append("0")
-    buff.append(JLong.toString(shifted.toLong, 16))
-  }.toString
-
-  private val StringBuilderPool = new ThreadLocal[StringBuilder] {
-    override def initialValue() = new StringBuilder(512)
-  }
-
-  /**
-   * BEWARE: MUSN'T APPEND TO ITSELF!
-   * @return a pooled StringBuilder
-   */
-  def stringBuilder(): StringBuilder = {
-    val sb = StringBuilderPool.get
-    sb.setLength(0)
-    sb
+  object RichString {
+    private val SbPool = new StringBuilderPool
   }
 
   implicit class RichString(val string: String) extends AnyVal {
 
-    def clean = {
+    def clean: String = {
       val normalized = Normalizer.normalize(string, Normalizer.Form.NFD)
-      normalized.toLowerCase.replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
+      normalized.toLowerCase(Locale.ROOT).replaceAll("\\p{InCombiningDiacriticalMarks}+", "-").replaceAll("[^a-zA-Z0-9\\-]", "-")
     }
 
-    def escapeJsIllegalChars = string.replace("\"", "\\\"").replace("\\", "\\\\")
-
-    def trimToOption = string.trim match {
+    def trimToOption: Option[String] = string.trim match {
       case "" => None
       case s  => Some(s)
     }
 
-    def truncate(maxLength: Int) = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
+    def truncate(maxLength: Int): String = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."
 
-    def leftPad(length: Int, padder: String = " ") = {
+    def leftPad(length: Int): String = leftPad(length, " ")
+    def leftPad(length: Int, padder: String): String = {
       val paddingLength = length - string.length
       if (paddingLength > 0)
         padder * paddingLength + string
@@ -85,7 +58,8 @@ object StringHelper {
         string
     }
 
-    def rightPad(length: Int, padder: String = " ") = {
+    def rightPad(length: Int): String = rightPad(length, " ")
+    def rightPad(length: Int, padder: String): String = {
       val paddingLength = length - string.length
       if (paddingLength > 0)
         string + padder * paddingLength
@@ -93,18 +67,41 @@ object StringHelper {
         string
     }
 
-    def unsafeChars: Array[Char] = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
+    def replaceIf(replaced: Char => Boolean, replacement: Char): String =
+      if (string.isEmpty) {
+        string
+      } else {
+        var matchFound = false
+        var sb: jl.StringBuilder = null
 
-    def isConstantTimeEqual(other: String): Boolean =
-      MessageDigest.isEqual(string.getBytes(UTF_8), other.getBytes(UTF_8))
+        cfor(0)(_ < string.length, _ + 1) { i =>
+          val c = string.charAt(i)
+          if (replaced(c)) {
+            if (!matchFound) {
+              // first match
+              sb = RichString.SbPool.get()
+              sb.append(string, 0, i)
+              matchFound = true
+            }
+            sb.append(replacement)
+          } else if (matchFound) {
+            sb.append(c)
+          }
+        }
+
+        if (matchFound) {
+          sb.toString
+        } else {
+          string
+        }
+      }
   }
 
   implicit class RichCharSequence(val source: CharSequence) extends AnyVal {
 
-    def indexOf(s: String, fromIndex: Int): Int = {
+    def indexOf(target: Array[Char], fromIndex: Int): Int = {
 
       val sourceCount = source.length
-      val target = s.unsafeChars
       val targetCount = target.length
 
       if (fromIndex >= sourceCount) {
@@ -117,9 +114,9 @@ object StringHelper {
         var i = fromIndex
         val first = target(0)
         val max = sourceCount - targetCount
-
-        while (i <= max) {
-          // Look for first character
+        var exit = false
+        while (i <= max && !exit) {
+          // look for first character
           if (source.charAt(i) != first) {
             i += 1
             while (i <= max && source.charAt(i) != first) {
@@ -127,7 +124,7 @@ object StringHelper {
             }
           }
 
-          // Found first character, now look at the rest of v2
+          // found first character, now look at the rest of target
           if (i <= max) {
             var j = i + 1
             val end = j + targetCount - 1
@@ -139,14 +136,16 @@ object StringHelper {
             }
 
             if (j == end) {
-              // Found whole string
-              return i
+              // found whole string
+              exit = true
             }
           }
 
-          i += 1
+          if (!exit) {
+            i += 1
+          }
         }
-        -1
+        if (exit) i else -1
       }
     }
   }

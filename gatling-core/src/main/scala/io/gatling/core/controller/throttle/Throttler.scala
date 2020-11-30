@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.controller.throttle
 
 import io.gatling.core.scenario.SimulationParams
 
-import akka.actor.{ Props, ActorSystem, ActorRef }
+import akka.actor.{ ActorRef, ActorSystem, Props }
 
-case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
+final case class Throttles(global: Option[Throttle], perScenario: Map[String, Throttle]) {
 
-  def limitReached(scenario: String) = {
+  def limitReached(scenario: String): Boolean =
     global.map(_.limitReached) match {
       case Some(true) => true
       case _          => perScenario.collectFirst { case (`scenario`, throttle) => throttle.limitReached }.getOrElse(false)
     }
-  }
 
-  def increment(scenario: String) = {
+  def increment(scenario: String): Unit = {
     global.foreach(_.increment())
     perScenario.get(scenario).foreach(_.increment())
   }
 }
 
-class Throttle(val limit: Int, var count: Int = 0) {
+class Throttle(val limit: Int) {
+
+  private var count: Int = 0
 
   def increment(): Unit = count += 1
 
@@ -45,15 +47,17 @@ class Throttle(val limit: Int, var count: Int = 0) {
 
 object Throttler {
 
-  val ThrottlerActorName = "gatling-throttler"
-  val ThrottlerControllerActorName = "gatling-throttler-controller"
+  private val ThrottlerActorName = "gatling-throttler"
+  private val ThrottlerControllerActorName = "gatling-throttler-controller"
 
-  def apply(system: ActorSystem, simulationParams: SimulationParams) = {
-
-    val throttler = system.actorOf(Props(new ThrottlerActor), ThrottlerActorName)
-    val throttlerController = system.actorOf(Props(new ThrottlerController(throttler, simulationParams.throttlings)), ThrottlerControllerActorName)
-    new Throttler(throttlerController, throttler)
-  }
+  def newThrottler(system: ActorSystem, simulationParams: SimulationParams): Option[Throttler] =
+    if (simulationParams.throttlings.isEmpty) {
+      None
+    } else {
+      val throttler = system.actorOf(Props(new ThrottlerActor), ThrottlerActorName)
+      val throttlerController = system.actorOf(Props(new ThrottlerController(throttler, simulationParams.throttlings)), ThrottlerControllerActorName)
+      Some(new Throttler(throttlerController, throttler))
+    }
 }
 
 class Throttler(throttlerController: ActorRef, throttlerActor: ActorRef) {

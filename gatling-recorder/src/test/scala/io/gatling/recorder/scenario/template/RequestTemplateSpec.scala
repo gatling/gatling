@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.scenario.template
 
+import scala.collection.mutable
+
 import io.gatling.BaseSpec
+import io.gatling.recorder.config.ConfigKeys.http.UseMethodAndUriAsPostfix
+import io.gatling.recorder.config.ConfigKeys.http.UseSimulationAsPrefix
+import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ RequestBodyParams, RequestElement }
+
+import io.netty.handler.codec.http.EmptyHttpHeaders
 
 class RequestTemplateSpec extends BaseSpec {
 
-  val url = "http://gatling.io/path1/file1"
-  val simulationClass = "Simulation Class"
+  private implicit val config: RecorderConfiguration = fakeConfig(mutable.Map())
 
-  def mockRequestBody(paramName: String, paramValue: String) = RequestBodyParams(List((paramName, paramValue)))
-  def mockRequestElement(paramName: String, paramValue: String) =
-    RequestElement(url, "post", Map(), Some(mockRequestBody(paramName, paramValue)), None, 200, Nil)
+  private val url = "http://gatling.io/path1/file1"
+  private val simulationClass = "Simulation Class"
+
+  private def mockRequestBody(paramName: String, paramValue: String) = RequestBodyParams(List((paramName, paramValue)))
+  private def mockRequestElement(paramName: String, paramValue: String) =
+    new RequestElement(url, "post", EmptyHttpHeaders.INSTANCE, Some(mockRequestBody(paramName, paramValue)), EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
   "request template" should "not wrap with joinStrings strings shorter than 65535 characters" in {
     val mockedRequest1 = mockRequestElement("name", "short")
@@ -42,5 +53,31 @@ class RequestTemplateSpec extends BaseSpec {
     val mockedRequest = mockRequestElement("name", "a" * 65535)
     val res = RequestTemplate.render(simulationClass, mockedRequest, new ExtractedUris(Seq(mockedRequest)))
     res should include("Seq(\"" + "a" * 65534 + "\", \"a\").mkString")
+  }
+
+  it should "use request as prefix by default" in {
+    val mockedRequest1 = mockRequestElement("name", "short")
+    val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
+    res1 should include("request_0")
+  }
+
+  it should "use simulation as prefix when requested" in {
+    val mockedRequest1 = mockRequestElement("name", "short")
+    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseSimulationAsPrefix -> true))
+    val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
+    res1 should include(s"${simulationClass}_0")
+    res1 should not include "request_0"
+  }
+
+  it should "use method and URI as postfix when requested" in {
+    val mockedRequest1 = mockRequestElement("name", "short")
+    implicit val config: RecorderConfiguration = fakeConfig(mutable.Map(UseMethodAndUriAsPostfix -> true))
+    val res1 = RequestTemplate.render(simulationClass, mockedRequest1, new ExtractedUris(Seq(mockedRequest1)))
+    res1 should include(s"request_0:post_http://gatling.io/path1/file1")
+  }
+
+  it should "escape bad characters in request postfix" in {
+    val postfix = RequestTemplate.sanitizeRequestPostfix("POST_https://gatling.io/hello?to=\"john\\doe\"&hobbies={a,b;c\\d}")
+    postfix should equal(s"POST_https://gatling.io/hello?to=_john_doe_&hobbies=_a_b_c_d_")
   }
 }

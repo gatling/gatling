@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,71 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.body
 
-import io.gatling.commons.util.Io._
+import java.nio.charset.Charset
+import java.nio.file.Path
+
 import io.gatling.commons.validation._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.session.el.{ El, ElCompiler }
-import io.gatling.core.util.Resource
+import io.gatling.core.util.ResourceCache
 import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
-class ElFileBodies(implicit configuration: GatlingConfiguration) {
+class ElFileBodies(resourcesDirectory: Path, charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
 
-  val charset = configuration.core.charset
-
-  private def compileFile(path: String): Validation[Expression[String]] =
-    Resource.body(path).map { resource =>
-      withCloseable(resource.inputStream) {
-        _.toString(charset)
+  private def compileFile(path: String): Validation[List[ElBody.ElBodyPart]] =
+    cachedResource(resourcesDirectory, path).flatMap { resource =>
+      safely() {
+        val string = resource.string(charset)
+        ElBody.toParts(string, charset).success
       }
-    }.map(_.el[String])
-
-  private val elFileBodyStringCache: LoadingCache[String, Validation[Expression[String]]] =
-    Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
-
-  private def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
-    Resource.body(path).map { resource =>
-      ElCompiler.compile2BytesSeq(resource.string(charset), charset)
     }
 
-  private val elFileBodyBytesCache: LoadingCache[String, Validation[Expression[Seq[Array[Byte]]]]] =
-    Cache.newConcurrentLoadingCache(configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
+  private val elFileBodyPartsCache: LoadingCache[String, Validation[List[ElBody.ElBodyPart]]] =
+    Cache.newConcurrentLoadingCache(cacheMaxCapacity, compileFile)
 
-  def asString(filePath: Expression[String]): Expression[String] =
+  def parse(filePath: Expression[String]): Expression[List[ElBody.ElBodyPart]] =
     filePath match {
-      case StaticStringExpression(path) =>
-        elFileBodyStringCache.get(path) match {
-          case Success(expression) => expression
-          case Failure(error)      => error.expressionFailure
+      case StaticValueExpression(path) =>
+        elFileBodyPartsCache.get(path) match {
+          case Success(parts) => parts.expressionSuccess // so we return a StaticValueExpression, this might get optimized
+          case Failure(error) => error.expressionFailure
         }
 
       case _ =>
         session =>
           for {
             path <- filePath(session)
-            expression <- elFileBodyStringCache.get(path)
-            body <- expression(session)
-          } yield body
-    }
+            expression <- elFileBodyPartsCache.get(path)
+          } yield expression
 
-  def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] =
-    filePath match {
-      case StaticStringExpression(path) =>
-        elFileBodyBytesCache.get(path) match {
-          case Success(expression) => expression
-          case Failure(error)      => error.expressionFailure
-        }
-
-      case _ =>
-        session =>
-          for {
-            path <- filePath(session)
-            expression <- elFileBodyBytesCache.get(path)
-            body <- expression(session)
-          } yield body
     }
 }

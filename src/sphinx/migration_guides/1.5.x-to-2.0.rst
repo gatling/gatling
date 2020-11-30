@@ -55,25 +55,25 @@ Protocols are no longer configured by scenario and are now configured by simulat
 
 A 1.4.x-1.5.x ``setUp`` like this one::
 
-  setUp(scn.(...).protocolConfig(httpConfig))
+  setUp(scn.(...).protocolConfig(httpProtocol))
 
 would now be with Gatling 2.0::
 
-  setUp(scn.(...)).protocols(httpConfig)
+  setUp(scn.(...)).protocols(httpProtocol)
 
 Assertions setup
 ----------------
 
 The ``assertThat`` method has been removed, assertions are now configured using ``assertions`` in the same fashion as protocols are, e.g. ::
 
-  setup(scn.(...).protocolConfig(httpConfig))
+  setup(scn.(...).protocolConfig(httpProtocol))
 
   assertThat(global.responseTime.max.lessThan(1000))
 
 becomes::
 
   setup(scn.(...))
-    .protocols(httpConfig)
+    .protocols(httpProtocol)
     .assertions(global.responseTime.max.lessThan(1000)
 
 New Injection DSL

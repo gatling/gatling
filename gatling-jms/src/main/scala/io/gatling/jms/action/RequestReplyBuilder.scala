@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.action
 
 import io.gatling.core.action.Action
-import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
-import io.gatling.jms.protocol.{ JmsComponents, JmsProtocol }
 import io.gatling.jms.request.{ JmsAttributes, JmsDestination }
 
-case class RequestReplyBuilder(attributes: JmsAttributes, replyDestination: JmsDestination, configuration: GatlingConfiguration) extends ActionBuilder {
-
-  private def components(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
-    protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
+final case class RequestReplyBuilder(
+    attributes: JmsAttributes,
+    replyDestination: JmsDestination,
+    setJmsReplyTo: Boolean,
+    trackerDestination: Option[JmsDestination]
+) extends JmsActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._
-    val statsEngine = coreComponents.statsEngine
     val jmsComponents = components(protocolComponentsRegistry)
-    new RequestReply(attributes, replyDestination, jmsComponents.jmsProtocol, jmsComponents.jmsConnectionPool, statsEngine, next)
+    new RequestReply(
+      attributes,
+      replyDestination,
+      setJmsReplyTo,
+      trackerDestination,
+      jmsComponents.jmsProtocol,
+      jmsComponents.jmsConnectionPool,
+      coreComponents.statsEngine,
+      coreComponents.clock,
+      next,
+      coreComponents.throttler.filter(_ => ctx.throttled)
+    )
   }
 }

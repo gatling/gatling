@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,53 +13,72 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.config
 
-import java.nio.file.Path
+import java.nio.file.{ Path, Paths }
 
-import io.gatling.commons.util.PathHelper._
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.config.GatlingFiles._
 import io.gatling.charts.FileNamingConventions
+import io.gatling.commons.shared.unstable.util.PathHelper._
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.GatlingFiles
 
 private[charts] object ChartsFiles {
-  val JQueryFile = "jquery.min.js"
-  val BootstrapFile = "bootstrap.min.js"
-  val GatlingJsFile = "gatling.js"
-  val MomentJsFile = "moment.min.js"
-  val MenuFile = "menu.js"
-  val AllSessionsFile = "all_sessions.js"
-  val StatsJsFile = "stats.js"
-  val StatsJsonFile = "stats.json"
-  val GlobalStatsJsonFile = "global_stats.json"
-  val AssertionsJsonFile = "assertions.json"
-  val AssertionsJUnitFile = "assertions.xml"
-  val GlobalPageName = "Global Information"
+  private val MenuFile = "menu.js"
+  private val AllSessionsFile = "all_sessions.js"
+  private val StatsJsFile = "stats.js"
+  private val StatsJsonFile = "stats.json"
+  private val GlobalStatsJsonFile = "global_stats.json"
+  private val AssertionsJsonFile = "assertions.json"
+  private val AssertionsJUnitFile = "assertions.xml"
+  val GlobalPageName: String = "Global Information"
 
   val CommonJsFiles = Seq(
-    JQueryFile, BootstrapFile, GatlingJsFile,
-    MomentJsFile, MenuFile, AllSessionsFile, StatsJsFile
+    "jquery-3.5.1.min.js",
+    "bootstrap.min.js",
+    "gatling.js",
+    "moment-2.24.0.min.js",
+    MenuFile,
+    AllSessionsFile,
+    StatsJsFile
   )
 
-  def menuFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
+  private val GatlingJsFolder: Path = Paths.get("js")
+  private val GatlingStyleFolder: Path = Paths.get("style")
+  private val GatlingAssetsPackage: Path = Paths.get("io", "gatling", "charts", "assets")
+  val GatlingAssetsJsPackage: Path = GatlingAssetsPackage / GatlingJsFolder
+  val GatlingAssetsStylePackage: Path = GatlingAssetsPackage / GatlingStyleFolder
+}
 
-  def allSessionsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AllSessionsFile
+private[charts] class ChartsFiles(runUuid: String, configuration: GatlingConfiguration) {
 
-  def globalFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / "index.html"
+  import ChartsFiles._
 
-  def requestFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
-    resultDirectory(runOn) / (requestName.toRequestFileName(configuration.core.charset) + ".html")
+  private val resultDirectory = GatlingFiles.resultDirectory(runUuid, configuration)
 
-  def groupFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
-    resultDirectory(runOn) / (requestName.toGroupFileName(configuration.core.charset) + ".html")
+  val jsDirectory: Path = resultDirectory / GatlingJsFolder
 
-  def statsJsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
+  val styleDirectory: Path = resultDirectory / GatlingStyleFolder
 
-  def statsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsonFile
+  val menuFile: Path = jsDirectory / MenuFile
 
-  def globalStatsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / GlobalStatsJsonFile
+  val allSessionsFile: Path = jsDirectory / AllSessionsFile
 
-  def assertionsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJsonFile
+  val globalFile: Path = resultDirectory / "index.html"
 
-  def assertionsJUnitFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJUnitFile
+  def requestFile(requestName: String): Path =
+    resultDirectory / (requestName.toRequestFileName(configuration.core.charset) + ".html")
+
+  def groupFile(requestName: String): Path =
+    resultDirectory / (requestName.toGroupFileName(configuration.core.charset) + ".html")
+
+  val statsJsFile: Path = jsDirectory / StatsJsFile
+
+  val statsJsonFile: Path = jsDirectory / StatsJsonFile
+
+  val globalStatsJsonFile: Path = jsDirectory / GlobalStatsJsonFile
+
+  val assertionsJsonFile: Path = jsDirectory / AssertionsJsonFile
+
+  val assertionsJUnitFile: Path = jsDirectory / AssertionsJUnitFile
 }

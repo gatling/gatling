@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,40 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.util.cache
 
-import io.gatling.commons.util.TypeCaster
-import io.gatling.commons.validation._
 import io.gatling.core.session.Session
-
-object SessionCacheHandler {
-
-  private[this] val CacheTypeCaster = new TypeCaster[Cache[_, _]] {
-    @throws[ClassCastException]
-    override def cast(value: Any): Cache[_, _] =
-      value match {
-        case v: Cache[_, _] => v
-        case _              => throw new ClassCastException(cceMessage(value, classOf[Cache[_, _]]))
-      }
-
-    override def validate(value: Any): Validation[Cache[_, _]] =
-      value match {
-        case v: Cache[_, _] => v.success
-        case _              => cceMessage(value, classOf[Cache[_, _]]).failure
-      }
-  }
-
-  implicit def cacheTypeCaster[K, V]: TypeCaster[Cache[K, V]] = CacheTypeCaster.asInstanceOf[TypeCaster[Cache[K, V]]]
-}
 
 class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
-  import SessionCacheHandler._
+  val enabled: Boolean = maxCapacity > 0
 
-  def getCache(session: Session): Option[Cache[K, V]] =
-    session(cacheName).asOption[Cache[K, V]]
+  private[cache] def getCache(session: Session): Option[Cache[K, V]] =
+    session.attributes.get(cacheName).map(_.asInstanceOf[Cache[K, V]])
 
-  def getOrCreateCache(session: Session): Cache[K, V] =
+  private[cache] def getOrCreateCache(session: Session): Cache[K, V] =
     getCache(session) match {
       case Some(cache) => cache
       case _           => Cache.newImmutableCache[K, V](maxCapacity)
@@ -54,9 +33,11 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
   def addEntry(session: Session, key: K, value: V): Session = {
     val cache = getOrCreateCache(session)
-    cache.get(key) match {
-      case Some(`value`) => session
-      case _             => session.set(cacheName, cache + (key -> value))
+    val newCache = cache.put(key, value)
+    if (newCache eq cache) {
+      session
+    } else {
+      session.set(cacheName, newCache)
     }
   }
 
@@ -65,7 +46,14 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
 
   def removeEntry(session: Session, key: K): Session =
     getCache(session) match {
-      case Some(store) => session.set(cacheName, store - key)
-      case _           => session
+      case Some(cache) =>
+        val newCache = cache.remove(key)
+        if (newCache eq cache) {
+          session
+        } else {
+          session.set(cacheName, newCache)
+        }
+
+      case _ => session
     }
 }

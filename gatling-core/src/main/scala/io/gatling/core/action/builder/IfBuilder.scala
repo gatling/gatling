@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action.builder
 
 import io.gatling.core.action.{ Action, If }
@@ -31,6 +32,6 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
     val safeCondition = condition.safe
     val thenNextAction = thenNext.build(ctx, next)
     val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
-    new If(safeCondition, thenNextAction, elseNextAction, ctx.coreComponents.statsEngine, next)
+    new If(safeCondition, thenNextAction, elseNextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
   }
 }

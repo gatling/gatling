@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
 
-class GroupEnd(statsEngine: StatsEngine, val next: Action) extends ChainableAction with NameGen {
+class GroupEnd(statsEngine: StatsEngine, clock: Clock, val next: Action) extends ChainableAction with NameGen {
 
   val name: String = genName("groupEnd")
 
   def execute(session: Session): Unit =
     session.blockStack match {
-      case (group: GroupBlock) :: _ =>
-        statsEngine.logGroupEnd(session, group, nowMillis)
-        next ! session.exitGroup
+      case (block: GroupBlock) :: tail =>
+        statsEngine.logGroupEnd(session.scenario, block, clock.nowMillis)
+        next ! session.exitGroup(tail)
 
       case _ =>
         logger.error(s"GroupEnd called but head of stack ${session.blockStack} isn't a GroupBlock, please report.")

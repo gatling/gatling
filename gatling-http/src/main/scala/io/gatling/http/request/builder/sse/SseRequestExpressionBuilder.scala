@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,23 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder.sse
 
-import io.gatling.commons.validation.Validation
-import io.gatling.core.CoreComponents
-import io.gatling.core.session.Session
-import io.gatling.http.ahc.AhcRequestBuilder
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.client.{ RequestBuilder => ClientRequestBuilder }
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
+import io.gatling.http.request.builder.RequestExpressionBuilder._
 
-import org.asynchttpclient.uri.Uri
+class SseRequestExpressionBuilder(
+    commonAttributes: CommonAttributes,
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
+    configuration: GatlingConfiguration
+) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
-class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
-
-  override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
-    // disable request timeout for SSE
+  // disable request timeout for SSE
+  override protected def configureRequestTimeout(requestBuilder: ClientRequestBuilder): Unit =
     requestBuilder.setRequestTimeout(-1)
-    super.configureRequestBuilder(session, uri, requestBuilder)
-  }
+
+  override protected def configureRequestBuilderForProtocol: RequestBuilderConfigure = ConfigureIdentity
 }

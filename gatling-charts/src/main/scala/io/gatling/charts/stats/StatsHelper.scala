@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.stats
 
-private[stats] object StatsHelper {
+private object StatsHelper {
   def buckets(min: Long, max: Long, step: Double): Array[Int] = {
     val halfStep = step / 2
     (0 until math.ceil((max - min) / step).toInt).map(i => (min + step * i + halfStep).round.toInt).toArray

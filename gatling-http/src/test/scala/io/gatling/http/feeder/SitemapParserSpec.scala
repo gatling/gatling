@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.feeder
 
-import java.io.{ File, IOException, InputStream }
+import java.io.{ IOException, InputStream }
+import java.nio.charset.StandardCharsets.UTF_8
 import java.nio.file.Paths
 
-import io.gatling.{ BaseSpec, ValidationValues }
-import io.gatling.commons.util.Io._
-import io.gatling.core.util.Resource
-import io.gatling.core.feeder.Record
+import scala.util.Using
 
-import org.mockito.Mockito._
+import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.core.feeder.Record
+import io.gatling.core.util.Resource
+
+import net.sf.saxon.trans.XPathException
 import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito._
 
 class SitemapParserSpec extends BaseSpec with ValidationValues {
 
-  def getFile(filePath: String) = new File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
-
-  def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
+  private def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
   "sitemap parser" should "parse valid sitemap input stream" in {
-    withCloseable(getIs("sitemap.xml")) { is =>
-      val records = SitemapParser.parse(is).toArray
+    Using.resource(getIs("sitemap.xml")) { is =>
+      val records = SitemapParser.parse(is, UTF_8).toArray
       verifySitemapRecords(records)
     }
   }
 
   it should "parse valid sitemap file" in {
-    val resource = Resource.resolveResource(Paths.get(""), "", "sitemap.xml")
-    val records = resource.map(SitemapParser.parse(_).toArray)
+    val resource = Resource.resolveResource(Paths.get(""), "sitemap.xml")
+    val records = resource.map(SitemapParser.parse(_, UTF_8).toArray)
     verifySitemapRecords(records.succeeded)
   }
 
@@ -53,18 +55,18 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
     when(fileIs.read(any[Array[Byte]])) thenThrow new IOException
     when(fileIs.read(any[Array[Byte]], anyInt, anyInt)) thenThrow new IOException
 
-    a[IOException] shouldBe thrownBy(SitemapParser.parse(resource).toArray)
+    a[XPathException] shouldBe thrownBy(SitemapParser.parse(resource, UTF_8).toArray)
   }
 
   it should "throw exception when loc node is missing" in {
-    a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_loc_missing.xml")))
+    a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_loc_missing.xml"), UTF_8))
   }
 
   it should "throw exception when loc node has no value" in {
-    a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_no_value.xml")))
+    a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_no_value.xml"), UTF_8))
   }
 
-  def verifySitemapRecords(records: Array[Record[String]]) = {
+  private def verifySitemapRecords(records: Array[Record[String]]) = {
     records should have size 5
 
     records(0) shouldBe Map(
@@ -75,24 +77,24 @@ class SitemapParserSpec extends BaseSpec with ValidationValues {
     )
 
     records(1) shouldBe Map(
-      "loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
+      "loc" -> "http://www.example.com/catalog?item=12&desc=vacation_hawaii",
       "changefreq" -> "weekly"
     )
 
     records(2) shouldBe Map(
-      "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
+      "loc" -> "http://www.example.com/catalog?item=73&desc=vacation_new_zealand",
       "lastmod" -> "2004-12-23",
       "changefreq" -> "weekly"
     )
 
     records(3) shouldBe Map(
-      "loc" -> "http://www.example.com/catalog?item=74&amp;desc=vacation_newfoundland",
+      "loc" -> "http://www.example.com/catalog?item=74&desc=vacation_newfoundland",
       "lastmod" -> "2004-12-23T18:00:15+00:00",
       "priority" -> "0.3"
     )
 
     records(4) shouldBe Map(
-      "loc" -> "http://www.example.com/catalog?item=83&amp;desc=vacation_usa",
+      "loc" -> "http://www.example.com/catalog?item=83&desc=vacation_usa",
       "lastmod" -> "2004-11-23"
     )
   }

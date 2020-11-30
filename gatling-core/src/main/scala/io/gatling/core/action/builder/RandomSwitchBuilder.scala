@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,70 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action.builder
 
-import java.util.concurrent.ThreadLocalRandom
-
-import scala.annotation.tailrec
-
 import io.gatling.commons.validation._
-import io.gatling.commons.util.Collections._
 import io.gatling.core.action.{ Action, Switch }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ChainBuilder, ScenarioContext }
-import io.gatling.core.util.NameGen
+import io.gatling.core.util.{ NameGen, RandomDistribution }
 
 import com.typesafe.scalalogging.StrictLogging
 
-object RandomSwitchBuilder {
+class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging with NameGen {
 
-  val Accuracy = 10000
-
-  def percentageToInt(p: Double) = (p * Accuracy / 100).toInt
-
-  def randomWithinAccuracy: Int = ThreadLocalRandom.current.nextInt(Accuracy)
-
-  def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) = {
-    val normalizedPossibilities = possibilities
-      .collect { case (p, c) => (percentageToInt(p), c) }
-      .filter { case (p, c) => p > 0 }
-    new RandomSwitchBuilder(normalizedPossibilities, elseNext)
+  override def build(ctx: ScenarioContext, next: Action): Action = {
+    val possibleActions = possibilities.map { case (weight, actionBuilder) => weight -> actionBuilder.build(ctx, next) }
+    val fallbackAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
+    val randomDistribution = RandomDistribution.percentWeights(possibleActions, fallbackAction)
+    val nextAction: Expression[Action] = _ => randomDistribution.next().success
+    new Switch(nextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("randomSwitch"), next)
   }
 }
 
-class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging with NameGen {
-
-  import RandomSwitchBuilder._
-
-  val sum = possibilities.sumBy(_._1)
-  require(sum <= Accuracy, s"Random switch weights sum is ${sum.toDouble / 100}, mustn't be bigger than 100%")
-  if (sum == Accuracy && elseNext.isDefined)
-    logger.warn("Random switch has a 100% sum, yet a else is defined?!")
+class UniformRandomSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder with StrictLogging with NameGen {
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
-
-    val possibleActions = possibilities.map {
-      case (percentage, possibility) =>
-        val possibilityAction = possibility.build(ctx, next)
-        (percentage, possibilityAction)
-    }
-
-    val elseNextAction = elseNext.map(_.build(ctx, next)).getOrElse(next)
-
-    val nextAction: Expression[Action] = _ => {
-
-      @tailrec
-      def determineNextAction(index: Int, possibilities: List[(Int, Action)]): Action = possibilities match {
-        case Nil => elseNextAction
-        case (percentage, possibleAction) :: others =>
-          if (percentage >= index)
-            possibleAction
-          else
-            determineNextAction(index - percentage, others)
-      }
-
-      determineNextAction(randomWithinAccuracy, possibleActions).success
-    }
-    new Switch(nextAction, ctx.coreComponents.statsEngine, genName("randomSwitch"), next)
+    val possibleActions = possibilities.map(_.build(ctx, next))
+    val randomDistribution = RandomDistribution.uniform(possibleActions)
+    val nextAction: Expression[Action] = _ => randomDistribution.next().success
+    new Switch(nextAction, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, genName("uniformRandomSwitch"), next)
   }
 }

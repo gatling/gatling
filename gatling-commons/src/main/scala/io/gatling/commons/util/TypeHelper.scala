@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
+import scala.util.control.NonFatal
 
 import io.gatling.commons.NotNothing
+import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation._
 
 trait TypeCaster[T] {
@@ -32,7 +36,7 @@ trait TypeCaster[T] {
 
 trait LowPriorityTypeCaster {
 
-  implicit def genericTypeCaster[T: ClassTag] = new TypeCaster[T] {
+  implicit def genericTypeCaster[T: ClassTag]: TypeCaster[T] = new TypeCaster[T] {
 
     @throws[ClassCastException]
     override def cast(value: Any): T = {
@@ -57,12 +61,21 @@ trait LowPriorityTypeCaster {
 
 object TypeCaster extends LowPriorityTypeCaster {
 
-  implicit val BooleanCaster = new TypeCaster[Boolean] {
+  private def safely[T](f: => T): Validation[T] =
+    try {
+      f.success
+    } catch {
+      case NonFatal(e) =>
+        e.detailedMessage.failure
+    }
+
+  implicit val BooleanCaster: TypeCaster[Boolean] = new TypeCaster[Boolean] {
     @throws[ClassCastException]
     override def cast(value: Any): Boolean =
       value match {
         case v: Boolean           => v
         case v: java.lang.Boolean => v.booleanValue
+        case v: String            => v.toBoolean
         case _                    => throw new ClassCastException(cceMessage(value, classOf[Boolean]))
       }
 
@@ -70,16 +83,18 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case true | java.lang.Boolean.TRUE   => TrueSuccess
         case false | java.lang.Boolean.FALSE => FalseSuccess
+        case s: String                       => safely(s.toBoolean)
         case _                               => cceMessage(value, classOf[Boolean]).failure
       }
   }
 
-  implicit val ByteCaster = new TypeCaster[Byte] {
+  implicit val ByteCaster: TypeCaster[Byte] = new TypeCaster[Byte] {
     @throws[ClassCastException]
     override def cast(value: Any): Byte =
       value match {
         case v: Byte           => v
         case v: java.lang.Byte => v.byteValue
+        case v: String         => v.toByte
         case _                 => throw new ClassCastException(cceMessage(value, classOf[Byte]))
       }
 
@@ -87,16 +102,18 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case v: Byte           => v.success
         case v: java.lang.Byte => v.byteValue.success
+        case v: String         => safely(v.toByte)
         case _                 => cceMessage(value, classOf[Byte]).failure
       }
   }
 
-  implicit val ShortCaster = new TypeCaster[Short] {
+  implicit val ShortCaster: TypeCaster[Short] = new TypeCaster[Short] {
     @throws[ClassCastException]
     override def cast(value: Any): Short =
       value match {
         case v: Short           => v
         case v: java.lang.Short => v.shortValue
+        case v: String          => v.toShort
         case _                  => throw new ClassCastException(cceMessage(value, classOf[Short]))
       }
 
@@ -104,16 +121,18 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case v: Short           => v.success
         case v: java.lang.Short => v.shortValue.success
+        case v: String          => safely(v.toShort)
         case _                  => cceMessage(value, classOf[Short]).failure
       }
   }
 
-  implicit val IntCaster = new TypeCaster[Int] {
+  implicit val IntCaster: TypeCaster[Int] = new TypeCaster[Int] {
     @throws[ClassCastException]
     override def cast(value: Any): Int =
       value match {
         case v: Int               => v
         case v: java.lang.Integer => v.intValue
+        case v: String            => v.toInt
         case _                    => throw new ClassCastException(cceMessage(value, classOf[Int]))
       }
 
@@ -121,16 +140,18 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case v: Int               => v.success
         case v: java.lang.Integer => v.intValue.success
+        case v: String            => safely(v.toInt)
         case _                    => cceMessage(value, classOf[Int]).failure
       }
   }
 
-  implicit val LongCaster = new TypeCaster[Long] {
+  implicit val LongCaster: TypeCaster[Long] = new TypeCaster[Long] {
     @throws[ClassCastException]
     override def cast(value: Any): Long =
       value match {
         case v: Long           => v
         case v: java.lang.Long => v.longValue
+        case v: String         => v.toLong
         case _                 => throw new ClassCastException(cceMessage(value, classOf[Long]))
       }
 
@@ -138,16 +159,18 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case v: Long           => v.success
         case v: java.lang.Long => v.longValue.success
+        case v: String         => safely(v.toLong)
         case _                 => cceMessage(value, classOf[Long]).failure
       }
   }
 
-  implicit val FloatCaster = new TypeCaster[Float] {
+  implicit val FloatCaster: TypeCaster[Float] = new TypeCaster[Float] {
     @throws[ClassCastException]
     override def cast(value: Any): Float =
       value match {
         case v: Float           => v
         case v: java.lang.Float => v.floatValue
+        case v: String          => v.toFloat
         case _                  => throw new ClassCastException(cceMessage(value, classOf[Float]))
       }
 
@@ -155,16 +178,18 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case v: Float           => v.success
         case v: java.lang.Float => v.floatValue.success
+        case v: String          => safely(v.toFloat)
         case _                  => cceMessage(value, classOf[Float]).failure
       }
   }
 
-  implicit val DoubleCaster = new TypeCaster[Double] {
+  implicit val DoubleCaster: TypeCaster[Double] = new TypeCaster[Double] {
     @throws[ClassCastException]
     override def cast(value: Any): Double =
       value match {
         case v: Double           => v
         case v: java.lang.Double => v.doubleValue
+        case v: String           => v.toDouble
         case _                   => throw new ClassCastException(cceMessage(value, classOf[Double]))
       }
 
@@ -172,35 +197,59 @@ object TypeCaster extends LowPriorityTypeCaster {
       value match {
         case v: Double           => v.success
         case v: java.lang.Double => v.doubleValue.success
+        case v: String           => safely(v.toDouble)
         case _                   => cceMessage(value, classOf[Double]).failure
       }
   }
 
-  implicit val CharCaster = new TypeCaster[Char] {
+  implicit val CharCaster: TypeCaster[Char] = new TypeCaster[Char] {
     @throws[ClassCastException]
     override def cast(value: Any): Char =
       value match {
-        case v: Char                => v
-        case v: java.lang.Character => v.charValue
-        case _                      => throw new ClassCastException(cceMessage(value, classOf[Char]))
+        case v: Char                    => v
+        case v: java.lang.Character     => v.charValue
+        case v: String if v.length == 1 => v.charAt(0)
+        case _                          => throw new ClassCastException(cceMessage(value, classOf[Char]))
       }
 
     override def validate(value: Any): Validation[Char] =
       value match {
-        case v: Char                => v.success
-        case v: java.lang.Character => v.charValue.success
-        case _                      => cceMessage(value, classOf[Char]).failure
+        case v: Char                    => v.success
+        case v: java.lang.Character     => v.charValue.success
+        case v: String if v.length == 1 => v.charAt(0).success
+        case _                          => cceMessage(value, classOf[Char]).failure
       }
   }
 
-  implicit val StringCaster = new TypeCaster[String] {
+  implicit val StringCaster: TypeCaster[String] = new TypeCaster[String] {
     override def cast(value: Any): String = value.toString
 
     override def validate(value: Any): Validation[String] =
       value.toString.success
   }
 
-  implicit val AnyTypeCaster = new TypeCaster[Any] {
+  implicit val FiniteDurationCaster: TypeCaster[FiniteDuration] = new TypeCaster[FiniteDuration] {
+    @throws[ClassCastException]
+    override def cast(value: Any): FiniteDuration =
+      value match {
+        case v: Long           => v seconds
+        case v: java.lang.Long => v.longValue seconds
+        case v: String         => v.toLong seconds
+        case v: FiniteDuration => v
+        case _                 => throw new ClassCastException(cceMessage(value, classOf[FiniteDuration]))
+      }
+
+    override def validate(value: Any): Validation[FiniteDuration] =
+      value match {
+        case v: Long           => (v seconds).success
+        case v: java.lang.Long => (v.longValue seconds).success
+        case v: String         => safely(v.toLong seconds)
+        case v: FiniteDuration => v.success
+        case _                 => cceMessage(value, classOf[FiniteDuration]).failure
+      }
+  }
+
+  implicit val AnyTypeCaster: TypeCaster[Any] = new TypeCaster[Any] {
     override def cast(value: Any): Any = value
 
     override def validate(value: Any): Validation[Any] =
@@ -210,18 +259,22 @@ object TypeCaster extends LowPriorityTypeCaster {
 
 object TypeHelper {
 
-  val NullValueFailure = "Value is null".failure
+  val NullValueFailure: Failure = "Value is null".failure
 
-  implicit class TypeValidator(val value: Any) extends AnyVal {
+  implicit final class TypeValidator(val value: Any) extends AnyVal {
 
-    def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = Option(value) match {
-      case Some(v) => Some(implicitly[TypeCaster[T]].cast(v))
-      case _       => throw new ClassCastException(NullValueFailure.message)
-    }
+    def as[T: TypeCaster: ClassTag: NotNothing]: T =
+      if (value == null) {
+        throw new ClassCastException(NullValueFailure.message)
+      } else {
+        implicitly[TypeCaster[T]].cast(value)
+      }
 
-    def asValidation[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = Option(value) match {
-      case Some(v) => implicitly[TypeCaster[T]].validate(v)
-      case _       => NullValueFailure
-    }
+    def asValidation[T: TypeCaster: ClassTag: NotNothing]: Validation[T] =
+      if (value == null) {
+        NullValueFailure
+      } else {
+        implicitly[TypeCaster[T]].validate(value)
+      }
   }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing.component
 
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 
-import io.gatling.recorder.ui.swing.util.UIHelper._
 import io.gatling.recorder.ui.swing.frame.ConfigurationFrame
+import io.gatling.recorder.ui.swing.util.UIHelper._
 
 private[swing] object DialogFileSelector {
   val message = """|A Swing bug on Mac OS X prevents the Recorder from getting
@@ -28,6 +29,9 @@ private[swing] object DialogFileSelector {
                    |the correct one :
                    |""".stripMargin
 }
+
+@SuppressWarnings(Array("org.wartremover.warts.LeakingSealed"))
+// error is in scala-swing
 private[swing] class DialogFileSelector(configurationFrame: ConfigurationFrame, possibleFiles: List[String]) extends Dialog(configurationFrame) {
 
   var selectedFile: Option[String] = None
@@ -35,7 +39,11 @@ private[swing] class DialogFileSelector(configurationFrame: ConfigurationFrame, 
   val radioButtons = possibleFiles.map(new RadioButton(_))
   val radiosGroup = new ButtonGroup(radioButtons: _*)
   val cancelButton = Button("Cancel")(close())
-  val okButton = Button("OK") { radiosGroup.selected.foreach(button => selectedFile = Some(button.text)); close() }
+  val okButton =
+    Button("OK") {
+      radiosGroup.selected.foreach(button => selectedFile = Some(button.text))
+      close()
+    }
   val defaultBackground = background
 
   contents = new BorderPanel {

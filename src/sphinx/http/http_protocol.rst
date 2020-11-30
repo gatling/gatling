@@ -22,7 +22,7 @@ Use the ``http`` object in order to create an HTTP protocol.
 As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
 This is done thanks to the following statements:
 
-.. includecode:: code/HttpProtocol.scala#bootstrapping
+.. includecode:: code/HttpProtocolSample.scala#bootstrapping
 
 Core parameters
 ===============
@@ -35,17 +35,16 @@ Base URL
 As you may have seen in the previous example, you can set a base URL.
 This base URL will be prepended to all urls that does not start with ``http``, e.g.:
 
-.. includecode:: code/HttpProtocol.scala#baseUrl
+.. includecode:: code/HttpProtocolSample.scala#baseUrl
 
 Load testing several servers with client based load balancing
 -------------------------------------------------------------
 
-If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseURLs`` which accepts a ``String*`` or a ``List[String]``:
+If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseUrls`` which accepts a ``String*`` or a ``List[String]``:
 
-.. includecode:: code/HttpProtocol.scala#baseUrls
+.. includecode:: code/HttpProtocolSample.scala#baseUrls
 
-The selection of the URL is made at each request, using the ``Random`` generator.
-
+Each virtual user will pick one of the baseUrl from the list once and for all when it starts, based on a round-robin strategy.
 
 .. _http-protocol-warmup:
 
@@ -53,12 +52,12 @@ Automatic warm up
 -----------------
 
 The Java/NIO engine start up introduces an overhead on the first request to be executed.
-In order to compensate this effect, Gatling automatically performs a request to http://gatling.io.
+In order to compensate this effect, Gatling automatically performs a request to https://gatling.io.
 
 To disable this feature, just add ``.disableWarmUp`` to an HTTP Protocol Configuration definition.
 To change the warm up url, just add ``.warmUp("newUrl")``.
 
-.. includecode:: code/HttpProtocol.scala#warmUp
+.. includecode:: code/HttpProtocolSample.scala#warmUp
 
 Engine parameters
 =================
@@ -84,7 +83,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 * ``maxConnectionsPerHostLikeIE10``
 * ``maxConnectionsPerHostLikeChrome``
 
-.. includecode:: code/HttpProtocol.scala#maxConnectionsPerHost
+.. includecode:: code/HttpProtocolSample.scala#maxConnectionsPerHost
 
 .. _http-protocol-connection-sharing:
 
@@ -97,30 +96,64 @@ This behavior does not match real browsers, and doesn't support SSL session trac
 In Gatling 2, the default behavior is that every user has his own connection pool.
 This can be tuned with the ``.shareConnections`` param.
 
-.. _http-protocol-client-sharing:
+.. _http-protocol-http2:
 
-HTTP Client Sharing
+HTTP/2 Support
+--------------
+
+HTTP/2 experimental support can be enabled with the `.enableHttp2` option.
+
+Note that you'll either need your injectors to run with Java 9+, or make sure that `gatling.http.ahc.useOpenSsl` wasn't turned to `false` in Gatling configuration.
+
+.. includecode:: code/HttpProtocolSample.scala#enableHttp2
+
+.. warning::
+HTTP/2 Push is currently not supported.
+
+When HTTP/2 is enabled Gatling will try to connect to your remotes using HTTP/2 through the ALPN protocol.
+If your remote supports HTTP/2, Gatling will use the protocol, and fall back to HTTP/1 otherwise. There is no specific code to add in the middle of your requests.
+
+Next time you use that remote with the same user, if Gatling knows that your remote doesn't support HTTP/2, it won't try again and therefore won't use ALPN.
+
+One of the main purpose of HTTP/2 is to support multiplexing. This means that on a single connection, you are able to send multiple requests, without waiting for the responses,
+and receive these responses in whatever order.
+It means that, using HTTP/2, browsers and Gatling won't open additional connections to the same remote for a given virtual user (assuming you don't enable `shareConnections``) once they know that the remote is using HTTP/2.
+The first time Gatling encounters a remote, the connections will be opened like in HTTP/1 mode if there are multiple requests (for example in a ``resources`` statement).
+If the remote is using HTTP/1, these connections will be used if needed. If it is using HTTP/2, a single connection will be maintained, and the other ones will reach idle timeout and be closed.
+
+It is possible to populate the Gatling cache concerning protocol and remotes before the run, using the ``http2PriorKnowledgeMap(Map[String, Boolean])`` method on the protocol.
+
+.. includecode:: code/HttpProtocolSample.scala#http2PriorKnowledgeMap
+
+With this method, you are able to tell Gatling that remotes support HTTP/2 or not.
+It means that if you are setting a remote to true (it supports HTTP/2), additional connections won't be created the first time the remote is encountered in the simulation.
+If you are setting a remote to false (it doesn't support HTTP/2), ALPN won't be used, and additional connections will be created.
+
+This option is useful to simulate users that already went to your website, and whose browsers already cached the fact that your website is using HTTP/2 or HTTP/1.
+
+.. warning::
+If you configure a remote in prior knowledge and set it to true, but that the ALPN ends in the remote only supporting HTTP/1, the request will crash.
+  Use the ``http2PriorKnowledge`` option only if you are sure about your remote configuration.
+
+.. _http-protocol-dns:
+
+DNS Name Resolution
 -------------------
 
-If you need more isolation of your user, for instance if you need a dedicated key store per user,
-Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
+By default, Gatling uses Java's DNS name resolution. This cache has a TTL of 30s by default on OpenJDK and doesn't honor the DNS records' own TTL.
+You can control the TTL with ``-Dsun.net.inetaddr.ttl=N`` where `N` is a number of seconds.
+Please note the ``sun.net.inetaddr.ttl`` System property is deprecated and one should use the ``networkaddress.cache.ttl`` Security property instead, see `doc <https://docs.oracle.com/javase/8/docs/technotes/guides/net/properties.html>`_.
 
-.. _http-protocol-hostname-resolution:
+If you're using the Java DNS name resolution and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically shuffle them
+to emulate DNS round-robin.
 
-Hostname Resolution
--------------------
+You can use a Netty based DNS resolution instead, with ``.asyncNameResolution()``.
+This method can take a sequence of DNS server adresses, eg ``.asyncNameResolution("8.8.8.8")``.
+If you don't pass DNS servers, Gatling will use the ones from your OS configuration on Linux and MacOS only,
+and to Google's ones on Windows(don't run with heavy load as Google will block you).
 
-By default, Gatling uses Java's name resolution, meaning that it uses a cache shared amongst all virtual users.
-By default, this cache is eternal.
-This cache can be disabled with ``-Dsun.net.inetaddr.ttl=0``.
-
-If you're using the JDK eternal cache and have multiple IP (multiple DNS records) for a given hostname, Gatling will automatically round-robin on them.
-
-If you want to make it so that all virtual users perform their own name resolution, generate UPD traffic against your DNS server,
-and have their own DNS cache, you can set ``.perUserNameResolution`` .
-Note this feature is experimental.
-This feature is pretty useful if you're dealing with an elastic cluster where new IPs are added to the DNS server under load,
-for example with AWS Application Load Balancer (ALB).
+You can also make it so that every virtual user performs its own DNS name resolution with ``.perUserNameResolution``.
+This parameter is only effective when using ``asyncNameResolution``.
 
 .. _http-protocol-hostname-aliasing:
 
@@ -129,8 +162,9 @@ Hostname Aliasing
 
 You can of course define hostname aliases at the OS level in the ``/etc/hosts`` file.
 
-But you can also pass a ``Map[String, String]`` to ``.hostNameAliases`` where values are valid IP addresses.
-Note that, just like with ``/etc/hosts`` you can only define one IP per alias.
+But you can use ``.hostNameAliases`` to pass aliases programmatically:
+
+.. includecode:: code/HttpProtocolSample.scala#hostNameAliases
 
 .. _http-protocol-virtual-host:
 
@@ -150,8 +184,23 @@ You can bind the sockets from specific local addresses instead of the default on
 
   localAddress(localAddress: String)
   localAddresses(localAddress1: String, localAddress2: String)
+  useAllLocalAddresses // automatically discover all bindable local addresses
+  useAllLocalAddressesMatching(regex1, regex2) // automatically discover all bindable local addresses matching one of the pattern parameters (String)
 
 When setting multiple addresses, each virtual user is assigned to one single local address once and for all.
+
+.. _http-protocol-kmf:
+
+KeyManagerFactory
+-----------------
+
+By default, Gatling uses the KeyManagerFactory configuration defined in `gatling.conf`, or if undefined, falls back to the JVM's default one.
+
+Then, it's possible to have per virtual user KeyManagerFactories, typically if you want them to use different sets of keys::
+
+    perUserKeyManagerFactory(f: Long => KeyManagerFactory)
+
+This function's input is the virtual user's id (if you need it to generate some file name) and returns a `javax.net.ssl.KeyManagerFactory <https://docs.oracle.com/javase/8/docs/api/javax/net/ssl/KeyManagerFactory.html>`_.
 
 Request building parameters
 ===========================
@@ -200,7 +249,7 @@ Silencing
 
 Request stats are logged and then used to produce reports.
 Sometimes, some requests may be important for you for generating load, but you don't actually want to report them.
-Typically, reporting all static resources might generate a lot of noise, and yet failed static resources are usually non blocking from a user experience perspective.
+Typically, reporting all static resources might generate a lot of noise, and yet failed static resources might not be blocking from a user experience perspective.
 
 Gatling provides several means to turn requests silent.
 Silent requests won't be reported and won't influence error triggers such as :ref:`tryMax <scenario-trymax>` and :ref:`exitHereIfFailed <scenario-exithereiffailed>`.
@@ -211,15 +260,15 @@ Some parameters are available here at protocol level, some others are available 
 Rules are:
 
 * explicitly turning a given request :ref:`silent <http-request-silent>` or :ref:`notSilent <http-request-notsilent>` has precedence over everything else
-* otherwise, a request is silent if it matches protocol's ``silentURI`` filter
+* otherwise, a request is silent if it matches protocol's ``silentUri`` filter
 * otherwise, a request is silent if it's a resource (not a top level request) and protocol's ``silentResources`` flag has been turned on
 * otherwise, a request is not silent
 
-.. _http-protocol-silentURI:
+.. _http-protocol-silentUri:
 
-``silentURI`` lets you pass a regular expression that would disable logging for ALL matching requests:
+``silentUri`` lets you pass a regular expression that would disable logging for ALL matching requests:
 
-.. includecode:: code/HttpProtocol.scala#silentURI
+.. includecode:: code/HttpProtocolSample.scala#silentUri
 
 .. _http-protocol-silentResources:
 
@@ -237,9 +286,7 @@ Gatling lets you set some generic headers at the http protocol definition level 
 
 e.g.:
 
-.. includecode:: code/HttpProtocol.scala#headers
-
-.. warning:: ``headers`` used to be named ``baseHeaders``. Old name was deprecated, then removed in 2.1.
+.. includecode:: code/HttpProtocolSample.scala#headers
 
 You have also the following built-ins for the more commons headers:
 
@@ -258,10 +305,13 @@ You have also the following built-ins for the more commons headers:
 Signature Calculator
 --------------------
 
-You can set a SignatureCalculator at protocol level with these methods:
+You can set a function to sign a request once Gatling has built it, just before it's being sent over the wire:
 
-* ``signatureCalculator(calculator: SignatureCalculator)``
-* ``signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String])``
+``sign(calculator: Expression[SignatureCalculator])``
+
+We also provide a built-in for OAuth1:
+
+``signWithOAuth1(consumerKey: Expression[String], clientSharedSecret: Expression[String], token: Expression[String], tokenSecret: Expression[String])``
 
 .. note:: For more details see the dedicated section :ref:`here <http-request-signature>`.
 
@@ -274,8 +324,6 @@ You can set the authentication methods at protocol level with these methods:
 
 * ``basicAuth(username: Expression[String], password: Expression[String])``
 * ``digestAuth(username: Expression[String], password: Expression[String])``
-* ``ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String])``
-* ``authRealm(realm: Expression[com.ning.http.client.Realm])``
 
 .. note:: For more details see the dedicated section :ref:`here <http-request-authentication>`.
 
@@ -287,47 +335,13 @@ Response handling parameters
 Follow redirects
 ----------------
 
-By default Gatling automatically follow redirects in case of 301, 302, 303 or 307 response status code, you can disable this behavior with ``.disableFollowRedirect``.
+By default Gatling automatically follow redirects in case of 301, 302, 303, 307 or 308 response status code, you can disable this behavior with ``.disableFollowRedirect``.
 
-To avoid infinite redirection loops, you can specify a number max of redirects with:  ``.maxRedirects(max: Int)``
+To avoid infinite redirection loops, Gatling sets a limit on the number of redirects.
+The default value is 20. You can tune this limit with: ``.maxRedirects(max: Int)``
 
 By default, Gatling will change the method to "GET" on 302 to conform to most user agents' behavior.
 You can disable this behavior with ``.strict302Handling``.
-
-.. _http-protocol-chunksdiscard:
-
-Response chunks discarding
---------------------------
-
-Beware that, as an optimization, Gatling doesn't keep response chunks unless a check is defined on the response body or that debug logging is enabled.
-However some people might want to always keep the response chunks, thus you can disable the default behavior with ``disableResponseChunksDiscarding``.
-
-.. _http-protocol-extractor:
-
-Dumping custom data
--------------------
-
-Some people might want more data than what Gatling normally dumps in the ``simulation.log`` file.
-
-Http protocol provide a hook for dumping extra data with ``extraInfoExtractor(f: ExtraInfoExtractor)``.
-``ExtraInfoExtractor`` is a shortcut for the function type: ``(ExtraInfo) => List[Any]``.
-Thus your extractor need to return a ``List[Any]``, ``Any`` is the equivalent of ``Object`` in Scala.
-``ExtraInfo`` gives you access to :
-
-* ``requestName``: The name of the request.
-* ``status``: The status of the request, i.e. OK/KO.
-* ``session``: The user's Session.
-* ``request``: The http request.
-* ``response``: The http response.
-
-The extra data will be appended to the relative records in the ``simulation.log`` file and reports generation will ignore them.
-It's up to the user to build his own analysis system for them.
-
-For example, it you'd like the dump the response body's length to ``simulation.log``, you would do::
-
-  val httpProtocol = http.extraInfoExtractor(extraInfo => List(extraInfo.response.bodyLength))
-
-Gatling provides a built-in ``ExtraInfoExtractor``, ``dumpSessionOnFailure``, which dumps the user's session to ``simulation.log`` if the request failed.
 
 .. _http-protocol-response-transformer:
 
@@ -344,7 +358,7 @@ Checks
 ------
 
 You can define checks at the http protocol definition level with: ``check(checks: HttpCheck*)``.
-They will be apply on all the requests, however you can disable them for given request thanks to the ``ignoreDefaultChecks`` method.
+They will be apply on all the requests, however you can disable them for given request thanks to the ``ignoreProtocolChecks`` method.
 
 .. note:: For more details see the dedicated section :ref:`here <http-check>`.
 
@@ -380,12 +394,13 @@ You can also specify black/white list or custom filters to have a more fine grai
 
 * ``inferHtmlResources(white: WhiteList)``: fetch all resources matching a pattern in the white list.
 * ``inferHtmlResources(white: WhiteList, black: BlackList)``: fetch all resources matching a pattern in the white list excepting those in the black list.
-* ``inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil))``: fetch all resources excepting those matching a pattern in the black list and not in the white list.
+* ``inferHtmlResources(black: BlackList)``: fetch all resources excepting those matching a pattern in the black list.
+* ``inferHtmlResources(black: BlackList, white: WhiteList)``: fetch all resources excepting those matching a pattern in the black list and not in the white list.
 * ``inferHtmlResources(filters: Option[Filters])``
 
 Finally, you can specify the strategy for naming those requests in the reports:
 
-* ``nameInferredHtmlResourcesAfterUrlTrail``(default): name requests after the resource's url trail (after last ``/``)
+* ``nameInferredHtmlResourcesAfterUrlTail``(default): name requests after the resource's url tail (after last ``/``)
 * ``nameInferredHtmlResourcesAfterPath``: name requests after the resource's path
 * ``nameInferredHtmlResourcesAfterAbsoluteUrl``: name requests after the resource's absolute url
 * ``nameInferredHtmlResourcesAfterRelativeUrl``: name requests after the resource's relative url
@@ -400,8 +415,8 @@ Proxy parameters
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials:
 
-.. includecode:: code/HttpProtocol.scala#proxy
+.. includecode:: code/HttpProtocolSample.scala#proxy
 
 You can also disable the use of proxy for a given list of hosts with ``noProxyFor(hosts: String*)``:
 
-.. includecode:: code/HttpProtocol.scala#noProxyFor
+.. includecode:: code/HttpProtocolSample.scala#noProxyFor

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
@@ -26,7 +27,6 @@ trait AssertionGenerator {
   private val doubleGen = Arbitrary.arbitrary[Double]
 
   private val pathGen = {
-
     val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.length > 0))) yield Details(parts)
     Gen.frequency(33 -> Gen.const(Global), 33 -> Gen.const(ForAll), 33 -> detailsGen)
   }
@@ -34,15 +34,12 @@ trait AssertionGenerator {
   private val targetGen = {
     val countTargetGen = {
       val countMetricGen = Gen.oneOf(AllRequests, FailedRequests, SuccessfulRequests)
-      val countSelectionGen = Gen.oneOf(Count, Percent)
+      val countSelectionGen = Gen.oneOf(CountTarget.apply _, PercentTarget.apply _)
 
       for {
         metric <- countMetricGen
         selection <- countSelectionGen
-      } yield selection match {
-        case Count   => CountTarget(metric)
-        case Percent => PercentTarget(metric)
-      }
+      } yield selection(metric)
     }
 
     val timeTargetGen = {
@@ -63,7 +60,10 @@ trait AssertionGenerator {
     val lessThan = for (d <- doubleGen) yield Lt(d)
     val greaterThan = for (d <- doubleGen) yield Gt(d)
     val is = for (d <- doubleGen) yield Is(d)
-    val between = for (d1 <- doubleGen; d2 <- doubleGen) yield Between(d1, d2, inclusive = true)
+    val between = for {
+      d1 <- doubleGen
+      d2 <- doubleGen
+    } yield Between(d1, d2, inclusive = true)
     val in = for (doubleList <- Gen.nonEmptyListOf(doubleGen)) yield In(doubleList)
 
     Gen.oneOf(lessThan, greaterThan, is, between, in)
@@ -83,7 +83,6 @@ class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {
     forAll(assertionGen) { assertion =>
-
       val bytes = Pickle.intoBytes(assertion)
       val roundtrip = Unpickle[Assertion].fromBytes(bytes)
 

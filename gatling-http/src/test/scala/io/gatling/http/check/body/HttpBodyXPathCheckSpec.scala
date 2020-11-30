@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,87 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.body
 
-import java.nio.charset.StandardCharsets._
-
-import scala.collection.mutable
-import scala.xml.Elem
-
-import org.mockito.Mockito._
 import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
-import io.gatling.core.check.extractor.xpath.{ JdkXmlParsers, Saxon }
+import io.gatling.core.EmptySession
+import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
+import io.gatling.core.check.xpath.XPathCheckType
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session._
 import io.gatling.http.HttpDsl
-import io.gatling.http.response.{ Response, StringResponseBody }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.response.Response
 
-class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
+import net.sf.saxon.s9api.XdmNode
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val provider = new HttpBodyXPathProvider(defaultXmlParsers)
+class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
 
-  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", 0)
-
-  def mockResponse(xml: Elem): Response = {
-    val response = mock[Response]
-    when(response.body) thenReturn new StringResponseBody(xml.toString(), UTF_8)
-    when(response.hasResponseBody) thenReturn true
-    response
-  }
+  override implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  private implicit val materializer: CheckMaterializer[XPathCheckType, HttpCheck, Response, Option[XdmNode]] =
+    HttpBodyXPathCheckMaterializer.Instance
 
   "xpath.find.exists" should "find single result" in {
 
     val response = mockResponse(<id>1072920417</id>)
 
-    xpath("/id", Nil).find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("/id").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
 
     val response = mockResponse(<root>
-                                  <id>1072920417</id><id>1072920418</id>
+                                  <id>1072920417</id>
+                                  <id>1072920418</id>
                                 </root>)
 
-    xpath("//id").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    xpath("//id").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "xpath.findAll.exists" should "find all occurrences" in {
 
     val response = mockResponse(<root>
-                                  <id>1072920417</id><id>1072920418</id>
+                                  <id>1072920417</id>
+                                  <id>1072920418</id>
                                 </root>)
 
-    xpath("//id").findAll.exists.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    xpath("//id").findAll.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
+      Some(Seq("1072920417", "1072920418")),
+      None
+    )
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
 
     val response = mockResponse(<root>
-                                  <id>1072920417</id><id>1072920418</id>
+                                  <id>1072920417</id>
+                                  <id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").findAll.exists.check(response, session).failed shouldBe "xpath((//fo,List())).findAll.exists, found nothing"
+    xpath("//foo").findAll.exists.check(response, emptySession, Check.newPreparedCache).failed shouldBe "xpath((//foo,Map())).findAll.exists, found nothing"
   }
 
   "xpath.count.exists" should "find all occurrences" in {
 
     val response = mockResponse(<root>
-                                  <id>1072920417</id><id>1072920418</id>
+                                  <id>1072920417</id>
+                                  <id>1072920418</id>
                                 </root>)
 
-    xpath("//id").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    xpath("//id").count.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
 
     val response = mockResponse(<root>
-                                  <id>1072920417</id><id>1072920418</id>
+                                  <id>1072920417</id>
+                                  <id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").count.exists.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    xpath("//foo").count.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

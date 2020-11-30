@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.stats
 
-import java.util.concurrent.atomic.AtomicBoolean
-
-import scala.concurrent.{ Await, Future }
-import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
+import java.net.InetSocketAddress
 
 import io.gatling.commons.stats.Status
-import io.gatling.commons.util.ClockSingleton._
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.ControllerCommand
-import io.gatling.core.scenario.SimulationParams
-import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.writer._
 
-import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
-import akka.pattern.ask
-import akka.util.Timeout
+import akka.actor.ActorRef
+import io.netty.channel.ChannelDuplexHandler
 
-trait StatsEngine {
+trait StatsEngine extends FrontLineStatsEngineExtensions {
 
   def start(): Unit
 
-  def stop(replyTo: ActorRef, exception: Option[Exception]): Unit
+  def stop(controller: ActorRef, exception: Option[Exception]): Unit
 
-  def logUser(userMessage: UserMessage): Unit
+  def logUserStart(scenario: String, timestamp: Long): Unit
+
+  def logUserEnd(userMessage: UserEndMessage): Unit
 
   // [fl]
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
   //
   //
   //
@@ -54,123 +65,35 @@ trait StatsEngine {
   // [fl]
 
   def logResponse(
-    session:        Session,
-    requestName:    String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String],
-    extraInfo:      List[Any]      = Nil
+      scenario: String,
+      groups: List[String],
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String]
   ): Unit
 
   def logGroupEnd(
-    session:       Session,
-    group:         GroupBlock,
-    exitTimestamp: Long
+      scenario: String,
+      groupBlock: GroupBlock,
+      exitTimestamp: Long
   ): Unit
 
-  def logCrash(session: Session, requestName: String, error: String): Unit
+  def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit
 
-  def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
-    logCrash(session, requestName, s"Failed to build request: $errorMessage")
+  def reportUnbuildableRequest(scenario: String, groups: List[String], requestName: String, errorMessage: String): Unit =
+    logCrash(scenario, groups, requestName, s"Failed to build request: $errorMessage")
 }
 
-object DataWritersStatsEngine {
+// WARNING those methods only serve a purpose in FrontLine and mustn't be called from other components
+trait FrontLineStatsEngineExtensions {
+  final def statsChannelHandler: ChannelDuplexHandler = null
 
-  def apply(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage, configuration: GatlingConfiguration): DataWritersStatsEngine = {
-    implicit val dataWriterTimeOut = Timeout(5 seconds)
+  final def logTcpConnectAttempt(remoteAddress: InetSocketAddress): Unit = {}
 
-    val dataWriters = configuration.data.dataWriters.map { dw =>
-      val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz), clazz.getName)
-    }
+  final def logTcpConnect(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
 
-    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.userCount))
-
-    val dataWriterInitResponses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
-
-    implicit val dispatcher = system.dispatcher
-
-    val statsEngineFuture = Future.sequence(dataWriterInitResponses)
-      .map(_.forall(_ == true))
-      .map {
-        case true => Success(new DataWritersStatsEngine(system, dataWriters))
-        case _    => Failure(new Exception("DataWriters didn't initialize properly"))
-      }
-
-    Await.result(statsEngineFuture, 5 seconds).get
-  }
-}
-
-class DataWritersStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extends StatsEngine {
-
-  private val active = new AtomicBoolean(true)
-
-  override def start(): Unit = {}
-
-  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit =
-    if (active.getAndSet(false)) {
-      implicit val dispatcher = system.dispatcher
-      implicit val dataWriterTimeOut = Timeout(5 seconds)
-      val responses = dataWriters.map(_ ? Stop)
-      Future.sequence(responses).onComplete(_ => replyTo ! ControllerCommand.StatsEngineStopped)
-    }
-
-  private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
-
-  override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
-
-  override def logResponse(
-    session:        Session,
-    requestName:    String,
-    startTimestamp: Long,
-    endTimestamp:   Long,
-    status:         Status,
-    responseCode:   Option[String],
-    message:        Option[String],
-    extraInfo:      List[Any]      = Nil
-  ): Unit =
-    dispatch(ResponseMessage(
-      session.scenario,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      startTimestamp,
-      endTimestamp,
-      status,
-      responseCode,
-      message,
-      extraInfo
-    ))
-
-  override def logGroupEnd(
-    session:       Session,
-    group:         GroupBlock,
-    exitTimestamp: Long
-  ): Unit =
-    dispatch(GroupMessage(
-      session.scenario,
-      session.userId,
-      group.hierarchy,
-      group.startTimestamp,
-      exitTimestamp,
-      group.cumulatedResponseTime,
-      group.status
-    ))
-
-  override def logCrash(session: Session, requestName: String, error: String): Unit =
-    dispatch(ErrorMessage(s"$requestName: $error ", nowMillis))
+  final def logTlsHandshake(remoteAddress: String, startTimestamp: Long, endTimestamp: Long, error: Option[String]): Unit = {}
 }

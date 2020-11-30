@@ -28,9 +28,8 @@ Basically, it's a ``Map[String, Any]``: a map with key Strings.
 In Gatling, entries in this map are called **Session attributes**.
 
 .. note::
-  Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?
-
-  A ``Session`` is actually the message that are passed along a scenario workflow.
+  A Gatling scenario is a workflow where every step is an ``Action``.
+  A ``Session`` is the message that is passed along a scenario workflow.
 
 .. _session-inject:
 
@@ -62,7 +61,7 @@ There's 2 ways of doing that:
 
   * you don't have a typo in a feeder file header
   * you don't have a typo in a Gatling EL expression
-  * your feed action is properly called (e.g. could be be properly chained with other action because a dot is missing)
+  * your feed action is properly called (e.g. could be properly chained with other action because a dot is missing)
   * the check that should have saved it actually failed
 
 .. _session-api:
@@ -78,7 +77,7 @@ Session has the following methods:
 * ``set(key: String, value: Any): Session``: add or replace an attribute
 * ``setAll(newAttributes: (String, Any)*): Session``: bulk add or replace attributes
 * ``setAll(newAttributes: Iterable[(String, Any)]): Session``: same as above but takes an Iterable instead of a varags
-* ``reset``: reset all attributes
+* ``reset``: reset all attributes but loop counters, timestamps and Gatling internals (baseUrl, caches, etc)
 
 .. warning::
   ``Session`` instances are immutable!
@@ -88,47 +87,54 @@ Session has the following methods:
 
   A very common pitfall is to forget that ``set`` and ``setAll`` actually return new instances.
 
-.. includecode:: code/SessionSpec.scala#sessions-are-immutable
+.. includecode:: code/SessionSample.scala#sessions-are-immutable
 
 Getting Attributes
 ------------------
 
 Let's say a Session instance variable named session contains a String attribute named "foo".
 
-.. includecode:: code/SessionSpec.scala#session
+.. includecode:: code/SessionSample.scala#session
 
 Then:
 
-.. includecode:: code/SessionSpec.scala#session-attribute
+.. includecode:: code/SessionSample.scala#session-attribute
 
 .. warning::
   ``session("foo")`` doesn't return the value, but a wrapper.
 
 You can then access methods to retrieve the actual value in several ways:
 
-``session("foo").as[String]``:
+``session("foo").as[Int]``:
 
-* returns a ``String``,
-* throws a ``NoSuchElementException`` if the "foo" attribute is undefined,
-* throws a ``ClassCastException`` if the value is not a String
+* returns a ``Int``,
+* throws a ``NoSuchElementException`` if the *foo* attribute is undefined,
+* throws a ``NumberFormatException`` if the value is a String and can't be parsed into an Int,
+* throws a ``ClassCastException`` otherwise.
 
-``session("foo").asOption[String]``:
+``session("foo").asOption[Int]``:
 
-* returns an ``Option[String]``
-* which is ``None`` if the "foo" attribute is undefined,
-* which is ``Some(value)`` otherwise and *value* is indeed a String
-* throws a ``ClassCastException`` otherwise
+* returns an ``Option[Int]``,
+* which is ``None`` if the *foo* attribute is undefined,
+* which is ``Some(value)`` otherwise and *value* is an Int, or is a String that can be parsed into an Int,
+* throws a ``NumberFormatException`` if the value is a String and can't be parsed into an Int,
+* throws a ``ClassCastException`` otherwise.
 
-``session("foo").validate[String]``:
+``session("foo").validate[Int]``:
 
-* returns an ``Validation[String]``
-* which is ``Failure(errorMessage)`` if the *"foo"* attribute is undefined
-* which is ``Failure(errorMessage)`` if the value is not a String
-* which is ``Success(value)`` otherwise
+* returns a ``Validation[Int]``,
+* which is ``Success(value)`` if the *foo* attribute is defined and *value* is an Int or is a String that can be parsed into an Int,
+* which is ``Failure(errorMessage)`` otherwise.
+
+.. note::
+  Trying to get a ``[String]`` actually performs a ``toString`` conversion and thus, always works as long as the entry is defined.
+
+.. note::
+  If the value is a ``[String]``, Gatling will try to parse it into a value of the expected type.
 
 .. note::
 
-  Using ``as`` will probably easier for most users.
+  Using ``as`` will probably be easier for most users.
   It will work fine, but the downside is that they might generate lots of expensive exceptions once things starts going wrong under load.
 
   We advise considering ``validate`` once accustomed to functional logic as it deals with unexpected results in a more efficient manner.

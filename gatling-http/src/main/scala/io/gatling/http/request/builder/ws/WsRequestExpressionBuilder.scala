@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder.ws
 
-import io.gatling.core.CoreComponents
-import io.gatling.core.session.Session
-import io.gatling.http.protocol.HttpComponents
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session._
+import io.gatling.http.cache.{ BaseUrlSupport, HttpCaches }
+import io.gatling.http.client.RequestBuilder
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
+import io.gatling.http.request.builder.RequestExpressionBuilder.{ ConfigureIdentity, RequestBuilderConfigure }
+import io.gatling.http.util.HttpHelper
 
-class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, coreComponents: CoreComponents, httpComponents: HttpComponents)
-  extends RequestExpressionBuilder(commonAttributes, coreComponents, httpComponents) {
+class WsRequestExpressionBuilder(
+    commonAttributes: CommonAttributes,
+    httpCaches: HttpCaches,
+    httpProtocol: HttpProtocol,
+    configuration: GatlingConfiguration,
+    subprotocol: Option[Expression[String]]
+) extends RequestExpressionBuilder(commonAttributes, httpCaches, httpProtocol, configuration) {
 
-  override protected def baseUrl: Session => Option[String] = httpCaches.wsBaseUrl
+  override protected def protocolBaseUrl: Session => Option[String] =
+    BaseUrlSupport.wsBaseUrl(httpProtocol)
+
+  override protected def protocolBaseUrls: List[String] =
+    httpProtocol.wsPart.wsBaseUrls
+
+  override protected def isAbsoluteUrl(url: String): Boolean =
+    HttpHelper.isAbsoluteWsUrl(url)
+
+  override protected def configureRequestTimeout(requestBuilder: RequestBuilder): Unit =
+    requestBuilder.setRequestTimeout(configuration.http.requestTimeout.toMillis)
+
+  override protected val configureRequestBuilderForProtocol: RequestBuilderConfigure =
+    subprotocol match {
+      case Some(sub) =>
+        session =>
+          requestBuilder =>
+            for {
+              resolvedSubProtocol <- sub(session)
+            } yield requestBuilder.setWsSubprotocol(resolvedSubProtocol)
+      case _ => ConfigureIdentity
+    }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,190 +13,305 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.stats.writer
 
 import java.io.RandomAccessFile
 import java.nio.{ ByteBuffer, CharBuffer }
-import java.nio.charset.CharsetEncoder
 import java.nio.channels.FileChannel
+import java.nio.charset.CharsetEncoder
+import java.nio.charset.StandardCharsets.US_ASCII
+import java.util.Base64
 
-import scala.util.control.NonFatal
-
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.stats.assertion.Assertion
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.StringHelper._
-import io.gatling.commons.util.PathHelper._
+import io.gatling.commons.util.StringHelper.EolBytes
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
+import io.gatling.core.stats.message.MessageEvent
+import io.gatling.core.util.{ Integers, Longs }
 
-import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
-import com.dongxiguo.fastring.Fastring.Implicits._
-import jodd.util.Base64
 
-object LogFileDataWriter extends StrictLogging {
+object BufferedFileChannelWriter {
 
-  val Separator: Char = '\t'
+  def apply(runId: String, configuration: GatlingConfiguration): BufferedFileChannelWriter = {
+    val encoder = configuration.core.charset.newEncoder
+    val simulationLog = simulationLogDirectory(runId, create = true, configuration) / "simulation.log"
+    val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
+    val bb = ByteBuffer.allocate(configuration.data.file.bufferSize)
 
-  object SanitizableString {
-    private val SanitizerPattern = """[\n\r\t]""".r
+    new BufferedFileChannelWriter(channel, encoder, bb)
+  }
+}
+
+final class BufferedFileChannelWriter(channel: FileChannel, encoder: CharsetEncoder, bb: ByteBuffer) extends AutoCloseable with StrictLogging {
+
+  def flush(): Unit = {
+    bb.flip()
+    while (bb.hasRemaining) {
+      channel.write(bb)
+    }
+    bb.clear()
   }
 
-  implicit class SanitizableString(val string: String) extends AnyVal {
+  private def ensureCapacity(i: Int): Unit =
+    if (bb.remaining < i) {
+      flush()
+    }
 
-    /**
-     * Converts whitespace characters that would break the simulation log format into spaces.
-     */
-    def sanitize: String = SanitizableString.SanitizerPattern.replaceAllIn(string, " ")
+  def writeBytes(bytes: Array[Byte]): Unit = {
+    ensureCapacity(bytes.length)
+    bb.put(bytes)
   }
 
-  sealed trait DataWriterMessageSerializer[T] {
+  def writeString(string: String): Unit = {
 
-    def serializeGroups(groupHierarchy: List[String]): Fastring = groupHierarchy.mkFastring(",")
+    ensureCapacity(string.length * 4)
 
-    def serialize(m: T): Fastring
-  }
-
-  implicit val RunMessageSerializer = new DataWriterMessageSerializer[RunMessage] {
-
-    def serialize(runMessage: RunMessage): Fastring = {
-      import runMessage._
-      val description = if (runDescription.isEmpty) " " else runDescription
-      fast"${RunRecordHeader.value}$Separator$simulationClassName$Separator$simulationId$Separator$start$Separator$description${Separator}3.0$Eol"
+    val coderResult = encoder.encode(CharBuffer.wrap(string), bb, false)
+    if (coderResult.isOverflow) {
+      logger.error("Buffer overflow, you shouldn't be logging that much data. Truncating.")
     }
   }
 
-  implicit val UserMessageSerializer = new DataWriterMessageSerializer[UserMessage] {
+  def writePositiveLong(l: Long): Unit = {
 
-    def serialize(user: UserMessage): Fastring = {
-      import user._
-      fast"${UserRecordHeader.value}$Separator${session.scenario}$Separator${session.userId}$Separator${event.name}$Separator${session.startDate}$Separator$timestamp$Eol"
-    }
+    val stringSize = Longs.positiveLongStringSize(l)
+    ensureCapacity(stringSize)
+
+    Longs.writePositiveLongString(l, stringSize, bb)
   }
 
-  implicit val ResponseMessageSerializer = new DataWriterMessageSerializer[ResponseMessage] {
+  def writePositiveInt(i: Int): Unit = {
 
-    private def serializeExtraInfo(extraInfo: List[Any]): Fastring =
-      try {
-        extraInfo.map(info => fast"$Separator${info.toString.sanitize}").mkFastring
-      } catch {
-        case NonFatal(e) =>
-          logger.error("Crash on extraInfo serialization", e)
-          EmptyFastring
+    val stringSize = Integers.positiveIntStringSize(i)
+    ensureCapacity(stringSize)
+
+    Integers.writePositiveIntString(i, stringSize, bb)
+  }
+
+  override def close(): Unit =
+    try {
+      flush()
+      channel.force(true)
+    } finally {
+      channel.close()
+    }
+}
+
+object DataWriterMessageSerializer {
+
+  val Separator: String = "\t"
+  val GroupSeparatorChar = ','
+  val SeparatorBytes: Array[Byte] = Separator.getBytes(US_ASCII)
+
+  val SpaceBytes: Array[Byte] = Array(' ')
+  val GroupSeparatorBytes: Array[Byte] = GroupSeparatorChar.toString.getBytes(US_ASCII)
+
+  /**
+   * Converts whitespace characters that would break the simulation log format into spaces.
+   */
+  def sanitize(text: String): String =
+    text.replaceIf(c => c == '\n' || c == '\r' || c == '\t', ' ')
+}
+
+abstract class DataWriterMessageSerializer[T](writer: BufferedFileChannelWriter, header: String) {
+
+  import DataWriterMessageSerializer._
+
+  def writeSeparator(): Unit =
+    writer.writeBytes(SeparatorBytes)
+
+  def writeGroupSeparator(): Unit =
+    writer.writeBytes(GroupSeparatorBytes)
+
+  def writeSpace(): Unit =
+    writer.writeBytes(SpaceBytes)
+
+  def writeEol(): Unit =
+    writer.writeBytes(EolBytes)
+
+  def writeGroups(groupHierarchy: List[String]): Unit = {
+    var i = groupHierarchy.length
+    groupHierarchy.foreach { group =>
+      writer.writeString(group.replaceIf(_ == GroupSeparatorChar, ' '))
+      i -= 1
+      if (i > 0) {
+        writeGroupSeparator()
       }
-
-    private def serializeMessage(message: Option[String]): String =
-      message match {
-        case Some(m) => m.sanitize
-        case None    => " "
-      }
-
-    def serialize(response: ResponseMessage): Fastring = {
-      import response._
-      fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$startTimestamp$Separator$endTimestamp$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }
 
-  implicit val GroupMessageSerializer = new DataWriterMessageSerializer[GroupMessage] {
+  private val headerBytes = header.getBytes(US_ASCII)
 
-    def serialize(group: GroupMessage): Fastring = {
-      import group._
-      fast"${GroupRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$startTimestamp$Separator$endTimestamp$Separator$cumulatedResponseTime$Separator$status$Eol"
-    }
+  def writeHeader(): Unit =
+    writer.writeBytes(headerBytes)
+
+  def serialize(m: T): Unit = {
+    writeHeader()
+    writeSeparator()
+    serialize0(m)
+    writeEol()
   }
 
-  implicit val AssertionSerializer = new DataWriterMessageSerializer[Assertion] {
+  protected def serialize0(m: T): Unit
+}
 
-    def serialize(assertion: Assertion): Fastring = {
+class RunMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[RunMessage](writer, RunRecordHeader.value) {
 
-      val byteBuffer = Pickle.intoBytes(assertion)
-      val bytes = new Array[Byte](byteBuffer.remaining)
-      byteBuffer.get(bytes)
-      val base64String = Base64.encodeToString(bytes)
-
-      fast"${AssertionRecordHeader.value}$Separator$base64String$Eol"
+  override protected def serialize0(runMessage: RunMessage): Unit = {
+    import runMessage._
+    writer.writeString(simulationClassName)
+    writeSeparator()
+    writer.writeString(simulationId)
+    writeSeparator()
+    writer.writePositiveLong(start)
+    writeSeparator()
+    if (runDescription.isEmpty) {
+      writeSpace()
+    } else {
+      writer.writeString(runDescription)
     }
+    writeSeparator()
+    writer.writeString(gatlingVersion)
   }
+}
 
-  implicit val ErrorMessageSerializer = new DataWriterMessageSerializer[ErrorMessage] {
+class UserStartMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserStartMessage](writer, UserRecordHeader.value) {
 
-    def serialize(error: ErrorMessage): Fastring = {
-      import error._
-      fast"${GroupRecordHeader.value}$Separator$message$Separator$date$Eol"
+  override protected def serialize0(user: UserStartMessage): Unit = {
+    import user._
+    writer.writeString(scenario)
+    writeSeparator()
+    writer.writeString(MessageEvent.Start.name)
+    writeSeparator()
+    writer.writePositiveLong(timestamp)
+  }
+}
+
+class UserEndMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[UserEndMessage](writer, UserRecordHeader.value) {
+
+  override protected def serialize0(user: UserEndMessage): Unit = {
+    import user._
+    writer.writeString(scenario)
+    writeSeparator()
+    writer.writeString(MessageEvent.End.name)
+    writeSeparator()
+    writer.writePositiveLong(timestamp)
+  }
+}
+
+class ResponseMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[ResponseMessage](writer, RequestRecordHeader.value) {
+
+  import DataWriterMessageSerializer._
+
+  override protected def serialize0(response: ResponseMessage): Unit = {
+    import response._
+    writeGroups(groupHierarchy)
+    writeSeparator()
+    writer.writeString(name)
+    writeSeparator()
+    writer.writePositiveLong(startTimestamp)
+    writeSeparator()
+    writer.writePositiveLong(endTimestamp)
+    writeSeparator()
+    writer.writeString(status.name)
+    writeSeparator()
+    message match {
+      case Some(m) => writer.writeString(sanitize(m))
+      case _       => writeSpace()
     }
   }
 }
 
-case class FileData(limit: Int, buffer: ByteBuffer, encoder: CharsetEncoder, channel: FileChannel) extends DataWriterData
+class GroupMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[GroupMessage](writer, GroupRecordHeader.value) {
 
-/**
- * File implementation of the DataWriter
- *
- * It writes the data of the simulation if a tabulation separated values file
- */
-class LogFileDataWriter extends DataWriter[FileData] {
+  override protected def serialize0(group: GroupMessage): Unit = {
+    import group._
+    writeGroups(groupHierarchy)
+    writeSeparator()
+    writer.writePositiveLong(startTimestamp)
+    writeSeparator()
+    writer.writePositiveLong(endTimestamp)
+    writeSeparator()
+    writer.writePositiveLong(cumulatedResponseTime)
+    writeSeparator()
+    writer.writeString(status.name)
+  }
+}
 
-  import LogFileDataWriter._
+class AssertionSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[Assertion](writer, AssertionRecordHeader.value) {
+
+  import io.gatling.commons.stats.assertion.AssertionPicklers._
+
+  override protected def serialize0(assertion: Assertion): Unit = {
+    import boopickle.Default._
+
+    val byteBuffer = Pickle.intoBytes(assertion)
+    val bytes = new Array[Byte](byteBuffer.remaining)
+    byteBuffer.get(bytes)
+
+    writer.writeBytes(Base64.getEncoder.encode(bytes))
+  }
+}
+
+class ErrorMessageSerializer(writer: BufferedFileChannelWriter) extends DataWriterMessageSerializer[ErrorMessage](writer, ErrorRecordHeader.value) {
+
+  override protected def serialize0(error: ErrorMessage): Unit = {
+    import error._
+    writer.writeString(message)
+    writeSeparator()
+    writer.writePositiveLong(date)
+  }
+}
+
+final class FileData(
+    val userStartMessageSerializer: UserStartMessageSerializer,
+    val userEndMessageSerializer: UserEndMessageSerializer,
+    val responseMessageSerializer: ResponseMessageSerializer,
+    val groupMessageSerializer: GroupMessageSerializer,
+    val errorMessageSerializer: ErrorMessageSerializer,
+    val writer: BufferedFileChannelWriter
+) extends DataWriterData
+
+class LogFileDataWriter(clock: Clock, configuration: GatlingConfiguration) extends DataWriter[FileData] {
 
   def onInit(init: Init): FileData = {
 
     import init._
 
-    val simulationLog = simulationLogDirectory(runMessage.runId)(configuration) / "simulation.log"
+    val writer = BufferedFileChannelWriter(runMessage.runId, configuration)
+    val assertionSerializer = new AssertionSerializer(writer)
+    assertions.foreach(assertion => assertionSerializer.serialize(assertion))
+    new RunMessageSerializer(writer).serialize(runMessage)
 
-    val limit = configuration.data.file.bufferSize
-
-    val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
-
-    val data = FileData(limit, ByteBuffer.allocate(limit * 2), configuration.core.charset.newEncoder, channel)
-
-    system.registerOnTermination(channel.close())
-    assertions.foreach(assertion => push(assertion, data))
-    push(runMessage, data)
-
-    data
+    new FileData(
+      new UserStartMessageSerializer(writer),
+      new UserEndMessageSerializer(writer),
+      new ResponseMessageSerializer(writer),
+      new GroupMessageSerializer(writer),
+      new ErrorMessageSerializer(writer),
+      writer
+    )
   }
 
   override def onFlush(data: FileData): Unit = {}
 
-  private def flush(data: FileData, overflown: Boolean): Unit = {
-    import data._
-    buffer.flip()
-    while (buffer.hasRemaining) {
-      channel.write(buffer)
+  override def onMessage(message: LoadEventMessage, data: FileData): Unit =
+    message match {
+      case user: UserStartMessage    => data.userStartMessageSerializer.serialize(user)
+      case user: UserEndMessage      => data.userEndMessageSerializer.serialize(user)
+      case group: GroupMessage       => data.groupMessageSerializer.serialize(group)
+      case response: ResponseMessage => data.responseMessageSerializer.serialize(response)
+      case error: ErrorMessage       => data.errorMessageSerializer.serialize(error)
+      case _                         =>
     }
-    if (overflown) {
-      logger.error("Buffer overflow, you shouldn't be logging that much data. Truncating.")
-      channel.write(ByteBuffer.wrap(EolBytes))
-    }
-    buffer.clear()
-  }
-
-  private def push[T](message: T, data: FileData)(implicit serializer: DataWriterMessageSerializer[T]): Unit = {
-
-    import data._
-
-    val fs = serializer.serialize(message)
-    var overflow = false
-
-    for (string <- fs) {
-      val coderResult = encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
-      overflow = coderResult.isOverflow
-    }
-    if (buffer.position >= limit || overflow)
-      flush(data, overflown = overflow)
-  }
-
-  override def onMessage(message: LoadEventMessage, data: FileData): Unit = message match {
-    case user: UserMessage         => push(user, data)
-    case group: GroupMessage       => push(group, data)
-    case response: ResponseMessage => push(response, data)
-    case error: ErrorMessage       => push(error, data)
-    case _                         =>
-  }
 
   override def onCrash(cause: String, data: FileData): Unit = {}
 
-  override def onStop(data: FileData): Unit = {
-    flush(data, overflown = false)
-    data.channel.force(true)
-  }
+  override def onStop(data: FileData): Unit =
+    data.writer.close()
 }

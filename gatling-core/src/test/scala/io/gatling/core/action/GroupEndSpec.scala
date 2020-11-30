@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import io.gatling.AkkaSpec
-import io.gatling.core.session.Session
-import io.gatling.core.stats.DataWritersStatsEngine
-import io.gatling.core.stats.writer.GroupMessage
+import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
+import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.stats.StatsEngine
 
-import akka.testkit._
+import org.mockito.{ ArgumentCaptor, ArgumentMatchers }
+import org.mockito.Mockito._
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatestplus.mockito.MockitoSugar
 
-class GroupEndSpec extends AkkaSpec {
+class GroupEndSpec extends AnyFlatSpec with Matchers with MockitoSugar with GivenWhenThen with EmptySession {
+
+  private val clock = new DefaultClock
 
   "GroupEnd" should "exit the current group" in {
-    val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
 
-    val groupEnd = new GroupEnd(statsEngine, new ActorDelegatingAction("next", self))
+    Given("a GroupEnd Action")
+    val statsEngine = mock[StatsEngine]
+    val next = mock[Action]
+    val groupEnd = new GroupEnd(statsEngine, clock, next)
 
-    val session = Session("scenario", 0)
-    val sessionInGroup = session.enterGroup("group")
+    When("being sent a Session that has one single group")
+    val session = emptySession.enterGroup("group", clock.nowMillis)
+    groupEnd ! session
 
-    groupEnd ! sessionInGroup
-    expectMsg(session)
+    Then("next Action should receive a Session with an empty blockStack")
+    val sessionCaptor: ArgumentCaptor[Session] = ArgumentCaptor.forClass(classOf[Session])
+    verify(next) ! sessionCaptor.capture()
+    val nextSession = sessionCaptor.getValue
+    nextSession.blockStack shouldBe empty
 
-    dataWriterProbe.expectMsgType[GroupMessage]
+    And("StatsEngine#logGroupEnd should be notified with the expected group")
+    val groupBlockCaptor: ArgumentCaptor[GroupBlock] = ArgumentCaptor.forClass(classOf[GroupBlock])
+    verify(statsEngine).logGroupEnd(ArgumentMatchers.any(), groupBlockCaptor.capture(), ArgumentMatchers.anyLong())
+    val groupBlock = groupBlockCaptor.getValue
+
+    groupBlock.groups shouldBe List("group")
   }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.report
 
 import scala.annotation.tailrec
 import scala.collection.mutable
 
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.commons.stats.Group
+import io.gatling.commons.shared.unstable.model.stats.Group
 
 private[gatling] object Container {
   val Group = "GROUP"
@@ -28,17 +29,20 @@ private[gatling] object Container {
 
 private[charts] trait Container
 
-private[charts] case class RequestContainer(name: String, stats: RequestStatistics) extends Container
+private[charts] final class RequestContainer(val name: String, val stats: RequestStatistics) extends Container
 
 private[charts] object GroupContainer {
-  def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
+  def root(requestStats: RequestStatistics): GroupContainer = GroupContainer("ROOT", requestStats)
+
+  def apply(name: String, stats: RequestStatistics): GroupContainer =
+    new GroupContainer(name, stats, mutable.LinkedHashMap.empty, mutable.LinkedHashMap.empty)
 }
 
-private[charts] case class GroupContainer(
-    name:     String,
-    stats:    RequestStatistics,
-    requests: mutable.Map[String, RequestContainer] = mutable.LinkedHashMap.empty,
-    groups:   mutable.Map[String, GroupContainer]   = mutable.LinkedHashMap.empty
+private[charts] final class GroupContainer(
+    val name: String,
+    val stats: RequestStatistics,
+    val requests: mutable.Map[String, RequestContainer],
+    val groups: mutable.Map[String, GroupContainer]
 ) extends Container {
 
   private def findGroup(path: List[String]) = {
@@ -59,6 +63,6 @@ private[charts] case class GroupContainer(
 
   def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics): Unit = {
     val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
-    findGroup(parentGroup).requests += (requestName -> RequestContainer(requestName, stats))
+    findGroup(parentGroup).requests += (requestName -> new RequestContainer(requestName, stats))
   }
 }

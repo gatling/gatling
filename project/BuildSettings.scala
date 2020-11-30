@@ -1,20 +1,19 @@
-import io.gatling.build.LicenseKeys._
 import io.gatling.build.MavenPublishKeys._
 import io.gatling.build.license._
 
-import com.typesafe.sbt.SbtSite.site
-import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import sbt.Keys._
 import sbt._
-import sbtunidoc.Plugin.UnidocKeys._
-import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
 object BuildSettings {
 
   lazy val basicSettings = Seq(
-    license := ApacheV2,
+    headerLicense := ApacheV2License,
     githubPath := "gatling/gatling",
-    projectDevelopers := developers
+    projectDevelopers := developers,
+    parallelExecution in Test := false,
+    addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1"),
+    licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html"))
     // [fl]
     //
     //
@@ -23,43 +22,39 @@ object BuildSettings {
   )
 
   lazy val gatlingModuleSettings =
-    basicSettings ++ scaladocSettings
+    basicSettings ++ scaladocSettings ++ utf8Encoding
 
-  lazy val noArtifactToPublish =
-    publishArtifact in Compile := false
+  lazy val skipPublishing =
+    skip in publish := true
 
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  // [fl]
+  lazy val noSrcToPublish =
+    publishArtifact in packageDoc in Compile := false
+
+  lazy val noDocToPublish =
+    publishArtifact in packageSrc in Compile := false
 
   val developers = Seq(
     GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", isGatlingCorp = true),
     GatlingDeveloper("gcorre@gatling.io", "Guillaume Corré", isGatlingCorp = true),
-    GatlingDeveloper("tgrenier@gatling.io", "Thomas Grenier", isGatlingCorp = true),
     GatlingDeveloper("ccousseran@gatling.io", "Cédric Cousseran", isGatlingCorp = true),
-    GatlingDeveloper("achaouat@gatling.io", "Alexandre Chaouat", isGatlingCorp = true)
+    GatlingDeveloper("tpetillot@gatling.io  ", "Thomas Petillot", isGatlingCorp = true)
   )
 
-/****************************/
-  /** Documentation settings **/
-/****************************/
+  // UTF-8
+
+  lazy val utf8Encoding = Seq(
+    fork := true,
+    javacOptions in Compile ++= Seq("-encoding", "utf8"),
+    javacOptions in Test ++= Seq("-encoding", "utf8")
+  )
+
+  // Documentation settings
 
   lazy val scaladocSettings = Seq(
     autoAPIMappings := true
   )
 
-  def docSettings(excludedProjects: ProjectReference*) = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
-    unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get,
-    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(excludedProjects: _*)
-  ) ++ scaladocSettings
-
-/**************************************/
-  /** gatling-charts specific settings **/
-/**************************************/
+  // gatling-charts specific settings
 
   lazy val chartTestsSettings = Seq(
     fork := true,
@@ -69,7 +64,7 @@ object BuildSettings {
   lazy val excludeDummyComponentLibrary = Seq(
     mappings in (Compile, packageBin) := {
       val compiledClassesMappings = (mappings in (Compile, packageBin)).value
-      compiledClassesMappings.filter { case (file, path) => !path.contains("io/gatling/charts/component/impl") }
+      compiledClassesMappings.filter { case (_, path) => !path.contains("io/gatling/charts/component/impl") }
     }
   )
 }

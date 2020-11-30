@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,78 +13,113 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.structure
 
 import java.util.UUID
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.util.Clock
+import io.gatling.commons.validation.Validation
 import io.gatling.core.action.builder._
 import io.gatling.core.session._
-import io.gatling.core.structure.ChainBuilder.chainOf
 
-trait Loops[B] extends Execs[B] {
+private[structure] trait Loops[B] extends Execs[B] {
 
-  def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
+    simpleLoop(
+      session => times(session).map(session.loopCounterValue(counterName) < _),
+      chain,
+      counterName,
+      exitASAP = false,
+      RepeatLoopType
+    )
 
-    val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
-
-    loop(continueCondition, chain, counterName, exitASAP = false, RepeatLoopType)
-  }
-
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-    val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
-    val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
+    val exposeCurrentValue =
+      new SessionHookBuilder(session => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName)))), exitable = false)
 
-    loop(continueCondition, chainOf(new SessionHookBuilder(exposeCurrentValue, exitable = false)).exec(chain), counterName, exitASAP = false, ForeachLoopType)
+    simpleLoop(
+      session => seq(session).map(_.size > session.loopCounterValue(counterName)),
+      new ChainBuilder(List(exposeCurrentValue)).exec(chain),
+      counterName,
+      exitASAP = false,
+      RepeatLoopType
+    )
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
     during(duration.expressionSuccess, counterName, exitASAP)(chain)
 
-  def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B = {
+  def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B =
+    clockBasedLoop(
+      clock => session => duration(session).map(d => clock.nowMillis - session.loopTimestampValue(counterName) <= d.toMillis),
+      chain,
+      counterName,
+      exitASAP,
+      DuringLoopType
+    )
 
-    val continueCondition = (session: Session) => duration(session).map(d => nowMillis - session.loopTimestampValue(counterName) <= d.toMillis)
+  def forever(chain: ChainBuilder): B = forever()(chain)
 
-    loop(continueCondition, chain, counterName, exitASAP, DuringLoopType)
-  }
-
-  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = false)(chain)
-
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
-    loop(TrueExpressionSuccess, chain, counterName, exitASAP, ForeachLoopType)
+    simpleLoop(TrueExpressionSuccess, chain, counterName, exitASAP, ForeverLoopType)
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
-    loop(condition, chain, counterName, exitASAP, AsLongAsLoopType)
+    simpleLoop(condition, chain, counterName, exitASAP, AsLongAsLoopType)
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def doWhile(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B =
-    loop(condition, chain, counterName, exitASAP = false, DoWhileType)
+    simpleLoop(condition, chain, counterName, exitASAP = false, DoWhileType)
 
-  private def loop(condition: Expression[Boolean], chain: ChainBuilder, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean, loopType: LoopType): B =
-    exec(new LoopBuilder(condition, chain, counterName, exitASAP, loopType))
+  private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String): Clock => Session => Validation[Boolean] =
+    clock =>
+      session =>
+        for {
+          durationValue <- duration(session)
+          conditionValue <- condition(session)
+        } yield conditionValue && clock.nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis
 
-  private def continueCondition(condition: Expression[Boolean], duration: Expression[Duration], counterName: String) =
-    (session: Session) => for {
-      durationValue <- duration(session)
-      conditionValue <- condition(session)
-    } yield nowMillis - session.loopTimestampValue(counterName) <= durationValue.toMillis && conditionValue
-
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def asLongAsDuring(
-    condition:   Expression[Boolean],
-    duration:    Expression[Duration],
-    counterName: String               = UUID.randomUUID.toString,
-    exitASAP:    Boolean              = true
+      condition: Expression[Boolean],
+      duration: Expression[Duration],
+      counterName: String = UUID.randomUUID.toString,
+      exitASAP: Boolean = true
   )(chain: ChainBuilder): B =
-    loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
+    clockBasedLoop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, AsLongAsDuringLoopType)
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def doWhileDuring(
-    condition:   Expression[Boolean],
-    duration:    Expression[Duration],
-    counterName: String               = UUID.randomUUID.toString,
-    exitASAP:    Boolean              = true
+      condition: Expression[Boolean],
+      duration: Expression[Duration],
+      counterName: String = UUID.randomUUID.toString,
+      exitASAP: Boolean = true
   )(chain: ChainBuilder): B =
-    loop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, DoWhileDuringType)
+    clockBasedLoop(continueCondition(condition, duration, counterName), chain, counterName, exitASAP, DoWhileDuringType)
 
+  private def simpleLoop(
+      condition: Expression[Boolean],
+      chain: ChainBuilder,
+      counterName: String,
+      exitASAP: Boolean,
+      loopType: LoopType
+  ): B =
+    exec(new SimpleBooleanConditionLoopBuilder(condition, chain, counterName, exitASAP, loopType))
+
+  private def clockBasedLoop(
+      condition: Clock => Expression[Boolean],
+      chain: ChainBuilder,
+      counterName: String,
+      exitASAP: Boolean,
+      loopType: LoopType
+  ): B =
+    exec(new ClockBasedConditionLoopBuilder(condition, chain, counterName, exitASAP, loopType))
 }

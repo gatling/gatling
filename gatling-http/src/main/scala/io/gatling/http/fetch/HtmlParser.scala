@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,66 +13,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.fetch
 
-import scala.collection.{ breakOut, mutable }
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
-import io.gatling.core.check.extractor.css.Jodd
+import io.gatling.commons.util.Throwables._
+import io.gatling.core.check.css.Lagarto
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.util.HttpHelper
 
 import com.typesafe.scalalogging.StrictLogging
-import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
-import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
-import org.asynchttpclient.uri.Uri
+import jodd.lagarto.{ EmptyTagVisitor, Tag, TagType }
+import jodd.util.CharSequenceUtil
 
-sealed abstract class RawResource {
+private[fetch] sealed abstract class RawResource {
   def rawUrl: String
   def uri(rootURI: Uri): Option[Uri] = HttpHelper.resolveFromUriSilently(rootURI, rawUrl)
-  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource]
+  def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource]
 }
-case class CssRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
+private[fetch] final case class CssRawResource(rawUrl: String) extends RawResource {
+  def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(CssResource)
 }
-case class RegularRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
+private[fetch] final case class RegularRawResource(rawUrl: String) extends RawResource {
+  def toEmbeddedResource(rootURI: Uri): Option[ConcurrentResource] = uri(rootURI).map(BasicResource)
 }
 
-case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
+private[fetch] final case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
-object HtmlParser extends StrictLogging {
-  val AppletTagName = "applet".toCharArray
-  val BaseTagName = "base".toCharArray
-  val BgsoundTagName = "bgsound".toCharArray
-  val BodyTagName = "body".toCharArray
-  val EmbedTagName = "embed".toCharArray
-  val ImgTagName = "img".toCharArray
-  val InputTagName = "input".toCharArray
-  val LinkTagName = "link".toCharArray
-  val ObjectTagName = "object".toCharArray
-  val StyleTagName = "style".toCharArray
+private[gatling] object HtmlParser extends StrictLogging {
+  private val AppletTagName = "applet"
+  private val BaseTagName = "base"
+  private val BgsoundTagName = "bgsound"
+  private val BodyTagName = "body"
+  private val EmbedTagName = "embed"
+  private val ImgTagName = "img"
+  private val InputTagName = "input"
+  private val LinkTagName = "link"
+  private val ObjectTagName = "object"
+  private val StyleTagName = "style"
 
-  val ArchiveAttribute = "archive".toCharArray
-  val BackgroundAttribute = "background".toCharArray
-  val CodeAttribute = "code".toCharArray
-  val CodeBaseAttribute = "codebase".toCharArray
-  val DataAttribute = "data".toCharArray
-  val HrefAttribute = "href".toCharArray
-  val IconAttributeName = "icon".toCharArray
-  val ShortcutIconAttributeName = "shortcut icon".toCharArray
-  val RelAttribute = "rel".toCharArray
-  val SrcAttribute = "src".toCharArray
-  val StyleAttribute = StyleTagName
-  val StylesheetAttributeName = "stylesheet".toCharArray
+  private val ArchiveAttribute = "archive"
+  private val BackgroundAttribute = "background"
+  private val CodeAttribute = "code"
+  private val CodeBaseAttribute = "codebase"
+  private val DataAttribute = "data"
+  private val HrefAttribute = "href"
+  private val IconAttributeName = "icon"
+  private val ShortcutIconAttributeName = "shortcut icon"
+  private val RelAttribute = "rel"
+  private val SrcAttribute = "src"
+  private val StyleAttribute = StyleTagName
+  private val StylesheetAttributeName = "stylesheet"
 
-  def logException(htmlContent: String, e: Throwable): Unit =
+  def logException(htmlContent: Array[Char], e: Throwable): Unit =
     if (logger.underlying.isDebugEnabled)
-      logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
+      logger.debug(
+        s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
 >>>>>>>>>>>>>>>>>>>>>>>
-$htmlContent
-<<<<<<<<<<<<<<<<<<<<<<<""", e)
+${new String(htmlContent)}
+<<<<<<<<<<<<<<<<<<<<<<<""",
+        e
+      )
     else
-      logger.error(s"HTML parser crashed: ${e.getMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
+      logger.error(
+        s"HTML parser crashed: ${e.rootMessage}, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content",
+        e
+      )
 }
 
 class HtmlParser extends StrictLogging {
@@ -81,61 +89,42 @@ class HtmlParser extends StrictLogging {
 
   var inStyle = false
 
-  private def parseHtml(htmlContent: String, userAgent: Option[UserAgent]): HtmlResources = {
+  private def parseHtml(htmlContent: Array[Char]): HtmlResources = {
 
     var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
-    val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
-    val ieVersion = userAgent.map(_.version)
 
-    val visitor = new EmptyTagVisitor {
-      var inHiddenCommentStack = List(false)
+    val visitor: EmptyTagVisitor = new EmptyTagVisitor {
 
-      def addResource(tag: Tag, attributeName: Array[Char], factory: String => RawResource): Unit =
+      def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit =
         Option(tag.getAttributeValue(attributeName)).foreach { url =>
           rawResources += factory(url.toString)
         }
 
       override def script(tag: Tag, body: CharSequence): Unit =
-        if (!isInHiddenComment)
-          addResource(tag, SrcAttribute, RegularRawResource)
+        addResource(tag, SrcAttribute, RegularRawResource)
 
       override def text(text: CharSequence): Unit =
-        if (inStyle && !isInHiddenComment)
-          rawResources ++= CssParser.extractUrls(text, CssParser.StyleImportsUrls).map(CssRawResource)
-
-      private def isInHiddenComment = inHiddenCommentStack.head
-
-      override def condComment(expression: CharSequence, isStartingTag: Boolean, isHidden: Boolean, isHiddenEndTag: Boolean): Unit =
-        ieVersion match {
-          case Some(version) =>
-            if (!isStartingTag) {
-              inHiddenCommentStack = inHiddenCommentStack.tail
-            } else {
-              val commentValue = conditionalCommentsMatcher.`match`(version, expression.toString)
-              inHiddenCommentStack = (!commentValue) :: inHiddenCommentStack
-            }
-          case None =>
-            throw new IllegalStateException("condComment call while it should be disabled")
-        }
+        if (inStyle)
+          rawResources ++= CssParser.extractStyleImportsUrls(text).map(CssRawResource)
 
       override def tag(tag: Tag): Unit = {
 
-        def codeBase() = Option(tag.getAttributeValue(CodeBaseAttribute))
+        def codeBase(): Option[CharSequence] = Option(tag.getAttributeValue(CodeBaseAttribute))
 
-        def prependCodeBase(codeBase: CharSequence, url: String) =
-          if (url.startsWith("http"))
+        def prependCodeBase(codeBase: CharSequence, url: String): String =
+          if (url.startsWith("http")) {
             url
-          else if (codeBase.charAt(codeBase.length()) != '/')
-            codeBase + "/" + url
-          else
-            codeBase + url
+          } else if (codeBase.charAt(codeBase.length()) != '/') {
+            s"$codeBase/$url"
+          } else {
+            s"$codeBase$url"
+          }
 
         def processTag(): Unit =
           tag.getType match {
 
             case TagType.START | TagType.SELF_CLOSING =>
-
               if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
                 inStyle = true
 
@@ -144,19 +133,20 @@ class HtmlParser extends StrictLogging {
 
               } else if (tag.nameEquals(LinkTagName)) {
                 Option(tag.getAttributeValue(RelAttribute)) match {
-                  case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) =>
+                  case Some(rel) if CharSequenceUtil.equalsIgnoreCase(rel, StylesheetAttributeName) =>
                     addResource(tag, HrefAttribute, CssRawResource)
-                  case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) || TagUtil.equalsToLowercase(rel, ShortcutIconAttributeName) =>
+                  case Some(rel)
+                      if CharSequenceUtil.equalsIgnoreCase(rel, IconAttributeName) || CharSequenceUtil.equalsIgnoreCase(rel, ShortcutIconAttributeName) =>
                     addResource(tag, HrefAttribute, RegularRawResource)
-                  case None =>
-                    logger.error("Malformed HTML: <link> tag without rel attribute")
                   case _ =>
                 }
 
-              } else if (tag.nameEquals(ImgTagName) ||
+              } else if (
+                tag.nameEquals(ImgTagName) ||
                 tag.nameEquals(BgsoundTagName) ||
                 tag.nameEquals(EmbedTagName) ||
-                tag.nameEquals(InputTagName)) {
+                tag.nameEquals(InputTagName)
+              ) {
 
                 addResource(tag, SrcAttribute, RegularRawResource)
 
@@ -165,9 +155,9 @@ class HtmlParser extends StrictLogging {
 
               } else if (tag.nameEquals(AppletTagName)) {
                 val code = tag.getAttributeValue(CodeAttribute).toString
-                val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
+                val archives = Option(tag.getAttributeValue(ArchiveAttribute)).map(_.toString.split(",").view.map(_.trim).to(Seq))
 
-                val appletResources = archives.getOrElse(List(code)).iterator
+                val appletResources = archives.getOrElse(code :: Nil).iterator
                 val appletResourcesUrls = codeBase() match {
                   case Some(cb) => appletResources.map(prependCodeBase(cb, _))
                   case _        => appletResources
@@ -185,7 +175,7 @@ class HtmlParser extends StrictLogging {
 
               } else {
                 Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
-                  val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
+                  val styleUrls = CssParser.extractInlineStyleImageUrls(style).map(RegularRawResource)
                   rawResources ++= styleUrls
                 }
               }
@@ -197,27 +187,25 @@ class HtmlParser extends StrictLogging {
             case _ =>
           }
 
-        if (!isInHiddenComment)
-          processTag()
+        processTag()
       }
     }
 
-    try { Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor) }
-    catch { case NonFatal(e) => logException(htmlContent, e) }
-    HtmlResources(rawResources, base)
+    try {
+      Lagarto.newLagartoParser(htmlContent).parse(visitor)
+    } catch { case NonFatal(e) => logException(htmlContent, e) }
+    HtmlResources(rawResources.toSeq, base)
   }
 
-  def getEmbeddedResources(documentURI: Uri, htmlContent: String, userAgent: Option[UserAgent]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char]): List[ConcurrentResource] = {
 
-    val htmlResources = parseHtml(htmlContent, userAgent)
+    val htmlResources = parseHtml(htmlContent)
 
     val rootURI = htmlResources.base.map(Uri.create(documentURI, _)).getOrElse(documentURI)
 
-    htmlResources.rawResources
-      .distinct
-      .iterator
+    htmlResources.rawResources.view.distinct
       .filterNot(res => res.rawUrl.isEmpty || res.rawUrl.charAt(0) == '#' || res.rawUrl.startsWith("data:"))
-      .flatMap(_.toEmbeddedResource(rootURI))
-      .toList
+      .flatMap(_.toEmbeddedResource(rootURI).toList)
+      .to(List)
   }
 }

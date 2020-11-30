@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import io.gatling.core.stats.StatsEngine
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.stats.StatsEngine
 
-/**
- * Hook for interacting with the Session
- *
- * @constructor Constructs a SimpleAction
- * @param sessionFunction a function for manipulating the Session
- * @param name the Action name
- * @param statsEngine the StatsEngine
- * @param next the action to be executed after this one
- */
-class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val next: Action) extends ChainableAction {
+class SessionHook(sessionFunction: Expression[Session], val name: String, val statsEngine: StatsEngine, val clock: Clock, val next: Action)
+    extends ChainableAction {
 
   /**
    * Applies the function to the Session
    *
    * @param session the session of the virtual user
    */
-  override def execute(session: Session) = recover(session) {
+  override def execute(session: Session): Unit = recover(session) {
     sessionFunction(session).map(newSession => next ! newSession)
   }
 }

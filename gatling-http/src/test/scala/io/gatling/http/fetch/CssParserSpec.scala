@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.fetch
 
 import io.gatling.BaseSpec
-
-import org.asynchttpclient.uri.Uri
+import io.gatling.http.client.uri.Uri
 
 class CssParserSpec extends BaseSpec {
 
-  val rootURI = Uri.create("http://akka.io/")
+  private val rootURI = Uri.create("http://gatling.io/")
 
-  def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
+  private def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
 
   "parsing CSS" should "handle an empty CSS" in {
     rulesUri("") shouldBe empty
@@ -35,7 +35,7 @@ class CssParserSpec extends BaseSpec {
         body{background-image: url('backgrounds/blizzard.png');}
         @import url("import2.css");"""
 
-    rulesUri(css) shouldBe Seq("http://akka.io/import1.css", "http://akka.io/import2.css")
+    rulesUri(css) shouldBe Seq("http://gatling.io/import1.css", "http://gatling.io/import2.css")
   }
 
   it should "ignore commented imports with a simple CSS" in {
@@ -44,7 +44,7 @@ class CssParserSpec extends BaseSpec {
         body{background-image: url('backgrounds/blizzard.png');}
         @import url("import2.css");"""
 
-    rulesUri(css) shouldBe Seq("http://akka.io/import2.css")
+    rulesUri(css) shouldBe Seq("http://gatling.io/import2.css")
   }
 
   def extractUrl(s: String): Option[String] =

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.compiler.config
 
 import java.nio.file.{ Files, Path, Paths }
@@ -26,20 +27,20 @@ private[compiler] object ConfigUtils {
 
   implicit class RichPath(val path: Path) extends AnyVal {
 
-    def /(pathString: String) = path.resolve(pathString)
+    def /(pathString: String): Path = path.resolve(pathString)
 
-    def /(other: Path) = path.resolve(other)
+    def /(other: Path): Path = path.resolve(other)
 
-    def exists = Files.exists(path)
+    def exists: Boolean = Files.exists(path)
   }
 
   // WARN copied from io.gatling.core.config.GatlingFiles
-  val GatlingHome = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
+  val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
   def resolvePath(path: Path): Path =
     (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize().toAbsolutePath
 
-  def string2option(string: String) = string.trim match {
+  def string2option(string: String): Option[String] = string.trim match {
     case "" => None
     case s  => Some(s)
   }

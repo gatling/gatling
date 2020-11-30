@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.controller.throttle
 
 import scala.collection.mutable
@@ -32,13 +33,14 @@ private[throttle] object ThrottlerActorData {
   private[throttle] case object NoData extends ThrottlerActorData
 
   // mutable state is very ugly and error prone, but we're trying to limit allocations...
-  private[throttle] case class StartedData(throttles: Throttles, buffer: mutable.ArrayBuffer[ThrottledRequest], tickNanos: Long) extends ThrottlerActorData {
+  private[throttle] final case class StartedData(throttles: Throttles, buffer: mutable.ArrayBuffer[ThrottledRequest], tickNanos: Long)
+      extends ThrottlerActorData {
 
     var count: Int = 0
 
     def incrementCount(): Unit = count += 1
 
-    val requestStep = {
+    val requestStep: Double = {
 
       val globalLimit = throttles.global.map(_.limit).getOrElse(Int.MaxValue)
       val perScenarioLimit =

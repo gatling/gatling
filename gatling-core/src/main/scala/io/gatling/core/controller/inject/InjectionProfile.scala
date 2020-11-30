@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.controller.inject
 
-import scala.concurrent.duration.FiniteDuration
+import java.util.concurrent.atomic.AtomicLong
 
-import io.gatling.commons.util.Collections._
+import io.gatling.commons.util.Clock
+import io.gatling.core.scenario.Scenario
+import io.gatling.core.stats.StatsEngine
 
-/**
- * This class represents the configuration of a scenario
- *
- * @param injectionSteps the number of users that will behave as this scenario says
- */
-case class InjectionProfile(injectionSteps: Iterable[InjectionStep]) {
-  def userCount: Int = injectionSteps.sumBy(_.users)
-  def allUsers: Iterator[FiniteDuration] = injectionSteps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
+import io.netty.channel.EventLoopGroup
+
+trait InjectionProfileFactory[-InjectionStep] {
+
+  def profile(steps: Iterable[InjectionStep]): InjectionProfile
+}
+
+trait InjectionProfile {
+
+  def totalUserCount: Option[Long]
+
+  def workload(
+      scenario: Scenario,
+      userIdGen: AtomicLong,
+      startTime: Long,
+      eventLoopGroup: EventLoopGroup,
+      statsEngine: StatsEngine,
+      clock: Clock
+  ): Workload
+
+  //[fl]
+  //
+  //[fl]
 }

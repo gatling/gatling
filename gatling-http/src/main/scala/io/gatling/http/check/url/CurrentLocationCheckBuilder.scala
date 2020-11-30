@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,33 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.url
 
-import io.gatling.commons.validation.SuccessWrapper
-import io.gatling.core.check.{ CheckProtocolProvider, DefaultFindCheckBuilder, Preparer, Specializer }
-import io.gatling.core.check.extractor._
+import io.gatling.commons.validation._
+import io.gatling.core.check.{ CheckMaterializer, DefaultFindCheckBuilder, FindExtractor }
 import io.gatling.core.session._
-import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.{ HttpCheck, HttpCheckMaterializer }
 import io.gatling.http.check.HttpCheckBuilders._
+import io.gatling.http.check.HttpCheckScope.Url
 import io.gatling.http.response.Response
 
 trait CurrentLocationCheckType
 
-object CurrentLocationCheckBuilder {
+object CurrentLocationCheckBuilder
+    extends DefaultFindCheckBuilder[CurrentLocationCheckType, String, String](
+      extractor = new FindExtractor[String, String]("currentLocation", Some(_).success).expressionSuccess,
+      displayActualValue = true
+    )
 
-  val CurrentLocation: DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String] = {
-    val extractor = new Extractor[Response, String] with SingleArity {
-      val name = "currentLocation"
-      def apply(prepared: Response) = Some(prepared.request.getUrl).success
-    }.expressionSuccess
+object CurrentLocationCheckMaterializer {
 
-    new DefaultFindCheckBuilder[CurrentLocationCheckType, Response, String](extractor)
-  }
-}
-
-object CurrentLocationProvider extends CheckProtocolProvider[CurrentLocationCheckType, HttpCheck, Response, Response] {
-
-  override val specializer: Specializer[HttpCheck, Response] = UrlSpecializer
-
-  override val preparer: Preparer[Response, Response] = PassThroughResponsePreparer
+  val Instance: CheckMaterializer[CurrentLocationCheckType, HttpCheck, Response, String] =
+    new HttpCheckMaterializer[CurrentLocationCheckType, String](Url, UrlStringPreparer)
 }

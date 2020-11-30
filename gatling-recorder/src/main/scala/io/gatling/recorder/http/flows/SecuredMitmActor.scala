@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
-import io.gatling.recorder.http.ssl.SslServerContext
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.flows.MitmActorFSM._
 import io.gatling.recorder.http.flows.MitmMessage._
+import io.gatling.recorder.http.ssl.SslServerContext
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
@@ -44,6 +45,8 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
   when(WaitingForClientChannelConnect) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"serverChannel=${serverChannel.id} closed, state=WaitingForClientChannelConnect, closing")
+      // FIXME what about client channel?
+      // FIXME tell handlers to not notify of inactive state
       stop()
 
     case Event(ClientChannelActive(clientChannel), WaitingForClientChannelConnectData(remote, pendingRequest)) =>
@@ -52,10 +55,11 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
 
     case Event(ClientChannelException(throwable), _) =>
       logger.debug(s"serverChannel=${serverChannel.id}, state=WaitingForClientChannelConnect, client connect failure, replying 500 and closing", throwable)
+      // FIXME tell handlers to not notify of inactive state
       serverChannel.reply500AndClose()
       stop()
 
-    case Event(ClientChannelInactive(inactiveClientChannelId), _) =>
+    case Event(ClientChannelInactive(_), _) =>
       // such event can only be related to previous channel, ignoring
       stay()
   }
@@ -63,12 +67,15 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
   when(Connected) {
     case Event(ServerChannelInactive, ConnectedData(_, clientChannel)) =>
       logger.debug(s"Server channel ${serverChannel.id} was closed while in Connected state, closing")
+      // FIXME tell handlers to not notify of inactive state
       clientChannel.close()
       stop()
 
     case Event(ClientChannelInactive(inactiveClientChannelId), ConnectedData(remote, clientChannel)) =>
       if (clientChannel.id == inactiveClientChannelId) {
-        logger.debug(s"Server channel ${serverChannel.id} received ClientChannelInactive while in Connected state paired with ${clientChannel.id}, becoming disconnected")
+        logger.debug(
+          s"Server channel ${serverChannel.id} received ClientChannelInactive while in Connected state paired with ${clientChannel.id}, becoming disconnected"
+        )
         goto(Disconnected) using DisconnectedData(remote)
       } else {
         // event from previous channel, ignoring
@@ -81,7 +88,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
 
     case Event(ResponseReceived(response), _) =>
       logger.debug(s"Server channel ${serverChannel.id} received Response while in Connected state")
-      serverChannel.writeAndFlush(response.retain())
+      serverChannel.writeAndFlush(response)
       stay()
 
     case Event(RequestReceived(request), ConnectedData(_, clientChannel)) =>
@@ -95,6 +102,7 @@ abstract class SecuredMitmActor(serverChannel: Channel, clientBootstrap: Bootstr
   when(Disconnected) {
     case Event(ServerChannelInactive, _) =>
       logger.debug(s"Server channel ${serverChannel.id} was closed while in Disconnected state, closing")
+      // FIXME what about client channel?
       stop()
 
     case Event(RequestReceived(request), DisconnectedData(remote)) =>

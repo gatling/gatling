@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.check
 
+import java.util.{ Map => JMap }
 import javax.jms.Message
-
-import scala.collection.mutable
 
 import io.gatling.commons.validation._
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.jms._
 
-case class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
-  override def check(response: Message, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = {
-    func(response) match {
-      case true => CheckResult.NoopCheckResultSuccess
-      case _    => Failure("Jms check failed")
+object JmsSimpleCheck {
+
+  private val JmsSimpleCheckFailure = "JMS check failed".failure
+}
+
+final class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
+  override def check(response: Message, session: Session, preparedCache: JMap[Any, Any]): Validation[CheckResult] =
+    if (func(response)) {
+      CheckResult.NoopCheckResultSuccess
+    } else {
+      JmsSimpleCheck.JmsSimpleCheckFailure
     }
-  }
 }

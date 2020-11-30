@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.compiler.config
 
 import java.nio.file._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.compiler.config.ConfigUtils._
 import io.gatling.compiler.config.cli.{ ArgsParser, CommandLineOverrides }
 
 import com.typesafe.config.ConfigFactory
 
-private[compiler] case class CompilerConfiguration(
-    encoding:             String,
+private[compiler] final case class CompilerConfiguration(
+    encoding: String,
     simulationsDirectory: Path,
-    binariesDirectory:    Path
+    binariesDirectory: Path,
+    extraScalacOptions: Seq[String]
 )
 
 private[compiler] object CompilerConfiguration {
@@ -36,7 +38,7 @@ private[compiler] object CompilerConfiguration {
   private val simulationsDirectoryKey = "gatling.core.directory.simulations"
   private val binariesDirectoryKey = "gatling.core.directory.binaries"
 
-  def configuration(args: Array[String]) = {
+  def configuration(args: Array[String]): CompilerConfiguration = {
     def buildConfigurationMap(overrides: CommandLineOverrides): Map[String, _ <: Any] = {
       val mapForSimulationFolder =
         string2option(overrides.simulationsDirectory)
@@ -63,7 +65,8 @@ private[compiler] object CompilerConfiguration {
     val simulationsDirectory = resolvePath(Paths.get(config.getString(simulationsDirectoryKey)))
     val binariesDirectory = string2option(config.getString(binariesDirectoryKey))
       .fold(GatlingHome / "target" / "test-classes")(resolvePath(_))
+    val extraScalacOptions = commandLineOverrides.extraScalacOptions.split(",").toSeq
 
-    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory)
+    CompilerConfiguration(encoding, simulationsDirectory, binariesDirectory, extraScalacOptions)
   }
 }

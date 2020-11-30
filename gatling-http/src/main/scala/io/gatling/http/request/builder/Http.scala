@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
+import io.gatling.http.client.uri.Uri
 
-import org.asynchttpclient.uri.Uri
+import io.netty.handler.codec.http.HttpMethod
 
 /**
  * @param requestName the name of the request
  */
-case class Http(requestName: Expression[String]) {
+final case class Http(requestName: Expression[String]) {
 
-  def get(url: Expression[String]) = httpRequest("GET", url)
-  def get(uri: Uri) = httpRequest("GET", Right(uri))
-  def put(url: Expression[String]) = httpRequest("PUT", url)
-  def post(url: Expression[String]) = httpRequest("POST", url)
-  def patch(url: Expression[String]) = httpRequest("PATCH", url)
-  def head(url: Expression[String]) = httpRequest("HEAD", url)
-  def delete(url: Expression[String]) = httpRequest("DELETE", url)
-  def options(url: Expression[String]) = httpRequest("OPTIONS", url)
-  def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(method, Left(url))
-  def httpRequest(method: String, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder = new HttpRequestBuilder(CommonAttributes(requestName, method, urlOrURI), HttpAttributes())
+  def get(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.GET, url)
+  def get(uri: Uri): HttpRequestBuilder = httpRequest(HttpMethod.GET, Right(uri))
+  def put(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PUT, url)
+  def post(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.POST, url)
+  def patch(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.PATCH, url)
+  def head(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.HEAD, url)
+  def delete(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.DELETE, url)
+  def options(url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.OPTIONS, url)
+  def httpRequest(method: String, url: Expression[String]): HttpRequestBuilder = httpRequest(HttpMethod.valueOf(method), Left(url))
+  def httpRequest(method: HttpMethod, url: Expression[String]): HttpRequestBuilder = httpRequest(method, Left(url))
+  def httpRequest(method: HttpMethod, urlOrURI: Either[Expression[String], Uri]): HttpRequestBuilder =
+    new HttpRequestBuilder(CommonAttributes(requestName, method, urlOrURI), HttpAttributes.Empty)
 }

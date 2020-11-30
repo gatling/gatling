@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.stats.buffers
 
+import io.gatling.charts.stats.CountsVsTimePlot
 import io.gatling.commons.stats.{ OK, Status }
-import io.gatling.core.stats.CountsVsTimePlot
 
+@SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
 private[stats] class Counts(var oks: Int = 0, var kos: Int = 0) {
 
   def increment(status: Status): Unit = status match {
@@ -25,7 +27,7 @@ private[stats] class Counts(var oks: Int = 0, var kos: Int = 0) {
     case _  => kos += 1
   }
 
-  def total = oks + kos
+  def total: Int = oks + kos
 }
 
 private[stats] class CountsBuffer(buckets: Array[Int]) {
@@ -37,5 +39,5 @@ private[stats] class CountsBuffer(buckets: Array[Int]) {
 
   def distribution: Iterable[CountsVsTimePlot] =
     counts.view.zipWithIndex
-      .map { case (count, bucketNumber) => CountsVsTimePlot(buckets(bucketNumber), count.oks, count.kos) }
+      .map { case (count, bucketNumber) => new CountsVsTimePlot(buckets(bucketNumber), count.oks, count.kos) }
 }

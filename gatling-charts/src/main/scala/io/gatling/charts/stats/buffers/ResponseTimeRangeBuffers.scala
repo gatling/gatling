@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.stats.buffers
 
 import scala.collection.mutable
 
 import io.gatling.charts.stats.{ GroupRecord, RequestRecord }
-import io.gatling.commons.stats.{ Group, KO, Status }
+import io.gatling.commons.shared.unstable.model.stats.Group
+import io.gatling.commons.stats.{ KO, Status }
 import io.gatling.core.config.GatlingConfiguration
 
 private[stats] trait ResponseTimeRangeBuffers {
 
-  val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
+  val responseTimeRangeBuffers: mutable.Map[BufferKey, ResponseTimeRangeBuffer] = mutable.Map.empty
 
   def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group])(implicit configuration: GatlingConfiguration): ResponseTimeRangeBuffer =
     responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
@@ -39,10 +41,10 @@ private[stats] trait ResponseTimeRangeBuffers {
 
   class ResponseTimeRangeBuffer(implicit configuration: GatlingConfiguration) {
 
-    var low = 0
-    var middle = 0
-    var high = 0
-    var ko = 0
+    var low: Int = 0
+    var middle: Int = 0
+    var high: Int = 0
+    var ko: Int = 0
 
     def update(time: Int, status: Status): Unit = {
 

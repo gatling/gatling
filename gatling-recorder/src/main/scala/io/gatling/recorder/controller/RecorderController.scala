@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,46 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.controller
 
+import java.nio.file.Paths
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConverters._
 import scala.concurrent.duration.DurationLong
+import scala.jdk.CollectionConverters._
 
-import io.gatling.commons.util.PathHelper._
-import io.gatling.commons.util.ClockSingleton._
+import io.gatling.commons.shared.unstable.util.PathHelper._
+import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
-import io.gatling.recorder.config.RecorderPropertiesBuilder
-import io.gatling.recorder.config.RecorderMode._
+import io.gatling.core.filter.Filters
+import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.RecorderMode._
 import io.gatling.recorder.http.Mitm
-import io.gatling.recorder.http.model.{ SafeHttpRequest, SafeHttpResponse, TimedHttpRequest }
+import io.gatling.recorder.model._
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
 import com.typesafe.scalalogging.StrictLogging
-import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.util.Base64
-import io.netty.handler.codec.http.HttpHeaderNames.PROXY_AUTHORIZATION
 
-private[recorder] class RecorderController extends StrictLogging {
+private[recorder] class RecorderController(clock: Clock) extends StrictLogging {
 
-  private val frontEnd = RecorderFrontend.newFrontend(this)
+  private val frontEnd = RecorderFrontEnd.newFrontend(this)
 
   @volatile private var mitm: Mitm = _
 
-  // Collection of tuples, (arrivalTime, request)
-  private val currentRequests = new ConcurrentLinkedQueue[TimedScenarioElement[RequestElement]]()
-  // Collection of tuples, (arrivalTime, tag)
-  private val currentTags = new ConcurrentLinkedQueue[TimedScenarioElement[TagElement]]()
+  private val requests = new ConcurrentLinkedQueue[TimedScenarioElement[RequestElement]]()
+  private val tags = new ConcurrentLinkedQueue[TimedScenarioElement[TagElement]]()
 
   frontEnd.init()
 
   def startRecording(): Unit = {
     val selectedMode = frontEnd.selectedRecorderMode
     val harFilePath = frontEnd.harFilePath
-    if (selectedMode == Har && !string2path(harFilePath).exists) {
+    if (selectedMode == Har && !Paths.get(harFilePath).exists) {
       frontEnd.handleMissingHarFile(harFilePath)
     } else {
       val simulationFile = ScenarioExporter.simulationFilePath
@@ -65,7 +63,7 @@ private[recorder] class RecorderController extends StrictLogging {
               case _               => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
-            mitm = Mitm(this, RecorderConfiguration.configuration)
+            mitm = Mitm(this, clock, RecorderConfiguration.configuration)
             frontEnd.recordingStarted()
         }
       }
@@ -75,10 +73,10 @@ private[recorder] class RecorderController extends StrictLogging {
   def stopRecording(save: Boolean): Unit = {
     frontEnd.recordingStopped()
     try {
-      if (currentRequests.isEmpty)
+      if (requests.isEmpty)
         logger.info("Nothing was recorded, skipping scenario generation")
       else {
-        val scenario = ScenarioDefinition(currentRequests.asScala.toVector, currentTags.asScala.toVector)
+        val scenario = ScenarioDefinition(requests.asScala.toVector, tags.asScala.toVector)
         ScenarioExporter.saveScenario(scenario)
       }
 
@@ -89,50 +87,35 @@ private[recorder] class RecorderController extends StrictLogging {
     }
   }
 
-  def receiveRequest(request: SafeHttpRequest): Unit =
-    // TODO NICO - that's not the appropriate place to synchronize !
-    synchronized {
-      // FIXME it's in the configuration!!!!
-      // If Outgoing Proxy set, we record the credentials to use them when sending the request
-      Option(request.headers.get(PROXY_AUTHORIZATION)).foreach {
-        header =>
-          // Split on " " and take 2nd group (Basic credentialsInBase64==)
-          val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-          val props = new RecorderPropertiesBuilder
-          props.proxyUsername(credentials(0))
-          props.proxyPassword(credentials(1))
-          RecorderConfiguration.reload(props.build)
-      }
-    }
+  def receiveResponse(request: HttpRequest, response: HttpResponse): Unit =
+    if (
+      RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.uri))
+      && Filters.BrowserNoiseFilters.accept(request.uri)
+    ) {
+      requests.add(TimedScenarioElement(request.timestamp, response.timestamp, RequestElement(request, response)))
 
-  def receiveResponse(request: TimedHttpRequest, response: SafeHttpResponse): Unit =
-    if (RecorderConfiguration.configuration.filters.filters.forall(_.accept(request.httpRequest.uri))) {
-      val arrivalTime = nowMillis
-
-      currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, RequestElement(request.httpRequest, response)))
-
-      // Notify the frontend
-      val previousSendTime = currentRequests.asScala.lastOption.map(_.sendTime)
+      // Notify frontend
+      val previousSendTime = requests.asScala.lastOption.map(_.sendTime)
       previousSendTime.foreach { t =>
-        val delta = (arrivalTime - t).milliseconds
+        val delta = (response.timestamp - t).milliseconds
         if (delta > RecorderConfiguration.configuration.core.thresholdForPauseCreation)
-          frontEnd.receiveEventInfo(PauseInfo(delta))
+          frontEnd.receiveEvent(PauseFrontEndEvent(delta))
       }
-      frontEnd.receiveEventInfo(RequestInfo(request.httpRequest, response))
+      frontEnd.receiveEvent(RequestFrontEndEvent(request, response))
     }
 
   def addTag(text: String): Unit = {
-    val now = nowMillis
-    currentTags.add(TimedScenarioElement(now, now, TagElement(text)))
-    frontEnd.receiveEventInfo(TagInfo(text))
+    val now = clock.nowMillis
+    tags.add(TimedScenarioElement(now, now, TagElement(text)))
+    frontEnd.receiveEvent(TagFrontEndEvent(text))
   }
 
   def secureConnection(securedHostURI: Uri): Unit = {
-    frontEnd.receiveEventInfo(SSLInfo(securedHostURI.toUrl))
+    frontEnd.receiveEvent(SslFrontEndEvent(securedHostURI.toUrl))
   }
 
   def clearRecorderState(): Unit = {
-    currentRequests.clear()
-    currentTags.clear()
+    requests.clear()
+    tags.clear()
   }
 }

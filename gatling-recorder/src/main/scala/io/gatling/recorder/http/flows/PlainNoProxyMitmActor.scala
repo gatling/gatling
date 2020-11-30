@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.Netty._
 import io.gatling.recorder.http.TrafficLogger
 
@@ -38,11 +40,11 @@ import io.netty.handler.codec.http.FullHttpRequest
  * @param trafficLogger log the traffic
  */
 class PlainNoProxyMitmActor(
-    serverChannel:   Channel,
+    serverChannel: Channel,
     clientBootstrap: Bootstrap,
-    trafficLogger:   TrafficLogger
-)
-  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger) {
+    trafficLogger: TrafficLogger,
+    clock: Clock
+) extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
 
   override protected def connectedRemote(requestRemote: Remote): Remote =
     requestRemote

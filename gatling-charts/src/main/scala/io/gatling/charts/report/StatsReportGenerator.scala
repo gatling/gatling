@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.report
 
-import scala.collection.breakOut
-
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
-import io.gatling.charts.config.ChartsFiles._
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.stats.RequestPath
-import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, GlobalStatsJsonTemplate }
+import io.gatling.charts.template.{ ConsoleTemplate, GlobalStatsJsonTemplate, StatsJsTemplate }
+import io.gatling.commons.shared.unstable.model.stats.{ GeneralStats, Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.commons.stats._
 import io.gatling.commons.util.NumberHelper._
 import io.gatling.core.config.GatlingConfiguration
+
 import com.typesafe.scalalogging.StrictLogging
 
-private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration) extends StrictLogging {
+private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, chartsFiles: ChartsFiles, componentLibrary: ComponentLibrary)(
+    implicit configuration: GatlingConfiguration
+) extends StrictLogging {
 
   import reportsGenerationInputs._
 
   def generate(): Unit = {
 
     def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
-      Statistics(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
+      new Statistics(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
 
     def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
@@ -41,11 +44,11 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val ok = logFileReader.requestGeneralStats(requestName, group, Some(OK))
       val ko = logFileReader.requestGeneralStats(requestName, group, Some(KO))
 
-      val numberOfRequestsStatistics = Statistics("request count", total.count, ok.count, ko.count)
-      val minResponseTimeStatistics = Statistics("min response time", total.min, ok.min, ko.min)
-      val maxResponseTimeStatistics = Statistics("max response time", total.max, ok.max, ko.max)
-      val meanResponseTimeStatistics = Statistics("mean response time", total.mean, ok.mean, ko.mean)
-      val stdDeviationStatistics = Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
+      val numberOfRequestsStatistics = new Statistics("request count", total.count, ok.count, ko.count)
+      val minResponseTimeStatistics = new Statistics("min response time", total.min, ok.min, ko.min)
+      val maxResponseTimeStatistics = new Statistics("max response time", total.max, ok.max, ko.max)
+      val meanResponseTimeStatistics = new Statistics("mean response time", total.mean, ok.mean, ko.mean)
+      val stdDeviationStatistics = new Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
 
       val percentilesTitle = (rank: Double) => s"response time ${rank.toRank} percentile"
 
@@ -53,11 +56,12 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       val percentiles2 = percentiles(configuration.charting.indicators.percentile2, percentilesTitle, total, ok, ko)
       val percentiles3 = percentiles(configuration.charting.indicators.percentile3, percentilesTitle, total, ok, ko)
       val percentiles4 = percentiles(configuration.charting.indicators.percentile4, percentilesTitle, total, ok, ko)
-      val meanNumberOfRequestsPerSecondStatistics = Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+      val meanNumberOfRequestsPerSecondStatistics = new Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
       val groupedCounts = logFileReader
-        .numberOfRequestInResponseTimeRange(requestName, group).map {
-          case (rangeName, count) => GroupedCount(rangeName, count, total.count)
+        .numberOfRequestInResponseTimeRange(requestName, group)
+        .map { case (rangeName, count) =>
+          GroupedCount(rangeName, count, total.count)
         }
 
       val path = requestName match {
@@ -65,7 +69,21 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         case None    => group.map(RequestPath.path).getOrElse("")
       }
 
-      RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, percentiles3, percentiles4, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+      new RequestStatistics(
+        name,
+        path,
+        numberOfRequestsStatistics,
+        minResponseTimeStatistics,
+        maxResponseTimeStatistics,
+        meanResponseTimeStatistics,
+        stdDeviationStatistics,
+        percentiles1,
+        percentiles2,
+        percentiles3,
+        percentiles4,
+        groupedCounts,
+        meanNumberOfRequestsPerSecondStatistics
+      )
     }
 
     def computeGroupStats(name: String, group: Group): RequestStatistics = {
@@ -73,39 +91,55 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       def groupStatsFunction: (Group, Option[Status]) => GeneralStats =
         if (configuration.charting.useGroupDurationMetric) {
           logger.debug("Use group duration stats.")
-          logFileReader.groupDurationGeneralStats _
+          logFileReader.groupDurationGeneralStats
         } else {
           logger.debug("Use group cumulated response time stats.")
-          logFileReader.groupCumulatedResponseTimeGeneralStats _
+          logFileReader.groupCumulatedResponseTimeGeneralStats
         }
 
       val total = groupStatsFunction(group, None)
       val ok = groupStatsFunction(group, Some(OK))
       val ko = groupStatsFunction(group, Some(KO))
 
-      val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
-      val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
-      val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
-      val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
-      val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
+      val numberOfRequestsStatistics = new Statistics("numberOfRequests", total.count, ok.count, ko.count)
+      val minResponseTimeStatistics = new Statistics("minResponseTime", total.min, ok.min, ko.min)
+      val maxResponseTimeStatistics = new Statistics("maxResponseTime", total.max, ok.max, ko.max)
+      val meanResponseTimeStatistics = new Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
+      val stdDeviationStatistics = new Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
 
       val percentiles1 = percentiles(configuration.charting.indicators.percentile1, _ => "percentiles1", total, ok, ko)
       val percentiles2 = percentiles(configuration.charting.indicators.percentile2, _ => "percentiles2", total, ok, ko)
       val percentiles3 = percentiles(configuration.charting.indicators.percentile3, _ => "percentiles3", total, ok, ko)
       val percentiles4 = percentiles(configuration.charting.indicators.percentile4, _ => "percentiles4", total, ok, ko)
-      val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+      val meanNumberOfRequestsPerSecondStatistics =
+        new Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
       val groupedCounts = logFileReader
-        .numberOfRequestInResponseTimeRange(None, Some(group)).map {
-          case (rangeName, count) => GroupedCount(rangeName, count, total.count)
+        .numberOfRequestInResponseTimeRange(None, Some(group))
+        .map { case (rangeName, count) =>
+          GroupedCount(rangeName, count, total.count)
         }
 
       val path = RequestPath.path(group)
 
-      RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, percentiles3, percentiles4, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+      new RequestStatistics(
+        name,
+        path,
+        numberOfRequestsStatistics,
+        minResponseTimeStatistics,
+        maxResponseTimeStatistics,
+        meanResponseTimeStatistics,
+        stdDeviationStatistics,
+        percentiles1,
+        percentiles2,
+        percentiles3,
+        percentiles4,
+        groupedCounts,
+        meanNumberOfRequestsPerSecondStatistics
+      )
     }
 
-    val rootContainer = GroupContainer.root(computeRequestStats(GlobalPageName, None, None))
+    val rootContainer = GroupContainer.root(computeRequestStats(ChartsFiles.GlobalPageName, None, None))
 
     val statsPaths = logFileReader.statsPaths
 
@@ -113,18 +147,21 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
       .collect {
         case GroupStatsPath(group)            => group
         case RequestStatsPath(_, Some(group)) => group
-      }.map(group => group.hierarchy.reverse -> group)(breakOut)
+      }
+      .map(group => group.hierarchy.reverse -> group)
+      .toMap
 
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def addGroupsRec(hierarchy: List[String]): Unit = {
 
       if (!seenGroups.contains(hierarchy)) {
         seenGroups += hierarchy
 
         hierarchy match {
-          case head :: tail if tail.nonEmpty => addGroupsRec(tail)
-          case _                             =>
+          case _ :: tail if tail.nonEmpty => addGroupsRec(tail)
+          case _                          =>
         }
 
         val group = groupsByHierarchy(hierarchy)
@@ -134,18 +171,17 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     }
 
     val requestStatsPaths = statsPaths.collect { case path: RequestStatsPath => path }
-    requestStatsPaths.foreach {
-      case RequestStatsPath(request, group) =>
-        group.foreach { group =>
-          addGroupsRec(group.hierarchy.reverse)
-        }
-        val stats = computeRequestStats(request, Some(request), group)
-        rootContainer.addRequest(group, request, stats)
+    requestStatsPaths.foreach { case RequestStatsPath(request, group) =>
+      group.foreach { group =>
+        addGroupsRec(group.hierarchy.reverse)
+      }
+      val stats = computeRequestStats(request, Some(request), group)
+      rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(statsJsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
-    new TemplateWriter(statsJsonFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
-    new TemplateWriter(globalStatsJsonFile(reportFolderName)).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
+    new TemplateWriter(chartsFiles.statsJsFile).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
+    new TemplateWriter(chartsFiles.statsJsonFile).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
+    new TemplateWriter(chartsFiles.globalStatsJsonFile).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
     println(ConsoleTemplate.println(rootContainer.stats, logFileReader.errors(None, None)))
   }
 }

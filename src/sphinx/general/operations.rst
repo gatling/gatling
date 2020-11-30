@@ -4,14 +4,6 @@
 Operations
 ##########
 
-Java Version
-============
-
-Gatling is mostly tested against JDK8 packages provided by Oracle.
-Gatling requires **JDK8**. We recommend that you use an up-to-date JDK.
-
-If some launch scripts options are not available on your JVM, e.g. because you run a 32 bit version, please edit the scripts and remove the unsupported options.
-
 IPv4 vs IPv6
 ============
 
@@ -27,8 +19,8 @@ OS Tuning
 
 .. note::
   Those instructions below are excerpts from the great Riak documentation.
-  Please refer to `Open Files Limit <http://docs.basho.com/riak/latest/ops/tuning/open-files-limit/>`_
-  and `Kernel and Network Tuning <http://docs.basho.com/riak/latest/ops/tuning/linux/#Kernel-and-Network-Tuning>`_
+  Please refer to `Open Files Limit <https://github.com/basho/basho_docs/blob/master/content/riak/kv/2.2.3/using/performance/open-files-limit.md/>`_
+  and `Kernel and Network Tuning <https://github.com/basho/basho_docs/blob/master/content/riak/kv/2.2.3/using/performance.md#kernel-and-network-tuning>`_
   sections for more details or for instructions for OS X.
 
 

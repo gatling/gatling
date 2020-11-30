@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,19 +27,14 @@ trait UntypedConditionalCheckWrapper[C <: Check[_]] {
   def wrap(condition: Expression[Boolean], thenCheck: C): C
 }
 
-case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
+final case class ConditionalCheck[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean], thenCheck: C) extends Check[R] {
 
-  def performNestedCheck(nestedCheck: Check[R], response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] = {
-    nestedCheck.check(response, session)
-  }
-
-  def check(response: R, session: Session)(implicit cache: scala.collection.mutable.Map[Any, Any]): Validation[CheckResult] = {
-    condition(response, session).flatMap { c =>
-      if (c) {
-        performNestedCheck(thenCheck, response, session)
+  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] =
+    condition(response, session).flatMap { boolean =>
+      if (boolean) {
+        thenCheck.check(response, session, preparedCache)
       } else {
         CheckResult.NoopCheckResultSuccess
       }
     }
-  }
 }

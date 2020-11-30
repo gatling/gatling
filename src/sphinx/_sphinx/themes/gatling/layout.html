@@ -1,9 +1,11 @@
+<meta charset="UTF-8">
 {% block content %}
 
 <ol class="breadcrumb">
   {%- block rootrellink %}
   <li><a href="{{ pathto(master_doc) }}">{{ shorttitle }}</a></li>
   {%- endblock %}
+  <li id="Version-root"></li>
   {%- for parent in parents %}
   <li><a href="{{ parent.link | e }}" {% if loop.last %}{{ accesskey('U') }}{% endif %}>
     {{ parent.title }}
@@ -40,13 +42,19 @@
   <div id="secondary" class="widget-area" role="complementary" itemscope="itemscope"
        itemtype="http://schema.org/WPSideBar">
     <aside id="search-2" class="widget widget_search">
-      <form role="form" method="get" class="search-form" action="{{ pathto('search') }}">
-        <label>
-          <span class="screen-reader-text">Search through the documentation&nbsp;:</span>
-          <input type="search" class="search-field" placeholder="Search the documentation" name="q">
-        </label>
-        <input type="submit" class="search-submit" value="Search">
+      <form role="form" method="get" action="{{ pathto('search') }}">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search for..." name="q">
+          <span class="input-group-btn">
+            <button class="btn btn-default" type="submit">
+              <span class="fa fa-search"></span>
+            </button>
+          </span>
+        </div>
       </form>
+      <a href="cheat-sheet.html" title="Cheat-Sheet" class="btn btn-secondary">
+        Go to the Cheat-Sheet!
+      </a>
     </aside>
     <aside class="widget">
       <h1 class="widget-title">Table of Content</h1>

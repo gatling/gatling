@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,50 +13,286 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.json
 
-import java.util.{ Collection => JCollection, Map => JMap }
+import java.{ lang => jl, util => ju }
 
-import scala.collection.JavaConverters._
+import scala.annotation.switch
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.commons.util.Hex
+import io.gatling.commons.util.Spire._
+import io.gatling.netty.util.StringBuilderPool
 
-object Json {
+import com.fasterxml.jackson.core.JsonParser.NumberType._
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeType._
 
-  def stringify(value: Any, isRootObject: Boolean = true): String =
-    fastringify(value, isRootObject).toString()
+private[gatling] object Json {
 
-  private def fastringify(value: Any, rootLevel: Boolean): Fastring = value match {
-    case b: Byte                   => writeValue(b)
-    case s: Short                  => writeValue(s)
-    case i: Int                    => writeValue(i)
-    case l: Long                   => writeValue(l)
-    case f: Float                  => writeValue(f)
-    case d: Double                 => writeValue(d)
-    case bool: Boolean             => writeValue(bool)
-    case s: String                 => writeString(s, rootLevel)
-    case null                      => writeNull
-    case map: collection.Map[_, _] => writeMap(map)
-    case jMap: JMap[_, _]          => writeMap(jMap.asScala)
-    case array: Array[_]           => writeArray(array)
-    case seq: Seq[_]               => writeArray(seq)
-    case coll: JCollection[_]      => writeArray(coll.asScala)
-    case any                       => writeString(any.toString, rootLevel)
+  private val stringBuilders = new StringBuilderPool
+
+  def stringifyNode(node: JsonNode, isRootObject: Boolean): String = {
+
+    val sb = stringBuilders.get()
+
+    def appendStringified(node: JsonNode, rootLevel: Boolean): jl.StringBuilder = node.getNodeType match {
+      case NUMBER =>
+        node.numberType match {
+          case INT         => sb.append(node.intValue)
+          case LONG        => sb.append(node.longValue)
+          case FLOAT       => sb.append(node.floatValue)
+          case DOUBLE      => sb.append(node.doubleValue)
+          case BIG_INTEGER => sb.append(node.bigIntegerValue)
+          case BIG_DECIMAL => sb.append(node.decimalValue)
+        }
+      case STRING  => appendString(node.asText, rootLevel)
+      case OBJECT  => appendMap(node)
+      case ARRAY   => appendArray(node)
+      case BOOLEAN => sb.append(node.booleanValue)
+      case NULL    => sb.append("null")
+      case _       => appendString(node.toString, rootLevel)
+    }
+
+    def appendString(s: String, rootLevel: Boolean): jl.StringBuilder =
+      if (rootLevel) {
+        appendString0(s)
+      } else {
+        sb.append('"')
+        appendString0(s).append('"')
+      }
+
+    def appendString0(s: String): jl.StringBuilder = {
+      cfor(0)(_ < s.length, _ + 1) { i =>
+        val c = s.charAt(i)
+        c match {
+          case '"'  => sb.append("\\\"")
+          case '\\' => sb.append("\\\\")
+          case '\b' => sb.append("\\b")
+          case '\f' => sb.append("\\f")
+          case '\n' => sb.append("\\n")
+          case '\r' => sb.append("\\r")
+          case '\t' => sb.append("\\t")
+          case _ =>
+            if (Character.isISOControl(c)) {
+              sb.append("\\u")
+              var n: Int = c
+              cfor(0)(_ < 4, _ + 1) { _ =>
+                val digit = (n & 0xf000) >> 12
+                sb.append(Hex.toHexChar(digit))
+                n <<= 4
+              }
+            } else {
+              sb.append(c)
+            }
+        }
+      }
+      sb
+    }
+
+    def appendArray(node: JsonNode): jl.StringBuilder = {
+      sb.append('[')
+      node.elements.asScala.foreach { elem =>
+        appendStringified(elem, rootLevel = false).append(',')
+      }
+      if (node.size > 0) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append(']')
+    }
+
+    def appendMap(node: JsonNode): jl.StringBuilder = {
+      sb.append('{')
+      node.fields.asScala.foreach { e =>
+        sb.append('"').append(e.getKey).append("\":")
+        appendStringified(e.getValue, rootLevel = false).append(',')
+      }
+      if (node.size > 0) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append('}')
+    }
+
+    appendStringified(node, isRootObject).toString
   }
 
-  private def writeString(s: String, rootLevel: Boolean) = {
-    val escapedLineFeeds = s.replace("\n", "\\n")
-    if (rootLevel) fast"$escapedLineFeeds" else fast""""$escapedLineFeeds""""
+  def stringify(value: Any, isRootObject: Boolean): String = {
+
+    val sb = stringBuilders.get()
+
+    def appendStringified(value: Any, rootLevel: Boolean): jl.StringBuilder = value match {
+      case b: Byte                   => sb.append(b)
+      case s: Short                  => sb.append(s)
+      case i: Int                    => sb.append(i)
+      case l: Long                   => sb.append(l)
+      case f: Float                  => sb.append(f)
+      case d: Double                 => sb.append(d)
+      case bool: Boolean             => sb.append(bool)
+      case s: String                 => appendString(s, rootLevel)
+      case null                      => sb.append("null")
+      case map: collection.Map[_, _] => appendMap(map)
+      case jMap: ju.Map[_, _]        => appendMap(jMap.asScala)
+      case array: Array[_]           => appendArray(array)
+      case seq: Iterable[_]          => appendArray(seq)
+      case coll: ju.Collection[_]    => appendArray(coll.asScala)
+      case _                         => appendString(value.toString, rootLevel)
+    }
+
+    def appendString(s: String, rootLevel: Boolean): jl.StringBuilder =
+      if (rootLevel) {
+        appendString0(s)
+      } else {
+        sb.append('"')
+        appendString0(s).append('"')
+      }
+
+    def appendString0(s: String): jl.StringBuilder = {
+      cfor(0)(_ < s.length, _ + 1) { i =>
+        val c = s.charAt(i)
+        c match {
+          case '"'  => sb.append("\\\"")
+          case '\\' => sb.append("\\\\")
+          case '\b' => sb.append("\\b")
+          case '\f' => sb.append("\\f")
+          case '\n' => sb.append("\\n")
+          case '\r' => sb.append("\\r")
+          case '\t' => sb.append("\\t")
+          case _ =>
+            if (Character.isISOControl(c)) {
+              sb.append("\\u")
+              var n: Int = c
+              cfor(0)(_ < 4, _ + 1) { _ =>
+                val digit = (n & 0xf000) >> 12
+                sb.append(Hex.toHexChar(digit))
+                n <<= 4
+              }
+            } else {
+              sb.append(c)
+            }
+        }
+      }
+      sb
+    }
+
+    def appendArray(iterable: Iterable[_]): jl.StringBuilder = {
+      sb.append('[')
+      iterable.foreach { elem =>
+        appendStringified(elem, rootLevel = false).append(',')
+      }
+      if (iterable.nonEmpty) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append(']')
+    }
+
+    def appendMap(map: collection.Map[_, _]): jl.StringBuilder = {
+      sb.append('{')
+      map.foreach { case (k, v) =>
+        sb.append('"').append(k).append("\":")
+        appendStringified(v, rootLevel = false).append(',')
+      }
+      if (map.nonEmpty) {
+        sb.setLength(sb.length - 1)
+      }
+      sb.append('}')
+    }
+
+    appendStringified(value, isRootObject).toString
   }
 
-  private def writeValue(value: Any) = fast"${value.toString}"
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  def asScala(node: JsonNode): Any =
+    node.getNodeType match {
+      case ARRAY =>
+        (node.size: @switch) match {
+          case 0 => Seq.empty
+          case 1 =>
+            Array(asScala(node.get(0))).toSeq
+          case 2 =>
+            Array(
+              asScala(node.get(0)),
+              asScala(node.get(1))
+            ).toSeq
+          case 3 =>
+            Array(
+              asScala(node.get(0)),
+              asScala(node.get(1)),
+              asScala(node.get(2))
+            ).toSeq
+          case 4 =>
+            Array(
+              asScala(node.get(0)),
+              asScala(node.get(1)),
+              asScala(node.get(2)),
+              asScala(node.get(3))
+            ).toSeq
+          case _ =>
+            node.elements.asScala.map(asScala).toVector
+        }
 
-  private def writeNull = fast"null"
+      case OBJECT =>
+        (node.size: @switch) match {
+          case 0 => Map.empty
+          case 1 =>
+            val entry0 = node.fields.next()
+            new Map.Map1(entry0.getKey, asScala(entry0.getValue))
+          case 2 =>
+            val it = node.fields
+            val entry0 = it.next()
+            val entry1 = it.next()
+            new Map.Map2(
+              entry0.getKey,
+              asScala(entry0.getValue),
+              entry1.getKey,
+              asScala(entry1.getValue)
+            )
+          case 3 =>
+            val it = node.fields
+            val entry0 = it.next()
+            val entry1 = it.next()
+            val entry2 = it.next()
+            new Map.Map3(
+              entry0.getKey,
+              asScala(entry0.getValue),
+              entry1.getKey,
+              asScala(entry1.getValue),
+              entry2.getKey,
+              asScala(entry2.getValue)
+            )
+          case 4 =>
+            val it = node.fields
+            val entry0 = it.next()
+            val entry1 = it.next()
+            val entry2 = it.next()
+            val entry3 = it.next()
+            new Map.Map4(
+              entry0.getKey,
+              asScala(entry0.getValue),
+              entry1.getKey,
+              asScala(entry1.getValue),
+              entry2.getKey,
+              asScala(entry2.getValue),
+              entry3.getKey,
+              asScala(entry3.getValue)
+            )
+          case _ =>
+            node.fields.asScala.map(e => e.getKey -> asScala(e.getValue)).toMap
+        }
 
-  private def writeArray(iterable: Traversable[_]) = fast"[${iterable.map(elem => fastringify(elem, false)).mkFastring(",")}]"
-
-  private def writeMap(map: collection.Map[_, _]) = {
-    def serializeEntry(key: String, value: Any) = fast""""$key":${fastringify(value, false)}"""
-    fast"{${map.map { case (key, value) => serializeEntry(key.toString, value) }.mkFastring(",")}}"
-  }
+      case STRING  => node.textValue
+      case BOOLEAN => node.booleanValue
+      case NULL    => null
+      case NUMBER =>
+        node.numberType match {
+          case INT         => node.intValue
+          case LONG        => node.longValue
+          case FLOAT       => node.floatValue
+          case DOUBLE      => node.doubleValue
+          case BIG_INTEGER => node.bigIntegerValue
+          case BIG_DECIMAL => node.decimalValue
+        }
+      case _ => new IllegalArgumentException(s"Unsupported node type ${node.getNodeType}")
+    }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Color
@@ -26,11 +27,12 @@ import io.gatling.commons.util.StringHelper.RichString
 
 private[swing] object ValidationHelper {
 
-  case class Validator(
-      condition:       String => Boolean,
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
+  final case class Validator(
+      condition: String => Boolean,
       successCallback: Component => Unit = setStandardBorder,
       failureCallback: Component => Unit = setErrorBorder,
-      alwaysValid:     Boolean           = false
+      alwaysValid: Boolean = false
   )
 
   // Those are lazy vals to avoid unneccessary component creation when they're not needed (e.g. tests)
@@ -59,6 +61,7 @@ private[swing] object ValidationHelper {
 
   private val validators = mutable.Map.empty[TextField, Validator]
   private val status = mutable.Map.empty[TextField, Boolean]
+  private val ignoredStatus = mutable.Map.empty[TextField, Boolean]
 
   def registerValidator(textField: TextField, validator: Validator): Unit = {
     validators += (textField -> validator)
@@ -70,14 +73,27 @@ private[swing] object ValidationHelper {
       val callback = if (isValid) validator.successCallback else validator.failureCallback
       callback(field)
       status += (field -> (validator.alwaysValid || isValid))
-    case None =>
+    case _ =>
       throw new IllegalStateException(s"No validator registered for component : $field")
   }
 
-  def allValid = {
+  def ignoreValidation(field: TextField, value: Boolean) = validators.get(field) match {
+    case Some(_) =>
+      if (value) {
+        ignoredStatus += (field -> true)
+      } else {
+        ignoredStatus -= field
+      }
+
+    case _ =>
+      throw new IllegalStateException(s"No validator registered for component : $field")
+  }
+
+  def allValid: Boolean = {
     validators.keys.map(updateValidationStatus)
     validationStatus
   }
 
-  def validationStatus = status.values.forall(identity)
+  def validationStatus: Boolean =
+    status.forall { case (field, s) => s || ignoredStatus.getOrElse(field, false) }
 }

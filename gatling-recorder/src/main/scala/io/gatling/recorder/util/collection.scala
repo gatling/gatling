@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.util
 
 private[recorder] object collection {
@@ -29,9 +30,12 @@ private[recorder] object collection {
       }
 
     def splitWhen(p: T => Boolean): List[List[T]] =
-      elts.foldLeft(List.empty[List[T]])({
-        case (Nil, x)          => List(x) :: Nil
-        case (l @ (h :: t), x) => if (p(x)) List(x) :: l else (x :: h) :: t
-      }).map(_.reverse).reverse
+      elts
+        .foldLeft(List.empty[List[T]])({
+          case (Nil, x)          => List(x) :: Nil
+          case (l @ (h :: t), x) => if (p(x)) List(x) :: l else (x :: h) :: t
+        })
+        .map(_.reverse)
+        .reverse
   }
 }

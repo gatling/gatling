@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder
 
 import java.nio.file.Path
 
+import io.gatling.commons.util.DefaultClock
 import io.gatling.recorder.cli.ArgsParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
@@ -30,11 +32,11 @@ object GatlingRecorder {
     argsParser.parseArguments.map(overrides => initRecorder(overrides, None))
   }
 
-  def fromMap(props: ConfigOverrides, recorderConfigFile: Option[Path] = None) =
+  def fromMap(props: ConfigOverrides, recorderConfigFile: Option[Path]): RecorderController =
     initRecorder(props, recorderConfigFile)
 
   private def initRecorder(props: ConfigOverrides, recorderConfigFile: Option[Path]) = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
-    new RecorderController
+    new RecorderController(new DefaultClock)
   }
 }

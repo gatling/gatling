@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.protocol
 
 import javax.jms.ConnectionFactory
@@ -23,35 +24,32 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.jms.client.JmsConnectionPool
 
-import akka.actor.ActorSystem
-
 object JmsProtocol {
 
-  val JmsProtocolKey = new ProtocolKey {
-
-    type Protocol = JmsProtocol
-    type Components = JmsComponents
+  val JmsProtocolKey: ProtocolKey[JmsProtocol, JmsComponents] = new ProtocolKey[JmsProtocol, JmsComponents] {
 
     def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[JmsProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
 
-    def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol = throw new IllegalStateException("Can't provide a default value for JmsProtocol")
+    def defaultProtocolValue(configuration: GatlingConfiguration): JmsProtocol =
+      throw new IllegalStateException("Can't provide a default value for JmsProtocol")
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents): JmsProtocol => JmsComponents = {
-      val jmsConnectionPool = new JmsConnectionPool(system, coreComponents.statsEngine, coreComponents.configuration)
-      system.registerOnTermination {
+    def newComponents(coreComponents: CoreComponents): JmsProtocol => JmsComponents = {
+      val jmsConnectionPool = new JmsConnectionPool(coreComponents.actorSystem, coreComponents.statsEngine, coreComponents.clock, coreComponents.configuration)
+      coreComponents.actorSystem.registerOnTermination {
         jmsConnectionPool.close()
       }
-      jmsProtocol => JmsComponents(jmsProtocol, jmsConnectionPool)
+      jmsProtocol => new JmsComponents(jmsProtocol, jmsConnectionPool)
     }
   }
 }
 
-case class JmsProtocol(
+final case class JmsProtocol(
     connectionFactory: ConnectionFactory,
-    credentials:       Option[Credentials],
-    deliveryMode:      Int,
-    replyTimeout:      Option[Long],
-    messageMatcher:    JmsMessageMatcher
+    credentials: Option[Credentials],
+    deliveryMode: Int,
+    replyTimeout: Option[Long],
+    listenerThreadCount: Int,
+    messageMatcher: JmsMessageMatcher
 ) extends Protocol {
 
   type Components = JmsComponents

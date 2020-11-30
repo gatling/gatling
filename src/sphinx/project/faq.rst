@@ -11,7 +11,7 @@ If you can't find a solution here, consider joining our `Google Group <https://g
 
 .. _faq-gatling-highcharts-split:
 
-* **Why the hell did you move gatling-highcharts into a dedicated project?**
+* **Why is gatling-highcharts a dedicated project/repository and why does it uses a different license?**
 
 Highcharts and Highstock are javascript libraries whose license is not open-source friendly.
 We pay license fees so that we can package and distribute them and let people use them **for free**, but this module can't be open sourced.
@@ -28,6 +28,13 @@ See :ref:`License section <license>`
 
 See up here, the Highcharts based charts implementation is hosted in a separate project.
 You have to build it too.
+
+.. _faq-log-file-format:
+
+* **What is the format of the log file Gatling generates**
+
+This file is an implementation detail and is subject to change any time without any further notice.
+We strongly recommend against writing your own parser and parse it for your own needs.
 
 .. _faq-xss:
 
@@ -47,7 +54,7 @@ The compiler JVM can be tuned with a parameter named ``gatling.core.zinc`` in `g
 * **I get a "Connection timed out: no further information to http://gatling-tool.org", what happened?**
 
 Since 1.2.0, Gatling has an option for sending a request in order to warm up the engine and have more precise statistics during the run.
-This option is enabled by default and http://gatling.io is the default url.
+This option is enabled by default and https://gatling.io is the default url.
 
 If Gatling can't reach out this url either because you don't have a connection, or because it requires a proxy configuration, you'll get this stacktrace.
 
@@ -109,7 +116,7 @@ In Java and Scala, there's a method size limit. Here, the method is your Simulat
 
 Typically, you have to move your chains out of your Simulation class, for example into objects:
 
-.. includecode:: code/FAQ.scala#chains
+.. includecode:: code/FaqSample.scala#chains
 
 .. _dandling-connections:
 

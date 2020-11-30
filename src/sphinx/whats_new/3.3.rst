@@ -1,0 +1,15 @@
+#################
+What's New in 3.3
+#################
+
+Core
+====
+
+* `#2769 <https://github.com/gatling/gatling/issues/2769>`__: Make composite injection steps chainable with other steps
+* `#3804 <https://github.com/gatling/gatling/issues/3804>`__: Support $${} for escaping in Gatling EL
+
+HTTP
+====
+
+* `#3790 <https://github.com/gatling/gatling/issues/3790>`__: Add an option to support TCP Keepalive
+* `#3792 <https://github.com/gatling/gatling/issues/3792>`__: getCookieValue withDomain now accept an EL expression

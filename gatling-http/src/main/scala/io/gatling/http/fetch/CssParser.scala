@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,32 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.fetch
 
 import scala.annotation.{ switch, tailrec }
-import scala.collection.TraversableOnce.flattenTraversableOnce
 import scala.util.matching.Regex
 
+import io.gatling.http.client.uri.Uri
 import io.gatling.http.util.HttpHelper
 
-import org.asynchttpclient.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 
-object CssParser extends StrictLogging {
+private[fetch] object CssParser extends StrictLogging {
 
-  val InlineStyleImageUrls = """url\((.*)\)""".r
-  val StyleImportsUrls = """@import url\((.*)\)""".r
+  private val InlineStyleImageUrls = """url\((.*)\)""".r
+  private val StyleImportsUrls = """@import url\((.*)\)""".r
 
-  def extractUrls(string: CharSequence, regex: Regex): Iterator[String] =
-    regex.findAllIn(string).matchData.map { m =>
+  def extractInlineStyleImageUrls(string: CharSequence): Iterator[String] =
+    extractUrls(string, InlineStyleImageUrls)
+
+  def extractStyleImportsUrls(string: CharSequence): Iterator[String] =
+    extractUrls(string, StyleImportsUrls)
+
+  private def extractUrls(string: CharSequence, regex: Regex): Iterator[String] =
+    regex.findAllIn(string).matchData.flatMap { m =>
       val raw = m.group(1)
-      extractUrl(raw, 0, raw.length)
-    }.flatten
+      extractUrl(raw, 0, raw.length).toList
+    }
 
-  val SingleQuoteEscapeChar = Some('\'')
-  val DoubleQuoteEscapeChar = Some('"')
-  val AtImportChars = "@import".toCharArray
-  val UrlStartChars = "url(".toCharArray
+  private val SingleQuoteEscapeChar = Some('\'')
+  private val DoubleQuoteEscapeChar = Some('"')
+  private val AtImportChars = "@import".toCharArray
+  private val UrlStartChars = "url(".toCharArray
 
   def extractUrl(string: String, start: Int, end: Int): Option[String] =
     if (string.isEmpty) {
@@ -83,20 +89,22 @@ object CssParser extends StrictLogging {
         else
           (string.charAt(cur - 1): @switch) match {
             case ' ' | '\r' | '\n' => trimRight(cur - 1, leftLimit)
-            case '\'' => protectChar match {
-              case `SingleQuoteEscapeChar` =>
-                trimRight(cur - 1, leftLimit)
-              case _ =>
-                broken = true
-                cur
-            }
-            case '"' => protectChar match {
-              case `DoubleQuoteEscapeChar` =>
-                trimRight(cur - 1, leftLimit)
-              case _ =>
-                broken = true
-                cur
-            }
+            case '\'' =>
+              protectChar match {
+                case `SingleQuoteEscapeChar` =>
+                  trimRight(cur - 1, leftLimit)
+                case _ =>
+                  broken = true
+                  cur
+              }
+            case '"' =>
+              protectChar match {
+                case `DoubleQuoteEscapeChar` =>
+                  trimRight(cur - 1, leftLimit)
+                case _ =>
+                  broken = true
+                  cur
+              }
             case _ => cur
           }
 
@@ -110,14 +118,14 @@ object CssParser extends StrictLogging {
         else
           Some(string.substring(trimmedStart, trimmedEnd))
       } else {
-        logger.info(s"css url $string broken")
+        logger.debug(s"css url $string broken")
         None
       }
     }
 
-  def extractResources(cssURI: Uri, cssContent: String): List[EmbeddedResource] = {
+  def extractResources(cssURI: Uri, cssContent: String): List[ConcurrentResource] = {
 
-    val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
+    val resources = collection.mutable.ArrayBuffer.empty[ConcurrentResource]
 
     var withinComment = false
     var withinImport = false
@@ -145,13 +153,17 @@ object CssParser extends StrictLogging {
 
       (cssContent.charAt(i): @switch) match {
         case '/' =>
-          if (i < cssContent.length - 1 &&
-            cssContent.charAt(i + 1) == '*') {
+          if (
+            i < cssContent.length - 1 &&
+            cssContent.charAt(i + 1) == '*'
+          ) {
             withinComment = true
             i += 1
 
-          } else if (i > 0 &&
-            cssContent.charAt(i - 1) == '*') {
+          } else if (
+            i > 0 &&
+            cssContent.charAt(i - 1) == '*'
+          ) {
             withinComment = false
           }
 

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
 import java.net.InetSocketAddress
-import java.util.concurrent.{ TimeUnit, ConcurrentLinkedQueue }
+import java.util.concurrent.{ ConcurrentLinkedQueue, TimeUnit }
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import com.typesafe.scalalogging.LazyLogging
-
 import io.netty.bootstrap.ServerBootstrap
-import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel._
+import io.netty.channel.ChannelHandler.Sharable
 import io.netty.channel.nio.NioEventLoopGroup
 import io.netty.channel.socket.nio.NioServerSocketChannel
 import io.netty.handler.codec.http._
-import io.netty.handler.logging.{ LoggingHandler, LogLevel }
+import io.netty.handler.logging.{ LogLevel, LoggingHandler }
 import io.netty.util.ReferenceCountUtil
-import io.netty.util.internal.logging.{ Slf4JLoggerFactory, InternalLoggerFactory }
+import io.netty.util.internal.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
 @Sharable
 private[http] class ServerHandler(
     requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit],
-    requests:       ConcurrentLinkedQueue[FullHttpRequest]
-)
-  extends ChannelInboundHandlerAdapter with LazyLogging {
+    requests: ConcurrentLinkedQueue[FullHttpRequest]
+) extends ChannelInboundHandlerAdapter
+    with LazyLogging {
 
   override def channelRead(ctx: ChannelHandlerContext, msg: AnyRef): Unit = {
     msg match {
@@ -47,7 +47,8 @@ private[http] class ServerHandler(
           requestHandler(request)(ctx)
         } else {
           logger.error(s"Unhandled request $request")
-          ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
+          ctx
+            .writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
             .addListener(ChannelFutureListener.CLOSE)
         }
       case errorMsg =>
@@ -57,8 +58,7 @@ private[http] class ServerHandler(
   }
 }
 
-private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int)
-  extends LazyLogging {
+private[http] class HttpServer(requestHandler: PartialFunction[FullHttpRequest, ChannelHandlerContext => Unit], port: Int) extends LazyLogging {
 
   val requests = new ConcurrentLinkedQueue[FullHttpRequest]
 

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.protocol
 
 import scala.collection.mutable
@@ -21,63 +22,64 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 
-import akka.actor.ActorSystem
+object Protocol {
+  def indexByType(protocols: Iterable[Protocol]): Protocols =
+    protocols.map(p => p.getClass.asInstanceOf[Class[Protocol]] -> p).toMap
+}
 
-/**
- * This trait is a model to all protocol specific configuration
- */
 trait Protocol
 
-trait ProtocolKey {
-  type Protocol
-  type Components
-  def protocolClass: Class[io.gatling.core.protocol.Protocol]
+trait ProtocolKey[P, C] {
+  def protocolClass: Class[Protocol]
 
-  def defaultProtocolValue(configuration: GatlingConfiguration): Protocol
-  def newComponents(system: ActorSystem, coreComponents: CoreComponents): Protocol => Components
+  def defaultProtocolValue(configuration: GatlingConfiguration): P
+  def newComponents(coreComponents: CoreComponents): P => C
+}
+
+object ProtocolComponents {
+
+  val NoopOnExit: Session => Unit = _ => ()
 }
 
 trait ProtocolComponents {
-  def onStart: Option[Session => Session]
-  def onExit: Option[Session => Unit]
+  def onStart: Session => Session
+  def onExit: Session => Unit
 }
 
-class ProtocolComponentsRegistries(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols) {
+class ProtocolComponentsRegistries(coreComponents: CoreComponents, globalProtocols: Protocols) {
 
-  val componentsFactoryCache = mutable.Map.empty[ProtocolKey, Any]
+  private val componentsFactoryCache = mutable.Map.empty[ProtocolKey[_, _], Any]
 
   def scenarioRegistry(scenarioProtocols: Protocols): ProtocolComponentsRegistry =
     new ProtocolComponentsRegistry(
-      system,
       coreComponents,
       globalProtocols ++ scenarioProtocols,
       componentsFactoryCache
     )
 }
 
-class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey, Any]) {
+class ProtocolComponentsRegistry(coreComponents: CoreComponents, protocols: Protocols, componentsFactoryCache: mutable.Map[ProtocolKey[_, _], Any]) {
 
-  val protocolCache = mutable.Map.empty[ProtocolKey, Protocol]
-  val componentsCache = mutable.Map.empty[ProtocolKey, Any]
+  private val protocolCache = mutable.Map.empty[ProtocolKey[_, _], Protocol]
+  private val componentsCache = mutable.Map.empty[ProtocolKey[_, _], ProtocolComponents]
 
-  def components(key: ProtocolKey): key.Components = {
+  def components[P, C](key: ProtocolKey[P, C]): C = {
 
-    def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
-    def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[key.Protocol]
-    def comps = componentsFactory(protocol)
+    def componentsFactory: P => C = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(coreComponents)).asInstanceOf[P => C]
+    def protocol: P =
+      protocolCache.getOrElse(key, protocols.getOrElse(key.protocolClass, key.defaultProtocolValue(coreComponents.configuration))).asInstanceOf[P]
+    def comps: C = componentsFactory(protocol)
 
-    componentsCache.getOrElseUpdate(key, comps).asInstanceOf[key.Components]
+    componentsCache.getOrElseUpdate(key, comps.asInstanceOf[ProtocolComponents]).asInstanceOf[C]
   }
 
   def onStart: Session => Session =
-    componentsCache.values.collect { case protocolComponents: ProtocolComponents => protocolComponents.onStart }.flatten.toList match {
-      case Nil          => Session.Identity
-      case head :: tail => tail.foldLeft(head)(_ andThen _)
+    if (componentsCache.values.nonEmpty) {
+      componentsCache.values.map(_.onStart).reduceLeft(_ andThen _)
+    } else {
+      Session.Identity
     }
 
   def onExit: Session => Unit =
-    componentsCache.values.collect { case any: ProtocolComponents => any.onExit }.flatten.toList match {
-      case Nil => _ => ()
-      case onExits => session => onExits.foreach(_(session))
-    }
+    session => componentsCache.values.foreach(_.onExit(session))
 }

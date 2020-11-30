@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.funspec
+
+import scala.collection.mutable.ListBuffer
 
 import io.gatling.core.Predef._
 import io.gatling.core.action.builder.ActionBuilder
@@ -21,20 +24,18 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.Protocol
 import io.gatling.core.structure.ChainBuilder
 
-import scala.collection.mutable.ListBuffer
-
 abstract class GatlingFunSpec extends Simulation {
 
   /** Set the protocol configuration used by gatling to execute all specs in this class */
   def protocolConf: Protocol
 
   /** Add a spec to be executed */
-  def spec(actionBuilder: ActionBuilder) = specs += actionBuilder
+  def spec(actionBuilder: ActionBuilder): ListBuffer[ActionBuilder] = specs += actionBuilder
 
   private[this] val specs = new ListBuffer[ActionBuilder]
 
   private[this] lazy val testScenario = scenario(this.getClass.getSimpleName)
-    .exec(ChainBuilder(specs.reverse.toList))
+    .exec(new ChainBuilder(specs.reverse.toList))
 
   private def setupRegisteredSpecs() = {
     require(specs.nonEmpty, "At least one spec needs to be defined")
@@ -43,7 +44,7 @@ abstract class GatlingFunSpec extends Simulation {
       .assertions(forAll.failedRequests.percent.is(0))
   }
 
-  private[gatling] override def params(configuration: GatlingConfiguration) = {
+  override private[gatling] def params(configuration: GatlingConfiguration) = {
     setupRegisteredSpecs()
     super.params(configuration)
   }

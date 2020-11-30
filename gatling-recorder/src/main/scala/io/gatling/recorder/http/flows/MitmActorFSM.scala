@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
+
+import io.gatling.http.client.uri.Uri
 
 import akka.actor.{ Actor, FSM }
 import io.netty.channel.Channel
 import io.netty.handler.codec.http.FullHttpRequest
-import org.asynchttpclient.uri.Uri
 
 object Remote {
 
@@ -37,7 +39,7 @@ object Remote {
   }
 }
 
-case class Remote(host: String, port: Int) {
+final case class Remote(host: String, port: Int) {
 
   def makeAbsoluteUri(rawUri: String, https: Boolean): String = {
     val sb = new StringBuilder
@@ -48,7 +50,7 @@ case class Remote(host: String, port: Int) {
 
     if (rawUri.isEmpty || rawUri.startsWith("/")) {
       sb.append(host)
-      if ((https && port != 443) || port != 80) {
+      if ((https && port != 443) || (!https && port != 80)) {
         sb.append(":").append(port)
       }
     }
@@ -67,10 +69,10 @@ object MitmActorFSM {
 
   // data
   case object NoData extends MitmActorData
-  case class WaitingForClientChannelConnectData(remote: Remote, pendingRequest: FullHttpRequest) extends MitmActorData
-  case class WaitingForProxyConnectResponseData(remote: Remote, pendingRequest: FullHttpRequest, clientChannel: Channel) extends MitmActorData
-  case class ConnectedData(remote: Remote, clientChannel: Channel) extends MitmActorData
-  case class DisconnectedData(remote: Remote) extends MitmActorData
+  final case class WaitingForClientChannelConnectData(remote: Remote, pendingRequest: FullHttpRequest) extends MitmActorData
+  final case class WaitingForProxyConnectResponseData(remote: Remote, pendingRequest: FullHttpRequest, clientChannel: Channel) extends MitmActorData
+  final case class ConnectedData(remote: Remote, clientChannel: Channel) extends MitmActorData
+  final case class DisconnectedData(remote: Remote) extends MitmActorData
 }
 
 trait MitmActorFSM extends Actor with FSM[MitmActorState, MitmActorData]

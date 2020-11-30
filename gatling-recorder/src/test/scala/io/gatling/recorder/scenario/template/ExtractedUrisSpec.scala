@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.scenario.template
 
 import io.gatling.BaseSpec
 import io.gatling.recorder.scenario.RequestElement
 
+import io.netty.handler.codec.http.EmptyHttpHeaders
+
 class ExtractedUrisSpec extends BaseSpec {
 
-  def mockRequestElement(uri: String) = RequestElement(uri, "get", Map(), None, None, 200, Nil)
+  private def mockRequestElement(uri: String) = new RequestElement(uri, "get", EmptyHttpHeaders.INSTANCE, None, EmptyHttpHeaders.INSTANCE, None, 200, Nil, Nil)
 
-  def extractUris(uris: Seq[String]): ExtractedUris = {
+  private def extractUris(uris: Seq[String]): ExtractedUris = {
     val requestElements = uris.map(mockRequestElement)
     new ExtractedUris(requestElements)
   }
@@ -48,12 +51,12 @@ class ExtractedUrisSpec extends BaseSpec {
 
     val extractedUris = extractUris(Seq(gatlingUrl1, gatlingUrl2, nettyUrl1, nettyUrl2))
 
-    extractedUris.vals shouldBe List(Value("uri2", gatlingRoot), Value("uri1", nettyRoot))
+    extractedUris.vals.toSet shouldBe Set(Value("uri1", gatlingRoot), Value("uri2", nettyRoot))
 
-    extractedUris.renderUri(gatlingUrl1).toString shouldBe """uri2 + "/file1""""
-    extractedUris.renderUri(gatlingUrl2).toString shouldBe """uri2 + "/file2""""
-    extractedUris.renderUri(nettyUrl1).toString shouldBe """uri1 + "/file1""""
-    extractedUris.renderUri(nettyUrl2).toString shouldBe """uri1 + "/file2""""
+    extractedUris.renderUri(gatlingUrl1).toString shouldBe """uri1 + "/file1""""
+    extractedUris.renderUri(gatlingUrl2).toString shouldBe """uri1 + "/file2""""
+    extractedUris.renderUri(nettyUrl1).toString shouldBe """uri2 + "/file1""""
+    extractedUris.renderUri(nettyUrl2).toString shouldBe """uri2 + "/file2""""
   }
 
   it should "preserve port and auth" in {

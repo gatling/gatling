@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,66 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.cache
 
 import java.net.InetAddress
 
-import io.gatling.commons.util.RoundRobin
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.commons.util.CircularIterator
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.http.util.HttpTypeCaster
 
-object LocalAddressSupport {
+private[http] object LocalAddressSupport {
 
-  val LocalAddressAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localAddress"
-}
+  private val LocalIpV4AddressAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localIpV4Address"
+  private val LocalIpV6AddressAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.localIpV6Address"
 
-trait LocalAddressSupport {
+  def setLocalAddresses(httpProtocol: HttpProtocol): Session => Session = {
+    val ipV4Addresses = httpProtocol.enginePart.localIpV4Addresses
+    val ipV6Addresses = httpProtocol.enginePart.localIpV6Addresses
 
-  import LocalAddressSupport._
+    ipV4Addresses match {
+      case Nil =>
+        ipV6Addresses match {
+          case Nil =>
+            Session.Identity
+          case singleIpV6Address :: Nil =>
+            _.set(LocalIpV6AddressAttributeName, singleIpV6Address)
+          case ipV6Addresses =>
+            val itV6 = CircularIterator(ipV6Addresses.toVector, threadSafe = true)
+            _.set(LocalIpV6AddressAttributeName, itV6.next())
+        }
+      case singleIpV4Address :: Nil =>
+        ipV6Addresses match {
+          case Nil =>
+            _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
+          case singleIpV6Address :: Nil =>
+            _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
+              .set(LocalIpV6AddressAttributeName, singleIpV6Address)
+          case _ =>
+            val itV6 = CircularIterator(ipV6Addresses.toVector, threadSafe = true)
+            _.set(LocalIpV4AddressAttributeName, singleIpV4Address)
+              .set(LocalIpV6AddressAttributeName, itV6.next())
+        }
 
-  def setLocalAddress(httpProtocol: HttpProtocol): Session => Session = {
-    httpProtocol.enginePart.localAddresses match {
-      case Nil                 => identity
-      case localAddress :: Nil => _.set(LocalAddressAttributeName, localAddress)
-      case localAddresses =>
-        val it = RoundRobin(localAddresses.toVector)
-        _.set(LocalAddressAttributeName, it.next())
+      case _ =>
+        val itV4 = CircularIterator(ipV4Addresses.toVector, threadSafe = true)
+        ipV6Addresses match {
+          case Nil =>
+            _.set(LocalIpV4AddressAttributeName, itV4.next())
+          case singleIpV6Address :: Nil =>
+            _.set(LocalIpV4AddressAttributeName, itV4.next())
+              .set(LocalIpV6AddressAttributeName, singleIpV6Address)
+          case _ =>
+            val itV6 = CircularIterator(ipV6Addresses.toVector, threadSafe = true)
+            _.set(LocalIpV4AddressAttributeName, itV4.next())
+              .set(LocalIpV6AddressAttributeName, itV6.next())
+        }
     }
   }
 
-  val localAddress: (Session => Option[InetAddress]) = {
-    // import optimized TypeCaster
-    import HttpTypeCaster._
-    _(LocalAddressAttributeName).asOption[InetAddress]
-  }
+  val localIpV4Address: Session => Option[InetAddress] =
+    _.attributes.get(LocalIpV4AddressAttributeName).map(_.asInstanceOf[InetAddress])
+  val localIpV6Address: Session => Option[InetAddress] =
+    _.attributes.get(LocalIpV6AddressAttributeName).map(_.asInstanceOf[InetAddress])
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.session
 
 import io.gatling.BaseSpec
+import io.gatling.commons.stats.OK
 import io.gatling.commons.validation._
+import io.gatling.core.EmptySession
 import io.gatling.core.action.Action
 
-class BlockSpec extends BaseSpec {
-
-  def newSession = Session("scenario", 0)
+class BlockSpec extends BaseSpec with EmptySession {
 
   "LoopBlock.unapply" should "return the block's counter name if it is a instance of LoopBlock" in {
     LoopBlock.unapply(ExitAsapLoopBlock("counter", true.expressionSuccess, mock[Action])) shouldBe Some("counter")
@@ -29,18 +30,18 @@ class BlockSpec extends BaseSpec {
   }
 
   it should "return None if it isn't an instance of LoopBlock" in {
-    LoopBlock.unapply(GroupBlock(List("root group"))) shouldBe None
+    LoopBlock.unapply(GroupBlock(List("root group"), System.currentTimeMillis(), 0, OK)) shouldBe None
   }
 
   "LoopBlock.continue" should "return true if the condition evaluation succeeds and evaluates to true" in {
-    val session = newSession.set("foo", 1)
+    val session = emptySession.set("foo", 1)
     LoopBlock.continue(session => (session("foo").as[Int] == 1).success, session) shouldBe true
   }
 
   it should "return false if the condition evaluation succeeds and evaluates to false or if it failed" in {
-    val session = newSession.set("foo", 1)
+    val session = emptySession.set("foo", 1)
     LoopBlock.continue(session => (session("foo").as[Int] == 0).success, session) shouldBe false
 
-    LoopBlock.continue(session => "failed".failure, session) shouldBe false
+    LoopBlock.continue(_ => "failed".failure, session) shouldBe false
   }
 }

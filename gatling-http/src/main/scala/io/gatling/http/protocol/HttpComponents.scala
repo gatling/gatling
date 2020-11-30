@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.protocol
 
 import io.gatling.core.protocol.ProtocolComponents
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.{ AhcChannelPoolPartitioning, HttpEngine, ResponseProcessor }
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache._
+import io.gatling.http.engine.HttpEngine
+import io.gatling.http.engine.tx.HttpTxExecutor
 
-case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, responseProcessor: ResponseProcessor) extends ProtocolComponents {
+final class HttpComponents(
+    val httpProtocol: HttpProtocol,
+    val httpEngine: HttpEngine,
+    val httpCaches: HttpCaches,
+    val httpTxExecutor: HttpTxExecutor
+) extends ProtocolComponents {
 
-  override val onStart: Option[Session => Session] =
-    Some(httpCaches.setNameResolver(httpProtocol, httpEngine)
-      andThen httpCaches.setLocalAddress(httpProtocol)
-      andThen httpCaches.setBaseUrl(httpProtocol)
-      andThen httpCaches.setWsBaseUrl(httpProtocol))
+  override lazy val onStart: Session => Session =
+    (SslContextSupport.setSslContexts(httpProtocol, httpEngine)
+      andThen httpCaches.setNameResolver(httpProtocol.dnsPart, httpEngine)
+      andThen LocalAddressSupport.setLocalAddresses(httpProtocol)
+      andThen BaseUrlSupport.setHttpBaseUrl(httpProtocol)
+      andThen BaseUrlSupport.setWsBaseUrl(httpProtocol)
+      andThen Http2PriorKnowledgeSupport.setHttp2PriorKnowledge(httpProtocol))
 
-  override val onExit: Option[Session => Unit] =
-    Some(session => {
-      val (_, ahc) = httpEngine.httpClient(session, httpProtocol)
-      ahc.flushChannelPoolPartitions(AhcChannelPoolPartitioning.flushPredicate(session))
-    })
+  override lazy val onExit: Session => Unit =
+    session => {
+      httpCaches.nameResolver(session).foreach(_.close())
+      SslContextSupport.sslContexts(session).foreach(_.close())
+      httpEngine.flushClientIdChannels(session.userId, session.eventLoop)
+    }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder._
 import io.gatling.core.session.{ Expression, Session }
 
-trait ConditionalStatements[B] extends Execs[B] {
+private[structure] trait ConditionalStatements[B] extends Execs[B] {
 
   /**
    * Method used to add a conditional execution in the scenario
@@ -124,7 +125,7 @@ trait ConditionalStatements[B] extends Execs[B] {
    * @return a new builder with a random switch added to its actions
    */
   def randomSwitch(possibilities: (Double, ChainBuilder)*): B = {
-    require(possibilities.size >= 1, "randomSwitch() requires at least 1 possibility")
+    require(possibilities.nonEmpty, "randomSwitch() requires at least 1 possibility")
     randomSwitch(possibilities.toList, None)
   }
 
@@ -139,12 +140,12 @@ trait ConditionalStatements[B] extends Execs[B] {
    * @return a new builder with a random switch added to its actions
    */
   def randomSwitchOrElse(possibilities: (Double, ChainBuilder)*)(elseNext: ChainBuilder): B = {
-    require(possibilities.size >= 1, "randomSwitchOrElse() requires at least 1 possibility")
+    require(possibilities.nonEmpty, "randomSwitchOrElse() requires at least 1 possibility")
     randomSwitch(possibilities.toList, Some(elseNext))
   }
 
   private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-    exec(RandomSwitchBuilder(possibilities, elseNext))
+    exec(new RandomSwitchBuilder(possibilities, elseNext))
 
   /**
    * Add a switch in the chain. Selection uses a uniformly distributed random strategy
@@ -154,14 +155,7 @@ trait ConditionalStatements[B] extends Execs[B] {
    */
   def uniformRandomSwitch(possibilities: ChainBuilder*): B = {
     require(possibilities.size >= 2, "uniformRandomSwitch() requires at least 2 possibilities")
-
-    val possibility1 :: tailPossibilities = possibilities.toList
-    val basePercentage = 100d / (tailPossibilities.size + 1)
-    val firstPercentage = 100d - basePercentage * tailPossibilities.size
-
-    val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
-
-    randomSwitch(possibilitiesWithPercentage, None)
+    exec(new UniformRandomSwitchBuilder(possibilities.toList))
   }
 
   /**
@@ -171,7 +165,7 @@ trait ConditionalStatements[B] extends Execs[B] {
    * @return a new builder with a random switch added to its actions
    */
   def roundRobinSwitch(possibilities: ChainBuilder*): B = {
-    require(possibilities.size >= 1, "roundRobinSwitch() requires at least 1 possibility")
+    require(possibilities.nonEmpty, "roundRobinSwitch() requires at least 1 possibility")
     exec(new RoundRobinSwitchBuilder(possibilities.toList))
   }
 }

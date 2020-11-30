@@ -1,0 +1,25 @@
+.. _3.3-to-3.4:
+
+#########################
+Migrating from 3.3 to 3.4
+#########################
+
+.. warning::
+    There's a know issue with ``headerRegex`` that forces you to force the parameter to a String
+    when using the predefined HTTP header names constants, eg ``header(HttpHeaderNames.ContentType.toString, "bar")``.
+    Sadly, this is something we'll only be able to fix in Gatling 3.5.0.
+
+.. note::
+    Gatling 3.4 is not binary compatible with previous versions.
+    Any code compiled with a previous version must be recompiled in order to be executed with Gatling 3.4.
+    Changes listed below are only about source compatibility changes.
+
+* Core:
+
+  * the Session based versions of ``transform`` and ``transformOption`` were renamed into ``transformWithSession`` and ``transformOptionWithSession``.
+  * ``xpath`` check's namespaces are now a ``Map[String, String]`` instead of a ``List[(String, String)]``
+  * Configuration option in ``gatling.config`` related to ssl, sockets, and netty were moved around in an effort to share amongst multiple protocol supports, eg MQTT (FrontLine).
+
+* HTTP:
+
+  * ``hostNameAliases`` now takes a ``Map[String, List[String]]`` instead of a ``Map[String, String]``

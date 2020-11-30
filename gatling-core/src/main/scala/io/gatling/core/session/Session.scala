@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.session
 
 import scala.annotation.tailrec
@@ -20,38 +21,63 @@ import scala.reflect.ClassTag
 
 import io.gatling.commons.NotNothing
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
 import io.gatling.commons.validation._
-import io.gatling.core.session.el.ElMessages
 import io.gatling.core.action.Action
+import io.gatling.core.session.el.ElMessages
 import io.gatling.core.stats.message.ResponseTimings
 
 import com.typesafe.scalalogging.LazyLogging
+import io.netty.channel.EventLoop
 
-/**
- * Private Gatling Session attributes
- */
 object SessionPrivateAttributes {
 
   val PrivateAttributePrefix = "gatling."
 }
 
-case class SessionAttribute(session: Session, key: String) {
+final case class SessionAttribute(session: Session, key: String) {
 
-  def as[T: NotNothing]: T = session.attributes(key).asInstanceOf[T]
-  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).flatMap(_.asOption[T])
+  def as[T: TypeCaster: ClassTag: NotNothing]: T = session.attributes.get(key) match {
+    case Some(value) => value.as[T]
+    case _           => throw new NoSuchElementException(ElMessages.undefinedSessionAttribute(key).message)
+  }
+  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).map(_.as[T])
   def validate[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = session.attributes.get(key) match {
     case Some(value) => value.asValidation[T]
-    case None        => ElMessages.undefinedSessionAttribute(key)
+    case _           => ElMessages.undefinedSessionAttribute(key)
   }
 }
 
 object Session {
   val MarkAsFailedUpdate: Session => Session = _.markAsFailed
-  val Identity: Session => Session = identity[Session]
+  val Identity: Session => Session = identity
   val NothingOnExit: Session => Unit = _ => ()
+
+  private[session] def timestampName(counterName: String) = "timestamp." + counterName
+
+  def apply(
+      scenario: String,
+      userId: Long,
+      eventLoop: EventLoop
+  ): Session =
+    apply(scenario, userId, Session.NothingOnExit, eventLoop)
+
+  private[core] def apply(
+      scenario: String,
+      userId: Long,
+      onExit: Session => Unit,
+      eventLoop: EventLoop
+  ): Session =
+    Session(
+      scenario = scenario,
+      userId = userId,
+      attributes = Map.empty,
+      baseStatus = OK,
+      blockStack = Nil,
+      onExit = onExit,
+      eventLoop: EventLoop
+    )
 }
 
 /**
@@ -63,22 +89,21 @@ object Session {
  * @param scenario the name of the current scenario
  * @param userId the id of the current user
  * @param attributes the map that stores all values needed
- * @param startDate when the user was started
- * @param drift the cumulated time that was spent in Gatling on computation and that wasn't compensated for
  * @param baseStatus the status when not in a TryMax blocks hierarchy
  * @param blockStack the block stack
  * @param onExit hook to execute once the user reaches the exit
  */
-case class Session(
-    scenario:   String,
-    userId:     Long,
-    attributes: Map[String, Any] = Map.empty,
-    startDate:  Long             = nowMillis,
-    drift:      Long             = 0L,
-    baseStatus: Status           = OK,
-    blockStack: List[Block]      = Nil,
-    onExit:     Session => Unit  = Session.NothingOnExit
+final case class Session(
+    scenario: String,
+    userId: Long,
+    attributes: Map[String, Any],
+    baseStatus: Status,
+    blockStack: List[Block],
+    onExit: Session => Unit,
+    eventLoop: EventLoop
 ) extends LazyLogging {
+
+  import Session._
 
   def apply(name: String): SessionAttribute = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
@@ -87,60 +112,75 @@ case class Session(
   def remove(key: String): Session = if (contains(key)) copy(attributes = attributes - key) else this
   def removeAll(keys: String*): Session = keys.foldLeft(this)(_ remove _)
   def contains(attributeKey: String): Boolean = attributes.contains(attributeKey)
-  def reset: Session = copy(attributes = Map.empty)
 
-  private[gatling] def setDrift(drift: Long) = copy(drift = drift)
-  private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
-
-  private def timestampName(counterName: String) = "timestamp." + counterName
+  def reset: Session = {
+    val newAttributes =
+      if (blockStack.isEmpty) {
+        // not in a block
+        attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
+      } else {
+        val counterNames: Set[String] = blockStack.view.collect { case counterBlock: CounterBlock => counterBlock.counterName }.to(Set)
+        if (counterNames.isEmpty) {
+          // no counter based blocks (only groups)
+          attributes.view.filterKeys(_.startsWith(SessionPrivateAttributes.PrivateAttributePrefix))
+        } else {
+          val timestampNames: Set[String] = counterNames.map(timestampName)
+          attributes.view.filterKeys(key =>
+            counterNames.contains(key) || timestampNames.contains(key) || key.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)
+          )
+        }
+      }
+    copy(attributes = newAttributes.to(Map))
+  }
 
   def loopCounterValue(counterName: String): Int = attributes(counterName).asInstanceOf[Int]
 
   def loopTimestampValue(counterName: String): Long = attributes(timestampName(counterName)).asInstanceOf[Long]
 
-  private[gatling] def enterGroup(groupName: String) = {
-    val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
-      case None    => List(groupName)
+  @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
+  private[gatling] def enterGroup(groupName: String, nowMillis: Long): Session = {
+    val groups = blockStack.collectFirst { case g: GroupBlock => g.groups } match {
       case Some(l) => l :+ groupName
+      case _       => groupName :: Nil
     }
-    copy(blockStack = GroupBlock(groupHierarchy) :: blockStack)
+    copy(blockStack = GroupBlock(groups, nowMillis, 0, OK) :: blockStack)
   }
 
-  private[gatling] def exitGroup = blockStack match {
-    case head :: tail if head.isInstanceOf[GroupBlock] => copy(blockStack = tail)
-    case _ =>
-      logger.error(s"exitGroup called but stack head $blockStack isn't a GroupBlock, please report.")
+  private[core] def exitGroup(tail: List[Block]): Session = copy(blockStack = tail)
+
+  def logGroupRequestTimings(startTimestamp: Long, endTimestamp: Long): Session =
+    if (blockStack.isEmpty) {
       this
-  }
-
-  private[gatling] def logGroupRequest(startTimestamp: Long, endTimestamp: Long, status: Status) = blockStack match {
-    case Nil => this
-    case _ =>
+    } else {
       val responseTime = ResponseTimings.responseTime(startTimestamp, endTimestamp)
       copy(blockStack = blockStack.map {
-        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime, status = if (status == KO) KO else g.status)
+        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime)
         case b             => b
       })
-  }
+    }
 
-  def groupHierarchy: List[String] = {
+  def groups: List[String] = {
 
     @tailrec
     def gh(blocks: List[Block]): List[String] = blocks match {
-      case Nil => Nil
-      case head :: tail => head match {
-        case g: GroupBlock => g.hierarchy
-        case _             => gh(tail)
-      }
+      case head :: tail =>
+        head match {
+          case g: GroupBlock => g.groups
+          case _             => gh(tail)
+        }
+      case _ => Nil
     }
 
     gh(blockStack)
   }
 
-  private[gatling] def enterTryMax(counterName: String, loopAction: Action) =
-    copy(blockStack = TryMaxBlock(counterName, loopAction) :: blockStack).initCounter(counterName, withTimestamp = false)
+  private[core] def enterTryMax(counterName: String, loopAction: Action) =
+    copy(
+      blockStack = TryMaxBlock(counterName, loopAction, OK) :: blockStack,
+      attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
+    )
 
-  private[gatling] def exitTryMax: Session = blockStack match {
+  private[core] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
       copy(blockStack = tail).updateStatus(status).removeCounter(counterName)
 
@@ -156,7 +196,7 @@ case class Session(
 
   def status: Status = if (isFailed) KO else OK
 
-  private def failStatusUntilFirstTryMaxBlock: List[Block] = {
+  private def failStatusUntilClosestTryMaxBlock: List[Block] = {
     var firstTryMaxBlockNotReached = true
     blockStack.map {
       case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == OK =>
@@ -168,7 +208,7 @@ case class Session(
     }
   }
 
-  private def restoreFirstTryMaxBlockStatus: List[Block] = {
+  private def restoreClosestTryMaxBlockStatus: List[Block] = {
     var firstTryMaxBlockNotReached = true
     blockStack.map {
       case tryMaxBlock: TryMaxBlock if firstTryMaxBlockNotReached && tryMaxBlock.status == KO =>
@@ -189,7 +229,7 @@ case class Session(
 
   def markAsSucceeded: Session =
     if (isWithinTryMax) {
-      copy(blockStack = restoreFirstTryMaxBlockStatus)
+      copy(blockStack = restoreClosestTryMaxBlockStatus)
     } else if (baseStatus == KO) {
       copy(baseStatus = OK)
     } else {
@@ -201,38 +241,54 @@ case class Session(
       this
     } else {
       val updatedStatus = if (isWithinTryMax) baseStatus else KO
-      copy(baseStatus = updatedStatus, blockStack = failStatusUntilFirstTryMaxBlock)
+      copy(baseStatus = updatedStatus, blockStack = failStatusUntilClosestTryMaxBlock)
     }
 
-  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean, timeBased: Boolean): Session = {
-
+  private def newBlockStack(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): List[Block] = {
     val newBlock =
-      if (exitASAP)
+      if (exitASAP) {
         ExitAsapLoopBlock(counterName, condition, exitAction)
-      else
+      } else {
         ExitOnCompleteLoopBlock(counterName)
-
-    copy(blockStack = newBlock :: blockStack).initCounter(counterName, withTimestamp = timeBased)
+      }
+    newBlock :: blockStack
   }
 
-  private[gatling] def exitLoop: Session = blockStack match {
+  private[core] def enterLoop(counterName: String, condition: Expression[Boolean], exitAction: Action, exitASAP: Boolean): Session =
+    copy(
+      blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
+      attributes = newAttributesWithCounter(counterName, withTimestamp = false, 0L)
+    )
+
+  private[core] def enterTimeBasedLoop(
+      counterName: String,
+      condition: Expression[Boolean],
+      exitAction: Action,
+      exitASAP: Boolean,
+      nowMillis: Long
+  ): Session =
+    copy(
+      blockStack = newBlockStack(counterName, condition, exitAction, exitASAP),
+      attributes = newAttributesWithCounter(counterName, withTimestamp = true, nowMillis)
+    )
+
+  private[core] def exitLoop: Session = blockStack match {
     case LoopBlock(counterName) :: tail => copy(blockStack = tail).removeCounter(counterName)
     case _ =>
       logger.error(s"exitLoop called but stack head $blockStack isn't a Loop Block, please report.")
       this
   }
 
-  private[gatling] def initCounter(counterName: String, withTimestamp: Boolean): Session = {
+  private def newAttributesWithCounter(counterName: String, withTimestamp: Boolean, nowMillis: Long): Map[String, Any] = {
     val withCounter = attributes.updated(counterName, 0)
-    val newAttributes =
-      if (withTimestamp)
-        withCounter.updated(timestampName(counterName), nowMillis)
-      else
-        withCounter
-    copy(attributes = newAttributes)
+    if (withTimestamp) {
+      withCounter.updated(timestampName(counterName), nowMillis)
+    } else {
+      withCounter
+    }
   }
 
-  private[gatling] def incrementCounter(counterName: String): Session =
+  private[core] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case Some(counterValue: Int) => copy(attributes = attributes.updated(counterName, counterValue + 1))
       case _ =>
@@ -240,7 +296,7 @@ case class Session(
         this
     }
 
-  private[gatling] def removeCounter(counterName: String): Session =
+  private[core] def removeCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case None =>
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
@@ -249,9 +305,5 @@ case class Session(
         copy(attributes = attributes - counterName - timestampName(counterName))
     }
 
-  def update(updates: Iterable[Session => Session]): Session = updates.foldLeft(this) {
-    (session, update) => update(session)
-  }
-
-  def exit(): Unit = onExit(this)
+  private[core] def exit(): Unit = onExit(this)
 }

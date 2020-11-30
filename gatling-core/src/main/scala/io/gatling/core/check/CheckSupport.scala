@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.check
 
-import io.gatling.core.session.{ Expression, Session }
+import java.io.InputStream
+
 import io.gatling.commons.validation.Validation
-import io.gatling.core.check.extractor.bytes.BodyBytesCheckBuilder
-import io.gatling.core.check.extractor.checksum.ChecksumCheckBuilder
-import io.gatling.core.check.extractor.css.{ CssCheckBuilder, CssSelectors }
-import io.gatling.core.check.extractor.jsonpath.{ JsonPathCheckBuilder, JsonPaths, JsonpJsonPathCheckBuilder }
-import io.gatling.core.check.extractor.regex.{ Patterns, RegexCheckBuilder, RegexOfType }
-import io.gatling.core.check.extractor.string.BodyStringCheckBuilder
-import io.gatling.core.check.extractor.substring.SubstringCheckBuilder
-import io.gatling.core.check.extractor.xpath.{ XmlParsers, XPathCheckBuilder }
-import io.gatling.core.time.ResponseTimeCheckBuilder
+import io.gatling.core.check.bytes._
+import io.gatling.core.check.checksum._
+import io.gatling.core.check.css._
+import io.gatling.core.check.jmespath._
+import io.gatling.core.check.jsonpath._
+import io.gatling.core.check.regex._
+import io.gatling.core.check.stream._
+import io.gatling.core.check.string._
+import io.gatling.core.check.substring._
+import io.gatling.core.check.time._
+import io.gatling.core.check.xpath._
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.stats.message.ResponseTimings
+
+import com.fasterxml.jackson.databind.JsonNode
+import io.burt.jmespath.function.{ Function => JmesPathFunction }
+import jodd.lagarto.dom.NodeSelector
+import net.sf.saxon.s9api.XdmNode
 
 trait CheckSupport {
 
-  implicit def validatorCheckBuilder2CheckBuilder[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]) = validatorCheckBuilder.exists
-  implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find
-  implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]) = findCheckBuilder.find.exists
-
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldCheckBuilder2Check[C <: Check[R], R, P, X](checkBuilder: OldCheckBuilder[C, R, P, X]) = checkBuilder.build
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldValidatorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldValidatorCheckBuilder2Check[C <: Check[R], R, P, X](validatorCheckBuilder: OldValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists.build
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldFindCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldFindCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists
-  @deprecated("Only used in old Async checks, will be replaced with new impl, will be removed in 3.0.0", "3.0.0-M1")
-  implicit def oldFindCheckBuilder2Check[C <: Check[R], R, P, X](findCheckBuilder: OldFindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists.build
+  implicit def validatorCheckBuilder2CheckBuilder[A, P, X](validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]): CheckBuilder[A, P, X] =
+    validatorCheckBuilder.exists
+  implicit def findCheckBuilder2ValidatorCheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): ValidatorCheckBuilder[A, P, X] =
+    findCheckBuilder.find
+  implicit def findCheckBuilder2CheckBuilder[A, P, X](findCheckBuilder: FindCheckBuilder[A, P, X]): CheckBuilder[A, P, X] =
+    findCheckBuilder.find.exists
 
   def checkIf[C <: Check[_]](condition: Expression[Boolean])(thenCheck: C)(implicit cw: UntypedConditionalCheckWrapper[C]): C =
     cw.wrap(condition, thenCheck)
@@ -52,31 +53,55 @@ trait CheckSupport {
   def checkIf[R, C <: Check[R]](condition: (R, Session) => Validation[Boolean])(thenCheck: C)(implicit cw: TypedConditionalCheckWrapper[R, C]): C =
     cw.wrap(condition, thenCheck)
 
-  def regex(pattern: Expression[String])(implicit patterns: Patterns): RegexCheckBuilder[String] with RegexOfType = RegexCheckBuilder.regex(pattern, patterns)
+  def regex(pattern: Expression[String])(implicit patterns: Patterns): MultipleFindCheckBuilder[RegexCheckType, String, String] with RegexOfType =
+    RegexCheckBuilder.regex(pattern, patterns)
 
-  val bodyString = BodyStringCheckBuilder.BodyString
+  val bodyString: FindCheckBuilder[BodyStringCheckType, String, String] = BodyStringCheckBuilder
 
-  val bodyBytes = BodyBytesCheckBuilder.BodyBytes
+  val bodyBytes: FindCheckBuilder[BodyBytesCheckType, Array[Byte], Array[Byte]] = BodyBytesCheckBuilder
 
-  def substring(pattern: Expression[String]) = new SubstringCheckBuilder(pattern)
+  val bodyLength: FindCheckBuilder[BodyBytesCheckType, Int, Int] = BodyLengthCheckBuilder
 
-  def xpath(path: Expression[String], namespaces: List[(String, String)] = Nil)(implicit xmlParsers: XmlParsers) =
+  val bodyStream: FindCheckBuilder[BodyStreamCheckType, () => InputStream, InputStream] = BodyStreamCheckBuilder
+
+  def substring(pattern: Expression[String]): MultipleFindCheckBuilder[SubstringCheckType, String, Int] = new SubstringCheckBuilder(pattern)
+
+  def xpath(path: Expression[String])(implicit xmlParsers: XmlParsers): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
+    xpath(path, Map.empty[String, String])
+  def xpath(path: Expression[String], namespaces: Map[String, String])(implicit
+      xmlParsers: XmlParsers
+  ): MultipleFindCheckBuilder[XPathCheckType, Option[XdmNode], String] =
     new XPathCheckBuilder(path, namespaces, xmlParsers)
 
-  def css(selector: Expression[String])(implicit selectors: CssSelectors) =
+  def css(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, None, selectors)
-  def css(selector: Expression[String], nodeAttribute: String)(implicit selectors: CssSelectors) =
+  def css(selector: Expression[String], nodeAttribute: String)(implicit
+      selectors: CssSelectors
+  ): MultipleFindCheckBuilder[CssCheckType, NodeSelector, String] with CssOfType =
     CssCheckBuilder.css(selector, Some(nodeAttribute), selectors)
-  def form(selector: Expression[String])(implicit selectors: CssSelectors) = css(selector).ofType[Map[String, Any]]
+  def form(selector: Expression[String])(implicit selectors: CssSelectors): MultipleFindCheckBuilder[CssCheckType, NodeSelector, Map[String, Any]] =
+    css(selector).ofType[Map[String, Any]]
 
-  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths) =
+  def jsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, String] with JsonPathOfType =
     JsonPathCheckBuilder.jsonPath(path, jsonPaths)
 
-  def jsonpJsonPath(path: Expression[String])(implicit jsonPaths: JsonPaths) =
+  def jmesPath(path: Expression[String])(implicit jmesPaths: JmesPaths): FindCheckBuilder[JmesPathCheckType, JsonNode, String] with JmesPathOfType =
+    JmesPathCheckBuilder.jmesPath(path, jmesPaths)
+
+  def jsonpJsonPath(
+      path: Expression[String]
+  )(implicit jsonPaths: JsonPaths): MultipleFindCheckBuilder[JsonpJsonPathCheckType, JsonNode, String] with JsonpJsonPathOfType =
     JsonpJsonPathCheckBuilder.jsonpJsonPath(path, jsonPaths)
 
-  val md5 = ChecksumCheckBuilder.Md5
-  val sha1 = ChecksumCheckBuilder.Sha1
+  def jsonpJmesPath(
+      path: Expression[String]
+  )(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
+    JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
 
-  val responseTimeInMillis = ResponseTimeCheckBuilder.ResponseTimeInMillis
+  def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = JmesPathFunctions.register(functions)
+
+  val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
+  val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1
+
+  val responseTimeInMillis: FindCheckBuilder[ResponseTimeCheckType, ResponseTimings, Int] = ResponseTimeCheckBuilder.ResponseTimeInMillis
 }

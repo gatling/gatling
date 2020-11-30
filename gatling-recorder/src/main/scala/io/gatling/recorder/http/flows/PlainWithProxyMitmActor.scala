@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.flows
 
-import java.nio.charset.StandardCharsets.UTF_8
-
+import io.gatling.commons.util.Clock
 import io.gatling.recorder.http.{ OutgoingProxy, TrafficLogger }
 import io.gatling.recorder.http.Netty._
+import io.gatling.recorder.util.HttpUtils
 
 import io.netty.bootstrap.Bootstrap
 import io.netty.channel.Channel
 import io.netty.handler.codec.http._
-import org.asynchttpclient.util.Base64
 
 /**
  * Standard flow:
@@ -40,25 +40,23 @@ import org.asynchttpclient.util.Base64
  * @param trafficLogger log the traffic
  */
 class PlainWithProxyMitmActor(
-    serverChannel:   Channel,
+    serverChannel: Channel,
     clientBootstrap: Bootstrap,
-    proxy:           OutgoingProxy,
-    trafficLogger:   TrafficLogger
-)
-  extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger) {
+    proxy: OutgoingProxy,
+    trafficLogger: TrafficLogger,
+    clock: Clock
+) extends PlainMitmActor(serverChannel, clientBootstrap, trafficLogger, clock) {
 
   private val proxyRemote = Remote(proxy.host, proxy.port)
-  private val proxyBasicAuthHeader = proxy.credentials.map(credentials => "Basic " + Base64.encode((credentials.username + ":" + credentials.password).getBytes(UTF_8)))
+  private val proxyBasicAuthHeader = proxy.credentials.map(HttpUtils.basicAuth)
 
-  override protected def connectedRemote(requestRemote: Remote): Remote =
-    proxyRemote
+  override protected def connectedRemote(requestRemote: Remote): Remote = proxyRemote
 
   override protected def propagatedRequest(originalRequest: FullHttpRequest): FullHttpRequest =
     (proxyBasicAuthHeader match {
       case Some(header) =>
         val requestWithCreds = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, originalRequest.method, originalRequest.uri, originalRequest.content)
-        requestWithCreds
-          .headers
+        requestWithCreds.headers
           .set(originalRequest.headers)
           .set(HttpHeaderNames.PROXY_AUTHORIZATION, header)
 

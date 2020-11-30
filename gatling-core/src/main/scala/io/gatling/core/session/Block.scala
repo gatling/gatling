@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.session
 
-import io.gatling.commons.stats.{ OK, Status }
-import io.gatling.commons.util.ClockSingleton.nowMillis
+import io.gatling.commons.stats.Status
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 
 import com.typesafe.scalalogging.StrictLogging
 
-sealed trait Block
+sealed trait Block extends Product with Serializable
 
 sealed trait CounterBlock extends Block {
   def counterName: String
@@ -44,10 +44,10 @@ object LoopBlock extends StrictLogging {
   }
 }
 
-case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
+final case class ExitOnCompleteLoopBlock(counterName: String) extends CounterBlock
 
-case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends CounterBlock
+final case class ExitAsapLoopBlock(counterName: String, condition: Expression[Boolean], exitAction: Action) extends CounterBlock
 
-case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status = OK) extends CounterBlock
+final case class TryMaxBlock(counterName: String, tryMaxAction: Action, status: Status) extends CounterBlock
 
-case class GroupBlock(hierarchy: List[String], startTimestamp: Long = nowMillis, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block
+final case class GroupBlock(groups: List[String], startTimestamp: Long, cumulatedResponseTime: Int, status: Status) extends Block

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http
 
 import scala.util.{ Failure, Success, Try }
 
+import io.gatling.http.client.uri.Uri
 import io.gatling.recorder.util.HttpUtils
 
 import io.netty.channel.{ Channel, ChannelFuture, ChannelFutureListener }
 import io.netty.handler.codec.http._
-import org.asynchttpclient.uri.Uri
 
 object Netty {
 
   implicit class PimpedChannelFuture(val cf: ChannelFuture) extends AnyVal {
 
     def addScalaListener(f: Try[Channel] => Unit): ChannelFuture =
-      cf.addListener(new ChannelFutureListener {
-        override def operationComplete(future: ChannelFuture): Unit = {
-          val outcome =
-            if (future.isSuccess) {
-              Success(future.channel)
-            } else {
-              Failure(future.cause)
-            }
-          f(outcome)
-        }
+      cf.addListener((future: ChannelFuture) => {
+        val outcome =
+          if (future.isSuccess) {
+            Success(future.channel)
+          } else {
+            Failure(future.cause)
+          }
+        f(outcome)
       })
   }
 
@@ -53,7 +52,7 @@ object Netty {
 
     def makeRelative: FullHttpRequest = {
       val relativeUrl = Uri.create(request.uri).toRelativeUrl
-      val relativeRequest = new DefaultFullHttpRequest(request.protocolVersion, request.method, relativeUrl, request.content.retain())
+      val relativeRequest = new DefaultFullHttpRequest(request.protocolVersion, request.method, relativeUrl, request.content)
       relativeRequest.headers.add(request.headers)
       relativeRequest
     }

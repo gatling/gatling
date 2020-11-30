@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.jndi
 
+import java.{ util => ju }
 import javax.naming.Context
+
+import scala.jdk.CollectionConverters._
 
 import io.gatling.BaseSpec
 import io.gatling.jms.Predef.jmsJndiConnectionFactory
-
-import scala.collection.JavaConverters.dictionaryAsScalaMapConverter
 
 class JmsJndiConnectionFactoryBuilderSpec extends BaseSpec {
 
@@ -35,14 +37,16 @@ class JmsJndiConnectionFactoryBuilderSpec extends BaseSpec {
       .contextFactory(classOf[DummyContextFactory].getName)
 
     val factory = jndiCf.build()
-    val contextEnv = factory.asInstanceOf[DummyConnectionFactory].environment.asScala
-    contextEnv should contain allOf (
+    val contextEnv = new ju.HashMap[Any, Any](factory.asInstanceOf[DummyConnectionFactory].environment).asScala.toSeq
+      .map { case (k, v) => k.toString -> v.toString }
+      .sortBy(_._1)
+    contextEnv shouldBe Seq(
+      "extProperty" -> "extValue",
       Context.INITIAL_CONTEXT_FACTORY -> classOf[DummyContextFactory].getName,
       Context.PROVIDER_URL -> "testUrl",
-      Context.SECURITY_PRINCIPAL -> "user",
       Context.SECURITY_CREDENTIALS -> "secret",
-      "testProperty" -> "testValue",
-      "extProperty" -> "extValue"
+      Context.SECURITY_PRINCIPAL -> "user",
+      "testProperty" -> "testValue"
     )
   }
 }

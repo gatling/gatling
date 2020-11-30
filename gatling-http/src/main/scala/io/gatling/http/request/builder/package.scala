@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.request
 
-import java.util.{ ArrayList => JArrayList, Collections => JCollections, List => JList }
+import java.{ util => ju }
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import io.gatling.commons.validation._
 import io.gatling.core.session.{ Expression, Session }
-
-import org.asynchttpclient.Param
+import io.gatling.http.client.Param
 
 package object builder {
 
-  val EmptyParamJListSuccess: Validation[JList[Param]] = JCollections.emptyList[Param].success
+  val EmptyParamJListSuccess: Validation[ju.List[Param]] = ju.Collections.emptyList[Param].success
 
   implicit class HttpParams(val params: List[HttpParam]) extends AnyVal {
 
-    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Any]]], session: Session): Validation[JList[Param]] = {
+    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Any]]], session: Session): Validation[ju.List[Param]] = {
 
       val formParams = params.resolveParamJList(session)
 
@@ -43,33 +43,32 @@ package object builder {
           } yield {
             val formParamsByName = resolvedFormParams.asScala.groupBy(_.getName)
             val formFieldsByName: Map[String, Seq[Param]] =
-              resolvedForm.map {
-                case (key, value) =>
-                  value match {
-                    case multipleValues: Seq[_] => key -> multipleValues.map(value => new Param(key, value.toString))
-                    case monoValue              => key -> Seq(new Param(key, monoValue.toString))
-                  }
+              resolvedForm.map { case (key, value) =>
+                value match {
+                  case multipleValues: Seq[_] => key -> multipleValues.map(value => new Param(key, value.toString))
+                  case monoValue              => key -> Seq(new Param(key, monoValue.toString))
+                }
               }
             // override form with formParams
-            val javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava
+            val javaParams: ju.List[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq.asJava
             javaParams
           }
 
-        case None =>
+        case _ =>
           formParams
       }
     }
 
-    def resolveParamJList(session: Session): Validation[JList[Param]] = {
+    def resolveParamJList(session: Session): Validation[ju.List[Param]] = {
 
-      def update(ahcParams: JList[Param], param: HttpParam): Validation[JList[Param]] = param match {
+      def update(clientParams: ju.List[Param], param: HttpParam): Validation[ju.List[Param]] = param match {
         case SimpleParam(key, value) =>
           for {
             key <- key(session)
             value <- value(session)
           } yield {
-            ahcParams.add(new Param(key, value.toString))
-            ahcParams
+            clientParams.add(new Param(key, value.toString))
+            clientParams
           }
 
         case MultivaluedParam(key, values) =>
@@ -77,42 +76,42 @@ package object builder {
             key <- key(session)
             values <- values(session)
           } yield {
-            values.foreach(value => ahcParams.add(new Param(key, value.toString)))
-            ahcParams
+            values.foreach(value => clientParams.add(new Param(key, value.toString)))
+            clientParams
           }
 
         case ParamSeq(seq) =>
           for {
             seq <- seq(session)
           } yield {
-            seq.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
-            ahcParams
+            seq.foreach { case (key, value) => clientParams.add(new Param(key, value.toString)) }
+            clientParams
           }
 
         case ParamMap(map) =>
           for {
             map <- map(session)
           } yield {
-            map.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
-            ahcParams
+            map.foreach { case (key, value) => clientParams.add(new Param(key, value.toString)) }
+            clientParams
           }
       }
 
       @tailrec
-      def resolveParamJListRec(ahcParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
+      def resolveParamJListRec(clientParams: ju.List[Param], currentParams: List[HttpParam]): Validation[ju.List[Param]] =
         currentParams match {
-          case Nil => ahcParams.success
+          case Nil => clientParams.success
           case head :: tail =>
-            update(ahcParams, head) match {
-              case Success(newAhcParams) => resolveParamJListRec(newAhcParams, tail)
-              case f                     => f
+            update(clientParams, head) match {
+              case Success(newClientParams) => resolveParamJListRec(newClientParams, tail)
+              case f                        => f
             }
         }
 
       if (params.isEmpty)
         EmptyParamJListSuccess
       else
-        resolveParamJListRec(new JArrayList[Param](params.size), params)
+        resolveParamJListRec(new ju.ArrayList[Param](params.size), params)
     }
   }
 }

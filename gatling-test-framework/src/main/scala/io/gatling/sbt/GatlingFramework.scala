@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.sbt
 
 import sbt.testing.{ Fingerprint, Framework }
@@ -23,11 +24,11 @@ import sbt.testing.{ Fingerprint, Framework }
  */
 class GatlingFramework extends Framework {
 
-  val name = "gatling"
+  override val name: String = "gatling"
 
-  val fingerprints = Array[Fingerprint](new GatlingFingerprint)
+  override val fingerprints: Array[Fingerprint] = Array[Fingerprint](new GatlingFingerprint)
 
-  def runner(args: Array[String], remoteArgs: Array[String], testClassLoader: ClassLoader) =
+  override def runner(args: Array[String], remoteArgs: Array[String], testClassLoader: ClassLoader): GatlingRunner =
     new GatlingRunner(args, remoteArgs, testClassLoader)
 
 }

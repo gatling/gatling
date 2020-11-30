@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,92 +13,105 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.check
 
+import java.{ util => ju }
+
 import scala.annotation.tailrec
-import scala.collection.mutable
 
 import io.gatling.commons.validation._
-import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, Session }
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]])(implicit preparedCache: mutable.Map[Any, Any] = mutable.Map.empty[Any, Any]): (Session => Session, Option[Failure]) = {
+  type PreparedCache = ju.Map[Any, Any]
 
-    @tailrec
-    def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, failure: Option[Failure]): (Session => Session, Option[Failure]) =
-      checks match {
+  def newPreparedCache: PreparedCache =
+    new ju.HashMap(2)
 
-        case Nil => (update, failure)
+  def check[R](response: R, session: Session, checks: List[Check[R]]): (Session, Option[Failure]) = {
 
-        case head :: tail => head.check(response, session) match {
-          case Success(checkResult) =>
-            checkResult.update match {
-              case Some(checkUpdate) =>
-                checkRec(
-                  session = checkUpdate(session),
-                  tail,
-                  update = update andThen checkUpdate,
-                  failure
-                )
-              case _ =>
-                checkRec(session, tail, update, failure)
-            }
-
-          case f: Failure =>
-            failure match {
-              case None =>
-                checkRec(session, tail, update, Some(f))
-              case _ => checkRec(session, tail, update, failure)
-            }
-        }
+    val preparedCache: PreparedCache =
+      if (checks.size > 1) {
+        newPreparedCache
+      } else {
+        null
       }
 
-    checkRec(session, checks, Session.Identity, None)
+    check(response, session, checks, preparedCache)
+  }
+
+  def check[R](response: R, session: Session, checks: List[Check[R]], preparedCache: PreparedCache): (Session, Option[Failure]) = {
+
+    @tailrec
+    def checkRec(currentSession: Session, checks: List[Check[R]], failure: Option[Failure]): (Session, Option[Failure]) =
+      checks match {
+        case Nil => (currentSession, failure)
+
+        case check :: tail =>
+          check.check(response, currentSession, preparedCache) match {
+            case Success(checkResult) =>
+              val newSession = checkResult.update(currentSession)
+              checkRec(newSession, tail, failure)
+
+            case f: Failure =>
+              checkRec(currentSession, tail, if (failure.isDefined) failure else Some(f))
+          }
+      }
+
+    checkRec(session, checks, None)
   }
 }
 
 trait Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult]
+  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult]
 }
 
-case class CheckBase[R, P, X](
-    preparer:            Preparer[R, P],
-    extractorExpression: Expression[Extractor[P, X]],
-    validatorExpression: Expression[Validator[X]],
-    saveAs:              Option[String]
+final class CheckBase[R, P, X](
+    val preparer: Preparer[R, P],
+    val extractorExpression: Expression[Extractor[P, X]],
+    val validatorExpression: Expression[Validator[X]],
+    val displayActualValue: Boolean,
+    val customName: Option[String],
+    val saveAs: Option[String]
 ) extends Check[R] {
 
-  def check(response: R, session: Session)(implicit preparedCache: mutable.Map[Any, Any]): Validation[CheckResult] = {
+  def check(response: R, session: Session, preparedCache: Check.PreparedCache): Validation[CheckResult] = {
 
-    def memoizedPrepared: Validation[P] = preparedCache
-      .getOrElseUpdate(preparer, preparer(response))
-      .asInstanceOf[Validation[P]]
+    def unbuiltName: String = customName.getOrElse("Check")
+    def memoizedPrepared: Validation[P] =
+      if (preparedCache == null) {
+        preparer(response)
+      } else {
+        preparedCache.computeIfAbsent(preparer, _ => preparer(response)).asInstanceOf[Validation[P]]
+      }
+    def builtName(extractor: Extractor[P, X], validator: Validator[X]): String = customName.getOrElse(s"${extractor.name}.${extractor.arity}.${validator.name}")
 
     for {
-      extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
-      validator <- validatorExpression(session).mapError(message => s"Check validator resolution crashed: $message")
-      prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name} failed, could not prepare: $message")
-      actual <- extractor(prepared).mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name} failed, could not extract: $message")
-      matched <- validator(actual).mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name}, $message")
-    } yield CheckResult(matched, saveAs)
+      extractor <- extractorExpression(session).mapError(message => s"$unbuiltName extractor resolution crashed: $message")
+      validator <- validatorExpression(session).mapError(message => s"$unbuiltName validator resolution crashed: $message")
+      prepared <- memoizedPrepared.mapError(message => s"${builtName(extractor, validator)} preparation crashed: $message")
+      actual <- extractor(prepared).mapError(message => s"${builtName(extractor, validator)} extraction crashed: $message")
+      matched <- validator(actual, displayActualValue).mapError(message => s"${builtName(extractor, validator)}, $message")
+    } yield new CheckResult(matched, saveAs)
   }
 }
 
 object CheckResult {
 
-  val NoopCheckResultSuccess = CheckResult(None, None).success
+  val NoopCheckResultSuccess: Validation[CheckResult] = new CheckResult(None, None).success
 }
 
-case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
+final case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
 
-  def hasUpdate = saveAs.isDefined && extractedValue.isDefined
-
-  def update: Option[(Session => Session)] =
-    for {
-      s <- saveAs
-      v <- extractedValue
-    } yield (session: Session) => session.set(s, v)
+  def update(session: Session): Session = {
+    val maybeUpdatedSession =
+      for {
+        s <- saveAs
+        v <- extractedValue
+      } yield session.set(s, v)
+    maybeUpdatedSession.getOrElse(session)
+  }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,46 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
 import java.io.RandomAccessFile
 import java.net.ServerSocket
 import javax.activation.FileTypeMap
 
-import scala.collection.JavaConverters._
 import scala.concurrent.duration._
-import scala.util.Try
+import scala.jdk.CollectionConverters._
+import scala.util.{ Try, Using }
 
 import io.gatling.AkkaSpec
+import io.gatling.commons.util.DefaultClock
 import io.gatling.commons.util.Io._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, ActorDelegatingAction }
-import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.pause.Constant
-import io.gatling.core.protocol.{ ProtocolComponentsRegistries, Protocols }
+import io.gatling.core.protocol.{ Protocol, ProtocolComponentsRegistries }
 import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.structure.{ ScenarioBuilder, ScenarioContext }
 import io.gatling.http.protocol.HttpProtocolBuilder
 
-import akka.actor.ActorRef
-import org.scalatest.BeforeAndAfter
 import io.netty.channel._
 import io.netty.handler.codec.http._
 import io.netty.handler.codec.http.cookie._
+import org.scalatest.BeforeAndAfter
 
 abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
 
   type ChannelProcessor = ChannelHandlerContext => Unit
   type Handler = PartialFunction[FullHttpRequest, ChannelProcessor]
 
-  val mockHttpPort = Try(withCloseable(new ServerSocket(0))(_.getLocalPort)).getOrElse(8072)
+  private val clock = new DefaultClock
+  protected val mockHttpPort: Int = Using(new ServerSocket(0))(_.getLocalPort).getOrElse(8072)
 
-  def httpProtocol(implicit configuration: GatlingConfiguration) =
-    HttpProtocolBuilder(configuration).baseURL(s"http://localhost:$mockHttpPort")
+  private def httpProtocol(implicit configuration: GatlingConfiguration): HttpProtocolBuilder =
+    HttpProtocolBuilder(configuration).baseUrl(s"http://localhost:$mockHttpPort")
 
-  def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit) = {
+  protected def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit): Unit = {
     val httpServer = new HttpServer(requestHandler, mockHttpPort)
     try {
       f(httpServer)
@@ -61,17 +62,19 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     }
   }
 
+  @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
   def runScenario(
-    sb:                 ScenarioBuilder,
-    timeout:            FiniteDuration                             = 10.seconds,
-    protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
-  )(implicit configuration: GatlingConfiguration) = {
-    val protocols = Protocols(protocolCustomizer(httpProtocol))
-    val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[Action], configuration)
-    val protocolComponentsRegistry = new ProtocolComponentsRegistries(system, coreComponents, protocols).scenarioRegistry(Protocols(Nil))
+      sb: ScenarioBuilder,
+      timeout: FiniteDuration = 10.seconds,
+      protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
+  )(implicit configuration: GatlingConfiguration): Session = {
+    val protocols = Protocol.indexByType(Seq(protocolCustomizer(httpProtocol)))
+    val coreComponents =
+      new CoreComponents(system, mock[EventLoopGroup], null, None, mock[StatsEngine], clock, mock[Action], configuration)
+    val protocolComponentsRegistry = new ProtocolComponentsRegistries(coreComponents, protocols).scenarioRegistry(Map.empty)
     val next = new ActorDelegatingAction("next", self)
-    val actor = sb.build(ScenarioContext(system, coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
-    actor ! Session("TestSession", 0)
+    val action = sb.build(new ScenarioContext(coreComponents, protocolComponentsRegistry, Constant, throttled = false), next)
+    action ! emptySession
     expectMsgClass(timeout, classOf[Session])
   }
 
@@ -86,12 +89,13 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     val region = new DefaultFileRegion(raf.getChannel, 0, raf.length) // THIS WORKS ONLY WITH HTTP, NOT HTTPS
 
     response.headers
-      .set(HeaderNames.ContentType, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
-      .set(HeaderNames.ContentLength, raf.length)
+      .set(HttpHeaderNames.CONTENT_TYPE, FileTypeMap.getDefaultFileTypeMap.getContentType(fileUri))
+      .set(HttpHeaderNames.CONTENT_LENGTH, raf.length)
 
     ctx.write(response)
     ctx.write(region)
-    ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
+    ctx
+      .writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
       .addListener(ChannelFutureListener.CLOSE)
   }
 
@@ -109,8 +113,8 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     checks.foreach(check => filteredRequests.foreach(check))
   }
 
-  def checkCookie(cookie: String, value: String)(request: FullHttpRequest) = {
-    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HeaderNames.Cookie)).asScala.toList
+  def checkCookie(cookie: String, value: String)(request: FullHttpRequest): Unit = {
+    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HttpHeaderNames.COOKIE)).asScala.toList
     val matchingCookies = cookies.filter(_.name == cookie)
 
     matchingCookies match {
@@ -125,11 +129,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
 
   // Extractor for nicer interaction with Scala
   class HttpRequest(val request: FullHttpRequest) {
-    def isEmpty = request == null
+    def isEmpty: Boolean = request == null
     def get: (HttpMethod, String) = (request.method, request.uri)
   }
 
   object HttpRequest {
-    def unapply(request: FullHttpRequest) = new HttpRequest(request)
+    def unapply(request: FullHttpRequest): HttpRequest = new HttpRequest(request)
   }
 }

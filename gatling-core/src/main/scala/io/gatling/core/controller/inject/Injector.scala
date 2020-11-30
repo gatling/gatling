@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,146 +13,125 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.controller.inject
 
-import scala.collection.breakOut
+import java.util.concurrent.atomic.AtomicLong
+
 import scala.concurrent.duration._
 
-import io.gatling.commons.util.{ LongCounter, PushbackIterator }
-import io.gatling.commons.util.Collections._
-import io.gatling.commons.util.Clock._
-import io.gatling.commons.util.ClockSingleton._
-import io.gatling.core.controller.ControllerCommand
-import io.gatling.core.scenario.Scenario
-import io.gatling.core.session.Session
+import io.gatling.commons.util.Clock
+import io.gatling.core.controller.ControllerCommand.InjectorStopped
+import io.gatling.core.controller.inject.open.OpenWorkload
+import io.gatling.core.scenario.{ Scenario, Scenarios }
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
-import akka.actor.{ Cancellable, Props, ActorSystem, ActorRef }
+import akka.actor.{ ActorRef, ActorSystem, Props }
+import io.netty.channel.EventLoopGroup
 
 sealed trait InjectorCommand
 object InjectorCommand {
-  case object Start extends InjectorCommand
-  case object Tick extends InjectorCommand
-}
-
-private[inject] case class UserStream(scenario: Scenario, stream: PushbackIterator[FiniteDuration]) {
-
-  def withStream(batchWindow: FiniteDuration, injectTime: Long, startTime: Long)(f: (Scenario, FiniteDuration) => Unit): Injection = {
-
-    if (stream.hasNext) {
-      val batchTimeOffset = (injectTime - startTime).millis
-      val nextBatchTimeOffset = batchTimeOffset + batchWindow
-
-      var continue = true
-      var streamNonEmpty = true
-      var count = 0L
-
-      while (streamNonEmpty && continue) {
-
-        val startingTime = stream.next()
-        streamNonEmpty = stream.hasNext
-        val delay = startingTime - batchTimeOffset
-        continue = startingTime < nextBatchTimeOffset
-
-        if (continue) {
-          count += 1
-          // TODO instead of scheduling each user separately, we could group them by rounded-up delay (Akka defaults to 10ms)
-          f(scenario, delay)
-        } else {
-          streamNonEmpty = true
-          stream.pushback(startingTime)
-        }
-      }
-
-      Injection(count, streamNonEmpty)
-    } else {
-      Injection.Empty
-    }
-  }
-}
-
-private[inject] object Injection {
-  val Empty = Injection(0, continue = false)
-}
-
-private[inject] case class Injection(count: Long, continue: Boolean) {
-  def +(other: Injection): Injection =
-    Injection(count + other.count, continue && other.continue)
+  final case class Start(controller: ActorRef, scenarios: Scenarios) extends InjectorCommand
+  final case object Tick extends InjectorCommand
 }
 
 object Injector {
 
-  val InjectorActorName = "gatling-injector"
+  private val InjectorActorName = "gatling-injector"
+  val TickPeriod: FiniteDuration = 1 second
 
-  def apply(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, scenarios: List[Scenario]): ActorRef = {
-    val userStreams: Map[String, UserStream] = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers)))(breakOut)
-    system.actorOf(Props(new Injector(controller, statsEngine, userStreams)), InjectorActorName)
-  }
+  def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock): ActorRef =
+    system.actorOf(Props(new Injector(eventLoopGroup, statsEngine, clock)), InjectorActorName)
 }
 
-private[inject] class Injector(controller: ActorRef, statsEngine: StatsEngine, defaultStreams: Map[String, UserStream]) extends InjectorFSM {
+private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock) extends InjectorFSM {
 
-  import InjectorState._
-  import InjectorData._
+  import Injector._
   import InjectorCommand._
-
-  private val tickPeriod = 1 second
-  private val initialBatchWindow = tickPeriod * 2
-
-  val userIdGen = new LongCounter
-
-  private def inject(streams: Map[String, UserStream], batchWindow: FiniteDuration, startMillis: Long, count: Long, timer: Cancellable): State = {
-    val injection = injectStreams(streams, batchWindow, startMillis)
-    val newCount = injection.count + count
-    if (injection.continue) {
-      goto(Started) using StartedData(startMillis, newCount, timer)
-
-    } else {
-      controller ! ControllerCommand.InjectionStopped(newCount)
-      timer.cancel()
-      // FIXME do we really need to stop? Or go to a noop state?
-      stop()
-    }
-  }
-
-  private def injectStreams(streams: Map[String, UserStream], batchWindow: FiniteDuration, startTime: Long): Injection = {
-    val injections = streams.values.map(_.withStream(batchWindow, nowMillis, startTime)(injectUser))
-    val totalCount = injections.sumBy(_.count)
-    val totalContinue = injections.exists(_.continue)
-    logger.debug(s"Injecting $totalCount users, continue=$totalContinue")
-    Injection(totalCount, totalContinue)
-  }
-
-  private def startUser(scenario: Scenario, userId: Long): Unit = {
-    val rawSession = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
-    val session = scenario.onStart(rawSession)
-    scenario.entry ! session
-    logger.debug(s"Start user #${session.userId}")
-    val userStart = UserMessage(session, io.gatling.core.stats.message.Start, session.startDate)
-    statsEngine.logUser(userStart)
-  }
-
-  private def injectUser(scenario: Scenario, delay: FiniteDuration): Unit = {
-    val userId = userIdGen.incrementAndGet()
-
-    if (delay <= ZeroMs) {
-      startUser(scenario, userId)
-    } else {
-      system.scheduler.scheduleOnce(delay)(startUser(scenario, userId))
-    }
-  }
+  import InjectorData._
+  import InjectorState._
 
   startWith(WaitingToStart, NoData)
 
-  when(WaitingToStart) {
-    case Event(Start, NoData) =>
-      val timer = system.scheduler.schedule(initialBatchWindow, tickPeriod, self, Tick)
-      inject(defaultStreams, initialBatchWindow, nowMillis, 0, timer)
+  private val userIdGen = new AtomicLong
+
+  private def buildWorkloads(scenarios: List[Scenario]): Map[String, Workload] = {
+    val startTime = clock.nowMillis
+    scenarios.map { scenario =>
+      scenario.name -> scenario.injectionProfile.workload(scenario, userIdGen, startTime, eventLoopGroup, statsEngine, clock)
+    }.toMap
+  }
+
+  private def inject(data: StartedData, firstBatch: Boolean): State = {
+
+    val newInProgressWorkloads = data.inProgressWorkloads ++ buildWorkloads(data.todoScenarios)
+
+    newInProgressWorkloads.values.foreach {
+      case workload: OpenWorkload if firstBatch => workload.injectBatch(TickPeriod * 2) // inject 1 second ahead
+      case workload                             => workload.injectBatch(TickPeriod)
+    }
+
+    val (allScheduledWorkloads, stillInjectingProgressWorkloads) = newInProgressWorkloads.partition(_._2.isAllUsersScheduled)
+
+    allScheduledWorkloads.keys.foreach { scenario =>
+      logger.info(s"Scenario $scenario has finished injecting")
+    }
+
+    val doneInjecting = stillInjectingProgressWorkloads.isEmpty && data.pendingChildrenScenarios.isEmpty
+
+    if (doneInjecting) {
+      logger.info("Injecting is done")
+      data.timer.cancel()
+    }
+
+    if (doneInjecting && allScheduledWorkloads.values.forall(_.isAllUsersStopped)) {
+      logger.info("All workloads are already stopped")
+      stopInjector(data.controller)
+    } else {
+      goto(Started) using data.copy(inProgressWorkloads = newInProgressWorkloads, todoScenarios = Nil)
+    }
+  }
+
+  when(WaitingToStart) { case Event(Start(controller, scenarios), NoData) =>
+    val rootWorkloads = buildWorkloads(scenarios.roots)
+    val timer = system.scheduler.scheduleWithFixedDelay(TickPeriod, TickPeriod, self, Tick)
+    inject(StartedData(controller, rootWorkloads, Nil, scenarios.children, timer), firstBatch = true)
   }
 
   when(Started) {
-    case Event(Tick, StartedData(startMillis, count, timer)) =>
-      inject(defaultStreams, tickPeriod, startMillis, count, timer)
+    case Event(userMessage @ UserEndMessage(scenario, _), data: StartedData) =>
+      logger.debug(s"End user #$scenario")
+      val workload = data.inProgressWorkloads(scenario)
+      workload.endUser(userMessage)
+      if (workload.isAllUsersStopped) {
+        logger.info(s"All users of scenario $scenario are stopped")
+        val newInProgressWorkloads = data.inProgressWorkloads - scenario
+        // children scenarios will be started on next tick
+        val newTodoScenarios = data.todoScenarios ++ data.pendingChildrenScenarios.getOrElse(scenario, Nil)
+
+        if (newInProgressWorkloads.isEmpty && newTodoScenarios.isEmpty) {
+          stopInjector(data.controller)
+        } else {
+          stay() using StartedData(
+            controller = data.controller,
+            inProgressWorkloads = newInProgressWorkloads,
+            todoScenarios = newTodoScenarios,
+            pendingChildrenScenarios = data.pendingChildrenScenarios - scenario,
+            timer = data.timer
+          )
+        }
+      } else {
+        stay()
+      }
+
+    case Event(Tick, data: StartedData) =>
+      inject(data, firstBatch = false)
+  }
+
+  private def stopInjector(controller: ActorRef): State = {
+    logger.info("Stopping")
+    controller ! InjectorStopped
+    stop()
   }
 }

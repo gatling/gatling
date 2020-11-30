@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+import io.gatling.core.EmptySession
+
 import akka.actor.ActorSystem
-import akka.testkit.{ TestKit, ImplicitSender }
-import org.scalatest.BeforeAndAfterAll
+import akka.testkit.{ ImplicitSender, TestKit }
 
-abstract class AkkaSpec
-  extends TestKit(ActorSystem())
-  with BaseSpec
-  with ImplicitSender
-  with BeforeAndAfterAll {
-
-  override def afterAll() = {
+abstract class AkkaSpec extends TestKit(ActorSystem()) with BaseSpec with ImplicitSender with EmptySession {
+  override def afterAll(): Unit = {
     val whenTerminated = system.terminate()
     Await.result(whenTerminated, 2 seconds)
   }

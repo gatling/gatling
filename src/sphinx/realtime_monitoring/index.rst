@@ -9,14 +9,12 @@ Introduction
 
 By default, Gatling only provides live feedback in the console output, and generates static HTML reports.
 
-Still, it's possible to get live feedback.
-
 FrontLine
 =========
 
-`FrontLine <http://gatling.io/#/services/frontline>`_ is a commercial product from GatlingCorp, the company behind Gatling.
+`FrontLine <https://gatling.io/gatling-frontline/>`__ is a commercial product from GatlingCorp, the company behind Gatling.
 
-Amongst other features like clustering support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
+Amongst other features like clustering support, MQTT support, advanced integration with CI tools (Jenkins, TeamCity and Bamboo) and with Grafana,
 FrontLine offers entreprise-grade realtime monitoring and metrics persistence.
 
 .. image:: img/frontline.png
@@ -41,14 +39,16 @@ In the ``gatling.conf`` add "graphite" to the data writers and specify the host
 of the Carbon or InfluxDB server.
 
 :: 
-  
-  data {
-    writers = [console, file, graphite]
-  }
-
-  graphite {
-    host = "192.0.2.235"  # InfluxDB or Carbon server
-    # writeInterval = 1   # Default write interval of one second
+  gatling {
+    data {
+      writers = [console, file, graphite]
+      
+      graphite {
+        host = "192.0.2.235"  # InfluxDB or Carbon server
+        port = 2003           # The port to which the Carbon server listens to (2003 is default for plaintext, 2004 is default for pickle)
+        # writePeriod = 1     # Default write interval of one second
+      }
+    }
   }
 
 InfluxDB
@@ -134,9 +134,9 @@ In ``$GRAPHITE_HOME/conf/storage-schemas.conf``:
   pattern = ^gatling\..*
   retentions = 1s:6d,10s:60d
 
-If you use a different writeInterval in your Graphite data writer configuration,
+If you use a different writePeriod in your Graphite data writer configuration,
 make sure that your smallest retention is equal or greater than your
-writeInterval.
+writePeriod.
 
 In ``$GRAPHITE_HOME/conf/storage-aggregation.conf``:
 

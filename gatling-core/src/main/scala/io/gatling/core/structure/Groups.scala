@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.GroupBuilder
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.ChainBuilder.chainOf
 
-trait Groups[B] extends Execs[B] {
+private[structure] trait Groups[B] extends Execs[B] {
 
   def group(name: Expression[String])(chain: ChainBuilder): B =
-    exec(chainOf(GroupBuilder.start(name)).exec(chain).exec(GroupBuilder.End))
+    exec(new ChainBuilder(List(GroupBuilder.start(name))).exec(chain).exec(GroupBuilder.End))
 }

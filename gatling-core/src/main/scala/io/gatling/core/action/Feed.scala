@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import io.gatling.core.stats.StatsEngine
+import io.gatling.commons.util.Clock
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.NameGen
+import io.gatling.core.stats.StatsEngine
 
 import akka.actor.ActorRef
 
-class Feed(singleton: ActorRef, number: Expression[Int], controller: ActorRef, val statsEngine: StatsEngine, val next: Action) extends ExitableAction with NameGen {
+class Feed(feedActor: ActorRef, number: Expression[Int], val statsEngine: StatsEngine, val clock: Clock, val next: Action) extends ExitableAction {
 
-  override val name: String = genName("feed")
+  override val name: String = feedActor.path.name
 
-  override def execute(session: Session): Unit = singleton ! FeedMessage(session, number, controller, next)
+  override def execute(session: Session): Unit = recover(session) {
+    number(session).map(num => feedActor ! FeedMessage(session, num, next))
+  }
 }

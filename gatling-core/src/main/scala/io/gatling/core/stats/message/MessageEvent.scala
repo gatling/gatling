@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.stats.message
 
 object MessageEvent {
-  def apply(name: String) = name match {
+  def apply(name: String): MessageEvent = name match {
     case Start.name => Start
     case End.name   => End
     case _          => throw new IllegalArgumentException(s"Illegal MessageEvent value $name")
   }
+
+  case object Start extends MessageEvent("START")
+  case object End extends MessageEvent("END")
 }
 
 sealed abstract class MessageEvent(val name: String)
-case object Start extends MessageEvent("START")
-case object End extends MessageEvent("END")

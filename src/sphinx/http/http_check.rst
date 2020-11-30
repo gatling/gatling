@@ -15,11 +15,11 @@ The Check API is used for 2 things:
 Checks are performed on a request with the ``check`` method.
 For example, on an HTTP request:
 
-.. includecode:: code/Checks.scala#status-is-200
+.. includecode:: code/CheckSample.scala#status-is-200
 
 One can of course perform multiple checks:
 
-.. includecode:: code/Checks.scala#status-is-not-404-or-500
+.. includecode:: code/CheckSample.scala#status-is-not-404-or-500
 
 This API provides a dedicated DSL for chaining the following steps:
 
@@ -71,13 +71,13 @@ By default, it can extract 0 or 1 capture group, so the extract type is ``String
 
 One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
 
-.. includecode:: code/Checks.scala#currentLocationRegex-ofType
+.. includecode:: code/CheckSample.scala#currentLocationRegex-ofType
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
 The example below will capture two capture groups:
 
-.. includecode:: code/Checks.scala#currentLocationRegex-example
+.. includecode:: code/CheckSample.scala#currentLocationRegex-example
 
 HTTP header
 -----------
@@ -101,13 +101,13 @@ By default, it can extract 0 or 1 capture group, so the extract type is ``String
 
 One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
 
-.. includecode:: code/Checks.scala#headerRegex-ofType
+.. includecode:: code/CheckSample.scala#headerRegex-ofType
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
 The example below will capture two capture groups:
 
-.. includecode:: code/Checks.scala#headerRegex-example
+.. includecode:: code/CheckSample.scala#headerRegex-example
 
 .. _http-check-response-body:
 
@@ -137,6 +137,16 @@ Note that this can be matched against content from the the filesystem using :ref
 
 Return the full response body byte array.
 
+* ``bodyLength``
+
+Return the length of the response body in bytes (without the overhead of computing the bytes array).
+
+.. _http-check-body-stream:
+
+* ``bodyStream``
+
+Return an InputStream of the full response body bytes.
+
 .. _http-check-substring:
 
 * ``substring(expression)``
@@ -145,7 +155,7 @@ Scans for the indices of a given substring inside the body string.
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
-.. includecode:: code/Checks.scala#substring
+.. includecode:: code/CheckSample.scala#substring
 
 .. note:: Typically used for checking the presence of a substring, as it's more CPU efficient than a regular expression.
 
@@ -159,7 +169,7 @@ Defines a Java regular expression to be applied on any text response body.
 
 It can contain multiple capture groups.
 
-.. includecode:: code/Checks.scala#regex
+.. includecode:: code/CheckSample.scala#regex
 
 .. note:: In Scala, you can use escaped strings with this notation: ``"""my "non-escaped" string"""``.
 
@@ -169,13 +179,13 @@ By default, it can extract 0 or 1 capture group, so the extract type is ``String
 
 You can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
 
-.. includecode:: code/Checks.scala#regex-ofType
+.. includecode:: code/CheckSample.scala#regex-ofType
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
 The example below will capture two capture groups:
 
-.. includecode:: code/Checks.scala#regex-example
+.. includecode:: code/CheckSample.scala#regex-example
 
 .. _http-check-xpath:
 
@@ -187,7 +197,7 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
 
 *namespaces* is an optional List of couples of (prefix, uri)
 
-.. includecode:: code/Checks.scala#xpath
+.. includecode:: code/CheckSample.scala#xpath
 
 .. note:: XPath only works on well formed XML documents, which regular HTML is not (while XHTML is).
           If you're looking for path expression for matching HTML documents, please have a look at our :ref:`CSS selectors support<http-check-css>`.
@@ -201,13 +211,13 @@ Please check `Goessner's website <http://goessner.net/articles/JsonPath>`_ for m
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
-.. includecode:: code/Checks.scala#jsonPath
+.. includecode:: code/CheckSample.scala#jsonPath
 
 By default, it extracts ``String``\ s, so JSON values of different types get serialized.
 
 You can define an different type with the ``ofType[T]`` extra step:
 
-.. includecode:: code/Checks.scala#jsonPath-ofType
+.. includecode:: code/CheckSample.scala#jsonPath-ofType
 
 Gatling provides built-in support for the following types:
 
@@ -223,7 +233,7 @@ Gatling provides built-in support for the following types:
 
 The example below shows how to extract Ints:
 
-.. includecode:: code/Checks.scala
+.. includecode:: code/CheckSample.scala
   :include: json-response,jsonPath-Int
 
 .. _http-check-jsonp-jsonpath:
@@ -232,11 +242,52 @@ The example below shows how to extract Ints:
 
 Same as :ref:`jsonPath <http-check-jsonpath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
 
+.. _http-check-jmespath:
+
+* ``jmesPath(expression)``
+
+`JMESPath <http://jmespath.org/>`_ is a query language for JSON.
+
+*expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
+
+.. includecode:: code/CheckSample.scala#jmesPath
+
+By default, it extracts ``String``\ s, so JSON values of different types get serialized.
+
+You can define an different type with the ``ofType[T]`` extra step:
+
+.. includecode:: code/CheckSample.scala#jmesPath-ofType
+
+Gatling provides built-in support for the following types:
+
+* String (default): serializes back to valid JSON (meaning that special characters are escaped, e.g. `\n` and `\"`)
+* Boolean
+* Int
+* Long
+* Double
+* Float
+* Seq (JSON array)
+* Map (JSON object)
+* Any
+
+The example below shows how to extract Ints:
+
+.. includecode:: code/CheckSample.scala
+  :include: json-response,jmesPath-Int
+
+.. note:: You can use ``registerJmesPathFunctions(io.burt.jmespath.function.Function*)`` to register custom functions.
+
+.. _http-check-jsonp-jsonpath:
+
+* ``jsonpJmesPath(expression)``
+
+Same as :ref:`jmesPath <http-check-jmespath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
+
 .. _http-check-css:
 
 * ``css(expression, attribute)``
 
-Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
+Gatling supports `CSS Selectors <https://jodd.org/csselly/>`_.
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
@@ -245,11 +296,11 @@ Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
 When filled, check is performed against the attribute value.
 Otherwise check is performed against the node text content.
 
-.. includecode:: code/Checks.scala#css
+.. includecode:: code/CheckSample.scala#css
 
 You can define an different return type with the ``ofType[T]`` extra step:
 
-.. includecode:: code/Checks.scala#css-ofType
+.. includecode:: code/CheckSample.scala#css-ofType
 
 Gatling provides built-in support for the following types:
 
@@ -257,7 +308,7 @@ Gatling provides built-in support for the following types:
 * Node
 
 Specifying a ``Node`` let you perform complex deep DOM tree traversing, typically in a ``transform`` check step.
-Node is a `Jodd Lagardo <http://jodd.org/doc/lagarto/>`_ DOM `Node <http://jodd.org/api/jodd/lagarto/dom/Node.html>`_.
+Node is a `Jodd Lagardo <https://jodd.org/lagarto/>`_ DOM `Node <http://oblac.github.io/jodd-site/javadoc/jodd/lagarto/dom/Node.html>`_.
 
 * ``form(expression)``
 
@@ -331,13 +382,13 @@ Transforming is an **optional** step for transforming the result of the extracti
 
 ``transform(function)`` takes a ``X => X2`` function, meaning that it can only transform the result when it exists.
 
-.. note:: You can also gain access to the ``Session`` and pass a ``(X, Session) => X2`` instead.
+.. note:: You can also gain read access to the ``Session`` with `transformWithSession` and pass a ``(X, Session) => X2`` instead.
 
 ``transformOption(function)`` takes a ``Option[X] => Validation[Option[X2]]`` function, meaning that it gives full control over the extracted result, even providing a default value.
 
-.. note:: You can also gain access to the ``Session`` and pass a ``(Option[X], Session) => Validation[X2]`` instead.
+.. note:: You can also gain read access to the ``Session`` with `transformOptionWithSession` and pass a ``(Option[X], Session) => Validation[X2]`` instead.
 
-.. includecode:: code/Checks.scala
+.. includecode:: code/CheckSample.scala
    :include: transform,transformOption
 
 .. _http-check-validating:
@@ -349,9 +400,9 @@ Validating
 
 * ``is(expected)``
 
-Checks that the value is equal to the expected one, e.g.:
+Validate that the value is equal to the expected one, e.g.:
 
-.. includecode:: code/Checks.scala#is
+.. includecode:: code/CheckSample.scala#is
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -361,17 +412,17 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``isNull``
 
-Checks that the value is null, typically a JSON value, e.g.:
+Validate that the extracted value is null, typically a JSON value, e.g.:
 
-.. includecode:: code/Checks.scala#isNull
+.. includecode:: code/CheckSample.scala#isNull
 
 .. _http-check-not:
 
 * ``not(expected)``
 
-Checks that the value is different from the expected one:
+Validate that the extracted value is different from the expected one:
 
-.. includecode:: code/Checks.scala#not
+.. includecode:: code/CheckSample.scala#not
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -381,43 +432,39 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``notNull``
 
-Checks that the value is not null, typically a JSON value, e.g.:
+Validate that the extracted value is not null, typically a JSON value, e.g.:
 
-.. includecode:: code/Checks.scala#notNull
+.. includecode:: code/CheckSample.scala#notNull
 
 .. _http-check-exists:
 
 * ``exists``
 
-Checks that the value exists and is not empty in case of multiple results:
+Validate that the extracted value exists:
 
-.. includecode:: code/Checks.scala#exists
+.. includecode:: code/CheckSample.scala#exists
 
 .. _http-check-not-exists:
 
 * ``notExists``
 
-Checks that the value doesn't exist and or is empty in case of multiple results:
+Validate that the check didn't match and couldn't extract anything:
 
-.. includecode:: code/Checks.scala#notExists
+.. includecode:: code/CheckSample.scala#notExists
 
 .. _http-check-in:
 
 * ``in(sequence)``
 
-Checks that the value belongs to a given sequence or vararg:
+Validate that the extracted value belongs to a given sequence or vararg:
 
-.. includecode:: code/Checks.scala#in
+.. includecode:: code/CheckSample.scala#in
 
 *sequence* is a function that returns a sequence of values of the same type of the previous step (extraction or transformation).
 
 .. _http-check-optional:
 
 * ``optional``
-
-.. warning::
-
-  ``optional`` used to be named ``dontValidate``. The old name has been deprecated, then removed in Gatling 2.1.
 
 Always true, used for capture an optional value.
 
@@ -431,12 +478,21 @@ Built-ins validation steps actually resolve to this method.
 
 *validator* is a ``Expression[Validator[X]]`` function that performs the validation logic.
 
-.. includecode:: code/Checks.scala#validator
+.. includecode:: code/CheckSample.scala#validator
 
 The ``apply`` method takes the actual extracted value and return a the Validation:
 a Success containing the value to be passed to the next step, a Failure with the error message otherwise.
 
 .. note:: In the case where no verifying step is defined, a ``exists`` is added implicitly.
+
+.. _http-check-naming:
+
+Naming
+======
+
+``name(customName)``
+
+Naming is an **optional** step for customizing the name of the check in the error message in case of a check failure.
 
 .. _http-check-saving:
 
@@ -470,34 +526,34 @@ Putting it all together
 
 To help you understand the checks, here is a list of examples:
 
-.. includecode:: code/Checks.scala#regex-count-is
+.. includecode:: code/CheckSample.scala#regex-count-is
 
 Verifies that there are exactly 5 HTTPS links in the response.
 
-.. includecode:: code/Checks.scala#regex-findAll-is
+.. includecode:: code/CheckSample.scala#regex-findAll-is
 
 Verifies that there are two secured links pointing at the specified websites.
 
-.. includecode:: code/Checks.scala#status-is
+.. includecode:: code/CheckSample.scala#status-is
 
 Verifies that the status is equal to 200.
 
-.. includecode:: code/Checks.scala#status-in
+.. includecode:: code/CheckSample.scala#status-in
 
 Verifies that the status is one of: 200, 201, 202, ..., 209, 210.
 
-.. includecode:: code/Checks.scala#regex-find-exists
+.. includecode:: code/CheckSample.scala#regex-find-exists
 
 Verifies that there are at least **two** occurrences of "aWord".
 
-.. includecode:: code/Checks.scala#regex-notExists
+.. includecode:: code/CheckSample.scala#regex-notExists
 
 Verifies that the response doesn't contain "aWord".
 
-.. includecode:: code/Checks.scala#bodyBytes-is-RawFileBody
+.. includecode:: code/CheckSample.scala#bodyBytes-is-RawFileBody
 
 Verifies that the response body matches the binary content of the file ``user-files/bodies/expected_response.json``
 
-.. includecode:: code/Checks.scala#bodyString-isElFileBody
+.. includecode:: code/CheckSample.scala#bodyString-isElFileBody
 
 Verifies that the response body matches the text content of the file ``user-files/bodies/expected_template.json`` resolved with :ref:`Gatling Expression Language (EL) <el>`.

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.commons.util
 
 import com.typesafe.config.Config
@@ -27,18 +28,21 @@ object ConfigHelper {
    *                  the fallback chain.
    * @return the configuration with its fallback configs configured
    */
-  def configChain(config: Config, fallbacks: Config*) =
+  def configChain(config: Config, fallbacks: Config*): Config =
     fallbacks.foldLeft(config)(_ withFallback _).resolve
 
   implicit class PimpedConfig(val config: Config) extends AnyVal {
 
-    def withChild[T](path: String)(f: Config => T) = f(config.getConfig(path))
+    def withChild[T](path: String)(f: Config => T): T = f(config.getConfig(path))
 
     def getStringOption(path: String): Option[String] =
       if (config.hasPath(path)) Some(config.getString(path)) else None
 
     def getIntOption(path: String): Option[Int] =
       if (config.hasPath(path)) Some(config.getInt(path)) else None
+
+    def getLongOption(path: String): Option[Long] =
+      if (config.hasPath(path)) Some(config.getLong(path)) else None
 
     def getBooleanOption(path: String): Option[Boolean] =
       if (config.hasPath(path)) Some(config.getBoolean(path)) else None

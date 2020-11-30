@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
-import akka.testkit._
-
-import io.gatling.AkkaSpec
-import io.gatling.core.session.Session
+import io.gatling.commons.util.DefaultClock
+import io.gatling.core.EmptySession
 import io.gatling.core.session.el.El
-import io.gatling.core.stats.DataWritersStatsEngine
+import io.gatling.core.stats.StatsEngine
 
-class IfSpec extends AkkaSpec {
+import org.mockito.Mockito._
+import org.scalatest.GivenWhenThen
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatestplus.mockito.MockitoSugar
 
-  "If" should "evaluate the condition using the session and send the session to one of the two actors only" in {
-    val condition = "${condition}".el[Boolean]
-    val baseSession = Session("scenario", 0)
+class IfSpec extends AnyFlatSpec with MockitoSugar with GivenWhenThen with EmptySession {
 
-    val thenActorProbe = TestProbe()
-    val elseActorProbe = TestProbe()
-    val dataWriterProbe = TestProbe()
-    val statsEngine = new DataWritersStatsEngine(system, List(dataWriterProbe.ref))
+  private val clock = new DefaultClock
+  private val condition = "${condition}".el[Boolean]
 
-    val ifAction = new If(condition, new ActorDelegatingAction("ifChain", thenActorProbe.ref), new ActorDelegatingAction("elseChain", elseActorProbe.ref), statsEngine, new ActorDelegatingAction("next", self))
+  "If" should "send the session to thenNext when condition evaluates to true" in {
 
-    val sessionWithTrueCondition = baseSession.set("condition", true)
-    ifAction ! sessionWithTrueCondition
-    thenActorProbe.expectMsg(sessionWithTrueCondition)
-    elseActorProbe.expectNoMsg()
+    Given("an If Action")
+    val thenNext = mock[Action]
+    val elseNext = mock[Action]
+    val ifAction = new If(condition, thenNext, elseNext, mock[StatsEngine], clock, mock[Action])
 
-    val sessionWithFalseCondition = baseSession.set("condition", false)
-    ifAction ! sessionWithFalseCondition
-    thenActorProbe.expectNoMsg()
-    elseActorProbe.expectMsg(sessionWithFalseCondition)
+    When("being sent a Session that causes condition to be evaluated as true")
+    val session = emptySession.set("condition", true)
+    ifAction ! session
+
+    Then("Session should be propagated to thenNext")
+    verify(thenNext) ! session
+
+    And("not to elseNext")
+    verify(elseNext, never) ! _
+  }
+
+  it should "send the session to elseNext when condition evaluates to false" in {
+
+    Given("an IfAction")
+    val thenNext = mock[Action]
+    val elseNext = mock[Action]
+    val ifAction = new If(condition, thenNext, elseNext, mock[StatsEngine], clock, mock[Action])
+
+    When("being sent a Session that causes condition to be evaluated as false")
+    val session = emptySession.set("condition", false)
+    ifAction ! session
+
+    Then("Session should be propagated to elseNext")
+    verify(elseNext) ! session
+
+    And("not to thenNext")
+    verify(thenNext, never) ! _
   }
 }

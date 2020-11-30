@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,55 +13,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.protocol
 
+import java.{ util => ju }
 import java.net.InetAddress
 import java.util.regex.Pattern
+import javax.net.ssl.KeyManagerFactory
 
-import io.gatling.commons.util.RoundRobin
-import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.protocol.{ Protocol, ProtocolKey }
 import io.gatling.core.session._
-import io.gatling.http.ahc.{ HttpEngine, ResponseProcessor }
+import io.gatling.http.ResponseTransformer
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.client.SignatureCalculator
+import io.gatling.http.client.proxy.ProxyServer
+import io.gatling.http.client.realm.Realm
+import io.gatling.http.client.uri.Uri
+import io.gatling.http.engine.HttpEngine
+import io.gatling.http.engine.response.DefaultStatsProcessor
+import io.gatling.http.engine.tx.HttpTxExecutor
 import io.gatling.http.fetch.InferredResourceNaming
-import io.gatling.http.request.ExtraInfoExtractor
-import io.gatling.http.response.Response
-import io.gatling.http.util.HttpHelper
 
-import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
-import org.asynchttpclient._
-import org.asynchttpclient.proxy._
-import org.asynchttpclient.uri.Uri
 
 object HttpProtocol extends StrictLogging {
 
-  val HttpProtocolKey = new ProtocolKey {
+  val HttpProtocolKey: ProtocolKey[HttpProtocol, HttpComponents] = new ProtocolKey[HttpProtocol, HttpComponents] {
 
-    type Protocol = HttpProtocol
-    type Components = HttpComponents
-    def protocolClass: Class[io.gatling.core.protocol.Protocol] = classOf[HttpProtocol].asInstanceOf[Class[io.gatling.core.protocol.Protocol]]
+    override def protocolClass: Class[Protocol] = classOf[HttpProtocol].asInstanceOf[Class[Protocol]]
 
-    def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
+    override def defaultProtocolValue(configuration: GatlingConfiguration): HttpProtocol = HttpProtocol(configuration)
 
-    def newComponents(system: ActorSystem, coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
-
-      val httpEngine = HttpEngine(system, coreComponents)
+    override def newComponents(coreComponents: CoreComponents): HttpProtocol => HttpComponents = {
+      val httpEngine = HttpEngine(coreComponents)
+      coreComponents.actorSystem.registerOnTermination(httpEngine.close())
+      val httpCaches = new HttpCaches(coreComponents)
+      val defaultStatsProcessor = new DefaultStatsProcessor(coreComponents.statsEngine)
 
       httpProtocol => {
-        val httpComponents = HttpComponents(
+        val httpComponents = new HttpComponents(
           httpProtocol,
           httpEngine,
-          new HttpCaches(coreComponents.configuration),
-          new ResponseProcessor(coreComponents.statsEngine, httpEngine, coreComponents.configuration)(system)
+          httpCaches,
+          new HttpTxExecutor(coreComponents, httpEngine, httpCaches, defaultStatsProcessor, httpProtocol)
         )
 
-        httpEngine.warmpUp(httpComponents)
+        httpEngine.warmUp(httpComponents)
         httpComponents
       }
     }
@@ -72,13 +73,14 @@ object HttpProtocol extends StrictLogging {
       baseUrls = Nil,
       warmUpUrl = configuration.http.warmUpUrl,
       enginePart = HttpProtocolEnginePart(
-        shareClient = true,
         shareConnections = false,
-        perUserNameResolution = false,
-        hostNameAliases = Map.empty,
         maxConnectionsPerHost = 6,
         virtualHost = None,
-        localAddresses = Nil
+        localIpV4Addresses = Nil,
+        localIpV6Addresses = Nil,
+        enableHttp2 = false,
+        http2PriorKnowledge = Map.empty,
+        perUserKeyManagerFactory = None
       ),
       requestPart = HttpProtocolRequestPart(
         headers = Map.empty,
@@ -87,29 +89,31 @@ object HttpProtocol extends StrictLogging {
         cache = true,
         disableUrlEncoding = false,
         silentResources = false,
-        silentURI = None,
+        silentUri = None,
         signatureCalculator = None
       ),
       responsePart = HttpProtocolResponsePart(
         followRedirect = true,
-        maxRedirects = None,
+        maxRedirects = 20,
         strict302Handling = false,
-        discardResponseChunks = true,
         responseTransformer = None,
         checks = Nil,
-        extraInfoExtractor = None,
         inferHtmlResources = false,
-        inferredHtmlResourcesNaming = InferredResourceNaming.UrlTrailInferredResourceNaming,
+        inferredHtmlResourcesNaming = InferredResourceNaming.UrlTailInferredResourceNaming,
         htmlResourcesInferringFilters = None
       ),
       wsPart = HttpProtocolWsPart(
         wsBaseUrls = Nil,
-        reconnect = false,
-        maxReconnects = None
+        maxReconnects = 0
       ),
       proxyPart = HttpProtocolProxyPart(
         proxy = None,
         proxyExceptions = Nil
+      ),
+      dnsPart = HttpProtocolDnsPart(
+        dnsNameResolution = JavaDnsNameResolution,
+        hostNameAliases = Map.empty,
+        perUserNameResolution = false
       )
     )
 }
@@ -124,82 +128,67 @@ object HttpProtocol extends StrictLogging {
  * @param responsePart the response related configuration
  * @param wsPart the WebSocket related configuration
  * @param proxyPart the Proxy related configuration
+ * @param dnsPart the DNS related configuration
  */
-case class HttpProtocol(
-    baseUrls:     List[String],
-    warmUpUrl:    Option[String],
-    enginePart:   HttpProtocolEnginePart,
-    requestPart:  HttpProtocolRequestPart,
+final case class HttpProtocol(
+    baseUrls: List[String],
+    warmUpUrl: Option[String],
+    enginePart: HttpProtocolEnginePart,
+    requestPart: HttpProtocolRequestPart,
     responsePart: HttpProtocolResponsePart,
-    wsPart:       HttpProtocolWsPart,
-    proxyPart:    HttpProtocolProxyPart
+    wsPart: HttpProtocolWsPart,
+    proxyPart: HttpProtocolProxyPart,
+    dnsPart: HttpProtocolDnsPart
 ) extends Protocol {
 
   type Components = HttpComponents
 }
 
-case class HttpProtocolEnginePart(
-    shareClient:           Boolean,
-    shareConnections:      Boolean,
+final case class HttpProtocolEnginePart(
+    shareConnections: Boolean,
     maxConnectionsPerHost: Int,
-    perUserNameResolution: Boolean,
-    hostNameAliases:       Map[String, InetAddress],
-    virtualHost:           Option[Expression[String]],
-    localAddresses:        List[InetAddress]
+    virtualHost: Option[Expression[String]],
+    localIpV4Addresses: List[InetAddress],
+    localIpV6Addresses: List[InetAddress],
+    enableHttp2: Boolean,
+    http2PriorKnowledge: Map[Remote, Boolean],
+    perUserKeyManagerFactory: Option[Long => KeyManagerFactory]
 )
 
-case class HttpProtocolRequestPart(
-    headers:             Map[String, Expression[String]],
-    realm:               Option[Expression[Realm]],
-    autoReferer:         Boolean,
-    cache:               Boolean,
-    disableUrlEncoding:  Boolean,
-    silentURI:           Option[Pattern],
-    silentResources:     Boolean,
+final case class HttpProtocolRequestPart(
+    headers: Map[CharSequence, Expression[String]],
+    realm: Option[Expression[Realm]],
+    autoReferer: Boolean,
+    cache: Boolean,
+    disableUrlEncoding: Boolean,
+    silentUri: Option[Pattern],
+    silentResources: Boolean,
     signatureCalculator: Option[Expression[SignatureCalculator]]
 )
 
-case class HttpProtocolResponsePart(
-    followRedirect:                Boolean,
-    maxRedirects:                  Option[Int],
-    strict302Handling:             Boolean,
-    discardResponseChunks:         Boolean,
-    responseTransformer:           Option[PartialFunction[Response, Response]],
-    checks:                        List[HttpCheck],
-    extraInfoExtractor:            Option[ExtraInfoExtractor],
-    inferHtmlResources:            Boolean,
-    inferredHtmlResourcesNaming:   Uri => String,
+final case class HttpProtocolResponsePart(
+    followRedirect: Boolean,
+    maxRedirects: Int,
+    strict302Handling: Boolean,
+    responseTransformer: Option[ResponseTransformer],
+    checks: List[HttpCheck],
+    inferHtmlResources: Boolean,
+    inferredHtmlResourcesNaming: Uri => String,
     htmlResourcesInferringFilters: Option[Filters]
 )
 
-case class HttpProtocolWsPart(
-    wsBaseUrls:    List[String],
-    reconnect:     Boolean,
-    maxReconnects: Option[Int]
-) {
+final case class HttpProtocolWsPart(
+    wsBaseUrls: List[String],
+    maxReconnects: Int
+)
 
-  private val wsBaseUrlIterator: Option[Iterator[String]] = wsBaseUrls match {
-    case Nil => None
-    case _   => Some(RoundRobin(wsBaseUrls.toVector))
-  }
-
-  private val doMakeAbsoluteWsUri: String => Validation[Uri] =
-    wsBaseUrls match {
-      case Nil => url => s"No protocol.wsBaseUrl defined but provided url is relative : $url".failure
-      case wsBaseUrl :: Nil => url => Uri.create(wsBaseUrl + url).success
-      case _ =>
-        val it = wsBaseUrlIterator.get
-        url => Uri.create(it.next() + url).success
-    }
-
-  def makeAbsoluteWsUri(url: String): Validation[Uri] =
-    if (HttpHelper.isAbsoluteWsUrl(url))
-      Uri.create(url).success
-    else
-      doMakeAbsoluteWsUri(url)
-}
-
-case class HttpProtocolProxyPart(
-    proxy:           Option[ProxyServer],
+final case class HttpProtocolProxyPart(
+    proxy: Option[ProxyServer],
     proxyExceptions: Seq[String]
+)
+
+final case class HttpProtocolDnsPart(
+    dnsNameResolution: DnsNameResolution,
+    hostNameAliases: Map[String, ju.List[InetAddress]],
+    perUserNameResolution: Boolean
 )

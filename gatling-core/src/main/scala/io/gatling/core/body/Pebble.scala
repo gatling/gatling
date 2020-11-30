@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,91 +13,114 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.body
 
-import java.io.Writer
-import java.lang.{ StringBuilder => JStringBuilder }
-import java.util.{ HashMap => JHashMap, Map => JMap }
+import java.{ util => ju }
 
-import scala.collection.JavaConverters._
+import scala.collection.immutable
+import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.core.util.{ ClasspathFileResource, ClasspathPackagedResource, FilesystemResource, Resource }
 
 import com.mitchellbosecke.pebble.PebbleEngine
+import com.mitchellbosecke.pebble.extension.Extension
+import com.mitchellbosecke.pebble.extension.writer.PooledSpecializedStringWriter
 import com.mitchellbosecke.pebble.loader.StringLoader
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 import com.typesafe.scalalogging.StrictLogging
 
-object Pebble extends StrictLogging {
+private[gatling] object PebbleExtensions {
 
-  private val Engine = new PebbleEngine.Builder().loader(new StringLoader).build
+  private[body] var extensions: Seq[Extension] = Nil
 
-  private def matchMap(map: Map[String, Any]): JMap[String, AnyRef] = {
-    val jMap: JMap[String, AnyRef] = new JHashMap(map.size)
-    for ((k, v) <- map) {
-      v match {
-        case c: Iterable[Any] => jMap.put(k, c.asJava)
-        case any: AnyRef      => jMap.put(k, any) //The AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
-      }
+  def register(extensions: Seq[Extension]): Unit = {
+    if (this.extensions.nonEmpty) {
+      throw new UnsupportedOperationException("Pebble extensions have already been registered")
+    }
+    this.extensions = extensions
+  }
+}
+
+private[gatling] object Pebble extends StrictLogging {
+
+  private val StringEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).loader(new StringLoader).build
+  private val DelegatingEngine = new PebbleEngine.Builder().autoEscaping(false).extension(PebbleExtensions.extensions: _*).build
+
+  private def mutableSeqToJava(c: mutable.Seq[_]): ju.List[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def immutableSeqToJava(c: immutable.Seq[_]): ju.List[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def mutableSetToJava(c: mutable.Set[_]): ju.Set[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def immutableSetToJava(c: immutable.Set[_]): ju.Set[AnyRef] =
+    c.map(anyRefToJava).asJava
+
+  private def mutableMapToJava(c: mutable.Map[_, _]): ju.Map[_, AnyRef] =
+    (Map.empty ++ c.view.mapValues(anyRefToJava)).asJava
+
+  private def immutableMapToJava(c: immutable.Map[_, _]): ju.Map[_, AnyRef] =
+    (Map.empty ++ c.view.mapValues(anyRefToJava)).asJava
+
+  private def anyRefToJava(any: Any): AnyRef = any match {
+    case c: mutable.Seq[_]      => mutableSeqToJava(c)
+    case c: immutable.Seq[_]    => immutableSeqToJava(c)
+    case s: mutable.Set[_]      => mutableSetToJava(s)
+    case s: immutable.Set[_]    => immutableSetToJava(s)
+    case m: mutable.Map[_, _]   => mutableMapToJava(m)
+    case m: immutable.Map[_, _] => immutableMapToJava(m)
+    case anyRef: AnyRef         => anyRef // the AnyVal case is not addressed, as an AnyVal will be in an AnyRef wrapper
+  }
+
+  private[body] def sessionAttributesToJava(map: Map[String, Any]): ju.Map[String, AnyRef] = {
+    val jMap = new ju.HashMap[String, AnyRef](map.size)
+    for ((k, v) <- map if !k.startsWith(SessionPrivateAttributes.PrivateAttributePrefix)) {
+      jMap.put(k, anyRefToJava(v))
     }
     jMap
   }
 
-  def parseStringTemplate(string: String): Validation[PebbleTemplate] =
+  def getStringTemplate(string: String): Validation[PebbleTemplate] =
     try {
-      Pebble.Engine.getTemplate(string).success
+      StringEngine.getTemplate(string).success
     } catch {
       case NonFatal(e) =>
         logger.error("Error while parsing Pebble string", e)
         e.getMessage.failure
     }
 
+  def getResourceTemplate(resource: Resource): Validation[PebbleTemplate] =
+    try {
+      val templateName = resource match {
+        case ClasspathPackagedResource(path, _) => path
+        case ClasspathFileResource(path, _)     => path
+        case FilesystemResource(file)           => file.getAbsolutePath
+      }
+
+      DelegatingEngine.getTemplate(templateName).success
+    } catch {
+      case NonFatal(e) =>
+        logger.error(s"Error while parsing Pebble template $resource", e)
+        e.getMessage.failure
+    }
+
   def evaluateTemplate(template: PebbleTemplate, session: Session): Validation[String] = {
-    val context = matchMap(session.attributes)
-    val writer = StringBuilderWriter.pooled
+    val context = sessionAttributesToJava(session.attributes)
+    val writer = PooledSpecializedStringWriter.pooled
     try {
       template.evaluate(writer, context)
       writer.toString.success
     } catch {
       case NonFatal(e) =>
-        logger.info("Error while evaluate Pebble template", e)
+        logger.debug("Error while evaluating Pebble template", e)
         e.getMessage.failure
     }
   }
-}
-
-object StringBuilderWriter {
-  private val Pool = ThreadLocal.withInitial[StringBuilderWriter](() => new StringBuilderWriter)
-
-  def pooled: StringBuilderWriter = {
-    val writer = Pool.get()
-    writer.reset()
-    writer
-  }
-}
-
-class StringBuilderWriter extends Writer {
-
-  val stringBuilder = new JStringBuilder
-
-  override def flush(): Unit = {}
-
-  def reset(): Unit =
-    stringBuilder.setLength(0)
-
-  override def write(cbuf: Array[Char], off: Int, len: Int): Unit =
-    throw new UnsupportedOperationException
-
-  override def write(string: String): Unit =
-    stringBuilder.append(string)
-
-  override def write(cbuf: Array[Char]): Unit =
-    stringBuilder.append(cbuf)
-
-  override def toString: String =
-    stringBuilder.toString
-
-  override def close(): Unit = {}
 }

@@ -11,7 +11,7 @@ WebSocket support is an extension to the HTTP DSL, whose entry point is the ``ws
 WebSocket protocol is very different from the HTTP one as the communication is 2 ways: both client-to-server and server-to-client, so the model is different from the HTTP request/response pair.
 
 As a consequence, main HTTP branch and a WebSocket branch can exist in a Gatling scenario in a dissociated way, in parallel.
-When doing so, each flow branch has it's own state, so a user might have to reconciliate them, for example when capturing data from a websocket check and wanting this data to be available to the HTTP branch.
+When doing so, each flow branch has it's own state, so a user might have to reconcile them, for example when capturing data from a WebSocket check and wanting this data to be available to the HTTP branch.
 
 Common operations
 =================
@@ -24,22 +24,32 @@ If you want to deal with several WebSockets per virtual users, you have to give 
 
 For example:
 
-.. includecode:: code/WebSocket.scala#wsName
+.. includecode:: code/WsSample.scala#wsName
+
+If you set an explicit name for the WebSocket, you'll have to make it explicit for every other WebSocket actions you'll define later in the scenario.
 
 Of course, this step is not required if you deal with one single WebSocket per virtual user.
 
-.. _http-ws-open:
+.. _http-ws-connect:
 
-Open
-----
+Connect
+-------
 
-The first thing is to open a WebSocket:
+The first thing is to connect a WebSocket:
 
-``open(url: Expression[String])``
+``connect(url: Expression[String])``
 
 For example:
 
-.. includecode:: code/WebSocket.scala#wsOpen
+.. includecode:: code/WsSample.scala#connect
+
+You can specify a subprotocol:
+
+.. includecode:: code/WsSample.scala#subprotocol
+
+You can define a chain of actions to be performed after (re-)connecting with ``onConnected``:
+
+.. includecode:: code/WsSample.scala#onConnected
 
 .. _http-ws-close:
 
@@ -52,128 +62,97 @@ When you're done with a WebSocket, you can close it:
 
 For example:
 
-.. includecode:: code/WebSocket.scala#wsClose
+.. includecode:: code/WsSample.scala#close
 
 .. _http-ws-send:
 
 Send a Message
 --------------
 
-One can send 2 forms of messages: binary and text:
+You may send text or binary messages:
 
 * ``sendText(text: Expression[String])``
 * ``sendBytes(bytes: Expression[Array[Byte]])``
 
 For example:
 
-.. includecode:: code/WebSocket.scala#sendText
+.. includecode:: code/WsSample.scala#sendText
+
+Note that:
+
+* ``ElFileBody``, ``PebbleStringBody`` and ``PebbleFileBody`` implement ``Expression[String]`` so they can be passed to ``sendText``
+* ``RawFileBody`` and ``ByteArrayBody`` implement ``Expression[Array[Byte]]`` so they can be passed to ``sendBytes``.
+
+See :ref:`http-request-body <HTTP request body for more information>`.
+
+.. _http-ws-checks:
 
 Server Messages: Checks
 =======================
 
-Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
-
-Gatling currently only support one check at a time per WebSocket.
+Gatling currently only supports blocking checks that will waiting until receiving expected message or timing out.
 
 .. _http-ws-check-set:
 
 Set a Check
 -----------
 
-Checks can be set in 2 ways.
+You can set a check right after connecting:
 
-First, when sending a message:
+.. includecode:: code/WsSample.scala#check-from-connect
 
-.. includecode:: code/WebSocket.scala#check-from-message
+Or you can set a check right after sending a message to the server:
 
-Then, directly from the main HTTP flow:
+.. includecode:: code/WsSample.scala#check-from-message
 
-.. includecode:: code/WebSocket.scala#check-from-flow
+You can set multiple checks sequentially. Each one will expect one single frame.
 
-If a check was already registered on the WebSocket at this time, it's considered as failed and replaced with the new one.
+You can configure multiple checks in a single sequence:
 
-.. _http-ws-check-cancel:
+.. includecode:: code/WsSample.scala#check-single-sequence
 
-Cancel a Check
+You can also configure multiple check sequences with different timeouts:
+
+.. includecode:: code/WsSample.scala#check-check-multiple-sequence
+
+Create a check
 --------------
 
-One can decide to cancel a pending check:
+You can create checks for text and binary frames with ``checkTextMessage`` and ``checkBinaryMessage``.
+You can use almost all the same check criteria as for HTTP requests.
 
-.. includecode:: code/WebSocket.scala#cancel-check
+.. includecode:: code/WsSample.scala#create-single-check
 
-.. _http-ws-check-build:
+You can have multiple criteria for a given message:
 
-Build a Check
--------------
+.. includecode:: code/WsSample.scala#create-multiple-checks
 
-Now, to the matter at heart, how to build a WebSocket check.
+checks can be marked as ``silent``.
+Silent checks won't be reported whatever their outcome.
 
-**Step 1: Blocking or non Blocking**
+.. includecode:: code/WsSample.scala#silent-check
 
-The first thing is to decide if the main HTTP flow is blocked until the check completes or not.
+.. _http-ws-matching:
 
-``wsListen`` creates a non blocking check: the main HTTP flow will go on and Gatling will listen for WebSocket incoming messages on the background.
+Matching messages
+-----------------
 
-``wsAwait`` creates a blocking check: the main HTTP flow is blocked until the check completes.
+You can define ``matching`` criteria to filter messages you want to check.
+Matching criterion is a standard check, except it doesn't take ``saveAs``.
+Non matching messages will be ignored.
 
-**Step 2: Set the Timeout**
-
-``within(timeout: FiniteDuration)``
-
-**Step 3: Exit condition**
-
-``until(count: Int)``: the check will succeed as soon as Gatling has received the expected count of matching messages
-
-``expect(count: Int)``: Gatling will wait until the timeout and the check will succeed if it has received the expected count of matching messages
-
-``expect(range: Range)``: same as above, but use a range instead of a single expected count
-
-**Step 4: Matching condition**
-
-Websocket checks support the same kind of operations as for HTTP bodies:
-
-``regex(expression: Expression[String])``: use a regular expression
-
-``jsonPath(path: Expression[String])``: use JsonPath
-
-``jsonpJsonPath(path: Expression[String])``: use JsonPath on a JSONP String
-
-See :ref:`HTTP counterparts <http-check>` for more details.
-
-**Step 5: Saving** (optional)
-
-Just like regular HTTP checks, one can use checks for saving data into the virtual user's session.
-
-Here are an example:
-
-.. includecode:: code/WebSocket.scala#check-example
-
-.. _http-ws-check-reconciliate:
-
-Reconciliate
-------------
-
-One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
-
-So, one has to reconciliate the main flow state and the WebSocket flow one.
-
-This can be done:
-
-* implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
-* explicitly with the ``reconciliate`` method.
-
-.. includecode:: code/WebSocket.scala#reconciliate
+.. includecode:: code/WsSample.scala#matching
 
 .. _http-ws-check-conf:
 
 Configuration
 =============
 
-Websocket support introduces new parameters on HttpProtocol:
+Websocket support introduces new HttpProtocol parameters:
 
-``wsBaseURL(url: String)``: similar to standard ``baseURL`` for HTTP, serves as root that will be prepended to all relative WebSocket urls
+``wsBaseUrl(url: String)``: similar to standard ``baseUrl`` for HTTP, serves as root that will be prepended to all relative WebSocket urls
 
-``wsBaseURLs(urls: String*)``: similar to standard ``baseURLs`` for HTTP, serves as round-robin roots that will be prepended to all relative WebSocket urls
+``wsBaseUrls(urls: String*)``: similar to standard ``baseUrls`` for HTTP, serves as round-robin roots that will be prepended to all relative WebSocket urls
 
 ``wsReconnect``: automatically reconnect a WebSocket that would have been closed by someone else than the client.
 
@@ -184,5 +163,4 @@ Example
 
 Here's an example that runs against `Play 2.2 <https://www.playframework.com/download#older-versions>`_'s chatroom sample (beware that this sample is missing from Play 2.3 and above):
 
-.. includecode:: code/WebSocket.scala#chatroom-example
-
+.. includecode:: code/WsSample.scala#chatroom-example

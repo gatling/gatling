@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,53 +13,90 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.feeder
 
-import io.gatling.core.structure.ScenarioContext
+import io.gatling.core.config.GatlingConfiguration
 
-trait FeederBuilder[T] {
-  def build(ctx: ScenarioContext): Feeder[T]
+import com.softwaremill.quicklens._
+
+trait FeederBuilderBase[T] extends FeederBuilder {
+  type F <: FeederBuilderBase[T]
+  def queue: F
+  def random: F
+  def shuffle: F
+  def circular: F
+  def convert(f: PartialFunction[(String, T), Any]): F
+  def readRecords: Seq[Record[Any]]
+  def shard: F
 }
 
-case class FeederWrapper[T](feeder: Feeder[T]) extends FeederBuilder[T] {
-  def build(ctx: ScenarioContext) = feeder
+trait FileBasedFeederBuilder[T] extends FeederBuilderBase[T] {
+  def unzip: F
 }
 
-case class RecordSeqFeederBuilder[T](
-    records: IndexedSeq[Record[T]],
-    // [fl]
-    //
-    // [fl]
-    strategy: FeederStrategy = Queue
-) extends FeederBuilder[T] {
+trait BatchableFeederBuilder[T] extends FileBasedFeederBuilder[T] {
+  override type F <: BatchableFeederBuilder[T]
+  def eager: BatchableFeederBuilder[T]
+  def batch: BatchableFeederBuilder[T] = batch(Batch.DefaultBufferSize)
+  def batch(bufferSize: Int): BatchableFeederBuilder[T]
+}
 
-  def convert(conversion: PartialFunction[(String, T), Any]): RecordSeqFeederBuilder[Any] = {
-    val useValueAsIs: PartialFunction[(String, T), Any] = { case (_, value) => value }
-    val fullConversion = conversion orElse useValueAsIs
+object SourceFeederBuilder {
+  def apply[T](source: FeederSource[T], configuration: GatlingConfiguration): SourceFeederBuilder[T] =
+    new SourceFeederBuilder(source, configuration, FeederOptions.default)
+}
 
-    copy[Any](records = records.map(_.map { case (key, value) => key -> fullConversion(key -> value) }))
+final case class SourceFeederBuilder[T](
+    source: FeederSource[T],
+    configuration: GatlingConfiguration,
+    options: FeederOptions[T]
+) extends BatchableFeederBuilder[T] {
+
+  override type F = BatchableFeederBuilder[T]
+
+  def queue: F = this.modify(_.options.strategy).setTo(Queue)
+  def random: F = this.modify(_.options.strategy).setTo(Random)
+  def shuffle: F = this.modify(_.options.strategy).setTo(Shuffle)
+  def circular: F = this.modify(_.options.strategy).setTo(Circular)
+
+  override def convert(f: PartialFunction[(String, T), Any]): F = {
+    val conversion: Record[T] => Record[Any] =
+      _.map {
+        case pair if f.isDefinedAt(pair) => pair._1 -> f(pair)
+        case pair                        => pair
+      }
+
+    this.modify(_.options.conversion).setTo(Some(conversion))
   }
 
-  def build(ctx: ScenarioContext): Feeder[T] =
-    ctx.coreComponents.configuration.resolve(
-      // [fl]
-      //
-      //
-      //
-      //
-      //
-      //
-      //
-      // [fl]
-      strategy.feeder(records, ctx)
-    )
+  override def readRecords: Seq[Record[Any]] = apply().toVector
 
-  def queue = copy(strategy = Queue)
-  def random = copy(strategy = Random)
-  def shuffle = copy(strategy = Shuffle)
-  def circular = copy(strategy = Circular)
+  override def unzip: F = this.modify(_.options.unzip).setTo(true)
 
-  // [fl]
-  //
-  // [fl]
+  override def eager: F = this.modify(_.options.loadingMode).setTo(Eager)
+  override def batch(bufferSize: Int): F = this.modify(_.options.loadingMode).setTo(Batch(bufferSize))
+  override def shard: F = this.modify(_.options.shard).setTo(true)
+
+  override def apply(): Feeder[Any] = source.feeder(options, configuration)
 }
+
+private[feeder] trait FeederLoadingMode
+private[feeder] case object Eager extends FeederLoadingMode
+private[feeder] object Batch {
+  val DefaultBufferSize: Int = 2000
+}
+private[feeder] final case class Batch(bufferSize: Int) extends FeederLoadingMode
+private[feeder] case object Adaptive extends FeederLoadingMode
+
+object FeederOptions {
+  def default[T]: FeederOptions[T] = new FeederOptions[T](shard = false, unzip = false, conversion = None, strategy = Queue, loadingMode = Adaptive)
+}
+
+final case class FeederOptions[T](
+    shard: Boolean,
+    unzip: Boolean,
+    conversion: Option[Record[T] => Record[Any]],
+    strategy: FeederStrategy,
+    loadingMode: FeederLoadingMode
+)

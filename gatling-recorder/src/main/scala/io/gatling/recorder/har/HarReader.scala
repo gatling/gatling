@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,97 +13,136 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.har
 
-import java.io.{ FileInputStream, InputStream }
-import java.net.{ URL, URLDecoder }
+import java.io.{ BufferedInputStream, FileInputStream, InputStream }
+import java.net.{ URL, URLEncoder }
+import java.nio.charset.StandardCharsets.UTF_8
+import java.time.ZonedDateTime
+import java.util.{ Base64, Locale }
 
-import scala.collection.breakOut
-import scala.io.Codec.UTF8
-import scala.util.Try
+import scala.util.{ Try, Using }
 
-import io.gatling.commons.util.Io._
-import io.gatling.http.HeaderNames._
-import io.gatling.http.HeaderValues._
-import io.gatling.http.fetch.HtmlParser
-import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.scenario._
+import io.gatling.commons.util.StringHelper._
+import io.gatling.core.filter.Filters
+import io.gatling.recorder.har.HarParser._
+import io.gatling.recorder.model._
 
-import org.asynchttpclient.uri.Uri
-import io.netty.handler.codec.http.HttpMethod
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpHeaders, HttpMethod }
+import io.netty.util.AsciiString
 
-/**
- * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
- */
+final case class HttpTransaction(request: HttpRequest, response: HttpResponse)
+
 private[recorder] object HarReader {
 
-  def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
-    withCloseable(new FileInputStream(path))(apply(_))
+  def readFile(path: String, filters: Option[Filters]): Seq[HttpTransaction] =
+    Using.resource(new BufferedInputStream(new FileInputStream(path)))(readStream(_, filters))
 
-  def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
-    apply(Json.parseJson(jsonStream))
+  private[har] def readStream(is: InputStream, filters: Option[Filters]): Seq[HttpTransaction] = {
+    val harEntries = HarParser.parseHarEntries(is)
+    val filteredHarEntries = harEntries
+      .filter(entry => filters.forall(_.accept(entry.request.url) && Filters.BrowserNoiseFilters.accept(entry.request.url)))
+    buildHttpTransactions(filteredHarEntries)
+  }
 
-  private def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
-    val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
+  private def parseMillisFromIso8601DateTime(time: String): Long =
+    ZonedDateTime.parse(time).toInstant.toEpochMilli
 
-    val elements = entries.iterator
-      .filter(e => e.request.method != HttpMethod.CONNECT.name)
-      .filter(e => isValidURL(e.request.url))
-      // TODO NICO : can't we move this in Scenario as well ?
-      .filter(e => config.filters.filters.forall(_.accept(e.request.url)))
-      .map(createRequestWithArrivalTime)
+  private def buildHttpTransactions(harEntries: Seq[HarEntry]): Seq[HttpTransaction] =
+    harEntries.iterator
+      // filter out cancelled requests
+      .filter(_.response.status != 0)
+      // filter out all non-HTTP protocols (eg: ws://)
+      .filter(_.request.url.toString.toLowerCase(Locale.ROOT).startsWith("http"))
+      // filter out CONNECT (if HAR was generated with a proxy such as Charles) and Upgrade requests (WebSockets)
+      .filter(entry =>
+        entry.request.method != HttpMethod.CONNECT.name && !entry.request.headers.exists(header =>
+          AsciiString.contentEqualsIgnoreCase(header.name, HttpHeaderValues.UPGRADE)
+        )
+      )
+      .filter(entry => isValidURL(entry.request.url))
+      .map(buildHttpTransaction)
       .toVector
-
-    ScenarioDefinition(elements, Nil)
-  }
-
-  private def createRequestWithArrivalTime(entry: Entry): TimedScenarioElement[RequestElement] = {
-    def buildContent(postParams: Seq[PostParam]): RequestBody =
-      RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
-    def decode(s: String): String = URLDecoder.decode(s, UTF8.name)
-
-    val uri = entry.request.url
-    val method = entry.request.method
-    val requestHeaders = buildRequestHeaders(entry)
-
-    // NetExport doesn't copy post params to text field
-    val requestBody = entry.request.postData.flatMap { postData =>
-      if (postData.params.nonEmpty) {
-        val requestContentType = requestHeaders.get(ContentType)
-        val isUrlEncoded = requestContentType.exists(_.contains(ApplicationFormUrlEncoded))
-
-        if (isUrlEncoded) {
-          Some(RequestBodyParams(postData.params.map(postParam => (decode(postParam.name), decode(postParam.value))).toList))
-        } else {
-          Some(RequestBodyParams(postData.params.map(postParam => (postParam.name, postParam.value)).toList))
-        }
-      } else {
-        postData.textAsBytes.map(RequestBodyBytes)
-      }
-    }
-
-    val responseBody = entry.response.content.textAsBytes map ResponseBodyBytes
-
-    val embeddedResources = entry.response.content match {
-      case Content("text/html", Some(text)) =>
-        val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
-        new HtmlParser().getEmbeddedResources(Uri.create(uri), text, userAgent)
-      case _ => Nil
-    }
-
-    TimedScenarioElement(entry.sendTime, entry.sendTime, RequestElement(uri, method, requestHeaders, requestBody, responseBody, entry.response.status, embeddedResources))
-  }
-
-  private def buildRequestHeaders(entry: Entry): Map[String, String] = {
-    // Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
-    val headers: Map[String, String] = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value))(breakOut)
-
-    // NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
-    entry.request.postData match {
-      case Some(postData) if postData.mimeType.nonEmpty => headers.updated(ContentType, postData.mimeType)
-      case _ => headers
-    }
-  }
+      // Chrome can mess up with request order
+      .sortBy(_.request.timestamp)
 
   private def isValidURL(url: String): Boolean = Try(new URL(url)).isSuccess
+
+  private def buildHttpTransaction(entry: HarEntry): HttpTransaction = {
+    val start = parseMillisFromIso8601DateTime(entry.startedDateTime)
+    val time = entry.time
+      .orElse(entry.timings.map(_.time)) // FIXME FireFox has a null time on redirect, should open an issue
+      .getOrElse(throw new IllegalArgumentException("Neither time nor timings"))
+      .toLong
+    val end = start + time
+    HttpTransaction(
+      buildRequest(entry.request, start),
+      buildResponse(entry.response, end)
+    )
+  }
+
+  private val WrappedValue = "\"(.*)\"".r
+  private def unwrap(raw: String): String = raw match {
+    case WrappedValue(unwrapped) => unwrapped
+    case _                       => raw
+  }
+
+  private def buildHeaders(harHeaders: Seq[HarHeader]): HttpHeaders = {
+    val headers = new DefaultHttpHeaders(false)
+    harHeaders.foreach { harHeader =>
+      headers.add(harHeader.name, unwrap(harHeader.value))
+    }
+    headers
+  }
+
+  private def buildRequest(request: HarRequest, timestamp: Long): HttpRequest = {
+
+    val headers = buildHeaders(request.headers)
+    val body = request.postData.flatMap(buildRequestBody(_, headers)).getOrElse(Array.empty)
+
+    HttpRequest(
+      httpVersion = request.httpVersion,
+      method = request.method,
+      uri = request.url,
+      headers = headers,
+      body = body,
+      timestamp
+    )
+  }
+
+  private def encode(s: String): String = URLEncoder.encode(s, UTF_8.name)
+
+  private def buildRequestBody(postData: HarRequestPostData, requestHeaders: HttpHeaders): Option[Array[Byte]] =
+    postData.text.flatMap(_.trimToOption) match {
+      case Some(string) =>
+        Some(string.getBytes(UTF_8))
+
+      case _ =>
+        // FIXME only honor params for ApplicationFormUrlEncoded for now. Charles seems utterly broken for MultipartFormData
+        if (
+          postData.params.nonEmpty && Option(requestHeaders.get(HttpHeaderNames.CONTENT_TYPE))
+            .exists(AsciiString.contains(_, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED))
+        ) {
+          Some(postData.params.map(postParam => encode(postParam.name) + "=" + encode(unwrap(postParam.value))).mkString("&").getBytes(UTF_8))
+
+        } else {
+          None
+        }
+    }
+
+  private def buildResponse(response: HarResponse, timestamp: Long): HttpResponse =
+    HttpResponse(response.status, response.statusText, buildHeaders(response.headers), buildResponseBody(response.content).getOrElse(Array.empty), timestamp)
+
+  private def buildResponseBody(content: HarResponseContent): Option[Array[Byte]] =
+    for {
+      text <- content.text.flatMap(_.trimToOption)
+      if !content.mimeType.contains("x-unknown") // Chrome
+      if content.comment.isEmpty // FireFox adds a localized "response body is not included" when there's no body, eg redirect.
+    } yield {
+      content.encoding.flatMap(_.trimToOption) match {
+        case Some("base64") => Base64.getDecoder.decode(text)
+        case _              => text.getBytes(UTF_8) // FIXME we should try using charset from Content-Type
+      }
+    }
 }

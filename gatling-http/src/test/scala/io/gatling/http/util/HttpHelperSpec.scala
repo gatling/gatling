@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.util
 
 import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
+
+import io.netty.handler.codec.http.HttpResponseStatus
 
 class HttpHelperSpec extends BaseSpec {
 
@@ -34,11 +37,11 @@ class HttpHelperSpec extends BaseSpec {
   }
 
   it should "recognize 301 status code as permanent redirect" in {
-    HttpHelper.isPermanentRedirect(301) shouldBe true
+    HttpHelper.isPermanentRedirect(HttpResponseStatus.MOVED_PERMANENTLY) shouldBe true
   }
 
   it should "non 301 status code should be recognized as permanent redirect" in {
-    HttpHelper.isPermanentRedirect(303) shouldBe false
+    HttpHelper.isPermanentRedirect(HttpResponseStatus.SEE_OTHER) shouldBe false
   }
 
   "extractCharsetFromContentType" should "extract charset when it exists in latest position" in {

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,113 +13,114 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http
 
+import io.netty.handler.codec.http.{ HttpHeaderNames, HttpHeaderValues }
+import io.netty.util.AsciiString
+
+// FIXME contribute upstream
+private[gatling] object MissingNettyHttpHeaderNames {
+  val DNT: AsciiString = AsciiString.cached("dnt")
+  val UpgradeInsecureRequests: AsciiString = AsciiString.cached("upgrade-insecure-requests")
+  val XRequestedWith: AsciiString = AsciiString.cached("x-requested-with")
+}
+
 object HeaderNames {
-  val Accept = "Accept"
-  val AcceptCharset = "Accept-Charset"
-  val AcceptEncoding = "Accept-Encoding"
-  val AcceptLanguage = "Accept-Language"
-  val AcceptRanges = "Accept-Ranges"
-  val AcceptPath = "Accept-Patch"
-  val Age = "Age"
-  val Allow = "Allow"
-  val Authorization = "Authorization"
-  val CacheControl = "Cache-Control"
-  val Connection = "Connection"
-  val ContentBase = "Content-Base"
-  val ContentEncoding = "Content-Encoding"
-  val ContentLanguage = "Content-Language"
-  val ContentLength = "Content-Length"
-  val ContentLocation = "Content-Location"
-  val ContentTransferEncoding = "Content-Transfer-Encoding"
-  val ContentMD5 = "Content-MD5"
-  val ContentRange = "Content-Range"
-  val ContentType = "Content-Type"
-  val Cookie = "Cookie"
-  val Date = "Date"
-  val DNT = "DNT"
-  val ETag = "ETag"
-  val Expect = "Expect"
-  val Expires = "Expires"
-  val From = "From"
-  val Host = "Host"
-  val IfMatch = "If-Match"
-  val IfModifiedSince = "If-Modified-Since"
-  val IfNoneMatch = "If-None-Match"
-  val IfRange = "If-Range"
-  val IfUnmodifiedSince = "If-Unmodified-Since"
-  val LastModified = "Last-Modified"
-  val Location = "Location"
-  val MaxForwards = "Max-Forwards"
-  val Origin = "Origin"
-  val Pragma = "Pragma"
-  val ProxyAuthenticate = "Proxy-Authenticate"
-  val ProxyAuthorization = "Proxy-Authorization"
-  val Range = "Range"
-  val Referer = "Referer"
-  val RetryAfter = "Retry-After"
-  val SecWebSocketKey1 = "Sec-WebSocket-Key1"
-  val SecWebSocketKey2 = "Sec-WebSocket-Key2"
-  val SecWebSocketLocation = "Sec-WebSocket-Location"
-  val SecWebSocketOrigin = "Sec-WebSocket-Origin"
-  val SecWebSocketProtocol = "Sec-WebSocket-Protocol"
-  val SecWebSocketVersion = "Sec-WebSocket-Version"
-  val SecWebSocketKey = "Sec-WebSocket-Key"
-  val SecWebSocketAccept = "Sec-WebSocket-Accept"
-  val Server = "Server"
-  val SetCookie = "Set-Cookie"
-  val SetCookie2 = "Set-Cookie2"
-  val TE = "TE"
-  val Trailer = "Trailer"
-  val TransferEncoding = "Transfer-Encoding"
-  val Upgrade = "Upgrade"
-  val UserAgent = "User-Agent"
-  val UpgradeInsecureRequests = "Upgrade-Insecure-Requests"
-  val Vary = "Vary"
-  val Via = "Via"
-  val Warning = "Warning"
-  val WebSocketLocation = "WebSocket-Location"
-  val WebSocketOrigin = "WebSocket-Origin"
-  val WebSocketProtocol = "WebSocket-Protocol"
-  val WWWAuthenticate = "WWW-Authenticate"
-  val XRequestedWith = "X-Requested-With"
+  val Accept: CharSequence = HttpHeaderNames.ACCEPT
+  val AcceptCharset: CharSequence = HttpHeaderNames.ACCEPT_CHARSET
+  val AcceptEncoding: CharSequence = HttpHeaderNames.ACCEPT_ENCODING
+  val AcceptLanguage: CharSequence = HttpHeaderNames.ACCEPT_LANGUAGE
+  val AcceptPatch: CharSequence = HttpHeaderNames.ACCEPT_PATCH
+  val AcceptRanges: CharSequence = HttpHeaderNames.ACCEPT_RANGES
+  val Age: CharSequence = HttpHeaderNames.AGE
+  val Allow: CharSequence = HttpHeaderNames.ALLOW
+  val Authorization: CharSequence = HttpHeaderNames.AUTHORIZATION
+  val CacheControl: CharSequence = HttpHeaderNames.CACHE_CONTROL
+  val Connection: CharSequence = HttpHeaderNames.CONNECTION
+  val ContentBase: CharSequence = HttpHeaderNames.CONTENT_BASE
+  val ContentEncoding: CharSequence = HttpHeaderNames.CONTENT_ENCODING
+  val ContentLanguage: CharSequence = HttpHeaderNames.CONTENT_LANGUAGE
+  val ContentLength: CharSequence = HttpHeaderNames.CONTENT_LENGTH
+  val ContentLocation: CharSequence = HttpHeaderNames.CONTENT_LOCATION
+  val ContentTransferEncoding: CharSequence = HttpHeaderNames.CONTENT_TRANSFER_ENCODING
+  val ContentMD5: CharSequence = HttpHeaderNames.CONTENT_MD5
+  val ContentRange: CharSequence = HttpHeaderNames.CONTENT_RANGE
+  val ContentType: CharSequence = HttpHeaderNames.CONTENT_TYPE
+  val Cookie: CharSequence = HttpHeaderNames.COOKIE
+  val Date: CharSequence = HttpHeaderNames.DATE
+  val DNT: CharSequence = MissingNettyHttpHeaderNames.DNT
+  val ETag: CharSequence = HttpHeaderNames.ETAG
+  val Expect: CharSequence = HttpHeaderNames.EXPECT
+  val Expires: CharSequence = HttpHeaderNames.EXPIRES
+  val From: CharSequence = HttpHeaderNames.FROM
+  val Host: CharSequence = HttpHeaderNames.HOST
+  val IfMatch: CharSequence = HttpHeaderNames.IF_MATCH
+  val IfModifiedSince: CharSequence = HttpHeaderNames.IF_MODIFIED_SINCE
+  val IfNoneMatch: CharSequence = HttpHeaderNames.IF_NONE_MATCH
+  val IfRange: CharSequence = HttpHeaderNames.IF_RANGE
+  val IfUnmodifiedSince: CharSequence = HttpHeaderNames.IF_UNMODIFIED_SINCE
+  val LastModified: CharSequence = HttpHeaderNames.LAST_MODIFIED
+  val Location: CharSequence = HttpHeaderNames.LOCATION
+  val MaxForwards: CharSequence = HttpHeaderNames.MAX_FORWARDS
+  val Origin: CharSequence = HttpHeaderNames.ORIGIN
+  val Pragma: CharSequence = HttpHeaderNames.PRAGMA
+  val ProxyAuthenticate: CharSequence = HttpHeaderNames.PROXY_AUTHENTICATE
+  val ProxyAuthorization: CharSequence = HttpHeaderNames.PROXY_AUTHORIZATION
+  val Range: CharSequence = HttpHeaderNames.RANGE
+  val Referer: CharSequence = HttpHeaderNames.REFERER
+  val RetryAfter: CharSequence = HttpHeaderNames.RETRY_AFTER
+  val SecWebSocketKey1: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_KEY1
+  val SecWebSocketKey2: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_KEY1
+  val SecWebSocketLocation: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_LOCATION
+  val SecWebSocketOrigin: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_ORIGIN
+  val SecWebSocketProtocol: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_PROTOCOL
+  val SecWebSocketVersion: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_VERSION
+  val SecWebSocketKey: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_KEY
+  val SecWebSocketAccept: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_ACCEPT
+  val SecWebSocketExtensions: CharSequence = HttpHeaderNames.SEC_WEBSOCKET_EXTENSIONS
+  val Server: CharSequence = HttpHeaderNames.SERVER
+  val SetCookie: CharSequence = HttpHeaderNames.SET_COOKIE
+  val SetCookie2: CharSequence = HttpHeaderNames.SET_COOKIE2
+  val TE: CharSequence = HttpHeaderNames.TE
+  val Trailer: CharSequence = HttpHeaderNames.TRAILER
+  val TransferEncoding: CharSequence = HttpHeaderNames.TRANSFER_ENCODING
+  val Upgrade: CharSequence = HttpHeaderNames.UPGRADE
+  val UserAgent: CharSequence = HttpHeaderNames.USER_AGENT
+  val UpgradeInsecureRequests: CharSequence = MissingNettyHttpHeaderNames.UpgradeInsecureRequests
+  val Vary: CharSequence = HttpHeaderNames.VARY
+  val Via: CharSequence = HttpHeaderNames.VIA
+  val Warning: CharSequence = HttpHeaderNames.WARNING
+  val WebSocketLocation: CharSequence = HttpHeaderNames.WEBSOCKET_LOCATION
+  val WebSocketOrigin: CharSequence = HttpHeaderNames.WEBSOCKET_ORIGIN
+  val WebSocketProtocol: CharSequence = HttpHeaderNames.WEBSOCKET_PROTOCOL
+  val WWWAuthenticate: CharSequence = HttpHeaderNames.WWW_AUTHENTICATE
+  val XRequestedWith: CharSequence = MissingNettyHttpHeaderNames.XRequestedWith
+}
+
+// FIXME contribute upstream
+private[gatling] object MissingNettyHttpHeaderValues {
+  val ApplicationXml: AsciiString = AsciiString.cached("application/xml")
+  val ApplicationXhtml: AsciiString = AsciiString.cached("application/xhtml+xml")
+  val TextCss: AsciiString = AsciiString.cached("text/css")
+  val TextHtml: AsciiString = AsciiString.cached("text/html")
+  val TextEventStream: AsciiString = AsciiString.cached("text/event-stream")
+  val XmlHttpRequest: AsciiString = AsciiString.cached("XMLHttpRequest")
 }
 
 object HeaderValues {
-  val ApplicationJavascript = "application/javascript"
-  val ApplicationJson = "application/json"
-  val ApplicationOctetStream = "application/octet-stream"
-  val ApplicationPdf = "application/pdf"
-  val ApplicationZip = "application/zip"
-  val ApplicationGzip = "application/x-gzip"
-  val ApplicationXml = "application/xml"
-  val ApplicationXhtml = "application/xhtml+xml"
-  val ApplicationFormUrlEncoded = "application/x-www-form-urlencoded"
-  val AudioMp4 = "audio/mp4"
-  val AudioMpeg = "audio/mpeg"
-  val AudioOgg = "audio/ogg"
-  val AudioVorbis = "audio/vorbis"
-  val AudioWebm = "audio/webm"
-  val ImagePng = "image/png"
-  val ImageJpeg = "image/jpeg"
-  val ImageGif = "image/gif"
-  val ImageSvg = "image/svg+xml"
-  val KeepAlive = "keep-alive"
-  val MultipartFormData = "multipart/form-data"
-  val TextCss = "text/css"
-  val TextCsv = "text/csv"
-  val TextHtml = "text/html"
-  val TextJavascript = "text/javascript"
-  val TextPlain = "text/plain"
-  val TextXml = "text/xml"
-  val TextEventStream = "text/event-stream"
-  val VideoMpeg = "video/mpeg"
-  val VideoMp4 = "video/mp4"
-  val VideoOgg = "video/ogg"
-  val VideoWebm = "video/webm"
-  val VideoQuicktime = "video/quicktime"
-  val NoCache = "no-cache"
-  val NoStore = "no-store"
-  val XmlHttpRequest = "XMLHttpRequest"
+  val ApplicationJson: String = HttpHeaderValues.APPLICATION_JSON.toString
+  val ApplicationOctetStream: String = HttpHeaderValues.APPLICATION_OCTET_STREAM.toString
+  val ApplicationFormUrlEncoded: String = HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString
+  val ApplicationXml: String = MissingNettyHttpHeaderValues.ApplicationXml.toString
+  val ApplicationXhtml: String = MissingNettyHttpHeaderValues.ApplicationXhtml.toString
+  val Close: String = HttpHeaderValues.CLOSE.toString
+  val MultipartFormData: String = HttpHeaderValues.MULTIPART_FORM_DATA.toString
+  val NoCache: String = HttpHeaderValues.NO_CACHE.toString
+  val NoStore: String = HttpHeaderValues.NO_STORE.toString
+  val TextCss: String = MissingNettyHttpHeaderValues.TextCss.toString
+  val TextHtml: String = MissingNettyHttpHeaderValues.TextHtml.toString
+  val TextPlain: String = HttpHeaderValues.TEXT_PLAIN.toString
+  val TextEventStream: String = MissingNettyHttpHeaderValues.TextEventStream.toString
+  val XmlHttpRequest: String = MissingNettyHttpHeaderValues.XmlHttpRequest.toString
 }

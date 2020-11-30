@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.stats.writer
 
 import scala.util.control.NonFatal
@@ -39,20 +40,19 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
   def onMessage(message: LoadEventMessage, data: T): Unit
 
-  when(Uninitialized) {
-    case Event(init: Init, NoData) =>
-      logger.info("Initializing")
-      try {
-        val newState = onInit(init)
-        logger.info("Initialized")
-        sender ! true
-        goto(Initialized) using newState
-      } catch {
-        case NonFatal(e) =>
-          logger.error("DataWriter failed to initialize", e)
-          sender ! false
-          goto(Terminated)
-      }
+  when(Uninitialized) { case Event(init: Init, NoData) =>
+    logger.info("Initializing")
+    try {
+      val newState = onInit(init)
+      logger.info("Initialized")
+      sender() ! true
+      goto(Initialized) using newState
+    } catch {
+      case NonFatal(e) =>
+        logger.error("DataWriter failed to initialize", e)
+        sender() ! false
+        goto(Terminated)
+    }
   }
 
   when(Initialized) {
@@ -62,7 +62,7 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
     case Event(Stop, data: Any) =>
       onStop(data.asInstanceOf[T])
-      sender ! true
+      sender() ! true
       goto(Terminated) using NoData
 
     case Event(Crash(cause), data: Any) =>
@@ -76,9 +76,8 @@ abstract class DataWriter[T <: DataWriterData] extends DataWriterFSM {
 
   when(Terminated)(NullFunction)
 
-  whenUnhandled {
-    case Event(m, data) =>
-      logger.info(s"Can't handle $m in state $stateName")
-      stay()
+  whenUnhandled { case Event(m, _) =>
+    logger.info(s"Can't handle $m in state $stateName")
+    stay()
   }
 }

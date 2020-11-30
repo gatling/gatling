@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,56 +13,62 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.app.classloader
 
-import java.net.{ URL, URLConnection, URLStreamHandler }
-import java.nio.file.Path
-import java.security.cert.Certificate
+import java.io.InputStream
+import java.net.{ URL, URLConnection }
+import java.nio.file.{ Files, Path, Paths }
 import java.security.{ CodeSource, ProtectionDomain }
+import java.security.cert.Certificate
 
 import scala.collection.mutable
 
+import io.gatling.commons.shared.unstable.util.PathHelper._
 import io.gatling.commons.util.Io._
-import io.gatling.commons.util.PathHelper._
 
-private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader)
-  extends ClassLoader(parent) {
+private class FileSystemBackedClassLoader(root: Path, parent: ClassLoader) extends ClassLoader(parent) {
 
-  def classNameToPath(name: String): Path =
-    if (name endsWith ".class") name
-    else name.replace('.', '/') + ".class"
+  private def classNameToPath(name: String): Path =
+    if (name.endsWith(".class")) Paths.get(name)
+    else Paths.get(name.replace('.', '/') + ".class")
 
-  def dirNameToPath(name: String): Path =
-    name.replace('.', '/')
+  private def dirNameToPath(name: String): Path =
+    Paths.get(name.replace('.', '/'))
 
-  def findPath(path: Path): Option[Path] = {
+  private def findPath(path: Path): Option[Path] = {
     val fullPath = root / path
     if (fullPath.exists) Some(fullPath) else None
   }
 
-  override def findResource(name: String) = findPath(name).map { path =>
-    new URL(null, "repldir:" + path, new URLStreamHandler {
-      override def openConnection(url: URL): URLConnection = new URLConnection(url) {
-        override def connect(): Unit = ()
-        override def getInputStream = path.inputStream
-      }
-    })
-  }.orNull
+  override def findResource(name: String): URL =
+    findPath(Paths.get(name)).map { path =>
+      new URL(
+        null,
+        "repldir:" + path.toString,
+        (url: URL) =>
+          new URLConnection(url) {
+            override def connect(): Unit = ()
+            override def getInputStream: InputStream = path.inputStream
+          }
+      )
+    }.orNull
 
-  override def getResourceAsStream(name: String) = findPath(name) match {
+  override def getResourceAsStream(name: String): InputStream = findPath(Paths.get(name)) match {
     case Some(path) => path.inputStream
-    case None       => super.getResourceAsStream(name)
+    case _          => super.getResourceAsStream(name)
   }
 
-  def classAsStream(className: String) =
+  private def classAsStream(className: String): Option[InputStream] =
     Option(getResourceAsStream(className.replaceAll("""\.""", "/") + ".class"))
 
-  def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
-    case Some(path) => path.inputStream.toByteArray()
-    case None => classAsStream(name) match {
-      case Some(stream) => stream.toByteArray()
-      case None         => Array.empty
-    }
+  private def classBytes(name: String): Array[Byte] = findPath(classNameToPath(name)) match {
+    case Some(path) => Files.readAllBytes(path)
+    case _ =>
+      classAsStream(name) match {
+        case Some(stream) => stream.toByteArray()
+        case _            => Array.empty
+      }
   }
 
   override def findClass(name: String): Class[_] = {
@@ -71,42 +77,58 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
     else defineClass(name, bytes, 0, bytes.length, protectionDomain)
   }
 
-  private val packages = mutable.Map[String, Package]()
+  private val pckgs = mutable.Map[String, Package]()
 
-  lazy val protectionDomain = {
+  private lazy val protectionDomain = {
     val cl = Thread.currentThread.getContextClassLoader
     val resource = cl.getResource("scala/runtime/package.class")
-    if (resource == null || resource.getProtocol != "jar") null else {
+    if (resource == null || resource.getProtocol != "jar") null
+    else {
       val s = resource.getPath
       val n = s.lastIndexOf('!')
-      if (n < 0) null else {
+      if (n < 0) null
+      else {
         val path = s.substring(0, n)
         new ProtectionDomain(new CodeSource(new URL(path), null.asInstanceOf[Array[Certificate]]), null, this, null)
       }
     }
   }
 
-  override def definePackage(name: String, specTitle: String,
-                             specVersion: String, specVendor: String,
-                             implTitle: String, implVersion: String,
-                             implVendor: String, sealBase: URL) = {
+  override def definePackage(
+      name: String,
+      specTitle: String,
+      specVersion: String,
+      specVendor: String,
+      implTitle: String,
+      implVersion: String,
+      implVendor: String,
+      sealBase: URL
+  ): Package = {
     throw new UnsupportedOperationException()
   }
 
-  override def getPackage(name: String) = findPath(dirNameToPath(name)) match {
-    case Some(path) => packages.getOrElseUpdate(name, {
-      val ctor = classOf[Package].getDeclaredConstructor(
-        classOf[String], classOf[String], classOf[String],
-        classOf[String], classOf[String], classOf[String],
-        classOf[String], classOf[URL], classOf[ClassLoader]
-      )
-      ctor.setAccessible(true)
-      ctor.newInstance(name, null, null, null, null, null, null, null, this)
-    })
+  override def getPackage(name: String): Package = findPath(dirNameToPath(name)) match {
     case None => super.getPackage(name)
+    case _ =>
+      pckgs.getOrElseUpdate(
+        name, {
+          val constructor = classOf[Package].getDeclaredConstructor(
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[String],
+            classOf[URL],
+            classOf[ClassLoader]
+          )
+          constructor.setAccessible(true)
+          constructor.newInstance(name, null, null, null, null, null, null, null, this)
+        }
+      )
   }
 
-  override def getPackages =
-    root.deepDirs().map(path => getPackage(path.toString)).toArray
-
+  override def getPackages: Array[Package] =
+    root.deepDirs(_ => true).map(path => getPackage(path.toString)).toArray
 }

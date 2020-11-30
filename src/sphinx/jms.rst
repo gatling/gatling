@@ -9,11 +9,11 @@ JMS support was initially contributed by `Jason Koch <https://github.com/jasonk0
 Prerequisites
 =============
 
-Gatling JMS DSL is not available by default.
+Gatling JMS DSL is not imported by default.
 
 One has to manually add the following imports:
 
-.. includecode:: code/Jms.scala#imports
+.. includecode:: code/JmsSample.scala#imprts
 
 JMS Protocol
 ============
@@ -25,8 +25,9 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``connectionFactory``: mandatory, an instance of `ConnectionFactory`. Use `jmsJndiConnectionFactory`_ to obtain one via JNDI lookup or create it by yourself.
 * ``credentials``: optional, to create a JMS connection
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
-* ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
+* ``matchByMessageId`` / ``matchByCorrelationId`` / ``messageMatcher``: specify how request and response messages should be matched, default to ``matchByMessageId``. Use ``matchByCorrelationId`` for ActiveMQ.
 * ``replyTimeout``: optional reply timeout, in milliseconds, default is none
+* ``listenerThreadCount``: optional listener thread count, some JMS implementation (like IBM MQ) need more than on MessageListener to achieve full readout performance
 
 JMS JNDI Connection Factory
 ===========================
@@ -53,15 +54,20 @@ Request Type
 
 Currently, ``requestReply`` and ``send`` (fire and forget) requests are supported.
 
+.. _jms-destination:
+
 Destination
 -----------
 
-Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``
+Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``.
 
-Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)`` if not defined dynamic queue will be used.
+Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)``, otherwise a dynamic queue will be used.
+If you do so, you have the possibility of not setting the `JMSReplyTo` header with ``noJmsReplyTo``.
 
-Additionally for reply destination JMS selector can be defined with ``selector("selector")``
+Additionally for reply destination, JMS selector can be defined with ``selector(Expression[String])``
 
+If you have the need to measure the time when a message arrive at a message queue different from the ``replyDestination(JmsDestination)``,
+you can additional define a ``trackerDestination(JmsDestination)``.
 
 Message Matching
 ----------------
@@ -78,26 +84,32 @@ Message
 * ``mapMessage(Expression[Map[String, Any]])``
 * ``objectMessage(Expression[java.io.Serializable])``
 
+.. _jms-props:
+
 Properties
 ----------
 
 One can send additional properties with ``property(Expression[String], Expression[Any])``.
+
+.. _jms-type:
 
 JMS Type
 --------
 
 Jms type can be specified with ``jmsType(Expression[String])``.
 
+.. _jms-check:
+
 JMS Check API
 =============
-
-.. _jms-api:
 
 JMS checks are very basic for now.
 
 There is ``simpleCheck`` that accepts just ``javax.jms.Message => Boolean`` functions.
 
 There is also ``xpath`` check for ``javax.jms.TextMessage`` that carries XML content.
+
+And there is ``bodyString``, ``jsonPath``, ``substring`` checks for ``java.jms.TextMessage`` that carries JSON content and ``java.jms.BytesMessage`` that carries json content in UTF-8 encoding. And You may use ``checkIf`` for conditional checks.
 
 Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
 
@@ -106,4 +118,4 @@ Example
 
 Short example, assuming FFMQ on localhost, using a reqreply query, to the queue named "jmstestq":
 
-.. includecode:: code/Jms.scala#example-simulation
+.. includecode:: code/JmsSample.scala#example-simulation

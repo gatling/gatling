@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.jms.request
 
 import io.gatling.core.session.Expression
 import io.gatling.jms.JmsCheck
+
+object JmsAttributes {
+  def apply(
+      requestName: Expression[String],
+      destination: JmsDestination,
+      selector: Option[Expression[String]],
+      message: JmsMessage
+  ): JmsAttributes =
+    new JmsAttributes(
+      requestName,
+      destination,
+      selector,
+      message,
+      messageProperties = Map.empty,
+      jmsType = None,
+      checks = Nil
+    )
+}
 
 /**
  * JmsAttributes carries around the JMS settings.
@@ -27,12 +46,12 @@ import io.gatling.jms.JmsCheck
  *
  * @author jasonk@bluedevel.com
  */
-case class JmsAttributes(
-    requestName:       Expression[String],
-    destination:       JmsDestination,
-    selector:          Option[String],
-    message:           JmsMessage,
-    messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
-    jmsType:           Option[Expression[String]]               = None,
-    checks:            List[JmsCheck]                           = Nil
+final case class JmsAttributes(
+    requestName: Expression[String],
+    destination: JmsDestination,
+    selector: Option[Expression[String]],
+    message: JmsMessage,
+    messageProperties: Map[Expression[String], Expression[Any]],
+    jmsType: Option[Expression[String]],
+    checks: List[JmsCheck]
 )

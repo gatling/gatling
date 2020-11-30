@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.action
 
 import scala.util.control.NonFatal
 
+import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Throwables._
 import io.gatling.commons.validation.Validation
 import io.gatling.core.session.{ Expression, Session }
@@ -27,13 +29,20 @@ import com.typesafe.scalalogging.StrictLogging
 
 /**
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.
- * It is implemented as an Akka Actor that receives Session messages.
  */
 trait Action extends StrictLogging {
 
   def name: String
 
-  def !(session: Session): Unit = execute(session)
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
+  def !(session: Session): Unit = {
+    val eventLoop = session.eventLoop
+    if (eventLoop.inEventLoop) {
+      execute(session)
+    } else if (!eventLoop.isShutdown) {
+      eventLoop.execute(() => this ! session)
+    }
+  }
 
   /**
    * Core method executed when the Action received a Session message
@@ -41,7 +50,7 @@ trait Action extends StrictLogging {
    * @param session the session of the virtual user
    * @return Nothing
    */
-  def execute(session: Session): Unit
+  protected def execute(session: Session): Unit
 }
 
 /**
@@ -56,18 +65,19 @@ trait ChainableAction extends Action {
    */
   def next: Action
 
-  abstract override def !(session: Session): Unit =
+  override abstract def !(session: Session): Unit =
     try {
       super.!(session)
     } catch {
       case reason: IllegalStateException if reason.getMessage == "cannot enqueue after timer shutdown" =>
         logger.debug(s"'$name' crashed with '${reason.detailedMessage}', ignoring")
       case NonFatal(reason) =>
-        if (logger.underlying.isInfoEnabled)
+        if (logger.underlying.isInfoEnabled) {
           logger.error(s"'$name' crashed on session $session, forwarding to the next one", reason)
-        else
+        } else {
           logger.error(s"'$name' crashed with '${reason.detailedMessage}', forwarding to the next one")
-        next.execute(session.markAsFailed)
+        }
+        next ! session.markAsFailed
     }
 
   def recover(session: Session)(v: Validation[_]): Unit =
@@ -82,7 +92,20 @@ class ActorDelegatingAction(val name: String, actor: ActorRef) extends Action {
   def execute(session: Session): Unit = actor ! session
 }
 
-class ExitableActorDelegatingAction(name: String, val statsEngine: StatsEngine, val next: Action, actor: ActorRef) extends ActorDelegatingAction(name, actor) with ExitableAction
+/**
+ * An Action that can trigger a forced exit and bypass regular workflow.
+ */
+trait ExitableAction extends ChainableAction {
+
+  def statsEngine: StatsEngine
+  def clock: Clock
+
+  override abstract def !(session: Session): Unit =
+    BlockExit.mustExit(session) match {
+      case Some(blockExit) => blockExit.exitBlock(statsEngine, clock.nowMillis)
+      case _               => super.!(session)
+    }
+}
 
 trait RequestAction extends ExitableAction {
 
@@ -96,28 +119,14 @@ trait RequestAction extends ExitableAction {
           sendRequest(resolvedRequestName, session)
         } catch {
           case NonFatal(e) =>
-            statsEngine.reportUnbuildableRequest(session, resolvedRequestName, e.detailedMessage)
-            // rethrow so we trigger exception handling in "!"
+            statsEngine.reportUnbuildableRequest(session.scenario, session.groups, resolvedRequestName, e.detailedMessage)
+            // rethrow so we trigger exception handling in "ChainableAction!"
             throw e
         }
       outcome.onFailure { errorMessage =>
-        statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage)
+        statsEngine.reportUnbuildableRequest(session.scenario, session.groups, resolvedRequestName, errorMessage)
       }
       outcome
     }
   }
 }
-
-trait ActorBasedAction {
-
-  // import optimized TypeCaster
-  import io.gatling.core.util.CoreTypeCaster._
-
-  def actorFetchErrorMessage: String
-
-  final def fetchActor(actorName: String, session: Session) =
-    session(actorName)
-      .validate[ActorRef]
-      .mapError(m => s"$actorFetchErrorMessage: $m")
-}
-

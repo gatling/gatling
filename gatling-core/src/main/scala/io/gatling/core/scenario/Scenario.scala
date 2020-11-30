@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.scenario
 
 import io.gatling.core.action.Action
@@ -20,4 +21,17 @@ import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioContext
 
-case class Scenario(name: String, entry: Action, onStart: Session => Session, onExit: Session => Unit, injectionProfile: InjectionProfile, ctx: ScenarioContext)
+final class Scenario(
+    val name: String,
+    val entry: Action,
+    val onStart: Session => Session,
+    val onExit: Session => Unit,
+    val injectionProfile: InjectionProfile,
+    val ctx: ScenarioContext,
+    val children: Iterable[Scenario]
+)
+
+private[gatling] final class Scenarios(
+    val roots: List[Scenario],
+    val children: Map[String, List[Scenario]]
+)

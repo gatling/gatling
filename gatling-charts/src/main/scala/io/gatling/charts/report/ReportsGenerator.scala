@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,35 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.report
 
 import java.nio.file.Path
 
 import io.gatling.charts.component.ComponentLibrary
-import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
+import io.gatling.charts.config.ChartsFiles
 import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
-import io.gatling.commons.stats.RequestStatsPath
-import io.gatling.commons.util.ScanHelper.deepCopyPackageContent
+import io.gatling.commons.shared.unstable.model.stats.RequestStatsPath
+import io.gatling.commons.shared.unstable.util.ScanHelper.deepCopyPackageContent
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.config.GatlingFiles._
 
 private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
 
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._
 
+    val chartsFiles = new ChartsFiles(reportFolderName, configuration)
+
     def hasAtLeastOneRequestReported: Boolean =
       logFileReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-    def generateMenu(): Unit = new TemplateWriter(menuFile(reportFolderName)).writeToFile(new MenuTemplate().getOutput)
+    def generateMenu(): Unit = new TemplateWriter(chartsFiles.menuFile).writeToFile(new MenuTemplate().getOutput)
 
-    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
+    def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance).generate()
 
-    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
+    def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance).generate()
 
     def copyAssets(): Unit = {
-      deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(reportFolderName))
-      deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(reportFolderName))
+      deepCopyPackageContent(ChartsFiles.GatlingAssetsStylePackage, chartsFiles.styleDirectory)
+      deepCopyPackageContent(ChartsFiles.GatlingAssetsJsPackage, chartsFiles.jsDirectory)
     }
 
     if (!hasAtLeastOneRequestReported)
@@ -49,10 +51,10 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
 
     val reportGenerators =
       List(
-        new AllSessionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
-        new GlobalReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
-        new RequestDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
-        new GroupDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance)
+        new AllSessionsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance),
+        new GlobalReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance),
+        new RequestDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance),
+        new GroupDetailsReportGenerator(reportsGenerationInputs, chartsFiles, ComponentLibrary.Instance)
       )
 
     copyAssets()
@@ -62,6 +64,6 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     generateStats()
     generateAssertions()
 
-    globalFile(reportFolderName)
+    chartsFiles.globalFile
   }
 }

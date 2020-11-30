@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.ui
 
-import io.gatling.recorder.config.{ RecorderMode, RecorderConfiguration }
+import io.gatling.recorder.config.{ RecorderConfiguration, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.ui.headless.HeadlessFrontend
-import io.gatling.recorder.ui.swing.SwingFrontend
+import io.gatling.recorder.ui.headless.HeadlessFrontEnd
+import io.gatling.recorder.ui.swing.SwingFrontEnd
 
-private[recorder] object RecorderFrontend {
+private[recorder] object RecorderFrontEnd {
 
-  def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontend =
-    if (configuration.core.headless) new HeadlessFrontend(controller)
-    else new SwingFrontend(controller)
+  def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontEnd =
+    if (configuration.core.headless) new HeadlessFrontEnd(controller)
+    else new SwingFrontEnd(controller)
 }
-private[recorder] abstract class RecorderFrontend(controller: RecorderController) {
+private[recorder] abstract class RecorderFrontEnd(controller: RecorderController) {
 
-/******************************/
-  /**  Controller => Frontend  **/
-/******************************/
-
+  //////////////////////////////////////
+  //           Controller => Frontend
+  //////////////////////////////////////
   def selectedRecorderMode: RecorderMode
 
   def harFilePath: String
@@ -52,12 +52,11 @@ private[recorder] abstract class RecorderFrontend(controller: RecorderController
 
   def recordingStopped(): Unit
 
-  def receiveEventInfo(eventInfo: EventInfo): Unit
+  def receiveEvent(event: FrontEndEvent): Unit
 
-/******************************/
-  /**  Frontend => Controller  **/
-/******************************/
-
+  //////////////////////////////////////
+  //           Frontend => Controller
+  //////////////////////////////////////
   def addTag(tag: String): Unit = controller.addTag(tag)
 
   def startRecording(): Unit = controller.startRecording()

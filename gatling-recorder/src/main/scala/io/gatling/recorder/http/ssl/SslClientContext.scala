@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.http.ssl
 
-import javax.net.ssl.{ SSLContext, SSLEngine }
+import javax.net.ssl.SSLEngine
 
 import io.gatling.recorder.http.flows.Remote
 
+import com.typesafe.scalalogging.StrictLogging
+import io.netty.buffer.ByteBufAllocator
+import io.netty.handler.ssl.SslContextBuilder
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory
 
-private[http] object SslClientContext {
+private[http] object SslClientContext extends StrictLogging {
 
-  val SslContext = {
-    val clientContext = SSLContext.getInstance(SslServerContext.Protocol)
-    clientContext.init(null, InsecureTrustManagerFactory.INSTANCE.getTrustManagers, null)
-    clientContext
-  }
+  private val TheSslContext =
+    SslContextBuilder
+      .forClient()
+      .sslProvider(SslUtil.TheSslProvider)
+      .trustManager(InsecureTrustManagerFactory.INSTANCE)
+      .build
 
-  def createSSLEngine(remote: Remote): SSLEngine = {
-    val engine = SslContext.createSSLEngine(remote.host, remote.port)
-    engine.setUseClientMode(true)
-    // FIXME have an option for disabling, eg hostname verification
-    val params = engine.getSSLParameters
-    params.setEndpointIdentificationAlgorithm("HTTPS")
-    engine.setSSLParameters(params)
-    engine
-  }
+  def createSSLEngine(alloc: ByteBufAllocator, remote: Remote): SSLEngine =
+    TheSslContext.newEngine(alloc, remote.host, remote.port)
 }

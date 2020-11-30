@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.http.check.body
 
-import java.nio.charset.StandardCharsets._
-
-import scala.collection.mutable
-
+import io.gatling.{ BaseSpec, ValidationValues }
 import io.gatling.core.CoreDsl
-import io.gatling.core.check.CheckResult
+import io.gatling.core.EmptySession
+import io.gatling.core.check.{ Check, CheckMaterializer, CheckResult }
+import io.gatling.core.check.jsonpath.JsonPathCheckType
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import io.gatling.core.session._
 import io.gatling.http.HttpDsl
-import io.gatling.http.response.{ Response, StringResponseBody }
-import io.gatling.{ BaseSpec, ValidationValues }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.response.Response
 
-import org.mockito.Mockito._
+import com.fasterxml.jackson.databind.JsonNode
 
-class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl {
+class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl with HttpDsl with EmptySession {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val provider = new HttpBodyJsonPathProvider(JsonParsers())
-
-  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", 0)
-
-  private def mockResponse(body: String) = {
-    val response = mock[Response]
-    when(response.body) thenReturn new StringResponseBody(body, UTF_8)
-    response
-  }
+  implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
+  implicit val materializer: CheckMaterializer[JsonPathCheckType, HttpCheck, Response, JsonNode] =
+    HttpBodyJsonPathCheckMaterializer.instance(new JsonParsers)
 
   private val storeJson = """someJsMethod({ "store": {
                             |    "book": "In store"
@@ -54,6 +45,9 @@ class HttpBodyJsonpJsonPathCheckSpec extends BaseSpec with ValidationValues with
 
   "jsonpJsonPath.find.exists" should "find single result into JSON serialized form" in {
     val response = mockResponse(storeJson)
-    jsonpJsonPath("$.street").find.exists.check(response, session).succeeded shouldBe CheckResult(Some("""{"book":"On the street"}"""), None)
+    jsonpJsonPath("$.street").find.exists.check(response, emptySession, Check.newPreparedCache).succeeded shouldBe CheckResult(
+      Some("""{"book":"On the street"}"""),
+      None
+    )
   }
 }

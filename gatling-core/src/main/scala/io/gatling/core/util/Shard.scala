@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.util
+
+import scala.collection.AbstractIterator
 
 object Shard {
 
@@ -29,13 +32,14 @@ object Shard {
     }
 
   def shard(total: Long, bucketNumber: Int, buckets: Int): Shard = {
+    require(bucketNumber < buckets, s"bucketNumber=$bucketNumber should be less than buckets=$buckets")
     val offset = sumFromZero(total, buckets, bucketNumber - 1)
     val value = sumFromZero(total, buckets, bucketNumber) - offset
     Shard(offset.toInt, value.toInt)
   }
 
   def shards(total: Long, buckets: Int): Iterator[Long] =
-    new Iterator[Long] {
+    new AbstractIterator[Long] {
       private[this] var currentIndex = 0
       private[this] var previousSumFromZero = 0L
 
@@ -51,4 +55,4 @@ object Shard {
     }
 }
 
-case class Shard(offset: Int, length: Int)
+final case class Shard(offset: Int, length: Int)

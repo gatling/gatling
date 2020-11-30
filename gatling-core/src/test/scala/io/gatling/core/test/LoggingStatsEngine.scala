@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.core.test
 
-import java.net.InetSocketAddress
 import java.util.concurrent.ConcurrentLinkedDeque
 
 import io.gatling.commons.stats.Status
-import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.session.GroupBlock
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.stats.writer.UserEndMessage
 
 import akka.actor.ActorRef
 
 sealed trait StatsEngineMessage
 
-case class LogUser(userMessage: UserMessage) extends StatsEngineMessage
+final case class LogResponse(
+    scenario: String,
+    groups: List[String],
+    requestName: String,
+    startTimestamp: Long,
+    endTimestamp: Long,
+    status: Status,
+    responseCode: Option[String],
+    message: Option[String]
+) extends StatsEngineMessage
 
-case class LogResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]) extends StatsEngineMessage
+final case class LogGroupEnd(scenario: String, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
 
-case class LogGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long) extends StatsEngineMessage
-
-case class LogCrash(session: Session, requestName: String, error: String) extends StatsEngineMessage
+final case class LogCrash(scenario: String, groups: List[String], requestName: String, error: String) extends StatsEngineMessage
 
 class LoggingStatsEngine extends StatsEngine {
 
@@ -41,29 +48,27 @@ class LoggingStatsEngine extends StatsEngine {
 
   override def start(): Unit = {}
 
-  override def stop(replyTo: ActorRef, exception: Option[Exception]): Unit = {}
+  override def stop(controller: ActorRef, exception: Option[Exception]): Unit = {}
 
-  override def logUser(userMessage: UserMessage): Unit =
-    msgQueue.addLast(LogUser(userMessage))
+  override def logUserStart(scenario: String, timestamp: Long): Unit = {}
 
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
+  override def logUserEnd(userMessage: UserEndMessage): Unit = {}
 
-  override def logResponse(session: Session, requestName: String, startTimestamp: Long, endTimestamp: Long, status: Status, responseCode: Option[String], message: Option[String], extraInfo: List[Any]): Unit =
-    msgQueue.addLast(LogResponse(session, requestName, startTimestamp, endTimestamp, status, responseCode, message, extraInfo))
+  override def logResponse(
+      scenario: String,
+      groups: List[String],
+      requestName: String,
+      startTimestamp: Long,
+      endTimestamp: Long,
+      status: Status,
+      responseCode: Option[String],
+      message: Option[String]
+  ): Unit =
+    msgQueue.addLast(LogResponse(scenario, groups, requestName, startTimestamp, endTimestamp, status, responseCode, message))
 
-  override def logGroupEnd(session: Session, group: GroupBlock, exitTimestamp: Long): Unit =
-    msgQueue.addLast(LogGroupEnd(session, group, exitTimestamp))
+  override def logGroupEnd(scenario: String, groupBlock: GroupBlock, exitTimestamp: Long): Unit =
+    msgQueue.addLast(LogGroupEnd(scenario, groupBlock, exitTimestamp))
 
-  override def logCrash(session: Session, requestName: String, error: String): Unit =
-    msgQueue.addLast(LogCrash(session, requestName, error))
+  override def logCrash(scenario: String, groups: List[String], requestName: String, error: String): Unit =
+    msgQueue.addLast(LogCrash(scenario, groups, requestName, error))
 }

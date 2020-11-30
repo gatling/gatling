@@ -49,8 +49,8 @@ Browsers will prompt a security alert, and ask you if you want to add a security
 If it doesn't do so, it means that you've already registered a validated (by a standard Certificate Authority) certificate and it refuses to replace it by a less secured one.
 You then have to remove it from your certificate registry.
 
-.. warning:: Browsers will only prompt a security alert for the page domain, not for resource ones (typically, CNDs).
-             The Recorder will list all such domains, you'll then have to directly visit every one the them and add a security exception for each.
+.. warning:: Browsers will only prompt a security alert for the page domain, not for resource ones (typically, CDNs).
+             The Recorder will list all such domains, you'll then have to directly visit every one of them and add a security exception for each.
 
 * Provided KeyStore
 
@@ -101,6 +101,14 @@ If you check the 'Infer html resources?' option, the Recorder will fetch the emb
 
 .. warning:: Gatling can't retrieve all the embedded resources in HTML as images embedded in a css embedded in HTML.
              This remaining resources are currently loaded sequentially as regular requests.
+
+.. _recorder-request-naming:
+
+HTTP request naming
+--------------------------------
+By default gatling will use the prefix ``request_`` for recorded and converted http requests.
+When the 'Use class name as request prefix?' option is enabled, http requests will use the
+simulation class as prefix for the request name instead.
 
 .. _recorder-response-bodies:
 
@@ -170,7 +178,7 @@ Headless mode
 
 Along the GUI mode, Gatling also offers a simple CLI interface, facilitating the automation of recording or converting simulations from HAR files.
 The Headless mode can be enabled either from the ``recorder.conf`` file or with the ``-cli``/``--headless`` command line option.
-Both 'Proxy' an 'HAR' modes are supported (you can set which mode to use using the ``-m``/``--mode`` command line option).
+Both 'Proxy' and 'HAR' modes are supported (you can set which mode to use using the ``-m``/``--mode`` command line option).
 
 Proxy
 -----
@@ -204,9 +212,9 @@ For those who prefer the command line, command line options can be passed to the
 +--------------------+-------------------------------------+------------------------------------------+
 | -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port                  |
 +--------------------+-------------------------------------+------------------------------------------+
-| -of <path>         | --output-folder <path>              | Output folder for generated simulations  |
+| -sf <path>         | --simulations-folder <path>         | Output folder for generated simulations  |
 +--------------------+-------------------------------------+------------------------------------------+
-| -bdf <path>        | --bodies-folder <path>              | Folder for bodies                        |
+| -rf <path>         | --resources-folder <path>           | Output folder for generated resources    |
 +--------------------+-------------------------------------+------------------------------------------+
 | -cn <className>    | --class-name <className>            | Name of the generated simulation         |
 +--------------------+-------------------------------------+------------------------------------------+

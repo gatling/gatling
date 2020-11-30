@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.sbt
 
-import sbt.testing.SubclassFingerprint
-
 import io.gatling.core.scenario.Simulation
+
+import sbt.testing.SubclassFingerprint
 
 /**
  * Gatling's specific fingerprint, which defines which classes are to be
@@ -27,11 +28,11 @@ import io.gatling.core.scenario.Simulation
 class GatlingFingerprint extends SubclassFingerprint {
 
   /** Matches only Scala classes, as simulation objects are not supported. */
-  val isModule = false
+  override val isModule: Boolean = false
 
   /** All classes that are to be picked up must extend ''Simulation'' */
-  override val superclassName = classOf[Simulation].getName
+  override val superclassName: String = classOf[Simulation].getName
 
   /** Gatling simulations does not take constructor arguments. */
-  override val requireNoArgConstructor = true
+  override val requireNoArgConstructor: Boolean = true
 }

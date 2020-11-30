@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.charts.report
 
 import java.nio.file.Path
 
-import io.gatling.commons.util.Io._
-import io.gatling.commons.util.PathHelper._
-import io.gatling.core.config.GatlingConfiguration
+import scala.util.Using
 
-import com.dongxiguo.fastring.Fastring
+import io.gatling.commons.shared.unstable.util.PathHelper._
+import io.gatling.core.config.GatlingConfiguration
 
 private[charts] class TemplateWriter(path: Path) {
 
-  def writeToFile(output: Fastring)(implicit configuration: GatlingConfiguration): Unit =
-    withCloseable(path.writer(configuration.core.charset)) { output.appendTo }
+  def writeToFile(output: String)(implicit configuration: GatlingConfiguration): Unit =
+    Using.resource(path.writer(configuration.core.charset)) { _.write(output) }
 }

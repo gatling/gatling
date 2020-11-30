@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.recorder.cli
 
 import io.gatling.core.cli.CommandLineConstant
 
 private[cli] object CommandLineConstants {
 
-  val Help = CommandLineConstant("help", "h")
-  val LocalPort = CommandLineConstant("local-port", "lp")
-  val ProxyHost = CommandLineConstant("proxy-host", "ph")
-  val ProxyPort = CommandLineConstant("proxy-port", "pp")
-  val ProxyPortSsl = CommandLineConstant("proxy-port-ssl", "pps")
-  val OutputFolder = CommandLineConstant("output-folder", "of")
-  val BodiesFolder = CommandLineConstant("bodies-folder", "bdf")
-  val ClassName = CommandLineConstant("class-name", "cn")
-  val Package = CommandLineConstant("package", "pkg")
-  val Encoding = CommandLineConstant("encoding", "enc")
-  val FollowRedirect = CommandLineConstant("follow-redirect", "fr")
-  val AutomaticReferer = CommandLineConstant("automatic-referer", "ar")
-  val InferHtmlResources = CommandLineConstant("infer-html-resources", "ihr")
-  val Mode = CommandLineConstant("mode", "m")
-  val Headless = CommandLineConstant("headless", "cli")
-  val HarFilePath = CommandLineConstant("har-file", "hf")
+  val Help = new CommandLineConstant("help", "h")
+  val LocalPort = new CommandLineConstant("local-port", "lp")
+  val ProxyHost = new CommandLineConstant("proxy-host", "ph")
+  val ProxyPort = new CommandLineConstant("proxy-port", "pp")
+  val ProxyPortSsl = new CommandLineConstant("proxy-port-ssl", "pps")
+  val SimulationsFolder = new CommandLineConstant("simulations-folder", "sf")
+  val ResourcesFolder = new CommandLineConstant("resources-folder", "rf")
+  val ClassName = new CommandLineConstant("class-name", "cn")
+  val Package = new CommandLineConstant("package", "pkg")
+  val Encoding = new CommandLineConstant("encoding", "enc")
+  val FollowRedirect = new CommandLineConstant("follow-redirect", "fr")
+  val AutomaticReferer = new CommandLineConstant("automatic-referer", "ar")
+  val InferHtmlResources = new CommandLineConstant("infer-html-resources", "ihr")
+  val Mode = new CommandLineConstant("mode", "m")
+  val Headless = new CommandLineConstant("headless", "cli")
+  val HarFilePath = new CommandLineConstant("har-file", "hf")
 }

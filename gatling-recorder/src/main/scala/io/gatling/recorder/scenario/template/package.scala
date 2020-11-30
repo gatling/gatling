@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2017 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2020 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.scenario
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+package io.gatling.recorder.scenario
 
 package object template {
 
-  val SimpleQuotes = "\""
-  val TripleQuotes = SimpleQuotes * 3
+  val SimpleQuotes: String = "\""
+  val TripleQuotes: String = SimpleQuotes * 3
 
   private def isUnsafeStringChar(char: Char) = char == '\\' || char == '"' || char == '\n'
 
   private def containsEscapeCharacters(string: String) = string.exists(isUnsafeStringChar)
 
-  def protectWithTripleQuotes(string: String): Fastring = {
+  def protectWithTripleQuotes(string: String): String = {
     val stringDelimiter = if (containsEscapeCharacters(string)) TripleQuotes else SimpleQuotes
-    fast"$stringDelimiter$string$stringDelimiter"
+    s"$stringDelimiter$string$stringDelimiter"
   }
 }
