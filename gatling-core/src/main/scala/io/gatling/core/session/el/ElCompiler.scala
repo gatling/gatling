@@ -27,6 +27,7 @@ import scala.util.control.NonFatal
 import scala.util.parsing.combinator.RegexParsers
 
 import io.gatling.commons.NotNothing
+import io.gatling.commons.util.Spire._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.TypeCaster
 import io.gatling.commons.util.TypeHelper._
@@ -149,6 +150,16 @@ final case class SeqElementPart(seq: ElPart[Any], seqName: String, index: String
 
 final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) extends ElPart[Any] {
 
+  @SuppressWarnings(Array("org.wartremover.warts.Return"))
+  private def lookup(product: Product): Validation[Any] = {
+    cfor(0)(_ < product.productArity, _ + 1) { i =>
+      if (product.productElementName(i) == key) {
+        return product.productElement(i).success
+      }
+    }
+    ElMessages.undefinedMapKey(mapName, key)
+  }
+
   def apply(session: Session): Validation[Any] = map(session).flatMap {
     case m: Map[_, _] =>
       m.asInstanceOf[Map[Any, _]].get(key) match {
@@ -159,6 +170,8 @@ final case class MapKeyPart(map: ElPart[Any], mapName: String, key: String) exte
     case map: ju.Map[_, _] =>
       if (map.containsKey(key)) map.get(key).success
       else ElMessages.undefinedMapKey(mapName, key)
+
+    case product: Product => lookup(product)
 
     case other => ElMessages.accessByKeyNotSupported(other, mapName)
   }

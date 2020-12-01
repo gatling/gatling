@@ -24,6 +24,12 @@ import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.el
 
+private final case class Foo(bar: String, baz: Int)
+
+private final case class Bar(baz: Baz)
+
+private final case class Baz(qix: String)
+
 class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
   private implicit val configuration: GatlingConfiguration = GatlingConfiguration.loadForTest()
@@ -337,6 +343,30 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
     val session = newSession(Map("i" -> 1))
     val expression = "${i.key}".el[Int]
     expression(session).failed shouldBe ElMessages.accessByKeyNotSupported(1, "i").message
+  }
+
+  it should "support case classes String attribute" in {
+    val session = newSession(Map("foo" -> Foo("hello", 1)))
+    val expression = "${foo.bar}".el[String]
+    expression(session).succeeded shouldBe "hello"
+  }
+
+  it should "support case classes Int attribute" in {
+    val session = newSession(Map("foo" -> Foo("hello", 1)))
+    val expression = "${foo.baz}".el[Int]
+    expression(session).succeeded shouldBe 1
+  }
+
+  it should "handle wrong key" in {
+    val session = newSession(Map("foo" -> Foo("hello", 1)))
+    val expression = "${foo.qix}".el[String]
+    expression(session).failed shouldBe ElMessages.undefinedMapKey("foo", "qix").message
+  }
+
+  it should "handle deeply nested case classes" in {
+    val session = newSession(Map("bar" -> Bar(Baz("fux"))))
+    val expression = "${bar.baz.qix}".el[String]
+    expression(session).succeeded shouldBe "fux"
   }
 
   "multiple level access" should "return an element of a sub-list" in {
