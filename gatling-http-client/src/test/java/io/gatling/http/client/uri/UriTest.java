@@ -376,4 +376,10 @@ class UriTest {
     Uri context = Uri.create(url);
     assertEquals(url + "/foo", Uri.create(context, "/foo").toUrl());
   }
+
+  @Test
+  void decodeNonAsciiChars() {
+    Uri uri = Uri.create("https://www.facebook.com/people/अभिषेक-सिंह/100016673803484");
+    assertEquals("/people/अभिषेक-सिंह/100016673803484", uri.getPath(), "getPath should support non ASCII chars");
+  }
 }
