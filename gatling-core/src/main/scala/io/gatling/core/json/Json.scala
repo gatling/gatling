@@ -137,6 +137,7 @@ private[gatling] object Json {
       case array: Array[_]           => appendArray(array)
       case seq: Iterable[_]          => appendArray(seq)
       case coll: ju.Collection[_]    => appendArray(coll.asScala)
+      case product: Product          => appendProduct(product)
       case _                         => appendString(value.toString, rootLevel)
     }
 
@@ -195,6 +196,18 @@ private[gatling] object Json {
       }
       if (map.nonEmpty) {
         sb.setLength(sb.length - 1)
+      }
+      sb.append('}')
+    }
+
+    def appendProduct(product: Product): jl.StringBuilder = {
+      sb.append('{')
+      cfor(0)(_ < product.productArity, _ + 1) { i =>
+        if (i > 0) {
+          sb.append(',')
+        }
+        sb.append('"').append(product.productElementName(i)).append("\":")
+        appendStringified(product.productElement(i), rootLevel = false)
       }
       sb.append('}')
     }
