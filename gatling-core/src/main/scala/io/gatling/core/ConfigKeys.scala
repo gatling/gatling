@@ -151,22 +151,4 @@ object ConfigKeys {
       val WritePeriod = "gatling.data.graphite.writePeriod"
     }
   }
-
-  // [fl]
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  // [fl]
 }
