@@ -27,6 +27,8 @@ import io.gatling.BaseSpec
 import io.gatling.commons.util.Io
 import io.gatling.core.json.Json._
 
+private final case class Foo(bar: String, baz: Int)
+
 class JsonSpec extends BaseSpec {
 
   "stringify" should "be able to stringify strings" in {
@@ -104,7 +106,6 @@ class JsonSpec extends BaseSpec {
     stringify(map, isRootObject = true) shouldBe """{"name":"frodo","note":null}"""
   }
 
-  private final case class Foo(bar: String, baz: Int)
   it should "support case classes" in {
     val foo = Foo("hello", 1)
     stringify(foo, isRootObject = true) shouldBe """{"bar":"hello","baz":1}"""
