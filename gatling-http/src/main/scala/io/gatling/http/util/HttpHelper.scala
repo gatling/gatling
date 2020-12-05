@@ -82,55 +82,38 @@ private[gatling] object HttpHelper extends StrictLogging {
         passwordValue <- password(session)
       } yield new DigestRealm(usernameValue, passwordValue)
 
-  private def headerExists(headers: HttpHeaders, headerName: CharSequence, f: String => Boolean): Boolean = Option(headers.get(headerName)).exists(f)
-  def isCss(headers: HttpHeaders): Boolean = headerExists(headers, HttpHeaderNames.CONTENT_TYPE, _.startsWith(MissingNettyHttpHeaderValues.TextCss.toString))
-  def isHtml(headers: HttpHeaders): Boolean =
-    headerExists(
-      headers,
-      HttpHeaderNames.CONTENT_TYPE,
-      ct => ct.startsWith(MissingNettyHttpHeaderValues.TextHtml.toString) || ct.startsWith(MissingNettyHttpHeaderValues.ApplicationXhtml.toString)
+  private def mimeType(headers: HttpHeaders): Option[String] =
+    Option(headers.get(HttpHeaderNames.CONTENT_TYPE)).map { contentType =>
+      val comma = contentType.indexOf(';')
+      if (comma == -1) {
+        contentType
+      } else {
+        contentType.substring(0, comma).trim
+      }
+    }
+
+  private val StandardTextMimeTypes =
+    List(
+      "application/javascript",
+      "application/json",
+      "application/xml",
+      "application/x-www-form-urlencoded",
+      "application/xhtml+xml",
+      "text/css",
+      "text/csv",
+      "text/html",
+      "text/javascript",
+      "text/plain",
+      "text/xml"
     )
-  def isAjax(headers: HttpHeaders): Boolean =
-    headerExists(headers, MissingNettyHttpHeaderNames.XRequestedWith, _ == MissingNettyHttpHeaderValues.XmlHttpRequest.toString)
-
-  private val ApplicationStart = "application/"
-  private val ApplicationStartOffset = ApplicationStart.length
-  private val ApplicationJavascriptEnd = "javascript"
-  private val ApplicationJsonEnd = "json"
-  private val ApplicationXmlEnd = "xml"
-  private val ApplicationFormUrlEncodedEnd = "x-www-form-urlencoded"
-  private val ApplicationXhtmlEnd = "xhtml+xml"
-  private val TextStart = "text/"
-  private val TextStartOffset = TextStart.length
-  private val TextCssEnd = "css"
-  private val TextCsvEnd = "csv"
-  private val TextHtmlEnd = "html"
-  private val TextJavascriptEnd = "javascript"
-  private val TextPlainEnd = "plain"
-  private val TextXmlEnd = "xml"
-
   def isText(headers: HttpHeaders): Boolean =
-    headerExists(
-      headers,
-      HttpHeaderNames.CONTENT_TYPE,
-      ct =>
-        ct.startsWith(ApplicationStart) && (
-          ct.startsWith(ApplicationJavascriptEnd, ApplicationStartOffset)
-            || ct.startsWith(ApplicationJsonEnd, ApplicationStartOffset)
-            || ct.startsWith(ApplicationXmlEnd, ApplicationStartOffset)
-            || ct.startsWith(ApplicationFormUrlEncodedEnd, ApplicationStartOffset)
-            || ct.startsWith(ApplicationXhtmlEnd, ApplicationStartOffset)
-        )
-          || (ct.startsWith(TextStart) && (
-            ct.startsWith(TextCssEnd, TextStartOffset)
-              || ct.startsWith(TextCsvEnd, TextStartOffset)
-              || ct.startsWith(TextHtmlEnd, TextStartOffset)
-              || ct.startsWith(TextJavascriptEnd, TextStartOffset)
-              || ct.startsWith(TextJavascriptEnd, TextStartOffset)
-              || ct.startsWith(TextPlainEnd, TextStartOffset)
-              || ct.startsWith(TextXmlEnd, TextStartOffset)
-          ))
-    )
+    mimeType(headers).exists { mt =>
+      StandardTextMimeTypes.contains(mt) || (mt.startsWith("application/vnd") && mt.endsWith("+json"))
+    }
+  def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(MissingNettyHttpHeaderValues.TextCss.toString)
+  def isHtml(headers: HttpHeaders): Boolean =
+    mimeType(headers).exists(mt => mt == MissingNettyHttpHeaderValues.TextHtml.toString || mt == MissingNettyHttpHeaderValues.ApplicationXhtml.toString)
+  def isAjax(headers: HttpHeaders): Boolean = headers.contains(MissingNettyHttpHeaderNames.XRequestedWith, MissingNettyHttpHeaderValues.XmlHttpRequest, false)
 
   def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))

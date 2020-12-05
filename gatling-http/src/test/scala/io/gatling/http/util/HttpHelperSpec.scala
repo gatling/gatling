@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import io.gatling.BaseSpec
 
-import io.netty.handler.codec.http.HttpResponseStatus
+import io.netty.handler.codec.http.{ DefaultHttpHeaders, HttpHeaderNames, HttpHeaderValues, HttpResponseStatus }
 
 class HttpHelperSpec extends BaseSpec {
 
@@ -71,5 +71,30 @@ class HttpHelperSpec extends BaseSpec {
 
   it should "not crash when charset is unknown" in {
     HttpHelper.extractCharsetFromContentType("text/plain; charset=Foo") shouldBe None
+  }
+
+  "isText" should "detect standard JSON mime type" in {
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_JSON)
+    HttpHelper.isText(headers) shouldBe true
+  }
+
+  it should "ignore extra directives" in {
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, s"${HttpHeaderValues.APPLICATION_JSON}; charset = utf-8")
+    HttpHelper.isText(headers) shouldBe true
+  }
+
+  it should "detect missing content-type headers" in {
+    val headers = new DefaultHttpHeaders()
+    HttpHelper.isText(headers) shouldBe false
+  }
+
+  it should "detect non text mime type" in {
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, "foo")
+    HttpHelper.isText(headers) shouldBe false
+  }
+
+  it should "detect JSON API mime type" in {
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, "application/vnd.userinfo.v1+json")
+    HttpHelper.isText(headers) shouldBe true
   }
 }
