@@ -66,8 +66,8 @@ private[css] object FormExtractor {
         option <- child.getNodeName match {
           case "option" =>
             Option(child.getAttribute("value")) match {
-              case Some(value) if !value.isEmpty => SelectOption(value, child.hasAttribute("selected")) :: values
-              case _                             => values
+              case Some(value) => SelectOption(value, child.hasAttribute("selected")) :: values
+              case _           => values
             }
           case _ =>
             extractOptions(child, values)
