@@ -48,6 +48,8 @@ object OpenInjectionProfileSpec {
       stream = UserStream(profile.steps),
       userIdGen = new AtomicLong,
       startTime = System.currentTimeMillis(),
+      duration = profile.steps.foldLeft(Duration.Zero)((acc, step) => acc.plus(step.duration)),
+      isEmpty = profile.steps.forall(_.users == 0),
       eventLoopGroup = null,
       statsEngine = null,
       clock = new FakeClock
@@ -148,7 +150,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
       duration = 10 seconds,
       startingUsers = 5,
       rampDuration = 20 seconds
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       ConstantRateOpenInjection(5, 10 seconds),
@@ -172,7 +174,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
       duration = 10 seconds,
       startingUsers = 0,
       rampDuration = Duration.Zero
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       ConstantRateOpenInjection(0, 10 seconds),
@@ -192,7 +194,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
       duration = 10 seconds,
       startingUsers = 5,
       rampDuration = Duration.Zero
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       ConstantRateOpenInjection(5, 10 seconds),
@@ -212,7 +214,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
       duration = 10 seconds,
       startingUsers = 0,
       rampDuration = 80 seconds
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       RampRateOpenInjection(0, 10, 80 seconds),

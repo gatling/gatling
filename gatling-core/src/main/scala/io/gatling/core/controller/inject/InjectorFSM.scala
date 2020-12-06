@@ -33,23 +33,11 @@ private[inject] object InjectorData {
   final case class StartedData(
       controller: ActorRef,
       inProgressWorkloads: Map[String, Workload],
-      todoScenarios: List[Scenario],
+      scheduledForNextSecondScenarios: List[Scenario],
+      finishedInjectingScenarios: Set[String],
       pendingChildrenScenarios: Map[String, List[Scenario]],
       timer: Cancellable
   ) extends InjectorData
 }
 
 private[inject] class InjectorFSM extends BaseActor with FSM[InjectorState, InjectorData]
-
-private[inject] class UserCounts {
-
-  private[this] var _started: Long = 0
-  private[this] var _stopped: Long = 0
-
-  def started: Long = _started
-
-  def incrementStarted(more: Long): Unit = _started += more
-  def incrementStopped(): Unit = _stopped += 1
-
-  def allStopped: Boolean = started == _stopped
-}

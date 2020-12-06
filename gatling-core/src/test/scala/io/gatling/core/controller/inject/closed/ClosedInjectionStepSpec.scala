@@ -53,7 +53,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
       levelDuration = 10 seconds,
       startingUsers = 5,
       rampDuration = 20 seconds
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       ConstantConcurrentNumberInjection(5, 10 seconds),
@@ -77,7 +77,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
       levelDuration = 10 seconds,
       startingUsers = 0,
       rampDuration = Duration.Zero
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       ConstantConcurrentNumberInjection(0, 10 seconds),
@@ -97,7 +97,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
       levelDuration = 10 seconds,
       startingUsers = 5,
       rampDuration = Duration.Zero
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = List(
       ConstantConcurrentNumberInjection(5, 10 seconds),
@@ -117,7 +117,7 @@ class ClosedInjectionStepSpec extends BaseSpec {
       levelDuration = 10 seconds,
       startingUsers = 0,
       rampDuration = 80 seconds
-    ).composite.injectionSteps
+    ).composite.steps
 
     val expected = Seq(
       RampConcurrentNumberInjection(0, 10, 80 seconds),

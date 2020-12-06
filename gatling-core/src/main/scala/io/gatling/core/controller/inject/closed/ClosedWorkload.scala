@@ -30,8 +30,10 @@ import io.gatling.core.util.Shard
 import io.netty.channel.EventLoopGroup
 
 class ClosedWorkload(
-    scenario: Scenario,
     steps: Iterable[ClosedInjectionStep],
+    override val duration: FiniteDuration,
+    override val isEmpty: Boolean,
+    scenario: Scenario,
     userIdGen: AtomicLong,
     eventLoopGroup: EventLoopGroup,
     statsEngine: StatsEngine,

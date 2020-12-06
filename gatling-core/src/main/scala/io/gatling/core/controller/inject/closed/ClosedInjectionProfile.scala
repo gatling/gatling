@@ -18,6 +18,8 @@ package io.gatling.core.controller.inject.closed
 
 import java.util.concurrent.atomic.AtomicLong
 
+import scala.concurrent.duration.Duration
+
 import io.gatling.commons.util.Clock
 import io.gatling.core.controller.inject.{ InjectionProfile, Workload }
 import io.gatling.core.scenario.Scenario
@@ -25,7 +27,7 @@ import io.gatling.core.stats.StatsEngine
 
 import io.netty.channel.EventLoopGroup
 
-final class ClosedInjectionProfile(val steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
+final class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
 
   // doesn't make sense for ClosedInjectionProfile
   override def totalUserCount: Option[Long] = None
@@ -38,4 +40,14 @@ final class ClosedInjectionProfile(val steps: Iterable[ClosedInjectionStep]) ext
       statsEngine: StatsEngine,
       clock: Clock
   ): Workload =
-    new ClosedWorkload(scenario, steps, userIdGen, eventLoopGroup, statsEngine, clock)
+    new ClosedWorkload(
+      steps,
+      steps.foldLeft(Duration.Zero)((acc, step) => acc.plus(step.duration)),
+      steps.forall(_.isEmpty),
+      scenario,
+      userIdGen,
+      eventLoopGroup,
+      statsEngine,
+      clock
+    )
+}

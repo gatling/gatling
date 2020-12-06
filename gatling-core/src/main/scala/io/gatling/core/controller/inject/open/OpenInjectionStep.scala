@@ -35,6 +35,8 @@ sealed trait OpenInjectionStep extends Product with Serializable {
    * Number of users to inject
    */
   private[inject] def users: Long
+
+  private[inject] def duration: FiniteDuration
 }
 
 abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterator[FiniteDuration] {
@@ -176,6 +178,8 @@ final case class AtOnceOpenInjection private[inject] (users: Long) extends OpenI
         }
       } ++ chained
     }
+
+  override private[inject] def duration: FiniteDuration = Duration.Zero
 }
 
 /**
@@ -368,12 +372,14 @@ final case class IncreasingUsersPerSecCompositeStep private[inject] (
     composite.users
 }
 
-private[inject] final case class CompositeOpenInjectionStep private[inject] (injectionSteps: List[OpenInjectionStep]) extends OpenInjectionStep {
+private[inject] final case class CompositeOpenInjectionStep private[inject] (steps: List[OpenInjectionStep]) extends OpenInjectionStep {
 
   override private[inject] def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    injectionSteps.foldRight(iterator) { case (injectionStep, acc) =>
+    steps.foldRight(iterator) { case (injectionStep, acc) =>
       injectionStep.chain(acc)
     }
 
-  override private[inject] def users: Long = injectionSteps.map(_.users).sum
+  override private[inject] def users: Long = steps.map(_.users).sum
+
+  override private[inject] def duration: FiniteDuration = steps.foldLeft(Duration.Zero)((acc, step) => acc.plus(step.duration))
 }

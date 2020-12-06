@@ -18,6 +18,8 @@ package io.gatling.core.controller.inject.open
 
 import java.util.concurrent.atomic.AtomicLong
 
+import scala.concurrent.duration.Duration
+
 import io.gatling.commons.util.Clock
 import io.gatling.commons.util.Collections._
 import io.gatling.core.controller.inject.{ InjectionProfile, Workload }
@@ -43,4 +45,15 @@ final class OpenInjectionProfile(val steps: Iterable[OpenInjectionStep]) extends
       statsEngine: StatsEngine,
       clock: Clock
   ): Workload =
-    new OpenWorkload(scenario: Scenario, UserStream(steps), userIdGen, startTime, eventLoopGroup, statsEngine, clock)
+    new OpenWorkload(
+      UserStream(steps),
+      steps.foldLeft(Duration.Zero)((acc, step) => acc.plus(step.duration)),
+      steps.forall(_.users == 0),
+      scenario: Scenario,
+      userIdGen,
+      startTime,
+      eventLoopGroup,
+      statsEngine,
+      clock
+    )
+}

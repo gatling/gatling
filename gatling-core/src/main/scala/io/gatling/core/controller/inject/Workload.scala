@@ -72,6 +72,8 @@ abstract class Workload(
 
   protected def getConcurrentUsers: Int = scheduled - stopped
 
+  def scenarioName: String = scenario.name
+
   def injectBatch(batchWindow: FiniteDuration): Unit
 
   def endUser(userMessage: UserEndMessage): Unit
@@ -79,4 +81,8 @@ abstract class Workload(
   def isAllUsersScheduled: Boolean = allScheduled
 
   def isAllUsersStopped: Boolean = allScheduled && scheduled == stopped
+
+  def duration: FiniteDuration
+
+  def isEmpty: Boolean
 }
