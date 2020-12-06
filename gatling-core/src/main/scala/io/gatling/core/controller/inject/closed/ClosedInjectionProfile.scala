@@ -25,7 +25,7 @@ import io.gatling.core.stats.StatsEngine
 
 import io.netty.channel.EventLoopGroup
 
-final class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
+final class ClosedInjectionProfile(val steps: Iterable[ClosedInjectionStep]) extends InjectionProfile {
 
   // doesn't make sense for ClosedInjectionProfile
   override def totalUserCount: Option[Long] = None
@@ -39,9 +39,3 @@ final class ClosedInjectionProfile(steps: Iterable[ClosedInjectionStep]) extends
       clock: Clock
   ): Workload =
     new ClosedWorkload(scenario, steps, userIdGen, eventLoopGroup, statsEngine, clock)
-
-  //[fl]
-  //
-  //
-  //[fl]
-}

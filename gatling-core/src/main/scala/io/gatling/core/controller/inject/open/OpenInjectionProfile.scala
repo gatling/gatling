@@ -44,9 +44,3 @@ final class OpenInjectionProfile(val steps: Iterable[OpenInjectionStep]) extends
       clock: Clock
   ): Workload =
     new OpenWorkload(scenario: Scenario, UserStream(steps), userIdGen, startTime, eventLoopGroup, statsEngine, clock)
-
-  //[fl]
-  //
-  //
-  //[fl]
-}
