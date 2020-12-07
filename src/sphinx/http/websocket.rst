@@ -158,6 +158,13 @@ Websocket support introduces new HttpProtocol parameters:
 
 ``wsMaxReconnects(max: Int)``: set a limit on the number of times a WebSocket will be automatically reconnected
 
+Debugging
+=========
+
+In your logback configuration, lower logging level to ``DEBUG`` on logger ``io.gatling.http.action.ws.fsm``::
+
+    <logger name="io.gatling.http.action.ws.fsm" level="DEBUG" />
+
 Example
 =======
 

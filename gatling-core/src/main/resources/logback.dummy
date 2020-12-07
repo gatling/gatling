@@ -12,6 +12,12 @@
 	<!-- uncomment and set to TRACE to log all HTTP requests -->
 	<!--<logger name="io.gatling.http.engine.response" level="TRACE" />-->
 
+	<!-- uncomment to log WebSocket events -->
+    <!--<logger name="io.gatling.http.action.ws.fsm" level="DEBUG" />-->
+
+	<!-- uncomment to log SSE events -->
+    <!--<logger name="io.gatling.http.action.sse.fsm" level="DEBUG" />-->
+
 	<root level="WARN">
 		<appender-ref ref="CONSOLE" />
 	</root>
