@@ -10,7 +10,7 @@ object Dependencies {
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "1.1.2"
-  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.54.Final"
+  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.55.Final"
   private val nettyBuffer                    = netty.organization                     % "netty-buffer"                    % netty.revision
   private val nettyHandler                   = netty.organization                     % "netty-handler"                   % netty.revision
   private val nettyMqtt                      = netty.organization                     % "netty-codec-mqtt"                % netty.revision
@@ -18,7 +18,7 @@ object Dependencies {
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.34.Final"
+  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.35.Final"
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.10"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.1"
