@@ -205,8 +205,7 @@ class HttpTxExecutor(
         tx.request.clientRequest,
         tx.request.requestConfig.checks,
         httpCaches,
-        httpProtocol,
-        clock
+        httpProtocol
       ),
       statsProcessor = statsProcessor(tx),
       nextExecutor = new RootNextExecutor(tx, resourceFetcher, this),
@@ -221,8 +220,7 @@ class HttpTxExecutor(
         tx.request.clientRequest,
         tx.request.requestConfig.checks,
         httpCaches,
-        httpProtocol,
-        clock
+        httpProtocol
       ),
       statsProcessor = statsProcessor(tx),
       nextExecutor = new ResourceNextExecutor(tx, resourceTx),

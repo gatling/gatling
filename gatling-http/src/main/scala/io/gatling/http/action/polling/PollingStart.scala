@@ -57,8 +57,7 @@ class PollingStart(
       httpTxExecutor,
       httpCaches,
       httpProtocol,
-      statsEngine,
-      clock
+      statsEngine
     )
 
     val newSession = session.set(pollerName, poller)

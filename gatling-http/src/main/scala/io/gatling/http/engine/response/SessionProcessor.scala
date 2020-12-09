@@ -17,7 +17,6 @@
 package io.gatling.http.engine.response
 
 import io.gatling.commons.stats.{ KO, OK, Status }
-import io.gatling.commons.util.Clock
 import io.gatling.core.session.Session
 import io.gatling.http.cache.{ Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.check.HttpCheck
@@ -34,8 +33,7 @@ sealed abstract class SessionProcessor(
     request: Request,
     checks: List[HttpCheck],
     httpCaches: HttpCaches,
-    httpProtocol: HttpProtocol,
-    clock: Clock
+    httpProtocol: HttpProtocol
 ) {
 
   def updateSessionCrashed(session: Session, startTimestamp: Long, endTimestamp: Long): Session =
@@ -58,7 +56,7 @@ sealed abstract class SessionProcessor(
   def updatedSession(session: Session, response: Response): (Session, Option[String]) = {
 
     def updateSessionAfterChecks(s1: Session, status: Status): Session = {
-      val s2 = CookieSupport.storeCookies(s1, request.getUri, response.cookies, clock.nowMillis)
+      val s2 = CookieSupport.storeCookies(s1, request.getUri, response.cookies, response.endTimestamp)
       val s3 = updateReferer(s2, response)
       val s4 = httpCaches.cacheContent(s3, httpProtocol, request, response.headers)
       updateSessionStats(s4, response.startTimestamp, response.endTimestamp, status)
@@ -78,7 +76,7 @@ sealed abstract class SessionProcessor(
   }
 
   def updatedRedirectSession(session: Session, response: Response, redirectUri: Uri): Session = {
-    val sessionWithCookieStoreUpdate = CookieSupport.storeCookies(session, request.getUri, response.cookies, clock.nowMillis)
+    val sessionWithCookieStoreUpdate = CookieSupport.storeCookies(session, request.getUri, response.cookies, response.endTimestamp)
     val sessionWithGroupUpdate = updateSessionStats(sessionWithCookieStoreUpdate, response.startTimestamp, response.endTimestamp, OK)
     cacheRedirect(sessionWithGroupUpdate, response, redirectUri)
   }
@@ -99,15 +97,13 @@ final class RootSessionProcessor(
     request: Request,
     checks: List[HttpCheck],
     httpCaches: HttpCaches,
-    httpProtocol: HttpProtocol,
-    clock: Clock
+    httpProtocol: HttpProtocol
 ) extends SessionProcessor(
       silent,
       request,
       checks,
       httpCaches,
-      httpProtocol,
-      clock
+      httpProtocol
     ) {
   override protected def updateReferer(session: Session, response: Response): Session =
     RefererHandling.storeReferer(request, response, httpProtocol)(session)
@@ -121,15 +117,13 @@ final class ResourceSessionProcessor(
     request: Request,
     checks: List[HttpCheck],
     httpCaches: HttpCaches,
-    httpProtocol: HttpProtocol,
-    clock: Clock
+    httpProtocol: HttpProtocol
 ) extends SessionProcessor(
       silent,
       request,
       checks,
       httpCaches,
-      httpProtocol,
-      clock
+      httpProtocol
     ) {
   override protected def updateReferer(session: Session, response: Response): Session = session
 

@@ -20,7 +20,6 @@ import java.util.concurrent.{ ScheduledFuture, TimeUnit }
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.commons.util.Clock
 import io.gatling.commons.validation.{ Success, Validation }
 import io.gatling.core.action.Action
 import io.gatling.core.session.Session
@@ -41,8 +40,7 @@ private[polling] class Poller(
     httpTxExecutor: HttpTxExecutor,
     httpCaches: HttpCaches,
     httpProtocol: HttpProtocol,
-    statsEngine: StatsEngine,
-    clock: Clock
+    statsEngine: StatsEngine
 ) extends StrictLogging {
 
   private var session: Session = _
@@ -92,8 +90,7 @@ private[polling] class Poller(
         tx.request.clientRequest,
         tx.request.requestConfig.checks,
         httpCaches,
-        httpProtocol,
-        clock
+        httpProtocol
       ),
       statsProcessor = httpTxExecutor.statsProcessor(tx),
       tx.request.requestConfig.defaultCharset
