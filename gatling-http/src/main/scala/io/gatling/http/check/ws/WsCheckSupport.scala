@@ -29,34 +29,34 @@ import com.fasterxml.jackson.databind.JsonNode
 
 trait WsCheckSupport {
 
-  implicit def checkBuilder2WsTextCheck[A, P, X](
-      checkBuilder: CheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, WsTextCheck, String, P]): WsTextCheck =
+  implicit def checkBuilder2WsTextCheck[T, P, X](
+      checkBuilder: CheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2WsTextCheck[A, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, WsTextCheck, String, P]): WsTextCheck =
+  implicit def validatorCheckBuilder2WsTextCheck[T, P, X](
+      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
     validatorCheckBuilder.exists
 
-  implicit def findCheckBuilder2WsTextCheck[A, P, X](
-      findCheckBuilder: FindCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, WsTextCheck, String, P]): WsTextCheck =
+  implicit def findCheckBuilder2WsTextCheck[T, P, X](
+      findCheckBuilder: FindCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsTextCheck, String, P]): WsTextCheck =
     findCheckBuilder.find.exists
 
-  implicit def checkBuilder2WsBinaryCheck[A, P, X](
-      checkBuilder: CheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
+  implicit def checkBuilder2WsBinaryCheck[T, P, X](
+      checkBuilder: CheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2WsBinaryCheck[A, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
+  implicit def validatorCheckBuilder2WsBinaryCheck[T, P, X](
+      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
     validatorCheckBuilder.exists
 
-  implicit def findCheckBuilder2WsBinaryCheck[A, P, X](
-      findCheckBuilder: FindCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
+  implicit def findCheckBuilder2WsBinaryCheck[T, P, X](
+      findCheckBuilder: FindCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, WsBinaryCheck, Array[Byte], P]): WsBinaryCheck =
     findCheckBuilder.find.exists
 
   implicit def wsJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, WsTextCheck, String, JsonNode] =

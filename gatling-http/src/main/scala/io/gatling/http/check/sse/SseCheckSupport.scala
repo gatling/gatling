@@ -28,17 +28,17 @@ import com.fasterxml.jackson.databind.JsonNode
 
 trait SseCheckSupport {
 
-  implicit def checkBuilder2SseCheck[A, P, X](checkBuilder: CheckBuilder[A, P, X])(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
+  implicit def checkBuilder2SseCheck[T, P, X](checkBuilder: CheckBuilder[T, P, X])(implicit materializer: CheckMaterializer[T, SseCheck, String, P]): SseCheck =
     checkBuilder.build(materializer)
 
-  implicit def validatorCheckBuilder2SseCheck[A, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
+  implicit def validatorCheckBuilder2SseCheck[T, P, X](
+      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, SseCheck, String, P]): SseCheck =
     validatorCheckBuilder.exists
 
-  implicit def findCheckBuilder2SseCheck[A, P, X](
-      findCheckBuilder: FindCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, SseCheck, String, P]): SseCheck =
+  implicit def findCheckBuilder2SseCheck[T, P, X](
+      findCheckBuilder: FindCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, SseCheck, String, P]): SseCheck =
     findCheckBuilder.find.exists
 
   implicit def sseJsonPathCheckMaterializer(implicit jsonParsers: JsonParsers): CheckMaterializer[JsonPathCheckType, SseCheck, String, JsonNode] =

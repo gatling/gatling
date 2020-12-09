@@ -51,21 +51,21 @@ import net.sf.saxon.s9api.XdmNode
 trait HttpCheckSupport {
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
-  implicit def checkBuilder2HttpCheck[A, P, X](
-      checkBuilder: CheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
+  implicit def checkBuilder2HttpCheck[T, P, X](
+      checkBuilder: CheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, HttpCheck, Response, P]): HttpCheck =
     checkBuilder.build(materializer)
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
-  implicit def validatorCheckBuilder2HttpCheck[A, P, X](
-      validatorCheckBuilder: ValidatorCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
+  implicit def validatorCheckBuilder2HttpCheck[T, P, X](
+      validatorCheckBuilder: ValidatorCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, HttpCheck, Response, P]): HttpCheck =
     validatorCheckBuilder.exists
 
   @implicitNotFound("Could not find a CheckMaterializer. This check might not be valid for HTTP.")
-  implicit def findCheckBuilder2HttpCheck[A, P, X](
-      findCheckBuilder: FindCheckBuilder[A, P, X]
-  )(implicit materializer: CheckMaterializer[A, HttpCheck, Response, P]): HttpCheck =
+  implicit def findCheckBuilder2HttpCheck[T, P, X](
+      findCheckBuilder: FindCheckBuilder[T, P, X]
+  )(implicit materializer: CheckMaterializer[T, HttpCheck, Response, P]): HttpCheck =
     findCheckBuilder.find.exists
 
   val currentLocation: FindCheckBuilder[CurrentLocationCheckType, String, String] = CurrentLocationCheckBuilder
