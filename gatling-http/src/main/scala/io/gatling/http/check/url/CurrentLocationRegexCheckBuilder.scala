@@ -29,7 +29,7 @@ trait CurrentLocationRegexCheckType
 trait CurrentLocationRegexOfType {
   self: CurrentLocationRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor]: CurrentLocationRegexCheckBuilder[X] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
+  def ofType[X: GroupExtractor]: MultipleFindCheckBuilder[CurrentLocationRegexCheckType, String, X] = new CurrentLocationRegexCheckBuilder[X](pattern, patterns)
 }
 
 object CurrentLocationRegexCheckBuilder {

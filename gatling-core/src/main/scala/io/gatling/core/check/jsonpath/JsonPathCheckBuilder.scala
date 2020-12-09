@@ -37,7 +37,7 @@ trait JsonPathCheckType
 
 trait JsonPathOfType { self: JsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter]: JsonPathCheckBuilder[X] = new JsonPathCheckBuilder[X](path, jsonPaths)
+  def ofType[X: JsonFilter]: MultipleFindCheckBuilder[JsonPathCheckType, JsonNode, X] = new JsonPathCheckBuilder[X](path, jsonPaths)
 }
 
 object JsonPathCheckBuilder {

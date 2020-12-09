@@ -16,7 +16,7 @@
 
 package io.gatling.core.check.jmespath
 
-import io.gatling.core.check.{ DefaultFindCheckBuilder, FindCriterionExtractor }
+import io.gatling.core.check.{ DefaultFindCheckBuilder, FindCheckBuilder, FindCriterionExtractor }
 import io.gatling.core.check.jsonpath.JsonFilter
 import io.gatling.core.session.Expression
 
@@ -35,7 +35,7 @@ trait JmesPathCheckType
 
 trait JmesPathOfType { self: JmesPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter]: JmesPathCheckBuilder[X] = new JmesPathCheckBuilder[X](path, jmesPaths)
+  def ofType[X: JsonFilter]: FindCheckBuilder[JmesPathCheckType, JsonNode, X] = new JmesPathCheckBuilder[X](path, jmesPaths)
 }
 
 object JmesPathCheckBuilder {

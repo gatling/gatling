@@ -25,7 +25,7 @@ trait CssCheckType
 
 trait CssOfType { self: CssCheckBuilder[String] =>
 
-  def ofType[X: NodeConverter]: CssCheckBuilder[X] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
+  def ofType[X: NodeConverter]: MultipleFindCheckBuilder[CssCheckType, NodeSelector, X] = new CssCheckBuilder[X](expression, nodeAttribute, selectors)
 }
 
 object CssCheckBuilder {

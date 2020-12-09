@@ -28,7 +28,8 @@ trait HttpHeaderRegexCheckType
 trait HttpHeaderRegexOfType {
   self: HttpHeaderRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor]: HttpHeaderRegexCheckBuilder[X] = new HttpHeaderRegexCheckBuilder[X](headerName, pattern, patterns)
+  def ofType[X: GroupExtractor]: MultipleFindCheckBuilder[HttpHeaderRegexCheckType, Response, X] =
+    new HttpHeaderRegexCheckBuilder[X](headerName, pattern, patterns)
 }
 
 object HttpHeaderRegexCheckBuilder {
