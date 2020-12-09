@@ -20,7 +20,6 @@ import java.nio.charset.Charset
 
 import scala.jdk.CollectionConverters._
 
-import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.http.client.{ Request, RequestBuilder }
 import io.gatling.http.client.uri.Uri
@@ -41,8 +40,7 @@ object RedirectProcessor {
       httpProtocol: HttpProtocol,
       redirectUri: Uri,
       defaultCharset: Charset
-  ): Validation[Request] = {
-
+  ): Request = {
     val originalMethod = originalRequest.getMethod
 
     val switchToGet =
@@ -94,19 +92,6 @@ object RedirectProcessor {
       requestBuilder.setCookies(cookies.asJava)
     }
 
-    val newClientRequest = requestBuilder.build
-
-    if (
-      newClientRequest.getUri == originalRequest.getUri
-      && newClientRequest.getMethod == originalRequest.getMethod
-      && newClientRequest.getCookies.asScala.toSet == originalRequest.getCookies.asScala.toSet
-    ) {
-      // invalid redirect
-
-      "Invalid redirect to the same request".failure
-
-    } else {
-      newClientRequest.success
-    }
+    requestBuilder.build
   }
 }

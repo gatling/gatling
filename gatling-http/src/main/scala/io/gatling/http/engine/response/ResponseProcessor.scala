@@ -115,27 +115,22 @@ class DefaultResponseProcessor(
         } else {
           val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
           val newSession = sessionProcessor.updatedRedirectSession(tx.currentSession, response, redirectUri)
-
-          RedirectProcessor.redirectRequest(
-            tx.request.clientRequest,
-            newSession,
-            response.status,
-            tx.request.requestConfig.httpProtocol,
-            redirectUri,
-            defaultCharset
-          ) match {
-            case Success(redirectRequest) =>
-              Redirect(
-                tx.copy(
-                  session = newSession,
-                  request = tx.request.copy(clientRequest = redirectRequest),
-                  redirectCount = tx.redirectCount + 1
-                )
-              )
-
-            case Failure(message) =>
-              Crash(message)
-          }
+          val redirectRequest =
+            RedirectProcessor.redirectRequest(
+              tx.request.clientRequest,
+              newSession,
+              response.status,
+              tx.request.requestConfig.httpProtocol,
+              redirectUri,
+              defaultCharset
+            )
+          Redirect(
+            tx.copy(
+              session = newSession,
+              request = tx.request.copy(clientRequest = redirectRequest),
+              redirectCount = tx.redirectCount + 1
+            )
+          )
         }
       } else {
         val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.currentSession, response)
