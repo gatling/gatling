@@ -18,21 +18,14 @@ package io.gatling.http.action.polling
 
 import java.nio.charset.Charset
 
-import scala.util.control.NonFatal
-
 import io.gatling.commons.stats.{ KO, OK }
-import io.gatling.commons.util.Throwables._
-import io.gatling.commons.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.util.NameGen
 import io.gatling.http.engine.response._
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
-import io.gatling.http.util.HttpHelper
-import io.gatling.http.util.HttpHelper.resolveFromUri
 
 import com.typesafe.scalalogging.StrictLogging
-import io.netty.handler.codec.http.HttpHeaderNames
 
 class PollerResponseProcessor(
     tx: HttpTx,
@@ -44,26 +37,12 @@ class PollerResponseProcessor(
 
   def onComplete(result: HttpResult): Session =
     result match {
-      case response: Response   => handleResponse(response)
-      case failure: HttpFailure => handleFailure(failure)
+      case response: Response   => proceed(response, ResponseProcessor.processResponse(tx, sessionProcessor, defaultCharset, response))
+      case failure: HttpFailure => ResponseProcessor.processFailure(tx, sessionProcessor, statsProcessor, failure)
     }
 
-  private def handleFailure(failure: HttpFailure): Session = {
-    val sessionWithUpdatedStats = sessionProcessor.updateSessionCrashed(tx.session, failure.startTimestamp, failure.endTimestamp)
-    try {
-      statsProcessor.reportStats(tx.fullRequestName, sessionWithUpdatedStats, KO, failure, Some(failure.errorMessage))
-    } catch {
-      case NonFatal(t) =>
-        logger.error(
-          s"ResponseProcessor crashed while handling failure $failure on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding",
-          t
-        )
-    }
-    sessionWithUpdatedStats
-  }
-
-  private def handleResponse(response: Response): Session =
-    handleResponse0(response) match {
+  private def proceed(response: Response, result: ProcessorResult): Session =
+    result match {
       case Proceed(newSession, errorMessage) =>
         // different from tx.status because tx could be silent
         val status = if (errorMessage.isDefined) KO else OK
@@ -79,51 +58,5 @@ class PollerResponseProcessor(
         val newSession = sessionProcessor.updateSessionCrashed(tx.session, response.startTimestamp, response.endTimestamp)
         statsProcessor.reportStats(tx.fullRequestName, newSession, KO, response, Some(errorMessage))
         newSession
-    }
-
-  private def handleResponse0(response: Response): ProcessorResult =
-    try {
-      if (HttpHelper.isRedirect(response.status) && tx.request.requestConfig.followRedirect) {
-        if (tx.redirectCount >= tx.request.requestConfig.httpProtocol.responsePart.maxRedirects) {
-          Crash(s"Too many redirects, max is ${tx.request.requestConfig.httpProtocol.responsePart.maxRedirects}")
-
-        } else {
-          val location = response.headers.get(HttpHeaderNames.LOCATION)
-          if (location == null) {
-            Crash("Redirect status, yet no Location header")
-
-          } else {
-            val redirectUri = resolveFromUri(tx.request.clientRequest.getUri, location)
-            val newSession = sessionProcessor.updatedRedirectSession(tx.session, response, redirectUri)
-            val redirectRequest =
-              RedirectProcessor.redirectRequest(
-                tx.request.clientRequest,
-                newSession,
-                response.status,
-                tx.request.requestConfig.httpProtocol,
-                redirectUri,
-                defaultCharset
-              )
-            Redirect(
-              tx.copy(
-                session = newSession,
-                request = tx.request.copy(clientRequest = redirectRequest),
-                redirectCount = tx.redirectCount + 1
-              )
-            )
-          }
-        }
-
-      } else {
-        val (newSession, errorMessage) = sessionProcessor.updatedSession(tx.session, response)
-        Proceed(newSession, errorMessage)
-      }
-    } catch {
-      case NonFatal(t) =>
-        logger.error(
-          s"ResponseProcessor crashed while handling response ${response.status} on session=${tx.session} request=${tx.request.requestName}: ${tx.request.clientRequest}, forwarding",
-          t
-        )
-        Crash(t.detailedMessage)
     }
 }
