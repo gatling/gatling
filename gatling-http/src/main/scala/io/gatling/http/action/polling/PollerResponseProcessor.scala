@@ -25,14 +25,14 @@ import io.gatling.http.engine.response._
 import io.gatling.http.engine.tx.HttpTx
 import io.gatling.http.response.{ HttpFailure, HttpResult, Response }
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
 class PollerResponseProcessor(
     tx: HttpTx,
     sessionProcessor: SessionProcessor,
     statsProcessor: StatsProcessor,
     defaultCharset: Charset
-) extends StrictLogging
+) extends LazyLogging
     with NameGen {
 
   def onComplete(result: HttpResult): Session =
