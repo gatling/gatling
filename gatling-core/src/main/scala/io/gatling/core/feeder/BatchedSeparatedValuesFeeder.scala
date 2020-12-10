@@ -93,8 +93,7 @@ class RandomBatchedSeparatedValuesFeeder(channelFactory: () => ReadableByteChann
     extends BatchedSeparatedValuesFeeder(channelFactory, streamer) {
 
   private val buffer = new Array[Record[String]](bufferSize)
-  private var index = 0
-  refill()
+  private var index = Int.MaxValue // so refill is triggered on first access
 
   private def refill(): Unit = {
     var fill = 0
