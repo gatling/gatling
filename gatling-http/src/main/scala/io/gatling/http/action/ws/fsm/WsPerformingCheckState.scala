@@ -206,6 +206,7 @@ final case class WsPerformingCheckState(
       code: Option[String],
       errorMessage: String
   ): NextWsState = {
+    cancelTimeout()
     val fullMessage = s"WebSocket crashed while waiting for check: $errorMessage"
 
     val newSession = logCheckResult(session, clock.nowMillis, KO, code, Some(fullMessage))
