@@ -56,7 +56,7 @@ class WsConnect(
         } yield {
           logger.debug(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val wsFsm = new WsFsm(
+          val fsm = new WsFsm(
             wsName,
             connectRequest,
             requestName,
@@ -69,7 +69,7 @@ class WsConnect(
             clock
           )
 
-          wsFsm.onPerformInitialConnect(session, next)
+          fsm.onPerformInitialConnect(session.set(wsName, fsm), next)
         }
 
       case _ =>

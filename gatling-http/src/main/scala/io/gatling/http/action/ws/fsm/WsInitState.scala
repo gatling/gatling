@@ -21,5 +21,5 @@ import io.gatling.core.session.Session
 
 final class WsInitState(fsm: WsFsm) extends WsState(fsm) {
   override def onPerformInitialConnect(session: Session, initialConnectNext: Action): NextWsState =
-    WsConnectingState.gotoConnecting(fsm, session.set(fsm.wsName, fsm), Left(initialConnectNext))
+    WsConnectingState.gotoConnecting(fsm, session, Left(initialConnectNext))
 }
