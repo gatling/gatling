@@ -86,14 +86,14 @@ class SseFsm(
   private[fsm] def scheduleTimeout(dur: FiniteDuration): Unit = {
     currentTimeout = eventLoop.schedule(
       () => {
-        logger.debug(s"Timeout ${currentState.hashCode} triggered")
+        logger.debug(s"Timeout ${currentTimeout.hashCode} triggered")
         currentTimeout = null
         execute(currentState.onTimeout())
       },
       dur.toMillis,
       TimeUnit.MILLISECONDS
     )
-    logger.debug(s"Timeout ${currentState.hashCode} scheduled")
+    logger.debug(s"Timeout ${currentTimeout.hashCode} scheduled")
   }
 
   private[fsm] def cancelTimeout(): Unit =
@@ -101,9 +101,9 @@ class SseFsm(
       logger.debug("Couldn't cancel timeout because it wasn't set")
     } else {
       if (currentTimeout.cancel(true)) {
-        logger.debug(s"Timeout ${currentState.hashCode} cancelled")
+        logger.debug(s"Timeout ${currentTimeout.hashCode} cancelled")
       } else {
-        logger.debug(s"Failed to cancel timeout ${currentState.hashCode}")
+        logger.debug(s"Failed to cancel timeout ${currentTimeout.hashCode}")
       }
       currentTimeout = null
     }
