@@ -30,7 +30,7 @@ import io.gatling.commons.NotNothing
 import io.gatling.commons.util.Spire._
 import io.gatling.commons.util.StringHelper._
 import io.gatling.commons.util.TypeCaster
-import io.gatling.commons.util.TypeHelper._
+import io.gatling.commons.util.TypeHelper
 import io.gatling.commons.validation._
 import io.gatling.core.json.Json
 import io.gatling.core.session._
@@ -61,7 +61,7 @@ final case class AttributePart(name: String) extends ElPart[Any] {
 final case class SizePart(seqPart: ElPart[Any], name: String) extends ElPart[Int] {
   def apply(session: Session): Validation[Int] =
     seqPart(session).flatMap {
-      case t: Traversable[_]            => t.size.success
+      case t: Iterable[_]               => t.size.success
       case collection: ju.Collection[_] => collection.size.success
       case map: ju.Map[_, _]            => map.size.success
       case arr: Array[_]                => arr.length.success
@@ -104,8 +104,7 @@ final case class JsonStringify(part: ElPart[Any], name: String) extends ElPart[S
   def apply(session: Session): Validation[String] =
     part(session) match {
       case Success(value)   => Json.stringify(value, isRootObject = false).success
-      case NullValueFailure => NullStringSuccess
-      case failure: Failure => failure
+      case failure: Failure => if (TypeHelper.isNullValueFailure(failure)) NullStringSuccess else failure
     }
 }
 
@@ -218,11 +217,11 @@ object ElCompiler {
         if (runtimeClass == classOf[String] || runtimeClass == classOf[Any] || runtimeClass == classOf[Object]) {
           StaticValueExpression(staticStr).asInstanceOf[Expression[T]]
         } else {
-          val stringV = staticStr.asValidation[T]
+          val stringV = TypeHelper.validate[T](staticStr)
           _ => stringV
         }
 
-      case dynamicPart :: Nil => dynamicPart(_).flatMap(_.asValidation[T])
+      case dynamicPart :: Nil => dynamicPart(_).flatMap(TypeHelper.validate[T])
 
       case parts =>
         (session: Session) =>
@@ -237,7 +236,7 @@ object ElCompiler {
                   } yield sb.append(part)
               }
             }
-            .flatMap(_.toString.asValidation[T])
+            .flatMap(value => TypeHelper.validate[T](value.toString))
     }
 }
 

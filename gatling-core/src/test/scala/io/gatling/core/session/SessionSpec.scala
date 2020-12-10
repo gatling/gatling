@@ -397,9 +397,9 @@ class SessionSpec extends BaseSpec with EmptySession {
     a[java.util.NoSuchElementException] shouldBe thrownBy(session("foo").as[String])
   }
 
-  it should "throw a NumberFormatException when the String value can't be parsed" in {
+  it should "throw an IllegalArgumentException when the String value can't be parsed" in {
     val session = emptySession.set("foo", "bar")
-    a[NumberFormatException] shouldBe thrownBy(session("foo").as[Int])
+    a[IllegalArgumentException] shouldBe thrownBy(session("foo").as[Int])
   }
 
   it should "throw a ClassCastException when the value can't be turned into the expected type" in {
@@ -423,9 +423,9 @@ class SessionSpec extends BaseSpec with EmptySession {
     session("foo").asOption[String] shouldBe None
   }
 
-  it should "throw a NumberFormatException when the String value can't be parsed" in {
+  it should "throw a IllegalArgumentException when the String value can't be parsed" in {
     val session = emptySession.set("foo", "bar")
-    a[NumberFormatException] shouldBe thrownBy(session("foo").asOption[Int])
+    a[IllegalArgumentException] shouldBe thrownBy(session("foo").asOption[Int])
   }
 
   it should "throw a ClassCastException when the value isn't of the expected type" in {

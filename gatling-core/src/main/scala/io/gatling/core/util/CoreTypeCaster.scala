@@ -25,16 +25,16 @@ object CoreTypeCaster {
 
   implicit val ActorRefTypeCaster: TypeCaster[ActorRef] = new TypeCaster[ActorRef] {
     @throws[ClassCastException]
-    override def cast(value: Any): ActorRef =
+    override def cast(key: String, value: Any): ActorRef =
       value match {
         case v: ActorRef => v
-        case _           => throw new ClassCastException(cceMessage(value, classOf[ActorRef]))
+        case _           => throw new ClassCastException(cceMessage(key, value, classOf[ActorRef]))
       }
 
-    override def validate(value: Any): Validation[ActorRef] =
+    override def validate(key: String, value: Any): Validation[ActorRef] =
       value match {
         case v: ActorRef => v.success
-        case _           => cceMessage(value, classOf[ActorRef]).failure
+        case _           => cceMessage(key, value, classOf[ActorRef]).failure
       }
   }
 }

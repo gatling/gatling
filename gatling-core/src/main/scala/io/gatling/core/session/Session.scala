@@ -22,7 +22,7 @@ import scala.reflect.ClassTag
 import io.gatling.commons.NotNothing
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.TypeCaster
-import io.gatling.commons.util.TypeHelper._
+import io.gatling.commons.util.TypeHelper
 import io.gatling.commons.validation._
 import io.gatling.core.action.Action
 import io.gatling.core.session.el.ElMessages
@@ -39,12 +39,12 @@ object SessionPrivateAttributes {
 final case class SessionAttribute(session: Session, key: String) {
 
   def as[T: TypeCaster: ClassTag: NotNothing]: T = session.attributes.get(key) match {
-    case Some(value) => value.as[T]
+    case Some(value) => TypeHelper.cast[T](key, value)
     case _           => throw new NoSuchElementException(ElMessages.undefinedSessionAttribute(key).message)
   }
-  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).map(_.as[T])
+  def asOption[T: TypeCaster: ClassTag: NotNothing]: Option[T] = session.attributes.get(key).map(TypeHelper.cast[T](key, _))
   def validate[T: TypeCaster: ClassTag: NotNothing]: Validation[T] = session.attributes.get(key) match {
-    case Some(value) => value.asValidation[T]
+    case Some(value) => TypeHelper.validate[T](key, value)
     case _           => ElMessages.undefinedSessionAttribute(key)
   }
 }
