@@ -66,8 +66,7 @@ class SseConnect(
             clock
           )
 
-          val sessionWithFsm = session.set(sseName, fsm)
-          fsm.onPerformInitialConnect(sessionWithFsm, next)
+          fsm.onPerformInitialConnect(session.set(sseName, fsm), next)
         }
 
       case _ =>
