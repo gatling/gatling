@@ -97,4 +97,9 @@ class HttpHelperSpec extends BaseSpec {
     val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, "application/vnd.userinfo.v1+json")
     HttpHelper.isText(headers) shouldBe true
   }
+
+  it should "detect SOAP mime type" in {
+    val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, "application/soap+xml")
+    HttpHelper.isText(headers) shouldBe true
+  }
 }

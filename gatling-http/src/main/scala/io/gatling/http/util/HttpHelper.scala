@@ -92,23 +92,12 @@ private[gatling] object HttpHelper extends StrictLogging {
       }
     }
 
-  private val StandardTextMimeTypes =
-    List(
-      "application/javascript",
-      "application/json",
-      "application/xml",
-      "application/x-www-form-urlencoded",
-      "application/xhtml+xml",
-      "text/css",
-      "text/csv",
-      "text/html",
-      "text/javascript",
-      "text/plain",
-      "text/xml"
-    )
+  private val StandardApplicationTextMimeTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded")
+  private val StandardApplicationTextExtensions = Set("+xml", "+json")
   def isText(headers: HttpHeaders): Boolean =
-    mimeType(headers).exists { mt =>
-      StandardTextMimeTypes.contains(mt) || (mt.startsWith("application/vnd") && mt.endsWith("+json"))
+    mimeType(headers).exists {
+      case s"application/$app" => StandardApplicationTextMimeTypes.contains(app) || StandardApplicationTextExtensions.exists(app.endsWith)
+      case mt                  => mt.startsWith("text/")
     }
   def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(MissingNettyHttpHeaderValues.TextCss.toString)
   def isHtml(headers: HttpHeaders): Boolean =
