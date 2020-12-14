@@ -54,17 +54,17 @@ class AdvancedSimulationStep01 extends Simulation {
         http("Page 1")
           .get("/computers?p=1")
       )
-      .pause(670 milliseconds)
+      .pause(670.milliseconds)
       .exec(
         http("Page 2")
           .get("/computers?p=2")
       )
-      .pause(629 milliseconds)
+      .pause(629.milliseconds)
       .exec(
         http("Page 3")
           .get("/computers?p=3")
       )
-      .pause(734 milliseconds)
+      .pause(734.milliseconds)
       .exec(
         http("Page 4")
           .get("/computers?p=4")

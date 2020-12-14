@@ -131,6 +131,6 @@ class Mitm(
     serverChannelGroup.close.awaitUninterruptibly
     serverBossEventLoopGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
     serverWorkerEventLoopGroup.shutdownGracefully(0, 2, TimeUnit.SECONDS)
-    Await.ready(actorSystem.terminate(), 2 seconds)
+    Await.ready(actorSystem.terminate(), 2.seconds)
   }
 }

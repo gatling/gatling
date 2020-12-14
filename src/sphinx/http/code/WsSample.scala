@@ -84,11 +84,11 @@ class WsSample {
   //#matching
 
   //#check-from-connect
-  exec(ws("Connect").connect("/foo").await(30 seconds)(myCheck))
+  exec(ws("Connect").connect("/foo").await(30.seconds)(myCheck))
   //#check-from-connect
 
   //#check-from-message
-  exec(ws("Send").sendText("hello").await(30 seconds)(myCheck))
+  exec(ws("Send").sendText("hello").await(30.seconds)(myCheck))
   //#check-from-message
 
   val myCheck1 = myCheck
@@ -99,11 +99,8 @@ class WsSample {
   // 1st message will be validated against myCheck1
   // 2nd message will be validated against myCheck2
   // whole sequence must complete withing 30 seconds
-  exec(
-    ws("Send")
-      .sendText("hello")
-      .await(30 seconds)(myCheck1, myCheck2)
-  )
+  exec(ws("Send").sendText("hello")
+    .await(30.seconds)(myCheck1, myCheck2))
   //#check-single-sequence
 
   //#check-multiple-sequence
@@ -112,24 +109,18 @@ class WsSample {
   // 2nd message will be validated against myCheck2
   // both sequences must complete withing 15 seconds
   // 2nd sequence will start after 1st one completes
-  exec(
-    ws("Send")
-      .sendText("hello")
-      .await(15 seconds)(myCheck1)
-      .await(15 seconds)(myCheck2)
-  )
+  exec(ws("Send").sendText("hello")
+    .await(15.seconds)(myCheck1)
+    .await(15.seconds)(myCheck2))
   //#check-multiple-sequence
 
   //#check-matching
-  exec(
-    ws("Send")
-      .sendText("hello")
-      .await(1 second)(
-        ws.checkTextMessage("checkName")
-          .matching(jsonPath("$.uuid").is("${correlation}"))
-          .check(jsonPath("$.code").ofType[Int].is(1))
-      )
-  )
+  exec(ws("Send").sendText("hello")
+    .await(1.second)(
+      ws.checkTextMessage("checkName")
+        .matching(jsonPath("$.uuid").is("${correlation}"))
+        .check(jsonPath("$.code").ofType[Int].is(1))
+    ))
   //#check-matching
 
   //#chatroom-example
@@ -151,13 +142,11 @@ class WsSample {
     .exec(ws("Connect WS").connect("/room/chat?username=${id}"))
     .pause(1)
     .repeat(2, "i") {
-      exec(
-        ws("Say Hello WS")
-          .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-          .await(30 seconds)(
-            ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
-          )
-      ).pause(1)
+      exec(ws("Say Hello WS")
+        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+        .await(30.seconds)(
+          ws.checkTextMessage("checkName").check(regex(".*I'm still alive.*"))
+        )).pause(1)
     }
     .exec(ws("Close WS").close)
   //#chatroom-example

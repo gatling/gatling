@@ -51,17 +51,17 @@ class AdvancedSimulationStep02 extends Simulation {
         http("Page 1")
           .get("/computers?p=1")
       )
-      .pause(670 milliseconds)
+      .pause(670.milliseconds)
       .exec(
         http("Page 2")
           .get("/computers?p=2")
       )
-      .pause(629 milliseconds)
+      .pause(629.milliseconds)
       .exec(
         http("Page 3")
           .get("/computers?p=3")
       )
-      .pause(734 milliseconds)
+      .pause(734.milliseconds)
       .exec(
         http("Page 4")
           .get("/computers?p=4")
@@ -99,7 +99,7 @@ class AdvancedSimulationStep02 extends Simulation {
 
   // Let's have 10 regular users and 2 admins, and ramp them on 10 sec so we don't hammer the server
   setUp(
-    users.inject(rampUsers(10) during (10 seconds)),
-    admins.inject(rampUsers(2) during (10 seconds))
+    users.inject(rampUsers(10).during(10.seconds)),
+    admins.inject(rampUsers(2).during(10.seconds))
   ).protocols(httpProtocol)
 }

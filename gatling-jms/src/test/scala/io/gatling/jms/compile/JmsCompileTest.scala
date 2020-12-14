@@ -182,7 +182,7 @@ class JmsCompileTest extends Simulation {
         .jmsType("foo")
     )
 
-  setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
+  setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2.minutes)))
     .protocols(jmsProtocolWithNativeConnectionFactory)
 
   private def checkBodyTextCorrect = simpleCheck {

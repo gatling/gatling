@@ -27,7 +27,7 @@ class CoreCompileTest extends Simulation {
   private val iterations = 10
   private val pause1 = 2
   private val pause2 = Integer.getInteger("testProperty")
-  private val pause3 = pause2 milliseconds
+  private val pause3 = pause2.milliseconds
   private val baseUrl = "http://localhost:3000"
 
   private val noop: ChainBuilder = ???
@@ -70,7 +70,7 @@ class CoreCompileTest extends Simulation {
       feed(testData.circular)
         .exec(noop)
     }
-    .during(10 seconds) {
+    .during(10.seconds) {
       feed(testData)
         .exec(noop)
     }
@@ -99,16 +99,16 @@ class CoreCompileTest extends Simulation {
     .doWhile("${condition}", "counterName") {
       exec(noop)
     }
-    .asLongAsDuring("${condition}", 10 seconds) {
+    .asLongAsDuring("${condition}", 10.seconds) {
       exec(noop)
     }
-    .asLongAsDuring("${condition}", 10 seconds, "counterName") {
+    .asLongAsDuring("${condition}", 10.seconds, "counterName") {
       exec(noop)
     }
-    .doWhileDuring("${condition}", 10 seconds) {
+    .doWhileDuring("${condition}", 10.seconds) {
       exec(noop)
     }
-    .doWhileDuring("${condition}", 10 seconds, "counterName") {
+    .doWhileDuring("${condition}", 10.seconds, "counterName") {
       exec(noop)
     }
     .repeat(iterations, "counter") {
@@ -118,7 +118,7 @@ class CoreCompileTest extends Simulation {
         println(s"iterate: ${session("counter").as[Int]}")
         session
       }.exec(noop)
-        .during(12000 milliseconds, "foo") {
+        .during(12000.milliseconds, "foo") {
           exec(noop)
             .pause(2, constantPauses)
             .repeat(2, "tutu") {
@@ -135,7 +135,7 @@ class CoreCompileTest extends Simulation {
             .pause(2)
         }
         .pause(pause2)
-        .during(12000 milliseconds, "duringCount") {
+        .during(12000.milliseconds, "duringCount") {
           exec(noop)
             .pause(2)
             .exec { session =>
@@ -169,7 +169,7 @@ class CoreCompileTest extends Simulation {
     .rendezVous(100)
     .exec(noop)
     .pace(5)
-    .pace(5 seconds)
+    .pace(5.seconds)
     .pace("${foo}")
     .pace(5, 10)
     .pace("${foo}", "${bar}")
@@ -192,17 +192,17 @@ class CoreCompileTest extends Simulation {
       exec(noop)
     }
 
-  private val inject1 = nothingFor(10 milliseconds)
-  private val inject2 = rampUsers(10).during(10 minutes)
-  private val inject3 = constantUsersPerSec(10).during(1 minute)
+  private val inject1 = nothingFor(10.milliseconds)
+  private val inject2 = rampUsers(10).during(10.minutes)
+  private val inject3 = constantUsersPerSec(10).during(1.minute)
   private val inject4 = atOnceUsers(100)
-  private val inject5 = rampUsersPerSec(10) to 20 during (10 minutes)
-  private val inject8 = heavisideUsers(1000) during (20 seconds)
+  private val inject5 = rampUsersPerSec(10).to(20).during(10.minutes)
+  private val inject8 = heavisideUsers(1000).during(20.seconds)
 
-  private val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100) during (5 seconds))
+  private val injectionSeq = Vector(1, 2, 4, 8).map(x => rampUsers(x * 100).during(5.seconds))
 
-  private val closedInject1 = constantConcurrentUsers(100).during(10 seconds)
-  private val closedInject2 = rampConcurrentUsers(100).to(200).during(10 seconds)
+  private val closedInject1 = constantConcurrentUsers(100).during(10.seconds)
+  private val closedInject2 = rampConcurrentUsers(100).to(200).during(10.seconds)
 
   private val openSeq = Seq(inject1, inject2, inject3)
   private val closedSeq = Seq(closedInject1, closedInject2)
@@ -213,7 +213,7 @@ class CoreCompileTest extends Simulation {
   setUp(
     lambdaUser.inject(inject1),
     lambdaUser.inject(injectionSeq),
-    lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)),
+    lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10.seconds), holdFor(30.seconds)),
     lambdaUser.inject(closedInject1, closedInject2),
     lambdaUser.inject(openSeq),
     lambdaUser.inject(closedSeq),
@@ -226,7 +226,7 @@ class CoreCompileTest extends Simulation {
     .constantPauses
     .exponentialPauses
     .uniformPauses(1.5)
-    .uniformPauses(1337 seconds)
+    .uniformPauses(1337.seconds)
     .assertions(
       global.responseTime.mean.lte(50),
       global.responseTime.max.between(50, 500),
@@ -242,14 +242,14 @@ class CoreCompileTest extends Simulation {
       details("Admins" / "Create").failedRequests.percent.lt(90),
       details("request_9").requestsPerSec.gte(10)
     )
-    .throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds))
-    .throttle(Seq(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)))
+    .throttle(jumpToRps(20), reachRps(40) in (10.seconds), holdFor(30.seconds))
+    .throttle(Seq(jumpToRps(20), reachRps(40) in (10.seconds), holdFor(30.seconds)))
     // Applies on the setup
     .constantPauses
     .disablePauses
     .exponentialPauses
     .uniformPauses(1.5)
-    .uniformPauses(1337 seconds)
+    .uniformPauses(1337.seconds)
 
   feed(csv("foo.csv").shard)
 }

@@ -84,7 +84,7 @@ object Gatling extends StrictLogging {
             throw e
         } finally {
           eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
-          terminateActorSystem(system, configuration.core.shutdownTimeout milliseconds)
+          terminateActorSystem(system, configuration.core.shutdownTimeout.milliseconds)
         }
       new RunResultProcessor(configuration).processRunResult(runResult).code
     } finally {

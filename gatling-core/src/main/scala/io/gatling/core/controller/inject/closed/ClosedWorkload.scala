@@ -68,7 +68,7 @@ class ClosedWorkload(
           for {
             (number, millis) <- Shard.shards(missingUsers, batchWindow.toMillis.toInt).zipWithIndex
             if number > 0
-          } (0 until number.toInt).foreach(_ => injectUser(millis milliseconds))
+          } (0 until number.toInt).foreach(_ => injectUser(millis.milliseconds))
         }
 
       case _ => setAllScheduled()

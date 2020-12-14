@@ -66,7 +66,7 @@ abstract class InjectionIterator(durationInSeconds: Int) extends AbstractIterato
             .zipWithIndex
             .flatMap { case (millisUsers, millis) =>
               if (millisUsers > 0)
-                Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis) milliseconds)
+                Iterator.fill(millisUsers.toInt)((thisSecond * 1000 + millis).milliseconds)
               else
                 Iterator.empty
             }

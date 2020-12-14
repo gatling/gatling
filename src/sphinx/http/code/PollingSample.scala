@@ -28,7 +28,7 @@ class PollingSample {
   //#pollerStart
   exec(
     polling
-      .every(10 seconds)
+      .every(10.seconds)
       .exec(http("name").get("url"))
   )
   //#pollerStart

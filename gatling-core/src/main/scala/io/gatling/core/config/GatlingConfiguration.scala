@@ -145,7 +145,7 @@ object GatlingConfiguration extends StrictLogging {
 
   private def socketConfiguration(config: Config) =
     new SocketConfiguration(
-      connectTimeout = config.getInt(socket.ConnectTimeout) millis,
+      connectTimeout = config.getInt(socket.ConnectTimeout).millis,
       tcpNoDelay = config.getBoolean(socket.TcpNoDelay),
       soKeepAlive = config.getBoolean(socket.SoKeepAlive),
       soReuseAddress = config.getBoolean(socket.SoReuseAddress)
@@ -175,12 +175,12 @@ object GatlingConfiguration extends StrictLogging {
     new SslConfiguration(
       useOpenSsl = useOpenSsl,
       useOpenSslFinalizers = config.getBoolean(ssl.UseOpenSslFinalizers),
-      handshakeTimeout = config.getInt(ssl.HandshakeTimeout) millis,
+      handshakeTimeout = config.getInt(ssl.HandshakeTimeout).millis,
       useInsecureTrustManager = config.getBoolean(ssl.UseInsecureTrustManager),
       enabledProtocols = enabledProtocols,
       enabledCipherSuites = config.getStringList(ssl.EnabledCipherSuites).asScala.toList,
       sessionCacheSize = config.getInt(ssl.SessionCacheSize),
-      sessionTimeout = config.getInt(ssl.SessionTimeout) seconds,
+      sessionTimeout = config.getInt(ssl.SessionTimeout).seconds,
       enableSni = config.getBoolean(ssl.EnableSni),
       keyManagerFactory = {
         val storeType = config.getString(ssl.keyStore.Type).trimToOption
@@ -228,8 +228,8 @@ object GatlingConfiguration extends StrictLogging {
       perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
       warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
       enableGA = config.getBoolean(http.EnableGA),
-      requestTimeout = config.getInt(http.RequestTimeout) millis,
-      pooledConnectionIdleTimeout = config.getInt(http.PooledConnectionIdleTimeout) millis,
+      requestTimeout = config.getInt(http.RequestTimeout).millis,
+      pooledConnectionIdleTimeout = config.getInt(http.PooledConnectionIdleTimeout).millis,
       enableHostnameVerification = {
         val enable = config.getBoolean(http.EnableHostnameVerification)
         if (!enable) {
@@ -239,14 +239,14 @@ object GatlingConfiguration extends StrictLogging {
         enable
       },
       dns = new DnsConfiguration(
-        queryTimeout = config.getInt(http.dns.QueryTimeout) millis,
+        queryTimeout = config.getInt(http.dns.QueryTimeout).millis,
         maxQueriesPerResolve = config.getInt(http.dns.MaxQueriesPerResolve)
       )
     )
 
   private def jmsConfiguration(config: Config) =
     new JmsConfiguration(
-      replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod) millis
+      replyTimeoutScanPeriod = config.getLong(jms.ReplyTimeoutScanPeriod).millis
     )
 
   private def dataConfiguration(config: Config) =
@@ -254,13 +254,13 @@ object GatlingConfiguration extends StrictLogging {
       dataWriters = config.getStringList(data.Writers).asScala.flatMap(DataWriterType.findByName(_).toList).toSeq,
       console = new ConsoleDataWriterConfiguration(
         light = config.getBoolean(data.console.Light),
-        writePeriod = config.getInt(data.console.WritePeriod) seconds
+        writePeriod = config.getInt(data.console.WritePeriod).seconds
       ),
       file = new FileDataWriterConfiguration(
         bufferSize = config.getInt(data.file.BufferSize)
       ),
       leak = new LeakDataWriterConfiguration(
-        noActivityTimeout = config.getInt(data.leak.NoActivityTimeout) seconds
+        noActivityTimeout = config.getInt(data.leak.NoActivityTimeout).seconds
       ),
       graphite = new GraphiteDataWriterConfiguration(
         light = config.getBoolean(data.graphite.Light),
@@ -269,7 +269,7 @@ object GatlingConfiguration extends StrictLogging {
         protocol = TransportProtocol(config.getString(data.graphite.Protocol).trim),
         rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
         bufferSize = config.getInt(data.graphite.BufferSize),
-        writePeriod = config.getInt(data.graphite.WritePeriod) seconds
+        writePeriod = config.getInt(data.graphite.WritePeriod).seconds
       )
     )
 

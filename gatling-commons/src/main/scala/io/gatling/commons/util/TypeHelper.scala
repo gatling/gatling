@@ -255,18 +255,18 @@ object TypeCaster extends LowPriorityTypeCaster {
     @throws[ClassCastException]
     override def cast(key: String, value: Any): FiniteDuration =
       value match {
-        case v: Long           => v seconds
-        case v: java.lang.Long => v.longValue seconds
-        case s: String         => tryParse(key, s, classOf[Long])(_.toLong seconds)
+        case v: Long           => v.seconds
+        case v: java.lang.Long => v.longValue.seconds
+        case s: String         => tryParse(key, s, classOf[Long])(_.toLong.seconds)
         case v: FiniteDuration => v
         case _                 => throw new ClassCastException(cceMessage(key, value, classOf[FiniteDuration]))
       }
 
     override def validate(key: String, value: Any): Validation[FiniteDuration] =
       value match {
-        case v: Long           => (v seconds).success
-        case v: java.lang.Long => (v.longValue seconds).success
-        case s: String         => tryParseV(key, s, classOf[Long])(_.toLong seconds)
+        case v: Long           => (v.seconds).success
+        case v: java.lang.Long => (v.longValue.seconds).success
+        case s: String         => tryParseV(key, s, classOf[Long])(_.toLong.seconds)
         case v: FiniteDuration => v.success
         case _                 => cceMessage(key, value, classOf[FiniteDuration]).failure
       }

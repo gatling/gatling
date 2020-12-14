@@ -70,9 +70,9 @@ class ScenarioSample {
 
   //#pace
   forever(
-    pace(5 seconds)
+    pace(5.seconds)
       .exec(
-        pause(1 second, 4 seconds) // Will be run every 5 seconds, irrespective of what pause time is used
+        pause(1.second, 4.seconds) // Will be run every 5 seconds, irrespective of what pause time is used
       )
   )
   //#pace
@@ -81,7 +81,7 @@ class ScenarioSample {
   val counterName, sequenceName, elementName = "foo"
   val myChain = exec(Session.Identity(_))
   val condition, exitASAP = true
-  val duration = 5 seconds
+  val duration = 5.seconds
 
   //#repeat-example
   repeat(times, counterName) {
@@ -268,6 +268,6 @@ class ScenarioSample {
   //#protocol
 
   //#throttling
-  scn.inject(rampUsers(500) during (10 minutes)).throttle(reachRps(100) in (10 seconds), holdFor(10 minutes))
+  scn.inject(rampUsers(500).during(10.minutes)).throttle(reachRps(100).in(10.seconds), holdFor(10.minutes))
   //#throttling
 }

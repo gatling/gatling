@@ -60,17 +60,17 @@ class BasicSimulation extends Simulation {
       http("request_5")
         .get("/computers?p=1")
     )
-    .pause(670 milliseconds)
+    .pause(670.milliseconds)
     .exec(
       http("request_6")
         .get("/computers?p=2")
     )
-    .pause(629 milliseconds)
+    .pause(629.milliseconds)
     .exec(
       http("request_7")
         .get("/computers?p=3")
     )
-    .pause(734 milliseconds)
+    .pause(734.milliseconds)
     .exec(
       http("request_8")
         .get("/computers?p=4")

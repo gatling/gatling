@@ -72,8 +72,8 @@ class AdvancedTutorial extends Simulation {
 
   //#setup-users-and-admins
   setUp(
-    users.inject(rampUsers(10) during (10 seconds)),
-    admins.inject(rampUsers(2) during (10 seconds))
+    users.inject(rampUsers(10).during(10.seconds)),
+    admins.inject(rampUsers(2).during(10.seconds))
   ).protocols(httpProtocol)
   //#setup-users-and-admins
 }

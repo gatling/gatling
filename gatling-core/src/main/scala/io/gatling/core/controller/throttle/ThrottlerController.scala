@@ -48,7 +48,7 @@ private[throttle] class ThrottlerController(throttler: ActorRef, defaults: Throt
   startWith(WaitingToStart, NoData)
 
   when(WaitingToStart) { case Event(Start, NoData) =>
-    system.scheduler.scheduleWithFixedDelay(Duration.Zero, 1 second, self, Tick)
+    system.scheduler.scheduleWithFixedDelay(Duration.Zero, 1.second, self, Tick)
     notifyThrottler(defaults, 0)
     goto(Started) using StartedData(0)
   }

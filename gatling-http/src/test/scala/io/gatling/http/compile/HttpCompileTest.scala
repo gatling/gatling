@@ -143,7 +143,7 @@ class HttpCompileTest extends Simulation {
     .exec(http("Request").get("/").basicAuth("usr", "pwd"))
     .exec(http("Request").get("/").digestAuth("usr", "pwd"))
     // requestTimeout
-    .exec(http("Request").get("/").requestTimeout(3 minutes))
+    .exec(http("Request").get("/").requestTimeout(3.minutes))
     // misc
     .exec(
       http("Request").get("/").silent.notSilent.disableUrlEncoding.disableFollowRedirect.ignoreProtocolChecks.ignoreProtocolHeaders

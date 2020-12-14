@@ -27,6 +27,6 @@ import akka.testkit.{ ImplicitSender, TestKit }
 abstract class AkkaSpec extends TestKit(ActorSystem()) with BaseSpec with ImplicitSender with EmptySession {
   override def afterAll(): Unit = {
     val whenTerminated = system.terminate()
-    Await.result(whenTerminated, 2 seconds)
+    Await.result(whenTerminated, 2.seconds)
   }
 }

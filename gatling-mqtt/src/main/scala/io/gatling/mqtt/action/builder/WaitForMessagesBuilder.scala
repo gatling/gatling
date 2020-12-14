@@ -22,7 +22,7 @@ import io.gatling.core.action.Action
 import io.gatling.core.structure.ScenarioContext
 
 object WaitForMessagesBuilder {
-  val Default: WaitForMessagesBuilder = new WaitForMessagesBuilder(60 seconds)
+  val Default: WaitForMessagesBuilder = new WaitForMessagesBuilder(1.minute)
 }
 
 final case class WaitForMessagesBuilder(timeout: FiniteDuration) extends MqttActionBuilder {

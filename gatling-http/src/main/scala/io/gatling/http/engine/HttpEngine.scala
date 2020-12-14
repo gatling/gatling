@@ -106,7 +106,7 @@ class HttpEngine(
               null,
               null
             )
-            Await.result(p.future, 2 seconds)
+            Await.result(p.future, 2.seconds)
             logger.debug(s"Warm up request $url successful")
           } catch {
             case NonFatal(e) =>

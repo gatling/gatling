@@ -59,17 +59,17 @@ class AdvancedSimulationStep03 extends Simulation {
         http("Page 1")
           .get("/computers?p=1")
       )
-      .pause(670 milliseconds)
+      .pause(670.milliseconds)
       .exec(
         http("Page 2")
           .get("/computers?p=2")
       )
-      .pause(629 milliseconds)
+      .pause(629.milliseconds)
       .exec(
         http("Page 3")
           .get("/computers?p=3")
       )
-      .pause(734 milliseconds)
+      .pause(734.milliseconds)
       .exec(
         http("Page 4")
           .get("/computers?p=4")
@@ -105,7 +105,7 @@ class AdvancedSimulationStep03 extends Simulation {
   val admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit)
 
   setUp(
-    users.inject(rampUsers(10) during (10 seconds)),
-    admins.inject(rampUsers(2) during (10 seconds))
+    users.inject(rampUsers(10).during(10.seconds)),
+    admins.inject(rampUsers(2).during(10.seconds))
   ).protocols(httpProtocol)
 }

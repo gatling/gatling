@@ -33,7 +33,7 @@ class GatlingHttpFunSpecCompileTest extends GatlingHttpFunSpec {
   spec {
     http("Index test")
       .get("/index.html")
-      .check(h1 exists)
+      .check(h1.exists)
   }
 }
 

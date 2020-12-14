@@ -49,7 +49,7 @@ class ScenarioSpec extends BaseSpec {
       ),
       List.empty
     )
-    scn.elements shouldBe List(r1, PauseElement(DurationInt(1500) milliseconds), r2.copy(statusCode = 200), PauseElement(DurationInt(1500) milliseconds), r4)
+    scn.elements shouldBe List(r1, PauseElement(1500.milliseconds), r2.copy(statusCode = 200), PauseElement(1500.milliseconds), r4)
   }
 
   it should "filter out embedded resources of HTML documents" in {
@@ -101,6 +101,6 @@ class ScenarioSpec extends BaseSpec {
       ),
       Nil
     )
-    scn.elements shouldBe List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(DurationInt(2997) milliseconds), r5)
+    scn.elements shouldBe List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(2997.milliseconds), r5)
   }
 }

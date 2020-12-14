@@ -269,9 +269,9 @@ class ElCompiler private extends RegexParsers {
     }
   }
 
-  private val expr: Parser[List[ElPart[Any]]] = multivaluedExpr | (elExpr ^^ (_ :: Nil))
+  private val expr: Parser[List[ElPart[Any]]] = multivaluedExpr | elExpr.^^(_ :: Nil)
 
-  private def multivaluedExpr: Parser[List[ElPart[Any]]] = (elExpr | staticPart) *
+  private def multivaluedExpr: Parser[List[ElPart[Any]]] = (elExpr | staticPart).*
 
   private val staticPartPattern: Parser[List[String]] = new Parser[String] {
     override def apply(in: Input): ParseResult[String] = {
@@ -349,7 +349,7 @@ class ElCompiler private extends RegexParsers {
       }
     }
 
-    objectName ~ (valueAccess *) ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }
+    objectName ~ valueAccess.* ^^ { case objectPart ~ accessTokens => sessionObjectRec(accessTokens, objectPart, objectPart.name) }
   }
 
   private def objectName: Parser[AttributePart] = NameRegex ^^ (AttributePart(_))

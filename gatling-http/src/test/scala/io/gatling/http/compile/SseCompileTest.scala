@@ -28,12 +28,12 @@ class SseCompileTest extends Simulation {
       sse("connect")
         .sseName("sse")
         .connect("/stocks/prices")
-        .await(30 seconds)(
+        .await(30.seconds)(
           sse.checkMessage("checkName1").check(regex("""event: snapshot(.*)"""))
         )
     )
     .exec(
-      sse("waitForSomeMEssage").setCheck.await(30 seconds)(
+      sse("waitForSomeMEssage").setCheck.await(30.seconds)(
         sse.checkMessage("checkName1").check(jsonPath("$.foo"), jmesPath("foo"))
       )
     )

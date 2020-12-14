@@ -60,7 +60,7 @@ object OpenInjectionProfileSpec {
     }
 
     while (!workload.isAllUsersScheduled) {
-      workload.injectBatch(1 seconds)
+      workload.injectBatch(1.seconds)
     }
 
     count
@@ -73,7 +73,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
 
   "Inserting a pause between steps" should "produce the right number of users" in {
 
-    val steps = Seq(AtOnceOpenInjection(1), NothingForOpenInjection(2 seconds), AtOnceOpenInjection(1))
+    val steps = Seq(AtOnceOpenInjection(1), NothingForOpenInjection(2.seconds), AtOnceOpenInjection(1))
     val profile = new OpenInjectionProfile(steps)
     profile.totalUserCount shouldBe Some(2)
   }
@@ -84,7 +84,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validUsers, "users"), (validDurationSeconds, "durationSeconds")) { (users, durationSeconds) =>
-      val steps = Seq(RampOpenInjection(users, durationSeconds second))
+      val steps = Seq(RampOpenInjection(users, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(profile)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -97,7 +97,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 1)
 
     forAll((validRate, "rate"), (validDurationSeconds, "durationSeconds")) { (startRate, durationSeconds) =>
-      val steps = Seq(ConstantRateOpenInjection(startRate, durationSeconds second))
+      val steps = Seq(ConstantRateOpenInjection(startRate, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(profile)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -111,7 +111,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validStartRate, "startRate"), (validEndRate, "endRate"), (validDurationSeconds, "durationSeconds")) { (startRate, endRate, durationSeconds) =>
-      val steps = Seq(RampRateOpenInjection(startRate, endRate, durationSeconds second))
+      val steps = Seq(RampRateOpenInjection(startRate, endRate, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(profile)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -136,7 +136,7 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val validDurationSeconds = Gen.choose(1, 200).suchThat(_ > 2)
 
     forAll((validUsers, "users"), (validDurationSeconds, "durationSeconds")) { (users, durationSeconds) =>
-      val steps = Seq(HeavisideOpenInjection(users, durationSeconds second))
+      val steps = Seq(HeavisideOpenInjection(users, durationSeconds.second))
       val profile = new OpenInjectionProfile(steps)
       val actualCount = drain(profile)
       profile.totalUserCount shouldBe Some(actualCount)
@@ -147,21 +147,21 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
-      duration = 10 seconds,
+      duration = 10.seconds,
       startingUsers = 5,
-      rampDuration = 20 seconds
+      rampDuration = 20.seconds
     ).composite.steps
 
     val expected = List(
-      ConstantRateOpenInjection(5, 10 seconds),
-      RampRateOpenInjection(5, 15, 20 seconds),
-      ConstantRateOpenInjection(15, 10 seconds),
-      RampRateOpenInjection(15, 25, 20 seconds),
-      ConstantRateOpenInjection(25, 10 seconds),
-      RampRateOpenInjection(25, 35, 20 seconds),
-      ConstantRateOpenInjection(35, 10 seconds),
-      RampRateOpenInjection(35, 45, 20 seconds),
-      ConstantRateOpenInjection(45, 10 seconds)
+      ConstantRateOpenInjection(5, 10.seconds),
+      RampRateOpenInjection(5, 15, 20.seconds),
+      ConstantRateOpenInjection(15, 10.seconds),
+      RampRateOpenInjection(15, 25, 20.seconds),
+      ConstantRateOpenInjection(25, 10.seconds),
+      RampRateOpenInjection(25, 35, 20.seconds),
+      ConstantRateOpenInjection(35, 10.seconds),
+      RampRateOpenInjection(35, 45, 20.seconds),
+      ConstantRateOpenInjection(45, 10.seconds)
     )
 
     steps.shouldBe(expected)
@@ -171,17 +171,17 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
-      duration = 10 seconds,
+      duration = 10.seconds,
       startingUsers = 0,
       rampDuration = Duration.Zero
     ).composite.steps
 
     val expected = List(
-      ConstantRateOpenInjection(0, 10 seconds),
-      ConstantRateOpenInjection(10, 10 seconds),
-      ConstantRateOpenInjection(20, 10 seconds),
-      ConstantRateOpenInjection(30, 10 seconds),
-      ConstantRateOpenInjection(40, 10 seconds)
+      ConstantRateOpenInjection(0, 10.seconds),
+      ConstantRateOpenInjection(10, 10.seconds),
+      ConstantRateOpenInjection(20, 10.seconds),
+      ConstantRateOpenInjection(30, 10.seconds),
+      ConstantRateOpenInjection(40, 10.seconds)
     )
 
     steps.shouldBe(expected)
@@ -191,17 +191,17 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
-      duration = 10 seconds,
+      duration = 10.seconds,
       startingUsers = 5,
       rampDuration = Duration.Zero
     ).composite.steps
 
     val expected = List(
-      ConstantRateOpenInjection(5, 10 seconds),
-      ConstantRateOpenInjection(15, 10 seconds),
-      ConstantRateOpenInjection(25, 10 seconds),
-      ConstantRateOpenInjection(35, 10 seconds),
-      ConstantRateOpenInjection(45, 10 seconds)
+      ConstantRateOpenInjection(5, 10.seconds),
+      ConstantRateOpenInjection(15, 10.seconds),
+      ConstantRateOpenInjection(25, 10.seconds),
+      ConstantRateOpenInjection(35, 10.seconds),
+      ConstantRateOpenInjection(45, 10.seconds)
     )
 
     steps.shouldBe(expected)
@@ -211,22 +211,22 @@ class OpenInjectionProfileSpec extends BaseSpec {
     val steps = IncreasingUsersPerSecCompositeStep(
       usersPerSec = 10,
       nbOfSteps = 5,
-      duration = 10 seconds,
+      duration = 10.seconds,
       startingUsers = 0,
-      rampDuration = 80 seconds
+      rampDuration = 80.seconds
     ).composite.steps
 
     val expected = List(
-      RampRateOpenInjection(0, 10, 80 seconds),
-      ConstantRateOpenInjection(10, 10 seconds),
-      RampRateOpenInjection(10, 20, 80 seconds),
-      ConstantRateOpenInjection(20, 10 seconds),
-      RampRateOpenInjection(20, 30, 80 seconds),
-      ConstantRateOpenInjection(30, 10 seconds),
-      RampRateOpenInjection(30, 40, 80 seconds),
-      ConstantRateOpenInjection(40, 10 seconds),
-      RampRateOpenInjection(40, 50, 80 seconds),
-      ConstantRateOpenInjection(50, 10 seconds)
+      RampRateOpenInjection(0, 10, 80.seconds),
+      ConstantRateOpenInjection(10, 10.seconds),
+      RampRateOpenInjection(10, 20, 80.seconds),
+      ConstantRateOpenInjection(20, 10.seconds),
+      RampRateOpenInjection(20, 30, 80.seconds),
+      ConstantRateOpenInjection(30, 10.seconds),
+      RampRateOpenInjection(30, 40, 80.seconds),
+      ConstantRateOpenInjection(40, 10.seconds),
+      RampRateOpenInjection(40, 50, 80.seconds),
+      ConstantRateOpenInjection(50, 10.seconds)
     )
 
     steps.shouldBe(expected)
@@ -235,17 +235,17 @@ class OpenInjectionProfileSpec extends BaseSpec {
   it should "chain components in correct order" in {
     val composite = CompositeOpenInjectionStep(
       List(
-        ConstantRateOpenInjection(2, 1 seconds),
-        ConstantRateOpenInjection(4, 1 seconds)
+        ConstantRateOpenInjection(2, 1.seconds),
+        ConstantRateOpenInjection(4, 1.seconds)
       )
     )
     composite.chain(Iterator.empty).toList shouldBe Seq(
-      0 milliseconds,
-      500 milliseconds,
-      1000 milliseconds,
-      1250 milliseconds,
-      1500 milliseconds,
-      1750 milliseconds
+      0.milliseconds,
+      500.milliseconds,
+      1000.milliseconds,
+      1250.milliseconds,
+      1500.milliseconds,
+      1750.milliseconds
     )
   }
 }

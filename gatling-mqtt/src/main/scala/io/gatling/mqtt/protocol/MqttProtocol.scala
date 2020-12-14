@@ -41,8 +41,8 @@ object MqttProtocol extends StrictLogging {
       cleanSession = true,
       credentials = None,
       lastWill = None,
-      connectTimeout = 5 seconds,
-      keepAlive = 5 seconds,
+      connectTimeout = 5.seconds,
+      keepAlive = 5.seconds,
       qos = MqttQoS.AT_MOST_ONCE,
       retain = false,
       reconnect = MqttProtocolReconnectPart(
@@ -55,7 +55,7 @@ object MqttProtocol extends StrictLogging {
         resendBackoffMultiplier = 1f
       ),
       correlator = None,
-      timeoutCheckInterval = 1 second
+      timeoutCheckInterval = 1.second
     )
 }
 

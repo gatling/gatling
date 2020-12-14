@@ -71,7 +71,7 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
 
   override def start(): Unit = {
 
-    implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
+    implicit val dataWriterTimeOut: Timeout = Timeout(5.seconds)
     implicit val dispatcher: ExecutionContext = system.dispatcher
 
     val dataWriterInitResponses = dataWriters.map(_ ? dataWriterInitMessage)
@@ -92,7 +92,7 @@ class DataWritersStatsEngine(dataWriterInitMessage: Init, dataWriters: Seq[Actor
   override def stop(controller: ActorRef, exception: Option[Exception]): Unit =
     if (active.getAndSet(false)) {
       implicit val dispatcher: ExecutionContext = system.dispatcher
-      implicit val dataWriterTimeOut: Timeout = Timeout(5 seconds)
+      implicit val dataWriterTimeOut: Timeout = Timeout(5.seconds)
       val responses = dataWriters.map(_ ? Stop)
       Future.sequence(responses).onComplete(_ => controller ! ControllerCommand.StatsEngineStopped)
     }

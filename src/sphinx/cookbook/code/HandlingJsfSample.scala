@@ -51,7 +51,7 @@ class HandlingJsfSample {
   //#example-scenario
   val scn = scenario("Scenario Name")
     .exec(jsfGet("request_1", "/showcase-labs/ui/pprUpdate.jsf"))
-    .pause(80 milliseconds)
+    .pause(80.milliseconds)
     .exec(
       jsfPost("request_2", "/showcase-labs/ui/pprUpdate.jsf")
         .formParam("javax.faces.partial.ajax", "true")

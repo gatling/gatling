@@ -77,11 +77,11 @@ trait ScenarioTestFixture extends BaseSpec {
       val ctx = ScenarioTestContext(scenarioContext, statsEngine, exitAction)
 
       f(ctx)
-      exitAction.await(2 seconds)
+      exitAction.await(2.seconds)
       resolve(statsEngine.msgQueue, ctx.expectations)
 
     } finally {
-      Await.ready(system.terminate(), 2 seconds)
+      Await.ready(system.terminate(), 2.seconds)
     }
   }
 

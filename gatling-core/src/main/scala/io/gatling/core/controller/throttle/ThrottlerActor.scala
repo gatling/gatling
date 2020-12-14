@@ -43,7 +43,7 @@ class ThrottlerActor extends ThrottlerActorFSM {
       request()
     } else {
       val delay = (requestStep * count).toInt - millisSinceTick(tickNanos)
-      scheduler.scheduleOnce(delay milliseconds) {
+      scheduler.scheduleOnce(delay.milliseconds) {
         request()
       }
     }

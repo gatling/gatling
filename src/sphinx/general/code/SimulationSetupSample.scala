@@ -26,41 +26,39 @@ class SimulationSetupSample extends Simulation {
 
   //#open-injection
   setUp(
-    scn
-      .inject(
-        nothingFor(4 seconds), // 1
-        atOnceUsers(10), // 2
-        rampUsers(10) during (5 seconds), // 3
-        constantUsersPerSec(20) during (15 seconds), // 4
-        constantUsersPerSec(20) during (15 seconds) randomized, // 5
-        rampUsersPerSec(10) to 20 during (10 minutes), // 6
-        rampUsersPerSec(10) to 20 during (10 minutes) randomized, // 7
-        heavisideUsers(1000) during (20 seconds) // 8
-      )
-      .protocols(httpProtocol)
+    scn.inject(
+      nothingFor(4.seconds), // 1
+      atOnceUsers(10), // 2
+      rampUsers(10).during(5.seconds), // 3
+      constantUsersPerSec(20).during(15.seconds), // 4
+      constantUsersPerSec(20).during(15.seconds).randomized, // 5
+      rampUsersPerSec(10).to(20).during(10.minutes), // 6
+      rampUsersPerSec(10).to(20).during(10.minutes).randomized, // 7
+      heavisideUsers(1000).during(20.seconds) // 8
+    ).protocols(httpProtocol)
   )
   //#open-injection
 
   //#closed-injection
   setUp(
     scn.inject(
-      constantConcurrentUsers(10) during (10 seconds), // 1
-      rampConcurrentUsers(10) to (20) during (10 seconds) // 2
+      constantConcurrentUsers(10).during(10.seconds), // 1
+      rampConcurrentUsers(10).to(20).during(10.seconds) // 2
     )
   )
   //#closed-injection
 
   //#throttling
-  setUp(scn.inject(constantUsersPerSec(100) during (30 minutes))).throttle(
-    reachRps(100) in (10 seconds),
-    holdFor(1 minute),
+  setUp(scn.inject(constantUsersPerSec(100).during(30.minutes))).throttle(
+    reachRps(100).in(10.seconds),
+    holdFor(1.minute),
     jumpToRps(50),
-    holdFor(2 hours)
+    holdFor(2.hours)
   )
   //#throttling
 
   //#max-duration
-  setUp(scn.inject(rampUsers(1000) during (20 minutes))).maxDuration(10 minutes)
+  setUp(scn.inject(rampUsers(1000).during(20.minutes))).maxDuration(10.minutes)
   //#max-duration
 
   //#incrementConcurrentUsers
@@ -72,8 +70,8 @@ class SimulationSetupSample extends Simulation {
     scn.inject(
       incrementConcurrentUsers(5) // Int
         .times(5)
-        .eachLevelLasting(10 seconds)
-        .separatedByRampsLasting(10 seconds)
+        .eachLevelLasting(10.seconds)
+        .separatedByRampsLasting(10.seconds)
         .startingFrom(10) // Int
     )
   )
@@ -88,8 +86,8 @@ class SimulationSetupSample extends Simulation {
     scn.inject(
       incrementUsersPerSec(5) // Double
         .times(5)
-        .eachLevelLasting(10 seconds)
-        .separatedByRampsLasting(10 seconds)
+        .eachLevelLasting(10.seconds)
+        .separatedByRampsLasting(10.seconds)
         .startingFrom(10) // Double
     )
   )
@@ -111,7 +109,7 @@ class SimulationSetupSample extends Simulation {
   private val child1 = scenario("child1")
   private val child2 = scenario("child2")
   private val grandChild = scenario("grandChild")
-  private val injectionProfile = constantConcurrentUsers(5) during (5)
+  private val injectionProfile = constantConcurrentUsers(5).during(5)
 
   //#andThen
   setUp(

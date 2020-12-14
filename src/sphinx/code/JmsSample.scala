@@ -51,7 +51,7 @@ class TestJmsDsl extends Simulation {
     )
   }
 
-  setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
+  setUp(scn.inject(rampUsersPerSec(10).to(1000).during(2.minutes)))
     .protocols(jmsConfig)
 
   def checkBodyTextCorrect(m: Message) = {

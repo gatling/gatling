@@ -32,7 +32,7 @@ class TcpSenderSpec extends AkkaSpec {
 
   private val dummySocketAddress = new InetSocketAddress(9999)
 
-  private class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1 second, new DefaultClock) {
+  private class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second, new DefaultClock) {
     override def askForConnection(): Unit = ()
   }
 

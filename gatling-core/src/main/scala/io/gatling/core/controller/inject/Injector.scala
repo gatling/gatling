@@ -40,7 +40,7 @@ object InjectorCommand {
 object Injector {
 
   private val InjectorActorName = "gatling-injector"
-  val TickPeriod: FiniteDuration = 1 second
+  val TickPeriod: FiniteDuration = 1.second
 
   def apply(system: ActorSystem, eventLoopGroup: EventLoopGroup, statsEngine: StatsEngine, clock: Clock): ActorRef =
     system.actorOf(Props(new Injector(eventLoopGroup, statsEngine, clock)), InjectorActorName)

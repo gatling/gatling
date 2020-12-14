@@ -29,7 +29,7 @@ class PaceSpec extends AkkaSpec {
 
   private val clock = new DefaultClock
 
-  private val interval = 3 seconds
+  private val interval = 3.seconds
   private val counterName = "paceCounter"
 
   "pace" should "run actions with a minimum wait time" in {
@@ -37,31 +37,31 @@ class PaceSpec extends AkkaSpec {
 
     // Send session, expect response near-instantly
     instance ! emptySession
-    val session1 = expectMsgClass(1 second, classOf[Session])
+    val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Send second session, expect nothing for ~3 seconds, then a response
     instance ! session1
-    expectNoMessage(2 seconds)
-    val session2 = expectMsgClass(2 seconds, classOf[Session])
+    expectNoMessage(2.seconds)
+    val session2 = expectMsgClass(2.seconds, classOf[Session])
 
     // counter must have incremented by 3 seconds
     session2(counterName).as[Long] shouldBe session1(counterName).as[Long] + interval.toMillis +- 50
   }
 
   it should "run actions immediately if the minimum time has expired" in {
-    val overrunTime = 1 second
+    val overrunTime = 1.second
     val instance = new Pace(interval, counterName, mock[StatsEngine], clock, new ActorDelegatingAction("next", self))
 
     // Send session, expect response near-instantly
     instance ! emptySession
-    val session1 = expectMsgClass(1 second, classOf[Session])
+    val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Wait 4 seconds - simulate overrunning action
     Thread.sleep((interval + overrunTime).dilated.toMillis)
 
     // Send second session, expect response near-instantly
     instance ! session1
-    val session2 = expectMsgClass(1 second, classOf[Session])
+    val session2 = expectMsgClass(1.second, classOf[Session])
 
     // counter must have incremented by 3 seconds
     session2(counterName).as[Long] shouldBe session1(counterName).as[Long] + overrunTime.toMillis + interval.toMillis +- 50

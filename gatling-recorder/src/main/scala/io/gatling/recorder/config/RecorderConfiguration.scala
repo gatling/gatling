@@ -129,7 +129,7 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         resourcesFolder = getResourcesFolder,
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
-        thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
+        thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation).milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig),
         headless = config.getBoolean(core.Headless),
         harFilePath = config.getString(core.HarFilePath).trimToOption

@@ -69,11 +69,7 @@ class ComputerDatabaseSample extends Simulation {
         .check(substring("${homeComputer}"))
     )
 
-  setUp(
-    computerDbScn
-      .inject(
-        constantUsersPerSec(2) during (1 minutes)
-      )
-      .protocols(httpProtocol)
-  )
+  setUp(computerDbScn.inject(
+    constantUsersPerSec(2)during(1.minutes)
+  ).protocols(httpProtocol))
 }

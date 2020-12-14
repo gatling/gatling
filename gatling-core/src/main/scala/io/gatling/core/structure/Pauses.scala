@@ -41,7 +41,7 @@ private[structure] trait Pauses[B] extends Execs[B] {
     else {
       val minMillis = min.toMillis
       val maxMillis = max.toMillis
-      _ => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
+      _ => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis).millis).success
     }
 
   private def durationExpression(min: String, max: String, unit: Option[TimeUnit]): Expression[FiniteDuration] = {
@@ -62,7 +62,7 @@ private[structure] trait Pauses[B] extends Execs[B] {
         } else {
           val minMillis = min.toMillis
           val maxMillis = max.toMillis
-          ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
+          ThreadLocalRandom.current.nextLong(minMillis, maxMillis).millis
         }
       }
 

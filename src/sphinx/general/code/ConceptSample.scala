@@ -36,8 +36,8 @@ class ConceptSample extends Simulation {
 
   setUp(
     stdUser.inject(atOnceUsers(2000)),
-    admUser.inject(nothingFor(60 seconds), rampUsers(5) during (400 seconds)),
-    advUser.inject(rampUsers(500) during (200 seconds))
+    admUser.inject(nothingFor(60.seconds), rampUsers(5).during(400.seconds)),
+    advUser.inject(rampUsers(500).during(200.seconds))
   )
   //#example-definition
 }

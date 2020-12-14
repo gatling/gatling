@@ -131,7 +131,7 @@ class HttpRequestSample {
     http("Getting issues")
       .post("https://www.github.com/gatling/gatling/issues")
       .body(RawFileBody("someLargeFile"))
-      .requestTimeout(3 minutes)
+      .requestTimeout(3.minutes)
     //#requestTimeout
 
     //#authentication
