@@ -136,7 +136,7 @@ lazy val bundle = gatlingModule("gatling-bundle")
   .settings(generateConfigFiles(recorder))
   .settings(copyLogbackXml(core))
   .settings(bundleSettings)
-  .settings(noSrcToPublish, noDocToPublish)
+  .settings(exportJars := false, publishArtifact in Compile := false)
   .settings(CodeAnalysis.disable)
 
 addCommandAlias(
