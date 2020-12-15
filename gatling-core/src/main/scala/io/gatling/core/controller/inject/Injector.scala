@@ -119,7 +119,7 @@ private[inject] class Injector(eventLoopGroup: EventLoopGroup, statsEngine: Stat
   }
 
   when(WaitingToStart) { case Event(Start(controller, scenarios), NoData) =>
-    val timer = system.scheduler.scheduleWithFixedDelay(TickPeriod, TickPeriod, self, Tick)
+    val timer = system.scheduler.scheduleAtFixedRate(TickPeriod, TickPeriod, self, Tick)
     inject(StartedData(controller, Map.empty, scenarios.roots, Set.empty, scenarios.children, timer), firstBatch = true)
   }
 
