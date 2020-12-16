@@ -6,6 +6,7 @@ Migration guides
 .. toctree::
     :maxdepth: 1
 
+    3.4-to-3.5
     3.3-to-3.4
     2.3-to-3.0
     2.2-to-2.3
