@@ -1,0 +1,19 @@
+#################
+What's New in 3.5
+#################
+
+See full `Release Note <https://github.com/gatling/gatling/milestone/94?closed=1>`_ on Github.
+
+Core
+====
+
+* `#4015 <https://github.com/gatling/gatling/issues/4015>`__: New ``bodyLength`` check
+* `#4018 <https://github.com/gatling/gatling/issues/4018>`__: Support Scala case classes in ``jsonStringify``
+* `#4019 <https://github.com/gatling/gatling/issues/4019>`__: Support Scala case classes in `Gatling Expression Language
+
+HTTP
+====
+
+* `#3974 <https://github.com/gatling/gatling/issues/3974>`__: Pebble templates can now be used for crafting multipart text parts
+* `#4007 <https://github.com/gatling/gatling/issues/4007>`__: SSE check timeouts can now be dynamic, eg defined with Gatling Expression Language
+* `#4002 <https://github.com/gatling/gatling/issues/4002>`__: ``useAllLocalAddresses`` now supports filters to pick desired addresses based on a pattern
