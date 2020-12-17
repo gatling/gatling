@@ -70,7 +70,7 @@ object Dependencies {
   private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.3"             % "test"
   private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-15"                 % "3.2.3.0"           % "test"
   private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                     % "3.2.3.0"           % "test"
-  private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.15.1"            % "test"
+  private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.15.2"            % "test"
   private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
   private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "3.6.28"             % "test"
   private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.0"           % "test")
