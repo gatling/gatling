@@ -20,7 +20,6 @@ import scala.collection.mutable
 
 import io.gatling.commons.stats.{ KO, OK, Status }
 import io.gatling.commons.util.Clock
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.cache.{ ContentCacheEntry, Http2PriorKnowledgeSupport, HttpCaches }
 import io.gatling.http.client.uri.Uri
@@ -60,8 +59,7 @@ private[fetch] class DefaultResourceAggregator(
     httpCaches: HttpCaches,
     resourceFetcher: ResourceFetcher,
     httpTxExecutor: HttpTxExecutor,
-    clock: Clock,
-    configuration: GatlingConfiguration
+    clock: Clock
 ) extends ResourceAggregator
     with StrictLogging {
 

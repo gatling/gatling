@@ -180,7 +180,7 @@ private[http] class ResourceFetcher(
     inferredResources ::: explicitResources match {
       case Nil => None
       case resources =>
-        Some(new DefaultResourceAggregator(tx, resources, httpCaches, this, httpTxExecutor, coreComponents.clock, coreComponents.configuration))
+        Some(new DefaultResourceAggregator(tx, resources, httpCaches, this, httpTxExecutor, coreComponents.clock))
     }
   }
 
