@@ -63,7 +63,7 @@ class HttpTxSpec extends BaseSpec {
         requestConfig = requestConfig
       ),
       next = mock[Action],
-      resourceTx = if (root) None else Some(ResourceTx(null, null)),
+      resourceTx = if (root) None else Some(ResourceTx(null, "resources", null)),
       redirectCount = 0
     )
 

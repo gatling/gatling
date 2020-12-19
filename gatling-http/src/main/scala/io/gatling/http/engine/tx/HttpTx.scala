@@ -40,4 +40,4 @@ final case class HttpTx(
   def currentSession: Session = resourceTx.map(_.aggregator.currentSession).getOrElse(session)
 }
 
-final case class ResourceTx(aggregator: ResourceAggregator, uri: Uri)
+final case class ResourceTx(aggregator: ResourceAggregator, requestName: String, uri: Uri)

@@ -66,8 +66,8 @@ class HttpTxExecutor(
           case _ =>
             logger.debug(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             tx.resourceTx match {
-              case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
-              case _                               => tx.next ! tx.session
+              case Some(resourceTx) => resourceTx.aggregator.onCachedResource(resourceTx, tx)
+              case _                => tx.next ! tx.session
             }
         }
     }
@@ -110,8 +110,8 @@ class HttpTxExecutor(
         case _ =>
           logger.debug(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
           tx.resourceTx match {
-            case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
-            case _                               =>
+            case Some(resourceTx) => resourceTx.aggregator.onCachedResource(resourceTx, tx)
+            case _                =>
           }
       }
     }

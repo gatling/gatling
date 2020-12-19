@@ -36,10 +36,10 @@ private[http] trait ResourceAggregator {
 
   def start(session: Session): Unit
 
-  def onRegularResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean): Unit
+  def onRegularResourceFetched(resourceTx: ResourceTx, status: Status, session: Session, silent: Boolean): Unit
 
   def onCssResourceFetched(
-      uri: Uri,
+      resourceTx: ResourceTx,
       status: Status,
       session: Session,
       silent: Boolean,
@@ -50,12 +50,12 @@ private[http] trait ResourceAggregator {
 
   def onRedirect(originalTx: HttpTx, redirectTx: HttpTx): Unit
 
-  def onCachedResource(uri: Uri, tx: HttpTx): Unit
+  def onCachedResource(resourceTx: ResourceTx, tx: HttpTx): Unit
 }
 
 private[fetch] class DefaultResourceAggregator(
     rootTx: HttpTx,
-    initialResources: Seq[HttpRequest],
+    initialResources: List[HttpRequest],
     httpCaches: HttpCaches,
     resourceFetcher: ResourceFetcher,
     httpTxExecutor: HttpTxExecutor,
@@ -70,7 +70,7 @@ private[fetch] class DefaultResourceAggregator(
   // mutable state
   private var session: Session = _
   private val alreadySeen = mutable.Set.empty[Uri]
-  private val bufferedResourcesByHost = mutable.HashMap.empty[Remote, List[HttpRequest]].withDefaultValue(Nil)
+  private val bufferedResourcesByHost = mutable.LinkedHashMap.empty[Remote, List[HttpRequest]].withDefaultValue(Nil)
   private val maxConnectionsPerHost = httpProtocol.enginePart.maxConnectionsPerHost
   private val availableTokensByHost = mutable.HashMap.empty[Remote, Int].withDefaultValue(maxConnectionsPerHost)
   private var pendingResourcesCount = 0
@@ -85,7 +85,7 @@ private[fetch] class DefaultResourceAggregator(
   }
 
   private def createResourceTx(resource: HttpRequest, isHttp2PriorKnowledge: Option[Boolean]): HttpTx = {
-    logger.debug(s"Fetching resource ${resource.clientRequest.getUri}")
+    logger.debug(s"Create ResourceTx ${resource.requestName} ${resource.clientRequest.getUri}")
 
     // ALPN is necessary only if HTTP/2 is enabled and if we know that this remote is using HTTP/2 or if we still don't know
     val isAlpnRequired = rootTx.request.clientRequest.isHttp2Enabled && isHttp2PriorKnowledge.forall(_ == true)
@@ -95,11 +95,10 @@ private[fetch] class DefaultResourceAggregator(
       request = resource.copy(
         clientRequest = resource.clientRequest.copyWithAlpnRequiredAndPriorKnowledge(isAlpnRequired, isHttp2PriorKnowledge.contains(true))
       ),
-      resourceTx = Some(ResourceTx(this, resource.clientRequest.getUri)),
+      resourceTx = Some(ResourceTx(this, resource.requestName, resource.clientRequest.getUri)),
       redirectCount = 0
     )
 
-    logger.debug(s"Creating resourceTx $resourceTx")
     resourceTx
   }
 
@@ -112,29 +111,30 @@ private[fetch] class DefaultResourceAggregator(
     val silent = resource.isSilent(root = false)
 
     // FIXME check if it's a css this way or use the Content-Type?
+    val resourceTx = ResourceTx(this, resource.requestName, uri)
     if (httpCaches.isCssCached(uri)) {
-      onCssResourceFetched(uri, OK, this.session, silent, HttpResponseStatus.NOT_MODIFIED, None, "")
+      onCssResourceFetched(resourceTx, OK, this.session, silent, HttpResponseStatus.NOT_MODIFIED, None, "")
     } else {
-      onRegularResourceFetched(uri, OK, this.session, silent)
+      onRegularResourceFetched(resourceTx, OK, this.session, silent)
     }
   }
 
-  private def fetchOrBufferResources(resources: Iterable[HttpRequest]): Unit = {
+  private def fetchOrBufferResources(resources: List[HttpRequest]): Unit = {
 
-    def fetchAndBufferWithTokens(remote: Remote, resources: Iterable[HttpRequest], isHttp2PriorKnowledge: Option[Boolean]): Unit = {
+    def fetchAndBufferWithTokens(remote: Remote, resources: List[HttpRequest], isHttp2PriorKnowledge: Option[Boolean]): Unit = {
       val availableTokens = availableTokensByHost(remote)
       val (immediate, buffered) = resources.splitAt(availableTokens)
       fetchHttp1Resources(remote, immediate, isHttp2PriorKnowledge)
       bufferResources(remote, buffered)
     }
 
-    def fetchHttp1Resources(remote: Remote, resources: Iterable[HttpRequest], isHttp2PriorKnowledge: Option[Boolean]): Unit = {
+    def fetchHttp1Resources(remote: Remote, resources: List[HttpRequest], isHttp2PriorKnowledge: Option[Boolean]): Unit = {
       availableTokensByHost += remote -> (availableTokensByHost(remote) - resources.size)
       resources.foreach(resource => httpTxExecutor.execute(createResourceTx(resource, isHttp2PriorKnowledge)))
     }
 
-    def bufferResources(remote: Remote, resources: Iterable[HttpRequest]): Unit =
-      bufferedResourcesByHost += remote -> (bufferedResourcesByHost(remote) ::: resources.toList)
+    def bufferResources(remote: Remote, resources: List[HttpRequest]): Unit =
+      bufferedResourcesByHost += remote -> (bufferedResourcesByHost(remote) ::: resources)
 
     alreadySeen ++= resources.map(_.clientRequest.getUri)
     pendingResourcesCount += resources.size
@@ -243,15 +243,15 @@ private[fetch] class DefaultResourceAggregator(
       }
     }
 
-  override def onRegularResourceFetched(uri: Uri, status: Status, session: Session, silent: Boolean): Unit = {
-    logger.debug(s"Resource $uri was fetched")
+  override def onRegularResourceFetched(resourceTx: ResourceTx, status: Status, session: Session, silent: Boolean): Unit = {
+    logger.debug(s"Resource ${resourceTx.requestName} ${resourceTx.uri} was fetched")
     this.session = session
-    val remote = Remote(uri)
+    val remote = Remote(resourceTx.uri)
     resourceFetched(remote, status, silent, Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, remote).contains(true))
   }
 
   override def onCssResourceFetched(
-      uri: Uri,
+      resourceTx: ResourceTx,
       status: Status,
       session: Session,
       silent: Boolean,
@@ -259,10 +259,10 @@ private[fetch] class DefaultResourceAggregator(
       lastModifiedOrEtag: Option[String],
       content: String
   ): Unit = {
-    logger.debug(s"Css resource $uri was fetched")
+    logger.debug(s"Css resource ${resourceTx.requestName} ${resourceTx.uri} was fetched")
     this.session = session
-    cssFetched(uri, status, responseStatus, lastModifiedOrEtag, content)
-    val remote = Remote(uri)
+    cssFetched(resourceTx.uri, status, responseStatus, lastModifiedOrEtag, content)
+    val remote = Remote(resourceTx.uri)
     resourceFetched(remote, status, silent, Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(session, remote).contains(true))
   }
 
@@ -286,8 +286,8 @@ private[fetch] class DefaultResourceAggregator(
     }
   }
 
-  override def onCachedResource(uri: Uri, tx: HttpTx): Unit = {
-    val remote = Remote(uri)
+  override def onCachedResource(resourceTx: ResourceTx, tx: HttpTx): Unit = {
+    val remote = Remote(resourceTx.uri)
     resourceFetched(remote, OK, tx.silent, Http2PriorKnowledgeSupport.isHttp2PriorKnowledge(tx.session, remote).contains(true))
   }
 }
