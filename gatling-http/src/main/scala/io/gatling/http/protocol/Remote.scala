@@ -22,4 +22,4 @@ object Remote {
   def apply(uri: Uri): Remote = new Remote(uri.getHost, uri.getExplicitPort)
 }
 
-final class Remote(val hostname: String, val port: Int)
+final case class Remote(hostname: String, port: Int)
