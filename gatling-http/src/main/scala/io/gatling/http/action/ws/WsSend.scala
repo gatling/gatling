@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
 
 class WsSendTextFrame(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     message: Expression[String],
     checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]],
     override val statsEngine: StatsEngine,
@@ -52,7 +52,7 @@ class WsSendTextFrame(
 
 class WsSendBinaryFrame(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     message: Expression[Array[Byte]],
     checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]],
     override val statsEngine: StatsEngine,

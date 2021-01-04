@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ object Ws {
   private val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 
   @SuppressWarnings(Array("org.wartremover.warts.DefaultArguments"))
-  def apply(requestName: Expression[String], wsName: String = DefaultWebSocketName): Ws = new Ws(requestName, wsName)
+  def apply(requestName: Expression[String], wsName: Expression[String] = DefaultWebSocketName.expressionSuccess): Ws = new Ws(requestName, wsName)
 
   def checkTextMessage(name: String): WsTextFrameCheck = WsTextFrameCheck(name, Nil, Nil, isSilent = false)
 
@@ -39,9 +39,9 @@ object Ws {
  * @param requestName The name of this request
  * @param wsName The name of the session attribute used to store the WebSocket
  */
-class Ws(requestName: Expression[String], wsName: String) {
+class Ws(requestName: Expression[String], wsName: Expression[String]) {
 
-  def wsName(wsName: String): Ws = new Ws(requestName, wsName)
+  def wsName(wsName: Expression[String]): Ws = new Ws(requestName, wsName)
 
   /**
    * Opens a WebSocket and stores it in the session.

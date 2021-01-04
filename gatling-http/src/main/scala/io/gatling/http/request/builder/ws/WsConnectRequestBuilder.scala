@@ -29,7 +29,7 @@ object WsConnectRequestBuilder {
     WsConnectBuilder(requestBuilder, Nil, None)
 }
 
-final class WsConnectRequestBuilder(val commonAttributes: CommonAttributes, val wsName: String, val subprotocol: Option[Expression[String]])
+final class WsConnectRequestBuilder(val commonAttributes: CommonAttributes, val wsName: Expression[String], val subprotocol: Option[Expression[String]])
     extends RequestBuilder[WsConnectRequestBuilder] {
 
   def subprotocol(sub: Expression[String]): WsConnectRequestBuilder = new WsConnectRequestBuilder(commonAttributes, wsName, Some(sub))

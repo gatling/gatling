@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, RequestAction }
+import io.gatling.core.session._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
@@ -30,7 +31,7 @@ import io.gatling.http.protocol.HttpComponents
 
 class WsConnect(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     request: Expression[Request],
     connectCheckSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     onConnected: Option[Action],
@@ -51,13 +52,14 @@ class WsConnect(
     fetchFsm(wsName, session) match {
       case _: Failure =>
         for {
+          fsmName <- wsName(session)
           connectRequest <- request(session)
           resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(connectCheckSequences, session)
         } yield {
-          logger.debug(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+          logger.debug(s"Opening websocket '$fsmName': Scenario '${session.scenario}', UserId #${session.userId}")
 
           val fsm = new WsFsm(
-            wsName,
+            fsmName,
             connectRequest,
             requestName,
             resolvedCheckSequences,
@@ -69,10 +71,14 @@ class WsConnect(
             clock
           )
 
-          fsm.onPerformInitialConnect(session.set(wsName, fsm), next)
+          fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)
         }
 
       case _ =>
-        Failure(s"Unable to create a new WebSocket with name $wsName: already exists")
+        for {
+          fsmName <- wsName(session)
+        } yield {
+          Failure(s"Unable to create a new WebSocket with name $fsmName: already exists")
+        }
     }
 }

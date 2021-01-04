@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.softwaremill.quicklens._
 
 final case class WsSendTextFrameBuilder(
     requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     message: Expression[String],
     checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]]
 ) extends HttpActionBuilder {
@@ -54,7 +54,7 @@ final case class WsSendTextFrameBuilder(
 
 final case class WsSendBinaryFrameBuilder(
     requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     message: Expression[Array[Byte]],
     checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]]
 ) extends HttpActionBuilder {
