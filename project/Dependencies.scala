@@ -67,20 +67,22 @@ object Dependencies {
   private val pebble                         = "io.pebbletemplates"                   % "pebble"                          % "3.1.4"
 
   // Test dependencies
-  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.3"             % "test"
-  private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-15"                 % "3.2.3.0"           % "test"
-  private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                     % "3.2.3.0"           % "test"
-  private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.15.2"            % "test"
-  private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % "test"
-  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "3.7.0"             % "test"
-  private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.0"           % "test")
+  private val scalaTest                      = "org.scalatest"                       %% "scalatest"                       % "3.2.3"             % Test
+  private val scalaTestScalacheck            = "org.scalatestplus"                   %% "scalacheck-1-15"                 % "3.2.3.0"           % Test
+  private val scalaTestMockito               = scalaTestScalacheck.organization      %% "mockito-3-4"                     % "3.2.3.0"           % Test
+  private val scalaCheck                     = "org.scalacheck"                      %% "scalacheck"                      % "1.15.2"            % Test
+  private val akkaTestKit                    = akka.organization                     %% "akka-testkit"                    % akka.revision       % Test
+  private val mockitoCore                    = "org.mockito"                          % "mockito-core"                    % "3.7.0"             % Test
+  private val activemqBroker                 = ("org.apache.activemq"                 % "activemq-broker"                 % "5.16.0"            % Test)
     .exclude("org.apache.geronimo.specs", "geronimo-jms_1.1_spec")
-  private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % "test"
+  private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.27"
 
-  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.5.2"             % "test"
-  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.35.v20201120"  % "test"
-  private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % "test"
+  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.5.2"             % Test
+  private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"               % "0.8.3"             % Test
+
+  private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.35.v20201120"  % Test
+  private val jettyProxy                     = jetty.organization                     % "jetty-proxy"                     % jetty.revision      % Test
 
   // format: ON
 
@@ -98,7 +100,7 @@ object Dependencies {
   // Dependencies by module
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, nettyEpoll, junit)
+    Seq(nettyBuffer, nettyEpoll, junit, jupiterInterface)
 
   def commonsSharedDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
@@ -137,6 +139,7 @@ object Dependencies {
     nettyHttp2,
     nettyBoringSsl,
     junit,
+    jupiterInterface,
     jetty,
     jettyProxy
   ) ++ loggingDeps
