@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,8 +66,8 @@ class HttpTxExecutor(
           case _ =>
             logger.debug(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             tx.resourceTx match {
-              case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
-              case _                               => tx.next ! tx.session
+              case Some(resourceTx) => resourceTx.aggregator.onCachedResource(resourceTx, tx)
+              case _                => tx.next ! tx.session
             }
         }
     }
@@ -110,8 +110,8 @@ class HttpTxExecutor(
         case _ =>
           logger.debug(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
           tx.resourceTx match {
-            case Some(ResourceTx(aggregator, _)) => aggregator.onCachedResource(uri, tx)
-            case _                               =>
+            case Some(resourceTx) => resourceTx.aggregator.onCachedResource(resourceTx, tx)
+            case _                =>
           }
       }
     }

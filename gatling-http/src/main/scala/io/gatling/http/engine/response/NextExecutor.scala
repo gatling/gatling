@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ class ResourceNextExecutor(
   override def executeNext(session: Session, status: Status, response: Response): Unit =
     if (isCss(response.headers)) {
       resourceTx.aggregator.onCssResourceFetched(
-        resourceTx.uri,
+        resourceTx,
         status,
         session,
         tx.silent,
@@ -68,11 +68,11 @@ class ResourceNextExecutor(
         response.body.string
       )
     } else {
-      resourceTx.aggregator.onRegularResourceFetched(resourceTx.uri, status, session, tx.silent)
+      resourceTx.aggregator.onRegularResourceFetched(resourceTx, status, session, tx.silent)
     }
 
   override def executeNextOnCrash(session: Session): Unit =
-    resourceTx.aggregator.onRegularResourceFetched(resourceTx.uri, KO, session, tx.silent)
+    resourceTx.aggregator.onRegularResourceFetched(resourceTx, KO, session, tx.silent)
 
   override def executeRedirect(redirectTx: HttpTx): Unit =
     resourceTx.aggregator.onRedirect(tx, redirectTx)

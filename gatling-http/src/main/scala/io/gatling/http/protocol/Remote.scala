@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,4 +22,4 @@ object Remote {
   def apply(uri: Uri): Remote = new Remote(uri.getHost, uri.getExplicitPort)
 }
 
-final class Remote(val hostname: String, val port: Int)
+final case class Remote(hostname: String, port: Int)

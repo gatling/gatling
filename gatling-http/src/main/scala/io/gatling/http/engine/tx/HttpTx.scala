@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,4 +40,4 @@ final case class HttpTx(
   def currentSession: Session = resourceTx.map(_.aggregator.currentSession).getOrElse(session)
 }
 
-final case class ResourceTx(aggregator: ResourceAggregator, uri: Uri)
+final case class ResourceTx(aggregator: ResourceAggregator, requestName: String, uri: Uri)

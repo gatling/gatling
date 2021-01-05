@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ class HttpTxSpec extends BaseSpec {
         requestConfig = requestConfig
       ),
       next = mock[Action],
-      resourceTx = if (root) None else Some(ResourceTx(null, null)),
+      resourceTx = if (root) None else Some(ResourceTx(null, "resources", null)),
       redirectCount = 0
     )
 

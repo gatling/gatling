@@ -1,5 +1,5 @@
 /*
- * Copyright 2011-2020 GatlingCorp (https://gatling.io)
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ private[gatling] object HttpHelper extends StrictLogging {
       }
     }
 
-  private val StandardApplicationTextMimeTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded")
+  private val StandardApplicationTextMimeTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded", "x-javascript")
   private val StandardApplicationTextExtensions = Set("+xml", "+json")
   def isText(headers: HttpHeaders): Boolean =
     mimeType(headers).exists {
