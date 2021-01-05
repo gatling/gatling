@@ -19,6 +19,10 @@ object Dependencies {
   private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.35.Final"
+  private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.2.0"
+  private val brotli4jMacOs                  = brotli4j.withName("native-linux_x86-64")
+  private val brotli4jLinux                  = brotli4j.withName("native-linux_x86-64")
+  private val brotli4jWindows                = brotli4j.withName("native-windows_x86-64")
   private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.10"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.1"
@@ -138,6 +142,10 @@ object Dependencies {
     nettyEpoll,
     nettyHttp2,
     nettyBoringSsl,
+    brotli4j,
+    brotli4jLinux,
+    brotli4jMacOs,
+    brotli4jWindows,
     junit,
     jupiterInterface,
     jetty,

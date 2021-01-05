@@ -16,11 +16,13 @@
 
 package io.gatling.http.client.impl;
 
+import com.aayushatharva.brotli4j.Brotli4jLoader;
 import io.gatling.http.client.HttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
+import io.gatling.http.client.impl.br.BrotliDecoder;
 import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
@@ -35,6 +37,7 @@ import io.gatling.netty.util.Transports;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.HttpClientCodec;
@@ -48,6 +51,7 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
+import io.netty.util.AsciiString;
 import io.netty.util.NetUtil;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
@@ -70,6 +74,8 @@ import java.util.stream.Collectors;
 import static java.util.Collections.singletonList;
 
 public class DefaultHttpClient implements HttpClient {
+
+  private static final AsciiString BR = new AsciiString("br");
 
   static {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
@@ -106,6 +112,17 @@ public class DefaultHttpClient implements HttpClient {
 
   private HttpContentDecompressor newHttpContentDecompressor() {
     return new HttpContentDecompressor() {
+
+      @Override
+      protected EmbeddedChannel newContentDecoder(String contentEncoding) throws Exception {
+        if (Brotli4jLoader.isAvailable() && BR.contentEqualsIgnoreCase(contentEncoding)) {
+          return new EmbeddedChannel(ctx.channel().id(), ctx.channel().metadata().hasDisconnect(),
+            ctx.channel().config(), new BrotliDecoder());
+        } else {
+          return super.newContentDecoder(contentEncoding);
+        }
+      }
+
       @Override
       protected String getTargetContentEncoding(String contentEncoding) {
         return contentEncoding;
@@ -797,7 +814,19 @@ public class DefaultHttpClient implements HttpClient {
                     public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
                       ctx.fireChannelRead(new Http2AppHandler.GoAwayFrame(lastStreamId, errorCode));
                     }
-                  })
+                  }) {
+
+                  @Override
+                  protected EmbeddedChannel newContentDecompressor(final ChannelHandlerContext ctx, CharSequence contentEncoding)
+                    throws Http2Exception {
+                    if (Brotli4jLoader.isAvailable() && BR.contentEqualsIgnoreCase(contentEncoding)) {
+                      return new EmbeddedChannel(ctx.channel().id(), ctx.channel().metadata().hasDisconnect(),
+                        ctx.channel().config(), new BrotliDecoder());
+                    } else {
+                      return super.newContentDecompressor(ctx, contentEncoding);
+                    }
+                  }
+                }
               ).build();
 
             ctx.pipeline()
