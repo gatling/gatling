@@ -30,6 +30,7 @@
 
 package io.gatling.http.client.util;
 
+import com.aayushatharva.brotli4j.Brotli4jLoader;
 import io.gatling.http.client.uri.Uri;
 import io.gatling.netty.util.StringBuilderPool;
 import io.netty.handler.codec.http.HttpHeaderNames;
@@ -45,7 +46,7 @@ public final class HttpUtils {
 
   private static final String CONTENT_TYPE_CHARSET_ATTRIBUTE = "charset=";
   private static final String CONTENT_TYPE_BOUNDARY_ATTRIBUTE = "boundary=";
-  private static final String BROTLY_ACCEPT_ENCODING_SUFFIX = ", br";
+  private static final String BROTLI_ACCEPT_ENCODING_SUFFIX = ", br";
 
   private HttpUtils() {
   }
@@ -130,7 +131,7 @@ public final class HttpUtils {
   }
 
   // The pool of ASCII chars to be used for generating a multipart boundary.
-  private static byte[] MULTIPART_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes(US_ASCII);
+  private static final byte[] MULTIPART_CHARS = "-_1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes(US_ASCII);
 
   // a fixed size of 35
   public static byte[] computeMultipartBoundary() {
@@ -151,9 +152,8 @@ public final class HttpUtils {
   }
 
   public static String filterOutBrotliFromAcceptEncoding(String acceptEncoding) {
-    // we don't support Brotly ATM
-    if (acceptEncoding.endsWith(BROTLY_ACCEPT_ENCODING_SUFFIX)) {
-      return acceptEncoding.substring(0, acceptEncoding.length() - BROTLY_ACCEPT_ENCODING_SUFFIX.length());
+    if (!Brotli4jLoader.isAvailable() && acceptEncoding.endsWith(BROTLI_ACCEPT_ENCODING_SUFFIX)) {
+      return acceptEncoding.substring(0, acceptEncoding.length() - BROTLI_ACCEPT_ENCODING_SUFFIX.length());
     }
     return null;
   }
