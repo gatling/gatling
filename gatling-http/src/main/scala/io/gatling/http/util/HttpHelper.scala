@@ -92,7 +92,7 @@ private[gatling] object HttpHelper extends StrictLogging {
       }
     }
 
-  private val StandardApplicationTextMimeTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded")
+  private val StandardApplicationTextMimeTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded", "x-javascript")
   private val StandardApplicationTextExtensions = Set("+xml", "+json")
   def isText(headers: HttpHeaders): Boolean =
     mimeType(headers).exists {
