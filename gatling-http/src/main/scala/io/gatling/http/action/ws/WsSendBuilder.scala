@@ -59,6 +59,9 @@ final case class WsSendBinaryFrameBuilder(
     checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]]
 ) extends HttpActionBuilder {
 
+  def await(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
+    await(timeout.expressionSuccess)(checks: _*)
+
   def await(timeout: Expression[FiniteDuration])(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
     this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequenceBuilder(timeout, checks.toList)))
 
