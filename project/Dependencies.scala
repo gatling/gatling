@@ -18,7 +18,7 @@ object Dependencies {
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
-  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.35.Final"
+  private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.36.Final"
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.2.2"
   private val brotli4jMacOs                  = brotli4j.withName("native-macos_x86-64")
   private val brotli4jLinux                  = brotli4j.withName("native-linux_x86-64")
