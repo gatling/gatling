@@ -20,7 +20,6 @@ import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.{ Action, RequestAction }
-import io.gatling.core.session._
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.NameGen
