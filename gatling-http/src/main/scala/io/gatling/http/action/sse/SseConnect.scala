@@ -29,7 +29,7 @@ import io.gatling.http.protocol.HttpComponents
 
 class SseConnect(
     val requestName: Expression[String],
-    sseName: String,
+    sseName: Expression[String],
     request: Expression[Request],
     connectCheckSequences: List[SseMessageCheckSequenceBuilder],
     coreComponents: CoreComponents,
@@ -46,30 +46,33 @@ class SseConnect(
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    fetchFsm(sseName, session) match {
-      case _: Failure =>
-        for {
-          request <- request(session)
-          resolvedCheckSequences <- SseMessageCheckSequenceBuilder.resolve(connectCheckSequences, session)
-        } yield {
-          logger.debug(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
+    for {
+      fsmName <- sseName(session)
+      _ <- fetchFsm(fsmName, session) match {
+        case _: Failure =>
+          for {
+            request <- request(session)
+            resolvedCheckSequences <- SseMessageCheckSequenceBuilder.resolve(connectCheckSequences, session)
+          } yield {
+            logger.debug(s"Opening sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val fsm = SseFsm(
-            session,
-            sseName,
-            requestName,
-            request,
-            resolvedCheckSequences,
-            statsEngine,
-            httpComponents.httpEngine,
-            httpComponents.httpProtocol,
-            clock
-          )
+            val fsm = SseFsm(
+              session,
+              fsmName,
+              requestName,
+              request,
+              resolvedCheckSequences,
+              statsEngine,
+              httpComponents.httpEngine,
+              httpComponents.httpProtocol,
+              clock
+            )
 
-          fsm.onPerformInitialConnect(session.set(sseName, fsm), next)
-        }
+            fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)
+          }
 
-      case _ =>
-        Failure(s"Unable to create a new SSE stream with name $sseName: already exists")
-    }
+        case _ =>
+          Failure(s"Unable to create a new SSE stream with name $sseName: already exists")
+      }
+    } yield ()
 }

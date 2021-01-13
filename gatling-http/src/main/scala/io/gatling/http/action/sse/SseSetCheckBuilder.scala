@@ -28,7 +28,7 @@ import com.softwaremill.quicklens._
 
 final case class SseSetCheckBuilder(
     requestName: Expression[String],
-    sseName: String,
+    sseName: Expression[String],
     checkSequences: List[SseMessageCheckSequenceBuilder]
 ) extends HttpActionBuilder {
 
@@ -43,7 +43,7 @@ final case class SseSetCheckBuilder(
     new SseSetCheck(requestName, checkSequences, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)
 }
 
-final case class SseCloseBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+final case class SseCloseBuilder(requestName: Expression[String], sseName: Expression[String]) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new SseClose(requestName, sseName, ctx.coreComponents.statsEngine, ctx.coreComponents.clock, next)

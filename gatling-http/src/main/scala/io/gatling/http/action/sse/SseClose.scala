@@ -25,7 +25,7 @@ import io.gatling.core.util.NameGen
 
 class SseClose(
     val requestName: Expression[String],
-    sseName: String,
+    sseName: Expression[String],
     val statsEngine: StatsEngine,
     val clock: Clock,
     val next: Action
@@ -37,7 +37,8 @@ class SseClose(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      fsm <- fetchFsm(sseName, session)
+      fsmName <- sseName(session)
+      fsm <- fetchFsm(fsmName, session)
     } yield {
       // [fl]
       //
