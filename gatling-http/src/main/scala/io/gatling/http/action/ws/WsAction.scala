@@ -17,14 +17,13 @@
 package io.gatling.http.action.ws
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{Expression, Session}
 import io.gatling.http.action.ws.fsm.WsFsm
 
 trait WsAction {
 
   final def fetchFsm(wsName: Expression[String], session: Session): Validation[WsFsm] =
-    wsName
-      .apply(session)
+    wsName.apply(session)
       .flatMap { name =>
         session.attributes.get(name) match {
           case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
