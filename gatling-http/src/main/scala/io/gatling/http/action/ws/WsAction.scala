@@ -25,10 +25,10 @@ trait WsAction {
   final def fetchFsm(wsName: Expression[String], session: Session): Validation[WsFsm] =
     wsName
       .apply(session)
-      .flatMap(name => {
+      .flatMap { name =>
         session.attributes.get(name) match {
           case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
-          case _           => s"Couldn't fetch open webSocket".failure
+          case _ => s"Couldn't fetch open webSocket".failure
         }
-      })
+      }
 }
