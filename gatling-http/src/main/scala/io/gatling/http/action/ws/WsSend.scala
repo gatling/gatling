@@ -41,7 +41,8 @@ class WsSendTextFrame(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      fsm <- fetchFsm(wsName, session)
+      fsmName <- wsName(session)
+      fsm <- fetchFsm(fsmName, session)
       message <- message(session)
       resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {
@@ -67,7 +68,8 @@ class WsSendBinaryFrame(
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      fsm <- fetchFsm(wsName, session)
+      fsmName <- wsName(session)
+      fsm <- fetchFsm(fsmName, session)
       message <- message(session)
       resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(checkSequences, session)
     } yield {

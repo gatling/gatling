@@ -31,7 +31,7 @@ object SseConnectRequestBuilder {
   private val SseHeaderValueExpression = MissingNettyHttpHeaderValues.TextEventStream.toString.expressionSuccess
   private val CacheControlNoCacheValueExpression = HttpHeaderValues.NO_CACHE.toString.expressionSuccess
 
-  def apply(requestName: Expression[String], url: Expression[String], sseName: String): SseConnectRequestBuilder =
+  def apply(requestName: Expression[String], url: Expression[String], sseName: Expression[String]): SseConnectRequestBuilder =
     new SseConnectRequestBuilder(CommonAttributes(requestName, HttpMethod.GET, Left(url)), sseName)
       .header(HttpHeaderNames.ACCEPT, SseHeaderValueExpression)
       .header(HttpHeaderNames.CACHE_CONTROL, CacheControlNoCacheValueExpression)
@@ -40,7 +40,7 @@ object SseConnectRequestBuilder {
     SseConnectBuilder(requestBuilder.commonAttributes.requestName, requestBuilder, Nil)
 }
 
-final class SseConnectRequestBuilder(val commonAttributes: CommonAttributes, val sseName: String) extends RequestBuilder[SseConnectRequestBuilder] {
+final class SseConnectRequestBuilder(val commonAttributes: CommonAttributes, val sseName: Expression[String]) extends RequestBuilder[SseConnectRequestBuilder] {
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseConnectRequestBuilder(commonAttributes, sseName)
 

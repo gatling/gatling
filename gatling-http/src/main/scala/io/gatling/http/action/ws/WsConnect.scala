@@ -48,36 +48,33 @@ class WsConnect(
   override def statsEngine: StatsEngine = coreComponents.statsEngine
 
   override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    fetchFsm(wsName, session) match {
-      case _: Failure =>
-        for {
-          fsmName <- wsName(session)
-          connectRequest <- request(session)
-          resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(connectCheckSequences, session)
-        } yield {
-          logger.debug(s"Opening websocket '$fsmName': Scenario '${session.scenario}', UserId #${session.userId}")
+    for {
+      fsmName <- wsName(session)
+      _ <- fetchFsm(fsmName, session) match {
+        case _: Failure =>
+          for {
+            connectRequest <- request(session)
+            resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(connectCheckSequences, session)
+          } yield {
+            logger.debug(s"Opening websocket '$fsmName': Scenario '${session.scenario}', UserId #${session.userId}")
 
-          val fsm = new WsFsm(
-            fsmName,
-            connectRequest,
-            requestName,
-            resolvedCheckSequences,
-            onConnected,
-            statsEngine,
-            httpComponents.httpEngine,
-            httpComponents.httpProtocol,
-            session.eventLoop,
-            clock
-          )
+            val fsm = new WsFsm(
+              fsmName,
+              connectRequest,
+              requestName,
+              resolvedCheckSequences,
+              onConnected,
+              statsEngine,
+              httpComponents.httpEngine,
+              httpComponents.httpProtocol,
+              session.eventLoop,
+              clock
+            )
 
-          fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)
-        }
+            fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)
+          }
 
-      case _ =>
-        for {
-          fsmName <- wsName(session)
-        } yield {
-          Failure(s"Unable to create a new WebSocket with name $fsmName: already exists")
-        }
-    }
+        case _ => Failure(s"Unable to create a new WebSocket with name $fsmName: already exists")
+      }
+    } yield ()
 }

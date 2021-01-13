@@ -17,18 +17,14 @@
 package io.gatling.http.action.ws
 
 import io.gatling.commons.validation._
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Session
 import io.gatling.http.action.ws.fsm.WsFsm
 
 trait WsAction {
 
-  final def fetchFsm(wsName: Expression[String], session: Session): Validation[WsFsm] =
-    wsName
-      .apply(session)
-      .flatMap { name =>
-        session.attributes.get(name) match {
-          case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
-          case _           => s"Couldn't fetch open webSocket".failure
-        }
-      }
+  final def fetchFsm(wsName: String, session: Session): Validation[WsFsm] =
+    session.attributes.get(wsName) match {
+      case Some(wsFsm) => wsFsm.asInstanceOf[WsFsm].success
+      case _           => s"Couldn't fetch open webSocket".failure
+    }
 }
