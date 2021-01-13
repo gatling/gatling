@@ -10,14 +10,13 @@ object Dependencies {
     .exclude("org.jline", "jline")
   private val scalaSwing                     = "org.scala-lang.modules"              %% "scala-swing"                     % "3.0.0"
   private val scalaParserCombinators         = "org.scala-lang.modules"              %% "scala-parser-combinators"        % "1.1.2"
-  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.57.Final"
+  private val netty                          = "io.netty"                             % "netty-codec-http"                % "4.1.58.Final"
   private val nettyBuffer                    = netty.organization                     % "netty-buffer"                    % netty.revision
   private val nettyHandler                   = netty.organization                     % "netty-handler"                   % netty.revision
   private val nettyMqtt                      = netty.organization                     % "netty-codec-mqtt"                % netty.revision
   private val nettyProxy                     = netty.organization                     % "netty-handler-proxy"             % netty.revision
   private val nettyDns                       = netty.organization                     % "netty-resolver-dns"              % netty.revision
   private val nettyEpoll                     = netty.organization                     % "netty-transport-native-epoll"    % netty.revision classifier "linux-x86_64"
-  private val nettyEpollUnixCommon           = netty.organization                     % "netty-transport-native-unix-common"    % netty.revision classifier "linux-x86_64"
   private val nettyHttp2                     = netty.organization                     % "netty-codec-http2"               % netty.revision
   private val nettyBoringSsl                 = netty.organization                     % "netty-tcnative-boringssl-static" % "2.0.36.Final"
   private val brotli4j                       = "com.aayushatharva.brotli4j"           % "brotli4j"                        % "1.2.2"
@@ -105,7 +104,7 @@ object Dependencies {
   // Dependencies by module
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, nettyEpoll, nettyEpollUnixCommon, junit, jupiterInterface)
+    Seq(nettyBuffer, nettyEpoll, junit, jupiterInterface)
 
   def commonsSharedDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
