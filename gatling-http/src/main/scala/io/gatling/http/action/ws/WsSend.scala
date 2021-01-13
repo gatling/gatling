@@ -26,7 +26,7 @@ import io.gatling.http.check.ws.{ WsBinaryFrameCheck, WsTextFrameCheck }
 
 class WsSendTextFrame(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     message: Expression[String],
     checkSequences: List[WsFrameCheckSequenceBuilder[WsTextFrameCheck]],
     override val statsEngine: StatsEngine,
@@ -52,7 +52,7 @@ class WsSendTextFrame(
 
 class WsSendBinaryFrame(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     message: Expression[Array[Byte]],
     checkSequences: List[WsFrameCheckSequenceBuilder[WsBinaryFrameCheck]],
     override val statsEngine: StatsEngine,

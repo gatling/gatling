@@ -25,7 +25,7 @@ import io.gatling.core.util.NameGen
 
 class WsClose(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     override val statsEngine: StatsEngine,
     override val clock: Clock,
     val next: Action

@@ -23,7 +23,7 @@ import io.gatling.http.action.HttpActionBuilder
 
 class WsCloseBuilder(
     requestName: Expression[String],
-    wsName: String
+    wsName: Expression[String]
 ) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: Action): Action =

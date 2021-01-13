@@ -30,7 +30,7 @@ import io.gatling.http.protocol.HttpComponents
 
 class WsConnect(
     override val requestName: Expression[String],
-    wsName: String,
+    wsName: Expression[String],
     request: Expression[Request],
     connectCheckSequences: List[WsFrameCheckSequenceBuilder[WsFrameCheck]],
     onConnected: Option[Action],
@@ -51,13 +51,14 @@ class WsConnect(
     fetchFsm(wsName, session) match {
       case _: Failure =>
         for {
+          fsmName <- wsName(session)
           connectRequest <- request(session)
           resolvedCheckSequences <- WsFrameCheckSequenceBuilder.resolve(connectCheckSequences, session)
         } yield {
-          logger.debug(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
+          logger.debug(s"Opening websocket '$fsmName': Scenario '${session.scenario}', UserId #${session.userId}")
 
           val fsm = new WsFsm(
-            wsName,
+            fsmName,
             connectRequest,
             requestName,
             resolvedCheckSequences,
@@ -69,10 +70,14 @@ class WsConnect(
             clock
           )
 
-          fsm.onPerformInitialConnect(session.set(wsName, fsm), next)
+          fsm.onPerformInitialConnect(session.set(fsmName, fsm), next)
         }
 
       case _ =>
-        Failure(s"Unable to create a new WebSocket with name $wsName: already exists")
+        for {
+          fsmName <- wsName(session)
+        } yield {
+          Failure(s"Unable to create a new WebSocket with name $fsmName: already exists")
+        }
     }
 }
