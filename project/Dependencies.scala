@@ -82,7 +82,8 @@ object Dependencies {
   private val h2                             = "com.h2database"                       % "h2"                              % "1.4.200"           % Test
   private val jmh                            = "org.openjdk.jmh"                      % "jmh-core"                        % "1.27"
 
-  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.5.2"             % Test
+  private val junit                          = "org.junit.jupiter"                    % "junit-jupiter-api"               % "5.7.0"             % Test
+  private val junitEngine                    = junit.organization                     % "junit-jupiter-engine"            % junit.revision      % Test
   private val jupiterInterface               = "net.aichler"                          % "jupiter-interface"               % "0.8.4"             % Test
 
   private val jetty                          = "org.eclipse.jetty"                    % "jetty-server"                    % "9.4.35.v20201120"  % Test
@@ -104,7 +105,7 @@ object Dependencies {
   // Dependencies by module
 
   val nettyUtilDependencies =
-    Seq(nettyBuffer, nettyEpoll, junit, jupiterInterface)
+    Seq(nettyBuffer, nettyEpoll, junit, junitEngine, jupiterInterface)
 
   def commonsSharedDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), boopickle) ++ testDeps
@@ -147,6 +148,7 @@ object Dependencies {
     brotli4jMacOs,
     brotli4jWindows,
     junit,
+    junitEngine,
     jupiterInterface,
     jetty,
     jettyProxy
