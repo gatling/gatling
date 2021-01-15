@@ -23,7 +23,7 @@ object Dependencies {
   private val brotli4jMacOs                  = brotli4j.withName("native-macos_x86-64")
   private val brotli4jLinux                  = brotli4j.withName("native-linux_x86-64")
   private val brotli4jWindows                = brotli4j.withName("native-windows_x86-64")
-  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.10"
+  private val akka                           = "com.typesafe.akka"                   %% "akka-actor"                      % "2.6.11"
   private val akkaSlf4j                      = akka.organization                     %% "akka-slf4j"                      % akka.revision
   private val config                         = "com.typesafe"                         % "config"                          % "1.4.1"
   private val saxon                          = "net.sf.saxon"                        % "Saxon-HE"                        % "10.3"
