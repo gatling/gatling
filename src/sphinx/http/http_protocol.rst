@@ -90,11 +90,11 @@ Gatling ships a bunch of built-ins for well-known browsers:
 Connection Sharing
 ------------------
 
-In Gatling 1, connections are shared amongst users until 1.5 version.
-This behavior does not match real browsers, and doesn't support SSL session tracking.
+The default behavior is that every virtual user has its own connection pool and its own SSLContext.
+This behavior meets your needs when you want to simulate internet traffic where each virtual user simulates a web browser.
 
-In Gatling 2, the default behavior is that every user has his own connection pool.
-This can be tuned with the ``.shareConnections`` param.
+Instead, if you want to simulate server to server traffic where the actual client has a long lived connection pool, you want to have the virtual users share a single global connection pool.
+You can achieve this behavior with the ``.shareConnections`` param.
 
 .. _http-protocol-http2:
 
