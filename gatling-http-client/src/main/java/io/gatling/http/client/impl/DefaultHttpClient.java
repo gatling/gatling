@@ -817,6 +817,11 @@ public class DefaultHttpClient implements HttpClient {
                   }) {
 
                   @Override
+                  protected CharSequence getTargetContentEncoding(CharSequence contentEncoding) {
+                    return contentEncoding;
+                  }
+
+                  @Override
                   protected EmbeddedChannel newContentDecompressor(final ChannelHandlerContext ctx, CharSequence contentEncoding)
                     throws Http2Exception {
                     if (Brotli4jLoader.isAvailable() && BR.contentEqualsIgnoreCase(contentEncoding)) {
