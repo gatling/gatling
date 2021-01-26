@@ -46,7 +46,7 @@ public class BrotliDecoder extends ByteToMessageDecoder {
   }
 
   private State decompress(ByteBuf input, List<Object> output) {
-    while (true) {
+    for (;;) {
       switch (decoder.getStatus()) {
         case DONE:
           return State.DONE;
@@ -90,14 +90,14 @@ public class BrotliDecoder extends ByteToMessageDecoder {
   }
 
   @Override
-  protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-    if (in.readableBytes() == 0) {
-      out.add(in);
-      return;
-    }
+  public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    decoder = new DecoderJNI.Wrapper(8 * 1024);
+  }
 
-    if (decoder == null) {
-      decoder = new DecoderJNI.Wrapper(8 * 1024);
+  @Override
+  protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    if (!in.isReadable()) {
+      return;
     }
 
     try {
@@ -128,6 +128,7 @@ public class BrotliDecoder extends ByteToMessageDecoder {
     }
   }
 
+  @Override
   public void channelInactive(ChannelHandlerContext ctx) throws Exception {
     try {
       destroy();
