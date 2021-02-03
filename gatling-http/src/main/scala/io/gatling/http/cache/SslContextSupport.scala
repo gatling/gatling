@@ -50,8 +50,9 @@ private[http] object SslContextSupport extends StrictLogging {
       Session.Identity
     } else { session =>
       {
-        val kmf = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
-        session.set(HttpSslContextsAttributeName, httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, kmf))
+        val perUserKeyManagerFactory = resolvePerUserKeyManagerFactory(session, httpProtocol.enginePart.perUserKeyManagerFactory)
+        val sslContexts = httpEngine.newSslContexts(httpProtocol.enginePart.enableHttp2, perUserKeyManagerFactory)
+        session.set(HttpSslContextsAttributeName, sslContexts)
       }
     }
 
