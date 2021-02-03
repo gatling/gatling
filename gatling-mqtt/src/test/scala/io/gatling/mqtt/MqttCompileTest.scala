@@ -17,6 +17,7 @@
 package io.gatling.mqtt
 
 import java.nio.charset.StandardCharsets.UTF_8
+import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration._
 
@@ -28,6 +29,7 @@ class MqttCompileTest extends Simulation {
   private val mqttConf = mqtt
     .broker("localhost", 1883)
     .useTls(false)
+    .perUserKeyManagerFactory(_ => KeyManagerFactory.getInstance("TLS"))
     .clientId("${clientId}")
     .cleanSession(true)
     .credentials("${userName}", "${password}")

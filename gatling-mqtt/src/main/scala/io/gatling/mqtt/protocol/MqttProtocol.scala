@@ -17,6 +17,7 @@
 package io.gatling.mqtt.protocol
 
 import java.net.InetSocketAddress
+import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration._
 
@@ -37,6 +38,7 @@ object MqttProtocol extends StrictLogging {
       version = MqttVersion.MQTT_3_1_1,
       brokerAddress = DefaultBrokerAddress,
       useTls = false,
+      perUserKeyManagerFactory = None,
       clientId = None,
       cleanSession = true,
       credentials = None,
@@ -63,6 +65,7 @@ final case class MqttProtocol(
     version: MqttVersion,
     brokerAddress: InetSocketAddress,
     useTls: Boolean,
+    perUserKeyManagerFactory: Option[Long => KeyManagerFactory],
     clientId: Option[Expression[String]],
     cleanSession: Boolean,
     credentials: Option[Expression[Credentials]],

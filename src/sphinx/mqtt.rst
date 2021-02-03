@@ -30,6 +30,7 @@ Use the ``mqtt`` object in order to create a MQTT protocol.
 * ``mqttVersion_3_1_1``: enable protocol version 3.1.1 (default: true)
 * ``broker("hostname", port)``: broker address (default: localhost:1883)
 * ``useTls(boolean)``: if TLS should be enabled (default: false)
+* ``perUserKeyManagerFactory(f: Long => java.net.ssl.KeyManagerFactory)``: Used to specify KeyManagerFactory for each individual virtual user. Input is the 0-based incremental id of the virtual user.
 * ``clientId("id")``: clientIdentifier sent in the connect payload (of not set, Gatling will generate a random one)
 * ``cleanSession(boolean)``: if session should be cleaned during connect (default: true)
 * ``credentials("${userName}", "${password}")``: optional credentials for connecting

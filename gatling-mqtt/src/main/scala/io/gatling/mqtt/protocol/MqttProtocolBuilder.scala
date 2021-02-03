@@ -17,6 +17,7 @@
 package io.gatling.mqtt.protocol
 
 import java.net.InetSocketAddress
+import javax.net.ssl.KeyManagerFactory
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -40,6 +41,9 @@ final case class MqttProtocolBuilder(mqttProtocol: MqttProtocol) {
 
   def useTls(useTls: Boolean): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.useTls).setTo(useTls)
+
+  def perUserKeyManagerFactory(f: Long => KeyManagerFactory): MqttProtocolBuilder =
+    this.modify(_.mqttProtocol.perUserKeyManagerFactory).setTo(Some(f))
 
   def clientId(clientId: Expression[String]): MqttProtocolBuilder =
     this.modify(_.mqttProtocol.clientId).setTo(Some(clientId))
