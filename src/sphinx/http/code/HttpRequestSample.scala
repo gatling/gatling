@@ -115,10 +115,14 @@ class HttpRequestSample {
 
     //#asJson
     http("foo").get("bar")
+      .header("Accept", "application/json")
+      .header("Content-Type", "application/json")
     //#asJson
 
     //#asXml
     http("foo").get("bar")
+      .header("Accept", "application/xhtml+xml")
+      .header("Content-Type", "application/xhtml+xml")
     //#asXml
 
     //#ignoreProtocolHeaders
