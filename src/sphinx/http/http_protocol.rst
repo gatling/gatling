@@ -298,6 +298,7 @@ You have also the following built-ins for the more commons headers:
 * ``connectionHeader(value: Expression[String])``: set ``Connection`` header.
 * ``contentTypeHeader(value: Expression[String])``: set ``Content-Type`` header.
 * ``doNotTrackHeader(value: Expression[String])``: set ``DNT`` header.
+* ``originHeader(value: Expression[String])``: set ``Origin`` header.
 * ``userAgentHeader(value: Expression[String])``: set ``User-Agent`` header.
 
 .. _http-protocol-signature:

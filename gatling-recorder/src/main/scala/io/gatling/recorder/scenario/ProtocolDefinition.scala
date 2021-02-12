@@ -32,6 +32,7 @@ private[scenario] object ProtocolDefinition {
     .add(HttpHeaderNames.CONNECTION, "connectionHeader")
     .add(HttpHeaderNames.CONTENT_TYPE, "contentTypeHeader")
     .add(MissingNettyHttpHeaderNames.DNT, "doNotTrackHeader")
+    .add(HttpHeaderNames.ORIGIN, "originHeader")
     .add(HttpHeaderNames.USER_AGENT, "userAgentHeader")
     .add(MissingNettyHttpHeaderNames.UpgradeInsecureRequests, "upgradeInsecureRequestsHeader")
 }

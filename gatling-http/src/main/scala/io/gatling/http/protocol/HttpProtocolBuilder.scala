@@ -111,6 +111,7 @@ final case class HttpProtocolBuilder(protocol: HttpProtocol, useOpenSsl: Boolean
   def connectionHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.CONNECTION, value)
   def contentTypeHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.CONTENT_TYPE, value)
   def doNotTrackHeader(value: Expression[String]): HttpProtocolBuilder = header(MissingNettyHttpHeaderNames.DNT, value)
+  def originHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.ORIGIN, value)
   def userAgentHeader(value: Expression[String]): HttpProtocolBuilder = header(HttpHeaderNames.USER_AGENT, value)
   def upgradeInsecureRequestsHeader(value: Expression[String]): HttpProtocolBuilder = header(MissingNettyHttpHeaderNames.UpgradeInsecureRequests, value)
   def basicAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
