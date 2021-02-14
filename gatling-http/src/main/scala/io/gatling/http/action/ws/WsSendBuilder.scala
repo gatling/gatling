@@ -37,8 +37,10 @@ final case class WsSendTextFrameBuilder(
     await(timeout.expressionSuccess)(checks: _*)
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def await(timeout: Expression[FiniteDuration])(checks: WsTextFrameCheck*): WsSendTextFrameBuilder =
+  def await(timeout: Expression[FiniteDuration])(checks: WsTextFrameCheck*): WsSendTextFrameBuilder = {
+    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
+  }
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSendTextFrame(
@@ -62,8 +64,10 @@ final case class WsSendBinaryFrameBuilder(
   def await(timeout: FiniteDuration)(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
     await(timeout.expressionSuccess)(checks: _*)
 
-  def await(timeout: Expression[FiniteDuration])(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder =
+  def await(timeout: Expression[FiniteDuration])(checks: WsBinaryFrameCheck*): WsSendBinaryFrameBuilder = {
+    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     this.modify(_.checkSequences).using(_ ::: List(WsFrameCheckSequenceBuilder(timeout, checks.toList)))
+  }
 
   override def build(ctx: ScenarioContext, next: Action): Action =
     new WsSendBinaryFrame(

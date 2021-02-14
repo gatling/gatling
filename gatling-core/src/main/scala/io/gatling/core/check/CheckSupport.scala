@@ -98,7 +98,10 @@ trait CheckSupport {
   )(implicit jmesPaths: JmesPaths): FindCheckBuilder[JsonpJmesPathCheckType, JsonNode, String] with JsonpJmesPathOfType =
     JsonpJmesPathCheckBuilder.jsonpJmesPath(path, jmesPaths)
 
-  def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = JmesPathFunctions.register(functions)
+  def registerJmesPathFunctions(functions: JmesPathFunction*): Unit = {
+    require(!functions.contains(null), "JMESPath functions can't contain null elements")
+    JmesPathFunctions.register(functions)
+  }
 
   val md5: FindCheckBuilder[Md5CheckType, String, String] = ChecksumCheckBuilder.Md5
   val sha1: FindCheckBuilder[Sha1CheckType, String, String] = ChecksumCheckBuilder.Sha1

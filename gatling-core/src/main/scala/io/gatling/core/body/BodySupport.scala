@@ -54,5 +54,8 @@ trait BodySupport {
   def InputStreamBody(is: Expression[InputStream]): Body =
     io.gatling.core.body.InputStreamBody(is)
 
-  def registerPebbleExtensions(extensions: Extension*): Unit = PebbleExtensions.register(extensions)
+  def registerPebbleExtensions(extensions: Extension*): Unit = {
+    require(!extensions.contains(null), "Pebble extensions can't contain null elements")
+    PebbleExtensions.register(extensions)
+  }
 }

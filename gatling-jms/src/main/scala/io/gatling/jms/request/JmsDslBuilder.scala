@@ -127,7 +127,10 @@ final case class RequestReplyDslBuilder(attributes: JmsAttributes, factory: JmsA
   /**
    * Add a check that will be performed on each received JMS response message before giving Gatling on OK/KO response
    */
-  def check(checks: JmsCheck*): RequestReplyDslBuilder = this.modify(_.attributes.checks).using(_ ::: checks.toList)
+  def check(checks: JmsCheck*): RequestReplyDslBuilder = {
+    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
+    this.modify(_.attributes.checks).using(_ ::: checks.toList)
+  }
 
   def build: ActionBuilder = factory(attributes)
 }

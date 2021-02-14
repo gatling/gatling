@@ -85,7 +85,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 
-  def check(checks: HttpCheck*): HttpRequestBuilder = this.modify(_.httpAttributes.checks).using(_ ::: checks.toList)
+  def check(checks: HttpCheck*): HttpRequestBuilder = {
+    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
+    this.modify(_.httpAttributes.checks).using(_ ::: checks.toList)
+  }
 
   @deprecated("Please use ignoreProtocolChecks instead. Will be removed in 3.5.0", "3.4.0")
   def ignoreDefaultChecks: HttpRequestBuilder = ignoreProtocolChecks
@@ -110,7 +113,10 @@ final case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttr
 
   def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = this.modify(_.httpAttributes.bodyParts).using(_ ::: List(bodyPart))
 
-  def resources(res: HttpRequestBuilder*): HttpRequestBuilder = this.modify(_.httpAttributes.explicitResources).setTo(res.toList)
+  def resources(res: HttpRequestBuilder*): HttpRequestBuilder = {
+    require(!res.contains(null), "Resources can't contain null elements. Forward reference issue?")
+    this.modify(_.httpAttributes.explicitResources).setTo(res.toList)
+  }
 
   /**
    * Adds Content-Type header to the request set with "multipart/form-data" value

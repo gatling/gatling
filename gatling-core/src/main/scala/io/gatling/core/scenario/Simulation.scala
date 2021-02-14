@@ -44,8 +44,8 @@ abstract class Simulation {
   def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
 
   def setUp(populationBuilders: List[PopulationBuilder]): SetUp = {
-    if (_populationBuilders.nonEmpty)
-      throw new UnsupportedOperationException("setUp can only be called once")
+    require(_populationBuilders.isEmpty, "setUp can only be called once")
+    require(!populationBuilders.contains(null), "Populations can't contain null elements. Forward reference issue?")
     _populationBuilders = populationBuilders
     new SetUp
   }

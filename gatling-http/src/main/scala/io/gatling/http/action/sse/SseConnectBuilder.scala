@@ -37,8 +37,10 @@ final case class SseConnectBuilder(
     await(timeout.expressionSuccess)(checks: _*)
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def await(timeout: Expression[FiniteDuration])(checks: SseMessageCheck*): SseConnectBuilder =
+  def await(timeout: Expression[FiniteDuration])(checks: SseMessageCheck*): SseConnectBuilder = {
+    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     this.modify(_.checkSequences).using(_ :+ SseMessageCheckSequenceBuilder(timeout, checks.toList))
+  }
 
   override def build(ctx: ScenarioContext, next: Action): Action = {
     import ctx._

@@ -37,8 +37,10 @@ final case class WsConnectBuilder(
     await(timeout.expressionSuccess)(checks: _*)
 
   @SuppressWarnings(Array("org.wartremover.warts.ListAppend"))
-  def await(timeout: Expression[FiniteDuration])(checks: WsFrameCheck*): WsConnectBuilder =
+  def await(timeout: Expression[FiniteDuration])(checks: WsFrameCheck*): WsConnectBuilder = {
+    require(!checks.contains(null), "Checks can't contain null elements. Forward reference issue?")
     this.modify(_.checkSequences).using(_ :+ WsFrameCheckSequenceBuilder(timeout, checks.toList))
+  }
 
   def onConnected(chain: ChainBuilder): WsConnectBuilder = copy(onConnectedChain = Some(chain))
 
