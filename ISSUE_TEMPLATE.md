@@ -1,9 +1,9 @@
-Make sure these checkboxes are checked before submitting your issue. Thanks you!
+**Please don't post questions here but use our [community mailing list](https://gatling.io/community-mailing-list/) instead.**
 
-* [ ] Don't post questions here. This bugtracker is for issues and feature requests only. Use the [community mailing list](https://groups.google.com/g/gatling) instead.
-* Regarding issues:
-  * [ ] Check that you can reproduce your issue with latest Gatling version
-  * [ ] Search this bugtracker for any similar issue that might have already been reported (and possibly fixed and available as a SNAPSHOT version)
-  * [ ] Provide a way for Gatling developers to reproduce your problem, e.g. step-by-step instructions against a public facing website, or a sample application that demonstrates your problem.
-* Regarding feature requests:
-  * [ ] Explain your use case, not the implementation you have in mind.
+For bugs, please: 
+  1. upgrade to the latest Gatling release
+  2. search this bugtracker and check if your issue hasn't been already reported
+  3. provide a Short, Self Contained, Correct (Compilable), Example (see http://sscce.org/)
+
+For feature requests, please:
+  * explain your use case, not the implementation you have in mind.
