@@ -33,7 +33,7 @@ import sbt.internal.inc._
 import sbt.internal.inc.classpath.ClasspathUtil
 import sbt.util.{ Level, Logger => SbtLogger }
 import sbt.util.ShowLines._
-import xsbti.{ FileConverter, Position, Problem, Reporter, T2, VirtualFile }
+import xsbti.{ FileConverter, Position, Problem, T2, VirtualFile }
 import xsbti.compile.{ FileAnalysisStore => _, ScalaInstance => _, _ }
 import xsbti.compile.analysis.ReadStamps
 
