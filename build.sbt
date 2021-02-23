@@ -7,14 +7,25 @@ import CopyLogback._
 import Dependencies._
 import VersionFile._
 
+Global / githubPath := "gatling/gatling"
+Global / gatlingDevelopers := Seq(
+  GatlingDeveloper("slandelle@gatling.io", "Stephane Landelle", isGatlingCorp = true),
+  GatlingDeveloper("gcorre@gatling.io", "Guillaume Corré", isGatlingCorp = true),
+  GatlingDeveloper("ccousseran@gatling.io", "Cédric Cousseran", isGatlingCorp = true),
+  GatlingDeveloper("tpetillot@gatling.io  ", "Thomas Petillot", isGatlingCorp = true)
+)
+// [fl]
+//
+// [fl]
+
 // Root project
 
 ThisBuild / Keys.useCoursier := false
 
-scalaVersion := "2.13.4"
+Global / scalaVersion := "2.13.4"
 
 lazy val root = Project("gatling-parent", file("."))
-  .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
+  .enablePlugins(GatlingOssPlugin, SphinxPlugin)
   .dependsOn(Seq(commons, jsonpath, core, http, jms, mqtt, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
   .aggregate(
     nettyUtil,
@@ -41,12 +52,22 @@ lazy val root = Project("gatling-parent", file("."))
   .settings(skipPublishing)
   .settings(libraryDependencies ++= docDependencies)
   .settings(unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get)
+  .settings(scalafmtConfig := Def.task {
+    val file = scalafmtConfig.value
+    IO.append(
+      file,
+      """
+        |project.excludeFilters = ["src/sphinx"]
+        |""".stripMargin
+    )
+    file
+  }.value)
 
 // Modules
 
 def gatlingModule(id: String) =
   Project(id, file(id))
-    .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin)
+    .enablePlugins(GatlingOssPlugin)
     .settings(gatlingModuleSettings ++ CodeAnalysis.settings)
 
 lazy val nettyUtil = gatlingModule("gatling-netty-util")
@@ -142,8 +163,11 @@ lazy val bundle = gatlingModule("gatling-bundle")
 addCommandAlias(
   "ci-checks",
   List(
-    "all clean scalafmtSbtCheck scalafmtCheckAll",
-    "all compile:scalafixCheck test:scalafixCheck",
+    "all clean",
+    "all scalafmtSbtCheck",
+    "all scalafmtCheckAll",
+    "all compile:gatlingScalafixCheck",
+    "all test:gatlingScalafixCheck",
     "test"
   ).mkString(";", ";", "")
 )
