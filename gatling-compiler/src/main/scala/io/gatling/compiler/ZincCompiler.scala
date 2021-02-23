@@ -29,6 +29,7 @@ import io.gatling.compiler.config.CompilerConfiguration
 import io.gatling.compiler.config.ConfigUtils._
 
 import org.slf4j.LoggerFactory
+
 import sbt.internal.inc._
 import sbt.internal.inc.classpath.ClasspathUtil
 import sbt.util.{ Level, Logger => SbtLogger }
