@@ -44,13 +44,10 @@ private object Runner {
 
 private[gatling] class Runner(system: ActorSystem, eventLoopGroup: EventLoopGroup, clock: Clock, configuration: GatlingConfiguration) extends StrictLogging {
 
-  private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult =
-    configuration.core.directory.reportsOnly match {
-      case Some(runId) => new RunResult(runId, hasAssertions = true)
-      case _ =>
-        if (configuration.http.enableGA) Ga.send(configuration.core.version)
-        run0(selectedSimulationClass)
-    }
+  private[app] def run(selectedSimulationClass: SelectedSimulationClass): RunResult = {
+    if (configuration.http.enableGA) Ga.send(configuration.core.version)
+    run0(selectedSimulationClass)
+  }
 
   protected def newStatsEngine(simulationParams: SimulationParams, runMessage: RunMessage): StatsEngine =
     DataWritersStatsEngine(simulationParams, runMessage, system, clock, configuration)

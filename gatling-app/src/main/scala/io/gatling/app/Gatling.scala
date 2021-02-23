@@ -69,22 +69,26 @@ object Gatling extends StrictLogging {
       FileSystems.getDefault
       val configuration = GatlingConfiguration.load(overrides)
       logger.trace("Configuration loaded")
-      // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-      val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
-      val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, 0, "gatling")
       logger.trace("ActorSystem instantiated")
       val runResult =
-        try {
-          val runner = Runner(system, eventLoopGroup, configuration)
-          logger.trace("Runner instantiated")
-          runner.run(selectedSimulationClass)
-        } catch {
-          case e: Throwable =>
-            logger.error("Run crashed", e)
-            throw e
-        } finally {
-          eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
-          terminateActorSystem(system, configuration.core.shutdownTimeout.milliseconds)
+        configuration.core.directory.reportsOnly match {
+          case Some(runId) => new RunResult(runId, hasAssertions = true)
+          case _           =>
+            // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
+            val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
+            val eventLoopGroup = Transports.newEventLoopGroup(configuration.netty.useNativeTransport, 0, "gatling")
+            try {
+              val runner = Runner(system, eventLoopGroup, configuration)
+              logger.trace("Runner instantiated")
+              runner.run(selectedSimulationClass)
+            } catch {
+              case e: Throwable =>
+                logger.error("Run crashed", e)
+                throw e
+            } finally {
+              eventLoopGroup.shutdownGracefully(0, configuration.core.shutdownTimeout, TimeUnit.MILLISECONDS)
+              terminateActorSystem(system, configuration.core.shutdownTimeout.milliseconds)
+            }
         }
       new RunResultProcessor(configuration).processRunResult(runResult).code
     } finally {
