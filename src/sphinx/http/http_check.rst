@@ -287,7 +287,7 @@ Same as :ref:`jmesPath <http-check-jmespath>` but for `JSONP <http://en.wikipedi
 
 * ``css(expression, attribute)``
 
-Gatling supports `CSS Selectors <https://jodd.org/csselly/>`_.
+Gatling supports `CSS Selectors <https://lagarto.jodd.org/csselly/csselly>`_.
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
@@ -308,7 +308,7 @@ Gatling provides built-in support for the following types:
 * Node
 
 Specifying a ``Node`` let you perform complex deep DOM tree traversing, typically in a ``transform`` check step.
-Node is a `Jodd Lagardo <https://jodd.org/lagarto/>`_ DOM `Node <http://oblac.github.io/jodd-site/javadoc/jodd/lagarto/dom/Node.html>`_.
+Node is a `Jodd Lagarto <https://lagarto.jodd.org/lagarto-dom/lagartodom>`_ DOM `Node <http://oblac.github.io/jodd-site/javadoc/jodd/lagarto/dom/Node.html>`_.
 
 * ``form(expression)``
 
