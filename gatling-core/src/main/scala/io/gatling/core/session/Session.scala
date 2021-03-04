@@ -159,20 +159,8 @@ final case class Session(
       })
     }
 
-  def groups: List[String] = {
-
-    @tailrec
-    def gh(blocks: List[Block]): List[String] = blocks match {
-      case head :: tail =>
-        head match {
-          case g: GroupBlock => g.groups
-          case _             => gh(tail)
-        }
-      case _ => Nil
-    }
-
-    gh(blockStack)
-  }
+  def groups: List[String] =
+    blockStack.collectFirst { case g: GroupBlock => g.groups }.getOrElse(Nil)
 
   private[core] def enterTryMax(counterName: String, loopAction: Action) =
     copy(
