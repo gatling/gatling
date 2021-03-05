@@ -22,7 +22,7 @@ Global / gatlingDevelopers := Seq(
 
 ThisBuild / Keys.useCoursier := false
 
-Global / scalaVersion := "2.13.4"
+Global / scalaVersion := "2.13.5"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(GatlingOssPlugin, SphinxPlugin)
