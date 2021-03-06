@@ -11,7 +11,7 @@ import VersionFile._
 
 ThisBuild / Keys.useCoursier := false
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.5"
 
 lazy val root = Project("gatling-parent", file("."))
   .enablePlugins(AutomateHeaderPlugin, SonatypeReleasePlugin, SphinxPlugin)
