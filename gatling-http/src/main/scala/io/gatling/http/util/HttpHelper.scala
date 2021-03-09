@@ -92,13 +92,20 @@ private[gatling] object HttpHelper extends StrictLogging {
       }
     }
 
-  private val StandardApplicationTextMimeTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded", "x-javascript")
+  private val StandardApplicationTextMimeSubTypes = Set("javascript", "json", "xml", "x-www-form-urlencoded", "x-javascript")
   private val StandardApplicationTextExtensions = Set("+xml", "+json")
   def isText(headers: HttpHeaders): Boolean =
     mimeType(headers).exists {
-      case s"application/$app" => StandardApplicationTextMimeTypes.contains(app) || StandardApplicationTextExtensions.exists(app.endsWith)
-      case mt                  => mt.startsWith("text/")
+      case "multipart/related" => Option(headers.get(HttpHeaderNames.CONTENT_TYPE)).flatMap(extractParameterFromContentType(_, "type=")).exists(isText)
+      case mt                  => isText(mt)
     }
+
+  private def isText(mt: String): Boolean =
+    mt match {
+      case s"application/$subType" => StandardApplicationTextMimeSubTypes.contains(subType) || StandardApplicationTextExtensions.exists(subType.endsWith)
+      case mt                      => mt.startsWith("text/")
+    }
+
   def isCss(headers: HttpHeaders): Boolean = mimeType(headers).contains(MissingNettyHttpHeaderValues.TextCss.toString)
   def isHtml(headers: HttpHeaders): Boolean =
     mimeType(headers).exists(mt => mt == MissingNettyHttpHeaderValues.TextHtml.toString || mt == MissingNettyHttpHeaderValues.ApplicationXhtml.toString)
@@ -128,15 +135,24 @@ private[gatling] object HttpHelper extends StrictLogging {
   def isAbsoluteWsUrl(url: String): Boolean = url.startsWith(WsScheme)
 
   def extractCharsetFromContentType(contentType: String): Option[Charset] =
-    contentType.indexOf("charset=") match {
+    extractParameterFromContentType(contentType, "charset=").flatMap { charsetString =>
+      try {
+        Some(Charset.forName(charsetString))
+      } catch {
+        case NonFatal(_) => None
+      }
+    }
+
+  private def extractParameterFromContentType(contentType: String, attributeNameAndEqualChar: String): Option[String] =
+    contentType.indexOf(attributeNameAndEqualChar) match {
       case -1 => None
 
       case s =>
-        var start = s + "charset=".length
+        var start = s + attributeNameAndEqualChar.length
 
         if (contentType.regionMatches(true, start, UTF_8.name, 0, 5)) {
           // minor optim, bypass lookup for most common
-          Some(UTF_8)
+          Some(UTF_8.name)
 
         } else {
           var end = contentType.indexOf(';', start) match {
@@ -144,23 +160,19 @@ private[gatling] object HttpHelper extends StrictLogging {
             case e  => e
           }
 
-          try {
-            while (contentType.charAt(start) == ' ' && start < end) start += 1
+          while (contentType.charAt(start) == ' ' && start < end) start += 1
 
-            while (contentType.charAt(end - 1) == ' ' && end > start) end -= 1
+          while (contentType.charAt(end - 1) == ' ' && end > start) end -= 1
 
-            if (contentType.charAt(start) == '"' && start < end)
-              start += 1
+          if (contentType.charAt(start) == '"' && start < end)
+            start += 1
 
-            if (contentType.charAt(end - 1) == '"' && end > start)
-              end -= 1
+          if (contentType.charAt(end - 1) == '"' && end > start)
+            end -= 1
 
-            val charsetString = contentType.substring(start, end)
+          val charsetString = contentType.substring(start, end)
 
-            Some(Charset.forName(charsetString))
-          } catch {
-            case NonFatal(_) => None
-          }
+          Some(charsetString)
         }
     }
 

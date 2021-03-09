@@ -102,4 +102,12 @@ class HttpHelperSpec extends BaseSpec {
     val headers = new DefaultHttpHeaders().add(HttpHeaderNames.CONTENT_TYPE, "application/soap+xml")
     HttpHelper.isText(headers) shouldBe true
   }
+
+  it should "detect multipart/related Content-Type with text type attribute" in {
+    val headers = new DefaultHttpHeaders().add(
+      HttpHeaderNames.CONTENT_TYPE,
+      """multipart/related; boundary="----=_Part_512_1387421115.1607689659518"; type="text/xml"; start="1482247947.1607689659518.apache-soap.NCEPRF26WLS01"; charset=utf-8"""
+    )
+    HttpHelper.isText(headers) shouldBe true
+  }
 }
