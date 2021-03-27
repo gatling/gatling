@@ -679,13 +679,13 @@
             - signature: (key, value...)
               description: http://example.tld?key=value1&key=value2&key=value3...
 
-        - keyword: queryParamsSeq
+        - keyword: queryParamSeq
           description: Adds multiple query parameters to the URL
           syntax:
             - signature: ((key, value)...)
               description: http://example.tld?key1=value1&key2=value2&key3=value3...
 
-        - keyword: queryParamsMap
+        - keyword: queryParamMap
           description: Adds multiple query parameters to the URL
           syntax:
             - signature: (Map[key -> value])
