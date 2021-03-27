@@ -16,6 +16,8 @@
 
 package io.gatling.core.action
 
+import scala.runtime.LongRef
+
 import io.gatling.commons.stats.KO
 import io.gatling.commons.util.Clock
 import io.gatling.commons.validation._
@@ -53,12 +55,13 @@ class InnerTryMax(
     val next: Action
 ) extends ChainableAction {
 
-  private[this] val lastUserIdThreadLocal = new ThreadLocal[Long]
+  private[this] val lastUserIdThreadLocal = ThreadLocal.withInitial(() => LongRef.zero())
 
   private[this] def getAndSetLastUserId(session: Session): Long = {
-    val lastUserId = lastUserIdThreadLocal.get()
-    lastUserIdThreadLocal.set(session.userId)
-    lastUserId
+    val lastUserIdRef = lastUserIdThreadLocal.get()
+    val prev = lastUserIdRef.elem
+    lastUserIdRef.elem = session.userId
+    prev
   }
 
   private def blockFailed(session: Session): Boolean = session.blockStack.headOption match {
