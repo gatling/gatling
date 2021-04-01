@@ -34,17 +34,19 @@ private[http] object BaseUrlSupport extends LazyLogging {
 
   private val WsBaseUrlAttributeName: String = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.wsBaseUrl"
 
-  private def preResolve(baseUrl: String): Unit =
+  private def preResolve(baseUrl: String, aliasedHostnames: Set[String]): Unit =
     try {
       val uri = Uri.create(baseUrl)
-      InetAddress.getAllByName(uri.getHost)
+      if (!aliasedHostnames.contains(uri.getHost)) {
+        InetAddress.getAllByName(uri.getHost)
+      }
     } catch {
       case NonFatal(e) =>
         logger.debug(s"Couldn't pre-resolve hostname from baseUrl $baseUrl", e)
     }
 
-  private def setBaseUrl(baseUrls: List[String], attributeName: String): Session => Session = {
-    baseUrls.foreach(preResolve)
+  private def setBaseUrl(baseUrls: List[String], attributeName: String, aliasedHostnames: Set[String]): Session => Session = {
+    baseUrls.foreach(preResolve(_, aliasedHostnames))
 
     baseUrls match {
       case Nil        => Session.Identity
@@ -56,10 +58,10 @@ private[http] object BaseUrlSupport extends LazyLogging {
   }
 
   def setHttpBaseUrl(httpProtocol: HttpProtocol): Session => Session =
-    setBaseUrl(httpProtocol.baseUrls, BaseUrlAttributeName)
+    setBaseUrl(httpProtocol.baseUrls, BaseUrlAttributeName, httpProtocol.dnsPart.hostNameAliases.keySet)
 
   def setWsBaseUrl(httpProtocol: HttpProtocol): Session => Session =
-    setBaseUrl(httpProtocol.wsPart.wsBaseUrls, WsBaseUrlAttributeName)
+    setBaseUrl(httpProtocol.wsPart.wsBaseUrls, WsBaseUrlAttributeName, httpProtocol.dnsPart.hostNameAliases.keySet)
 
   private def baseUrl(session: Session, attributeName: String): Option[String] =
     session.attributes.get(attributeName).map(_.asInstanceOf[String])
