@@ -56,8 +56,17 @@ The response time of a group is the cumulated response times of each individual 
 
 .. _groups-timings-ct:
 
-Cumulated Time
---------------
+Duration
+--------
 
-The cumulated time of a group is the elapsed time from the start of the group's first request to the end of the group's last request, including  pauses.
-Groups' cumulated time are only reported in the "Cumulated response time" chart.
+Group duration is the elapsed time between the instant a virtual user enters a group and the instant it exits.
+
+Group duration is reported in the "Duration" charts.
+
+Cumulated Response Time
+-----------------------
+
+Group cumulated response time is the time in a group when requests are flying: requests' response time and resources start to end duration.
+In short, it's the group duration minus the pauses.
+
+Group cumulated response time is reported in the "Cumulated Response Time" charts.
