@@ -24,11 +24,22 @@ import io.gatling.core.EmptySession
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.el
 
-private final case class Foo(bar: String, baz: Int)
+private final case class Foo(bar: String)
 
 private final case class Bar(baz: Baz)
 
 private final case class Baz(qix: String)
+
+final case class Primitives(
+    boolean: Boolean,
+    byte: Byte,
+    short: Short,
+    int: Int,
+    long: Long,
+    float: Float,
+    double: Double,
+    char: Char
+)
 
 class ElSpec extends BaseSpec with ValidationValues with EmptySession {
 
@@ -346,19 +357,25 @@ class ElSpec extends BaseSpec with ValidationValues with EmptySession {
   }
 
   it should "support case classes String attribute" in {
-    val session = newSession(Map("foo" -> Foo("hello", 1)))
+    val session = newSession(Map("foo" -> Foo("hello")))
     val expression = "${foo.bar}".el[String]
     expression(session).succeeded shouldBe "hello"
   }
 
-  it should "support case classes Int attribute" in {
-    val session = newSession(Map("foo" -> Foo("hello", 1)))
-    val expression = "${foo.baz}".el[Int]
-    expression(session).succeeded shouldBe 1
+  it should "extract case classes attributes with primitive types" in {
+    val session = emptySession.set("foo", Primitives(boolean = true, 1, 1, 1, 1L, 1.1.toFloat, 1.1, 'a'))
+    "${foo.boolean}".el[Boolean].apply(session).succeeded shouldBe true
+    "${foo.byte}".el[Byte].apply(session).succeeded shouldBe 1
+    "${foo.short}".el[Short].apply(session).succeeded shouldBe 1
+    "${foo.int}".el[Int].apply(session).succeeded shouldBe 1
+    "${foo.long}".el[Long].apply(session).succeeded shouldBe 1L
+    "${foo.float}".el[Float].apply(session).succeeded shouldBe 1.1.toFloat
+    "${foo.double}".el[Double].apply(session).succeeded shouldBe 1.1
+    "${foo.char}".el[Char].apply(session).succeeded shouldBe 'a'
   }
 
   it should "handle wrong key" in {
-    val session = newSession(Map("foo" -> Foo("hello", 1)))
+    val session = newSession(Map("foo" -> Foo("hello")))
     val expression = "${foo.qix}".el[String]
     expression(session).failed shouldBe ElMessages.undefinedMapKey("foo", "qix").message
   }

@@ -392,6 +392,28 @@ class SessionSpec extends BaseSpec with EmptySession {
     session("foo").as[Int] shouldBe 200
   }
 
+  it should "extract Scala types" in {
+    emptySession.set("foo", true)("foo").as[Boolean] shouldBe true
+    emptySession.set("foo", 1.toByte)("foo").as[Byte] shouldBe 1
+    emptySession.set("foo", 1.toShort)("foo").as[Short] shouldBe 1
+    emptySession.set("foo", 1)("foo").as[Int] shouldBe 1
+    emptySession.set("foo", 1L)("foo").as[Long] shouldBe 1L
+    emptySession.set("foo", 1.1.toFloat)("foo").as[Float] shouldBe 1.1.toFloat
+    emptySession.set("foo", 1.1)("foo").as[Double] shouldBe 1.1
+    emptySession.set("foo", 'a')("foo").as[Char] shouldBe 'a'
+  }
+
+  it should "extract Java wrapper types" in {
+    emptySession.set("foo", java.lang.Boolean.TRUE)("foo").as[Boolean] shouldBe true
+    emptySession.set("foo", java.lang.Byte.valueOf(1.toByte))("foo").as[Byte] shouldBe 1
+    emptySession.set("foo", java.lang.Short.valueOf(1.toShort))("foo").as[Short] shouldBe 1
+    emptySession.set("foo", java.lang.Integer.valueOf(1))("foo").as[Int] shouldBe 1
+    emptySession.set("foo", java.lang.Long.valueOf(1))("foo").as[Long] shouldBe 1L
+    emptySession.set("foo", java.lang.Float.valueOf(1.1.toFloat))("foo").as[Float] shouldBe 1.1.toFloat
+    emptySession.set("foo", java.lang.Double.valueOf(1.1))("foo").as[Double] shouldBe 1.1
+    emptySession.set("foo", java.lang.Character.valueOf('a'))("foo").as[Char] shouldBe 'a'
+  }
+
   it should "throw an exception when key isn't defined" in {
     val session = emptySession
     a[java.util.NoSuchElementException] shouldBe thrownBy(session("foo").as[String])
