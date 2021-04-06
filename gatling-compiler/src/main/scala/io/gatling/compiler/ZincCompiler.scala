@@ -118,9 +118,10 @@ object ZincCompiler extends App with ProblemStringFormats {
       new ScalaInstance(
         version = scalaVersion,
         loader = new URLClassLoader(allScalaJars.map(_.toURI.toURL)),
+        loaderCompilerOnly = new URLClassLoader(allScalaJars.map(_.toURI.toURL)),
         loaderLibraryOnly = ClasspathUtil.rootLoader,
-        libraryJar = scalaLibraryJar,
-        compilerJar = scalaCompilerJar,
+        libraryJars = Array(scalaLibraryJar),
+        compilerJars = Array(scalaCompilerJar),
         allJars = allScalaJars,
         explicitActual = Some(scalaVersion)
       )
