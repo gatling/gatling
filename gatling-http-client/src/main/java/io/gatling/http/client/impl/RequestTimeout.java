@@ -38,10 +38,13 @@ public interface RequestTimeout {
 
   void setChannel(Channel channel);
 
+  void setStreamId(int streamId);
+
   class DefaultRequestTimeout implements RequestTimeout {
     private final long timeout;
     private final HttpListener listener;
     private Channel channel;
+    private Integer streamId;
     private InetSocketAddress remoteAddress;
     private ScheduledFuture<?> f;
 
@@ -58,7 +61,15 @@ public interface RequestTimeout {
     private void execute() {
       listener.onThrowable(new RequestTimeoutException(timeout, remoteAddress));
       if (channel != null) {
-        channel.close();
+        if (channel.pipeline().get(DefaultHttpClient.APP_HTTP2_HANDLER) != null) {
+          // don't close the channel when HTTP/2
+          if (streamId != null) {
+            // the stream is active so it's safe to interrupt it
+            channel.pipeline().fireUserEventTriggered(new Http2AppHandler.StreamTimeout(streamId));
+          }
+        } else {
+          channel.close();
+        }
       }
     }
 
@@ -73,6 +84,10 @@ public interface RequestTimeout {
     public void setChannel(Channel channel) {
       this.channel = channel;
       remoteAddress = (InetSocketAddress) channel.remoteAddress();
+    }
+
+    public void setStreamId(int streamId) {
+      this.streamId = streamId;
     }
   }
 
@@ -99,6 +114,10 @@ public interface RequestTimeout {
 
     @Override
     public void setChannel(Channel channel) {
+    }
+
+    @Override
+    public void setStreamId(int streamId) {
     }
   }
 }

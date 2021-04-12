@@ -204,13 +204,15 @@ class GatlingHttpListener(tx: HttpTx, clock: Clock, responseProcessor: ResponseP
     chunks = Nil
   }
 
-  override def onThrowable(throwable: Throwable): Unit = {
-    requestEndTimestamp = clock.nowMillis
-    logRequestCrash(tx, throwable)
-    try {
-      responseProcessor.onComplete(buildFailure(throwable))
-    } finally {
-      releaseChunks()
+  override def onThrowable(throwable: Throwable): Unit =
+    if (!done) {
+      done = true;
+      requestEndTimestamp = clock.nowMillis
+      logRequestCrash(tx, throwable)
+      try {
+        responseProcessor.onComplete(buildFailure(throwable))
+      } finally {
+        releaseChunks()
+      }
     }
-  }
 }

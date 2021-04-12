@@ -16,8 +16,8 @@
 
 package io.gatling.http.client.impl;
 
+import io.gatling.http.client.pool.ChannelPool;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http2.*;
@@ -30,21 +30,27 @@ import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
 
-  private final boolean propagateSettings;
   private final Http2Connection connection;
   private final boolean validateHttpHeaders;
-  private final Promise<Channel> whenHttp2Handshake;
+  private final Promise<Void> whenAlpn;
+  private final HttpTx tx;
+  private final ChannelPool channelPool;
+  private final ChannelHandlerContext parentCtx;
 
   ChunkedInboundHttp2ToHttpAdapter(Http2Connection connection,
-                                          boolean validateHttpHeaders,
-                                          boolean propagateSettings,
-                                          Promise<Channel> whenHttp2Handshake) {
+                                   boolean validateHttpHeaders,
+                                   Promise<Void> whenAlpn,
+                                   HttpTx tx,
+                                   ChannelPool channelPool,
+                                   ChannelHandlerContext parentCtx) {
 
     checkNotNull(connection, "connection");
     this.connection = connection;
     this.validateHttpHeaders = validateHttpHeaders;
-    this.propagateSettings = propagateSettings;
-    this.whenHttp2Handshake = whenHttp2Handshake;
+    this.whenAlpn = whenAlpn;
+    this.tx = tx;
+    this.channelPool = channelPool;
+    this.parentCtx = parentCtx;
   }
 
   @Override
@@ -84,12 +90,6 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
   }
 
   @Override
-  public void onRstStreamRead(ChannelHandlerContext ctx, int streamId, long errorCode) {
-    ctx.fireExceptionCaught(Http2Exception.streamError(streamId, Http2Error.valueOf(errorCode),
-      "HTTP/2 to HTTP layer caught stream reset"));
-  }
-
-  @Override
   public void onPushPromiseRead(ChannelHandlerContext ctx, int streamId, int promisedStreamId,
                                 Http2Headers headers, int padding) throws Http2Exception {
     if (connection.stream(promisedStreamId) != null)
@@ -103,14 +103,17 @@ public class ChunkedInboundHttp2ToHttpAdapter extends Http2EventAdapter {
   }
 
   @Override
+  public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
+    ctx.fireUserEventTriggered(new Http2AppHandler.GoAwayFrame(lastStreamId, errorCode));
+  }
+
+  @Override
   public void onSettingsRead(ChannelHandlerContext ctx, Http2Settings settings) {
-
-    if (!whenHttp2Handshake.isDone()) {
-      whenHttp2Handshake.setSuccess(ctx.channel());
+    if (settings.maxConcurrentStreams() != null) {
+      channelPool.updateMaxConcurrentStreams(ctx.channel(), settings.maxConcurrentStreams());
     }
-
-    if (propagateSettings) {
-      ctx.fireChannelRead(settings);
+    if (!whenAlpn.isDone()) {
+      whenAlpn.setSuccess(null);
     }
   }
 }
