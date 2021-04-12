@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.gatling.http.client.impl.br;
+package io.gatling.http.client.impl.compression;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 import com.aayushatharva.brotli4j.decoder.DecoderJNI;

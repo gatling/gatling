@@ -35,6 +35,7 @@ public class ChannelPool {
   private static final AttributeKey<ChannelPoolKey> CHANNEL_POOL_KEY_ATTRIBUTE_KEY = AttributeKey.valueOf("poolKey");
   private static final AttributeKey<Long> CHANNEL_POOL_TIMESTAMP_ATTRIBUTE_KEY = AttributeKey.valueOf("poolTimestamp");
   private static final AttributeKey<Integer> CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY = AttributeKey.valueOf("poolStreamCount");
+  private static final AttributeKey<Long> CHANNEL_MAX_CONCURRENT_STREAMS = AttributeKey.valueOf("maxConcurrentStreams");
   static final int INITIAL_CLIENT_MAP_SIZE = 1000;
   static final int INITIAL_KEY_PER_CLIENT_MAP_SIZE = 2;
   static final int INITIAL_CHANNEL_QUEUE_SIZE = 2;
@@ -45,7 +46,7 @@ public class ChannelPool {
   private Queue<Channel> remoteChannels(ChannelPoolKey key) {
     return channels
       .computeIfAbsent(key.clientId, k -> new HashMap<>(INITIAL_KEY_PER_CLIENT_MAP_SIZE))
-      .computeIfAbsent(key.remoteKey, k -> new  ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
+      .computeIfAbsent(key.remoteKey, k -> new ArrayDeque<>(INITIAL_CHANNEL_QUEUE_SIZE));
   }
 
   private static boolean isHttp1(Channel channel) {
@@ -56,38 +57,44 @@ public class ChannelPool {
     return !isHttp1(channel);
   }
 
-  private void incrementStreamCount(Channel channel) {
+  private boolean tryIncrementingStreamCount(Channel channel) {
     Attribute<Integer> streamCountAttr = channel.attr(CHANNEL_POOL_STREAM_COUNT_ATTRIBUTE_KEY);
-    streamCountAttr.set(streamCountAttr.get() + 1);
+    Long maxConcurrentStreams = channel.attr(CHANNEL_MAX_CONCURRENT_STREAMS).get();
+    int currentCount = streamCountAttr.get();
+    if (maxConcurrentStreams == null || currentCount < maxConcurrentStreams.longValue()) {
+      streamCountAttr.set(streamCountAttr.get() + 1);
+      return true;
+    } else {
+      return false;
+    }
   }
 
   public Channel poll(ChannelPoolKey key) {
     Queue<Channel> channels = remoteChannels(key);
 
-    while (true) {
-      Channel channel = channels.peek();
+    Iterator<Channel> it = channels.iterator();
 
-      if (channel == null) {
-        return null;
-      }
+    while (it.hasNext()) {
+      Channel channel = it.next();
 
       if (!channel.isActive()) {
-        channels.remove();
+        it.remove();
+        break;
       } else if (isHttp1(channel)) {
-        channels.remove();
+        it.remove();
         return channel;
-      } else {
-        incrementStreamCount(channel);
+      } else if (tryIncrementingStreamCount(channel)) {
         return channel;
       }
     }
+
+    return null;
   }
 
   public Channel pollCoalescedChannel(long clientId, String domain, List<InetSocketAddress> addresses) {
-    Channel channel = coalescingChannelPool.getCoalescedChannel(clientId, domain, addresses);
+    Channel channel = coalescingChannelPool.getCoalescedChannel(clientId, domain, addresses, this::tryIncrementingStreamCount);
     if (channel != null) {
       LOGGER.debug("Retrieving channel from coalescing pool for domain {}", domain);
-      incrementStreamCount(channel);
     }
     return channel;
   }
@@ -95,6 +102,10 @@ public class ChannelPool {
   public void offerCoalescedChannel(Set<String> subjectAlternativeNames, InetSocketAddress address, Channel channel, ChannelPoolKey key) {
     IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
     coalescingChannelPool.addEntry(key.clientId, ipAndPort, subjectAlternativeNames, channel);
+  }
+
+  public void updateMaxConcurrentStreams(Channel channel, long maxConcurrentStreams) {
+    channel.attr(CHANNEL_MAX_CONCURRENT_STREAMS).set(maxConcurrentStreams);
   }
 
   public void register(Channel channel, ChannelPoolKey key) {

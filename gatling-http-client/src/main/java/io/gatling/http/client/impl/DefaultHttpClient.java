@@ -16,13 +16,13 @@
 
 package io.gatling.http.client.impl;
 
-import com.aayushatharva.brotli4j.Brotli4jLoader;
 import io.gatling.http.client.HttpClient;
 import io.gatling.http.client.HttpClientConfig;
 import io.gatling.http.client.HttpListener;
 import io.gatling.http.client.Request;
 import io.gatling.http.client.body.is.InputStreamRequestBody;
-import io.gatling.http.client.impl.br.BrotliDecoder;
+import io.gatling.http.client.impl.compression.CustomDelegatingDecompressorFrameListener;
+import io.gatling.http.client.impl.compression.CustomHttpContentDecompressor;
 import io.gatling.http.client.pool.ChannelPool;
 import io.gatling.http.client.pool.ChannelPoolKey;
 import io.gatling.http.client.pool.RemoteKey;
@@ -35,13 +35,10 @@ import io.gatling.http.client.uri.Uri;
 import io.gatling.http.client.util.Pair;
 import io.gatling.netty.util.Transports;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpContentDecompressor;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http2.*;
@@ -51,7 +48,6 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.resolver.NoopAddressResolverGroup;
-import io.netty.util.AsciiString;
 import io.netty.util.NetUtil;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.*;
@@ -75,7 +71,7 @@ import static java.util.Collections.singletonList;
 
 public class DefaultHttpClient implements HttpClient {
 
-  private static final AsciiString BR = new AsciiString("br");
+  private static final Http2Settings DEFAULT_HTTP2_SETTINGS = Http2Settings.defaultSettings();
 
   static {
     InternalLoggerFactory.setDefaultFactory(Slf4JLoggerFactory.INSTANCE);
@@ -96,7 +92,7 @@ public class DefaultHttpClient implements HttpClient {
   private static final String WS_FRAME_AGGREGATOR = "ws-frame-aggregator";
   private static final String APP_WS_HANDLER = "app-ws";
   private static final String ALPN_HANDLER = "alpn";
-  private static final String APP_HTTP2_HANDLER = "app-http2";
+  static final String APP_HTTP2_HANDLER = "app-http2";
 
   public static final String APP_HTTP_HANDLER = "app-http";
 
@@ -110,26 +106,6 @@ public class DefaultHttpClient implements HttpClient {
       128);
   }
 
-  private HttpContentDecompressor newHttpContentDecompressor() {
-    return new HttpContentDecompressor() {
-
-      @Override
-      protected EmbeddedChannel newContentDecoder(String contentEncoding) throws Exception {
-        if (Brotli4jLoader.isAvailable() && BR.contentEqualsIgnoreCase(contentEncoding)) {
-          return new EmbeddedChannel(ctx.channel().id(), ctx.channel().metadata().hasDisconnect(),
-            ctx.channel().config(), new BrotliDecoder());
-        } else {
-          return super.newContentDecoder(contentEncoding);
-        }
-      }
-
-      @Override
-      protected String getTargetContentEncoding(String contentEncoding) {
-        return contentEncoding;
-      }
-    };
-  }
-
   private class EventLoopResources {
 
     private final Bootstrap http1Bootstrap;
@@ -140,7 +116,7 @@ public class DefaultHttpClient implements HttpClient {
     private void addHttpHandlers(Channel channel) {
       channel.pipeline()
         .addLast(HTTP_CLIENT_CODEC, newHttpClientCodec())
-        .addLast(INFLATER_HANDLER, newHttpContentDecompressor())
+        .addLast(INFLATER_HANDLER, new CustomHttpContentDecompressor())
         .addLast(CHUNKED_WRITER_HANDLER, new ChunkedWriteHandler())
         .addLast(APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
 
@@ -301,7 +277,7 @@ public class DefaultHttpClient implements HttpClient {
       alpnSslContext = config.getDefaultAlpnSslContext();
     }
 
-    List<HttpTx> txs = new ArrayList<>();
+    List<HttpTx> txs = new ArrayList<>(requestsAndListeners.length);
     for (Pair<Request, HttpListener> requestAndListener : requestsAndListeners) {
       Request request = requestAndListener.getLeft();
       HttpListener listener = requestAndListener.getRight();
@@ -789,14 +765,13 @@ public class DefaultHttpClient implements HttpClient {
     }
   }
 
-  private Future<Channel> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {
+  private Future<Void> installHttp2Handler(HttpTx tx, Channel channel, ChannelPool channelPool) {
 
-    Promise<Channel> whenAlpn = channel.eventLoop().newPromise();
+    Promise<Void> whenAlpn = channel.eventLoop().newPromise();
 
     channel.pipeline().addAfter(SSL_HANDLER, ALPN_HANDLER, new ApplicationProtocolNegotiationHandler(ApplicationProtocolNames.HTTP_1_1) {
       @Override
       protected void configurePipeline(ChannelHandlerContext ctx, String protocol) throws Exception {
-
         switch (protocol) {
           case ApplicationProtocolNames.HTTP_2:
             LOGGER.debug("ALPN led to HTTP/2 with remote {}", tx.request.getUri().getHost());
@@ -804,39 +779,18 @@ public class DefaultHttpClient implements HttpClient {
             Http2Connection connection = new DefaultHttp2Connection(false);
 
             HttpToHttp2ConnectionHandler http2Handler = new HttpToHttp2ConnectionHandlerBuilder()
-              .initialSettings(Http2Settings.defaultSettings()) // FIXME override?
+              .initialSettings(DEFAULT_HTTP2_SETTINGS)
               .connection(connection)
               .frameListener(
-                new DelegatingDecompressorFrameListener(
+                new CustomDelegatingDecompressorFrameListener(
                   connection,
-                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, true, whenAlpn) {
-                    @Override
-                    public void onGoAwayRead(ChannelHandlerContext ctx, int lastStreamId, long errorCode, ByteBuf debugData) {
-                      ctx.fireChannelRead(new Http2AppHandler.GoAwayFrame(lastStreamId, errorCode));
-                    }
-                  }) {
-
-                  @Override
-                  protected CharSequence getTargetContentEncoding(CharSequence contentEncoding) {
-                    return contentEncoding;
-                  }
-
-                  @Override
-                  protected EmbeddedChannel newContentDecompressor(final ChannelHandlerContext ctx, CharSequence contentEncoding)
-                    throws Http2Exception {
-                    if (Brotli4jLoader.isAvailable() && BR.contentEqualsIgnoreCase(contentEncoding)) {
-                      return new EmbeddedChannel(ctx.channel().id(), ctx.channel().metadata().hasDisconnect(),
-                        ctx.channel().config(), new BrotliDecoder());
-                    } else {
-                      return super.newContentDecompressor(ctx, contentEncoding);
-                    }
-                  }
-                }
+                  new ChunkedInboundHttp2ToHttpAdapter(connection, false, whenAlpn, tx, channelPool, ctx)
+                )
               ).build();
 
             ctx.pipeline()
               .addLast(HTTP2_HANDLER, http2Handler)
-              .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(DefaultHttpClient.this, connection, http2Handler, channelPool, config));
+              .addLast(APP_HTTP2_HANDLER, new Http2AppHandler(DefaultHttpClient.this, http2Handler, channelPool, config));
 
             channelPool.offer(channel);
 
@@ -860,9 +814,9 @@ public class DefaultHttpClient implements HttpClient {
             tx.listener.onProtocolAwareness(false);
             ctx.pipeline()
               .addBefore(CHUNKED_WRITER_HANDLER, HTTP_CLIENT_CODEC, newHttpClientCodec())
-              .addBefore(CHUNKED_WRITER_HANDLER, INFLATER_HANDLER, newHttpContentDecompressor())
+              .addBefore(CHUNKED_WRITER_HANDLER, INFLATER_HANDLER, new CustomHttpContentDecompressor())
               .addAfter(CHUNKED_WRITER_HANDLER, APP_HTTP_HANDLER, new HttpAppHandler(DefaultHttpClient.this, channelPool, config));
-            whenAlpn.setSuccess(ctx.channel());
+            whenAlpn.setSuccess(null);
             break;
 
           default:

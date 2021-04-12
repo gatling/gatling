@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.*;
+import java.util.function.Function;
 
 class CoalescingChannelPool {
   private static final Logger LOGGER = LoggerFactory.getLogger(CoalescingChannelPool.class);
@@ -60,7 +61,7 @@ class CoalescingChannelPool {
     clientCleanUpMap(clientId).put(channel, channels);
   }
 
-  Channel getCoalescedChannel(long clientId, String domain, List<InetSocketAddress> addresses) {
+  Channel getCoalescedChannel(long clientId, String domain, List<InetSocketAddress> addresses, Function<Channel, Boolean> onCandidate) {
     for (InetSocketAddress address : addresses) {
       IpAndPort ipAndPort = new IpAndPort(address.getAddress().getAddress(), address.getPort());
       Map.Entry<Set<String>, Queue<Channel>> entry = clientChannels(clientId).get(ipAndPort);
@@ -68,7 +69,7 @@ class CoalescingChannelPool {
         for (String subjectAlternativeName : entry.getKey()) {
           if (Tls.isCertificateAuthoritative(subjectAlternativeName, domain)) {
             for (Channel channel : entry.getValue()) {
-              if (channel.isActive()) {
+              if (channel.isActive() && onCandidate.apply(channel)) {
                 return channel;
               }
             }
