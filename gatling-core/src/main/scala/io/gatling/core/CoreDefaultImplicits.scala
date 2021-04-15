@@ -36,9 +36,9 @@ trait CoreDefaultImplicits {
   lazy implicit val defaultXmlParsers: XmlParsers = new XmlParsers(configuration.core.extract.xpath.cacheMaxCapacity)
   lazy implicit val defaultCssSelectors: CssSelectors = new CssSelectors(configuration.core.extract.css.cacheMaxCapacity)
   lazy implicit val elFileBodies: ElFileBodies =
-    new ElFileBodies(GatlingFiles.resourcesDirectory(configuration), configuration.core.charset, configuration.core.elFileBodiesCacheMaxCapacity)
+    new ElFileBodies(GatlingFiles.customResourcesDirectory(configuration), configuration.core.charset, configuration.core.elFileBodiesCacheMaxCapacity)
   lazy implicit val rawFileBodies: RawFileBodies =
-    new RawFileBodies(GatlingFiles.resourcesDirectory(configuration), configuration.core.rawFileBodiesInMemoryMaxSize)
+    new RawFileBodies(GatlingFiles.customResourcesDirectory(configuration), configuration.core.rawFileBodiesInMemoryMaxSize)
   lazy implicit val pebbleFileBodies: PebbleFileBodies =
-    new PebbleFileBodies(GatlingFiles.resourcesDirectory(configuration), configuration.core.pebbleFileBodiesCacheMaxCapacity)
+    new PebbleFileBodies(GatlingFiles.customResourcesDirectory(configuration), configuration.core.pebbleFileBodiesCacheMaxCapacity)
 }

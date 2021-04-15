@@ -51,7 +51,7 @@ set JAVA_OPTS=-server %JAVA_OPTS%
 set COMPILER_OPTS=-Xss100M %JAVA_OPTS%
 rem Setup classpaths
 set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\*;%GATLING_CONF%;
-set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%GATLING_CONF%;
+set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files\resources;%GATLING_CONF%;
 
 set JAVA=java
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome

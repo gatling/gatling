@@ -47,13 +47,13 @@ trait FeederSupport extends ResourceCache {
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = DefaultQuoteChar)(implicit
       configuration: GatlingConfiguration
   ): BatchableFeederBuilder[String] =
-    cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
+    cachedResource(GatlingFiles.customResourcesDirectory(configuration), fileName) match {
       case Success(resource) => SourceFeederBuilder[String](new SeparatedValuesFeederSource(resource, separator, quoteChar), configuration)
       case Failure(message)  => throw new IllegalArgumentException(s"Could not locate feeder file: $message")
     }
 
   def jsonFile(fileName: String)(implicit jsonParsers: JsonParsers, configuration: GatlingConfiguration): FileBasedFeederBuilder[Any] =
-    cachedResource(GatlingFiles.resourcesDirectory(configuration), fileName) match {
+    cachedResource(GatlingFiles.customResourcesDirectory(configuration), fileName) match {
       case Success(resource) =>
         val data = new JsonFeederFileParser(jsonParsers).parse(resource, configuration.core.charset)
         SourceFeederBuilder(InMemoryFeederSource(data), configuration)

@@ -45,6 +45,8 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
   }
 
   private val RenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
+  private val DefaultSimulationsDirectory = resolvePath(Paths.get("user-files/simulations"))
+  private val DefaultResourcesDirectory = resolvePath(Paths.get("user-files/resources"))
 
   var configFile: Option[Path] = None
 
@@ -112,14 +114,24 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
 
     def getSimulationsFolder(folder: String) =
       folder.trimToOption match {
-        case Some(f)                               => f
-        case _ if sys.env.contains("GATLING_HOME") => simulationsDirectory(gatlingConfiguration).toFile.toString
-        case _                                     => userHome
+        case Some(f) => f
+        case _ if sys.env.contains("GATLING_HOME") =>
+          customResourcesDirectory(gatlingConfiguration)
+            .getOrElse(DefaultSimulationsDirectory)
+            .toFile
+            .toString
+        case _ => userHome
       }
 
     def getResourcesFolder =
-      if (config.hasPath(core.ResourcesFolder)) config.getString(core.ResourcesFolder)
-      else resourcesDirectory(gatlingConfiguration).toFile.toString
+      if (config.hasPath(core.ResourcesFolder)) {
+        config.getString(core.ResourcesFolder)
+      } else {
+        customResourcesDirectory(gatlingConfiguration)
+          .getOrElse(DefaultResourcesDirectory)
+          .toFile
+          .toString
+      }
 
     RecorderConfiguration(
       core = CoreConfiguration(

@@ -39,7 +39,7 @@ COMPILER_OPTS="-Xss100M $DEFAULT_JAVA_OPTS $JAVA_OPTS"
 
 # Setup classpaths
 COMPILER_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:"
-GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$GATLING_CONF:"
+GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files/resources:$GATLING_CONF:"
 
 
 # Use the extra compiler options flag only if they are provided

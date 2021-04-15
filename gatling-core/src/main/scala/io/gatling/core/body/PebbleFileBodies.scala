@@ -26,7 +26,7 @@ import io.gatling.core.util.cache.Cache
 import com.github.benmanes.caffeine.cache.LoadingCache
 import com.mitchellbosecke.pebble.template.PebbleTemplate
 
-class PebbleFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends ResourceCache {
+class PebbleFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
 
   private val templatesCache: LoadingCache[Resource, Validation[PebbleTemplate]] =
     Cache.newConcurrentLoadingCache(cacheMaxCapacity, Pebble.getResourceTemplate)
@@ -36,7 +36,7 @@ class PebbleFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends
       case StaticValueExpression(path) =>
         val template =
           for {
-            resource <- cachedResource(resourcesDirectory, path)
+            resource <- cachedResource(customResourcesDirectory, path)
             template <- templatesCache.get(resource)
           } yield template
 
@@ -46,7 +46,7 @@ class PebbleFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends
         session =>
           for {
             path <- filePath(session)
-            resource <- cachedResource(resourcesDirectory, path)
+            resource <- cachedResource(customResourcesDirectory, path)
             template <- templatesCache.get(resource)
           } yield template
     }

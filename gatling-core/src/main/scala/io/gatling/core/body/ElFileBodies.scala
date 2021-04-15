@@ -26,10 +26,10 @@ import io.gatling.core.util.cache.Cache
 
 import com.github.benmanes.caffeine.cache.LoadingCache
 
-class ElFileBodies(resourcesDirectory: Path, charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
+class ElFileBodies(customResourcesDirectory: Option[Path], charset: Charset, cacheMaxCapacity: Long) extends ResourceCache {
 
   private def compileFile(path: String): Validation[List[ElBody.ElBodyPart]] =
-    cachedResource(resourcesDirectory, path).flatMap { resource =>
+    cachedResource(customResourcesDirectory, path).flatMap { resource =>
       safely() {
         val string = resource.string(charset)
         ElBody.toParts(string, charset).success

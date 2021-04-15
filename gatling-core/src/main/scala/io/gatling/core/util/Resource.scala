@@ -30,7 +30,7 @@ import io.gatling.commons.validation._
 
 object Resource {
 
-  private final case class Location(directory: Path, path: String)
+  private final case class Location(customDirectory: Option[Path], path: String)
 
   private object ClasspathResource {
 
@@ -60,11 +60,13 @@ object Resource {
 
   private object DirectoryChildResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      (location.directory / location.path).ifFile { f =>
-        if (f.canRead)
-          FilesystemResource(f).success
-        else
-          s"File $f can't be read".failure
+      location.customDirectory.flatMap { customDirectory =>
+        (customDirectory / location.path).ifFile { f =>
+          if (f.canRead)
+            FilesystemResource(f).success
+          else
+            s"File $f can't be read".failure
+        }
       }
   }
 
@@ -73,10 +75,10 @@ object Resource {
       Paths.get(location.path).ifFile(FilesystemResource(_).success)
   }
 
-  private[gatling] def resolveResource(directory: Path, path: String): Validation[Resource] =
-    Location(directory, path) match {
-      case ClasspathResource(res)      => res
+  private[gatling] def resolveResource(customDirectory: Option[Path], path: String): Validation[Resource] =
+    Location(customDirectory, path) match {
       case DirectoryChildResource(res) => res
+      case ClasspathResource(res)      => res
       case AbsoluteFileResource(res)   => res
       case _                           => s"Resource $path not found".failure
     }
@@ -121,6 +123,6 @@ final case class FilesystemResource(file: File) extends Resource {
 trait ResourceCache {
   private val resourceCache = new ConcurrentHashMap[String, Validation[Resource]]()
 
-  protected def cachedResource(resourcesDirectory: Path, path: String): Validation[Resource] =
-    resourceCache.computeIfAbsent(path, Resource.resolveResource(resourcesDirectory, _))
+  protected def cachedResource(customResourcesDirectory: Option[Path], path: String): Validation[Resource] =
+    resourceCache.computeIfAbsent(path, Resource.resolveResource(customResourcesDirectory, _))
 }

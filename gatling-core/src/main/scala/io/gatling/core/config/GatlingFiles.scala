@@ -26,11 +26,11 @@ object GatlingFiles {
 
   private val GatlingHome: Path = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 
-  private def resolvePath(path: Path): Path =
+  private[gatling] def resolvePath(path: Path): Path =
     (if (path.isAbsolute || path.exists) path else GatlingHome / path).normalize.toAbsolutePath
 
-  def simulationsDirectory(configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.simulations)
-  def resourcesDirectory(configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.resources)
+  def customSimulationsDirectory(configuration: GatlingConfiguration): Option[Path] = configuration.core.directory.customSimulations.map(resolvePath)
+  def customResourcesDirectory(configuration: GatlingConfiguration): Option[Path] = configuration.core.directory.customResources.map(resolvePath)
   def binariesDirectory(configuration: GatlingConfiguration): Path =
     configuration.core.directory.binaries.map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")
   def resultDirectory(runUuid: String, configuration: GatlingConfiguration): Path = resolvePath(configuration.core.directory.results) / runUuid

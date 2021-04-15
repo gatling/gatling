@@ -26,7 +26,7 @@ import com.github.benmanes.caffeine.cache.LoadingCache
 
 final case class ResourceAndCachedBytes(resource: Resource, cachedBytes: Option[Array[Byte]])
 
-class RawFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends ResourceCache {
+class RawFileBodies(customResourcesDirectory: Option[Path], cacheMaxCapacity: Long) extends ResourceCache {
 
   private val bytesCache: LoadingCache[Resource, Option[Array[Byte]]] = {
     val resourceToBytes: Resource => Option[Array[Byte]] = resource =>
@@ -44,7 +44,7 @@ class RawFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends Re
       case StaticValueExpression(path) =>
         val resourceAndCachedBytes =
           for {
-            resource <- cachedResource(resourcesDirectory, path)
+            resource <- cachedResource(customResourcesDirectory, path)
           } yield ResourceAndCachedBytes(resource, Some(resource.bytes))
 
         _ => resourceAndCachedBytes
@@ -53,7 +53,7 @@ class RawFileBodies(resourcesDirectory: Path, cacheMaxCapacity: Long) extends Re
         session =>
           for {
             path <- filePath(session)
-            resource <- cachedResource(resourcesDirectory, path)
+            resource <- cachedResource(customResourcesDirectory, path)
           } yield ResourceAndCachedBytes(resource, bytesCache.get(resource))
     }
 }

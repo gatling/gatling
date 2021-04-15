@@ -135,8 +135,8 @@ object GatlingConfiguration extends StrictLogging {
         )
       ),
       directory = new DirectoryConfiguration(
-        simulations = Paths.get(config.getString(core.directory.Simulations)),
-        resources = Paths.get(config.getString(core.directory.Resources)),
+        customSimulations = config.getString(core.directory.Simulations).trimToOption.map(Paths.get(_)),
+        customResources = config.getString(core.directory.Resources).trimToOption.map(Paths.get(_)),
         binaries = config.getString(core.directory.Binaries).trimToOption.map(Paths.get(_)),
         reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
         results = Paths.get(config.getString(core.directory.Results))
@@ -331,8 +331,8 @@ final class CssConfiguration(
 )
 
 final class DirectoryConfiguration(
-    val simulations: Path,
-    val resources: Path,
+    val customSimulations: Option[Path],
+    val customResources: Option[Path],
     val binaries: Option[Path],
     val reportsOnly: Option[String],
     val results: Path
